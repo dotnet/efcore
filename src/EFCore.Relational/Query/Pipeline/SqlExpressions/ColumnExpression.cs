@@ -71,7 +71,8 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
         private bool Equals(ColumnExpression columnExpression)
             => base.Equals(columnExpression)
             && string.Equals(Name, columnExpression.Name)
-            && Table.Equals(columnExpression.Table);
+            && Table.Equals(columnExpression.Table)
+            && Nullable == columnExpression.Nullable;
 
         public override int GetHashCode()
         {
@@ -80,6 +81,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
                 var hashCode = base.GetHashCode();
                 hashCode = (hashCode * 397) ^ Name.GetHashCode();
                 hashCode = (hashCode * 397) ^ Table.GetHashCode();
+                hashCode = (hashCode * 397) ^ Nullable.GetHashCode();
 
                 return hashCode;
             }

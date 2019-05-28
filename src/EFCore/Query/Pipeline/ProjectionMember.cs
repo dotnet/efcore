@@ -74,6 +74,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Pipeline
         }
 
         public override string ToString()
-            => string.Join(".", _memberChain.Select(mi => mi.Name));
+            => _memberChain.Any()
+                ? string.Join(".", _memberChain.Select(mi => mi.Name))
+                : "EmptyProjectionMember";
     }
 }

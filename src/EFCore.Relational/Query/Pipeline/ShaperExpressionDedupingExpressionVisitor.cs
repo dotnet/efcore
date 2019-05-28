@@ -16,6 +16,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
         private IDictionary<Expression, ParameterExpression> _mapping = new Dictionary<Expression, ParameterExpression>();
         private List<ParameterExpression> _variables = new List<ParameterExpression>();
         private List<Expression> _expressions = new List<Expression>();
+        private List<IncludeExpression> _collectionIncludes = new List<IncludeExpression>();
 
         public ShaperExpressionProcessingExpressionVisitor(SelectExpression selectExpression)
         {
@@ -24,7 +25,9 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
 
         public BlockExpression Inject(Expression expression)
         {
-            _expressions.Add(Visit(expression));
+            var result = Visit(expression);
+            _expressions.AddRange(_collectionIncludes);
+            _expressions.Add(result);
 
             return Expression.Block(_variables, _expressions);
         }
@@ -62,9 +65,23 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
             if (extensionExpression is IncludeExpression includeExpression)
             {
                 var entity = Visit(includeExpression.EntityExpression);
-                var innerShaper = new ShaperExpressionProcessingExpressionVisitor(_selectExpression)
-                    .Inject(includeExpression.NavigationExpression);
-                _expressions.Add(includeExpression.Update(entity, innerShaper));
+                if (includeExpression.NavigationExpression is RelationalCollectionShaperExpression relationalCollectionShaperExpression)
+                {
+                    _collectionIncludes.Add(includeExpression.Update(
+                        entity,
+                        relationalCollectionShaperExpression.Update(
+                            relationalCollectionShaperExpression.OuterKeySelector,
+                            relationalCollectionShaperExpression.InnerKeySelector,
+                            new ShaperExpressionProcessingExpressionVisitor(_selectExpression)
+                                .Inject(relationalCollectionShaperExpression.InnerShaper))));
+                }
+                else
+                {
+                    _expressions.Add(includeExpression.Update(
+                        entity,
+                        new ShaperExpressionProcessingExpressionVisitor(_selectExpression)
+                            .Inject(includeExpression.NavigationExpression)));
+                }
 
                 return entity;
             }

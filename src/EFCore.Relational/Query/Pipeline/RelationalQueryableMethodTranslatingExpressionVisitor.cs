@@ -21,19 +21,39 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
     {
         private readonly RelationalSqlTranslatingExpressionVisitor _sqlTranslator;
         private readonly RelationalProjectionBindingExpressionVisitor _projectionBindingExpressionVisitor;
+        private readonly IModel _model;
         private readonly ISqlExpressionFactory _sqlExpressionFactory;
 
         public RelationalQueryableMethodTranslatingExpressionVisitor(
             IModel model,
-            IQueryableMethodTranslatingExpressionVisitorFactory queryableMethodTranslatingExpressionVisitorFactory,
             IRelationalSqlTranslatingExpressionVisitorFactory relationalSqlTranslatingExpressionVisitorFactory,
             ISqlExpressionFactory sqlExpressionFactory)
         {
-            _sqlTranslator = relationalSqlTranslatingExpressionVisitorFactory
-                .Create(model, queryableMethodTranslatingExpressionVisitorFactory);
+            _sqlTranslator = relationalSqlTranslatingExpressionVisitorFactory.Create(model, this);
 
-            _projectionBindingExpressionVisitor = new RelationalProjectionBindingExpressionVisitor(_sqlTranslator);
+            _projectionBindingExpressionVisitor = new RelationalProjectionBindingExpressionVisitor(this, _sqlTranslator);
+            _model = model;
             _sqlExpressionFactory = sqlExpressionFactory;
+        }
+
+        private RelationalQueryableMethodTranslatingExpressionVisitor(
+            IModel model,
+            RelationalSqlTranslatingExpressionVisitor sqlTranslator,
+            ISqlExpressionFactory sqlExpressionFactory)
+        {
+            _model = model;
+            _sqlTranslator = sqlTranslator;
+            _projectionBindingExpressionVisitor = new RelationalProjectionBindingExpressionVisitor(this, sqlTranslator);
+            _sqlExpressionFactory = sqlExpressionFactory;
+        }
+
+        public override ShapedQueryExpression TranslateSubquery(Expression expression)
+        {
+            return (ShapedQueryExpression)new RelationalQueryableMethodTranslatingExpressionVisitor(
+                _model,
+                _sqlTranslator,
+                _sqlExpressionFactory).Visit(expression);
+
         }
 
         protected override ShapedQueryExpression TranslateAll(ShapedQueryExpression source, LambdaExpression predicate)
@@ -573,7 +593,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
 
             if (translation != null)
             {
-                selectExpression.ApplyOrderBy(new OrderingExpression(translation, ascending));
+                selectExpression.ApplyOrdering(new OrderingExpression(translation, ascending));
 
                 return source;
             }
@@ -789,7 +809,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
 
             if (translation != null)
             {
-                ((SelectExpression)source.QueryExpression).ApplyThenBy(new OrderingExpression(translation, ascending));
+                ((SelectExpression)source.QueryExpression).AppendOrdering(new OrderingExpression(translation, ascending));
 
                 return source;
             }

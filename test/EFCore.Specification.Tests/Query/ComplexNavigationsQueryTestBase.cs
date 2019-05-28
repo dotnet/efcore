@@ -2439,7 +2439,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 (e, a) => Assert.Equal(e.Id, a.Id));
         }
 
-        [ConditionalTheory]
+        [ConditionalTheory(Skip = "QUeryIssue")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Null_protection_logic_work_for_outer_key_access_of_manually_created_GroupJoin(bool isAsync)
         {
@@ -2575,7 +2575,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 assertOrder: true);
         }
 
-        [ConditionalTheory]
+        [ConditionalTheory(Skip = "Issue#15872")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Optional_navigation_take_optional_navigation(bool isAsync)
         {
@@ -4004,7 +4004,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             return arg;
         }
 
-        [ConditionalTheory]
+        [ConditionalTheory(Skip = "Issue#15872")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupJoin_on_a_subquery_containing_another_GroupJoin_projecting_inner(bool isAsync)
         {
@@ -4531,7 +4531,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 assertOrder: true);
         }
 
-        [ConditionalTheory]
+        [ConditionalTheory(Skip = "Issue#15872")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Nested_group_join_with_take(bool isAsync)
         {

@@ -34,11 +34,11 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Pipeline
 
         public SqlServerSqlTranslatingExpressionVisitor(
             IModel model,
-            IQueryableMethodTranslatingExpressionVisitorFactory queryableMethodTranslatingExpressionVisitorFactory,
+            QueryableMethodTranslatingExpressionVisitor queryableMethodTranslatingExpressionVisitor,
             ISqlExpressionFactory sqlExpressionFactory,
             IMemberTranslatorProvider memberTranslatorProvider,
             IMethodCallTranslatorProvider methodCallTranslatorProvider)
-            : base(model, queryableMethodTranslatingExpressionVisitorFactory, sqlExpressionFactory, memberTranslatorProvider, methodCallTranslatorProvider)
+            : base(model, queryableMethodTranslatingExpressionVisitor, sqlExpressionFactory, memberTranslatorProvider, methodCallTranslatorProvider)
         {
         }
 

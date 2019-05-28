@@ -213,19 +213,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Pipeline
                                 p)));
                 }
 
-                if (extensionExpression is CollectionShaperExpression collectionShaper)
-                {
-                    var keyType = collectionShaper.OuterKey.Type;
-                    var comparerType = typeof(EqualityComparer<>).MakeGenericType(keyType);
-                    var comparer = Expression.Variable(comparerType, "comparer" + _currentEntityIndex);
-
-                    _variables.Add(comparer);
-                    Expression.Assign(
-                        comparer,
-                        Expression.MakeMemberAccess(null, comparerType.GetProperty(nameof(EqualityComparer<int>.Default))));
-                    var parent = Visit(collectionShaper.Parent);
-                }
-
                 if (extensionExpression is ProjectionBindingExpression)
                 {
                     return extensionExpression;

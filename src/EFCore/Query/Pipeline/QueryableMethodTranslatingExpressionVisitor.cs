@@ -506,41 +506,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Pipeline
             LambdaExpression resultSelector,
             Type transparentIdentifierType)
         {
-            innerShaper = new EntityShaperNullableMarkingExpressionVisitor().Visit(innerShaper);
-
-            var shaperExpression = CombineShapers(
-               outer.QueryExpression,
-               outer.ShaperExpression,
-               innerShaper,
-               transparentIdentifierType);
-
-            var transparentIdentifierParameter = Expression.Parameter(transparentIdentifierType);
-            var outerAccess = AccessOuterTransparentField(transparentIdentifierType, transparentIdentifierParameter);
-            var innerAccess = AccessInnerTransparentField(transparentIdentifierType, transparentIdentifierParameter);
-
-            var outerKey = ReplacingExpressionVisitor.Replace(
-                outerKeySelector.Parameters[0],
-                outerAccess,
-                outerKeySelector.Body);
-
-            var innerKey = ReplacingExpressionVisitor.Replace(
-                innerKeySelector.Parameters[0],
-                innerAccess,
-                innerKeySelector.Body);
-
-            var replacements = new Dictionary<Expression, Expression>
-            {
-                { resultSelector.Parameters[0], outerAccess  },
-                { resultSelector.Parameters[1], new CollectionShaperExpression(outerAccess, innerAccess, outerKey, innerKey) },
-            };
-
-            var resultBody = new ReplacingExpressionVisitor(replacements).Visit(resultSelector.Body);
-            outer.ShaperExpression = ReplacingExpressionVisitor.Replace(
-                transparentIdentifierParameter,
-                shaperExpression,
-                resultBody);
-
-            return outer;
+            throw new NotImplementedException();
         }
 
         private Expression CombineShapers(
@@ -639,6 +605,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Pipeline
         protected abstract ShapedQueryExpression TranslateThenBy(ShapedQueryExpression source, LambdaExpression keySelector, bool ascending);
         protected abstract ShapedQueryExpression TranslateUnion(ShapedQueryExpression source1, ShapedQueryExpression source2);
         protected abstract ShapedQueryExpression TranslateWhere(ShapedQueryExpression source, LambdaExpression predicate);
+        public abstract ShapedQueryExpression TranslateSubquery(Expression expression);
+
     }
 
     public readonly struct TransparentIdentifier<TOuter, TInner>

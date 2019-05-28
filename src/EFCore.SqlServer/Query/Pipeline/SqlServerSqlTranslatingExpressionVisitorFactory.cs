@@ -26,11 +26,11 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Pipeline
 
         public override RelationalSqlTranslatingExpressionVisitor Create(
             IModel model,
-            IQueryableMethodTranslatingExpressionVisitorFactory queryableMethodTranslatingExpressionVisitorFactory)
+            QueryableMethodTranslatingExpressionVisitor queryableMethodTranslatingExpressionVisitor)
         {
             return new SqlServerSqlTranslatingExpressionVisitor(
                 model,
-                queryableMethodTranslatingExpressionVisitorFactory,
+                queryableMethodTranslatingExpressionVisitor,
                 _sqlExpressionFactory,
                 _memberTranslatorProvider,
                 _methodCallTranslatorProvider);

@@ -43,7 +43,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 });
         }
 
-        [ConditionalTheory(Skip = "Issue#15611")]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Include_reference_and_collection_order_by(bool useString)
@@ -67,7 +67,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalTheory(Skip = "Issue#15611")]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Include_references_then_include_collection(bool useString)
@@ -158,7 +158,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     }).Message);
         }
 
-        [ConditionalTheory(Skip = "Issue#15611")]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Then_include_collection_order_by_collection_column(bool useString)
@@ -243,7 +243,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     }).Message);
         }
 
-        [ConditionalTheory(Skip = "Issue#15611")]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Include_closes_reader(bool useString)
@@ -281,7 +281,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalTheory(Skip = "Issue#15611")]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Include_collection(bool useString)
@@ -314,7 +314,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalTheory(Skip = "issue #15611")]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Include_collection_then_reference(bool useString)
@@ -347,7 +347,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalTheory(Skip = "Issue#15611")]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Include_collection_with_last(bool useString)
@@ -371,7 +371,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalTheory(Skip = "issue #15611")]
+        [ConditionalTheory(Skip = "Issue#15559")]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Include_collection_with_last_no_orderby(bool useString)
@@ -393,7 +393,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalTheory(Skip = "Issue#15611")]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Include_collection_skip_no_order_by(bool useString)
@@ -426,7 +426,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalTheory(Skip = "Issue#15611")]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Include_collection_take_no_order_by(bool useString)
@@ -444,7 +444,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalTheory(Skip = "Issue#15611")]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Include_collection_skip_take_no_order_by(bool useString)
@@ -479,7 +479,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalTheory(Skip = "issue #15611")]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Include_list(bool useString)
@@ -508,7 +508,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalTheory(Skip = "Issue#15611")]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Include_collection_alias_generation(bool useString)
@@ -539,7 +539,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalTheory(Skip = "Issue#15611")]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Include_collection_and_reference(bool useString)
@@ -572,7 +572,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalTheory(Skip = "Issue#15611")]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Include_collection_as_no_tracking(bool useString)
@@ -607,7 +607,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalTheory(Skip = "Issue#15611")]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Include_collection_as_no_tracking2(bool useString)
@@ -646,7 +646,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalTheory(Skip = "Issue#15611")]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Include_collection_dependent_already_tracked(bool useString)
@@ -683,7 +683,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalTheory(Skip = "Issue#15611")]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Include_collection_dependent_already_tracked_as_no_tracking(bool useString)
@@ -722,7 +722,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalTheory(Skip = "Issue#15611")]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Include_collection_on_additional_from_clause(bool useString)
@@ -757,7 +757,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalTheory(Skip = "Issue#15611")]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Include_collection_on_additional_from_clause_no_tracking(bool useString)
@@ -792,7 +792,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalTheory(Skip = "Issue#15611")]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Include_collection_on_additional_from_clause_with_filter(bool useString)
@@ -831,7 +831,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalTheory(Skip = "Issue#15611")]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Include_collection_on_additional_from_clause2(bool useString)
@@ -905,7 +905,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalTheory(Skip = "Issue#15611")]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Include_collection_on_join_clause_with_filter(bool useString)
@@ -942,7 +942,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalTheory(Skip = "Issue#15611")]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Include_collection_on_join_clause_with_order_by_and_filter(bool useString)
@@ -1137,7 +1137,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalTheory(Skip = "Issue#15611")]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Include_collection_order_by_collection_column(bool useString)
@@ -1171,7 +1171,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalTheory(Skip = "Issue#15611")]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Include_collection_order_by_key(bool useString)
@@ -1206,7 +1206,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalTheory(Skip = "Issue#15611")]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Include_collection_order_by_non_key(bool useString)
@@ -1241,7 +1241,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalTheory(Skip = "Issue#15611")]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Include_collection_order_by_non_key_with_take(bool useString)
@@ -1278,7 +1278,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalTheory(Skip = "Issue#15611")]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Include_collection_order_by_non_key_with_skip(bool useString)
@@ -1317,7 +1317,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalTheory(Skip = "Issue#15611")]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Include_collection_order_by_non_key_with_first_or_default(bool useString)
@@ -1349,7 +1349,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalTheory(Skip = "Issue#15611")]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Include_collection_order_by_subquery(bool useString)
@@ -1382,7 +1382,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalTheory(Skip = "Issue#15611")]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Include_collection_principal_already_tracked(bool useString)
@@ -1418,7 +1418,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalTheory(Skip = "Issue#15611")]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Include_collection_principal_already_tracked_as_no_tracking(bool useString)
@@ -1457,7 +1457,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalTheory(Skip = "Issue#15611")]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Include_collection_single_or_default_no_result(bool useString)
@@ -1477,7 +1477,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalTheory(Skip = "Issue#15611")]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Include_collection_when_projection(bool useString)
@@ -1500,7 +1500,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalTheory(Skip = "Issue#15611")]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Include_collection_with_filter(bool useString)
@@ -1535,7 +1535,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalTheory(Skip = "Issue#15611")]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Include_collection_with_filter_reordered(bool useString)
@@ -1570,7 +1570,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalTheory(Skip = "Issue#15611")]
+        [ConditionalTheory(Skip = "Issue#15871")]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Include_duplicate_collection(bool useString)
@@ -1639,7 +1639,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalTheory(Skip = "issue #15611")]
+        [ConditionalTheory(Skip = "Issue#15871")]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Include_duplicate_collection_result_operator(bool useString)
@@ -1710,7 +1710,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalTheory(Skip = "issue #15611")]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Include_duplicate_collection_result_operator2(bool useString)
@@ -2026,7 +2026,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalTheory(Skip = "Issue#15611")]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Include_multi_level_reference_and_collection_predicate(bool useString)
@@ -2055,7 +2055,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalTheory(Skip = "issue #15611")]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Include_multi_level_collection_and_then_include_reference_predicate(bool useString)
@@ -2122,7 +2122,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalTheory(Skip = "Issue#15611")]
+        [ConditionalTheory(Skip = "Issue#15871")]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Include_multiple_references_and_collection_multi_level(bool useString)
@@ -2157,7 +2157,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalTheory(Skip = "Issue#15611")]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Include_multiple_references_and_collection_multi_level_reverse(bool useString)
@@ -2325,7 +2325,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalTheory(Skip = "Issue#15611")]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Include_reference_and_collection(bool useString)
@@ -2358,7 +2358,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalTheory(Skip = "Issue#15611")]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Include_collection_force_alias_uniquefication(bool useString)
@@ -2627,7 +2627,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalTheory(Skip = "Issue#15611")]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Include_references_and_collection_multi_level(bool useString)
@@ -2660,7 +2660,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalTheory(Skip = "Issue#15611")]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Include_collection_then_include_collection(bool useString)
@@ -2692,7 +2692,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalTheory(Skip = "issue #15611")]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Include_collection_then_include_collection_then_include_reference(bool useString)
@@ -2724,7 +2724,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalTheory(Skip = "Issue#15611")]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Include_collection_then_include_collection_predicate(bool useString)
@@ -2753,7 +2753,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalTheory(Skip = "Issue#15611")]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Include_references_and_collection_multi_level_predicate(bool useString)
@@ -2820,7 +2820,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalTheory(Skip = "Issue#15611")]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Include_multi_level_reference_then_include_collection_predicate(bool useString)
@@ -2849,7 +2849,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalTheory(Skip = "Issue#15611")]
+        [ConditionalTheory(Skip = "Issue#15871")]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Include_multiple_references_then_include_collection_multi_level(bool useString)
@@ -2884,7 +2884,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalTheory(Skip = "Issue#15611")]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Include_multiple_references_then_include_collection_multi_level_reverse(bool useString)
@@ -2987,7 +2987,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalTheory(Skip = "Issue#15611")]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Include_references_then_include_collection_multi_level(bool useString)
@@ -3020,7 +3020,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalTheory(Skip = "Issue#15611")]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Include_references_then_include_collection_multi_level_predicate(bool useString)
@@ -3118,7 +3118,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalTheory(Skip = "Issue#15611")]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Include_with_complex_projection_does_not_change_ordering_of_projection(bool useString)
@@ -3149,7 +3149,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalTheory(Skip = "Issue#15611")]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Include_with_take(bool useString)
@@ -3181,7 +3181,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalTheory(Skip = "Issue#15611")]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Include_with_skip(bool useString)
@@ -3213,7 +3213,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalTheory(Skip = "Issue#15611")]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Include_collection_with_conditional_order_by(bool useString)
@@ -3868,7 +3868,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalTheory(Skip = "Issue#15611")]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Include_collection_distinct_is_server_evaluated(bool useString)
@@ -3900,7 +3900,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalTheory(Skip = "Issue#15611")]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Include_collection_OrderBy_object(bool useString)
@@ -3933,7 +3933,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalTheory(Skip = "Issue#15611")]
+        [ConditionalTheory(Skip = "Issue#15713")]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Include_collection_OrderBy_empty_list_contains(bool useString)
@@ -3968,7 +3968,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalTheory(Skip = "Issue#15611")]
+        [ConditionalTheory(Skip = "Issue#15713")]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Include_collection_OrderBy_empty_list_does_not_contains(bool useString)
@@ -4003,7 +4003,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalTheory(Skip = "Issue#15611")]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Include_collection_OrderBy_list_contains(bool useString)
@@ -4041,7 +4041,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalTheory(Skip = "Issue#15611")]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Include_collection_OrderBy_list_does_not_contains(bool useString)
@@ -4079,7 +4079,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalTheory(Skip = "Issue#15611")]
+        [ConditionalTheory]
         [InlineData(false, false)]
         [InlineData(true, false)]
         public virtual async Task Include_empty_collection_sets_IsLoaded(bool useString, bool async)

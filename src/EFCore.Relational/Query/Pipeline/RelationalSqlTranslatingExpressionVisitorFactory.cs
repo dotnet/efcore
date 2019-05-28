@@ -24,11 +24,11 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
 
         public virtual RelationalSqlTranslatingExpressionVisitor Create(
             IModel model,
-            IQueryableMethodTranslatingExpressionVisitorFactory queryableMethodTranslatingExpressionVisitorFactory)
+            QueryableMethodTranslatingExpressionVisitor queryableMethodTranslatingExpressionVisitor)
         {
             return new RelationalSqlTranslatingExpressionVisitor(
                 model,
-                queryableMethodTranslatingExpressionVisitorFactory,
+                queryableMethodTranslatingExpressionVisitor,
                 _sqlExpressionFactory,
                 _memberTranslatorProvider,
                 _methodCallTranslatorProvider);

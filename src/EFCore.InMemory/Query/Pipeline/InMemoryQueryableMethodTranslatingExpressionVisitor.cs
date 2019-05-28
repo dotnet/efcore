@@ -22,6 +22,11 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Pipeline
             _projectionBindingExpressionVisitor = new InMemoryProjectionBindingExpressionVisitor(_expressionTranslator);
         }
 
+        public override ShapedQueryExpression TranslateSubquery(Expression expression)
+        {
+            throw new NotImplementedException();
+        }
+
         protected override ShapedQueryExpression TranslateAll(ShapedQueryExpression source, LambdaExpression predicate)
         {
             var inMemoryQueryExpression = (InMemoryQueryExpression)source.QueryExpression;

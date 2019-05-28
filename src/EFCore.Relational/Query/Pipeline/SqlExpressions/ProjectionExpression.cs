@@ -70,7 +70,9 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
         public void Print(ExpressionPrinter expressionPrinter)
         {
             expressionPrinter.Visit(Expression);
-            if (!string.IsNullOrEmpty(Alias))
+            if (!string.Equals(string.Empty, Alias)
+                && !(Expression is ColumnExpression column
+                && string.Equals(column.Name, Alias)))
             {
                 expressionPrinter.StringBuilder.Append(" AS " + Alias);
             }

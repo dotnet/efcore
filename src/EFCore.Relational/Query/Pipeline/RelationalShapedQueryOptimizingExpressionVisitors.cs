@@ -3,6 +3,7 @@
 
 using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Query.Pipeline;
 using Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions;
 
@@ -26,6 +27,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
         {
             query = base.Visit(query);
             query = new SelectExpressionProjectionApplyingExpressionVisitor().Visit(query);
+            query = new CollectionJoinApplyingExpressionVisitor().Visit(query);
             query = new SelectExpressionTableAliasUniquifyingExpressionVisitor().Visit(query);
 
             if (!RelationalOptionsExtension.Extract(_queryCompilationContext.ContextOptions).UseRelationalNulls)
@@ -44,6 +46,32 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
             }
 
             return query;
+        }
+    }
+
+    public class CollectionJoinApplyingExpressionVisitor : ExpressionVisitor
+    {
+        protected override Expression VisitExtension(Expression extensionExpression)
+        {
+            if (extensionExpression is CollectionShaperExpression collectionShaperExpression)
+            {
+                var innerShaper = Visit(collectionShaperExpression.InnerShaper);
+
+                var selectExpression = (SelectExpression)collectionShaperExpression.Projection.QueryExpression;
+                return selectExpression.ApplyCollectionJoin(
+                    collectionShaperExpression.Projection.Index.Value,
+                    innerShaper,
+                    collectionShaperExpression.Navigation);
+            }
+
+            if (extensionExpression is ShapedQueryExpression shapedQueryExpression)
+            {
+                shapedQueryExpression.ShaperExpression = Visit(shapedQueryExpression.ShaperExpression);
+
+                return shapedQueryExpression;
+            }
+
+            return base.VisitExtension(extensionExpression);
         }
     }
 }

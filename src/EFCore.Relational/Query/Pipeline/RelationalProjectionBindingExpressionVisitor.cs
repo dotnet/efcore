@@ -3,10 +3,9 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using Microsoft.EntityFrameworkCore.Extensions.Internal;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Query.NavigationExpansion;
 using Microsoft.EntityFrameworkCore.Query.Pipeline;
@@ -17,6 +16,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
 {
     public class RelationalProjectionBindingExpressionVisitor : ExpressionVisitor
     {
+        private readonly QueryableMethodTranslatingExpressionVisitor _queryableMethodTranslatingExpressionVisitor;
         private readonly RelationalSqlTranslatingExpressionVisitor _sqlTranslator;
 
         private SelectExpression _selectExpression;
@@ -26,8 +26,10 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
         private readonly Stack<ProjectionMember> _projectionMembers = new Stack<ProjectionMember>();
 
         public RelationalProjectionBindingExpressionVisitor(
+            QueryableMethodTranslatingExpressionVisitor queryableMethodTranslatingExpressionVisitor,
             RelationalSqlTranslatingExpressionVisitor sqlTranslatingExpressionVisitor)
         {
+            _queryableMethodTranslatingExpressionVisitor = queryableMethodTranslatingExpressionVisitor;
             _sqlTranslator = sqlTranslatingExpressionVisitor;
         }
 
@@ -43,6 +45,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
             if (result == null)
             {
                 _clientEval = true;
+
                 result = Visit(expression);
 
                 _projectionMapping.Clear();
@@ -89,6 +92,15 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
                             _getParameterValueMethodInfo.MakeGenericMethod(parameterExpression.Type),
                             QueryCompilationContext2.QueryContextParameter,
                             Expression.Constant(parameterExpression.Name));
+                    }
+
+                    if (expression is MethodCallExpression methodCallExpression
+                        && methodCallExpression.Method.Name == "MaterializeCollectionNavigation")
+                    {
+                        var result = _queryableMethodTranslatingExpressionVisitor.TranslateSubquery(methodCallExpression.Arguments[0]);
+                        var navigation = (INavigation)((ConstantExpression)methodCallExpression.Arguments[1]).Value;
+
+                        return _selectExpression.AddCollectionProjection(result, navigation);
                     }
 
                     var translation = _sqlTranslator.Translate(expression);

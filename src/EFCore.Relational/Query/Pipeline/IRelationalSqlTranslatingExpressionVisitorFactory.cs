@@ -10,6 +10,6 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
     {
         RelationalSqlTranslatingExpressionVisitor Create(
             IModel model,
-            IQueryableMethodTranslatingExpressionVisitorFactory queryableMethodTranslatingExpressionVisitorFactory);
+            QueryableMethodTranslatingExpressionVisitor queryableMethodTranslatingExpressionVisitor);
     }
 }

@@ -136,7 +136,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalFact(Skip = "QueryIssue")]
+        [ConditionalFact]
         public virtual void Include_reference_and_collection()
         {
             using (var context = CreateContext())

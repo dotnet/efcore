@@ -19,7 +19,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
     public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
     {
         private readonly IModel _model;
-        private readonly IQueryableMethodTranslatingExpressionVisitorFactory _queryableMethodTranslatingExpressionVisitorFactory;
+        private readonly QueryableMethodTranslatingExpressionVisitor _queryableMethodTranslatingExpressionVisitor;
         private readonly ISqlExpressionFactory _sqlExpressionFactory;
         private readonly IMemberTranslatorProvider _memberTranslatorProvider;
         private readonly IMethodCallTranslatorProvider _methodCallTranslatorProvider;
@@ -27,13 +27,13 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
 
         public RelationalSqlTranslatingExpressionVisitor(
             IModel model,
-            IQueryableMethodTranslatingExpressionVisitorFactory queryableMethodTranslatingExpressionVisitorFactory,
+            QueryableMethodTranslatingExpressionVisitor queryableMethodTranslatingExpressionVisitor,
             ISqlExpressionFactory sqlExpressionFactory,
             IMemberTranslatorProvider memberTranslatorProvider,
             IMethodCallTranslatorProvider methodCallTranslatorProvider)
         {
             _model = model;
-            _queryableMethodTranslatingExpressionVisitorFactory = queryableMethodTranslatingExpressionVisitorFactory;
+            _queryableMethodTranslatingExpressionVisitor = queryableMethodTranslatingExpressionVisitor;
             _sqlExpressionFactory = sqlExpressionFactory;
             _memberTranslatorProvider = memberTranslatorProvider;
             _methodCallTranslatorProvider = methodCallTranslatorProvider;
@@ -164,35 +164,28 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
 
             if (methodCallExpression.Method.DeclaringType == typeof(Queryable))
             {
-                var translation = _queryableMethodTranslatingExpressionVisitorFactory.Create(_model).Visit(methodCallExpression);
+                var translation = _queryableMethodTranslatingExpressionVisitor.TranslateSubquery(methodCallExpression);
 
-                if (translation is ShapedQueryExpression shapedQuery)
+                var subquery = (SelectExpression)translation.QueryExpression;
+                subquery.ApplyProjection();
+
+                if (methodCallExpression.Method.Name == nameof(Queryable.Any)
+                    || methodCallExpression.Method.Name == nameof(Queryable.All)
+                    || methodCallExpression.Method.Name == nameof(Queryable.Contains))
                 {
-                    var subquery = (SelectExpression)shapedQuery.QueryExpression;
-                    subquery.ApplyProjection();
-
-                    if (methodCallExpression.Method.Name == nameof(Queryable.Any)
-                        || methodCallExpression.Method.Name == nameof(Queryable.All)
-                        || methodCallExpression.Method.Name == nameof(Queryable.Contains))
+                    if (subquery.Tables.Count == 0
+                        && subquery.Projection.Count == 1)
                     {
-                        if (subquery.Tables.Count == 0
-                            && subquery.Projection.Count == 1)
-                        {
-                            return subquery.Projection[0].Expression;
-                        }
-                        else
-                        {
-                            throw new InvalidOperationException();
-                        }
+                        return subquery.Projection[0].Expression;
                     }
                     else
                     {
-                        return new SubSelectExpression(subquery);
+                        throw new InvalidOperationException();
                     }
                 }
                 else
                 {
-                    throw new InvalidOperationException();
+                    return new SubSelectExpression(subquery);
                 }
             }
 

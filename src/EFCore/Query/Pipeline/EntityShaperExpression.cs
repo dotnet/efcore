@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Query.Expressions.Internal;
@@ -84,51 +85,51 @@ namespace Microsoft.EntityFrameworkCore.Query.Pipeline
         public override ExpressionType NodeType => ExpressionType.Extension;
     }
 
-    public class CollectionShaperExpression : Expression
+    public class CollectionShaperExpression : Expression, IPrintable
     {
         public CollectionShaperExpression(
-            Expression parent,
+            ProjectionBindingExpression projection,
             Expression innerShaper,
-            Expression outerKey,
-            Expression innerKey)
+            INavigation navigation)
         {
-            Parent = parent;
+            Projection = projection;
             InnerShaper = innerShaper;
-            OuterKey = outerKey;
-            InnerKey = innerKey;
+            Navigation = navigation;
         }
 
         protected override Expression VisitChildren(ExpressionVisitor visitor)
         {
-            var parent = visitor.Visit(Parent);
+            var projection = (ProjectionBindingExpression)visitor.Visit(Projection);
             var innerShaper = visitor.Visit(InnerShaper);
-            var outerKey = visitor.Visit(OuterKey);
-            var innerKey = visitor.Visit(InnerKey);
 
-            return parent != Parent || innerShaper != InnerShaper || outerKey != OuterKey || innerKey != InnerKey
-                ? new CollectionShaperExpression(parent, innerShaper, outerKey, innerKey)
-                : this;
+            return Update(projection, innerShaper);
         }
 
-        public override Expression Reduce()
+        public CollectionShaperExpression Update(ProjectionBindingExpression projection, Expression innerShaper)
         {
-            var comparer = EqualityComparer<int>.Default;
-
-
-
-            return null;
+            return projection != Projection || innerShaper != InnerShaper
+                ? new CollectionShaperExpression(projection, innerShaper, Navigation)
+                : this;
         }
 
         public override ExpressionType NodeType => ExpressionType.Extension;
 
         public override Type Type => typeof(IEnumerable<>).MakeGenericType(InnerShaper.Type);
 
-        public Expression Parent { get; }
-
+        public ProjectionBindingExpression Projection { get; }
         public Expression InnerShaper { get; }
+        public INavigation Navigation { get; }
 
-        public Expression OuterKey { get; }
-
-        public Expression InnerKey { get; }
+        public virtual void Print(ExpressionPrinter expressionPrinter)
+        {
+            expressionPrinter.StringBuilder.AppendLine("CollectionShaper:");
+            expressionPrinter.StringBuilder.IncrementIndent();
+            expressionPrinter.StringBuilder.Append("(");
+            expressionPrinter.Visit(Projection);
+            expressionPrinter.StringBuilder.Append(", ");
+            expressionPrinter.Visit(InnerShaper);
+            expressionPrinter.StringBuilder.AppendLine($", {Navigation.Name})");
+            expressionPrinter.StringBuilder.DecrementIndent();
+        }
     }
 }

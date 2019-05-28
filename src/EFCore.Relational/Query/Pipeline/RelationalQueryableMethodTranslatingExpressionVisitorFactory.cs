@@ -23,7 +23,6 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
         {
             return new RelationalQueryableMethodTranslatingExpressionVisitor(
                 model,
-                this,
                 _relationalSqlTranslatingExpressionVisitorFactory,
                 _sqlExpressionFactory);
         }
