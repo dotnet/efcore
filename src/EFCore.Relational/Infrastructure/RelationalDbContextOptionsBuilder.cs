@@ -4,6 +4,7 @@
 using System;
 using System.ComponentModel;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 
@@ -103,7 +104,22 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <param name="getExecutionStrategy"> A function that returns a new instance of an execution strategy. </param>
         public virtual TBuilder ExecutionStrategy(
             [NotNull] Func<ExecutionStrategyDependencies, IExecutionStrategy> getExecutionStrategy)
-            => WithOption(e => (TExtension)e.WithExecutionStrategyFactory(Check.NotNull(getExecutionStrategy, nameof(getExecutionStrategy))));
+            => WithOption(
+                e => (TExtension)e.WithExecutionStrategyFactory(Check.NotNull(getExecutionStrategy, nameof(getExecutionStrategy))));
+
+        /// <summary>
+        ///     <para>
+        ///         Configures the context to use the given <see cref="IDbCommandInterceptor" />.
+        ///     </para>
+        ///     <para>
+        ///         Note that only a single <see cref="IDbCommandInterceptor" /> can be registered.
+        ///         Use <see cref="CompositeDbCommandInterceptor"/> to combine multiple interceptors into one.
+        ///     </para>
+        /// </summary>
+        /// <param name="interceptor"> The interceptor to use. </param>
+        public virtual TBuilder CommandInterceptor(
+            [NotNull] IDbCommandInterceptor interceptor)
+            => WithOption(e => (TExtension)e.WithCommandInterceptor(Check.NotNull(interceptor, nameof(interceptor))));
 
         /// <summary>
         ///     Sets an option by cloning the extension used to store the settings. This ensures the builder
