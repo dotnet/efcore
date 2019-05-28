@@ -214,13 +214,11 @@ namespace Microsoft.EntityFrameworkCore.Query.NavigationExpansion.Visitors
         protected override Expression VisitMember(MemberExpression memberExpression)
         {
             var newExpression = Visit(memberExpression.Expression);
-            if (newExpression is NavigationExpansionExpression navigationExpansionExpression
-                && navigationExpansionExpression.State.PendingCardinalityReducingOperator != null)
-            {
-                return ProcessMemberPushdown(newExpression, navigationExpansionExpression, efProperty: false, memberExpression.Member, propertyName: null, memberExpression.Type);
-            }
 
-            return base.VisitMember(memberExpression);
+            return newExpression is NavigationExpansionExpression navigationExpansionExpression
+                && navigationExpansionExpression.State.PendingCardinalityReducingOperator != null
+                ? ProcessMemberPushdown(newExpression, navigationExpansionExpression, efProperty: false, memberExpression.Member, propertyName: null, memberExpression.Type)
+                : memberExpression.Update(newExpression);
         }
 
         protected override Expression VisitBinary(BinaryExpression binaryExpression)

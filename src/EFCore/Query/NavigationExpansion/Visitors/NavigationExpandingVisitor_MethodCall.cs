@@ -20,19 +20,17 @@ namespace Microsoft.EntityFrameworkCore.Query.NavigationExpansion.Visitors
             if (methodCallExpression.Method.IsEFPropertyMethod())
             {
                 var newSource = Visit(methodCallExpression.Arguments[0]);
-                if (newSource is NavigationExpansionExpression navigationExpansionExpression
-                    && navigationExpansionExpression.State.PendingCardinalityReducingOperator != null)
-                {
-                    return ProcessMemberPushdown(
+
+                return newSource is NavigationExpansionExpression navigationExpansionExpression
+                    && navigationExpansionExpression.State.PendingCardinalityReducingOperator != null
+                    ? ProcessMemberPushdown(
                         newSource,
                         navigationExpansionExpression,
                         efProperty: true,
                         memberInfo: null,
                         (string)((ConstantExpression)methodCallExpression.Arguments[1]).Value,
-                        methodCallExpression.Type);
-                }
-
-                return methodCallExpression.Update(methodCallExpression.Object, new[] { newSource, methodCallExpression.Arguments[1] });
+                        methodCallExpression.Type)
+                    : methodCallExpression.Update(methodCallExpression.Object, new[] { newSource, methodCallExpression.Arguments[1] });
             }
 
             switch (methodCallExpression.Method.Name)
