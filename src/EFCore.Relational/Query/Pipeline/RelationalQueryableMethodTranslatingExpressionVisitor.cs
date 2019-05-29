@@ -290,7 +290,8 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
                 || innerSelectExpression.Offset != null
                 || innerSelectExpression.IsDistinct
                 // TODO: Predicate can be lifted in inner join
-                || innerSelectExpression.Predicate != null)
+                || innerSelectExpression.Predicate != null
+                || innerSelectExpression.Tables.Count > 1)
             {
                 innerSelectExpression.PushdownIntoSubQuery();
             }

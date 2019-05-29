@@ -1948,7 +1948,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     select g);
         }
 
-        [ConditionalTheory(Skip = "Issue #15834")]
+        [ConditionalTheory(Skip = "Issue #15833")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Join_navigation_translated_to_subquery_composite_key(bool isAsync)
         {
@@ -6128,7 +6128,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 elementSorter: e => e.Name1 + " " + e.Name2);
         }
 
-        [ConditionalTheory(Skip = "Issue #15834")]
+        [ConditionalTheory(Skip = "Issue #15833")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Join_on_entity_qsre_keys_inner_key_is_navigation(bool isAsync)
         {
@@ -6179,7 +6179,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 elementSorter: e => e.SquadName + " " + e.WeaponName);
         }
 
-        [ConditionalTheory(Skip = "Issue #15834")]
+        [ConditionalTheory(Skip = "Issue #15833")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupJoin_on_entity_qsre_keys_inner_key_is_nested_navigation(bool isAsync)
         {
