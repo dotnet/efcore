@@ -532,6 +532,14 @@ namespace Microsoft.EntityFrameworkCore.Storage
         }
 
         [Fact]
+        public void Can_get_converters_for_string_to_Uri()
+        {
+            AssertConverters(
+                _selector.Select(typeof(string), typeof(Uri)).ToList(),
+                (typeof(StringToUriConverter), default));
+        }
+
+        [Fact]
         public void Can_get_converters_for_string_to_bool()
         {
             AssertConverters(
@@ -671,6 +679,14 @@ namespace Microsoft.EntityFrameworkCore.Storage
             AssertConverters(
                 _selector.Select(typeof(TimeSpan), typeof(long)).ToList(),
                 (typeof(TimeSpanToTicksConverter), default));
+        }
+
+        [Fact]
+        public void Can_get_converters_for_Uri_to_string()
+        {
+            AssertConverters(
+                _selector.Select(typeof(Uri), typeof(string)).ToList(),
+                (typeof(UriToStringConverter), default));
         }
 
         private static void AssertConverters(

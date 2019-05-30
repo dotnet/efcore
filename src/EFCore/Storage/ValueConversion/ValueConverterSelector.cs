@@ -148,6 +148,16 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
                         k => BytesToStringConverter.DefaultInfo);
                 }
             }
+            else if (underlyingModelType == typeof(Uri))
+            {
+                if (underlyingProviderType == null
+                    || underlyingProviderType == typeof(string))
+                {
+                    yield return _converters.GetOrAdd(
+                        (underlyingModelType, typeof(string)),
+                        k => UriToStringConverter.DefaultInfo);
+                }
+            }
             else if (underlyingModelType == typeof(string))
             {
                 if (underlyingProviderType == null
@@ -212,6 +222,12 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
                     yield return _converters.GetOrAdd(
                         (underlyingModelType, typeof(char)),
                         k => StringToCharConverter.DefaultInfo);
+                }
+                else if (underlyingProviderType == typeof(Uri))
+                {
+                    yield return _converters.GetOrAdd(
+                        (underlyingModelType, typeof(Uri)),
+                        k => StringToUriConverter.DefaultInfo);
                 }
             }
             else if (underlyingModelType == typeof(DateTime)
