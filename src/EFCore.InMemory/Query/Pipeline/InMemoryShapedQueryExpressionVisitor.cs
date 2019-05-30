@@ -2,12 +2,14 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.InMemory.Query.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -19,10 +21,18 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Pipeline
 {
     public class InMemoryShapedQueryCompilingExpressionVisitor : ShapedQueryCompilingExpressionVisitor
     {
+        private readonly Type _contextType;
+        private readonly IDiagnosticsLogger<DbLoggerCategory.Query> _logger;
+
         public InMemoryShapedQueryCompilingExpressionVisitor(
-            IEntityMaterializerSource entityMaterializerSource, bool trackQueryResults, bool async)
+            IEntityMaterializerSource entityMaterializerSource,
+            Type contextType,
+            IDiagnosticsLogger<DbLoggerCategory.Query> logger,
+            bool trackQueryResults, bool async)
             : base(entityMaterializerSource, trackQueryResults, async)
         {
+            _contextType = contextType;
+            _logger = logger;
         }
 
         protected override Expression VisitExtension(Expression extensionExpression)
@@ -73,7 +83,9 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Pipeline
                     : _shapeMethodInfo.MakeGenericMethod(shaperLambda.ReturnType),
                 innerEnumerable,
                 QueryCompilationContext2.QueryContextParameter,
-                Expression.Constant(shaperLambda.Compile()));
+                Expression.Constant(shaperLambda.Compile()),
+                Expression.Constant(_contextType),
+                Expression.Constant(_logger));
         }
 
         private readonly MemberInfo _enumeratorCurrent = typeof(IEnumerator<ValueBuffer>)
@@ -99,13 +111,11 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Pipeline
         private static IEnumerable<TResult> _Shape<TResult>(
             IEnumerable<ValueBuffer> innerEnumerable,
             QueryContext queryContext,
-            Func<QueryContext, IEnumerator<ValueBuffer>, TResult> shaper)
+            Func<QueryContext, IEnumerator<ValueBuffer>, TResult> shaper,
+            Type contextType,
+            IDiagnosticsLogger<DbLoggerCategory.Query> logger)
         {
-            var enumerator = innerEnumerable.GetEnumerator();
-            while (enumerator.MoveNext())
-            {
-                yield return shaper(queryContext, enumerator);
-            }
+            return new QueryingEnumerable<TResult>(queryContext, innerEnumerable, shaper, contextType, logger);
         }
 
         private static readonly MethodInfo _shapeAsyncMethodInfo
@@ -114,9 +124,91 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Pipeline
         private static IAsyncEnumerable<TResult> _ShapeAsync<TResult>(
             IEnumerable<ValueBuffer> innerEnumerable,
             QueryContext queryContext,
-            Func<QueryContext, IEnumerator<ValueBuffer>, Task<TResult>> shaper)
+            Func<QueryContext, IEnumerator<ValueBuffer>, Task<TResult>> shaper,
+            Type contextType,
+            IDiagnosticsLogger<DbLoggerCategory.Query> logger)
         {
-            return new AsyncQueryingEnumerable<TResult>(queryContext, innerEnumerable, shaper);
+            return new AsyncQueryingEnumerable<TResult>(queryContext, innerEnumerable, shaper, contextType, logger);
+        }
+
+        private class QueryingEnumerable<T> : IEnumerable<T>
+        {
+            private readonly QueryContext _queryContext;
+            private readonly IEnumerable<ValueBuffer> _innerEnumerable;
+            private readonly Func<QueryContext, IEnumerator<ValueBuffer>, T> _shaper;
+            private readonly Type _contextType;
+            private readonly IDiagnosticsLogger<DbLoggerCategory.Query> _logger;
+
+            public QueryingEnumerable(
+                QueryContext queryContext,
+                IEnumerable<ValueBuffer> innerEnumerable,
+                Func<QueryContext, IEnumerator<ValueBuffer>, T> shaper,
+                Type contextType,
+                IDiagnosticsLogger<DbLoggerCategory.Query> logger)
+            {
+                _queryContext = queryContext;
+                _innerEnumerable = innerEnumerable;
+                _shaper = shaper;
+                _contextType = contextType;
+                _logger = logger;
+            }
+
+            public IEnumerator<T> GetEnumerator() => new Enumerator(this);
+
+            IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+
+            private sealed class Enumerator : IEnumerator<T>
+            {
+                private IEnumerator<ValueBuffer> _enumerator;
+                private readonly QueryContext _queryContext;
+                private readonly IEnumerable<ValueBuffer> _innerEnumerable;
+                private readonly Func<QueryContext, IEnumerator<ValueBuffer>, T> _shaper;
+                private readonly Type _contextType;
+                private readonly IDiagnosticsLogger<DbLoggerCategory.Query> _logger;
+
+                public Enumerator(QueryingEnumerable<T> QueryingEnumerable)
+                {
+                    _queryContext = QueryingEnumerable._queryContext;
+                    _innerEnumerable = QueryingEnumerable._innerEnumerable;
+                    _shaper = QueryingEnumerable._shaper;
+                    _contextType = QueryingEnumerable._contextType;
+                    _logger = QueryingEnumerable._logger;
+                }
+
+                public T Current { get; private set; }
+
+                object IEnumerator.Current => Current;
+
+                public void Dispose() => _enumerator?.Dispose();
+
+                public bool MoveNext()
+                {
+                    try
+                    {
+
+                        if (_enumerator == null)
+                        {
+                            _enumerator = _innerEnumerable.GetEnumerator();
+                        }
+
+                        var hasNext = _enumerator.MoveNext();
+
+                        Current = hasNext
+                            ? _shaper(_queryContext, _enumerator)
+                            : default;
+
+                        return hasNext;
+                    }
+                    catch (Exception exception)
+                    {
+                        _logger.QueryIterationFailed(_contextType, exception);
+
+                        throw;
+                    }
+                }
+
+                public void Reset() => throw new NotImplementedException();
+            }
         }
 
         private class AsyncQueryingEnumerable<T> : IAsyncEnumerable<T>
@@ -124,21 +216,24 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Pipeline
             private readonly QueryContext _queryContext;
             private readonly IEnumerable<ValueBuffer> _innerEnumerable;
             private readonly Func<QueryContext, IEnumerator<ValueBuffer>, Task<T>> _shaper;
+            private readonly Type _contextType;
+            private readonly IDiagnosticsLogger<DbLoggerCategory.Query> _logger;
 
             public AsyncQueryingEnumerable(
                 QueryContext queryContext,
                 IEnumerable<ValueBuffer> innerEnumerable,
-                Func<QueryContext, IEnumerator<ValueBuffer>, Task<T>> shaper)
+                Func<QueryContext, IEnumerator<ValueBuffer>, Task<T>> shaper,
+                Type contextType,
+                IDiagnosticsLogger<DbLoggerCategory.Query> logger)
             {
                 _queryContext = queryContext;
                 _innerEnumerable = innerEnumerable;
                 _shaper = shaper;
+                _contextType = contextType;
+                _logger = logger;
             }
 
-            public IAsyncEnumerator<T> GetEnumerator()
-            {
-                return new AsyncEnumerator(this);
-            }
+            public IAsyncEnumerator<T> GetEnumerator() => new AsyncEnumerator(this);
 
             private sealed class AsyncEnumerator : IAsyncEnumerator<T>
             {
@@ -146,35 +241,45 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Pipeline
                 private readonly QueryContext _queryContext;
                 private readonly IEnumerable<ValueBuffer> _innerEnumerable;
                 private readonly Func<QueryContext, IEnumerator<ValueBuffer>, Task<T>> _shaper;
+                private readonly Type _contextType;
+                private readonly IDiagnosticsLogger<DbLoggerCategory.Query> _logger;
 
                 public AsyncEnumerator(AsyncQueryingEnumerable<T> asyncQueryingEnumerable)
                 {
                     _queryContext = asyncQueryingEnumerable._queryContext;
                     _innerEnumerable = asyncQueryingEnumerable._innerEnumerable;
                     _shaper = asyncQueryingEnumerable._shaper;
+                    _contextType = asyncQueryingEnumerable._contextType;
+                    _logger = asyncQueryingEnumerable._logger;
                 }
 
                 public T Current { get; private set; }
 
-                public void Dispose()
-                {
-                    _enumerator?.Dispose();
-                }
+                public void Dispose() => _enumerator?.Dispose();
 
                 public async Task<bool> MoveNext(CancellationToken cancellationToken)
                 {
-                    if (_enumerator == null)
+                    try
                     {
-                        _enumerator = _innerEnumerable.GetEnumerator();
+
+                        if (_enumerator == null)
+                        {
+                            _enumerator = _innerEnumerable.GetEnumerator();
+                        }
+
+                        var hasNext = _enumerator.MoveNext();
+
+                        Current = hasNext
+                            ? await _shaper(_queryContext, _enumerator)
+                            : default;
+
+                        return hasNext;
+                    } catch (Exception exception)
+                    {
+                        _logger.QueryIterationFailed(_contextType, exception);
+
+                        throw;
                     }
-
-                    var hasNext = _enumerator.MoveNext();
-
-                    Current = hasNext
-                        ? await _shaper(_queryContext, _enumerator)
-                        : default;
-
-                    return hasNext;
                 }
             }
         }
