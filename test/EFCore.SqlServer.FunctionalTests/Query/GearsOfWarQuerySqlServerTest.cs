@@ -8,7 +8,7 @@ using Xunit.Abstractions;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    internal class GearsOfWarQuerySqlServerTest : GearsOfWarQueryTestBase<GearsOfWarQuerySqlServerFixture>
+    public class GearsOfWarQuerySqlServerTest : GearsOfWarQueryTestBase<GearsOfWarQuerySqlServerFixture>
     {
         private static readonly string _eol = Environment.NewLine;
 

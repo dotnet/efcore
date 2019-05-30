@@ -73,8 +73,8 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
             => base.Equals(inExpression)
             && Item.Equals(inExpression.Item)
             && Negated.Equals(inExpression.Negated)
-            && Values == null ? inExpression.Values == null : Values.Equals(inExpression.Values)
-            && Subquery == null ? inExpression.Subquery == null : Subquery.Equals(inExpression.Subquery);
+            && (Values == null ? inExpression.Values == null : Values.Equals(inExpression.Values))
+            && (Subquery == null ? inExpression.Subquery == null : Subquery.Equals(inExpression.Subquery));
 
         public override int GetHashCode()
         {

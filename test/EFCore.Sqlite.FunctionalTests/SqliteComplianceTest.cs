@@ -28,7 +28,6 @@ namespace Microsoft.EntityFrameworkCore
             // Query pipeline
             typeof(ConcurrencyDetectorTestBase<>),
             typeof(CompiledQueryTestBase<>),
-            typeof(GearsOfWarQueryTestBase<>),
             typeof(InheritanceRelationshipsQueryTestBase<>),
             typeof(QueryNavigationsTestBase<>),
             typeof(ConcurrencyDetectorRelationalTestBase<>),

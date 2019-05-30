@@ -3,10 +3,12 @@
 
 using System;
 using System.Linq.Expressions;
+using Microsoft.EntityFrameworkCore.Query.Expressions.Internal;
+using Microsoft.EntityFrameworkCore.Query.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
 {
-    public class OrderingExpression : Expression
+    public class OrderingExpression : Expression, IPrintable
     {
         #region Fields & Constructors
         public OrderingExpression(SqlExpression expression, bool ascending)
@@ -62,6 +64,14 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
                 return hashCode;
             }
         }
+
         #endregion
+
+        public void Print(ExpressionPrinter expressionPrinter)
+        {
+            expressionPrinter.Visit(Expression);
+
+            expressionPrinter.StringBuilder.Append(Ascending ? "ASC" : "DESC");
+        }
     }
 }

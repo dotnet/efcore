@@ -103,9 +103,9 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
 
         private bool Equals(CaseExpression caseExpression)
             => base.Equals(caseExpression)
-            && Operand == null ? caseExpression.Operand == null : Operand.Equals(caseExpression.Operand)
+            && (Operand == null ? caseExpression.Operand == null : Operand.Equals(caseExpression.Operand))
             && WhenClauses.SequenceEqual(caseExpression.WhenClauses)
-            && ElseResult == null ? caseExpression.ElseResult == null : ElseResult.Equals(caseExpression.ElseResult);
+            && (ElseResult == null ? caseExpression.ElseResult == null : ElseResult.Equals(caseExpression.ElseResult));
 
         public override int GetHashCode()
         {

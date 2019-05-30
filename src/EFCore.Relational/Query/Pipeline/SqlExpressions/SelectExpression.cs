@@ -600,11 +600,14 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
             expressionPrinter.StringBuilder.AppendLine("Projection Mapping:");
             using (expressionPrinter.StringBuilder.Indent())
             {
-                foreach (var projectionMappingEntry in _projectionMapping)
+                if (_projectionMapping != null)
                 {
-                    expressionPrinter.StringBuilder.AppendLine();
-                    expressionPrinter.StringBuilder.Append(projectionMappingEntry.Key + " -> ");
-                    expressionPrinter.Visit(projectionMappingEntry.Value);
+                    foreach (var projectionMappingEntry in _projectionMapping)
+                    {
+                        expressionPrinter.StringBuilder.AppendLine();
+                        expressionPrinter.StringBuilder.Append(projectionMappingEntry.Key + " -> ");
+                        expressionPrinter.Visit(projectionMappingEntry.Value);
+                    }
                 }
             }
 

@@ -1,6 +1,7 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System.Collections;
 using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -44,7 +45,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
 
         private bool Equals(SqlConstantExpression sqlConstantExpression)
             => base.Equals(sqlConstantExpression)
-            && Value.Equals(sqlConstantExpression.Value);
+            && Value?.Equals(sqlConstantExpression.Value) == true;
 
         public override int GetHashCode()
         {
@@ -61,7 +62,32 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
 
         public override void Print(ExpressionPrinter expressionPrinter)
         {
-            expressionPrinter.StringBuilder.Append(TypeMapping?.GenerateSqlLiteral(Value) ?? Value?.ToString() ?? "NULL");
+            Print(Value, expressionPrinter);
+        }
+
+        private void Print(
+            object value,
+            ExpressionPrinter expressionPrinter)
+        {
+            if (value is IEnumerable enumerable
+                && !(value is string))
+            {
+                bool first = true;
+                foreach (var item in enumerable)
+                {
+                    if (!first)
+                    {
+                        expressionPrinter.StringBuilder.Append(", ");
+                    }
+
+                    first = false;
+                    Print(item, expressionPrinter);
+                }
+            }
+            else
+            {
+                expressionPrinter.StringBuilder.Append(TypeMapping?.GenerateSqlLiteral(value) ?? Value?.ToString() ?? "NULL");
+            }
         }
     }
 }
