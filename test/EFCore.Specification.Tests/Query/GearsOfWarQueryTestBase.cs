@@ -428,7 +428,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalTheory(Skip = "issue #15851")]
+        [ConditionalTheory(Skip = "issue #15588")]
         [MemberData(nameof(IsAsyncData))]
         public virtual void Navigation_accessed_twice_outside_and_inside_subquery(bool isAsync)
         {
@@ -1274,7 +1274,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 gs => gs.Select(g => null != g.LeaderNickname ? g.LeaderNickname == g.LeaderNickname : (bool?)null));
         }
 
-        [ConditionalTheory(Skip = "issue #15850")]
+        [ConditionalTheory(Skip = "issue #15588")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Select_null_propagation_negative8(bool isAsync)
         {
@@ -1301,7 +1301,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                       select t.Gear != null ? Maybe(t.Gear, () => t.Gear.Nickname) : null);
         }
 
-        [ConditionalTheory(Skip = "issue #15850")]
+        [ConditionalTheory(Skip = "issue #15588")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Select_null_propagation_works_for_multiple_navigations_with_composite_keys(bool isAsync)
         {
