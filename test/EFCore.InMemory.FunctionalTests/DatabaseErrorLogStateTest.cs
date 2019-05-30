@@ -18,7 +18,7 @@ using Xunit;
 // ReSharper disable StringStartsWithIsCultureSpecific
 namespace Microsoft.EntityFrameworkCore
 {
-    internal class DatabaseErrorLogStateTest
+    public class DatabaseErrorLogStateTest
     {
         [Fact]
         public Task SaveChanges_logs_DatabaseErrorLogState_nonasync()

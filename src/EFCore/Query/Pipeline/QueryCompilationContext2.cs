@@ -3,6 +3,7 @@
 
 using System;
 using System.Linq.Expressions;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 
@@ -27,24 +28,30 @@ namespace Microsoft.EntityFrameworkCore.Query.Pipeline
             IShapedQueryCompilingExpressionVisitorFactory shapedQueryCompilingExpressionVisitorFactory,
             ICurrentDbContext currentDbContext,
             IDbContextOptions contextOptions,
+            IDiagnosticsLogger<DbLoggerCategory.Query> logger,
             bool async)
         {
             Async = async;
             TrackQueryResults = currentDbContext.Context.ChangeTracker.QueryTrackingBehavior == QueryTrackingBehavior.TrackAll;
             Model = model;
             ContextOptions = contextOptions;
+            ContextType = currentDbContext.Context.GetType();
+            Logger = logger;
 
             _queryOptimizerFactory = queryOptimizerFactory;
             _entityQueryableTranslatorFactory = entityQuerableTranslatorFactory;
             _queryableMethodTranslatingExpressionVisitorFactory = queryableMethodTranslatingExpressionVisitorFactory;
             _shapedQueryOptimizerFactory = shapedQueryOptimizerFactory;
             _shapedQueryCompilingExpressionVisitorFactory = shapedQueryCompilingExpressionVisitorFactory;
+
         }
 
         public bool Async { get; }
         public IModel Model { get; }
         public IDbContextOptions ContextOptions { get; }
         public bool TrackQueryResults { get; internal set; }
+        public virtual IDiagnosticsLogger<DbLoggerCategory.Query> Logger { get; }
+        public virtual Type ContextType { get; }
 
         public virtual Func<QueryContext, TResult> CreateQueryExecutor<TResult>(Expression query)
         {

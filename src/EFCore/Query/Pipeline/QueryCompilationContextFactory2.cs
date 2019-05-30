@@ -1,6 +1,7 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 
@@ -16,6 +17,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Pipeline
         private readonly IShapedQueryCompilingExpressionVisitorFactory _shapedQueryCompilingExpressionVisitorFactory;
         private readonly ICurrentDbContext _currentDbContext;
         private readonly IDbContextOptions _contextOptions;
+        private readonly IDiagnosticsLogger<DbLoggerCategory.Query> _logger;
 
         public QueryCompilationContextFactory2(
             IModel model,
@@ -25,7 +27,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Pipeline
             IShapedQueryOptimizerFactory shapedQueryOptimizerFactory,
             IShapedQueryCompilingExpressionVisitorFactory shapedQueryCompilingExpressionVisitorFactory,
             ICurrentDbContext currentDbContext,
-            IDbContextOptions contextOptions)
+            IDbContextOptions contextOptions,
+            IDiagnosticsLogger<DbLoggerCategory.Query> logger)
         {
             _model = model;
             _queryOptimizerFactory = queryOptimizerFactory;
@@ -35,6 +38,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Pipeline
             _shapedQueryCompilingExpressionVisitorFactory = shapedQueryCompilingExpressionVisitorFactory;
             _currentDbContext = currentDbContext;
             _contextOptions = contextOptions;
+            _logger = logger;
         }
 
         public QueryCompilationContext2 Create(bool async)
@@ -48,6 +52,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Pipeline
                 _shapedQueryCompilingExpressionVisitorFactory,
                 _currentDbContext,
                 _contextOptions,
+                _logger,
                 async);
 
             return queryCompilationContext;
