@@ -243,6 +243,11 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
             return null;
         }
 
+        protected override Expression VisitListInit(ListInitExpression node)
+        {
+            return null;
+        }
+
         protected override Expression VisitConstant(ConstantExpression constantExpression)
             => new SqlConstantExpression(constantExpression, null);
 
