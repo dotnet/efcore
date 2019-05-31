@@ -4,8 +4,10 @@
 using System;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
+using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
 // ReSharper disable UnusedMember.Local
@@ -128,7 +130,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         public void Does_nothing_if_explicit_discriminator_set_on_derived_type()
         {
             var entityTypeBuilder = CreateInternalEntityTypeBuilder<Entity>();
-            var logger = new TestLogger<DbLoggerCategory.Model, TestRelationalLoggingDefinitions>();
 
             new EntityTypeBuilder(entityTypeBuilder.Metadata).HasDiscriminator("T", typeof(string));
 
@@ -154,13 +155,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
         private void RunConvention(InternalEntityTypeBuilder entityTypeBuilder, EntityType oldBaseType)
         {
-            var logger = new TestLogger<DbLoggerCategory.Model, TestRelationalLoggingDefinitions>();
             var context = new ConventionContext<IConventionEntityType>(entityTypeBuilder.Metadata.Model.ConventionDispatcher);
-            new DiscriminatorConvention(logger)
+            new DiscriminatorConvention(CreateDependencies())
                 .ProcessEntityTypeBaseTypeChanged(
                     entityTypeBuilder, entityTypeBuilder.Metadata.BaseType, oldBaseType, context);
             Assert.False(context.ShouldStopProcessing());
         }
+
+        private ProviderConventionSetBuilderDependencies CreateDependencies()
+            => RelationalTestHelpers.Instance.CreateContextServices().GetRequiredService<ProviderConventionSetBuilderDependencies>();
 
         private class EntityBase
         {

@@ -11,8 +11,8 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
-using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.DependencyInjection;
@@ -204,18 +204,12 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
         public ModelBuilder CreateConventionBuilder(bool skipValidation = false)
         {
-            var contextServices = CreateContextServices();
-            var logger = contextServices.GetService<IDiagnosticsLogger<DbLoggerCategory.Model.Validation>>();
-
-            var conventionSet = contextServices.GetRequiredService<IConventionSetBuilder>()
+            var conventionSet = CreateContextServices().GetRequiredService<IConventionSetBuilder>()
                 .CreateConventionSet();
 
-            if (!skipValidation)
+            if (skipValidation)
             {
-                conventionSet.ModelFinalizedConventions.Add(
-                    new ValidatingConvention(
-                        contextServices.GetService<IModelValidator>(),
-                        logger));
+                ConventionSet.Remove(conventionSet.ModelFinalizedConventions, typeof(ValidatingConvention));
             }
 
             return new ModelBuilder(conventionSet);
@@ -231,11 +225,6 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                     .AddScoped<IDiagnosticsLogger<DbLoggerCategory.Model.Validation>>(_ => validationLogger));
 
             var conventionSet = contextServices.GetRequiredService<IConventionSetBuilder>().CreateConventionSet();
-
-            conventionSet.ModelFinalizedConventions.Add(
-                new ValidatingConvention(
-                    CreateModelValidator(),
-                    validationLogger));
 
             return new ModelBuilder(conventionSet);
         }

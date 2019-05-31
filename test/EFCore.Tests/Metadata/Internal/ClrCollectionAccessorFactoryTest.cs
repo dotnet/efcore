@@ -8,8 +8,11 @@ using System.Linq;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Metadata.Conventions;
+using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
+using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
 // ReSharper disable UnassignedGetOnlyAutoProperty
@@ -420,9 +423,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var context = new ConventionContext<IConventionNavigation>(
                 ((ForeignKey)foreignKey).DeclaringEntityType.Model.ConventionDispatcher);
 
-            new BackingFieldConvention(new TestLogger<DbLoggerCategory.Model, TestLoggingDefinitions>())
+            new BackingFieldConvention(CreateDependencies())
                 .ProcessNavigationAdded(((ForeignKey)foreignKey).Builder, (Navigation)navigation, context);
         }
+
+        private ProviderConventionSetBuilderDependencies CreateDependencies()
+            => InMemoryTestHelpers.Instance.CreateContextServices().GetRequiredService<ProviderConventionSetBuilderDependencies>();
 
         private class MyEntity
         {

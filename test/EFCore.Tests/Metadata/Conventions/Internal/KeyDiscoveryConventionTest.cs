@@ -5,11 +5,12 @@ using System;
 using System.Diagnostics;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
-using Microsoft.EntityFrameworkCore.InMemory.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Xunit;
 
@@ -152,7 +153,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             CreateKeyDiscoveryConvention().ProcessPropertyAdded(propertyBuilder, context);
         }
 
-        private KeyDiscoveryConvention CreateKeyDiscoveryConvention() => new KeyDiscoveryConvention(CreateLogger());
+        private KeyDiscoveryConvention CreateKeyDiscoveryConvention() => new KeyDiscoveryConvention(CreateDependencies());
+
+        private ProviderConventionSetBuilderDependencies CreateDependencies()
+            => InMemoryTestHelpers.Instance.CreateContextServices().GetRequiredService<ProviderConventionSetBuilderDependencies>()
+                .With(CreateLogger());
 
         private DiagnosticsLogger<DbLoggerCategory.Model> CreateLogger()
         {
@@ -167,15 +172,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             return modelLogger;
         }
 
-        private static InternalEntityTypeBuilder CreateInternalEntityBuilder<T>()
+        private InternalEntityTypeBuilder CreateInternalEntityBuilder<T>()
         {
             var modelBuilder = new InternalModelBuilder(new Model());
             var entityBuilder = modelBuilder.Entity(typeof(T), ConfigurationSource.Convention);
 
             var context = new ConventionContext<IConventionEntityTypeBuilder>(modelBuilder.Metadata.ConventionDispatcher);
-            new PropertyDiscoveryConvention(
-                    TestServiceFactory.Instance.Create<InMemoryTypeMappingSource>(),
-                    new TestLogger<DbLoggerCategory.Model, TestLoggingDefinitions>())
+            new PropertyDiscoveryConvention(CreateDependencies())
                 .ProcessEntityTypeAdded(entityBuilder, context);
 
             return entityBuilder;

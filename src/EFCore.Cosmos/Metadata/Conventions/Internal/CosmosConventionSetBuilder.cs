@@ -4,7 +4,6 @@
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
-using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Metadata.Conventions.Internal
 {
@@ -20,8 +19,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Metadata.Conventions.Internal
         {
             var conventionSet = base.CreateConventionSet();
 
-            var discriminatorConvention = new CosmosDiscriminatorConvention(Dependencies.Logger);
-            var storeKeyConvention = new StoreKeyConvention();
+            var discriminatorConvention = new CosmosDiscriminatorConvention(Dependencies);
+            var storeKeyConvention = new StoreKeyConvention(Dependencies);
             conventionSet.EntityTypeAddedConventions.Add(storeKeyConvention);
             conventionSet.EntityTypeAddedConventions.Add(discriminatorConvention);
 

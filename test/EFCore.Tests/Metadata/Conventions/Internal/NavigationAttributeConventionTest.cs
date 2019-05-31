@@ -11,12 +11,10 @@ using System.Reflection;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.InMemory.Metadata.Conventions;
-using Microsoft.EntityFrameworkCore.InMemory.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -334,7 +332,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 dependentEntityTypeBuilder.Metadata.GetNavigations(),
                 nav => nav.Name == nameof(AmbiguousDependent.AnotherAmbiguousPrincipal));
 
-            var convention = CreateInversePropertyAttributeConvention();
+            var convention = new InversePropertyAttributeConvention(CreateDependencies(CreateLogger()));
             convention.ProcessEntityTypeAdded(dependentEntityTypeBuilder,
                 new ConventionContext<IConventionEntityTypeBuilder>(
                 dependentEntityTypeBuilder.Metadata.Model.ConventionDispatcher));
@@ -378,7 +376,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             Assert.DoesNotContain(principalEntityTypeBuilder.Metadata.GetNavigations(), nav => nav.Name == nameof(Principal.Dependent));
             Assert.Contains(dependentEntityTypeBuilder.Metadata.GetNavigations(), nav => nav.Name == nameof(Dependent.Principal));
 
-            var convention = CreateInversePropertyAttributeConvention();
+            var convention = new InversePropertyAttributeConvention(CreateDependencies(CreateLogger()));
             convention.ProcessEntityTypeAdded(dependentEntityTypeBuilder,
                 new ConventionContext<IConventionEntityTypeBuilder>(
                 dependentEntityTypeBuilder.Metadata.Model.ConventionDispatcher));
@@ -411,7 +409,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             Assert.DoesNotContain(principalEntityTypeBuilder.Metadata.GetNavigations(), nav => nav.Name == nameof(Principal.Dependent));
             Assert.DoesNotContain(dependentEntityTypeBuilder.Metadata.GetNavigations(), nav => nav.Name == nameof(Dependent.Principal));
 
-            var convention = CreateInversePropertyAttributeConvention();
+            var convention = new InversePropertyAttributeConvention(CreateDependencies(CreateLogger()));
             convention.ProcessEntityTypeAdded(dependentEntityTypeBuilder,
                 new ConventionContext<IConventionEntityTypeBuilder>(
                 dependentEntityTypeBuilder.Metadata.Model.ConventionDispatcher));
@@ -590,11 +588,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             Assert.Equal("PrincipalAnotherFk", relationshipBuilder.Metadata.Properties.First().Name);
         }
-
-        private ForeignKeyAttributeConvention CreateForeignKeyAttributeConvention()
-            => new ForeignKeyAttributeConvention(
-                CreateMemberClassifier(),
-                CreateLogger());
 
         [Fact]
         public void ForeignKeyAttribute_sets_foreign_key_properties_when_applied_on_property_on_dependent_side()
@@ -809,54 +802,55 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
         private void RunConvention(InternalEntityTypeBuilder entityTypeBuilder)
         {
-            var context = new ConventionContext<IConventionEntityTypeBuilder>(entityTypeBuilder.Metadata.Model.ConventionDispatcher);
+            var dependencies = CreateDependencies(CreateLogger());
+            var context = new ConventionContext<IConventionEntityTypeBuilder>(
+                entityTypeBuilder.Metadata.Model.ConventionDispatcher);
 
-            new NotMappedMemberAttributeConvention(new TestLogger<DbLoggerCategory.Model, TestLoggingDefinitions>())
+            new NotMappedMemberAttributeConvention(dependencies)
                 .ProcessEntityTypeAdded(entityTypeBuilder, context);
 
-            new RelationshipDiscoveryConvention(CreateMemberClassifier(), CreateLogger())
+            new RelationshipDiscoveryConvention(dependencies)
                 .ProcessEntityTypeAdded(entityTypeBuilder, context);
 
-            CreateInversePropertyAttributeConvention()
+            new InversePropertyAttributeConvention(dependencies)
                 .ProcessEntityTypeAdded(entityTypeBuilder, context);
         }
 
         private InternalRelationshipBuilder RunConvention(InternalRelationshipBuilder relationshipBuilder)
         {
+            var dependencies = CreateDependencies(CreateLogger());
             var context = new ConventionContext<IConventionRelationshipBuilder>(
                 relationshipBuilder.Metadata.DeclaringEntityType.Model.ConventionDispatcher);
 
-            CreateForeignKeyAttributeConvention().ProcessForeignKeyAdded(relationshipBuilder, context);
+            new ForeignKeyAttributeConvention(dependencies)
+                .ProcessForeignKeyAdded(relationshipBuilder, context);
 
             return context.ShouldStopProcessing() ? (InternalRelationshipBuilder)context.Result : relationshipBuilder;
         }
 
         private void RunConvention(InternalRelationshipBuilder relationshipBuilder, Navigation navigation)
         {
+            var dependencies = CreateDependencies(CreateLogger());
             var context = new ConventionContext<IConventionNavigation>(
                 relationshipBuilder.Metadata.DeclaringEntityType.Model.ConventionDispatcher);
 
-            CreateRequiredNavigationAttributeConvention().ProcessNavigationAdded(relationshipBuilder, navigation, context);
+            new RequiredNavigationAttributeConvention(dependencies)
+                .ProcessNavigationAdded(relationshipBuilder, navigation, context);
         }
-
-        private InversePropertyAttributeConvention CreateInversePropertyAttributeConvention()
-            => new InversePropertyAttributeConvention(
-                CreateMemberClassifier(),
-                CreateLogger());
 
         private void Validate(InternalEntityTypeBuilder entityTypeBuilder)
         {
-            var logger = CreateLogger();
+            var dependencies = CreateDependencies(CreateLogger());
             var context = new ConventionContext<IConventionModelBuilder>(
                 entityTypeBuilder.Metadata.Model.ConventionDispatcher);
 
-            new KeyAttributeConvention(logger)
+            new KeyAttributeConvention(dependencies)
                 .ProcessModelFinalized(entityTypeBuilder.ModelBuilder, context);
 
-            new InversePropertyAttributeConvention(CreateMemberClassifier(), logger)
+            new InversePropertyAttributeConvention(dependencies)
                 .ProcessModelFinalized(entityTypeBuilder.ModelBuilder, context);
 
-            new ForeignKeyAttributeConvention(CreateMemberClassifier(), logger)
+            new ForeignKeyAttributeConvention(dependencies)
                 .ProcessModelFinalized(entityTypeBuilder.ModelBuilder, context);
         }
 
@@ -871,38 +865,25 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             Assert.False(referenceBuilder.Metadata.Properties.First().IsNullable);
         }
 
-        private RequiredNavigationAttributeConvention CreateRequiredNavigationAttributeConvention()
-            => new RequiredNavigationAttributeConvention(CreateLogger());
-
         public ListLoggerFactory ListLoggerFactory { get; }
             = new ListLoggerFactory(l => l == DbLoggerCategory.Model.Name);
 
         private InternalEntityTypeBuilder CreateInternalEntityTypeBuilder<T>()
         {
+            var dependencies = CreateDependencies(CreateLogger());
             var conventionSet = new ConventionSet();
-            conventionSet.EntityTypeAddedConventions.Add(
-                new PropertyDiscoveryConvention(
-                    CreateTypeMapper(),
-                    new TestLogger<DbLoggerCategory.Model, TestLoggingDefinitions>()));
+            conventionSet.EntityTypeAddedConventions.Add(new PropertyDiscoveryConvention(dependencies));
 
-            conventionSet.EntityTypeAddedConventions.Add(new KeyDiscoveryConvention(CreateLogger()));
+            conventionSet.EntityTypeAddedConventions.Add(new KeyDiscoveryConvention(dependencies));
 
             var modelBuilder = new InternalModelBuilder(new Model(conventionSet));
 
             return modelBuilder.Entity(typeof(T), ConfigurationSource.Explicit);
         }
 
-        private static IMemberClassifier CreateMemberClassifier()
-            => new MemberClassifier(CreateTypeMapper(), TestServiceFactory.Instance.Create<IParameterBindingFactories>());
-
-        private static ITypeMappingSource CreateTypeMapper()
-            => TestServiceFactory.Instance.Create<InMemoryTypeMappingSource>();
-
         private ModelBuilder CreateModelBuilder()
         {
-            var contextServices = InMemoryTestHelpers.Instance.CreateContextServices();
-            var logger = CreateLogger();
-            var dependencies = contextServices.GetRequiredService<ProviderConventionSetBuilderDependencies>().With(logger);
+            var dependencies = CreateDependencies(CreateLogger());
 
             return new ModelBuilder(
                 new RuntimeConventionSetBuilder(
@@ -910,6 +891,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                         Enumerable.Empty<IConventionSetCustomizer>())
                     .CreateConventionSet());
         }
+
+        private static ProviderConventionSetBuilderDependencies CreateDependencies(DiagnosticsLogger<DbLoggerCategory.Model> logger)
+            => InMemoryTestHelpers.Instance.CreateContextServices().GetRequiredService<ProviderConventionSetBuilderDependencies>().With(logger);
 
         private DiagnosticsLogger<DbLoggerCategory.Model> CreateLogger()
         {

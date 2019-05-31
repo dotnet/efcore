@@ -7,14 +7,9 @@ using Microsoft.EntityFrameworkCore.Metadata;
 namespace Microsoft.EntityFrameworkCore.Cosmos.Infrastructure
 {
     /// <summary>
-    ///     <para>
-    ///         Builds the model for a given context. This default implementation builds the model by calling
-    ///         <see cref="DbContext.OnConfiguring(DbContextOptionsBuilder)" /> on the context.
-    ///     </para>
-    ///     <para>
-    ///         This type is typically used by database providers (and other extensions). It is generally
-    ///         not used in application code.
-    ///     </para>
+    ///     Builds the model for a given context. This implementation builds the model by calling
+    ///     <see cref="DbContext.OnConfiguring(DbContextOptionsBuilder)" /> on the context and
+    ///     using the context type name as the default container name.
     /// </summary>
     public class CosmosModelCustomizer : ModelCustomizer
     {

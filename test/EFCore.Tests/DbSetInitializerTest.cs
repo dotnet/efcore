@@ -37,7 +37,7 @@ namespace Microsoft.EntityFrameworkCore
 
         private class FakeSetFinder : IDbSetFinder
         {
-            public IReadOnlyList<DbSetProperty> FindSets(DbContext context)
+            public IReadOnlyList<DbSetProperty> FindSets(Type contextType)
             {
                 var setterFactory = new ClrPropertySetterFactory();
 

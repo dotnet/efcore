@@ -5,10 +5,8 @@ using System;
 using System.Collections.Concurrent;
 using System.Threading;
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
-using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -56,19 +54,15 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// </summary>
         /// <param name="context"> The context the model is being produced for. </param>
         /// <param name="conventionSetBuilder"> The convention set to use when creating the model. </param>
-        /// <param name="validator"> The validator to verify the model can be successfully used with the context. </param>
-        /// <param name="validationLogger"> The validation loggers to use. </param>
         /// <returns> The model to be used. </returns>
         public virtual IModel GetModel(
             DbContext context,
-            IConventionSetBuilder conventionSetBuilder,
-            IModelValidator validator,
-            IDiagnosticsLogger<DbLoggerCategory.Model.Validation> validationLogger)
+            IConventionSetBuilder conventionSetBuilder)
             => _models.GetOrAdd(
                 Dependencies.ModelCacheKeyFactory.Create(context),
                 // Using a Lazy here so that OnModelCreating, etc. really only gets called once, since it may not be thread safe.
                 k => new Lazy<IModel>(
-                    () => CreateModel(context, conventionSetBuilder, validator, validationLogger),
+                    () => CreateModel(context, conventionSetBuilder),
                     LazyThreadSafetyMode.ExecutionAndPublication)).Value;
 
         /// <summary>
@@ -76,23 +70,14 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// </summary>
         /// <param name="context"> The context the model is being produced for. </param>
         /// <param name="conventionSetBuilder"> The convention set to use when creating the model. </param>
-        /// <param name="validator"> The validator to verify the model can be successfully used with the context. </param>
-        /// <param name="validationLogger"> The validation loggers to use. </param>
         /// <returns> The model to be used. </returns>
         protected virtual IModel CreateModel(
             [NotNull] DbContext context,
-            [NotNull] IConventionSetBuilder conventionSetBuilder,
-            [NotNull] IModelValidator validator,
-            [NotNull] IDiagnosticsLogger<DbLoggerCategory.Model.Validation> validationLogger)
+            [NotNull] IConventionSetBuilder conventionSetBuilder)
         {
             Check.NotNull(context, nameof(context));
-            Check.NotNull(validator, nameof(validator));
-            Check.NotNull(validationLogger, nameof(validationLogger));
 
-            var conventionSet = conventionSetBuilder.CreateConventionSet();
-            conventionSet.ModelFinalizedConventions.Add(new ValidatingConvention(validator, validationLogger));
-
-            var modelBuilder = new ModelBuilder(conventionSet);
+            var modelBuilder = new ModelBuilder(conventionSetBuilder.CreateConventionSet());
 
             Dependencies.ModelCustomizer.Customize(modelBuilder, context);
 

@@ -72,39 +72,36 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 ? Metadata.FindEntityType(type.Name)
                 : Metadata.FindEntityType(clrType);
 
-            using (Metadata.ConventionDispatcher.DelayConventions())
+            if (shouldBeOwned == false
+                && (ShouldBeOwnedType(type)
+                    || entityType != null && entityType.IsOwned()))
             {
-                if (shouldBeOwned == false
-                    && (ShouldBeOwnedType(type)
-                        || entityType != null && entityType.IsOwned()))
-                {
-                    throw new InvalidOperationException(
-                        CoreStrings.ClashingOwnedEntityType(
-                            clrType == null ? type.Name : clrType.ShortDisplayName()));
-                }
-
-                if (shouldBeOwned == true
-                    && entityType != null
-                    && !entityType.IsOwned()
-                    && configurationSource == ConfigurationSource.Explicit
-                    && entityType.GetConfigurationSource() == ConfigurationSource.Explicit)
-                {
-                    throw new InvalidOperationException(CoreStrings.ClashingNonOwnedEntityType(entityType.DisplayName()));
-                }
-
-                if (entityType != null)
-                {
-                    entityType.UpdateConfigurationSource(configurationSource);
-                    return entityType.Builder;
-                }
-
-                Metadata.RemoveIgnored(type.Name);
-                entityType = clrType == null
-                    ? Metadata.AddEntityType(type.Name, configurationSource)
-                    : Metadata.AddEntityType(clrType, configurationSource);
+                throw new InvalidOperationException(
+                    CoreStrings.ClashingOwnedEntityType(
+                        clrType == null ? type.Name : clrType.ShortDisplayName()));
             }
 
-            return entityType.Builder;
+            if (shouldBeOwned == true
+                && entityType != null
+                && !entityType.IsOwned()
+                && configurationSource == ConfigurationSource.Explicit
+                && entityType.GetConfigurationSource() == ConfigurationSource.Explicit)
+            {
+                throw new InvalidOperationException(CoreStrings.ClashingNonOwnedEntityType(entityType.DisplayName()));
+            }
+
+            if (entityType != null)
+            {
+                entityType.UpdateConfigurationSource(configurationSource);
+                return entityType.Builder;
+            }
+
+            Metadata.RemoveIgnored(type.Name);
+            entityType = clrType == null
+                ? Metadata.AddEntityType(type.Name, configurationSource)
+                : Metadata.AddEntityType(clrType, configurationSource);
+
+            return entityType?.Builder;
         }
 
         /// <summary>

@@ -10,8 +10,10 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Xunit;
 
@@ -1067,12 +1069,24 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             ListLoggerFactory.Clear();
             var options = new LoggingOptions();
             options.Initialize(new DbContextOptionsBuilder().EnableSensitiveDataLogging(false).Options);
-            return new ForeignKeyPropertyDiscoveryConvention(
-                new DiagnosticsLogger<DbLoggerCategory.Model>(
-                    ListLoggerFactory,
-                    options,
-                    new DiagnosticListener("Fake"),
-                    new TestLoggingDefinitions()));
+            return new ForeignKeyPropertyDiscoveryConvention(CreateDependencies());
+        }
+
+        private ProviderConventionSetBuilderDependencies CreateDependencies()
+            => InMemoryTestHelpers.Instance.CreateContextServices().GetRequiredService<ProviderConventionSetBuilderDependencies>()
+                .With(CreateLogger());
+
+        private DiagnosticsLogger<DbLoggerCategory.Model> CreateLogger()
+        {
+            ListLoggerFactory.Clear();
+            var options = new LoggingOptions();
+            options.Initialize(new DbContextOptionsBuilder().EnableSensitiveDataLogging(false).Options);
+            var modelLogger = new DiagnosticsLogger<DbLoggerCategory.Model>(
+                ListLoggerFactory,
+                options,
+                new DiagnosticListener("Fake"),
+                new TestLoggingDefinitions());
+            return modelLogger;
         }
 
         public ListLoggerFactory ListLoggerFactory { get; }

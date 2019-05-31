@@ -5,8 +5,10 @@ using System;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
+using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
 // ReSharper disable ArrangeAccessorOwnerBody
@@ -129,7 +131,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             Assert.Null(property.GetFieldName());
         }
 
-        private static void FieldMatchTest<TEntity>(string propertyName, string fieldName)
+        private void FieldMatchTest<TEntity>(string propertyName, string fieldName)
         {
             var entityType = CreateModel().AddEntityType(typeof(TEntity));
             var property = entityType.AddProperty(propertyName, typeof(int));
@@ -224,11 +226,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             Assert.Equal("m_onTheRun", property.GetFieldName());
         }
 
-        private static void RunConvention(IMutableProperty property)
-            => new BackingFieldConvention(new TestLogger<DbLoggerCategory.Model, TestLoggingDefinitions>())
+        private void RunConvention(IMutableProperty property)
+            => new BackingFieldConvention(CreateDependencies())
                 .ProcessPropertyAdded(
                     ((Property)property).Builder,
                     new ConventionContext<IConventionPropertyBuilder>(((Model)property.DeclaringEntityType.Model).ConventionDispatcher));
+
+        private ProviderConventionSetBuilderDependencies CreateDependencies()
+            => InMemoryTestHelpers.Instance.CreateContextServices().GetRequiredService<ProviderConventionSetBuilderDependencies>();
 
         private static IMutableModel CreateModel() => new Model();
 

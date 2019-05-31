@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
@@ -31,13 +30,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// </summary>
         /// <param name="context"> The context the model is being produced for. </param>
         /// <param name="conventionSetBuilder"> The convention set to use when creating the model. </param>
-        /// <param name="validator"> The validator to verify the model can be successfully used with the context. </param>
-        /// <param name="validationLogger"> The validation logger to use. </param>
         /// <returns> The model to be used. </returns>
         IModel GetModel(
             [NotNull] DbContext context,
-            [NotNull] IConventionSetBuilder conventionSetBuilder,
-            [NotNull] IModelValidator validator,
-            [NotNull] IDiagnosticsLogger<DbLoggerCategory.Model.Validation> validationLogger);
+            [NotNull] IConventionSetBuilder conventionSetBuilder);
     }
 }

@@ -3,10 +3,11 @@
 
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
-using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
+using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
 // ReSharper disable UnusedMember.Local
@@ -57,9 +58,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         {
             var context = new ConventionContext<IConventionEntityTypeBuilder>(entityTypeBuilder.Metadata.Model.ConventionDispatcher);
 
-            new NotMappedEntityTypeAttributeConvention(new TestLogger<DbLoggerCategory.Model, TestLoggingDefinitions>())
+            new NotMappedEntityTypeAttributeConvention(CreateDependencies())
                 .ProcessEntityTypeAdded(entityTypeBuilder, context);
         }
+
+        private ProviderConventionSetBuilderDependencies CreateDependencies()
+            => InMemoryTestHelpers.Instance.CreateContextServices().GetRequiredService<ProviderConventionSetBuilderDependencies>();
 
         [NotMapped]
         private class A

@@ -1,12 +1,12 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Collections.Generic;
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
-using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
+using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 {
@@ -113,8 +113,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <summary>
         ///     Conventions to run when an annotation is changed on a foreign key.
         /// </summary>
-        public virtual IList<IForeignKeyAnnotationChangedConvention> ForeignKeyAnnotationChangedConventions { get; } =
-            new List<IForeignKeyAnnotationChangedConvention>();
+        public virtual IList<IForeignKeyAnnotationChangedConvention> ForeignKeyAnnotationChangedConventions { get; }
+            = new List<IForeignKeyAnnotationChangedConvention>();
 
         /// <summary>
         ///     Conventions to run when a navigation property is added.
@@ -139,8 +139,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <summary>
         ///     Conventions to run when an annotation is changed on a key.
         /// </summary>
-        public virtual IList<IKeyAnnotationChangedConvention> KeyAnnotationChangedConventions { get; } =
-            new List<IKeyAnnotationChangedConvention>();
+        public virtual IList<IKeyAnnotationChangedConvention> KeyAnnotationChangedConventions { get; }
+            = new List<IKeyAnnotationChangedConvention>();
 
         /// <summary>
         ///     Conventions to run when an index is added.
@@ -155,14 +155,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <summary>
         ///     Conventions to run when the uniqueness of an index is changed.
         /// </summary>
-        public virtual IList<IIndexUniquenessChangedConvention> IndexUniquenessChangedConventions { get; } =
-            new List<IIndexUniquenessChangedConvention>();
+        public virtual IList<IIndexUniquenessChangedConvention> IndexUniquenessChangedConventions { get; }
+            = new List<IIndexUniquenessChangedConvention>();
 
         /// <summary>
         ///     Conventions to run when an annotation is changed on an index.
         /// </summary>
-        public virtual IList<IIndexAnnotationChangedConvention> IndexAnnotationChangedConventions { get; } =
-            new List<IIndexAnnotationChangedConvention>();
+        public virtual IList<IIndexAnnotationChangedConvention> IndexAnnotationChangedConventions { get; }
+            = new List<IIndexAnnotationChangedConvention>();
 
         /// <summary>
         ///     Conventions to run when a property is added.
@@ -188,6 +188,116 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             = new List<IPropertyAnnotationChangedConvention>();
 
         /// <summary>
+        ///     Replaces an existing convention with a derived convention.
+        /// </summary>
+        /// <typeparam name="TConvention"> The type of convention being replaced. </typeparam>
+        /// <typeparam name="TImplementation"> The type of the old convention. </typeparam>
+        /// <param name="conventionsList"> The list of existing convention instances to scan. </param>
+        /// <param name="newConvention"> The new convention. </param>
+        /// <returns> <c>true</c> if the convention was replaced. </returns>
+        public static bool Replace<TConvention, TImplementation>(
+            [NotNull] IList<TConvention> conventionsList,
+            [NotNull] TImplementation newConvention)
+            where TImplementation : TConvention
+        {
+            Check.NotNull(conventionsList, nameof(conventionsList));
+            Check.NotNull(newConvention, nameof(newConvention));
+
+            for (var i = 0; i < conventionsList.Count; i++)
+            {
+                if (conventionsList[i] is TImplementation)
+                {
+                    conventionsList.RemoveAt(i);
+                    conventionsList.Insert(i, newConvention);
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        ///     Adds a convention before an existing convention.
+        /// </summary>
+        /// <typeparam name="TConvention"> The type of convention being added. </typeparam>
+        /// <param name="conventionsList"> The list of existing convention instances to scan. </param>
+        /// <param name="newConvention"> The new convention. </param>
+        /// <param name="existingConventionType"> The type of the existing convention. </param>
+        /// <returns> <c>true</c> if the convention was added. </returns>
+        public static bool AddBefore<TConvention>(
+            [NotNull] IList<TConvention> conventionsList,
+            [NotNull] TConvention newConvention,
+            [NotNull] Type existingConventionType)
+        {
+            Check.NotNull(conventionsList, nameof(conventionsList));
+            Check.NotNull(newConvention, nameof(newConvention));
+
+            for (var i = 0; i < conventionsList.Count; i++)
+            {
+                if (existingConventionType.IsInstanceOfType(conventionsList[i]))
+                {
+                    conventionsList.Insert(i, newConvention);
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        ///     Adds a convention after an existing convention.
+        /// </summary>
+        /// <typeparam name="TConvention"> The type of convention being added. </typeparam>
+        /// <param name="conventionsList"> The list of existing convention instances to scan. </param>
+        /// <param name="newConvention"> The new convention. </param>
+        /// <param name="existingConventionType"> The type of the existing convention. </param>
+        /// <returns> <c>true</c> if the convention was added. </returns>
+        public static bool AddAfter<TConvention>(
+            [NotNull] IList<TConvention> conventionsList,
+            [NotNull] TConvention newConvention,
+            [NotNull] Type existingConventionType)
+        {
+            Check.NotNull(conventionsList, nameof(conventionsList));
+            Check.NotNull(newConvention, nameof(newConvention));
+
+            for (var i = 0; i < conventionsList.Count; i++)
+            {
+                if (existingConventionType.IsInstanceOfType(conventionsList[i]))
+                {
+                    conventionsList.Insert(i + 1, newConvention);
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        ///     Removes an existing convention.
+        /// </summary>
+        /// <typeparam name="TConvention"> The type of convention being removed. </typeparam>
+        /// <param name="conventionsList"> The list of existing convention instances to scan. </param>
+        /// <param name="existingConventionType"> The type of the existing convention. </param>
+        /// <returns> <c>true</c> if the convention was removed. </returns>
+        public static bool Remove<TConvention>(
+            [NotNull] IList<TConvention> conventionsList,
+            [NotNull] Type existingConventionType)
+        {
+            Check.NotNull(conventionsList, nameof(conventionsList));
+
+            for (var i = 0; i < conventionsList.Count; i++)
+            {
+                if (existingConventionType.IsInstanceOfType(conventionsList[i]))
+                {
+                    conventionsList.RemoveAt(i);
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        /// <summary>
         ///     <para>
         ///         Call this method to build a <see cref="ConventionSet" /> for only core services when using
         ///         the <see cref="ModelBuilder" /> outside of <see cref="DbContext.OnModelCreating" />.
@@ -199,15 +309,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// </summary>
         /// <returns> The convention set. </returns>
         public static ConventionSet CreateConventionSet([NotNull] DbContext context)
-        {
-            var logger = context.GetService<IDiagnosticsLogger<DbLoggerCategory.Model.Validation>>();
-
-            var conventionSet = context.GetService<IConventionSetBuilder>().CreateConventionSet();
-
-            conventionSet.ModelFinalizedConventions.Add(
-                new ValidatingConvention(context.GetService<IModelValidator>(), logger));
-
-            return conventionSet;
-        }
+            => context.GetService<IConventionSetBuilder>().CreateConventionSet();
     }
 }

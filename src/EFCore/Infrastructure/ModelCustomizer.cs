@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
@@ -9,7 +10,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 {
     /// <summary>
     ///     <para>
-    ///         Builds the model for a given context. This default implementation builds the model by calling
+    ///         Builds the model for a given context. This implementation builds the model by calling
     ///         <see cref="DbContext.OnConfiguring(DbContextOptionsBuilder)" /> on the context.
     ///     </para>
     ///     <para>
@@ -53,7 +54,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// </param>
         public virtual void Customize(ModelBuilder modelBuilder, DbContext context)
         {
-            FindSets(modelBuilder, context);
+            FindSets(modelBuilder, context.GetType());
 
             context.OnModelCreating(modelBuilder);
         }
@@ -62,10 +63,10 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     Adds the entity types found in <see cref="DbSet{TEntity}" /> properties on the context to the model.
         /// </summary>
         /// <param name="modelBuilder"> The <see cref="ModelBuilder" /> being used to build the model. </param>
-        /// <param name="context"> The context to find <see cref="DbSet{TEntity}" /> properties on. </param>
-        protected virtual void FindSets([NotNull] ModelBuilder modelBuilder, [NotNull] DbContext context)
+        /// <param name="contextType"> The context type to find <see cref="DbSet{TEntity}" /> properties on. </param>
+        protected virtual void FindSets([NotNull] ModelBuilder modelBuilder, [NotNull] Type contextType)
         {
-            foreach (var setInfo in Dependencies.SetFinder.FindSets(context))
+            foreach (var setInfo in Dependencies.SetFinder.FindSets(contextType))
             {
                 if (setInfo.IsKeyless)
                 {

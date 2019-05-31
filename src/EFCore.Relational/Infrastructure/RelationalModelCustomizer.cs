@@ -1,6 +1,7 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
@@ -100,12 +101,12 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     Adds the entity types found in <see cref="DbSet{TEntity}" /> properties on the context to the model.
         /// </summary>
         /// <param name="modelBuilder"> The <see cref="ModelBuilder" /> being used to build the model. </param>
-        /// <param name="context"> The context to find <see cref="DbSet{TEntity}" /> properties on. </param>
-        protected override void FindSets(ModelBuilder modelBuilder, DbContext context)
+        /// <param name="contextType"> The context type to find <see cref="DbSet{TEntity}" /> properties on. </param>
+        protected override void FindSets(ModelBuilder modelBuilder, Type contextType)
         {
-            base.FindSets(modelBuilder, context);
+            base.FindSets(modelBuilder, contextType);
 
-            var sets = Dependencies.SetFinder.CreateClrTypeDbSetMapping(context);
+            var sets = Dependencies.SetFinder.CreateClrTypeDbSetMapping(contextType);
 
             foreach (var entityType in modelBuilder.Model.GetEntityTypes().Cast<IConventionEntityType>())
             {

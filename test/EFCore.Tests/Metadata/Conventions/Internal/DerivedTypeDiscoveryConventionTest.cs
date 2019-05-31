@@ -3,8 +3,10 @@
 
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
+using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
@@ -59,13 +61,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             Assert.Same(entityBuilderB.Metadata, entityBuilderC.Metadata.BaseType);
         }
 
-        private static void RunConvention(InternalEntityTypeBuilder entityTypeBuilder)
+        private void RunConvention(InternalEntityTypeBuilder entityTypeBuilder)
         {
             var context = new ConventionContext<IConventionEntityTypeBuilder>(entityTypeBuilder.Metadata.Model.ConventionDispatcher);
 
-            new DerivedTypeDiscoveryConvention(new TestLogger<DbLoggerCategory.Model, TestLoggingDefinitions>())
+            new DerivedTypeDiscoveryConvention(CreateDependencies())
                 .ProcessEntityTypeAdded(entityTypeBuilder, context);
         }
+
+        private ProviderConventionSetBuilderDependencies CreateDependencies()
+            => InMemoryTestHelpers.Instance.CreateContextServices().GetRequiredService<ProviderConventionSetBuilderDependencies>();
 
         private class A
         {

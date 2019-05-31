@@ -47,7 +47,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         /// </summary>
         public virtual void InitializeSets(DbContext context)
         {
-            foreach (var setInfo in _setFinder.FindSets(context).Where(p => p.Setter != null))
+            foreach (var setInfo in _setFinder.FindSets(context.GetType()).Where(p => p.Setter != null))
             {
                 setInfo.Setter.SetClrValue(
                     context,

@@ -4,9 +4,9 @@
 using System;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
-using Microsoft.EntityFrameworkCore.SqlServer.Diagnostics.Internal;
-using Microsoft.EntityFrameworkCore.SqlServer.Metadata.Conventions.Internal;
+using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 using Microsoft.EntityFrameworkCore.TestUtilities;
+using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
 // ReSharper disable InconsistentNaming
@@ -69,9 +69,15 @@ namespace Microsoft.EntityFrameworkCore
             var conventionSet = new ConventionSet();
 
             conventionSet.ModelAnnotationChangedConventions.Add(
-                new SqlServerDbFunctionConvention(new TestLogger<DbLoggerCategory.Model, SqlServerLoggingDefinitions>()));
+                new SqlServerDbFunctionConvention(CreateDependencies(), CreateRelationalDependencies()));
 
             return new ModelBuilder(conventionSet);
         }
+
+        private ProviderConventionSetBuilderDependencies CreateDependencies()
+            => SqlServerTestHelpers.Instance.CreateContextServices().GetRequiredService<ProviderConventionSetBuilderDependencies>();
+
+        private RelationalConventionSetBuilderDependencies CreateRelationalDependencies()
+            => SqlServerTestHelpers.Instance.CreateContextServices().GetRequiredService<RelationalConventionSetBuilderDependencies>();
     }
 }

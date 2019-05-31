@@ -7,11 +7,9 @@ using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
-using Microsoft.EntityFrameworkCore.InMemory.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -188,7 +186,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         }
 
         private NonNullableNavigationConvention CreateNotNullNavigationConvention()
-            => new NonNullableNavigationConvention(CreateLogger());
+            => new NonNullableNavigationConvention(CreateDependencies());
 
         public ListLoggerFactory ListLoggerFactory { get; }
             = new ListLoggerFactory(l => l == DbLoggerCategory.Model.Name);
@@ -197,25 +195,18 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         {
             var conventionSet = new ConventionSet();
             conventionSet.EntityTypeAddedConventions.Add(
-                new PropertyDiscoveryConvention(
-                    CreateTypeMapper(),
-                    new TestLogger<DbLoggerCategory.Model, TestLoggingDefinitions>()));
+                new PropertyDiscoveryConvention(CreateDependencies()));
 
-            conventionSet.EntityTypeAddedConventions.Add(new KeyDiscoveryConvention(CreateLogger()));
+            conventionSet.EntityTypeAddedConventions.Add(new KeyDiscoveryConvention(CreateDependencies()));
 
             var modelBuilder = new InternalModelBuilder(new Model(conventionSet));
 
             return modelBuilder.Entity(typeof(T), ConfigurationSource.Explicit);
         }
 
-        private static ITypeMappingSource CreateTypeMapper()
-            => TestServiceFactory.Instance.Create<InMemoryTypeMappingSource>();
-
         private ModelBuilder CreateModelBuilder()
         {
-            var contextServices = InMemoryTestHelpers.Instance.CreateContextServices();
-            var logger = CreateLogger();
-            var dependencies = contextServices.GetRequiredService<ProviderConventionSetBuilderDependencies>().With(logger);
+            var dependencies = CreateDependencies();
 
             return new ModelBuilder(
                 new RuntimeConventionSetBuilder(
@@ -223,6 +214,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                         Enumerable.Empty<IConventionSetCustomizer>())
                     .CreateConventionSet());
         }
+
+        private ProviderConventionSetBuilderDependencies CreateDependencies()
+            => InMemoryTestHelpers.Instance.CreateContextServices().GetRequiredService<ProviderConventionSetBuilderDependencies>()
+                .With(CreateLogger());
 
         private DiagnosticsLogger<DbLoggerCategory.Model> CreateLogger()
         {

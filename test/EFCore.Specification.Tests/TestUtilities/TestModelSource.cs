@@ -2,11 +2,9 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
-using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore.TestUtilities
@@ -23,14 +21,9 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
         protected override IModel CreateModel(
             DbContext context,
-            IConventionSetBuilder conventionSetBuilder,
-            IModelValidator validator,
-            IDiagnosticsLogger<DbLoggerCategory.Model.Validation> validationLogger)
+            IConventionSetBuilder conventionSetBuilder)
         {
-            var conventionSet = conventionSetBuilder.CreateConventionSet();
-            conventionSet.ModelFinalizedConventions.Add(new ValidatingConvention(validator, validationLogger));
-
-            var modelBuilder = new ModelBuilder(conventionSet);
+            var modelBuilder = new ModelBuilder(conventionSetBuilder.CreateConventionSet());
 
             Dependencies.ModelCustomizer.Customize(modelBuilder, context);
 

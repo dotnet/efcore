@@ -4,10 +4,11 @@
 using System;
 using System.Linq;
 using System.Reflection;
-using Microsoft.EntityFrameworkCore.InMemory.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
+using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
 // ReSharper disable UnassignedGetOnlyAutoProperty
@@ -236,12 +237,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         {
             var context = new ConventionContext<IConventionEntityTypeBuilder>(entityTypeBuilder.Metadata.Model.ConventionDispatcher);
 
-            new PropertyDiscoveryConvention(TestServiceFactory.Instance.Create<InMemoryTypeMappingSource>(),
-                    new TestLogger<DbLoggerCategory.Model, TestLoggingDefinitions>())
+            new PropertyDiscoveryConvention(CreateDependencies())
                 .ProcessEntityTypeAdded(entityTypeBuilder, context);
 
             Assert.False(context.ShouldStopProcessing());
         }
+
+        private ProviderConventionSetBuilderDependencies CreateDependencies()
+            => InMemoryTestHelpers.Instance.CreateContextServices().GetRequiredService<ProviderConventionSetBuilderDependencies>();
 
         private InternalEntityTypeBuilder CreateInternalEntityBuilder<T>()
         {

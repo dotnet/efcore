@@ -9,9 +9,10 @@ using System.Linq;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
-using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
+using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Xunit;
 
@@ -242,12 +243,14 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             var conventionSet = new ConventionSet();
 
             conventionSet.ModelFinalizedConventions.Add(
-                new ValidatingConvention(
-                    TestHelpers.CreateModelValidator(),
-                    CreateValidationLogger(sensitiveDataLoggingEnabled)));
+                new ValidatingConvention(CreateDependencies(sensitiveDataLoggingEnabled)));
 
             return new ModelBuilder(conventionSet);
         }
+
+        private ProviderConventionSetBuilderDependencies CreateDependencies(bool sensitiveDataLoggingEnabled = false)
+            => TestHelpers.CreateContextServices().GetRequiredService<ProviderConventionSetBuilderDependencies>()
+                .With(CreateValidationLogger(sensitiveDataLoggingEnabled));
 
         protected virtual TestHelpers TestHelpers => InMemoryTestHelpers.Instance;
     }

@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using Microsoft.EntityFrameworkCore.Cosmos.Metadata.Conventions.Internal;
+using Microsoft.EntityFrameworkCore.Cosmos.Metadata.Conventions;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Newtonsoft.Json.Linq;
 using Remotion.Linq.Parsing.ExpressionVisitors;

@@ -342,6 +342,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                         if (_onlyWeak)
                         {
                             entityTypeBuilder.ModelBuilder.HasNoEntityType(entityTypeBuilder.Metadata);
+                            context.StopProcessing();
                         }
                     }
                     else
@@ -349,9 +350,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                         if (!_onlyWeak)
                         {
                             entityTypeBuilder.Metadata.Model.RemoveEntityType(entityTypeBuilder.Metadata.Name);
+                            context.StopProcessing();
                         }
                     }
-                    context.StopProcessing();
                 }
             }
         }

@@ -22,11 +22,11 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public static IDictionary<Type, DbSetProperty> CreateClrTypeDbSetMapping(
-            [NotNull] this IDbSetFinder setFinder, [NotNull] DbContext context)
+            [NotNull] this IDbSetFinder setFinder, [NotNull] Type contextType)
         {
             var sets = new Dictionary<Type, DbSetProperty>();
             var alreadySeen = new HashSet<Type>();
-            foreach (var set in setFinder.FindSets(context))
+            foreach (var set in setFinder.FindSets(contextType))
             {
                 if (!alreadySeen.Contains(set.ClrType))
                 {

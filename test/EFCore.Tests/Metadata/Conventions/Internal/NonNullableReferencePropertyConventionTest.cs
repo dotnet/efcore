@@ -2,11 +2,11 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.ComponentModel.DataAnnotations;
-using Microsoft.EntityFrameworkCore.InMemory.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.TestUtilities;
+using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
@@ -64,12 +64,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             Assert.Equal(expectedNullable, entityTypeBuilder.Property(propertyName).Metadata.IsNullable);
         }
 
-        private static void RunConvention(InternalPropertyBuilder propertyBuilder)
+        private void RunConvention(InternalPropertyBuilder propertyBuilder)
         {
             var context = new ConventionContext<IConventionPropertyBuilder>(
                 propertyBuilder.Metadata.DeclaringEntityType.Model.ConventionDispatcher);
 
-            new NonNullableReferencePropertyConvention(new TestLogger<DbLoggerCategory.Model, TestLoggingDefinitions>())
+            new NonNullableReferencePropertyConvention(CreateDependencies())
                 .ProcessPropertyAdded(propertyBuilder, context);
         }
 
@@ -77,17 +77,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         {
             var conventionSet = new ConventionSet();
             conventionSet.EntityTypeAddedConventions.Add(
-                new PropertyDiscoveryConvention(
-                    CreateTypeMapper(),
-                    new TestLogger<DbLoggerCategory.Model, TestLoggingDefinitions>()));
+                new PropertyDiscoveryConvention(CreateDependencies()));
 
             var modelBuilder = new InternalModelBuilder(new Model(conventionSet));
 
             return modelBuilder.Entity(typeof(T), ConfigurationSource.Explicit);
         }
 
-        private static ITypeMappingSource CreateTypeMapper()
-            => TestServiceFactory.Instance.Create<InMemoryTypeMappingSource>();
+        private ProviderConventionSetBuilderDependencies CreateDependencies()
+            => InMemoryTestHelpers.Instance.CreateContextServices().GetRequiredService<ProviderConventionSetBuilderDependencies>();
 
         private class A
         {

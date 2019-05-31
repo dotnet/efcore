@@ -1,6 +1,7 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
@@ -43,6 +44,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure
     /// </summary>
     public sealed class ProviderConventionSetBuilderDependencies
     {
+        private readonly ICurrentDbContext _context;
+
         /// <summary>
         ///     <para>
         ///         Creates the service dependencies parameter object for a <see cref="ProviderConventionSetBuilder" />.
@@ -67,32 +70,39 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure
         /// <param name="parameterBindingFactories"> The parameter binding factories. </param>
         /// <param name="memberClassifier"> The member classifier. </param>
         /// <param name="logger"> The model logger. </param>
+        /// <param name="validationLogger"> The model validation logger. </param>
         /// <param name="setFinder"> The set finder. </param>
         /// <param name="context"> The current context instance. </param>
+        /// <param name="validator"> The model validator. </param>
         public ProviderConventionSetBuilderDependencies(
             [NotNull] ITypeMappingSource typeMappingSource,
             [NotNull] IConstructorBindingFactory constructorBindingFactory,
             [NotNull] IParameterBindingFactories parameterBindingFactories,
             [NotNull] IMemberClassifier memberClassifier,
             [NotNull] IDiagnosticsLogger<DbLoggerCategory.Model> logger,
+            [NotNull] IDiagnosticsLogger<DbLoggerCategory.Model.Validation> validationLogger,
             [NotNull] IDbSetFinder setFinder,
-            [NotNull] ICurrentDbContext context)
+            [NotNull] ICurrentDbContext context,
+            [NotNull] IModelValidator validator)
         {
             Check.NotNull(typeMappingSource, nameof(typeMappingSource));
             Check.NotNull(constructorBindingFactory, nameof(constructorBindingFactory));
             Check.NotNull(parameterBindingFactories, nameof(parameterBindingFactories));
             Check.NotNull(memberClassifier, nameof(memberClassifier));
             Check.NotNull(logger, nameof(logger));
+            Check.NotNull(validationLogger, nameof(validationLogger));
             Check.NotNull(setFinder, nameof(setFinder));
-            Check.NotNull(context, nameof(context));
+            Check.NotNull(validator, nameof(validator));
 
             TypeMappingSource = typeMappingSource;
             ParameterBindingFactories = parameterBindingFactories;
             MemberClassifier = memberClassifier;
             ConstructorBindingFactory = constructorBindingFactory;
             Logger = logger;
+            ValidationLogger = validationLogger;
             SetFinder = setFinder;
-            Context = context;
+            _context = context;
+            ModelValidator = validator;
         }
 
         /// <summary>
@@ -116,9 +126,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure
         public IConstructorBindingFactory ConstructorBindingFactory { get; }
 
         /// <summary>
-        ///     The logger.
+        ///     The model logger.
         /// </summary>
         public IDiagnosticsLogger<DbLoggerCategory.Model> Logger { get; }
+
+        /// <summary>
+        ///     The model validation logger.
+        /// </summary>
+        public IDiagnosticsLogger<DbLoggerCategory.Model.Validation> ValidationLogger { get; }
 
         /// <summary>
         ///     The set finder.
@@ -128,7 +143,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure
         /// <summary>
         ///     The current context instance.
         /// </summary>
-        public ICurrentDbContext Context { get; }
+        public Type ContextType => _context.Context.GetType();
+
+        /// <summary>
+        ///     The model validator.
+        /// </summary>
+        public IModelValidator ModelValidator { get; }
 
         /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
@@ -137,7 +157,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure
         /// <returns> A new parameter object with the given service replaced. </returns>
         public ProviderConventionSetBuilderDependencies With([NotNull] ITypeMappingSource typeMappingSource)
             => new ProviderConventionSetBuilderDependencies(
-                typeMappingSource, ConstructorBindingFactory, ParameterBindingFactories, MemberClassifier, Logger, SetFinder, Context);
+                typeMappingSource, ConstructorBindingFactory, ParameterBindingFactories, MemberClassifier, Logger, ValidationLogger,
+                SetFinder, _context, ModelValidator);
 
         /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
@@ -146,7 +167,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure
         /// <returns> A new parameter object with the given service replaced. </returns>
         public ProviderConventionSetBuilderDependencies With([NotNull] IConstructorBindingFactory constructorBindingFactory)
             => new ProviderConventionSetBuilderDependencies(
-                TypeMappingSource, constructorBindingFactory, ParameterBindingFactories, MemberClassifier, Logger, SetFinder, Context);
+                TypeMappingSource, constructorBindingFactory, ParameterBindingFactories, MemberClassifier, Logger, ValidationLogger,
+                SetFinder, _context, ModelValidator);
 
         /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
@@ -155,7 +177,18 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure
         /// <returns> A new parameter object with the given service replaced. </returns>
         public ProviderConventionSetBuilderDependencies With([NotNull] IDiagnosticsLogger<DbLoggerCategory.Model> logger)
             => new ProviderConventionSetBuilderDependencies(
-                TypeMappingSource, ConstructorBindingFactory, ParameterBindingFactories, MemberClassifier, logger, SetFinder, Context);
+                TypeMappingSource, ConstructorBindingFactory, ParameterBindingFactories, MemberClassifier, logger, ValidationLogger,
+                SetFinder, _context, ModelValidator);
+
+        /// <summary>
+        ///     Clones this dependency parameter object with one service replaced.
+        /// </summary>
+        /// <param name="validationLogger"> A replacement for the current dependency of this type. </param>
+        /// <returns> A new parameter object with the given service replaced. </returns>
+        public ProviderConventionSetBuilderDependencies With([NotNull] IDiagnosticsLogger<DbLoggerCategory.Model.Validation> validationLogger)
+            => new ProviderConventionSetBuilderDependencies(
+                TypeMappingSource, ConstructorBindingFactory, ParameterBindingFactories, MemberClassifier, Logger, validationLogger,
+                SetFinder, _context, ModelValidator);
 
         /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
@@ -164,7 +197,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure
         /// <returns> A new parameter object with the given service replaced. </returns>
         public ProviderConventionSetBuilderDependencies With([NotNull] IParameterBindingFactories parameterBindingFactories)
             => new ProviderConventionSetBuilderDependencies(
-                TypeMappingSource, ConstructorBindingFactory, parameterBindingFactories, MemberClassifier, Logger, SetFinder, Context);
+                TypeMappingSource, ConstructorBindingFactory, parameterBindingFactories, MemberClassifier, Logger, ValidationLogger,
+                SetFinder, _context, ModelValidator);
 
         /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
@@ -173,7 +207,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure
         /// <returns> A new parameter object with the given service replaced. </returns>
         public ProviderConventionSetBuilderDependencies With([NotNull] IMemberClassifier memberClassifier)
             => new ProviderConventionSetBuilderDependencies(
-                TypeMappingSource, ConstructorBindingFactory, ParameterBindingFactories, memberClassifier, Logger, SetFinder, Context);
+                TypeMappingSource, ConstructorBindingFactory, ParameterBindingFactories, memberClassifier, Logger, ValidationLogger,
+                SetFinder, _context, ModelValidator);
 
         /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
@@ -182,7 +217,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure
         /// <returns> A new parameter object with the given service replaced. </returns>
         public ProviderConventionSetBuilderDependencies With([NotNull] IDbSetFinder setFinder)
             => new ProviderConventionSetBuilderDependencies(
-                TypeMappingSource, ConstructorBindingFactory, ParameterBindingFactories, MemberClassifier, Logger, setFinder, Context);
+                TypeMappingSource, ConstructorBindingFactory, ParameterBindingFactories, MemberClassifier, Logger, ValidationLogger,
+                setFinder, _context, ModelValidator);
 
         /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
@@ -191,6 +227,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure
         /// <returns> A new parameter object with the given service replaced. </returns>
         public ProviderConventionSetBuilderDependencies With([NotNull] ICurrentDbContext context)
             => new ProviderConventionSetBuilderDependencies(
-                TypeMappingSource, ConstructorBindingFactory, ParameterBindingFactories, MemberClassifier, Logger, SetFinder, context);
+                TypeMappingSource, ConstructorBindingFactory, ParameterBindingFactories, MemberClassifier, Logger, ValidationLogger,
+                SetFinder, context, ModelValidator);
+
+        /// <summary>
+        ///     Clones this dependency parameter object with one service replaced.
+        /// </summary>
+        /// <param name="validator"> A replacement for the current dependency of this type. </param>
+        /// <returns> A new parameter object with the given service replaced. </returns>
+        public ProviderConventionSetBuilderDependencies With([NotNull] IModelValidator validator)
+            => new ProviderConventionSetBuilderDependencies(
+                TypeMappingSource, ConstructorBindingFactory, ParameterBindingFactories, MemberClassifier, Logger, ValidationLogger,
+                SetFinder, _context, validator);
     }
 }

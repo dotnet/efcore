@@ -35,10 +35,10 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual IReadOnlyList<DbSetProperty> FindSets(DbContext context)
-            => _cache.GetOrAdd(context.GetType(), FindSets);
+        public virtual IReadOnlyList<DbSetProperty> FindSets(Type contextType)
+            => _cache.GetOrAdd(contextType, FindSetsNonCached);
 
-        private static DbSetProperty[] FindSets(Type contextType)
+        private static DbSetProperty[] FindSetsNonCached(Type contextType)
         {
             var factory = new ClrPropertySetterFactory();
 

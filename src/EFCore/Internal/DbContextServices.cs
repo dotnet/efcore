@@ -83,9 +83,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
 
                 return _scopedProvider.GetService<IModelSource>().GetModel(
                     _currentContext.Context,
-                    _scopedProvider.GetService<IConventionSetBuilder>(),
-                    _scopedProvider.GetService<IModelValidator>(),
-                    _scopedProvider.GetService<IDiagnosticsLogger<DbLoggerCategory.Model.Validation>>());
+                    _scopedProvider.GetService<IConventionSetBuilder>());
             }
             finally
             {

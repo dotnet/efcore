@@ -15,7 +15,6 @@ using Microsoft.EntityFrameworkCore.InMemory.ValueGeneration.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
-using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.EntityFrameworkCore.ValueGeneration;
@@ -628,9 +627,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             public IModel GetModel(
                 DbContext context,
-                IConventionSetBuilder conventionSetBuilder,
-                IModelValidator validator,
-                IDiagnosticsLogger<DbLoggerCategory.Model.Validation> validationLogger)
+                IConventionSetBuilder conventionSetBuilder)
                 => new Model();
         }
 

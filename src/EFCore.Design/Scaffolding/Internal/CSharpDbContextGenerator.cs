@@ -13,6 +13,7 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -67,7 +68,13 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual string WriteCode(IModel model, string @namespace, string contextName, string connectionString, bool useDataAnnotations, bool suppressConnectionStringWarning)
+        public virtual string WriteCode(
+            IModel model,
+            string @namespace,
+            string contextName,
+            string connectionString,
+            bool useDataAnnotations,
+            bool suppressConnectionStringWarning)
         {
             Check.NotNull(model, nameof(model));
 
@@ -683,16 +690,10 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                     $"({_code.Literal(property.GetComputedColumnSql())})");
             }
 
-            var dummyLogger = new DiagnosticsLogger<DbLoggerCategory.Model>(
-                new ScopedLoggerFactory(new LoggerFactory(), dispose: true),
-                new LoggingOptions(),
-                new DiagnosticListener(""),
-                _loggingDefinitions);
-
             var valueGenerated = property.ValueGenerated;
             var isRowVersion = false;
             if (((IConventionProperty)property).GetValueGeneratedConfigurationSource().HasValue
-                && new RelationalValueGeneratorConvention(dummyLogger).GetValueGenerated((IConventionProperty)property) != valueGenerated)
+                && RelationalValueGeneratorConvention.GetValueGenerated(property) != valueGenerated)
             {
                 string methodName;
                 switch (valueGenerated)

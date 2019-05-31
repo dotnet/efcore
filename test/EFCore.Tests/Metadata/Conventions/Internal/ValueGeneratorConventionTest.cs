@@ -3,10 +3,11 @@
 
 using System.Collections.Generic;
 using System.Linq;
-using Microsoft.EntityFrameworkCore.InMemory.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
+using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
 // ReSharper disable InconsistentNaming
@@ -494,7 +495,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
         private static void RunConvention(InternalEntityTypeBuilder entityBuilder)
         {
-            new ValueGeneratorConvention(new TestLogger<DbLoggerCategory.Model, TestLoggingDefinitions>())
+            new ValueGeneratorConvention(CreateDependencies())
                 .ProcessEntityTypePrimaryKeyChanged(
                     entityBuilder, entityBuilder.Metadata.FindPrimaryKey(), null,
                     new ConventionContext<IConventionKey>(entityBuilder.Metadata.Model.ConventionDispatcher));
@@ -502,7 +503,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
         private static void RunConvention(InternalRelationshipBuilder foreignKeyBuilder)
         {
-            new ValueGeneratorConvention(new TestLogger<DbLoggerCategory.Model, TestLoggingDefinitions>())
+            new ValueGeneratorConvention(CreateDependencies())
                 .ProcessForeignKeyAdded(
                     foreignKeyBuilder,
                     new ConventionContext<IConventionRelationshipBuilder>(
@@ -511,24 +512,24 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
         private static void RunConvention(InternalEntityTypeBuilder entityBuilder, ForeignKey foreignKey)
         {
-            new ValueGeneratorConvention(new TestLogger<DbLoggerCategory.Model, TestLoggingDefinitions>())
+            new ValueGeneratorConvention(CreateDependencies())
                 .ProcessForeignKeyRemoved(entityBuilder, foreignKey,
                 new ConventionContext<IConventionForeignKey>(entityBuilder.Metadata.Model.ConventionDispatcher));
         }
 
+        private static ProviderConventionSetBuilderDependencies CreateDependencies()
+            => InMemoryTestHelpers.Instance.CreateContextServices().GetRequiredService<ProviderConventionSetBuilderDependencies>();
+
         private static InternalModelBuilder CreateInternalModelBuilder()
         {
             var conventions = new ConventionSet();
-            var logger = new TestLogger<DbLoggerCategory.Model, TestLoggingDefinitions>();
+            var dependencies = CreateDependencies();
 
-            conventions.EntityTypeAddedConventions.Add(
-                new PropertyDiscoveryConvention(
-                    TestServiceFactory.Instance.Create<InMemoryTypeMappingSource>(),
-                    logger));
+            conventions.EntityTypeAddedConventions.Add(new PropertyDiscoveryConvention(dependencies));
 
-            conventions.EntityTypeAddedConventions.Add(new KeyDiscoveryConvention(logger));
+            conventions.EntityTypeAddedConventions.Add(new KeyDiscoveryConvention(dependencies));
 
-            var keyConvention = new ValueGeneratorConvention(logger);
+            var keyConvention = new ValueGeneratorConvention(dependencies);
 
             conventions.ForeignKeyAddedConventions.Add(keyConvention);
             conventions.ForeignKeyRemovedConventions.Add(keyConvention);

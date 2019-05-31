@@ -3,11 +3,10 @@
 
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
-using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
-using Microsoft.EntityFrameworkCore.SqlServer.Metadata.Conventions.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.DependencyInjection;
 
+// ReSharper disable once CheckNamespace
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 {
     /// <summary>
@@ -49,16 +48,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         {
             var conventionSet = base.CreateConventionSet();
 
-            var logger = Dependencies.Logger;
-
-            var valueGenerationStrategyConvention = new SqlServerValueGenerationStrategyConvention(logger);
+            var valueGenerationStrategyConvention = new SqlServerValueGenerationStrategyConvention(Dependencies);
             conventionSet.ModelInitializedConventions.Add(valueGenerationStrategyConvention);
-            conventionSet.ModelInitializedConventions.Add(new RelationalMaxIdentifierLengthConvention(128, logger));
+            conventionSet.ModelInitializedConventions.Add(
+                new RelationalMaxIdentifierLengthConvention(128, Dependencies, RelationalDependencies));
 
-            ValueGeneratorConvention valueGeneratorConvention = new SqlServerValueGeneratorConvention(logger);
+            ValueGeneratorConvention valueGeneratorConvention = new SqlServerValueGeneratorConvention(Dependencies, RelationalDependencies);
             ReplaceConvention(conventionSet.EntityTypeBaseTypeChangedConventions, valueGeneratorConvention);
 
-            var sqlServerInMemoryTablesConvention = new SqlServerMemoryOptimizedTablesConvention(logger);
+            var sqlServerInMemoryTablesConvention = new SqlServerMemoryOptimizedTablesConvention(Dependencies);
             conventionSet.EntityTypeAnnotationChangedConventions.Add(sqlServerInMemoryTablesConvention);
 
             ReplaceConvention(conventionSet.EntityTypePrimaryKeyChangedConventions, valueGeneratorConvention);
@@ -69,11 +67,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
             ReplaceConvention(conventionSet.ForeignKeyRemovedConventions, valueGeneratorConvention);
 
-            var sqlServerIndexConvention = new SqlServerIndexConvention(_sqlGenerationHelper, logger);
+            var sqlServerIndexConvention = new SqlServerIndexConvention(Dependencies, _sqlGenerationHelper);
 
             conventionSet.EntityTypeBaseTypeChangedConventions.Add(sqlServerIndexConvention);
 
-            conventionSet.ModelFinalizedConventions.Add(valueGenerationStrategyConvention);
+            ConventionSet.AddBefore(
+                conventionSet.ModelFinalizedConventions,
+                valueGenerationStrategyConvention,
+                typeof(ValidatingConvention));
 
             conventionSet.IndexAddedConventions.Add(sqlServerInMemoryTablesConvention);
             conventionSet.IndexAddedConventions.Add(sqlServerIndexConvention);
@@ -84,14 +85,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
             conventionSet.PropertyNullabilityChangedConventions.Add(sqlServerIndexConvention);
 
-            StoreGenerationConvention storeGenerationConvention = new SqlServerStoreGenerationConvention();
+            StoreGenerationConvention storeGenerationConvention =
+                new SqlServerStoreGenerationConvention(Dependencies, RelationalDependencies);
             conventionSet.PropertyAnnotationChangedConventions.Add(sqlServerIndexConvention);
             ReplaceConvention(conventionSet.PropertyAnnotationChangedConventions, storeGenerationConvention);
             ReplaceConvention(
                 conventionSet.PropertyAnnotationChangedConventions, (RelationalValueGeneratorConvention)valueGeneratorConvention);
 
             ReplaceConvention(
-                conventionSet.ModelAnnotationChangedConventions, (RelationalDbFunctionConvention)new SqlServerDbFunctionConvention(logger));
+                conventionSet.ModelAnnotationChangedConventions,
+                (RelationalDbFunctionConvention)new SqlServerDbFunctionConvention(Dependencies, RelationalDependencies));
 
             ReplaceConvention(conventionSet.ModelFinalizedConventions, storeGenerationConvention);
 

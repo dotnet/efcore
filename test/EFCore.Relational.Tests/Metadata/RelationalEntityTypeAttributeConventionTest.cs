@@ -4,10 +4,11 @@
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
+using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.TestUtilities;
+using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
 // ReSharper disable InconsistentNaming
@@ -54,11 +55,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Equal("ExplicitName", entityBuilder.Metadata.GetSchema());
         }
 
-        private static void RunConvention(InternalEntityTypeBuilder entityTypeBuilder)
+        private void RunConvention(InternalEntityTypeBuilder entityTypeBuilder)
         {
             var context = new ConventionContext<IConventionEntityTypeBuilder>(entityTypeBuilder.Metadata.Model.ConventionDispatcher);
 
-            new RelationalTableAttributeConvention(new TestLogger<DbLoggerCategory.Model, TestRelationalLoggingDefinitions>())
+            new RelationalTableAttributeConvention(CreateDependencies(), CreateRelationalDependencies())
                 .ProcessEntityTypeAdded(entityTypeBuilder, context);
         }
 
@@ -66,16 +67,18 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         {
             var conventionSet = new ConventionSet();
             conventionSet.EntityTypeAddedConventions.Add(
-                new PropertyDiscoveryConvention(
-                    new TestRelationalTypeMappingSource(
-                        TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
-                        TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>()),
-                    new TestLogger<DbLoggerCategory.Model, TestRelationalLoggingDefinitions>()));
+                new PropertyDiscoveryConvention(CreateDependencies()));
 
             var modelBuilder = new InternalModelBuilder(new Model(conventionSet));
 
             return modelBuilder.Entity(typeof(T), ConfigurationSource.Explicit);
         }
+
+        private ProviderConventionSetBuilderDependencies CreateDependencies()
+            => RelationalTestHelpers.Instance.CreateContextServices().GetRequiredService<ProviderConventionSetBuilderDependencies>();
+
+        private RelationalConventionSetBuilderDependencies CreateRelationalDependencies()
+            => RelationalTestHelpers.Instance.CreateContextServices().GetRequiredService<RelationalConventionSetBuilderDependencies>();
 
         protected virtual ModelBuilder CreateConventionalModelBuilder()
             => RelationalTestHelpers.Instance.CreateConventionBuilder();

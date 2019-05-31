@@ -79,7 +79,7 @@ namespace Microsoft.EntityFrameworkCore
             var logger = new TestLogger<DbLoggerCategory.Model.Validation, TestLoggingDefinitions>();
 
             var model = CreateDefaultModelSource(setFinder)
-                .GetModel(InMemoryTestHelpers.Instance.CreateContext(), _nullConventionSetBuilder, new FakeModelValidator(), logger);
+                .GetModel(InMemoryTestHelpers.Instance.CreateContext(), _nullConventionSetBuilder);
 
             Assert.Equal(
                 new[] { typeof(SetA).DisplayName(), typeof(SetB).DisplayName() },
@@ -95,7 +95,7 @@ namespace Microsoft.EntityFrameworkCore
 
         private class FakeSetFinder : IDbSetFinder
         {
-            public IReadOnlyList<DbSetProperty> FindSets(DbContext context)
+            public IReadOnlyList<DbSetProperty> FindSets(Type contextType)
                 => new[]
                 {
                     new DbSetProperty("One", typeof(SetA), setter: null),
@@ -128,12 +128,12 @@ namespace Microsoft.EntityFrameworkCore
             var modelSource = CreateDefaultModelSource(new DbSetFinder());
             var logger = new TestLogger<DbLoggerCategory.Model.Validation, TestLoggingDefinitions>();
 
-            var model1 = modelSource.GetModel(new Context1(), _nullConventionSetBuilder, _coreModelValidator, logger);
-            var model2 = modelSource.GetModel(new Context2(), _nullConventionSetBuilder, _coreModelValidator, logger);
+            var model1 = modelSource.GetModel(new Context1(), _nullConventionSetBuilder);
+            var model2 = modelSource.GetModel(new Context2(), _nullConventionSetBuilder);
 
             Assert.NotSame(model1, model2);
-            Assert.Same(model1, modelSource.GetModel(new Context1(), _nullConventionSetBuilder, _coreModelValidator, logger));
-            Assert.Same(model2, modelSource.GetModel(new Context2(), _nullConventionSetBuilder, _coreModelValidator, logger));
+            Assert.Same(model1, modelSource.GetModel(new Context1(), _nullConventionSetBuilder));
+            Assert.Same(model2, modelSource.GetModel(new Context2(), _nullConventionSetBuilder));
         }
 
         [Fact]
@@ -142,7 +142,7 @@ namespace Microsoft.EntityFrameworkCore
             var modelSource = CreateDefaultModelSource(new DbSetFinder());
             var logger = new TestLogger<DbLoggerCategory.Model.Validation, TestLoggingDefinitions>();
 
-            var model = modelSource.GetModel(new Context1(), _nullConventionSetBuilder, _coreModelValidator, logger);
+            var model = modelSource.GetModel(new Context1(), _nullConventionSetBuilder);
             var packageVersion = typeof(Context1).Assembly.GetCustomAttributes<AssemblyMetadataAttribute>()
                 .Single(m => m.Key == "PackageVersion").Value;
 

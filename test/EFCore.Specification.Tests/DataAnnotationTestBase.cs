@@ -13,7 +13,6 @@ using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
-using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.TestUtilities;
@@ -45,14 +44,7 @@ namespace Microsoft.EntityFrameworkCore
 
         public virtual ModelBuilder CreateModelBuilder()
         {
-            var context = CreateContext();
-            var conventionSetBuilder = CreateConventionSetBuilder(context);
-            var logger = context.GetService<IDiagnosticsLogger<DbLoggerCategory.Model.Validation>>();
-
-            var conventionSet = conventionSetBuilder.CreateConventionSet();
-
-            conventionSet.ModelFinalizedConventions.Add(
-                new ValidatingConvention(context.GetService<IModelValidator>(), logger));
+            var conventionSet = CreateConventionSetBuilder(CreateContext()).CreateConventionSet();
 
             return new ModelBuilder(conventionSet);
         }

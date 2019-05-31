@@ -7,8 +7,10 @@ using System.Linq;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
+using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
 // ReSharper disable UnassignedGetOnlyAutoProperty
@@ -744,10 +746,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             public NoField NoField { get; set; }
         }
 
-        private static DirectConstructorBinding GetBinding<TEntity>()
+        private DirectConstructorBinding GetBinding<TEntity>()
         {
-            var convention = TestServiceFactory.Instance.Create<ConstructorBindingConvention>();
-
             var entityType = ((IMutableModel)new Model()).AddEntityType(typeof(TEntity));
             entityType.AddProperty(nameof(Blog.Id), typeof(int));
             entityType.AddProperty(nameof(Blog.Title), typeof(string));
@@ -764,10 +764,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             var model = (Model)entityType.Model;
             var context = new ConventionContext<IConventionModelBuilder>(model.ConventionDispatcher);
 
+            var convention = new ConstructorBindingConvention(CreateDependencies());
             convention.ProcessModelFinalized(model.Builder, context);
 
             return (DirectConstructorBinding)entityType[CoreAnnotationNames.ConstructorBinding];
         }
+
+        private ProviderConventionSetBuilderDependencies CreateDependencies()
+            => InMemoryTestHelpers.Instance.CreateContextServices().GetRequiredService<ProviderConventionSetBuilderDependencies>();
 
         private abstract class Blog
         {

@@ -3594,7 +3594,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         }
 
         /// <inheritdoc />
-        IConventionForeignKey IConventionRelationshipBuilder.Metadata => Metadata;
+        IConventionForeignKey IConventionRelationshipBuilder.Metadata
+        {
+            [DebuggerStepThrough] get => Metadata;
+        }
 
         /// <inheritdoc />
         IConventionRelationshipBuilder IConventionRelationshipBuilder.HasEntityTypes(

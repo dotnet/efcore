@@ -8,8 +8,9 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
-using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
+using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 using Microsoft.EntityFrameworkCore.TestUtilities;
+using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
 // ReSharper disable InconsistentNaming
@@ -492,9 +493,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             var conventionSet = new ConventionSet();
 
             conventionSet.ModelAnnotationChangedConventions.Add(
-                new RelationalDbFunctionConvention(new TestLogger<DbLoggerCategory.Model, TestRelationalLoggingDefinitions>()));
+                new RelationalDbFunctionConvention(CreateDependencies(), CreateRelationalDependencies()));
 
             return new ModelBuilder(conventionSet);
         }
+
+        private ProviderConventionSetBuilderDependencies CreateDependencies()
+            => RelationalTestHelpers.Instance.CreateContextServices().GetRequiredService<ProviderConventionSetBuilderDependencies>();
+
+        private RelationalConventionSetBuilderDependencies CreateRelationalDependencies()
+            => RelationalTestHelpers.Instance.CreateContextServices().GetRequiredService<RelationalConventionSetBuilderDependencies>();
     }
 }

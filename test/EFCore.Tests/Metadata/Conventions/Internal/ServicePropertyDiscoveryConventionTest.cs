@@ -7,9 +7,11 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.InMemory.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.TestUtilities;
+using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
 // ReSharper disable MemberCanBePrivate.Local
@@ -90,24 +92,24 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             Validate(entityType);
         }
 
-        private static void Validate(EntityType entityType)
+        private void Validate(EntityType entityType)
         {
             var convention = CreateServicePropertyDiscoveryConvention();
             convention.ProcessModelFinalized(entityType.Model.Builder,
                 new ConventionContext<IConventionModelBuilder>(entityType.Model.ConventionDispatcher));
         }
 
-        private static void RunConvention(EntityType entityType, string ignoredMember)
+        private void RunConvention(EntityType entityType, string ignoredMember)
         {
             var convention = CreateServicePropertyDiscoveryConvention();
             convention.ProcessEntityTypeMemberIgnored(entityType.Builder, ignoredMember,
                 new ConventionContext<string>(entityType.Model.ConventionDispatcher));
         }
 
-        private static EntityType RunConvention<TEntity>()
+        private EntityType RunConvention<TEntity>()
             => RunConvention(new Model().AddEntityType(typeof(TEntity), ConfigurationSource.Explicit));
 
-        private static EntityType RunConvention(EntityType entityType)
+        private EntityType RunConvention(EntityType entityType)
         {
             entityType.AddProperty(nameof(Blog.Id), typeof(int), ConfigurationSource.Explicit, ConfigurationSource.Explicit);
 
@@ -117,13 +119,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             return context.ShouldStopProcessing() ? (EntityType)context.Result.Metadata : entityType;
         }
 
-        private static ServicePropertyDiscoveryConvention CreateServicePropertyDiscoveryConvention()
+        private ServicePropertyDiscoveryConvention CreateServicePropertyDiscoveryConvention()
         {
-            var typeMappingSource = TestServiceFactory.Instance.Create<InMemoryTypeMappingSource>();
-            var convention = TestServiceFactory.Instance.Create<ServicePropertyDiscoveryConvention>(
-                (typeof(ITypeMappingSource), typeMappingSource));
+            var convention = new ServicePropertyDiscoveryConvention(CreateDependencies());
             return convention;
         }
+
+        private ProviderConventionSetBuilderDependencies CreateDependencies()
+            => InMemoryTestHelpers.Instance.CreateContextServices().GetRequiredService<ProviderConventionSetBuilderDependencies>();
 
         private class BlogOneService : Blog
         {

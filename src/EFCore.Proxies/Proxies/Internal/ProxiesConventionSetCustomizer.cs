@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
@@ -29,9 +28,8 @@ namespace Microsoft.EntityFrameworkCore.Proxies.Internal
     public class ProxiesConventionSetCustomizer : IConventionSetCustomizer
     {
         private readonly IDbContextOptions _options;
-        private readonly IConstructorBindingFactory _constructorBindingFactory;
         private readonly IProxyFactory _proxyFactory;
-        private readonly IDiagnosticsLogger<DbLoggerCategory.Model> _logger;
+        private readonly ProviderConventionSetBuilderDependencies _conventionSetBuilderDependencies;
         private readonly LazyLoaderParameterBindingFactoryDependencies _lazyLoaderParameterBindingFactoryDependencies;
 
         /// <summary>
@@ -41,17 +39,15 @@ namespace Microsoft.EntityFrameworkCore.Proxies.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public ProxiesConventionSetCustomizer(
-            [NotNull] IDbContextOptions options,
-            [NotNull] IConstructorBindingFactory constructorBindingFactory,
             [NotNull] IProxyFactory proxyFactory,
-            [NotNull] IDiagnosticsLogger<DbLoggerCategory.Model> logger,
-            [NotNull] LazyLoaderParameterBindingFactoryDependencies lazyLoaderParameterBindingFactoryDependencies)
+            [NotNull] IDbContextOptions options,
+            [NotNull] LazyLoaderParameterBindingFactoryDependencies lazyLoaderParameterBindingFactoryDependencies,
+            [NotNull] ProviderConventionSetBuilderDependencies conventionSetBuilderDependencies)
         {
-            _options = options;
-            _constructorBindingFactory = constructorBindingFactory;
             _proxyFactory = proxyFactory;
-            _logger = logger;
+            _options = options;
             _lazyLoaderParameterBindingFactoryDependencies = lazyLoaderParameterBindingFactoryDependencies;
+            _conventionSetBuilderDependencies = conventionSetBuilderDependencies;
         }
 
         /// <summary>
@@ -62,13 +58,14 @@ namespace Microsoft.EntityFrameworkCore.Proxies.Internal
         /// </summary>
         public virtual ConventionSet ModifyConventions(ConventionSet conventionSet)
         {
-            conventionSet.ModelFinalizedConventions.Add(
+            ConventionSet.AddBefore(
+                conventionSet.ModelFinalizedConventions,
                 new ProxyBindingRewriter(
-                    _lazyLoaderParameterBindingFactoryDependencies,
                     _proxyFactory,
-                    _constructorBindingFactory,
-                    _logger,
-                    _options.FindExtension<ProxiesOptionsExtension>()));
+                    _options.FindExtension<ProxiesOptionsExtension>(),
+                    _lazyLoaderParameterBindingFactoryDependencies,
+                    _conventionSetBuilderDependencies),
+                typeof(ValidatingConvention));
 
             return conventionSet;
         }

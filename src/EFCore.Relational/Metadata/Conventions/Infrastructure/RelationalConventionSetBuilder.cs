@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -60,32 +59,35 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure
         {
             var conventionSet = base.CreateConventionSet();
 
-            var logger = Dependencies.Logger;
-
-            ValueGeneratorConvention valueGeneratorConvention = new RelationalValueGeneratorConvention(logger);
+            ValueGeneratorConvention valueGeneratorConvention = new RelationalValueGeneratorConvention(Dependencies, RelationalDependencies);
 
             ReplaceConvention(conventionSet.EntityTypeBaseTypeChangedConventions, valueGeneratorConvention);
             ReplaceConvention(conventionSet.EntityTypePrimaryKeyChangedConventions, valueGeneratorConvention);
             ReplaceConvention(conventionSet.ForeignKeyAddedConventions, valueGeneratorConvention);
             ReplaceConvention(conventionSet.ForeignKeyRemovedConventions, valueGeneratorConvention);
 
-            var relationalColumnAttributeConvention = new RelationalColumnAttributeConvention(logger);
+            var relationalColumnAttributeConvention = new RelationalColumnAttributeConvention(Dependencies, RelationalDependencies);
 
             conventionSet.PropertyAddedConventions.Add(relationalColumnAttributeConvention);
 
-            var storeGenerationConvention = new StoreGenerationConvention();
-            conventionSet.EntityTypeAddedConventions.Add(new RelationalTableAttributeConvention(logger));
-            conventionSet.EntityTypeBaseTypeChangedConventions.Add(
-                new TableNameFromDbSetConvention(Dependencies.Context?.Context, Dependencies.SetFinder, logger));
+            var storeGenerationConvention = new StoreGenerationConvention(Dependencies, RelationalDependencies);
+            conventionSet.EntityTypeAddedConventions.Add(new RelationalTableAttributeConvention(Dependencies, RelationalDependencies));
+            conventionSet.EntityTypeBaseTypeChangedConventions.Add(new TableNameFromDbSetConvention(Dependencies, RelationalDependencies));
             conventionSet.PropertyFieldChangedConventions.Add(relationalColumnAttributeConvention);
             conventionSet.PropertyAnnotationChangedConventions.Add(storeGenerationConvention);
             conventionSet.PropertyAnnotationChangedConventions.Add((RelationalValueGeneratorConvention)valueGeneratorConvention);
 
-            var sharedTableConvention = new SharedTableConvention(logger);
-            conventionSet.ModelFinalizedConventions.Add(storeGenerationConvention);
-            conventionSet.ModelFinalizedConventions.Add(sharedTableConvention);
+            var sharedTableConvention = new SharedTableConvention(Dependencies, RelationalDependencies);
+            ConventionSet.AddBefore(
+                conventionSet.ModelFinalizedConventions,
+                storeGenerationConvention,
+                typeof(ValidatingConvention));
+            ConventionSet.AddBefore(
+                conventionSet.ModelFinalizedConventions,
+                sharedTableConvention,
+                typeof(ValidatingConvention));
 
-            conventionSet.ModelAnnotationChangedConventions.Add(new RelationalDbFunctionConvention(logger));
+            conventionSet.ModelAnnotationChangedConventions.Add(new RelationalDbFunctionConvention(Dependencies, RelationalDependencies));
 
             return conventionSet;
         }

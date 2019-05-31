@@ -6,13 +6,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
-using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
+using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Proxies.Internal
@@ -43,16 +42,15 @@ namespace Microsoft.EntityFrameworkCore.Proxies.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public ProxyBindingRewriter(
-            [NotNull] LazyLoaderParameterBindingFactoryDependencies lazyLoaderParameterBindingFactoryDependencies,
             [NotNull] IProxyFactory proxyFactory,
-            [NotNull] IConstructorBindingFactory bindingFactory,
-            [NotNull] IDiagnosticsLogger<DbLoggerCategory.Model> logger,
-            [CanBeNull] ProxiesOptionsExtension options)
+            [CanBeNull] ProxiesOptionsExtension options,
+            [NotNull] LazyLoaderParameterBindingFactoryDependencies lazyLoaderParameterBindingFactoryDependencies,
+            [NotNull] ProviderConventionSetBuilderDependencies conventionSetBuilderDependencies)
         {
-            _directBindingConvention = new ConstructorBindingConvention(bindingFactory, logger);
-            _lazyLoaderParameterBindingFactoryDependencies = lazyLoaderParameterBindingFactoryDependencies;
             _proxyFactory = proxyFactory;
             _options = options;
+            _lazyLoaderParameterBindingFactoryDependencies = lazyLoaderParameterBindingFactoryDependencies;
+            _directBindingConvention = new ConstructorBindingConvention(conventionSetBuilderDependencies);
         }
 
         /// <summary>

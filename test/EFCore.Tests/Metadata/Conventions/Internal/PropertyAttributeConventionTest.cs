@@ -9,9 +9,11 @@ using System.Linq;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.InMemory.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.TestUtilities;
+using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
 // ReSharper disable InconsistentNaming
@@ -533,9 +535,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         {
             var conventionSet = new ConventionSet();
             conventionSet.EntityTypeAddedConventions.Add(
-                new PropertyDiscoveryConvention(
-                    CreateTypeMapper(),
-                    new TestLogger<DbLoggerCategory.Model, TestLoggingDefinitions>()));
+                new PropertyDiscoveryConvention(CreateDependencies()));
 
             var modelBuilder = new InternalModelBuilder(new Model(conventionSet));
 
@@ -544,28 +544,29 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
         private static void RunConvention(InternalPropertyBuilder propertyBuilder)
         {
+            var dependencies = CreateDependencies();
             var context = new ConventionContext<IConventionPropertyBuilder>(
                 propertyBuilder.Metadata.DeclaringEntityType.Model.ConventionDispatcher);
 
-            new ConcurrencyCheckAttributeConvention(new TestLogger<DbLoggerCategory.Model, TestLoggingDefinitions>())
+            new ConcurrencyCheckAttributeConvention(dependencies)
                 .ProcessPropertyAdded(propertyBuilder, context);
 
-            new DatabaseGeneratedAttributeConvention(new TestLogger<DbLoggerCategory.Model, TestLoggingDefinitions>())
+            new DatabaseGeneratedAttributeConvention(dependencies)
                 .ProcessPropertyAdded(propertyBuilder, context);
 
-            new KeyAttributeConvention(new TestLogger<DbLoggerCategory.Model, TestLoggingDefinitions>())
+            new KeyAttributeConvention(dependencies)
                 .ProcessPropertyAdded(propertyBuilder, context);
 
-            new MaxLengthAttributeConvention(new TestLogger<DbLoggerCategory.Model, TestLoggingDefinitions>())
+            new MaxLengthAttributeConvention(dependencies)
                 .ProcessPropertyAdded(propertyBuilder, context);
 
-            new RequiredPropertyAttributeConvention(new TestLogger<DbLoggerCategory.Model, TestLoggingDefinitions>())
+            new RequiredPropertyAttributeConvention(dependencies)
                 .ProcessPropertyAdded(propertyBuilder, context);
 
-            new StringLengthAttributeConvention(new TestLogger<DbLoggerCategory.Model, TestLoggingDefinitions>())
+            new StringLengthAttributeConvention(dependencies)
                 .ProcessPropertyAdded(propertyBuilder, context);
 
-            new TimestampAttributeConvention(new TestLogger<DbLoggerCategory.Model, TestLoggingDefinitions>())
+            new TimestampAttributeConvention(dependencies)
                 .ProcessPropertyAdded(propertyBuilder, context);
         }
 
@@ -573,7 +574,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         {
             var context = new ConventionContext<IConventionEntityTypeBuilder>(entityTypeBuilder.Metadata.Model.ConventionDispatcher);
 
-            new NotMappedMemberAttributeConvention(new TestLogger<DbLoggerCategory.Model, TestLoggingDefinitions>())
+            new NotMappedMemberAttributeConvention(CreateDependencies())
                 .ProcessEntityTypeAdded(entityTypeBuilder, context);
         }
 
@@ -582,12 +583,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             var context = new ConventionContext<IConventionModelBuilder>(
                 entityTypeBuilder.Metadata.Model.ConventionDispatcher);
 
-            new KeyAttributeConvention(new TestLogger<DbLoggerCategory.Model, TestLoggingDefinitions>())
+            new KeyAttributeConvention(CreateDependencies())
                 .ProcessModelFinalized(entityTypeBuilder.ModelBuilder, context);
         }
 
-        private ITypeMappingSource CreateTypeMapper()
-            => TestServiceFactory.Instance.Create<InMemoryTypeMappingSource>();
+        private static ProviderConventionSetBuilderDependencies CreateDependencies()
+            => InMemoryTestHelpers.Instance.CreateContextServices().GetRequiredService<ProviderConventionSetBuilderDependencies>();
 
         private class A
         {
