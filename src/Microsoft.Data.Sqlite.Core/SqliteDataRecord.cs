@@ -278,6 +278,10 @@ namespace Microsoft.Data.Sqlite
 
                 return HasRows;
             }
+            if (sqlite3_data_count(Handle) == 0)
+            {
+                return false;
+            }
 
             var rc = sqlite3_step(Handle);
             SqliteException.ThrowExceptionForRC(rc, _connection.Handle);

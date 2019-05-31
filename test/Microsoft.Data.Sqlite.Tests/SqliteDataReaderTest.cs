@@ -1295,6 +1295,9 @@ namespace Microsoft.Data.Sqlite
 
                     hasData = reader.Read();
                     Assert.False(hasData);
+
+                    hasData = reader.Read();
+                    Assert.False(hasData);
                 }
             }
         }
