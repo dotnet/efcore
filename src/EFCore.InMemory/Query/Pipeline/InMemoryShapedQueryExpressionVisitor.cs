@@ -185,7 +185,6 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Pipeline
                 {
                     try
                     {
-
                         if (_enumerator == null)
                         {
                             _enumerator = _innerEnumerable.GetEnumerator();
@@ -261,7 +260,6 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Pipeline
                 {
                     try
                     {
-
                         if (_enumerator == null)
                         {
                             _enumerator = _innerEnumerable.GetEnumerator();
@@ -274,7 +272,8 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Pipeline
                             : default;
 
                         return hasNext;
-                    } catch (Exception exception)
+                    }
+                    catch (Exception exception)
                     {
                         _logger.QueryIterationFailed(_contextType, exception);
 

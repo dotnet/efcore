@@ -45,7 +45,9 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
 
         private bool Equals(SqlConstantExpression sqlConstantExpression)
             => base.Equals(sqlConstantExpression)
-            && Value?.Equals(sqlConstantExpression.Value) == true;
+            && (Value == null
+                ? sqlConstantExpression.Value == null
+                : Value.Equals(sqlConstantExpression.Value));
 
         public override int GetHashCode()
         {
