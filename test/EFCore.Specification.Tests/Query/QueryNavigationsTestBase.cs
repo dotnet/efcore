@@ -1318,7 +1318,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 elementSorter: e => e.OrderID);
         }
 
-        [ConditionalTheory(Skip = "issue #15833")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupJoin_with_complex_subquery_and_LOJ_gets_flattened(bool isAsync)
         {
@@ -1339,7 +1339,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 91);
         }
 
-        [ConditionalTheory(Skip = "issue #15833")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupJoin_with_complex_subquery_and_LOJ_gets_flattened2(bool isAsync)
         {

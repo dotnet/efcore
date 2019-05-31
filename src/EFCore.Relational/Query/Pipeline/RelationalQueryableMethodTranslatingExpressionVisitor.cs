@@ -254,44 +254,45 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
 
         protected override ShapedQueryExpression TranslateGroupJoin(ShapedQueryExpression outer, ShapedQueryExpression inner, LambdaExpression outerKeySelector, LambdaExpression innerKeySelector, LambdaExpression resultSelector)
         {
-            var outerSelectExpression = (SelectExpression)outer.QueryExpression;
-            if (outerSelectExpression.Limit != null
-                || outerSelectExpression.Offset != null
-                || outerSelectExpression.IsDistinct)
-            {
-                outerSelectExpression.PushdownIntoSubQuery();
-            }
+            //var outerSelectExpression = (SelectExpression)outer.QueryExpression;
+            //if (outerSelectExpression.Limit != null
+            //    || outerSelectExpression.Offset != null
+            //    || outerSelectExpression.IsDistinct)
+            //{
+            //    outerSelectExpression.PushdownIntoSubQuery();
+            //}
 
-            var innerSelectExpression = (SelectExpression)inner.QueryExpression;
-            if (innerSelectExpression.Orderings.Any()
-                || innerSelectExpression.Limit != null
-                || innerSelectExpression.Offset != null
-                || innerSelectExpression.IsDistinct
-                || innerSelectExpression.Predicate != null)
-            {
-                innerSelectExpression.PushdownIntoSubQuery();
-            }
+            //var innerSelectExpression = (SelectExpression)inner.QueryExpression;
+            //if (innerSelectExpression.Orderings.Any()
+            //    || innerSelectExpression.Limit != null
+            //    || innerSelectExpression.Offset != null
+            //    || innerSelectExpression.IsDistinct
+            //    || innerSelectExpression.Predicate != null
+            //    || innerSelectExpression.Tables.Count > 1)
+            //{
+            //    innerSelectExpression.PushdownIntoSubQuery();
+            //}
 
-            var joinPredicate = CreateJoinPredicate(outer, outerKeySelector, inner, innerKeySelector);
-            if (joinPredicate != null)
-            {
-                outer = TranslateThenBy(outer, outerKeySelector, true);
+            //var joinPredicate = CreateJoinPredicate(outer, outerKeySelector, inner, innerKeySelector);
+            //if (joinPredicate != null)
+            //{
+            //    outer = TranslateThenBy(outer, outerKeySelector, true);
 
-                var innerTransparentIdentifierType = CreateTransparentIdentifierType(
-                    resultSelector.Parameters[0].Type,
-                    resultSelector.Parameters[1].Type.TryGetSequenceType());
+            //    var innerTransparentIdentifierType = CreateTransparentIdentifierType(
+            //        resultSelector.Parameters[0].Type,
+            //        resultSelector.Parameters[1].Type.TryGetSequenceType());
 
-                outerSelectExpression.AddLeftJoin(
-                    innerSelectExpression, joinPredicate, innerTransparentIdentifierType);
+            //    outerSelectExpression.AddLeftJoin(
+            //        innerSelectExpression, joinPredicate, innerTransparentIdentifierType);
 
-                return TranslateResultSelectorForGroupJoin(
-                    outer,
-                    inner.ShaperExpression,
-                    outerKeySelector,
-                    innerKeySelector,
-                    resultSelector,
-                    innerTransparentIdentifierType);
-            }
+            //    return TranslateResultSelectorForGroupJoin(
+            //        outer,
+            //        inner.ShaperExpression,
+            //        outerKeySelector,
+            //        innerKeySelector,
+            //        resultSelector,
+            //        innerTransparentIdentifierType);
+            //}
 
             throw new NotImplementedException();
         }
@@ -305,6 +306,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
             LambdaExpression innerKeySelector,
             LambdaExpression resultSelector)
         {
+            // TODO: write a test which has distinct on outer so that we can verify pushdown
             var innerSelectExpression = (SelectExpression)inner.QueryExpression;
             if (innerSelectExpression.Orderings.Any()
                 || innerSelectExpression.Limit != null
@@ -353,7 +355,8 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
                 || innerSelectExpression.Limit != null
                 || innerSelectExpression.Offset != null
                 || innerSelectExpression.IsDistinct
-                || innerSelectExpression.Predicate != null)
+                || innerSelectExpression.Predicate != null
+                || innerSelectExpression.Tables.Count > 1)
             {
                 innerSelectExpression.PushdownIntoSubQuery();
             }
