@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Extensions.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -182,8 +183,13 @@ namespace Microsoft.EntityFrameworkCore.Query.NavigationExpansion
                 foreach (var mapping in state.SourceMappings)
                 {
                     var nodes = include
-                        ? mapping.NavigationTree.Flatten().Where(n => (n.Included == NavigationTreeNodeIncludeMode.ReferenceComplete || n.ExpansionMode == NavigationTreeNodeExpansionMode.ReferenceComplete) && n != navigationTree)
-                        : mapping.NavigationTree.Flatten().Where(n => n.ExpansionMode == NavigationTreeNodeExpansionMode.ReferenceComplete && n != navigationTree);
+                        ? mapping.NavigationTree.Flatten().Where(n => (n.Included == NavigationTreeNodeIncludeMode.ReferenceComplete
+                            || n.ExpansionMode == NavigationTreeNodeExpansionMode.ReferenceComplete
+                            || n.Navigation.ForeignKey.IsOwnership)
+                                && n != navigationTree)
+                        : mapping.NavigationTree.Flatten().Where(n => (n.ExpansionMode == NavigationTreeNodeExpansionMode.ReferenceComplete
+                            || n.Navigation.ForeignKey.IsOwnership)
+                                && n != navigationTree);
 
                     foreach (var navigationTreeNode in nodes)
                     {

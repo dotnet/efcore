@@ -29,9 +29,9 @@ FROM root c
 WHERE ((c[""Discriminator""] = ""LeafB"") OR ((c[""Discriminator""] = ""LeafA"") OR ((c[""Discriminator""] = ""Branch"") OR (c[""Discriminator""] = ""OwnedPerson""))))");
         }
 
-        public override void Navigation_rewrite_on_owned_reference()
+        public override void Navigation_rewrite_on_owned_reference_projecting_entity()
         {
-            base.Navigation_rewrite_on_owned_reference();
+            base.Navigation_rewrite_on_owned_reference_projecting_entity();
 
             AssertSql(
                 @"SELECT c

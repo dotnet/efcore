@@ -39,6 +39,18 @@ namespace Microsoft.EntityFrameworkCore.Query.NavigationExpansion
                 Included = NavigationTreeNodeIncludeMode.NotNeeded;
             }
 
+            // for ownership don't mark for include or expansion
+            // just track the navigations in the tree in the original form
+            // they will be expanded/translated later in the pipeline
+            if (navigation.ForeignKey.IsOwnership)
+            {
+                ExpansionMode = NavigationTreeNodeExpansionMode.NotNeeded;
+                Included = NavigationTreeNodeIncludeMode.NotNeeded;
+
+                ToMapping = parent.ToMapping.ToList();
+                ToMapping.Add(navigation.Name);
+            }
+
             foreach (var parentFromMapping in parent.FromMappings)
             {
                 var newMapping = parentFromMapping.ToList();
@@ -92,17 +104,20 @@ namespace Microsoft.EntityFrameworkCore.Query.NavigationExpansion
             var existingChild = parent.Children.Where(c => c.Navigation == navigation).SingleOrDefault();
             if (existingChild != null)
             {
-                if (include && existingChild.Included == NavigationTreeNodeIncludeMode.NotNeeded)
+                if (!navigation.ForeignKey.IsOwnership)
                 {
-                    existingChild.Included = navigation.IsCollection()
-                        ? NavigationTreeNodeIncludeMode.Collection
-                        : NavigationTreeNodeIncludeMode.ReferencePending;
-                }
-                else if (!include && existingChild.ExpansionMode == NavigationTreeNodeExpansionMode.NotNeeded)
-                {
-                    existingChild.ExpansionMode = navigation.IsCollection()
-                        ? NavigationTreeNodeExpansionMode.Collection
-                        : NavigationTreeNodeExpansionMode.ReferencePending;
+                    if (include && existingChild.Included == NavigationTreeNodeIncludeMode.NotNeeded)
+                    {
+                        existingChild.Included = navigation.IsCollection()
+                            ? NavigationTreeNodeIncludeMode.Collection
+                            : NavigationTreeNodeIncludeMode.ReferencePending;
+                    }
+                    else if (!include && existingChild.ExpansionMode == NavigationTreeNodeExpansionMode.NotNeeded)
+                    {
+                        existingChild.ExpansionMode = navigation.IsCollection()
+                            ? NavigationTreeNodeExpansionMode.Collection
+                            : NavigationTreeNodeExpansionMode.ReferencePending;
+                    }
                 }
 
                 return existingChild;

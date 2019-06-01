@@ -38,7 +38,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact(Skip = "issue #15285")]
+        [Fact]
         public virtual void Query_with_owned_entity_equality_method()
         {
             using (var context = CreateContext())
@@ -53,7 +53,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact(Skip = "issue #15285")]
+        [Fact]
         public virtual void Query_with_owned_entity_equality_object_method()
         {
             using (var context = CreateContext())
@@ -68,7 +68,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact(Skip = "issue #15285")]
+        [Fact]
         public virtual void Query_for_base_type_loads_all_owned_navs()
         {
             using (var context = CreateContext())
@@ -85,7 +85,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact(Skip = "issue #15285")]
+        [Fact]
         public virtual void No_ignored_include_warning_when_implicit_load()
         {
             using (var context = CreateContext())
@@ -96,7 +96,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact(Skip = "issue #15285")]
+        [Fact]
         public virtual void Query_for_branch_type_loads_all_owned_navs()
         {
             using (var context = CreateContext())
@@ -112,7 +112,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact(Skip = "issue #15285")]
+        [Fact]
         public virtual void Query_for_leaf_type_loads_all_owned_navs()
         {
             using (var context = CreateContext())
@@ -141,7 +141,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact(Skip = "issue #15285")]
+        [Fact]
         public virtual void Query_when_subquery()
         {
             using (var context = CreateContext())
@@ -166,17 +166,31 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact(Skip = "issue #15285")]
-        public virtual void Navigation_rewrite_on_owned_reference()
+        [Fact]
+        public virtual void Navigation_rewrite_on_owned_reference_projecting_scalar()
         {
             using (var ctx = CreateContext())
             {
-                var query = ctx.Set<OwnedPerson>().Where(p => p.PersonAddress.Country.Name == "USA")
+                var query = ctx.Set<OwnedPerson>()
+                    .Where(p => p.PersonAddress.Country.Name == "USA")
                     .Select(p => p.PersonAddress.Country.Name);
+
                 var result = query.ToList();
 
                 Assert.Equal(4, result.Count);
                 Assert.True(result.All(r => r == "USA"));
+            }
+        }
+
+        [Fact]
+        public virtual void Navigation_rewrite_on_owned_reference_projecting_entity()
+        {
+            using (var ctx = CreateContext())
+            {
+                var query = ctx.Set<OwnedPerson>().Where(p => p.PersonAddress.Country.Name == "USA");
+                var result = query.ToList();
+
+                Assert.Equal(4, result.Count);
             }
         }
 
@@ -193,7 +207,35 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact(Skip = "issue #15285")]
+        [Fact(Skip = "issue #15043")]
+        public virtual void Navigation_rewrite_on_owned_collection_with_composition()
+        {
+            using (var ctx = CreateContext())
+            {
+                var query = ctx.Set<OwnedPerson>().Select(p => p.Orders.Select(o => o.Id != 42).FirstOrDefault());
+                var result = query.ToList();
+
+                //Assert.Equal(4, result.Count);
+                //Assert.True(result.All(r => r.Count > 0));
+            }
+        }
+
+
+        [Fact(Skip = "issue #15043")]
+        public virtual void Navigation_rewrite_on_owned_collection_with_composition_complex()
+        {
+            using (var ctx = CreateContext())
+            {
+                var query = ctx.Set<OwnedPerson>().Select(p => p.Orders.Select(o => o.Client.PersonAddress.Country.Name).FirstOrDefault());
+                var result = query.ToList();
+
+                //Assert.Equal(4, result.Count);
+                //Assert.True(result.All(r => r.Count > 0));
+            }
+        }
+
+
+        [Fact]
         public virtual void Select_many_on_owned_collection()
         {
             using (var ctx = CreateContext())
@@ -205,7 +247,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact(Skip = "issue #15285")]
+        [Fact]
         public virtual void Set_throws_for_owned_type()
         {
             using (var ctx = CreateContext())
@@ -215,7 +257,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact(Skip = "issue #15285")]
+        [Fact]
         public virtual void Navigation_rewrite_on_owned_reference_followed_by_regular_entity()
         {
             using (var ctx = CreateContext())
@@ -227,7 +269,55 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact(Skip = "issue #15285")]
+        [Fact]
+        public virtual void Filter_owned_entity_chained_with_regular_entity_followed_by_projecting_owned_collection()
+        {
+            using (var ctx = CreateContext())
+            {
+                var query = ctx.Set<OwnedPerson>().Where(p => p.PersonAddress.Country.Planet.Id != 42).Select(p => new { p.Orders });
+                var result = query.ToList();
+
+                Assert.Equal(4, result.Count);
+            }
+        }
+
+        [Fact]
+        public virtual void Project_multiple_owned_navigations()
+        {
+            using (var ctx = CreateContext())
+            {
+                var query = ctx.Set<OwnedPerson>().Select(p => new { p.Orders, p.PersonAddress, p.PersonAddress.Country.Planet });
+                var result = query.ToList();
+
+                Assert.Equal(4, result.Count);
+            }
+        }
+
+        [Fact]
+        public virtual void Project_multiple_owned_navigations_with_expansion_on_owned_collections()
+        {
+            using (var ctx = CreateContext())
+            {
+                var query = ctx.Set<OwnedPerson>().Select(p => new { Count = p.Orders.Where(o => o.Client.PersonAddress.Country.Planet.Star.Id != 42).Count(), p.PersonAddress.Country.Planet });
+                var result = query.ToList();
+
+                Assert.Equal(4, result.Count);
+            }
+        }
+
+        [Fact]
+        public virtual void Navigation_rewrite_on_owned_reference_followed_by_regular_entity_filter()
+        {
+            using (var ctx = CreateContext())
+            {
+                var query = ctx.Set<OwnedPerson>().Where(p => p.PersonAddress.Country.Planet.Id != 7).Select(p => new { p });
+                var result = query.ToList();
+
+                Assert.Equal(4, result.Count);
+            }
+        }
+
+        [Fact]
         public virtual void Navigation_rewrite_on_owned_reference_followed_by_regular_entity_and_property()
         {
             using (var ctx = CreateContext())
@@ -240,7 +330,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact(Skip = "issue #15285")]
+        [Fact]
         public virtual void Navigation_rewrite_on_owned_reference_followed_by_regular_entity_and_collection()
         {
             using (var ctx = CreateContext())
@@ -253,7 +343,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact(Skip = "issue #15285")]
+        [Fact]
         public virtual void SelectMany_on_owned_reference_followed_by_regular_entity_and_collection()
         {
             using (var ctx = CreateContext())
@@ -266,7 +356,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact(Skip = "issue #15285")]
+        [Fact]
         public virtual void SelectMany_on_owned_reference_with_entity_in_between_ending_in_owned_collection()
         {
             using (var ctx = CreateContext())
@@ -279,7 +369,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact(Skip = "issue #15285")]
+        [Fact]
         public virtual void Navigation_rewrite_on_owned_reference_followed_by_regular_entity_and_collection_count()
         {
             using (var ctx = CreateContext())
@@ -292,7 +382,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact(Skip = "issue #15285")]
+        [Fact]
         public virtual void Navigation_rewrite_on_owned_reference_followed_by_regular_entity_and_another_reference()
         {
             using (var ctx = CreateContext())
@@ -305,7 +395,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact(Skip = "issue #15285")]
+        [Fact]
         public virtual void Navigation_rewrite_on_owned_reference_followed_by_regular_entity_and_another_reference_and_scalar()
         {
             using (var ctx = CreateContext())
@@ -318,7 +408,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact(Skip = "issue #15285")]
+        [Fact]
         public virtual void Navigation_rewrite_on_owned_reference_followed_by_regular_entity_and_another_reference_in_predicate_and_projection()
         {
             using (var ctx = CreateContext())
@@ -332,7 +422,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact(Skip = "issue #15285")]
+        [Fact]
         public virtual void Query_with_OfType_eagerly_loads_correct_owned_navigations()
         {
             using (var ctx = CreateContext())

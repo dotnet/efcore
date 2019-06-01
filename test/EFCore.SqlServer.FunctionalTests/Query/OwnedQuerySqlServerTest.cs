@@ -547,9 +547,9 @@ INNER JOIN (
 ORDER BY [t18].[Id]");
         }
 
-        public override void Navigation_rewrite_on_owned_reference()
+        public override void Navigation_rewrite_on_owned_reference_projecting_scalar()
         {
-            base.Navigation_rewrite_on_owned_reference();
+            base.Navigation_rewrite_on_owned_reference_projecting_scalar();
 
             AssertSql(
                 @"SELECT [t0].[PersonAddress_Country_Name]
@@ -565,6 +565,14 @@ LEFT JOIN (
     WHERE [p.PersonAddress.Country].[Discriminator] IN (N'LeafB', N'LeafA', N'Branch', N'OwnedPerson') AND [p.PersonAddress.Country].[PersonAddress_Country_PlanetId] IS NOT NULL
 ) AS [t0] ON [t].[Id] = [t0].[Id]
 WHERE [p].[Discriminator] IN (N'LeafB', N'LeafA', N'Branch', N'OwnedPerson') AND ([t0].[PersonAddress_Country_Name] = N'USA')");
+        }
+
+        public override void Navigation_rewrite_on_owned_reference_projecting_entity()
+        {
+            base.Navigation_rewrite_on_owned_reference_projecting_entity();
+
+            AssertSql(
+                @"");
         }
 
         public override void Navigation_rewrite_on_owned_collection()
@@ -593,6 +601,22 @@ INNER JOIN (
     ) > 0)
 ) AS [t] ON [p.Orders].[ClientId] = [t].[Id]
 ORDER BY [t].[Id]");
+        }
+
+        public override void Navigation_rewrite_on_owned_collection_with_composition()
+        {
+            base.Navigation_rewrite_on_owned_collection_with_composition();
+
+            AssertSql(
+                @"");
+        }
+
+        public override void Navigation_rewrite_on_owned_collection_with_composition_complex()
+        {
+            base.Navigation_rewrite_on_owned_collection_with_composition_complex();
+
+            AssertSql(
+                @"");
         }
 
         public override void Select_many_on_owned_collection()
@@ -625,6 +649,38 @@ LEFT JOIN (
 ) AS [t0] ON [t].[Id] = [t0].[Id]
 LEFT JOIN [Planet] AS [p.PersonAddress.Country.Planet] ON [t0].[PersonAddress_Country_PlanetId] = [p.PersonAddress.Country.Planet].[Id]
 WHERE [p].[Discriminator] IN (N'LeafB', N'LeafA', N'Branch', N'OwnedPerson')");
+        }
+
+        public override void Filter_owned_entity_chained_with_regular_entity_followed_by_projecting_owned_collection()
+        {
+            base.Filter_owned_entity_chained_with_regular_entity_followed_by_projecting_owned_collection();
+
+            AssertSql(
+                @"");
+        }
+
+        public override void Project_multiple_owned_navigations()
+        {
+            base.Project_multiple_owned_navigations();
+
+            AssertSql(
+                @"");
+        }
+
+        public override void Project_multiple_owned_navigations_with_expansion_on_owned_collections()
+        {
+            base.Project_multiple_owned_navigations_with_expansion_on_owned_collections();
+
+            AssertSql(
+                @"");
+        }
+
+        public override void Navigation_rewrite_on_owned_reference_followed_by_regular_entity_filter()
+        {
+            base.Navigation_rewrite_on_owned_reference_followed_by_regular_entity_filter();
+
+            AssertSql(
+                @"");
         }
 
         public override void Navigation_rewrite_on_owned_reference_followed_by_regular_entity_and_property()

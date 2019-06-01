@@ -195,9 +195,9 @@ namespace Microsoft.EntityFrameworkCore.Query.NavigationExpansion.Visitors
                     && navigationBindingExpression.NavigationTreeNode.Navigation is INavigation lastNavigation
                     && lastNavigation.IsCollection())
                 {
-                    var result = CreateCollectionNavigationExpression(navigationBindingExpression.NavigationTreeNode, navigationBindingExpression.RootParameter, navigationBindingExpression.SourceMapping);
-
-                    return result;
+                    return lastNavigation.ForeignKey.IsOwnership
+                        ? NavigationExpansionHelpers.CreateNavigationExpansionRoot(navigationBindingExpression, lastNavigation.GetTargetType(), lastNavigation)
+                        : CreateCollectionNavigationExpression(navigationBindingExpression.NavigationTreeNode, navigationBindingExpression.RootParameter, navigationBindingExpression.SourceMapping);
                 }
                 else
                 {

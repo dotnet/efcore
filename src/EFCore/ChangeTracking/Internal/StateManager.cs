@@ -278,23 +278,31 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             _trackingQueryMode = TrackingQueryMode.Multiple;
 
-            var i = 0;
+            var (i, j) = (0, 0);
             var valuesArray = new object[entityType.PropertyCount()];
+            var shadowPropertyValuesArray = new object[entityType.ShadowPropertyCount()];
             foreach (var property in entityType.GetProperties())
             {
                 valuesArray[i++] = values.TryGetValue(property.Name, out var value)
                     ? value
                     : property.ClrType.GetDefaultValue();
+
+                if (property.IsShadowProperty())
+                {
+                    shadowPropertyValuesArray[j++] = values.TryGetValue(property.Name, out var shadowValue)
+                        ? shadowValue
+                        : property.ClrType.GetDefaultValue();
+                }
             }
 
             var valueBuffer = new ValueBuffer(valuesArray);
-
             var entity = entityType.HasClrType()
                 ? EntityMaterializerSource.GetMaterializer(entityType)(
                     new MaterializationContext(valueBuffer, Context))
                 : null;
 
-            var entry = _internalEntityEntryFactory.Create(this, entityType, entity, valueBuffer);
+            var shadowPropertyValueBuffer = new ValueBuffer(shadowPropertyValuesArray);
+            var entry = _internalEntityEntryFactory.Create(this, entityType, entity, shadowPropertyValueBuffer);
 
             UpdateReferenceMaps(entry, EntityState.Detached, null);
 
