@@ -9,32 +9,28 @@ using Microsoft.EntityFrameworkCore.Metadata.Internal;
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 {
     /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    ///     A convention that configures the entity types that have the <see cref="OwnedAttribute"/> as owned.
     /// </summary>
-    public class OwnedEntityTypeAttributeConvention : EntityTypeAttributeConvention<OwnedAttribute>
+    public class OwnedEntityTypeAttributeConvention : EntityTypeAttributeConventionBase<OwnedAttribute>
     {
         /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        ///     Creates a new instance of <see cref="OwnedEntityTypeAttributeConvention" />.
         /// </summary>
+        /// <param name="dependencies"> Parameter object containing dependencies for this convention. </param>
         public OwnedEntityTypeAttributeConvention([NotNull] ProviderConventionSetBuilderDependencies dependencies)
             : base(dependencies)
         {
         }
 
         /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        ///     Called after an entity type is added to the model if it has an attribute.
         /// </summary>
+        /// <param name="entityTypeBuilder"> The builder for the entity type. </param>
+        /// <param name="attribute"> The attribute. </param>
+        /// <param name="context"> Additional information associated with convention execution. </param>
         protected override void ProcessEntityTypeAdded(
-            IConventionEntityTypeBuilder entityTypeBuilder, OwnedAttribute attribute,
+            IConventionEntityTypeBuilder entityTypeBuilder,
+            OwnedAttribute attribute,
             IConventionContext<IConventionEntityTypeBuilder> context)
         {
             if (entityTypeBuilder.Metadata.HasClrType())

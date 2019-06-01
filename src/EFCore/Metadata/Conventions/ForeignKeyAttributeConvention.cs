@@ -16,19 +16,20 @@ using Microsoft.EntityFrameworkCore.Utilities;
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 {
     /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    ///     <para>
+    ///         A convention that configures the foreign key properties associated with a navigation property
+    ///         based on the <see cref="ForeignKeyAttribute"/> specified on the properties or the navigation properties.
+    ///     </para>
+    ///     <para>
+    ///         For one-to-one relationships the attribute has to be specified on the navigation property pointing to the principal.
+    ///     </para>
     /// </summary>
     public class ForeignKeyAttributeConvention : IForeignKeyAddedConvention, IModelFinalizedConvention
     {
         /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        ///     Creates a new instance of <see cref="ForeignKeyAttributeConvention" />.
         /// </summary>
+        /// <param name="dependencies"> Parameter object containing dependencies for this convention. </param>
         public ForeignKeyAttributeConvention([NotNull] ProviderConventionSetBuilderDependencies dependencies)
         {
             Dependencies = dependencies;

@@ -16,10 +16,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Internal;
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 {
     /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    ///     A convention that adds service properties to entity types.
     /// </summary>
     public class ServicePropertyDiscoveryConvention :
         IEntityTypeAddedConvention,
@@ -28,11 +25,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         IModelFinalizedConvention
     {
         /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        ///     Creates a new instance of <see cref="ServicePropertyDiscoveryConvention" />.
         /// </summary>
+        /// <param name="dependencies"> Parameter object containing dependencies for this convention. </param>
         public ServicePropertyDiscoveryConvention([NotNull] ProviderConventionSetBuilderDependencies dependencies)
         {
             Dependencies = dependencies;
@@ -50,9 +45,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <param name="context"> Additional information associated with convention execution. </param>
         public virtual void ProcessEntityTypeAdded(
             IConventionEntityTypeBuilder entityTypeBuilder, IConventionContext<IConventionEntityTypeBuilder> context)
-        {
-            Process(entityTypeBuilder);
-        }
+            => Process(entityTypeBuilder);
 
         /// <summary>
         ///     Called after the base type of an entity type changes.
@@ -86,8 +79,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
             foreach (var propertyInfo in candidates)
             {
-                if (entityTypeBuilder.IsIgnored(propertyInfo.GetSimpleMemberName())
-                    || ConventionEntityTypeExtensions.FindProperty(entityType, propertyInfo) != null
+                var name = propertyInfo.GetSimpleMemberName();
+                if (entityTypeBuilder.IsIgnored(name)
+                    || entityType.FindProperty(propertyInfo) != null
                     || entityType.FindNavigation(propertyInfo) != null
                     || !propertyInfo.IsCandidateProperty(publicOnly: false)
                     || (propertyInfo.IsCandidateProperty()
@@ -96,7 +90,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                     continue;
                 }
 
-                var factory = Dependencies.ParameterBindingFactories.FindFactory(propertyInfo.PropertyType, propertyInfo.GetSimpleMemberName());
+                var factory = Dependencies.ParameterBindingFactories.FindFactory(propertyInfo.PropertyType, name);
                 if (factory == null)
                 {
                     continue;

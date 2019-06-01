@@ -13,10 +13,8 @@ using Microsoft.EntityFrameworkCore.Storage;
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 {
     /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    ///     A convention that configures the filter for unique non-clustered indexes with nullable columns
+    ///     to filter out null values.
     /// </summary>
     public class SqlServerIndexConvention :
         IEntityTypeBaseTypeChangedConvention,
@@ -29,13 +27,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         private readonly ISqlGenerationHelper _sqlGenerationHelper;
 
         /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        ///     Creates a new instance of <see cref="SqlServerDbFunctionConvention" />.
         /// </summary>
+        /// <param name="dependencies"> Parameter object containing dependencies for this convention. </param>
+        /// <param name="relationalDependencies">  Parameter object containing relational dependencies for this convention. </param>
+        /// <param name="sqlGenerationHelper"> SQL command generation helper service. </param>
         public SqlServerIndexConvention(
-            [NotNull] ProviderConventionSetBuilderDependencies dependencies, [NotNull] ISqlGenerationHelper sqlGenerationHelper)
+            [NotNull] ProviderConventionSetBuilderDependencies dependencies,
+            [NotNull] RelationalConventionSetBuilderDependencies relationalDependencies,
+            [NotNull] ISqlGenerationHelper sqlGenerationHelper)
         {
             _sqlGenerationHelper = sqlGenerationHelper;
             Dependencies = dependencies;
@@ -149,7 +149,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
         private IConventionIndexBuilder SetIndexFilter(IConventionIndexBuilder indexBuilder, bool columnNameChanged = false)
         {
-            // TODO: compare with a cached filter to avoid overriding if it was set by a different convention
             var index = indexBuilder.Metadata;
             if (index.IsUnique
                 && index.GetSqlServerIsClustered() != true

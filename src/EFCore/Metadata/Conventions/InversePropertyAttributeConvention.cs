@@ -17,31 +17,29 @@ using Microsoft.EntityFrameworkCore.Metadata.Internal;
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 {
     /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    ///     A convention that configures the inverse navigation property based on the <see cref="InversePropertyAttribute"/>
+    ///     specified on the other navigation property.
     /// </summary>
     public class InversePropertyAttributeConvention :
-        NavigationAttributeEntityTypeConvention<InversePropertyAttribute>, IModelFinalizedConvention
+        NavigationAttributeConventionBase<InversePropertyAttribute>, IModelFinalizedConvention
     {
         /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        ///     Creates a new instance of <see cref="InversePropertyAttributeConvention" />.
         /// </summary>
+        /// <param name="dependencies"> Parameter object containing dependencies for this convention. </param>
         public InversePropertyAttributeConvention([NotNull] ProviderConventionSetBuilderDependencies dependencies)
             : base(dependencies)
         {
         }
 
         /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        ///     Called for every navigation property that has an attribute after an entity type is added to the model.
         /// </summary>
+        /// <param name="entityTypeBuilder"> The builder for the entity type. </param>
+        /// <param name="navigationMemberInfo"> The navigation member info. </param>
+        /// <param name="targetClrType"> The CLR type of the target entity type</param>
+        /// <param name="attribute"> The attribute. </param>
+        /// <param name="context"> Additional information associated with convention execution. </param>
         public override void ProcessEntityTypeAdded(
             IConventionEntityTypeBuilder entityTypeBuilder,
             MemberInfo navigationMemberInfo,
@@ -82,7 +80,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 .FirstOrDefault(p => string.Equals(p.GetSimpleMemberName(), attribute.Property, StringComparison.OrdinalIgnoreCase));
 
             if (inverseNavigationPropertyInfo == null
-                || !FindCandidateNavigationPropertyType(inverseNavigationPropertyInfo).GetTypeInfo()
+                || !Dependencies.MemberClassifier.FindCandidateNavigationPropertyType(inverseNavigationPropertyInfo).GetTypeInfo()
                     .IsAssignableFrom(entityType.ClrType.GetTypeInfo()))
             {
                 throw new InvalidOperationException(
@@ -100,7 +98,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                         entityType.DisplayName()));
             }
 
-            // Check for InversePropertyAttribute on the inverseNavigation to verify that it matches.
+            // Check for InversePropertyAttribute on the inverse navigation to verify that it matches.
             if (Attribute.IsDefined(inverseNavigationPropertyInfo, typeof(InversePropertyAttribute)))
             {
                 var inverseAttribute = inverseNavigationPropertyInfo.GetCustomAttribute<InversePropertyAttribute>(true);
@@ -209,11 +207,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         }
 
         /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        ///     Called for every navigation property that has an attribute after an entity type is ignored.
         /// </summary>
+        /// <param name="modelBuilder"> The builder for the model. </param>
+        /// <param name="type"> The ignored entity type. </param>
+        /// <param name="navigationMemberInfo"> The navigation member info. </param>
+        /// <param name="targetClrType"> The CLR type of the target entity type. </param>
+        /// <param name="attribute"> The attribute. </param>
+        /// <param name="context"> Additional information associated with convention execution. </param>
         public override void ProcessEntityTypeIgnored(
             IConventionModelBuilder modelBuilder,
             Type type,
@@ -239,11 +240,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         }
 
         /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        ///     Called after a navigation property that has an attribute is added to an entity type.
         /// </summary>
+        /// <param name="relationshipBuilder"> The builder for the relationship. </param>
+        /// <param name="navigation"> The navigation. </param>
+        /// <param name="attribute"> The attribute. </param>
+        /// <param name="context"> Additional information associated with convention execution. </param>
         public override void ProcessNavigationAdded(
             IConventionRelationshipBuilder relationshipBuilder,
             IConventionNavigation navigation,
@@ -274,11 +276,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         }
 
         /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        ///     Called for every navigation property that has an attribute after the base type for an entity type is changed.
         /// </summary>
+        /// <param name="entityTypeBuilder"> The builder for the entity type. </param>
+        /// <param name="newBaseType"> The new base type. </param>
+        /// <param name="oldBaseType"> The old base type. </param>
+        /// <param name="navigationMemberInfo"> The navigation member info. </param>
+        /// <param name="targetClrType"> The CLR type of the target entity type. </param>
+        /// <param name="attribute"> The attribute. </param>
+        /// <param name="context"> Additional information associated with convention execution. </param>
         public override void ProcessEntityTypeBaseTypeChanged(
             IConventionEntityTypeBuilder entityTypeBuilder,
             IConventionEntityType newBaseType,
@@ -309,11 +315,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         }
 
         /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        ///     Called after a navigation property that has an attribute is ignored.
         /// </summary>
+        /// <param name="entityTypeBuilder"> The builder for the entity type. </param>
+        /// <param name="navigationMemberInfo"> The navigation member info. </param>
+        /// <param name="targetClrType"> The CLR type of the target entity type. </param>
+        /// <param name="attribute"> The attribute. </param>
+        /// <param name="context"> Additional information associated with convention execution. </param>
         public override void ProcessEntityTypeMemberIgnored(
             IConventionEntityTypeBuilder entityTypeBuilder,
             MemberInfo navigationMemberInfo,
@@ -374,11 +382,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         }
 
         /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        ///     Returns a value indication whether the given navigation has ambiguous inverse navigations with
+        ///     <see cref="InversePropertyAttribute"/>.
         /// </summary>
+        /// <param name="entityType"> The entity type. </param>
+        /// <param name="navigation"> The navigation. </param>
+        /// <param name="targetEntityType"> Target entity type. </param>
+        /// <returns>
+        ///     <c>true</c> if the given navigation has ambiguous inverse navigations with <see cref="InversePropertyAttribute"/>.
+        /// </returns>
         public static bool IsAmbiguous(
             [NotNull] IConventionEntityType entityType, [NotNull] MemberInfo navigation, [NotNull] IConventionEntityType targetEntityType)
         {

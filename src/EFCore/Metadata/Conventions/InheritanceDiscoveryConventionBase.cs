@@ -9,19 +9,14 @@ using Microsoft.EntityFrameworkCore.Utilities;
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 {
     /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    ///     Base type for inheritance discovery conventions
     /// </summary>
     public abstract class InheritanceDiscoveryConventionBase
     {
         /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        ///     Creates a new instance of <see cref="InheritanceDiscoveryConventionBase" />.
         /// </summary>
+        /// <param name="dependencies"> Parameter object containing dependencies for this convention. </param>
         protected InheritanceDiscoveryConventionBase([NotNull] ProviderConventionSetBuilderDependencies dependencies)
         {
             Dependencies = dependencies;
@@ -33,11 +28,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         protected virtual ProviderConventionSetBuilderDependencies Dependencies { get; }
 
         /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        ///     Finds an entity type in the model that's associated with a CLR type that the given entity type's
+        ///     associated CLR type is derived from and is the closest one in the CLR hierarchy.
         /// </summary>
+        /// <param name="entityType"> The entity type. </param>
         protected virtual IConventionEntityType FindClosestBaseType([NotNull] IConventionEntityType entityType)
         {
             Check.NotNull(entityType, nameof(entityType));

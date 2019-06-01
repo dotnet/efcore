@@ -11,12 +11,10 @@ using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 {
     /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    ///     A convention that configures store value generation as <see cref="ValueGenerated.OnAdd"/> on properties that are
+    ///     part of the primary key and not part of any foreign keys.
     /// </summary>
-    public class ValueGeneratorConvention :
+    public class ValueGenerationConvention :
         IEntityTypePrimaryKeyChangedConvention,
         IForeignKeyAddedConvention,
         IForeignKeyRemovedConvention,
@@ -24,12 +22,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         IEntityTypeBaseTypeChangedConvention
     {
         /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        ///     Creates a new instance of <see cref="ValueGenerationConvention" />.
         /// </summary>
-        public ValueGeneratorConvention([NotNull] ProviderConventionSetBuilderDependencies dependencies)
+        /// <param name="dependencies"> Parameter object containing dependencies for this convention. </param>
+        public ValueGenerationConvention([NotNull] ProviderConventionSetBuilderDependencies dependencies)
         {
             Dependencies = dependencies;
         }
@@ -135,7 +131,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 }
             }
 
-            if (newPrimaryKey != null && newPrimaryKey.Builder != null)
+            if (newPrimaryKey?.Builder != null)
             {
                 foreach (var property in newPrimaryKey.Properties)
                 {

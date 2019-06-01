@@ -15,19 +15,25 @@ using Microsoft.EntityFrameworkCore.Metadata.Internal;
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 {
     /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    ///     <para>
+    ///         A convention that finds backing fields for properties based on their names:
+    ///             * &lt;[property name]&gt;k__BackingField
+    ///             * _[camel-cased property name]
+    ///             * _[property name]
+    ///             * m_[camel-cased property name]
+    ///             * m_[property name]
+    ///     </para>
+    ///     <para>
+    ///         The field type must be of a type that's assignable to or from the property type.
+    ///         If more than one matching field is found an exception is thrown.
+    ///     </para>
     /// </summary>
     public class BackingFieldConvention : IPropertyAddedConvention, INavigationAddedConvention
     {
         /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        ///     Creates a new instance of <see cref="BackingFieldConvention" />.
         /// </summary>
+        /// <param name="dependencies"> Parameter object containing dependencies for this convention. </param>
         public BackingFieldConvention([NotNull] ProviderConventionSetBuilderDependencies dependencies)
         {
             Dependencies = dependencies;

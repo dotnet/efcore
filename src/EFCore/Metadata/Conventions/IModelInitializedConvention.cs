@@ -9,7 +9,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
     /// <summary>
     ///     Represents an operation that should be performed when a model is initialized.
     /// </summary>
-    public interface IModelInitializedConvention
+    public interface IModelInitializedConvention : IConvention
     {
         /// <summary>
         ///     Called after a model is initialized.

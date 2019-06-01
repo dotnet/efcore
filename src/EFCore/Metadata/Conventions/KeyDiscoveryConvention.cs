@@ -15,10 +15,19 @@ using Microsoft.EntityFrameworkCore.Utilities;
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 {
     /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    ///     <para>
+    ///         A convention that finds primary key property for the entity type based on the names, ignoring case:
+    ///             * Id
+    ///             * [entity name]Id
+    ///     </para>
+    ///         If the entity type is owned through a reference navigation property then the corresponding foreign key
+    ///         properties are used.
+    ///     <para>
+    ///     </para>
+    ///     <para>
+    ///         If the entity type is owned through a collection navigation property then a composite primary key
+    ///         is configured using the foreign key properties with an extra property that matches the naming convention above.
+    ///     </para>
     /// </summary>
     public class KeyDiscoveryConvention :
         IEntityTypeAddedConvention,
@@ -35,11 +44,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         private const string KeySuffix = "Id";
 
         /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        ///     Creates a new instance of <see cref="KeyDiscoveryConvention" />.
         /// </summary>
+        /// <param name="dependencies"> Parameter object containing dependencies for this convention. </param>
         public KeyDiscoveryConvention([NotNull] ProviderConventionSetBuilderDependencies dependencies)
         {
             Dependencies = dependencies;
@@ -78,8 +85,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             {
                 var candidateProperties = entityType.GetProperties().Where(
                     p => !p.IsShadowProperty()
-                         || !ConfigurationSource.Convention.Overrides(p.GetConfigurationSource())).ToList();
-                keyProperties = (List<IConventionProperty>)DiscoverKeyProperties(entityType, candidateProperties);
+                         || !ConfigurationSource.Convention.Overrides(p.GetConfigurationSource()));
+                keyProperties = DiscoverKeyProperties(entityType, candidateProperties).ToList();
                 if (keyProperties.Count > 1)
                 {
                     Dependencies.Logger.MultiplePrimaryKeyCandidates(keyProperties[0], keyProperties[1]);
@@ -118,29 +125,30 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         }
 
         /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        ///     Returns the properties that should be used for the primary key.
         /// </summary>
-        public virtual IEnumerable<IConventionProperty> DiscoverKeyProperties(
+        /// <param name="entityType"> The entity type. </param>
+        /// <param name="candidateProperties"> The properties to consider. </param>
+        /// <returns> The properties that should be used for the primary key. </returns>
+        public static IEnumerable<IConventionProperty> DiscoverKeyProperties(
             [NotNull] IConventionEntityType entityType,
-            [NotNull] IReadOnlyList<IConventionProperty> candidateProperties)
+            [NotNull] IEnumerable<IConventionProperty> candidateProperties)
         {
             Check.NotNull(entityType, nameof(entityType));
 
-            var keyProperties = candidateProperties.Where(p => string.Equals(p.Name, KeySuffix, StringComparison.OrdinalIgnoreCase))
-                .ToList();
-            if (keyProperties.Count == 0)
+            // ReSharper disable PossibleMultipleEnumeration
+            var keyProperties = candidateProperties.Where(p => string.Equals(p.Name, KeySuffix, StringComparison.OrdinalIgnoreCase));
+            if (!keyProperties.Any())
             {
                 var entityTypeName = entityType.ShortName();
                 keyProperties = candidateProperties.Where(
                     p => p.Name.Length == entityTypeName.Length + KeySuffix.Length
                          && p.Name.StartsWith(entityTypeName, StringComparison.OrdinalIgnoreCase)
-                         && p.Name.EndsWith(KeySuffix, StringComparison.OrdinalIgnoreCase)).ToList();
+                         && p.Name.EndsWith(KeySuffix, StringComparison.OrdinalIgnoreCase));
             }
 
             return keyProperties;
+            // ReSharper restore PossibleMultipleEnumeration
         }
 
         /// <summary>

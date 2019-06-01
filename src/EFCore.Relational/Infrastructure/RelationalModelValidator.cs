@@ -150,7 +150,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// </summary>
         /// <param name="model"> The model to validate. </param>
         /// <param name="logger"> The logger to use. </param>
-        protected virtual void ValidateSharedTableCompatibility([NotNull] IModel model, [NotNull] IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
+        protected virtual void ValidateSharedTableCompatibility(
+            [NotNull] IModel model,
+            [NotNull] IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
         {
             var tables = new Dictionary<string, List<IEntityType>>();
             foreach (var entityType in model.GetEntityTypes().Where(et => et.FindPrimaryKey() != null))
@@ -286,7 +288,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <param name="tableName"> The table name. </param>
         /// <param name="logger"> The logger to use. </param>
         protected virtual void ValidateSharedColumnsCompatibility(
-            [NotNull] IReadOnlyList<IEntityType> mappedTypes, [NotNull] string tableName, [NotNull] IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
+            [NotNull] IReadOnlyList<IEntityType> mappedTypes, [NotNull] string tableName,
+            [NotNull] IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
         {
             Dictionary<string, IProperty> storeConcurrencyTokens = null;
             if (mappedTypes.Count > 1)
@@ -418,7 +421,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 {
                     foreach (var missingColumn in missingConcurrencyTokens)
                     {
-                        if (!entityType.GetAllBaseTypes().SelectMany(t => t.GetDeclaredProperties()).Any(p => p.GetColumnName() == missingColumn))
+                        if (entityType.GetAllBaseTypes().SelectMany(t => t.GetDeclaredProperties())
+                            .All(p => p.GetColumnName() != missingColumn))
                         {
                             throw new InvalidOperationException(
                                 RelationalStrings.MissingConcurrencyColumn(entityType.DisplayName(), missingColumn, tableName));

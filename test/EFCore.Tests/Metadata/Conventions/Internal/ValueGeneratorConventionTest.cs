@@ -495,7 +495,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
         private static void RunConvention(InternalEntityTypeBuilder entityBuilder)
         {
-            new ValueGeneratorConvention(CreateDependencies())
+            new ValueGenerationConvention(CreateDependencies())
                 .ProcessEntityTypePrimaryKeyChanged(
                     entityBuilder, entityBuilder.Metadata.FindPrimaryKey(), null,
                     new ConventionContext<IConventionKey>(entityBuilder.Metadata.Model.ConventionDispatcher));
@@ -503,7 +503,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
         private static void RunConvention(InternalRelationshipBuilder foreignKeyBuilder)
         {
-            new ValueGeneratorConvention(CreateDependencies())
+            new ValueGenerationConvention(CreateDependencies())
                 .ProcessForeignKeyAdded(
                     foreignKeyBuilder,
                     new ConventionContext<IConventionRelationshipBuilder>(
@@ -512,7 +512,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
         private static void RunConvention(InternalEntityTypeBuilder entityBuilder, ForeignKey foreignKey)
         {
-            new ValueGeneratorConvention(CreateDependencies())
+            new ValueGenerationConvention(CreateDependencies())
                 .ProcessForeignKeyRemoved(entityBuilder, foreignKey,
                 new ConventionContext<IConventionForeignKey>(entityBuilder.Metadata.Model.ConventionDispatcher));
         }
@@ -529,7 +529,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             conventions.EntityTypeAddedConventions.Add(new KeyDiscoveryConvention(dependencies));
 
-            var keyConvention = new ValueGeneratorConvention(dependencies);
+            var keyConvention = new ValueGenerationConvention(dependencies);
 
             conventions.ForeignKeyAddedConventions.Add(keyConvention);
             conventions.ForeignKeyRemovedConventions.Add(keyConvention);

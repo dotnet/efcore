@@ -10,20 +10,19 @@ using Microsoft.EntityFrameworkCore.SqlServer.Metadata.Internal;
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 {
     /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    ///     A convention that configures store value generation as <see cref="ValueGenerated.OnAdd"/> on properties that are
+    ///     part of the primary key and not part of any foreign keys, were configured to have a database default value
+    ///     or were configured to use a <see cref="SqlServerValueGenerationStrategy"/>.
+    ///     It also configures properties as <see cref="ValueGenerated.OnAddOrUpdate"/> if they were configured as computed columns.
     /// </summary>
-    public class SqlServerValueGeneratorConvention : RelationalValueGeneratorConvention
+    public class SqlServerValueGenerationConvention : RelationalValueGenerationConvention
     {
         /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        ///     Creates a new instance of <see cref="SqlServerValueGenerationConvention" />.
         /// </summary>
-        public SqlServerValueGeneratorConvention(
+        /// <param name="dependencies"> Parameter object containing dependencies for this convention. </param>
+        /// <param name="relationalDependencies">  Parameter object containing relational dependencies for this convention. </param>
+        public SqlServerValueGenerationConvention(
             [NotNull] ProviderConventionSetBuilderDependencies dependencies,
             [NotNull] RelationalConventionSetBuilderDependencies relationalDependencies)
             : base(dependencies, relationalDependencies)
@@ -68,7 +67,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <param name="property"> The property. </param>
         /// <returns> The store value generation strategy to set for the given property. </returns>
         public static new ValueGenerated? GetValueGenerated([NotNull] IProperty property)
-            => RelationalValueGeneratorConvention.GetValueGenerated(property)
+            => RelationalValueGenerationConvention.GetValueGenerated(property)
                 ?? ((property as IConventionProperty)?.GetSqlServerValueGenerationStrategyConfigurationSource() != null
                     && property.GetSqlServerValueGenerationStrategy() != null
                     ? ValueGenerated.OnAdd

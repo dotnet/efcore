@@ -8,19 +8,15 @@ using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 {
     /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    ///     A convention that sets the delete behavior to <see cref="DeleteBehavior.Cascade"/> for required foreign keys
+    ///     and <see cref="DeleteBehavior.ClientSetNull"/> for optional ones.
     /// </summary>
     public class CascadeDeleteConvention : IForeignKeyAddedConvention, IForeignKeyRequirednessChangedConvention
     {
         /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        ///     Creates a new instance of <see cref="CascadeDeleteConvention" />.
         /// </summary>
+        /// <param name="dependencies"> Parameter object containing dependencies for this convention. </param>
         public CascadeDeleteConvention([NotNull] ProviderConventionSetBuilderDependencies dependencies)
         {
             Dependencies = dependencies;
@@ -39,7 +35,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         public virtual void ProcessForeignKeyAdded(
             IConventionRelationshipBuilder relationshipBuilder, IConventionContext<IConventionRelationshipBuilder> context)
         {
-            var newRelationshipBuilder = relationshipBuilder.OnDelete(TargetDeleteBehavior(relationshipBuilder.Metadata));
+            var newRelationshipBuilder = relationshipBuilder.OnDelete(GetTargetDeleteBehavior(relationshipBuilder.Metadata));
             if (newRelationshipBuilder != null)
             {
                 context.StopProcessingIfChanged(newRelationshipBuilder);
@@ -58,12 +54,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         }
 
         /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        ///     Returns the delete behavior to set for the given foreign key.
         /// </summary>
-        protected virtual DeleteBehavior TargetDeleteBehavior([NotNull] IConventionForeignKey foreignKey)
+        /// <param name="foreignKey"> The foreign key. </param>
+        protected virtual DeleteBehavior GetTargetDeleteBehavior([NotNull] IConventionForeignKey foreignKey)
             => foreignKey.IsRequired ? DeleteBehavior.Cascade : DeleteBehavior.ClientSetNull;
     }
 }

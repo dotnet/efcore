@@ -8,19 +8,16 @@ using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 {
     /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    ///     A convention that configures the maximum object identifier length supported by the database. 
     /// </summary>
     public class RelationalMaxIdentifierLengthConvention : IModelInitializedConvention
     {
         /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        ///     Creates a new instance of <see cref="RelationalMaxIdentifierLengthConvention" />.
         /// </summary>
+        /// <param name="maxIdentifierLength"> The maximum object identifier length supported by the database. </param>
+        /// <param name="dependencies"> Parameter object containing dependencies for this convention. </param>
+        /// <param name="relationalDependencies">  Parameter object containing relational dependencies for this convention. </param>
         public RelationalMaxIdentifierLengthConvention(
             int maxIdentifierLength,
             [NotNull] ProviderConventionSetBuilderDependencies dependencies,

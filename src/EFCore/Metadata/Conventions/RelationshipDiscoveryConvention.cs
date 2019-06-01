@@ -16,10 +16,8 @@ using Microsoft.EntityFrameworkCore.Metadata.Internal;
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 {
     /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    ///     A convention that configures relationships between entity types based on the navigation properties
+    ///     as long as there is no ambiguity as to which is the corresponding inverse navigation.
     /// </summary>
     public class RelationshipDiscoveryConvention :
         IEntityTypeAddedConvention,
@@ -30,11 +28,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         IForeignKeyOwnershipChangedConvention
     {
         /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        ///     Creates a new instance of <see cref="RelationshipDiscoveryConvention" />.
         /// </summary>
+        /// <param name="dependencies"> Parameter object containing dependencies for this convention. </param>
         public RelationshipDiscoveryConvention([NotNull] ProviderConventionSetBuilderDependencies dependencies)
         {
             Dependencies = dependencies;
@@ -1017,10 +1013,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         }
 
         private static bool HasDeclaredAmbiguousNavigationsTo(IConventionEntityType sourceEntityType, Type targetClrType)
-        {
-            var ambiguousNavigations = GetAmbiguousNavigations(sourceEntityType);
-            return ambiguousNavigations?.ContainsValue(targetClrType) == true;
-        }
+            => GetAmbiguousNavigations(sourceEntityType)?.ContainsValue(targetClrType) == true;
 
         private static ImmutableSortedDictionary<MemberInfo, Type> GetAmbiguousNavigations(IConventionEntityType entityType)
             => entityType.FindAnnotation(CoreAnnotationNames.AmbiguousNavigations)?.Value

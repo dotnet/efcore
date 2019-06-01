@@ -10,24 +10,20 @@ using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 {
     /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    ///     A base type for conventions that configure model aspects based on whether the member type
+    ///     is a non-nullable reference type.
     /// </summary>
-    public abstract class NonNullableConvention
+    public abstract class NonNullableConventionBase
     {
         private const string NullableAttributeFullName = "System.Runtime.CompilerServices.NullableAttribute";
         private Type _nullableAttrType;
         private FieldInfo _nullableFlagsFieldInfo;
-        
+
         /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        ///     Creates a new instance of <see cref="NonNullableConventionBase" />.
         /// </summary>
-        protected NonNullableConvention([NotNull] ProviderConventionSetBuilderDependencies dependencies)
+        /// <param name="dependencies"> Parameter object containing dependencies for this convention. </param>
+        protected NonNullableConventionBase([NotNull] ProviderConventionSetBuilderDependencies dependencies)
         {
             Dependencies = dependencies;
         }
@@ -38,11 +34,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         protected virtual ProviderConventionSetBuilderDependencies Dependencies { get; }
 
         /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        ///     Returns a value indicating whether the member type is a non-nullable reference type.
         /// </summary>
+        /// <param name="memberInfo"> The member info. </param>
+        /// <returns> <c>true</c> if the member type is a non-nullable reference type. </returns>
         protected virtual bool IsNonNullable([NotNull] MemberInfo memberInfo)
         {
             // For C# 8.0 nullable types, the C# currently synthesizes a NullableAttribute that expresses nullability into assemblies

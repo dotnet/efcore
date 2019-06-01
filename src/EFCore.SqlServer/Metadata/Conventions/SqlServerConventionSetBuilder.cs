@@ -48,26 +48,26 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         {
             var conventionSet = base.CreateConventionSet();
 
-            var valueGenerationStrategyConvention = new SqlServerValueGenerationStrategyConvention(Dependencies);
+            var valueGenerationStrategyConvention = new SqlServerValueGenerationStrategyConvention(Dependencies, RelationalDependencies);
             conventionSet.ModelInitializedConventions.Add(valueGenerationStrategyConvention);
             conventionSet.ModelInitializedConventions.Add(
                 new RelationalMaxIdentifierLengthConvention(128, Dependencies, RelationalDependencies));
 
-            ValueGeneratorConvention valueGeneratorConvention = new SqlServerValueGeneratorConvention(Dependencies, RelationalDependencies);
-            ReplaceConvention(conventionSet.EntityTypeBaseTypeChangedConventions, valueGeneratorConvention);
+            ValueGenerationConvention valueGenerationConvention = new SqlServerValueGenerationConvention(Dependencies, RelationalDependencies);
+            ReplaceConvention(conventionSet.EntityTypeBaseTypeChangedConventions, valueGenerationConvention);
 
-            var sqlServerInMemoryTablesConvention = new SqlServerMemoryOptimizedTablesConvention(Dependencies);
+            var sqlServerInMemoryTablesConvention = new SqlServerMemoryOptimizedTablesConvention(Dependencies, RelationalDependencies);
             conventionSet.EntityTypeAnnotationChangedConventions.Add(sqlServerInMemoryTablesConvention);
 
-            ReplaceConvention(conventionSet.EntityTypePrimaryKeyChangedConventions, valueGeneratorConvention);
+            ReplaceConvention(conventionSet.EntityTypePrimaryKeyChangedConventions, valueGenerationConvention);
 
             conventionSet.KeyAddedConventions.Add(sqlServerInMemoryTablesConvention);
 
-            ReplaceConvention(conventionSet.ForeignKeyAddedConventions, valueGeneratorConvention);
+            ReplaceConvention(conventionSet.ForeignKeyAddedConventions, valueGenerationConvention);
 
-            ReplaceConvention(conventionSet.ForeignKeyRemovedConventions, valueGeneratorConvention);
+            ReplaceConvention(conventionSet.ForeignKeyRemovedConventions, valueGenerationConvention);
 
-            var sqlServerIndexConvention = new SqlServerIndexConvention(Dependencies, _sqlGenerationHelper);
+            var sqlServerIndexConvention = new SqlServerIndexConvention(Dependencies, RelationalDependencies, _sqlGenerationHelper);
 
             conventionSet.EntityTypeBaseTypeChangedConventions.Add(sqlServerIndexConvention);
 
@@ -90,7 +90,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             conventionSet.PropertyAnnotationChangedConventions.Add(sqlServerIndexConvention);
             ReplaceConvention(conventionSet.PropertyAnnotationChangedConventions, storeGenerationConvention);
             ReplaceConvention(
-                conventionSet.PropertyAnnotationChangedConventions, (RelationalValueGeneratorConvention)valueGeneratorConvention);
+                conventionSet.PropertyAnnotationChangedConventions, (RelationalValueGenerationConvention)valueGenerationConvention);
 
             ReplaceConvention(
                 conventionSet.ModelAnnotationChangedConventions,

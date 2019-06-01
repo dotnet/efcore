@@ -11,41 +11,36 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 {
     /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    ///     A convention that configures the entity type key based on the <see cref="KeyAttribute"/> specified on a property.
     /// </summary>
-    public class KeyAttributeConvention : PropertyAttributeConvention<KeyAttribute>, IModelFinalizedConvention
+    public class KeyAttributeConvention : PropertyAttributeConventionBase<KeyAttribute>, IModelFinalizedConvention
     {
         /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        ///     Creates a new instance of <see cref="KeyAttributeConvention" />.
         /// </summary>
+        /// <param name="dependencies"> Parameter object containing dependencies for this convention. </param>
         public KeyAttributeConvention([NotNull] ProviderConventionSetBuilderDependencies dependencies)
             : base(dependencies)
         {
         }
 
         /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        ///     Called after a property is added to the entity type with an attribute on the associated CLR property or field.
         /// </summary>
+        /// <param name="propertyBuilder"> The builder for the property. </param>
+        /// <param name="attribute"> The attribute. </param>
+        /// <param name="clrMember"> The member that has the attribute. </param>
+        /// <param name="context"> Additional information associated with convention execution. </param>
         protected override void ProcessPropertyAdded(
-            IConventionPropertyBuilder propertyBuilder, KeyAttribute attribute, MemberInfo clrMember, IConventionContext context)
+            IConventionPropertyBuilder propertyBuilder,
+            KeyAttribute attribute,
+            MemberInfo clrMember,
+            IConventionContext context)
         {
-            Check.NotNull(propertyBuilder, nameof(propertyBuilder));
-            Check.NotNull(attribute, nameof(attribute));
-
             var entityType = propertyBuilder.Metadata.DeclaringEntityType;
             if (entityType.BaseType != null)
             {

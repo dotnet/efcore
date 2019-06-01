@@ -80,7 +80,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure
             conventionSet.EntityTypeRemovedConventions.Add(discriminatorConvention);
 
             var foreignKeyIndexConvention = new ForeignKeyIndexConvention(Dependencies);
-            var valueGeneratorConvention = new ValueGeneratorConvention(Dependencies);
+            var valueGeneratorConvention = new ValueGenerationConvention(Dependencies);
 
             conventionSet.EntityTypeBaseTypeChangedConventions.Add(propertyDiscoveryConvention);
             conventionSet.EntityTypeBaseTypeChangedConventions.Add(servicePropertyDiscoveryConvention);

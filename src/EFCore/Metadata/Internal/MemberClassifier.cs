@@ -51,13 +51,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual Type FindCandidateNavigationPropertyType(PropertyInfo propertyInfo)
+        public virtual Type FindCandidateNavigationPropertyType(MemberInfo memberInfo)
         {
-            Check.NotNull(propertyInfo, nameof(propertyInfo));
+            Check.NotNull(memberInfo, nameof(memberInfo));
 
-            var targetType = propertyInfo.PropertyType;
+            var targetType = memberInfo.GetMemberType();
             var targetSequenceType = targetType.TryGetSequenceType();
-            if (!propertyInfo.IsCandidateProperty(targetSequenceType == null))
+            if (!(memberInfo is PropertyInfo propertyInfo)
+                || !propertyInfo.IsCandidateProperty(targetSequenceType == null))
             {
                 return null;
             }
@@ -68,7 +69,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             return targetType.GetTypeInfo().IsInterface
                    || targetType.GetTypeInfo().IsValueType
                    || targetType == typeof(object)
-                   || _parameterBindingFactories.FindFactory(propertyInfo.PropertyType, propertyInfo.GetSimpleMemberName()) != null
+                   || _parameterBindingFactories.FindFactory(targetType, memberInfo.GetSimpleMemberName()) != null
                    || _typeMappingSource.FindMapping(targetType) != null
                    || targetType.GetTypeInfo().IsArray
                 ? null

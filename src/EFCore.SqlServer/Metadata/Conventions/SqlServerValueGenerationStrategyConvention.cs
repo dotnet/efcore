@@ -9,20 +9,19 @@ using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 {
     /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    ///     A convention that configures the default model <see cref="SqlServerValueGenerationStrategy"/> as
+    ///     <see cref="SqlServerValueGenerationStrategy.IdentityColumn"/>.
     /// </summary>
     public class SqlServerValueGenerationStrategyConvention : IModelInitializedConvention, IModelFinalizedConvention
     {
         /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        ///     Creates a new instance of <see cref="SqlServerValueGenerationStrategyConvention" />.
         /// </summary>
-        public SqlServerValueGenerationStrategyConvention([NotNull] ProviderConventionSetBuilderDependencies dependencies)
+        /// <param name="dependencies"> Parameter object containing dependencies for this convention. </param>
+        /// <param name="relationalDependencies">  Parameter object containing relational dependencies for this convention. </param>
+        public SqlServerValueGenerationStrategyConvention(
+            [NotNull] ProviderConventionSetBuilderDependencies dependencies,
+            [NotNull] RelationalConventionSetBuilderDependencies relationalDependencies)
         {
             Dependencies = dependencies;
         }

@@ -62,7 +62,12 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual void DetectChanges()
-            => _changeDetector.DetectChanges(_stateManager);
+        {
+            if (_stateManager.Model[ChangeDetector.SkipDetectChangesAnnotation] == null)
+            {
+                _changeDetector.DetectChanges(_stateManager);
+            }
+        }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used

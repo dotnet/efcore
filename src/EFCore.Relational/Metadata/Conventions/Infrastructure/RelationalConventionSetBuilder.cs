@@ -59,12 +59,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure
         {
             var conventionSet = base.CreateConventionSet();
 
-            ValueGeneratorConvention valueGeneratorConvention = new RelationalValueGeneratorConvention(Dependencies, RelationalDependencies);
+            ValueGenerationConvention valueGenerationConvention = new RelationalValueGenerationConvention(Dependencies, RelationalDependencies);
 
-            ReplaceConvention(conventionSet.EntityTypeBaseTypeChangedConventions, valueGeneratorConvention);
-            ReplaceConvention(conventionSet.EntityTypePrimaryKeyChangedConventions, valueGeneratorConvention);
-            ReplaceConvention(conventionSet.ForeignKeyAddedConventions, valueGeneratorConvention);
-            ReplaceConvention(conventionSet.ForeignKeyRemovedConventions, valueGeneratorConvention);
+            ReplaceConvention(conventionSet.EntityTypeBaseTypeChangedConventions, valueGenerationConvention);
+            ReplaceConvention(conventionSet.EntityTypePrimaryKeyChangedConventions, valueGenerationConvention);
+            ReplaceConvention(conventionSet.ForeignKeyAddedConventions, valueGenerationConvention);
+            ReplaceConvention(conventionSet.ForeignKeyRemovedConventions, valueGenerationConvention);
 
             var relationalColumnAttributeConvention = new RelationalColumnAttributeConvention(Dependencies, RelationalDependencies);
 
@@ -75,7 +75,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure
             conventionSet.EntityTypeBaseTypeChangedConventions.Add(new TableNameFromDbSetConvention(Dependencies, RelationalDependencies));
             conventionSet.PropertyFieldChangedConventions.Add(relationalColumnAttributeConvention);
             conventionSet.PropertyAnnotationChangedConventions.Add(storeGenerationConvention);
-            conventionSet.PropertyAnnotationChangedConventions.Add((RelationalValueGeneratorConvention)valueGeneratorConvention);
+            conventionSet.PropertyAnnotationChangedConventions.Add((RelationalValueGenerationConvention)valueGenerationConvention);
 
             var sharedTableConvention = new SharedTableConvention(Dependencies, RelationalDependencies);
             ConventionSet.AddBefore(

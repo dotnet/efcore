@@ -10,19 +10,14 @@ using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 {
     /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    ///     A convention that configures the discriminator value for entity types in a hierarchy as the entity type name.
     /// </summary>
     public class DiscriminatorConvention : IEntityTypeBaseTypeChangedConvention, IEntityTypeRemovedConvention
     {
         /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        ///     Creates a new instance of <see cref="DiscriminatorConvention" />.
         /// </summary>
+        /// <param name="dependencies"> Parameter object containing dependencies for this convention. </param>
         public DiscriminatorConvention([NotNull] ProviderConventionSetBuilderDependencies dependencies)
         {
             Dependencies = dependencies;
@@ -112,17 +107,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         }
 
         /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        ///     Configures the discriminator values for the given entity types.
         /// </summary>
+        /// <param name="entityTypes"> The entity types to configure. </param>
+        /// <param name="discriminatorBuilder"> The discriminator builder. </param>
         protected virtual void SetDefaultDiscriminatorValues(
-            [NotNull] IEnumerable<IConventionEntityType> entityTypes, [NotNull] IConventionDiscriminatorBuilder discriminator)
+            [NotNull] IEnumerable<IConventionEntityType> entityTypes, [NotNull] IConventionDiscriminatorBuilder discriminatorBuilder)
         {
             foreach (var entityType in entityTypes)
             {
-                discriminator.HasValue(entityType, entityType.ShortName());
+                discriminatorBuilder.HasValue(entityType, entityType.ShortName());
             }
         }
     }

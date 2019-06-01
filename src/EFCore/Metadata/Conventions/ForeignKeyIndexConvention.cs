@@ -13,10 +13,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 {
     /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    ///     A convention that creates indexes on foreign key properties unless they are already covered by existing indexes or keys.
     /// </summary>
     public class ForeignKeyIndexConvention :
         IForeignKeyAddedConvention,
@@ -32,11 +29,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         IModelFinalizedConvention
     {
         /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        ///     Creates a new instance of <see cref="ForeignKeyIndexConvention" />.
         /// </summary>
+        /// <param name="dependencies"> Parameter object containing dependencies for this convention. </param>
         public ForeignKeyIndexConvention([NotNull] ProviderConventionSetBuilderDependencies dependencies)
         {
             Dependencies = dependencies;
@@ -146,7 +141,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         {
             foreach (var otherForeignKey in key.DeclaringEntityType.GetDerivedTypesInclusive()
                 .SelectMany(t => t.GetDeclaredForeignKeys())
-                .Where(fk => AreIndexedBy(fk.Properties, fk.IsUnique, key.Properties, coveringIndexUniqueness: true)))
+                .Where(fk => AreIndexedBy(fk.Properties, fk.IsUnique, key.Properties, coveringIndexUnique: true)))
             {
                 CreateIndex(otherForeignKey.Properties, otherForeignKey.IsUnique, otherForeignKey.DeclaringEntityType.Builder);
             }
@@ -183,7 +178,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 else if (newBaseType != null)
                 {
                     var coveringKey = baseKeys.FirstOrDefault(
-                        k => AreIndexedBy(foreignKey.Properties, foreignKey.IsUnique, k.Properties, coveringIndexUniqueness: true));
+                        k => AreIndexedBy(foreignKey.Properties, foreignKey.IsUnique, k.Properties, coveringIndexUnique: true));
                     if (coveringKey != null)
                     {
                         RemoveIndex(index);
@@ -258,7 +253,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 if (!foreignKey.IsUnique)
                 {
                     var coveringKey = foreignKey.DeclaringEntityType.GetKeys()
-                        .FirstOrDefault(k => AreIndexedBy(foreignKey.Properties, false, k.Properties, coveringIndexUniqueness: true));
+                        .FirstOrDefault(k => AreIndexedBy(foreignKey.Properties, false, k.Properties, coveringIndexUnique: true));
                     if (coveringKey != null)
                     {
                         RemoveIndex(index);
@@ -291,7 +286,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             {
                 foreach (var otherIndex in index.DeclaringEntityType.GetDerivedTypesInclusive()
                     .SelectMany(t => t.GetDeclaredIndexes())
-                    .Where(i => i != index && AreIndexedBy(i.Properties, i.IsUnique, index.Properties, coveringIndexUniqueness: true))
+                    .Where(i => i != index && AreIndexedBy(i.Properties, i.IsUnique, index.Properties, coveringIndexUnique: true))
                     .ToList())
                 {
                     RemoveIndex(otherIndex);
@@ -301,7 +296,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             {
                 foreach (var foreignKey in index.DeclaringEntityType.GetDerivedTypesInclusive()
                     .SelectMany(t => t.GetDeclaredForeignKeys())
-                    .Where(fk => fk.IsUnique && AreIndexedBy(fk.Properties, fk.IsUnique, index.Properties, coveringIndexUniqueness: true)))
+                    .Where(fk => fk.IsUnique && AreIndexedBy(fk.Properties, fk.IsUnique, index.Properties, coveringIndexUnique: true)))
                 {
                     CreateIndex(foreignKey.Properties, foreignKey.IsUnique, foreignKey.DeclaringEntityType.Builder);
                 }
@@ -319,7 +314,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         {
             foreach (var key in entityTypeBuilder.Metadata.GetKeys())
             {
-                if (AreIndexedBy(properties, unique, key.Properties, coveringIndexUniqueness: true))
+                if (AreIndexedBy(properties, unique, key.Properties, coveringIndexUnique: true))
                 {
                     return null;
                 }
@@ -343,18 +338,20 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         }
 
         /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        ///     Returns a value indicating whether the given properties are already covered by an existing index.
         /// </summary>
+        /// <param name="properties"> The properties to check. </param>
+        /// <param name="unique"> Whether the index to create should be unique. </param>
+        /// <param name="coveringIndexProperties"> The properties of an existing index. </param>
+        /// <param name="coveringIndexUnique"> Whether the existing index is unique. </param>
+        /// <returns> <c>true</c> if the existing index covers the given properties. </returns>
         protected virtual bool AreIndexedBy(
             [NotNull] IReadOnlyList<IConventionProperty> properties,
             bool unique,
             [NotNull] IReadOnlyList<IConventionProperty> coveringIndexProperties,
-            bool coveringIndexUniqueness)
+            bool coveringIndexUnique)
             => (!unique && coveringIndexProperties.Select(p => p.Name).StartsWith(properties.Select(p => p.Name)))
-               || (unique && coveringIndexUniqueness && coveringIndexProperties.SequenceEqual(properties));
+               || (unique && coveringIndexUnique && coveringIndexProperties.SequenceEqual(properties));
 
         private static void RemoveIndex(IConventionIndex index)
             => index.DeclaringEntityType.Builder.HasNoIndex(index);
@@ -380,7 +377,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                     foreach (var key in entityType.GetKeys())
                     {
                         if (AreIndexedBy(
-                            declaredForeignKey.Properties, declaredForeignKey.IsUnique, key.Properties, coveringIndexUniqueness: true))
+                            declaredForeignKey.Properties, declaredForeignKey.IsUnique, key.Properties, coveringIndexUnique: true))
                         {
                             if (declaredForeignKey.Properties.Count != key.Properties.Count)
                             {

@@ -6,44 +6,39 @@ using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
-using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 {
     /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    ///     A convention that that configures a property as <see cref="ValueGenerated.OnAdd"/> if
+    ///     <see cref="DatabaseGeneratedOption.Identity"/> is specified, <see cref="ValueGenerated.OnAddOrUpdate"/> if
+    ///     <see cref="DatabaseGeneratedOption.Computed"/> is specified or <see cref="ValueGenerated.Never"/> if
+    ///     <see cref="DatabaseGeneratedOption.None"/> is specified using a <see cref="DatabaseGeneratedAttribute"/>.
     /// </summary>
-    public class DatabaseGeneratedAttributeConvention : PropertyAttributeConvention<DatabaseGeneratedAttribute>
+    public class DatabaseGeneratedAttributeConvention : PropertyAttributeConventionBase<DatabaseGeneratedAttribute>
     {
         /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        ///     Creates a new instance of <see cref="DatabaseGeneratedAttributeConvention" />.
         /// </summary>
+        /// <param name="dependencies"> Parameter object containing dependencies for this convention. </param>
         public DatabaseGeneratedAttributeConvention([NotNull] ProviderConventionSetBuilderDependencies dependencies)
             : base(dependencies)
         {
         }
 
         /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        ///     Called after a property is added to the entity type with an attribute on the associated CLR property or field.
         /// </summary>
+        /// <param name="propertyBuilder"> The builder for the property. </param>
+        /// <param name="attribute"> The attribute. </param>
+        /// <param name="clrMember"> The member that has the attribute. </param>
+        /// <param name="context"> Additional information associated with convention execution. </param>
         protected override void ProcessPropertyAdded(
             IConventionPropertyBuilder propertyBuilder,
             DatabaseGeneratedAttribute attribute,
             MemberInfo clrMember,
             IConventionContext context)
         {
-            Check.NotNull(propertyBuilder, nameof(propertyBuilder));
-            Check.NotNull(attribute, nameof(attribute));
-
             var valueGenerated =
                 attribute.DatabaseGeneratedOption == DatabaseGeneratedOption.Identity
                     ? ValueGenerated.OnAdd

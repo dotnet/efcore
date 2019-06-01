@@ -230,13 +230,12 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
         private void GenerateKeyAttribute(IProperty property)
         {
-            var key = property.AsProperty().PrimaryKey;
-
+            var key = property.FindContainingPrimaryKey();
             if (key?.Properties.Count == 1)
             {
-                if (key is Key concreteKey
-                    && key.Properties.SequenceEqual(new KeyDiscoveryConvention(null).DiscoverKeyProperties(
-                        concreteKey.DeclaringEntityType, concreteKey.DeclaringEntityType.GetProperties().ToList())))
+                if (key is IConventionKey concreteKey
+                    && key.Properties.SequenceEqual(KeyDiscoveryConvention.DiscoverKeyProperties(
+                        concreteKey.DeclaringEntityType, concreteKey.DeclaringEntityType.GetProperties())))
                 {
                     return;
                 }

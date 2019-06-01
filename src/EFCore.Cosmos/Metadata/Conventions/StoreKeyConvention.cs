@@ -12,6 +12,14 @@ using Newtonsoft.Json.Linq;
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Metadata.Conventions
 {
+    /// <summary>
+    ///     <para>
+    ///         A convention that adds the 'id' property - a key required by Azure Cosmos.
+    ///     </para>
+    ///         This convention also add the '__jObject' containing the JSON object returned by the store.
+    ///     <para>
+    /// </para>
+    /// </summary>
     public class StoreKeyConvention :
         IEntityTypeAddedConvention,
         IForeignKeyOwnershipChangedConvention,
@@ -21,6 +29,10 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Metadata.Conventions
         public static readonly string IdPropertyName = "id";
         public static readonly string JObjectPropertyName = "__jObject";
 
+        /// <summary>
+        ///     Creates a new instance of <see cref="StoreKeyConvention" />.
+        /// </summary>
+        /// <param name="dependencies"> Parameter object containing dependencies for this convention. </param>
         public StoreKeyConvention([NotNull] ProviderConventionSetBuilderDependencies dependencies)
         {
             Dependencies = dependencies;

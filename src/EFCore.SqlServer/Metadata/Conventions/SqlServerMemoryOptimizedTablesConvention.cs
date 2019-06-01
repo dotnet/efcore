@@ -11,10 +11,7 @@ using Microsoft.EntityFrameworkCore.SqlServer.Metadata.Internal;
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 {
     /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    ///     A convention that configures indexes as non-clustered for memory-optimized tables.
     /// </summary>
     public class SqlServerMemoryOptimizedTablesConvention :
         IEntityTypeAnnotationChangedConvention,
@@ -22,12 +19,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         IIndexAddedConvention
     {
         /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        ///     Creates a new instance of <see cref="SqlServerMemoryOptimizedTablesConvention" />.
         /// </summary>
-        public SqlServerMemoryOptimizedTablesConvention([NotNull] ProviderConventionSetBuilderDependencies dependencies)
+        /// <param name="dependencies"> Parameter object containing dependencies for this convention. </param>
+        /// <param name="relationalDependencies">  Parameter object containing relational dependencies for this convention. </param>
+        public SqlServerMemoryOptimizedTablesConvention(
+            [NotNull] ProviderConventionSetBuilderDependencies dependencies,
+            [NotNull] RelationalConventionSetBuilderDependencies relationalDependencies)
         {
             Dependencies = dependencies;
         }
@@ -46,8 +44,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <param name="oldAnnotation"> The old annotation.  </param>
         /// <param name="context"> Additional information associated with convention execution. </param>
         public virtual void ProcessEntityTypeAnnotationChanged(
-            IConventionEntityTypeBuilder entityTypeBuilder, string name, IConventionAnnotation annotation,
-            IConventionAnnotation oldAnnotation, IConventionContext<IConventionAnnotation> context)
+            IConventionEntityTypeBuilder entityTypeBuilder,
+            string name,
+            IConventionAnnotation annotation,
+            IConventionAnnotation oldAnnotation,
+            IConventionContext<IConventionAnnotation> context)
         {
             if (name == SqlServerAnnotationNames.MemoryOptimized)
             {

@@ -513,7 +513,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 var property = builder.Metadata.FindProperty(GetPropertyName(primaryKey.Columns[0]))?.AsProperty();
                 if (property != null)
                 {
-                    var conventionalValueGenerated = RelationalValueGeneratorConvention.GetValueGenerated(property);
+                    var conventionalValueGenerated = RelationalValueGenerationConvention.GetValueGenerated(property);
                     if (conventionalValueGenerated == ValueGenerated.OnAdd)
                     {
                         property.ValueGenerated = ValueGenerated.Never;

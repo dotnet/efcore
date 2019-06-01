@@ -389,13 +389,15 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         /// <summary>
-        ///     Saves all changes made in this context to the database.
+        ///     <para>
+        ///         Saves all changes made in this context to the database.
+        ///     </para>     
+        ///     <para>
+        ///         This method will automatically call <see cref="ChangeTracking.ChangeTracker.DetectChanges" /> to discover any
+        ///         changes to entity instances before saving to the underlying database. This can be disabled via
+        ///         <see cref="ChangeTracking.ChangeTracker.AutoDetectChangesEnabled" />.
+        ///     </para>
         /// </summary>
-        /// <remarks>
-        ///     This method will automatically call <see cref="ChangeTracking.ChangeTracker.DetectChanges" /> to discover any
-        ///     changes to entity instances before saving to the underlying database. This can be disabled via
-        ///     <see cref="ChangeTracking.ChangeTracker.AutoDetectChangesEnabled" />.
-        /// </remarks>
         /// <returns>
         ///     The number of state entries written to the database.
         /// </returns>
@@ -410,17 +412,19 @@ namespace Microsoft.EntityFrameworkCore
         public virtual int SaveChanges() => SaveChanges(acceptAllChangesOnSuccess: true);
 
         /// <summary>
-        ///     Saves all changes made in this context to the database.
+        ///     <para>
+        ///         Saves all changes made in this context to the database.
+        ///     </para>     
+        ///     <para>
+        ///         This method will automatically call <see cref="ChangeTracking.ChangeTracker.DetectChanges" /> to discover any
+        ///         changes to entity instances before saving to the underlying database. This can be disabled via
+        ///         <see cref="ChangeTracking.ChangeTracker.AutoDetectChangesEnabled" />.
+        ///     </para>
         /// </summary>
         /// <param name="acceptAllChangesOnSuccess">
         ///     Indicates whether <see cref="ChangeTracking.ChangeTracker.AcceptAllChanges" /> is called after the changes have
         ///     been sent successfully to the database.
         /// </param>
-        /// <remarks>
-        ///     This method will automatically call <see cref="ChangeTracking.ChangeTracker.DetectChanges" /> to discover any
-        ///     changes to entity instances before saving to the underlying database. This can be disabled via
-        ///     <see cref="ChangeTracking.ChangeTracker.AutoDetectChangesEnabled" />.
-        /// </remarks>
         /// <returns>
         ///     The number of state entries written to the database.
         /// </returns>
@@ -479,9 +483,9 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         /// <summary>
-        ///     Asynchronously saves all changes made in this context to the database.
-        /// </summary>
-        /// <remarks>
+        ///     <para>
+        ///         Saves all changes made in this context to the database.
+        ///     </para>     
         ///     <para>
         ///         This method will automatically call <see cref="ChangeTracking.ChangeTracker.DetectChanges" /> to discover any
         ///         changes to entity instances before saving to the underlying database. This can be disabled via
@@ -491,8 +495,8 @@ namespace Microsoft.EntityFrameworkCore
         ///         Multiple active operations on the same context instance are not supported.  Use 'await' to ensure
         ///         that any asynchronous operations have completed before calling another method on this context.
         ///     </para>
-        /// </remarks>
-        /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
+        /// </summary>
+        /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         /// <returns>
         ///     A task that represents the asynchronous save operation. The task result contains the
         ///     number of state entries written to the database.
@@ -509,13 +513,9 @@ namespace Microsoft.EntityFrameworkCore
             => SaveChangesAsync(acceptAllChangesOnSuccess: true, cancellationToken: cancellationToken);
 
         /// <summary>
-        ///     Asynchronously saves all changes made in this context to the database.
-        /// </summary>
-        /// <param name="acceptAllChangesOnSuccess">
-        ///     Indicates whether <see cref="ChangeTracking.ChangeTracker.AcceptAllChanges" /> is called after the changes have
-        ///     been sent successfully to the database.
-        /// </param>
-        /// <remarks>
+        ///     <para>
+        ///         Saves all changes made in this context to the database.
+        ///     </para>     
         ///     <para>
         ///         This method will automatically call <see cref="ChangeTracking.ChangeTracker.DetectChanges" /> to discover any
         ///         changes to entity instances before saving to the underlying database. This can be disabled via
@@ -525,8 +525,12 @@ namespace Microsoft.EntityFrameworkCore
         ///         Multiple active operations on the same context instance are not supported.  Use 'await' to ensure
         ///         that any asynchronous operations have completed before calling another method on this context.
         ///     </para>
-        /// </remarks>
-        /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
+        /// </summary>
+        /// <param name="acceptAllChangesOnSuccess">
+        ///     Indicates whether <see cref="ChangeTracking.ChangeTracker.AcceptAllChanges" /> is called after the changes have
+        ///     been sent successfully to the database.
+        /// </param>
+        /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         /// <returns>
         ///     A task that represents the asynchronous save operation. The task result contains the
         ///     number of state entries written to the database.

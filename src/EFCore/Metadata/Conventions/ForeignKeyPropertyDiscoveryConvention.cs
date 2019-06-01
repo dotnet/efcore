@@ -14,10 +14,24 @@ using Microsoft.EntityFrameworkCore.Metadata.Internal;
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 {
     /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    ///     <para>
+    ///         A convention that finds foreign key properties for relationships based on their names, ignoring case:
+    ///             * [navigation property name][primary key property name]
+    ///             * [navigation property name]Id
+    ///             * [principal entity name][primary key property name]
+    ///             * [principal entity name]Id
+    ///     </para>
+    ///     <para>
+    ///         If no matching properties were found, the relationship is one-to-one, doesn't represent an ownership,
+    ///         the dependent side is not ambiguous and not derived then the primary key properties are used.
+    ///     </para>
+    ///     <para>
+    ///         If a match was found, but the property types are not compatible with the principal key types no further matches are searched for.
+    ///     </para>
+    ///     <para>
+    ///         If the relationship uses shadow properties created by convention they are recreated to remove suffixes
+    ///         used to make the names unique.
+    ///     </para>
     /// </summary>
     public class ForeignKeyPropertyDiscoveryConvention :
         IForeignKeyAddedConvention,
@@ -36,11 +50,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         IModelFinalizedConvention
     {
         /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        ///     Creates a new instance of <see cref="ForeignKeyPropertyDiscoveryConvention" />.
         /// </summary>
+        /// <param name="dependencies"> Parameter object containing dependencies for this convention. </param>
         public ForeignKeyPropertyDiscoveryConvention([NotNull] ProviderConventionSetBuilderDependencies dependencies)
         {
             Dependencies = dependencies;
@@ -237,7 +249,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
             if (foreignKeyProperties == null)
             {
-                return ReuniquifyTemporaryProperties(foreignKey, force: false);
+                return ((ForeignKey)foreignKey).Builder.ReuniquifyTemporaryProperties(false);
             }
 
             var conflictingFKCount = foreignKey.DeclaringEntityType.FindForeignKeys(foreignKeyProperties)
@@ -248,13 +260,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             if (foreignKey.Properties.SequenceEqual(foreignKeyProperties))
             {
                 return conflictingFKCount > 1
-                    ? ReuniquifyTemporaryProperties(foreignKey, force: true)
+                    ? ((ForeignKey)foreignKey).Builder.ReuniquifyTemporaryProperties(true)
                     : relationshipBuilder;
             }
 
             if (conflictingFKCount > 0)
             {
-                return ReuniquifyTemporaryProperties(foreignKey, force: false);
+                return ((ForeignKey)foreignKey).Builder.ReuniquifyTemporaryProperties(false);
             }
 
             var newRelationshipBuilder = relationshipBuilder.HasForeignKey(foreignKeyProperties);
@@ -265,9 +277,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
             return relationshipBuilder.Metadata.Builder == null ? null : relationshipBuilder;
         }
-
-        private IConventionRelationshipBuilder ReuniquifyTemporaryProperties(IConventionForeignKey foreignKey, bool force)
-            => ((ForeignKey)foreignKey).Builder.ReuniquifyTemporaryProperties(force);
 
         private IReadOnlyList<IConventionProperty> FindCandidateForeignKeyProperties(
             IConventionForeignKey foreignKey, bool onDependent, bool matchPk = false)

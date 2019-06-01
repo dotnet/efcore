@@ -12,30 +12,27 @@ using Microsoft.EntityFrameworkCore.Utilities;
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 {
     /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    ///     A convention that configures the principal side of the relationship as required if the
+    ///     <see cref="RequiredAttribute"/> is applied on the navigation property to the principal entity type 
     /// </summary>
-    public class RequiredNavigationAttributeConvention : NavigationAttributeNavigationConvention<RequiredAttribute>
+    public class RequiredNavigationAttributeConvention : NavigationAttributeConventionBase<RequiredAttribute>
     {
         /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        ///     Creates a new instance of <see cref="RequiredNavigationAttributeConvention" />.
         /// </summary>
+        /// <param name="dependencies"> Parameter object containing dependencies for this convention. </param>
         public RequiredNavigationAttributeConvention([NotNull] ProviderConventionSetBuilderDependencies dependencies)
             : base(dependencies)
         {
         }
 
         /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        ///     Called after a navigation property that has an attribute is added to an entity type.
         /// </summary>
+        /// <param name="relationshipBuilder"> The builder for the relationship. </param>
+        /// <param name="navigation"> The navigation. </param>
+        /// <param name="attribute"> The attribute. </param>
+        /// <param name="context"> Additional information associated with convention execution. </param>
         public override void ProcessNavigationAdded(
             IConventionRelationshipBuilder relationshipBuilder,
             IConventionNavigation navigation,
