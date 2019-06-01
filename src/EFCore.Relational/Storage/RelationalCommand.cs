@@ -419,7 +419,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             var command = connection.DbConnection.CreateCommand();
 
             command.CommandText = CommandText;
-            
+
             if (connection.CurrentTransaction != null)
             {
                 command.Transaction = connection.CurrentTransaction.GetDbTransaction();

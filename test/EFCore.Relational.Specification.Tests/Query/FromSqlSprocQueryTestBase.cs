@@ -56,7 +56,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [Fact(Skip = "Issue#15889")]
         public virtual void From_sql_queryable_stored_procedure_reprojection()
         {
             using (var context = CreateContext())

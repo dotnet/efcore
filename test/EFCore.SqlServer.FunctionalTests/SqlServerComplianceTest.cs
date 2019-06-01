@@ -31,8 +31,6 @@ namespace Microsoft.EntityFrameworkCore
             typeof(GearsOfWarFromSqlQueryTestBase<>),
             typeof(QueryNoClientEvalTestBase<>),
             typeof(WarningsTestBase<>),
-            typeof(AsyncFromSqlSprocQueryTestBase<>),
-            typeof(FromSqlSprocQueryTestBase<>),
         };
 
         protected override Assembly TargetAssembly { get; } = typeof(SqlServerComplianceTest).Assembly;

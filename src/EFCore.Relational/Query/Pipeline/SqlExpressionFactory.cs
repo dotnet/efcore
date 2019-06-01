@@ -200,6 +200,11 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
                 resultType,
                 resultTypeMapping);
         }
+
+        public virtual RelationalTypeMapping GetTypeMappingForValue(object value)
+        {
+            return _typeMappingSource.GetMappingForValue(value);
+        }
         #endregion
 
         #region Binary

@@ -4,11 +4,13 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Data.Common;
 using System.Linq;
 using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions;
 using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore.Storage.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
 {
@@ -17,8 +19,6 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
         private readonly IRelationalCommandBuilderFactory _relationalCommandBuilderFactory;
         private readonly ISqlGenerationHelper _sqlGenerationHelper;
         private IRelationalCommandBuilder _relationalCommandBuilder;
-        private IReadOnlyDictionary<string, object> _parametersValues;
-        //private ParameterNameGenerator _parameterNameGenerator;
 
         private static readonly Dictionary<ExpressionType, string> _operatorMap = new Dictionary<ExpressionType, string>
         {
@@ -39,25 +39,26 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
             { ExpressionType.Or, " | " }
         };
 
-        public QuerySqlGenerator(IRelationalCommandBuilderFactory relationalCommandBuilderFactory,
+        public QuerySqlGenerator(
+            IRelationalCommandBuilderFactory relationalCommandBuilderFactory,
             ISqlGenerationHelper sqlGenerationHelper)
         {
             _relationalCommandBuilderFactory = relationalCommandBuilderFactory;
             _sqlGenerationHelper = sqlGenerationHelper;
         }
 
-        public virtual IRelationalCommand GetCommand(
-            SelectExpression selectExpression,
-            IReadOnlyDictionary<string, object> parameterValues,
-            IDiagnosticsLogger<DbLoggerCategory.Database.Command> commandLogger)
+        public virtual IRelationalCommand GetCommand(SelectExpression selectExpression)
         {
             _relationalCommandBuilder = _relationalCommandBuilderFactory.Create();
 
-            //_parameterNameGenerator = Dependencies.ParameterNameGeneratorFactory.Create();
-
-            _parametersValues = parameterValues;
-
-            VisitSelect(selectExpression);
+            if (selectExpression.IsNonComposedFromSql())
+            {
+                GenerateFromSql((FromSqlExpression)selectExpression.Tables[0]);
+            }
+            else
+            {
+                VisitSelect(selectExpression);
+            }
 
             return _relationalCommandBuilder.Build();
         }
@@ -101,16 +102,14 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
 
             if (selectExpression.Tables.Any())
             {
-                _relationalCommandBuilder.AppendLine()
-                    .Append("FROM ");
+                _relationalCommandBuilder.AppendLine().Append("FROM ");
 
                 GenerateList(selectExpression.Tables, e => Visit(e), sql => sql.AppendLine());
             }
 
             if (selectExpression.Predicate != null)
             {
-                _relationalCommandBuilder.AppendLine()
-                    .Append("WHERE ");
+                _relationalCommandBuilder.AppendLine().Append("WHERE ");
 
                 Visit(selectExpression.Predicate);
             }
@@ -135,8 +134,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
             }
             else if (selectExpression.Offset != null)
             {
-                _relationalCommandBuilder.AppendLine()
-                    .Append("ORDER BY (SELECT 1)");
+                _relationalCommandBuilder.AppendLine().Append("ORDER BY (SELECT 1)");
             }
 
             GenerateLimitOffset(selectExpression);
@@ -216,14 +214,47 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
             return tableExpression;
         }
 
+        private void GenerateFromSql(FromSqlExpression fromSqlExpression)
+        {
+            var sql = fromSqlExpression.Sql;
+            string[] substitutions = null;
+
+            switch (fromSqlExpression.Arguments)
+            {
+                case ConstantExpression constantExpression
+                when constantExpression.Value is CompositeRelationalParameter compositeRelationalParameter:
+                    {
+                        var subParameters = compositeRelationalParameter.RelationalParameters;
+                        substitutions = new string[subParameters.Count];
+                        for (var i = 0; i < subParameters.Count; i++)
+                        {
+                            substitutions[i] = _sqlGenerationHelper.GenerateParameterNamePlaceholder(subParameters[i].InvariantName);
+                        }
+
+                        _relationalCommandBuilder.AddParameter(compositeRelationalParameter);
+
+                        break;
+                    }
+            }
+
+            if (substitutions != null)
+            {
+                // ReSharper disable once CoVariantArrayConversion
+                // InvariantCulture not needed since substitutions are all strings
+                sql = string.Format(sql, substitutions);
+            }
+
+
+            _relationalCommandBuilder.AppendLines(sql);
+        }
+
         protected override Expression VisitFromSql(FromSqlExpression fromSqlExpression)
         {
             _relationalCommandBuilder.AppendLine("(");
 
             using (_relationalCommandBuilder.Indent())
             {
-                _relationalCommandBuilder.AppendLines(fromSqlExpression.Sql);
-                // TODO: Generate parameters
+                GenerateFromSql(fromSqlExpression);
             }
 
             _relationalCommandBuilder.Append(") AS ")
@@ -470,84 +501,14 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
         {
             if (inExpression.Values != null)
             {
-                var inValues = new List<SqlConstantExpression>();
-                var hasNullValue = false;
-
-                switch (inExpression.Values)
-                {
-                    case SqlConstantExpression sqlConstant:
-                        {
-                            var values = (IEnumerable)sqlConstant.Value;
-                            foreach (var value in values)
-                            {
-                                if (value == null)
-                                {
-                                    hasNullValue = true;
-                                    continue;
-                                }
-
-                                inValues.Add(
-                                    new SqlConstantExpression(
-                                        Expression.Constant(value),
-                                        sqlConstant.TypeMapping));
-                            }
-                        }
-                        break;
-
-                    case SqlParameterExpression sqlParameter:
-                        {
-                            var values = (IEnumerable)_parametersValues[sqlParameter.Name];
-                            foreach (var value in values)
-                            {
-                                if (value == null)
-                                {
-                                    hasNullValue = true;
-                                    continue;
-                                }
-
-                                inValues.Add(
-                                    new SqlConstantExpression(
-                                        Expression.Constant(value),
-                                        sqlParameter.TypeMapping));
-                            }
-                        }
-                        break;
-                }
-
-                if (inValues.Count > 0)
-                {
-                    if (hasNullValue)
-                    {
-                        _relationalCommandBuilder.Append("(");
-                    }
-
-                    Visit(inExpression.Item);
-                    _relationalCommandBuilder.Append(inExpression.Negated ? " NOT IN " : " IN ");
-                    _relationalCommandBuilder.Append("(");
-                    GenerateList(inValues, e => Visit(e));
-                    _relationalCommandBuilder.Append(")");
-
-                    if (hasNullValue)
-                    {
-                        _relationalCommandBuilder.Append(_operatorMap[ExpressionType.OrElse]);
-                        Visit(new SqlUnaryExpression(
-                            ExpressionType.Equal, inExpression.Item, inExpression.Type, inExpression.TypeMapping));
-                        _relationalCommandBuilder.Append(")");
-                    }
-                }
-                else
-                {
-                    Visit(
-                        hasNullValue
-                        ? (Expression)new SqlUnaryExpression(
-                            ExpressionType.Equal, inExpression.Item, inExpression.Type, inExpression.TypeMapping)
-                        : new SqlBinaryExpression(
-                            ExpressionType.Equal,
-                            new SqlConstantExpression(Expression.Constant(true), inExpression.TypeMapping),
-                            new SqlConstantExpression(Expression.Constant(false), inExpression.TypeMapping),
-                            typeof(bool),
-                            inExpression.TypeMapping));
-                }
+                Visit(inExpression.Item);
+                _relationalCommandBuilder.Append(inExpression.Negated ? " NOT IN " : " IN ");
+                _relationalCommandBuilder.Append("(");
+                var valuesConstant = (SqlConstantExpression)inExpression.Values;
+                var valuesList = ((IEnumerable<object>)valuesConstant.Value)
+                    .Select(v => new SqlConstantExpression(Expression.Constant(v), valuesConstant.TypeMapping)).ToList();
+                GenerateList(valuesList, e => Visit(e));
+                _relationalCommandBuilder.Append(")");
             }
             else
             {

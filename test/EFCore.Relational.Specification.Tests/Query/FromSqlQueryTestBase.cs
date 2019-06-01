@@ -325,7 +325,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact(Skip = "#15750")]
+        [Fact(Skip = "Issue#15763")]
         public virtual void FromSqlRaw_queryable_multiple_composed_with_closure_parameters()
         {
             var startDate = new DateTime(1997, 1, 1);
@@ -351,7 +351,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact(Skip = "#15750")]
+        [Fact(Skip = "Issue#15763")]
         public virtual void FromSqlRaw_queryable_multiple_composed_with_parameters_and_closure_parameters()
         {
             var city = "London";
@@ -434,7 +434,7 @@ FROM [Customers]"))
             }
         }
 
-        [Fact(Skip = "#15750")]
+        [Fact]
         public virtual void FromSqlRaw_queryable_with_parameters()
         {
             var city = "London";
@@ -452,7 +452,7 @@ FROM [Customers]"))
             }
         }
 
-        [Fact(Skip = "#15750")]
+        [Fact]
         public virtual void FromSqlRaw_queryable_with_parameters_inline()
         {
             using (var context = CreateContext())
@@ -468,7 +468,7 @@ FROM [Customers]"))
             }
         }
 
-        [Fact(Skip = "#15750")]
+        [Fact]
         public virtual void FromSqlInterpolated_queryable_with_parameters_interpolated()
         {
             var city = "London";
@@ -487,7 +487,7 @@ FROM [Customers]"))
             }
         }
 
-        [Fact(Skip = "#15750")]
+        [Fact]
         public virtual void FromSqlInterpolated_queryable_with_parameters_inline_interpolated()
         {
             using (var context = CreateContext())
@@ -503,7 +503,7 @@ FROM [Customers]"))
             }
         }
 
-        [Fact(Skip = "#15750")]
+        [Fact(Skip = "Issue#15763")]
         public virtual void FromSqlInterpolated_queryable_multiple_composed_with_parameters_and_closure_parameters_interpolated()
         {
             var city = "London";
@@ -546,7 +546,7 @@ FROM [Customers]"))
             }
         }
 
-        [Fact(Skip = "#15750")]
+        [Fact]
         public virtual void FromSqlRaw_queryable_with_null_parameter()
         {
             uint? reportsTo = null;
@@ -556,14 +556,14 @@ FROM [Customers]"))
                 var actual = context.Set<Employee>().FromSqlRaw(
                         NormalizeDelimetersInRawString(
                             // ReSharper disable once ExpressionIsAlwaysNull
-                            "SELECT * FROM [Employees] WHERE [ReportsTo] = {0} OR (]ReportsTo] IS NULL AND {0} IS NULL)"), reportsTo)
+                            "SELECT * FROM [Employees] WHERE [ReportsTo] = {0} OR ([ReportsTo] IS NULL AND {0} IS NULL)"), reportsTo)
                     .ToArray();
 
                 Assert.Equal(1, actual.Length);
             }
         }
 
-        [Fact(Skip = "#15750")]
+        [Fact]
         public virtual void FromSqlRaw_queryable_with_parameters_and_closure()
         {
             var city = "London";
@@ -600,7 +600,7 @@ FROM [Customers]"))
             }
         }
 
-        [Fact(Skip = "#15750")]
+        [Fact]
         public virtual void FromSqlRaw_queryable_with_parameters_cache_key_includes_parameters()
         {
             var city = "London";
@@ -718,7 +718,7 @@ AND (([UnitsInStock] + [UnitsOnOrder]) < [ReorderLevel])"))
             }
         }
 
-        [Fact(Skip = "#15750")]
+        [Fact]
         public virtual void FromSqlRaw_with_dbParameter()
         {
             using (var context = CreateContext())
@@ -733,7 +733,7 @@ AND (([UnitsInStock] + [UnitsOnOrder]) < [ReorderLevel])"))
             }
         }
 
-        [Fact(Skip = "#15750")]
+        [Fact]
         public virtual void FromSqlRaw_with_dbParameter_mixed()
         {
             using (var context = CreateContext())
@@ -795,7 +795,7 @@ AND (([UnitsInStock] + [UnitsOnOrder]) < [ReorderLevel])"))
             Fixture.TestStore.OpenConnection();
         }
 
-        [Fact(Skip = "#15750")]
+        [Fact]
         public virtual void FromSqlRaw_with_db_parameters_called_multiple_times()
         {
             using (var context = CreateContext())
@@ -897,7 +897,7 @@ AND (([UnitsInStock] + [UnitsOnOrder]) < [ReorderLevel])"))
             }
         }
 
-        [Fact(Skip = "#15750")]
+        [Fact]
         public virtual void FromSqlInterpolated_with_inlined_db_parameter()
         {
             using (var context = CreateContext())
@@ -910,7 +910,7 @@ AND (([UnitsInStock] + [UnitsOnOrder]) < [ReorderLevel])"))
             }
         }
 
-        [Fact(Skip = "#15750")]
+        [Fact]
         public virtual void FromSqlInterpolated_parameterization_issue_12213()
         {
             using (var context = CreateContext())
@@ -940,7 +940,7 @@ AND (([UnitsInStock] + [UnitsOnOrder]) < [ReorderLevel])"))
             }
         }
 
-        [Fact(Skip = "#15750")]
+        [Fact]
         public virtual void FromSqlRaw_does_not_parameterize_interpolated_string()
         {
             using (var context = CreateContext())

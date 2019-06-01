@@ -280,7 +280,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                     property.FindRelationalMapping(),
                     property));
         }
-        
+
         private sealed class Indenter : IDisposable
         {
             private readonly IRelationalCommandBuilder _builder;

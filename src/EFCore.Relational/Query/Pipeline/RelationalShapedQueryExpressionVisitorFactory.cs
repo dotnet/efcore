@@ -2,8 +2,8 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Query.Pipeline;
+using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
 {
@@ -11,12 +11,19 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
     {
         private readonly IEntityMaterializerSource _entityMaterializerSource;
         private readonly IQuerySqlGeneratorFactory2 _querySqlGeneratorFactory;
+        private readonly ISqlExpressionFactory _sqlExpressionFactory;
+        private readonly IParameterNameGeneratorFactory _parameterNameGeneratorFactory;
 
-        public RelationalShapedQueryCompilingExpressionVisitorFactory(IEntityMaterializerSource entityMaterializerSource,
-            IQuerySqlGeneratorFactory2 querySqlGeneratorFactory)
+        public RelationalShapedQueryCompilingExpressionVisitorFactory(
+            IEntityMaterializerSource entityMaterializerSource,
+            IQuerySqlGeneratorFactory2 querySqlGeneratorFactory,
+            ISqlExpressionFactory sqlExpressionFactory,
+            IParameterNameGeneratorFactory parameterNameGeneratorFactory)
         {
             _entityMaterializerSource = entityMaterializerSource;
             _querySqlGeneratorFactory = querySqlGeneratorFactory;
+            _sqlExpressionFactory = sqlExpressionFactory;
+            _parameterNameGeneratorFactory = parameterNameGeneratorFactory;
         }
 
         public ShapedQueryCompilingExpressionVisitor Create(QueryCompilationContext2 queryCompilationContext)
@@ -24,6 +31,8 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
             return new RelationalShapedQueryCompilingExpressionVisitor(
                 _entityMaterializerSource,
                 _querySqlGeneratorFactory,
+                _sqlExpressionFactory,
+                _parameterNameGeneratorFactory,
                 queryCompilationContext.ContextType,
                 queryCompilationContext.Logger,
                 queryCompilationContext.TrackQueryResults,

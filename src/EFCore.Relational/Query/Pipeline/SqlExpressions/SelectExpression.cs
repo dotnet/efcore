@@ -84,6 +84,18 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
             _projectionMapping[new ProjectionMember()] = new EntityProjectionExpression(entityType, fromSqlExpression, false);
         }
 
+        public bool IsNonComposedFromSql()
+        {
+            return Limit == null
+                && Offset == null
+                && !IsDistinct
+                && Predicate == null
+                && Orderings.Count == 0
+                && Tables.Count == 1
+                && Tables[0] is FromSqlExpression fromSql
+                && Projection.All(pe => pe.Expression is ColumnExpression column ? ReferenceEquals(column.Table, fromSql) : false);
+        }
+
         public SqlExpression BindProperty(Expression projectionExpression, IProperty property)
         {
             var member = (projectionExpression as ProjectionBindingExpression).ProjectionMember;

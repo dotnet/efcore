@@ -15,6 +15,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
         #region TypeMapping
         SqlExpression ApplyTypeMapping(SqlExpression sqlExpression, RelationalTypeMapping typeMapping);
         SqlExpression ApplyDefaultTypeMapping(SqlExpression sqlExpression);
+        RelationalTypeMapping GetTypeMappingForValue(object value);
         #endregion
 
         #region Binary

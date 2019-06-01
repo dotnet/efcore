@@ -23,10 +23,14 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
             private readonly IQuerySqlGeneratorFactory2 _querySqlGeneratorFactory;
             private readonly Type _contextType;
             private readonly IDiagnosticsLogger<DbLoggerCategory.Query> _logger;
+            private readonly ISqlExpressionFactory _sqlExpressionFactory;
+            private readonly IParameterNameGeneratorFactory _parameterNameGeneratorFactory;
 
             public AsyncQueryingEnumerable(
                 RelationalQueryContext relationalQueryContext,
                 IQuerySqlGeneratorFactory2 querySqlGeneratorFactory,
+                ISqlExpressionFactory sqlExpressionFactory,
+                IParameterNameGeneratorFactory parameterNameGeneratorFactory,
                 SelectExpression selectExpression,
                 Func<QueryContext, DbDataReader, ResultCoordinator, Task<T>> shaper,
                 Type contextType,
@@ -34,16 +38,15 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
             {
                 _relationalQueryContext = relationalQueryContext;
                 _querySqlGeneratorFactory = querySqlGeneratorFactory;
+                _sqlExpressionFactory = sqlExpressionFactory;
+                _parameterNameGeneratorFactory = parameterNameGeneratorFactory;
                 _selectExpression = selectExpression;
                 _shaper = shaper;
                 _contextType = contextType;
                 _logger = logger;
             }
 
-            public IAsyncEnumerator<T> GetEnumerator()
-            {
-                return new AsyncEnumerator(this);
-            }
+            public IAsyncEnumerator<T> GetEnumerator() => new AsyncEnumerator(this);
 
             private sealed class AsyncEnumerator : IAsyncEnumerator<T>
             {
@@ -55,6 +58,8 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
                 private readonly IQuerySqlGeneratorFactory2 _querySqlGeneratorFactory;
                 private readonly Type _contextType;
                 private readonly IDiagnosticsLogger<DbLoggerCategory.Query> _logger;
+                private readonly ISqlExpressionFactory _sqlExpressionFactory;
+                private readonly IParameterNameGeneratorFactory _parameterNameGeneratorFactory;
 
                 public AsyncEnumerator(AsyncQueryingEnumerable<T> queryingEnumerable)
                 {
@@ -64,6 +69,8 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
                     _querySqlGeneratorFactory = queryingEnumerable._querySqlGeneratorFactory;
                     _contextType = queryingEnumerable._contextType;
                     _logger = queryingEnumerable._logger;
+                    _sqlExpressionFactory = queryingEnumerable._sqlExpressionFactory;
+                    _parameterNameGeneratorFactory = queryingEnumerable._parameterNameGeneratorFactory;
                 }
 
                 public T Current { get; private set; }
@@ -85,11 +92,12 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
 
                             try
                             {
-                                var relationalCommand = _querySqlGeneratorFactory.Create()
-                                    .GetCommand(
-                                        _selectExpression,
-                                        _relationalQueryContext.ParameterValues,
-                                        _relationalQueryContext.CommandLogger);
+                                var selectExpression = new ParameterValueBasedSelectExpressionOptimizer(
+                                    _sqlExpressionFactory,
+                                    _parameterNameGeneratorFactory)
+                                    .Optimize(_selectExpression, _relationalQueryContext.ParameterValues);
+
+                                var relationalCommand = _querySqlGeneratorFactory.Create().GetCommand(selectExpression);
 
                                 _dataReader
                                     = await relationalCommand.ExecuteReaderAsync(
