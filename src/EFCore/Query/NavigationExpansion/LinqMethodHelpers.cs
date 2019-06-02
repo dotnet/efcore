@@ -10,172 +10,172 @@ namespace Microsoft.EntityFrameworkCore.Query.NavigationExpansion
 {
     public static class LinqMethodHelpers
     {
-        public static MethodInfo AsQueryable { get; private set; }
+        public static MethodInfo AsQueryable { get; }
 
-        public static MethodInfo QueryableWhereMethodInfo { get; private set; }
-        public static MethodInfo QueryableSelectMethodInfo { get; private set; }
-        public static MethodInfo QueryableOrderByMethodInfo { get; private set; }
-        public static MethodInfo QueryableOrderByDescendingMethodInfo { get; private set; }
-        public static MethodInfo QueryableThenByMethodInfo { get; private set; }
-        public static MethodInfo QueryableThenByDescendingMethodInfo { get; private set; }
-        public static MethodInfo QueryableJoinMethodInfo { get; private set; }
-        public static MethodInfo QueryableGroupJoinMethodInfo { get; private set; }
-        public static MethodInfo QueryableSelectManyMethodInfo { get; private set; }
-        public static MethodInfo QueryableSelectManyWithResultOperatorMethodInfo { get; private set; }
+        public static MethodInfo QueryableWhereMethodInfo { get; }
+        public static MethodInfo QueryableSelectMethodInfo { get; }
+        public static MethodInfo QueryableOrderByMethodInfo { get; }
+        public static MethodInfo QueryableOrderByDescendingMethodInfo { get; }
+        public static MethodInfo QueryableThenByMethodInfo { get; }
+        public static MethodInfo QueryableThenByDescendingMethodInfo { get; }
+        public static MethodInfo QueryableJoinMethodInfo { get; }
+        public static MethodInfo QueryableGroupJoinMethodInfo { get; }
+        public static MethodInfo QueryableSelectManyMethodInfo { get; }
+        public static MethodInfo QueryableSelectManyWithResultOperatorMethodInfo { get; }
 
-        public static MethodInfo QueryableGroupByKeySelector { get; private set; }
-        public static MethodInfo QueryableGroupByKeySelectorResultSelector { get; private set; }
-        public static MethodInfo QueryableGroupByKeySelectorElementSelector { get; private set; }
-        public static MethodInfo QueryableGroupByKeySelectorElementSelectorResultSelector { get; private set; }
+        public static MethodInfo QueryableGroupByKeySelector { get; }
+        public static MethodInfo QueryableGroupByKeySelectorResultSelector { get; }
+        public static MethodInfo QueryableGroupByKeySelectorElementSelector { get; }
+        public static MethodInfo QueryableGroupByKeySelectorElementSelectorResultSelector { get; }
 
-        public static MethodInfo QueryableFirstMethodInfo { get; private set; }
-        public static MethodInfo QueryableFirstOrDefaultMethodInfo { get; private set; }
-        public static MethodInfo QueryableSingleMethodInfo { get; private set; }
-        public static MethodInfo QueryableSingleOrDefaultMethodInfo { get; private set; }
+        public static MethodInfo QueryableFirstMethodInfo { get; }
+        public static MethodInfo QueryableFirstOrDefaultMethodInfo { get; }
+        public static MethodInfo QueryableSingleMethodInfo { get; }
+        public static MethodInfo QueryableSingleOrDefaultMethodInfo { get; }
 
-        public static MethodInfo QueryableFirstPredicateMethodInfo { get; private set; }
-        public static MethodInfo QueryableFirstOrDefaultPredicateMethodInfo { get; private set; }
-        public static MethodInfo QueryableSinglePredicateMethodInfo { get; private set; }
-        public static MethodInfo QueryableSingleOrDefaultPredicateMethodInfo { get; private set; }
+        public static MethodInfo QueryableFirstPredicateMethodInfo { get; }
+        public static MethodInfo QueryableFirstOrDefaultPredicateMethodInfo { get; }
+        public static MethodInfo QueryableSinglePredicateMethodInfo { get; }
+        public static MethodInfo QueryableSingleOrDefaultPredicateMethodInfo { get; }
 
-        public static MethodInfo QueryableAnyMethodInfo { get; private set; }
-        public static MethodInfo QueryableAnyPredicateMethodInfo { get; private set; }
-        public static MethodInfo QueryableAllMethodInfo { get; private set; }
-        public static MethodInfo QueryableContainsMethodInfo { get; private set; }
+        public static MethodInfo QueryableAnyMethodInfo { get; }
+        public static MethodInfo QueryableAnyPredicateMethodInfo { get; }
+        public static MethodInfo QueryableAllMethodInfo { get; }
+        public static MethodInfo QueryableContainsMethodInfo { get; }
 
-        public static MethodInfo QueryableCountMethodInfo { get; private set; }
-        public static MethodInfo QueryableCountPredicateMethodInfo { get; private set; }
-        public static MethodInfo QueryableLongCountMethodInfo { get; private set; }
-        public static MethodInfo QueryableLongCountPredicateMethodInfo { get; private set; }
-        public static MethodInfo QueryableDistinctMethodInfo { get; private set; }
-        public static MethodInfo QueryableTakeMethodInfo { get; private set; }
-        public static MethodInfo QueryableSkipMethodInfo { get; private set; }
+        public static MethodInfo QueryableCountMethodInfo { get; }
+        public static MethodInfo QueryableCountPredicateMethodInfo { get; }
+        public static MethodInfo QueryableLongCountMethodInfo { get; }
+        public static MethodInfo QueryableLongCountPredicateMethodInfo { get; }
+        public static MethodInfo QueryableDistinctMethodInfo { get; }
+        public static MethodInfo QueryableTakeMethodInfo { get; }
+        public static MethodInfo QueryableSkipMethodInfo { get; }
 
-        public static MethodInfo QueryableOfType { get; private set; }
+        public static MethodInfo QueryableOfType { get; }
 
-        public static MethodInfo QueryableDefaultIfEmpty { get; private set; }
-        public static MethodInfo QueryableDefaultIfEmptyWithDefaultValue { get; private set; }
+        public static MethodInfo QueryableDefaultIfEmpty { get; }
+        public static MethodInfo QueryableDefaultIfEmptyWithDefaultValue { get; }
 
-        public static MethodInfo EnumerableWhereMethodInfo { get; private set; }
-        public static MethodInfo EnumerableSelectMethodInfo { get; private set; }
+        public static MethodInfo EnumerableWhereMethodInfo { get; }
+        public static MethodInfo EnumerableSelectMethodInfo { get; }
 
-        public static MethodInfo EnumerableJoinMethodInfo { get; private set; }
-        public static MethodInfo EnumerableGroupJoinMethodInfo { get; private set; }
-        public static MethodInfo EnumerableSelectManyWithResultOperatorMethodInfo { get; private set; }
+        public static MethodInfo EnumerableJoinMethodInfo { get; }
+        public static MethodInfo EnumerableGroupJoinMethodInfo { get; }
+        public static MethodInfo EnumerableSelectManyWithResultOperatorMethodInfo { get; }
 
-        public static MethodInfo EnumerableGroupByKeySelector { get; private set; }
-        public static MethodInfo EnumerableGroupByKeySelectorResultSelector { get; private set; }
-        public static MethodInfo EnumerableGroupByKeySelectorElementSelector { get; private set; }
-        public static MethodInfo EnumerableGroupByKeySelectorElementSelectorResultSelector { get; private set; }
+        public static MethodInfo EnumerableGroupByKeySelector { get; }
+        public static MethodInfo EnumerableGroupByKeySelectorResultSelector { get; }
+        public static MethodInfo EnumerableGroupByKeySelectorElementSelector { get; }
+        public static MethodInfo EnumerableGroupByKeySelectorElementSelectorResultSelector { get; }
 
-        public static MethodInfo EnumerableFirstMethodInfo { get; private set; }
-        public static MethodInfo EnumerableFirstOrDefaultMethodInfo { get; private set; }
-        public static MethodInfo EnumerableSingleMethodInfo { get; private set; }
-        public static MethodInfo EnumerableSingleOrDefaultMethodInfo { get; private set; }
+        public static MethodInfo EnumerableFirstMethodInfo { get; }
+        public static MethodInfo EnumerableFirstOrDefaultMethodInfo { get; }
+        public static MethodInfo EnumerableSingleMethodInfo { get; }
+        public static MethodInfo EnumerableSingleOrDefaultMethodInfo { get; }
 
-        public static MethodInfo EnumerableFirstPredicateMethodInfo { get; private set; }
-        public static MethodInfo EnumerableFirstOrDefaultPredicateMethodInfo { get; private set; }
-        public static MethodInfo EnumerableSinglePredicateMethodInfo { get; private set; }
-        public static MethodInfo EnumerableSingleOrDefaultPredicateMethodInfo { get; private set; }
+        public static MethodInfo EnumerableFirstPredicateMethodInfo { get; }
+        public static MethodInfo EnumerableFirstOrDefaultPredicateMethodInfo { get; }
+        public static MethodInfo EnumerableSinglePredicateMethodInfo { get; }
+        public static MethodInfo EnumerableSingleOrDefaultPredicateMethodInfo { get; }
 
-        public static MethodInfo EnumerableDefaultIfEmptyMethodInfo { get; private set; }
+        public static MethodInfo EnumerableDefaultIfEmptyMethodInfo { get; }
 
-        public static MethodInfo EnumerableAnyMethodInfo { get; private set; }
-        public static MethodInfo EnumerableAnyPredicateMethodInfo { get; private set; }
-        public static MethodInfo EnumerableAllMethodInfo { get; private set; }
-        public static MethodInfo EnumerableContainsMethodInfo { get; private set; }
+        public static MethodInfo EnumerableAnyMethodInfo { get; }
+        public static MethodInfo EnumerableAnyPredicateMethodInfo { get; }
+        public static MethodInfo EnumerableAllMethodInfo { get; }
+        public static MethodInfo EnumerableContainsMethodInfo { get; }
 
-        public static MethodInfo EnumerableCountMethodInfo { get; private set; }
-        public static MethodInfo EnumerableCountPredicateMethodInfo { get; private set; }
-        public static MethodInfo EnumerableLongCountMethodInfo { get; private set; }
-        public static MethodInfo EnumerableLongCountPredicateMethodInfo { get; private set; }
+        public static MethodInfo EnumerableCountMethodInfo { get; }
+        public static MethodInfo EnumerableCountPredicateMethodInfo { get; }
+        public static MethodInfo EnumerableLongCountMethodInfo { get; }
+        public static MethodInfo EnumerableLongCountPredicateMethodInfo { get; }
 
         static LinqMethodHelpers()
         {
             var queryableMethods = typeof(Queryable).GetMethods().ToList();
             var enumerableMethods = typeof(Enumerable).GetMethods().ToList();
 
-            AsQueryable = queryableMethods.Where(m => m.Name == nameof(Queryable.AsQueryable) && m.IsGenericMethod).Single();
+            AsQueryable = queryableMethods.Single(m => m.Name == nameof(Queryable.AsQueryable) && m.IsGenericMethod);
 
-            QueryableWhereMethodInfo = queryableMethods.Where(m => m.Name == nameof(Queryable.Where) && IsExpressionOfFunc(m.GetParameters()[1].ParameterType, 1)).Single();
-            QueryableSelectMethodInfo = queryableMethods.Where(m => m.Name == nameof(Queryable.Select) && IsExpressionOfFunc(m.GetParameters()[1].ParameterType, 1)).Single();
-            QueryableOrderByMethodInfo = queryableMethods.Where(m => m.Name == nameof(Queryable.OrderBy) && m.GetParameters().Count() == 2).Single();
-            QueryableOrderByDescendingMethodInfo = queryableMethods.Where(m => m.Name == nameof(Queryable.OrderByDescending) && m.GetParameters().Count() == 2).Single();
-            QueryableThenByMethodInfo = queryableMethods.Where(m => m.Name == nameof(Queryable.ThenBy) && m.GetParameters().Count() == 2).Single();
-            QueryableThenByDescendingMethodInfo = queryableMethods.Where(m => m.Name == nameof(Queryable.ThenByDescending) && m.GetParameters().Count() == 2).Single();
-            QueryableJoinMethodInfo = queryableMethods.Where(m => m.Name == nameof(Queryable.Join) && m.GetParameters().Count() == 5).Single();
-            QueryableGroupJoinMethodInfo = queryableMethods.Where(m => m.Name == nameof(Queryable.GroupJoin) && m.GetParameters().Count() == 5).Single();
+            QueryableWhereMethodInfo = queryableMethods.Single(m => m.Name == nameof(Queryable.Where) && IsExpressionOfFunc(m.GetParameters()[1].ParameterType, 1));
+            QueryableSelectMethodInfo = queryableMethods.Single(m => m.Name == nameof(Queryable.Select) && IsExpressionOfFunc(m.GetParameters()[1].ParameterType, 1));
+            QueryableOrderByMethodInfo = queryableMethods.Single(m => m.Name == nameof(Queryable.OrderBy) && m.GetParameters().Length == 2);
+            QueryableOrderByDescendingMethodInfo = queryableMethods.Single(m => m.Name == nameof(Queryable.OrderByDescending) && m.GetParameters().Length == 2);
+            QueryableThenByMethodInfo = queryableMethods.Single(m => m.Name == nameof(Queryable.ThenBy) && m.GetParameters().Length == 2);
+            QueryableThenByDescendingMethodInfo = queryableMethods.Single(m => m.Name == nameof(Queryable.ThenByDescending) && m.GetParameters().Length == 2);
+            QueryableJoinMethodInfo = queryableMethods.Single(m => m.Name == nameof(Queryable.Join) && m.GetParameters().Length == 5);
+            QueryableGroupJoinMethodInfo = queryableMethods.Single(m => m.Name == nameof(Queryable.GroupJoin) && m.GetParameters().Length == 5);
 
-            QueryableSelectManyMethodInfo = queryableMethods.Where(m => m.Name == nameof(Queryable.SelectMany) && m.GetParameters().Count() == 2 && IsExpressionOfFunc(m.GetParameters()[1].ParameterType, 1)).Single();
-            QueryableSelectManyWithResultOperatorMethodInfo = queryableMethods.Where(m => m.Name == nameof(Queryable.SelectMany) && m.GetParameters().Count() == 3 && IsExpressionOfFunc(m.GetParameters()[1].ParameterType, 1)).Single();
+            QueryableSelectManyMethodInfo = queryableMethods.Single(m => m.Name == nameof(Queryable.SelectMany) && m.GetParameters().Length == 2 && IsExpressionOfFunc(m.GetParameters()[1].ParameterType, 1));
+            QueryableSelectManyWithResultOperatorMethodInfo = queryableMethods.Single(m => m.Name == nameof(Queryable.SelectMany) && m.GetParameters().Length == 3 && IsExpressionOfFunc(m.GetParameters()[1].ParameterType, 1));
 
-            QueryableGroupByKeySelector = queryableMethods.Where(m => m.Name == nameof(Queryable.GroupBy) && m.GetParameters().Count() == 2).Single();
-            QueryableGroupByKeySelectorResultSelector = queryableMethods.Where(m => m.Name == nameof(Queryable.GroupBy) && m.GetParameters().Count() == 3 && IsExpressionOfFunc(m.GetParameters()[2].ParameterType, 2)).Single();
-            QueryableGroupByKeySelectorElementSelector = queryableMethods.Where(m => m.Name == nameof(Queryable.GroupBy) && m.GetParameters().Count() == 3 && IsExpressionOfFunc(m.GetParameters()[2].ParameterType, 1)).Single();
-            QueryableGroupByKeySelectorElementSelectorResultSelector = queryableMethods.Where(m => m.Name == nameof(Queryable.GroupBy) && m.GetParameters().Count() == 4 && IsExpressionOfFunc(m.GetParameters()[2].ParameterType, 1) && IsExpressionOfFunc(m.GetParameters()[3].ParameterType, 2)).Single();
+            QueryableGroupByKeySelector = queryableMethods.Single(m => m.Name == nameof(Queryable.GroupBy) && m.GetParameters().Length == 2);
+            QueryableGroupByKeySelectorResultSelector = queryableMethods.Single(m => m.Name == nameof(Queryable.GroupBy) && m.GetParameters().Length == 3 && IsExpressionOfFunc(m.GetParameters()[2].ParameterType, 2));
+            QueryableGroupByKeySelectorElementSelector = queryableMethods.Single(m => m.Name == nameof(Queryable.GroupBy) && m.GetParameters().Length == 3 && IsExpressionOfFunc(m.GetParameters()[2].ParameterType, 1));
+            QueryableGroupByKeySelectorElementSelectorResultSelector = queryableMethods.Single(m => m.Name == nameof(Queryable.GroupBy) && m.GetParameters().Length == 4 && IsExpressionOfFunc(m.GetParameters()[2].ParameterType, 1) && IsExpressionOfFunc(m.GetParameters()[3].ParameterType, 2));
 
-            QueryableFirstMethodInfo = queryableMethods.Where(m => m.Name == nameof(Queryable.First) && m.GetParameters().Count() == 1).Single();
-            QueryableFirstOrDefaultMethodInfo = queryableMethods.Where(m => m.Name == nameof(Queryable.FirstOrDefault) && m.GetParameters().Count() == 1).Single();
-            QueryableSingleMethodInfo = queryableMethods.Where(m => m.Name == nameof(Queryable.Single) && m.GetParameters().Count() == 1).Single();
-            QueryableSingleOrDefaultMethodInfo = queryableMethods.Where(m => m.Name == nameof(Queryable.SingleOrDefault) && m.GetParameters().Count() == 1).Single();
+            QueryableFirstMethodInfo = queryableMethods.Single(m => m.Name == nameof(Queryable.First) && m.GetParameters().Length == 1);
+            QueryableFirstOrDefaultMethodInfo = queryableMethods.Single(m => m.Name == nameof(Queryable.FirstOrDefault) && m.GetParameters().Length == 1);
+            QueryableSingleMethodInfo = queryableMethods.Single(m => m.Name == nameof(Queryable.Single) && m.GetParameters().Length == 1);
+            QueryableSingleOrDefaultMethodInfo = queryableMethods.Single(m => m.Name == nameof(Queryable.SingleOrDefault) && m.GetParameters().Length == 1);
 
-            QueryableFirstPredicateMethodInfo = queryableMethods.Where(m => m.Name == nameof(Queryable.First) && m.GetParameters().Count() == 2).Single();
-            QueryableFirstOrDefaultPredicateMethodInfo = queryableMethods.Where(m => m.Name == nameof(Queryable.FirstOrDefault) && m.GetParameters().Count() == 2).Single();
-            QueryableSinglePredicateMethodInfo = queryableMethods.Where(m => m.Name == nameof(Queryable.Single) && m.GetParameters().Count() == 2).Single();
-            QueryableSingleOrDefaultPredicateMethodInfo = queryableMethods.Where(m => m.Name == nameof(Queryable.SingleOrDefault) && m.GetParameters().Count() == 2).Single();
+            QueryableFirstPredicateMethodInfo = queryableMethods.Single(m => m.Name == nameof(Queryable.First) && m.GetParameters().Length == 2);
+            QueryableFirstOrDefaultPredicateMethodInfo = queryableMethods.Single(m => m.Name == nameof(Queryable.FirstOrDefault) && m.GetParameters().Length == 2);
+            QueryableSinglePredicateMethodInfo = queryableMethods.Single(m => m.Name == nameof(Queryable.Single) && m.GetParameters().Length == 2);
+            QueryableSingleOrDefaultPredicateMethodInfo = queryableMethods.Single(m => m.Name == nameof(Queryable.SingleOrDefault) && m.GetParameters().Length == 2);
 
-            QueryableCountMethodInfo = queryableMethods.Where(m => m.Name == nameof(Queryable.Count) && m.GetParameters().Count() == 1).Single();
-            QueryableCountPredicateMethodInfo = queryableMethods.Where(m => m.Name == nameof(Queryable.Count) && m.GetParameters().Count() == 2).Single();
-            QueryableLongCountMethodInfo = queryableMethods.Where(m => m.Name == nameof(Queryable.LongCount) && m.GetParameters().Count() == 1).Single();
-            QueryableLongCountPredicateMethodInfo = queryableMethods.Where(m => m.Name == nameof(Queryable.LongCount) && m.GetParameters().Count() == 2).Single();
+            QueryableCountMethodInfo = queryableMethods.Single(m => m.Name == nameof(Queryable.Count) && m.GetParameters().Length == 1);
+            QueryableCountPredicateMethodInfo = queryableMethods.Single(m => m.Name == nameof(Queryable.Count) && m.GetParameters().Length == 2);
+            QueryableLongCountMethodInfo = queryableMethods.Single(m => m.Name == nameof(Queryable.LongCount) && m.GetParameters().Length == 1);
+            QueryableLongCountPredicateMethodInfo = queryableMethods.Single(m => m.Name == nameof(Queryable.LongCount) && m.GetParameters().Length == 2);
 
-            QueryableDistinctMethodInfo = queryableMethods.Where(m => m.Name == nameof(Queryable.Distinct) && m.GetParameters().Count() == 1).Single();
-            QueryableTakeMethodInfo = queryableMethods.Where(m => m.Name == nameof(Queryable.Take) && m.GetParameters().Count() == 2).Single();
-            QueryableSkipMethodInfo = queryableMethods.Where(m => m.Name == nameof(Queryable.Skip) && m.GetParameters().Count() == 2).Single();
+            QueryableDistinctMethodInfo = queryableMethods.Single(m => m.Name == nameof(Queryable.Distinct) && m.GetParameters().Length == 1);
+            QueryableTakeMethodInfo = queryableMethods.Single(m => m.Name == nameof(Queryable.Take) && m.GetParameters().Length == 2);
+            QueryableSkipMethodInfo = queryableMethods.Single(m => m.Name == nameof(Queryable.Skip) && m.GetParameters().Length == 2);
 
-            QueryableAnyMethodInfo = queryableMethods.Where(m => m.Name == nameof(Queryable.Any) && m.GetParameters().Count() == 1).Single();
-            QueryableAnyPredicateMethodInfo = queryableMethods.Where(m => m.Name == nameof(Queryable.Any) && m.GetParameters().Count() == 2).Single();
-            QueryableAllMethodInfo = queryableMethods.Where(m => m.Name == nameof(Queryable.All) && m.GetParameters().Count() == 2).Single();
-            QueryableContainsMethodInfo = queryableMethods.Where(m => m.Name == nameof(Queryable.Contains) && m.GetParameters().Count() == 2).Single();
+            QueryableAnyMethodInfo = queryableMethods.Single(m => m.Name == nameof(Queryable.Any) && m.GetParameters().Length == 1);
+            QueryableAnyPredicateMethodInfo = queryableMethods.Single(m => m.Name == nameof(Queryable.Any) && m.GetParameters().Length == 2);
+            QueryableAllMethodInfo = queryableMethods.Single(m => m.Name == nameof(Queryable.All) && m.GetParameters().Length == 2);
+            QueryableContainsMethodInfo = queryableMethods.Single(m => m.Name == nameof(Queryable.Contains) && m.GetParameters().Length == 2);
 
-            QueryableOfType = queryableMethods.Where(m => m.Name == nameof(Queryable.OfType) && m.GetParameters().Count() == 1).Single();
+            QueryableOfType = queryableMethods.Single(m => m.Name == nameof(Queryable.OfType) && m.GetParameters().Length == 1);
 
-            QueryableDefaultIfEmpty = queryableMethods.Where(m => m.Name == nameof(Queryable.DefaultIfEmpty) && m.GetParameters().Count() == 1).Single();
-            QueryableDefaultIfEmptyWithDefaultValue = queryableMethods.Where(m => m.Name == nameof(Queryable.DefaultIfEmpty) && m.GetParameters().Count() == 2).Single();
+            QueryableDefaultIfEmpty = queryableMethods.Single(m => m.Name == nameof(Queryable.DefaultIfEmpty) && m.GetParameters().Length == 1);
+            QueryableDefaultIfEmptyWithDefaultValue = queryableMethods.Single(m => m.Name == nameof(Queryable.DefaultIfEmpty) && m.GetParameters().Length == 2);
 
-            EnumerableWhereMethodInfo = enumerableMethods.Where(m => m.Name == nameof(Enumerable.Where) && IsFunc(m.GetParameters()[1].ParameterType, 1)).Single();
-            EnumerableSelectMethodInfo = enumerableMethods.Where(m => m.Name == nameof(Enumerable.Select) && IsFunc(m.GetParameters()[1].ParameterType, 1)).Single();
+            EnumerableWhereMethodInfo = enumerableMethods.Single(m => m.Name == nameof(Enumerable.Where) && IsFunc(m.GetParameters()[1].ParameterType, 1));
+            EnumerableSelectMethodInfo = enumerableMethods.Single(m => m.Name == nameof(Enumerable.Select) && IsFunc(m.GetParameters()[1].ParameterType, 1));
 
-            EnumerableJoinMethodInfo = enumerableMethods.Where(m => m.Name == nameof(Enumerable.Join) && m.GetParameters().Count() == 5).Single();
-            EnumerableGroupJoinMethodInfo = enumerableMethods.Where(m => m.Name == nameof(Enumerable.GroupJoin) && m.GetParameters().Count() == 5).Single();
-            EnumerableSelectManyWithResultOperatorMethodInfo = enumerableMethods.Where(m => m.Name == nameof(Enumerable.SelectMany) && m.GetParameters().Count() == 3 && IsFunc(m.GetParameters()[1].ParameterType, 1)).Single();
+            EnumerableJoinMethodInfo = enumerableMethods.Single(m => m.Name == nameof(Enumerable.Join) && m.GetParameters().Length == 5);
+            EnumerableGroupJoinMethodInfo = enumerableMethods.Single(m => m.Name == nameof(Enumerable.GroupJoin) && m.GetParameters().Length == 5);
+            EnumerableSelectManyWithResultOperatorMethodInfo = enumerableMethods.Single(m => m.Name == nameof(Enumerable.SelectMany) && m.GetParameters().Length == 3 && IsFunc(m.GetParameters()[1].ParameterType, 1));
 
-            EnumerableGroupByKeySelector = enumerableMethods.Where(m => m.Name == nameof(Queryable.GroupBy) && m.GetParameters().Count() == 2).Single();
-            EnumerableGroupByKeySelectorResultSelector = enumerableMethods.Where(m => m.Name == nameof(Queryable.GroupBy) && m.GetParameters().Count() == 3 && IsFunc(m.GetParameters()[2].ParameterType, 2)).Single();
-            EnumerableGroupByKeySelectorElementSelector = enumerableMethods.Where(m => m.Name == nameof(Queryable.GroupBy) && m.GetParameters().Count() == 3 && IsFunc(m.GetParameters()[2].ParameterType, 1)).Single();
-            EnumerableGroupByKeySelectorElementSelectorResultSelector = enumerableMethods.Where(m => m.Name == nameof(Queryable.GroupBy) && m.GetParameters().Count() == 4 && IsFunc(m.GetParameters()[2].ParameterType, 1) && IsFunc(m.GetParameters()[3].ParameterType, 2)).Single();
+            EnumerableGroupByKeySelector = enumerableMethods.Single(m => m.Name == nameof(Queryable.GroupBy) && m.GetParameters().Length == 2);
+            EnumerableGroupByKeySelectorResultSelector = enumerableMethods.Single(m => m.Name == nameof(Queryable.GroupBy) && m.GetParameters().Length == 3 && IsFunc(m.GetParameters()[2].ParameterType, 2));
+            EnumerableGroupByKeySelectorElementSelector = enumerableMethods.Single(m => m.Name == nameof(Queryable.GroupBy) && m.GetParameters().Length == 3 && IsFunc(m.GetParameters()[2].ParameterType, 1));
+            EnumerableGroupByKeySelectorElementSelectorResultSelector = enumerableMethods.Single(m => m.Name == nameof(Queryable.GroupBy) && m.GetParameters().Length == 4 && IsFunc(m.GetParameters()[2].ParameterType, 1) && IsFunc(m.GetParameters()[3].ParameterType, 2));
 
-            EnumerableFirstMethodInfo = enumerableMethods.Where(m => m.Name == nameof(Enumerable.First) && m.GetParameters().Count() == 1).Single();
-            EnumerableFirstOrDefaultMethodInfo = enumerableMethods.Where(m => m.Name == nameof(Enumerable.FirstOrDefault) && m.GetParameters().Count() == 1).Single();
-            EnumerableSingleMethodInfo = enumerableMethods.Where(m => m.Name == nameof(Enumerable.Single) && m.GetParameters().Count() == 1).Single();
-            EnumerableSingleOrDefaultMethodInfo = enumerableMethods.Where(m => m.Name == nameof(Enumerable.SingleOrDefault) && m.GetParameters().Count() == 1).Single();
+            EnumerableFirstMethodInfo = enumerableMethods.Single(m => m.Name == nameof(Enumerable.First) && m.GetParameters().Length == 1);
+            EnumerableFirstOrDefaultMethodInfo = enumerableMethods.Single(m => m.Name == nameof(Enumerable.FirstOrDefault) && m.GetParameters().Length == 1);
+            EnumerableSingleMethodInfo = enumerableMethods.Single(m => m.Name == nameof(Enumerable.Single) && m.GetParameters().Length == 1);
+            EnumerableSingleOrDefaultMethodInfo = enumerableMethods.Single(m => m.Name == nameof(Enumerable.SingleOrDefault) && m.GetParameters().Length == 1);
 
-            EnumerableFirstPredicateMethodInfo = enumerableMethods.Where(m => m.Name == nameof(Enumerable.First) && m.GetParameters().Count() == 2).Single();
-            EnumerableFirstOrDefaultPredicateMethodInfo = enumerableMethods.Where(m => m.Name == nameof(Enumerable.FirstOrDefault) && m.GetParameters().Count() == 2).Single();
-            EnumerableSinglePredicateMethodInfo = enumerableMethods.Where(m => m.Name == nameof(Enumerable.Single) && m.GetParameters().Count() == 2).Single();
-            EnumerableSingleOrDefaultPredicateMethodInfo = enumerableMethods.Where(m => m.Name == nameof(Enumerable.SingleOrDefault) && m.GetParameters().Count() == 2).Single();
+            EnumerableFirstPredicateMethodInfo = enumerableMethods.Single(m => m.Name == nameof(Enumerable.First) && m.GetParameters().Length == 2);
+            EnumerableFirstOrDefaultPredicateMethodInfo = enumerableMethods.Single(m => m.Name == nameof(Enumerable.FirstOrDefault) && m.GetParameters().Length == 2);
+            EnumerableSinglePredicateMethodInfo = enumerableMethods.Single(m => m.Name == nameof(Enumerable.Single) && m.GetParameters().Length == 2);
+            EnumerableSingleOrDefaultPredicateMethodInfo = enumerableMethods.Single(m => m.Name == nameof(Enumerable.SingleOrDefault) && m.GetParameters().Length == 2);
 
-            EnumerableDefaultIfEmptyMethodInfo = enumerableMethods.Where(m => m.Name == nameof(Enumerable.DefaultIfEmpty) && m.GetParameters().Count() == 1).Single();
+            EnumerableDefaultIfEmptyMethodInfo = enumerableMethods.Single(m => m.Name == nameof(Enumerable.DefaultIfEmpty) && m.GetParameters().Length == 1);
 
-            EnumerableAnyMethodInfo = enumerableMethods.Where(m => m.Name == nameof(Enumerable.Any) && m.GetParameters().Count() == 1).Single();
-            EnumerableAnyPredicateMethodInfo = enumerableMethods.Where(m => m.Name == nameof(Enumerable.Any) && m.GetParameters().Count() == 2).Single();
-            EnumerableAllMethodInfo = enumerableMethods.Where(m => m.Name == nameof(Enumerable.All) && m.GetParameters().Count() == 2).Single();
-            EnumerableContainsMethodInfo = enumerableMethods.Where(m => m.Name == nameof(Enumerable.Contains) && m.GetParameters().Count() == 2).Single();
+            EnumerableAnyMethodInfo = enumerableMethods.Single(m => m.Name == nameof(Enumerable.Any) && m.GetParameters().Length == 1);
+            EnumerableAnyPredicateMethodInfo = enumerableMethods.Single(m => m.Name == nameof(Enumerable.Any) && m.GetParameters().Length == 2);
+            EnumerableAllMethodInfo = enumerableMethods.Single(m => m.Name == nameof(Enumerable.All) && m.GetParameters().Length == 2);
+            EnumerableContainsMethodInfo = enumerableMethods.Single(m => m.Name == nameof(Enumerable.Contains) && m.GetParameters().Length == 2);
 
-            EnumerableCountMethodInfo = enumerableMethods.Where(m => m.Name == nameof(Enumerable.Count) && m.GetParameters().Count() == 1).Single();
-            EnumerableCountPredicateMethodInfo = enumerableMethods.Where(m => m.Name == nameof(Enumerable.Count) && m.GetParameters().Count() == 2).Single();
-            EnumerableLongCountMethodInfo = enumerableMethods.Where(m => m.Name == nameof(Enumerable.LongCount) && m.GetParameters().Count() == 1).Single();
-            EnumerableLongCountPredicateMethodInfo = enumerableMethods.Where(m => m.Name == nameof(Enumerable.LongCount) && m.GetParameters().Count() == 2).Single();
+            EnumerableCountMethodInfo = enumerableMethods.Single(m => m.Name == nameof(Enumerable.Count) && m.GetParameters().Length == 1);
+            EnumerableCountPredicateMethodInfo = enumerableMethods.Single(m => m.Name == nameof(Enumerable.Count) && m.GetParameters().Length == 2);
+            EnumerableLongCountMethodInfo = enumerableMethods.Single(m => m.Name == nameof(Enumerable.LongCount) && m.GetParameters().Length == 1);
+            EnumerableLongCountPredicateMethodInfo = enumerableMethods.Single(m => m.Name == nameof(Enumerable.LongCount) && m.GetParameters().Length == 2);
         }
 
         private static bool IsExpressionOfFunc(Type type, int parameterCount)
@@ -184,11 +184,11 @@ namespace Microsoft.EntityFrameworkCore.Query.NavigationExpansion
             && type.GetGenericArguments()[0] is Type expressionTypeArgument
             && expressionTypeArgument.IsGenericType
             && expressionTypeArgument.Name.StartsWith(nameof(Func<object>))
-            && expressionTypeArgument.GetGenericArguments().Count() == parameterCount + 1;
+            && expressionTypeArgument.GetGenericArguments().Length == parameterCount + 1;
 
         private static bool IsFunc(Type type, int parameterCount)
             => type.IsGenericType
             && type.Name.StartsWith(nameof(Func<object>))
-            && type.GetGenericArguments().Count() == parameterCount + 1;
+            && type.GetGenericArguments().Length == parameterCount + 1;
     }
 }
