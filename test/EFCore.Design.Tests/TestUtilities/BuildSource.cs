@@ -15,19 +15,6 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
     {
         public ICollection<BuildReference> References { get; } = new List<BuildReference>
         {
-#if NET461
-            BuildReference.ByName("mscorlib"),
-            BuildReference.ByName("netstandard"),
-            BuildReference.ByName("System, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"),
-            BuildReference.ByName("System.Collections.Immutable", true),
-            BuildReference.ByName("System.ComponentModel.Annotations", true),
-            BuildReference.ByName("System.ComponentModel.DataAnnotations, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35"),
-            BuildReference.ByName("System.Core, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"),
-            BuildReference.ByName("System.Data, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"),
-            BuildReference.ByName("Microsoft.Data.SqlClient", true),
-            BuildReference.ByName("System.Diagnostics.DiagnosticSource", true),
-            BuildReference.ByName("System.ValueTuple", true)
-#elif NETCOREAPP3_0
             BuildReference.ByName("netstandard"),
             BuildReference.ByName("System.Collections"),
             BuildReference.ByName("System.ComponentModel.Annotations"),
@@ -37,9 +24,6 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             BuildReference.ByName("System.Runtime"),
             BuildReference.ByName("System.Runtime.Extensions"),
             BuildReference.ByName("System.Text.RegularExpressions")
-#else
-#error target frameworks need to be updated.
-#endif
         };
 
         public string TargetDir { get; set; }

@@ -66,12 +66,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             {
                 var methodCallLine = Environment.StackTrace.Split(
                         new[] { _eol },
-#if NETCOREAPP3_0
-                        StringSplitOptions.RemoveEmptyEntries)[3]
-#else
-                        StringSplitOptions.RemoveEmptyEntries)[4]
-#endif
-                    .Substring(6);
+                        StringSplitOptions.RemoveEmptyEntries)[3].Substring(6);
 
                 var testName = methodCallLine.Substring(0, methodCallLine.IndexOf(')') + 1);
                 var lineIndex = methodCallLine.LastIndexOf("line", StringComparison.Ordinal);
