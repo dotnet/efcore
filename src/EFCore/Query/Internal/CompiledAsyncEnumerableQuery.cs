@@ -14,7 +14,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public class CompiledAsyncEnumerableQuery<TContext, TResult> : CompiledQueryBase<TContext, AsyncEnumerable<TResult>>
+    public class CompiledAsyncEnumerableQuery<TContext, TResult> : CompiledQueryBase<TContext, IAsyncEnumerable<TResult>>
         where TContext : DbContext
     {
         /// <summary>
@@ -34,7 +34,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual AsyncEnumerable<TResult> Execute(
+        public virtual IAsyncEnumerable<TResult> Execute(
             [NotNull] TContext context)
             => ExecuteCore(context);
 
@@ -44,7 +44,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual AsyncEnumerable<TResult> Execute<TParam1>(
+        public virtual IAsyncEnumerable<TResult> Execute<TParam1>(
             [NotNull] TContext context,
             [CanBeNull] TParam1 param1)
             => ExecuteCore(context, param1);
@@ -55,7 +55,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual AsyncEnumerable<TResult> Execute<TParam1, TParam2>(
+        public virtual IAsyncEnumerable<TResult> Execute<TParam1, TParam2>(
             [NotNull] TContext context,
             [CanBeNull] TParam1 param1,
             [CanBeNull] TParam2 param2)
@@ -67,7 +67,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual AsyncEnumerable<TResult> Execute<TParam1, TParam2, TParam3>(
+        public virtual IAsyncEnumerable<TResult> Execute<TParam1, TParam2, TParam3>(
             [NotNull] TContext context,
             [CanBeNull] TParam1 param1,
             [CanBeNull] TParam2 param2,
@@ -80,7 +80,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual AsyncEnumerable<TResult> Execute<TParam1, TParam2, TParam3, TParam4>(
+        public virtual IAsyncEnumerable<TResult> Execute<TParam1, TParam2, TParam3, TParam4>(
             [NotNull] TContext context,
             [CanBeNull] TParam1 param1,
             [CanBeNull] TParam2 param2,
@@ -94,7 +94,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual AsyncEnumerable<TResult> Execute<TParam1, TParam2, TParam3, TParam4, TParam5>(
+        public virtual IAsyncEnumerable<TResult> Execute<TParam1, TParam2, TParam3, TParam4, TParam5>(
             [NotNull] TContext context,
             [CanBeNull] TParam1 param1,
             [CanBeNull] TParam2 param2,
@@ -109,12 +109,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        protected override Func<QueryContext, AsyncEnumerable<TResult>> CreateCompiledQuery(
+        protected override Func<QueryContext, IAsyncEnumerable<TResult>> CreateCompiledQuery(
             IQueryCompiler queryCompiler, Expression expression)
         {
-            var compiledQuery = queryCompiler.CreateCompiledAsyncQuery<IAsyncEnumerable<TResult>>(expression);
-
-            return qc => new AsyncEnumerable<TResult>(compiledQuery(qc));
+            return queryCompiler.CreateCompiledAsyncQuery<IAsyncEnumerable<TResult>>(expression);
         }
     }
 }

@@ -428,8 +428,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
                 _cosmosSqlQuery = cosmosSqlQuery;
             }
 
-            public IAsyncEnumerator<JObject> GetEnumerator() => new AsyncEnumerator(this);
-
+            public IAsyncEnumerator<JObject> GetAsyncEnumerator(CancellationToken cancellationToken = default)
+                => new AsyncEnumerator(this, cancellationToken);
             private class AsyncEnumerator : IAsyncEnumerator<JObject>
             {
                 private CosmosResultSetIterator _query;
@@ -439,20 +439,23 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
                 private readonly CosmosClientWrapper _cosmosClient;
                 private readonly string _containerId;
                 private readonly CosmosSqlQuery _cosmosSqlQuery;
+                private readonly CancellationToken _cancellationToken;
 
-                public AsyncEnumerator(DocumentAsyncEnumerable documentEnumerable)
+                public AsyncEnumerator(DocumentAsyncEnumerable documentEnumerable, CancellationToken cancellationToken)
                 {
                     _cosmosClient = documentEnumerable._cosmosClient;
                     _containerId = documentEnumerable._containerId;
                     _cosmosSqlQuery = documentEnumerable._cosmosSqlQuery;
+                    _cancellationToken = cancellationToken;
                 }
 
                 public JObject Current { get; private set; }
 
+
                 [MethodImpl(MethodImplOptions.AggressiveInlining)]
-                public async Task<bool> MoveNext(CancellationToken cancellationToken)
+                public async ValueTask<bool> MoveNextAsync()
                 {
-                    cancellationToken.ThrowIfCancellationRequested();
+                    _cancellationToken.ThrowIfCancellationRequested();
 
                     if (_jsonReader == null)
                     {
@@ -467,7 +470,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
                             return false;
                         }
 
-                        _responseStream = (await _query.FetchNextSetAsync(cancellationToken)).Content;
+                        _responseStream = (await _query.FetchNextSetAsync(_cancellationToken)).Content;
                         _reader = new StreamReader(_responseStream);
                         _jsonReader = new JsonTextReader(_reader);
 
@@ -510,10 +513,10 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
                     _reader = null;
                     _responseStream.Dispose();
                     _responseStream = null;
-                    return await MoveNext(cancellationToken);
+                    return await MoveNextAsync();
                 }
 
-                public void Dispose()
+                public ValueTask DisposeAsync()
                 {
                     _jsonReader?.Close();
                     _jsonReader = null;
@@ -521,9 +524,9 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
                     _reader = null;
                     _responseStream?.Dispose();
                     _responseStream = null;
-                }
 
-                public void Reset() => throw new NotImplementedException();
+                    return default;
+                }
             }
         }
 

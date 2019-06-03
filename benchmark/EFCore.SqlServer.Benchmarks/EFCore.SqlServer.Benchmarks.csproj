@@ -2,6 +2,7 @@
 
   <PropertyGroup>
     <TargetFrameworks>net461;netcoreapp2.0;netcoreapp2.1;netcoreapp2.2;netcoreapp3.0</TargetFrameworks>
+    <TargetFrameworks Condition=" '$(Configuration)' == 'Release' Or '$(Configuration)' == 'Debug' ">netcoreapp3.0</TargetFrameworks>
     <RootNamespace>Microsoft.EntityFrameworkCore.Benchmarks</RootNamespace>
     <OutputType>Exe</OutputType>
   </PropertyGroup>

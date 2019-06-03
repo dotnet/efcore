@@ -46,7 +46,8 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
                 _logger = logger;
             }
 
-            public IAsyncEnumerator<T> GetEnumerator() => new AsyncEnumerator(this);
+            public IAsyncEnumerator<T> GetAsyncEnumerator(CancellationToken cancellationToken = default)
+                => new AsyncEnumerator(this, cancellationToken);
 
             private sealed class AsyncEnumerator : IAsyncEnumerator<T>
             {
@@ -60,8 +61,11 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
                 private readonly IDiagnosticsLogger<DbLoggerCategory.Query> _logger;
                 private readonly ISqlExpressionFactory _sqlExpressionFactory;
                 private readonly IParameterNameGeneratorFactory _parameterNameGeneratorFactory;
+                private readonly CancellationToken _cancellationToken;
 
-                public AsyncEnumerator(AsyncQueryingEnumerable<T> queryingEnumerable)
+                public AsyncEnumerator(
+                    AsyncQueryingEnumerable<T> queryingEnumerable,
+                    CancellationToken cancellationToken)
                 {
                     _relationalQueryContext = queryingEnumerable._relationalQueryContext;
                     _shaper = queryingEnumerable._shaper;
@@ -71,24 +75,18 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
                     _logger = queryingEnumerable._logger;
                     _sqlExpressionFactory = queryingEnumerable._sqlExpressionFactory;
                     _parameterNameGeneratorFactory = queryingEnumerable._parameterNameGeneratorFactory;
+                    _cancellationToken = cancellationToken;
                 }
 
                 public T Current { get; private set; }
 
-                public void Dispose()
-                {
-                    _dataReader?.Dispose();
-                    _dataReader = null;
-                    _relationalQueryContext.Connection.Close();
-                }
-
-                public async Task<bool> MoveNext(CancellationToken cancellationToken)
+                public async ValueTask<bool> MoveNextAsync()
                 {
                     try
                     {
                         if (_dataReader == null)
                         {
-                            await _relationalQueryContext.Connection.OpenAsync(cancellationToken);
+                            await _relationalQueryContext.Connection.OpenAsync(_cancellationToken);
 
                             try
                             {
@@ -104,7 +102,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
                                         _relationalQueryContext.Connection,
                                         _relationalQueryContext.ParameterValues,
                                         _relationalQueryContext.CommandLogger,
-                                        cancellationToken);
+                                        _cancellationToken);
 
                                 _resultCoordinator = new ResultCoordinator();
                             }
@@ -118,7 +116,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
                             }
                         }
 
-                        var hasNext = _resultCoordinator.HasNext ?? await _dataReader.ReadAsync(cancellationToken);
+                        var hasNext = _resultCoordinator.HasNext ?? await _dataReader.ReadAsync(_cancellationToken);
                         _resultCoordinator.HasNext = null;
 
                         Current
@@ -134,6 +132,15 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
 
                         throw;
                     }
+                }
+
+                public ValueTask DisposeAsync()
+                {
+                    _dataReader?.Dispose();
+                    _dataReader = null;
+                    _relationalQueryContext.Connection.Close();
+
+                    return default;
                 }
             }
         }

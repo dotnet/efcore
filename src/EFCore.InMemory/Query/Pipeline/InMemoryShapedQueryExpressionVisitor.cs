@@ -232,7 +232,8 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Pipeline
                 _logger = logger;
             }
 
-            public IAsyncEnumerator<T> GetEnumerator() => new AsyncEnumerator(this);
+            public IAsyncEnumerator<T> GetAsyncEnumerator(CancellationToken cancellationToken = default)
+                => new AsyncEnumerator(this, cancellationToken);
 
             private sealed class AsyncEnumerator : IAsyncEnumerator<T>
             {
@@ -242,21 +243,23 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Pipeline
                 private readonly Func<QueryContext, IEnumerator<ValueBuffer>, Task<T>> _shaper;
                 private readonly Type _contextType;
                 private readonly IDiagnosticsLogger<DbLoggerCategory.Query> _logger;
+                private readonly CancellationToken _cancellationToken;
 
-                public AsyncEnumerator(AsyncQueryingEnumerable<T> asyncQueryingEnumerable)
+                public AsyncEnumerator(
+                    AsyncQueryingEnumerable<T> asyncQueryingEnumerable,
+                    CancellationToken cancellationToken)
                 {
                     _queryContext = asyncQueryingEnumerable._queryContext;
                     _innerEnumerable = asyncQueryingEnumerable._innerEnumerable;
                     _shaper = asyncQueryingEnumerable._shaper;
                     _contextType = asyncQueryingEnumerable._contextType;
                     _logger = asyncQueryingEnumerable._logger;
+                    _cancellationToken = cancellationToken;
                 }
 
                 public T Current { get; private set; }
 
-                public void Dispose() => _enumerator?.Dispose();
-
-                public async Task<bool> MoveNext(CancellationToken cancellationToken)
+                public async ValueTask<bool> MoveNextAsync()
                 {
                     try
                     {
@@ -279,6 +282,13 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Pipeline
 
                         throw;
                     }
+                }
+
+                public ValueTask DisposeAsync()
+                {
+                    _enumerator?.Dispose();
+
+                    return default;
                 }
             }
         }

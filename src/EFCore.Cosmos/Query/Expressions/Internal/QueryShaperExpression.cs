@@ -82,23 +82,28 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Expressions.Internal
                 _shaper = shaper;
             }
 
-            public IAsyncEnumerator<T> GetEnumerator() => new AsyncShaperEnumerator(this);
+            public IAsyncEnumerator<T> GetAsyncEnumerator(CancellationToken cancellationToken = default)
+            {
+                return new AsyncShaperEnumerator(this, cancellationToken);
+            }
 
             private class AsyncShaperEnumerator : IAsyncEnumerator<T>
             {
                 private readonly IAsyncEnumerator<JObject> _enumerator;
                 private readonly Func<JObject, T> _shaper;
 
-                public AsyncShaperEnumerator(AsyncShaperEnumerable<T> enumerable)
+                public AsyncShaperEnumerator(AsyncShaperEnumerable<T> enumerable, CancellationToken cancellationToken)
                 {
-                    _enumerator = enumerable._innerEnumerable.GetEnumerator();
+                    _enumerator = enumerable._innerEnumerable.GetAsyncEnumerator(cancellationToken);
                     _shaper = enumerable._shaper;
                 }
 
+                public T Current { get; private set; }
+
                 [MethodImpl(MethodImplOptions.AggressiveInlining)]
-                public async Task<bool> MoveNext(CancellationToken cancellationToken)
+                public async ValueTask<bool> MoveNextAsync()
                 {
-                    if (!await _enumerator.MoveNext(cancellationToken))
+                    if (!await _enumerator.MoveNextAsync())
                     {
                         Current = default;
                         return false;
@@ -108,9 +113,12 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Expressions.Internal
                     return true;
                 }
 
-                public T Current { get; private set; }
+                public ValueTask DisposeAsync()
+                {
+                    _enumerator.DisposeAsync();
 
-                public void Dispose() => _enumerator.Dispose();
+                    return default;
+                }
             }
         }
 
