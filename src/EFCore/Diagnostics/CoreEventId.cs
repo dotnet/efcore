@@ -1,6 +1,7 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Diagnostics;
@@ -155,10 +156,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     <para>
         ///         This event is in the <see cref="DbLoggerCategory.Query" /> category.
         ///     </para>
-        ///     <para>
-        ///         This event uses the <see cref="QueryModelEventData" /> payload when used with a <see cref="DiagnosticSource" />.
-        ///     </para>
         /// </summary>
+        [Obsolete]
         public static readonly EventId QueryModelCompiling = MakeQueryId(Id.QueryModelCompiling);
 
         /// <summary>
@@ -168,10 +167,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     <para>
         ///         This event is in the <see cref="DbLoggerCategory.Query" /> category.
         ///     </para>
-        ///     <para>
-        ///         This event uses the <see cref="QueryModelEventData" /> payload when used with a <see cref="DiagnosticSource" />.
-        ///     </para>
         /// </summary>
+        [Obsolete]
         public static readonly EventId RowLimitingOperationWithoutOrderByWarning = MakeQueryId(Id.RowLimitingOperationWithoutOrderByWarning);
 
         /// <summary>
@@ -181,10 +178,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     <para>
         ///         This event is in the <see cref="DbLoggerCategory.Query" /> category.
         ///     </para>
-        ///     <para>
-        ///         This event uses the <see cref="QueryModelEventData" /> payload when used with a <see cref="DiagnosticSource" />.
-        ///     </para>
         /// </summary>
+        [Obsolete]
         public static readonly EventId FirstWithoutOrderByAndFilterWarning = MakeQueryId(Id.FirstWithoutOrderByAndFilterWarning);
 
         /// <summary>
@@ -194,10 +189,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     <para>
         ///         This event is in the <see cref="DbLoggerCategory.Query" /> category.
         ///     </para>
-        ///     <para>
-        ///         This event uses the <see cref="QueryModelEventData" /> payload when used with a <see cref="DiagnosticSource" />.
-        ///     </para>
         /// </summary>
+        [Obsolete]
         public static readonly EventId QueryModelOptimized = MakeQueryId(Id.QueryModelOptimized);
 
         /// <summary>
@@ -207,10 +200,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     <para>
         ///         This event is in the <see cref="DbLoggerCategory.Query" /> category.
         ///     </para>
-        ///     <para>
-        ///         This event uses the <see cref="IncludeEventData" /> payload when used with a <see cref="DiagnosticSource" />.
-        ///     </para>
         /// </summary>
+        [Obsolete]
         public static readonly EventId NavigationIncluded = MakeQueryId(Id.NavigationIncluded);
 
         /// <summary>
@@ -220,10 +211,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     <para>
         ///         This event is in the <see cref="DbLoggerCategory.Query" /> category.
         ///     </para>
-        ///     <para>
-        ///         This event uses the <see cref="IncludeEventData" /> payload when used with a <see cref="DiagnosticSource" />.
-        ///     </para>
         /// </summary>
+        [Obsolete]
         public static readonly EventId IncludeIgnoredWarning = MakeQueryId(Id.IncludeIgnoredWarning);
 
         /// <summary>

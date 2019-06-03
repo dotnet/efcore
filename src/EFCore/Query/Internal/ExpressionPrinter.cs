@@ -14,10 +14,7 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Query.Expressions.Internal;
-using Microsoft.EntityFrameworkCore.Query.ExpressionVisitors;
 using Microsoft.Extensions.DependencyInjection;
-using Remotion.Linq.Clauses;
-using Remotion.Linq.Clauses.Expressions;
 
 namespace Microsoft.EntityFrameworkCore.Query.Internal
 {
@@ -35,7 +32,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
     ///         The implementation does not need to be thread-safe.
     ///     </para>
     /// </summary>
-    public class ExpressionPrinter : ExpressionVisitorBase, IExpressionPrinter
+    public class ExpressionPrinter : ExpressionVisitor, IExpressionPrinter
     {
         private readonly IndentedStringBuilder _stringBuilder;
         private readonly Dictionary<ParameterExpression, string> _parametersInScope;
@@ -149,22 +146,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual bool GenerateUniqueQsreIds { get; set; }
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public virtual List<IQuerySource> VisitedQuerySources { get; } = new List<IQuerySource>();
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
         public virtual void VisitList<T>(
             IReadOnlyList<T> items,
             Action<ExpressionPrinter> joinAction = null)
@@ -225,7 +206,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 characterLimit,
                 highlightNonreducibleNodes: false,
                 reduceBeforePrinting: false,
-                generateUniqueQsreIds: false,
                 printConnections: printConnections);
         }
 
@@ -248,7 +228,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 characterLimit: null,
                 highlightNonreducibleNodes: highlightNonreducibleNodes,
                 reduceBeforePrinting: reduceBeforePrinting,
-                generateUniqueQsreIds: generateUniqueQsreIds,
                 printConnections: printConnections);
         }
 
@@ -258,7 +237,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             int? characterLimit,
             bool highlightNonreducibleNodes,
             bool reduceBeforePrinting,
-            bool generateUniqueQsreIds,
             bool printConnections)
         {
             _stringBuilder.Clear();
@@ -267,7 +245,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             RemoveFormatting = removeFormatting;
             CharacterLimit = characterLimit;
-            GenerateUniqueQsreIds = generateUniqueQsreIds;
             PrintConnections = printConnections;
 
             _highlightNonreducibleNodes = highlightNonreducibleNodes;
@@ -1096,36 +1073,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             }
             else
             {
-                switch (extensionExpression)
-                {
-                    case QuerySourceReferenceExpression qsre:
-                        if (GenerateUniqueQsreIds)
-                        {
-                            var index = VisitedQuerySources.IndexOf(qsre.ReferencedQuerySource);
-                            if (index == -1)
-                            {
-                                StringBuilder.Append("[" + HighlightLeft + qsre.ReferencedQuerySource.ItemName + "{" + index + "}" + HighlightRight + "]");
-                            }
-                            else
-                            {
-                                StringBuilder.Append("[" + qsre.ReferencedQuerySource.ItemName + "{" + index + "}]");
-                            }
-                        }
-                        else
-                        {
-                            StringBuilder.Append(qsre);
-                        }
-
-                        break;
-
-                    case SubQueryExpression subqueryExpression:
-                        VisitSubqueryExpression(subqueryExpression);
-                        break;
-
-                    default:
-                        UnhandledExpressionType(extensionExpression);
-                        break;
-                }
+                UnhandledExpressionType(extensionExpression);
             }
 
             if (_highlightNonreducibleNodes && !extensionExpression.CanReduce)
@@ -1134,11 +1082,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             }
 
             return extensionExpression;
-        }
-
-        private void VisitSubqueryExpression(SubQueryExpression subqueryExpression)
-        {
-            _stringBuilder.Append(subqueryExpression.QueryModel.Print());
         }
 
         private void VisitArguments(IList<Expression> arguments, Action<string> appendAction, string lastSeparator = "", bool areConnected = false)

@@ -4,8 +4,6 @@
 using System;
 using System.Diagnostics;
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.Logging;
 

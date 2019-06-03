@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
 using System.Diagnostics;
@@ -12,7 +11,6 @@ using System.Transactions;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -607,71 +605,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </value>
         public virtual SemaphoreSlim Semaphore { get; } = new SemaphoreSlim(1);
 
-        private readonly List<IBufferable> _activeQueries = new List<IBufferable>();
         private Transaction _enlistedTransaction;
-
-        /// <summary>
-        ///     Registers a potentially bufferable active query.
-        /// </summary>
-        /// <param name="bufferable"> The bufferable query. </param>
-        void IRelationalConnection.RegisterBufferable(IBufferable bufferable)
-        {
-            // hot path
-            Debug.Assert(bufferable != null);
-
-            if (!IsMultipleActiveResultSetsEnabled)
-            {
-                for (var i = _activeQueries.Count - 1; i >= 0; i--)
-                {
-                    _activeQueries[i].BufferAll();
-
-                    _activeQueries.RemoveAt(i);
-                }
-
-                _activeQueries.Add(bufferable);
-            }
-        }
-
-        /// <summary>
-        ///     Unregisters a potentially bufferable active query.
-        /// </summary>
-        /// <param name="bufferable"> The bufferable query. </param>
-        void IRelationalConnection.UnregisterBufferable(IBufferable bufferable)
-        {
-            // hot path
-            Debug.Assert(bufferable != null);
-
-            if (!IsMultipleActiveResultSetsEnabled)
-            {
-                _activeQueries.Remove(bufferable);
-            }
-        }
-
-        /// <summary>
-        ///     Asynchronously registers a potentially bufferable active query.
-        /// </summary>
-        /// <param name="bufferable"> The bufferable query. </param>
-        /// <param name="cancellationToken"> The cancellation token. </param>
-        /// <returns>
-        ///     A Task.
-        /// </returns>
-        async Task IRelationalConnection.RegisterBufferableAsync(IBufferable bufferable, CancellationToken cancellationToken)
-        {
-            // hot path
-            Debug.Assert(bufferable != null);
-
-            if (!IsMultipleActiveResultSetsEnabled)
-            {
-                for (var i = _activeQueries.Count - 1; i >= 0; i--)
-                {
-                    await _activeQueries[i].BufferAllAsync(cancellationToken);
-
-                    _activeQueries.RemoveAt(i);
-                }
-
-                _activeQueries.Add(bufferable);
-            }
-        }
 
         /// <summary>
         ///     Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
@@ -685,7 +619,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
             {
                 DbConnection.Dispose();
                 _connection = null;
-                _activeQueries.Clear();
                 _openedCount = 0;
             }
         }

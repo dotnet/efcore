@@ -20,6 +20,6 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         }
 
         public override QueryContext Create()
-            => new CosmosQueryContext(Dependencies, CreateQueryBuffer, _cosmosClient);
+            => new CosmosQueryContext(Dependencies, _cosmosClient);
     }
 }

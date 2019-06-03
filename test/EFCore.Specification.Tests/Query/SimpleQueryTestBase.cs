@@ -3452,20 +3452,20 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalFact]
-        public virtual void Can_execute_non_generic()
-        {
-            using (var context = CreateContext())
-            {
-                IQueryable<Product> products = context.Products;
+        //[ConditionalFact]
+        //public virtual void Can_execute_non_generic()
+        //{
+        //    using (var context = CreateContext())
+        //    {
+        //        IQueryable<Product> products = context.Products;
 
-                Assert.NotNull(
-                    products.Provider.Execute(
-                        Expression.Call(
-                            new LinqOperatorProvider().First.MakeGenericMethod(typeof(Product)),
-                            products.Expression)));
-            }
-        }
+        //        Assert.NotNull(
+        //            products.Provider.Execute(
+        //                Expression.Call(
+        //                    new LinqOperatorProvider().First.MakeGenericMethod(typeof(Product)),
+        //                    products.Expression)));
+        //    }
+        //}
 
         [ConditionalFact(Skip = "Issue #14935. Cannot eval 'First()'")]
         public virtual void Select_Subquery_Single()

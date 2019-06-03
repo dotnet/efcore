@@ -7,7 +7,6 @@ using System.Data;
 using System.Data.Common;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Xunit;
 

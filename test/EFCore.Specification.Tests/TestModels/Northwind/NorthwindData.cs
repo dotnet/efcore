@@ -7,11 +7,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading;
-using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Extensions.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Internal;
-using Microsoft.EntityFrameworkCore.Query.ExpressionVisitors;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 
@@ -187,7 +184,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.Northwind
             private static Expression RewriteShadowPropertyAccess(Expression expression)
                 => new ShadowStateAccessRewriter().Visit(expression);
 
-            private class ShadowStateAccessRewriter : ExpressionVisitorBase
+            private class ShadowStateAccessRewriter : ExpressionVisitor
             {
                 protected override Expression VisitMethodCall(MethodCallExpression expression)
                     => expression.IsEFProperty()

@@ -35,11 +35,13 @@ namespace Microsoft.EntityFrameworkCore.Query
             {
                 Assert.Equal(
                     CoreStrings.WarningAsErrorTemplate(
+#pragma warning disable CS0612 // Type or member is obsolete
                         RelationalEventId.QueryClientEvaluationWarning,
                         RelationalResources.LogClientEvalWarning(new TestLogger<TestRelationalLoggingDefinitions>()).GenerateMessage("where [c].IsLondon"),
                         "RelationalEventId.QueryClientEvaluationWarning"),
                     Assert.Throws<InvalidOperationException>(
                         () => context.Customers.Where(c => c.IsLondon).ToList()).Message);
+#pragma warning restore CS0612 // Type or member is obsolete
             }
         }
 
@@ -142,6 +144,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
+#pragma warning disable CS0612 // Type or member is obsolete
         [Fact]
         public virtual void Last_without_order_by_issues_client_eval_warning()
         {
@@ -189,6 +192,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                         () => context.Customers.LastOrDefault()).Message);
             }
         }
+#pragma warning restore CS0612 // Type or member is obsolete
 
         [Fact(Skip = "issue #15312")]
         public virtual void Comparing_collection_navigation_to_null_issues_possible_unintended_consequences_warning()

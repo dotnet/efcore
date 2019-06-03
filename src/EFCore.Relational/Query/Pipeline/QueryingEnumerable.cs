@@ -5,8 +5,6 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Data.Common;
-using System.Threading;
-using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions;

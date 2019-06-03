@@ -4,7 +4,6 @@
 using System.Collections.Generic;
 using System.Data.Common;
 using System.Diagnostics;
-using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Storage;

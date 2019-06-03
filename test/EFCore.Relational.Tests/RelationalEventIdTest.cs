@@ -11,23 +11,18 @@ using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Transactions;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Migrations;
-using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.EntityFrameworkCore.Update;
 using Microsoft.Extensions.DependencyInjection;
-using Remotion.Linq;
-using Remotion.Linq.Clauses;
 using Xunit;
 
 // ReSharper disable InconsistentNaming
@@ -44,9 +39,6 @@ namespace Microsoft.EntityFrameworkCore
             var property = new Property(
                 "A", typeof(int), null, null, entityType, ConfigurationSource.Convention, ConfigurationSource.Convention);
             var contextServices = RelationalTestHelpers.Instance.CreateContextServices(model);
-
-            var queryModel = new QueryModel(
-                new MainFromClause("A", typeof(object), constantExpression), new SelectClause(constantExpression));
 
             var fakeFactories = new Dictionary<Type, Func<object>>
             {
@@ -76,7 +68,6 @@ namespace Microsoft.EntityFrameworkCore
                 { typeof(IMigrator), () => new FakeMigrator() },
                 { typeof(Migration), () => new FakeMigration() },
                 { typeof(IMigrationsAssembly), () => new FakeMigrationsAssembly() },
-                { typeof(QueryModel), () => queryModel },
                 { typeof(MethodCallExpression), () => Expression.Call(constantExpression, typeof(object).GetMethod("ToString")) },
                 { typeof(Expression), () => constantExpression },
                 { typeof(IProperty), () => property },
@@ -129,12 +120,6 @@ namespace Microsoft.EntityFrameworkCore
             public void EnlistTransaction(Transaction transaction) => throw new NotImplementedException();
 
             public SemaphoreSlim Semaphore => throw new NotImplementedException();
-            public void RegisterBufferable(IBufferable bufferable) => throw new NotImplementedException();
-
-            public Task RegisterBufferableAsync(IBufferable bufferable, CancellationToken cancellationToken) =>
-                throw new NotImplementedException();
-
-            public void UnregisterBufferable([NotNull] IBufferable bufferable) => throw new NotImplementedException();
             public IDbContextTransaction BeginTransaction(System.Data.IsolationLevel isolationLevel) => throw new NotImplementedException();
             public IDbContextTransaction BeginTransaction() => throw new NotImplementedException();
 

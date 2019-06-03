@@ -3,7 +3,6 @@
 
 using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Query.Pipeline;
 using Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions;
 

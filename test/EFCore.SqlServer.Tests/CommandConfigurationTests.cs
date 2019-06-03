@@ -3,7 +3,6 @@
 
 using System;
 using Microsoft.EntityFrameworkCore.TestUtilities.FakeProvider;
-using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
 #pragma warning disable RCS1102 // Make class static.

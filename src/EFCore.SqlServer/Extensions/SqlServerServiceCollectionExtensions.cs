@@ -9,7 +9,6 @@ using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Query.Pipeline;
-using Microsoft.EntityFrameworkCore.Query.Sql;
 using Microsoft.EntityFrameworkCore.Relational.Query.Pipeline;
 using Microsoft.EntityFrameworkCore.SqlServer.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Infrastructure.Internal;
@@ -17,7 +16,6 @@ using Microsoft.EntityFrameworkCore.SqlServer.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Migrations.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Query.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Query.Pipeline;
-using Microsoft.EntityFrameworkCore.SqlServer.Query.Sql.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Update.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.ValueGeneration.Internal;
@@ -87,8 +85,6 @@ namespace Microsoft.Extensions.DependencyInjection
                 .TryAdd<IHistoryRepository, SqlServerHistoryRepository>()
                 .TryAdd<ICompiledQueryCacheKeyGenerator, SqlServerCompiledQueryCacheKeyGenerator>()
                 .TryAdd<IExecutionStrategyFactory, SqlServerExecutionStrategyFactory>()
-                .TryAdd<IQueryCompilationContextFactory, SqlServerQueryCompilationContextFactory>()
-                .TryAdd<IQuerySqlGeneratorFactory, SqlServerQuerySqlGeneratorFactory>()
                 .TryAdd<ISingletonOptions, ISqlServerOptions>(p => p.GetService<ISqlServerOptions>())
 
                 // New Query Pipeline

@@ -3,12 +3,12 @@
 
 using System;
 using System.Collections;
-using System.Linq;
+using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Query.Pipeline;
 using Microsoft.EntityFrameworkCore.Utilities;
-using Remotion.Linq.Parsing.ExpressionVisitors;
 
 namespace Microsoft.EntityFrameworkCore.ChangeTracking
 {
@@ -133,13 +133,12 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             Check.NotNull(leftExpression, nameof(leftExpression));
             Check.NotNull(rightExpression, nameof(rightExpression));
 
-            return ReplacingExpressionVisitor.Replace(
-                EqualsExpression.Parameters[1],
-                rightExpression,
-                ReplacingExpressionVisitor.Replace(
-                    EqualsExpression.Parameters[0],
-                    leftExpression,
-                    EqualsExpression.Body));
+            return new ReplacingExpressionVisitor(
+                new Dictionary<Expression, Expression>
+                {
+                    { EqualsExpression.Parameters[0], leftExpression },
+                    { EqualsExpression.Parameters[1], rightExpression }
+                }).Visit(EqualsExpression.Body);
         }
 
         /// <summary>

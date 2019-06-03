@@ -9,7 +9,6 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
@@ -27,7 +26,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         // Warning: Never access these fields directly as access needs to be thread-safe
         private Func<bool, IIdentityMap> _identityMapFactory;
 
-        private Func<IWeakReferenceIdentityMap> _weakReferenceIdentityMap;
         private object _principalKeyValueFactory;
 
         /// <summary>
@@ -133,16 +131,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public virtual Func<bool, IIdentityMap> IdentityMapFactory
             => NonCapturingLazyInitializer.EnsureInitialized(
                 ref _identityMapFactory, this, k => new IdentityMapFactoryFactory().Create(k));
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public virtual Func<IWeakReferenceIdentityMap> WeakReferenceIdentityMapFactory
-            => NonCapturingLazyInitializer.EnsureInitialized(
-                ref _weakReferenceIdentityMap, this, k => new WeakReferenceIdentityMapFactoryFactory().Create(k));
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

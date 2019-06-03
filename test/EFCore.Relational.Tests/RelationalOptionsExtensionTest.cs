@@ -3,7 +3,6 @@
 
 using System;
 using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities.FakeProvider;
 using Xunit;
 

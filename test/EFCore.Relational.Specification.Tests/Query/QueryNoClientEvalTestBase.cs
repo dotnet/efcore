@@ -13,6 +13,7 @@ using Xunit;
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore.Query
 {
+#pragma warning disable CS0612 // Type or member is obsolete
     public abstract class QueryNoClientEvalTestBase<TFixture> : IClassFixture<TFixture>
         where TFixture : NorthwindQueryRelationalFixture<NoopModelCustomizer>, new()
     {
@@ -305,4 +306,5 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         protected NorthwindContext CreateContext() => Fixture.CreateContext();
     }
+#pragma warning restore CS0612 // Type or member is obsolete
 }

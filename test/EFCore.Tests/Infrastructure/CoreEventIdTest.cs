@@ -11,10 +11,7 @@ using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
-using Microsoft.EntityFrameworkCore.Query.ResultOperators.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
-using Remotion.Linq;
-using Remotion.Linq.Clauses;
 using Xunit;
 
 // ReSharper disable InconsistentNaming
@@ -33,9 +30,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             var otherKey = otherEntityType.AddKey(otherProperty, ConfigurationSource.Convention);
             var foreignKey = new ForeignKey(new[] { property }, otherKey, entityType, otherEntityType, ConfigurationSource.Convention);
             var navigation = new Navigation("N", propertyInfo, null, foreignKey);
-            var queryModel = new QueryModel(
-                new MainFromClause("A", typeof(object), Expression.Constant("A")), new SelectClause(Expression.Constant("A")));
-            var includeResultOperator = new IncludeResultOperator(new[] { "Foo" }, Expression.Constant("A"));
             var options = new DbContextOptionsBuilder()
                 .UseInternalServiceProvider(InMemoryFixture.DefaultServiceProvider)
                 .UseInMemoryDatabase("D").Options;
@@ -45,7 +39,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 { typeof(Type), () => typeof(object) },
                 { typeof(DbContext), () => new DbContext(options) },
                 { typeof(DbContextOptions), () => options },
-                { typeof(QueryModel), () => queryModel },
                 { typeof(string), () => "Fake" },
                 { typeof(IExpressionPrinter), () => new ExpressionPrinter() },
                 { typeof(Expression), () => Expression.Constant("A") },
@@ -57,7 +50,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 { typeof(IReadOnlyList<IPropertyBase>), () => new[] { property } },
                 { typeof(IEnumerable<Tuple<MemberInfo, Type>>), () => new[] { new Tuple<MemberInfo, Type>(propertyInfo, typeof(object)) } },
                 { typeof(MemberInfo), () => propertyInfo },
-                { typeof(IncludeResultOperator), () => includeResultOperator },
                 { typeof(IReadOnlyList<Exception>), () => new[] { new Exception() } },
                 { typeof(IProperty), () => property },
                 { typeof(INavigation), () => navigation },

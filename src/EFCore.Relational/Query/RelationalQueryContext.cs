@@ -1,10 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 
@@ -25,15 +22,13 @@ namespace Microsoft.EntityFrameworkCore.Query
         ///     </para>
         /// </summary>
         /// <param name="dependencies"> The dependencies to use. </param>
-        /// <param name="queryBufferFactory"> A factory for creating query buffers. </param>
         /// <param name="connection"> The relational connection. </param>
         /// <param name="executionStrategyFactory"> A factory for creating the execution strategy to use. </param>
         public RelationalQueryContext(
             [NotNull] QueryContextDependencies dependencies,
-            [NotNull] Func<IQueryBuffer> queryBufferFactory,
             [NotNull] IRelationalConnection connection,
             [NotNull] IExecutionStrategyFactory executionStrategyFactory)
-            : base(dependencies, queryBufferFactory)
+            : base(dependencies)
         {
             Check.NotNull(connection, nameof(connection));
             Check.NotNull(executionStrategyFactory, nameof(executionStrategyFactory));

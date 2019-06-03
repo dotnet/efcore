@@ -316,8 +316,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         protected override void Seed(GearsOfWarContext context) => GearsOfWarContext.Seed(context);
 
         public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
-            => base.AddOptions(builder).ConfigureWarnings(
-                c => c.Log(CoreEventId.IncludeIgnoredWarning));
+            => base.AddOptions(builder);
 
         public override GearsOfWarContext CreateContext()
         {

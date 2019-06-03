@@ -21,7 +21,6 @@ using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Microsoft.EntityFrameworkCore.Update;
 using Microsoft.Extensions.Logging;
-using Remotion.Linq;
 
 namespace Microsoft.EntityFrameworkCore.Diagnostics
 {
@@ -1260,46 +1259,46 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             return d.GenerateMessage(p.MigrationType.Name);
         }
 
-        /// <summary>
-        ///     Logs for the <see cref="RelationalEventId.QueryClientEvaluationWarning" /> event.
-        /// </summary>
-        /// <param name="diagnostics"> The diagnostics logger to use. </param>
-        /// <param name="queryModel"> The query model. </param>
-        /// <param name="queryModelElement"> The element that is being client evaluated. </param>
-        public static void QueryClientEvaluationWarning(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Query> diagnostics,
-            [NotNull] QueryModel queryModel,
-            [NotNull] object queryModelElement)
-        {
-            var definition = RelationalResources.LogClientEvalWarning(diagnostics);
+        ///// <summary>
+        /////     Logs for the <see cref="RelationalEventId.QueryClientEvaluationWarning" /> event.
+        ///// </summary>
+        ///// <param name="diagnostics"> The diagnostics logger to use. </param>
+        ///// <param name="queryModel"> The query model. </param>
+        ///// <param name="queryModelElement"> The element that is being client evaluated. </param>
+        //public static void QueryClientEvaluationWarning(
+        //    [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Query> diagnostics,
+        //    [NotNull] QueryModel queryModel,
+        //    [NotNull] object queryModelElement)
+        //{
+        //    var definition = RelationalResources.LogClientEvalWarning(diagnostics);
 
-            var warningBehavior = definition.GetLogBehavior(diagnostics);
-            if (warningBehavior != WarningBehavior.Ignore)
-            {
-                definition.Log(
-                    diagnostics,
-                    warningBehavior,
-                    queryModelElement);
-            }
+        //    var warningBehavior = definition.GetLogBehavior(diagnostics);
+        //    if (warningBehavior != WarningBehavior.Ignore)
+        //    {
+        //        definition.Log(
+        //            diagnostics,
+        //            warningBehavior,
+        //            queryModelElement);
+        //    }
 
-            if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
-            {
-                diagnostics.DiagnosticSource.Write(
-                    definition.EventId.Name,
-                    new QueryModelClientEvalEventData(
-                        definition,
-                        QueryClientEvaluationWarning,
-                        queryModel,
-                        queryModelElement));
-            }
-        }
+        //    if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
+        //    {
+        //        diagnostics.DiagnosticSource.Write(
+        //            definition.EventId.Name,
+        //            new QueryModelClientEvalEventData(
+        //                definition,
+        //                QueryClientEvaluationWarning,
+        //                queryModel,
+        //                queryModelElement));
+        //    }
+        //}
 
-        private static string QueryClientEvaluationWarning(EventDefinitionBase definition, EventData payload)
-        {
-            var d = (EventDefinition<object>)definition;
-            var p = (QueryModelClientEvalEventData)payload;
-            return d.GenerateMessage(p.QueryModelElement);
-        }
+        //private static string QueryClientEvaluationWarning(EventDefinitionBase definition, EventData payload)
+        //{
+        //    var d = (EventDefinition<object>)definition;
+        //    var p = (QueryModelClientEvalEventData)payload;
+        //    return d.GenerateMessage(p.QueryModelElement);
+        //}
 
         /// <summary>
         ///     Logs for the <see cref="RelationalEventId.QueryPossibleUnintendedUseOfEqualsWarning" /> event.

@@ -3,8 +3,6 @@
 
 using System;
 using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.EntityFrameworkCore.Internal;
-using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore

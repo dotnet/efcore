@@ -5,8 +5,6 @@ using System;
 using System.Data.Common;
 using System.Threading;
 using System.Threading.Tasks;
-using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore.Storage
@@ -91,27 +89,5 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     The semaphore.
         /// </value>
         SemaphoreSlim Semaphore { get; }
-
-        /// <summary>
-        ///     Registers a potentially bufferable active query.
-        /// </summary>
-        /// <param name="bufferable"> The bufferable query. </param>
-        void RegisterBufferable([NotNull] IBufferable bufferable);
-
-        /// <summary>
-        ///     Unregisters a potentially bufferable active query.
-        /// </summary>
-        /// <param name="bufferable"> The bufferable query. </param>
-        void UnregisterBufferable([NotNull] IBufferable bufferable);
-
-        /// <summary>
-        ///     Asynchronously registers a potentially bufferable active query.
-        /// </summary>
-        /// <param name="bufferable"> The bufferable query. </param>
-        /// <param name="cancellationToken"> The cancellation token. </param>
-        /// <returns>
-        ///     A Task.
-        /// </returns>
-        Task RegisterBufferableAsync([NotNull] IBufferable bufferable, CancellationToken cancellationToken);
     }
 }

@@ -3,7 +3,6 @@
 
 using System.Linq;
 using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.TestModels.ConcurrencyModel;
 using Xunit;
 

@@ -9,7 +9,7 @@ namespace Microsoft.EntityFrameworkCore.Query
     public class IncludeSqlServerFixture : NorthwindQuerySqlServerFixture<NoopModelCustomizer>
     {
         public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
-            => base.AddOptions(builder).ConfigureWarnings(c => c.Log(CoreEventId.IncludeIgnoredWarning));
+            => base.AddOptions(builder);
 
         protected override bool ShouldLogCategory(string logCategory)
             => base.ShouldLogCategory(logCategory) || logCategory == DbLoggerCategory.Query.Name;

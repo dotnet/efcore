@@ -2,25 +2,16 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Linq.Expressions;
-using System.Reflection;
-using System.Runtime.ExceptionServices;
 using System.Threading;
-using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal;
-using Microsoft.EntityFrameworkCore.Query.NavigationExpansion;
-using Microsoft.EntityFrameworkCore.Query.NavigationExpansion.Visitors;
+using Microsoft.EntityFrameworkCore.Query.Pipeline;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
-using Remotion.Linq.Clauses.StreamedData;
 
 namespace Microsoft.EntityFrameworkCore.Query.Internal
 {
@@ -63,7 +54,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             [NotNull] IDatabase database,
             [NotNull] IDiagnosticsLogger<DbLoggerCategory.Query> logger,
             [NotNull] ICurrentDbContext currentContext,
-            [NotNull] IQueryModelGenerator queryModelGenerator,
             [NotNull] IEvaluatableExpressionFilter evaluatableExpressionFilter,
             [NotNull] IModel model)
         {

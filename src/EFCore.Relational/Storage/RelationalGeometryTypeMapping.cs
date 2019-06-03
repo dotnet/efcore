@@ -8,8 +8,8 @@ using System.Linq;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
+using Microsoft.EntityFrameworkCore.Query.Pipeline;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using Remotion.Linq.Parsing.ExpressionVisitors;
 
 namespace Microsoft.EntityFrameworkCore.Storage
 {

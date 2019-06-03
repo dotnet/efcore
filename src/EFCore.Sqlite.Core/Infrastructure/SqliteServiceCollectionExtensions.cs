@@ -7,16 +7,12 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
-using Microsoft.EntityFrameworkCore.Query;
-using Microsoft.EntityFrameworkCore.Query.Sql;
 using Microsoft.EntityFrameworkCore.Relational.Query.Pipeline;
 using Microsoft.EntityFrameworkCore.Sqlite.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.Sqlite.Infrastructure.Internal;
 using Microsoft.EntityFrameworkCore.Sqlite.Internal;
 using Microsoft.EntityFrameworkCore.Sqlite.Migrations.Internal;
-using Microsoft.EntityFrameworkCore.Sqlite.Query.Internal;
 using Microsoft.EntityFrameworkCore.Sqlite.Query.Pipeline;
-using Microsoft.EntityFrameworkCore.Sqlite.Query.Sql.Internal;
 using Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Sqlite.Update.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -80,8 +76,6 @@ namespace Microsoft.Extensions.DependencyInjection
                 .TryAdd<IMigrationsSqlGenerator, SqliteMigrationsSqlGenerator>()
                 .TryAdd<IRelationalDatabaseCreator, SqliteDatabaseCreator>()
                 .TryAdd<IHistoryRepository, SqliteHistoryRepository>()
-                .TryAdd<IQuerySqlGeneratorFactory, SqliteQuerySqlGeneratorFactory>()
-                .TryAdd<IRelationalResultOperatorHandler, SqliteResultOperatorHandler>()
 
                 // New Query Pipeline
                 .TryAdd<IMethodCallTranslatorProvider, SqliteMethodCallTranslatorProvider>()

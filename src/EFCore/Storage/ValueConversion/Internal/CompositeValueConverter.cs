@@ -5,7 +5,7 @@ using System;
 using System.Linq;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
-using Remotion.Linq.Parsing.ExpressionVisitors;
+using Microsoft.EntityFrameworkCore.Query.Pipeline;
 
 namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion.Internal
 {

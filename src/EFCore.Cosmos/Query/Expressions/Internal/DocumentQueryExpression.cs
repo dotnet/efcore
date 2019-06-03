@@ -7,6 +7,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Query;
+using Microsoft.EntityFrameworkCore.Query.Pipeline;
 using Newtonsoft.Json.Linq;
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Expressions.Internal
@@ -30,7 +31,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Expressions.Internal
         public override Expression Reduce()
             => Call(
                 _async ? _queryAsyncMethodInfo : _queryMethodInfo,
-                EntityQueryModelVisitor.QueryContextParameter,
+                QueryCompilationContext2.QueryContextParameter,
                 Constant(_collectionId),
                 Constant(SelectExpression));
 

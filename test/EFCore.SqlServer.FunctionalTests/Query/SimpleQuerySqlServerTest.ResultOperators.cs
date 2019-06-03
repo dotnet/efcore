@@ -3,7 +3,6 @@
 
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
@@ -1223,7 +1222,9 @@ WHERE [o].[ProductID] = 42");
             base.Paging_operation_on_string_doesnt_issue_warning();
 
             Assert.DoesNotContain(
+#pragma warning disable CS0612 // Type or member is obsolete
                 CoreResources.LogFirstWithoutOrderByAndFilter(new TestLogger<SqlServerLoggingDefinitions>()).GenerateMessage(
+#pragma warning restore CS0612 // Type or member is obsolete
                     "(from char <generated>_1 in [c].CustomerID select [<generated>_1]).FirstOrDefault()"),
                 Fixture.TestSqlLoggerFactory.Log.Select(l => l.Message));
         }
