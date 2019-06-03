@@ -17,7 +17,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
             _sqlExpressionFactory = sqlExpressionFactory;
         }
 
-        public override EntityQueryableTranslator Create(QueryCompilationContext2 queryCompilationContext)
+        public override EntityQueryableTranslator Create(QueryCompilationContext queryCompilationContext)
         {
             return new RelationalEntityQueryableTranslator(_model, _sqlExpressionFactory);
         }

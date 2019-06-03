@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Query.Pipeline
 {
-    public abstract class EntityQueryableExpressionVisitor2 : ExpressionVisitor
+    public abstract class EntityQueryableExpressionVisitor : ExpressionVisitor
     {
         protected override Expression VisitConstant(ConstantExpression constantExpression)
             => constantExpression.IsEntityQueryable()

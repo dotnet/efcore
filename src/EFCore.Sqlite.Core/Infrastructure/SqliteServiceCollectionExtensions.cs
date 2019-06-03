@@ -80,7 +80,7 @@ namespace Microsoft.Extensions.DependencyInjection
                 // New Query Pipeline
                 .TryAdd<IMethodCallTranslatorProvider, SqliteMethodCallTranslatorProvider>()
                 .TryAdd<IMemberTranslatorProvider, SqliteMemberTranslatorProvider>()
-                .TryAdd<IQuerySqlGeneratorFactory2, SqliteQuerySqlGeneratorFactory2>()
+                .TryAdd<IQuerySqlGeneratorFactory, SqliteQuerySqlGeneratorFactory>()
                 .TryAdd<IRelationalSqlTranslatingExpressionVisitorFactory, SqliteSqlTranslatingExpressionVisitorFactory>()
 
                 .TryAddProviderSpecificServices(

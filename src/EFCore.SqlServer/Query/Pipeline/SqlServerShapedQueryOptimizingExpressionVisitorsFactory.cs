@@ -13,7 +13,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Pipeline
         {
         }
 
-        public override ShapedQueryOptimizer Create(QueryCompilationContext2 queryCompilationContext)
+        public override ShapedQueryOptimizer Create(QueryCompilationContext queryCompilationContext)
         {
             return new SqlServerShapedQueryOptimizer(queryCompilationContext, SqlExpressionFactory);
         }

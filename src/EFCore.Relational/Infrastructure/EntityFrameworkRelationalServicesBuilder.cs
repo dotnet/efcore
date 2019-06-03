@@ -80,7 +80,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 { typeof(IRelationalTypeMappingSourcePlugin), new ServiceCharacteristics(ServiceLifetime.Singleton, multipleRegistrations: true) },
 
                 // New Query Pipeline
-                { typeof(IQuerySqlGeneratorFactory2), new ServiceCharacteristics(ServiceLifetime.Singleton) },
+                { typeof(IQuerySqlGeneratorFactory), new ServiceCharacteristics(ServiceLifetime.Singleton) },
                 { typeof(IRelationalSqlTranslatingExpressionVisitorFactory), new ServiceCharacteristics(ServiceLifetime.Singleton) },
                 { typeof(IMethodCallTranslatorProvider), new ServiceCharacteristics(ServiceLifetime.Singleton) },
                 { typeof(IMemberTranslatorProvider), new ServiceCharacteristics(ServiceLifetime.Singleton) },
@@ -153,7 +153,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             TryAdd<IRelationalTransactionFactory, RelationalTransactionFactory>();
 
             // New Query pipeline
-            TryAdd<IQuerySqlGeneratorFactory2, QuerySqlGeneratorFactory2>();
+            TryAdd<IQuerySqlGeneratorFactory, QuerySqlGeneratorFactory>();
             TryAdd<IShapedQueryCompilingExpressionVisitorFactory, RelationalShapedQueryCompilingExpressionVisitorFactory>();
             TryAdd<IQueryableMethodTranslatingExpressionVisitorFactory, RelationalQueryableMethodTranslatingExpressionVisitorFactory>();
             TryAdd<IMethodCallTranslatorProvider, RelationalMethodCallTranslatorProvider>();

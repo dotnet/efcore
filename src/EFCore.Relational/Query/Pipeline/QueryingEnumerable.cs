@@ -19,14 +19,14 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
             private readonly RelationalQueryContext _relationalQueryContext;
             private readonly SelectExpression _selectExpression;
             private readonly Func<QueryContext, DbDataReader, ResultCoordinator, T> _shaper;
-            private readonly IQuerySqlGeneratorFactory2 _querySqlGeneratorFactory;
+            private readonly IQuerySqlGeneratorFactory _querySqlGeneratorFactory;
             private readonly Type _contextType;
             private readonly IDiagnosticsLogger<DbLoggerCategory.Query> _logger;
             private readonly ISqlExpressionFactory _sqlExpressionFactory;
             private readonly IParameterNameGeneratorFactory _parameterNameGeneratorFactory;
 
             public QueryingEnumerable(RelationalQueryContext relationalQueryContext,
-                IQuerySqlGeneratorFactory2 querySqlGeneratorFactory,
+                IQuerySqlGeneratorFactory querySqlGeneratorFactory,
                 ISqlExpressionFactory sqlExpressionFactory,
                 IParameterNameGeneratorFactory parameterNameGeneratorFactory,
                 SelectExpression selectExpression,
@@ -54,7 +54,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
                 private readonly RelationalQueryContext _relationalQueryContext;
                 private readonly SelectExpression _selectExpression;
                 private readonly Func<QueryContext, DbDataReader, ResultCoordinator, T> _shaper;
-                private readonly IQuerySqlGeneratorFactory2 _querySqlGeneratorFactory;
+                private readonly IQuerySqlGeneratorFactory _querySqlGeneratorFactory;
                 private readonly Type _contextType;
                 private readonly IDiagnosticsLogger<DbLoggerCategory.Query> _logger;
                 private readonly ISqlExpressionFactory _sqlExpressionFactory;

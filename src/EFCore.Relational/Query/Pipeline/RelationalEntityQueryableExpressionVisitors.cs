@@ -20,7 +20,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
 
         public override Expression Visit(Expression query)
         {
-            return new RelationalEntityQueryableExpressionVisitor2(_model, _sqlExpressionFactory).Visit(query);
+            return new RelationalEntityQueryableExpressionVisitor(_model, _sqlExpressionFactory).Visit(query);
         }
     }
 }

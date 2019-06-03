@@ -14,7 +14,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
             SqlExpressionFactory = sqlExpressionFactory;
         }
 
-        public override ShapedQueryOptimizer Create(QueryCompilationContext2 queryCompilationContext)
+        public override ShapedQueryOptimizer Create(QueryCompilationContext queryCompilationContext)
         {
             return new RelationalShapedQueryOptimizer(queryCompilationContext, SqlExpressionFactory);
         }

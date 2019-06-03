@@ -10,9 +10,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Pipeline
 {
     public class QueryOptimizer
     {
-        private readonly QueryCompilationContext2 _queryCompilationContext;
+        private readonly QueryCompilationContext _queryCompilationContext;
 
-        public QueryOptimizer(QueryCompilationContext2 queryCompilationContext)
+        public QueryOptimizer(QueryCompilationContext queryCompilationContext)
         {
             _queryCompilationContext = queryCompilationContext;
         }

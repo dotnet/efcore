@@ -90,7 +90,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Pipeline
             {
                 return Expression.Call(
                     _getParameterValueMethodInfo.MakeGenericMethod(parameterExpression.Type),
-                    QueryCompilationContext2.QueryContextParameter,
+                    QueryCompilationContext.QueryContextParameter,
                     Expression.Constant(parameterExpression.Name));
             }
 
