@@ -2128,7 +2128,7 @@ namespace Microsoft.EntityFrameworkCore
         public static Task<List<TSource>> ToListAsync<TSource>(
             [NotNull] this IQueryable<TSource> source,
             CancellationToken cancellationToken = default)
-            => source.AsAsyncEnumerable().ToList(cancellationToken);
+            => source.AsAsyncEnumerable().ToListAsync(cancellationToken);
 
         /// <summary>
         ///     Asynchronously creates an array from an <see cref="IQueryable{T}" /> by enumerating it asynchronously.
@@ -2153,7 +2153,7 @@ namespace Microsoft.EntityFrameworkCore
         public static Task<TSource[]> ToArrayAsync<TSource>(
             [NotNull] this IQueryable<TSource> source,
             CancellationToken cancellationToken = default)
-            => source.AsAsyncEnumerable().ToArray(cancellationToken);
+            => source.AsAsyncEnumerable().ToArrayAsync(cancellationToken);
 
         #endregion
 
@@ -2401,12 +2401,12 @@ namespace Microsoft.EntityFrameworkCore
             public Type ElementType => _queryable.ElementType;
             public IQueryProvider Provider => _queryable.Provider;
 
+            public IAsyncEnumerator<TEntity> GetAsyncEnumerator(CancellationToken cancellationToken = default)
+                => ((IAsyncEnumerable<TEntity>)_queryable).GetAsyncEnumerator(cancellationToken);
+
             public IEnumerator<TEntity> GetEnumerator() => _queryable.GetEnumerator();
 
             IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
-
-            IAsyncEnumerator<TEntity> IAsyncEnumerable<TEntity>.GetEnumerator()
-                => ((IAsyncEnumerable<TEntity>)_queryable).GetEnumerator();
         }
 
         internal static readonly MethodInfo StringIncludeMethodInfo
@@ -2686,11 +2686,9 @@ namespace Microsoft.EntityFrameworkCore
         {
             Check.NotNull(source, nameof(source));
 
-            var asyncEnumerable = source.AsAsyncEnumerable();
-
-            using (var enumerator = asyncEnumerable.GetEnumerator())
+            await using (var enumerator = source.AsAsyncEnumerable().GetAsyncEnumerator(cancellationToken))
             {
-                while (await enumerator.MoveNext(cancellationToken))
+                while (await enumerator.MoveNextAsync())
                 {
                 }
             }
@@ -2734,7 +2732,7 @@ namespace Microsoft.EntityFrameworkCore
             Check.NotNull(source, nameof(source));
             Check.NotNull(keySelector, nameof(keySelector));
 
-            return source.AsAsyncEnumerable().ToDictionary(keySelector, cancellationToken);
+            return source.AsAsyncEnumerable().ToDictionaryAsync(keySelector, cancellationToken);
         }
 
         /// <summary>
@@ -2776,7 +2774,7 @@ namespace Microsoft.EntityFrameworkCore
             Check.NotNull(keySelector, nameof(keySelector));
             Check.NotNull(comparer, nameof(comparer));
 
-            return source.AsAsyncEnumerable().ToDictionary(keySelector, comparer, cancellationToken);
+            return source.AsAsyncEnumerable().ToDictionaryAsync(keySelector, comparer, cancellationToken);
         }
 
         /// <summary>
@@ -2820,7 +2818,7 @@ namespace Microsoft.EntityFrameworkCore
             Check.NotNull(keySelector, nameof(keySelector));
             Check.NotNull(elementSelector, nameof(elementSelector));
 
-            return source.AsAsyncEnumerable().ToDictionary(keySelector, elementSelector, cancellationToken);
+            return source.AsAsyncEnumerable().ToDictionaryAsync(keySelector, elementSelector, cancellationToken);
         }
 
         /// <summary>
@@ -2869,7 +2867,7 @@ namespace Microsoft.EntityFrameworkCore
             Check.NotNull(elementSelector, nameof(elementSelector));
             Check.NotNull(comparer, nameof(comparer));
 
-            return source.AsAsyncEnumerable().ToDictionary(keySelector, elementSelector, comparer, cancellationToken);
+            return source.AsAsyncEnumerable().ToDictionaryAsync(keySelector, elementSelector, comparer, cancellationToken);
         }
 
         #endregion
@@ -2910,7 +2908,7 @@ namespace Microsoft.EntityFrameworkCore
             Check.NotNull(source, nameof(source));
             Check.NotNull(keySelector, nameof(keySelector));
 
-            return source.AsAsyncEnumerable().ToLookup(keySelector, cancellationToken);
+            return source.AsAsyncEnumerable().ToLookupAsync(keySelector, cancellationToken);
         }
 
         /// <summary>
@@ -2952,7 +2950,7 @@ namespace Microsoft.EntityFrameworkCore
             Check.NotNull(keySelector, nameof(keySelector));
             Check.NotNull(comparer, nameof(comparer));
 
-            return source.AsAsyncEnumerable().ToLookup(keySelector, comparer, cancellationToken);
+            return source.AsAsyncEnumerable().ToLookupAsync(keySelector, comparer, cancellationToken);
         }
 
         /// <summary>
@@ -2996,7 +2994,7 @@ namespace Microsoft.EntityFrameworkCore
             Check.NotNull(keySelector, nameof(keySelector));
             Check.NotNull(elementSelector, nameof(elementSelector));
 
-            return source.AsAsyncEnumerable().ToLookup(keySelector, elementSelector, cancellationToken);
+            return source.AsAsyncEnumerable().ToLookupAsync(keySelector, elementSelector, cancellationToken);
         }
 
         /// <summary>
@@ -3045,7 +3043,7 @@ namespace Microsoft.EntityFrameworkCore
             Check.NotNull(elementSelector, nameof(elementSelector));
             Check.NotNull(comparer, nameof(comparer));
 
-            return source.AsAsyncEnumerable().ToLookup(keySelector, elementSelector, comparer, cancellationToken);
+            return source.AsAsyncEnumerable().ToLookupAsync(keySelector, elementSelector, comparer, cancellationToken);
         }
 
         #endregion

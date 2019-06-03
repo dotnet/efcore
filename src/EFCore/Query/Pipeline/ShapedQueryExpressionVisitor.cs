@@ -98,16 +98,16 @@ namespace Microsoft.EntityFrameworkCore.Query.Pipeline
             IAsyncEnumerable<TSource> asyncEnumerable,
             CancellationToken cancellationToken = default)
         {
-            using (var enumerator = asyncEnumerable.GetEnumerator())
+            await using (var enumerator = asyncEnumerable.GetAsyncEnumerator(cancellationToken))
             {
-                if (!(await enumerator.MoveNext(cancellationToken)))
+                if (!(await enumerator.MoveNextAsync()))
                 {
                     throw new InvalidOperationException();
                 }
 
                 var result = enumerator.Current;
 
-                if (await enumerator.MoveNext(cancellationToken))
+                if (await enumerator.MoveNextAsync())
                 {
                     throw new InvalidOperationException();
                 }
@@ -119,16 +119,16 @@ namespace Microsoft.EntityFrameworkCore.Query.Pipeline
             IAsyncEnumerable<TSource> asyncEnumerable,
             CancellationToken cancellationToken = default)
         {
-            using (var enumerator = asyncEnumerable.GetEnumerator())
+            await using (var enumerator = asyncEnumerable.GetAsyncEnumerator(cancellationToken))
             {
-                if (!(await enumerator.MoveNext()))
+                if (!(await enumerator.MoveNextAsync()))
                 {
                     return default;
                 }
 
                 var result = enumerator.Current;
 
-                if (await enumerator.MoveNext())
+                if (await enumerator.MoveNextAsync())
                 {
                     throw new InvalidOperationException();
                 }
