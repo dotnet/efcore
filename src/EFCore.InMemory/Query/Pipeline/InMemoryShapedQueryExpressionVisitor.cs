@@ -47,7 +47,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Pipeline
                 case InMemoryTableExpression inMemoryTableExpression:
                     return Expression.Call(
                         _queryMethodInfo,
-                        QueryCompilationContext2.QueryContextParameter,
+                        QueryCompilationContext.QueryContextParameter,
                         Expression.Constant(inMemoryTableExpression.EntityType));
             }
 
@@ -74,7 +74,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Pipeline
 
             var shaperLambda = Expression.Lambda(
                 newBody,
-                QueryCompilationContext2.QueryContextParameter,
+                QueryCompilationContext.QueryContextParameter,
                 enumeratorParameter);
 
             return Expression.Call(
@@ -82,7 +82,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Pipeline
                     ? _shapeAsyncMethodInfo.MakeGenericMethod(shaperLambda.ReturnType.GetGenericArguments().Single())
                     : _shapeMethodInfo.MakeGenericMethod(shaperLambda.ReturnType),
                 innerEnumerable,
-                QueryCompilationContext2.QueryContextParameter,
+                QueryCompilationContext.QueryContextParameter,
                 Expression.Constant(shaperLambda.Compile()),
                 Expression.Constant(_contextType),
                 Expression.Constant(_logger));

@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore.Metadata;
 
 namespace Microsoft.EntityFrameworkCore.Query.Pipeline
 {
-    public class QueryCompilationContextFactory2 : IQueryCompilationContextFactory2
+    public class QueryCompilationContextFactory : IQueryCompilationContextFactory
     {
         private readonly IModel _model;
         private readonly IQueryOptimizerFactory _queryOptimizerFactory;
@@ -19,7 +19,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Pipeline
         private readonly IDbContextOptions _contextOptions;
         private readonly IDiagnosticsLogger<DbLoggerCategory.Query> _logger;
 
-        public QueryCompilationContextFactory2(
+        public QueryCompilationContextFactory(
             IModel model,
             IQueryOptimizerFactory queryOptimizerFactory,
             IEntityQueryableTranslatorFactory entityQueryableTranslatorFactory,
@@ -41,9 +41,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Pipeline
             _logger = logger;
         }
 
-        public QueryCompilationContext2 Create(bool async)
+        public QueryCompilationContext Create(bool async)
         {
-            var queryCompilationContext = new QueryCompilationContext2(
+            var queryCompilationContext = new QueryCompilationContext(
                 _model,
                 _queryOptimizerFactory,
                 _entityQueryableTranslatorFactory,

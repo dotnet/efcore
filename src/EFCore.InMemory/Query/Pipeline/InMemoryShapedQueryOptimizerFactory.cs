@@ -7,7 +7,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Pipeline
 {
     public class InMemoryShapedQueryOptimizerFactory : ShapedQueryOptimizerFactory
     {
-        public override ShapedQueryOptimizer Create(QueryCompilationContext2 queryCompilationContext)
+        public override ShapedQueryOptimizer Create(QueryCompilationContext queryCompilationContext)
         {
             return new InMemoryShapedQueryOptimizer();
         }

@@ -5,6 +5,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Pipeline
 {
     public interface IShapedQueryOptimizerFactory
     {
-        ShapedQueryOptimizer Create(QueryCompilationContext2 queryCompilationContext);
+        ShapedQueryOptimizer Create(QueryCompilationContext queryCompilationContext);
     }
 }

@@ -7,9 +7,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Pipeline
 {
     public class QueryMetadataExtractingExpressionVisitor : ExpressionVisitor
     {
-        private readonly QueryCompilationContext2 _queryCompilationContext;
+        private readonly QueryCompilationContext _queryCompilationContext;
 
-        public QueryMetadataExtractingExpressionVisitor(QueryCompilationContext2 queryCompilationContext)
+        public QueryMetadataExtractingExpressionVisitor(QueryCompilationContext queryCompilationContext)
         {
             _queryCompilationContext = queryCompilationContext;
         }

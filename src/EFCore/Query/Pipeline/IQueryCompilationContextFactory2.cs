@@ -3,8 +3,8 @@
 
 namespace Microsoft.EntityFrameworkCore.Query.Pipeline
 {
-    public interface IQueryCompilationContextFactory2
+    public interface IQueryCompilationContextFactory
     {
-        QueryCompilationContext2 Create(bool async);
+        QueryCompilationContext Create(bool async);
     }
 }

@@ -7,11 +7,11 @@ using Microsoft.EntityFrameworkCore.Query.Pipeline;
 
 namespace Microsoft.EntityFrameworkCore.InMemory.Query.Pipeline
 {
-    public class InMemoryEntityQueryableExpressionVisitor2 : EntityQueryableExpressionVisitor2
+    public class InMemoryEntityQueryableExpressionVisitor : EntityQueryableExpressionVisitor
     {
         private readonly IModel _model;
 
-        public InMemoryEntityQueryableExpressionVisitor2(IModel model)
+        public InMemoryEntityQueryableExpressionVisitor(IModel model)
         {
             _model = model;
         }

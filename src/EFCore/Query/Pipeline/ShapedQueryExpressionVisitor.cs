@@ -41,7 +41,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Pipeline
             if (async)
             {
                 cancellationTokenParameter = Expression.MakeMemberAccess(
-                    QueryCompilationContext2.QueryContextParameter,
+                    QueryCompilationContext.QueryContextParameter,
                     _cancellationTokenMemberInfo);
             }
         }
@@ -248,7 +248,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Pipeline
                             entry,
                             Expression.Call(
                                 Expression.MakeMemberAccess(
-                                    QueryCompilationContext2.QueryContextParameter,
+                                    QueryCompilationContext.QueryContextParameter,
                                     _stateManagerMemberInfo),
                                 _tryGetEntryMethodInfo,
                                 Expression.Constant(primaryKey),
@@ -316,7 +316,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Pipeline
                             _materializationContextConstructor,
                             valueBuffer,
                             Expression.MakeMemberAccess(
-                                QueryCompilationContext2.QueryContextParameter,
+                                QueryCompilationContext.QueryContextParameter,
                                 _dbContextMemberInfo))));
 
                 var concreteEntityTypes = entityType.GetConcreteTypesInHierarchy().ToList();
@@ -430,7 +430,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Pipeline
                 {
                     expressions.Add(
                         Expression.Call(
-                            QueryCompilationContext2.QueryContextParameter,
+                            QueryCompilationContext.QueryContextParameter,
                             _startTrackingMethodInfo,
                             Expression.Constant(entityType),
                             result,

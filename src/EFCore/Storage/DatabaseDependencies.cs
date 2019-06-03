@@ -47,23 +47,23 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///         the constructor at any point in this process.
         ///     </para>
         /// </summary>
-        /// <param name="queryCompilationContextFactory2"> Factory for compilation contexts to process LINQ queries. </param>
+        /// <param name="queryCompilationContextFactory"> Factory for compilation contexts to process LINQ queries. </param>
         /// <param name="updateAdapterFactory"> Factory for creating model data tracker. </param>
         public DatabaseDependencies(
-            [NotNull] IQueryCompilationContextFactory2 queryCompilationContextFactory2,
+            [NotNull] IQueryCompilationContextFactory queryCompilationContextFactory,
             [NotNull] IUpdateAdapterFactory updateAdapterFactory)
         {
-            Check.NotNull(queryCompilationContextFactory2, nameof(queryCompilationContextFactory2));
+            Check.NotNull(queryCompilationContextFactory, nameof(queryCompilationContextFactory));
             Check.NotNull(updateAdapterFactory, nameof(updateAdapterFactory));
 
-            QueryCompilationContextFactory2 = queryCompilationContextFactory2;
+            QueryCompilationContextFactory = queryCompilationContextFactory;
             UpdateAdapterFactory = updateAdapterFactory;
         }
 
         /// <summary>
         ///     Factory for compilation contexts to process LINQ queries.
         /// </summary>
-        public IQueryCompilationContextFactory2 QueryCompilationContextFactory2 { get; }
+        public IQueryCompilationContextFactory QueryCompilationContextFactory { get; }
 
         /// <summary>
         ///     Factory for creating model data tracker.
@@ -73,12 +73,12 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
         /// </summary>
-        /// <param name="queryCompilationContextFactory2">
+        /// <param name="queryCompilationContextFactory">
         ///     A replacement for the current dependency of this type.
         /// </param>
         /// <returns> A new parameter object with the given service replaced. </returns>
-        public DatabaseDependencies With([NotNull] IQueryCompilationContextFactory2 queryCompilationContextFactory2)
-            => new DatabaseDependencies(queryCompilationContextFactory2, UpdateAdapterFactory);
+        public DatabaseDependencies With([NotNull] IQueryCompilationContextFactory queryCompilationContextFactory)
+            => new DatabaseDependencies(queryCompilationContextFactory, UpdateAdapterFactory);
 
         /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
@@ -88,7 +88,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </param>
         /// <returns> A new parameter object with the given service replaced. </returns>
         public DatabaseDependencies With([NotNull] IUpdateAdapterFactory updateAdapterFactory)
-            => new DatabaseDependencies(QueryCompilationContextFactory2, updateAdapterFactory);
+            => new DatabaseDependencies(QueryCompilationContextFactory, updateAdapterFactory);
 
 
     }

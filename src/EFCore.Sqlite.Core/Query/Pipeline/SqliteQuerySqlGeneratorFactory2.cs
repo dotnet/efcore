@@ -6,12 +6,12 @@ using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Pipeline
 {
-    public class SqliteQuerySqlGeneratorFactory2 : QuerySqlGeneratorFactory2
+    public class SqliteQuerySqlGeneratorFactory : QuerySqlGeneratorFactory
     {
         private readonly IRelationalCommandBuilderFactory _commandBuilderFactory;
         private readonly ISqlGenerationHelper _sqlGenerationHelper;
 
-        public SqliteQuerySqlGeneratorFactory2(
+        public SqliteQuerySqlGeneratorFactory(
             IRelationalCommandBuilderFactory commandBuilderFactory,
             ISqlGenerationHelper sqlGenerationHelper)
             : base(commandBuilderFactory, sqlGenerationHelper)
