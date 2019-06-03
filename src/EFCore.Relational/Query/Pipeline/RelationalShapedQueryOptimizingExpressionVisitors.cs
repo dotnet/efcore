@@ -10,10 +10,10 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
 {
     public class RelationalShapedQueryOptimizer : ShapedQueryOptimizer
     {
-        private readonly QueryCompilationContext2 _queryCompilationContext;
+        private readonly QueryCompilationContext _queryCompilationContext;
 
         public RelationalShapedQueryOptimizer(
-            QueryCompilationContext2 queryCompilationContext,
+            QueryCompilationContext queryCompilationContext,
             ISqlExpressionFactory sqlExpressionFactory)
         {
             _queryCompilationContext = queryCompilationContext;

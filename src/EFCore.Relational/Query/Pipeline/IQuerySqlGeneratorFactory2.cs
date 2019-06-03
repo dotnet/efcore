@@ -3,7 +3,7 @@
 
 namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
 {
-    public interface IQuerySqlGeneratorFactory2
+    public interface IQuerySqlGeneratorFactory
     {
         QuerySqlGenerator Create();
     }

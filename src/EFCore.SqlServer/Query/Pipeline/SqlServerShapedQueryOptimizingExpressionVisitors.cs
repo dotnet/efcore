@@ -10,7 +10,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Pipeline
     public class SqlServerShapedQueryOptimizer : RelationalShapedQueryOptimizer
     {
         public SqlServerShapedQueryOptimizer(
-            QueryCompilationContext2 queryCompilationContext,
+            QueryCompilationContext queryCompilationContext,
             ISqlExpressionFactory sqlExpressionFactory)
             : base(queryCompilationContext, sqlExpressionFactory)
         {
