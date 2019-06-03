@@ -130,6 +130,6 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> <c>true</c> if the given name can be set for the index. </returns>
         public static bool CanSetFilter(
             [NotNull] this IConventionIndexBuilder indexBuilder, [CanBeNull] string sql, bool fromDataAnnotation = false)
-            => indexBuilder.CanSetAnnotation(RelationalAnnotationNames.Name, sql, fromDataAnnotation);
+            => indexBuilder.CanSetAnnotation(RelationalAnnotationNames.Filter, sql, fromDataAnnotation);
     }
 }
