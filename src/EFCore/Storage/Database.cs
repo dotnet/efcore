@@ -69,7 +69,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
         public virtual Func<QueryContext, TResult> CompileQuery2<TResult>(Expression query, bool async)
         {
-            return Dependencies.QueryCompilationContextFactory2
+            return Dependencies.QueryCompilationContextFactory
                 .Create(async)
                 .CreateQueryExecutor<TResult>(query);
         }

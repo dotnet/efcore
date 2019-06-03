@@ -16,7 +16,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
 {
     public partial class RelationalShapedQueryCompilingExpressionVisitor : ShapedQueryCompilingExpressionVisitor
     {
-        private readonly IQuerySqlGeneratorFactory2 _querySqlGeneratorFactory;
+        private readonly IQuerySqlGeneratorFactory _querySqlGeneratorFactory;
         private readonly ISqlExpressionFactory _sqlExpressionFactory;
         private readonly IParameterNameGeneratorFactory _parameterNameGeneratorFactory;
         private readonly Type _contextType;
@@ -26,7 +26,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
 
         public RelationalShapedQueryCompilingExpressionVisitor(
             IEntityMaterializerSource entityMaterializerSource,
-            IQuerySqlGeneratorFactory2 querySqlGeneratorFactory,
+            IQuerySqlGeneratorFactory querySqlGeneratorFactory,
             ISqlExpressionFactory sqlExpressionFactory,
             IParameterNameGeneratorFactory parameterNameGeneratorFactory,
             Type contextType,
@@ -59,7 +59,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
                 var remappedShaperLambda =
                     Expression.Lambda(
                         shaperBody,
-                        QueryCompilationContext2.QueryContextParameter,
+                        QueryCompilationContext.QueryContextParameter,
                         RelationalProjectionBindingRemovingExpressionVisitor.DataReaderParameter,
                         indexMapParameter);
 
@@ -67,7 +67,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
                     Async
                         ? typeof(FromSqlNonComposedAsyncQueryingEnumerable<>).MakeGenericType(remappedShaperLambda.ReturnType.GetGenericArguments().Single()).GetConstructors()[0]
                         : typeof(FromSqlNonComposedQueryingEnumerable<>).MakeGenericType(remappedShaperLambda.ReturnType).GetConstructors()[0],
-                    Expression.Convert(QueryCompilationContext2.QueryContextParameter, typeof(RelationalQueryContext)),
+                    Expression.Convert(QueryCompilationContext.QueryContextParameter, typeof(RelationalQueryContext)),
                     Expression.Constant(_querySqlGeneratorFactory),
                     Expression.Constant(_sqlExpressionFactory),
                     Expression.Constant(_parameterNameGeneratorFactory),
@@ -79,7 +79,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
 
             var shaperLambda = Expression.Lambda(
                 shaperBody,
-                QueryCompilationContext2.QueryContextParameter,
+                QueryCompilationContext.QueryContextParameter,
                 RelationalProjectionBindingRemovingExpressionVisitor.DataReaderParameter,
                 _resultCoordinatorParameter);
 
@@ -87,7 +87,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
             {
                 return Expression.New(
                     typeof(AsyncQueryingEnumerable<>).MakeGenericType(shaperLambda.ReturnType.GetGenericArguments().Single()).GetConstructors()[0],
-                    Expression.Convert(QueryCompilationContext2.QueryContextParameter, typeof(RelationalQueryContext)),
+                    Expression.Convert(QueryCompilationContext.QueryContextParameter, typeof(RelationalQueryContext)),
                     Expression.Constant(_querySqlGeneratorFactory),
                     Expression.Constant(_sqlExpressionFactory),
                     Expression.Constant(_parameterNameGeneratorFactory),
@@ -99,7 +99,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
 
             return Expression.New(
                 typeof(QueryingEnumerable<>).MakeGenericType(shaperLambda.ReturnType).GetConstructors()[0],
-                Expression.Convert(QueryCompilationContext2.QueryContextParameter, typeof(RelationalQueryContext)),
+                Expression.Convert(QueryCompilationContext.QueryContextParameter, typeof(RelationalQueryContext)),
                 Expression.Constant(_querySqlGeneratorFactory),
                 Expression.Constant(_sqlExpressionFactory),
                 Expression.Constant(_parameterNameGeneratorFactory),

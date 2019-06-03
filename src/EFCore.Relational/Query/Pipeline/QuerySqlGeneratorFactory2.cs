@@ -5,12 +5,12 @@ using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
 {
-    public class QuerySqlGeneratorFactory2 : IQuerySqlGeneratorFactory2
+    public class QuerySqlGeneratorFactory : IQuerySqlGeneratorFactory
     {
         private readonly IRelationalCommandBuilderFactory _commandBuilderFactory;
         private readonly ISqlGenerationHelper _sqlGenerationHelper;
 
-        public QuerySqlGeneratorFactory2(
+        public QuerySqlGeneratorFactory(
             IRelationalCommandBuilderFactory commandBuilderFactory,
             ISqlGenerationHelper sqlGenerationHelper)
         {

@@ -10,13 +10,13 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
     public class RelationalShapedQueryCompilingExpressionVisitorFactory : IShapedQueryCompilingExpressionVisitorFactory
     {
         private readonly IEntityMaterializerSource _entityMaterializerSource;
-        private readonly IQuerySqlGeneratorFactory2 _querySqlGeneratorFactory;
+        private readonly IQuerySqlGeneratorFactory _querySqlGeneratorFactory;
         private readonly ISqlExpressionFactory _sqlExpressionFactory;
         private readonly IParameterNameGeneratorFactory _parameterNameGeneratorFactory;
 
         public RelationalShapedQueryCompilingExpressionVisitorFactory(
             IEntityMaterializerSource entityMaterializerSource,
-            IQuerySqlGeneratorFactory2 querySqlGeneratorFactory,
+            IQuerySqlGeneratorFactory querySqlGeneratorFactory,
             ISqlExpressionFactory sqlExpressionFactory,
             IParameterNameGeneratorFactory parameterNameGeneratorFactory)
         {
@@ -26,7 +26,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
             _parameterNameGeneratorFactory = parameterNameGeneratorFactory;
         }
 
-        public ShapedQueryCompilingExpressionVisitor Create(QueryCompilationContext2 queryCompilationContext)
+        public ShapedQueryCompilingExpressionVisitor Create(QueryCompilationContext queryCompilationContext)
         {
             return new RelationalShapedQueryCompilingExpressionVisitor(
                 _entityMaterializerSource,

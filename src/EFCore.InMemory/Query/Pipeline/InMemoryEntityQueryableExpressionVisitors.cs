@@ -18,7 +18,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Pipeline
 
         public override Expression Visit(Expression query)
         {
-            return new InMemoryEntityQueryableExpressionVisitor2(_model).Visit(query);
+            return new InMemoryEntityQueryableExpressionVisitor(_model).Visit(query);
         }
     }
 }

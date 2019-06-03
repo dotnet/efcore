@@ -11,12 +11,12 @@ using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
 {
-    public class RelationalEntityQueryableExpressionVisitor2 : EntityQueryableExpressionVisitor2
+    public class RelationalEntityQueryableExpressionVisitor : EntityQueryableExpressionVisitor
     {
         private readonly IModel _model;
         private readonly ISqlExpressionFactory _sqlExpressionFactory;
 
-        public RelationalEntityQueryableExpressionVisitor2(IModel model, ISqlExpressionFactory sqlExpressionFactory)
+        public RelationalEntityQueryableExpressionVisitor(IModel model, ISqlExpressionFactory sqlExpressionFactory)
         {
             _model = model;
             _sqlExpressionFactory = sqlExpressionFactory;

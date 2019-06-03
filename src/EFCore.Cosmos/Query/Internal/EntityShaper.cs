@@ -47,7 +47,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                     Expression.Call(
                         _shapeMethodInfo,
                         jObjectParameter,
-                        QueryCompilationContext2.QueryContextParameter,
+                        QueryCompilationContext.QueryContextParameter,
                         Expression.Constant(_trackingQuery),
                         entityInfo),
                     _entityType.ClrType),

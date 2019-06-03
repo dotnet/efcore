@@ -5,6 +5,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Pipeline
 {
     public abstract class EntityQueryableTranslatorFactory : IEntityQueryableTranslatorFactory
     {
-        public abstract EntityQueryableTranslator Create(QueryCompilationContext2 queryCompilationContext);
+        public abstract EntityQueryableTranslator Create(QueryCompilationContext queryCompilationContext);
     }
 }

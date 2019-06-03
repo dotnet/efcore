@@ -132,7 +132,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 { typeof(IResettableService), new ServiceCharacteristics(ServiceLifetime.Scoped, multipleRegistrations: true) },
 
                 // New Query related services
-                { typeof(IQueryCompilationContextFactory2), new ServiceCharacteristics(ServiceLifetime.Scoped) },
+                { typeof(IQueryCompilationContextFactory), new ServiceCharacteristics(ServiceLifetime.Scoped) },
                 { typeof(IQueryOptimizerFactory), new ServiceCharacteristics(ServiceLifetime.Scoped) },
                 { typeof(IEntityQueryableTranslatorFactory), new ServiceCharacteristics(ServiceLifetime.Scoped) },
                 { typeof(IQueryableMethodTranslatingExpressionVisitorFactory), new ServiceCharacteristics(ServiceLifetime.Scoped) },
@@ -261,7 +261,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             TryAdd<IUpdateAdapterFactory, UpdateAdapterFactory>();
 
             // New QueryPipeline
-            TryAdd<IQueryCompilationContextFactory2, QueryCompilationContextFactory2>();
+            TryAdd<IQueryCompilationContextFactory, QueryCompilationContextFactory>();
             TryAdd<IQueryOptimizerFactory, QueryOptimizerFactory>();
             TryAdd<IShapedQueryOptimizerFactory, ShapedQueryOptimizerFactory>();
 

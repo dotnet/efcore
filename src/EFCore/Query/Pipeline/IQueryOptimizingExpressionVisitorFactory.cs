@@ -5,6 +5,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Pipeline
 {
     public interface IQueryOptimizerFactory
     {
-        QueryOptimizer Create(QueryCompilationContext2 queryCompilationContext);
+        QueryOptimizer Create(QueryCompilationContext queryCompilationContext);
     }
 }
