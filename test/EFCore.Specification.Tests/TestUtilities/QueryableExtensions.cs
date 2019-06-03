@@ -14,19 +14,9 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         public static List<TSource> ToList<TSource>(this System.Collections.IEnumerable source)
             => source.OfType<TSource>().ToList();
 
-        public static async Task<List<TSource>> ToListAsync<TSource>(this IQueryable source, CancellationToken cancellationToken = default)
+        public static Task<List<TSource>> ToListAsync<TSource>(this IQueryable source, CancellationToken cancellationToken = default)
         {
-            var list = new List<TSource>();
-
-            using (var e = ((IQueryable<TSource>)source).AsAsyncEnumerable().GetEnumerator())
-            {
-                while (await e.MoveNext(cancellationToken).ConfigureAwait(false))
-                {
-                    list.Add(e.Current);
-                }
-            }
-
-            return list;
+            return ((IQueryable<TSource>)source).ToListAsync(cancellationToken);
         }
     }
 }
