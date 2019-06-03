@@ -164,24 +164,24 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
                         var innerShaper = Visit(collectionShaper.InnerShaper);
                         return Expression.Call(
                             _includeCollectionMethodInfo.MakeGenericMethod(entityClrType, relatedEntityClrType),
-                            QueryCompilationContext2.QueryContextParameter,
+                            QueryCompilationContext.QueryContextParameter,
                             RelationalProjectionBindingRemovingExpressionVisitor.DataReaderParameter,
                             // We don't need to visit entityExpression since it is supposed to be a parameterExpression only
                             includeExpression.EntityExpression,
                             Expression.Constant(
                                 Expression.Lambda(
                                     collectionShaper.OuterKeySelector,
-                                    QueryCompilationContext2.QueryContextParameter,
+                                    QueryCompilationContext.QueryContextParameter,
                                     RelationalProjectionBindingRemovingExpressionVisitor.DataReaderParameter).Compile()),
                             Expression.Constant(
                                 Expression.Lambda(
                                     collectionShaper.InnerKeySelector,
-                                    QueryCompilationContext2.QueryContextParameter,
+                                    QueryCompilationContext.QueryContextParameter,
                                     RelationalProjectionBindingRemovingExpressionVisitor.DataReaderParameter).Compile()),
                             Expression.Constant(
                                 Expression.Lambda(
                                     innerShaper,
-                                    QueryCompilationContext2.QueryContextParameter,
+                                    QueryCompilationContext.QueryContextParameter,
                                     RelationalProjectionBindingRemovingExpressionVisitor.DataReaderParameter,
                                     _resultCoordinatorParameter).Compile()),
                             Expression.Constant(includeExpression.Navigation),
@@ -198,14 +198,14 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
                         var inverseNavigation = includeExpression.Navigation.FindInverse();
                         return Expression.Call(
                             _includeReferenceMethodInfo.MakeGenericMethod(entityClrType, relatedEntityClrType),
-                            QueryCompilationContext2.QueryContextParameter,
+                            QueryCompilationContext.QueryContextParameter,
                             RelationalProjectionBindingRemovingExpressionVisitor.DataReaderParameter,
                             // We don't need to visit entityExpression since it is supposed to be a parameterExpression only
                             includeExpression.EntityExpression,
                             Expression.Constant(
                                 Expression.Lambda(
                                     Visit(includeExpression.NavigationExpression),
-                                    QueryCompilationContext2.QueryContextParameter,
+                                    QueryCompilationContext.QueryContextParameter,
                                     RelationalProjectionBindingRemovingExpressionVisitor.DataReaderParameter,
                                     _resultCoordinatorParameter).Compile()),
                             Expression.Constant(includeExpression.Navigation),

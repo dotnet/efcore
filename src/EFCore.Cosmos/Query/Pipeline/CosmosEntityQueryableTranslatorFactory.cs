@@ -16,7 +16,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Pipeline
             _model = model;
         }
 
-        public override EntityQueryableTranslator Create(QueryCompilationContext2 queryCompilationContext)
+        public override EntityQueryableTranslator Create(QueryCompilationContext queryCompilationContext)
         {
             throw new NotImplementedException();
         }
@@ -39,7 +39,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Pipeline
             _entityMaterializerSource = entityMaterializerSource;
         }
 
-        public ShapedQueryCompilingExpressionVisitor Create(QueryCompilationContext2 queryCompilationContext)
+        public ShapedQueryCompilingExpressionVisitor Create(QueryCompilationContext queryCompilationContext)
         {
             throw new NotImplementedException();
             //return new CosmosShapedQueryCompilingExpressionVisitor(

@@ -5,7 +5,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Pipeline
 {
     public interface IShapedQueryCompilingExpressionVisitorFactory
     {
-        ShapedQueryCompilingExpressionVisitor Create(QueryCompilationContext2 queryCompilationContext);
+        ShapedQueryCompilingExpressionVisitor Create(QueryCompilationContext queryCompilationContext);
     }
 
 }

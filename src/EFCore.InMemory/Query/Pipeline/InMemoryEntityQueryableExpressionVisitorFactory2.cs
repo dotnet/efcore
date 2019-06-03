@@ -15,7 +15,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Pipeline
             _model = model;
         }
 
-        public override EntityQueryableTranslator Create(QueryCompilationContext2 queryCompilationContext)
+        public override EntityQueryableTranslator Create(QueryCompilationContext queryCompilationContext)
         {
             return new InMemoryEntityQueryableTranslator(_model);
         }

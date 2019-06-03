@@ -31,7 +31,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Expressions.Internal
         public override Expression Reduce()
             => Call(
                 _async ? _queryAsyncMethodInfo : _queryMethodInfo,
-                QueryCompilationContext2.QueryContextParameter,
+                QueryCompilationContext.QueryContextParameter,
                 Constant(_collectionId),
                 Constant(SelectExpression));
 

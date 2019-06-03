@@ -9,7 +9,7 @@ using Microsoft.EntityFrameworkCore.Metadata;
 
 namespace Microsoft.EntityFrameworkCore.Query.Pipeline
 {
-    public class QueryCompilationContext2
+    public class QueryCompilationContext
     {
         public static readonly ParameterExpression QueryContextParameter = Expression.Parameter(typeof(QueryContext), "queryContext");
 
@@ -19,7 +19,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Pipeline
         private readonly IShapedQueryOptimizerFactory _shapedQueryOptimizerFactory;
         private readonly IShapedQueryCompilingExpressionVisitorFactory _shapedQueryCompilingExpressionVisitorFactory;
 
-        public QueryCompilationContext2(
+        public QueryCompilationContext(
             IModel model,
             IQueryOptimizerFactory queryOptimizerFactory,
             IEntityQueryableTranslatorFactory entityQuerableTranslatorFactory,
