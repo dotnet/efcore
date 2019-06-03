@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Update;
 using Microsoft.EntityFrameworkCore.Query.Pipeline;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -48,26 +47,22 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///         the constructor at any point in this process.
         ///     </para>
         /// </summary>
-        /// <param name="queryCompilationContextFactory"> Factory for compilation contexts to process LINQ queries. </param>
+        /// <param name="queryCompilationContextFactory2"> Factory for compilation contexts to process LINQ queries. </param>
         /// <param name="updateAdapterFactory"> Factory for creating model data tracker. </param>
-        /// <param name="queryCompilationContextFactory2"> A </param>
         public DatabaseDependencies(
-            [NotNull] IQueryCompilationContextFactory queryCompilationContextFactory,
-            [NotNull] IUpdateAdapterFactory updateAdapterFactory,
-            [NotNull] IQueryCompilationContextFactory2 queryCompilationContextFactory2)
+            [NotNull] IQueryCompilationContextFactory2 queryCompilationContextFactory2,
+            [NotNull] IUpdateAdapterFactory updateAdapterFactory)
         {
-            Check.NotNull(queryCompilationContextFactory, nameof(queryCompilationContextFactory));
+            Check.NotNull(queryCompilationContextFactory2, nameof(queryCompilationContextFactory2));
             Check.NotNull(updateAdapterFactory, nameof(updateAdapterFactory));
 
-            QueryCompilationContextFactory = queryCompilationContextFactory;
-            UpdateAdapterFactory = updateAdapterFactory;
             QueryCompilationContextFactory2 = queryCompilationContextFactory2;
+            UpdateAdapterFactory = updateAdapterFactory;
         }
 
         /// <summary>
         ///     Factory for compilation contexts to process LINQ queries.
         /// </summary>
-        public IQueryCompilationContextFactory QueryCompilationContextFactory { get; }
         public IQueryCompilationContextFactory2 QueryCompilationContextFactory2 { get; }
 
         /// <summary>
@@ -78,12 +73,12 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
         /// </summary>
-        /// <param name="queryCompilationContextFactory">
+        /// <param name="queryCompilationContextFactory2">
         ///     A replacement for the current dependency of this type.
         /// </param>
         /// <returns> A new parameter object with the given service replaced. </returns>
-        public DatabaseDependencies With([NotNull] IQueryCompilationContextFactory queryCompilationContextFactory)
-            => new DatabaseDependencies(queryCompilationContextFactory, UpdateAdapterFactory, QueryCompilationContextFactory2);
+        public DatabaseDependencies With([NotNull] IQueryCompilationContextFactory2 queryCompilationContextFactory2)
+            => new DatabaseDependencies(queryCompilationContextFactory2, UpdateAdapterFactory);
 
         /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
@@ -93,11 +88,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </param>
         /// <returns> A new parameter object with the given service replaced. </returns>
         public DatabaseDependencies With([NotNull] IUpdateAdapterFactory updateAdapterFactory)
-            => new DatabaseDependencies(QueryCompilationContextFactory, updateAdapterFactory, QueryCompilationContextFactory2);
+            => new DatabaseDependencies(QueryCompilationContextFactory2, updateAdapterFactory);
 
-        public DatabaseDependencies With([NotNull] IQueryCompilationContextFactory2 queryCompilationContextFactory2)
-            => new DatabaseDependencies(QueryCompilationContextFactory,
-                UpdateAdapterFactory,
-                Check.NotNull(queryCompilationContextFactory2, nameof(queryCompilationContextFactory2)));
+
     }
 }

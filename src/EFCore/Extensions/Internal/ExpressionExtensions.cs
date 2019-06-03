@@ -16,8 +16,6 @@ using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Query.Expressions.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
-using Remotion.Linq.Clauses;
-using Remotion.Linq.Clauses.Expressions;
 
 // ReSharper disable once CheckNamespace
 namespace Microsoft.EntityFrameworkCore.Internal
@@ -281,15 +279,6 @@ namespace Microsoft.EntityFrameworkCore.Internal
         public static bool IsEntityQueryable([NotNull] this ConstantExpression constantExpression)
             => constantExpression.Type.GetTypeInfo().IsGenericType
                && constantExpression.Type.GetGenericTypeDefinition() == typeof(EntityQueryable<>);
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public static IQuerySource TryGetReferencedQuerySource([NotNull] this Expression expression)
-            => (expression as QuerySourceReferenceExpression)?.ReferencedQuerySource;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

@@ -5,9 +5,7 @@ using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
-using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
 using Microsoft.EntityFrameworkCore.Migrations;
-using Microsoft.EntityFrameworkCore.Query.Sql;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Update;
 using Microsoft.Extensions.DependencyInjection;
@@ -48,7 +46,6 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities.FakeProvider
                 .TryAdd<IRelationalTypeMappingSource, TestRelationalTypeMappingSource>()
                 .TryAdd<IMigrationsSqlGenerator, TestRelationalMigrationSqlGenerator>()
                 .TryAdd<IProviderConventionSetBuilder, TestRelationalConventionSetBuilder>()
-                .TryAdd<IQuerySqlGeneratorFactory, TestQuerySqlGeneratorFactory>()
                 .TryAdd<IRelationalConnection, FakeRelationalConnection>()
                 .TryAdd<IHistoryRepository>(_ => null)
                 .TryAdd<IUpdateSqlGenerator, FakeSqlGenerator>()

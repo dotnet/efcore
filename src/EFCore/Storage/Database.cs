@@ -11,7 +11,6 @@ using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Update;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
-using Remotion.Linq;
 
 namespace Microsoft.EntityFrameworkCore.Storage
 {
@@ -67,30 +66,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
         public abstract Task<int> SaveChangesAsync(
             IList<IUpdateEntry> entries,
             CancellationToken cancellationToken = default);
-
-        /// <summary>
-        ///     Translates a query model into a function that can be executed to get query results from the database.
-        /// </summary>
-        /// <typeparam name="TResult"> The type of results returned by the query. </typeparam>
-        /// <param name="queryModel"> An object model representing the query to be executed. </param>
-        /// <returns> A function that will execute the query. </returns>
-        public virtual Func<QueryContext, IEnumerable<TResult>> CompileQuery<TResult>(QueryModel queryModel)
-            => Dependencies.QueryCompilationContextFactory
-                .Create(async: false)
-                .CreateQueryModelVisitor()
-                .CreateQueryExecutor<TResult>(Check.NotNull(queryModel, nameof(queryModel)));
-
-        /// <summary>
-        ///     Translates a query model into a function that can be executed to asynchronously get query results from the database.
-        /// </summary>
-        /// <typeparam name="TResult"> The type of results returned by the query. </typeparam>
-        /// <param name="queryModel"> An object model representing the query to be executed. </param>
-        /// <returns> A function that will asynchronously execute the query. </returns>
-        public virtual Func<QueryContext, IAsyncEnumerable<TResult>> CompileAsyncQuery<TResult>(QueryModel queryModel)
-            => Dependencies.QueryCompilationContextFactory
-                .Create(async: true)
-                .CreateQueryModelVisitor()
-                .CreateAsyncQueryExecutor<TResult>(Check.NotNull(queryModel, nameof(queryModel)));
 
         public virtual Func<QueryContext, TResult> CompileQuery2<TResult>(Expression query, bool async)
         {

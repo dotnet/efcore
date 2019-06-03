@@ -75,6 +75,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
+#pragma warning disable CS0612 // Type or member is obsolete
         [Fact]
         public void Throws_when_warning_as_error_all()
         {
@@ -152,6 +153,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                             => context.WarningAsErrorEntities.Include(e => e.Nav).OrderBy(e => e.Id).Select(e => e.Id).ToList()).Message);
             }
         }
+#pragma warning restore CS0612 // Type or member is obsolete
 
         [Fact]
         public void Throws_by_default_for_lazy_load_with_disposed_context()

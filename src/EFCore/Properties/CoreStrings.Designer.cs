@@ -2870,9 +2870,11 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
             return (EventDefinition<string>)definition;
         }
 
+
         /// <summary>
         ///     Compiling query model: {newline}'{queryModel}'
         /// </summary>
+        [Obsolete]
         public static EventDefinition<string, string> LogCompilingQueryModel([NotNull] IDiagnosticsLogger logger)
         {
             var definition = ((LoggingDefinitions)logger.Definitions).LogCompilingQueryModel;
@@ -2883,6 +2885,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
                     () => new EventDefinition<string, string>(
                         logger.Options,
                         CoreEventId.QueryModelCompiling,
+#pragma warning restore CS0612 // Type or member is obsolete
                         LogLevel.Debug,
                         "CoreEventId.QueryModelCompiling",
                         level => LoggerMessage.Define<string, string>(
@@ -2897,6 +2900,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
         /// <summary>
         ///     Optimized query model: {newline}'{queryModel}'
         /// </summary>
+        [Obsolete]
         public static EventDefinition<string, string> LogOptimizedQueryModel([NotNull] IDiagnosticsLogger logger)
         {
             var definition = ((LoggingDefinitions)logger.Definitions).LogOptimizedQueryModel;
@@ -2921,6 +2925,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
         /// <summary>
         ///     Including navigation: '{navigation}'
         /// </summary>
+        [Obsolete]
         public static EventDefinition<string> LogIncludingNavigation([NotNull] IDiagnosticsLogger logger)
         {
             var definition = ((LoggingDefinitions)logger.Definitions).LogIncludingNavigation;
@@ -2993,6 +2998,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
         /// <summary>
         ///     The Include operation for navigation '{include}' is unnecessary and was ignored because the navigation is not reachable in the final query results. See https://go.microsoft.com/fwlink/?linkid=850303 for more information.
         /// </summary>
+        [Obsolete]
         public static EventDefinition<string> LogIgnoredInclude([NotNull] IDiagnosticsLogger logger)
         {
             var definition = ((LoggingDefinitions)logger.Definitions).LogIgnoredInclude;
@@ -3017,6 +3023,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
         /// <summary>
         ///     Query: '{queryModel}' uses a row limiting operation (Skip/Take) without OrderBy which may lead to unpredictable results.
         /// </summary>
+        [Obsolete]
         public static EventDefinition<string> LogRowLimitingOperationWithoutOrderBy([NotNull] IDiagnosticsLogger logger)
         {
             var definition = ((LoggingDefinitions)logger.Definitions).LogRowLimitingOperationWithoutOrderBy;
@@ -3041,6 +3048,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
         /// <summary>
         ///     Query: '{queryModel}' uses First/FirstOrDefault/Last/LastOrDefault operation without OrderBy and filter which may lead to unpredictable results.
         /// </summary>
+        [Obsolete]
         public static EventDefinition<string> LogFirstWithoutOrderByAndFilter([NotNull] IDiagnosticsLogger logger)
         {
             var definition = ((LoggingDefinitions)logger.Definitions).LogFirstWithoutOrderByAndFilter;

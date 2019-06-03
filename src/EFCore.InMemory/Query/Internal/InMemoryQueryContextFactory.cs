@@ -49,6 +49,6 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public override QueryContext Create()
-            => new InMemoryQueryContext(Dependencies, CreateQueryBuffer, _store);
+            => new InMemoryQueryContext(Dependencies, _store);
     }
 }

@@ -118,6 +118,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         //    }
         //}
 
+#pragma warning disable CS0612 // Type or member is obsolete
         [Fact(Skip = "Issue #14935. Cannot eval 'Concat({from Order o in value(Microsoft.EntityFrameworkCore.Query.Internal.EntityQueryable`1[Microsoft.EntityFrameworkCore.TestModels.Northwind.Order]) where ([o].CustomerID == \"ALFKI\") select [o]})'")]
         public virtual void Concat_Include_collection_ignored()
         {
@@ -172,6 +173,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     Fixture.TestSqlLoggerFactory.Log.Select(l => l.Message));
             }
         }
+#pragma warning restore CS0612 // Type or member is obsolete
 
         [Fact]
         public void SelectExpression_does_not_use_an_old_logger()

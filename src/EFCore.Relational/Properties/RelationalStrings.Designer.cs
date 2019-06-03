@@ -1172,6 +1172,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
         /// <summary>
         ///     The LINQ expression '{expression}' could not be translated and will be evaluated locally.
         /// </summary>
+        [Obsolete]
         public static EventDefinition<object> LogClientEvalWarning([NotNull] IDiagnosticsLogger logger)
         {
             var definition = ((RelationalLoggingDefinitions)logger.Definitions).LogClientEvalWarning;

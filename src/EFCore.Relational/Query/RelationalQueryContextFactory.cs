@@ -53,6 +53,6 @@ namespace Microsoft.EntityFrameworkCore.Query
         ///     A QueryContext.
         /// </returns>
         public override QueryContext Create()
-            => new RelationalQueryContext(Dependencies, CreateQueryBuffer, _connection, ExecutionStrategyFactory);
+            => new RelationalQueryContext(Dependencies, _connection, ExecutionStrategyFactory);
     }
 }

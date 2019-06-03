@@ -6,9 +6,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.SqlServer.Query.Sql.Internal;
+using Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions;
 using Microsoft.EntityFrameworkCore.Utilities;
-using Remotion.Linq.Clauses;
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Expressions.Internal
 {
@@ -20,7 +19,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Expressions.Internal
     /// </summary>
     public class RowNumberExpression : Expression
     {
-        private readonly List<Ordering> _orderings = new List<Ordering>();
+        private readonly List<OrderingExpression> _orderings = new List<OrderingExpression>();
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -28,7 +27,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Expressions.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public RowNumberExpression([NotNull] IReadOnlyList<Ordering> orderings)
+        public RowNumberExpression([NotNull] IReadOnlyList<OrderingExpression> orderings)
         {
             Check.NotNull(orderings, nameof(orderings));
 
@@ -65,22 +64,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Expressions.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual IReadOnlyList<Ordering> Orderings => _orderings;
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        protected override Expression Accept(ExpressionVisitor visitor)
-        {
-            Check.NotNull(visitor, nameof(visitor));
-
-            return visitor is ISqlServerExpressionVisitor specificVisitor
-                ? specificVisitor.VisitRowNumber(this)
-                : base.Accept(visitor);
-        }
+        public virtual IReadOnlyList<OrderingExpression> Orderings => _orderings;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -90,11 +74,13 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Expressions.Internal
         /// </summary>
         protected override Expression VisitChildren(ExpressionVisitor visitor)
         {
-            var newOrderings = new List<Ordering>();
+            var newOrderings = new List<OrderingExpression>();
             var recreate = false;
             foreach (var ordering in _orderings)
             {
-                var newOrdering = new Ordering(visitor.Visit(ordering.Expression), ordering.OrderingDirection);
+                var newOrdering = new OrderingExpression(
+                    (SqlExpression)visitor.Visit(ordering.Expression),
+                    ordering.Ascending);
                 newOrderings.Add(newOrdering);
                 recreate |= newOrdering.Expression != ordering.Expression;
             }

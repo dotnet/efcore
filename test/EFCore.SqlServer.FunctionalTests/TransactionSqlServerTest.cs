@@ -62,9 +62,7 @@ namespace Microsoft.EntityFrameworkCore
             public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
             {
                 new SqlServerDbContextOptionsBuilder(
-                        base.AddOptions(builder)
-                            .ConfigureWarnings(
-                                w => w.Log(CoreEventId.FirstWithoutOrderByAndFilterWarning)))
+                        base.AddOptions(builder))
                     .MaxBatchSize(1);
                 return builder;
             }

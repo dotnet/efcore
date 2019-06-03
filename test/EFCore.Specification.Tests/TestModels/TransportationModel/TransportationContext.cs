@@ -4,7 +4,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.TestUtilities;
-using Xunit;
 
 #pragma warning disable RCS1202 // Avoid NullReferenceException.
 

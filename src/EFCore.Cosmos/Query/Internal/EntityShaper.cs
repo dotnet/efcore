@@ -12,6 +12,7 @@ using Microsoft.EntityFrameworkCore.Cosmos.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Query;
+using Microsoft.EntityFrameworkCore.Query.Pipeline;
 using Microsoft.EntityFrameworkCore.Storage;
 using Newtonsoft.Json.Linq;
 
@@ -21,19 +22,16 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
     {
         private readonly IEntityType _entityType;
         private readonly bool _trackingQuery;
-        private readonly bool _useQueryBuffer;
         private readonly IEntityMaterializerSource _entityMaterializerSource;
 
         public EntityShaper(
             IEntityType entityType,
             bool trackingQuery,
-            bool useQueryBuffer,
             IEntityMaterializerSource entityMaterializerSource)
         {
             _entityType = entityType;
             _entityMaterializerSource = entityMaterializerSource;
             _trackingQuery = trackingQuery;
-            _useQueryBuffer = useQueryBuffer;
         }
 
         public virtual Type Type => _entityType.ClrType;
@@ -49,9 +47,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                     Expression.Call(
                         _shapeMethodInfo,
                         jObjectParameter,
-                        EntityQueryModelVisitor.QueryContextParameter,
+                        QueryCompilationContext2.QueryContextParameter,
                         Expression.Constant(_trackingQuery),
-                        Expression.Constant(_useQueryBuffer),
                         entityInfo),
                     _entityType.ClrType),
                 jObjectParameter);
@@ -222,64 +219,38 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
             JObject jObject,
             QueryContext queryContext,
             bool trackingQuery,
-            bool bufferedQuery,
             EntityInfo entityInfo)
         {
             var valueBuffer = new ValueBuffer(entityInfo.ValueBufferFactory(jObject));
 
-            if (!bufferedQuery)
+            if (trackingQuery)
             {
-                if (trackingQuery)
+                var entry = queryContext.StateManager.TryGetEntry(entityInfo.Key, new object[] { }, throwOnNullKey: true, out var _);
+                if (entry != null)
                 {
-                    var entry = queryContext.StateManager.TryGetEntry(entityInfo.Key, new object[] { }, throwOnNullKey: true, out var _);
-                    if (entry != null)
-                    {
-                        return ShapeNestedEntities(
-                            jObject,
-                            queryContext,
-                            trackingQuery,
-                            bufferedQuery,
-                            entityInfo,
-                            entry.Entity);
-                    }
+                    return ShapeNestedEntities(
+                        jObject,
+                        queryContext,
+                        trackingQuery,
+                        entityInfo,
+                        entry.Entity);
                 }
-
-                var entity = entityInfo.Materializer(new MaterializationContext(valueBuffer, queryContext.Context));
-                return ShapeNestedEntities(
-                    jObject,
-                    queryContext,
-                    trackingQuery,
-                    bufferedQuery,
-                    entityInfo,
-                    entity);
             }
-            else
-            {
-                var entity = queryContext.QueryBuffer
-                    .GetEntity(
-                        entityInfo.Key,
-                        new EntityLoadInfo(
-                            new MaterializationContext(valueBuffer, queryContext.Context),
-                            entityInfo.Materializer,
-                            entityInfo.TypeIndexMap),
-                        queryStateManager: trackingQuery,
-                        throwOnNullKey: true);
 
-                return ShapeNestedEntities(
-                    jObject,
-                    queryContext,
-                    trackingQuery,
-                    bufferedQuery,
-                    entityInfo,
-                    entity);
-            }
+            var entity = entityInfo.Materializer(new MaterializationContext(valueBuffer, queryContext.Context));
+            return ShapeNestedEntities(
+                jObject,
+                queryContext,
+                trackingQuery,
+                entityInfo,
+                entity);
+
         }
 
         private static object ShapeNestedEntities(
             JObject jObject,
             QueryContext queryContext,
             bool trackingQuery,
-            bool bufferedQuery,
             EntityInfo entityInfo,
             object parentEntity)
         {
@@ -303,7 +274,6 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                         nestedJObject,
                         queryContext,
                         trackingQuery,
-                        bufferedQuery,
                         nestedEntityInfo);
                     nestedNavigation.GetSetter().SetClrValue(parentEntity, nestedEntity);
                 }
@@ -320,7 +290,6 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                                     nestedJObject,
                                     queryContext,
                                     trackingQuery,
-                                    bufferedQuery,
                                     nestedEntityInfo));
                         }
                     }

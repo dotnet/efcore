@@ -1,14 +1,12 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Query.Internal;
@@ -20,13 +18,9 @@ namespace Microsoft.EntityFrameworkCore.Query
     /// <summary>
     ///     The principal data structure used by a compiled query during execution.
     /// </summary>
-    public class QueryContext : IDisposable, IParameterValues
+    public class QueryContext : IParameterValues
     {
-        private readonly Func<IQueryBuffer> _queryBufferFactory;
-
         private readonly IDictionary<string, object> _parameterValues = new Dictionary<string, object>();
-
-        private IQueryBuffer _queryBuffer;
 
         /// <summary>
         ///     <para>
@@ -38,15 +32,11 @@ namespace Microsoft.EntityFrameworkCore.Query
         ///     </para>
         /// </summary>
         /// <param name="dependencies"> The dependencies to use. </param>
-        /// <param name="queryBufferFactory"> A factory for creating query buffers. </param>
         public QueryContext(
-            [NotNull] QueryContextDependencies dependencies,
-            [NotNull] Func<IQueryBuffer> queryBufferFactory)
+            [NotNull] QueryContextDependencies dependencies)
         {
-            Check.NotNull(queryBufferFactory, nameof(queryBufferFactory));
             Check.NotNull(dependencies, nameof(dependencies));
 
-            _queryBufferFactory = queryBufferFactory;
             Dependencies = dependencies;
         }
 
@@ -59,12 +49,6 @@ namespace Microsoft.EntityFrameworkCore.Query
         ///     Parameter object containing dependencies for this service.
         /// </summary>
         protected virtual QueryContextDependencies Dependencies { get; }
-
-        /// <summary>
-        ///     The query buffer.
-        /// </summary>
-        public virtual IQueryBuffer QueryBuffer
-            => _queryBuffer ?? (_queryBuffer = _queryBufferFactory());
 
         /// <summary>
         ///     The state manager.
@@ -172,39 +156,12 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// </summary>
         public virtual void BeginTrackingQuery() => StateManager.BeginTrackingQuery();
 
-        /// <summary>
-        ///     Start tracking an entity.
-        /// </summary>
-        /// <param name="entity"> The entity. </param>
-        /// <param name="entityTrackingInfo"> Information describing how to track the entity. </param>
-        public virtual void StartTracking(
-            [NotNull] object entity,
-            [NotNull] EntityTrackingInfo entityTrackingInfo)
-        {
-            if (_queryBuffer != null)
-            {
-                _queryBuffer.StartTracking(entity, entityTrackingInfo);
-            }
-            else
-            {
-                entityTrackingInfo.StartTracking(StateManager, entity, ValueBuffer.Empty);
-            }
-        }
-
         public virtual void StartTracking(
             IEntityType entityType,
             object entity,
             ValueBuffer valueBuffer)
         {
             StateManager.StartTrackingFromQuery(entityType, entity, valueBuffer, handledForeignKeys: null);
-        }
-
-        /// <summary>
-        ///     Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
-        /// </summary>
-        public virtual void Dispose()
-        {
-            _queryBuffer?.Dispose();
         }
     }
 }

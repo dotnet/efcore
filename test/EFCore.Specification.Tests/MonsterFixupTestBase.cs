@@ -1402,7 +1402,7 @@ namespace Microsoft.EntityFrameworkCore
             public TestStore CreateTestStore() => TestStoreFactory.Create(StoreName);
 
             public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
-                => base.AddOptions(builder).ConfigureWarnings(w => w.Log(CoreEventId.FirstWithoutOrderByAndFilterWarning));
+                => base.AddOptions(builder);
 
             public abstract MonsterContext CreateContext(DbContextOptions options);
 

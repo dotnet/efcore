@@ -29,6 +29,7 @@ WHERE [x].[OrderID] = 10248",
                 ignoreLineEndingDifferences: true);
         }
 
+#pragma warning disable CS0612 // Type or member is obsolete
         public override void Last_without_order_by_issues_client_eval_warning()
         {
             base.Last_without_order_by_issues_client_eval_warning();
@@ -89,6 +90,7 @@ WHERE [x].[OrderID] = 10248",
                 Fixture.TestSqlLoggerFactory.Log.Select(l => l.Message));
         }
 
+#pragma warning restore CS0612 // Type or member is obsolete
         public override void Comparing_collection_navigation_to_null_issues_possible_unintended_consequences_warning()
         {
             base.Comparing_collection_navigation_to_null_issues_possible_unintended_consequences_warning();

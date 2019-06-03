@@ -6,34 +6,29 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Cosmos.Query.ExpressionVisitors.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Query.Sql;
 using Microsoft.EntityFrameworkCore.Cosmos.Storage;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Newtonsoft.Json.Linq;
-using Remotion.Linq.Clauses;
-using Remotion.Linq.Clauses.Expressions;
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Expressions.Internal
 {
     public class SelectExpression : Expression
     {
         private const string _rootAlias = "c";
-        private readonly IQuerySource _querySource;
         private readonly ISqlGeneratorFactory _querySqlGeneratorFactory;
 
         public EntityProjectionExpression Projection { get; }
         public Expression FromExpression { get; }
         public Expression FilterExpression { get; private set; }
 
-        public SelectExpression(IEntityType entityType, IQuerySource querySource, ISqlGeneratorFactory querySqlGeneratorFactory)
+        public SelectExpression(IEntityType entityType,ISqlGeneratorFactory querySqlGeneratorFactory)
         {
             Projection = new EntityProjectionExpression(entityType, _rootAlias);
             FromExpression = new RootReferenceExpression(entityType, _rootAlias);
             EntityType = entityType;
             FilterExpression = GetDiscriminatorPredicate(entityType);
-            _querySource = querySource;
             _querySqlGeneratorFactory = querySqlGeneratorFactory;
         }
 
@@ -71,24 +66,24 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Expressions.Internal
             return discriminatorPredicate;
         }
 
-        public Expression BindPropertyPath(
-            QuerySourceReferenceExpression querySourceReferenceExpression, List<IPropertyBase> properties)
-        {
-            if (querySourceReferenceExpression == null
-                || querySourceReferenceExpression.ReferencedQuerySource != _querySource)
-            {
-                return null;
-            }
+        //public Expression BindPropertyPath(
+        //    QuerySourceReferenceExpression querySourceReferenceExpression, List<IPropertyBase> properties)
+        //{
+        //    if (querySourceReferenceExpression == null
+        //        || querySourceReferenceExpression.ReferencedQuerySource != _querySource)
+        //    {
+        //        return null;
+        //    }
 
-            var currentExpression = FromExpression;
+        //    var currentExpression = FromExpression;
 
-            foreach (var property in properties)
-            {
-                currentExpression = new KeyAccessExpression(property, currentExpression);
-            }
+        //    foreach (var property in properties)
+        //    {
+        //        currentExpression = new KeyAccessExpression(property, currentExpression);
+        //    }
 
-            return currentExpression;
-        }
+        //    return currentExpression;
+        //}
 
         public void AddToPredicate(Expression predicate)
         {

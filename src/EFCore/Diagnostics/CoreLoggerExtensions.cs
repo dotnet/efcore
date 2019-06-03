@@ -16,10 +16,8 @@ using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
-using Microsoft.EntityFrameworkCore.Query.ResultOperators.Internal;
 using Microsoft.EntityFrameworkCore.Update;
 using Microsoft.Extensions.Logging;
-using Remotion.Linq;
 
 namespace Microsoft.EntityFrameworkCore.Diagnostics
 {
@@ -204,195 +202,196 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             return d.GenerateMessage(p.ContextType, Environment.NewLine, p.Exception);
         }
 
-        /// <summary>
-        ///     Logs for the <see cref="CoreEventId.QueryModelCompiling" /> event.
-        /// </summary>
-        /// <param name="diagnostics"> The diagnostics logger to use. </param>
-        /// <param name="queryModel"> The query model. </param>
-        public static void QueryModelCompiling(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Query> diagnostics,
-            [NotNull] QueryModel queryModel)
-        {
-            var definition = CoreResources.LogCompilingQueryModel(diagnostics);
+        // TODO: Commenting this since we need to add similar logging in ExpressionTrees
+        ///// <summary>
+        /////     Logs for the <see cref="CoreEventId.QueryModelCompiling" /> event.
+        ///// </summary>
+        ///// <param name="diagnostics"> The diagnostics logger to use. </param>
+        ///// <param name="queryModel"> The query model. </param>
+        //public static void QueryModelCompiling(
+        //    [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Query> diagnostics,
+        //    [NotNull] QueryModel queryModel)
+        //{
+        //    var definition = CoreResources.LogCompilingQueryModel(diagnostics);
 
-            var warningBehavior = definition.GetLogBehavior(diagnostics);
-            if (warningBehavior != WarningBehavior.Ignore)
-            {
-                definition.Log(
-                    diagnostics,
-                    warningBehavior,
-                    Environment.NewLine, queryModel.Print());
-            }
+        //    var warningBehavior = definition.GetLogBehavior(diagnostics);
+        //    if (warningBehavior != WarningBehavior.Ignore)
+        //    {
+        //        definition.Log(
+        //            diagnostics,
+        //            warningBehavior,
+        //            Environment.NewLine, queryModel.Print());
+        //    }
 
-            if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
-            {
-                diagnostics.DiagnosticSource.Write(
-                    definition.EventId.Name,
-                    new QueryModelEventData(
-                        definition,
-                        QueryModelCompiling,
-                        queryModel));
-            }
-        }
+        //    if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
+        //    {
+        //        diagnostics.DiagnosticSource.Write(
+        //            definition.EventId.Name,
+        //            new QueryModelEventData(
+        //                definition,
+        //                QueryModelCompiling,
+        //                queryModel));
+        //    }
+        //}
 
-        private static string QueryModelCompiling(EventDefinitionBase definition, EventData payload)
-        {
-            var d = (EventDefinition<string, string>)definition;
-            var p = (QueryModelEventData)payload;
-            return d.GenerateMessage(Environment.NewLine, p.QueryModel.Print());
-        }
+        //private static string QueryModelCompiling(EventDefinitionBase definition, EventData payload)
+        //{
+        //    var d = (EventDefinition<string, string>)definition;
+        //    var p = (QueryModelEventData)payload;
+        //    return d.GenerateMessage(Environment.NewLine, p.QueryModel.Print());
+        //}
 
-        /// <summary>
-        ///     Logs for the <see cref="CoreEventId.RowLimitingOperationWithoutOrderByWarning" /> event.
-        /// </summary>
-        /// <param name="diagnostics"> The diagnostics logger to use. </param>
-        /// <param name="queryModel"> The query model. </param>
-        public static void RowLimitingOperationWithoutOrderByWarning(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Query> diagnostics,
-            [NotNull] QueryModel queryModel)
-        {
-            var definition = CoreResources.LogRowLimitingOperationWithoutOrderBy(diagnostics);
+        ///// <summary>
+        /////     Logs for the <see cref="CoreEventId.RowLimitingOperationWithoutOrderByWarning" /> event.
+        ///// </summary>
+        ///// <param name="diagnostics"> The diagnostics logger to use. </param>
+        ///// <param name="queryModel"> The query model. </param>
+        //public static void RowLimitingOperationWithoutOrderByWarning(
+        //    [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Query> diagnostics,
+        //    [NotNull] QueryModel queryModel)
+        //{
+        //    var definition = CoreResources.LogRowLimitingOperationWithoutOrderBy(diagnostics);
 
-            var warningBehavior = definition.GetLogBehavior(diagnostics);
-            if (warningBehavior != WarningBehavior.Ignore)
-            {
-                definition.Log(
-                    diagnostics,
-                    warningBehavior,
-                    queryModel.Print(removeFormatting: true, characterLimit: QueryModelStringLengthLimit));
-            }
+        //    var warningBehavior = definition.GetLogBehavior(diagnostics);
+        //    if (warningBehavior != WarningBehavior.Ignore)
+        //    {
+        //        definition.Log(
+        //            diagnostics,
+        //            warningBehavior,
+        //            queryModel.Print(removeFormatting: true, characterLimit: QueryModelStringLengthLimit));
+        //    }
 
-            if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
-            {
-                diagnostics.DiagnosticSource.Write(
-                    definition.EventId.Name,
-                    new QueryModelEventData(
-                        definition,
-                        RowLimitingOperationWithoutOrderByWarning,
-                        queryModel));
-            }
-        }
+        //    if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
+        //    {
+        //        diagnostics.DiagnosticSource.Write(
+        //            definition.EventId.Name,
+        //            new QueryModelEventData(
+        //                definition,
+        //                RowLimitingOperationWithoutOrderByWarning,
+        //                queryModel));
+        //    }
+        //}
 
-        private static string RowLimitingOperationWithoutOrderByWarning(EventDefinitionBase definition, EventData payload)
-        {
-            var d = (EventDefinition<string>)definition;
-            var p = (QueryModelEventData)payload;
-            return d.GenerateMessage(p.QueryModel.Print(removeFormatting: true, characterLimit: QueryModelStringLengthLimit));
-        }
+        //private static string RowLimitingOperationWithoutOrderByWarning(EventDefinitionBase definition, EventData payload)
+        //{
+        //    var d = (EventDefinition<string>)definition;
+        //    var p = (QueryModelEventData)payload;
+        //    return d.GenerateMessage(p.QueryModel.Print(removeFormatting: true, characterLimit: QueryModelStringLengthLimit));
+        //}
 
-        /// <summary>
-        ///     Logs for the <see cref="CoreEventId.FirstWithoutOrderByAndFilterWarning" /> event.
-        /// </summary>
-        /// <param name="diagnostics"> The diagnostics logger to use. </param>
-        /// <param name="queryModel"> The query model. </param>
-        public static void FirstWithoutOrderByAndFilterWarning(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Query> diagnostics,
-            [NotNull] QueryModel queryModel)
-        {
-            var definition = CoreResources.LogFirstWithoutOrderByAndFilter(diagnostics);
+        ///// <summary>
+        /////     Logs for the <see cref="CoreEventId.FirstWithoutOrderByAndFilterWarning" /> event.
+        ///// </summary>
+        ///// <param name="diagnostics"> The diagnostics logger to use. </param>
+        ///// <param name="queryModel"> The query model. </param>
+        //public static void FirstWithoutOrderByAndFilterWarning(
+        //    [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Query> diagnostics,
+        //    [NotNull] QueryModel queryModel)
+        //{
+        //    var definition = CoreResources.LogFirstWithoutOrderByAndFilter(diagnostics);
 
-            var warningBehavior = definition.GetLogBehavior(diagnostics);
-            if (warningBehavior != WarningBehavior.Ignore)
-            {
-                definition.Log(
-                    diagnostics,
-                    warningBehavior,
-                    queryModel.Print(removeFormatting: true, characterLimit: QueryModelStringLengthLimit));
-            }
+        //    var warningBehavior = definition.GetLogBehavior(diagnostics);
+        //    if (warningBehavior != WarningBehavior.Ignore)
+        //    {
+        //        definition.Log(
+        //            diagnostics,
+        //            warningBehavior,
+        //            queryModel.Print(removeFormatting: true, characterLimit: QueryModelStringLengthLimit));
+        //    }
 
-            if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
-            {
-                diagnostics.DiagnosticSource.Write(
-                    definition.EventId.Name,
-                    new QueryModelEventData(
-                        definition,
-                        FirstWithoutOrderByAndFilterWarning,
-                        queryModel));
-            }
-        }
+        //    if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
+        //    {
+        //        diagnostics.DiagnosticSource.Write(
+        //            definition.EventId.Name,
+        //            new QueryModelEventData(
+        //                definition,
+        //                FirstWithoutOrderByAndFilterWarning,
+        //                queryModel));
+        //    }
+        //}
 
-        private static string FirstWithoutOrderByAndFilterWarning(EventDefinitionBase definition, EventData payload)
-        {
-            var d = (EventDefinition<string>)definition;
-            var p = (QueryModelEventData)payload;
-            return d.GenerateMessage(p.QueryModel.Print(removeFormatting: true, characterLimit: QueryModelStringLengthLimit));
-        }
+        //private static string FirstWithoutOrderByAndFilterWarning(EventDefinitionBase definition, EventData payload)
+        //{
+        //    var d = (EventDefinition<string>)definition;
+        //    var p = (QueryModelEventData)payload;
+        //    return d.GenerateMessage(p.QueryModel.Print(removeFormatting: true, characterLimit: QueryModelStringLengthLimit));
+        //}
 
-        /// <summary>
-        ///     Logs for the <see cref="CoreEventId.QueryModelOptimized" /> event.
-        /// </summary>
-        /// <param name="diagnostics"> The diagnostics logger to use. </param>
-        /// <param name="queryModel"> The query model. </param>
-        public static void QueryModelOptimized(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Query> diagnostics,
-            [NotNull] QueryModel queryModel)
-        {
-            var definition = CoreResources.LogOptimizedQueryModel(diagnostics);
+        ///// <summary>
+        /////     Logs for the <see cref="CoreEventId.QueryModelOptimized" /> event.
+        ///// </summary>
+        ///// <param name="diagnostics"> The diagnostics logger to use. </param>
+        ///// <param name="queryModel"> The query model. </param>
+        //public static void QueryModelOptimized(
+        //    [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Query> diagnostics,
+        //    [NotNull] QueryModel queryModel)
+        //{
+        //    var definition = CoreResources.LogOptimizedQueryModel(diagnostics);
 
-            var warningBehavior = definition.GetLogBehavior(diagnostics);
-            if (warningBehavior != WarningBehavior.Ignore)
-            {
-                definition.Log(
-                    diagnostics,
-                    warningBehavior,
-                    Environment.NewLine, queryModel.Print());
-            }
+        //    var warningBehavior = definition.GetLogBehavior(diagnostics);
+        //    if (warningBehavior != WarningBehavior.Ignore)
+        //    {
+        //        definition.Log(
+        //            diagnostics,
+        //            warningBehavior,
+        //            Environment.NewLine, queryModel.Print());
+        //    }
 
-            if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
-            {
-                diagnostics.DiagnosticSource.Write(
-                    definition.EventId.Name,
-                    new QueryModelEventData(
-                        definition,
-                        QueryModelOptimized,
-                        queryModel));
-            }
-        }
+        //    if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
+        //    {
+        //        diagnostics.DiagnosticSource.Write(
+        //            definition.EventId.Name,
+        //            new QueryModelEventData(
+        //                definition,
+        //                QueryModelOptimized,
+        //                queryModel));
+        //    }
+        //}
 
-        private static string QueryModelOptimized(EventDefinitionBase definition, EventData payload)
-        {
-            var d = (EventDefinition<string, string>)definition;
-            var p = (QueryModelEventData)payload;
-            return d.GenerateMessage(Environment.NewLine, p.QueryModel.Print());
-        }
+        //private static string QueryModelOptimized(EventDefinitionBase definition, EventData payload)
+        //{
+        //    var d = (EventDefinition<string, string>)definition;
+        //    var p = (QueryModelEventData)payload;
+        //    return d.GenerateMessage(Environment.NewLine, p.QueryModel.Print());
+        //}
 
-        /// <summary>
-        ///     Logs for the <see cref="CoreEventId.NavigationIncluded" /> event.
-        /// </summary>
-        /// <param name="diagnostics"> The diagnostics logger to use. </param>
-        /// <param name="includeResultOperator"> The result operator for the Include. </param>
-        public static void NavigationIncluded(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Query> diagnostics,
-            [NotNull] IncludeResultOperator includeResultOperator)
-        {
-            var definition = CoreResources.LogIncludingNavigation(diagnostics);
+        ///// <summary>
+        /////     Logs for the <see cref="CoreEventId.NavigationIncluded" /> event.
+        ///// </summary>
+        ///// <param name="diagnostics"> The diagnostics logger to use. </param>
+        ///// <param name="includeResultOperator"> The result operator for the Include. </param>
+        //public static void NavigationIncluded(
+        //    [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Query> diagnostics,
+        //    [NotNull] IncludeResultOperator includeResultOperator)
+        //{
+        //    var definition = CoreResources.LogIncludingNavigation(diagnostics);
 
-            var warningBehavior = definition.GetLogBehavior(diagnostics);
-            if (warningBehavior != WarningBehavior.Ignore)
-            {
-                definition.Log(
-                    diagnostics,
-                    warningBehavior,
-                    includeResultOperator.DisplayString());
-            }
+        //    var warningBehavior = definition.GetLogBehavior(diagnostics);
+        //    if (warningBehavior != WarningBehavior.Ignore)
+        //    {
+        //        definition.Log(
+        //            diagnostics,
+        //            warningBehavior,
+        //            includeResultOperator.DisplayString());
+        //    }
 
-            if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
-            {
-                diagnostics.DiagnosticSource.Write(
-                    definition.EventId.Name,
-                    new IncludeEventData(
-                        definition,
-                        NavigationIncluded,
-                        includeResultOperator));
-            }
-        }
+        //    if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
+        //    {
+        //        diagnostics.DiagnosticSource.Write(
+        //            definition.EventId.Name,
+        //            new IncludeEventData(
+        //                definition,
+        //                NavigationIncluded,
+        //                includeResultOperator));
+        //    }
+        //}
 
-        private static string NavigationIncluded(EventDefinitionBase definition, EventData payload)
-        {
-            var d = (EventDefinition<string>)definition;
-            var p = (IncludeEventData)payload;
-            return d.GenerateMessage(p.IncludeResultOperator.DisplayString());
-        }
+        //private static string NavigationIncluded(EventDefinitionBase definition, EventData payload)
+        //{
+        //    var d = (EventDefinition<string>)definition;
+        //    var p = (IncludeEventData)payload;
+        //    return d.GenerateMessage(p.IncludeResultOperator.DisplayString());
+        //}
 
         /// <summary>
         ///     Logs for the <see cref="CoreEventId.QueryExecutionPlanned" /> event.
@@ -462,43 +461,43 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             }
         }
 
-        /// <summary>
-        ///     Logs for the <see cref="CoreEventId.IncludeIgnoredWarning" /> event.
-        /// </summary>
-        /// <param name="diagnostics"> The diagnostics logger to use. </param>
-        /// <param name="includeResultOperator"> The result operator for the Include. </param>
-        public static void IncludeIgnoredWarning(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Query> diagnostics,
-            [NotNull] IncludeResultOperator includeResultOperator)
-        {
-            var definition = CoreResources.LogIgnoredInclude(diagnostics);
+        ///// <summary>
+        /////     Logs for the <see cref="CoreEventId.IncludeIgnoredWarning" /> event.
+        ///// </summary>
+        ///// <param name="diagnostics"> The diagnostics logger to use. </param>
+        ///// <param name="includeResultOperator"> The result operator for the Include. </param>
+        //public static void IncludeIgnoredWarning(
+        //    [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Query> diagnostics,
+        //    [NotNull] IncludeResultOperator includeResultOperator)
+        //{
+        //    var definition = CoreResources.LogIgnoredInclude(diagnostics);
 
-            var warningBehavior = definition.GetLogBehavior(diagnostics);
-            if (warningBehavior != WarningBehavior.Ignore)
-            {
-                definition.Log(
-                    diagnostics,
-                    warningBehavior,
-                    includeResultOperator.DisplayString());
-            }
+        //    var warningBehavior = definition.GetLogBehavior(diagnostics);
+        //    if (warningBehavior != WarningBehavior.Ignore)
+        //    {
+        //        definition.Log(
+        //            diagnostics,
+        //            warningBehavior,
+        //            includeResultOperator.DisplayString());
+        //    }
 
-            if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
-            {
-                diagnostics.DiagnosticSource.Write(
-                    definition.EventId.Name,
-                    new IncludeEventData(
-                        definition,
-                        IncludeIgnoredWarning,
-                        includeResultOperator));
-            }
-        }
+        //    if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
+        //    {
+        //        diagnostics.DiagnosticSource.Write(
+        //            definition.EventId.Name,
+        //            new IncludeEventData(
+        //                definition,
+        //                IncludeIgnoredWarning,
+        //                includeResultOperator));
+        //    }
+        //}
 
-        private static string IncludeIgnoredWarning(EventDefinitionBase definition, EventData payload)
-        {
-            var d = (EventDefinition<string>)definition;
-            var p = (IncludeEventData)payload;
-            return d.GenerateMessage(p.IncludeResultOperator.DisplayString());
-        }
+        //private static string IncludeIgnoredWarning(EventDefinitionBase definition, EventData payload)
+        //{
+        //    var d = (EventDefinition<string>)definition;
+        //    var p = (IncludeEventData)payload;
+        //    return d.GenerateMessage(p.IncludeResultOperator.DisplayString());
+        //}
 
         /// <summary>
         ///     Logs for the <see cref="CoreEventId.PossibleUnintendedCollectionNavigationNullComparisonWarning" /> event.
