@@ -243,13 +243,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Test_GenerateSqlLiteral_helper(typeMapping, float.NaN, "CAST(NaN AS real)");
             Test_GenerateSqlLiteral_helper(typeMapping, float.PositiveInfinity, "CAST(Infinity AS real)");
             Test_GenerateSqlLiteral_helper(typeMapping, float.NegativeInfinity, "CAST(-Infinity AS real)");
-#if NETCOREAPP3_0
             Test_GenerateSqlLiteral_helper(typeMapping, float.MinValue, "CAST(-3.4028235E+38 AS real)");
             Test_GenerateSqlLiteral_helper(typeMapping, float.MaxValue, "CAST(3.4028235E+38 AS real)");
-#else
-            Test_GenerateSqlLiteral_helper(typeMapping, float.MinValue, "CAST(-3.40282347E+38 AS real)");
-            Test_GenerateSqlLiteral_helper(typeMapping, float.MaxValue, "CAST(3.40282347E+38 AS real)");
-#endif
         }
 
         public override void Long_literal_generated_correctly()
