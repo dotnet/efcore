@@ -56,7 +56,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
         }
 
-        [ConditionalFact(Skip = "TaskList#24")]
+        [ConditionalFact]
         public virtual void Multiple_context_instances()
         {
             using (var context1 = CreateContext())
@@ -74,7 +74,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalFact(Skip = "TaskList#24")]
+        [ConditionalFact]
         public virtual void Multiple_context_instances_2()
         {
             using (var context1 = CreateContext())
@@ -92,7 +92,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalFact(Skip = "TaskList#24")]
+        [ConditionalFact]
         public virtual void Multiple_context_instances_set()
         {
             using (var context1 = CreateContext())
@@ -111,7 +111,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalFact(Skip = "TaskList#24")]
+        [ConditionalFact]
         public virtual void Multiple_context_instances_parameter()
         {
             using (var context1 = CreateContext())
@@ -1208,6 +1208,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             // TODO: Issue#15535
             isAsync = false;
+
             return AssertSingle<Customer>(
                 isAsync,
                 cs => cs.OrderBy(c => c.CustomerID).Take(1),
@@ -4044,7 +4045,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 830);
         }
 
-        [ConditionalFact(Skip = "TaskList#24")]
+        [ConditionalFact]
         public virtual void Parameter_extraction_can_throw_exception_from_user_code()
         {
             using (var context = CreateContext())
@@ -4056,7 +4057,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalFact(Skip = "TaskList#24")]
+        [ConditionalFact]
         public virtual void Parameter_extraction_can_throw_exception_from_user_code_2()
         {
             using (var context = CreateContext())

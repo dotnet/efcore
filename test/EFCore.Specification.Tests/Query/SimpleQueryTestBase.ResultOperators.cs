@@ -416,7 +416,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 selector: o => o.OrderID);
         }
 
-        [ConditionalFact(Skip = "TaskList#24")]
+        [ConditionalFact]
         public virtual void Min_no_data()
         {
             using (var context = CreateContext())
@@ -436,7 +436,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalFact(Skip = "TaskList#24")]
+        [ConditionalFact]
         public virtual void Max_no_data()
         {
             using (var context = CreateContext())
@@ -456,7 +456,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalFact(Skip = "TaskList#24")]
+        [ConditionalFact]
         public virtual void Average_no_data()
         {
             using (var context = CreateContext())
@@ -821,10 +821,13 @@ namespace Microsoft.EntityFrameworkCore.Query
                 cs => cs.Select(c => c.City).Select(c => c).Distinct());
         }
 
-        [ConditionalTheory(Skip = "TaskList#24")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Single_Throws(bool isAsync)
         {
+            // TODO: See issue#15535
+            isAsync = false;
+
             return Assert.ThrowsAsync<InvalidOperationException>(
                 async () => await AssertSingle<Customer>(isAsync, cs => cs));
         }
@@ -846,16 +849,20 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             // TODO: See issue#15535
             isAsync = false;
+
             return AssertSingle<Customer>(
                 isAsync,
                 cs => cs.Where(c => c.CustomerID == "ALFKI"),
                 entryCount: 1);
         }
 
-        [ConditionalTheory(Skip = "TaskList#24")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task SingleOrDefault_Throws(bool isAsync)
         {
+            // TODO: See issue#15535
+            isAsync = false;
+
             return Assert.ThrowsAsync<InvalidOperationException>(
                 async () =>
                     await AssertSingleOrDefault<Customer>(isAsync, cs => cs));
