@@ -728,7 +728,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
             }
 
             var selectExpression = (SelectExpression)source.QueryExpression;
-            selectExpression.ApplyLimit(TranslateExpression(Expression.Constant(1)));
+            selectExpression.ApplyLimit(TranslateExpression(Expression.Constant(2)));
 
             if (source.ShaperExpression.Type != returnType)
             {

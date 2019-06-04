@@ -221,6 +221,11 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
 
         public void ApplyLimit(SqlExpression sqlExpression)
         {
+            if (Limit != null)
+            {
+                PushdownIntoSubQuery();
+            }
+
             Limit = sqlExpression;
         }
 
