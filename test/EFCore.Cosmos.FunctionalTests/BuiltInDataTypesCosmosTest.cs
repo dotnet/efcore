@@ -45,6 +45,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
 
             public override bool SupportsBinaryKeys => true;
 
+            public override bool SupportsDecimalComparisons => true;
+
             public override DateTime DefaultDateTime => new DateTime();
 
             protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)

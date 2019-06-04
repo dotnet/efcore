@@ -3,6 +3,7 @@
 
 using System;
 using Microsoft.EntityFrameworkCore.TestUtilities;
+using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
 
 namespace Microsoft.EntityFrameworkCore
 {
@@ -18,6 +19,12 @@ namespace Microsoft.EntityFrameworkCore
         {
         }
 
+        [ConditionalFact(Skip = "Issue#15711")]
+        public override void Can_insert_and_read_back_with_string_key()
+        {
+            base.Can_insert_and_read_back_with_string_key();
+        }
+
         public class CustomConvertersInMemoryFixture : CustomConvertersFixtureBase
         {
             public override bool StrictEquality => true;
@@ -31,6 +38,8 @@ namespace Microsoft.EntityFrameworkCore
             protected override ITestStoreFactory TestStoreFactory => InMemoryTestStoreFactory.Instance;
 
             public override bool SupportsBinaryKeys => false;
+
+            public override bool SupportsDecimalComparisons => true;
 
             public override DateTime DefaultDateTime => new DateTime();
         }

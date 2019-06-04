@@ -205,6 +205,11 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
         {
             return _typeMappingSource.GetMappingForValue(value);
         }
+
+        public virtual RelationalTypeMapping FindMapping(Type type)
+        {
+            return _typeMappingSource.FindMapping(type);
+        }
         #endregion
 
         #region Binary

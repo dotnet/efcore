@@ -500,6 +500,12 @@ namespace Microsoft.EntityFrameworkCore.Storage
         {
             if (Converter != null)
             {
+                if (value?.GetType().IsInteger() == true
+                    && ClrType.UnwrapNullableType().IsEnum)
+                {
+                    value = Enum.ToObject(ClrType.UnwrapNullableType(), value);
+                }
+
                 value = Converter.ConvertToProvider(value);
             }
 

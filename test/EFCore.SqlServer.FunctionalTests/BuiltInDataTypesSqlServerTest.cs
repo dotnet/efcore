@@ -412,12 +412,11 @@ WHERE (DATEDIFF(NANOSECOND, [m].[TimeSpanAsTime], @__timeSpan_1) = 0) AND DATEDI
                 ulong? param42 = ulong.MaxValue;
                 Assert.Same(entity, context.Set<MappedNullableDataTypes>().Single(e => e.Int == 999 && e.UlongAsBigint == param42));
 
-                // TODO: Issue#15330
-                //ushort? param43 = ushort.MaxValue;
-                //Assert.Same(entity, context.Set<MappedNullableDataTypes>().Single(e => e.Int == 999 && e.UShortAsSmallint == param43));
+                ushort? param43 = ushort.MaxValue;
+                Assert.Same(entity, context.Set<MappedNullableDataTypes>().Single(e => e.Int == 999 && e.UShortAsSmallint == param43));
 
-                //sbyte? param44 = sbyte.MinValue;
-                //Assert.Same(entity, context.Set<MappedNullableDataTypes>().Single(e => e.Int == 999 && e.SbyteAsTinyint == param44));
+                sbyte? param44 = sbyte.MinValue;
+                Assert.Same(entity, context.Set<MappedNullableDataTypes>().Single(e => e.Int == 999 && e.SbyteAsTinyint == param44));
 
                 uint? param45 = uint.MaxValue;
                 Assert.Same(entity, context.Set<MappedNullableDataTypes>().Single(e => e.Int == 999 && e.UintAsBigint == param45));
@@ -435,37 +434,37 @@ WHERE (DATEDIFF(NANOSECOND, [m].[TimeSpanAsTime], @__timeSpan_1) = 0) AND DATEDI
                 Assert.Same(
                     entity, context.Set<MappedNullableDataTypes>().Single(e => e.Int == 999 && e.GuidAsUniqueidentifier == param49));
 
-                //char? param50 = 'A';
-                //Assert.Same(entity, context.Set<MappedNullableDataTypes>().Single(e => e.Int == 999 && e.CharAsVarcharMax == param50));
+                char? param50 = 'A';
+                Assert.Same(entity, context.Set<MappedNullableDataTypes>().Single(e => e.Int == 999 && e.CharAsVarcharMax == param50));
 
-                //char? param51 = 'B';
-                //Assert.Same(
-                //    entity, context.Set<MappedNullableDataTypes>().Single(e => e.Int == 999 && e.CharAsAsCharVaryingMax == param51));
+                char? param51 = 'B';
+                Assert.Same(
+                    entity, context.Set<MappedNullableDataTypes>().Single(e => e.Int == 999 && e.CharAsAsCharVaryingMax == param51));
 
-                //char? param52 = 'C';
-                //Assert.Same(
-                //    entity, context.Set<MappedNullableDataTypes>().Single(e => e.Int == 999 && e.CharAsCharacterVaryingMax == param52));
+                char? param52 = 'C';
+                Assert.Same(
+                    entity, context.Set<MappedNullableDataTypes>().Single(e => e.Int == 999 && e.CharAsCharacterVaryingMax == param52));
 
-                //char? param53 = 'D';
-                //Assert.Same(entity, context.Set<MappedNullableDataTypes>().Single(e => e.Int == 999 && e.CharAsNvarcharMax == param53));
+                char? param53 = 'D';
+                Assert.Same(entity, context.Set<MappedNullableDataTypes>().Single(e => e.Int == 999 && e.CharAsNvarcharMax == param53));
 
-                //char? param54 = 'E';
-                //Assert.Same(
-                //    entity, context.Set<MappedNullableDataTypes>().Single(e => e.Int == 999 && e.CharAsNationalCharVaryingMax == param54));
+                char? param54 = 'E';
+                Assert.Same(
+                    entity, context.Set<MappedNullableDataTypes>().Single(e => e.Int == 999 && e.CharAsNationalCharVaryingMax == param54));
 
-                //char? param55 = 'F';
-                //Assert.Same(
-                //    entity,
-                //    context.Set<MappedNullableDataTypes>().Single(e => e.Int == 999 && e.CharAsNationalCharacterVaryingMax == param55));
+                char? param55 = 'F';
+                Assert.Same(
+                    entity,
+                    context.Set<MappedNullableDataTypes>().Single(e => e.Int == 999 && e.CharAsNationalCharacterVaryingMax == param55));
 
-                //char? param58 = 'I';
-                //Assert.Same(entity, context.Set<MappedNullableDataTypes>().Single(e => e.Int == 999 && e.CharAsInt == param58));
+                char? param58 = 'I';
+                Assert.Same(entity, context.Set<MappedNullableDataTypes>().Single(e => e.Int == 999 && e.CharAsInt == param58));
 
-                //StringEnumU16? param59 = StringEnumU16.Value4;
-                //Assert.Same(entity, context.Set<MappedNullableDataTypes>().Single(e => e.Int == 999 && e.EnumAsNvarchar20 == param59));
+                StringEnumU16? param59 = StringEnumU16.Value4;
+                Assert.Same(entity, context.Set<MappedNullableDataTypes>().Single(e => e.Int == 999 && e.EnumAsNvarchar20 == param59));
 
-                //StringEnum16? param60 = StringEnum16.Value2;
-                //Assert.Same(entity, context.Set<MappedNullableDataTypes>().Single(e => e.Int == 999 && e.EnumAsVarcharMax == param60));
+                StringEnum16? param60 = StringEnum16.Value2;
+                Assert.Same(entity, context.Set<MappedNullableDataTypes>().Single(e => e.Int == 999 && e.EnumAsVarcharMax == param60));
 
                 // Issue #14935. Cannot eval 'where [e].SqlVariantString.Equals(__param61_0)'
                 // Added AsEnumerable()
@@ -479,7 +478,7 @@ WHERE (DATEDIFF(NANOSECOND, [m].[TimeSpanAsTime], @__timeSpan_1) = 0) AND DATEDI
             }
         }
 
-        [Fact(Skip = "TaskList#8")]
+        [Fact]
         public virtual void Can_query_using_any_mapped_data_types_with_nulls()
         {
             using (var context = CreateContext())
@@ -571,11 +570,12 @@ WHERE (DATEDIFF(NANOSECOND, [m].[TimeSpanAsTime], @__timeSpan_1) = 0) AND DATEDI
                     entity,
                     context.Set<MappedNullableDataTypes>().Single(e => e.Int == 911 && e.StringAsNationalCharacterVaryingMax == param29));
 
-                string param30 = null;
-                Assert.Same(entity, context.Set<MappedNullableDataTypes>().Single(e => e.Int == 911 && e.StringAsText == param30));
+                // TODO: See issue#15953
+                //string param30 = null;
+                //Assert.Same(entity, context.Set<MappedNullableDataTypes>().Single(e => e.Int == 911 && e.StringAsText == param30));
 
-                string param31 = null;
-                Assert.Same(entity, context.Set<MappedNullableDataTypes>().Single(e => e.Int == 911 && e.StringAsNtext == param31));
+                //string param31 = null;
+                //Assert.Same(entity, context.Set<MappedNullableDataTypes>().Single(e => e.Int == 911 && e.StringAsNtext == param31));
 
                 byte[] param35 = null;
                 Assert.Same(entity, context.Set<MappedNullableDataTypes>().Single(e => e.Int == 911 && e.BytesAsVarbinaryMax == param35));
@@ -584,8 +584,8 @@ WHERE (DATEDIFF(NANOSECOND, [m].[TimeSpanAsTime], @__timeSpan_1) = 0) AND DATEDI
                 Assert.Same(
                     entity, context.Set<MappedNullableDataTypes>().Single(e => e.Int == 911 && e.BytesAsBinaryVaryingMax == param36));
 
-                byte[] param37 = null;
-                Assert.Same(entity, context.Set<MappedNullableDataTypes>().Single(e => e.Int == 911 && e.BytesAsImage == param37));
+                //byte[] param37 = null;
+                //Assert.Same(entity, context.Set<MappedNullableDataTypes>().Single(e => e.Int == 911 && e.BytesAsImage == param37));
 
                 decimal? param38 = null;
                 Assert.Same(entity, context.Set<MappedNullableDataTypes>().Single(e => e.Int == 911 && e.Decimal == param38));
@@ -647,11 +647,11 @@ WHERE (DATEDIFF(NANOSECOND, [m].[TimeSpanAsTime], @__timeSpan_1) = 0) AND DATEDI
                     entity,
                     context.Set<MappedNullableDataTypes>().Single(e => e.Int == 911 && e.CharAsNationalCharacterVaryingMax == param55));
 
-                char? param56 = null;
-                Assert.Same(entity, context.Set<MappedNullableDataTypes>().Single(e => e.Int == 911 && e.CharAsText == param56));
+                //char? param56 = null;
+                //Assert.Same(entity, context.Set<MappedNullableDataTypes>().Single(e => e.Int == 911 && e.CharAsText == param56));
 
-                char? param57 = null;
-                Assert.Same(entity, context.Set<MappedNullableDataTypes>().Single(e => e.Int == 911 && e.CharAsNtext == param57));
+                //char? param57 = null;
+                //Assert.Same(entity, context.Set<MappedNullableDataTypes>().Single(e => e.Int == 911 && e.CharAsNtext == param57));
 
                 char? param58 = null;
                 Assert.Same(entity, context.Set<MappedNullableDataTypes>().Single(e => e.Int == 911 && e.CharAsInt == param58));
@@ -3040,6 +3040,8 @@ UnicodeDataTypes.StringUnicode ---> [nullable nvarchar] [MaxLength = -1]
             public override bool SupportsUnicodeToAnsiConversion => true;
 
             public override bool SupportsLargeStringComparisons => true;
+
+            public override bool SupportsDecimalComparisons => true;
 
             protected override ITestStoreFactory TestStoreFactory
                 => SqlServerTestStoreFactory.Instance;

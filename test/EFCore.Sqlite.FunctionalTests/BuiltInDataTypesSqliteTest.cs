@@ -1519,6 +1519,8 @@ LIMIT 1",
 
             public override bool SupportsLargeStringComparisons => true;
 
+            public override bool SupportsDecimalComparisons => false;
+
             protected override ITestStoreFactory TestStoreFactory => SqliteTestStoreFactory.Instance;
             public TestSqlLoggerFactory TestSqlLoggerFactory => (TestSqlLoggerFactory)ListLoggerFactory;
 
