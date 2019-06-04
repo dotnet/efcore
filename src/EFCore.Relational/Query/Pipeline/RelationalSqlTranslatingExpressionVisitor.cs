@@ -189,24 +189,30 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
                 }
             }
 
-            var @object = (SqlExpression)Visit(methodCallExpression.Object);
-            var failed = TranslationFailed(methodCallExpression.Object, @object);
+            var @object = Visit(methodCallExpression.Object);
+            if (TranslationFailed(methodCallExpression.Object, @object))
+            {
+                return null;
+            }
+
             var arguments = new SqlExpression[methodCallExpression.Arguments.Count];
             for (var i = 0; i < arguments.Length; i++)
             {
-                arguments[i] = (SqlExpression)Visit(methodCallExpression.Arguments[i]);
-                failed |= (methodCallExpression.Arguments[i] != null && arguments[i] == null);
+                var argument = Visit(methodCallExpression.Arguments[i]);
+                if (TranslationFailed(methodCallExpression.Arguments[i], argument))
+                {
+                    return null;
+                }
+                arguments[i] = (SqlExpression)argument;
             }
 
-            return failed
-                ? null
-                : _methodCallTranslatorProvider.Translate(_model, @object, methodCallExpression.Method, arguments);
+            return _methodCallTranslatorProvider.Translate(_model, (SqlExpression)@object, methodCallExpression.Method, arguments);
         }
 
         protected override Expression VisitBinary(BinaryExpression binaryExpression)
         {
-            var left = (SqlExpression)Visit(binaryExpression.Left);
-            var right = (SqlExpression)Visit(binaryExpression.Right);
+            var left = Visit(binaryExpression.Left);
+            var right = Visit(binaryExpression.Right);
 
             if (TranslationFailed(binaryExpression.Left, left)
                 || TranslationFailed(binaryExpression.Right, right))
@@ -216,8 +222,8 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
 
             return _sqlExpressionFactory.MakeBinary(
                 binaryExpression.NodeType,
-                left,
-                right,
+                (SqlExpression)left,
+                (SqlExpression)right,
                 null);
         }
 
@@ -277,9 +283,9 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
 
         protected override Expression VisitConditional(ConditionalExpression conditionalExpression)
         {
-            var test = (SqlExpression)Visit(conditionalExpression.Test);
-            var ifTrue = (SqlExpression)Visit(conditionalExpression.IfTrue);
-            var ifFalse = (SqlExpression)Visit(conditionalExpression.IfFalse);
+            var test = Visit(conditionalExpression.Test);
+            var ifTrue = Visit(conditionalExpression.IfTrue);
+            var ifFalse = Visit(conditionalExpression.IfFalse);
 
             if (TranslationFailed(conditionalExpression.Test, test)
                 || TranslationFailed(conditionalExpression.IfTrue, ifTrue)
@@ -291,35 +297,10 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
             return _sqlExpressionFactory.Case(
                 new[]
                 {
-                    new CaseWhenClause(test, ifTrue)
+                    new CaseWhenClause((SqlExpression)test,(SqlExpression) ifTrue)
                 },
-                ifFalse);
+                (SqlExpression)ifFalse);
         }
-
-        //protected override Expression VisitNew(NewExpression newExpression)
-        //{
-        //    if (newExpression.Members == null
-        //        || newExpression.Arguments.Count == 0)
-        //    {
-        //        return null;
-        //    }
-
-        //    var bindings = new Expression[newExpression.Arguments.Count];
-
-        //    for (var i = 0; i < bindings.Length; i++)
-        //    {
-        //        var translation = Visit(newExpression.Arguments[i]);
-
-        //        if (translation == null)
-        //        {
-        //            return null;
-        //        }
-
-        //        bindings[i] = translation;
-        //    }
-
-        //    return Expression.Constant(bindings);
-        //}
 
         protected override Expression VisitUnary(UnaryExpression unaryExpression)
         {
@@ -361,7 +342,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
         [DebuggerStepThrough]
         private bool TranslationFailed(Expression original, Expression translation)
         {
-            return original != null && translation == null;
+            return original == null ? false : !(translation is SqlExpression);
         }
     }
 }

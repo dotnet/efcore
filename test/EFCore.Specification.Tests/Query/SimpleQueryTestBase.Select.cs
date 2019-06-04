@@ -1154,5 +1154,27 @@ namespace Microsoft.EntityFrameworkCore.Query
                 isAsync,
                 os => os.Select(o => (double?)o.OrderID));
         }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Client_method_in_projection_requiring_materialization_1(bool isAsync)
+        {
+            return AssertQuery<Customer>(
+                isAsync,
+                cs => cs.Where(c => c.CustomerID.StartsWith("A")).Select(c => c.ToString()),
+                entryCount: 4);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Client_method_in_projection_requiring_materialization_2(bool isAsync)
+        {
+            return AssertQuery<Customer>(
+                isAsync,
+                cs => cs.Where(c => c.CustomerID.StartsWith("A")).Select(c => ClientMethod(c)),
+                entryCount: 4);
+        }
+
+        private static string ClientMethod(Customer c) => c.CustomerID;
     }
 }
