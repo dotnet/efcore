@@ -825,9 +825,6 @@ namespace Microsoft.EntityFrameworkCore.Query
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Single_Throws(bool isAsync)
         {
-            // TODO: See issue#15535
-            isAsync = false;
-
             return Assert.ThrowsAsync<InvalidOperationException>(
                 async () => await AssertSingle<Customer>(isAsync, cs => cs));
         }
@@ -847,9 +844,6 @@ namespace Microsoft.EntityFrameworkCore.Query
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Where_Single(bool isAsync)
         {
-            // TODO: See issue#15535
-            isAsync = false;
-
             return AssertSingle<Customer>(
                 isAsync,
                 cs => cs.Where(c => c.CustomerID == "ALFKI"),
@@ -860,9 +854,6 @@ namespace Microsoft.EntityFrameworkCore.Query
         [MemberData(nameof(IsAsyncData))]
         public virtual Task SingleOrDefault_Throws(bool isAsync)
         {
-            // TODO: See issue#15535
-            isAsync = false;
-
             return Assert.ThrowsAsync<InvalidOperationException>(
                 async () =>
                     await AssertSingleOrDefault<Customer>(isAsync, cs => cs));
@@ -883,9 +874,6 @@ namespace Microsoft.EntityFrameworkCore.Query
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Where_SingleOrDefault(bool isAsync)
         {
-            // TODO: See issue#15535
-            isAsync = false;
-
             return AssertSingleOrDefault<Customer>(
                 isAsync,
                 cs => cs.Where(c => c.CustomerID == "ALFKI"),
@@ -896,8 +884,6 @@ namespace Microsoft.EntityFrameworkCore.Query
         [MemberData(nameof(IsAsyncData))]
         public virtual Task First(bool isAsync)
         {
-            // TODO: See issue#15535
-            isAsync = false;
             return AssertFirst<Customer>(
                 isAsync,
                 cs => cs.OrderBy(c => c.ContactName),
@@ -919,8 +905,6 @@ namespace Microsoft.EntityFrameworkCore.Query
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Where_First(bool isAsync)
         {
-            // TODO: See issue#15535
-            isAsync = false;
             return AssertFirst<Customer>(
                 isAsync,
                 // ReSharper disable once ReplaceWithSingleCallToFirst
@@ -932,8 +916,6 @@ namespace Microsoft.EntityFrameworkCore.Query
         [MemberData(nameof(IsAsyncData))]
         public virtual Task FirstOrDefault(bool isAsync)
         {
-            // TODO: See issue#15535
-            isAsync = false;
             return AssertFirstOrDefault<Customer>(
                 isAsync,
                 cs => cs.OrderBy(c => c.ContactName),
@@ -955,8 +937,6 @@ namespace Microsoft.EntityFrameworkCore.Query
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Where_FirstOrDefault(bool isAsync)
         {
-            // TODO: See issue#15535
-            isAsync = false;
             return AssertFirstOrDefault<Customer>(
                 isAsync,
                 cs => cs.OrderBy(c => c.ContactName).Where(c => c.City == "London"),

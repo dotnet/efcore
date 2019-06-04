@@ -3,8 +3,10 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Query.Expressions.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 
@@ -105,7 +107,7 @@ namespace Microsoft.EntityFrameworkCore.Query.NavigationExpansion
 
             if (State.PendingCardinalityReducingOperator != null)
             {
-                expressionPrinter.StringBuilder.Append(".Pending" + State.PendingCardinalityReducingOperator.Name + "()");
+                expressionPrinter.StringBuilder.Append(".Pending" + State.PendingCardinalityReducingOperator.Name + "<" + State.PendingCardinalityReducingOperator.GetGenericArguments().Single().ShortDisplayName() + ">()");
             }
         }
     }

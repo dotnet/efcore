@@ -77,9 +77,7 @@ namespace Microsoft.EntityFrameworkCore.Query.NavigationExpansion.Visitors
 
                 if (state.PendingCardinalityReducingOperator != null)
                 {
-                    var terminatingOperatorMethodInfo = state.PendingCardinalityReducingOperator.MakeGenericMethod(parameter.Type);
-
-                    result = Expression.Call(terminatingOperatorMethodInfo, result);
+                    result = Expression.Call(state.PendingCardinalityReducingOperator, result);
                 }
 
                 if (state.MaterializeCollectionNavigation != null)

@@ -1206,9 +1206,6 @@ namespace Microsoft.EntityFrameworkCore.Query
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Take_with_single(bool isAsync)
         {
-            // TODO: Issue#15535
-            isAsync = false;
-
             return AssertSingle<Customer>(
                 isAsync,
                 cs => cs.OrderBy(c => c.CustomerID).Take(1),
@@ -3939,8 +3936,6 @@ namespace Microsoft.EntityFrameworkCore.Query
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Handle_materialization_properly_when_more_than_two_query_sources_are_involved(bool isAsync)
         {
-            // TODO: Issue#15535
-            isAsync = false;
             return AssertFirstOrDefault<Customer, Order, Employee>(
                 isAsync,
                 (cs, os, es) =>

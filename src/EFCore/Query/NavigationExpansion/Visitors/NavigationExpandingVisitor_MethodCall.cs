@@ -1167,7 +1167,7 @@ namespace Microsoft.EntityFrameworkCore.Query.NavigationExpansion.Visitors
 
             var source = VisitSourceExpression(methodCallExpression.Arguments[0]);
             var applyOrderingsResult = ApplyPendingOrderings(source.Operand, source.State);
-            applyOrderingsResult.state.PendingCardinalityReducingOperator = methodCallExpression.Method.GetGenericMethodDefinition();
+            applyOrderingsResult.state.PendingCardinalityReducingOperator = methodCallExpression.Method;
 
             return new NavigationExpansionExpression(applyOrderingsResult.source, applyOrderingsResult.state, methodCallExpression.Type);
         }

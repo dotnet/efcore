@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.Extensions.Internal;
@@ -71,7 +72,8 @@ namespace Microsoft.EntityFrameworkCore.Query.NavigationExpansion.Visitors
                     applyPendingSelector: true,
                     navigationExpansionExpression.State.PendingOrderings,
                     navigationExpansionExpression.State.PendingIncludeChain,
-                    navigationExpansionExpression.State.PendingCardinalityReducingOperator,
+                    // we need to remap cardinality reducing operator since it's source type has now changed
+                    navigationExpansionExpression.State.PendingCardinalityReducingOperator.GetGenericMethodDefinition().MakeGenericMethod(newPendingSelector.Type),
                     navigationExpansionExpression.State.PendingTags,
                     navigationExpansionExpression.State.CustomRootMappings,
                     navigationExpansionExpression.State.MaterializeCollectionNavigation);
@@ -154,7 +156,8 @@ namespace Microsoft.EntityFrameworkCore.Query.NavigationExpansion.Visitors
                         applyPendingSelector: true,
                         navigationExpansionExpression.State.PendingOrderings,
                         navigationExpansionExpression.State.PendingIncludeChain,
-                        navigationExpansionExpression.State.PendingCardinalityReducingOperator,
+                        // we need to remap cardinality reducing operator since it's source type has now changed
+                        navigationExpansionExpression.State.PendingCardinalityReducingOperator.GetGenericMethodDefinition().MakeGenericMethod(combinedKeySelectorBody.Type),
                         navigationExpansionExpression.State.PendingTags,
                         navigationExpansionExpression.State.CustomRootMappings,
                         materializeCollectionNavigation: null);
@@ -186,7 +189,6 @@ namespace Microsoft.EntityFrameworkCore.Query.NavigationExpansion.Visitors
                 }
             }
 
-            // TODO idk if thats needed
             var newState = new NavigationExpansionExpressionState(
                 navigationExpansionExpression.State.CurrentParameter,
                 navigationExpansionExpression.State.SourceMappings,
@@ -194,7 +196,8 @@ namespace Microsoft.EntityFrameworkCore.Query.NavigationExpansion.Visitors
                 applyPendingSelector: true,
                 navigationExpansionExpression.State.PendingOrderings,
                 navigationExpansionExpression.State.PendingIncludeChain,
-                navigationExpansionExpression.State.PendingCardinalityReducingOperator,
+                // we need to remap cardinality reducing operator since it's source type has now changed
+                navigationExpansionExpression.State.PendingCardinalityReducingOperator.GetGenericMethodDefinition().MakeGenericMethod(boundSelectorBody.Type),
                 navigationExpansionExpression.State.PendingTags,
                 navigationExpansionExpression.State.CustomRootMappings,
                 navigationExpansionExpression.State.MaterializeCollectionNavigation);
@@ -343,12 +346,12 @@ namespace Microsoft.EntityFrameworkCore.Query.NavigationExpansion.Visitors
         {
             var navigationKeyAccessExpression = NavigationExpansionHelpers.CreateKeyAccessExpression(
                 navigationBindingExpression,
-                navigationBindingExpression.EntityType.FindPrimaryKey().Properties,
+                new[] { navigationBindingExpression.EntityType.FindPrimaryKey().Properties.First() },
                 addNullCheck: true);
 
             var nullKeyExpression = NavigationExpansionHelpers.CreateNullKeyExpression(
                 navigationKeyAccessExpression.Type,
-                navigationBindingExpression.EntityType.FindPrimaryKey().Properties.Count);
+                keyCount: 1);
 
             var newNavigationExpansionExpressionState = new NavigationExpansionExpressionState(
                 navigationExpansionExpression.State.CurrentParameter,
@@ -357,7 +360,8 @@ namespace Microsoft.EntityFrameworkCore.Query.NavigationExpansion.Visitors
                 applyPendingSelector: true,
                 navigationExpansionExpression.State.PendingOrderings,
                 navigationExpansionExpression.State.PendingIncludeChain,
-                navigationExpansionExpression.State.PendingCardinalityReducingOperator,
+                // we need to remap cardinality reducing operator since it's source type has now changed
+                navigationExpansionExpression.State.PendingCardinalityReducingOperator?.GetGenericMethodDefinition().MakeGenericMethod(navigationKeyAccessExpression.Type),
                 navigationExpansionExpression.State.PendingTags,
                 navigationExpansionExpression.State.CustomRootMappings,
                 navigationExpansionExpression.State.MaterializeCollectionNavigation);

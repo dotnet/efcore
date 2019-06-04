@@ -765,8 +765,6 @@ namespace Microsoft.EntityFrameworkCore.Query
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Bitwise_projects_values_in_select(bool isAsync)
         {
-            // Issue#15535
-            isAsync = false;
             return AssertFirst<Gear>(
                 isAsync,
                 gs => gs
@@ -875,9 +873,6 @@ namespace Microsoft.EntityFrameworkCore.Query
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Select_enum_has_flag(bool isAsync)
         {
-            //issue #15865
-            isAsync = false;
-
             return AssertFirst<Gear>(
                 isAsync,
                 gs => gs.Where(g => g.Rank.HasFlag(MilitaryRank.Corporal))
@@ -1540,9 +1535,6 @@ namespace Microsoft.EntityFrameworkCore.Query
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Optional_Navigation_Null_Coalesce_To_Clr_Type(bool isAsync)
         {
-            //issue #15865
-            isAsync = false;
-
             return AssertFirst<Weapon>(
                 isAsync,
                 ws => ws.OrderBy(w => w.Id).Select(
@@ -3057,9 +3049,6 @@ namespace Microsoft.EntityFrameworkCore.Query
         [MemberData(nameof(IsAsyncData))]
         public virtual Task FirstOrDefault_with_manually_created_groupjoin_is_translated_to_sql(bool isAsync)
         {
-            // issue #15865
-            isAsync = false;
-
             return AssertFirstOrDefault<Squad, Gear>(
                 isAsync,
                 (ss, gs) =>
