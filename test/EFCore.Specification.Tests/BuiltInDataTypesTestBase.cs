@@ -52,7 +52,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Theory(Skip = "QueryIssue")]
+        [Theory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual async Task Can_filter_projection_with_inline_enum_variable(bool async)
@@ -202,7 +202,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact(Skip = "QueryIssue")]
+        [Fact]
         public virtual void Can_query_using_any_data_type()
         {
             using (var context = CreateContext())
@@ -215,7 +215,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact(Skip = "QueryIssue")]
+        [Fact]
         public virtual void Can_query_using_any_data_type_shadow()
         {
             using (var context = CreateContext())
@@ -260,7 +260,7 @@ namespace Microsoft.EntityFrameworkCore
                             e => e.Id == 11
                                  && EF.Property<double>(e, nameof(BuiltInDataTypes.TestDouble)) == param4).ToList().Single());
                 }
-                else
+                else if (Fixture.SupportsDecimalComparisons)
                 {
                     double? param4l = -1.234567891;
                     double? param4h = -1.234567889;
@@ -311,7 +311,7 @@ namespace Microsoft.EntityFrameworkCore
                             e => e.Id == 11
                                  && EF.Property<float>(e, nameof(BuiltInDataTypes.TestSingle)) == param9).ToList().Single());
                 }
-                else
+                else if (Fixture.SupportsDecimalComparisons)
                 {
                     var param9l = -1.2341F;
                     var param9h = -1.2339F;
@@ -548,7 +548,7 @@ namespace Microsoft.EntityFrameworkCore
             return entityEntry;
         }
 
-        [Fact(Skip = "QueryIssue")]
+        [Fact]
         public virtual void Can_query_using_any_nullable_data_type()
         {
             using (var context = CreateContext())
@@ -561,7 +561,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact(Skip = "QueryIssue")]
+        [Fact]
         public virtual void Can_query_using_any_data_type_nullable_shadow()
         {
             using (var context = CreateContext())
@@ -610,7 +610,7 @@ namespace Microsoft.EntityFrameworkCore
                                      && EF.Property<double?>(e, nameof(BuiltInNullableDataTypes.TestNullableDouble)) == param4).ToList()
                             .Single());
                 }
-                else
+                else if (Fixture.SupportsDecimalComparisons)
                 {
                     double? param4l = -1.234567891;
                     double? param4h = -1.234567889;
@@ -665,7 +665,7 @@ namespace Microsoft.EntityFrameworkCore
                                      && EF.Property<float?>(e, nameof(BuiltInNullableDataTypes.TestNullableSingle)) == param9).ToList()
                             .Single());
                 }
-                else
+                else if (Fixture.SupportsDecimalComparisons)
                 {
                     float? param9l = -1.2341F;
                     float? param9h = -1.2339F;
@@ -696,19 +696,19 @@ namespace Microsoft.EntityFrameworkCore
                 Enum64? param12 = Enum64.SomeValue;
                 Assert.Same(
                     entity,
-                    set.Where(e => e.Id == 11 && EF.Property<Enum64>(e, nameof(BuiltInNullableDataTypes.Enum64)) == param12).ToList()
+                    set.Where(e => e.Id == 11 && EF.Property<Enum64?>(e, nameof(BuiltInNullableDataTypes.Enum64)) == param12).ToList()
                         .Single());
 
                 Enum32? param13 = Enum32.SomeValue;
                 Assert.Same(
                     entity,
-                    set.Where(e => e.Id == 11 && EF.Property<Enum32>(e, nameof(BuiltInNullableDataTypes.Enum32)) == param13).ToList()
+                    set.Where(e => e.Id == 11 && EF.Property<Enum32?>(e, nameof(BuiltInNullableDataTypes.Enum32)) == param13).ToList()
                         .Single());
 
                 Enum16? param14 = Enum16.SomeValue;
                 Assert.Same(
                     entity,
-                    set.Where(e => e.Id == 11 && EF.Property<Enum16>(e, nameof(BuiltInNullableDataTypes.Enum16)) == param14).ToList()
+                    set.Where(e => e.Id == 11 && EF.Property<Enum16?>(e, nameof(BuiltInNullableDataTypes.Enum16)) == param14).ToList()
                         .Single());
 
                 if (entityType.FindProperty(nameof(BuiltInNullableDataTypes.Enum8)) != null)
@@ -716,7 +716,7 @@ namespace Microsoft.EntityFrameworkCore
                     Enum8? param15 = Enum8.SomeValue;
                     Assert.Same(
                         entity,
-                        set.Where(e => e.Id == 11 && EF.Property<Enum8>(e, nameof(BuiltInNullableDataTypes.Enum8)) == param15).ToList()
+                        set.Where(e => e.Id == 11 && EF.Property<Enum8?>(e, nameof(BuiltInNullableDataTypes.Enum8)) == param15).ToList()
                             .Single());
                 }
 
@@ -777,7 +777,7 @@ namespace Microsoft.EntityFrameworkCore
                     var param21 = EnumU64.SomeValue;
                     Assert.Same(
                         entity,
-                        set.Where(e => e.Id == 11 && EF.Property<EnumU64>(e, nameof(BuiltInNullableDataTypes.EnumU64)) == param21).ToList()
+                        set.Where(e => e.Id == 11 && EF.Property<EnumU64?>(e, nameof(BuiltInNullableDataTypes.EnumU64)) == param21).ToList()
                             .Single());
                 }
 
@@ -786,7 +786,7 @@ namespace Microsoft.EntityFrameworkCore
                     var param22 = EnumU32.SomeValue;
                     Assert.Same(
                         entity,
-                        set.Where(e => e.Id == 11 && EF.Property<EnumU32>(e, nameof(BuiltInNullableDataTypes.EnumU32)) == param22).ToList()
+                        set.Where(e => e.Id == 11 && EF.Property<EnumU32?>(e, nameof(BuiltInNullableDataTypes.EnumU32)) == param22).ToList()
                             .Single());
                 }
 
@@ -795,7 +795,7 @@ namespace Microsoft.EntityFrameworkCore
                     var param23 = EnumU16.SomeValue;
                     Assert.Same(
                         entity,
-                        set.Where(e => e.Id == 11 && EF.Property<EnumU16>(e, nameof(BuiltInNullableDataTypes.EnumU16)) == param23).ToList()
+                        set.Where(e => e.Id == 11 && EF.Property<EnumU16?>(e, nameof(BuiltInNullableDataTypes.EnumU16)) == param23).ToList()
                             .Single());
                 }
 
@@ -804,7 +804,7 @@ namespace Microsoft.EntityFrameworkCore
                     var param24 = EnumS8.SomeValue;
                     Assert.Same(
                         entity,
-                        set.Where(e => e.Id == 11 && EF.Property<EnumS8>(e, nameof(BuiltInNullableDataTypes.EnumS8)) == param24).ToList()
+                        set.Where(e => e.Id == 11 && EF.Property<EnumS8?>(e, nameof(BuiltInNullableDataTypes.EnumS8)) == param24).ToList()
                             .Single());
                 }
 
@@ -924,7 +924,7 @@ namespace Microsoft.EntityFrameworkCore
             return entityEntry;
         }
 
-        [Fact(Skip = "QueryIssue")]
+        [Fact]
         public virtual void Can_query_using_any_nullable_data_type_as_literal()
         {
             using (var context = CreateContext())
@@ -981,15 +981,22 @@ namespace Microsoft.EntityFrameworkCore
                     context.Set<BuiltInNullableDataTypes>().Where(e => e.Id == 12 && e.TestNullableInt64 == -1234567890123456789L).ToList()
                         .Single());
 
-                Assert.Same(
-                    entity,
-                    Fixture.StrictEquality
-                        ? context.Set<BuiltInNullableDataTypes>().Where(e => e.Id == 12 && e.TestNullableDouble == -1.23456789).ToList()
-                            .Single()
-                        : context.Set<BuiltInNullableDataTypes>().Where(
+                if (Fixture.StrictEquality)
+                {
+                    Assert.Same(
+                        entity,
+                        context.Set<BuiltInNullableDataTypes>().Where(e => e.Id == 12 && e.TestNullableDouble == -1.23456789).ToList()
+                            .Single());
+                }
+                else if (Fixture.SupportsDecimalComparisons)
+                {
+                    Assert.Same(
+                        entity,
+                        context.Set<BuiltInNullableDataTypes>().Where(
                             e => e.Id == 12
-                                 && -e.TestNullableDouble + -1.23456789 < 1E-5
-                                 && -e.TestNullableDouble + -1.23456789 > -1E-5).ToList().Single());
+                                && -e.TestNullableDouble + -1.23456789 < 1E-5
+                                && -e.TestNullableDouble + -1.23456789 > -1E-5).ToList().Single());
+                }
 
                 Assert.Same(
                     entity,
@@ -1023,13 +1030,20 @@ namespace Microsoft.EntityFrameworkCore
                             .Where(e => e.Id == 12 && e.TestNullableTimeSpan == new TimeSpan(0, 10, 9, 8, 7)).ToList().Single());
                 }
 
-                Assert.Same(
-                    entity,
-                    Fixture.StrictEquality
-                        ? context.Set<BuiltInNullableDataTypes>().Where(e => e.Id == 12 && e.TestNullableSingle == -1.234F).ToList()
-                            .Single()
-                        : context.Set<BuiltInNullableDataTypes>().Where(e => e.Id == 12 && -e.TestNullableSingle + -1.234F < 1E-5).ToList()
+                if (Fixture.StrictEquality)
+                {
+                    Assert.Same(
+                        entity,
+                        context.Set<BuiltInNullableDataTypes>().Where(e => e.Id == 12 && e.TestNullableSingle == -1.234F).ToList()
                             .Single());
+                }
+                else if (Fixture.SupportsDecimalComparisons)
+                {
+                    Assert.Same(
+                        entity,
+                        context.Set<BuiltInNullableDataTypes>().Where(e => e.Id == 12 && -e.TestNullableSingle + -1.234F < 1E-5).ToList()
+                            .Single());
+                }
 
                 Assert.Same(
                     entity,
@@ -1134,7 +1148,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact(Skip = "Tasklist#8")]
+        [Fact]
         public virtual void Can_query_with_null_parameters_using_any_nullable_data_type()
         {
             using (var context = CreateContext())
@@ -1416,7 +1430,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact(Skip = "Tasklist#19")]
+        [Fact]
         public virtual void Can_insert_and_read_back_with_binary_key()
         {
             if (!Fixture.SupportsBinaryKeys)
@@ -1477,7 +1491,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact(Skip = "Tasklist#19")]
+        [Fact]
         public virtual void Can_insert_and_read_back_with_string_key()
         {
             using (var context = CreateContext())
@@ -1825,6 +1839,8 @@ namespace Microsoft.EntityFrameworkCore
             public abstract bool SupportsLargeStringComparisons { get; }
 
             public abstract bool SupportsBinaryKeys { get; }
+
+            public abstract bool SupportsDecimalComparisons { get; }
 
             public abstract DateTime DefaultDateTime { get; }
         }

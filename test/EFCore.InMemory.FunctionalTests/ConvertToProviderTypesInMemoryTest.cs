@@ -3,6 +3,7 @@
 
 using System;
 using Microsoft.EntityFrameworkCore.TestUtilities;
+using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
 
 namespace Microsoft.EntityFrameworkCore
 {
@@ -12,6 +13,12 @@ namespace Microsoft.EntityFrameworkCore
         public ConvertToProviderTypesInMemoryTest(ConvertToProviderTypesInMemoryFixture fixture)
             : base(fixture)
         {
+        }
+
+        [ConditionalFact(Skip = "Issue#15711")]
+        public override void Can_insert_and_read_back_with_string_key()
+        {
+            base.Can_insert_and_read_back_with_string_key();
         }
 
         public class ConvertToProviderTypesInMemoryFixture : ConvertToProviderTypesFixtureBase
@@ -27,6 +34,8 @@ namespace Microsoft.EntityFrameworkCore
             public override bool SupportsLargeStringComparisons => true;
 
             public override bool SupportsBinaryKeys => false;
+
+            public override bool SupportsDecimalComparisons => true;
 
             public override DateTime DefaultDateTime => new DateTime();
         }

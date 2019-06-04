@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
@@ -31,7 +32,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Pipeline
         private readonly bool _generateContextAccessors;
         private readonly EvaluatableExpressionFindingExpressionVisitor _evaluatableExpressionFindingExpressionVisitor;
         private readonly ContextParameterReplacingExpressionVisitor _contextParameterReplacingExpressionVisitor;
-
         private readonly Dictionary<Expression, Expression> _evaluatedValues
             = new Dictionary<Expression, Expression>(ExpressionEqualityComparer.Instance);
 
@@ -122,15 +122,19 @@ namespace Microsoft.EntityFrameworkCore.Query.Pipeline
                     || unaryExpression.NodeType == ExpressionType.ConvertChecked))
             {
                 if (unaryExpression.Type == typeof(object)
-                    || unaryExpression.Type == typeof(Enum))
+                    || unaryExpression.Type == typeof(Enum)
+                    || unaryExpression.Operand.Type.UnwrapNullableType().IsEnum)
                 {
                     return true;
                 }
 
+                var innerType = unaryExpression.Operand.Type.UnwrapNullableType();
                 if (unaryExpression.Type.UnwrapNullableType() == typeof(int)
-                    && (unaryExpression.Operand.Type.UnwrapNullableType().IsEnum
-                        || unaryExpression.Operand.Type.UnwrapNullableType() == typeof(char)
-                        || unaryExpression.Operand.Type.UnwrapNullableType() == typeof(ushort)))
+                    && (innerType == typeof(byte)
+                        || innerType == typeof(sbyte)
+                        || innerType == typeof(char)
+                        || innerType == typeof(short)
+                        || innerType == typeof(ushort)))
                 {
                     return true;
                 }

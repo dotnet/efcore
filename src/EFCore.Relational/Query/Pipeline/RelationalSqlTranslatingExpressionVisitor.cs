@@ -2,10 +2,12 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Runtime.InteropServices.ComTypes;
 using Microsoft.EntityFrameworkCore.Extensions.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -209,10 +211,43 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
             return _methodCallTranslatorProvider.Translate(_model, (SqlExpression)@object, methodCallExpression.Method, arguments);
         }
 
+        private static Expression TryRemoveImplicitConvert(Expression expression)
+        {
+            if (expression is UnaryExpression unaryExpression)
+            {
+                if (unaryExpression.NodeType == ExpressionType.Convert
+                    || unaryExpression.NodeType == ExpressionType.ConvertChecked)
+                {
+                    var innerType = unaryExpression.Operand.Type.UnwrapNullableType();
+                    if (innerType.IsEnum)
+                    {
+                        innerType = Enum.GetUnderlyingType(innerType);
+                    }
+                    var convertedType = unaryExpression.Type.UnwrapNullableType();
+
+                    if (innerType == convertedType
+                        || (convertedType == typeof(int)
+                            && (innerType == typeof(byte)
+                                || innerType == typeof(sbyte)
+                                || innerType == typeof(char)
+                                || innerType == typeof(short)
+                                || innerType == typeof(ushort))))
+                    {
+                        return TryRemoveImplicitConvert(unaryExpression.Operand);
+                    }
+                }
+            }
+
+            return expression;
+        }
+
         protected override Expression VisitBinary(BinaryExpression binaryExpression)
         {
-            var left = Visit(binaryExpression.Left);
-            var right = Visit(binaryExpression.Right);
+            var left = TryRemoveImplicitConvert(binaryExpression.Left);
+            var right = TryRemoveImplicitConvert(binaryExpression.Right);
+
+            left = Visit(left);
+            right = Visit(right);
 
             if (TranslationFailed(binaryExpression.Left, left)
                 || TranslationFailed(binaryExpression.Right, right))
@@ -331,9 +366,17 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
                     {
                         return sqlOperand;
                     }
-                    sqlOperand = _sqlExpressionFactory.ApplyDefaultTypeMapping(sqlOperand);
 
-                    return _sqlExpressionFactory.Convert(sqlOperand, unaryExpression.Type);
+                    // Introduce explicit cast only if the target type is mapped else we need to client eval
+                    if (unaryExpression.Type == typeof(object)
+                        || _sqlExpressionFactory.FindMapping(unaryExpression.Type) != null)
+                    {
+                        sqlOperand = _sqlExpressionFactory.ApplyDefaultTypeMapping(sqlOperand);
+
+                        return _sqlExpressionFactory.Convert(sqlOperand, unaryExpression.Type);
+                    }
+
+                    break;
             }
 
             return null;
