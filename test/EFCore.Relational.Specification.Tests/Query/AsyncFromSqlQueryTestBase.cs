@@ -81,7 +81,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact(Skip = "#15763")]
+        [Fact]
         public virtual async Task FromSqlRaw_queryable_multiple_composed()
         {
             using (var context = CreateContext())
@@ -101,7 +101,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact(Skip = "Issue#15763")]
+        [Fact]
         public virtual async Task FromSqlRaw_queryable_multiple_composed_with_closure_parameters()
         {
             var startDate = new DateTime(1997, 1, 1);
@@ -125,7 +125,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact(Skip = "Issue#15763")]
+        [Fact]
         public virtual async Task FromSqlRaw_queryable_multiple_composed_with_parameters_and_closure_parameters()
         {
             var city = "London";

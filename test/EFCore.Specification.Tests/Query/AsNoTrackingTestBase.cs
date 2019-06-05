@@ -153,6 +153,17 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
+        public virtual void Applied_after_navigation_expansion()
+        {
+            using (var context = CreateContext())
+            {
+                var orders = context.Set<Order>().Where(o => o.Customer.City != "London").AsNoTracking().ToList();
+
+                Assert.Equal(784, orders.Count);
+            }
+        }
+
+        [ConditionalFact]
         public virtual void Where_simple_shadow()
         {
             using (var context = CreateContext())

@@ -78,10 +78,6 @@ namespace Microsoft.EntityFrameworkCore.Query.NavigationExpansion.Visitors
                 case nameof(Queryable.DefaultIfEmpty):
                     return ProcessDefaultIfEmpty(methodCallExpression);
 
-                case "AsTracking":
-                case "AsNoTracking":
-                    return ProcessBasicTerminatingOperation(methodCallExpression);
-
                 case nameof(Queryable.First):
                 case nameof(Queryable.FirstOrDefault):
                 case nameof(Queryable.Single):
@@ -99,17 +95,47 @@ namespace Microsoft.EntityFrameworkCore.Query.NavigationExpansion.Visitors
                 case "ThenInclude":
                     return ProcessInclude(methodCallExpression);
 
-                //TODO: should we have relational version of this? - probably
-                case "FromSqlRaw":
-                    return ProcessFromRawSql(methodCallExpression);
-
                 case nameof(EntityFrameworkQueryableExtensions.TagWith):
                     return ProcessWithTag(methodCallExpression);
 
                 default:
-                    return base.VisitMethodCall(methodCallExpression);
+                    return ProcessUnknownMethod(methodCallExpression);
             }
         }
+
+        private Expression ProcessUnknownMethod(MethodCallExpression methodCallExpression)
+        {
+            var resultSequenceType = TryGetNonPrimitiveSequenceType(methodCallExpression.Type);
+
+            // result is a sequence, no lambda arguments, exactly one generic argument corresponding to result sequence type
+            if (methodCallExpression.Object == null
+                && resultSequenceType != null
+                && methodCallExpression.Arguments.All(a => a.GetLambdaOrNull() == null)
+                && methodCallExpression.Method.IsGenericMethod
+                && methodCallExpression.Method.GetGenericArguments().Length == 1
+                && methodCallExpression.Method.GetGenericArguments()[0] == resultSequenceType)
+            {
+                var argumentSequenceTypes = methodCallExpression.Arguments.Select(a => TryGetNonPrimitiveSequenceType(a.Type)).ToList();
+                if (argumentSequenceTypes.FirstOrDefault() == resultSequenceType
+                    && argumentSequenceTypes.Count(t => t != null) == 1)
+                {
+                    var source = VisitSourceExpression(methodCallExpression.Arguments[0]);
+                    var preProcessResult = PreProcessTerminatingOperation(source);
+                    var newArguments = methodCallExpression.Arguments.Skip(1).Select(Visit).ToList();
+                    newArguments.Insert(0, preProcessResult.source);
+
+                    var methodInfo = methodCallExpression.Method.GetGenericMethodDefinition().MakeGenericMethod(preProcessResult.state.CurrentParameter.Type);
+                    var rewritten = Expression.Call(methodInfo, newArguments);
+
+                    return new NavigationExpansionExpression(rewritten, preProcessResult.state, methodCallExpression.Type);
+                }
+            }
+
+            return base.VisitMethodCall(methodCallExpression);
+        }
+
+        private Type TryGetNonPrimitiveSequenceType(Type type)
+            => type == typeof(string) || type.IsArray ? null : type.TryGetSequenceType();
 
         private NavigationExpansionExpression VisitSourceExpression(Expression sourceExpression)
         {
@@ -845,17 +871,6 @@ namespace Microsoft.EntityFrameworkCore.Query.NavigationExpansion.Visitors
             return new NavigationExpansionExpression(rewritten, preProcessResult.state, methodCallExpression.Type);
         }
 
-        private Expression ProcessBasicTerminatingOperation(MethodCallExpression methodCallExpression)
-        {
-            var source = VisitSourceExpression(methodCallExpression.Arguments[0]);
-            var preProcessResult = PreProcessTerminatingOperation(source);
-            var newArguments = methodCallExpression.Arguments.Skip(1).ToList();
-            newArguments.Insert(0, preProcessResult.source);
-            var rewritten = methodCallExpression.Update(methodCallExpression.Object, newArguments);
-
-            return new NavigationExpansionExpression(rewritten, preProcessResult.state, methodCallExpression.Type);
-        }
-
         private (Expression source, NavigationExpansionExpressionState state) PreProcessTerminatingOperation(NavigationExpansionExpression source)
         {
             var applyOrderingsResult = ApplyPendingOrderings(source.Operand, source.State);
@@ -1172,7 +1187,7 @@ namespace Microsoft.EntityFrameworkCore.Query.NavigationExpansion.Visitors
             return new NavigationExpansionExpression(applyOrderingsResult.source, applyOrderingsResult.state, methodCallExpression.Type);
         }
 
-        private Expression ProcessFromRawSql(MethodCallExpression methodCallExpression)
+        private Expression ProcessFromSql(MethodCallExpression methodCallExpression)
         {
             var source = VisitSourceExpression(methodCallExpression.Arguments[0]);
 

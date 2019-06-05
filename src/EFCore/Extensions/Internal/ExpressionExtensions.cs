@@ -10,9 +10,7 @@ using System.Reflection;
 using System.Runtime.Versioning;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.EntityFrameworkCore.Extensions.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Query.Expressions.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -363,5 +361,74 @@ namespace Microsoft.EntityFrameworkCore.Internal
 
         private static readonly MethodInfo _fieldInfoSetValueMethod
             = typeof(FieldInfo).GetRuntimeMethod(nameof(FieldInfo.SetValue), new[] { typeof(object), typeof(object) });
+
+        public static LambdaExpression GetLambdaOrNull(this Expression expression)
+            => expression is LambdaExpression lambda
+            ? lambda
+            : expression is UnaryExpression unary && expression.NodeType == ExpressionType.Quote
+                ? (LambdaExpression)unary.Operand
+                : null;
+
+        public static LambdaExpression UnwrapQuote(this Expression expression)
+            => expression is UnaryExpression unary && expression.NodeType == ExpressionType.Quote
+            ? (LambdaExpression)unary.Operand
+            : (LambdaExpression)expression;
+
+        public static bool IsIncludeMethod(this MethodCallExpression methodCallExpression)
+            => methodCallExpression.Method.DeclaringType == typeof(EntityFrameworkQueryableExtensions)
+                && methodCallExpression.Method.Name == nameof(EntityFrameworkQueryableExtensions.Include);
+
+        public static Expression BuildPropertyAccess(this Expression root, List<string> path)
+        {
+            var result = root;
+            foreach (var pathElement in path)
+            {
+                result = Expression.PropertyOrField(result, pathElement);
+            }
+
+            return result;
+        }
+
+        public static Expression CombineAndRemap(
+            Expression source,
+            ParameterExpression sourceParameter,
+            Expression replaceWith)
+            => new ExpressionCombiningVisitor(sourceParameter, replaceWith).Visit(source);
+
+        public class ExpressionCombiningVisitor : ExpressionVisitor
+        {
+            private ParameterExpression _sourceParameter;
+            private Expression _replaceWith;
+
+            public ExpressionCombiningVisitor(
+                ParameterExpression sourceParameter,
+                Expression replaceWith)
+            {
+                _sourceParameter = sourceParameter;
+                _replaceWith = replaceWith;
+            }
+
+            protected override Expression VisitParameter(ParameterExpression parameterExpression)
+                => parameterExpression == _sourceParameter
+                ? _replaceWith
+                : base.VisitParameter(parameterExpression);
+
+            protected override Expression VisitMember(MemberExpression memberExpression)
+            {
+                var newSource = Visit(memberExpression.Expression);
+                if (newSource is NewExpression newExpression)
+                {
+                    var matchingMemberIndex = newExpression.Members.Select((m, i) => new { index = i, match = m == memberExpression.Member }).Where(r => r.match).SingleOrDefault()?.index;
+                    if (matchingMemberIndex.HasValue)
+                    {
+                        return newExpression.Arguments[matchingMemberIndex.Value];
+                    }
+                }
+
+                return newSource != memberExpression.Expression
+                    ? memberExpression.Update(newSource)
+                    : memberExpression;
+            }
+        }
     }
 }

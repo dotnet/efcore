@@ -183,7 +183,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Pipeline
             // Methods with a typed first argument (source), and with no lambda arguments or a single lambda
             // argument that has one parameter are rewritten automatically (e.g. Where(), FromSql(), Average()
             var newArguments = new Expression[arguments.Count];
-            var lambdaArgs = arguments.Select(GetLambdaOrNull).Where(l => l != null).ToArray();
+            var lambdaArgs = arguments.Select(a => a.GetLambdaOrNull()).Where(l => l != null).ToArray();
             newSource = Visit(arguments[0]);
             newArguments[0] = Unwrap(newSource);
             if (methodCallExpression.Object == null
@@ -194,7 +194,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Pipeline
                 for (var i = 1; i < arguments.Count; i++)
                 {
                     // Visit all arguments, rewriting the single lambda to replace its parameter expression
-                    newArguments[i] = GetLambdaOrNull(arguments[i]) is LambdaExpression lambda
+                    newArguments[i] = arguments[i].GetLambdaOrNull() is LambdaExpression lambda
                         ? Unwrap(RewriteAndVisitLambda(lambda, newSourceWrapper))
                         : Unwrap(Visit(arguments[i]));
                 }
@@ -592,13 +592,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Pipeline
                    && methodCallExpression.IsEFProperty()
                    ? methodCallExpression.Arguments[0]
                    : null);
-
-        protected static LambdaExpression GetLambdaOrNull(Expression expression)
-            => expression is LambdaExpression lambda
-                ? lambda
-                : expression is UnaryExpression unary && expression.NodeType == ExpressionType.Quote
-                    ? (LambdaExpression)unary.Operand
-                    : null;
 
         protected static Expression Unwrap(Expression expression)
             => expression switch {
