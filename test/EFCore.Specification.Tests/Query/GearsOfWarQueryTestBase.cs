@@ -3416,7 +3416,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 elementSorter: e => e.Name1 + " " + e.Name2);
         }
 
-        [ConditionalTheory(Skip = "issue #15863")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Subquery_with_result_operator_is_not_lifted(bool isAsync)
         {
@@ -3424,6 +3424,55 @@ namespace Microsoft.EntityFrameworkCore.Query
                 isAsync,
                 gs => from g in gs.Where(g => !g.HasSoulPatch).OrderBy(g => g.FullName).Take(2).AsTracking()
                       orderby g.Rank
+                      select g.FullName,
+                assertOrder: true);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Skip_with_orderby_followed_by_orderBy_is_pushed_down(bool isAsync)
+        {
+            return AssertQuery<Gear>(
+                isAsync,
+                gs => from g in gs.Where(g => !g.HasSoulPatch).OrderBy(g => g.FullName).Skip(1)
+                      orderby g.Rank
+                      select g.FullName,
+                assertOrder: true);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Take_without_orderby_followed_by_orderBy_is_pushed_down1(bool isAsync)
+        {
+            return AssertQuery<Gear>(
+                isAsync,
+                gs => from g in gs.Where(g => !g.HasSoulPatch).Take(999).OrderBy(g => g.FullName)
+                      orderby g.Rank
+                      select g.FullName,
+                assertOrder: true);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Take_without_orderby_followed_by_orderBy_is_pushed_down2(bool isAsync)
+        {
+            return AssertQuery<Gear>(
+                isAsync,
+                gs => from g in gs.Where(g => !g.HasSoulPatch).Take(999)
+                      orderby g.FullName
+                      orderby g.Rank
+                      select g.FullName,
+                assertOrder: true);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Take_without_orderby_followed_by_orderBy_is_pushed_down3(bool isAsync)
+        {
+            return AssertQuery<Gear>(
+                isAsync,
+                gs => from g in gs.Where(g => !g.HasSoulPatch).Take(999)
+                      orderby g.FullName, g.Rank
                       select g.FullName,
                 assertOrder: true);
         }

@@ -738,12 +738,15 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
             else
             {
                 projectionMapping = new Dictionary<ProjectionMember, Expression>();
-                foreach (var mapping in _projectionMapping)
+                if (_projectionMapping != null)
                 {
-                    var newProjection = visitor.Visit(mapping.Value);
-                    changed |= newProjection != mapping.Value;
+                    foreach (var mapping in _projectionMapping)
+                    {
+                        var newProjection = visitor.Visit(mapping.Value);
+                        changed |= newProjection != mapping.Value;
 
-                    projectionMapping[mapping.Key] = newProjection;
+                        projectionMapping[mapping.Key] = newProjection;
+                    }
                 }
             }
 
@@ -861,9 +864,12 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
             string alias)
         {
             var projectionMapping = new Dictionary<ProjectionMember, Expression>();
-            foreach (var kvp in _projectionMapping)
+            if (_projectionMapping != null)
             {
-                projectionMapping[kvp.Key] = kvp.Value;
+                foreach (var kvp in _projectionMapping)
+                {
+                    projectionMapping[kvp.Key] = kvp.Value;
+                }
             }
 
             return new SelectExpression(alias, projections, tables, orderings)
@@ -969,8 +975,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
             if (Orderings.Any())
             {
                 var orderings = Orderings.ToList();
-                if (orderings.Count > 0
-                    && (Limit != null || Offset != null))
+                if (orderings.Count > 0)
                 {
                     expressionPrinter.StringBuilder.AppendLine().Append("ORDER BY ");
                     expressionPrinter.VisitList(orderings);

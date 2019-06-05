@@ -33,7 +33,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
         {
             expressionPrinter.Visit(Expression);
 
-            expressionPrinter.StringBuilder.Append(Ascending ? "ASC" : "DESC");
+            expressionPrinter.StringBuilder.Append(Ascending ? " ASC" : " DESC");
         }
 
         public override bool Equals(object obj)

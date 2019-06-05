@@ -13,6 +13,7 @@ using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Query.Pipeline;
 using Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions;
+using System.IO;
 
 namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
 {
@@ -586,7 +587,9 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
         protected override ShapedQueryExpression TranslateOrderBy(ShapedQueryExpression source, LambdaExpression keySelector, bool ascending)
         {
             var selectExpression = (SelectExpression)source.QueryExpression;
-            if (selectExpression.IsDistinct)
+            if (selectExpression.IsDistinct
+                || selectExpression.Limit != null
+                || selectExpression.Offset != null)
             {
                 selectExpression.PushdownIntoSubQuery();
             }

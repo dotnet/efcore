@@ -3617,12 +3617,78 @@ ORDER BY [Name1]");
 
 SELECT [t].[FullName]
 FROM (
-    SELECT TOP(@__p_0) [g].*
+    SELECT TOP(@__p_0) [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOrBirthName], [g].[Discriminator], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank]
     FROM [Gears] AS [g]
-    WHERE [g].[Discriminator] IN (N'Officer', N'Gear') AND ([g].[HasSoulPatch] = CAST(0 AS bit))
+    WHERE [g].[Discriminator] IN (N'Gear', N'Officer') AND NOT ([g].[HasSoulPatch] = CAST(1 AS bit))
     ORDER BY [g].[FullName]
 ) AS [t]
 ORDER BY [t].[Rank]");
+        }
+
+        public override async Task Skip_with_orderby_followed_by_orderBy_is_pushed_down(bool isAsync)
+        {
+            await base.Skip_with_orderby_followed_by_orderBy_is_pushed_down(isAsync);
+
+            AssertSql(
+                @"@__p_0='1'
+
+SELECT [t].[FullName]
+FROM (
+    SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOrBirthName], [g].[Discriminator], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank]
+    FROM [Gears] AS [g]
+    WHERE [g].[Discriminator] IN (N'Gear', N'Officer') AND NOT ([g].[HasSoulPatch] = CAST(1 AS bit))
+    ORDER BY [g].[FullName]
+    OFFSET @__p_0 ROWS
+) AS [t]
+ORDER BY [t].[Rank]");
+        }
+
+        public override async Task Take_without_orderby_followed_by_orderBy_is_pushed_down1(bool isAsync)
+        {
+            await base.Take_without_orderby_followed_by_orderBy_is_pushed_down1(isAsync);
+
+            AssertSql(
+                @"@__p_0='999'
+
+SELECT [t].[FullName]
+FROM (
+    SELECT TOP(@__p_0) [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOrBirthName], [g].[Discriminator], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank]
+    FROM [Gears] AS [g]
+    WHERE [g].[Discriminator] IN (N'Gear', N'Officer') AND NOT ([g].[HasSoulPatch] = CAST(1 AS bit))
+) AS [t]
+ORDER BY [t].[Rank]");
+        }
+
+        public override async Task Take_without_orderby_followed_by_orderBy_is_pushed_down2(bool isAsync)
+        {
+            await base.Take_without_orderby_followed_by_orderBy_is_pushed_down2(isAsync);
+
+            AssertSql(
+                @"@__p_0='999'
+
+SELECT [t].[FullName]
+FROM (
+    SELECT TOP(@__p_0) [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOrBirthName], [g].[Discriminator], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank]
+    FROM [Gears] AS [g]
+    WHERE [g].[Discriminator] IN (N'Gear', N'Officer') AND NOT ([g].[HasSoulPatch] = CAST(1 AS bit))
+) AS [t]
+ORDER BY [t].[Rank]");
+        }
+
+        public override async Task Take_without_orderby_followed_by_orderBy_is_pushed_down3(bool isAsync)
+        {
+            await base.Take_without_orderby_followed_by_orderBy_is_pushed_down3(isAsync);
+
+            AssertSql(
+                @"@__p_0='999'
+
+SELECT [t].[FullName]
+FROM (
+    SELECT TOP(@__p_0) [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOrBirthName], [g].[Discriminator], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank]
+    FROM [Gears] AS [g]
+    WHERE [g].[Discriminator] IN (N'Gear', N'Officer') AND NOT ([g].[HasSoulPatch] = CAST(1 AS bit))
+) AS [t]
+ORDER BY [t].[FullName], [t].[Rank]");
         }
 
         public override async Task Select_length_of_string_property(bool isAsync)
