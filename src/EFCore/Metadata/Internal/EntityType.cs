@@ -1751,18 +1751,19 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual Property AddProperty(
             [NotNull] string name,
-            [CanBeNull] Type propertyType,
+            [NotNull] Type propertyType,
             ConfigurationSource? typeConfigurationSource,
             ConfigurationSource configurationSource)
         {
             Check.NotNull(name, nameof(name));
+            Check.NotNull(propertyType, nameof(propertyType));
 
             return AddProperty(
                 name,
                 propertyType,
-                ClrType?.GetMembersInHierarchy(name).FirstOrDefault(),
-                configurationSource,
-                typeConfigurationSource);
+                null,
+                typeConfigurationSource,
+                configurationSource);
         }
 
         /// <summary>
@@ -1774,27 +1775,30 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public virtual Property AddProperty(
             [NotNull] MemberInfo memberInfo,
             ConfigurationSource configurationSource)
-        {
-            Check.NotNull(memberInfo, nameof(memberInfo));
-
-            if (ClrType == null)
-            {
-                throw new InvalidOperationException(CoreStrings.ClrPropertyOnShadowEntity(memberInfo.Name, this.DisplayName()));
-            }
-
-            if (memberInfo.DeclaringType?.GetTypeInfo().IsAssignableFrom(ClrType.GetTypeInfo()) != true)
-            {
-                throw new ArgumentException(
-                    CoreStrings.PropertyWrongEntityClrType(
-                        memberInfo.Name, this.DisplayName(), memberInfo.DeclaringType?.ShortDisplayName()));
-            }
-
-            return AddProperty(
+            => AddProperty(
                 memberInfo.GetSimpleMemberName(),
                 memberInfo.GetMemberType(),
                 memberInfo,
                 configurationSource,
                 configurationSource);
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual Property AddProperty(
+            [NotNull] string name,
+            ConfigurationSource configurationSource)
+        {
+            var clrMember = ClrType?.GetMembersInHierarchy(name).FirstOrDefault();
+            if (clrMember == null)
+            {
+                throw new InvalidOperationException(CoreStrings.NoPropertyType(name, this.DisplayName()));
+            }
+
+            return AddProperty(clrMember, configurationSource);
         }
 
         /// <summary>
@@ -1808,25 +1812,28 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             [NotNull] Type propertyType,
             ConfigurationSource? typeConfigurationSource,
             ConfigurationSource configurationSource)
-        {
-            Check.NotNull(name, nameof(name));
-            Check.NotNull(propertyType, nameof(propertyType));
-
-            return AddProperty(
+            => AddProperty(
                 name,
                 propertyType,
                 this.GetIndexerProperty(),
-                configurationSource,
-                typeConfigurationSource);
-        }
+                typeConfigurationSource,
+                configurationSource);
 
-        private Property AddProperty(
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual Property AddProperty(
             string name,
             Type propertyType,
             MemberInfo memberInfo,
-            ConfigurationSource configurationSource,
-            ConfigurationSource? typeConfigurationSource)
+            ConfigurationSource? typeConfigurationSource,
+            ConfigurationSource configurationSource)
         {
+            Check.NotNull(name, nameof(name));
+            Check.NotNull(propertyType, nameof(propertyType));
             Debug.Assert(Builder != null);
 
             var conflictingMember = FindMembersInHierarchy(name).FirstOrDefault();
@@ -1838,19 +1845,56 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                         conflictingMember.DeclaringType.DisplayName()));
             }
 
-            if (propertyType == null)
+            if (memberInfo != null)
             {
-                if (memberInfo == null)
+                if (ClrType == null)
                 {
-                    throw new InvalidOperationException(CoreStrings.NoPropertyType(name, this.DisplayName()));
+                    throw new InvalidOperationException(CoreStrings.ClrPropertyOnShadowEntity(memberInfo.Name, this.DisplayName()));
                 }
 
-                propertyType = memberInfo.GetMemberType();
-                typeConfigurationSource = ConfigurationSource.Convention.Max(typeConfigurationSource);
+                if (memberInfo.DeclaringType?.GetTypeInfo().IsAssignableFrom(ClrType.GetTypeInfo()) != true)
+                {
+                    throw new ArgumentException(
+                        CoreStrings.PropertyWrongEntityClrType(
+                            memberInfo.Name, this.DisplayName(), memberInfo.DeclaringType?.ShortDisplayName()));
+                }
+
+                if (name != memberInfo.GetSimpleMemberName())
+                {
+                    if ((memberInfo as PropertyInfo)?.IsEFIndexerProperty() != true)
+                    {
+                        if (typeConfigurationSource != null)
+                        {
+                            throw new InvalidOperationException(
+                                CoreStrings.PropertyWrongName(
+                                    name,
+                                    this.DisplayName(),
+                                    memberInfo.GetSimpleMemberName()));
+                        }
+
+                        propertyType = memberInfo.GetMemberType();
+                    }
+                    else
+                    {
+                        var clashingMemberInfo = ClrType?.GetMembersInHierarchy(name).FirstOrDefault();
+                        if (clashingMemberInfo != null)
+                        {
+                            throw new InvalidOperationException(
+                                CoreStrings.PropertyClashingNonIndexer(
+                                    name,
+                                    this.DisplayName()));
+                        }
+                    }
+                }
             }
-            else if (memberInfo != null
-                     && propertyType != memberInfo.GetMemberType()
-                     && (memberInfo as PropertyInfo)?.IsEFIndexerProperty() != true)
+            else
+            {
+                memberInfo = ClrType?.GetMembersInHierarchy(name).FirstOrDefault();
+            }
+
+            if (memberInfo != null
+                && propertyType != memberInfo.GetMemberType()
+                && (memberInfo as PropertyInfo)?.IsEFIndexerProperty() != true)
             {
                 if (typeConfigurationSource != null)
                 {
@@ -2690,12 +2734,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         void IMutableEntityType.RemoveIndex(IMutableIndex index) => RemoveIndex((Index)index);
 
         /// <inheritdoc />
-        IMutableProperty IMutableEntityType.AddProperty(string name, Type propertyType)
-            => AddProperty(name, propertyType, ConfigurationSource.Explicit, ConfigurationSource.Explicit);
-
-        /// <inheritdoc />
-        IMutableProperty IMutableEntityType.AddIndexedProperty(string name, Type propertyType)
-            => AddIndexedProperty(name, propertyType, ConfigurationSource.Explicit, ConfigurationSource.Explicit);
+        IMutableProperty IMutableEntityType.AddProperty(string name, Type propertyType, MemberInfo memberInfo)
+            => AddProperty(name, propertyType, memberInfo, ConfigurationSource.Explicit, ConfigurationSource.Explicit);
 
         /// <inheritdoc />
         [DebuggerStepThrough]
@@ -2820,21 +2860,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
         /// <inheritdoc />
         IConventionProperty IConventionEntityType.AddProperty(
-            string name, Type propertyType, bool setTypeConfigurationSource, bool fromDataAnnotation)
+            string name, Type propertyType, MemberInfo memberInfo, bool setTypeConfigurationSource, bool fromDataAnnotation)
             => AddProperty(
                 name,
                 propertyType,
-                setTypeConfigurationSource
-                    ? fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention
-                    : (ConfigurationSource?)null,
-                fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
-
-        /// <inheritdoc />
-        IConventionProperty IConventionEntityType.AddIndexedProperty(
-            string name, Type propertyType, bool setTypeConfigurationSource, bool fromDataAnnotation)
-            => AddIndexedProperty(
-                name,
-                propertyType,
+                memberInfo,
                 setTypeConfigurationSource
                     ? fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention
                     : (ConfigurationSource?)null,

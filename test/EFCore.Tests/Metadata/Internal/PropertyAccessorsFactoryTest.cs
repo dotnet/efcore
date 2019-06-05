@@ -19,7 +19,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         {
             IMutableModel model = new Model();
             var entityType = model.AddEntityType(typeof(IndexedClass));
-            var id = entityType.AddProperty("Id", typeof(int));
+            entityType.AddProperty("Id", typeof(int));
             var propertyA = entityType.AddIndexedProperty("PropertyA", typeof(string));
 
             var contextServices = InMemoryTestHelpers.Instance.CreateContextServices(model);
@@ -36,7 +36,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Equal("ValueA", ((Func<InternalEntityEntry, string>)propertyAccessors.RelationshipSnapshotGetter)(entry));
 
             var valueBuffer = new ValueBuffer(new object[] { 1, "ValueA" });
-            Assert.Equal("ValueA", ((Func<ValueBuffer, object>)propertyAccessors.ValueBufferGetter)(valueBuffer));
+            Assert.Equal("ValueA", propertyAccessors.ValueBufferGetter(valueBuffer));
         }
 
         [Fact]

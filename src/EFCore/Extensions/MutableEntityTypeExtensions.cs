@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -434,16 +435,45 @@ namespace Microsoft.EntityFrameworkCore
         ///     Adds a property to this entity type.
         /// </summary>
         /// <param name="entityType"> The entity type to add the property to. </param>
-        /// <param name="propertyInfo"> The corresponding property in the entity class. </param>
+        /// <param name="memberInfo"> The corresponding member on the entity class. </param>
         /// <returns> The newly created property. </returns>
         public static IMutableProperty AddProperty(
-            [NotNull] this IMutableEntityType entityType, [NotNull] PropertyInfo propertyInfo)
-        {
-            Check.NotNull(entityType, nameof(entityType));
-            Check.NotNull(propertyInfo, nameof(propertyInfo));
+            [NotNull] this IMutableEntityType entityType, [NotNull] MemberInfo memberInfo)
+            => Check.NotNull(entityType, nameof(entityType))
+                .AddProperty(memberInfo.GetSimpleMemberName(), memberInfo.GetMemberType(), memberInfo);
 
-            return entityType.AsEntityType().AddProperty(propertyInfo, ConfigurationSource.Explicit);
-        }
+        /// <summary>
+        ///     Adds a property to this entity type.
+        /// </summary>
+        /// <param name="entityType"> The entity type to add the property to. </param>
+        /// <param name="name"> The name of the property to add. </param>
+        /// <returns> The newly created property. </returns>
+        public static IMutableProperty AddProperty(
+            [NotNull] this IMutableEntityType entityType, [NotNull] string name)
+            => ((EntityType)entityType).AddProperty(name, ConfigurationSource.Explicit);
+
+        /// <summary>
+        ///     Adds a property to this entity type.
+        /// </summary>
+        /// <param name="entityType"> The entity type to add the property to. </param>
+        /// <param name="name"> The name of the property to add. </param>
+        /// <param name="propertyType"> The type of value the property will hold. </param>
+        /// <returns> The newly created property. </returns>
+        public static IMutableProperty AddProperty(
+            [NotNull] this IMutableEntityType entityType, [NotNull] string name, [NotNull] Type propertyType)
+            => entityType.AddProperty(name, propertyType, null);
+
+        /// <summary>
+        ///     Adds a property based on an indexer to this entity type.
+        /// </summary>
+        /// <param name="entityType"> The entity type to add the property to. </param>
+        /// <param name="name"> The name of the property to add. </param>
+        /// <param name="propertyType"> The type of value the property will hold. </param>
+        /// <returns> The newly created property. </returns>
+        public static IMutableProperty AddIndexedProperty(
+            [NotNull] this IMutableEntityType entityType, [NotNull] string name, [NotNull] Type propertyType)
+            => Check.NotNull(entityType, nameof(entityType))
+                .AddProperty(name, propertyType, entityType.GetIndexerProperty());
 
         /// <summary>
         ///     Gets the index defined on the given property. Returns null if no index is defined.

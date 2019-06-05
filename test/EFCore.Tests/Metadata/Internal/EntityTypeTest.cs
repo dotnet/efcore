@@ -26,39 +26,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
     public partial class EntityTypeTest
     {
-        private readonly IMutableModel _model = BuildModel();
-
-        private class A
-        {
-            public static readonly PropertyInfo EProperty = typeof(A).GetProperty("E");
-            public static readonly PropertyInfo GProperty = typeof(A).GetProperty("G");
-
-            public string E { get; set; }
-            public string G { get; set; }
-        }
-
-        private class B : A
-        {
-            public static readonly PropertyInfo FProperty = typeof(B).GetProperty("F");
-            public static readonly PropertyInfo HProperty = typeof(B).GetProperty("H");
-
-            public string F { get; set; }
-            public string H { get; set; }
-        }
-
-        private class C : A
-        {
-            public static readonly PropertyInfo FProperty = typeof(C).GetProperty("F");
-            public static readonly PropertyInfo HProperty = typeof(C).GetProperty("H");
-
-            public string F { get; set; }
-            public string H { get; set; }
-        }
-
-        private class D : C
-        {
-        }
-
         [Fact]
         public void Invalid_filter_expressions_throws()
         {
@@ -381,7 +348,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var idProperty = baseType.AddProperty(Customer.IdProperty);
             var fkProperty = baseType.AddProperty("fk", typeof(int));
             var key = baseType.AddKey(new[] { idProperty });
-            IMutableEntityType entityType = model.AddEntityType(typeof(Customer));
+            var entityType = model.AddEntityType(typeof(Customer));
             entityType.BaseType = baseType;
             entityType.AddForeignKey(new[] { fkProperty }, key, entityType);
 
@@ -397,7 +364,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var fkProperty = baseType.AddProperty("fk", typeof(int));
             fkProperty.ValueGenerated = ValueGenerated.OnAdd;
             var key = baseType.AddKey(new[] { idProperty });
-            IMutableEntityType entityType = model.AddEntityType(typeof(Customer));
+            var entityType = model.AddEntityType(typeof(Customer));
             entityType.BaseType = baseType;
             entityType.AddForeignKey(new[] { fkProperty }, key, entityType);
 
@@ -556,7 +523,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         }
 
         [Fact]
-        public void Can_add_a_foreign_key_targetting_different_key()
+        public void Can_add_a_foreign_key_targeting_different_key()
         {
             var model = CreateModel();
             var customerType = model.AddEntityType(typeof(Customer));
@@ -581,7 +548,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         }
 
         [Fact]
-        public void Can_add_a_foreign_key_targetting_different_entity_type()
+        public void Can_add_a_foreign_key_targeting_different_entity_type()
         {
             var model = CreateModel();
             var baseType = model.AddEntityType(typeof(BaseType));
@@ -685,7 +652,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var idProperty = baseType.AddProperty(Customer.IdProperty);
             var idProperty2 = baseType.AddProperty("id2", typeof(int));
             var key = baseType.AddKey(new[] { idProperty, idProperty2 });
-            IMutableEntityType entityType = model.AddEntityType(typeof(Customer));
+            var entityType = model.AddEntityType(typeof(Customer));
             entityType.BaseType = baseType;
             var fkProperty = entityType.AddProperty("fk", typeof(int));
 
@@ -701,7 +668,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             idProperty.ValueGenerated = ValueGenerated.OnAdd;
             var idProperty2 = baseType.AddProperty("id2", typeof(int));
             var key = baseType.AddKey(new[] { idProperty, idProperty2 });
-            IMutableEntityType entityType = model.AddEntityType(typeof(Customer));
+            var entityType = model.AddEntityType(typeof(Customer));
             entityType.BaseType = baseType;
             var fkProperty = entityType.AddProperty("fk", typeof(int));
 
@@ -772,22 +739,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             dependentType.SetPrimaryKey(property);
 
             return model;
-        }
-
-        private IMutableEntityType DependentType => _model.FindEntityType(typeof(DependentEntity));
-
-        private IMutableEntityType PrincipalType => _model.FindEntityType(typeof(PrincipalEntity));
-
-        private class PrincipalEntity
-        {
-            public int PeeKay { get; set; }
-            public IEnumerable<DependentEntity> AnotherNav { get; set; }
-        }
-
-        private class DependentEntity
-        {
-            public PrincipalEntity Navigator { get; set; }
-            public PrincipalEntity AnotherNav { get; set; }
         }
 
         [Fact]
@@ -969,7 +920,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var foreignKeyProperty = orderType.AddProperty(Order.CustomerIdProperty);
             var customerForeignKey = orderType.AddForeignKey(foreignKeyProperty, customerKey, customerType);
 
-            orderType.AddProperty("Customer", null);
+            orderType.AddProperty("Customer");
 
             Assert.Equal(
                 CoreStrings.ConflictingPropertyOrNavigation("Customer", typeof(Order).Name, typeof(Order).Name),
@@ -1223,14 +1174,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             var index2 = entityType.AddIndex(new[] { property1, property2 });
 
-            Assert.NotNull(((Index)index1).Builder);
-            Assert.NotNull(((Index)index2).Builder);
+            Assert.NotNull(((IConventionIndex)index1).Builder);
+            Assert.NotNull(((IConventionIndex)index2).Builder);
             Assert.Equal(2, index2.Properties.Count);
             Assert.Same(index2, entityType.FindIndex(new[] { property1, property2 }));
             Assert.Same(property1, index2.Properties[0]);
             Assert.Same(property2, index2.Properties[1]);
             Assert.True(property1.IsIndex());
-            Assert.Equal(new IIndex[] { index1, index2 }, property1.GetContainingIndexes().ToArray());
+            Assert.Equal(new [] { index1, index2 }, property1.GetContainingIndexes().ToArray());
 
             Assert.Equal(2, entityType.GetIndexes().Count());
             Assert.Same(index1, entityType.GetIndexes().First());
@@ -1334,7 +1285,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Same(idProperty, entityType.FindProperty("Id"));
             Assert.False(idProperty.IsShadowProperty());
 
-            var nameProperty = entityType.AddProperty("Name", null);
+            var nameProperty = entityType.AddProperty("Name");
 
             Assert.False(nameProperty.IsShadowProperty());
             Assert.Equal("Name", nameProperty.Name);
@@ -1354,7 +1305,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var model = CreateModel();
             var entityType = model.AddEntityType(typeof(HiddenField));
 
-            var property = entityType.AddProperty("Raisin", null);
+            var property = entityType.AddProperty("Raisin");
 
             Assert.False(property.IsShadowProperty());
             Assert.Equal("Raisin", property.Name);
@@ -1370,7 +1321,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var model = CreateModel();
             var entityType = model.AddEntityType(typeof(HiddenField));
 
-            var property = entityType.AddProperty("_date", null);
+            var property = entityType.AddProperty("_date");
 
             Assert.False(property.IsShadowProperty());
             Assert.Equal("_date", property.Name);
@@ -1423,8 +1374,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Equal(
                 CoreStrings.NoPropertyType("_foo", nameof(Customer)),
                 Assert.Throws<InvalidOperationException>(
-                    () =>
-                        entityType.AddProperty("_foo", null)).Message);
+                    () => entityType.AddProperty("_foo")).Message);
         }
 
         [Fact]
@@ -1441,6 +1391,19 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         }
 
         [Fact]
+        public void AddProperty_throws_if_name_does_not_match()
+        {
+            var entityType = CreateModel().AddEntityType(typeof(Customer));
+
+            Assert.Equal(
+                CoreStrings.PropertyWrongName(
+                    nameof(Customer.Id), nameof(Customer), nameof(Customer.Name)),
+                Assert.Throws<InvalidOperationException>(
+                    () =>
+                        entityType.AddProperty(nameof(Customer.Id), typeof(int), Customer.NameProperty)).Message);
+        }
+
+        [Fact]
         public void AddProperty_ignores_clr_type_if_implicit()
         {
             var entityType = (IConventionEntityType)CreateModel().AddEntityType(typeof(Customer));
@@ -1448,6 +1411,38 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var property = entityType.AddProperty(nameof(Customer.Name), typeof(int), setTypeConfigurationSource: false);
 
             Assert.Equal(typeof(string), property.ClrType);
+        }
+
+        [Fact]
+        public void AddIndexedProperty_adds_indexed_property()
+        {
+            var entityType = CreateModel().AddEntityType(typeof(Customer));
+
+            var property = entityType.AddIndexedProperty("A", typeof(int));
+
+            Assert.True(property.IsIndexedProperty());
+            Assert.Equal("A", property.Name);
+            Assert.Equal(typeof(int), property.ClrType);
+        }
+
+        [Fact]
+        public void AddIndexedProperty_throws_when_no_indexer()
+        {
+            var entityType = CreateModel().AddEntityType(typeof(Order));
+
+            Assert.Equal(
+                CoreStrings.NoIndexer(entityType.DisplayName()),
+                Assert.Throws<InvalidOperationException>(() => entityType.AddIndexedProperty("A", typeof(int))).Message);
+        }
+
+        [Fact]
+        public void AddIndexedProperty_throws_when_clashing_with_other_property()
+        {
+            var entityType = CreateModel().AddEntityType(typeof(Customer));
+
+            Assert.Equal(
+                CoreStrings.PropertyClashingNonIndexer("Name", entityType.DisplayName()),
+                Assert.Throws<InvalidOperationException>(() => entityType.AddIndexedProperty("Name", typeof(int))).Message);
         }
 
         [Fact]
@@ -1623,7 +1618,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             Assert.Equal(
                 CoreStrings.ConflictingPropertyOrNavigation("Id", typeof(Customer).Name, typeof(Customer).Name),
-                Assert.Throws<InvalidOperationException>(() => entityType.AddProperty("Id", null)).Message);
+                Assert.Throws<InvalidOperationException>(() => entityType.AddProperty("Id")).Message);
         }
 
         [Fact]
@@ -1641,7 +1636,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             Assert.Equal(
                 CoreStrings.ConflictingPropertyOrNavigation("Customer", typeof(Order).Name, typeof(Order).Name),
-                Assert.Throws<InvalidOperationException>(() => orderType.AddProperty("Customer", null)).Message);
+                Assert.Throws<InvalidOperationException>(() => orderType.AddProperty("Customer")).Message);
         }
 
         [Fact]
@@ -2085,28 +2080,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
         }
 
-        private class Level1
-        {
-            public int Id { get; set; }
-            public int Prop1 { get; set; }
-            public Level1 Level1Reference { get; set; }
-            public ICollection<Level1> Level1Collection { get; set; }
-        }
-
-        private class Level2 : Level1
-        {
-            public int Prop2 { get; set; }
-            public Level2 Level2Reference { get; set; }
-            public ICollection<Level2> Level2Collection { get; set; }
-        }
-
-        private class Level3 : Level2
-        {
-            public int Prop3 { get; set; }
-            public Level3 Level3Reference { get; set; }
-            public ICollection<Level3> Level3Collection { get; set; }
-        }
-
         [Fact]
         public void Indexes_are_ordered_by_property_count_then_property_names()
         {
@@ -2127,7 +2100,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         [Fact]
         public void Adding_inheritance_to_weak_entity_types_throws()
         {
-            IMutableModel model = CreateModel();
+            var model = CreateModel();
             var customerType = model.AddEntityType(typeof(Customer));
             var baseType = model.AddEntityType(typeof(BaseType), nameof(Customer.Orders), customerType);
             var orderType = model.AddEntityType(typeof(Order), nameof(Customer.Orders), customerType);
@@ -2146,7 +2119,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         [Fact]
         public void Adding_non_delegated_inheritance_to_delegated_identity_definition_entity_types_throws()
         {
-            IMutableModel model = CreateModel();
+            var model = CreateModel();
             var customerType = model.AddEntityType(typeof(Customer));
             var baseType = model.AddEntityType(typeof(BaseType));
             var orderType = model.AddEntityType(typeof(Order), nameof(Customer.Orders), customerType);
@@ -2392,6 +2365,77 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Equal(3, entityType.RelationshipPropertyCount());
         }
 
+        private readonly IMutableModel _model = BuildModel();
+
+        private IMutableEntityType DependentType => _model.FindEntityType(typeof(DependentEntity));
+
+        private IMutableEntityType PrincipalType => _model.FindEntityType(typeof(PrincipalEntity));
+
+        private class PrincipalEntity
+        {
+            public int PeeKay { get; set; }
+            public IEnumerable<DependentEntity> AnotherNav { get; set; }
+        }
+
+        private class DependentEntity
+        {
+            public PrincipalEntity Navigator { get; set; }
+            public PrincipalEntity AnotherNav { get; set; }
+        }
+
+        private class A
+        {
+            public static readonly PropertyInfo EProperty = typeof(A).GetProperty("E");
+            public static readonly PropertyInfo GProperty = typeof(A).GetProperty("G");
+
+            public string E { get; set; }
+            public string G { get; set; }
+        }
+
+        private class B : A
+        {
+            public static readonly PropertyInfo FProperty = typeof(B).GetProperty("F");
+            public static readonly PropertyInfo HProperty = typeof(B).GetProperty("H");
+
+            public string F { get; set; }
+            public string H { get; set; }
+        }
+
+        private class C : A
+        {
+            public static readonly PropertyInfo FProperty = typeof(C).GetProperty("F");
+            public static readonly PropertyInfo HProperty = typeof(C).GetProperty("H");
+
+            public string F { get; set; }
+            public string H { get; set; }
+        }
+
+        private class D : C
+        {
+        }
+
+        private class Level1
+        {
+            public int Id { get; set; }
+            public int Prop1 { get; set; }
+            public Level1 Level1Reference { get; set; }
+            public ICollection<Level1> Level1Collection { get; set; }
+        }
+
+        private class Level2 : Level1
+        {
+            public int Prop2 { get; set; }
+            public Level2 Level2Reference { get; set; }
+            public ICollection<Level2> Level2Collection { get; set; }
+        }
+
+        private class Level3 : Level2
+        {
+            public int Prop3 { get; set; }
+            public Level3 Level3Reference { get; set; }
+            public ICollection<Level3> Level3Collection { get; set; }
+        }
+
         private class BaseType
         {
             public int Id { get; set; }
@@ -2409,6 +2453,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             public Guid Unique { get; set; }
             public string Name { get; set; }
             public string Mane { get; set; }
+            public object this[string name] => null;
+
             public ICollection<Order> Orders { get; set; }
             public ICollection<Order> MoreOrders { get; set; }
 

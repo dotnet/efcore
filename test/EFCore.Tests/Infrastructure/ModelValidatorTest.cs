@@ -692,7 +692,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         {
             var model = CreateConventionlessModelBuilder().Model;
             var entityType = model.AddEntityType(typeof(NonNotifyingEntity));
-            var id = entityType.AddProperty("Id", null);
+            var id = entityType.AddProperty("Id");
             entityType.SetPrimaryKey(id);
 
             model.SetChangeTrackingStrategy(changeTrackingStrategy);
@@ -709,7 +709,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         {
             var model = CreateConventionlessModelBuilder().Model;
             var entityType = model.AddEntityType(typeof(ChangedOnlyEntity));
-            var id = entityType.AddProperty("Id", null);
+            var id = entityType.AddProperty("Id");
             entityType.SetPrimaryKey(id);
 
             model.SetChangeTrackingStrategy(changeTrackingStrategy);
@@ -728,7 +728,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         {
             var model = CreateConventionlessModelBuilder().Model;
             var entityType = model.AddEntityType(typeof(FullNotificationEntity));
-            var id = entityType.AddProperty("Id", null);
+            var id = entityType.AddProperty("Id");
             entityType.SetPrimaryKey(id);
 
             model.SetChangeTrackingStrategy(changeTrackingStrategy);
@@ -744,7 +744,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         {
             var model = CreateConventionlessModelBuilder().Model;
             var entityType = model.AddEntityType(typeof(ChangedOnlyEntity));
-            var id = entityType.AddProperty("Id", null);
+            var id = entityType.AddProperty("Id");
             entityType.SetPrimaryKey(id);
 
             model.SetChangeTrackingStrategy(changeTrackingStrategy);
@@ -757,7 +757,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         {
             var model = CreateConventionlessModelBuilder().Model;
             var entityType = model.AddEntityType(typeof(NonNotifyingEntity));
-            var id = entityType.AddProperty("Id", null);
+            var id = entityType.AddProperty("Id");
             entityType.SetPrimaryKey(id);
 
             model.SetChangeTrackingStrategy(ChangeTrackingStrategy.Snapshot);

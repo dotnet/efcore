@@ -397,10 +397,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual InternalPropertyBuilder Property(
-            [NotNull] Type propertyType,
+            [CanBeNull] Type propertyType,
             [NotNull] string propertyName,
             ConfigurationSource? configurationSource)
-            => Property(propertyType, propertyName, configurationSource, typeConfigurationSource: configurationSource);
+            => Property(propertyType, propertyName, typeConfigurationSource: configurationSource, configurationSource: configurationSource);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -409,13 +409,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual InternalPropertyBuilder Property(
-            [NotNull] Type propertyType,
+            [CanBeNull] Type propertyType,
             [NotNull] string propertyName,
-            ConfigurationSource? configurationSource,
-            ConfigurationSource? typeConfigurationSource)
+            ConfigurationSource? typeConfigurationSource,
+            ConfigurationSource? configurationSource)
             => Property(
-                propertyType, propertyName, memberInfo: null, configurationSource: configurationSource,
-                typeConfigurationSource: typeConfigurationSource);
+                propertyType, propertyName, memberInfo: null,
+                typeConfigurationSource: typeConfigurationSource,
+                configurationSource: configurationSource);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -425,8 +426,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual InternalPropertyBuilder Property([NotNull] string propertyName, ConfigurationSource? configurationSource)
             => Property(
-                propertyType: null, propertyName: propertyName, memberInfo: null, configurationSource: configurationSource,
-                typeConfigurationSource: null);
+                propertyType: null, propertyName: propertyName, memberInfo: null, typeConfigurationSource: null,
+                configurationSource: configurationSource);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -441,8 +442,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             [CanBeNull] Type propertyType,
             [NotNull] string propertyName,
             [CanBeNull] MemberInfo memberInfo,
-            ConfigurationSource? configurationSource,
-            ConfigurationSource? typeConfigurationSource)
+            ConfigurationSource? typeConfigurationSource,
+            ConfigurationSource? configurationSource)
         {
             IEnumerable<Property> propertiesToDetach = null;
             var existingProperty = Metadata.FindProperty(propertyName);
@@ -474,7 +475,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
                         return existingProperty.DeclaringEntityType.Builder
                             .Property(
-                                existingProperty, propertyName, propertyType, memberInfo, configurationSource, typeConfigurationSource);
+                                existingProperty, propertyName, propertyType, memberInfo, typeConfigurationSource, configurationSource);
                     }
                 }
             }
@@ -512,6 +513,18 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     }
                 }
 
+                if (propertyType == null)
+                {
+                    var clrMember = Metadata.ClrType?.GetMembersInHierarchy(propertyName).FirstOrDefault();
+                    if (clrMember == null)
+                    {
+                        throw new InvalidOperationException(CoreStrings.NoPropertyType(propertyName, Metadata.DisplayName()));
+                    }
+
+                    propertyType = clrMember.GetMemberType();
+                    typeConfigurationSource = ConfigurationSource.Explicit;
+                }
+
                 Metadata.RemoveIgnored(propertyName);
 
                 propertiesToDetach = Metadata.FindDerivedProperties(propertyName);
@@ -523,7 +536,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 var detachedProperties = propertiesToDetach == null ? null : DetachProperties(propertiesToDetach);
 
                 builder = Property(
-                    existingProperty, propertyName, propertyType, memberInfo, configurationSource, typeConfigurationSource);
+                    existingProperty, propertyName, propertyType, memberInfo, typeConfigurationSource, configurationSource);
 
                 detachedProperties?.Attach(this);
             }
@@ -539,8 +552,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             [NotNull] string propertyName,
             [CanBeNull] Type propertyType,
             [CanBeNull] MemberInfo clrProperty,
-            ConfigurationSource? configurationSource,
-            ConfigurationSource? typeConfigurationSource)
+            ConfigurationSource? typeConfigurationSource,
+            ConfigurationSource? configurationSource)
         {
             Property property;
             if (existingProperty == null)
@@ -1708,7 +1721,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual void RemoveUnusedShadowProperties<T>(
+        public virtual InternalEntityTypeBuilder RemoveUnusedShadowProperties<T>(
             [NotNull] IReadOnlyList<T> properties, ConfigurationSource configurationSource = ConfigurationSource.Convention)
             where T : class, IProperty
         {
@@ -1719,6 +1732,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     RemovePropertyIfUnused((Property)(object)property, configurationSource);
                 }
             }
+
+            return this;
         }
 
         private static void RemovePropertyIfUnused(Property property, ConfigurationSource configurationSource)
@@ -3071,7 +3086,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                                 if (currentProperties == null)
                                 {
                                     var propertyBuilder = Property(
-                                        clrType, propertyName, ConfigurationSource.Convention, typeConfigurationSource: null);
+                                        clrType, propertyName, typeConfigurationSource: null, configurationSource: ConfigurationSource.Convention);
 
                                     if (clrType.IsNullableType())
                                     {
@@ -3139,37 +3154,25 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 var property = Metadata.FindProperty(propertyName);
                 if (property == null)
                 {
-                    var clrProperty = Metadata.ClrType?.GetMembersInHierarchy(propertyName).FirstOrDefault();
                     var type = referencedProperties == null
                         ? useDefaultType
                             ? typeof(int)
                             : null
                         : referencedProperties[i].ClrType;
 
-                    InternalPropertyBuilder propertyBuilder;
                     if (!configurationSource.HasValue)
                     {
                         return null;
                     }
 
-                    if (clrProperty != null)
-                    {
-                        propertyBuilder = Property(clrProperty, configurationSource.Value);
-                    }
-                    else if (type != null)
-                    {
-                        // TODO: Log that a shadow property is created
-                        propertyBuilder = Property(
-                            required
-                                ? type
-                                : type.MakeNullable(),
-                            propertyName,
-                            configurationSource.Value, typeConfigurationSource: ConfigurationSource.Convention);
-                    }
-                    else
-                    {
-                        throw new InvalidOperationException(CoreStrings.NoPropertyType(propertyName, Metadata.DisplayName()));
-                    }
+                    // TODO: Log that a shadow property is created
+                    var propertyBuilder = Property(
+                        required
+                            ? type
+                            : type?.MakeNullable(),
+                        propertyName,
+                        typeConfigurationSource:  null,
+                        configurationSource.Value);
 
                     if (propertyBuilder == null)
                     {
@@ -3256,8 +3259,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                         typeConfigurationSource.Overrides(ConfigurationSource.DataAnnotation) ? property.ClrType : null,
                         property.Name,
                         property.GetIdentifyingMemberInfo(),
-                        configurationSource,
-                        typeConfigurationSource.Overrides(ConfigurationSource.DataAnnotation) ? typeConfigurationSource : null);
+                        typeConfigurationSource.Overrides(ConfigurationSource.DataAnnotation) ? typeConfigurationSource : null,
+                        configurationSource);
                 if (builder == null)
                 {
                     return null;
@@ -3352,8 +3355,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             return Metadata.RootType().Builder.Property(
                 type ?? discriminatorProperty?.ClrType ?? DefaultDiscriminatorType,
                 name ?? discriminatorProperty?.Name ?? DefaultDiscriminatorName,
-                configurationSource,
-                typeConfigurationSource: type != null ? configurationSource : (ConfigurationSource?)null);
+                typeConfigurationSource: type != null ? configurationSource : (ConfigurationSource?)null,
+                configurationSource: configurationSource);
         }
 
         public virtual DiscriminatorBuilder DiscriminatorBuilder(
@@ -3369,7 +3372,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var discriminatorProperty = discriminatorPropertyBuilder.Metadata;
             // Make sure the property is on the root type
             discriminatorPropertyBuilder = rootTypeBuilder.Property(
-                discriminatorProperty.ClrType, discriminatorProperty.Name, ConfigurationSource.Convention, null);
+                discriminatorProperty.ClrType, discriminatorProperty.Name, null, ConfigurationSource.Convention);
 
             var oldDiscriminatorProperty = Metadata.GetDiscriminatorProperty() as Property;
             if (oldDiscriminatorProperty?.Builder != null
@@ -3428,10 +3431,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Type propertyType, string propertyName, bool setTypeConfigurationSource, bool fromDataAnnotation)
             => Property(
                 propertyType,
-                propertyName,
-                fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention, setTypeConfigurationSource
+                propertyName, setTypeConfigurationSource
                     ? fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention
-                    : (ConfigurationSource?)null);
+                    : (ConfigurationSource?)null, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
         /// <inheritdoc />
         IConventionPropertyBuilder IConventionEntityTypeBuilder.Property(MemberInfo memberInfo, bool fromDataAnnotation)
@@ -3449,7 +3451,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             => GetOrCreateProperties(memberInfos, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
         /// <inheritdoc />
-        void IConventionEntityTypeBuilder.RemoveUnusedShadowProperties(
+        IConventionEntityTypeBuilder IConventionEntityTypeBuilder.RemoveUnusedShadowProperties(
             IReadOnlyList<IConventionProperty> properties, bool fromDataAnnotation)
             => RemoveUnusedShadowProperties(
                 properties, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);

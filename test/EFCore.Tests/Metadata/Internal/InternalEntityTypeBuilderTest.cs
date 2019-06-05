@@ -1403,12 +1403,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Same(
                 propertyBuilder,
                 entityBuilder.Property(
-                    typeof(int), Order.IdProperty.Name,
-                    ConfigurationSource.DataAnnotation, typeConfigurationSource: ConfigurationSource.DataAnnotation));
+                    typeof(int), Order.IdProperty.Name, typeConfigurationSource: ConfigurationSource.DataAnnotation, configurationSource: ConfigurationSource.DataAnnotation));
 
             Assert.Same(
                 propertyBuilder,
-                entityBuilder.Property(typeof(int), Order.IdProperty.Name, ConfigurationSource.Convention, typeConfigurationSource: null));
+                entityBuilder.Property(typeof(int), Order.IdProperty.Name, typeConfigurationSource: null, configurationSource: ConfigurationSource.Convention));
 
             Assert.Same(
                 propertyBuilder,
@@ -1417,8 +1416,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             Assert.Null(
                 entityBuilder.Property(
-                    typeof(string), Order.IdProperty.Name,
-                    ConfigurationSource.Convention, typeConfigurationSource: ConfigurationSource.Convention));
+                    typeof(string), Order.IdProperty.Name, typeConfigurationSource: ConfigurationSource.Convention, configurationSource: ConfigurationSource.Convention));
 
             Assert.Equal(new[] { propertyBuilder.Metadata }, entityBuilder.GetActualProperties(new[] { propertyBuilder.Metadata }, null));
         }

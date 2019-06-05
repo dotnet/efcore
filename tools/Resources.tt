@@ -180,6 +180,12 @@ namespace <#= model.Namespace.EndsWith(".Internal") ? model.Namespace : (model.N
                 else
                 {
                     var genericTypes = resource.Types.Any() ? ("<" + List(resource.Types) + ">") : "";
+                    if (resource.Obsolete)
+                    {
+#>
+        [Obsolete]
+<#  
+                    }
 #>
         public static EventDefinition<#= genericTypes #> <#= resource.Name #>([NotNull] IDiagnosticsLogger logger)
         {
@@ -312,15 +318,23 @@ namespace <#= model.Namespace.EndsWith(".Internal") ? model.Namespace : (model.N
                 .ToList();
 
             var eventInfo = node.Comment.Split(' ');
-            Level = eventInfo.FirstOrDefault() ?? "BadLevel";
-            EventId = eventInfo.Skip(1).FirstOrDefault() ?? "BadEventId";
-            Types = eventInfo.Skip(2).ToList();
+            var argumentsRead = 0;
+            if (eventInfo.FirstOrDefault() == "Obsolete")
+            {
+                Obsolete = true;
+                argumentsRead++;
+            }
+
+            Level = eventInfo.Skip(argumentsRead++).FirstOrDefault() ?? "BadLevel";
+            EventId = eventInfo.Skip(argumentsRead++).FirstOrDefault() ?? "BadEventId";
+            Types = eventInfo.Skip(argumentsRead++).ToList();
         }
 
         public string Name { get; }
         public string Value { get; }
         public string EventId { get; }
         public string Level { get; }
+        public bool Obsolete { get; }
         public bool ForLogging => Name.StartsWith("Log");
         public IEnumerable<string> Parameters { get; }
         public IEnumerable<string> Types { get; }

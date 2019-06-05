@@ -153,7 +153,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 navigation, entityType);
 
         /// <summary>
-        ///     The entity type '{entityType}' requires a primary key to be defined. If you intended to use a keyless entity type call `HasNoKey()`.
+        ///     The entity type '{entityType}' requires a primary key to be defined. If you intended to use a keyless entity type call 'HasNoKey()'.
         /// </summary>
         public static string EntityRequiresKey([CanBeNull] object entityType)
             => string.Format(
@@ -1025,7 +1025,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => GetString("DataBindingWithIListSource");
 
         /// <summary>
-        ///     Data binding directly to `DbSet.Local` is not supported since it does not provide a stable ordering. For WPF bind to 'DbSet.Local.ToObservableCollection()'. For WinForms bind to 'DbSet.Local.ToBindingList()'. For ASP.NET WebForms bind to 'DbSet.ToList()' or use Model Binding.
+        ///     Data binding directly to 'DbSet.Local' is not supported since it does not provide a stable ordering. For WPF bind to 'DbSet.Local.ToObservableCollection()'. For WinForms bind to 'DbSet.Local.ToBindingList()'. For ASP.NET WebForms bind to 'DbSet.ToList()' or use Model Binding.
         /// </summary>
         public static string DataBindingToLocalWithIListSource
             => GetString("DataBindingToLocalWithIListSource");
@@ -2101,6 +2101,22 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 entityType, foreignKey);
 
         /// <summary>
+        ///     The property '{property}' cannot be added to type '{entityType}' because the name of the given CLR property or field '{clrName}' is different.
+        /// </summary>
+        public static string PropertyWrongName([CanBeNull] object property, [CanBeNull] object entityType, [CanBeNull] object clrName)
+            => string.Format(
+                GetString("PropertyWrongName", nameof(property), nameof(entityType), nameof(clrName)),
+                property, entityType, clrName);
+
+        /// <summary>
+        ///     The indexed property '{property}' cannot be added to type '{entityType}' because the CLR class contains a member with the same name.
+        /// </summary>
+        public static string PropertyClashingNonIndexer([CanBeNull] object property, [CanBeNull] object entityType)
+            => string.Format(
+                GetString("PropertyClashingNonIndexer", nameof(property), nameof(entityType)),
+                property, entityType);
+
+        /// <summary>
         ///     This query would cause multiple evaluation of a subquery because entity '{entityType}' has a composite key. Rewrite your query avoiding the subquery.
         /// </summary>
         public static string SubqueryWithCompositeKeyNotSupported([CanBeNull] object entityType)
@@ -2878,7 +2894,6 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
             return (EventDefinition<string>)definition;
         }
 
-
         /// <summary>
         ///     Compiling query model: {newline}'{queryModel}'
         /// </summary>
@@ -2893,7 +2908,6 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
                     () => new EventDefinition<string, string>(
                         logger.Options,
                         CoreEventId.QueryModelCompiling,
-#pragma warning restore CS0612 // Type or member is obsolete
                         LogLevel.Debug,
                         "CoreEventId.QueryModelCompiling",
                         level => LoggerMessage.Define<string, string>(

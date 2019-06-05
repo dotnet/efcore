@@ -349,8 +349,7 @@ SELECT 1 ELSE SELECT 0");
                 }
             };
 
-            var masterCommands = Dependencies.MigrationsSqlGenerator.Generate(operations);
-            return masterCommands;
+            return Dependencies.MigrationsSqlGenerator.Generate(operations);
         }
 
         // Clear connection pools in case there are active connections that are pooled

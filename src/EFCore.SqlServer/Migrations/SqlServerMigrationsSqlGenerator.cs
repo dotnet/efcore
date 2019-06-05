@@ -19,6 +19,7 @@ using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 
+// ReSharper disable once CheckNamespace
 namespace Microsoft.EntityFrameworkCore.Migrations
 {
     /// <summary>

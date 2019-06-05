@@ -204,7 +204,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             Assert.Equal(
                 CoreStrings.ConflictingPropertyOrNavigation("G", typeof(B).Name, typeof(A).Name),
-                Assert.Throws<InvalidOperationException>(() => b.AddProperty("G", null)).Message);
+                Assert.Throws<InvalidOperationException>(() => b.AddProperty("G")).Message);
         }
 
         [Fact]
@@ -223,7 +223,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             Assert.Equal(
                 CoreStrings.ConflictingPropertyOrNavigation("G", typeof(D).Name, typeof(A).Name),
-                Assert.Throws<InvalidOperationException>(() => d.AddProperty("G", null)).Message);
+                Assert.Throws<InvalidOperationException>(() => d.AddProperty("G")).Message);
         }
 
         [Fact]
@@ -428,10 +428,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             Assert.Equal(
                 CoreStrings.DerivedEntityTypeKey(typeof(B).Name, typeof(A).Name),
-                Assert.Throws<InvalidOperationException>(() => b.SetPrimaryKey(b.AddProperty("G", null))).Message);
+                Assert.Throws<InvalidOperationException>(() => b.SetPrimaryKey(b.AddProperty("G"))).Message);
             Assert.Equal(
                 CoreStrings.DerivedEntityTypeKey(typeof(B).Name, typeof(A).Name),
-                Assert.Throws<InvalidOperationException>(() => b.AddKey(b.AddProperty("E", null))).Message);
+                Assert.Throws<InvalidOperationException>(() => b.AddKey(b.AddProperty("E"))).Message);
         }
 
         [Fact]

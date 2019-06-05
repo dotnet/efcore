@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -441,20 +442,56 @@ namespace Microsoft.EntityFrameworkCore
         ///     Adds a property to this entity type.
         /// </summary>
         /// <param name="entityType"> The entity type to add the property to. </param>
-        /// <param name="propertyInfo"> The corresponding property in the entity class. </param>
+        /// <param name="memberInfo"> The corresponding member on the entity class. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> The newly created property. </returns>
         public static IConventionProperty AddProperty(
             [NotNull] this IConventionEntityType entityType,
-            [NotNull] PropertyInfo propertyInfo,
+            [NotNull] MemberInfo memberInfo,
             bool fromDataAnnotation = false)
-        {
-            Check.NotNull(entityType, nameof(entityType));
-            Check.NotNull(propertyInfo, nameof(propertyInfo));
+            => Check.NotNull(entityType, nameof(entityType)).AddProperty(memberInfo.GetSimpleMemberName(), memberInfo.GetMemberType(),
+                memberInfo, setTypeConfigurationSource: true, fromDataAnnotation);
 
-            return ((EntityType)entityType).AddProperty(
-                propertyInfo, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
-        }
+        /// <summary>
+        ///     Adds a property to this entity type.
+        /// </summary>
+        /// <param name="entityType"> The entity type to add the property to. </param>
+        /// <param name="name"> The name of the property to add. </param>
+        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <returns> The newly created property. </returns>
+        public static IConventionProperty AddProperty(
+            [NotNull] this IConventionEntityType entityType, [NotNull] string name,
+            bool fromDataAnnotation = false)
+            => ((EntityType)entityType).AddProperty(name, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+
+        /// <summary>
+        ///     Adds a property to this entity type.
+        /// </summary>
+        /// <param name="entityType"> The entity type to add the property to. </param>
+        /// <param name="name"> The name of the property to add. </param>
+        /// <param name="propertyType"> The type of value the property will hold. </param>
+        /// <param name="setTypeConfigurationSource"> Indicates whether the type configuration source should be set. </param>
+        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <returns> The newly created property. </returns>
+        public static IConventionProperty AddProperty(
+            [NotNull] this IConventionEntityType entityType, [NotNull] string name, [NotNull] Type propertyType,
+            bool setTypeConfigurationSource = true, bool fromDataAnnotation = false)
+            => entityType.AddProperty(name, propertyType, null, setTypeConfigurationSource, fromDataAnnotation);
+
+        /// <summary>
+        ///     Adds a property based on an indexer to this entity type.
+        /// </summary>
+        /// <param name="entityType"> The entity type to add the property to. </param>
+        /// <param name="name"> The name of the property to add. </param>
+        /// <param name="propertyType"> The type of value the property will hold. </param>
+        /// <param name="setTypeConfigurationSource"> Indicates whether the type configuration source should be set. </param>
+        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <returns> The newly created property. </returns>
+        public static IConventionProperty AddIndexedProperty(
+            [NotNull] this IConventionEntityType entityType, [NotNull] string name, [NotNull] Type propertyType,
+            bool setTypeConfigurationSource = true, bool fromDataAnnotation = false)
+            => Check.NotNull(entityType, nameof(entityType))
+                .AddProperty(name, propertyType, entityType.GetIndexerProperty(), setTypeConfigurationSource, fromDataAnnotation);
 
         /// <summary>
         ///     Gets the index defined on the given property. Returns null if no index is defined.

@@ -151,16 +151,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         /// <param name="name"> The name of the property to add. </param>
         /// <param name="propertyType"> The type of value the property will hold. </param>
+        /// <param name="memberInfo">
+        ///     <para>
+        ///         The corresponding CLR type member or <c>null</c> for a shadow property.
+        ///     </para> 
+        ///     <para>
+        ///         An indexer with a <c>string</c> parameter and <c>object</c> return type can be used.
+        ///     </para>
+        /// </param>
         /// <returns> The newly created property. </returns>
-        IMutableProperty AddProperty([NotNull] string name, [CanBeNull] Type propertyType);
-
-        /// <summary>
-        ///     Adds a property based on an indexer to this entity type.
-        /// </summary>
-        /// <param name="name"> The name of the property to add. </param>
-        /// <param name="propertyType"> The type of value the property will hold. </param>
-        /// <returns> The newly created property. </returns>
-        IMutableProperty AddIndexedProperty([NotNull] string name, [NotNull] Type propertyType);
+        IMutableProperty AddProperty([NotNull] string name, [NotNull] Type propertyType, [CanBeNull] MemberInfo memberInfo);
 
         /// <summary>
         ///     <para>

@@ -110,12 +110,11 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                     b.Entity<ComplexCaseParent13108>().HasKey(c => c.Key);
                 }))
             {
-                var model = (Model)context.Model;
-                Assert.Equal(
-                    ConfigurationSource.Convention,
-                    model.FindEntityType(typeof(ComplexCaseChild13108))
-                        .GetProperties().Where(p => p.Name == "ParentKey").Single()
-                        .GetTypeConfigurationSource());
+                var model = (IConventionModel)context.Model;
+                var property = model
+                    .FindEntityType(typeof(ComplexCaseChild13108)).GetProperties().Single(p => p.Name == "ParentKey");
+                Assert.Equal(typeof(int), property.ClrType);
+                Assert.Equal(ConfigurationSource.Explicit, property.GetTypeConfigurationSource());
             }
         }
 

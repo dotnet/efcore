@@ -98,7 +98,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </summary>
         /// <param name="properties"> The properties to remove. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        void RemoveUnusedShadowProperties([NotNull] IReadOnlyList<IConventionProperty> properties, bool fromDataAnnotation = false);
+        IConventionEntityTypeBuilder RemoveUnusedShadowProperties(
+            [NotNull] IReadOnlyList<IConventionProperty> properties, bool fromDataAnnotation = false);
 
         /// <summary>
         ///     Returns an object that can be used to configure the service property with the given member info.
