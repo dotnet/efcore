@@ -37,12 +37,6 @@ namespace Microsoft.EntityFrameworkCore
             public override bool SupportsBinaryKeys => true;
 
             public override DateTime DefaultDateTime => new DateTime();
-
-            public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
-                => base
-                    .AddOptions(builder)
-                    .ConfigureWarnings(
-                        c => c.Log(RelationalEventId.ValueConversionSqlLiteralWarning));
         }
     }
 }

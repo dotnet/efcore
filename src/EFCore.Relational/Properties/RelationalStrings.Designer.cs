@@ -1409,29 +1409,5 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
 
             return (EventDefinition<string>)definition;
         }
-
-        /// <summary>
-        ///     A SQL parameter or literal was generated for the type '{type}' using the ValueConverter '{valueConverter}'. Review the generated SQL for correctness and consider evaluating the target expression in-memory instead.
-        /// </summary>
-        public static EventDefinition<object, object> LogValueConversionSqlLiteralWarning([NotNull] IDiagnosticsLogger logger)
-        {
-            var definition = ((RelationalLoggingDefinitions)logger.Definitions).LogValueConversionSqlLiteralWarning;
-            if (definition == null)
-            {
-                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
-                    ref ((RelationalLoggingDefinitions)logger.Definitions).LogValueConversionSqlLiteralWarning,
-                    () => new EventDefinition<object, object>(
-                        logger.Options,
-                        RelationalEventId.ValueConversionSqlLiteralWarning,
-                        LogLevel.Warning,
-                        "RelationalEventId.ValueConversionSqlLiteralWarning",
-                        level => LoggerMessage.Define<object, object>(
-                            level,
-                            RelationalEventId.ValueConversionSqlLiteralWarning,
-                            _resourceManager.GetString("LogValueConversionSqlLiteralWarning"))));
-            }
-
-            return (EventDefinition<object, object>)definition;
-        }
     }
 }

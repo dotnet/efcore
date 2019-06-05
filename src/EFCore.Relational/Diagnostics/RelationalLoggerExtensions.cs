@@ -1364,48 +1364,6 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         }
 
         /// <summary>
-        ///     Logs for the <see cref="RelationalEventId.ValueConversionSqlLiteralWarning" /> event.
-        /// </summary>
-        /// <param name="diagnostics"> The diagnostics logger to use. </param>
-        /// <param name="mappingClrType"> The CLR type. </param>
-        /// <param name="valueConverter"> The value converter. </param>
-        public static void ValueConversionSqlLiteralWarning(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Query> diagnostics,
-            [NotNull] Type mappingClrType,
-            [NotNull] ValueConverter valueConverter)
-        {
-            var definition = RelationalResources.LogValueConversionSqlLiteralWarning(diagnostics);
-
-            var warningBehavior = definition.GetLogBehavior(diagnostics);
-            if (warningBehavior != WarningBehavior.Ignore)
-            {
-                definition.Log(
-                    diagnostics,
-                    warningBehavior,
-                    mappingClrType.ShortDisplayName(),
-                    valueConverter.GetType().ShortDisplayName());
-            }
-
-            if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
-            {
-                diagnostics.DiagnosticSource.Write(
-                    definition.EventId.Name,
-                    new ValueConverterEventData(
-                        definition,
-                        ValueConversionSqlLiteral,
-                        mappingClrType,
-                        valueConverter));
-            }
-        }
-
-        private static string ValueConversionSqlLiteral(EventDefinitionBase definition, EventData payload)
-        {
-            var d = (EventDefinition<object, object>)definition;
-            var p = (ValueConverterEventData)payload;
-            return d.GenerateMessage(p.MappingClrType.ShortDisplayName(), p.ValueConverter.GetType().ShortDisplayName());
-        }
-
-        /// <summary>
         ///     Logs for the <see cref="RelationalEventId.ModelValidationKeyDefaultValueWarning" /> event.
         /// </summary>
         /// <param name="diagnostics"> The diagnostics logger to use. </param>

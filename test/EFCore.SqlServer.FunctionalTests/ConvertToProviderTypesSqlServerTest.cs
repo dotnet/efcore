@@ -23,22 +23,6 @@ namespace Microsoft.EntityFrameworkCore
         {
         }
 
-        [ConditionalFact(Skip = "Issue#15312")]
-        public virtual void Warning_when_suspicious_conversion_in_sql()
-        {
-            using (var context = CreateContext())
-            {
-                Assert.Contains(
-                    RelationalResources.LogValueConversionSqlLiteralWarning(new TestLogger<SqlServerLoggingDefinitions>())
-                        .GenerateMessage(
-                            typeof(decimal).ShortDisplayName(),
-                            new NumberToBytesConverter<decimal>().GetType().ShortDisplayName()),
-                    Assert.Throws<InvalidOperationException>(
-                        () =>
-                            context.Set<BuiltInDataTypes>().Where(b => b.TestDecimal > 123.0m).ToList()).Message);
-            }
-        }
-
         [ConditionalFact]
         public virtual void Columns_have_expected_data_types()
         {

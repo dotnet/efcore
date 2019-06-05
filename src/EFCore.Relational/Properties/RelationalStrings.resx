@@ -445,10 +445,6 @@
     <value>A MigrationAttribute isn't specified on the '{class}' class.</value>
     <comment>Warning RelationalEventId.MigrationAttributeMissingWarning string</comment>
   </data>
-  <data name="LogValueConversionSqlLiteralWarning" xml:space="preserve">
-    <value>A SQL parameter or literal was generated for the type '{type}' using the ValueConverter '{valueConverter}'. Review the generated SQL for correctness and consider evaluating the target expression in-memory instead.</value>
-    <comment>Warning RelationalEventId.ValueConversionSqlLiteralWarning object object</comment>
-  </data>
   <data name="DerivedTypeTable" xml:space="preserve">
     <value>The entity type '{entityType}' cannot be mapped to a table because it is derived from '{baseType}'. Only base entity types can be mapped to a table.</value>
   </data>
