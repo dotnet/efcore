@@ -9,8 +9,6 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
 {
     public class ExistsExpression : SqlExpression
     {
-        #region Fields & Constructors
-
         public ExistsExpression(SelectExpression subquery, bool negated, RelationalTypeMapping typeMapping)
             : base(typeof(bool), typeMapping)
         {
@@ -18,34 +16,33 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
             Negated = negated;
         }
 
-        #endregion
-
-        #region Public Properties
-
         public SelectExpression Subquery { get; }
         public bool Negated { get; }
 
-        #endregion
-
-        #region Expression-based methods
-
         protected override Expression VisitChildren(ExpressionVisitor visitor)
-        {
-            var newSubquery = (SelectExpression)visitor.Visit(Subquery);
-
-            return Update(newSubquery);
-        }
+            => Update((SelectExpression)visitor.Visit(Subquery));
 
         public ExistsExpression Update(SelectExpression subquery)
-        {
-            return subquery != Subquery
+            => subquery != Subquery
                 ? new ExistsExpression(subquery, Negated, TypeMapping)
                 : this;
+
+
+        public override void Print(ExpressionPrinter expressionPrinter)
+        {
+            if (Negated)
+            {
+                expressionPrinter.StringBuilder.Append("NOT ");
+            }
+
+            expressionPrinter.StringBuilder.AppendLine("EXISTS (");
+            using (expressionPrinter.StringBuilder.Indent())
+            {
+                expressionPrinter.Visit(Subquery);
+            }
+
+            expressionPrinter.StringBuilder.Append(")");
         }
-
-        #endregion
-
-        #region Equality & HashCode
 
         public override bool Equals(object obj)
             => obj != null
@@ -68,24 +65,6 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
 
                 return hashCode;
             }
-        }
-
-        #endregion
-
-        public override void Print(ExpressionPrinter expressionPrinter)
-        {
-            if (Negated)
-            {
-                expressionPrinter.StringBuilder.Append("NOT ");
-            }
-
-            expressionPrinter.StringBuilder.AppendLine("EXISTS (");
-            using (expressionPrinter.StringBuilder.Indent())
-            {
-                expressionPrinter.Visit(Subquery);
-            }
-
-            expressionPrinter.StringBuilder.Append(")");
         }
     }
 }

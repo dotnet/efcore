@@ -8,26 +8,17 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
 {
     public class SqlFragmentExpression : SqlExpression
     {
-        #region Fields & Constructors
-        public SqlFragmentExpression(string sql)
+        internal SqlFragmentExpression(string sql)
             : base(typeof(string), null)
         {
             Sql = sql;
         }
-        #endregion
 
-        #region Public Properties
         public string Sql { get; }
-        #endregion
+        protected override Expression VisitChildren(ExpressionVisitor visitor) => this;
+        public override void Print(ExpressionPrinter expressionPrinter)
+            => expressionPrinter.StringBuilder.Append(Sql);
 
-        #region Expression-based methods
-        protected override Expression VisitChildren(ExpressionVisitor visitor)
-        {
-            return this;
-        }
-        #endregion
-
-        #region Equality & HashCode
         public override bool Equals(object obj)
             => obj != null
             && (ReferenceEquals(this, obj)
@@ -47,13 +38,6 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
 
                 return hashCode;
             }
-        }
-
-        #endregion
-
-        public override void Print(ExpressionPrinter expressionPrinter)
-        {
-            expressionPrinter.StringBuilder.Append(Sql);
         }
     }
 }

@@ -24,7 +24,6 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
             _boolTypeMapping = typeMappingSource.FindMapping(typeof(bool));
         }
 
-        #region TypeMapping
         public SqlExpression ApplyDefaultTypeMapping(SqlExpression sqlExpression)
         {
             if (sqlExpression == null
@@ -210,9 +209,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
         {
             return _typeMappingSource.FindMapping(type);
         }
-        #endregion
 
-        #region Binary
         public SqlBinaryExpression MakeBinary(
             ExpressionType operatorType, SqlExpression left, SqlExpression right, RelationalTypeMapping typeMapping)
         {
@@ -315,9 +312,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
             return MakeBinary(ExpressionType.Coalesce, left, right, typeMapping);
         }
 
-        #endregion
 
-        #region Unary
         private SqlUnaryExpression MakeUnary(
             ExpressionType operatorType, SqlExpression operand, Type type, RelationalTypeMapping typeMapping = null)
         {
@@ -347,9 +342,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
         {
             return MakeUnary(ExpressionType.Negate, operand, operand.Type, operand.TypeMapping);
         }
-        #endregion
 
-        #region Case block
         public CaseExpression Case(SqlExpression operand, params CaseWhenClause[] whenClauses)
         {
             var operandTypeMapping = operand.TypeMapping
@@ -391,9 +384,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
 
             return new CaseExpression(typeMappedWhenClauses, elseResult);
         }
-        #endregion
 
-        #region Functions
         public SqlFunctionExpression Function(
             string functionName, IEnumerable<SqlExpression> arguments, Type returnType, RelationalTypeMapping typeMapping = null)
         {
@@ -467,9 +458,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
         }
 
 
-        #endregion
 
-        #region Other Sql specific constructs
         public ExistsExpression Exists(SelectExpression subquery, bool negated)
         {
             return new ExistsExpression(subquery, negated, _boolTypeMapping);
@@ -577,7 +566,5 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
                     In(discriminatorColumn, Constant(concreteEntityTypes.Select(et => et.GetDiscriminatorValue()).ToList()), negated: false));
             }
         }
-
-        #endregion
     }
 }

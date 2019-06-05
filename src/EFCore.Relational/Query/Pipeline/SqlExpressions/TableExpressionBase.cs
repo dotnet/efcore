@@ -10,28 +10,15 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
 {
     public abstract class TableExpressionBase : Expression, IPrintable
     {
-        #region Fields & Constructors
-        protected TableExpressionBase(string alias)
-        {
-            Alias = alias;
-        }
-        #endregion
+        protected TableExpressionBase(string alias) => Alias = alias;
 
-        #region Public Properties
         public string Alias { get; internal set; }
-        #endregion
 
-        #region Expression-based methods/properties
-        protected override Expression VisitChildren(ExpressionVisitor visitor)
-        {
-            return this;
-        }
+        protected override Expression VisitChildren(ExpressionVisitor visitor) => this;
 
         public override Type Type => typeof(object);
         public override ExpressionType NodeType => ExpressionType.Extension;
-        #endregion
-
-        #region Equality & HashCode
+        public abstract void Print(ExpressionPrinter expressionPrinter);
         public override bool Equals(object obj)
             => obj != null
             && (ReferenceEquals(this, obj)
@@ -50,9 +37,5 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
                 return hashCode;
             }
         }
-
-        #endregion
-
-        public abstract void Print(ExpressionPrinter expressionPrinter);
     }
 }

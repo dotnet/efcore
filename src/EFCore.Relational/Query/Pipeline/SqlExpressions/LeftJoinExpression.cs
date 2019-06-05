@@ -8,14 +8,11 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
 {
     public class LeftJoinExpression : PredicateJoinExpressionBase
     {
-        #region Fields & Constructors
         public LeftJoinExpression(TableExpressionBase table, SqlExpression joinPredicate)
             : base(table, joinPredicate)
         {
         }
-        #endregion
 
-        #region Expression-based methods
         protected override Expression VisitChildren(ExpressionVisitor visitor)
         {
             var table = (TableExpressionBase)visitor.Visit(Table);
@@ -25,14 +22,18 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
         }
 
         public LeftJoinExpression Update(TableExpressionBase table, SqlExpression joinPredicate)
-        {
-            return table != Table || joinPredicate != JoinPredicate
+            => table != Table || joinPredicate != JoinPredicate
                 ? new LeftJoinExpression(table, joinPredicate)
                 : this;
-        }
-        #endregion
 
-        #region Equality & HashCode
+        public override void Print(ExpressionPrinter expressionPrinter)
+        {
+            expressionPrinter.StringBuilder.Append("LEFT JOIN ");
+            expressionPrinter.Visit(Table);
+            expressionPrinter.StringBuilder.Append(" ON ");
+            expressionPrinter.Visit(JoinPredicate);
+        }
+
         public override bool Equals(object obj)
             => obj != null
             && (ReferenceEquals(this, obj)
@@ -42,23 +43,6 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
         private bool Equals(LeftJoinExpression leftJoinExpression)
             => base.Equals(leftJoinExpression);
 
-        public override int GetHashCode()
-        {
-            unchecked
-            {
-                var hashCode = base.GetHashCode();
-
-                return hashCode;
-            }
-        }
-        #endregion
-
-        public override void Print(ExpressionPrinter expressionPrinter)
-        {
-            expressionPrinter.StringBuilder.Append("LEFT JOIN ");
-            expressionPrinter.Visit(Table);
-            expressionPrinter.StringBuilder.Append(" ON ");
-            expressionPrinter.Visit(JoinPredicate);
-        }
+        public override int GetHashCode() => base.GetHashCode();
     }
 }

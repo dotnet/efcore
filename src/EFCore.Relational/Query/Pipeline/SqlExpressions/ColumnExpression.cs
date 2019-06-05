@@ -11,8 +11,6 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
 {
     public class ColumnExpression : SqlExpression
     {
-        #region Fields & Constructors
-
         internal ColumnExpression(IProperty property, TableExpressionBase table, bool nullable)
             : this(property.GetColumnName(), table, property.ClrType, property.FindRelationalMapping(),
                   nullable || property.IsNullable || property.DeclaringEntityType.BaseType != null)
@@ -32,17 +30,9 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
             Nullable = nullable;
         }
 
-        #endregion
-
-        #region Public Properties
-
         public string Name { get; }
         public TableExpressionBase Table { get; }
         public bool Nullable { get; }
-
-        #endregion
-
-        #region Expression-based methods
 
         protected override Expression VisitChildren(ExpressionVisitor visitor)
         {
@@ -54,13 +44,11 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
         }
 
         public ColumnExpression MakeNullable()
-        {
-            return new ColumnExpression(Name, Table, Type.MakeNullable(), TypeMapping, true);
-        }
+            => new ColumnExpression(Name, Table, Type.MakeNullable(), TypeMapping, true);
 
-        #endregion
 
-        #region Equality & HashCode
+        public override void Print(ExpressionPrinter expressionPrinter)
+            => expressionPrinter.StringBuilder.Append(Table.Alias).Append(".").Append(Name);
 
         public override bool Equals(object obj)
             => obj != null
@@ -85,13 +73,6 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
 
                 return hashCode;
             }
-        }
-
-        #endregion
-
-        public override void Print(ExpressionPrinter expressionPrinter)
-        {
-            expressionPrinter.StringBuilder.Append(Table.Alias).Append(".").Append(Name);
         }
     }
 }

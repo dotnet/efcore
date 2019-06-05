@@ -12,7 +12,6 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
 {
     public class SqlUnaryExpression : SqlExpression
     {
-        #region Fields & Constructors
         private static ISet<ExpressionType> _allowedOperators = new HashSet<ExpressionType>
         {
             ExpressionType.Equal,
@@ -21,6 +20,10 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
             ExpressionType.Not,
             ExpressionType.Negate,
         };
+        private static ExpressionType VerifyOperator(ExpressionType operatorType)
+            => _allowedOperators.Contains(operatorType)
+                ? operatorType
+                : throw new InvalidOperationException("Unsupported Unary operator type specified.");
 
         public SqlUnaryExpression(
             ExpressionType operatorType,
@@ -34,38 +37,36 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
             Operand = operand;
         }
 
-        private static ExpressionType VerifyOperator(ExpressionType operatorType)
-        {
-            return _allowedOperators.Contains(operatorType)
-                ? operatorType
-                : throw new InvalidOperationException("Unsupported Unary operator type specified.");
-
-        }
-        #endregion
-
-        #region Public Properties
-
         public ExpressionType OperatorType { get; }
         public SqlExpression Operand { get; }
-        #endregion
 
-        #region Expression-based methods
         protected override Expression VisitChildren(ExpressionVisitor visitor)
-        {
-            var operand = (SqlExpression)visitor.Visit(Operand);
-
-            return Update(operand);
-        }
+            => Update((SqlExpression)visitor.Visit(Operand));
 
         public SqlUnaryExpression Update(SqlExpression operand)
-        {
-            return operand != Operand
+            => operand != Operand
                 ? new SqlUnaryExpression(OperatorType, operand, Type, TypeMapping)
                 : this;
-        }
-        #endregion
 
-        #region Equality & HashCode
+        public override void Print(ExpressionPrinter expressionPrinter)
+        {
+            if (OperatorType == ExpressionType.Convert)
+            {
+                expressionPrinter.StringBuilder.Append("CAST(");
+                expressionPrinter.Visit(Operand);
+                expressionPrinter.StringBuilder.Append(")");
+                expressionPrinter.StringBuilder.Append(" AS ");
+                expressionPrinter.StringBuilder.Append(TypeMapping.StoreType);
+                expressionPrinter.StringBuilder.Append(")");
+            }
+            else
+            {
+                expressionPrinter.StringBuilder.Append(OperatorType);
+                expressionPrinter.StringBuilder.Append("(");
+                expressionPrinter.Visit(Operand);
+                expressionPrinter.StringBuilder.Append(")");
+            }
+        }
         public override bool Equals(object obj)
             => obj != null
             && (ReferenceEquals(this, obj)
@@ -86,28 +87,6 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
                 hashCode = (hashCode * 397) ^ Operand.GetHashCode();
 
                 return hashCode;
-            }
-        }
-
-        #endregion
-
-        public override void Print(ExpressionPrinter expressionPrinter)
-        {
-            if (OperatorType == ExpressionType.Convert)
-            {
-                expressionPrinter.StringBuilder.Append("CAST(");
-                expressionPrinter.Visit(Operand);
-                expressionPrinter.StringBuilder.Append(")");
-                expressionPrinter.StringBuilder.Append(" AS ");
-                expressionPrinter.StringBuilder.Append(TypeMapping.StoreType);
-                expressionPrinter.StringBuilder.Append(")");
-            }
-            else
-            {
-                expressionPrinter.StringBuilder.Append(OperatorType);
-                expressionPrinter.StringBuilder.Append("(");
-                expressionPrinter.Visit(Operand);
-                expressionPrinter.StringBuilder.Append(")");
             }
         }
     }

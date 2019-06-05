@@ -10,7 +10,6 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
 {
     public class SqlConstantExpression : SqlExpression
     {
-        #region Fields & Constructors
         private readonly ConstantExpression _constantExpression;
 
         public SqlConstantExpression(ConstantExpression constantExpression, RelationalTypeMapping typeMapping)
@@ -18,54 +17,13 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
         {
             _constantExpression = constantExpression;
         }
-        #endregion
 
-        #region Public Properties
         public object Value => _constantExpression.Value;
-        #endregion
 
-        #region Expression-based methods
         public SqlExpression ApplyTypeMapping(RelationalTypeMapping typeMapping)
-        {
-            return new SqlConstantExpression(_constantExpression, typeMapping);
-        }
-
-        protected override Expression VisitChildren(ExpressionVisitor visitor)
-        {
-            return this;
-        }
-        #endregion
-
-        #region Equality & HashCode
-        public override bool Equals(object obj)
-            => obj != null
-            && (ReferenceEquals(this, obj)
-                || obj is SqlConstantExpression sqlConstantExpression
-                    && Equals(sqlConstantExpression));
-
-        private bool Equals(SqlConstantExpression sqlConstantExpression)
-            => base.Equals(sqlConstantExpression)
-            && (Value == null
-                ? sqlConstantExpression.Value == null
-                : Value.Equals(sqlConstantExpression.Value));
-
-        public override int GetHashCode()
-        {
-            unchecked
-            {
-                var hashCode = base.GetHashCode();
-                hashCode = (hashCode * 397) ^ (Value?.GetHashCode() ?? 0);
-
-                return hashCode;
-            }
-        }
-
-        #endregion
-
-        public override void Print(ExpressionPrinter expressionPrinter)
-        {
-            Print(Value, expressionPrinter);
-        }
+            => new SqlConstantExpression(_constantExpression, typeMapping);
+        protected override Expression VisitChildren(ExpressionVisitor visitor) => this;
+        public override void Print(ExpressionPrinter expressionPrinter) => Print(Value, expressionPrinter);
 
         private void Print(
             object value,
@@ -89,6 +47,29 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
             else
             {
                 expressionPrinter.StringBuilder.Append(TypeMapping?.GenerateSqlLiteral(value) ?? Value?.ToString() ?? "NULL");
+            }
+        }
+
+        public override bool Equals(object obj)
+            => obj != null
+            && (ReferenceEquals(this, obj)
+                || obj is SqlConstantExpression sqlConstantExpression
+                    && Equals(sqlConstantExpression));
+
+        private bool Equals(SqlConstantExpression sqlConstantExpression)
+            => base.Equals(sqlConstantExpression)
+            && (Value == null
+                ? sqlConstantExpression.Value == null
+                : Value.Equals(sqlConstantExpression.Value));
+
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                var hashCode = base.GetHashCode();
+                hashCode = (hashCode * 397) ^ (Value?.GetHashCode() ?? 0);
+
+                return hashCode;
             }
         }
     }

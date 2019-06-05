@@ -9,42 +9,20 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
 {
     public class FromSqlExpression : TableExpressionBase
     {
-        #region Fields & Constructors
-        public FromSqlExpression(
-            [NotNull] string sql,
-            Expression arguments,
-            [NotNull] string alias)
+        public FromSqlExpression([NotNull] string sql, Expression arguments, [NotNull] string alias)
             : base(alias)
         {
             Sql = sql;
             Arguments = arguments;
         }
-        #endregion
 
-        #region Public Properties
-
-        /// <summary>
-        ///     Gets the SQL.
-        /// </summary>
-        /// <value>
-        ///     The SQL.
-        /// </value>
         public string Sql { get; }
         public Expression Arguments { get; }
 
-        #endregion
-
-        #region Expression-based methods
-
-        protected override Expression VisitChildren(ExpressionVisitor visitor)
-            => this;
+        protected override Expression VisitChildren(ExpressionVisitor visitor) => this;
 
         public override void Print(ExpressionPrinter expressionPrinter)
             => expressionPrinter.StringBuilder.Append(Sql);
-
-        #endregion
-
-        #region Equality & HashCode
 
         public override bool Equals(object obj)
             => obj != null
@@ -66,7 +44,5 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
                 return hashCode;
             }
         }
-
-        #endregion
     }
 }

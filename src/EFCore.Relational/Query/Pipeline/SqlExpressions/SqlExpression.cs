@@ -11,29 +11,21 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
 {
     public abstract class SqlExpression : Expression, IPrintable
     {
-        #region Fields & Constructors
         protected SqlExpression(Type type, RelationalTypeMapping typeMapping)
         {
             Type = type;
             TypeMapping = typeMapping;
         }
-        #endregion
 
-        #region Public Properties
         public override Type Type { get; }
         public RelationalTypeMapping TypeMapping { get; }
-        #endregion
 
-        #region Expression-based methods/properties
         protected override Expression VisitChildren(ExpressionVisitor visitor)
-        {
-            throw new InvalidOperationException("VisitChildren must be overriden in class deriving from SqlExpression");
-        }
+            => throw new InvalidOperationException("VisitChildren must be overriden in class deriving from SqlExpression");
 
         public override ExpressionType NodeType => ExpressionType.Extension;
-        #endregion
+        public abstract void Print(ExpressionPrinter expressionPrinter);
 
-        #region Equality & HashCode
         public override bool Equals(object obj)
             => obj != null
             && (ReferenceEquals(this, obj)
@@ -54,9 +46,5 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
                 return hashCode;
             }
         }
-
-        #endregion
-
-        public abstract void Print(ExpressionPrinter expressionPrinter);
     }
 }

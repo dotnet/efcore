@@ -10,39 +10,37 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
 {
     public class ProjectionExpression : Expression, IPrintable
     {
-        #region Fields & Constructors
         public ProjectionExpression(SqlExpression expression, string alias)
         {
             Expression = expression;
             Alias = alias;
         }
-        #endregion
 
-        #region Public Properties
         public string Alias { get; }
         public SqlExpression Expression { get; }
-        #endregion
 
-        #region Expression-based methods/properties
         public override Type Type => Expression.Type;
         public override ExpressionType NodeType => ExpressionType.Extension;
 
         protected override Expression VisitChildren(ExpressionVisitor visitor)
-        {
-            var expression = (SqlExpression)visitor.Visit(Expression);
-
-            return Update(expression);
-        }
+            => Update((SqlExpression)visitor.Visit(Expression));
 
         public ProjectionExpression Update(SqlExpression expression)
-        {
-            return expression != Expression
+            => expression != Expression
                 ? new ProjectionExpression(expression, Alias)
                 : this;
-        }
-        #endregion
 
-        #region Equality & HashCode
+        public void Print(ExpressionPrinter expressionPrinter)
+        {
+            expressionPrinter.Visit(Expression);
+            if (!string.Equals(string.Empty, Alias)
+                && !(Expression is ColumnExpression column
+                && string.Equals(column.Name, Alias)))
+            {
+                expressionPrinter.StringBuilder.Append(" AS " + Alias);
+            }
+        }
+
         public override bool Equals(object obj)
             => obj != null
             && (ReferenceEquals(this, obj)
@@ -62,19 +60,6 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
                 hashCode = (hashCode * 397) ^ Expression.GetHashCode();
 
                 return hashCode;
-            }
-        }
-
-        #endregion
-
-        public void Print(ExpressionPrinter expressionPrinter)
-        {
-            expressionPrinter.Visit(Expression);
-            if (!string.Equals(string.Empty, Alias)
-                && !(Expression is ColumnExpression column
-                && string.Equals(column.Name, Alias)))
-            {
-                expressionPrinter.StringBuilder.Append(" AS " + Alias);
             }
         }
     }

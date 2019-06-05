@@ -7,45 +7,12 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
 {
     public class TableExpression : TableExpressionBase
     {
-        #region Fields & Constructors
-        public TableExpression(string table, string schema, string alias)
+        internal TableExpression(string table, string schema, string alias)
             : base(alias)
         {
             Table = table;
             Schema = schema;
         }
-        #endregion
-
-        #region Public Properties
-        public string Table { get; }
-        public string Schema { get; }
-        #endregion
-
-        #region Equality & HashCode
-
-        public override bool Equals(object obj)
-            => obj != null
-            && (ReferenceEquals(this, obj)
-                || obj is TableExpression tableExpression
-                    && Equals(tableExpression));
-
-        private bool Equals(TableExpression tableExpression)
-            => base.Equals(tableExpression)
-            && string.Equals(Table, tableExpression.Table)
-            && string.Equals(Schema, tableExpression.Schema);
-
-        public override int GetHashCode()
-        {
-            unchecked
-            {
-                var hashCode = base.GetHashCode();
-                hashCode = (hashCode * 397) ^ Table.GetHashCode();
-                hashCode = (hashCode * 397) ^ (Schema?.GetHashCode() ?? 0);
-
-                return hashCode;
-            }
-        }
-        #endregion
 
         public override void Print(ExpressionPrinter expressionPrinter)
         {
@@ -60,6 +27,25 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
                 .Append(Table)
                 .Append(" AS ")
                 .Append(Alias);
+        }
+
+        public string Table { get; }
+        public string Schema { get; }
+
+        public override bool Equals(object obj)
+            // This should be reference equal only.
+            => obj != null && ReferenceEquals(this, obj);
+
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                var hashCode = base.GetHashCode();
+                hashCode = (hashCode * 397) ^ Table.GetHashCode();
+                hashCode = (hashCode * 397) ^ (Schema?.GetHashCode() ?? 0);
+
+                return hashCode;
+            }
         }
     }
 }

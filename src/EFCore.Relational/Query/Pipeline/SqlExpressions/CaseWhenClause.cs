@@ -5,24 +5,14 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
 {
     public class CaseWhenClause
     {
-        #region Fields & Constructors
-
         public CaseWhenClause(SqlExpression test, SqlExpression result)
         {
             Test = test;
             Result = result;
         }
 
-        #endregion
-
-        #region Public Properties
-
         public SqlExpression Test { get; }
         public SqlExpression Result { get; }
-
-        #endregion
-
-        #region Equality & HashCode
 
         public override bool Equals(object obj)
             => obj != null
@@ -44,7 +34,5 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
                 return hashCode;
             }
         }
-
-        #endregion
     }
 }
