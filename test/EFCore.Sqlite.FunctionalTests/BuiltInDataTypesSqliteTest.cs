@@ -1619,10 +1619,6 @@ LIMIT 1",
                     b => b.Property(e => e.Decimal).HasColumnType("decimal(5, 2)"));
             }
 
-            public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
-                => base.AddOptions(builder).ConfigureWarnings(
-                    c => c.Log(RelationalEventId.ValueConversionSqlLiteralWarning));
-
             public override bool SupportsBinaryKeys => true;
 
             public override DateTime DefaultDateTime => new DateTime();

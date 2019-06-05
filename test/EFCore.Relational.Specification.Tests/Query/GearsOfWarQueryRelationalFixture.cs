@@ -12,11 +12,6 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         public TestSqlLoggerFactory TestSqlLoggerFactory => (TestSqlLoggerFactory)ListLoggerFactory;
 
-        public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
-            => base.AddOptions(builder).ConfigureWarnings(
-                c => c
-                    .Log(RelationalEventId.ValueConversionSqlLiteralWarning));
-
         protected override bool ShouldLogCategory(string logCategory)
             => logCategory == DbLoggerCategory.Query.Name;
     }
