@@ -9,8 +9,6 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
 {
     public class LikeExpression : SqlExpression
     {
-        #region Fields & Constructors
-
         public LikeExpression(SqlExpression match, SqlExpression pattern, SqlExpression escapeChar, RelationalTypeMapping typeMapping)
             : base(typeof(bool), typeMapping)
         {
@@ -19,17 +17,9 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
             EscapeChar = escapeChar;
         }
 
-        #endregion
-
-        #region Public Properties
-
         public SqlExpression Match { get; }
         public SqlExpression Pattern { get; }
         public SqlExpression EscapeChar { get; }
-
-        #endregion
-
-        #region Expression-based methods
 
         protected override Expression VisitChildren(ExpressionVisitor visitor)
         {
@@ -41,15 +31,22 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
         }
 
         public LikeExpression Update(SqlExpression match, SqlExpression pattern, SqlExpression escapeChar)
-        {
-            return match != Match || pattern != Pattern || escapeChar != EscapeChar
+            => match != Match || pattern != Pattern || escapeChar != EscapeChar
                 ? new LikeExpression(match, pattern, escapeChar, TypeMapping)
                 : this;
+
+        public override void Print(ExpressionPrinter expressionPrinter)
+        {
+            expressionPrinter.Visit(Match);
+            expressionPrinter.StringBuilder.Append(" LIKE ");
+            expressionPrinter.Visit(Pattern);
+
+            if (EscapeChar != null)
+            {
+                expressionPrinter.StringBuilder.Append(" ESCAPE ");
+                expressionPrinter.Visit(EscapeChar);
+            }
         }
-
-        #endregion
-
-        #region Equality & HashCode
 
         public override bool Equals(object obj)
             => obj != null
@@ -73,21 +70,6 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
                 hashCode = (hashCode * 397) ^ (EscapeChar?.GetHashCode() ?? 0);
 
                 return hashCode;
-            }
-        }
-
-        #endregion
-
-        public override void Print(ExpressionPrinter expressionPrinter)
-        {
-            expressionPrinter.Visit(Match);
-            expressionPrinter.StringBuilder.Append(" LIKE ");
-            expressionPrinter.Visit(Pattern);
-
-            if (EscapeChar != null)
-            {
-                expressionPrinter.StringBuilder.Append(" ESCAPE ");
-                expressionPrinter.Visit(EscapeChar);
             }
         }
     }

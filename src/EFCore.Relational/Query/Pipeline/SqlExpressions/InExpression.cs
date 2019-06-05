@@ -9,7 +9,6 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
 {
     public class InExpression : SqlExpression
     {
-        #region Fields & Constructors
         public InExpression(SqlExpression item, bool negated, SelectExpression subquery, RelationalTypeMapping typeMapping)
             : this(item, negated, null, subquery, typeMapping)
         {
@@ -29,17 +28,12 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
             Subquery = subquery;
             Values = values;
         }
-        #endregion
-
-        #region Public Properties
 
         public SqlExpression Item { get; }
         public bool Negated { get; }
         public SqlExpression Values { get; }
         public SelectExpression Subquery { get; }
-        #endregion
 
-        #region Expression-based methods
         protected override Expression VisitChildren(ExpressionVisitor visitor)
         {
             var newItem = (SqlExpression)visitor.Visit(Item);
@@ -49,20 +43,22 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
             return Update(newItem, values, subquery);
         }
 
-        public InExpression Negate()
-        {
-            return new InExpression(Item, !Negated, Values, Subquery, TypeMapping);
-        }
+        public InExpression Negate() => new InExpression(Item, !Negated, Values, Subquery, TypeMapping);
 
         public InExpression Update(SqlExpression item, SqlExpression values, SelectExpression subquery)
-        {
-            return item != Item || subquery != Subquery || values != Values
+            => item != Item || subquery != Subquery || values != Values
                 ? new InExpression(item, Negated, values, subquery, TypeMapping)
                 : this;
-        }
-        #endregion
 
-        #region Equality & HashCode
+        public override void Print(ExpressionPrinter expressionPrinter)
+        {
+            expressionPrinter.Visit(Item);
+            expressionPrinter.StringBuilder.Append(Negated ? " NOT IN " : " IN ");
+            expressionPrinter.StringBuilder.Append("(");
+            expressionPrinter.Visit(Values);
+            expressionPrinter.StringBuilder.Append(")");
+        }
+
         public override bool Equals(object obj)
             => obj != null
             && (ReferenceEquals(this, obj)
@@ -88,17 +84,6 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
 
                 return hashCode;
             }
-        }
-
-        #endregion
-
-        public override void Print(ExpressionPrinter expressionPrinter)
-        {
-            expressionPrinter.Visit(Item);
-            expressionPrinter.StringBuilder.Append(Negated ? " NOT IN " : " IN ");
-            expressionPrinter.StringBuilder.Append("(");
-            expressionPrinter.Visit(Values);
-            expressionPrinter.StringBuilder.Append(")");
         }
     }
 }

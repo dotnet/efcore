@@ -12,15 +12,11 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
 {
     public class SqlBinaryExpression : SqlExpression
     {
-        #region Fields & Constructors
         private static ISet<ExpressionType> _allowedOperators = new HashSet<ExpressionType>
         {
             ExpressionType.Add,
-            //ExpressionType.AddChecked,
             ExpressionType.Subtract,
-            //ExpressionType.SubtractChecked,
             ExpressionType.Multiply,
-            //ExpressionType.MultiplyChecked,
             ExpressionType.Divide,
             ExpressionType.Modulo,
             //ExpressionType.Power,
@@ -41,6 +37,11 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
             //ExpressionType.LeftShift,
         };
 
+        private static ExpressionType VerifyOperator(ExpressionType operatorType)
+            => _allowedOperators.Contains(operatorType)
+                ? operatorType
+                : throw new InvalidOperationException("Unsupported Binary operator type specified.");
+
         public SqlBinaryExpression(
             ExpressionType operatorType,
             SqlExpression left,
@@ -58,22 +59,10 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
             Right = right;
         }
 
-        private static ExpressionType VerifyOperator(ExpressionType operatorType)
-        {
-            return _allowedOperators.Contains(operatorType)
-                ? operatorType
-                : throw new InvalidOperationException("Unsupported Binary operator type specified.");
-        }
-
-        #endregion
-
-        #region Public Properties
         public ExpressionType OperatorType { get; }
         public SqlExpression Left { get; }
         public SqlExpression Right { get; }
-        #endregion
 
-        #region Expression-based methods
         protected override Expression VisitChildren(ExpressionVisitor visitor)
         {
             var left = (SqlExpression)visitor.Visit(Left);
@@ -83,42 +72,9 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
         }
 
         public SqlBinaryExpression Update(SqlExpression left, SqlExpression right)
-        {
-            return left != Left || right != Right
+            => left != Left || right != Right
                 ? new SqlBinaryExpression(OperatorType, left, right, Type, TypeMapping)
                 : this;
-        }
-
-        #endregion
-
-        #region Equality & HashCode
-
-        public override bool Equals(object obj)
-            => obj != null
-            && (ReferenceEquals(this, obj)
-                || obj is SqlBinaryExpression sqlBinaryExpression
-                    && Equals(sqlBinaryExpression));
-
-        private bool Equals(SqlBinaryExpression sqlBinaryExpression)
-            => base.Equals(sqlBinaryExpression)
-            && OperatorType == sqlBinaryExpression.OperatorType
-            && Left.Equals(sqlBinaryExpression.Left)
-            && Right.Equals(sqlBinaryExpression.Right);
-
-        public override int GetHashCode()
-        {
-            unchecked
-            {
-                var hashCode = base.GetHashCode();
-                hashCode = (hashCode * 397) ^ OperatorType.GetHashCode();
-                hashCode = (hashCode * 397) ^ Left.GetHashCode();
-                hashCode = (hashCode * 397) ^ Right.GetHashCode();
-
-                return hashCode;
-            }
-        }
-
-        #endregion
 
         public override void Print(ExpressionPrinter expressionPrinter)
         {
@@ -158,6 +114,31 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
             return expression is SqlBinaryExpression sqlBinary
                 && sqlBinary.OperatorType != ExpressionType.Coalesce
                 || expression is LikeExpression;
+        }
+
+        public override bool Equals(object obj)
+            => obj != null
+            && (ReferenceEquals(this, obj)
+                || obj is SqlBinaryExpression sqlBinaryExpression
+                    && Equals(sqlBinaryExpression));
+
+        private bool Equals(SqlBinaryExpression sqlBinaryExpression)
+            => base.Equals(sqlBinaryExpression)
+            && OperatorType == sqlBinaryExpression.OperatorType
+            && Left.Equals(sqlBinaryExpression.Left)
+            && Right.Equals(sqlBinaryExpression.Right);
+
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                var hashCode = base.GetHashCode();
+                hashCode = (hashCode * 397) ^ OperatorType.GetHashCode();
+                hashCode = (hashCode * 397) ^ Left.GetHashCode();
+                hashCode = (hashCode * 397) ^ Right.GetHashCode();
+
+                return hashCode;
+            }
         }
     }
 }

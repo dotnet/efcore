@@ -10,40 +10,32 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
 {
     public class OrderingExpression : Expression, IPrintable
     {
-        #region Fields & Constructors
         public OrderingExpression(SqlExpression expression, bool ascending)
         {
             Expression = expression;
             Ascending = ascending;
         }
-        #endregion
 
-        #region Public Properties
         public SqlExpression Expression { get; }
         public bool Ascending { get; }
-
-        #endregion
-
-        #region Expression-based properties/methods
 
         public override ExpressionType NodeType => ExpressionType.Extension;
         public override Type Type => Expression.Type;
         protected override Expression VisitChildren(ExpressionVisitor visitor)
-        {
-            var expression = (SqlExpression)visitor.Visit(Expression);
-
-            return Update(expression);
-        }
+            => Update((SqlExpression)visitor.Visit(Expression));
 
         public OrderingExpression Update(SqlExpression expression)
-        {
-            return expression != Expression
+            => expression != Expression
                 ? new OrderingExpression(expression, Ascending)
                 : this;
-        }
-        #endregion
 
-        #region Equality & HashCode
+        public void Print(ExpressionPrinter expressionPrinter)
+        {
+            expressionPrinter.Visit(Expression);
+
+            expressionPrinter.StringBuilder.Append(Ascending ? "ASC" : "DESC");
+        }
+
         public override bool Equals(object obj)
             => obj != null
             && (ReferenceEquals(this, obj)
@@ -63,15 +55,6 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
 
                 return hashCode;
             }
-        }
-
-        #endregion
-
-        public void Print(ExpressionPrinter expressionPrinter)
-        {
-            expressionPrinter.Visit(Expression);
-
-            expressionPrinter.StringBuilder.Append(Ascending ? "ASC" : "DESC");
         }
     }
 }

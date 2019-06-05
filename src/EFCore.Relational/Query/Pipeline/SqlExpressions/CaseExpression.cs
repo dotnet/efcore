@@ -11,8 +11,6 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
 {
     public class CaseExpression : SqlExpression
     {
-        #region Fields & Constructors
-
         private readonly List<CaseWhenClause> _whenClauses = new List<CaseWhenClause>();
 
         public CaseExpression(
@@ -40,17 +38,9 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
             ElseResult = elseResult;
         }
 
-        #endregion
-
-        #region Public Properties
-
         public SqlExpression Operand { get; }
         public IReadOnlyList<CaseWhenClause> WhenClauses => _whenClauses;
         public SqlExpression ElseResult { get; }
-
-        #endregion
-
-        #region Expression-based methods
 
         protected override Expression VisitChildren(ExpressionVisitor visitor)
         {
@@ -85,43 +75,9 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
             SqlExpression operand,
             IReadOnlyList<CaseWhenClause> whenClauses,
             SqlExpression elseResult)
-        {
-            return operand != Operand || !whenClauses.SequenceEqual(WhenClauses) || elseResult != ElseResult
+            => operand != Operand || !whenClauses.SequenceEqual(WhenClauses) || elseResult != ElseResult
                 ? new CaseExpression(operand, whenClauses, elseResult)
                 : this;
-        }
-
-        #endregion
-
-        #region Equality & HashCode
-
-        public override bool Equals(object obj)
-            => obj != null
-            && (ReferenceEquals(this, obj)
-                || obj is CaseExpression caseExpression
-                    && Equals(caseExpression));
-
-        private bool Equals(CaseExpression caseExpression)
-            => base.Equals(caseExpression)
-            && (Operand == null ? caseExpression.Operand == null : Operand.Equals(caseExpression.Operand))
-            && WhenClauses.SequenceEqual(caseExpression.WhenClauses)
-            && (ElseResult == null ? caseExpression.ElseResult == null : ElseResult.Equals(caseExpression.ElseResult));
-
-        public override int GetHashCode()
-        {
-            unchecked
-            {
-                var hashCode = base.GetHashCode();
-                hashCode = (hashCode * 397) ^ (Operand?.GetHashCode() ?? 0);
-                hashCode = (hashCode * 397) ^ WhenClauses.Aggregate(
-                    0, (current, value) => current + ((current * 397) ^ value.GetHashCode()));
-                hashCode = (hashCode * 397) ^ (ElseResult?.GetHashCode() ?? 0);
-
-                return hashCode;
-            }
-        }
-
-        #endregion
 
         public override void Print(ExpressionPrinter expressionPrinter)
         {
@@ -150,6 +106,32 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
             }
 
             expressionPrinter.StringBuilder.AppendLine().Append("END");
+        }
+
+        public override bool Equals(object obj)
+            => obj != null
+            && (ReferenceEquals(this, obj)
+                || obj is CaseExpression caseExpression
+                    && Equals(caseExpression));
+
+        private bool Equals(CaseExpression caseExpression)
+            => base.Equals(caseExpression)
+            && (Operand == null ? caseExpression.Operand == null : Operand.Equals(caseExpression.Operand))
+            && WhenClauses.SequenceEqual(caseExpression.WhenClauses)
+            && (ElseResult == null ? caseExpression.ElseResult == null : ElseResult.Equals(caseExpression.ElseResult));
+
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                var hashCode = base.GetHashCode();
+                hashCode = (hashCode * 397) ^ (Operand?.GetHashCode() ?? 0);
+                hashCode = (hashCode * 397) ^ WhenClauses.Aggregate(
+                    0, (current, value) => current + ((current * 397) ^ value.GetHashCode()));
+                hashCode = (hashCode * 397) ^ (ElseResult?.GetHashCode() ?? 0);
+
+                return hashCode;
+            }
         }
     }
 }

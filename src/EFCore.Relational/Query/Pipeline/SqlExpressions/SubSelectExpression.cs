@@ -9,7 +9,6 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
 {
     public class SubSelectExpression : SqlExpression
     {
-        #region Fields & Constructors
         public SubSelectExpression(SelectExpression subquery)
             : base(Verify(subquery).Projection[0].Type, subquery.Projection[0].Expression.TypeMapping)
         {
@@ -24,29 +23,26 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
 
             return selectExpression;
         }
-        #endregion
 
-        #region Public Properties
         public SelectExpression Subquery { get; }
-        #endregion
 
-        #region Expression-based methods
         protected override Expression VisitChildren(ExpressionVisitor visitor)
-        {
-            var subquery = (SelectExpression)visitor.Visit(Subquery);
-
-            return Update(subquery);
-        }
+            => Update((SelectExpression)visitor.Visit(Subquery));
 
         public SubSelectExpression Update(SelectExpression subquery)
-        {
-            return subquery != Subquery
+            => subquery != Subquery
                 ? new SubSelectExpression(subquery)
                 : this;
-        }
-        #endregion
 
-        #region Equality & HashCode
+        public override void Print(ExpressionPrinter expressionPrinter)
+        {
+            expressionPrinter.StringBuilder.Append("(");
+            using (expressionPrinter.StringBuilder.Indent())
+            {
+                expressionPrinter.Visit(Subquery);
+            }
+            expressionPrinter.StringBuilder.Append(")");
+        }
         public override bool Equals(object obj)
             => obj != null
             && (ReferenceEquals(this, obj)
@@ -66,18 +62,6 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
 
                 return hashCode;
             }
-        }
-
-        #endregion
-
-        public override void Print(ExpressionPrinter expressionPrinter)
-        {
-            expressionPrinter.StringBuilder.Append("(");
-            using (expressionPrinter.StringBuilder.Indent())
-            {
-                expressionPrinter.Visit(Subquery);
-            }
-            expressionPrinter.StringBuilder.Append(")");
         }
     }
 }

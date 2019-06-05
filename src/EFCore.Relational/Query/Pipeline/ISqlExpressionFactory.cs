@@ -12,14 +12,11 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
 {
     public interface ISqlExpressionFactory
     {
-        #region TypeMapping
         SqlExpression ApplyTypeMapping(SqlExpression sqlExpression, RelationalTypeMapping typeMapping);
         SqlExpression ApplyDefaultTypeMapping(SqlExpression sqlExpression);
         RelationalTypeMapping GetTypeMappingForValue(object value);
         RelationalTypeMapping FindMapping(Type type);
-        #endregion
 
-        #region Binary
         SqlBinaryExpression MakeBinary(ExpressionType operatorType, SqlExpression left, SqlExpression right, RelationalTypeMapping typeMapping);
         // Comparison
         SqlBinaryExpression Equal(SqlExpression left, SqlExpression right);
@@ -42,22 +39,16 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
         SqlBinaryExpression Or(SqlExpression left, SqlExpression right, RelationalTypeMapping typeMapping = null);
         // Other
         SqlBinaryExpression Coalesce(SqlExpression left, SqlExpression right, RelationalTypeMapping typeMapping = null);
-        #endregion
 
-        #region Unary
         SqlUnaryExpression IsNull(SqlExpression operand);
         SqlUnaryExpression IsNotNull(SqlExpression operand);
         SqlUnaryExpression Convert(SqlExpression operand, Type type, RelationalTypeMapping typeMapping = null);
         SqlUnaryExpression Not(SqlExpression operand);
         SqlUnaryExpression Negate(SqlExpression operand);
-        #endregion
 
-        #region Case block
         CaseExpression Case(SqlExpression operand, params CaseWhenClause[] whenClauses);
         CaseExpression Case(IReadOnlyList<CaseWhenClause> whenClauses, SqlExpression elseResult);
-        #endregion
 
-        #region Functions
         SqlFunctionExpression Function(
             string functionName, IEnumerable<SqlExpression> arguments, Type returnType, RelationalTypeMapping typeMapping = null);
         SqlFunctionExpression Function(
@@ -70,9 +61,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
             string schema, string functionName, bool niladic, Type returnType, RelationalTypeMapping typeMapping = null);
         SqlFunctionExpression Function(
             SqlExpression instance, string functionName, bool niladic, Type returnType, RelationalTypeMapping typeMapping = null);
-        #endregion
 
-        #region Other Sql specific constructs
         ExistsExpression Exists(SelectExpression subquery, bool negated);
         InExpression In(SqlExpression item, SqlExpression values, bool negated);
         InExpression In(SqlExpression item, SelectExpression subquery, bool negated);
@@ -83,7 +72,5 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
         SelectExpression Select(SqlExpression projection);
         SelectExpression Select(IEntityType entityType);
         SelectExpression Select(IEntityType entityType, string sql, Expression sqlArguments);
-
-        #endregion
     }
 }

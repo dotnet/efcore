@@ -9,7 +9,6 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
 {
     public class SqlParameterExpression : SqlExpression
     {
-        #region Fields & Constructors
         private readonly ParameterExpression _parameterExpression;
 
         internal SqlParameterExpression(ParameterExpression parameterExpression, RelationalTypeMapping typeMapping)
@@ -17,25 +16,15 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
         {
             _parameterExpression = parameterExpression;
         }
-        #endregion
 
-        #region Public Properties
         public string Name => _parameterExpression.Name;
-        #endregion
 
-        #region Expression-based methods
         public SqlExpression ApplyTypeMapping(RelationalTypeMapping typeMapping)
-        {
-            return new SqlParameterExpression(_parameterExpression, typeMapping);
-        }
+            => new SqlParameterExpression(_parameterExpression, typeMapping);
+        protected override Expression VisitChildren(ExpressionVisitor visitor) => this;
+        public override void Print(ExpressionPrinter expressionPrinter)
+            => expressionPrinter.StringBuilder.Append("@" + _parameterExpression.Name);
 
-        protected override Expression VisitChildren(ExpressionVisitor visitor)
-        {
-            return this;
-        }
-        #endregion
-
-        #region Equality & HashCode
         public override bool Equals(object obj)
             => obj != null
             && (ReferenceEquals(this, obj)
@@ -55,13 +44,6 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
 
                 return hashCode;
             }
-        }
-
-        #endregion
-
-        public override void Print(ExpressionPrinter expressionPrinter)
-        {
-            expressionPrinter.StringBuilder.Append("@" + _parameterExpression.Name);
         }
     }
 }

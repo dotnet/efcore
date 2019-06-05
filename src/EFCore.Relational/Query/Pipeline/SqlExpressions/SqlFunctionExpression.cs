@@ -12,7 +12,6 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
 {
     public class SqlFunctionExpression : SqlExpression
     {
-        #region Fields & Constructors
         public SqlFunctionExpression(
             string functionName,
             bool niladic,
@@ -87,17 +86,13 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
             IsNiladic = niladic;
             Arguments = (arguments ?? Array.Empty<SqlExpression>()).ToList();
         }
-        #endregion
 
-        #region Public Properties
         public string FunctionName { get; }
         public string Schema { get; }
         public bool IsNiladic { get; }
         public IReadOnlyList<SqlExpression> Arguments { get; }
         public Expression Instance { get; }
-        #endregion
 
-        #region Expression-based methods
         protected override Expression VisitChildren(ExpressionVisitor visitor)
         {
             var changed = false;
@@ -123,8 +118,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
         }
 
         public SqlFunctionExpression ApplyTypeMapping(RelationalTypeMapping typeMapping)
-        {
-            return new SqlFunctionExpression(
+            => new SqlFunctionExpression(
                 Instance,
                 Schema,
                 FunctionName,
@@ -132,17 +126,40 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
                 Arguments,
                 Type,
                 typeMapping ?? TypeMapping);
-        }
 
         public SqlFunctionExpression Update(SqlExpression instance, IReadOnlyList<SqlExpression> arguments)
-        {
-            return instance != Instance || !arguments.SequenceEqual(Arguments)
+            => instance != Instance || !arguments.SequenceEqual(Arguments)
                 ? new SqlFunctionExpression(instance, Schema, FunctionName, IsNiladic, arguments, Type, TypeMapping)
                 : this;
-        }
-        #endregion
 
-        #region Equality & HashCode
+        public override void Print(ExpressionPrinter expressionPrinter)
+        {
+            if (!string.IsNullOrEmpty(Schema))
+            {
+                expressionPrinter.StringBuilder
+                    .Append(Schema)
+                    .Append(".")
+                    .Append(FunctionName);
+            }
+            else
+            {
+                if (Instance != null)
+                {
+                    expressionPrinter.Visit(Instance);
+                    expressionPrinter.StringBuilder.Append(".");
+                }
+
+                expressionPrinter.StringBuilder.Append(FunctionName);
+            }
+
+            if (!IsNiladic)
+            {
+                expressionPrinter.StringBuilder.Append("(");
+                expressionPrinter.VisitList(Arguments);
+                expressionPrinter.StringBuilder.Append(")");
+            }
+        }
+
         public override bool Equals(object obj)
             => obj != null
             && (ReferenceEquals(this, obj)
@@ -170,36 +187,6 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
 
 
                 return hashCode;
-            }
-        }
-
-        #endregion
-
-        public override void Print(ExpressionPrinter expressionPrinter)
-        {
-            if (!string.IsNullOrEmpty(Schema))
-            {
-                expressionPrinter.StringBuilder
-                    .Append(Schema)
-                    .Append(".")
-                    .Append(FunctionName);
-            }
-            else
-            {
-                if (Instance != null)
-                {
-                    expressionPrinter.Visit(Instance);
-                    expressionPrinter.StringBuilder.Append(".");
-                }
-
-                expressionPrinter.StringBuilder.Append(FunctionName);
-            }
-
-            if (!IsNiladic)
-            {
-                expressionPrinter.StringBuilder.Append("(");
-                expressionPrinter.VisitList(Arguments);
-                expressionPrinter.StringBuilder.Append(")");
             }
         }
     }

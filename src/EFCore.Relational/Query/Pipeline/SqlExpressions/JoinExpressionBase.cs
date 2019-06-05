@@ -5,19 +5,14 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
 {
     public abstract class JoinExpressionBase : TableExpressionBase
     {
-        #region Fields & Constructors
         protected JoinExpressionBase(TableExpressionBase table)
             : base("")
         {
             Table = table;
         }
-        #endregion
 
-        #region Public Properties
         public TableExpressionBase Table { get; }
-        #endregion
 
-        #region Equality & HashCode
         public override bool Equals(object obj)
             => obj != null
             && (ReferenceEquals(this, obj)
@@ -38,6 +33,5 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
                 return hashCode;
             }
         }
-        #endregion
     }
 }
