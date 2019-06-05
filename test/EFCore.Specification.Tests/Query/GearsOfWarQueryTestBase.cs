@@ -1171,7 +1171,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                       select g1.LeaderNickname != null ? g2.LeaderNickname : (string)null);
         }
 
-        [ConditionalTheory(Skip = "issue #15848")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Select_null_propagation_negative3(bool isAsync)
         {
@@ -1198,7 +1198,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 assertOrder: true);
         }
 
-        [ConditionalTheory(Skip = "issue #15848")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Select_null_propagation_negative4(bool isAsync)
         {
@@ -1217,7 +1217,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 assertOrder: true);
         }
 
-        [ConditionalTheory(Skip = "issue #15848")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Select_null_propagation_negative5(bool isAsync)
         {
@@ -3529,7 +3529,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             return gears.Where(g => g.Nickname == "Marcus" || g.Nickname == "Dom" || g.Nickname == "Cole Train" || g.Nickname == "Baird");
         }
 
-        [ConditionalFact(Skip = "issue #15848")]
+        [ConditionalFact]
         public virtual void Member_access_on_derived_entity_using_cast()
         {
             using (var ctx = CreateContext())
@@ -3553,7 +3553,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalFact(Skip = "issue #15848")]
+        [ConditionalFact]
         public virtual void Member_access_on_derived_materialized_entity_using_cast()
         {
             using (var ctx = CreateContext())
@@ -3577,7 +3577,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalFact(Skip = "issue #15848")]
+        [ConditionalFact]
         public virtual void Member_access_on_derived_entity_using_cast_and_let()
         {
             using (var ctx = CreateContext())
@@ -4067,7 +4067,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalFact(Skip = "issue #15848")]
+        [ConditionalFact]
         public virtual void Select_null_conditional_with_inheritance()
         {
             using (var context = CreateContext())
@@ -4083,7 +4083,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalFact(Skip = "issue #15848")]
+        [ConditionalFact]
         public virtual void Select_null_conditional_with_inheritance_negative()
         {
             using (var context = CreateContext())
@@ -5939,7 +5939,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 elementAsserter: (e, a) => CollectionAsserter<string>(elementSorter: ee => ee)(e.Collection, a.Collection));
         }
 
-        [ConditionalTheory(Skip = "issue #15848")]
+        [ConditionalTheory(Skip = "Issue#15611")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Outer_parameter_in_group_join_with_DefaultIfEmpty(bool isAsync)
         {
@@ -6025,7 +6025,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 assertOrder: true);
         }
 
-        [ConditionalTheory(Skip = "issue #15848")]
+        [ConditionalTheory(Skip = "Issue#15939")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Order_by_entity_qsre_with_inheritance(bool isAsync)
         {
@@ -7430,7 +7430,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalFact(Skip = "issue #15848")]
+        [ConditionalFact(Skip = "Issue#15964")]
         public virtual void Nav_rewrite_Distinct_with_convert()
         {
             using (var ctx = CreateContext())
@@ -7440,7 +7440,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalFact(Skip = "issue #15848")]
+        [ConditionalFact(Skip = "Issue#15964")]
         public virtual void Nav_rewrite_Distinct_with_convert_anonymous()
         {
             using (var ctx = CreateContext())
@@ -7460,7 +7460,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalFact(Skip = "issue #15848")]
+        [ConditionalFact]
         public virtual void Nav_rewrite_with_convert2()
         {
             using (var ctx = CreateContext())
@@ -7470,7 +7470,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalFact(Skip = "issue #15848")]
+        [ConditionalFact]
         public virtual void Nav_rewrite_with_convert3()
         {
             using (var ctx = CreateContext())
@@ -7489,7 +7489,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 (gs, cs) => gs.Where(g => cs.Any(c => c.BornGears.Contains(g))));
         }
 
-        [ConditionalFact(Skip = "issue #15848")]
+        [ConditionalFact]
         public virtual void Project_derivied_entity_with_convert_to_parent()
         {
             using (var ctx = CreateContext())
