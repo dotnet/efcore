@@ -79,15 +79,52 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
 
         protected override Expression VisitMember(MemberExpression memberExpression)
         {
-            var innerExpression = Visit(memberExpression.Expression);
-            if (innerExpression is EntityShaperExpression entityShaper)
+            if (memberExpression.Expression is EntityShaperExpression
+                || (memberExpression.Expression is UnaryExpression innerUnaryExpression
+                    && innerUnaryExpression.NodeType == ExpressionType.Convert
+                    && innerUnaryExpression.Operand is EntityShaperExpression))
             {
-                return BindProperty(entityShaper, entityShaper.EntityType.FindProperty(memberExpression.Member.GetSimpleMemberName()));
+                return BindProperty(memberExpression.Expression, memberExpression.Member.GetSimpleMemberName());
             }
+
+            var innerExpression = Visit(memberExpression.Expression);
 
             return TranslationFailed(memberExpression.Expression, innerExpression)
                 ? null
                 : _memberTranslatorProvider.Translate((SqlExpression)innerExpression, memberExpression.Member, memberExpression.Type);
+        }
+
+        private SqlExpression BindProperty(Expression source, string propertyName)
+        {
+            Type convertedType = null;
+            if (source is UnaryExpression unaryExpression
+                && unaryExpression.NodeType == ExpressionType.Convert)
+            {
+                source = unaryExpression.Operand;
+                if (unaryExpression.Type != typeof(object))
+                {
+                    convertedType = unaryExpression.Type;
+                }
+            }
+
+            if (source is EntityShaperExpression entityShaper)
+            {
+                var entityType = entityShaper.EntityType;
+                if (convertedType != null)
+                {
+                    entityType = entityType.RootType().GetDerivedTypesInclusive()
+                        .FirstOrDefault(et => et.ClrType == convertedType);
+
+                    if (entityType == null)
+                    {
+                        return null;
+                    }
+                }
+
+                return BindProperty(entityShaper, entityType.FindProperty(propertyName));
+            }
+
+            throw new InvalidOperationException();
         }
 
         private SqlExpression BindProperty(EntityShaperExpression entityShaper, IProperty property)
@@ -133,35 +170,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
         {
             if (methodCallExpression.TryGetEFPropertyArguments(out var source, out var propertyName))
             {
-                Type convertedType = null;
-                if (source is UnaryExpression unaryExpression
-                    && unaryExpression.NodeType == ExpressionType.Convert)
-                {
-                    source = unaryExpression.Operand;
-                    if (unaryExpression.Type != typeof(object))
-                    {
-                        convertedType = unaryExpression.Type;
-                    }
-                }
-
-                if (source is EntityShaperExpression entityShaper)
-                {
-                    var entityType = entityShaper.EntityType;
-                    if (convertedType != null)
-                    {
-                        entityType = entityType.RootType().GetDerivedTypesInclusive()
-                            .FirstOrDefault(et => et.ClrType == convertedType);
-                    }
-
-                    if (entityType != null)
-                    {
-                        var property = entityType.FindProperty(propertyName);
-
-                        return BindProperty(entityShaper, property);
-                    }
-                }
-
-                throw new InvalidOperationException();
+                return BindProperty(source, propertyName);
             }
 
             if (methodCallExpression.Method.DeclaringType == typeof(Queryable))
