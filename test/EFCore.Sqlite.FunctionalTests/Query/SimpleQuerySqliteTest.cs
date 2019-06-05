@@ -964,6 +964,13 @@ FROM ""Orders"" AS ""o""
 WHERE ""o"".""OrderDate"" IS NOT NULL");
         }
 
+        public override async Task Decimal_cast_to_double_works(bool isAsync)
+        {
+            await base.Decimal_cast_to_double_works(isAsync);
+
+            AssertSql(@" ");
+        }
+
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
     }

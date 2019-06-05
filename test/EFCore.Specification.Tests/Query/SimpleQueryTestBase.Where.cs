@@ -2004,5 +2004,17 @@ namespace Microsoft.EntityFrameworkCore.Query
                 os => os.Where(o => (customer is Order)));
 #pragma warning restore CS0184 // 'is' expression's given expression is never of the provided type
         }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Decimal_cast_to_double_works(bool isAsync)
+        {
+            var customer = new Customer();
+
+            return AssertQuery<Product>(
+                isAsync,
+                ps => ps.Where(p => (double?)p.UnitPrice > 100),
+                entryCount: 2);
+        }
     }
 }
