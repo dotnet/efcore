@@ -38,33 +38,15 @@ namespace Microsoft.EntityFrameworkCore.Storage
             /// <param name="converter"> Converts types to and from the store whenever this mapping is used. </param>
             /// <param name="comparer"> Supports custom value snapshotting and comparisons. </param>
             /// <param name="keyComparer"> Supports custom comparisons between keys--e.g. PK to FK comparison. </param>
+            /// <param name="structuralComparer"> Supports structural snapshotting needed for mutable reference types. </param>
             /// <param name="valueGeneratorFactory"> An optional factory for creating a specific <see cref="ValueGenerator" />. </param>
             public CoreTypeMappingParameters(
                 [NotNull] Type clrType,
                 [CanBeNull] ValueConverter converter = null,
                 [CanBeNull] ValueComparer comparer = null,
                 [CanBeNull] ValueComparer keyComparer = null,
+                [CanBeNull] ValueComparer structuralComparer = null,
                 [CanBeNull] Func<IProperty, IEntityType, ValueGenerator> valueGeneratorFactory = null)
-                : this(clrType, converter, comparer, keyComparer, null, valueGeneratorFactory)
-            {
-            }
-
-            /// <summary>
-            ///     Creates a new <see cref="CoreTypeMappingParameters" /> parameter object.
-            /// </summary>
-            /// <param name="clrType"> The .NET type used in the EF model. </param>
-            /// <param name="converter"> Converts types to and from the store whenever this mapping is used. </param>
-            /// <param name="comparer"> Supports custom value snapshotting and comparisons. </param>
-            /// <param name="keyComparer"> Supports custom comparisons between keys--e.g. PK to FK comparison. </param>
-            /// <param name="structuralComparer"> Supports structural snapshotting needed for mutable reference types. </param>
-            /// <param name="valueGeneratorFactory"> An optional factory for creating a specific <see cref="ValueGenerator" />. </param>
-            public CoreTypeMappingParameters(
-                [NotNull] Type clrType,
-                [CanBeNull] ValueConverter converter,
-                [CanBeNull] ValueComparer comparer,
-                [CanBeNull] ValueComparer keyComparer,
-                [CanBeNull] ValueComparer structuralComparer,
-                [CanBeNull] Func<IProperty, IEntityType, ValueGenerator> valueGeneratorFactory)
             {
                 Check.NotNull(clrType, nameof(clrType));
 

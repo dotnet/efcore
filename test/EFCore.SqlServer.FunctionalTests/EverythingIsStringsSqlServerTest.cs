@@ -26,7 +26,9 @@ namespace Microsoft.EntityFrameworkCore
         [ConditionalFact]
         public virtual void Columns_have_expected_data_types()
         {
-            var actual = BuiltInDataTypesSqlServerTest.QueryForColumnTypes(CreateContext());
+            var actual = BuiltInDataTypesSqlServerTest.QueryForColumnTypes(
+                CreateContext(),
+                nameof(ObjectBackedDataTypes), nameof(NullableBackedDataTypes), nameof(NonNullableBackedDataTypes));
 
             const string expected = @"BinaryForeignKeyDataType.BinaryKeyDataTypeId ---> [nullable nvarchar] [MaxLength = 450]
 BinaryForeignKeyDataType.Id ---> [nvarchar] [MaxLength = 64]
@@ -263,28 +265,25 @@ UnicodeDataTypes.StringUnicode ---> [nullable nvarchar] [MaxLength = -1]
                     }
                 }
 
-                if (clrType != null)
+                if (clrType == typeof(string))
                 {
-                    if (clrType == typeof(string))
+                    var isAnsi = mappingInfo.IsUnicode == false;
+                    var isFixedLength = mappingInfo.IsFixedLength == true;
+                    var baseName = isAnsi ? "varchar" : "nvarchar";
+                    var maxSize = isAnsi ? 8000 : 4000;
+
+                    var size = mappingInfo.Size ?? (mappingInfo.IsKeyOrIndex ? (int?)(isAnsi ? 900 : 450) : null);
+                    if (size > maxSize)
                     {
-                        var isAnsi = mappingInfo.IsUnicode == false;
-                        var isFixedLength = mappingInfo.IsFixedLength == true;
-                        var baseName = isAnsi ? "varchar" : "nvarchar";
-                        var maxSize = isAnsi ? 8000 : 4000;
-
-                        var size = mappingInfo.Size ?? (mappingInfo.IsKeyOrIndex ? (int?)(isAnsi ? 900 : 450) : null);
-                        if (size > maxSize)
-                        {
-                            size = isFixedLength ? maxSize : (int?)null;
-                        }
-
-                        return new SqlServerStringTypeMapping(
-                            baseName + "(" + (size == null ? "max" : size.ToString()) + ")",
-                            !isAnsi,
-                            size,
-                            isFixedLength,
-                            storeTypePostfix: size == null ? StoreTypePostfix.None : (StoreTypePostfix?)null);
+                        size = isFixedLength ? maxSize : (int?)null;
                     }
+
+                    return new SqlServerStringTypeMapping(
+                        baseName + "(" + (size == null ? "max" : size.ToString()) + ")",
+                        !isAnsi,
+                        size,
+                        isFixedLength,
+                        storeTypePostfix: size == null ? StoreTypePostfix.None : (StoreTypePostfix?)null);
                 }
 
                 return null;
