@@ -194,12 +194,19 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
 
         [Fact]
         public void Can_get_name()
+            => Can_get_name<Wotty>();
+
+        [Fact]
+        public void Can_get_name_with_object_field()
+            => Can_get_name<ObjectWotty>();
+
+        private void Can_get_name<TWotty>() where TWotty : IWotty, new()
         {
             using (var context = new PrimateContext())
             {
                 var entry = context
                     .Entry(
-                        new Wotty
+                        new TWotty
                         {
                             Id = 1,
                             Primate = "Monkey",
@@ -215,12 +222,19 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
 
         [Fact]
         public void Can_get_current_value()
+            => Can_get_current_value<Wotty>();
+
+        [Fact]
+        public void Can_get_current_value_with_object_field()
+            => Can_get_current_value<ObjectWotty>();
+
+        private void Can_get_current_value<TWotty>() where TWotty : IWotty, new()
         {
             using (var context = new PrimateContext())
             {
                 var entry = context
                     .Entry(
-                        new Wotty
+                        new TWotty
                         {
                             Id = 1,
                             Primate = "Monkey",
@@ -237,10 +251,17 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
 
         [Fact]
         public void Can_set_current_value()
+            => Can_set_current_value<Wotty>();
+
+        [Fact]
+        public void Can_set_current_value_with_object_field()
+            => Can_set_current_value<ObjectWotty>();
+
+        private void Can_set_current_value<TWotty>() where TWotty : IWotty, new()
         {
             using (var context = new PrimateContext())
             {
-                var entity = new Wotty
+                var entity = new TWotty
                 {
                     Id = 1,
                     Primate = "Monkey",
@@ -264,10 +285,17 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
 
         [Fact]
         public void Can_set_current_value_to_null()
+            => Can_set_current_value_to_null<Wotty>();
+
+        [Fact]
+        public void Can_set_current_value_to_null_with_object_field()
+            => Can_set_current_value_to_null<ObjectWotty>();
+
+        private void Can_set_current_value_to_null<TWotty>() where TWotty : IWotty, new()
         {
             using (var context = new PrimateContext())
             {
-                var entity = new Wotty
+                var entity = new TWotty
                 {
                     Id = 1,
                     Primate = "Monkey",
@@ -291,10 +319,17 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
 
         [Fact]
         public void Can_set_and_get_original_value()
+            => Can_set_and_get_original_value<Wotty>();
+
+        [Fact]
+        public void Can_set_and_get_original_value_with_object_field()
+            => Can_set_and_get_original_value<ObjectWotty>();
+
+        private void Can_set_and_get_original_value<TWotty>() where TWotty : IWotty, new()
         {
             using (var context = new PrimateContext())
             {
-                var entity = new Wotty
+                var entity = new TWotty
                 {
                     Id = 1,
                     Primate = "Monkey",
@@ -327,10 +362,17 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
 
         [Fact]
         public void Can_set_and_get_original_value_starting_null()
+            => Can_set_and_get_original_value_starting_null<Wotty>();
+
+        [Fact]
+        public void Can_set_and_get_original_value_starting_null_with_object_field()
+            => Can_set_and_get_original_value_starting_null<ObjectWotty>();
+
+        private void Can_set_and_get_original_value_starting_null<TWotty>() where TWotty : IWotty, new()
         {
             using (var context = new PrimateContext())
             {
-                var entity = new Wotty
+                var entity = new TWotty
                 {
                     Id = 1
                 };
@@ -361,10 +403,17 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
 
         [Fact]
         public void Can_set_original_value_to_null()
+            => Can_set_original_value_to_null<Wotty>();
+
+        [Fact]
+        public void Can_set_original_value_to_null_with_object_field()
+            => Can_set_original_value_to_null<ObjectWotty>();
+
+        private void Can_set_original_value_to_null<TWotty>() where TWotty : IWotty, new()
         {
             using (var context = new PrimateContext())
             {
-                var entity = new Wotty
+                var entity = new TWotty
                 {
                     Id = 1,
                     Primate = "Monkey",
@@ -388,10 +437,17 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
 
         [Fact]
         public void Can_set_and_clear_modified_on_Modified_entity()
+            => Can_set_and_clear_modified_on_Modified_entity<Wotty>();
+
+        [Fact]
+        public void Can_set_and_clear_modified_on_Modified_entity_with_object_field()
+            => Can_set_and_clear_modified_on_Modified_entity<ObjectWotty>();
+
+        private void Can_set_and_clear_modified_on_Modified_entity<TWotty>() where TWotty : IWotty, new()
         {
             using (var context = new PrimateContext())
             {
-                var entity = new Wotty
+                var entity = new TWotty
                 {
                     Id = 1
                 };
@@ -434,10 +490,19 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Deleted)]
         public void Can_set_and_clear_modified_on_Added_or_Deleted_entity(EntityState initialState)
+            => Can_set_and_clear_modified_on_Added_or_Deleted_entity<Wotty>(initialState);
+
+        [Theory]
+        [InlineData(EntityState.Added)]
+        [InlineData(EntityState.Deleted)]
+        public void Can_set_and_clear_modified_on_Added_or_Deleted_entity_with_object_field(EntityState initialState)
+            => Can_set_and_clear_modified_on_Added_or_Deleted_entity<ObjectWotty>(initialState);
+
+        private void Can_set_and_clear_modified_on_Added_or_Deleted_entity<TWotty>(EntityState initialState) where TWotty : IWotty, new()
         {
             using (var context = new PrimateContext())
             {
-                var entity = new Wotty
+                var entity = new TWotty
                 {
                     Id = 1
                 };
@@ -471,10 +536,19 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         [InlineData(EntityState.Detached)]
         [InlineData(EntityState.Unchanged)]
         public void Can_set_and_clear_modified_on_Unchanged_or_Detached_entity(EntityState initialState)
+            => Can_set_and_clear_modified_on_Unchanged_or_Detached_entity<Wotty>(initialState);
+
+        [Theory]
+        [InlineData(EntityState.Detached)]
+        [InlineData(EntityState.Unchanged)]
+        public void Can_set_and_clear_modified_on_Unchanged_or_Detached_entity_with_object_field(EntityState initialState)
+            => Can_set_and_clear_modified_on_Unchanged_or_Detached_entity<ObjectWotty>(initialState);
+
+        private void Can_set_and_clear_modified_on_Unchanged_or_Detached_entity<TWotty>(EntityState initialState) where TWotty : IWotty, new()
         {
             using (var context = new PrimateContext())
             {
-                var entity = new Wotty
+                var entity = new TWotty
                 {
                     Id = 1
                 };
@@ -506,10 +580,17 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
 
         [Fact]
         public void Can_reject_changes_when_clearing_modified_flag()
+            => Can_reject_changes_when_clearing_modified_flag<Wotty>();
+
+        [Fact]
+        public void Can_reject_changes_when_clearing_modified_flag_with_object_field()
+            => Can_reject_changes_when_clearing_modified_flag<ObjectWotty>();
+
+        private void Can_reject_changes_when_clearing_modified_flag<TWotty>() where TWotty : IWotty, new()
         {
             using (var context = new PrimateContext())
             {
-                var entity = new Wotty
+                var entity = new TWotty
                 {
                     Id = 1,
                     Primate = "Monkey",
@@ -591,11 +672,18 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
 
         [Fact]
         public void Can_get_name_generic()
+            => Can_get_name_generic<Wotty>();
+
+        [Fact]
+        public void Can_get_name_generic_with_object_field()
+            => Can_get_name_generic<ObjectWotty>();
+
+        private void Can_get_name_generic<TWotty>() where TWotty : class, IWotty, new()
         {
             var entry = InMemoryTestHelpers.Instance.CreateInternalEntry(
                 BuildModel(),
                 EntityState.Unchanged,
-                new Wotty
+                new TWotty
                 {
                     Id = 1,
                     Primate = "Monkey"
@@ -606,11 +694,18 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
 
         [Fact]
         public void Can_get_current_value_generic()
+            => Can_get_current_value_generic<Wotty>();
+
+        [Fact]
+        public void Can_get_current_value_generic_with_object_field()
+            => Can_get_current_value_generic<ObjectWotty>();
+
+        private void Can_get_current_value_generic<TWotty>() where TWotty : class, IWotty, new()
         {
             var entry = InMemoryTestHelpers.Instance.CreateInternalEntry(
                 BuildModel(),
                 EntityState.Unchanged,
-                new Wotty
+                new TWotty
                 {
                     Id = 1,
                     Primate = "Monkey"
@@ -621,8 +716,15 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
 
         [Fact]
         public void Can_set_current_value_generic()
+            => Can_set_current_value_generic<Wotty>();
+
+        [Fact]
+        public void Can_set_current_value_generic_with_object_field()
+            => Can_set_current_value_generic<ObjectWotty>();
+
+        private void Can_set_current_value_generic<TWotty>() where TWotty : class, IWotty, new()
         {
-            var entity = new Wotty
+            var entity = new TWotty
             {
                 Id = 1,
                 Primate = "Monkey"
@@ -640,8 +742,15 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
 
         [Fact]
         public void Can_set_current_value_to_null_generic()
+            => Can_set_current_value_to_null_generic<Wotty>();
+
+        [Fact]
+        public void Can_set_current_value_to_null_generic_with_object_field()
+            => Can_set_current_value_to_null_generic<ObjectWotty>();
+
+        private void Can_set_current_value_to_null_generic<TWotty>() where TWotty : class, IWotty, new()
         {
-            var entity = new Wotty
+            var entity = new TWotty
             {
                 Id = 1,
                 Primate = "Monkey"
@@ -659,8 +768,15 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
 
         [Fact]
         public void Can_set_and_get_original_value_generic()
+            => Can_set_and_get_original_value_generic<Wotty>();
+
+        [Fact]
+        public void Can_set_and_get_original_value_generic_with_object_field()
+            => Can_set_and_get_original_value_generic<ObjectWotty>();
+
+        private void Can_set_and_get_original_value_generic<TWotty>() where TWotty : class, IWotty, new()
         {
-            var entity = new Wotty
+            var entity = new TWotty
             {
                 Id = 1,
                 Primate = "Monkey"
@@ -681,11 +797,18 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
 
         [Fact]
         public void Can_set_original_value_to_null_generic()
+            => Can_set_original_value_to_null_generic<Wotty>();
+
+        [Fact]
+        public void Can_set_original_value_to_null_generic_with_object_field()
+            => Can_set_original_value_to_null_generic<ObjectWotty>();
+
+        private void Can_set_original_value_to_null_generic<TWotty>() where TWotty : class, IWotty, new()
         {
             var entry = InMemoryTestHelpers.Instance.CreateInternalEntry(
                 BuildModel(),
                 EntityState.Unchanged,
-                new Wotty
+                new TWotty
                 {
                     Id = 1,
                     Primate = "Monkey"
@@ -698,8 +821,15 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
 
         [Fact]
         public void Can_set_and_clear_modified_generic()
+            => Can_set_and_clear_modified_generic<Wotty>();
+
+        [Fact]
+        public void Can_set_and_clear_modified_generic_with_object_field()
+            => Can_set_and_clear_modified_generic<ObjectWotty>();
+
+        private void Can_set_and_clear_modified_generic<TWotty>() where TWotty : class, IWotty, new()
         {
-            var entity = new Wotty
+            var entity = new TWotty
             {
                 Id = 1,
                 Primate = "Monkey"
@@ -971,7 +1101,47 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             Assert.Equal("Monkey", entity.Primate);
         }
 
-        private class Wotty
+        private interface IWotty
+        {
+            int Id { get; set; }
+            string Primate { get; set; }
+            string RequiredPrimate { get; set; }
+            string Marmate { get; set; }
+        }
+
+        private class ObjectWotty : IWotty
+        {
+            private object _id;
+            private object _primate;
+            private object _requiredPrimate;
+            private object _marmate;
+
+            public int Id
+            {
+                get => (int)_id;
+                set => _id = value;
+            }
+
+            public string Primate
+            {
+                get => (string)_primate;
+                set => _primate = value;
+            }
+
+            public string RequiredPrimate
+            {
+                get => (string)_requiredPrimate;
+                set => _requiredPrimate = value;
+            }
+
+            public string Marmate
+            {
+                get => (string)_marmate;
+                set => _marmate = value;
+            }
+        }
+
+        private class Wotty : IWotty
         {
             public int Id { get; set; }
             public string Primate { get; set; }
@@ -1089,6 +1259,13 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             builder.HasChangeTrackingStrategy(fullNotificationStrategy);
 
             builder.Entity<Wotty>(
+                b =>
+                {
+                    b.Property(e => e.RequiredPrimate).IsRequired();
+                    b.HasChangeTrackingStrategy(ChangeTrackingStrategy.Snapshot);
+                });
+
+            builder.Entity<ObjectWotty>(
                 b =>
                 {
                     b.Property(e => e.RequiredPrimate).IsRequired();
