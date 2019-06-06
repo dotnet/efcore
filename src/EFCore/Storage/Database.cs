@@ -67,7 +67,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             IList<IUpdateEntry> entries,
             CancellationToken cancellationToken = default);
 
-        public virtual Func<QueryContext, TResult> CompileQuery2<TResult>(Expression query, bool async)
+        public virtual Func<QueryContext, TResult> CompileQuery<TResult>(Expression query, bool async)
         {
             return Dependencies.QueryCompilationContextFactory
                 .Create(async)

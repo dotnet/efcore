@@ -105,7 +105,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             IModel model,
             bool async)
         {
-            return database.CompileQuery2<TResult>(query, async);
+            return database.CompileQuery<TResult>(query, async);
         }
 
         /// <summary>

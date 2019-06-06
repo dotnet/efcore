@@ -50,6 +50,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
             [NotNull] IList<IUpdateEntry> entries,
             CancellationToken cancellationToken = default);
 
-        Func<QueryContext, TResult> CompileQuery2<TResult>([NotNull] Expression query, bool async);
+        Func<QueryContext, TResult> CompileQuery<TResult>([NotNull] Expression query, bool async);
     }
 }
