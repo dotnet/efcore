@@ -46,7 +46,15 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
             {
                 var relatedEntity = innerShaper(queryContext, dbDataReader, resultCoordinator);
 
-                if (!trackingQuery)
+                if (trackingQuery)
+                {
+                    // For non-null relatedEntity StateManager will set the flag
+                    if (ReferenceEquals(relatedEntity, null))
+                    {
+                        queryContext.StateManager.TryGetEntry(entity).SetIsLoaded(navigation);
+                    }
+                }
+                else
                 {
                     SetIsLoadedNoTracking(entity, navigation);
                     if (!ReferenceEquals(relatedEntity, null))
