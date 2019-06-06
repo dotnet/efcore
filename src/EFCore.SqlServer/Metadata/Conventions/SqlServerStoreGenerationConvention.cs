@@ -100,7 +100,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         protected override void Validate(IConventionProperty property)
         {
             if (property.GetSqlServerValueGenerationStrategyConfigurationSource() != null
-                && property.GetSqlServerValueGenerationStrategy() != null)
+                && property.GetSqlServerValueGenerationStrategy() != SqlServerValueGenerationStrategy.None)
             {
                 if (property.GetDefaultValue() != null)
                 {

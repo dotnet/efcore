@@ -308,7 +308,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 .Property(e => e.Id)
                 .Metadata;
 
-            Assert.Null(property.GetSqlServerValueGenerationStrategy());
+            Assert.Equal(SqlServerValueGenerationStrategy.None, property.GetSqlServerValueGenerationStrategy());
             Assert.Equal(ValueGenerated.OnAdd, property.ValueGenerated);
 
             property.SetSqlServerValueGenerationStrategy(SqlServerValueGenerationStrategy.SequenceHiLo);
@@ -318,7 +318,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
             property.SetSqlServerValueGenerationStrategy(null);
 
-            Assert.Null(property.GetSqlServerValueGenerationStrategy());
+            Assert.Equal(SqlServerValueGenerationStrategy.None, property.GetSqlServerValueGenerationStrategy());
             Assert.Equal(ValueGenerated.OnAdd, property.ValueGenerated);
         }
 
@@ -329,10 +329,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
             var property = modelBuilder
                 .Entity<Customer>()
-                .Property(e => e.NullableInt)
+                .Property(e => e.NullableInt).ValueGeneratedOnAdd()
                 .Metadata;
 
-            Assert.Null(property.GetSqlServerValueGenerationStrategy());
+            Assert.Equal(SqlServerValueGenerationStrategy.IdentityColumn, property.GetSqlServerValueGenerationStrategy());
 
             property.SetSqlServerValueGenerationStrategy(SqlServerValueGenerationStrategy.SequenceHiLo);
 
@@ -340,7 +340,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
             property.SetSqlServerValueGenerationStrategy(null);
 
-            Assert.Null(property.GetSqlServerValueGenerationStrategy());
+            Assert.Equal(SqlServerValueGenerationStrategy.IdentityColumn, property.GetSqlServerValueGenerationStrategy());
         }
 
         [Fact]

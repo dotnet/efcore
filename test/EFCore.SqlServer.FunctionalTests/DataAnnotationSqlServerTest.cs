@@ -131,13 +131,13 @@ namespace Microsoft.EntityFrameworkCore
             var entity = modelBuilder.Model.FindEntityType(typeof(GeneratedEntityNonInteger));
 
             var stringProperty = entity.FindProperty(nameof(GeneratedEntityNonInteger.String));
-            Assert.Null(stringProperty.GetSqlServerValueGenerationStrategy());
+            Assert.Equal(SqlServerValueGenerationStrategy.None, stringProperty.GetSqlServerValueGenerationStrategy());
 
             var dateTimeProperty = entity.FindProperty(nameof(GeneratedEntityNonInteger.DateTime));
-            Assert.Null(dateTimeProperty.GetSqlServerValueGenerationStrategy());
+            Assert.Equal(SqlServerValueGenerationStrategy.None, dateTimeProperty.GetSqlServerValueGenerationStrategy());
 
             var guidProperty = entity.FindProperty(nameof(GeneratedEntityNonInteger.Guid));
-            Assert.Null(guidProperty.GetSqlServerValueGenerationStrategy());
+            Assert.Equal(SqlServerValueGenerationStrategy.None, guidProperty.GetSqlServerValueGenerationStrategy());
 
             return modelBuilder;
         }

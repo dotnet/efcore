@@ -200,16 +200,16 @@ namespace Microsoft.EntityFrameworkCore
         ///         Returns the <see cref="SqlServerValueGenerationStrategy" /> to use for the property.
         ///     </para>
         ///     <para>
-        ///         If no strategy is set for the property, then the strategy to use will be taken from the <see cref="IModel" />
+        ///         If no strategy is set for the property, then the strategy to use will be taken from the <see cref="IModel" />.
         ///     </para>
         /// </summary>
-        /// <returns> The strategy, or <c>null</c> if none was set. </returns>
-        public static SqlServerValueGenerationStrategy? GetSqlServerValueGenerationStrategy([NotNull] this IProperty property)
+        /// <returns> The strategy, or <see cref="SqlServerValueGenerationStrategy.None"/> if none was set. </returns>
+        public static SqlServerValueGenerationStrategy GetSqlServerValueGenerationStrategy([NotNull] this IProperty property)
         {
-            var annotation = property.FindAnnotation(SqlServerAnnotationNames.ValueGenerationStrategy);
+            var annotation = property[SqlServerAnnotationNames.ValueGenerationStrategy];
             if (annotation != null)
             {
-                return (SqlServerValueGenerationStrategy?)annotation.Value;
+                return (SqlServerValueGenerationStrategy)annotation;
             }
 
             var sharedTablePrincipalPrimaryKeyProperty = property.FindSharedTableRootPrimaryKeyProperty();
@@ -217,8 +217,8 @@ namespace Microsoft.EntityFrameworkCore
             {
                 return sharedTablePrincipalPrimaryKeyProperty.GetSqlServerValueGenerationStrategy()
                        == SqlServerValueGenerationStrategy.IdentityColumn
-                    ? (SqlServerValueGenerationStrategy?)SqlServerValueGenerationStrategy.IdentityColumn
-                    : null;
+                    ? SqlServerValueGenerationStrategy.IdentityColumn
+                    : SqlServerValueGenerationStrategy.None;
             }
 
             if (property.ValueGenerated != ValueGenerated.OnAdd
@@ -226,7 +226,7 @@ namespace Microsoft.EntityFrameworkCore
                 || property.GetDefaultValueSql() != null
                 || property.GetComputedColumnSql() != null)
             {
-                return null;
+                return SqlServerValueGenerationStrategy.None;
             }
 
             var modelStrategy = property.DeclaringEntityType.Model.GetSqlServerValueGenerationStrategy();
@@ -239,8 +239,8 @@ namespace Microsoft.EntityFrameworkCore
 
             return modelStrategy == SqlServerValueGenerationStrategy.IdentityColumn
                    && IsCompatibleWithValueGeneration(property)
-                ? (SqlServerValueGenerationStrategy?)SqlServerValueGenerationStrategy.IdentityColumn
-                : null;
+                ? SqlServerValueGenerationStrategy.IdentityColumn
+                : SqlServerValueGenerationStrategy.None;
         }
 
         /// <summary>
@@ -253,7 +253,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             CheckSqlServerValueGenerationStrategy(property, value);
 
-            property.SetAnnotation(SqlServerAnnotationNames.ValueGenerationStrategy, value);
+            property.SetOrRemoveAnnotation(SqlServerAnnotationNames.ValueGenerationStrategy, value);
         }
 
         /// <summary>
@@ -267,7 +267,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             CheckSqlServerValueGenerationStrategy(property, value);
 
-            property.SetAnnotation(SqlServerAnnotationNames.ValueGenerationStrategy, value, fromDataAnnotation);
+            property.SetOrRemoveAnnotation(SqlServerAnnotationNames.ValueGenerationStrategy, value, fromDataAnnotation);
         }
 
         private static void CheckSqlServerValueGenerationStrategy(IProperty property, SqlServerValueGenerationStrategy? value)

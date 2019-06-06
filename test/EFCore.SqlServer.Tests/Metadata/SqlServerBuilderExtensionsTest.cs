@@ -26,7 +26,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             var model = modelBuilder.Model;
             var property = model.FindEntityType(typeof(Customer)).FindProperty(nameof(Customer.Id));
 
-            Assert.Null(property.GetSqlServerValueGenerationStrategy());
+            Assert.Equal(SqlServerValueGenerationStrategy.None, property.GetSqlServerValueGenerationStrategy());
             Assert.Equal(ValueGenerated.OnAdd, property.ValueGenerated);
         }
 
@@ -43,7 +43,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             var model = modelBuilder.Model;
             var property = model.FindEntityType(typeof(Customer)).FindProperty(nameof(Customer.Id));
 
-            Assert.Null(property.GetSqlServerValueGenerationStrategy());
+            Assert.Equal(SqlServerValueGenerationStrategy.None, property.GetSqlServerValueGenerationStrategy());
             Assert.Equal(ValueGenerated.OnAdd, property.ValueGenerated);
         }
 
@@ -409,19 +409,19 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
             var model = modelBuilder.Model;
             var idProperty = model.FindEntityType(typeof(Customer)).FindProperty(nameof(Customer.Id));
-            Assert.Null(idProperty.GetSqlServerValueGenerationStrategy());
+            Assert.Equal(SqlServerValueGenerationStrategy.None, idProperty.GetSqlServerValueGenerationStrategy());
             Assert.Equal(ValueGenerated.OnAdd, idProperty.ValueGenerated);
             Assert.Equal(1, idProperty.GetDefaultValue());
             Assert.Equal(1, idProperty.GetDefaultValue());
 
             var nameProperty = model.FindEntityType(typeof(Customer)).FindProperty(nameof(Customer.Name));
-            Assert.Null(nameProperty.GetSqlServerValueGenerationStrategy());
+            Assert.Equal(SqlServerValueGenerationStrategy.None, nameProperty.GetSqlServerValueGenerationStrategy());
             Assert.Equal(ValueGenerated.OnAddOrUpdate, nameProperty.ValueGenerated);
             Assert.Equal("Default", nameProperty.GetComputedColumnSql());
             Assert.Equal("Default", nameProperty.GetComputedColumnSql());
 
             var offsetProperty = model.FindEntityType(typeof(Customer)).FindProperty(nameof(Customer.Offset));
-            Assert.Null(offsetProperty.GetSqlServerValueGenerationStrategy());
+            Assert.Equal(SqlServerValueGenerationStrategy.None, offsetProperty.GetSqlServerValueGenerationStrategy());
             Assert.Equal(ValueGenerated.OnAdd, offsetProperty.ValueGenerated);
             Assert.Equal("Now", offsetProperty.GetDefaultValueSql());
             Assert.Equal("Now", offsetProperty.GetDefaultValueSql());
