@@ -698,11 +698,6 @@ namespace Microsoft.EntityFrameworkCore.Query
             await AssertQuery<Gear>(
                 isAsync,
                 gs => gs.Where(g => ((short)g.Rank & (short)1) == 1));
-
-            // Issue#15950
-            //await AssertQuery<Gear>(
-            //    isAsync,
-            //    gs => gs.Where(g => ((char)g.Rank & '\x0001') == '\x0001'));
         }
 
         [ConditionalTheory]
