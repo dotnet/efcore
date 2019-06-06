@@ -3,9 +3,6 @@
 
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.TestUtilities.FakeProvider;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -29,21 +26,6 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
             ((IDbContextOptionsBuilderInfrastructure)optionsBuilder).AddOrUpdateExtension(
                 extension.WithConnection(new FakeDbConnection("Database=Fake")));
-        }
-
-        public override IModelValidator CreateModelValidator()
-        {
-            var typeMappingSource = new TestRelationalTypeMappingSource(
-                TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
-                TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>());
-
-            return new RelationalModelValidator(
-                new ModelValidatorDependencies(
-                    typeMappingSource,
-                    new MemberClassifier(
-                        typeMappingSource,
-                        TestServiceFactory.Instance.Create<IParameterBindingFactories>())),
-                new RelationalModelValidatorDependencies(typeMappingSource));
         }
 
         public override LoggingDefinitions LoggingDefinitions { get; } = new TestRelationalLoggingDefinitions();

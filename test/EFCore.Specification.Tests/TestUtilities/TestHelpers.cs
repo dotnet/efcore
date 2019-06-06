@@ -229,8 +229,6 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             return new ModelBuilder(conventionSet);
         }
 
-        public abstract IModelValidator CreateModelValidator();
-
         public virtual LoggingDefinitions LoggingDefinitions { get; } = new TestLoggingDefinitions();
 
         public InternalEntityEntry CreateInternalEntry<TEntity>(

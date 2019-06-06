@@ -70,12 +70,20 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure
 
             conventionSet.PropertyAddedConventions.Add(relationalColumnAttributeConvention);
 
-            var storeGenerationConvention = new StoreGenerationConvention(Dependencies, RelationalDependencies);
+            var tableNameFromDbSetConvention = new TableNameFromDbSetConvention(Dependencies, RelationalDependencies);
             conventionSet.EntityTypeAddedConventions.Add(new RelationalTableAttributeConvention(Dependencies, RelationalDependencies));
-            conventionSet.EntityTypeBaseTypeChangedConventions.Add(new TableNameFromDbSetConvention(Dependencies, RelationalDependencies));
+            conventionSet.EntityTypeAddedConventions.Add(tableNameFromDbSetConvention);
+
+            conventionSet.EntityTypeBaseTypeChangedConventions.Add(tableNameFromDbSetConvention);
+
             conventionSet.PropertyFieldChangedConventions.Add(relationalColumnAttributeConvention);
+
+            var storeGenerationConvention = new StoreGenerationConvention(Dependencies, RelationalDependencies);
             conventionSet.PropertyAnnotationChangedConventions.Add(storeGenerationConvention);
             conventionSet.PropertyAnnotationChangedConventions.Add((RelationalValueGenerationConvention)valueGenerationConvention);
+
+            var dbFunctionAttributeConvention = new RelationalDbFunctionAttributeConvention(Dependencies, RelationalDependencies);
+            conventionSet.ModelInitializedConventions.Add(dbFunctionAttributeConvention);
 
             var sharedTableConvention = new SharedTableConvention(Dependencies, RelationalDependencies);
             ConventionSet.AddBefore(
@@ -87,7 +95,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure
                 sharedTableConvention,
                 typeof(ValidatingConvention));
 
-            conventionSet.ModelAnnotationChangedConventions.Add(new RelationalDbFunctionConvention(Dependencies, RelationalDependencies));
+            conventionSet.ModelAnnotationChangedConventions.Add(dbFunctionAttributeConvention);
 
             return conventionSet;
         }

@@ -160,6 +160,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure
             conventionSet.ForeignKeyOwnershipChangedConventions.Add(keyDiscoveryConvention);
             conventionSet.ForeignKeyOwnershipChangedConventions.Add(relationshipDiscoveryConvention);
 
+            conventionSet.ModelInitializedConventions.Add(new DbSetFindingConvention(Dependencies));
+
             conventionSet.ModelFinalizedConventions.Add(new ModelCleanupConvention(Dependencies));
             conventionSet.ModelFinalizedConventions.Add(keyAttributeConvention);
             conventionSet.ModelFinalizedConventions.Add(foreignKeyAttributeConvention);

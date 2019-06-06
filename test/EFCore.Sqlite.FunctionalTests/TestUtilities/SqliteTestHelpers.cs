@@ -28,21 +28,6 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         protected override void UseProviderOptions(DbContextOptionsBuilder optionsBuilder)
             => optionsBuilder.UseSqlite(new SqliteConnection("Data Source=:memory:"));
 
-        public override IModelValidator CreateModelValidator()
-        {
-            var typeMappingSource = new SqliteTypeMappingSource(
-                TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
-                TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>());
-
-            return new SqliteModelValidator(
-                new ModelValidatorDependencies(
-                    typeMappingSource,
-                    new MemberClassifier(
-                        typeMappingSource,
-                        TestServiceFactory.Instance.Create<IParameterBindingFactories>())),
-                new RelationalModelValidatorDependencies(typeMappingSource));
-        }
-
         public override LoggingDefinitions LoggingDefinitions { get; } = new SqliteLoggingDefinitions();
     }
 }

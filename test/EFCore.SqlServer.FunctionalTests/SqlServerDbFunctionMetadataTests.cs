@@ -69,7 +69,7 @@ namespace Microsoft.EntityFrameworkCore
             var conventionSet = new ConventionSet();
 
             conventionSet.ModelAnnotationChangedConventions.Add(
-                new SqlServerDbFunctionConvention(CreateDependencies(), CreateRelationalDependencies()));
+                new SqlServerDbFunctionAttributeConvention(CreateDependencies(), CreateRelationalDependencies()));
 
             return new ModelBuilder(conventionSet);
         }

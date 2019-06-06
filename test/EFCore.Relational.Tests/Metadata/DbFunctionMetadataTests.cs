@@ -228,11 +228,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         [Fact]
         public virtual void Finds_dbFunctions_on_dbContext()
         {
-            var modelBuilder = GetModelBuilder();
-
-            var customizer = new RelationalModelCustomizer(new ModelCustomizerDependencies(new DbSetFinder()));
-
-            customizer.Customize(modelBuilder, new MyDerivedContext());
+            var context = new MyDerivedContext();
+            var modelBuilder = GetModelBuilder(context);
 
             foreach (var function in MyBaseContext.FunctionNames)
             {
@@ -488,12 +485,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 expectedMessage, Assert.Throws<ArgumentException>(() => modelBuilder.HasDbFunction(MethodAmi).HasName("")).Message);
         }
 
-        private ModelBuilder GetModelBuilder()
+        private ModelBuilder GetModelBuilder(DbContext dbContext = null)
         {
             var conventionSet = new ConventionSet();
 
-            conventionSet.ModelAnnotationChangedConventions.Add(
-                new RelationalDbFunctionConvention(CreateDependencies(), CreateRelationalDependencies()));
+            var dbFunctionAttributeConvention =new RelationalDbFunctionAttributeConvention(
+                CreateDependencies().With(new CurrentDbContext (dbContext ?? new DbContext(new DbContextOptions<DbContext>()))),
+                CreateRelationalDependencies());
+            conventionSet.ModelInitializedConventions.Add(dbFunctionAttributeConvention);
+            conventionSet.ModelAnnotationChangedConventions.Add(dbFunctionAttributeConvention);
 
             return new ModelBuilder(conventionSet);
         }

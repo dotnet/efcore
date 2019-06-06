@@ -12,17 +12,17 @@ using Microsoft.EntityFrameworkCore.Utilities;
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 {
     /// <summary>
-    ///     A convention that configures the name and schema for a <see cref="IDbFunction"/> based on the applied
+    ///     A convention that configures model function mappings based on public static methods on the context marked with
     ///     <see cref="DbFunctionAttribute"/>.
     /// </summary>
-    public class RelationalDbFunctionConvention : IModelAnnotationChangedConvention
+    public class RelationalDbFunctionAttributeConvention : IModelInitializedConvention, IModelAnnotationChangedConvention
     {
         /// <summary>
-        ///     Creates a new instance of <see cref="RelationalDbFunctionConvention" />.
+        ///     Creates a new instance of <see cref="RelationalDbFunctionAttributeConvention" />.
         /// </summary>
         /// <param name="dependencies"> Parameter object containing dependencies for this convention. </param>
         /// <param name="relationalDependencies">  Parameter object containing relational dependencies for this convention. </param>
-        public RelationalDbFunctionConvention(
+        public RelationalDbFunctionAttributeConvention(
             [NotNull] ProviderConventionSetBuilderDependencies dependencies,
             [NotNull] RelationalConventionSetBuilderDependencies relationalDependencies)
         {
@@ -33,6 +33,31 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         ///     Parameter object containing service dependencies.
         /// </summary>
         protected virtual ProviderConventionSetBuilderDependencies Dependencies { get; }
+
+        /// <summary>
+        ///     Called after a model is initialized.
+        /// </summary>
+        /// <param name="modelBuilder"> The builder for the model. </param>
+        /// <param name="context"> Additional information associated with convention execution. </param>
+        public virtual void ProcessModelInitialized(IConventionModelBuilder modelBuilder, IConventionContext<IConventionModelBuilder> context)
+        {
+            var contextType = Dependencies.ContextType;
+            while (contextType != null
+                   && contextType != typeof(DbContext))
+            {
+                var functions = contextType.GetMethods(
+                        BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance
+                        | BindingFlags.Static | BindingFlags.DeclaredOnly)
+                    .Where(mi => mi.IsDefined(typeof(DbFunctionAttribute)));
+
+                foreach (var function in functions)
+                {
+                    modelBuilder.HasDbFunction(function);
+                }
+
+                contextType = contextType.BaseType;
+            }
+        }
 
         /// <summary>
         ///     Called after an annotation is changed on an model.

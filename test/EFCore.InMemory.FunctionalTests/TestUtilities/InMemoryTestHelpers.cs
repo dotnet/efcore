@@ -26,19 +26,6 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         protected override void UseProviderOptions(DbContextOptionsBuilder optionsBuilder)
             => optionsBuilder.UseInMemoryDatabase(nameof(InMemoryTestHelpers));
 
-        public override IModelValidator CreateModelValidator()
-        {
-            var typeMappingSource = new InMemoryTypeMappingSource(
-                TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>());
-
-            return new ModelValidator(
-                new ModelValidatorDependencies(
-                    typeMappingSource,
-                    new MemberClassifier(
-                        typeMappingSource,
-                        TestServiceFactory.Instance.Create<IParameterBindingFactories>())));
-        }
-
         public override LoggingDefinitions LoggingDefinitions { get; } = new InMemoryLoggingDefinitions();
     }
 }
