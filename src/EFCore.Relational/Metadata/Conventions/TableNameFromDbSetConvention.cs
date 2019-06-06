@@ -13,7 +13,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
     /// <summary>
     ///      A convention that configures the table name based on the <see cref="DbSet{TEntity}"/> property name.
     /// </summary>
-    public class TableNameFromDbSetConvention : IEntityTypeBaseTypeChangedConvention
+    public class TableNameFromDbSetConvention : IEntityTypeAddedConvention, IEntityTypeBaseTypeChangedConvention
     {
         private readonly IDictionary<Type, DbSetProperty> _sets;
 
@@ -60,10 +60,29 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 }
                 else if (oldBaseType != null
                          && newBaseType == null
+                         && entityType.ClrType != null
                          && _sets.ContainsKey(entityType.ClrType))
                 {
                     entityTypeBuilder.ToTable(_sets[entityType.ClrType].Name);
                 }
+            }
+        }
+
+        /// <summary>
+        ///     Called after an entity type is added to the model.
+        /// </summary>
+        /// <param name="entityTypeBuilder"> The builder for the entity type. </param>
+        /// <param name="context"> Additional information associated with convention execution. </param>
+        public virtual void ProcessEntityTypeAdded(
+            IConventionEntityTypeBuilder entityTypeBuilder,
+            IConventionContext<IConventionEntityTypeBuilder> context)
+        {
+            var entityType = entityTypeBuilder.Metadata;
+            if (entityType.BaseType == null
+                && entityType.ClrType != null
+                && _sets.ContainsKey(entityType.ClrType))
+            {
+                entityTypeBuilder.ToTable(_sets[entityType.ClrType].Name);
             }
         }
     }

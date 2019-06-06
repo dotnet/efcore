@@ -20,29 +20,12 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.TestUtilities
         public static CosmosTestHelpers Instance { get; } = new CosmosTestHelpers();
 
         public override IServiceCollection AddProviderServices(IServiceCollection services)
-        {
-            return services.AddEntityFrameworkCosmos();
-        }
-
-        public override IModelValidator CreateModelValidator()
-        {
-            var typeMappingSource = new CosmosTypeMappingSource(
-                TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>());
-
-            return new ModelValidator(
-                new ModelValidatorDependencies(
-                    typeMappingSource,
-                    new MemberClassifier(
-                        typeMappingSource,
-                        TestServiceFactory.Instance.Create<IParameterBindingFactories>())));
-        }
+            => services.AddEntityFrameworkCosmos();
 
         protected override void UseProviderOptions(DbContextOptionsBuilder optionsBuilder)
-        {
-            optionsBuilder.UseCosmos(
+            => optionsBuilder.UseCosmos(
                 TestEnvironment.DefaultConnection,
                 TestEnvironment.AuthToken,
                 "UnitTests");
-        }
     }
 }

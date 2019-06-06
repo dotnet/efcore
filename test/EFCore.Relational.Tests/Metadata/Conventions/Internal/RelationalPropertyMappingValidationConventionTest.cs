@@ -5,6 +5,7 @@ using System;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
 
@@ -16,7 +17,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         [Fact]
         public void Throws_when_added_property_is_not_mapped_to_store()
         {
-            var modelBuilder = new InternalModelBuilder(new Model());
+            var modelBuilder = CreateConventionlessModelBuilder().GetInfrastructure();
             var entityTypeBuilder = modelBuilder.Entity(typeof(NonPrimitiveAsPropertyEntity), ConfigurationSource.Convention);
             entityTypeBuilder.Property(typeof(Tuple<long>), "LongProperty", ConfigurationSource.Explicit);
             entityTypeBuilder.Ignore(nameof(NonPrimitiveAsPropertyEntity.Property), ConfigurationSource.Explicit);
@@ -30,7 +31,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         [Fact]
         public void Throws_when_added_property_is_not_mapped_to_store_even_if_configured_to_use_column_type()
         {
-            var modelBuilder = new InternalModelBuilder(new Model());
+            var modelBuilder = CreateConventionlessModelBuilder().GetInfrastructure();
             var entityTypeBuilder = modelBuilder.Entity(typeof(NonPrimitiveNonNavigationAsPropertyEntity), ConfigurationSource.Convention);
             entityTypeBuilder.Property(typeof(Tuple<long>), "LongProperty", ConfigurationSource.Explicit)
                 .HasColumnType("some_int_mapping");
@@ -43,5 +44,20 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         }
 
         protected override TestHelpers TestHelpers => RelationalTestHelpers.Instance;
+
+        protected override IModelValidator CreateModelValidator()
+        {
+            var typeMappingSource = new TestRelationalTypeMappingSource(
+                TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
+                TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>());
+
+            return new RelationalModelValidator(
+                new ModelValidatorDependencies(
+                    typeMappingSource,
+                    new MemberClassifier(
+                        typeMappingSource,
+                        TestServiceFactory.Instance.Create<IParameterBindingFactories>())),
+                new RelationalModelValidatorDependencies(typeMappingSource));
+        }
     }
 }

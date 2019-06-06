@@ -10,17 +10,17 @@ using Microsoft.EntityFrameworkCore.Metadata.Internal;
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 {
     /// <summary>
-    ///     A convention that configures the name and schema for a <see cref="IDbFunction"/> based on the applied
-    ///     <see cref="DbFunctionAttribute"/> and the default schema as 'dbo'.
+    ///     A convention that configures model function mappings based on public static methods on the context marked with
+    ///     <see cref="DbFunctionAttribute"/> and sets the default schema to 'dbo'.
     /// </summary>
-    public class SqlServerDbFunctionConvention : RelationalDbFunctionConvention
+    public class SqlServerDbFunctionAttributeConvention : RelationalDbFunctionAttributeConvention
     {
         /// <summary>
-        ///     Creates a new instance of <see cref="SqlServerDbFunctionConvention" />.
+        ///     Creates a new instance of <see cref="SqlServerDbFunctionAttributeConvention" />.
         /// </summary>
         /// <param name="dependencies"> Parameter object containing dependencies for this convention. </param>
         /// <param name="relationalDependencies">  Parameter object containing relational dependencies for this convention. </param>
-        public SqlServerDbFunctionConvention(
+        public SqlServerDbFunctionAttributeConvention(
             [NotNull] ProviderConventionSetBuilderDependencies dependencies,
             [NotNull] RelationalConventionSetBuilderDependencies relationalDependencies)
             : base(dependencies, relationalDependencies)
