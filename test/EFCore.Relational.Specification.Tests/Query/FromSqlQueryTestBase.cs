@@ -661,7 +661,7 @@ AND (([UnitsInStock] + [UnitsOnOrder]) < [ReorderLevel])"))
             }
         }
 
-        [Fact(Skip = "issue #15611")]
+        [Fact(Skip = "issue #15991")]
         public virtual void FromSqlRaw_queryable_simple_include()
         {
             using (var context = CreateContext())
@@ -674,14 +674,14 @@ AND (([UnitsInStock] + [UnitsOnOrder]) < [ReorderLevel])"))
             }
         }
 
-        [Fact(Skip = "issue #15611")]
+        [Fact(Skip = "issue #15991")]
         public virtual void FromSqlRaw_queryable_simple_composed_include()
         {
             using (var context = CreateContext())
             {
                 var actual = context.Set<Customer>().FromSqlRaw(NormalizeDelimetersInRawString("SELECT * FROM [Customers]"))
-                    .Where(c => c.City == "London")
                     .Include(c => c.Orders)
+                    .Where(c => c.City == "London")
                     .ToArray();
 
                 Assert.Equal(46, actual.SelectMany(c => c.Orders).Count());
@@ -765,7 +765,7 @@ AND (([UnitsInStock] + [UnitsOnOrder]) < [ReorderLevel])"))
             }
         }
 
-        [Fact(Skip = "Uses Include()")]
+        [Fact]
         public virtual void Include_does_not_close_user_opened_connection_for_empty_result()
         {
             Fixture.TestStore.CloseConnection();
@@ -816,7 +816,7 @@ AND (([UnitsInStock] + [UnitsOnOrder]) < [ReorderLevel])"))
             }
         }
 
-        [Fact(Skip = "issue #15611")]
+        [Fact(Skip = "issue #15991")]
         public virtual void FromSqlRaw_with_SelectMany_and_include()
         {
             using (var context = CreateContext())
@@ -849,7 +849,7 @@ AND (([UnitsInStock] + [UnitsOnOrder]) < [ReorderLevel])"))
             }
         }
 
-        [Fact(Skip = "issue #15611")]
+        [Fact(Skip = "issue #15991")]
         public virtual void FromSqlRaw_with_join_and_include()
         {
             using (var context = CreateContext())
@@ -877,7 +877,7 @@ AND (([UnitsInStock] + [UnitsOnOrder]) < [ReorderLevel])"))
             }
         }
 
-        [Fact(Skip = "Uses Include()")]
+        [Fact]
         public virtual void Include_closed_connection_opened_by_it_when_buffering()
         {
             Fixture.TestStore.CloseConnection();

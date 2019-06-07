@@ -327,58 +327,6 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public static bool IsNullPropagationCandidate(
-            [NotNull] this ConditionalExpression conditionalExpression,
-            out Expression testExpression,
-            out Expression resultExpression)
-        {
-            Check.NotNull(conditionalExpression, nameof(conditionalExpression));
-
-            testExpression = null;
-            resultExpression = null;
-
-            if (!(conditionalExpression.Test is BinaryExpression binaryTest)
-                || !(binaryTest.NodeType == ExpressionType.Equal
-                     || binaryTest.NodeType == ExpressionType.NotEqual))
-            {
-                return false;
-            }
-
-            var isLeftNullConstant = binaryTest.Left.IsNullConstantExpression();
-            var isRightNullConstant = binaryTest.Right.IsNullConstantExpression();
-
-            if (isLeftNullConstant == isRightNullConstant)
-            {
-                return false;
-            }
-
-            if (binaryTest.NodeType == ExpressionType.Equal)
-            {
-                if (!conditionalExpression.IfTrue.IsNullConstantExpression())
-                {
-                    return false;
-                }
-            }
-            else
-            {
-                if (!conditionalExpression.IfFalse.IsNullConstantExpression())
-                {
-                    return false;
-                }
-            }
-
-            testExpression = isLeftNullConstant ? binaryTest.Right : binaryTest.Left;
-            resultExpression = binaryTest.NodeType == ExpressionType.Equal ? conditionalExpression.IfFalse : conditionalExpression.IfTrue;
-
-            return true;
-        }
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
         public static Expression Assign(
             [NotNull] this MemberExpression memberExpression,
             [NotNull] Expression valueExpression)

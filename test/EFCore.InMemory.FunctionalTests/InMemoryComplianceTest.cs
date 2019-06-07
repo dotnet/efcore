@@ -41,6 +41,8 @@ namespace Microsoft.EntityFrameworkCore
             typeof(SpatialQueryTestBase<>),
             typeof(UpdatesTestBase<>),
             typeof(FindTestBase<>),
+            typeof(NotificationEntitiesTestBase<>),
+            typeof(PropertyValuesTestBase<>),
         };
 
         protected override Assembly TargetAssembly { get; } = typeof(InMemoryComplianceTest).Assembly;

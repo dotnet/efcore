@@ -62,7 +62,17 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Pipeline
         protected override ShapedQueryExpression TranslateAverage(ShapedQueryExpression source, LambdaExpression selector, Type resultType)
             => TranslateScalarAggregate(source, selector, nameof(Enumerable.Average));
 
-        protected override ShapedQueryExpression TranslateCast(ShapedQueryExpression source, Type resultType) => throw new NotImplementedException();
+        protected override ShapedQueryExpression TranslateCast(ShapedQueryExpression source, Type resultType)
+        {
+            if (source.ShaperExpression.Type == resultType)
+            {
+                return source;
+            }
+
+            source.ShaperExpression = Expression.Convert(source.ShaperExpression, resultType);
+
+            return source;
+        }
 
         protected override ShapedQueryExpression TranslateConcat(ShapedQueryExpression source1, ShapedQueryExpression source2) => throw new NotImplementedException();
 

@@ -25,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore
             //fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
         }
 
-        [Fact(Skip = "QueryIssue")]
+        [Fact(Skip = "Issue#13487")]
         public void Translate_array_length()
         {
             using (var db = CreateContext())

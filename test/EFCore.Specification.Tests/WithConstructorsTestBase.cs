@@ -34,7 +34,7 @@ namespace Microsoft.EntityFrameworkCore
         {
         }
 
-        [Fact(Skip = "issue #15611")]
+        [Fact]
         public virtual void Query_and_update_using_constructors_with_property_parameters()
         {
             TestHelpers.ExecuteWithStrategyInTransaction(
@@ -95,13 +95,13 @@ namespace Microsoft.EntityFrameworkCore
                 });
         }
 
-        [Fact(Skip = "QueryIssue")]
+        [Fact]
         public virtual void Query_with_keyless_type()
         {
             using (var context = CreateContext())
             {
 #pragma warning disable CS0618 // Type or member is obsolete
-                var blogs = context.Query<BlogQuery>().ToList();
+                var blogs = context.Query<BlogQuery>().AsNoTracking().ToList();
 #pragma warning restore CS0618 // Type or member is obsolete
 
                 Assert.Equal(1, blogs.Count);
@@ -396,7 +396,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact(Skip = "QueryIssue")]
+        [Fact]
         public virtual async Task Query_with_loader_injected_for_reference_async()
         {
             using (var context = CreateContext())
@@ -411,7 +411,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact(Skip = "QueryIssue")]
+        [Fact]
         public virtual async Task Query_with_loader_injected_for_collections_async()
         {
             using (var context = CreateContext())
@@ -452,7 +452,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact(Skip = "QueryIssue")]
+        [Fact]
         public virtual async Task Query_with_loader_delegate_injected_for_reference_async()
         {
             using (var context = CreateContext())
@@ -467,7 +467,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact(Skip = "QueryIssue")]
+        [Fact]
         public virtual async Task Query_with_loader_delegate_injected_for_collections_async()
         {
             using (var context = CreateContext())
@@ -729,7 +729,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact(Skip = "QueryIssue")]
+        [Fact]
         public virtual async Task Query_with_loader_delegate_injected_into_property_for_reference_async()
         {
             using (var context = CreateContext())
@@ -744,7 +744,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact(Skip = "QueryIssue")]
+        [Fact]
         public virtual async Task Query_with_loader_delegate_injected_into_property_for_collections_async()
         {
             using (var context = CreateContext())

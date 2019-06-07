@@ -56,7 +56,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact(Skip = "QueryIssue")]
+        [Fact]
         public Task Database_concurrency_token_value_is_discarded_for_non_conflicting_entities()
         {
             byte[] firstVersion = null;

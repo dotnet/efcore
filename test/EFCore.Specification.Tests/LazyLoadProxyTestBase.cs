@@ -755,7 +755,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Theory(Skip = "issue #15318")]
+        [Theory]
         [InlineData(EntityState.Unchanged, CascadeTiming.Immediate)]
         [InlineData(EntityState.Modified, CascadeTiming.Immediate)]
         [InlineData(EntityState.Deleted, CascadeTiming.Immediate)]
@@ -807,7 +807,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Theory(Skip = "issue #15318")]
+        [Theory]
         [InlineData(EntityState.Unchanged, CascadeTiming.OnSaveChanges)]
         [InlineData(EntityState.Modified, CascadeTiming.OnSaveChanges)]
         [InlineData(EntityState.Deleted, CascadeTiming.OnSaveChanges)]
@@ -855,7 +855,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Theory(Skip = "issue #15318")]
+        [Theory]
         [InlineData(EntityState.Unchanged)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Deleted)]
@@ -895,7 +895,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Theory(Skip = "issue #15318")]
+        [Theory]
         [InlineData(EntityState.Unchanged, CascadeTiming.OnSaveChanges)]
         [InlineData(EntityState.Modified, CascadeTiming.OnSaveChanges)]
         [InlineData(EntityState.Deleted, CascadeTiming.OnSaveChanges)]
@@ -954,7 +954,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Theory(Skip = "issue #15318")]
+        [Theory]
         [InlineData(EntityState.Unchanged)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Deleted)]
@@ -994,7 +994,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Theory(Skip = "issue #15318")]
+        [Theory]
         [InlineData(EntityState.Unchanged)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Deleted)]
@@ -1697,7 +1697,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact(Skip = "issue #15318")]
+        [Fact]
         public virtual void Lazy_load_collection_for_no_tracking_does_not_throw_if_populated()
         {
             using (var context = CreateContext(lazyLoadingEnabled: true))
@@ -1712,7 +1712,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact(Skip = "issue #15318")]
+        [Fact]
         public virtual void Lazy_load_reference_to_principal_for_no_tracking_does_not_throw_if_populated()
         {
             using (var context = CreateContext(lazyLoadingEnabled: true))
@@ -1727,7 +1727,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact(Skip = "issue #15318")]
+        [Fact]
         public virtual void Lazy_load_reference_to_dependent_for_no_does_not_throw_if_populated()
         {
             using (var context = CreateContext(lazyLoadingEnabled: true))
@@ -1742,7 +1742,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Theory(Skip = "QueryIssue")]
+        [Theory]
         [InlineData(EntityState.Unchanged, true)]
         [InlineData(EntityState.Unchanged, false)]
         [InlineData(EntityState.Modified, true)]
@@ -1859,7 +1859,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact(Skip = "QueryIssue")]
+        [Fact]
         public virtual void Lazy_loading_shares_service__property_on_derived_types()
         {
             using (var context = CreateContext(lazyLoadingEnabled: true))

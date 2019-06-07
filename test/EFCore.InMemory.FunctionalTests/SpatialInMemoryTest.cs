@@ -3,6 +3,7 @@
 
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
 
 namespace Microsoft.EntityFrameworkCore
 {
@@ -11,6 +12,12 @@ namespace Microsoft.EntityFrameworkCore
         public SpatialInMemoryTest(SpatialInMemoryFixture fixture)
             : base(fixture)
         {
+        }
+
+        [ConditionalFact(Skip = "Issue#15711")]
+        public override void Mutation_of_tracked_values_does_not_mutate_values_in_store()
+        {
+            base.Mutation_of_tracked_values_does_not_mutate_values_in_store();
         }
 
         protected override void UseTransaction(DatabaseFacade facade, IDbContextTransaction transaction)

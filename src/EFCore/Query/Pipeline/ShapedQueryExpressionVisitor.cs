@@ -279,9 +279,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Pipeline
                 {
                     expressions.Add(Expression.Condition(
                         (primaryKey != null
-                            ? primaryKey.Properties
-                            : entityType.GetProperties())
-                                .Select(p =>
+                            ? primaryKey.Properties.Select(p =>
                                     Expression.Equal(
                                         _entityMaterializerSource.CreateReadValueExpression(
                                             entityShaperExpression.ValueBufferExpression,
@@ -289,7 +287,17 @@ namespace Microsoft.EntityFrameworkCore.Query.Pipeline
                                             p.GetIndex(),
                                             p),
                                         Expression.Constant(null)))
-                                    .Aggregate((a, b) => Expression.OrElse(a, b)),
+                                    .Aggregate((a, b) => Expression.OrElse(a, b))
+                            : entityType.GetProperties()
+                                .Select(p =>
+                                        Expression.Equal(
+                                            _entityMaterializerSource.CreateReadValueExpression(
+                                                entityShaperExpression.ValueBufferExpression,
+                                                typeof(object),
+                                                p.GetIndex(),
+                                                p),
+                                            Expression.Constant(null)))
+                                        .Aggregate((a, b) => Expression.AndAlso(a, b))),
                             Expression.Constant(null, entityType.ClrType),
                             MaterializeEntity(entityType, valueBuffer)));
                 }
