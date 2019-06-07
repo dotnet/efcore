@@ -36,6 +36,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                         new PropertyParameterBinding(entityType.FindProperty(nameof(SomeEntity.Goo)))
                     }
                 );
+            ((Model)entityType.Model).FinalizeModel();
 
             var factory = GetMaterializer(new EntityMaterializerSource(), entityType);
 
@@ -71,6 +72,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                         new PropertyParameterBinding(entityType.FindProperty(nameof(SomeEntity.Goo)))
                     },
                     entityType.ClrType);
+            ((Model)entityType.Model).FinalizeModel();
 
             var factory = GetMaterializer(new EntityMaterializerSource(), entityType);
 
@@ -110,6 +112,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                             })
                     },
                     entityType.ClrType);
+            ((Model)entityType.Model).FinalizeModel();
 
             var factory = GetMaterializer(new EntityMaterializerSource(), entityType);
 
@@ -145,6 +148,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                         new EntityTypeParameterBinding()
                     },
                     entityType.ClrType);
+            ((Model)entityType.Model).FinalizeModel();
 
             var factory = GetMaterializer(new EntityMaterializerSource(), entityType);
 
@@ -189,6 +193,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public void Can_create_materializer_for_entity_with_auto_properties()
         {
             var entityType = CreateEntityType();
+            ((Model)entityType.Model).FinalizeModel();
 
             var factory = GetMaterializer(new EntityMaterializerSource(), entityType);
 
@@ -214,6 +219,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             entityType.AddProperty(SomeEntityWithFields.GooProperty).SetField("_goo");
             entityType.AddProperty(SomeEntityWithFields.IdProperty).SetField("_id");
             entityType.AddProperty(SomeEntityWithFields.MaybeEnumProperty).SetField("_maybeEnum");
+            ((Model)entityType.Model).FinalizeModel();
 
             var factory = GetMaterializer(new EntityMaterializerSource(), entityType);
 
@@ -237,6 +243,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             entityType.AddProperty(SomeEntity.FooProperty);
             entityType.AddProperty(SomeEntity.GooProperty);
             entityType.AddProperty(SomeEntity.IdProperty);
+            ((Model)entityType.Model).FinalizeModel();
 
             var factory = GetMaterializer(new EntityMaterializerSource(), entityType);
 
@@ -260,6 +267,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             entityType.AddProperty("FooShadow", typeof(string));
             entityType.AddProperty(SomeEntity.GooProperty);
             entityType.AddProperty("GooShadow", typeof(Guid));
+            ((Model)entityType.Model).FinalizeModel();
 
             var factory = GetMaterializer(new EntityMaterializerSource(), entityType);
 

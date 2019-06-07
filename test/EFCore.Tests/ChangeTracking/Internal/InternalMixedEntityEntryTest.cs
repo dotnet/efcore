@@ -28,10 +28,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         [Fact]
         public void Can_set_and_get_property_value_from_CLR_object()
         {
-            var model = BuildModel();
+            var model = BuildModel(finalize: false);
             var entityType = model.FindEntityType(typeof(SomeEntity).FullName);
             var keyProperty = entityType.AddProperty("Id_", typeof(int));
             var nonKeyProperty = entityType.FindProperty("Name");
+            model.FinalizeModel();
             var configuration = InMemoryTestHelpers.Instance.CreateContextServices(model);
 
             var entity = new SomeEntity
@@ -74,7 +75,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         }
 
         [Fact]
-        public void All_original_values_can_be_accessed_for_entity_that_does_no_notifiction()
+        public void All_original_values_can_be_accessed_for_entity_that_does_no_notification()
         {
             var model = BuildModel();
             var entityType = model.FindEntityType(typeof(SomeEntity).FullName);
@@ -88,11 +89,12 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         }
 
         [Fact]
-        public void All_original_values_can_be_accessed_for_entity_that_does_changed_only_notifictions_if_eager_values_on()
+        public void All_original_values_can_be_accessed_for_entity_that_does_changed_only_notifications_if_eager_values_on()
         {
-            var model = BuildModel();
+            var model = BuildModel(finalize: false);
             var entityType = model.FindEntityType(typeof(ChangedOnlyEntity).FullName);
             entityType.SetChangeTrackingStrategy(ChangeTrackingStrategy.Snapshot);
+            model.FinalizeModel();
 
             AllOriginalValuesTest(
                 model, entityType, new ChangedOnlyEntity
@@ -129,7 +131,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     Name = "Kool"
                 }, needsDetectChanges: false);
 
-        protected override IMutableModel BuildModel()
+        protected override IMutableModel BuildModel(bool finalize = true)
         {
             var modelBuilder = new ModelBuilder(new ConventionSet());
             var model = modelBuilder.Model;
@@ -191,7 +193,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     owned.Property(e => e.Value);
                 });
 
-            return (Model)model;
+            return finalize ? (IMutableModel)model.FinalizeModel() : model;
         }
     }
 }

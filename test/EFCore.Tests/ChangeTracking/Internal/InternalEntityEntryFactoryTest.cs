@@ -20,6 +20,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             var entityType = model.AddEntityType("RedHook");
             entityType.AddProperty("Long", typeof(int));
             entityType.AddProperty("Hammer", typeof(string));
+            model.FinalizeModel();
 
             var contextServices = InMemoryTestHelpers.Instance.CreateContextServices(model);
             var stateManager = contextServices.GetRequiredService<IStateManager>();
@@ -41,6 +42,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             var entityType = model.AddEntityType(typeof(RedHook));
             entityType.AddProperty("Long", typeof(int));
             entityType.AddProperty("Hammer", typeof(string));
+            model.FinalizeModel();
 
             var contextServices = InMemoryTestHelpers.Instance.CreateContextServices(model);
             var stateManager = contextServices.GetRequiredService<IStateManager>();
@@ -63,6 +65,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             var entityType = model.AddEntityType(typeof(RedHook));
             entityType.AddProperty("Long", typeof(int));
             entityType.AddProperty("Spanner", typeof(string));
+            model.FinalizeModel();
 
             var contextServices = InMemoryTestHelpers.Instance.CreateContextServices(model);
             var stateManager = contextServices.GetRequiredService<IStateManager>();

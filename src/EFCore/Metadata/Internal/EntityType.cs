@@ -348,7 +348,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 _baseType._directlyDerivedTypes.Add(this);
             }
 
-            PropertyMetadataChanged();
             UpdateBaseTypeConfigurationSource(configurationSource);
             newBaseType?.UpdateConfigurationSource(configurationSource);
 
@@ -588,7 +587,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 SetPrimaryKeyConfigurationSource(null);
             }
 
-            PropertyMetadataChanged();
             return (Key)Model.ConventionDispatcher.OnPrimaryKeyChanged(Builder, newKey, oldPrimaryKey);
         }
 
@@ -748,8 +746,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 }
             }
 
-            PropertyMetadataChanged();
-
             return (Key)Model.ConventionDispatcher.OnKeyAdded(key.Builder)?.Metadata;
         }
 
@@ -853,8 +849,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 }
             }
 
-            PropertyMetadataChanged();
-
             return (Key)Model.ConventionDispatcher.OnKeyRemoved(Builder, key);
         }
 
@@ -928,8 +922,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
 
             OnForeignKeyUpdated(foreignKey);
-
-            PropertyMetadataChanged();
 
             return (ForeignKey)Model.ConventionDispatcher.OnForeignKeyAdded(foreignKey.Builder)?.Metadata;
         }
@@ -1264,8 +1256,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             foreignKey.Builder = null;
 
-            PropertyMetadataChanged();
-
             if (foreignKey.DependentToPrincipal != null)
             {
                 Model.ConventionDispatcher.OnNavigationRemoved(
@@ -1413,8 +1403,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             _navigations.Add(name, navigation);
 
-            PropertyMetadataChanged();
-
             return navigation;
         }
 
@@ -1516,8 +1504,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
 
             _navigations.Remove(name);
-
-            PropertyMetadataChanged();
 
             return navigation;
         }
@@ -1914,7 +1900,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 configurationSource, typeConfigurationSource);
 
             _properties.Add(property.Name, property);
-            PropertyMetadataChanged();
 
             return (Property)Model.ConventionDispatcher.OnPropertyAdded(property.Builder)?.Metadata;
         }
@@ -2048,8 +2033,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Debug.Assert(removed);
             property.Builder = null;
 
-            PropertyMetadataChanged();
-
             return property;
         }
 
@@ -2089,29 +2072,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual IEnumerable<Property> GetProperties()
             => _baseType?.GetProperties().Concat(_properties.Values) ?? _properties.Values;
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public override void PropertyMetadataChanged()
-        {
-            foreach (var property in GetProperties())
-            {
-                property.PropertyIndexes = null;
-            }
-
-            foreach (var navigation in GetNavigations())
-            {
-                navigation.PropertyIndexes = null;
-            }
-
-            // This path should only kick in when the model is still mutable and therefore access does not need
-            // to be thread-safe.
-            _counts = null;
-        }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

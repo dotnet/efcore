@@ -20,16 +20,15 @@ namespace Microsoft.EntityFrameworkCore.Update
         {
             IMutableModel model = new Model();
             var entityType = model.AddEntityType(typeof(object));
+            var key = entityType.AddProperty("Id", typeof(int));
+            entityType.SetPrimaryKey(key);
 
             var optionsBuilder = new DbContextOptionsBuilder()
-                .UseModel(model)
+                .UseModel(model.FinalizeModel())
                 .UseInMemoryDatabase(Guid.NewGuid().ToString())
                 .UseInternalServiceProvider(InMemoryFixture.DefaultServiceProvider);
 
             var stateManager = new DbContext(optionsBuilder.Options).GetService<IStateManager>();
-
-            var key = entityType.AddProperty("Id", typeof(int));
-            entityType.SetPrimaryKey(key);
 
             var entry1 = stateManager.GetOrCreateEntry(new object());
             entry1[key] = 1;
@@ -156,16 +155,16 @@ namespace Microsoft.EntityFrameworkCore.Update
             IMutableModel model = new Model();
             var entityType = model.AddEntityType(typeof(object));
 
-            var optionsBuilder = new DbContextOptionsBuilder()
-                .UseInternalServiceProvider(InMemoryFixture.DefaultServiceProvider)
-                .UseModel(model)
-                .UseInMemoryDatabase(Guid.NewGuid().ToString());
-
-            var stateManager = new DbContext(optionsBuilder.Options).GetService<IStateManager>();
-
             var keyProperty = entityType.AddProperty("Id", typeof(T));
             keyProperty.IsNullable = false;
             entityType.SetPrimaryKey(keyProperty);
+
+            var optionsBuilder = new DbContextOptionsBuilder()
+                .UseInternalServiceProvider(InMemoryFixture.DefaultServiceProvider)
+                .UseModel(model.FinalizeModel())
+                .UseInMemoryDatabase(Guid.NewGuid().ToString());
+
+            var stateManager = new DbContext(optionsBuilder.Options).GetService<IStateManager>();
 
             var entry1 = stateManager.GetOrCreateEntry(new object());
             entry1[keyProperty] = value1;

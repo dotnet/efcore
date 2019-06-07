@@ -10,12 +10,12 @@ using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Xunit;
 
+// ReSharper disable MemberHidesStaticFromOuterClass
 namespace Microsoft.EntityFrameworkCore.Infrastructure
 {
     public abstract class ModelValidatorTestBase
@@ -27,7 +27,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         {
             if (startingPropertyIndex == -1)
             {
-                startingPropertyIndex = entityType.PropertyCount() - 1;
+                startingPropertyIndex = entityType.GetProperties().Count() - 1;
             }
 
             var keyProperties = new IMutableProperty[propertyCount];
@@ -196,7 +196,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
         protected ListLoggerFactory LoggerFactory { get; }
 
-        protected virtual void VerifyWarning(string expectedMessage, IModel model, LogLevel level = LogLevel.Warning)
+        protected virtual void VerifyWarning(string expectedMessage, IMutableModel model, LogLevel level = LogLevel.Warning)
         {
             Validate(model);
 
@@ -204,13 +204,13 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             Assert.Equal(expectedMessage, logEntry.Message);
         }
 
-        protected virtual void VerifyError(string expectedMessage, IModel model)
+        protected virtual void VerifyError(string expectedMessage, IMutableModel model)
         {
             var message = Assert.Throws<InvalidOperationException>(() => Validate(model)).Message;
             Assert.Equal(expectedMessage, message);
         }
 
-        protected virtual void Validate(IModel model) => ((Model)model).FinalizeModel();
+        protected virtual void Validate(IMutableModel model) => model.FinalizeModel();
 
         protected DiagnosticsLogger<DbLoggerCategory.Model.Validation> CreateValidationLogger(bool sensitiveDataLoggingEnabled = false)
         {

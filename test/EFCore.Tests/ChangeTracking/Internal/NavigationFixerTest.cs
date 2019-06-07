@@ -6,10 +6,15 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
+// ReSharper disable UnusedMember.Local
+// ReSharper disable InconsistentNaming
+// ReSharper disable CollectionNeverUpdated.Local
+// ReSharper disable UnusedAutoPropertyAccessor.Local
 namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 {
     public class NavigationFixerTest
@@ -1648,7 +1653,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             builder.Entity<ProductTag>();
 
-            return builder.Model;
+            return builder.Model.FinalizeModel();
         }
 
         private static INavigationFixer CreateNavigationFixer(IServiceProvider contextServices)

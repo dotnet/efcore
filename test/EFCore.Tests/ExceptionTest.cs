@@ -179,13 +179,19 @@ namespace Microsoft.EntityFrameworkCore
         private class FakeInternalEntityEntry : InternalEntityEntry
         {
             public FakeInternalEntityEntry()
-                : base(
-                    new FakeStateManager(),
-                    new Model(new ConventionSet()).AddEntityType(typeof(object), ConfigurationSource.Convention))
+                : base(new FakeStateManager(), CreateEntityType())
             {
             }
 
             public override object Entity { get; }
+        }
+
+        private static  IEntityType CreateEntityType()
+        {
+            var model = new Model(new ConventionSet());
+            var entityType = model.AddEntityType(typeof(object), ConfigurationSource.Convention);
+            model.FinalizeModel();
+            return entityType;
         }
 
         private TException SerializeAndDeserialize<TException>(TException exception) where TException : Exception

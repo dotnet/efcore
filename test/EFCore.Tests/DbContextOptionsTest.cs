@@ -32,7 +32,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             var model = new Model();
 
-            var optionsBuilder = new DbContextOptionsBuilder().UseModel(model);
+            var optionsBuilder = new DbContextOptionsBuilder().UseModel(model.FinalizeModel());
 
             Assert.Same(model, optionsBuilder.Options.FindExtension<CoreOptionsExtension>().Model);
         }
@@ -42,7 +42,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             var model = new Model();
 
-            var optionsBuilder = new DbContextOptionsBuilder().UseModel(model).EnableSensitiveDataLogging();
+            var optionsBuilder = new DbContextOptionsBuilder().UseModel(model.FinalizeModel()).EnableSensitiveDataLogging();
 
             Assert.Same(model, optionsBuilder.Options.FindExtension<CoreOptionsExtension>().Model);
             Assert.True(optionsBuilder.Options.FindExtension<CoreOptionsExtension>().IsSensitiveDataLoggingEnabled);

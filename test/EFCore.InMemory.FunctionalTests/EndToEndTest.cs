@@ -31,7 +31,6 @@ namespace Microsoft.EntityFrameworkCore
         private void Can_add_update_delete_end_to_end<T>()
             where T : class, new()
         {
-            var type = typeof(T);
             var modelBuilder = new ModelBuilder(InMemoryConventionSetBuilder.Build());
             modelBuilder.Entity<T>(eb =>
             {
@@ -40,7 +39,7 @@ namespace Microsoft.EntityFrameworkCore
             });
 
             var optionsBuilder = new DbContextOptionsBuilder()
-                .UseModel(modelBuilder.Model)
+                .UseModel(modelBuilder.FinalizeModel())
                 .UseInMemoryDatabase(nameof(EndToEndInMemoryTest))
                 .UseInternalServiceProvider(Fixture.ServiceProvider);
 

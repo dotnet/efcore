@@ -32,10 +32,10 @@ namespace Microsoft.EntityFrameworkCore.Update
             Assert.Equal(SqliteStrings.SequencesNotSupported, ex.Message);
         }
 
-        public override void GenerateNextSequenceValueOperation_returns_statement_with_sanatized_sequence()
+        public override void GenerateNextSequenceValueOperation_returns_statement_with_sanitized_sequence()
         {
             var ex = Assert.Throws<NotSupportedException>(
-                () => base.GenerateNextSequenceValueOperation_returns_statement_with_sanatized_sequence());
+                () => base.GenerateNextSequenceValueOperation_returns_statement_with_sanitized_sequence());
             Assert.Equal(SqliteStrings.SequencesNotSupported, ex.Message);
         }
     }

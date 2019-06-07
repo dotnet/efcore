@@ -215,5 +215,14 @@ namespace Microsoft.EntityFrameworkCore
         public static void RemoveOwned([NotNull] this IMutableModel model, [NotNull] Type clrType)
             => Check.NotNull((Model)model, nameof(model)).RemoveOwned(
                 Check.NotNull(clrType, nameof(clrType)));
+
+        /// <summary>
+        ///     Forces post-processing on the model such that it is ready for use by the runtime. This post
+        ///     processing happens automatically when using <see cref="DbContext.OnModelCreating"/>; this method allows it to be run
+        ///     explicitly in cases where the automatic execution is not possible.
+        /// </summary>
+        /// <param name="model"> The model to finalize. </param>
+        /// <returns> The finalized <see cref="IModel" />. </returns>
+        public static IModel FinalizeModel([NotNull] this IMutableModel model) => model.AsModel().FinalizeModel();
     }
 }

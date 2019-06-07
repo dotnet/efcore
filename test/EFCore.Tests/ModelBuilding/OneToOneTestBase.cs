@@ -1221,8 +1221,8 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 var fkProperty = dependentType.FindProperty("OrderId");
                 var principalProperty = principalType.FindProperty("OrderId");
 
-                var principalPropertyCount = principalType.PropertyCount();
-                var dependentPropertyCount = dependentType.PropertyCount();
+                var principalPropertyCount = principalType.GetProperties().Count();
+                var dependentPropertyCount = dependentType.GetProperties().Count();
                 var principalKey = principalType.GetKeys().Single();
                 var dependentKey = dependentType.GetKeys().Single();
 
@@ -1230,6 +1230,8 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                     .Entity<Order>().HasOne(e => e.Details).WithOne(e => e.Order)
                     .HasForeignKey<OrderDetails>(e => e.OrderId)
                     .HasPrincipalKey<Order>(e => e.OrderId);
+
+                modelBuilder.FinalizeModel();
 
                 var fk = dependentType.GetForeignKeys().Single();
                 Assert.Same(fkProperty, fk.Properties.Single());
@@ -1239,8 +1241,8 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Equal("Details", principalType.GetNavigations().Single().Name);
                 Assert.Same(fk, dependentType.GetNavigations().Single().ForeignKey);
                 Assert.Same(fk, principalType.GetNavigations().Single().ForeignKey);
-                Assert.Equal(principalPropertyCount, principalType.PropertyCount());
-                Assert.Equal(dependentPropertyCount, dependentType.PropertyCount());
+                Assert.Equal(principalPropertyCount, principalType.GetProperties().Count());
+                Assert.Equal(dependentPropertyCount, dependentType.GetProperties().Count());
                 Assert.Empty(principalType.GetForeignKeys());
                 Assert.Same(principalKey, principalType.GetKeys().Single());
                 Assert.Same(dependentKey, dependentType.GetKeys().Single());
@@ -1266,8 +1268,8 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 var fkProperty = dependentType.FindProperty("OrderId");
                 var principalProperty = principalType.FindProperty("OrderId");
 
-                var principalPropertyCount = principalType.PropertyCount();
-                var dependentPropertyCount = dependentType.PropertyCount();
+                var principalPropertyCount = principalType.GetProperties().Count();
+                var dependentPropertyCount = dependentType.GetProperties().Count();
                 var principalKey = principalType.GetKeys().Single();
                 var dependentKey = dependentType.GetKeys().Single();
 
@@ -1275,6 +1277,8 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                     .Entity<Order>().HasOne(e => e.Details).WithOne(e => e.Order)
                     .HasPrincipalKey<Order>(e => e.OrderId)
                     .HasForeignKey<OrderDetails>(e => e.OrderId);
+
+                modelBuilder.FinalizeModel();
 
                 var fk = dependentType.GetForeignKeys().Single();
                 Assert.Same(fkProperty, fk.Properties.Single());
@@ -1284,8 +1288,8 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Equal("Details", principalType.GetNavigations().Single().Name);
                 Assert.Same(fk, dependentType.GetNavigations().Single().ForeignKey);
                 Assert.Same(fk, principalType.GetNavigations().Single().ForeignKey);
-                Assert.Equal(principalPropertyCount, principalType.PropertyCount());
-                Assert.Equal(dependentPropertyCount, dependentType.PropertyCount());
+                Assert.Equal(principalPropertyCount, principalType.GetProperties().Count());
+                Assert.Equal(dependentPropertyCount, dependentType.GetProperties().Count());
                 Assert.Empty(principalType.GetForeignKeys());
                 Assert.Same(principalKey, principalType.GetKeys().Single());
                 Assert.Same(dependentKey, dependentType.GetKeys().Single());
@@ -4411,7 +4415,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                     });
 
                 var contextOptions = new DbContextOptionsBuilder()
-                    .UseModel(modelBuilder.Model)
+                    .UseModel(modelBuilder.Model.FinalizeModel())
                     .UseInternalServiceProvider(InMemoryFixture.DefaultServiceProvider)
                     .UseInMemoryDatabase("Can_use_self_referencing_overlapping_FK_PK_one_to_one")
                     .Options;

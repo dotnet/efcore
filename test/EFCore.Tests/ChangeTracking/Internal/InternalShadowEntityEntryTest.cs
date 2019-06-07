@@ -10,7 +10,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 {
     public class InternalShadowEntityEntryTest : InternalEntityEntryTestBase
     {
-        protected override IMutableModel BuildModel()
+        protected override IMutableModel BuildModel(bool finalize = true)
         {
             var modelBuilder = new ModelBuilder(new ConventionSet());
             var model = modelBuilder.Model;
@@ -71,7 +71,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     owned.Property<string>(nameof(OwnedClass.Value));
                 });
 
-            return (Model)model;
+            return finalize ? (IMutableModel)model.FinalizeModel() : model;
         }
     }
 }

@@ -15,6 +15,9 @@ using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
+// ReSharper disable UnusedMember.Local
+// ReSharper disable UnusedAutoPropertyAccessor.Local
+// ReSharper disable MemberHidesStaticFromOuterClass
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 {
@@ -312,6 +315,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             }
         }
 
+        // ReSharper disable once ParameterOnlyUsedForPreconditionCheck.Local
         private static void AssertDetected(EntityEntry<Baxter> entityEntry, PropertyEntry<Baxter, int[]> propertyEntry)
         {
             Assert.Equal(EntityState.Modified, entityEntry.State);
@@ -1188,7 +1192,6 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             var contextServices = CreateContextServices(BuildModelWithChanged());
 
-            var changeDetector = contextServices.GetRequiredService<IChangeDetector>();
             var stateManager = contextServices.GetRequiredService<IStateManager>();
 
             var product1 = new ProductWithChanged
@@ -1234,7 +1237,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         [Fact]
         public void Brings_in_single_new_entity_set_on_reference_navigation()
         {
-            var contextServices = CreateContextServices(BuildModel());
+            var contextServices = CreateContextServices();
 
             var changeDetector = contextServices.GetRequiredService<IChangeDetector>();
             var stateManager = contextServices.GetRequiredService<IStateManager>();
@@ -1271,7 +1274,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         [Fact]
         public void Brings_in_new_entity_set_on_principal_of_one_to_one_navigation()
         {
-            var contextServices = CreateContextServices(BuildModel());
+            var contextServices = CreateContextServices();
 
             var changeDetector = contextServices.GetRequiredService<IChangeDetector>();
             var stateManager = contextServices.GetRequiredService<IStateManager>();
@@ -1299,7 +1302,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         [Fact]
         public void Brings_in_new_entity_set_on_dependent_of_one_to_one_navigation()
         {
-            var contextServices = CreateContextServices(BuildModel());
+            var contextServices = CreateContextServices();
 
             var changeDetector = contextServices.GetRequiredService<IChangeDetector>();
             var stateManager = contextServices.GetRequiredService<IStateManager>();
@@ -1329,7 +1332,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         [Fact]
         public void Brings_in_single_new_entity_set_on_collection_navigation()
         {
-            var contextServices = CreateContextServices(BuildModel());
+            var contextServices = CreateContextServices();
 
             var changeDetector = contextServices.GetRequiredService<IChangeDetector>();
             var stateManager = contextServices.GetRequiredService<IStateManager>();
@@ -1374,7 +1377,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         [Fact]
         public void Brings_in_new_entity_set_on_principal_of_one_to_one_self_ref()
         {
-            var contextServices = CreateContextServices(BuildModel());
+            var contextServices = CreateContextServices();
 
             var changeDetector = contextServices.GetRequiredService<IChangeDetector>();
             var stateManager = contextServices.GetRequiredService<IStateManager>();
@@ -1397,7 +1400,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         [Fact]
         public void Brings_in_new_entity_set_on_dependent_of_one_to_one_self_ref()
         {
-            var contextServices = CreateContextServices(BuildModel());
+            var contextServices = CreateContextServices();
 
             var changeDetector = contextServices.GetRequiredService<IChangeDetector>();
             var stateManager = contextServices.GetRequiredService<IStateManager>();
@@ -1742,7 +1745,6 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             var contextServices = CreateContextServices(BuildNotifyingModel());
 
-            var changeDetector = contextServices.GetRequiredService<IChangeDetector>();
             var stateManager = contextServices.GetRequiredService<IStateManager>();
 
             var product1 = new NotifyingProduct
@@ -1791,7 +1793,6 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             var contextServices = CreateContextServices(BuildNotifyingModel());
 
-            var changeDetector = contextServices.GetRequiredService<IChangeDetector>();
             var stateManager = contextServices.GetRequiredService<IStateManager>();
 
             var product1 = new NotifyingProduct
@@ -2084,7 +2085,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 .HasOne(e => e.Husband).WithOne(e => e.Wife)
                 .HasForeignKey<Person>(e => e.HusbandId);
 
-            return builder.Model;
+            return builder.Model.FinalizeModel();
         }
 
         private class NotifyingCategory : NotifyingEntity
@@ -2180,7 +2181,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 set => SetWithNotify(value, ref _name);
             }
 
-            public virtual NotifyingCategory Category
+            public NotifyingCategory Category
             {
                 get => _category;
                 set => SetWithNotify(value, ref _category);
@@ -2312,7 +2313,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 .HasOne(e => e.Husband).WithOne(e => e.Wife)
                 .HasForeignKey<NotifyingPerson>(e => e.HusbandId);
 
-            return builder.Model;
+            return builder.Model.FinalizeModel();
         }
 
         private class CategoryWithChanged : INotifyPropertyChanged
@@ -2352,7 +2353,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 .HasMany(e => e.Products).WithOne(e => e.Category)
                 .HasForeignKey(e => e.DependentId);
 
-            return builder.Model;
+            return builder.Model.FinalizeModel();
         }
 
         private static InternalEntityEntry CreateInternalEntry<TEntity>(IServiceProvider contextServices,
@@ -2420,9 +2421,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             public override void NavigationCollectionChanged(
                 InternalEntityEntry entry, INavigation navigation, IEnumerable<object> added, IEnumerable<object> removed)
             {
+                // ReSharper disable PossibleMultipleEnumeration
                 CollectionChange = Tuple.Create(entry, navigation, added, removed);
 
                 base.NavigationCollectionChanged(entry, navigation, added, removed);
+                // ReSharper restore PossibleMultipleEnumeration
             }
 
             public override void KeyPropertyChanged(

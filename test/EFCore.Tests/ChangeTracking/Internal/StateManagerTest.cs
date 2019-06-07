@@ -6,11 +6,13 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
+// ReSharper disable MemberCanBePrivate.Local
 // ReSharper disable UnusedMember.Local
 // ReSharper disable UnusedAutoPropertyAccessor.Local
 // ReSharper disable InconsistentNaming
@@ -1021,7 +1023,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                         Id = Guid.NewGuid(),
                         DependentId = 78
                     }));
-            var productEntry5 = stateManager.StartTracking(
+            stateManager.StartTracking(
                 stateManager.GetOrCreateEntry(
                     new Product
                     {
@@ -1091,7 +1093,13 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             public string Id { get; set; }
         }
 
-        private static IMutableModel BuildModel()
+        private class Location
+        {
+            public int Id { get; set; }
+            public string Planet { get; set; }
+        }
+
+        private static IModel BuildModel()
         {
             var builder = InMemoryTestHelpers.Instance.CreateConventionBuilder();
 
@@ -1108,15 +1116,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             builder.Entity<Dogegory>();
 
-            builder.Entity(
-                "Location", eb =>
-                {
-                    eb.Property<int>("Id");
-                    eb.Property<string>("Planet");
-                    eb.HasKey("Id");
-                });
+            builder.Entity<Location>();
 
-            return builder.Model;
+            return builder.Model.FinalizeModel();
         }
     }
 }

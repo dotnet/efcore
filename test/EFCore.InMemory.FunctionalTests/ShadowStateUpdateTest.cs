@@ -23,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore
             customerType.AddProperty("Name", typeof(string));
 
             var optionsBuilder = new DbContextOptionsBuilder()
-                .UseModel(model)
+                .UseModel(model.FinalizeModel())
                 .UseInMemoryDatabase(nameof(ShadowStateUpdateTest))
                 .UseInternalServiceProvider(_fixture.ServiceProvider);
 

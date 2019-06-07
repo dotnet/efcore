@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
@@ -298,8 +299,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public static PropertyCounts CalculateCounts([NotNull] this IEntityType entityType)
+        public static PropertyCounts CalculateCounts([NotNull] this EntityType entityType)
         {
+            Debug.Assert(entityType.Model.ConventionDispatcher == null, "Should not be called on a mutable model");
+
             var index = 0;
             var navigationIndex = 0;
             var originalValueIndex = 0;
@@ -327,7 +330,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     relationshipIndex: property.IsKeyOrForeignKey() ? relationshipIndex++ : -1,
                     storeGenerationIndex: property.MayBeStoreGenerated() ? storeGenerationIndex++ : -1);
 
-                property.SetIndexes(indexes);
+                property.PropertyIndexes = indexes;
             }
 
             var isNotifying = entityType.GetChangeTrackingStrategy() != ChangeTrackingStrategy.Snapshot;
@@ -341,7 +344,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     relationshipIndex: navigation.IsCollection() && isNotifying ? -1 : relationshipIndex++,
                     storeGenerationIndex: -1);
 
-                navigation.SetIndexes(indexes);
+                navigation.PropertyIndexes = indexes;
             }
 
             foreach (var serviceProperty in entityType.GetDeclaredServiceProperties())
@@ -353,7 +356,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     relationshipIndex: -1,
                     storeGenerationIndex: -1);
 
-                serviceProperty.SetIndexes(indexes);
+                serviceProperty.PropertyIndexes = indexes;
             }
 
             return new PropertyCounts(

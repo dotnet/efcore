@@ -111,6 +111,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             b.BaseType = a;
             c.BaseType = a;
 
+            model.FinalizeModel();
+
             Assert.Equal(new[] { "E", "G" }, a.GetProperties().Select(p => p.Name).ToArray());
             Assert.Equal(new[] { "E", "G", "F", "H" }, b.GetProperties().Select(p => p.Name).ToArray());
             Assert.Equal(new[] { "E", "G", "H", "I" }, c.GetProperties().Select(p => p.Name).ToArray());
@@ -144,6 +146,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             c.AddProperty(C.HProperty);
             c.AddProperty("I", typeof(string));
 
+            model.FinalizeModel();
+
             Assert.Equal(new[] { "E", "G" }, a.GetProperties().Select(p => p.Name).ToArray());
             Assert.Equal(new[] { "E", "G", "F", "H" }, b.GetProperties().Select(p => p.Name).ToArray());
             Assert.Equal(new[] { "E", "G", "H", "I" }, c.GetProperties().Select(p => p.Name).ToArray());
@@ -167,21 +171,19 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             Assert.Equal(new[] { "F", "H" }, c.GetProperties().Select(p => p.Name).ToArray());
             Assert.Equal(new[] { "F", "H", "E", "G" }, d.GetProperties().Select(p => p.Name).ToArray());
-            Assert.Equal(new[] { 0, 1 }, c.GetProperties().Select(p => p.GetIndex()));
-            Assert.Equal(new[] { 0, 1, 2, 3 }, d.GetProperties().Select(p => p.GetIndex()));
 
             d.BaseType = null;
 
             Assert.Equal(new[] { "F", "H" }, c.GetProperties().Select(p => p.Name).ToArray());
             Assert.Equal(new[] { "E", "G" }, d.GetProperties().Select(p => p.Name).ToArray());
-            Assert.Equal(new[] { 0, 1 }, c.GetProperties().Select(p => p.GetIndex()));
-            Assert.Equal(new[] { 0, 1 }, d.GetProperties().Select(p => p.GetIndex()));
 
             var a = model.AddEntityType(typeof(A));
             a.AddProperty(A.EProperty);
             a.AddProperty(A.GProperty);
 
             c.BaseType = a;
+
+            model.FinalizeModel();
 
             Assert.Equal(new[] { "E", "G" }, a.GetProperties().Select(p => p.Name).ToArray());
             Assert.Equal(new[] { "E", "G", "F", "H" }, c.GetProperties().Select(p => p.Name).ToArray());
@@ -348,6 +350,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             b.BaseType = a;
 
+            model.FinalizeModel();
+
             Assert.Equal(
                 new[] { new[] { "E" }, new[] { "G" } },
                 a.GetKeys().Select(fk => fk.Properties.Select(p => p.Name).ToArray()).ToArray());
@@ -377,6 +381,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             a.SetPrimaryKey(a.FindProperty("G"));
             a.AddKey(a.FindProperty("E"));
+
+            model.FinalizeModel();
 
             Assert.Equal(
                 new[] { new[] { "E" }, new[] { "G" } },

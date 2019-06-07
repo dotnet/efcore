@@ -121,7 +121,7 @@ namespace Microsoft.EntityFrameworkCore
             optionsBuilder
                 .UseInMemoryDatabase(Guid.NewGuid().ToString())
                 .UseInternalServiceProvider(InMemoryTestHelpers.Instance.CreateServiceProvider())
-                .UseModel(model);
+                .UseModel(model.FinalizeModel());
             using (var context = new DbContext(optionsBuilder.Options))
             {
                 var ex = Assert.Throws<InvalidOperationException>(() => context.Set<User>().Local);
@@ -143,7 +143,7 @@ namespace Microsoft.EntityFrameworkCore
                 new DbContextOptionsBuilder()
                     .UseInternalServiceProvider(serviceProvider)
                     .UseInMemoryDatabase(Guid.NewGuid().ToString())
-                    .UseModel(model)
+                    .UseModel(model.FinalizeModel())
                     .Options))
             {
                 var changeDetector = (FakeChangeDetector)context.GetService<IChangeDetector>();
@@ -335,12 +335,12 @@ namespace Microsoft.EntityFrameworkCore
         [Fact]
         public void Context_will_use_explicit_model_if_set_in_config()
         {
-            IConventionModel model = new Model();
+            IMutableModel model = new Model();
             model.AddEntityType(typeof(TheGu));
 
             using (var context = new EarlyLearningCenter(
                 InMemoryTestHelpers.Instance.CreateServiceProvider(),
-                new DbContextOptionsBuilder().UseModel(model).Options))
+                new DbContextOptionsBuilder().UseModel(model.FinalizeModel()).Options))
             {
                 Assert.Equal(
                     new[] { typeof(TheGu).FullName },

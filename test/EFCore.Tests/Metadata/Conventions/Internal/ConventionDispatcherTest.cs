@@ -184,6 +184,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             Assert.Equal(new[] { "bar", null }, convention1.Calls);
             Assert.Equal(new[] { "bar", null }, convention2.Calls);
             Assert.Empty(convention3.Calls);
+
+            builder.Metadata[CoreAnnotationNames.ProductVersion] = "bar";
+            Assert.Equal(new[] { "bar", null }, convention1.Calls);
         }
 
         private class ModelAnnotationChangedConvention : IModelAnnotationChangedConvention
@@ -803,6 +806,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             Assert.Equal(new[] { "bar", null }, convention1.Calls);
             Assert.Equal(new[] { "bar", null }, convention2.Calls);
             Assert.Empty(convention3.Calls);
+
+            entityBuilder.Metadata[CoreAnnotationNames.PropertyAccessMode] = PropertyAccessMode.Field;
+            Assert.Equal(new[] { "bar", null }, convention1.Calls);
         }
 
         private class EntityTypeAnnotationChangedConvention : IEntityTypeAnnotationChangedConvention
@@ -1475,7 +1481,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         [InlineData(false, true)]
         [InlineData(true, true)]
         [Theory]
-        public void OnFForeignKeyAnnotationChanged_calls_conventions_in_order(bool useBuilder, bool useScope)
+        public void OnForeignKeyAnnotationChanged_calls_conventions_in_order(bool useBuilder, bool useScope)
         {
             var conventions = new ConventionSet();
 
@@ -1538,6 +1544,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             Assert.Equal(new[] { "bar", null }, convention1.Calls);
             Assert.Equal(new[] { "bar", null }, convention2.Calls);
             Assert.Empty(convention3.Calls);
+
+            foreignKey[CoreAnnotationNames.EagerLoaded] = true;
+
+            Assert.Equal(new[] { "bar", null }, convention1.Calls);
         }
 
         private class ForeignKeyAnnotationChangedConvention : IForeignKeyAnnotationChangedConvention
@@ -1970,6 +1980,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             Assert.Equal(new[] { "bar", null }, convention1.Calls);
             Assert.Equal(new[] { "bar", null }, convention2.Calls);
             Assert.Empty(convention3.Calls);
+
+            key[CoreAnnotationNames.Unicode] = false;
+
+            Assert.Equal(new[] { "bar", null }, convention1.Calls);
         }
 
         private class KeyAnnotationChangedConvention : IKeyAnnotationChangedConvention
@@ -2303,6 +2317,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             Assert.Equal(new[] { "bar", null }, convention1.Calls);
             Assert.Equal(new[] { "bar", null }, convention2.Calls);
             Assert.Empty(convention3.Calls);
+
+            indexBuilder.Metadata[CoreAnnotationNames.MaxLength] = 20;
+
+            Assert.Equal(new[] { "bar", null }, convention1.Calls);
         }
 
         private class IndexAnnotationChangedConvention : IIndexAnnotationChangedConvention
@@ -2732,6 +2750,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             Assert.Equal(new[] { "bar", null }, convention1.Calls);
             Assert.Equal(new[] { "bar", null }, convention2.Calls);
             Assert.Empty(convention3.Calls);
+
+            propertyBuilder.Metadata[CoreAnnotationNames.AfterSaveBehavior] = PropertySaveBehavior.Ignore;
+
+            Assert.Equal(new[] { "bar", null }, convention1.Calls);
         }
 
         private class PropertyAnnotationChangedConvention : IPropertyAnnotationChangedConvention

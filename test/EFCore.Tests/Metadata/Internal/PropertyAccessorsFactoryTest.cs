@@ -21,6 +21,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var entityType = model.AddEntityType(typeof(IndexedClass));
             entityType.AddProperty("Id", typeof(int));
             var propertyA = entityType.AddIndexedProperty("PropertyA", typeof(string));
+            model.FinalizeModel();
 
             var contextServices = InMemoryTestHelpers.Instance.CreateContextServices(model);
             var stateManager = contextServices.GetRequiredService<IStateManager>();
@@ -44,8 +45,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         {
             IMutableModel model = new Model();
             var entityType = model.AddEntityType(typeof(NonIndexedClass));
-            var id = entityType.AddProperty("Id", typeof(int));
+            entityType.AddProperty("Id", typeof(int));
             var propA = entityType.AddProperty("PropA", typeof(string));
+            model.FinalizeModel();
 
             var contextServices = InMemoryTestHelpers.Instance.CreateContextServices(model);
             var stateManager = contextServices.GetRequiredService<IStateManager>();
@@ -61,22 +63,19 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Equal("ValueA", ((Func<InternalEntityEntry, string>)propertyAccessors.RelationshipSnapshotGetter)(entry));
 
             var valueBuffer = new ValueBuffer(new object[] { 1, "ValueA" });
-            Assert.Equal("ValueA", ((Func<ValueBuffer, object>)propertyAccessors.ValueBufferGetter)(valueBuffer));
+            Assert.Equal("ValueA", propertyAccessors.ValueBufferGetter(valueBuffer));
         }
 
         private class IndexedClass
         {
-            private Dictionary<string, object> _internalValues = new Dictionary<string, object>()
-                {
+            private readonly Dictionary<string, object> _internalValues = new Dictionary<string, object>
+            {
                     { "PropertyA", "ValueA" }
                 };
 
             internal int Id { get; set; }
 
-            public object this[string name]
-            {
-                get => _internalValues[name];
-            }
+            public object this[string name] => _internalValues[name];
         }
 
         private class NonIndexedClass

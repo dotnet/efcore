@@ -613,6 +613,8 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
                 var entityType = (IEntityType)model.FindEntityType(typeof(Quarks));
 
+                modelBuilder.FinalizeModel();
+
                 Assert.False(entityType.FindProperty("Up").IsShadowProperty());
                 Assert.False(entityType.FindProperty("Down").IsShadowProperty());
                 Assert.True(entityType.FindProperty("Gluon").IsShadowProperty());
@@ -625,7 +627,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             }
 
             [Fact]
-            public virtual void Properties_can_be_made_concurency_tokens()
+            public virtual void Properties_can_be_made_concurrency_tokens()
             {
                 var modelBuilder = CreateModelBuilder();
                 var model = modelBuilder.Model;
@@ -643,6 +645,8 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                     });
 
                 var entityType = (IEntityType)model.FindEntityType(typeof(Quarks));
+
+                modelBuilder.FinalizeModel();
 
                 Assert.False(entityType.FindProperty(Customer.IdProperty.Name).IsConcurrencyToken);
                 Assert.True(entityType.FindProperty("Up").IsConcurrencyToken);

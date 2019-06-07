@@ -17,6 +17,7 @@ using Microsoft.EntityFrameworkCore.Update;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
+// ReSharper disable UnusedMember.Global
 // ReSharper disable UnusedAutoPropertyAccessor.Local
 // ReSharper disable AssignNullToNotNullAttribute
 // ReSharper disable InconsistentNaming
@@ -303,13 +304,14 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         [Fact]
         public virtual void Key_properties_share_value_generation_space_with_base()
         {
-            var model = BuildModel();
+            var model = BuildModel(finalize: false);
             var entityType = model.FindEntityType(typeof(SomeEntity).FullName);
             var keyProperty = entityType.FindProperty("Id");
             var baseEntityType = model.FindEntityType(typeof(SomeSimpleEntityBase).FullName);
             var altKeyProperty = baseEntityType.AddProperty("NonId", typeof(int));
             altKeyProperty.ValueGenerated = ValueGenerated.OnAdd;
             baseEntityType.AddKey(altKeyProperty);
+            model.FinalizeModel();
             var configuration = InMemoryTestHelpers.Instance.CreateContextServices(model);
 
             var entry = CreateInternalEntry(configuration, entityType, new SomeEntity());
@@ -565,9 +567,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         [Fact]
         public virtual void All_original_values_can_be_accessed_for_entity_that_does_full_change_tracking_if_eager_values_on()
         {
-            var model = BuildModel();
+            var model = BuildModel(finalize: false);
             var entityType = model.FindEntityType(typeof(FullNotificationEntity).FullName);
             entityType.SetChangeTrackingStrategy(ChangeTrackingStrategy.Snapshot);
+            model.FinalizeModel();
 
             AllOriginalValuesTest(
                 model, entityType, new FullNotificationEntity
@@ -1178,7 +1181,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                             .HasForeignKey<FirstDependent>(e => e.Id);
                     });
 
-            return modelBuilder.Model;
+            return modelBuilder.FinalizeModel();
         }
 
         private static IModel BuildOneToOneCompositeModel(bool required)
@@ -1236,7 +1239,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     })
                 .IsRequired(required);
 
-            return modelBuilder.Model;
+            return modelBuilder.FinalizeModel();
         }
 
         [Fact]
@@ -1395,7 +1398,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 .GetRequiredService<IStateManager>()
                 .StartTrackingFromQuery(entityType, entity, valueBuffer, new HashSet<IForeignKey>());
 
-        protected virtual IMutableModel BuildModel()
+        protected virtual IMutableModel BuildModel(bool finalize = true)
         {
             var modelBuilder = new ModelBuilder(new ConventionSet());
             var model = modelBuilder.Model;
@@ -1457,7 +1460,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     owned.Property(e => e.Value);
                 });
 
-            return (Model)model;
+            return finalize ? (IMutableModel)model.FinalizeModel() : model;
         }
 
         protected interface ISomeEntity

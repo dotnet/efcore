@@ -193,9 +193,9 @@ DEFAULT VALUES;
 
         protected override string Identity => throw new NotImplementedException();
 
-        protected override string OpenDelimeter => "[";
+        protected override string OpenDelimiter => "[";
 
-        protected override string CloseDelimeter => "]";
+        protected override string CloseDelimiter => "]";
 
         private void AssertBaseline(string expected, string actual)
         {

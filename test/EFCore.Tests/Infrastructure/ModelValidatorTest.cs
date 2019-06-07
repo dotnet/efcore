@@ -68,7 +68,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             var keyProperty = entityType.AddProperty("Key", typeof(int));
             entityType.SetPrimaryKey(keyProperty);
 
-            VerifyWarning(CoreResources.LogShadowPropertyCreated(new TestLogger<TestLoggingDefinitions>()).GenerateMessage("Key", "A"), model, LogLevel.Debug);
+            VerifyWarning(CoreResources.LogShadowPropertyCreated(new TestLogger<TestLoggingDefinitions>())
+                .GenerateMessage("Key", "A"), (IMutableModel)model, LogLevel.Debug);
         }
 
         [Fact]

@@ -10,6 +10,7 @@ using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
 
+// ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore.ChangeTracking
 {
     public class PropertyEntryTest
@@ -1250,11 +1251,12 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             }
         }
 
-        public static IMutableModel BuildModel(
+        public static IModel BuildModel(
             ChangeTrackingStrategy fullNotificationStrategy = ChangeTrackingStrategy.ChangingAndChangedNotifications,
-            ModelBuilder builder = null)
+            ModelBuilder builder = null,
+            bool finalize = true)
         {
-            builder = builder ?? InMemoryTestHelpers.Instance.CreateConventionBuilder();
+            builder ??= InMemoryTestHelpers.Instance.CreateConventionBuilder();
 
             builder.HasChangeTrackingStrategy(fullNotificationStrategy);
 
@@ -1282,7 +1284,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
                     b.Property(e => e.ConcurrentPrimate).IsConcurrencyToken();
                 });
 
-            return builder.Model;
+            return finalize ? builder.Model.FinalizeModel() : builder.Model;
         }
 
         private class PrimateContext : DbContext
@@ -1303,7 +1305,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
 
             protected internal override void OnModelCreating(ModelBuilder modelBuilder)
             {
-                BuildModel(_fullNotificationStrategy, modelBuilder);
+                BuildModel(_fullNotificationStrategy, modelBuilder, finalize: false);
             }
         }
     }

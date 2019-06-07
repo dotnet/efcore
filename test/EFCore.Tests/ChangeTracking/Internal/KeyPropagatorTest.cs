@@ -4,11 +4,14 @@
 using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.EntityFrameworkCore.ValueGeneration.Internal;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
+// ReSharper disable CollectionNeverUpdated.Local
+// ReSharper disable ClassNeverInstantiated.Local
 namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 {
     public class KeyPropagatorTest
@@ -410,7 +413,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 }
             }
 
-            return builder.Model;
+            return builder.Model.FinalizeModel();
         }
     }
 }

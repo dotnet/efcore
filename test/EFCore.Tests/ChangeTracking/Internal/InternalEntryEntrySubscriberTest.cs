@@ -11,10 +11,13 @@ using System.Runtime.CompilerServices;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
+// ReSharper disable UnusedMember.Local
+// ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 {
     public class InternalEntryEntrySubscriberTest
@@ -571,7 +574,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     b.HasChangeTrackingStrategy(changeTrackingStrategy);
                 });
 
-            return builder.Model;
+            return builder.Model.FinalizeModel();
         }
 
         private class FullNotificationEntity : INotifyPropertyChanging, INotifyPropertyChanged

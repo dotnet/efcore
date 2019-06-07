@@ -71,8 +71,13 @@ namespace Microsoft.EntityFrameworkCore
         public virtual bool IsConfigured => _options.Extensions.Any(e => e.ApplyServices(new ServiceCollection()));
 
         /// <summary>
-        ///     Sets the model to be used for the context. If the model is set, then <see cref="DbContext.OnModelCreating(ModelBuilder)" />
-        ///     will not be run.
+        ///     <para>
+        ///         Sets the model to be used for the context. If the model is set, then <see cref="DbContext.OnModelCreating(ModelBuilder)" />
+        ///         will not be run.
+        ///     </para>
+        ///     <para>
+        ///         If setting an externally created model <see cref="ModelBuilder.FinalizeModel()"/> should be called first.
+        ///     </para>
         /// </summary>
         /// <param name="model"> The model to be used. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
