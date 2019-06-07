@@ -213,7 +213,17 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             var generator = new TestCSharpSnapshotGenerator(
                 new CSharpSnapshotGeneratorDependencies(codeHelper));
 
-            foreach (var field in typeof(CoreAnnotationNames).GetFields().Concat(
+            var coreAnnotations = typeof(CoreAnnotationNames).GetFields().Where(f => f.FieldType == typeof(string)).ToList();
+
+            foreach (var field in coreAnnotations)
+            {
+                var annotationName = (string)field.GetValue(null);
+
+                Assert.True(CoreAnnotationNames.AllNames.Contains(annotationName),
+                    nameof(CoreAnnotationNames) + "." + nameof(CoreAnnotationNames.AllNames) + " doesn't contain " + annotationName);
+            }
+
+            foreach (var field in coreAnnotations.Concat(
                 typeof(RelationalAnnotationNames).GetFields().Where(f => f.Name != "Prefix")))
             {
                 var annotationName = (string)field.GetValue(null);

@@ -73,11 +73,18 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             [NotNull] string name,
             [CanBeNull] IConventionAnnotation annotation,
             [CanBeNull] IConventionAnnotation oldAnnotation)
-            => _scope.OnModelAnnotationChanged(
+        {
+            if (CoreAnnotationNames.AllNames.Contains(name))
+            {
+                return annotation;
+            }
+
+            return _scope.OnModelAnnotationChanged(
                 modelBuilder,
                 name,
                 annotation,
                 oldAnnotation);
+        }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -142,11 +149,18 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             [NotNull] string name,
             [CanBeNull] IConventionAnnotation annotation,
             [CanBeNull] IConventionAnnotation oldAnnotation)
-            => _scope.OnEntityTypeAnnotationChanged(
+        {
+            if (CoreAnnotationNames.AllNames.Contains(name))
+            {
+                return annotation;
+            }
+
+            return _scope.OnEntityTypeAnnotationChanged(
                 entityTypeBuilder,
                 name,
                 annotation,
                 oldAnnotation);
+        }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -234,11 +248,18 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             [NotNull] string name,
             [CanBeNull] IConventionAnnotation annotation,
             [CanBeNull] IConventionAnnotation oldAnnotation)
-            => _scope.OnForeignKeyAnnotationChanged(
+        {
+            if (CoreAnnotationNames.AllNames.Contains(name))
+            {
+                return annotation;
+            }
+
+            return _scope.OnForeignKeyAnnotationChanged(
                 relationshipBuilder,
                 name,
                 annotation,
                 oldAnnotation);
+        }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -296,11 +317,18 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             [NotNull] string name,
             [CanBeNull] IConventionAnnotation annotation,
             [CanBeNull] IConventionAnnotation oldAnnotation)
-            => _scope.OnKeyAnnotationChanged(
+        {
+            if (CoreAnnotationNames.AllNames.Contains(name))
+            {
+                return annotation;
+            }
+
+            return _scope.OnKeyAnnotationChanged(
                 keyBuilder,
                 name,
                 annotation,
                 oldAnnotation);
+        }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -352,11 +380,18 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             [NotNull] string name,
             [CanBeNull] IConventionAnnotation annotation,
             [CanBeNull] IConventionAnnotation oldAnnotation)
-            => _scope.OnIndexAnnotationChanged(
+        {
+            if (CoreAnnotationNames.AllNames.Contains(name))
+            {
+                return annotation;
+            }
+
+            return _scope.OnIndexAnnotationChanged(
                 indexBuilder,
                 name,
                 annotation,
                 oldAnnotation);
+        }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -397,11 +432,18 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             [NotNull] string name,
             [CanBeNull] IConventionAnnotation annotation,
             [CanBeNull] IConventionAnnotation oldAnnotation)
-            => _scope.OnPropertyAnnotationChanged(
+        {
+            if (CoreAnnotationNames.AllNames.Contains(name))
+            {
+                return annotation;
+            }
+
+            return _scope.OnPropertyAnnotationChanged(
                 propertyBuilder,
                 name,
                 annotation,
                 oldAnnotation);
+        }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
