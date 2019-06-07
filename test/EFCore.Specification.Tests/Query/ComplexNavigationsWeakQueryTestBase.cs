@@ -57,7 +57,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         // Self-ref not supported
-        public override Task Join_navigation_translated_to_subquery_self_ref(bool isAsync)
+        public override Task Join_navigation_self_ref(bool isAsync)
         {
             return Task.CompletedTask;
         }

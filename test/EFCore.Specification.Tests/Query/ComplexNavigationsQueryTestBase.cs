@@ -761,7 +761,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task Join_navigation_in_inner_selector_translated_to_subquery(bool isAsync)
+        public virtual Task Join_navigation_in_inner_selector(bool isAsync)
         {
             return AssertQuery<Level1, Level2>(
                 isAsync,
@@ -786,7 +786,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task Join_navigations_in_inner_selector_translated_to_multiple_subquery_without_collision(bool isAsync)
+        public virtual Task Join_navigations_in_inner_selector_translated_without_collision(bool isAsync)
         {
             return AssertQuery<Level1, Level2, Level3>(
                 isAsync,
@@ -816,7 +816,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task Join_navigation_translated_to_subquery_non_key_join(bool isAsync)
+        public virtual Task Join_navigation_non_key_join(bool isAsync)
         {
             return AssertQuery<Level1, Level2>(
                 isAsync,
@@ -846,7 +846,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         // issue #12804
         //[ConditionalTheory]
         //[MemberData(nameof(IsAsyncData))]
-        public virtual Task Join_with_orderby_on_inner_sequence_navigation_translated_to_subquery_non_key_join(bool isAsync)
+        public virtual Task Join_with_orderby_on_inner_sequence_navigation_non_key_join(bool isAsync)
         {
             return AssertQuery<Level1, Level2>(
                 isAsync,
@@ -876,7 +876,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task Join_navigation_translated_to_subquery_self_ref(bool isAsync)
+        public virtual Task Join_navigation_self_ref(bool isAsync)
         {
             return AssertQuery<Level1>(
                 isAsync,
@@ -902,7 +902,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task Join_navigation_translated_to_subquery_nested(bool isAsync)
+        public virtual Task Join_navigation_nested(bool isAsync)
         {
             return AssertQuery<Level1, Level3>(
                 isAsync,
@@ -932,7 +932,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         // issue #12787
         //[ConditionalTheory]
         //[MemberData(nameof(IsAsyncData))]
-        public virtual Task Join_navigation_translated_to_subquery_nested2(bool isAsync)
+        public virtual Task Join_navigation_nested2(bool isAsync)
         {
             return AssertQuery<Level1, Level3>(
                 isAsync,
@@ -961,7 +961,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task Join_navigation_translated_to_subquery_deeply_nested_non_key_join(bool isAsync)
+        public virtual Task Join_navigation_deeply_nested_non_key_join(bool isAsync)
         {
             return AssertQuery<Level1, Level4>(
                 isAsync,
@@ -996,7 +996,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task Join_navigation_translated_to_subquery_deeply_nested_required(bool isAsync)
+        public virtual Task Join_navigation_deeply_nested_required(bool isAsync)
         {
             return AssertQuery<Level1, Level4>(
                 isAsync,
