@@ -5,8 +5,7 @@ using Microsoft.EntityFrameworkCore.TestUtilities;
 
 namespace Microsoft.EntityFrameworkCore
 {
-    public class NotificationEntitiesInMemoryTest : NotificationEntitiesTestBase<
-        NotificationEntitiesInMemoryTest.NotificationEntitiesInMemoryFixture>
+    internal class NotificationEntitiesInMemoryTest : NotificationEntitiesTestBase<NotificationEntitiesInMemoryTest.NotificationEntitiesInMemoryFixture>
     {
         public NotificationEntitiesInMemoryTest(NotificationEntitiesInMemoryFixture fixture)
             : base(fixture)

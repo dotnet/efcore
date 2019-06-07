@@ -25,6 +25,12 @@ namespace Microsoft.EntityFrameworkCore
             base.Can_insert_and_read_back_with_string_key();
         }
 
+        [ConditionalFact(Skip = "Issue#15711")]
+        public override void Can_query_and_update_with_nullable_converter_on_primary_key()
+        {
+            base.Can_query_and_update_with_nullable_converter_on_primary_key();
+        }
+
         public class CustomConvertersInMemoryFixture : CustomConvertersFixtureBase
         {
             public override bool StrictEquality => true;

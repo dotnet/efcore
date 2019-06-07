@@ -13,6 +13,7 @@ using Microsoft.Data.SqlClient; // Note: Hard reference to SqlClient here.
 using Microsoft.EntityFrameworkCore.SqlServer.Storage.ValueConversion.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+using NetTopologySuite.Geometries;
 using NetTopologySuite.IO;
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
@@ -80,6 +81,10 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
             var builder = new StringBuilder();
             var geometry = (IGeometry)value;
             var defaultSrid = geometry.SRID == (_isGeography ? 4326 : 0);
+            if (geometry == Point.Empty)
+            {
+                defaultSrid = true;
+            }
 
             builder
                 .Append(_isGeography ? "geography" : "geometry")

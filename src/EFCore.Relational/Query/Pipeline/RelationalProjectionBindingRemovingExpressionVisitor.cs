@@ -7,6 +7,7 @@ using System.Data.Common;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Query.Pipeline;
@@ -48,6 +49,15 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
 
                     return Expression.MakeBinary(ExpressionType.Assign, binaryExpression.Left, updatedExpression);
                 }
+
+                if (binaryExpression.NodeType == ExpressionType.Assign
+                    && binaryExpression.Left is MemberExpression memberExpression
+                    && memberExpression.Member is FieldInfo fieldInfo
+                    && fieldInfo.IsInitOnly)
+                {
+                    return memberExpression.Assign(Visit(binaryExpression.Right));
+                }
+
 
                 return base.VisitBinary(binaryExpression);
             }

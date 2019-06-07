@@ -4,6 +4,7 @@
 using System.Linq;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.TestUtilities;
+using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore
@@ -21,6 +22,7 @@ namespace Microsoft.EntityFrameworkCore
             base.Query_with_keyless_type();
         }
 
+        [ConditionalFact(Skip = "Issue#15711")]
         public override void Query_and_update_using_constructors_with_property_parameters()
         {
             base.Query_and_update_using_constructors_with_property_parameters();

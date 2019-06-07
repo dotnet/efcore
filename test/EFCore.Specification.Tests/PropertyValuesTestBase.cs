@@ -38,7 +38,7 @@ namespace Microsoft.EntityFrameworkCore
             return TestPropertyValuesScalars(e => Task.FromResult(e.OriginalValues), expectOriginalValues: true);
         }
 
-        [Fact(Skip = "QueryIssue")]
+        [Fact]
         public virtual Task Scalar_store_values_can_be_accessed_as_a_property_dictionary()
         {
             return TestPropertyValuesScalars(e => Task.FromResult(e.GetDatabaseValues()), expectOriginalValues: true);
@@ -94,7 +94,7 @@ namespace Microsoft.EntityFrameworkCore
             return TestPropertyValuesScalarsIProperty(e => Task.FromResult(e.OriginalValues), expectOriginalValues: true);
         }
 
-        [Fact(Skip = "QueryIssue")]
+        [Fact]
         public virtual Task Scalar_store_values_can_be_accessed_as_a_property_dictionary_using_IProperty()
         {
             return TestPropertyValuesScalarsIProperty(e => Task.FromResult(e.GetDatabaseValues()), expectOriginalValues: true);
@@ -139,25 +139,25 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact(Skip = "QueryIssue")]
+        [Fact]
         public virtual Task Scalar_current_values_of_a_derived_object_can_be_accessed_as_a_property_dictionary()
         {
             return TestPropertyValuesDerivedScalars(e => Task.FromResult(e.CurrentValues), expectOriginalValues: false);
         }
 
-        [Fact(Skip = "QueryIssue")]
+        [Fact]
         public virtual Task Scalar_original_values_of_a_derived_object_can_be_accessed_as_a_property_dictionary()
         {
             return TestPropertyValuesDerivedScalars(e => Task.FromResult(e.OriginalValues), expectOriginalValues: true);
         }
 
-        [Fact(Skip = "QueryIssue")]
+        [Fact]
         public virtual Task Scalar_store_values_of_a_derived_object_can_be_accessed_as_a_property_dictionary()
         {
             return TestPropertyValuesDerivedScalars(e => Task.FromResult(e.GetDatabaseValues()), expectOriginalValues: true);
         }
 
-        [Fact(Skip = "QueryIssue")]
+        [Fact]
         public virtual Task Scalar_store_values_of_a_derived_object_can_be_accessed_asynchronously_as_a_property_dictionary()
         {
             return TestPropertyValuesDerivedScalars(e => e.GetDatabaseValuesAsync(), expectOriginalValues: true);
@@ -210,7 +210,7 @@ namespace Microsoft.EntityFrameworkCore
             return TestNonGenericPropertyValuesScalars(e => Task.FromResult(e.OriginalValues), expectOriginalValues: true);
         }
 
-        [Fact(Skip = "QueryIssue")]
+        [Fact]
         public virtual Task Scalar_store_values_can_be_accessed_as_a_non_generic_property_dictionary()
         {
             return TestNonGenericPropertyValuesScalars(e => Task.FromResult(e.GetDatabaseValues()), expectOriginalValues: true);
@@ -276,7 +276,7 @@ namespace Microsoft.EntityFrameworkCore
             return TestNonGenericPropertyValuesScalarsIProperty(e => Task.FromResult(e.OriginalValues), expectOriginalValues: true);
         }
 
-        [Fact(Skip = "QueryIssue")]
+        [Fact]
         public virtual Task Scalar_store_values_can_be_accessed_as_a_non_generic_property_dictionary_using_IProperty()
         {
             return TestNonGenericPropertyValuesScalarsIProperty(e => Task.FromResult(e.GetDatabaseValues()), expectOriginalValues: true);
@@ -327,25 +327,25 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact(Skip = "QueryIssue")]
+        [Fact]
         public virtual Task Scalar_current_values_of_a_derived_object_can_be_accessed_as_a_non_generic_property_dictionary()
         {
             return TestNonGenericPropertyValuesDerivedScalars(e => Task.FromResult(e.CurrentValues), expectOriginalValues: false);
         }
 
-        [Fact(Skip = "QueryIssue")]
+        [Fact]
         public virtual Task Scalar_original_values_of_a_derived_object_can_be_accessed_as_a_non_generic_property_dictionary()
         {
             return TestNonGenericPropertyValuesDerivedScalars(e => Task.FromResult(e.OriginalValues), expectOriginalValues: true);
         }
 
-        [Fact(Skip = "QueryIssue")]
+        [Fact]
         public virtual Task Scalar_store_values_of_a_derived_object_can_be_accessed_as_a_non_generic_property_dictionary()
         {
             return TestNonGenericPropertyValuesDerivedScalars(e => Task.FromResult(e.GetDatabaseValues()), expectOriginalValues: true);
         }
 
-        [Fact(Skip = "QueryIssue")]
+        [Fact]
         public virtual Task Scalar_store_values_of_a_derived_object_can_be_accessed_asynchronously_as_a_non_generic_property_dictionary()
         {
             return TestNonGenericPropertyValuesDerivedScalars(e => e.GetDatabaseValuesAsync(), expectOriginalValues: true);
@@ -515,7 +515,7 @@ namespace Microsoft.EntityFrameworkCore
             return TestPropertyValuesClone(e => Task.FromResult(e.OriginalValues), expectOriginalValues: true);
         }
 
-        [Fact(Skip = "QueryIssue")]
+        [Fact]
         public virtual Task Store_values_can_be_copied_into_an_object()
         {
             return TestPropertyValuesClone(e => Task.FromResult(e.GetDatabaseValues()), expectOriginalValues: true);
@@ -555,25 +555,25 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact(Skip = "QueryIssue")]
+        [Fact]
         public virtual Task Current_values_for_derived_object_can_be_copied_into_an_object()
         {
             return TestPropertyValuesDerivedClone(e => Task.FromResult(e.CurrentValues), expectOriginalValues: false);
         }
 
-        [Fact(Skip = "QueryIssue")]
+        [Fact]
         public virtual Task Original_values_for_derived_object_can_be_copied_into_an_object()
         {
             return TestPropertyValuesDerivedClone(e => Task.FromResult(e.OriginalValues), expectOriginalValues: true);
         }
 
-        [Fact(Skip = "QueryIssue")]
+        [Fact]
         public virtual Task Store_values_for_derived_object_can_be_copied_into_an_object()
         {
             return TestPropertyValuesDerivedClone(e => Task.FromResult(e.GetDatabaseValues()), expectOriginalValues: true);
         }
 
-        [Fact(Skip = "QueryIssue")]
+        [Fact]
         public virtual Task Store_values_for_derived_object_can_be_copied_into_an_object_asynchronously()
         {
             return TestPropertyValuesDerivedClone(e => e.GetDatabaseValuesAsync(), expectOriginalValues: true);
@@ -622,7 +622,7 @@ namespace Microsoft.EntityFrameworkCore
             return TestNonGenericPropertyValuesClone(e => Task.FromResult(e.OriginalValues), expectOriginalValues: true);
         }
 
-        [Fact(Skip = "QueryIssue")]
+        [Fact]
         public virtual Task Store_values_can_be_copied_non_generic_property_dictionary_into_an_object()
         {
             return TestNonGenericPropertyValuesClone(e => Task.FromResult(e.GetDatabaseValues()), expectOriginalValues: true);
@@ -674,7 +674,7 @@ namespace Microsoft.EntityFrameworkCore
             return TestPropertyValuesCloneToValues(e => Task.FromResult(e.OriginalValues), expectOriginalValues: true);
         }
 
-        [Fact(Skip = "QueryIssue")]
+        [Fact]
         public virtual Task Store_values_can_be_copied_into_a_cloned_dictionary()
         {
             return TestPropertyValuesCloneToValues(e => Task.FromResult(e.GetDatabaseValues()), expectOriginalValues: true);
@@ -853,7 +853,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact(Skip = "QueryIssue")]
+        [Fact]
         public virtual void Using_bad_property_names_throws_derived()
         {
             using (var context = CreateContext())
@@ -906,7 +906,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact(Skip = "QueryIssue")]
+        [Fact]
         public virtual void Using_bad_IProperty_instances_throws_derived()
         {
             using (var context = CreateContext())
@@ -974,7 +974,7 @@ namespace Microsoft.EntityFrameworkCore
             return TestNonGenericPropertyValuesCloneToValues(e => Task.FromResult(e.OriginalValues), expectOriginalValues: true);
         }
 
-        [Fact(Skip = "QueryIssue")]
+        [Fact]
         public virtual Task Store_values_can_be_copied_into_a_non_generic_cloned_dictionary()
         {
             return TestNonGenericPropertyValuesCloneToValues(e => Task.FromResult(e.GetDatabaseValues()), expectOriginalValues: true);
@@ -1065,7 +1065,7 @@ namespace Microsoft.EntityFrameworkCore
                 e => Task.FromResult(e.OriginalValues), EntityState.Deleted, expectOriginalValues: true);
         }
 
-        [Fact(Skip = "QueryIssue")]
+        [Fact]
         public virtual Task Store_values_can_be_read_and_set_for_an_object_in_the_Deleted_state()
         {
             return TestPropertyValuesPositiveForState(
@@ -1092,7 +1092,7 @@ namespace Microsoft.EntityFrameworkCore
                 e => Task.FromResult(e.OriginalValues), EntityState.Unchanged, expectOriginalValues: true);
         }
 
-        [Fact(Skip = "QueryIssue")]
+        [Fact]
         public virtual Task Store_values_can_be_read_and_set_for_an_object_in_the_Unchanged_state()
         {
             return TestPropertyValuesPositiveForState(
@@ -1119,7 +1119,7 @@ namespace Microsoft.EntityFrameworkCore
                 e => Task.FromResult(e.OriginalValues), EntityState.Modified, expectOriginalValues: true);
         }
 
-        [Fact(Skip = "QueryIssue")]
+        [Fact]
         public virtual Task Store_values_can_be_read_and_set_for_an_object_in_the_Modified_state()
         {
             return TestPropertyValuesPositiveForState(
@@ -1146,7 +1146,7 @@ namespace Microsoft.EntityFrameworkCore
                 e => Task.FromResult(e.OriginalValues), EntityState.Added, expectOriginalValues: true);
         }
 
-        [Fact(Skip = "QueryIssue")]
+        [Fact]
         public virtual Task Store_values_can_be_read_or_set_for_an_object_in_the_Added_state()
         {
             return TestPropertyValuesPositiveForState(
@@ -1173,7 +1173,7 @@ namespace Microsoft.EntityFrameworkCore
                 e => Task.FromResult(e.OriginalValues), EntityState.Detached, expectOriginalValues: true);
         }
 
-        [Fact(Skip = "QueryIssue")]
+        [Fact]
         public virtual Task Store_values_can_be_read_or_set_for_a_Detached_object()
         {
             return TestPropertyValuesPositiveForState(
@@ -1209,7 +1209,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Theory(Skip = "QueryIssue")]
+        [Theory]
         [InlineData(EntityState.Unchanged, true)]
         [InlineData(EntityState.Unchanged, false)]
         [InlineData(EntityState.Modified, true)]
@@ -1249,7 +1249,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Theory(Skip = "QueryIssue")]
+        [Theory]
         [InlineData(EntityState.Unchanged, true)]
         [InlineData(EntityState.Unchanged, false)]
         [InlineData(EntityState.Modified, true)]
@@ -1912,7 +1912,7 @@ namespace Microsoft.EntityFrameworkCore
             return TestProperties(e => Task.FromResult(e.OriginalValues));
         }
 
-        [Fact(Skip = "QueryIssue")]
+        [Fact]
         public virtual Task Properties_for_store_values_returns_properties()
         {
             return TestProperties(e => Task.FromResult(e.GetDatabaseValues()));
@@ -1951,13 +1951,13 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact(Skip = "QueryIssue")]
+        [Fact]
         public virtual Task GetDatabaseValues_for_entity_not_in_the_store_returns_null()
         {
             return GetDatabaseValues_for_entity_not_in_the_store_returns_null_implementation(e => Task.FromResult(e.GetDatabaseValues()));
         }
 
-        [Fact(Skip = "QueryIssue")]
+        [Fact]
         public virtual Task GetDatabaseValuesAsync_for_entity_not_in_the_store_returns_null()
         {
             return GetDatabaseValues_for_entity_not_in_the_store_returns_null_implementation(e => e.GetDatabaseValuesAsync());
@@ -1979,14 +1979,14 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact(Skip = "QueryIssue")]
+        [Fact]
         public virtual Task NonGeneric_GetDatabaseValues_for_entity_not_in_the_store_returns_null()
         {
             return NonGeneric_GetDatabaseValues_for_entity_not_in_the_store_returns_null_implementation(
                 e => Task.FromResult(e.GetDatabaseValues()));
         }
 
-        [Fact(Skip = "QueryIssue")]
+        [Fact]
         public virtual Task NonGeneric_GetDatabaseValuesAsync_for_entity_not_in_the_store_returns_null()
         {
             return NonGeneric_GetDatabaseValues_for_entity_not_in_the_store_returns_null_implementation(e => e.GetDatabaseValuesAsync());
@@ -2008,14 +2008,14 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact(Skip = "QueryIssue")]
+        [Fact]
         public virtual Task GetDatabaseValues_for_derived_entity_not_in_the_store_returns_null()
         {
             return GetDatabaseValues_for_derived_entity_not_in_the_store_returns_null_implementation(
                 e => Task.FromResult(e.GetDatabaseValues()));
         }
 
-        [Fact(Skip = "QueryIssue")]
+        [Fact]
         public virtual Task GetDatabaseValuesAsync_for_derived_entity_not_in_the_store_returns_null()
         {
             return GetDatabaseValues_for_derived_entity_not_in_the_store_returns_null_implementation(e => e.GetDatabaseValuesAsync());
@@ -2040,14 +2040,14 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact(Skip = "QueryIssue")]
+        [Fact]
         public virtual Task NonGeneric_GetDatabaseValues_for_derived_entity_not_in_the_store_returns_null()
         {
             return NonGeneric_GetDatabaseValues_for_derived_entity_not_in_the_store_returns_null_implementation(
                 e => Task.FromResult(e.GetDatabaseValues()));
         }
 
-        [Fact(Skip = "QueryIssue")]
+        [Fact]
         public virtual Task NonGeneric_GetDatabaseValuesAsync_for_derived_entity_not_in_the_store_returns_null()
         {
             return NonGeneric_GetDatabaseValues_for_derived_entity_not_in_the_store_returns_null_implementation(
@@ -2073,14 +2073,14 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact(Skip = "QueryIssue")]
+        [Fact]
         public virtual Task GetDatabaseValues_for_the_wrong_type_in_the_store_returns_null()
         {
             return GetDatabaseValues_for_the_wrong_type_in_the_store_returns_null_implementation(
                 e => Task.FromResult(e.GetDatabaseValues()));
         }
 
-        [Fact(Skip = "QueryIssue")]
+        [Fact]
         public virtual Task GetDatabaseValuesAsync_for_the_wrong_type_in_the_store_returns_null()
         {
             return GetDatabaseValues_for_the_wrong_type_in_the_store_returns_null_implementation(e => e.GetDatabaseValuesAsync());
@@ -2112,14 +2112,14 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact(Skip = "QueryIssue")]
+        [Fact]
         public virtual Task NonGeneric_GetDatabaseValues_for_the_wrong_type_in_the_store_throws()
         {
             return NonGeneric_GetDatabaseValues_for_the_wrong_type_in_the_store_throws_implementation(
                 e => Task.FromResult(e.GetDatabaseValues()));
         }
 
-        [Fact(Skip = "QueryIssue")]
+        [Fact]
         public virtual Task NonGeneric_GetDatabaseValuesAsync_for_the_wrong_type_in_the_store_throws()
         {
             return NonGeneric_GetDatabaseValues_for_the_wrong_type_in_the_store_throws_implementation(e => e.GetDatabaseValuesAsync());
@@ -2151,7 +2151,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact(Skip = "QueryIssue")]
+        [Fact]
         public Task Store_values_really_are_store_values_not_current_or_original_values()
         {
             return Store_values_really_are_store_values_not_current_or_original_values_implementation(
@@ -2180,7 +2180,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact(Skip = "QueryIssue")]
+        [Fact]
         public virtual void Setting_store_values_does_not_change_current_or_original_values()
         {
             using (var context = CreateContext())

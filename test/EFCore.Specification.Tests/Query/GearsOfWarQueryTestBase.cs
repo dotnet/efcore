@@ -1389,7 +1389,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             return AssertQuery<Gear>(
                 isAsync,
                 gs => from g in gs
-                      // ReSharper disable once ConstantNullCoalescingCondition
+                          // ReSharper disable once ConstantNullCoalescingCondition
                       where (new
                       {
                           Name = g.LeaderNickname
@@ -1447,7 +1447,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             return AssertQuery<Gear>(
                 isAsync,
                 gs => from g in gs
-                      // ReSharper disable once EqualExpressionComparison
+                          // ReSharper disable once EqualExpressionComparison
                       where new
                       {
                           Five = 5
@@ -2015,10 +2015,10 @@ namespace Microsoft.EntityFrameworkCore.Query
                 (ts, gs) =>
                     (from t in ts
                      join g in gs.OfType<Officer>() on new
-                         {
-                             id1 = t.GearSquadId,
-                             id2 = t.GearNickName
-                         }
+                     {
+                         id1 = t.GearSquadId,
+                         id2 = t.GearNickName
+                     }
                          equals new
                          {
                              id1 = (int?)g.SquadId,
@@ -2040,10 +2040,10 @@ namespace Microsoft.EntityFrameworkCore.Query
                 (gs, ts) =>
                     (from g in gs.OfType<Officer>()
                      join t in ts on new
-                         {
-                             id1 = (int?)g.SquadId,
-                             id2 = g.Nickname
-                         }
+                     {
+                         id1 = (int?)g.SquadId,
+                         id2 = g.Nickname
+                     }
                          equals new
                          {
                              id1 = t.GearSquadId,
@@ -2294,7 +2294,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                       join g2 in gs.Include(g => g.Weapons)
                           on g1.LeaderNickname equals g2.Nickname into grouping
                       from g2 in grouping.DefaultIfEmpty()
-                      // ReSharper disable once MergeConditionalExpression
+                          // ReSharper disable once MergeConditionalExpression
 #pragma warning disable IDE0029 // Use coalesce expression
                       select g2 != null ? g2 : g1,
 #pragma warning restore IDE0029 // Use coalesce expression
@@ -2317,7 +2317,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                       join g2 in gs.Include(g => g.Weapons)
                           on g1.LeaderNickname equals g2.Nickname into grouping
                       from g2 in grouping.DefaultIfEmpty()
-                      // ReSharper disable once MergeConditionalExpression
+                          // ReSharper disable once MergeConditionalExpression
 #pragma warning disable IDE0029 // Use coalesce expression
                       select new
                       {
@@ -4024,7 +4024,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             {
                 var query = from g1 in ctx.Gears
                             from g2 in ctx.Gears
-                            // ReSharper disable once PossibleUnintendedReferenceComparison
+                                // ReSharper disable once PossibleUnintendedReferenceComparison
                             where g1.Weapons == g2.Weapons
                             orderby g1.Nickname
                             select new
@@ -7474,23 +7474,25 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalFact(Skip = "Issue#15964")]
+        [ConditionalFact(Skip = "Issue#14935")]
         public virtual void Nav_rewrite_Distinct_with_convert()
         {
             using (var ctx = CreateContext())
             {
-                var query = ctx.Factions.Where(f => f.Capital.Name != "Foo").Select(f => (LocustHorde)f).Distinct().Where(lh => lh.Commander.Name != "Bar");
-                var result = query.ToList();
+                var result = ctx.Factions.Include(f => ((LocustHorde)f).Commander)
+                    .Where(f => f.Capital.Name != "Foo").Select(f => (LocustHorde)f)
+                    .Distinct().Where(lh => lh.Commander.Name != "Bar").ToList();
             }
         }
 
-        [ConditionalFact(Skip = "Issue#15964")]
+        [ConditionalFact(Skip = "Issue#14935")]
         public virtual void Nav_rewrite_Distinct_with_convert_anonymous()
         {
             using (var ctx = CreateContext())
             {
-                var query = ctx.Factions.Where(f => f.Capital.Name != "Foo").Select(f => new { horde = (LocustHorde)f }).Distinct().Where(lh => lh.horde.Commander.Name != "Bar");
-                var result = query.ToList();
+                var result = ctx.Factions.Include(f => ((LocustHorde)f).Commander)
+                    .Where(f => f.Capital.Name != "Foo").Select(f => new { horde = (LocustHorde)f })
+                    .Distinct().Where(lh => lh.horde.Commander.Name != "Bar").ToList();
             }
         }
 

@@ -391,7 +391,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     <para>
         ///         Saves all changes made in this context to the database.
-        ///     </para>     
+        ///     </para>
         ///     <para>
         ///         This method will automatically call <see cref="ChangeTracking.ChangeTracker.DetectChanges" /> to discover any
         ///         changes to entity instances before saving to the underlying database. This can be disabled via
@@ -414,7 +414,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     <para>
         ///         Saves all changes made in this context to the database.
-        ///     </para>     
+        ///     </para>
         ///     <para>
         ///         This method will automatically call <see cref="ChangeTracking.ChangeTracker.DetectChanges" /> to discover any
         ///         changes to entity instances before saving to the underlying database. This can be disabled via
@@ -485,7 +485,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     <para>
         ///         Saves all changes made in this context to the database.
-        ///     </para>     
+        ///     </para>
         ///     <para>
         ///         This method will automatically call <see cref="ChangeTracking.ChangeTracker.DetectChanges" /> to discover any
         ///         changes to entity instances before saving to the underlying database. This can be disabled via
@@ -515,7 +515,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     <para>
         ///         Saves all changes made in this context to the database.
-        ///     </para>     
+        ///     </para>
         ///     <para>
         ///         This method will automatically call <see cref="ChangeTracking.ChangeTracker.DetectChanges" /> to discover any
         ///         changes to entity instances before saving to the underlying database. This can be disabled via

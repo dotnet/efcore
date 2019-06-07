@@ -58,7 +58,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [ConditionalFact(Skip = "QueryIssue")]
+        [ConditionalFact]
         public virtual void Mutation_of_tracked_values_does_not_mutate_values_in_store()
         {
             Point CreatePoint(double y = 2.2)
@@ -119,21 +119,20 @@ namespace Microsoft.EntityFrameworkCore
                 });
         }
 
-        [ConditionalFact(Skip = "QueryIssue")]
+        [ConditionalFact]
         public virtual void Translators_handle_static_members()
         {
             using (var db = Fixture.CreateContext())
             {
-                Enumerable.FirstOrDefault(
-                    from e in db.Set<PointEntity>()
-                    select new
-                    {
-                        e.Id,
-                        e.Point,
-                        Point.Empty,
-                        DateTime.UtcNow,
-                        Guid = Guid.NewGuid()
-                    });
+                (from e in db.Set<PointEntity>()
+                select new
+                {
+                    e.Id,
+                    e.Point,
+                    Point.Empty,
+                    DateTime.UtcNow,
+                    Guid = Guid.NewGuid()
+                }).FirstOrDefault();
             }
         }
 

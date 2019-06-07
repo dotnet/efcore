@@ -91,7 +91,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalFact(Skip = "QueryIssue")]
+        [ConditionalFact]
         public virtual async Task Cast_to_derived_type_causes_client_eval()
         {
             using (var context = CreateContext())
@@ -111,7 +111,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalFact(Skip = "QueryIssue")]
+        [ConditionalFact(Skip = "#15711")]
         public virtual async Task GroupBy_Select_sum()
         {
             using (var ctx = CreateContext())
