@@ -6,13 +6,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using Microsoft.EntityFrameworkCore.Extensions.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Query.Expressions.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
-using Microsoft.EntityFrameworkCore.Query.Pipeline;
 
 namespace Microsoft.EntityFrameworkCore.Query.NavigationExpansion
 {
@@ -57,8 +55,8 @@ namespace Microsoft.EntityFrameworkCore.Query.NavigationExpansion
                 materializeCollectionNavigation?.ClrType ?? operand.Type);
         }
 
-        private static MethodInfo _leftJoinMethodInfo = typeof(EntityQueryableExtensions).GetTypeInfo()
-            .GetDeclaredMethods(nameof(EntityQueryableExtensions.LeftJoin)).Single(mi => mi.GetParameters().Length == 5);
+        private static readonly MethodInfo _leftJoinMethodInfo = typeof(QueryableExtensions).GetTypeInfo()
+            .GetDeclaredMethods(nameof(QueryableExtensions.LeftJoin)).Single(mi => mi.GetParameters().Length == 5);
 
         public static (Expression source, ParameterExpression parameter) AddNavigationJoin(
             Expression sourceExpression,
@@ -123,8 +121,6 @@ namespace Microsoft.EntityFrameworkCore.Query.NavigationExpansion
                     innerKeySelectorBody,
                     innerKeySelectorParameter);
 
-                var oldParameterExpression = parameterExpression;
-
                 if (!sourceExpression.Type.IsQueryableType())
                 {
                     var asQueryableMethodInfo = LinqMethodHelpers.AsQueryable.MakeGenericMethod(sourceType);
@@ -171,7 +167,6 @@ namespace Microsoft.EntityFrameworkCore.Query.NavigationExpansion
                     innerKeySelector,
                     resultSelector);
 
-                sourceType = resultSelector.ReturnType;
                 sourceExpression = joinMethodCall;
 
                 var transparentIdentifierParameterName = resultSelectorInnerParameterName;

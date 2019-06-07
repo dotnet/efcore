@@ -12,6 +12,7 @@ using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Infrastructure.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -34,8 +35,6 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
     /// </summary>
     public static class CoreLoggerExtensions
     {
-        private const int QueryModelStringLengthLimit = 100;
-
         /// <summary>
         ///     Logs for the <see cref="CoreEventId.SaveChangesFailed" /> event.
         /// </summary>

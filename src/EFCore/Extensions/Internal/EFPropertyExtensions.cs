@@ -9,7 +9,8 @@ using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
 
-namespace Microsoft.EntityFrameworkCore.Extensions.Internal
+// ReSharper disable once CheckNamespace
+namespace Microsoft.EntityFrameworkCore.Internal
 {
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

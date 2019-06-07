@@ -4,12 +4,16 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
+using System.Threading;
+using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
-namespace Microsoft.EntityFrameworkCore.Extensions.Internal
+// ReSharper disable CheckNamespace
+namespace Microsoft.EntityFrameworkCore.Internal
 {
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -41,6 +45,22 @@ namespace Microsoft.EntityFrameworkCore.Extensions.Internal
             }
 
             throw new InvalidOperationException(CoreStrings.IQueryableNotAsync(typeof(TSource)));
+        }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public static IQueryable<TResult> LeftJoin<TOuter, TInner, TKey, TResult>(
+            this IQueryable<TOuter> outer,
+            IEnumerable<TInner> inner,
+            Expression<Func<TOuter, TKey>> outerKeySelector,
+            Expression<Func<TInner, TKey>> innerKeySelector,
+            Expression<Func<TOuter, TInner, TResult>> resultSelector)
+        {
+            throw new NotImplementedException();
         }
     }
 }

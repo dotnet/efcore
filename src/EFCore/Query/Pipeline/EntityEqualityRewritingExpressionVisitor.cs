@@ -8,12 +8,10 @@ using System.Linq.Expressions;
 using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.EntityFrameworkCore.Extensions.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Query.Expressions.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
-using Microsoft.EntityFrameworkCore.Query.NavigationExpansion;
 
 namespace Microsoft.EntityFrameworkCore.Query.Pipeline
 {
@@ -151,7 +149,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Pipeline
 
             if (methodCallExpression.Method.DeclaringType == typeof(Queryable)
                 || methodCallExpression.Method.DeclaringType == typeof(Enumerable)
-                || methodCallExpression.Method.DeclaringType == typeof(EntityQueryableExtensions))
+                || methodCallExpression.Method.DeclaringType == typeof(QueryableExtensions))
             {
                 switch (methodCallExpression.Method.Name)
                 {
@@ -163,7 +161,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Pipeline
 
                     case nameof(Queryable.GroupJoin):
                     case nameof(Queryable.Join):
-                    case nameof(EntityQueryableExtensions.LeftJoin):
+                    case nameof(QueryableExtensions.LeftJoin):
                         return VisitJoinMethodCall(methodCallExpression);
 
                     case nameof(Queryable.GroupBy): // TODO: Implement

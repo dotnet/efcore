@@ -6,39 +6,40 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using Microsoft.EntityFrameworkCore.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Query.Pipeline
 {
     public class GroupJoinFlatteningExpressionVisitor : ExpressionVisitor
     {
-        private static MethodInfo _whereMethodInfo = typeof(Queryable).GetTypeInfo()
+        private static readonly MethodInfo _whereMethodInfo = typeof(Queryable).GetTypeInfo()
             .GetDeclaredMethods(nameof(Queryable.Where))
             .Single(mi => mi.GetParameters().Length == 2
                 && mi.GetParameters()[1].ParameterType.GetGenericArguments()[0].GetGenericArguments().Length == 2);
 
-        private static MethodInfo _groupJoinMethodInfo = typeof(Queryable).GetTypeInfo()
+        private static readonly MethodInfo _groupJoinMethodInfo = typeof(Queryable).GetTypeInfo()
             .GetDeclaredMethods(nameof(Queryable.GroupJoin)).Single(mi => mi.GetParameters().Length == 5);
 
-        private static MethodInfo _defaultIfEmptyWithoutArgMethodInfo = typeof(Enumerable).GetTypeInfo()
+        private static readonly MethodInfo _defaultIfEmptyWithoutArgMethodInfo = typeof(Enumerable).GetTypeInfo()
             .GetDeclaredMethods(nameof(Enumerable.DefaultIfEmpty)).Single(mi => mi.GetParameters().Length == 1);
 
-        private static MethodInfo _selectManyWithCollectionSelectorMethodInfo = typeof(Queryable).GetTypeInfo()
+        private static readonly MethodInfo _selectManyWithCollectionSelectorMethodInfo = typeof(Queryable).GetTypeInfo()
             .GetDeclaredMethods(nameof(Queryable.SelectMany))
             .Single(mi => mi.GetParameters().Length == 3
                 && mi.GetParameters()[1].ParameterType.GetGenericArguments()[0].GetGenericArguments().Length == 2);
-        private static MethodInfo _selectManyWithoutCollectionSelectorMethodInfo = typeof(Queryable).GetTypeInfo()
+        private static readonly MethodInfo _selectManyWithoutCollectionSelectorMethodInfo = typeof(Queryable).GetTypeInfo()
             .GetDeclaredMethods(nameof(Queryable.SelectMany))
             .Single(mi => mi.GetParameters().Length == 2
                 && mi.GetParameters()[1].ParameterType.GetGenericArguments()[0].GetGenericArguments().Length == 2);
 
-        private static MethodInfo _joinMethodInfo = typeof(Queryable).GetTypeInfo()
+        private static readonly MethodInfo _joinMethodInfo = typeof(Queryable).GetTypeInfo()
             .GetDeclaredMethods(nameof(Queryable.Join)).Single(mi => mi.GetParameters().Length == 5);
-        private static MethodInfo _leftJoinMethodInfo = typeof(EntityQueryableExtensions).GetTypeInfo()
-            .GetDeclaredMethods(nameof(EntityQueryableExtensions.LeftJoin)).Single(mi => mi.GetParameters().Length == 5);
+        private static readonly MethodInfo _leftJoinMethodInfo = typeof(QueryableExtensions).GetTypeInfo()
+            .GetDeclaredMethods(nameof(QueryableExtensions.LeftJoin)).Single(mi => mi.GetParameters().Length == 5);
 
-        private static SelectManyVerifyingExpressionVisitor _selectManyVerifyingExpressionVisitor
+        private static readonly SelectManyVerifyingExpressionVisitor _selectManyVerifyingExpressionVisitor
             = new SelectManyVerifyingExpressionVisitor();
-        private static EnumerableToQueryableReMappingExpressionVisitor _enumerableToQueryableReMappingExpressionVisitor
+        private static readonly EnumerableToQueryableReMappingExpressionVisitor _enumerableToQueryableReMappingExpressionVisitor
             = new EnumerableToQueryableReMappingExpressionVisitor();
 
         protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)

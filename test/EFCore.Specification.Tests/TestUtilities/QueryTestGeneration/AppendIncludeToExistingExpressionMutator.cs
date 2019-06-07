@@ -5,7 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
-using Microsoft.EntityFrameworkCore.Extensions.Internal;
+using Microsoft.EntityFrameworkCore.Internal;
 
 namespace Microsoft.EntityFrameworkCore.TestUtilities.QueryTestGeneration
 {
@@ -20,7 +20,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities.QueryTestGeneration
 
         public override bool IsValid(Expression expression)
         {
-            _expressionFinder = new ExpressionFinder(this);
+            _expressionFinder = new ExpressionFinder();
             _expressionFinder.Visit(expression);
 
             return _expressionFinder.FoundExpressions.Any();
@@ -87,13 +87,6 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities.QueryTestGeneration
 
         private class ExpressionFinder : ExpressionVisitor
         {
-            private AppendIncludeToExistingExpressionMutator _mutator;
-
-            public ExpressionFinder(AppendIncludeToExistingExpressionMutator mutator)
-            {
-                _mutator = mutator;
-            }
-
             public readonly List<Expression> FoundExpressions = new List<Expression>();
 
             protected override Expression VisitMethodCall(MethodCallExpression node)

@@ -2,13 +2,11 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using System.Runtime.InteropServices.ComTypes;
-using Microsoft.EntityFrameworkCore.Extensions.Internal;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Query.Expressions.Internal;
@@ -157,10 +155,8 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
                             _sqlExpressionFactory.Constant(concreteEntityTypes.Select(et => et.GetDiscriminatorValue()).ToList()),
                             negated: false);
                 }
-                else
-                {
-                    return _sqlExpressionFactory.Constant(false);
-                }
+
+                return _sqlExpressionFactory.Constant(false);
             }
 
             return null;
@@ -189,15 +185,11 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
                     {
                         return subquery.Projection[0].Expression;
                     }
-                    else
-                    {
-                        throw new InvalidOperationException();
-                    }
+
+                    throw new InvalidOperationException();
                 }
-                else
-                {
-                    return new SubSelectExpression(subquery);
-                }
+
+                return new SubSelectExpression(subquery);
             }
 
             var @object = Visit(methodCallExpression.Object);
@@ -393,8 +385,6 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
 
         [DebuggerStepThrough]
         private bool TranslationFailed(Expression original, Expression translation)
-        {
-            return original == null ? false : !(translation is SqlExpression);
-        }
+            => original != null && !(translation is SqlExpression);
     }
 }

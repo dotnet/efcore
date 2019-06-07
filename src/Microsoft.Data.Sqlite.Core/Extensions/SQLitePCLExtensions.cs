@@ -5,6 +5,7 @@ using System.Reflection;
 
 using static SQLitePCL.raw;
 
+// ReSharper disable once CheckNamespace
 namespace SQLitePCL
 {
     internal static class SQLitePCLExtensions

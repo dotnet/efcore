@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
-using Microsoft.EntityFrameworkCore.Extensions.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Query.Internal;
@@ -19,7 +18,7 @@ namespace Microsoft.EntityFrameworkCore.Query.NavigationExpansion.Visitors
     /// </summary>
     public class CollectionNavigationRewritingVisitor : ExpressionVisitor
     {
-        private ParameterExpression _sourceParameter;
+        private readonly ParameterExpression _sourceParameter;
 
         public CollectionNavigationRewritingVisitor(ParameterExpression sourceParameter)
         {
@@ -221,10 +220,8 @@ namespace Microsoft.EntityFrameworkCore.Query.NavigationExpansion.Visitors
 
                     return result;
                 }
-                else
-                {
-                    return memberExpression.Update(newExpression);
-                }
+
+                return memberExpression.Update(newExpression);
             }
 
             return memberExpression;
@@ -233,7 +230,7 @@ namespace Microsoft.EntityFrameworkCore.Query.NavigationExpansion.Visitors
         private static Expression CreateKeyComparisonExpressionForCollectionNavigationSubquery(
             Expression outerKeyExpression,
             Expression innerKeyExpression,
-            Expression colectionRootExpression)
+            Expression collectionRootExpression)
         {
             if (outerKeyExpression.Type != innerKeyExpression.Type)
             {
@@ -254,8 +251,8 @@ namespace Microsoft.EntityFrameworkCore.Query.NavigationExpansion.Visitors
 
             var outerNullProtection
                 = Expression.NotEqual(
-                    colectionRootExpression,
-                    Expression.Constant(null, colectionRootExpression.Type));
+                    collectionRootExpression,
+                    Expression.Constant(null, collectionRootExpression.Type));
 
             return new CorrelationPredicateExpression(
                 outerNullProtection,

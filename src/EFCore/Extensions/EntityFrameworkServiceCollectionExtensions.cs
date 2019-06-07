@@ -116,7 +116,7 @@ namespace Microsoft.Extensions.DependencyInjection
                 serviceCollection,
                 optionsAction == null
                     ? (Action<IServiceProvider, DbContextOptionsBuilder>)null
-                    : (p, b) => optionsAction?.Invoke(b), contextLifetime, optionsLifetime);
+                    : (p, b) => optionsAction.Invoke(b), contextLifetime, optionsLifetime);
 
         /// <summary>
         ///     Registers the given context as a service in the <see cref="IServiceCollection" /> and enables DbContext pooling.
@@ -219,7 +219,7 @@ namespace Microsoft.Extensions.DependencyInjection
             [NotNull] Action<IServiceProvider, DbContextOptionsBuilder> optionsAction,
             int poolSize = 128)
             where TContext : DbContext
-            => AddDbContextPool<TContext, TContext>(serviceCollection, optionsAction);
+            => AddDbContextPool<TContext, TContext>(serviceCollection, optionsAction, poolSize);
 
         /// <summary>
         ///     <para>

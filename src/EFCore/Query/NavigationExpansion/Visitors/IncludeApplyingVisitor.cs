@@ -1,12 +1,12 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System.Linq;
+using System.Linq.Expressions;
+using Microsoft.EntityFrameworkCore.Internal;
+
 namespace Microsoft.EntityFrameworkCore.Query.NavigationExpansion.Visitors
 {
-    using System.Linq;
-    using System.Linq.Expressions;
-    using Microsoft.EntityFrameworkCore.Extensions.Internal;
-
     public class PendingSelectorIncludeRewriter : ExpressionVisitor
     {
         protected override Expression VisitMember(MemberExpression memberExpression) => memberExpression;

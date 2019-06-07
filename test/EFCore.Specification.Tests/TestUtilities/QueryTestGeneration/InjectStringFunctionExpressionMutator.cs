@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using Microsoft.EntityFrameworkCore.Extensions.Internal;
+using Microsoft.EntityFrameworkCore.Internal;
 
 namespace Microsoft.EntityFrameworkCore.TestUtilities.QueryTestGeneration
 {
@@ -51,8 +51,8 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities.QueryTestGeneration
                 if (_insideLambda
                     && !_insideEFProperty
                     && node?.Type == typeof(string)
-                    && node?.NodeType != ExpressionType.Parameter
-                    && (node?.NodeType != ExpressionType.Constant || ((ConstantExpression)node)?.Value != null))
+                    && node.NodeType != ExpressionType.Parameter
+                    && (node.NodeType != ExpressionType.Constant || ((ConstantExpression)node)?.Value != null))
                 {
                     FoundExpressions.Add(node);
                 }

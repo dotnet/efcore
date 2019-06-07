@@ -24,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore
 
                 foreach (var foreignKey in modelBuilder.Model
                     .GetEntityTypes()
-                    .SelectMany(e => MutableEntityTypeExtensions.GetDeclaredForeignKeys(e)))
+                    .SelectMany(e => e.GetDeclaredForeignKeys()))
                 {
                     foreignKey.DeleteBehavior = DeleteBehavior.ClientNoAction;
                 }

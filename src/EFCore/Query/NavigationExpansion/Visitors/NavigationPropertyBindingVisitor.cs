@@ -4,16 +4,16 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
-using Microsoft.EntityFrameworkCore.Extensions.Internal;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Query.Expressions.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Query.NavigationExpansion.Visitors
 {
     public class NavigationPropertyBindingVisitor : ExpressionVisitor
     {
-        private ParameterExpression _rootParameter;
-        private List<SourceMapping> _sourceMappings;
-        private bool _bindInclude;
+        private readonly ParameterExpression _rootParameter;
+        private readonly List<SourceMapping> _sourceMappings;
+        private readonly bool _bindInclude;
 
         public NavigationPropertyBindingVisitor(
             ParameterExpression rootParameter,
@@ -191,7 +191,7 @@ namespace Microsoft.EntityFrameworkCore.Query.NavigationExpansion.Visitors
             if (expression is ParameterExpression parameterExpression
                 && (parameterExpression == _rootParameter))
             {
-                var matchingCandidate = navigationTreeNodeCandidates.Where(m => m.path.Count == 0).SingleOrDefault();
+                var matchingCandidate = navigationTreeNodeCandidates.SingleOrDefault(m => m.path.Count == 0);
 
                 return matchingCandidate.navigationTreeNode != null
                     ? (rootParameter: parameterExpression, matchingCandidate.navigationTreeNode)
@@ -201,7 +201,7 @@ namespace Microsoft.EntityFrameworkCore.Query.NavigationExpansion.Visitors
             if (expression is CustomRootExpression customRootExpression
                 && customRootExpression.RootParameter == _rootParameter)
             {
-                var matchingCandidate = navigationTreeNodeCandidates.Where(m => m.path.Count == 0).SingleOrDefault();
+                var matchingCandidate = navigationTreeNodeCandidates.SingleOrDefault(m => m.path.Count == 0);
 
                 return matchingCandidate.navigationTreeNode != null
                     ? (rootParameter: customRootExpression.RootParameter, matchingCandidate.navigationTreeNode)

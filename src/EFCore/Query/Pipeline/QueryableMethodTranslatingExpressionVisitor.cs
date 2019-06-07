@@ -7,6 +7,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Query.NavigationExpansion.Visitors;
 
 namespace Microsoft.EntityFrameworkCore.Query.Pipeline
@@ -26,7 +27,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Pipeline
         protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
         {
             if (methodCallExpression.Method.DeclaringType == typeof(Queryable)
-                || methodCallExpression.Method.DeclaringType == typeof(EntityQueryableExtensions))
+                || methodCallExpression.Method.DeclaringType == typeof(QueryableExtensions))
             {
                 var source = Visit(methodCallExpression.Arguments[0]);
                 if (source is ShapedQueryExpression shapedQueryExpression)
@@ -244,7 +245,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Pipeline
 
                             break;
 
-                        case nameof(EntityQueryableExtensions.LeftJoin)
+                        case nameof(QueryableExtensions.LeftJoin)
                         when argumentCount == 5:
                             {
                                 var innerSource = Visit(methodCallExpression.Arguments[1]);

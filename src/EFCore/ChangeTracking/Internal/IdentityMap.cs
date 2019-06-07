@@ -47,7 +47,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             {
                 _foreignKeys = key.DeclaringEntityType
                     .GetDerivedTypesInclusive()
-                    .SelectMany(e => e.GetDeclaredForeignKeys())
+                    .SelectMany(EntityTypeExtensions.GetDeclaredForeignKeys)
                     .ToArray();
             }
         }

@@ -3,11 +3,10 @@
 
 using System;
 using System.Reflection;
-using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.EntityFrameworkCore.SqlServer.Design.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 
-namespace Microsoft.EntityFrameworkCore
+namespace Microsoft.EntityFrameworkCore.Design
 {
     public class SqlServerDesignTimeProviderServicesTest : DesignTimeProviderServicesTest
     {

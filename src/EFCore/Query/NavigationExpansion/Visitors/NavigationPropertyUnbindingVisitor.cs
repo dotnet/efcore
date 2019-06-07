@@ -8,7 +8,7 @@ namespace Microsoft.EntityFrameworkCore.Query.NavigationExpansion.Visitors
 {
     public class NavigationPropertyUnbindingVisitor : ExpressionVisitor
     {
-        private ParameterExpression _rootParameter;
+        private readonly ParameterExpression _rootParameter;
 
         public NavigationPropertyUnbindingVisitor(ParameterExpression rootParameter)
         {

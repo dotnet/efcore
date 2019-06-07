@@ -13,6 +13,7 @@ using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.EntityFrameworkCore.Update;
 using Xunit;
+// ReSharper disable InconsistentNaming
 
 namespace Microsoft.EntityFrameworkCore
 {
@@ -186,7 +187,7 @@ namespace Microsoft.EntityFrameworkCore
             public override object Entity { get; }
         }
 
-        private static  IEntityType CreateEntityType()
+        private static IEntityType CreateEntityType()
         {
             var model = new Model(new ConventionSet());
             var entityType = model.AddEntityType(typeof(object), ConfigurationSource.Convention);

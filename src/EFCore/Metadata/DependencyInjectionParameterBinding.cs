@@ -6,7 +6,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Infrastructure.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 
@@ -20,7 +20,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     public class DependencyInjectionParameterBinding : ServiceParameterBinding
     {
         private static readonly MethodInfo _getServiceMethod
-            = typeof(InternalAccessorExtensions).GetMethod(nameof(InternalAccessorExtensions.GetService));
+            = typeof(InfrastructureExtensions).GetMethod(nameof(InfrastructureExtensions.GetService));
 
         /// <summary>
         ///     Creates a new <see cref="DependencyInjectionParameterBinding" /> instance for the given service type.

@@ -5,7 +5,6 @@ using System;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using Microsoft.EntityFrameworkCore.Extensions.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Query.Internal;
@@ -108,7 +107,7 @@ namespace Microsoft.EntityFrameworkCore.Query.NavigationExpansion.Visitors
             }
 
             var selector = Expression.Lambda(selectorBody, selectorParameter);
-            var remappedSelectorBody = ExpressionExtensions.CombineAndRemap(selector.Body, selectorParameter, navigationExpansionExpression.State.PendingSelector.Body);
+            var remappedSelectorBody = selector.Body.CombineAndRemap(selectorParameter, navigationExpansionExpression.State.PendingSelector.Body);
 
             var binder = new NavigationPropertyBindingVisitor(
                 navigationExpansionExpression.State.CurrentParameter,
@@ -136,7 +135,7 @@ namespace Microsoft.EntityFrameworkCore.Query.NavigationExpansion.Visitors
                             lastNavigation.ForeignKey.PrincipalKey.Properties),
                         innerParameter);
 
-                    var combinedKeySelectorBody = ExpressionExtensions.CombineAndRemap(innerKeyAccessLambda.Body, innerKeyAccessLambda.Parameters[0], navigationExpansionExpression.State.PendingSelector.Body);
+                    var combinedKeySelectorBody = innerKeyAccessLambda.Body.CombineAndRemap(innerKeyAccessLambda.Parameters[0], navigationExpansionExpression.State.PendingSelector.Body);
                     if (outerKeyAccess.Type != combinedKeySelectorBody.Type)
                     {
                         if (combinedKeySelectorBody.Type.IsNullableType())
@@ -230,7 +229,7 @@ namespace Microsoft.EntityFrameworkCore.Query.NavigationExpansion.Visitors
             var rightConstantNull = binaryExpression.Right.IsNullConstantExpression();
 
             // collection comparison must be optimized out before we visit the left and right
-            // otherwise collections would be rewriteen and harder to identify
+            // otherwise collections would be rewritten and harder to identify
             if (binaryExpression.NodeType == ExpressionType.Equal
                 || binaryExpression.NodeType == ExpressionType.NotEqual)
             {
@@ -239,7 +238,7 @@ namespace Microsoft.EntityFrameworkCore.Query.NavigationExpansion.Visitors
                 var rightParent = default(Expression);
                 var rightNavigation = default(INavigation);
 
-                // TODO: this is hacky and won't work for weak entity types
+                // TODO: this isn't robust and won't work for weak entity types
                 // also, add support for EF.Property and maybe convert node around the navigation
                 if (binaryExpression.Left is MemberExpression leftMember
                     && leftMember.Type.TryGetSequenceType() is Type leftSequenceType

@@ -1,12 +1,10 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System.Diagnostics;
-using System.Reflection;
+using System.Text;
 using JetBrains.Annotations;
 
-// ReSharper disable once CheckNamespace
-namespace Microsoft.EntityFrameworkCore.Internal
+namespace Microsoft.EntityFrameworkCore.Infrastructure.Internal
 {
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -14,8 +12,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [DebuggerStepThrough]
-    public static class MethodInfoExtensions
+    public static class DbContextOptionsExtensions
     {
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -23,11 +20,17 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public static bool MethodIsClosedFormOf(
-            [NotNull] this MethodInfo methodInfo, [NotNull] MethodInfo genericMethod)
-            => methodInfo.IsGenericMethod
-               && Equals(
-                   methodInfo.GetGenericMethodDefinition(),
-                   genericMethod);
+        public static string BuildOptionsFragment([NotNull] this IDbContextOptions contextOptions)
+        {
+            var builder = new StringBuilder();
+            foreach (var extension in contextOptions.Extensions)
+            {
+                builder.Append(extension.LogFragment);
+            }
+
+            var fragment = builder.ToString();
+
+            return string.IsNullOrWhiteSpace(fragment) ? "None" : fragment;
+        }
     }
 }

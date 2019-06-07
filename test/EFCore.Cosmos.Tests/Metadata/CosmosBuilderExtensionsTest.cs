@@ -4,7 +4,8 @@
 using Microsoft.EntityFrameworkCore.Cosmos.TestUtilities;
 using Xunit;
 
-namespace Microsoft.EntityFrameworkCore.Cosmos.Metadata
+// ReSharper disable once CheckNamespace
+namespace Microsoft.EntityFrameworkCore.Metadata
 {
     public class CosmosBuilderExtensionsTest
     {

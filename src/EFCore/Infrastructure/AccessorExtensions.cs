@@ -4,6 +4,7 @@
 using System;
 using System.Diagnostics;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Infrastructure.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
@@ -43,7 +44,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <returns> The requested service. </returns>
         [DebuggerStepThrough]
         public static TService GetService<TService>([NotNull] this IInfrastructure<IServiceProvider> accessor)
-            => InternalAccessorExtensions.GetService<TService>(Check.NotNull(accessor, nameof(accessor)));
+            => InfrastructureExtensions.GetService<TService>(Check.NotNull(accessor, nameof(accessor)));
 
         /// <summary>
         ///     <para>

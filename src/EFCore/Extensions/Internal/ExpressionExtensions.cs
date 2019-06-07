@@ -332,25 +332,12 @@ namespace Microsoft.EntityFrameworkCore.Internal
             if (memberExpression.Member is FieldInfo fieldInfo
                 && fieldInfo.IsInitOnly)
             {
-                if (new FrameworkName(AppContext.TargetFrameworkName).Identifier == ".NETCoreApp")
-                {
-                    return (BinaryExpression)Activator.CreateInstance(
-                        _assignBinaryExpressionType,
-                        BindingFlags.NonPublic | BindingFlags.Instance,
-                        null,
-                        new object[] { memberExpression, valueExpression },
-                        null);
-                }
-
-                // On .NET Framework the compiler refuses to compile an expression tree with IsInitOnly access,
-                // so use Reflection's SetValue instead.
-                return Expression.Call(
-                    Expression.Constant(fieldInfo),
-                    _fieldInfoSetValueMethod,
-                    memberExpression.Expression,
-                    Expression.Convert(
-                        valueExpression,
-                        typeof(object)));
+                return (BinaryExpression)Activator.CreateInstance(
+                    _assignBinaryExpressionType,
+                    BindingFlags.NonPublic | BindingFlags.Instance,
+                    null,
+                    new object[] { memberExpression, valueExpression },
+                    null);
             }
 
             return Expression.Assign(memberExpression, valueExpression);
@@ -359,9 +346,12 @@ namespace Microsoft.EntityFrameworkCore.Internal
         private static readonly Type _assignBinaryExpressionType
             = typeof(Expression).Assembly.GetType("System.Linq.Expressions.AssignBinaryExpression");
 
-        private static readonly MethodInfo _fieldInfoSetValueMethod
-            = typeof(FieldInfo).GetRuntimeMethod(nameof(FieldInfo.SetValue), new[] { typeof(object), typeof(object) });
-
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         public static LambdaExpression GetLambdaOrNull(this Expression expression)
             => expression is LambdaExpression lambda
             ? lambda
@@ -369,15 +359,33 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 ? (LambdaExpression)unary.Operand
                 : null;
 
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         public static LambdaExpression UnwrapQuote(this Expression expression)
             => expression is UnaryExpression unary && expression.NodeType == ExpressionType.Quote
             ? (LambdaExpression)unary.Operand
             : (LambdaExpression)expression;
 
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         public static bool IsIncludeMethod(this MethodCallExpression methodCallExpression)
             => methodCallExpression.Method.DeclaringType == typeof(EntityFrameworkQueryableExtensions)
                 && methodCallExpression.Method.Name == nameof(EntityFrameworkQueryableExtensions.Include);
 
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         public static Expression BuildPropertyAccess(this Expression root, List<string> path)
         {
             var result = root;
@@ -389,13 +397,19 @@ namespace Microsoft.EntityFrameworkCore.Internal
             return result;
         }
 
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         public static Expression CombineAndRemap(
-            Expression source,
+            this Expression source,
             ParameterExpression sourceParameter,
             Expression replaceWith)
             => new ExpressionCombiningVisitor(sourceParameter, replaceWith).Visit(source);
 
-        public class ExpressionCombiningVisitor : ExpressionVisitor
+        private class ExpressionCombiningVisitor : ExpressionVisitor
         {
             private ParameterExpression _sourceParameter;
             private Expression _replaceWith;

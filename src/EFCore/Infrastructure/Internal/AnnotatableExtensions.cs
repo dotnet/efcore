@@ -1,12 +1,11 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System.Linq;
 using System.Text;
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Infrastructure;
 
-// ReSharper disable once CheckNamespace
-namespace Microsoft.EntityFrameworkCore.Internal
+namespace Microsoft.EntityFrameworkCore.Infrastructure.Internal
 {
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -14,7 +13,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public static class DbContextOptionsExtensions
+    public static class AnnotatableExtensions
     {
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -22,17 +21,29 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public static string BuildOptionsFragment([NotNull] this IDbContextOptions contextOptions)
+        public static string AnnotationsToDebugString([NotNull] this IAnnotatable annotatable, [NotNull] string indent = "")
         {
-            var builder = new StringBuilder();
-            foreach (var extension in contextOptions.Extensions)
+            var annotations = annotatable.GetAnnotations().ToList();
+            if (annotations.Count == 0)
             {
-                builder.Append(extension.LogFragment);
+                return "";
             }
 
-            var fragment = builder.ToString();
+            var builder = new StringBuilder();
 
-            return string.IsNullOrWhiteSpace(fragment) ? "None" : fragment;
+            builder.AppendLine().Append(indent).Append("Annotations: ");
+            foreach (var annotation in annotations)
+            {
+                builder
+                    .AppendLine()
+                    .Append(indent)
+                    .Append("  ")
+                    .Append(annotation.Name)
+                    .Append(": ")
+                    .Append(annotation.Value);
+            }
+
+            return builder.ToString();
         }
     }
 }

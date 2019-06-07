@@ -8,6 +8,7 @@ using System.Reflection;
 using System.Text;
 using JetBrains.Annotations;
 
+// ReSharper disable once CheckNamespace
 namespace Microsoft.EntityFrameworkCore.Internal
 {
     /// <summary>
@@ -180,6 +181,36 @@ namespace Microsoft.EntityFrameworkCore.Internal
                     }
                 }
             }
+        }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public static string GenerateParameterName(this Type type)
+        {
+            var sb = new StringBuilder();
+            var removeLowerCase = sb.Append(type.Name.Where(char.IsUpper).ToArray()).ToString();
+
+            return removeLowerCase.Length > 0 ? removeLowerCase.ToLower() : type.Name.ToLower().Substring(0, 1);
+        }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public static bool IsQueryableType(this Type type)
+        {
+            if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(IQueryable<>))
+            {
+                return true;
+            }
+
+            return type.GetInterfaces().Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IQueryable<>));
         }
     }
 }

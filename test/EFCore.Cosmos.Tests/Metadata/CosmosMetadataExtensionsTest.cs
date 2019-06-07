@@ -5,7 +5,8 @@ using System;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Xunit;
 
-namespace Microsoft.EntityFrameworkCore
+// ReSharper disable once CheckNamespace
+namespace Microsoft.EntityFrameworkCore.Metadata
 {
     public class CosmosMetadataExtensionsTest
     {
