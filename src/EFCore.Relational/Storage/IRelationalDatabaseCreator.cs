@@ -47,6 +47,24 @@ namespace Microsoft.EntityFrameworkCore.Storage
         Task<bool> ExistsAsync(CancellationToken cancellationToken = default);
 
         /// <summary>
+        ///     Determines whether the database contains any tables. No attempt is made to determine if
+        ///     tables belong to the current model or not.
+        /// </summary>
+        /// <returns> A value indicating whether any tables are present in the database. </returns>
+        bool HasTables();
+
+        /// <summary>
+        ///     Asynchronously determines whether the database contains any tables. No attempt is made to determine if
+        ///     tables belong to the current model or not.
+        /// </summary>
+        /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
+        /// <returns>
+        ///     A task that represents the asynchronous operation. The task result contains
+        ///     a value indicating whether any tables are present in the database.
+        /// </returns>
+        Task<bool> HasTablesAsync(CancellationToken cancellationToken = default);
+
+        /// <summary>
         ///     Creates the physical database. Does not attempt to populate it with any schema.
         /// </summary>
         void Create();

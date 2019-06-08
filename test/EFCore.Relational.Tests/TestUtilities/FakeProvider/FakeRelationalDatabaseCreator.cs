@@ -24,6 +24,8 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities.FakeProvider
         public Task<bool> CanConnectAsync(CancellationToken cancellationToken = default) => throw new NotImplementedException();
         public bool Exists() => throw new NotImplementedException();
         public Task<bool> ExistsAsync(CancellationToken cancellationToken = new CancellationToken()) => throw new NotImplementedException();
+        public bool HasTables() => throw new NotImplementedException();
+        public Task<bool> HasTablesAsync(CancellationToken cancellationToken = default) => throw new NotImplementedException();
         public void Create() => throw new NotImplementedException();
         public Task CreateAsync(CancellationToken cancellationToken = new CancellationToken()) => throw new NotImplementedException();
         public void Delete() => throw new NotImplementedException();

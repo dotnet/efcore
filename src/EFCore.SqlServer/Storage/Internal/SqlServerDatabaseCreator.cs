@@ -111,7 +111,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        protected override bool HasTables()
+        public override bool HasTables()
             => Dependencies.ExecutionStrategyFactory
                 .Create()
                 .Execute(
@@ -128,7 +128,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        protected override Task<bool> HasTablesAsync(CancellationToken cancellationToken = default)
+        public override Task<bool> HasTablesAsync(CancellationToken cancellationToken = default)
             => Dependencies.ExecutionStrategyFactory.Create().ExecuteAsync(
                 _connection,
                 async (connection, ct) => (int)await CreateHasTablesCommand()
