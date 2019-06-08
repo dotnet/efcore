@@ -702,24 +702,16 @@ namespace Microsoft.EntityFrameworkCore
     public class SqlServerDatabaseCreatorTest
     {
         public static IDisposable CreateTransactionScope(bool useTransaction)
-        {
-            return TestStore.CreateTransactionScope(useTransaction);
-        }
+            => TestStore.CreateTransactionScope(useTransaction);
 
         public static TestDatabaseCreator GetDatabaseCreator(SqlServerTestStore testStore)
-        {
-            return GetDatabaseCreator(testStore.ConnectionString);
-        }
+            => GetDatabaseCreator(testStore.ConnectionString);
 
         public static TestDatabaseCreator GetDatabaseCreator(string connectionString)
-        {
-            return GetDatabaseCreator(new BloggingContext(connectionString));
-        }
+            => GetDatabaseCreator(new BloggingContext(connectionString));
 
         public static TestDatabaseCreator GetDatabaseCreator(BloggingContext context)
-        {
-            return (TestDatabaseCreator)context.GetService<IRelationalDatabaseCreator>();
-        }
+            => (TestDatabaseCreator)context.GetService<IRelationalDatabaseCreator>();
 
         // ReSharper disable once ClassNeverInstantiated.Local
         private class TestSqlServerExecutionStrategyFactory : SqlServerExecutionStrategyFactory
