@@ -73,7 +73,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
         {
             IDisposable subQueryIndent = null;
 
-            if (!string.IsNullOrEmpty(selectExpression.Alias))
+            if (selectExpression.Alias != null)
             {
                 _relationalCommandBuilder.AppendLine("(");
                 subQueryIndent = _relationalCommandBuilder.Indent();
@@ -136,7 +136,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
 
             GenerateLimitOffset(selectExpression);
 
-            if (!string.IsNullOrEmpty(selectExpression.Alias))
+            if (selectExpression.Alias != null)
             {
                 subQueryIndent.Dispose();
 
@@ -155,7 +155,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
                 && !(projectionExpression.Expression is ColumnExpression column
                      && string.Equals(column.Name, projectionExpression.Alias)))
             {
-                _relationalCommandBuilder.Append(" AS " + projectionExpression.Alias);
+                _relationalCommandBuilder.Append(" AS " + _sqlGenerationHelper.DelimitIdentifier(projectionExpression.Alias));
             }
 
             return projectionExpression;

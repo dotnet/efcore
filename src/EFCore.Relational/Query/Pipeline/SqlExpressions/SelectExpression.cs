@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
@@ -15,12 +16,13 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
     public class SelectExpression : TableExpressionBase
     {
         private IDictionary<ProjectionMember, Expression> _projectionMapping = new Dictionary<ProjectionMember, Expression>();
-
-        private readonly IDictionary<Expression, ProjectionBindingExpression> _projectionCache
-            = new Dictionary<Expression, ProjectionBindingExpression>();
-        private readonly List<TableExpressionBase> _tables = new List<TableExpressionBase>();
         private readonly List<ProjectionExpression> _projection = new List<ProjectionExpression>();
+        private readonly IDictionary<EntityProjectionExpression, IDictionary<IProperty, int>> _entityProjectionCache
+            = new Dictionary<EntityProjectionExpression, IDictionary<IProperty, int>>();
+
+        private readonly List<TableExpressionBase> _tables = new List<TableExpressionBase>();
         private readonly List<OrderingExpression> _orderings = new List<OrderingExpression>();
+
         private readonly List<SqlExpression> _identifyingProjection = new List<SqlExpression>();
         private readonly List<(List<SqlExpression> outerKey, List<SqlExpression> innerKey, SelectExpression innerSelectExpression)> _pendingCollectionJoins
             = new List<(List<SqlExpression> outerKey, List<SqlExpression> innerKey, SelectExpression innerSelectExpression)>();
@@ -38,7 +40,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
             List<ProjectionExpression> projections,
             List<TableExpressionBase> tables,
             List<OrderingExpression> orderings)
-            : base(alias ?? "")
+            : base(alias)
         {
             _projection = projections;
             _tables = tables;
@@ -46,7 +48,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
         }
 
         internal SelectExpression(IEntityType entityType)
-            : base("")
+            : base(null)
         {
             var tableExpression = new TableExpression(
                 entityType.GetTableName(),
@@ -68,7 +70,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
         }
 
         public SelectExpression(IEntityType entityType, string sql, Expression arguments)
-            : base("")
+            : base(null)
         {
             var fromSqlExpression = new FromSqlExpression(
                 sql,
@@ -77,7 +79,16 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
 
             _tables.Add(fromSqlExpression);
 
-            _projectionMapping[new ProjectionMember()] = new EntityProjectionExpression(entityType, fromSqlExpression, false);
+            var entityProjection = new EntityProjectionExpression(entityType, fromSqlExpression, false);
+            _projectionMapping[new ProjectionMember()] = entityProjection;
+
+            if (entityType.FindPrimaryKey() != null)
+            {
+                foreach (var property in entityType.FindPrimaryKey().Properties)
+                {
+                    _identifyingProjection.Add(entityProjection.GetProperty(property));
+                }
+            }
         }
 
         public bool IsNonComposedFromSql()
@@ -115,68 +126,78 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
                     foreach (var property in entityProjection.EntityType
                         .GetDerivedTypesInclusive().SelectMany(e => e.GetDeclaredProperties()))
                     {
-                        var columnExpression = entityProjection.GetProperty(property);
-                        map[property] = _projection.Count;
-                        _projection.Add(new ProjectionExpression(columnExpression, alias: ""));
+                        map[property] = AddToProjection(entityProjection.GetProperty(property));
                     }
                     result[keyValuePair.Key] = Constant(map);
                 }
                 else
                 {
-                    result[keyValuePair.Key] = Constant(_projection.Count);
-                    _projection.Add(new ProjectionExpression((SqlExpression)keyValuePair.Value, alias: ""));
+                    result[keyValuePair.Key] = Constant(AddToProjection(
+                        (SqlExpression)keyValuePair.Value, keyValuePair.Key.LastMember?.Name));
                 }
             }
 
             _projectionMapping = result;
         }
 
-        public void ReplaceProjection(IDictionary<ProjectionMember, Expression> projectionMapping)
+        public void ReplaceProjectionMapping(IDictionary<ProjectionMember, Expression> projectionMapping)
         {
             _projectionMapping.Clear();
-
             foreach (var kvp in projectionMapping)
             {
                 _projectionMapping[kvp.Key] = kvp.Value;
             }
         }
 
-        public Expression GetProjectionExpression(ProjectionMember projectionMember)
+        public Expression GetMappedProjection(ProjectionMember projectionMember)
         {
             return _projectionMapping[projectionMember];
         }
 
-        public ProjectionBindingExpression AddToProjection(SqlExpression sqlExpression, Type type)
+        public int AddToProjection(SqlExpression sqlExpression)
         {
-            if (!_projectionCache.TryGetValue(sqlExpression, out var result))
-            {
-                _projection.Add(new ProjectionExpression(sqlExpression, alias: ""));
-                result = new ProjectionBindingExpression(this, _projection.Count - 1, type);
-                _projectionCache[sqlExpression] = result;
-            }
-
-            return result;
+            return AddToProjection(sqlExpression, null);
         }
 
-        public ProjectionBindingExpression AddToProjection(ProjectionBindingExpression projectionBindingExpression)
+        private int AddToProjection(SqlExpression sqlExpression, string alias)
         {
-            var entityProjection = (EntityProjectionExpression)_projectionMapping[projectionBindingExpression.ProjectionMember];
-            if (!_projectionCache.TryGetValue(entityProjection, out var result))
+            var existingIndex = _projection.FindIndex(pe => pe.Expression.Equals(sqlExpression));
+            if (existingIndex != -1)
             {
-                var map = new Dictionary<IProperty, int>();
+                return existingIndex;
+            }
+
+            var baseAlias = alias ?? (sqlExpression as ColumnExpression)?.Name ?? (Alias != null ? "c" : null);
+            var currentAlias = baseAlias ?? "";
+            if (Alias != null && baseAlias != null)
+            {
+                var counter = 0;
+                while (_projection.Any(pe => string.Equals(pe.Alias, currentAlias, StringComparison.OrdinalIgnoreCase)))
+                {
+                    currentAlias = $"{baseAlias}{counter++}";
+                }
+            }
+
+            _projection.Add(new ProjectionExpression(sqlExpression, currentAlias));
+
+            return _projection.Count - 1;
+        }
+
+        public IDictionary<IProperty, int> AddToProjection(EntityProjectionExpression entityProjection)
+        {
+            if (!_entityProjectionCache.TryGetValue(entityProjection, out var dictionary))
+            {
+                dictionary = new Dictionary<IProperty, int>();
                 foreach (var property in entityProjection.EntityType
                     .GetDerivedTypesInclusive().SelectMany(e => e.GetDeclaredProperties()))
                 {
-                    var columnExpression = entityProjection.GetProperty(property);
-                    map[property] = _projection.Count;
-                    _projection.Add(new ProjectionExpression(columnExpression, alias: ""));
+                    dictionary[property] = AddToProjection(entityProjection.GetProperty(property));
                 }
 
-                result = new ProjectionBindingExpression(this, map);
-                _projectionCache[entityProjection] = result;
+                _entityProjectionCache[entityProjection] = dictionary;
             }
 
-            return result;
+            return dictionary;
         }
 
         public void ApplyPredicate(SqlExpression expression)
@@ -272,24 +293,6 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
             _orderings.Clear();
         }
 
-        private SelectExpression Clone(string alias)
-        {
-            var projectionMapping = new Dictionary<ProjectionMember, Expression>();
-            foreach (var kvp in _projectionMapping)
-            {
-                projectionMapping[kvp.Key] = kvp.Value;
-            }
-
-            return new SelectExpression(alias, _projection.ToList(), _tables.ToList(), _orderings.ToList())
-            {
-                _projectionMapping = projectionMapping,
-                Predicate = Predicate,
-                Offset = Offset,
-                Limit = Limit,
-                IsDistinct = IsDistinct
-            };
-        }
-
         private string GenerateUniqueName(HashSet<string> usedNames, string prefix)
         {
             if (!usedNames.Contains(prefix))
@@ -309,71 +312,63 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
 
         public SelectExpression PushdownIntoSubQuery()
         {
-            var subquery = Clone("t");
+            var subquery = new SelectExpression("t", new List<ProjectionExpression>(), _tables.ToList(), _orderings.ToList())
+            {
+                IsDistinct = IsDistinct,
+                Predicate = Predicate,
+                Offset = Offset,
+                Limit = Limit
+            };
 
             if (subquery.Limit == null && subquery.Offset == null)
             {
                 subquery.ClearOrdering();
             }
 
-            _projectionMapping.Clear();
             var projectionMap = new Dictionary<SqlExpression, ColumnExpression>();
-            var usedNames = new HashSet<string>();
             if (_projection.Any())
             {
+                var projections = _projection.Select(pe => pe.Expression).ToList();
                 _projection.Clear();
-                var subqueryProjection = subquery._projection.ToList();
-                subquery._projection.Clear();
-                foreach (var projection in subqueryProjection)
+                foreach (var projection in projections)
                 {
-                    var innerColumn = projection.Expression;
-                    var name = GenerateUniqueName(usedNames, innerColumn is ColumnExpression column ? column.Name : "c");
-                    usedNames.Add(name);
-                    var projectionExpression = new ProjectionExpression(innerColumn, name);
-                    subquery._projection.Add(projectionExpression);
+                    var index = subquery.AddToProjection(projection);
+                    var projectionExpression = subquery._projection[index];
                     var outerColumn = new ColumnExpression(projectionExpression, subquery, IsNullableProjection(projectionExpression));
-                    _projection.Add(new ProjectionExpression(outerColumn, alias: ""));
-                    projectionMap[innerColumn] = outerColumn;
+                    AddToProjection(outerColumn);
+                    projectionMap[projection] = outerColumn;
                 }
             }
             else
             {
-                foreach (var projection in subquery._projectionMapping)
+                foreach (var mapping in _projectionMapping.ToList())
                 {
-                    if (projection.Value is EntityProjectionExpression entityProjection)
+                    if (mapping.Value is EntityProjectionExpression entityProjection)
                     {
                         var propertyExpressions = new Dictionary<IProperty, ColumnExpression>();
                         foreach (var property in entityProjection.EntityType
                             .GetDerivedTypesInclusive().SelectMany(e => e.GetDeclaredProperties()))
                         {
                             var innerColumn = entityProjection.GetProperty(property);
-                            var name = GenerateUniqueName(usedNames, innerColumn.Name);
-                            usedNames.Add(name);
-                            var projectionExpression = new ProjectionExpression(innerColumn, name);
-                            subquery._projection.Add(projectionExpression);
-                            var outerColumn = new ColumnExpression(projectionExpression, subquery, innerColumn.Nullable);
-                            propertyExpressions[property] = outerColumn;
+                            var index = subquery.AddToProjection(innerColumn);
+                            var projectionExpression = subquery._projection[index];
+                            var outerColumn = new ColumnExpression(projectionExpression, subquery, IsNullableProjection(projectionExpression));
                             projectionMap[innerColumn] = outerColumn;
+                            propertyExpressions[property] = outerColumn;
                         }
 
-                        _projectionMapping[projection.Key] = new EntityProjectionExpression(
-                            entityProjection.EntityType, propertyExpressions);
+                        _projectionMapping[mapping.Key] = new EntityProjectionExpression(entityProjection.EntityType, propertyExpressions);
                     }
                     else
                     {
-                        var innerColumn = (SqlExpression)projection.Value;
-                        var name = GenerateUniqueName(usedNames, "c");
-                        usedNames.Add(name);
-                        var projectionExpression = new ProjectionExpression(innerColumn, name);
-                        subquery._projection.Add(projectionExpression);
-                        var outerColumn = new ColumnExpression(
-                            projectionExpression, subquery, IsNullableProjection(projectionExpression));
-                        _projectionMapping[projection.Key] = outerColumn;
+                        var innerColumn = (SqlExpression)mapping.Value;
+                        var index = subquery.AddToProjection(innerColumn);
+                        var projectionExpression = subquery._projection[index];
+                        var outerColumn = new ColumnExpression(projectionExpression, subquery, IsNullableProjection(projectionExpression));
                         projectionMap[innerColumn] = outerColumn;
+                        _projectionMapping[mapping.Key] = outerColumn;
                     }
                 }
-
-                subquery._projectionMapping = null;
             }
 
             var identifyingProjection = _identifyingProjection.ToList();
@@ -387,9 +382,8 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
                 }
             }
 
-            var currentOrderings = _orderings.ToList();
             _orderings.Clear();
-            foreach (var ordering in currentOrderings)
+            foreach (var ordering in subquery._orderings)
             {
                 var orderingExpression = ordering.Expression;
                 if (projectionMap.TryGetValue(orderingExpression, out var outerColumn))
@@ -398,13 +392,10 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
                 }
                 else
                 {
-                    var name = GenerateUniqueName(usedNames, "c");
-                    usedNames.Add(name);
-                    var projectionExpression = new ProjectionExpression(ordering.Expression, name);
-                    subquery._projection.Add(projectionExpression);
-                    _orderings.Add(new OrderingExpression(
-                        new ColumnExpression(projectionExpression, subquery, IsNullableProjection(projectionExpression)), ordering.Ascending));
-
+                    var index = subquery.AddToProjection(orderingExpression);
+                    var projectionExpression = subquery._projection[index];
+                    outerColumn = new ColumnExpression(projectionExpression, subquery, IsNullableProjection(projectionExpression));
+                    _orderings.Add(new OrderingExpression(outerColumn, ordering.Ascending));
                 }
             }
 
@@ -492,7 +483,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
                     {
                         projectionToAdd = column.MakeNullable();
                     }
-                    _projection.Add(projection.Update(projectionToAdd));
+                    AddToProjection(projectionToAdd);
                 }
 
                 var shaperRemapper = new ShaperRemappingExpressionVisitor(this, innerSelectExpression, indexOffset);
@@ -516,13 +507,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
             var updatedExpressions = new List<Expression>();
             foreach (var keyExpression in keyExpressions)
             {
-                var index = _projection.FindIndex(pe => pe.Expression.Equals(keyExpression));
-                if (index == -1)
-                {
-                    index = _projection.Count;
-                    _projection.Add(new ProjectionExpression(keyExpression, alias: ""));
-                }
-
+                var index = AddToProjection(keyExpression);
                 var projectionBindingExpression = new ProjectionBindingExpression(this, index, keyExpression.Type);
 
                 updatedExpressions.Add(
@@ -584,7 +569,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
             private object GetProjectionIndex(ProjectionBindingExpression projectionBindingExpression)
             {
                 return projectionBindingExpression.ProjectionMember != null
-                    ? ((ConstantExpression)_innerSelectExpression.GetProjectionExpression(projectionBindingExpression.ProjectionMember)).Value
+                    ? ((ConstantExpression)_innerSelectExpression.GetMappedProjection(projectionBindingExpression.ProjectionMember)).Value
                     : (projectionBindingExpression.Index != null
                         ? (object)projectionBindingExpression.Index
                         : projectionBindingExpression.IndexMap);
@@ -738,15 +723,12 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
             else
             {
                 projectionMapping = new Dictionary<ProjectionMember, Expression>();
-                if (_projectionMapping != null)
+                foreach (var mapping in _projectionMapping)
                 {
-                    foreach (var mapping in _projectionMapping)
-                    {
-                        var newProjection = visitor.Visit(mapping.Value);
-                        changed |= newProjection != mapping.Value;
+                    var newProjection = visitor.Visit(mapping.Value);
+                    changed |= newProjection != mapping.Value;
 
-                        projectionMapping[mapping.Key] = newProjection;
-                    }
+                    projectionMapping[mapping.Key] = newProjection;
                 }
             }
 
@@ -805,8 +787,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
                 return false;
             }
 
-            if (_projectionMapping != null
-                && selectExpression._projectionMapping != null)
+            if (_projectionMapping.Count != selectExpression._projectionMapping.Count)
             {
                 foreach (var projectionMapping in _projectionMapping)
                 {
@@ -887,13 +868,10 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
             unchecked
             {
                 var hashCode = base.GetHashCode();
-                if (_projectionMapping != null)
+                foreach (var projectionMapping in _projectionMapping)
                 {
-                    foreach (var projectionMapping in _projectionMapping)
-                    {
-                        hashCode = (hashCode * 397) ^ projectionMapping.Key.GetHashCode();
-                        hashCode = (hashCode * 397) ^ projectionMapping.Value.GetHashCode();
-                    }
+                    hashCode = (hashCode * 397) ^ projectionMapping.Key.GetHashCode();
+                    hashCode = (hashCode * 397) ^ projectionMapping.Value.GetHashCode();
                 }
 
                 hashCode = (hashCode * 397) ^ _tables.Aggregate(
@@ -917,19 +895,16 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
             expressionPrinter.StringBuilder.AppendLine("Projection Mapping:");
             using (expressionPrinter.StringBuilder.Indent())
             {
-                if (_projectionMapping != null)
+                foreach (var projectionMappingEntry in _projectionMapping)
                 {
-                    foreach (var projectionMappingEntry in _projectionMapping)
-                    {
-                        expressionPrinter.StringBuilder.AppendLine();
-                        expressionPrinter.StringBuilder.Append(projectionMappingEntry.Key + " -> ");
-                        expressionPrinter.Visit(projectionMappingEntry.Value);
-                    }
+                    expressionPrinter.StringBuilder.AppendLine();
+                    expressionPrinter.StringBuilder.Append(projectionMappingEntry.Key + " -> ");
+                    expressionPrinter.Visit(projectionMappingEntry.Value);
                 }
             }
 
             expressionPrinter.StringBuilder.AppendLine();
-            if (!string.IsNullOrEmpty(Alias))
+            if (Alias != null)
             {
                 expressionPrinter.StringBuilder.AppendLine("(");
                 expressionPrinter.StringBuilder.IncrementIndent();
@@ -1000,7 +975,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
                 }
             }
 
-            if (!string.IsNullOrEmpty(Alias))
+            if (Alias != null)
             {
                 expressionPrinter.StringBuilder.DecrementIndent();
                 expressionPrinter.StringBuilder.AppendLine().Append(") AS " + Alias);

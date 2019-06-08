@@ -39,6 +39,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Pipeline
             return new ProjectionMember(existingChain);
         }
 
+        public MemberInfo LastMember => _memberChain.LastOrDefault();
+
         public override int GetHashCode()
         {
             unchecked

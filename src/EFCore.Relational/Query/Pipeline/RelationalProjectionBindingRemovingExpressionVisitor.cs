@@ -115,7 +115,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
             private object GetProjectionIndex(ProjectionBindingExpression projectionBindingExpression)
             {
                 return projectionBindingExpression.ProjectionMember != null
-                    ? ((ConstantExpression)_selectExpression.GetProjectionExpression(projectionBindingExpression.ProjectionMember)).Value
+                    ? ((ConstantExpression)_selectExpression.GetMappedProjection(projectionBindingExpression.ProjectionMember)).Value
                     : (projectionBindingExpression.Index != null
                         ? (object)projectionBindingExpression.Index
                         : projectionBindingExpression.IndexMap);

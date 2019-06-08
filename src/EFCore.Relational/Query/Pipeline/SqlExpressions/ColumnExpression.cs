@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Diagnostics;
 using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Query.Internal;
@@ -9,6 +10,7 @@ using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
 {
+    [DebuggerDisplay("{DebuggerDisplay(),nq}")]
     public class ColumnExpression : SqlExpression
     {
         internal ColumnExpression(IProperty property, TableExpressionBase table, bool nullable)
@@ -74,5 +76,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
                 return hashCode;
             }
         }
+
+        private string DebuggerDisplay() => $"{Table.Alias}.{Name}";
     }
 }

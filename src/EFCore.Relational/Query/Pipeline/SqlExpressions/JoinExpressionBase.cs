@@ -6,7 +6,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
     public abstract class JoinExpressionBase : TableExpressionBase
     {
         protected JoinExpressionBase(TableExpressionBase table)
-            : base("")
+            : base(null)
         {
             Table = table;
         }

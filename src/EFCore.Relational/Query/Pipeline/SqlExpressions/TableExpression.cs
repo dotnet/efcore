@@ -1,13 +1,14 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
 {
     public class TableExpression : TableExpressionBase
     {
-        internal TableExpression(string table, string schema, string alias)
+        internal TableExpression(string table, string schema, [NotNull] string alias)
             : base(alias)
         {
             Table = table;

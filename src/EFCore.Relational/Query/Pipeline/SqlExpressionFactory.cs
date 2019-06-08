@@ -512,7 +512,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
 
             if (projection != null)
             {
-                selectExpression.ReplaceProjection(new Dictionary<ProjectionMember, Expression>
+                selectExpression.ReplaceProjectionMapping(new Dictionary<ProjectionMember, Expression>
                 {
                     { new ProjectionMember(), projection }
                 });
@@ -550,7 +550,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
                     return;
                 }
 
-                var discriminatorColumn = ((EntityProjectionExpression)selectExpression.GetProjectionExpression(new ProjectionMember()))
+                var discriminatorColumn = ((EntityProjectionExpression)selectExpression.GetMappedProjection(new ProjectionMember()))
                     .GetProperty(concreteEntityType.GetDiscriminatorProperty());
 
                 selectExpression.ApplyPredicate(
@@ -559,7 +559,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
             }
             else
             {
-                var discriminatorColumn = ((EntityProjectionExpression)selectExpression.GetProjectionExpression(new ProjectionMember()))
+                var discriminatorColumn = ((EntityProjectionExpression)selectExpression.GetMappedProjection(new ProjectionMember()))
                     .GetProperty(concreteEntityTypes[0].GetDiscriminatorProperty());
 
                 selectExpression.ApplyPredicate(

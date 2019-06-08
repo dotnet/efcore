@@ -91,7 +91,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
         private Expression GenerateKey(ProjectionBindingExpression projectionBindingExpression)
         {
             return projectionBindingExpression.ProjectionMember != null
-                ? _selectExpression.GetProjectionExpression(projectionBindingExpression.ProjectionMember)
+                ? _selectExpression.GetMappedProjection(projectionBindingExpression.ProjectionMember)
                 : projectionBindingExpression;
         }
     }

@@ -14,12 +14,13 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
         private readonly IDictionary<IProperty, ColumnExpression> _propertyExpressionsCache
             = new Dictionary<IProperty, ColumnExpression>();
         private readonly TableExpressionBase _innerTable;
+        private readonly bool _nullable;
 
         public EntityProjectionExpression(IEntityType entityType, TableExpressionBase innerTable, bool nullable)
         {
             EntityType = entityType.RootType();
             _innerTable = innerTable;
-            Nullable = nullable;
+            _nullable = nullable;
         }
 
         public EntityProjectionExpression(IEntityType entityType, IDictionary<IProperty, ColumnExpression> propertyExpressions)
@@ -35,7 +36,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
                 var table = (TableExpressionBase)visitor.Visit(_innerTable);
 
                 return table != _innerTable
-                    ? new EntityProjectionExpression(EntityType, table, Nullable)
+                    ? new EntityProjectionExpression(EntityType, table, _nullable)
                     : this;
             }
             else
@@ -75,7 +76,6 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
         }
 
         public IEntityType EntityType { get; }
-        public bool Nullable { get; }
         public override ExpressionType NodeType => ExpressionType.Extension;
         public override Type Type => EntityType.ClrType;
 
@@ -88,7 +88,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
 
             if (!_propertyExpressionsCache.TryGetValue(property, out var expression))
             {
-                expression = new ColumnExpression(property, _innerTable, Nullable);
+                expression = new ColumnExpression(property, _innerTable, _nullable);
                 _propertyExpressionsCache[property] = expression;
             }
 

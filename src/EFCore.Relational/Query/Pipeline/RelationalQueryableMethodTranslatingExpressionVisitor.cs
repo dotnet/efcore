@@ -70,7 +70,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
             if (translation != null)
             {
                 selectExpression.ApplyPredicate(_sqlExpressionFactory.Not(translation));
-                selectExpression.ReplaceProjection(new Dictionary<ProjectionMember, Expression>());
+                selectExpression.ReplaceProjectionMapping(new Dictionary<ProjectionMember, Expression>());
                 if (selectExpression.Limit == null
                     && selectExpression.Offset == null)
                 {
@@ -95,7 +95,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
             }
 
             var selectExpression = (SelectExpression)source.QueryExpression;
-            selectExpression.ReplaceProjection(new Dictionary<ProjectionMember, Expression>());
+            selectExpression.ReplaceProjectionMapping(new Dictionary<ProjectionMember, Expression>());
             if (selectExpression.Limit == null
                 && selectExpression.Offset == null)
             {
@@ -123,7 +123,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
                 source = TranslateSelect(source, selector);
             }
 
-            var projection = (SqlExpression)selectExpression.GetProjectionExpression(new ProjectionMember());
+            var projection = (SqlExpression)selectExpression.GetMappedProjection(new ProjectionMember());
 
             var inputType = projection.Type.UnwrapNullableType();
             if (inputType == typeof(int)
@@ -213,7 +213,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
             };
 
             selectExpression.ClearOrdering();
-            selectExpression.ReplaceProjection(projectionMapping);
+            selectExpression.ReplaceProjectionMapping(projectionMapping);
             source.ShaperExpression = new ProjectionBindingExpression(source.QueryExpression, new ProjectionMember(), typeof(int));
 
             return source;
@@ -488,7 +488,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
             };
 
             selectExpression.ClearOrdering();
-            selectExpression.ReplaceProjection(projectionMapping);
+            selectExpression.ReplaceProjectionMapping(projectionMapping);
             source.ShaperExpression = new ProjectionBindingExpression(source.QueryExpression, new ProjectionMember(), typeof(long));
 
             return source;
@@ -508,7 +508,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
                 source = TranslateSelect(source, selector);
             }
 
-            var projection = (SqlExpression)selectExpression.GetProjectionExpression(new ProjectionMember());
+            var projection = (SqlExpression)selectExpression.GetMappedProjection(new ProjectionMember());
 
             projection = _sqlExpressionFactory.Function("MAX", new[] { projection }, resultType, projection.TypeMapping);
 
@@ -529,7 +529,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
                 source = TranslateSelect(source, selector);
             }
 
-            var projection = (SqlExpression)selectExpression.GetProjectionExpression(new ProjectionMember());
+            var projection = (SqlExpression)selectExpression.GetMappedProjection(new ProjectionMember());
 
             projection = _sqlExpressionFactory.Function("MIN", new[] { projection }, resultType, projection.TypeMapping);
 
@@ -773,7 +773,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
             }
 
             var serverOutputType = resultType.UnwrapNullableType();
-            var projection = (SqlExpression)selectExpression.GetProjectionExpression(new ProjectionMember());
+            var projection = (SqlExpression)selectExpression.GetMappedProjection(new ProjectionMember());
 
             if (serverOutputType == typeof(float))
             {
@@ -866,7 +866,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
             ShapedQueryExpression source, Expression projection, bool throwOnNullResult, Type resultType)
         {
             var selectExpression = (SelectExpression)source.QueryExpression;
-            selectExpression.ReplaceProjection(
+            selectExpression.ReplaceProjectionMapping(
                 new Dictionary<ProjectionMember, Expression>
                 {
                     { new ProjectionMember(), projection }

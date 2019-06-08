@@ -51,7 +51,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
                 _projectionMapping.Clear();
             }
 
-            _selectExpression.ReplaceProjection(_projectionMapping);
+            _selectExpression.ReplaceProjectionMapping(_projectionMapping);
             _selectExpression = null;
             _projectionMembers.Clear();
             _projectionMapping.Clear();
@@ -110,7 +110,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
                     }
                     else
                     {
-                        return _selectExpression.AddToProjection(translation, expression.Type);
+                        return new ProjectionBindingExpression(_selectExpression, _selectExpression.AddToProjection(translation), expression.Type);
                     }
                 }
                 else
@@ -147,12 +147,16 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
 
                 if (_clientEval)
                 {
-                    return entityShaperExpression.Update(_selectExpression.AddToProjection(entityShaperExpression.ValueBufferExpression));
+                    var entityProjection = (EntityProjectionExpression)_selectExpression.GetMappedProjection(
+                        entityShaperExpression.ValueBufferExpression.ProjectionMember);
+
+                    return entityShaperExpression.Update(
+                        new ProjectionBindingExpression(_selectExpression, _selectExpression.AddToProjection(entityProjection)));
                 }
                 else
                 {
                     _projectionMapping[_projectionMembers.Peek()]
-                        = _selectExpression.GetProjectionExpression(
+                        = _selectExpression.GetMappedProjection(
                             entityShaperExpression.ValueBufferExpression.ProjectionMember);
 
                     return entityShaperExpression.Update(

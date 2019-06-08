@@ -21,7 +21,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
             {
                 case TableExpressionBase tableExpressionBase
                     when !_visitedTableExpressionBases.Contains(tableExpressionBase)
-                        && !string.IsNullOrEmpty(tableExpressionBase.Alias):
+                        && tableExpressionBase.Alias != null:
                     tableExpressionBase.Alias = GenerateUniqueAlias(tableExpressionBase.Alias);
                     _visitedTableExpressionBases.Add(tableExpressionBase);
                     return tableExpressionBase;

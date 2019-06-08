@@ -3,14 +3,21 @@
 
 using System;
 using System.Linq.Expressions;
+using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Query.Expressions.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
+using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
 {
     public abstract class TableExpressionBase : Expression, IPrintable
     {
-        protected TableExpressionBase(string alias) => Alias = alias;
+        protected TableExpressionBase([CanBeNull] string alias)
+        {
+            Check.NullButNotEmpty(alias, nameof(alias));
+
+            Alias = alias;
+        }
 
         public string Alias { get; internal set; }
 
@@ -32,7 +39,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
         {
             unchecked
             {
-                var hashCode = Alias.GetHashCode();
+                var hashCode = (Alias?.GetHashCode() ?? 0);
 
                 return hashCode;
             }

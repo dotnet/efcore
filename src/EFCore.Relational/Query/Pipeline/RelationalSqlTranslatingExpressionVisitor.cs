@@ -301,7 +301,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
             {
                 var selectExpression = (SelectExpression)projectionBindingExpression.QueryExpression;
 
-                return selectExpression.GetProjectionExpression(projectionBindingExpression.ProjectionMember);
+                return selectExpression.GetMappedProjection(projectionBindingExpression.ProjectionMember);
             }
 
             if (extensionExpression is NullConditionalExpression nullConditionalExpression)
