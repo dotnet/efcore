@@ -145,7 +145,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     tables belong to the current model or not.
         /// </summary>
         /// <returns> A value indicating whether any tables are present in the database. </returns>
-        protected abstract bool HasTables();
+        public abstract bool HasTables();
 
         /// <summary>
         ///     Asynchronously determines whether the database contains any tables. No attempt is made to determine if
@@ -156,7 +156,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     A task that represents the asynchronous operation. The task result contains
         ///     a value indicating whether any tables are present in the database.
         /// </returns>
-        protected virtual Task<bool> HasTablesAsync(CancellationToken cancellationToken = default)
+        public virtual Task<bool> HasTablesAsync(CancellationToken cancellationToken = default)
         {
             cancellationToken.ThrowIfCancellationRequested();
 

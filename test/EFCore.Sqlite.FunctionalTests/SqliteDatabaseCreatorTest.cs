@@ -35,6 +35,35 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [ConditionalTheory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public async Task HasTables_returns_false_when_database_is_empty(bool async)
+        {
+            using (var testStore = SqliteTestStore.GetOrCreateInitialized("Empty"))
+            {
+                var context = CreateContext(testStore.ConnectionString);
+
+                var creator = context.GetService<IRelationalDatabaseCreator>();
+                Assert.False(async ? await creator.HasTablesAsync() : creator.HasTables());
+            }
+        }
+
+        [ConditionalTheory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public async Task HasTables_returns_true_when_database_is_not_empty(bool async)
+        {
+            using (var testStore = SqliteTestStore.GetOrCreateInitialized($"HasATable{(async ? 'A' : 'S')}"))
+            {
+                var context = CreateContext(testStore.ConnectionString);
+                context.Database.ExecuteSqlRaw("CREATE TABLE Dummy (Foo INTEGER)");
+
+                var creator = context.GetService<IRelationalDatabaseCreator>();
+                Assert.True(async ? await creator.HasTablesAsync() : creator.HasTables());
+            }
+        }
+
+        [ConditionalTheory]
         [InlineData(false, false)]
         [InlineData(true, false)]
         [InlineData(false, true)]
