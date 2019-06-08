@@ -186,7 +186,7 @@ namespace Microsoft.EntityFrameworkCore
                     b.Property(c => c.Name);
                 });
 
-            return modelBuilder.Model;
+            return modelBuilder.Model.FinalizeModel();
         }
 
         private class Customer

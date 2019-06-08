@@ -520,7 +520,7 @@ namespace Microsoft.EntityFrameworkCore.Update
             GenerateMapping(key);
             GenerateMapping(nonKey);
 
-            return model;
+            return model.FinalizeModel();
         }
 
         private static void GenerateMapping(IMutableProperty property)

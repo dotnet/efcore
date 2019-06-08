@@ -1128,9 +1128,8 @@ namespace Microsoft.EntityFrameworkCore.Update
             IUpdateAdapter updateAdapter = null,
             bool sensitiveLogging = false)
         {
-            modificationCommandBatchFactory =
-                modificationCommandBatchFactory
-                ?? RelationalTestHelpers.Instance.CreateContextServices().GetRequiredService<IModificationCommandBatchFactory>();
+            modificationCommandBatchFactory ??=
+                RelationalTestHelpers.Instance.CreateContextServices().GetRequiredService<IModificationCommandBatchFactory>();
 
             var loggingOptions = new LoggingOptions();
             if (sensitiveLogging)
@@ -1168,7 +1167,7 @@ namespace Microsoft.EntityFrameworkCore.Update
                         .HasForeignKey<RelatedFakeEntity>(c => c.Id);
                 });
 
-            return modelBuilder.Model;
+            return modelBuilder.Model.FinalizeModel();
         }
 
         private static IModel CreateCyclicFKModel()
@@ -1196,7 +1195,7 @@ namespace Microsoft.EntityFrameworkCore.Update
                 .WithOne()
                 .HasForeignKey<FakeEntity>(c => c.RelatedId);
 
-            return modelBuilder.Model;
+            return modelBuilder.Model.FinalizeModel();
         }
 
         private static IModel CreateCyclicFkWithTailModel()
@@ -1232,7 +1231,7 @@ namespace Microsoft.EntityFrameworkCore.Update
                         .HasForeignKey<AnotherFakeEntity>(e => e.AnotherId);
                 });
 
-            return modelBuilder.Model;
+            return modelBuilder.Model.FinalizeModel();
         }
 
         private static IModel CreateTwoLevelFKModel()
@@ -1257,7 +1256,7 @@ namespace Microsoft.EntityFrameworkCore.Update
                         .HasForeignKey<AnotherFakeEntity>(c => c.AnotherId);
                 });
 
-            return modelBuilder.Model;
+            return modelBuilder.Model.FinalizeModel();
         }
 
         private static IModel CreateSharedTableModel()
@@ -1268,13 +1267,13 @@ namespace Microsoft.EntityFrameworkCore.Update
                 b =>
                 {
                     b.Ignore(c => c.UniqueValue);
-                    b.Property(c => c.RelatedId).IsConcurrencyToken();
+                    b.Property(c => c.RelatedId).IsConcurrencyToken().HasColumnName("RelatedId");
                 });
 
             modelBuilder.Entity<RelatedFakeEntity>(
                 b =>
                 {
-                    b.Property(c => c.RelatedId).IsConcurrencyToken();
+                    b.Property(c => c.RelatedId).IsConcurrencyToken().HasColumnName("RelatedId");
                     b.HasOne<FakeEntity>()
                         .WithOne()
                         .HasForeignKey<RelatedFakeEntity>(c => c.Id);
@@ -1291,7 +1290,7 @@ namespace Microsoft.EntityFrameworkCore.Update
 
             modelBuilder.Entity<AnotherFakeEntity>().ToTable(nameof(FakeEntity));
 
-            return modelBuilder.Model;
+            return modelBuilder.Model.FinalizeModel();
         }
 
         private class FakeEntity

@@ -23,6 +23,7 @@ namespace Microsoft.EntityFrameworkCore
             var entityType = new EntityType(typeof(object), new Model(new ConventionSet()), ConfigurationSource.Convention);
             var property = new Property(
                 "A", typeof(int), null, null, entityType, ConfigurationSource.Convention, ConfigurationSource.Convention);
+            entityType.Model.FinalizeModel();
 
             var fakeFactories = new Dictionary<Type, Func<object>>
             {

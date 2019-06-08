@@ -12,6 +12,8 @@ using Microsoft.EntityFrameworkCore.ValueGeneration.Internal;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
+// ReSharper disable ClassNeverInstantiated.Local
+// ReSharper disable UnusedMember.Local
 namespace Microsoft.EntityFrameworkCore
 {
     public class InMemoryValueGeneratorSelectorTest
@@ -73,7 +75,6 @@ namespace Microsoft.EntityFrameworkCore
         private static object CreateAndUseFactory(IProperty property)
         {
             var model = BuildModel();
-            var entityType = model.FindEntityType(typeof(AnEntity));
 
             var selector = InMemoryTestHelpers.Instance.CreateContextServices(model).GetRequiredService<IValueGeneratorSelector>();
 
@@ -89,25 +90,23 @@ namespace Microsoft.EntityFrameworkCore
             var selector = InMemoryTestHelpers.Instance.CreateContextServices(model).GetRequiredService<IValueGeneratorSelector>();
 
             Assert.Equal(
-                CoreStrings.NoValueGenerator("Random", "AnEntity", typeof(Random).Name),
-                Assert.Throws<NotSupportedException>(() => selector.Select(entityType.FindProperty("Random"), entityType)).Message);
+                CoreStrings.NoValueGenerator("Float", "AnEntity", "float"),
+                Assert.Throws<NotSupportedException>(() => selector.Select(entityType.FindProperty("Float"), entityType)).Message);
         }
 
-        private static IMutableModel BuildModel(bool generateValues = true)
+        private static IModel BuildModel(bool generateValues = true)
         {
             var builder = InMemoryTestHelpers.Instance.CreateConventionBuilder();
-            builder.Ignore<Random>();
             builder.Entity<AnEntity>().Property(e => e.Custom).HasValueGenerator<CustomValueGenerator>();
             var model = builder.Model;
             var entityType = model.FindEntityType(typeof(AnEntity));
-            entityType.AddProperty("Random", typeof(Random));
 
             foreach (var property in entityType.GetProperties())
             {
                 property.ValueGenerated = generateValues ? ValueGenerated.OnAdd : ValueGenerated.Never;
             }
 
-            return model;
+            return model.FinalizeModel();
         }
 
         private class AnEntity
@@ -133,7 +132,6 @@ namespace Microsoft.EntityFrameworkCore
             public Guid Guid { get; set; }
             public byte[] Binary { get; set; }
             public float Float { get; set; }
-            public Random Random { get; set; }
         }
 
         private class CustomValueGenerator : ValueGenerator<int>

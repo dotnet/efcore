@@ -38,7 +38,7 @@ namespace Microsoft.EntityFrameworkCore
             var entityType = new EntityType(typeof(object), model, ConfigurationSource.Convention);
             var property = new Property(
                 "A", typeof(int), null, null, entityType, ConfigurationSource.Convention, ConfigurationSource.Convention);
-            var contextServices = RelationalTestHelpers.Instance.CreateContextServices(model);
+            var contextServices = RelationalTestHelpers.Instance.CreateContextServices(model.FinalizeModel());
 
             var fakeFactories = new Dictionary<Type, Func<object>>
             {

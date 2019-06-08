@@ -460,7 +460,7 @@ namespace Microsoft.EntityFrameworkCore.Update
             nonKey2.SetColumnName("Col3");
             nonKey2.ValueGenerated = computeNonKeyValue ? ValueGenerated.OnUpdate : ValueGenerated.Never;
 
-            return model;
+            return model.FinalizeModel();
         }
 
         private static InternalEntityEntry CreateEntry(

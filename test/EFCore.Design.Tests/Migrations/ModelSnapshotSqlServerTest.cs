@@ -3407,8 +3407,7 @@ namespace RootNamespace
                 Activator.CreateInstance(factoryType),
                 new object[] { builder });
 
-            var value = builder.Model;
-            Assert.NotNull(value);
+            var value = builder.FinalizeModel();
 
             var reporter = new TestOperationReporter();
             assert(new SnapshotModelProcessor(reporter).Process(value));
