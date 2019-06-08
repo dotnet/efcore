@@ -118,7 +118,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         private void Execute_throws_for_an_ambient_transaction(Action<ExecutionStrategy> execute)
         {
             var mockExecutionStrategy = new TestExecutionStrategy(Context);
-            using (new TransactionScope())
+            using (TestStore.CreateTransactionScope())
             {
                 Assert.Equal(
                     CoreStrings.ExecutionStrategyExistingTransaction(
@@ -398,7 +398,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         private async Task ExecuteAsync_throws_for_an_ambient_transaction(Func<ExecutionStrategy, Task> executeAsync)
         {
             var mockExecutionStrategy = new TestExecutionStrategy(Context);
-            using (new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
+            using (TestStore.CreateTransactionScope())
             {
                 Assert.Equal(
                     CoreStrings.ExecutionStrategyExistingTransaction(
