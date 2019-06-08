@@ -301,7 +301,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public static PropertyCounts CalculateCounts([NotNull] this EntityType entityType)
         {
-            Debug.Assert(entityType.Model.ConventionDispatcher == null, "Should not be called on a mutable model");
+            //Debug.Assert(entityType.Model.ConventionDispatcher == null, "Should not be called on a mutable model");
 
             var index = 0;
             var navigationIndex = 0;
