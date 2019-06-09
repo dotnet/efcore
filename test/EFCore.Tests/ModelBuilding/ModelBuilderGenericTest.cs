@@ -20,7 +20,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 {
     public class ModelBuilderGenericTest : ModelBuilderTest
     {
-        [Fact]
+        [ConditionalFact]
         public void Can_create_a_model_builder_with_given_conventions_only()
         {
             var convention = new TestConvention();
@@ -46,7 +46,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_discover_large_models_through_navigations()
         {
             var modelBuilder = InMemoryTestHelpers.Instance.CreateConventionBuilder();
@@ -61,7 +61,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             protected override TestModelBuilder CreateTestModelBuilder(TestHelpers testHelpers)
                 => new GenericTestModelBuilder(testHelpers);
 
-            [Fact]
+            [ConditionalFact]
             public virtual void Changing_propertyInfo_updates_Property()
             {
                 var modelBuilder = CreateModelBuilder();
@@ -76,7 +76,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                         .EndsWith(typeof(IReplacable).Name + "." + nameof(IReplacable.Property)));
             }
 
-            [Fact]
+            [ConditionalFact]
             public virtual void Can_add_ignore_explicit_interface_implementation_property()
             {
                 var modelBuilder = CreateModelBuilder();

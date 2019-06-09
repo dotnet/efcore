@@ -92,7 +92,7 @@ namespace Microsoft.EntityFrameworkCore.Utilities
 
         #endregion
 
-        [Fact]
+        [ConditionalFact]
         public void AddVertex_adds_a_vertex()
         {
             var vertexOne = new Vertex
@@ -113,7 +113,7 @@ namespace Microsoft.EntityFrameworkCore.Utilities
             Assert.Equal(2, graph.Vertices.Intersect(new[] { vertexOne, vertexTwo }).Count());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void AddVertices_add_verticies()
         {
             var vertexOne = new Vertex
@@ -138,7 +138,7 @@ namespace Microsoft.EntityFrameworkCore.Utilities
             Assert.Equal(3, graph.Vertices.Intersect(new[] { vertexOne, vertexTwo, vertexThree }).Count());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void AddEdge_adds_an_edge()
         {
             var vertexOne = new Vertex
@@ -172,7 +172,7 @@ namespace Microsoft.EntityFrameworkCore.Utilities
             Assert.Equal(2, graph.GetEdges(vertexOne, vertexTwo).Intersect(new[] { edgeOne, edgeTwo }).Count());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void AddEdge_throws_on_verticies_not_in_the_graph()
         {
             var vertexOne = new Vertex
@@ -201,7 +201,7 @@ namespace Microsoft.EntityFrameworkCore.Utilities
                 Assert.Throws<InvalidOperationException>(() => graph.AddEdge(vertexTwo, vertexOne, edgeOne)).Message);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void AddEdges_adds_multiple_edges()
         {
             var vertexOne = new Vertex
@@ -236,7 +236,7 @@ namespace Microsoft.EntityFrameworkCore.Utilities
             Assert.Equal(3, graph.GetEdges(vertexOne, vertexTwo).Intersect(new[] { edgeOne, edgeTwo, edgeThree }).Count());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void AddEdges_throws_on_verticies_not_in_the_graph()
         {
             var vertexOne = new Vertex
@@ -265,7 +265,7 @@ namespace Microsoft.EntityFrameworkCore.Utilities
                 Assert.Throws<InvalidOperationException>(() => graph.AddEdges(vertexTwo, vertexOne, new[] { edgeOne })).Message);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void AddEdge_updates_incomming_and_outgoing_neighbours()
         {
             var vertexOne = new Vertex
@@ -307,7 +307,7 @@ namespace Microsoft.EntityFrameworkCore.Utilities
             Assert.Equal(2, graph.GetIncomingNeighbors(vertexThree).Intersect(new[] { vertexOne, vertexTwo }).Count());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void TopologicalSort_on_graph_with_no_edges_returns_all_verticies()
         {
             var vertexOne = new Vertex
@@ -331,7 +331,7 @@ namespace Microsoft.EntityFrameworkCore.Utilities
             Assert.Equal(3, result.Intersect(new[] { vertexOne, vertexTwo, vertexThree }).Count());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void TopologicalSort_on_simple_graph_returns_all_verticies_in_order()
         {
             var vertexOne = new Vertex
@@ -369,7 +369,7 @@ namespace Microsoft.EntityFrameworkCore.Utilities
                 graph.TopologicalSort().ToArray());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void TopologicalSort_on_tree_graph_returns_all_verticies_in_order()
         {
             var vertexOne = new Vertex
@@ -412,7 +412,7 @@ namespace Microsoft.EntityFrameworkCore.Utilities
                 graph.TopologicalSort().ToArray());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void TopologicalSort_on_self_ref_can_break_cycle()
         {
             var vertexOne = new Vertex
@@ -440,7 +440,7 @@ namespace Microsoft.EntityFrameworkCore.Utilities
                         && (edges.Intersect(new[] { edgeOne }).Count() == 1)).ToArray());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void TopologicalSort_can_break_simple_cycle()
         {
             var vertexOne = new Vertex
@@ -488,7 +488,7 @@ namespace Microsoft.EntityFrameworkCore.Utilities
                         && (edges.Single() == edgeThree)).ToArray());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void TopologicalSort_can_break_two_cycles()
         {
             var vertexOne = new Vertex
@@ -562,7 +562,7 @@ namespace Microsoft.EntityFrameworkCore.Utilities
                     }).ToArray());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void TopologicalSort_throws_with_default_message_when_cycle_cannot_be_broken()
         {
             var vertexOne = new Vertex
@@ -607,7 +607,7 @@ namespace Microsoft.EntityFrameworkCore.Utilities
                 Assert.Throws<InvalidOperationException>(() => graph.TopologicalSort()).Message);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void TopologicalSort_throws_with_formatted_message_when_cycle_cannot_be_broken()
         {
             const string message = "Formatted cycle";
@@ -672,7 +672,7 @@ namespace Microsoft.EntityFrameworkCore.Utilities
             Assert.Equal(new[] { edgeThree }, cycleData[vertexThree].Item3);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void BatchingTopologicalSort_throws_with_formatted_message_when_cycle_cannot_be_broken()
         {
             const string message = "Formatted cycle";
@@ -737,7 +737,7 @@ namespace Microsoft.EntityFrameworkCore.Utilities
             Assert.Equal(new[] { edgeThree }, cycleData[vertexThree].Item3);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void BatchingTopologicalSort_throws_with_formatted_message_with_no_tail_when_cycle_cannot_be_broken()
         {
             const string message = "Formatted cycle";
@@ -809,7 +809,7 @@ namespace Microsoft.EntityFrameworkCore.Utilities
             Assert.Equal(new[] { edgeThree }, cycleData[vertexFour].Item3);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void BatchingTopologicalSort_sorts_simple()
         {
             var model = CreateModel();
@@ -835,7 +835,7 @@ namespace Microsoft.EntityFrameworkCore.Utilities
                 graph.BatchingTopologicalSort().SelectMany(e => e).Select(e => e.Name).ToArray());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void BatchingTopologicalSort_sorts_reverse()
         {
             var model = CreateModel();
@@ -861,7 +861,7 @@ namespace Microsoft.EntityFrameworkCore.Utilities
                 graph.BatchingTopologicalSort().SelectMany(e => e).Select(e => e.Name).ToArray());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void BatchingTopologicalSort_sorts_preserves_graph()
         {
             var model = CreateModel();
@@ -903,7 +903,7 @@ namespace Microsoft.EntityFrameworkCore.Utilities
                 graph.BatchingTopologicalSort().SelectMany(e => e).Select(e => e.Name).ToArray());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void BatchingTopologicalSort_sorts_tree()
         {
             var model = CreateModel();
@@ -930,7 +930,7 @@ namespace Microsoft.EntityFrameworkCore.Utilities
                 graph.BatchingTopologicalSort().SelectMany(e => e).Select(e => e.Name).ToArray());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void BatchingTopologicalSort_sorts_no_edges()
         {
             var model = CreateModel();
@@ -953,7 +953,7 @@ namespace Microsoft.EntityFrameworkCore.Utilities
                 graph.BatchingTopologicalSort().SelectMany(e => e).Select(e => e.Name).ToArray());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void BatchingTopologicalSort_sorts_self_ref()
         {
             var model = CreateModel();
@@ -973,7 +973,7 @@ namespace Microsoft.EntityFrameworkCore.Utilities
                 Assert.Throws<InvalidOperationException>(() => graph.BatchingTopologicalSort()).Message);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void BatchingTopologicalSort_sorts_circular_direct()
         {
             var model = CreateModel();
@@ -999,7 +999,7 @@ namespace Microsoft.EntityFrameworkCore.Utilities
                 Assert.Throws<InvalidOperationException>(() => graph.BatchingTopologicalSort()).Message);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void BatchingTopologicalSort_sorts_circular_transitive()
         {
             var model = CreateModel();
@@ -1026,7 +1026,7 @@ namespace Microsoft.EntityFrameworkCore.Utilities
                 Assert.Throws<InvalidOperationException>(() => graph.BatchingTopologicalSort()).Message);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void BatchingTopologicalSort_sorts_two_cycles()
         {
             var model = CreateModel();
@@ -1064,7 +1064,7 @@ namespace Microsoft.EntityFrameworkCore.Utilities
                 Assert.Throws<InvalidOperationException>(() => graph.BatchingTopologicalSort()).Message);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void BatchingTopologicalSort_sorts_leafy_cycle()
         {
             var model = CreateModel();

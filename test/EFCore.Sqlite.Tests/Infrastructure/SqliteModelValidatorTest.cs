@@ -64,7 +64,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                     nameof(A), nameof(A.P0), nameof(B), nameof(B.P0), nameof(B.P0), "Table", "someInt", "INTEGER"), modelBuilder.Model);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Detects_schemas()
         {
             var modelBuilder = CreateConventionalModelBuilder();
@@ -73,7 +73,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             VerifyWarning(SqliteResources.LogSchemaConfigured(new TestLogger<SqliteLoggingDefinitions>()).GenerateMessage("Animal", "pet"), modelBuilder.Model);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Detects_sequences()
         {
             var modelBuilder = CreateConventionalModelBuilder();

@@ -25,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         }
 
         private const string DefaultConnectionString
-            = "Data Source=(localdb)\\MSSQLLocalDB;Database=master;Integrated Security=True;Connect Timeout=30";
+            = "Data Source=(localdb)\\MSSQLLocalDB;Database=master;Integrated Security=True;Connect Timeout=30;ConnectRetryCount=0";
 
         public static string DefaultConnection => Config["DefaultConnection"] ?? DefaultConnectionString;
 

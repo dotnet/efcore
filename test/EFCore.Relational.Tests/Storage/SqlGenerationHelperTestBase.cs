@@ -9,20 +9,20 @@ namespace Microsoft.EntityFrameworkCore.Storage
 {
     public abstract class SqlGenerationHelperTestBase
     {
-        [Fact]
+        [ConditionalFact]
         public virtual void GenerateParameterName_returns_parameter_name()
         {
             var name = CreateSqlGenerationHelper().GenerateParameterName("name");
             Assert.Equal("@name", name);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Default_BatchCommandSeparator_is_semicolon()
         {
             Assert.Equal(";", CreateSqlGenerationHelper().StatementTerminator);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void BatchSeparator_returns_separator()
         {
             Assert.Equal(string.Empty, CreateSqlGenerationHelper().BatchTerminator);

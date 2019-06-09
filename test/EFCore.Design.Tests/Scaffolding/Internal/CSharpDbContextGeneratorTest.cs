@@ -12,7 +12,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 {
     public class CSharpDbContextGeneratorTest : ModelCodeGeneratorTestBase
     {
-        [Fact]
+        [ConditionalFact]
         public void Empty_model()
         {
             Test(
@@ -64,7 +64,7 @@ namespace TestNamespace
                 model => Assert.Empty(model.GetEntityTypes()));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void SuppressConnectionStringWarning_works()
         {
             Test(
@@ -118,7 +118,7 @@ namespace TestNamespace
                 model => Assert.Empty(model.GetEntityTypes()));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Plugins_work()
         {
             var services = new ServiceCollection()

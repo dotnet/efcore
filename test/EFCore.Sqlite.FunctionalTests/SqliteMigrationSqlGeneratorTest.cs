@@ -14,7 +14,7 @@ namespace Microsoft.EntityFrameworkCore
 {
     public class SqliteMigrationSqlGeneratorTest : MigrationSqlGeneratorTestBase
     {
-        [Fact]
+        [ConditionalFact]
         public virtual void It_lifts_foreign_key_additions()
         {
             Generate(
@@ -48,7 +48,7 @@ namespace Microsoft.EntityFrameworkCore
                 ignoreLineEndingDifferences: true);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void DefaultValue_formats_literal_correctly()
         {
             Generate(
@@ -76,7 +76,7 @@ namespace Microsoft.EntityFrameworkCore
                 ignoreLineEndingDifferences: true);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(true, null)]
         [InlineData(false, "PK_Id")]
         public void CreateTableOperation_with_annotations(bool autoincrement, string pkName)
@@ -152,7 +152,7 @@ namespace Microsoft.EntityFrameworkCore
                 Sql);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void CreateSchemaOperation_is_ignored()
         {
             Generate(new EnsureSchemaOperation());
@@ -236,7 +236,7 @@ namespace Microsoft.EntityFrameworkCore
                 Sql);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void AddColumnOperation_with_computed_column_SQL()
         {
             var ex = Assert.Throws<NotSupportedException>(
@@ -253,7 +253,7 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Equal(SqliteStrings.ComputedColumnsNotSupported, ex.Message);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void DropSchemaOperation_is_ignored()
         {
             Generate(new DropSchemaOperation());
@@ -261,7 +261,7 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Empty(Sql);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void RestartSequenceOperation_not_supported()
         {
             var ex = Assert.Throws<NotSupportedException>(() => Generate(new RestartSequenceOperation()));
@@ -315,7 +315,7 @@ namespace Microsoft.EntityFrameworkCore
             var ex = Assert.Throws<NotSupportedException>(() => base.CreateCheckConstraintOperation_with_name());
             Assert.Equal(SqliteStrings.InvalidMigrationOperation(nameof(CreateCheckConstraintOperation)), ex.Message);
         }
-        
+
         public override void AlterColumnOperation()
         {
             var ex = Assert.Throws<NotSupportedException>(() => base.AlterColumnOperation());
@@ -328,7 +328,7 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Equal(SqliteStrings.InvalidMigrationOperation(nameof(AlterColumnOperation)), ex.Message);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void AlterColumnOperation_computed()
         {
             var ex = Assert.Throws<NotSupportedException>(
@@ -355,7 +355,7 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Equal(SqliteStrings.SequencesNotSupported, ex.Message);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void RenameColumnOperation()
         {
             Generate(
@@ -371,7 +371,7 @@ namespace Microsoft.EntityFrameworkCore
                 Sql);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void RenameIndexOperation()
         {
             Generate(
@@ -396,7 +396,7 @@ namespace Microsoft.EntityFrameworkCore
                 Sql);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void RenameIndexOperations_throws_when_no_model()
         {
             var migrationBuilder = new MigrationBuilder("Sqlite");
@@ -493,7 +493,7 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Equal(SqliteStrings.InvalidMigrationOperation(nameof(DropCheckConstraintOperation)), ex.Message);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void CreateTableOperation_old_autoincrement_annotation()
         {
             Generate(

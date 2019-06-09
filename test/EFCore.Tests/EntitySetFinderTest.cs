@@ -12,7 +12,7 @@ namespace Microsoft.EntityFrameworkCore
 {
     public class DbSetFinderTest
     {
-        [Fact]
+        [ConditionalFact]
         public void All_non_static_DbSet_properties_are_discovered()
         {
             using (var context = new The())

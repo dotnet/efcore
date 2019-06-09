@@ -20,7 +20,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         protected TFixture Fixture { get; }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Can_query_when_shared_column()
         {
             using (var context = CreateContext())
@@ -40,7 +40,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Can_query_all_types_when_shared_column()
         {
             using (var context = CreateContext())
@@ -63,7 +63,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Can_use_of_type_animal()
         {
             using (var context = CreateContext())
@@ -77,7 +77,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Can_use_is_kiwi()
         {
             using (var context = CreateContext())
@@ -88,7 +88,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Can_use_is_kiwi_with_other_predicate()
         {
             using (var context = CreateContext())
@@ -99,7 +99,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Can_use_is_kiwi_in_projection()
         {
             using (var context = CreateContext())
@@ -112,7 +112,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Can_use_of_type_bird()
         {
             using (var context = CreateContext())
@@ -126,7 +126,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Can_use_of_type_bird_predicate()
         {
             using (var context = CreateContext())
@@ -144,7 +144,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Can_use_of_type_bird_with_projection()
         {
             using (var context = CreateContext())
@@ -164,7 +164,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Can_use_of_type_bird_first()
         {
             using (var context = CreateContext())
@@ -177,7 +177,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Can_use_of_type_kiwi()
         {
             using (var context = CreateContext())
@@ -190,7 +190,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Can_use_of_type_rose()
         {
             using (var context = CreateContext())
@@ -203,7 +203,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Can_query_all_animals()
         {
             using (var context = CreateContext())
@@ -216,7 +216,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Can_query_all_animal_views()
         {
             using (var context = CreateContext())
@@ -229,7 +229,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Can_query_all_plants()
         {
             using (var context = CreateContext())
@@ -242,7 +242,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Can_filter_all_animals()
         {
             using (var context = CreateContext())
@@ -258,7 +258,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Can_query_all_birds()
         {
             using (var context = CreateContext())
@@ -271,7 +271,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Can_query_just_kiwis()
         {
             using (var context = CreateContext())
@@ -282,7 +282,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Can_query_just_roses()
         {
             using (var context = CreateContext())
@@ -293,7 +293,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact(Skip = "issue #15611")]
+        [ConditionalFact(Skip = "issue #15611")]
         public virtual void Can_include_animals()
         {
             using (var context = CreateContext())
@@ -310,7 +310,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact(Skip = "issue #15611")]
+        [ConditionalFact(Skip = "issue #15611")]
         public virtual void Can_include_prey()
         {
             using (var context = CreateContext())
@@ -325,7 +325,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Can_use_of_type_kiwi_where_south_on_derived_property()
         {
             using (var context = CreateContext())
@@ -342,7 +342,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Can_use_of_type_kiwi_where_north_on_derived_property()
         {
             using (var context = CreateContext())
@@ -358,7 +358,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Discriminator_used_when_projection_over_derived_type()
         {
             using (var context = CreateContext())
@@ -372,7 +372,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Discriminator_used_when_projection_over_derived_type2()
         {
             using (var context = CreateContext())
@@ -391,7 +391,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Discriminator_with_cast_in_shadow_property()
         {
             using (var context = CreateContext())
@@ -410,7 +410,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Discriminator_used_when_projection_over_of_type()
         {
             using (var context = CreateContext())
@@ -425,7 +425,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Can_insert_update_delete()
         {
             TestHelpers.ExecuteWithStrategyInTransaction(
@@ -477,7 +477,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
         }
 
-        [Fact(Skip = "Issue #14935. Cannot eval 'Concat({value(Microsoft.EntityFrameworkCore.Query.Internal.EntityQueryable`1[Microsoft.EntityFrameworkCore.TestModels.Inheritance.Eagle])})'")]
+        [ConditionalFact(Skip = "Issue #14935. Cannot eval 'Concat({value(Microsoft.EntityFrameworkCore.Query.Internal.EntityQueryable`1[Microsoft.EntityFrameworkCore.TestModels.Inheritance.Eagle])})'")]
         public virtual void Can_concat_kiwis_and_eagles_as_birds()
         {
             using (var context = CreateContext())
@@ -492,7 +492,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact(Skip = "Issue #14935. Cannot eval 'Except({value(Microsoft.EntityFrameworkCore.Query.Internal.EntityQueryable`1[Microsoft.EntityFrameworkCore.TestModels.Inheritance.Eagle])})'")]
+        [ConditionalFact(Skip = "Issue #14935. Cannot eval 'Except({value(Microsoft.EntityFrameworkCore.Query.Internal.EntityQueryable`1[Microsoft.EntityFrameworkCore.TestModels.Inheritance.Eagle])})'")]
         public virtual void Can_except_kiwis_and_eagles_as_birds()
         {
             using (var context = CreateContext())
@@ -507,7 +507,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact(Skip = "Issue #14935. Cannot eval 'Intersect({value(Microsoft.EntityFrameworkCore.Query.Internal.EntityQueryable`1[Microsoft.EntityFrameworkCore.TestModels.Inheritance.Eagle])})'")]
+        [ConditionalFact(Skip = "Issue #14935. Cannot eval 'Intersect({value(Microsoft.EntityFrameworkCore.Query.Internal.EntityQueryable`1[Microsoft.EntityFrameworkCore.TestModels.Inheritance.Eagle])})'")]
         public virtual void Can_intersect_kiwis_and_eagles_as_birds()
         {
             using (var context = CreateContext())
@@ -522,7 +522,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact(Skip = "Issue #14935. Cannot eval 'Union({value(Microsoft.EntityFrameworkCore.Query.Internal.EntityQueryable`1[Microsoft.EntityFrameworkCore.TestModels.Inheritance.Eagle])})'")]
+        [ConditionalFact(Skip = "Issue #14935. Cannot eval 'Union({value(Microsoft.EntityFrameworkCore.Query.Internal.EntityQueryable`1[Microsoft.EntityFrameworkCore.TestModels.Inheritance.Eagle])})'")]
         public virtual void Can_union_kiwis_and_eagles_as_birds()
         {
             using (var context = CreateContext())
@@ -537,7 +537,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Setting_foreign_key_to_a_different_type_throws()
         {
             using (var context = CreateContext())
@@ -567,7 +567,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         protected virtual bool EnforcesFkConstraints => true;
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Byte_enum_value_constant_used_in_projection()
         {
             using (var context = CreateContext())

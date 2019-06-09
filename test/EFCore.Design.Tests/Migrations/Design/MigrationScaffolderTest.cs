@@ -25,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
 {
     public class MigrationsScaffolderTest
     {
-        [Fact]
+        [ConditionalFact]
         public void ScaffoldMigration_reuses_model_snapshot()
         {
             var scaffolder = CreateMigrationScaffolder<ContextWithSnapshot>();
@@ -36,7 +36,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             Assert.Equal(typeof(ContextWithSnapshotModelSnapshot).Namespace, migration.SnapshotSubnamespace);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void ScaffoldMigration_handles_generic_contexts()
         {
             var scaffolder = CreateMigrationScaffolder<GenericContext<int>>();

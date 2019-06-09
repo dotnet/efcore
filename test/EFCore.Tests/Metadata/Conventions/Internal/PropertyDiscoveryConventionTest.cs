@@ -55,7 +55,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                     .UseInMemoryDatabase(nameof(WithPrivatesContext));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Properties_with_private_setters_on_unmapped_base_types_are_discovered()
         {
             using (var context = new WithPrivatesContext())
@@ -88,7 +88,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_save_and_query_using_entities_with_private_setters_on_base_types()
         {
             int id;
@@ -146,7 +146,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void IsValidProperty_returns_false_when_invalid()
         {
             var entityBuilder = CreateInternalEntityBuilder<EntityWithInvalidProperties>();
@@ -204,7 +204,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             Default
         }
 
-        [Fact]
+        [ConditionalFact]
         public void IsPrimitiveProperty_returns_true_when_supported_type()
         {
             var entityBuilder = CreateInternalEntityBuilder<EntityWithEveryPrimitive>();
@@ -223,7 +223,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             public object Object { get; set; }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void IsPrimitiveProperty_returns_false_when_unsupported_type()
         {
             var entityBuilder = CreateInternalEntityBuilder<EntityWithNoPrimitives>();

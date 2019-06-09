@@ -13,7 +13,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         private static readonly DateTimeToTicksConverter _dateTimeToTicks
             = new DateTimeToTicksConverter();
 
-        [Fact]
+        [ConditionalFact]
         public void Can_convert_DateTime_to_ticks()
         {
             var converter = _dateTimeToTicks.ConvertToProviderExpression.Compile();
@@ -23,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.Equal(0, converter(new DateTime()));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_convert_ticks_to_DateTime()
         {
             var converter = _dateTimeToTicks.ConvertFromProviderExpression.Compile();
@@ -37,7 +37,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         private static readonly DateTimeToBinaryConverter _dateTimeToBinary
             = new DateTimeToBinaryConverter();
 
-        [Fact]
+        [ConditionalFact]
         public void Can_convert_DateTime_to_binary()
         {
             var converter = _dateTimeToBinary.ConvertToProviderExpression.Compile();
@@ -47,7 +47,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.Equal(0, converter(new DateTime()));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_convert_binary_to_DateTime()
         {
             var converter = _dateTimeToBinary.ConvertFromProviderExpression.Compile();
@@ -64,7 +64,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             = (CompositeValueConverter<DateTime, long, ulong>)new DateTimeToTicksConverter().ComposeWith(
                 new CastingConverter<long, ulong>());
 
-        [Fact]
+        [ConditionalFact]
         public void Can_convert_DateTime_to_unsigned_ticks()
         {
             var converter = _dateTimeToUTicks.ConvertToProviderExpression.Compile();
@@ -74,7 +74,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.Equal((ulong)0, converter(new DateTime()));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_convert_unsigned_ticks_to_DateTime()
         {
             var converter = _dateTimeToUTicks.ConvertFromProviderExpression.Compile();
@@ -87,7 +87,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             = (CompositeValueConverter<DateTime, long, ulong>)new DateTimeToBinaryConverter().ComposeWith(
                 new CastingConverter<long, ulong>());
 
-        [Fact]
+        [ConditionalFact]
         public void Can_convert_DateTime_to_unsigned_binary()
         {
             var converter = _dateTimeToUBinary.ConvertToProviderExpression.Compile();
@@ -97,7 +97,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.Equal((ulong)0, converter(new DateTime()));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_convert_unsigned_binary_to_DateTime()
         {
             var converter = _dateTimeToUBinary.ConvertFromProviderExpression.Compile();
@@ -112,7 +112,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         private static readonly DateTimeToStringConverter _dateTimeToString
             = new DateTimeToStringConverter();
 
-        [Fact]
+        [ConditionalFact]
         public void Can_convert_DateTime_to_string()
         {
             var converter = _dateTimeToString.ConvertToProviderExpression.Compile();
@@ -122,7 +122,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.Equal("0001-01-01 00:00:00", converter(new DateTime()));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_convert_string_to_DateTime()
         {
             var converter = _dateTimeToString.ConvertFromProviderExpression.Compile();
@@ -138,7 +138,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             = (CompositeValueConverter<DateTime, long, byte[]>)new DateTimeToBinaryConverter().ComposeWith(
                 new NumberToBytesConverter<long>());
 
-        [Fact]
+        [ConditionalFact]
         public void Can_convert_DateTime_to_bytes()
         {
             var converter = _dateTimeToBytes.ConvertToProviderExpression.Compile();
@@ -156,7 +156,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 converter(new DateTime()));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_convert_bytes_to_DateTime()
         {
             var converter = _dateTimeToBytes.ConvertFromProviderExpression.Compile();

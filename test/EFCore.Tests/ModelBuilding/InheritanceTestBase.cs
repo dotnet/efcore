@@ -19,7 +19,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
     {
         public abstract class InheritanceTestBase : ModelBuilderTestBase
         {
-            [Fact]
+            [ConditionalFact]
             public virtual void Can_map_derived_types_first()
             {
                 var modelBuilder = CreateModelBuilder();
@@ -52,7 +52,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.NotNull(model.FindEntityType(typeof(SpecialBookLabel)).FindProperty(nameof(BookLabel.BookId)));
             }
 
-            [Fact]
+            [ConditionalFact]
             public virtual void Base_types_are_mapped_correctly_if_discovered_last()
             {
                 var modelBuilder = CreateModelBuilder();
@@ -73,7 +73,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Same(derived, moreDerived.BaseType);
             }
 
-            [Fact]
+            [ConditionalFact]
             public virtual void Can_map_derived_self_ref_many_to_one()
             {
                 var modelBuilder = CreateModelBuilder();
@@ -94,7 +94,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.NotNull(model.FindEntityType(typeof(SelfRefManyToOne)).FindNavigation(nameof(SelfRefManyToOne.SelfRef2)));
             }
 
-            [Fact]
+            [ConditionalFact]
             public virtual void Can_set_and_remove_base_type()
             {
                 var modelBuilder = CreateModelBuilder();
@@ -143,7 +143,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Equal(initialReferencingForeignKeys.Count(), ingredient.GetReferencingForeignKeys().Count());
             }
 
-            [Fact]
+            [ConditionalFact]
             public virtual void Setting_base_type_to_null_fixes_relationships()
             {
                 var modelBuilder = CreateModelBuilder();
@@ -189,7 +189,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Empty(principalEntityBuilder.Metadata.GetNavigations());
             }
 
-            [Fact]
+            [ConditionalFact]
             public virtual void Pulling_relationship_to_a_derived_type_creates_relationships_on_other_derived_types()
             {
                 var modelBuilder = CreateModelBuilder();
@@ -238,7 +238,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Equal(nameof(Order.CustomerId), otherDerivedFk.Properties.Single().Name);
             }
 
-            [Fact]
+            [ConditionalFact]
             public virtual void Pulling_relationship_to_a_derived_type_reverted_creates_relationships_on_other_derived_types()
             {
                 var modelBuilder = CreateModelBuilder();
@@ -272,7 +272,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Equal(nameof(Order.CustomerId), otherDerivedFk.Properties.Single().Name);
             }
 
-            [Fact]
+            [ConditionalFact]
             public virtual void Pulling_relationship_to_a_derived_type_many_to_one_creates_relationships_on_other_derived_types()
             {
                 var modelBuilder = CreateModelBuilder();
@@ -302,7 +302,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Equal(nameof(OtherCustomer.Orders), otherDerivedFk.PrincipalToDependent.Name);
             }
 
-            [Fact]
+            [ConditionalFact]
             public virtual void Pulling_relationship_to_a_derived_type_one_to_one_creates_relationship_on_base()
             {
                 var modelBuilder = CreateModelBuilder();
@@ -329,7 +329,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Same(derivedDependentEntityBuilder.Metadata, newFk.DeclaringEntityType);
             }
 
-            [Fact]
+            [ConditionalFact]
             public virtual void Pulling_relationship_to_a_derived_type_one_to_one_with_fk_creates_relationship_on_base()
             {
                 var modelBuilder = CreateModelBuilder();
@@ -356,7 +356,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Same(derivedDependentEntityBuilder.Metadata, newFk.DeclaringEntityType);
             }
 
-            [Fact]
+            [ConditionalFact]
             public virtual void Pulling_relationship_to_a_derived_type_with_fk_creates_relationships_on_other_derived_types()
             {
                 var modelBuilder = CreateModelBuilder();
@@ -389,7 +389,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Equal(nameof(Order.CustomerId), otherDerivedFk.Properties.Single().Name);
             }
 
-            [Fact]
+            [ConditionalFact]
             public virtual void Can_promote_shadow_fk_to_the_base_type()
             {
                 var modelBuilder = CreateModelBuilder();
@@ -417,7 +417,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Equal(nameof(SpecialOrder.SpecialCustomerId), newFk.Properties.Single().Name);
             }
 
-            [Fact]
+            [ConditionalFact]
             public virtual void Removing_a_key_triggers_fk_discovery_on_derived_types()
             {
                 var modelBuilder = CreateModelBuilder();
@@ -452,7 +452,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Same(derivedPrincipalEntityBuilder.Metadata, newFk.PrincipalEntityType);
             }
 
-            [Fact]
+            [ConditionalFact]
             public virtual void Index_removed_when_covered_by_an_inherited_foreign_key()
             {
                 var modelBuilder = CreateModelBuilder();
@@ -555,7 +555,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Empty(derivedDependentEntityType.GetDeclaredIndexes());
             }
 
-            [Fact]
+            [ConditionalFact]
             public virtual void Index_removed_when_covered_by_an_inherited_index()
             {
                 var modelBuilder = CreateModelBuilder();
@@ -632,7 +632,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 AssertEqual(initialForeignKeys, derivedDependentEntityType.GetForeignKeys());
             }
 
-            [Fact]
+            [ConditionalFact]
             public virtual void Setting_base_type_handles_require_value_generator_properly()
             {
                 var modelBuilder = CreateModelBuilder();
@@ -644,7 +644,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Equal(ValueGenerated.Never, fkProperty.ValueGenerated);
             }
 
-            [Fact]
+            [ConditionalFact]
             public virtual void Can_create_relationship_between_base_type_and_derived_type()
             {
                 var modelBuilder = CreateModelBuilder();
@@ -661,7 +661,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Equal(nameof(SpecialBookLabel.Id), relationshipBuilder.Metadata.PrincipalKey.Properties.Single().Name);
             }
 
-            [Fact]
+            [ConditionalFact]
             public virtual void Removing_derived_type_make_sure_that_entity_type_is_removed_from_directly_derived_type()
             {
                 var modelBuilder = CreateModelBuilder();
@@ -672,7 +672,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Empty(modelBuilder.Model.FindEntityType(typeof(BookLabel).FullName).GetDirectlyDerivedTypes());
             }
 
-            [Fact]
+            [ConditionalFact]
             public virtual void Can_ignore_base_entity_type()
             {
                 var modelBuilder = CreateModelBuilder();
@@ -694,7 +694,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 }
             }
 
-            [Fact]
+            [ConditionalFact]
             public virtual void Relationships_are_discovered_on_the_base_entity_type()
             {
                 var modelBuilder = CreateModelBuilder();
@@ -710,7 +710,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Null(anotherNavigation.FindInverse());
             }
 
-            [Fact]
+            [ConditionalFact]
             public virtual void Can_reconfigure_inherited_intraHierarchical_relationship()
             {
                 var modelBuilder = CreateModelBuilder();
@@ -731,7 +731,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Equal(new[] { fk }, extraSpecialBookLabelEntityBuilder.Metadata.GetForeignKeys());
             }
 
-            [Fact]
+            [ConditionalFact]
             public virtual void Relationships_on_derived_types_are_discovered_first_if_base_is_one_sided()
             {
                 var modelBuilder = CreateModelBuilder();
@@ -757,7 +757,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 modelBuilder.FinalizeModel();
             }
 
-            [Fact]
+            [ConditionalFact]
             public virtual void
                 Can_remove_objects_in_derived_type_which_was_set_using_data_annotation_while_setting_base_type_by_convention()
             {
@@ -774,7 +774,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Equal(ConfigurationSource.Convention, derivedEntityType.GetBaseTypeConfigurationSource());
             }
 
-            [Fact]
+            [ConditionalFact]
             public virtual void Cannot_remove_objects_in_derived_type_which_was_set_using_explicit_while_setting_base_type_by_convention()
             {
                 var modelBuilder = CreateModelBuilder();
@@ -797,7 +797,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Equal(ConfigurationSource.Explicit, derivedEntityType.GetPrimaryKeyConfigurationSource());
             }
 
-            [Fact]
+            [ConditionalFact]
             public virtual void Ordering_of_entityType_discovery_does_not_affect_key_convention()
             {
                 var modelBuilder = CreateModelBuilder();
@@ -816,7 +816,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.NotNull(baseEntity2.FindPrimaryKey());
             }
 
-            [Fact] // #7049
+            [ConditionalFact] // #7049
             public void Base_type_can_be_discovered_after_creating_foreign_keys_on_derived()
             {
                 var mb = CreateModelBuilder();

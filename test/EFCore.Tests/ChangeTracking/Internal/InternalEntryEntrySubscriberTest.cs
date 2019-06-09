@@ -22,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 {
     public class InternalEntryEntrySubscriberTest
     {
-        [Theory]
+        [ConditionalTheory]
         [InlineData(ChangeTrackingStrategy.Snapshot)]
         [InlineData(ChangeTrackingStrategy.ChangedNotifications)]
         public void Original_and_relationship_values_recorded_when_no_changing_notifications(
@@ -37,7 +37,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Assert.True(entry.HasRelationshipSnapshot);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(ChangeTrackingStrategy.ChangingAndChangedNotifications)]
         [InlineData(ChangeTrackingStrategy.ChangingAndChangedNotificationsWithOriginalValues)]
         public void Original_and_relationship_values_not_recorded_when_full_notifications(
@@ -52,7 +52,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Assert.False(entry.HasRelationshipSnapshot);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Notifying_collections_are_not_created_when_snapshot_tracking()
         {
             var entry = InMemoryTestHelpers.Instance.CreateInternalEntry<FullNotificationEntity>(
@@ -63,7 +63,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Assert.Null(((FullNotificationEntity)entry.Entity).RelatedCollection);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(ChangeTrackingStrategy.ChangedNotifications)]
         [InlineData(ChangeTrackingStrategy.ChangingAndChangedNotifications)]
         [InlineData(ChangeTrackingStrategy.ChangingAndChangedNotificationsWithOriginalValues)]
@@ -79,7 +79,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 ((FullNotificationEntity)entry.Entity).RelatedCollection);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Non_notifying_collection_acceptable_when_snapshot_tracking()
         {
             var entry = InMemoryTestHelpers.Instance.CreateInternalEntry<FullNotificationEntity>(
@@ -93,7 +93,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Assert.Same(collection, ((FullNotificationEntity)entry.Entity).RelatedCollection);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(ChangeTrackingStrategy.ChangedNotifications)]
         [InlineData(ChangeTrackingStrategy.ChangingAndChangedNotifications)]
         [InlineData(ChangeTrackingStrategy.ChangingAndChangedNotificationsWithOriginalValues)]
@@ -111,7 +111,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     () => entry.SetEntityState(EntityState.Unchanged)).Message);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public void Entry_subscribes_to_INotifyCollectionChanged_for_Add(bool ourCollection)
@@ -127,7 +127,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Assert.Empty(testListener.CollectionChanged.Single().Item4);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public void Entry_subscribes_to_INotifyCollectionChanged_for_Remove(bool ourCollection)
@@ -143,7 +143,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Assert.Same(item, testListener.CollectionChanged.Single().Item4.Single());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Entry_subscribes_to_INotifyCollectionChanged_for_Replace()
         {
             var item1 = new ChangedOnlyNotificationEntity();
@@ -161,7 +161,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Assert.Same(item1, testListener.CollectionChanged.Single().Item4.Single());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Entry_ignores_INotifyCollectionChanged_for_Move()
         {
             var item1 = new ChangedOnlyNotificationEntity();
@@ -178,7 +178,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Assert.Empty(testListener.CollectionChanged);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Entry_throws_for_INotifyCollectionChanged_Reset()
         {
             var item1 = new ChangedOnlyNotificationEntity();
@@ -197,7 +197,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Assert.Empty(testListener.CollectionChanged);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Entry_handles_clear_as_replace_with_ObservableHashSet()
         {
             var item1 = new ChangedOnlyNotificationEntity();
@@ -247,7 +247,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             return testListener;
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Entry_subscribes_to_INotifyPropertyChanging_and_INotifyPropertyChanged_for_properties()
         {
             var contextServices = InMemoryTestHelpers.Instance.CreateContextServices(
@@ -270,7 +270,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Assert.Same(property, testListener.Changed.Single().Item2);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Entry_handles_null_or_empty_string_in_INotifyPropertyChanging_and_INotifyPropertyChanged()
         {
             var contextServices = InMemoryTestHelpers.Instance.CreateContextServices(
@@ -301,7 +301,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 testListener.Changed.Select(e => e.Item2.Name).OrderBy(e => e).ToArray());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Entry_subscribes_to_INotifyPropertyChanging_and_INotifyPropertyChanged_for_navigations()
         {
             var contextServices = InMemoryTestHelpers.Instance.CreateContextServices(
@@ -324,7 +324,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Assert.Same(property, testListener.Changed.Single().Item2);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Subscriptions_to_INotifyPropertyChanging_and_INotifyPropertyChanged_ignore_unmapped_properties()
         {
             var contextServices = InMemoryTestHelpers.Instance.CreateContextServices(
@@ -345,7 +345,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Assert.Empty(testListener.Changed);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Entry_unsubscribes_to_INotifyPropertyChanging_and_INotifyPropertyChanged()
         {
             var contextServices = InMemoryTestHelpers.Instance.CreateContextServices(
@@ -403,7 +403,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Assert.Same(entries[2], testListener.Changed.Skip(2).Single().Item1);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Entry_unsubscribes_to_INotifyCollectionChanged()
         {
             var contextServices = InMemoryTestHelpers.Instance.CreateContextServices(
@@ -454,7 +454,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Assert.Same(entries[2], testListener.CollectionChanged.Skip(2).Single().Item1);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Entries_are_unsubscribed_when_context_is_disposed()
         {
             var context = InMemoryTestHelpers.Instance.CreateContext(

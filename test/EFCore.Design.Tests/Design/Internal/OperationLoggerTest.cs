@@ -10,7 +10,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
 {
     public class OperationLoggerTests
     {
-        [Fact]
+        [ConditionalFact]
         public void Log_dampens_logLevel_when_ExecutedCommand()
         {
             var reporter = new TestOperationReporter();

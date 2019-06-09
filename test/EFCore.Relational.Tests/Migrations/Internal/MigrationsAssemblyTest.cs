@@ -16,23 +16,23 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 {
     public class MigrationsAssemblyTest
     {
-        [Fact]
+        [ConditionalFact]
         public void FindMigrationId_returns_first_candidate_when_id()
             => Assert.Equal(
                 "20150302103100_Flutter",
                 CreateMigrationsAssembly().FindMigrationId("20150302103100_FLUTTER"));
 
-        [Fact]
+        [ConditionalFact]
         public void FindMigrationId_returns_first_candidate_when_name()
             => Assert.Equal(
                 "20150302103100_Flutter",
                 CreateMigrationsAssembly().FindMigrationId("FLUTTER"));
 
-        [Fact]
+        [ConditionalFact]
         public void FindMigrationId_returns_null_when_no_match()
             => Assert.Null(CreateMigrationsAssembly().FindMigrationId("Spike"));
 
-        [Fact]
+        [ConditionalFact]
         public void GetMigrationId_throws_when_no_match()
             => Assert.Equal(
                 RelationalStrings.MigrationNotFound("Spike"),
@@ -40,7 +40,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         () => CreateMigrationsAssembly().GetMigrationId("Spike"))
                     .Message);
 
-        [Fact]
+        [ConditionalFact]
         public void Migrations_ignores_the_unattributed()
         {
             var logger = new TestLogger<DbLoggerCategory.Migrations, TestRelationalLoggingDefinitions>

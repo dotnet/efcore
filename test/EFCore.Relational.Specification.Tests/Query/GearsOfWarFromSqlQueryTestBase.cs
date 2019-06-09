@@ -16,7 +16,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         protected TFixture Fixture { get; }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void From_sql_queryable_simple_columns_out_of_order()
         {
             using (var context = CreateContext())

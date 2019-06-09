@@ -14,7 +14,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
 {
     public class RelationalDatabaseFacadeExtensionsTest
     {
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false, false)]
         [InlineData(true, false)]
         [InlineData(true, true)]
@@ -46,7 +46,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false, false)]
         [InlineData(true, false)]
         [InlineData(true, true)]
@@ -83,7 +83,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public async Task Can_pass_ints_as_params(bool async)
@@ -111,7 +111,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false, false)]
         [InlineData(true, false)]
         [InlineData(true, true)]
@@ -148,7 +148,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false, false)]
         [InlineData(true, false)]
         [InlineData(true, true)]
@@ -200,7 +200,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false, false)]
         [InlineData(true, false)]
         [InlineData(true, true)]
@@ -252,7 +252,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false, false)]
         [InlineData(true, false)]
         [InlineData(true, true)]
@@ -288,7 +288,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false, false)]
         [InlineData(true, false)]
         [InlineData(true, true)]

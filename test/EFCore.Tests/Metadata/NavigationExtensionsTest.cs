@@ -11,7 +11,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 {
     public class NavigationExtensionsTest
     {
-        [Fact]
+        [ConditionalFact]
         public void Can_get_one_to_many_inverses()
         {
             var model = BuildModel();
@@ -23,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Same(products, category.FindInverse());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_get_one_to_one_inverses()
         {
             var model = BuildModel();
@@ -35,7 +35,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Same(product, category.FindInverse());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_get_target_ends()
         {
             var model = BuildModel();
@@ -50,7 +50,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Same(categoryType, category.GetTargetType());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Returns_null_when_no_inverse()
         {
             var products = BuildModel(createCategory: false).FindEntityType(typeof(Category)).GetNavigations()

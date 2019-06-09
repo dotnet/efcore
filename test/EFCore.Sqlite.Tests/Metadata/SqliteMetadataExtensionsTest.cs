@@ -8,7 +8,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 {
     public class SqliteMetadataExtensionsTest
     {
-        [Fact]
+        [ConditionalFact]
         public void Can_get_and_set_srid()
         {
             var modelBuilder = new ModelBuilder(new ConventionSet());
@@ -20,7 +20,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
             Assert.Null(property.GetSqliteSrid());
 
-            property.SetSqliteSrid(1); 
+            property.SetSqliteSrid(1);
 
             Assert.Equal(1, property.GetSqliteSrid());
 
@@ -29,7 +29,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Null(property.GetSqliteSrid());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_get_and_set_dimension()
         {
             var modelBuilder = new ModelBuilder(new ConventionSet());

@@ -600,7 +600,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void GenerateCreateScript_works()
         {
             using (var context = new BloggingContext("Data Source=foo"))

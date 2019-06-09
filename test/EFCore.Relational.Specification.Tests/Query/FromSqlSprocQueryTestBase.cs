@@ -21,7 +21,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         protected TFixture Fixture { get; }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void From_sql_queryable_stored_procedure()
         {
             using (var context = CreateContext())
@@ -41,7 +41,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void From_sql_queryable_stored_procedure_projection()
         {
             using (var context = CreateContext())
@@ -79,7 +79,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void From_sql_queryable_stored_procedure_with_parameter()
         {
             using (var context = CreateContext())
@@ -99,7 +99,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact(Skip = "Issue #14935. Cannot eval 'where [mep].TenMostExpensiveProducts.Contains(\"C\")'")]
+        [ConditionalFact(Skip = "Issue #14935. Cannot eval 'where [mep].TenMostExpensiveProducts.Contains(\"C\")'")]
         public virtual void From_sql_queryable_stored_procedure_composed()
         {
             using (var context = CreateContext())
@@ -117,7 +117,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact(Skip = "Issue #14935. Cannot eval 'where [coh].ProductName.Contains(\"C\")'")]
+        [ConditionalFact(Skip = "Issue #14935. Cannot eval 'where [coh].ProductName.Contains(\"C\")'")]
         public virtual void From_sql_queryable_stored_procedure_with_parameter_composed()
         {
             using (var context = CreateContext())
@@ -135,7 +135,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact(Skip = "Issue #14935. Cannot eval 'orderby [mep].UnitPrice desc'")]
+        [ConditionalFact(Skip = "Issue #14935. Cannot eval 'orderby [mep].UnitPrice desc'")]
         public virtual void From_sql_queryable_stored_procedure_take()
         {
             using (var context = CreateContext())
@@ -153,7 +153,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact(Skip = "Issue #14935. Cannot eval 'Min()'")]
+        [ConditionalFact(Skip = "Issue #14935. Cannot eval 'Min()'")]
         public virtual void From_sql_queryable_stored_procedure_min()
         {
             using (var context = CreateContext())
@@ -166,7 +166,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact(Skip = "issue #15312")]
+        [ConditionalFact(Skip = "issue #15312")]
         public virtual void From_sql_queryable_stored_procedure_with_include_throws()
         {
             using (var context = CreateContext())
@@ -182,7 +182,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact(Skip = "Issue #14935. Cannot eval 'from MostExpensiveProduct b in value(Microsoft.EntityFrameworkCore.Query.Internal.EntityQueryable`1[Microsoft.EntityFrameworkCore.TestModels.Northwind.MostExpensiveProduct])'")]
+        [ConditionalFact(Skip = "Issue #14935. Cannot eval 'from MostExpensiveProduct b in value(Microsoft.EntityFrameworkCore.Query.Internal.EntityQueryable`1[Microsoft.EntityFrameworkCore.TestModels.Northwind.MostExpensiveProduct])'")]
         public virtual void From_sql_queryable_with_multiple_stored_procedures()
         {
             using (var context = CreateContext())
@@ -204,7 +204,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact(Skip = "Issue #14935. Cannot eval 'from Product p in value(Microsoft.EntityFrameworkCore.Query.Internal.EntityQueryable`1[Microsoft.EntityFrameworkCore.TestModels.Northwind.Product])'")]
+        [ConditionalFact(Skip = "Issue #14935. Cannot eval 'from Product p in value(Microsoft.EntityFrameworkCore.Query.Internal.EntityQueryable`1[Microsoft.EntityFrameworkCore.TestModels.Northwind.Product])'")]
         public virtual void From_sql_queryable_stored_procedure_and_select()
         {
             using (var context = CreateContext())
@@ -226,7 +226,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact(Skip = "Issue #14935. Cannot eval 'from MostExpensiveProduct mep in value(Microsoft.EntityFrameworkCore.Query.Internal.EntityQueryable`1[Microsoft.EntityFrameworkCore.TestModels.Northwind.MostExpensiveProduct])'")]
+        [ConditionalFact(Skip = "Issue #14935. Cannot eval 'from MostExpensiveProduct mep in value(Microsoft.EntityFrameworkCore.Query.Internal.EntityQueryable`1[Microsoft.EntityFrameworkCore.TestModels.Northwind.MostExpensiveProduct])'")]
         public virtual void From_sql_queryable_select_and_stored_procedure()
         {
             using (var context = CreateContext())

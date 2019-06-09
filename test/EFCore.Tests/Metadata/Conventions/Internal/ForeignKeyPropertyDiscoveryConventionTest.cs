@@ -27,7 +27,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
     {
         private readonly InternalModelBuilder _model = BuildModel();
 
-        [Fact]
+        [ConditionalFact]
         public void Does_not_override_explicit_foreign_key_created_using_given_property()
         {
             var dependentTypeBuilder = DependentType.Builder;
@@ -58,7 +58,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             ValidateModel();
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Does_not_override_explicit_composite_foreign_key_created_using_given_properties()
         {
             var dependentTypeBuilder = DependentTypeWithCompositeKey.Builder;
@@ -94,7 +94,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             ValidateModel();
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Returns_same_builder_if_no_matching_clr_properties_found()
         {
             var relationshipBuilder = DependentType.Builder.HasRelationship(
@@ -115,7 +115,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             ValidateModel();
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Matches_navigation_plus_PK_name_property()
         {
             var dependentTypeBuilder = DependentType.Builder;
@@ -144,7 +144,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             ValidateModel();
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Matches_navigation_plus_PK_name_properties()
         {
             var dependentTypeBuilder = DependentTypeWithCompositeKey.Builder;
@@ -180,7 +180,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             ValidateModel();
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Matches_navigation_plus_Id_property()
         {
             var dependentTypeBuilder = DependentType.Builder;
@@ -208,7 +208,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             ValidateModel();
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Matches_principal_type_plus_PK_name_property()
         {
             var dependentTypeBuilder = DependentType.Builder;
@@ -233,7 +233,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             ValidateModel();
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Matches_principal_type_plus_Id_property()
         {
             var dependentTypeBuilder = DependentType.Builder;
@@ -257,7 +257,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             ValidateModel();
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Matches_principal_type_plus_PK_name_properties()
         {
             var dependentTypeBuilder = DependentTypeWithCompositeKey.Builder;
@@ -288,7 +288,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             ValidateModel();
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Does_not_match_PK_name_property()
         {
             var dependentTypeBuilder = DependentType.Builder;
@@ -311,7 +311,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             ValidateModel();
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Matches_key_Id_property()
         {
             var dependentTypeBuilder = DependentType.Builder;
@@ -338,7 +338,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             ValidateModel();
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Does_not_match_non_key_Id_property()
         {
             var relationshipBuilder = DependentType.Builder.HasRelationship(
@@ -361,7 +361,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             ValidateModel();
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Does_not_match_PK_name_properties()
         {
             var dependentTypeBuilder = DependentTypeWithCompositeKey.Builder;
@@ -389,7 +389,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             ValidateModel();
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Matches_dependent_PK_for_unique_FK_set_by_higher_source_than_convention()
         {
             var dependentTypeBuilder = DependentType.Builder;
@@ -415,7 +415,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             ValidateModel();
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Does_not_match_principal_type_plus_PK_name_property_of_different_type()
         {
             var dependentTypeBuilder = DependentType.Builder;
@@ -444,7 +444,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             ValidateModel();
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Does_not_match_dependent_PK_for_non_unique_FK()
         {
             var dependentTypeBuilder = DependentType.Builder;
@@ -464,7 +464,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             ValidateModel();
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Does_not_match_non_nullable_dependent_PK_for_optional_unique_FK()
         {
             var fkProperty = DependentType.FindPrimaryKey().Properties.Single();
@@ -486,7 +486,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             ValidateModel();
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Does_not_match_dependent_PK_for_self_ref()
         {
             var relationshipBuilder = PrincipalType.Builder.HasRelationship(PrincipalType, ConfigurationSource.Convention)
@@ -504,7 +504,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             ValidateModel();
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Matches_composite_dependent_PK_for_unique_FK()
         {
             var dependentTypeBuilder = DependentTypeWithCompositeKey.Builder;
@@ -532,7 +532,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             ValidateModel();
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Does_not_match_composite_dependent_PK_for_unique_FK_on_derived_type()
         {
             var modelBuilder = new InternalModelBuilder(new Model());
@@ -573,7 +573,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             ValidateModel();
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Does_not_match_composite_dependent_PK_for_non_unique_FK()
         {
             DependentTypeWithCompositeKey.Builder.PrimaryKey(
@@ -603,7 +603,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             ValidateModel();
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Does_not_match_composite_dependent_PK_for_unique_FK_if_count_mismatched()
         {
             var fkProperty1 = DependentTypeWithCompositeKey.FindPrimaryKey().Properties[0];
@@ -630,7 +630,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             ValidateModel();
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Does_not_match_composite_dependent_PK_for_unique_FK_if_order_mismatched()
         {
             var fkProperty1 = DependentTypeWithCompositeKey.FindPrimaryKey().Properties[0];
@@ -661,7 +661,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             ValidateModel();
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Does_not_match_properties_with_different_base_names()
         {
             var dependentTypeBuilder = DependentTypeWithCompositeKey.Builder;
@@ -685,7 +685,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             ValidateModel();
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Does_not_match_if_a_foreign_key_on_the_best_candidate_property_already_exists()
         {
             var dependentTypeBuilder = DependentType.Builder;
@@ -728,7 +728,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 Assert.Throws<InvalidOperationException>(() => ValidateModel()).Message);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Logs_warning_if_foreign_key_property_names_are_order_dependent()
         {
             var relationshipBuilder = DependentType.Builder.HasRelationship(
@@ -759,7 +759,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                     nameof(DependentEntity), nameof(PrincipalEntity), nameof(DependentEntity)), logEntry.Message);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Inverts_if_principal_entity_type_can_have_non_pk_fk_property()
         {
             var fkProperty = DependentType.Builder.Property(
@@ -784,7 +784,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             ValidateModel();
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Does_not_invert_if_weak_entity_type_can_have_non_pk_fk_property()
         {
             var fkProperty = DependentType.Builder.Property(DependentEntity.PrincipalEntityPeEKaYProperty, ConfigurationSource.Convention).Metadata;
@@ -809,7 +809,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             ValidateModel();
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Does_not_invert_if_both_entity_types_can_have_non_pk_fk_property()
         {
             var dependentTypeBuilder = DependentType.Builder;
@@ -831,7 +831,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             ValidateModel();
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Does_not_invert_if_principal_entity_type_is_defining_the_weak_entity_type()
         {
             PrincipalType.Builder.Property(nameof(PrincipalEntity.DependentEntityKayPee), ConfigurationSource.Convention);
@@ -859,7 +859,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             ValidateModel();
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Does_not_invert_if_principal_entity_type_owns_the_weak_entity_type()
         {
             PrincipalType.Builder.Property(nameof(PrincipalEntity.DependentEntityKayPee), ConfigurationSource.Convention);
@@ -884,7 +884,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             ValidateModel();
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Does_nothing_if_matching_shadow_property_added()
         {
             var relationshipBuilder = DependentType.Builder.HasRelationship(PrincipalType, "SomeNav", null, ConfigurationSource.Convention);
@@ -909,11 +909,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             ValidateModel();
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Sets_foreign_key_if_matching_non_shadow_property_added()
         {
             var relationshipBuilder = DependentType.Builder.HasRelationship(PrincipalType, "SomeNav", null, ConfigurationSource.Convention);
-            
+
             var newRelationshipBuilder = RunConvention(relationshipBuilder);
             Assert.Same(relationshipBuilder, newRelationshipBuilder);
 
@@ -935,7 +935,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             ValidateModel();
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Inverts_and_sets_foreign_key_if_matching_non_shadow_property_added_on_principal_type()
         {
             var relationshipBuilder = PrincipalType.Builder
@@ -965,7 +965,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             ValidateModel();
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Throws_on_ambiguous_relationship()
         {
             var dependentTypeBuilder = DependentType.Builder;

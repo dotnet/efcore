@@ -22,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore
             //TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Can_update_just_dependents()
         {
             using (CreateTestStore(OnModelCreating))
@@ -49,7 +49,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Can_query_shared()
         {
             using (CreateTestStore(OnModelCreating))
@@ -61,7 +61,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Can_query_shared_derived_hierarchy()
         {
             using (CreateTestStore(OnModelCreating))
@@ -73,7 +73,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Can_query_shared_derived_nonhierarchy()
         {
             using (CreateTestStore(
@@ -90,7 +90,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Can_query_shared_derived_nonhierarchy_all_required()
         {
             using (CreateTestStore(
@@ -112,13 +112,13 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Can_use_with_redundant_relationships()
         {
             Test_roundtrip(OnModelCreating);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Can_use_with_chained_relationships()
         {
             Test_roundtrip(
@@ -129,7 +129,7 @@ namespace Microsoft.EntityFrameworkCore
                 });
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Can_use_with_fanned_relationships()
         {
             Test_roundtrip(
@@ -151,7 +151,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Inserting_dependent_with_just_one_parent_throws()
         {
             using (CreateTestStore(OnModelCreating))
@@ -185,7 +185,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact(Skip = "issue #15318")]
+        [ConditionalFact(Skip = "issue #15318")]
         public virtual void Can_change_dependent_instance_non_derived()
         {
             using (CreateTestStore(
@@ -238,7 +238,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Can_change_principal_instance_non_derived()
         {
             using (CreateTestStore(
@@ -289,7 +289,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Can_change_principal_and_dependent_instance_non_derived()
         {
             using (CreateTestStore(

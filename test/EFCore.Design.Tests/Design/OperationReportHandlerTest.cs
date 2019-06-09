@@ -7,13 +7,13 @@ namespace Microsoft.EntityFrameworkCore.Design
 {
     public class OperationReportHandlerTest
     {
-        [Fact]
+        [ConditionalFact]
         public void Version_is_zero()
         {
             Assert.Equal(0, new OperationReportHandler().Version);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void On_methods_are_noops_when_null()
         {
             var handler = new OperationReportHandler();
@@ -23,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore.Design
             handler.OnVerbose("Princess Celestia is an alicorn.");
         }
 
-        [Fact]
+        [ConditionalFact]
         public void OnWarning_works()
         {
             string result = null;
@@ -35,7 +35,7 @@ namespace Microsoft.EntityFrameworkCore.Design
             Assert.Equal(message, result);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void OnInformation_works()
         {
             string result = null;
@@ -47,7 +47,7 @@ namespace Microsoft.EntityFrameworkCore.Design
             Assert.Equal(message, result);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void OnVerbose_works()
         {
             string result = null;

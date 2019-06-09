@@ -22,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 {
     public class SqlServerModelDifferTest : MigrationsModelDifferTestBase
     {
-        [Fact]
+        [ConditionalFact]
         public void Alter_table_to_MemoryOptimized()
         {
             Execute(
@@ -56,7 +56,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 });
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Alter_table_from_MemoryOptimized()
         {
             Execute(
@@ -90,7 +90,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 });
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Add_column_with_dependencies()
         {
             Execute(
@@ -122,7 +122,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 });
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Alter_column_identity()
         {
             Execute(
@@ -140,7 +140,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 });
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Alter_column_non_key_identity()
         {
             Execute(
@@ -172,7 +172,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 });
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Alter_column_computation()
         {
             Execute(
@@ -204,7 +204,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 });
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Alter_primary_key_clustering()
         {
             Execute(
@@ -241,7 +241,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 });
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Add_non_clustered_primary_key_with_owned()
         {
             Execute(
@@ -265,7 +265,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 });
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Alter_unique_constraint_clustering()
         {
             Execute(
@@ -304,7 +304,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 });
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Create_shared_table_with_two_entity_types()
         {
             Execute(
@@ -341,7 +341,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 });
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Add_SequenceHiLo_with_seed_data()
         {
             Execute(
@@ -403,7 +403,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     }));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Alter_index_clustering()
         {
             Execute(
@@ -447,7 +447,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             return default;
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Add_dbfunction_ignore()
         {
             var mi = typeof(SqlServerModelDifferTest).GetRuntimeMethod(nameof(Function), Array.Empty<Type>());
@@ -458,7 +458,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 operations => Assert.Equal(0, operations.Count));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Alter_column_rowversion()
         {
             Execute(
@@ -490,7 +490,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 });
         }
 
-        [Fact]
+        [ConditionalFact]
         public void SeedData_all_operations()
         {
             Execute(
@@ -664,7 +664,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     }));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Dont_rebuild_index_with_equal_include()
         {
             Execute(
@@ -693,7 +693,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 operations => Assert.Equal(0, operations.Count));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Rebuild_index_with_different_include()
         {
             Execute(
@@ -742,7 +742,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 });
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Dont_rebuild_index_with_unchanged_online_option()
         {
             Execute(
@@ -771,7 +771,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 operations => Assert.Equal(0, operations.Count));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Rebuild_index_when_changing_online_option()
         {
             Execute(

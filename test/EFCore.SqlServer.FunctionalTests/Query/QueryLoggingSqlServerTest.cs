@@ -27,7 +27,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         protected IncludeSqlServerFixture Fixture { get; }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Queryable_simple()
         {
             using (var context = CreateContext())
@@ -48,7 +48,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Queryable_with_parameter_outputs_parameter_value_logging_warning()
         {
             using (var context = CreateContext())
@@ -69,7 +69,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        //[Fact]
+        //[ConditionalFact]
         //public virtual void Query_with_ignored_include_should_log_warning()
         //{
         //    using (var context = CreateContext())
@@ -86,7 +86,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         //    }
         //}
 
-        //[Fact]
+        //[ConditionalFact]
         //public virtual void Include_navigation()
         //{
         //    using (var context = CreateContext())
@@ -119,7 +119,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         //}
 
 #pragma warning disable CS0612 // Type or member is obsolete
-        [Fact(Skip = "Issue #14935. Cannot eval 'Concat({from Order o in value(Microsoft.EntityFrameworkCore.Query.Internal.EntityQueryable`1[Microsoft.EntityFrameworkCore.TestModels.Northwind.Order]) where ([o].CustomerID == \"ALFKI\") select [o]})'")]
+        [ConditionalFact(Skip = "Issue #14935. Cannot eval 'Concat({from Order o in value(Microsoft.EntityFrameworkCore.Query.Internal.EntityQueryable`1[Microsoft.EntityFrameworkCore.TestModels.Northwind.Order]) where ([o].CustomerID == \"ALFKI\") select [o]})'")]
         public virtual void Concat_Include_collection_ignored()
         {
             using (var context = CreateContext())
@@ -137,7 +137,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact(Skip = "Issue #14935. Cannot eval 'Union({from Order o in value(Microsoft.EntityFrameworkCore.Query.Internal.EntityQueryable`1[Microsoft.EntityFrameworkCore.TestModels.Northwind.Order]) where ([o].CustomerID == \"ALFKI\") select [o]})'")]
+        [ConditionalFact(Skip = "Issue #14935. Cannot eval 'Union({from Order o in value(Microsoft.EntityFrameworkCore.Query.Internal.EntityQueryable`1[Microsoft.EntityFrameworkCore.TestModels.Northwind.Order]) where ([o].CustomerID == \"ALFKI\") select [o]})'")]
         public virtual void Union_Include_collection_ignored()
         {
             using (var context = CreateContext())
@@ -155,7 +155,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact(Skip = "Issue #14935. Cannot eval 'GroupBy([o].OrderID, [o])'")]
+        [ConditionalFact(Skip = "Issue #14935. Cannot eval 'GroupBy([o].OrderID, [o])'")]
         public virtual void GroupBy_Include_collection_ignored()
         {
             using (var context = CreateContext())
@@ -175,7 +175,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 #pragma warning restore CS0612 // Type or member is obsolete
 
-        [Fact]
+        [ConditionalFact]
         public void SelectExpression_does_not_use_an_old_logger()
         {
             DbContextOptions CreateOptions(ListLoggerFactory listLoggerFactory)

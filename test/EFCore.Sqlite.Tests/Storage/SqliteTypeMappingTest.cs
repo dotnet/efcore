@@ -30,7 +30,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             base.Create_and_clone_with_converter(mappingType, clrType);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData("TEXT", typeof(string))]
         [InlineData("Integer", typeof(long))]
         [InlineData("Blob", typeof(byte[]))]

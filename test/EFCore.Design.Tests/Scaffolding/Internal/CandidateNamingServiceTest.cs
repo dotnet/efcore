@@ -9,7 +9,7 @@ namespace Microsoft.EntityFrameworkCore
 {
     public class CandidateNamingServiceTest
     {
-        [Theory]
+        [ConditionalTheory]
         [InlineData("PascalCase", "PascalCase")]
         [InlineData("camelCase", "CamelCase")]
         [InlineData("snake-case", "SnakeCase")]

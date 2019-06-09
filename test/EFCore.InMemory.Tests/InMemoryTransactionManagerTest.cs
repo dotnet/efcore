@@ -16,7 +16,7 @@ namespace Microsoft.EntityFrameworkCore
 {
     public class InMemoryTransactionManagerTest
     {
-        [Fact]
+        [ConditionalFact]
         public void CurrentTransaction_returns_null()
         {
             var transactionManager = new InMemoryTransactionManager(CreateLogger());
@@ -24,25 +24,25 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Null(transactionManager.CurrentTransaction);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Throws_on_BeginTransaction()
         {
             AssertThrows(() => new InMemoryTransactionManager(CreateLogger()).BeginTransaction());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Throws_on_BeginTransactionAsync()
         {
             AssertThrows(() => new InMemoryTransactionManager(CreateLogger()).BeginTransactionAsync().GetAwaiter().GetResult());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Throws_on_CommitTransaction()
         {
             AssertThrows(() => new InMemoryTransactionManager(CreateLogger()).CommitTransaction());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Throws_on_RollbackTransaction()
         {
             AssertThrows(() => new InMemoryTransactionManager(CreateLogger()).RollbackTransaction());

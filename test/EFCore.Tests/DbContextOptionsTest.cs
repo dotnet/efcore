@@ -16,7 +16,7 @@ namespace Microsoft.EntityFrameworkCore
 {
     public class DbContextOptionsTest
     {
-        [Fact]
+        [ConditionalFact]
         public void Warnings_can_be_configured()
         {
             var optionsBuilder = new DbContextOptionsBuilder()
@@ -27,7 +27,7 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Equal(WarningBehavior.Throw, warningConfiguration.DefaultBehavior);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Model_can_be_set_explicitly_in_options()
         {
             var model = new Model();
@@ -37,7 +37,7 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Same(model, optionsBuilder.Options.FindExtension<CoreOptionsExtension>().Model);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Sensitive_data_logging_can_be_set_explicitly_in_options()
         {
             var model = new Model();
@@ -48,7 +48,7 @@ namespace Microsoft.EntityFrameworkCore
             Assert.True(optionsBuilder.Options.FindExtension<CoreOptionsExtension>().IsSensitiveDataLoggingEnabled);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Extensions_can_be_added_to_options()
         {
             var optionsBuilder = new DbContextOptionsBuilder();
@@ -70,7 +70,7 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Same(extension2, optionsBuilder.Options.FindExtension<FakeDbContextOptionsExtension2>());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_update_an_existing_extension()
         {
             var optionsBuilder = new DbContextOptionsBuilder();
@@ -94,7 +94,7 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Same(extension2, optionsBuilder.Options.FindExtension<FakeDbContextOptionsExtension1>());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void IsConfigured_returns_true_if_any_provider_extensions_have_been_added()
         {
             var optionsBuilder = new DbContextOptionsBuilder();
@@ -106,7 +106,7 @@ namespace Microsoft.EntityFrameworkCore
             Assert.True(optionsBuilder.IsConfigured);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void IsConfigured_returns_false_if_only_non_provider_extensions_have_been_added()
         {
             var optionsBuilder = new DbContextOptionsBuilder();
@@ -154,7 +154,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void UseModel_on_generic_builder_returns_generic_builder()
         {
             var model = new Model();
@@ -164,7 +164,7 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Same(model, optionsBuilder.Options.FindExtension<CoreOptionsExtension>().Model);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void UseLoggerFactory_on_generic_builder_returns_generic_builder()
         {
             var loggerFactory = new LoggerFactory();
@@ -174,7 +174,7 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Same(loggerFactory, optionsBuilder.Options.FindExtension<CoreOptionsExtension>().LoggerFactory);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void UseMemoryCache_on_generic_builder_returns_generic_builder()
         {
             var memoryCache = new FakeMemoryCache();
@@ -192,7 +192,7 @@ namespace Microsoft.EntityFrameworkCore
             public void Remove(object key) => throw new NotImplementedException();
         }
 
-        [Fact]
+        [ConditionalFact]
         public void UseInternalServiceProvider_on_generic_builder_returns_generic_builder()
         {
             var serviceProvider = new FakeServiceProvider();
@@ -207,19 +207,19 @@ namespace Microsoft.EntityFrameworkCore
             public object GetService(Type serviceType) => throw new NotImplementedException();
         }
 
-        [Fact]
+        [ConditionalFact]
         public void EnableSensitiveDataLogging_on_generic_builder_returns_generic_builder()
         {
             GenericCheck(new DbContextOptionsBuilder<UnkoolContext>().EnableSensitiveDataLogging());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void EnableDetailedErrors_on_generic_builder_returns_generic_builder()
         {
             GenericCheck(new DbContextOptionsBuilder<UnkoolContext>().EnableDetailedErrors());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void UseQueryTrackingBehavior_on_generic_builder_returns_generic_builder()
         {
             var optionsBuilder = GenericCheck(
@@ -229,7 +229,7 @@ namespace Microsoft.EntityFrameworkCore
                 QueryTrackingBehavior.NoTracking, optionsBuilder.Options.FindExtension<CoreOptionsExtension>().QueryTrackingBehavior);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void ConfigureWarnings_on_generic_builder_returns_generic_builder()
         {
             var optionsBuilder = GenericCheck(
@@ -243,7 +243,7 @@ namespace Microsoft.EntityFrameworkCore
         private DbContextOptionsBuilder<UnkoolContext> GenericCheck(DbContextOptionsBuilder<UnkoolContext> optionsBuilder) =>
             optionsBuilder;
 
-        [Fact]
+        [ConditionalFact]
         public void Generic_builder_returns_generic_options()
         {
             var builder = new DbContextOptionsBuilder<UnkoolContext>();

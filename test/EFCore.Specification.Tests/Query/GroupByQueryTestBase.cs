@@ -1668,7 +1668,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         // also #15249
-        [Theory(Skip = "Unable to bind group by. See Issue#6658")]
+        [ConditionalTheory(Skip = "Unable to bind group by. See Issue#6658")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Union_simple_groupby(bool isAsync)
         {
@@ -2312,7 +2312,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 elementAsserter: GroupingAsserter<string, dynamic>(d => d.CustomerID));
         }
 
-        [Theory(Skip = "Test does not pass. See issue#7160")]
+        [ConditionalTheory(Skip = "Test does not pass. See issue#7160")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_anonymous_subquery(bool isAsync)
         {

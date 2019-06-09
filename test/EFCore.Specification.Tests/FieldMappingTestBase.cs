@@ -55,7 +55,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Field_mapping_with_conversion_does_not_throw()
         {
             using (var context = CreateContext())
@@ -88,7 +88,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Simple_query_auto_props(bool tracking)
@@ -99,7 +99,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Include_collection_auto_props(bool tracking)
@@ -110,7 +110,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Include_reference_auto_props(bool tracking)
@@ -121,37 +121,37 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Load_collection_auto_props()
             => Load_collection<BlogAuto>("Posts");
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Load_reference_auto_props()
             => Load_reference<PostAuto>("Blog");
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Query_with_conditional_constant_auto_props(bool tracking)
             => Query_with_conditional_constant<PostAuto>("BlogId", tracking);
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Query_with_conditional_param_auto_props(bool tracking)
             => Query_with_conditional_param<PostAuto>("Title", tracking);
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Projection_auto_props(bool tracking)
             => Projection<PostAuto>("Id", "Title", tracking);
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Update_auto_props()
             => Update<BlogAuto>("Posts");
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Simple_query_hiding_props(bool tracking)
@@ -162,7 +162,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Include_collection_hiding_props(bool tracking)
@@ -173,7 +173,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Include_reference_hiding_props(bool tracking)
@@ -184,37 +184,37 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Load_collection_hiding_props()
             => Load_collection<BlogHiding>("Posts");
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Load_reference_hiding_props()
             => Load_reference<PostHiding>("Blog");
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Query_with_conditional_constant_hiding_props(bool tracking)
             => Query_with_conditional_constant<PostHiding>("BlogId", tracking);
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Query_with_conditional_param_hiding_props(bool tracking)
             => Query_with_conditional_param<PostHiding>("Title", tracking);
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Projection_hiding_props(bool tracking)
             => Projection<PostHiding>("Id", "Title", tracking);
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Update_hiding_props()
             => Update<BlogHiding>("Posts");
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Simple_query_full_props(bool tracking)
@@ -225,7 +225,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Include_collection_full_props(bool tracking)
@@ -236,7 +236,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Include_reference_full_props(bool tracking)
@@ -247,37 +247,37 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Load_collection_full_props()
             => Load_collection<BlogFull>("Posts");
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Load_reference_full_props()
             => Load_reference<PostFull>("Blog");
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Query_with_conditional_constant_full_props(bool tracking)
             => Query_with_conditional_constant<PostFull>("BlogId", tracking);
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Query_with_conditional_param_full_props(bool tracking)
             => Query_with_conditional_param<PostFull>("Title", tracking);
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Projection_full_props(bool tracking)
             => Projection<PostFull>("Id", "Title", tracking);
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Update_full_props()
             => Update<BlogFull>("Posts");
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Simple_query_full_props_with_named_fields(bool tracking)
@@ -288,7 +288,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Include_collection_full_props_with_named_fields(bool tracking)
@@ -299,7 +299,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Include_reference_full_props_with_named_fields(bool tracking)
@@ -310,37 +310,37 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Load_collection_full_props_with_named_fields()
             => Load_collection<BlogFullExplicit>("Posts");
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Load_reference_full_props_with_named_fields()
             => Load_reference<PostFullExplicit>("Blog");
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Query_with_conditional_constant_full_props_with_named_fields(bool tracking)
             => Query_with_conditional_constant<PostFullExplicit>("BlogId", tracking);
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Query_with_conditional_param_full_props_with_named_fields(bool tracking)
             => Query_with_conditional_param<PostFullExplicit>("Title", tracking);
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Projection_full_props_with_named_fields(bool tracking)
             => Projection<PostFullExplicit>("Id", "Title", tracking);
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Update_full_props_with_named_fields()
             => Update<BlogFullExplicit>("Posts");
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Simple_query_read_only_props(bool tracking)
@@ -351,7 +351,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Include_collection_read_only_props(bool tracking)
@@ -362,7 +362,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Include_reference_read_only_props(bool tracking)
@@ -373,37 +373,37 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Load_collection_read_only_props()
             => Load_collection<BlogReadOnly>("Posts");
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Load_reference_read_only_props()
             => Load_reference<PostReadOnly>("Blog");
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Query_with_conditional_constant_read_only_props(bool tracking)
             => Query_with_conditional_constant<PostReadOnly>("BlogId", tracking);
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Query_with_conditional_param_read_only_props(bool tracking)
             => Query_with_conditional_param<PostReadOnly>("Title", tracking);
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Projection_read_only_props(bool tracking)
             => Projection<PostReadOnly>("Id", "Title", tracking);
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Update_read_only_props()
             => Update<BlogReadOnly>("Posts");
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Simple_query_read_only_props_with_named_fields(bool tracking)
@@ -414,7 +414,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Include_collection_read_only_props_with_named_fields(bool tracking)
@@ -425,7 +425,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Include_reference_read_only_props_with_named_fields(bool tracking)
@@ -436,19 +436,19 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Load_collection_read_only_props_with_named_fields()
         {
             Load_collection<BlogReadOnlyExplicit>("Posts");
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Load_reference_read_only_props_with_named_fields()
         {
             Load_reference<PostReadOnlyExplicit>("Blog");
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Query_with_conditional_constant_read_only_props_with_named_fields(bool tracking)
@@ -456,7 +456,7 @@ namespace Microsoft.EntityFrameworkCore
             Query_with_conditional_constant<PostReadOnlyExplicit>("BlogId", tracking);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Query_with_conditional_param_read_only_props_with_named_fields(bool tracking)
@@ -464,7 +464,7 @@ namespace Microsoft.EntityFrameworkCore
             Query_with_conditional_param<PostReadOnlyExplicit>("Title", tracking);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Projection_read_only_props_with_named_fields(bool tracking)
@@ -472,13 +472,13 @@ namespace Microsoft.EntityFrameworkCore
             Projection<PostReadOnlyExplicit>("Id", "Title", tracking);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Update_read_only_props_with_named_fields()
         {
             Update<BlogReadOnlyExplicit>("Posts");
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Simple_query_write_only_props(bool tracking)
@@ -489,7 +489,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Include_collection_write_only_props(bool tracking)
@@ -500,7 +500,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Include_reference_write_only_props(bool tracking)
@@ -511,37 +511,37 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Load_collection_write_only_props()
             => Load_collection<BlogWriteOnly>("Posts");
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Load_reference_write_only_props()
             => Load_reference<PostWriteOnly>("Blog");
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Query_with_conditional_constant_write_only_props(bool tracking)
             => Query_with_conditional_constant<PostWriteOnly>("BlogId", tracking);
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Query_with_conditional_param_write_only_props(bool tracking)
             => Query_with_conditional_param<PostWriteOnly>("Title", tracking);
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Projection_write_only_props(bool tracking)
             => Projection<PostWriteOnly>("Id", "Title", tracking);
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Update_write_only_props()
             => Update<BlogWriteOnly>("Posts");
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Simple_query_write_only_props_with_named_fields(bool tracking)
@@ -552,7 +552,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Include_collection_write_only_props_with_named_fields(bool tracking)
@@ -563,7 +563,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Include_reference_write_only_props_with_named_fields(bool tracking)
@@ -574,37 +574,37 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Load_collection_write_only_props_with_named_fields()
             => Load_collection<BlogWriteOnlyExplicit>("Posts");
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Load_reference_write_only_props_with_named_fields()
             => Load_reference<PostWriteOnlyExplicit>("Blog");
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Query_with_conditional_constant_write_only_props_with_named_fields(bool tracking)
             => Query_with_conditional_constant<PostWriteOnlyExplicit>("BlogId", tracking);
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Query_with_conditional_param_write_only_props_with_named_fields(bool tracking)
             => Query_with_conditional_param<PostWriteOnlyExplicit>("Title", tracking);
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Projection_write_only_props_with_named_fields(bool tracking)
             => Projection<PostWriteOnlyExplicit>("Id", "Title", tracking);
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Update_write_only_props_with_named_fields()
             => Update<BlogWriteOnlyExplicit>("Posts");
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Simple_query_fields_only(bool tracking)
@@ -615,7 +615,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Include_collection_fields_only(bool tracking)
@@ -626,7 +626,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Include_reference_fields_only(bool tracking)
@@ -637,37 +637,37 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Load_collection_fields_only()
             => Load_collection<BlogFields>("Posts");
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Load_reference_fields_only()
             => Load_reference<PostFields>("Blog");
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Query_with_conditional_constant_fields_only(bool tracking)
             => Query_with_conditional_constant<PostFields>("_blogId", tracking);
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Query_with_conditional_param_fields_only(bool tracking)
             => Query_with_conditional_param<PostFields>("_title", tracking);
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Projection_fields_only(bool tracking)
             => Projection<PostFields>("_id", "_title", tracking);
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Update_fields_only()
             => Update<BlogFields>("Posts");
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Simple_query_fields_only_for_navs_too(bool tracking)
@@ -678,7 +678,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Include_collection_fields_only_for_navs_too(bool tracking)
@@ -689,7 +689,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Include_reference_fields_only_only_for_navs_too(bool tracking)
@@ -700,33 +700,33 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Load_collection_fields_only_only_for_navs_too()
             => Load_collection<BlogNavFields>("_posts");
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Load_reference_fields_only_only_for_navs_too()
             => Load_reference<PostNavFields>("_blog");
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Query_with_conditional_constant_fields_only_only_for_navs_too(bool tracking)
             => Query_with_conditional_constant<PostNavFields>("_blogId", tracking);
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Query_with_conditional_param_fields_only_only_for_navs_too(bool tracking)
             => Query_with_conditional_param<PostNavFields>("_title", tracking);
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Projection_fields_only_only_for_navs_too(bool tracking)
             => Projection<PostNavFields>("_id", "_title", tracking);
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Update_fields_only_only_for_navs_too()
             => Update<BlogNavFields>("_posts");
 

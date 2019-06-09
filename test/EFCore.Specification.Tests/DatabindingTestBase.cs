@@ -64,7 +64,7 @@ namespace Microsoft.EntityFrameworkCore
                 });
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void DbSet_Local_contains_Unchanged_Modified_and_Added_entities_but_not_Deleted_entities(
@@ -87,7 +87,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Adding_entity_to_context_is_reflected_in_local_view(
@@ -115,7 +115,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Attaching_entity_to_context_is_reflected_in_local_view(
@@ -143,7 +143,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Entities_materialized_into_context_are_reflected_in_local_view(
@@ -164,7 +164,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Entities_detached_from_context_are_removed_from_local_view(
@@ -191,7 +191,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Entities_deleted_from_context_are_removed_from_local_view(
@@ -218,7 +218,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Entities_with_state_changed_to_deleted_are_removed_from_local_view(
@@ -245,7 +245,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Entities_with_state_changed_to_detached_are_removed_from_local_view(
@@ -272,7 +272,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Entities_with_state_changed_from_deleted_to_added_are_added_to_local_view(
@@ -299,7 +299,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Entities_with_state_changed_from_deleted_to_unchanged_are_added_to_local_view(
@@ -326,7 +326,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Entities_added_to_local_view_are_added_to_state_manager(
@@ -360,7 +360,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Entities_removed_from_the_local_view_are_marked_deleted_in_the_state_manager(
@@ -390,7 +390,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Adding_entity_to_local_view_that_is_already_in_the_state_manager_and_not_Deleted_is_noop()
         {
             using (var context = CreateF1Context())
@@ -411,7 +411,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Adding_entity_to_local_view_that_is_Deleted_in_the_state_manager_makes_entity_Added(
@@ -448,7 +448,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Adding_entity_to_state_manager_of_different_type_than_local_keyless_type_has_no_effect_on_local_view(
@@ -476,7 +476,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Adding_entity_to_state_manager_of_subtype_still_shows_up_in_local_view(
@@ -498,7 +498,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void DbSet_Local_is_cached_on_the_set()
         {
             using (var context = CreateF1Context())
@@ -509,7 +509,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void DbSet_Local_calls_DetectChanges()
         {
             using (var context = CreateF1Context())
@@ -535,7 +535,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Load_executes_query_on_DbQuery()
         {
             using (var context = CreateF1Context())
@@ -546,7 +546,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public void LocalView_is_initialized_with_entities_from_the_context(
@@ -585,7 +585,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void DbSet_Local_ToBindingList_contains_Unchanged_Modified_and_Added_entities_but_not_Deleted_entities()
         {
             using (var context = CreateF1Context())
@@ -601,7 +601,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Adding_entity_to_context_is_reflected_in_local_binding_list()
         {
             using (var context = CreateF1Context())
@@ -623,7 +623,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Entities_materialized_into_context_are_reflected_in_local_binding_list()
         {
             using (var context = CreateF1Context())
@@ -638,7 +638,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Entities_detached_from_context_are_removed_from_local_binding_list()
         {
             using (var context = CreateF1Context())
@@ -658,7 +658,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Entities_deleted_from_context_are_removed_from_local_binding_list()
         {
             using (var context = CreateF1Context())
@@ -678,7 +678,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Entities_added_to_local_binding_list_are_added_to_state_manager()
         {
             using (var context = CreateF1Context())
@@ -710,7 +710,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Entities_removed_from_the_local_binding_list_are_marked_deleted_in_the_state_manager()
         {
             using (var context = CreateF1Context())
@@ -737,7 +737,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Adding_entity_to_local_binding_list_that_is_Deleted_in_the_state_manager_makes_entity_Added()
         {
             using (var context = CreateF1Context())
@@ -771,7 +771,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Adding_entity_to_state_manager_of_different_type_than_local_keyless_type_has_no_effect_on_local_binding_list()
         {
             using (var context = CreateF1Context())
@@ -791,7 +791,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Adding_entity_to_state_manager_of_subtype_still_shows_up_in_local_binding_list()
         {
             using (var context = CreateF1Context())
@@ -806,7 +806,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Sets_of_subtypes_can_still_be_sorted()
         {
             using (var context = CreateF1Context())
@@ -840,7 +840,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Sets_containing_instances_of_subtypes_can_still_be_sorted()
         {
             using (var context = CreateF1Context())
@@ -873,7 +873,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void DbSet_Local_ToBindingList_is_cached_on_the_set()
         {
             using (var context = CreateF1Context())
@@ -884,7 +884,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Entity_added_to_context_is_added_to_navigation_property_binding_list()
         {
             using (var context = CreateF1Context())
@@ -904,7 +904,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Entity_added_to_navigation_property_binding_list_is_added_to_context_after_DetectChanges()
         {
             using (var context = CreateF1Context())
@@ -931,7 +931,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(CascadeTiming.Immediate)]
         [InlineData(CascadeTiming.OnSaveChanges)]
         [InlineData(CascadeTiming.Never)]

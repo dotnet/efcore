@@ -29,7 +29,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 {
     public class RelationshipDiscoveryConventionTest
     {
-        [Fact]
+        [ConditionalFact]
         public void Entity_type_is_not_discovered_if_ignored()
         {
             var entityBuilder = CreateInternalEntityBuilder<OneToManyDependent>();
@@ -43,7 +43,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             Assert.Equal(entityBuilder.Metadata.ClrType, entityBuilder.Metadata.Model.GetEntityTypes().Single().ClrType);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Entity_type_is_not_discovered_if_navigation_is_ignored()
         {
             var entityBuilder = CreateInternalEntityBuilder<OneToManyDependent>();
@@ -57,7 +57,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             Assert.Equal(entityBuilder.Metadata.ClrType, entityBuilder.Metadata.Model.GetEntityTypes().Single().ClrType);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void One_to_one_bidirectional_is_discovered()
         {
             var entityBuilder = CreateInternalEntityBuilder<OneToOnePrincipal>();
@@ -68,7 +68,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             Assert.Equal(2, entityBuilder.Metadata.Model.GetEntityTypes().Count());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void One_to_many_unidirectional_is_upgraded_to_one_to_one_bidirectional()
         {
             var principalEntityBuilder = CreateInternalEntityBuilder<OneToOnePrincipal>();
@@ -86,7 +86,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             Assert.Equal(2, principalEntityBuilder.Metadata.Model.GetEntityTypes().Count());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Two_one_to_many_unidirectional_are_upgraded_to_one_to_one_bidirectional()
         {
             var principalEntityBuilder = CreateInternalEntityBuilder<OneToOnePrincipal>();
@@ -108,7 +108,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             Assert.Equal(2, principalEntityBuilder.Metadata.Model.GetEntityTypes().Count());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void One_to_many_unidirectional_is_not_upgraded_to_one_to_one_bidirectional_if_higher_source()
         {
             var principalEntityBuilder = CreateInternalEntityBuilder<OneToOnePrincipal>();
@@ -125,7 +125,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             Assert.Equal(2, principalEntityBuilder.Metadata.Model.GetEntityTypes().Count());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void One_to_many_unidirectional_is_discovered()
         {
             var entityBuilder = CreateInternalEntityBuilder<OneToManyDependent>(OneToManyPrincipal.IgnoreNavigation);
@@ -136,7 +136,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             Assert.Equal(2, entityBuilder.Metadata.Model.GetEntityTypes().Count());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void One_to_many_unidirectional_is_upgraded_to_one_to_many_bidirectional()
         {
             var principalEntityBuilder = CreateInternalEntityBuilder<OneToManyPrincipal>();
@@ -153,7 +153,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             Assert.Equal(2, principalEntityBuilder.Metadata.Model.GetEntityTypes().Count());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void One_to_many_unidirectional_is_not_upgraded_to_one_to_many_bidirectional_if_higher_source()
         {
             var principalEntityBuilder = CreateInternalEntityBuilder<OneToManyPrincipal>();
@@ -170,7 +170,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             Assert.Equal(2, principalEntityBuilder.Metadata.Model.GetEntityTypes().Count());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void One_to_many_bidirectional_is_discovered()
         {
             var entityBuilder = CreateInternalEntityBuilder<OneToManyDependent>();
@@ -181,7 +181,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             Assert.Equal(2, entityBuilder.Metadata.Model.GetEntityTypes().Count());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Many_to_one_unidirectional_is_discovered()
         {
             var entityBuilder = CreateInternalEntityBuilder<OneToManyPrincipal>(OneToManyDependent.IgnoreNavigation);
@@ -192,7 +192,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             Assert.Equal(2, entityBuilder.Metadata.Model.GetEntityTypes().Count());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Many_to_one_unidirectional_is_upgraded_to_many_to_one_bidirectional()
         {
             var principalEntityBuilder = CreateInternalEntityBuilder<OneToManyPrincipal>();
@@ -209,7 +209,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             Assert.Equal(2, principalEntityBuilder.Metadata.Model.GetEntityTypes().Count());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Many_to_one_unidirectional_is_not_upgraded_to_many_to_one_bidirectional_if_higher_source()
         {
             var principalEntityBuilder = CreateInternalEntityBuilder<OneToManyPrincipal>();
@@ -226,7 +226,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             Assert.Equal(2, principalEntityBuilder.Metadata.Model.GetEntityTypes().Count());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Many_to_one_bidirectional_is_discovered()
         {
             var entityBuilder = CreateInternalEntityBuilder<OneToManyPrincipal>();
@@ -237,7 +237,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             Assert.Equal(2, entityBuilder.Metadata.Model.GetEntityTypes().Count());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Many_to_many_bidirectional_is_not_discovered()
         {
             var entityBuilder = CreateInternalEntityBuilder<ManyToManyFirst>();
@@ -250,7 +250,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             Assert.Equal(1, entityBuilder.Metadata.Model.GetEntityTypes().Count());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Ambiguous_navigations_are_not_discovered()
         {
             var entityBuilder = CreateInternalEntityBuilder<MultipleNavigationsFirst>(MultipleNavigationsSecond.IgnoreCollectionNavigation);
@@ -262,7 +262,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             Assert.Equal(2, entityBuilder.Metadata.Model.GetEntityTypes().Count());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Existing_relationship_is_removed_if_ambiguous()
         {
             var entityBuilderFirst =
@@ -281,7 +281,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             Assert.Equal(2, entityBuilderFirst.Metadata.Model.GetEntityTypes().Count());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Existing_relationship_removes_ambiguity_if_higher_source()
         {
             var entityBuilderFirst =
@@ -303,7 +303,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             Assert.Equal(2, entityBuilderFirst.Metadata.Model.GetEntityTypes().Count());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Navigations_are_not_discovered_if_ambiguous_inverse()
         {
             var entityBuilderFirst = CreateInternalEntityBuilder<MultipleNavigationsSecond>(
@@ -319,7 +319,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             Assert.Equal(2, entityBuilderFirst.Metadata.Model.GetEntityTypes().Count());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Existing_relationship_is_removed_if_ambiguous_inverse()
         {
             var entityBuilderFirst =
@@ -347,7 +347,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                     "{'MultipleNavigationsSecond', 'MultipleNavigationsSeconds'}"), logEntry.Message);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Existing_relationship_removes_ambiguity_in_inverse_if_higher_source()
         {
             var entityBuilderFirst =
@@ -369,7 +369,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             Assert.Equal(2, entityBuilderFirst.Metadata.Model.GetEntityTypes().Count());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Multiple_navigations_to_same_entity_type_are_discovered()
         {
             var entityBuilder = CreateInternalEntityBuilder<MultipleNavigationsFirst>(
@@ -404,7 +404,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             Assert.Empty(secondEntityType.GetNavigations());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Navigations_to_base_and_derived_are_discovered()
         {
             var entityBuilder = CreateInternalEntityBuilder<NavigationsToBaseAndDerived>(
@@ -428,7 +428,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             Assert.Equal(3, entityBuilder.Metadata.Model.GetEntityTypes().Count());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Navigations_to_base_and_derived_are_discovered_if_inverse_from_base()
         {
             var entityBuilder = CreateInternalEntityBuilder<NavigationsToBaseAndDerived>(
@@ -451,7 +451,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             Assert.Equal(3, entityBuilder.Metadata.Model.GetEntityTypes().Count());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Navigations_to_derived_and_base_are_discovered_if_inverse_from_base()
         {
             var entityBuilder = CreateInternalEntityBuilder<NavigationsToBaseAndDerived>(
@@ -474,7 +474,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             Assert.Equal(3, entityBuilder.Metadata.Model.GetEntityTypes().Count());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Navigations_to_base_and_derived_are_discovered_if_inverse_from_derived()
         {
             var entityBuilder = CreateInternalEntityBuilder<NavigationsToBaseAndDerived>(
@@ -497,7 +497,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             Assert.Equal(3, entityBuilder.Metadata.Model.GetEntityTypes().Count());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Navigation_pairs_to_base_and_derived_are_discovered()
         {
             var entityBuilder = CreateInternalEntityBuilder<NavigationsToBaseAndDerived>();
@@ -520,7 +520,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             Assert.Equal(4, entityBuilder.Metadata.Model.GetEntityTypes().Count());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Navigation_to_base_is_discovered()
         {
             var entityBuilder = CreateInternalEntityBuilder<NavigationsToBaseAndDerived>(
@@ -538,7 +538,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             Assert.Equal(2, entityBuilder.Metadata.Model.GetEntityTypes().Count());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Existing_navigation_to_derived_is_promoted()
         {
             var entityBuilder = CreateInternalEntityBuilder<NavigationsToBaseAndDerived>(
@@ -562,7 +562,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             Assert.Equal(3, entityBuilder.Metadata.Model.GetEntityTypes().Count());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Existing_navigation_from_derived_is_promoted()
         {
             var entityBuilder = CreateInternalEntityBuilder<NavigationsToBaseAndDerived>(
@@ -586,7 +586,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             Assert.Equal(3, entityBuilder.Metadata.Model.GetEntityTypes().Count());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Navigation_from_derived_is_not_discovered_if_ambiguous()
         {
             var entityBuilder = CreateInternalEntityBuilder<NavigationsToBaseAndDerived>(
@@ -606,7 +606,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             Assert.Equal(3, entityBuilder.Metadata.Model.GetEntityTypes().Count());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Existing_relationship_to_base_removes_ambiguity()
         {
             var entityBuilder = CreateInternalEntityBuilder<NavigationsToBaseAndDerived>(
@@ -629,7 +629,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             Assert.Equal(3, entityBuilder.Metadata.Model.GetEntityTypes().Count());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Navigation_to_derived_is_not_discovered_if_inverse_ambiguous()
         {
             var entityBuilder = CreateInternalEntityBuilder<NavigationsToBaseAndDerived>(
@@ -649,7 +649,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             Assert.Equal(3, entityBuilder.Metadata.Model.GetEntityTypes().Count());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Existing_relationship_to_base_removes_ambiguity_in_derived_inverse()
         {
             var entityBuilder = CreateInternalEntityBuilder<NavigationsToBaseAndDerived>(
@@ -672,7 +672,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             Assert.Equal(3, entityBuilder.Metadata.Model.GetEntityTypes().Count());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Navigation_to_derived_is_discovered()
         {
             var entityBuilder = CreateInternalEntityBuilder<NavigationsToBaseAndDerived>(
@@ -693,7 +693,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             Assert.Equal(3, entityBuilder.Metadata.Model.GetEntityTypes().Count());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Navigation_to_derived_is_discovered_if_inverse_inherited()
         {
             var entityBuilder = CreateInternalEntityBuilder<NavigationsToBaseAndDerived>(
@@ -714,7 +714,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             Assert.Equal(3, entityBuilder.Metadata.Model.GetEntityTypes().Count());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Navigation_to_base_is_not_discovered_if_base_ignored()
         {
             var entityBuilder = CreateInternalEntityBuilder<NavigationsToBaseAndDerived>(
@@ -732,7 +732,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             Assert.Equal(2, entityBuilder.Metadata.Model.GetEntityTypes().Count());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Navigation_to_derived_is_discovered_if_base_ignored()
         {
             var entityBuilder = CreateInternalEntityBuilder<NavigationsToBaseAndDerived>(
@@ -750,7 +750,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             Assert.Equal(2, entityBuilder.Metadata.Model.GetEntityTypes().Count());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Does_not_throw_on_shadow_entity_types()
         {
             var entityBuilder = new InternalModelBuilder(new Model())
@@ -759,7 +759,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             Assert.Same(entityBuilder, RunConvention(entityBuilder));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Bidirectional_ambiguous_cardinality_is_discovered()
         {
             var entityBuilder = CreateInternalEntityBuilder<AmbiguousCardinalityOne>();
@@ -776,7 +776,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             Assert.True(fk.IsUnique);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Unidirectional_ambiguous_cardinality_is_discovered()
         {
             var entityBuilder = CreateInternalEntityBuilder<AmbiguousCardinalityOne>(
@@ -794,7 +794,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             Assert.False(fk.IsUnique);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void One_to_one_bidirectional_self_ref_is_discovered()
         {
             var entityBuilder = CreateInternalEntityBuilder<SelfRef>(SelfRef.IgnoreNavigation3, SelfRef.IgnoreNavigation4);
@@ -804,7 +804,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             VerifySelfRef(entityBuilder.Metadata.FindNavigation(nameof(SelfRef.SelfRef1)), nameof(SelfRef.SelfRef2), unique: true);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void One_to_many_unidirectional_self_ref_is_discovered()
         {
             var entityBuilder = CreateInternalEntityBuilder<SelfRef>(
@@ -815,7 +815,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             VerifySelfRef(entityBuilder.Metadata.FindNavigation(nameof(SelfRef.SelfRef1)), expectedInverseName: null, unique: false);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void One_to_many_unidirectional_self_ref_is_upgraded_to_one_to_one_bidirectional()
         {
             var entityBuilder = CreateInternalEntityBuilder<SelfRef>(SelfRef.IgnoreNavigation3, SelfRef.IgnoreNavigation4);
@@ -827,7 +827,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             VerifySelfRef(entityBuilder.Metadata.FindNavigation(nameof(SelfRef.SelfRef1)), nameof(SelfRef.SelfRef2), unique: true);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void One_to_many_unidirectional_self_ref_is_not_upgraded_to_one_to_one_bidirectional_if_higher_source()
         {
             var entityBuilder = CreateInternalEntityBuilder<SelfRef>(SelfRef.IgnoreNavigation3, SelfRef.IgnoreNavigation4);
@@ -845,7 +845,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 singleRelationship: false);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Ambiguous_self_ref_is_not_discovered()
         {
             var entityBuilder = CreateInternalEntityBuilder<SelfRef>(SelfRef.IgnoreNavigation4);
@@ -857,7 +857,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             Assert.Empty(entityBuilder.Metadata.GetProperties());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Existing_unidirectional_self_ref_is_removed_if_ambiguous()
         {
             var entityBuilder = CreateInternalEntityBuilder<SelfRef>(SelfRef.IgnoreNavigation4);
@@ -871,7 +871,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             Assert.Empty(entityBuilder.Metadata.GetProperties());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Existing_unidirectional_self_ref_removes_ambiguity_if_higher_source()
         {
             var entityBuilder = CreateInternalEntityBuilder<SelfRef>(SelfRef.IgnoreNavigation4);
@@ -888,7 +888,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 unique: false, singleRelationship: false);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Existing_bidirectional_self_ref_is_removed_if_ambiguous()
         {
             var entityBuilder = CreateInternalEntityBuilder<SelfRef>();
@@ -909,7 +909,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                     nameof(SelfRef), nameof(SelfRef), "{'SelfRef1'}", "{'SelfRef2', 'SelfRef3', 'SelfRef4'}"), logEntry.Message);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Existing_bidirectional_self_ref_removes_ambiguity_if_higher_source()
         {
             var entityBuilder = CreateInternalEntityBuilder<SelfRef>();
@@ -927,7 +927,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 unique: false, singleRelationship: false);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Navigation_to_abstract_is_discovered()
         {
             var entityBuilder = CreateInternalEntityBuilder<AbstractClass>();
@@ -946,7 +946,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             Assert.Equal(1, entityType.GetNavigations().Count());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Collection_navigation_without_setter_is_discovered()
         {
             var entityBuilder = CreateInternalEntityBuilder<ReadOnlyCollectionNavigationEntity>();
@@ -960,7 +960,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             Assert.Equal(ReadOnlyCollectionNavigationEntity.NavigationProperty.Name, entityType.GetNavigations().First().Name);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Does_not_discover_nonNavigation_properties()
         {
             var entityBuilder = CreateInternalEntityBuilder<EntityWithNoValidNavigations>();

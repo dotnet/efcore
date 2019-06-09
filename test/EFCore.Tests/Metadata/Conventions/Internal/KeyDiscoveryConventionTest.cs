@@ -23,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 {
     public class KeyDiscoveryConventionTest
     {
-        [Fact]
+        [ConditionalFact]
         public void Primary_key_is_not_set_when_zero_key_properties()
         {
             var entityBuilder = CreateInternalEntityBuilder<EntityWithNoId>();
@@ -34,7 +34,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             Assert.Null(key);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Primary_key_is_set_when_shadow_property_not_defined_by_convention_matches()
         {
             var entityBuilder = CreateInternalEntityBuilder<EntityWithNoId>();
@@ -47,7 +47,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             Assert.Equal(new[] { "Id" }, key.Properties.Select(p => p.Name));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Primary_key_is_not_set_when_shadow_property_defined_by_convention_matches()
         {
             var entityBuilder = CreateInternalEntityBuilder<EntityWithNoId>();
@@ -64,11 +64,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             public int Id { get; set; }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void DiscoverKeyProperties_discovers_id()
         {
             var entityBuilder = CreateInternalEntityBuilder<EntityWithId>();
-            
+
             RunConvention(entityBuilder);
 
             var key = entityBuilder.Metadata.FindPrimaryKey();
@@ -81,7 +81,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             public int EntityWithTypeIdId { get; set; }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void DiscoverKeyProperties_discovers_type_id()
         {
             var entityBuilder = CreateInternalEntityBuilder<EntityWithTypeId>();
@@ -99,7 +99,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             public int EntityWithIdAndTypeIdId { get; set; }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void DiscoverKeyProperties_prefers_id_over_type_id()
         {
             var entityBuilder = CreateInternalEntityBuilder<EntityWithIdAndTypeId>();
@@ -117,7 +117,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             public int Id { get; set; }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void DiscoverKeyProperties_does_not_discover_key_when_multiple_ids()
         {
             var entityBuilder = CreateInternalEntityBuilder<EntityWithMultipleIds>();

@@ -15,7 +15,7 @@ namespace Microsoft.EntityFrameworkCore.Update
 {
     public class ModificationCommandComparerTest
     {
-        [Fact]
+        [ConditionalFact]
         public void Compare_returns_0_only_for_commands_that_are_equal()
         {
             IMutableModel model = new Model();
@@ -97,7 +97,7 @@ namespace Microsoft.EntityFrameworkCore.Update
             Assert.True(0 < mCC.Compare(modificationCommandModified, modificationCommandDeleted));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Compare_returns_0_only_for_entries_that_have_same_key_values()
         {
             Compare_returns_0_only_for_entries_that_have_same_key_values_generic<short>(-1, 1);

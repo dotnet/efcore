@@ -9,7 +9,7 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
 {
     public class SequentialGuidValueGeneratorTest
     {
-        [Fact]
+        [ConditionalFact]
         public void Can_get_next_values()
         {
             var sequentialGuidIdentityGenerator = new SequentialGuidValueGenerator();
@@ -26,7 +26,7 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
             Assert.Equal(100, values.Count);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Does_not_generate_temp_values()
         {
             Assert.False(new SequentialGuidValueGenerator().GeneratesTemporaryValues);

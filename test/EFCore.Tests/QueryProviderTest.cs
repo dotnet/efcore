@@ -11,7 +11,7 @@ namespace Microsoft.EntityFrameworkCore
 {
     public class QueryProviderTest
     {
-        [Fact]
+        [ConditionalFact]
         public void Non_generic_ExecuteQuery_does_not_throw()
         {
             var context = new TestContext();
@@ -22,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Equal(0, (int)q.Provider.Execute(expr));
         }
 
-        [Fact(Skip = "issue #15835")]
+        [ConditionalFact(Skip = "issue #15835")]
         public void Non_generic_ExecuteQuery_does_not_throw_incorrect_pattern()
         {
             var context = new TestContext();

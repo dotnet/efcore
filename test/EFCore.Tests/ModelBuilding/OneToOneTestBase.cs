@@ -15,7 +15,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
     {
         public abstract class OneToOneTestBase : ModelBuilderTestBase
         {
-            [Fact]
+            [ConditionalFact]
             public virtual void Finds_existing_navigations_and_uses_associated_FK()
             {
                 var modelBuilder = CreateModelBuilder();
@@ -56,7 +56,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Empty(principalType.GetIndexes());
             }
 
-            [Fact]
+            [ConditionalFact]
             public virtual void Can_create_two_FKs_using_the_same_property()
             {
                 var modelBuilder = CreateModelBuilder();
@@ -83,7 +83,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Empty(principalType.GetIndexes());
             }
 
-            [Fact]
+            [ConditionalFact]
             public virtual void Replaces_existing_navigation_to_principal()
             {
                 var modelBuilder = CreateModelBuilder();
@@ -110,7 +110,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Empty(principalType.GetIndexes());
             }
 
-            [Fact]
+            [ConditionalFact]
             public virtual void Finds_existing_navigation_to_dependent_and_uses_associated_FK()
             {
                 var modelBuilder = CreateModelBuilder();
@@ -138,7 +138,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Empty(principalType.GetIndexes());
             }
 
-            [Fact]
+            [ConditionalFact]
             public virtual void Creates_both_navigations_and_shadow_FK_if_existing_FK()
             {
                 var modelBuilder = CreateModelBuilder();
@@ -178,7 +178,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Empty(principalType.GetIndexes());
             }
 
-            [Fact]
+            [ConditionalFact]
             public virtual void Creates_both_navigations_and_new_FK()
             {
                 var modelBuilder = CreateModelBuilder();
@@ -208,7 +208,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Empty(principalType.GetIndexes());
             }
 
-            [Fact]
+            [ConditionalFact]
             public virtual void Creates_both_navigations_and_removes_existing_FK_when_not_specified()
             {
                 var modelBuilder = CreateModelBuilder();
@@ -234,7 +234,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Empty(principalType.GetIndexes());
             }
 
-            [Fact]
+            [ConditionalFact]
             public virtual void Creates_both_navigations_and_creates_new_FK_when_not_specified()
             {
                 var modelBuilder = CreateModelBuilder();
@@ -276,7 +276,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Empty(principalType.GetIndexes());
             }
 
-            [Fact]
+            [ConditionalFact]
             public virtual void Creates_both_navigations_and_new_FK_over_PK_by_convention()
             {
                 var modelBuilder = CreateModelBuilder();
@@ -318,7 +318,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.True(fk.IsRequired);
             }
 
-            [Fact]
+            [ConditionalFact]
             public virtual void Creates_relationship_with_navigation_to_dependent_and_new_FK_from_principal()
             {
                 var modelBuilder = CreateModelBuilder();
@@ -342,7 +342,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                         .All(foreignKey => principalType.FindIndex(foreignKey.Properties).IsUnique == foreignKey.IsUnique));
             }
 
-            [Fact]
+            [ConditionalFact]
             public virtual void Creates_relationship_with_navigation_to_dependent_and_new_FK_from_dependent()
             {
                 var modelBuilder = CreateModelBuilder();
@@ -370,7 +370,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Empty(principalType.GetIndexes());
             }
 
-            [Fact]
+            [ConditionalFact]
             public virtual void Creates_relationship_with_no_navigations()
             {
                 var modelBuilder = CreateModelBuilder();
@@ -404,7 +404,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Equal(principalType.GetForeignKeys().Count(), principalType.GetIndexes().Count());
             }
 
-            [Fact]
+            [ConditionalFact]
             public virtual void Creates_both_navigations_and_uses_specified_FK_even_if_found_by_convention()
             {
                 var modelBuilder = CreateModelBuilder();
@@ -448,7 +448,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Empty(principalType.GetIndexes());
             }
 
-            [Fact]
+            [ConditionalFact]
             public virtual void Creates_both_navigations_and_uses_specified_FK_even_if_PK()
             {
                 var modelBuilder = CreateModelBuilder();
@@ -490,7 +490,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Empty(principalType.GetIndexes());
             }
 
-            [Fact]
+            [ConditionalFact]
             public virtual void Creates_both_navigations_and_uses_existing_FK_not_found_by_convention()
             {
                 var modelBuilder = CreateModelBuilder();
@@ -532,7 +532,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Empty(principalType.GetIndexes());
             }
 
-            [Fact]
+            [ConditionalFact]
             public virtual void Creates_both_navigations_and_specified_FK()
             {
                 var modelBuilder = CreateModelBuilder();
@@ -575,7 +575,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Empty(principalType.GetIndexes());
             }
 
-            [Fact]
+            [ConditionalFact]
             public virtual void Creates_relationship_with_specified_FK_with_navigation_to_dependent()
             {
                 var modelBuilder = CreateModelBuilder();
@@ -610,7 +610,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Empty(principalType.GetIndexes());
             }
 
-            [Fact]
+            [ConditionalFact]
             public virtual void Creates_relationship_with_specified_FK_with_navigation_to_principal()
             {
                 var modelBuilder = CreateModelBuilder();
@@ -648,7 +648,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                         .All(foreignKey => principalType.FindIndex(foreignKey.Properties).IsUnique == foreignKey.IsUnique));
             }
 
-            [Fact]
+            [ConditionalFact]
             public virtual void Creates_relationship_with_specified_FK_with_no_navigations()
             {
                 var modelBuilder = CreateModelBuilder();
@@ -686,7 +686,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Empty(principalType.GetIndexes());
             }
 
-            [Fact]
+            [ConditionalFact]
             public virtual void Creates_both_navigations_and_overrides_existing_FK_when_uniqueness_does_not_match()
             {
                 var modelBuilder = CreateModelBuilder();
@@ -730,7 +730,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Empty(principalType.GetIndexes());
             }
 
-            [Fact]
+            [ConditionalFact]
             public virtual void Removes_existing_FK_when_specified()
             {
                 var modelBuilder = CreateModelBuilder();
@@ -774,7 +774,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Empty(principalType.GetIndexes());
             }
 
-            [Fact]
+            [ConditionalFact]
             public virtual void Creates_FK_when_specified_on_dependent()
             {
                 var modelBuilder = CreateModelBuilder();
@@ -816,7 +816,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Empty(principalType.GetIndexes());
             }
 
-            [Fact]
+            [ConditionalFact]
             public virtual void Creates_FK_when_specified_on_principal()
             {
                 var modelBuilder = CreateModelBuilder();
@@ -857,7 +857,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Empty(principalType.GetIndexes());
             }
 
-            [Fact]
+            [ConditionalFact]
             public virtual void Creates_FK_when_specified_on_principal_with_navigation_to_dependent()
             {
                 var modelBuilder = CreateModelBuilder();
@@ -891,7 +891,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Null(dependentType.FindIndex(fk.Properties));
             }
 
-            [Fact]
+            [ConditionalFact]
             public virtual void Creates_FK_when_specified_on_dependent_with_navigation_to_principal()
             {
                 var modelBuilder = CreateModelBuilder();
@@ -925,7 +925,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                         .All(foreignKey => principalType.FindIndex(foreignKey.Properties).IsUnique == foreignKey.IsUnique));
             }
 
-            [Fact]
+            [ConditionalFact]
             public virtual void Creates_FK_when_specified_on_principal_with_navigation_to_principal()
             {
                 var modelBuilder = CreateModelBuilder();
@@ -962,7 +962,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                         .All(foreignKey => principalType.FindIndex(foreignKey.Properties).IsUnique == foreignKey.IsUnique));
             }
 
-            [Fact]
+            [ConditionalFact]
             public virtual void Creates_FK_when_specified_on_dependent_with_navigation_to_dependent()
             {
                 var modelBuilder = CreateModelBuilder();
@@ -996,7 +996,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Empty(principalType.GetIndexes());
             }
 
-            [Fact]
+            [ConditionalFact]
             public virtual void Creates_FK_when_specified_on_dependent_with_no_navigations()
             {
                 var modelBuilder = CreateModelBuilder();
@@ -1032,7 +1032,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                         .All(foreignKey => principalType.FindIndex(foreignKey.Properties).IsUnique == foreignKey.IsUnique));
             }
 
-            [Fact]
+            [ConditionalFact]
             public virtual void Creates_FK_when_specified_on_principal_with_no_navigations()
             {
                 var modelBuilder = CreateModelBuilder();
@@ -1075,7 +1075,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                         .All(foreignKey => principalType.FindIndex(foreignKey.Properties).IsUnique == foreignKey.IsUnique));
             }
 
-            [Fact]
+            [ConditionalFact]
             public virtual void Can_use_PK_FK()
             {
                 var modelBuilder = CreateModelBuilder();
@@ -1116,7 +1116,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Empty(principalType.GetIndexes());
             }
 
-            [Fact]
+            [ConditionalFact]
             public virtual void OneToOne_can_have_PK_explicitly_specified()
             {
                 var modelBuilder = CreateModelBuilder();
@@ -1157,7 +1157,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Empty(principalType.GetIndexes());
             }
 
-            [Fact]
+            [ConditionalFact]
             public virtual void Can_use_alternate_principal_key()
             {
                 var modelBuilder = CreateModelBuilder();
@@ -1206,7 +1206,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Empty(principalType.GetIndexes());
             }
 
-            [Fact]
+            [ConditionalFact]
             public virtual void Can_have_both_keys_specified_explicitly()
             {
                 var modelBuilder = CreateModelBuilder();
@@ -1253,7 +1253,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Empty(principalType.GetIndexes());
             }
 
-            [Fact]
+            [ConditionalFact]
             public virtual void Can_have_both_keys_specified_explicitly_in_any_order()
             {
                 var modelBuilder = CreateModelBuilder();
@@ -1300,7 +1300,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Empty(principalType.GetIndexes());
             }
 
-            [Fact]
+            [ConditionalFact]
             public virtual void Can_have_both_alternate_keys_specified_explicitly()
             {
                 var modelBuilder = CreateModelBuilder();
@@ -1352,7 +1352,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Empty(principalType.GetIndexes());
             }
 
-            [Fact]
+            [ConditionalFact]
             public virtual void Can_have_both_alternate_keys_specified_explicitly_in_any_order()
             {
                 var modelBuilder = CreateModelBuilder();
@@ -1403,7 +1403,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Empty(principalType.GetIndexes());
             }
 
-            [Fact]
+            [ConditionalFact]
             public virtual void Can_have_dependent_side_specified_explicitly_on_optional()
             {
                 var modelBuilder = CreateModelBuilder();
@@ -1442,7 +1442,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Same(dependentKey, dependentType.FindPrimaryKey());
             }
 
-            [Fact]
+            [ConditionalFact]
             public virtual void Does_not_use_existing_FK_when_principal_key_specified()
             {
                 var modelBuilder = CreateModelBuilder();
@@ -1485,7 +1485,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Empty(principalType.GetIndexes());
             }
 
-            [Fact]
+            [ConditionalFact]
             public virtual void Creates_principal_key_when_specified_on_dependent()
             {
                 var modelBuilder = CreateModelBuilder();
@@ -1528,7 +1528,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Empty(principalType.GetIndexes());
             }
 
-            [Fact]
+            [ConditionalFact]
             public virtual void Creates_principal_key_when_specified_on_principal()
             {
                 var modelBuilder = CreateModelBuilder();
@@ -1571,7 +1571,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Empty(principalType.GetIndexes());
             }
 
-            [Fact]
+            [ConditionalFact]
             public virtual void Creates_FK_when_principal_and_foreign_key_specified_on_dependent()
             {
                 var modelBuilder = CreateModelBuilder();
@@ -1614,7 +1614,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Empty(principalType.GetIndexes());
             }
 
-            [Fact]
+            [ConditionalFact]
             public virtual void Creates_FK_when_principal_and_foreign_key_specified_on_dependent_in_reverse_order()
             {
                 var modelBuilder = CreateModelBuilder();
@@ -1657,7 +1657,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Empty(principalType.GetIndexes());
             }
 
-            [Fact]
+            [ConditionalFact]
             public virtual void Creates_FK_when_principal_and_foreign_key_specified_on_principal()
             {
                 var modelBuilder = CreateModelBuilder();
@@ -1699,7 +1699,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Empty(principalType.GetIndexes());
             }
 
-            [Fact]
+            [ConditionalFact]
             public virtual void Principal_and_dependent_cannot_be_flipped_twice()
             {
                 var modelBuilder = CreateModelBuilder();
@@ -1719,7 +1719,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                             .HasPrincipalKey<OrderDetails>(e => e.OrderId)).Message);
             }
 
-            [Fact]
+            [ConditionalFact]
             public virtual void Principal_and_dependent_can_be_flipped_twice_separetely()
             {
                 var modelBuilder = CreateModelBuilder();
@@ -1754,7 +1754,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Empty(principalType.GetIndexes());
             }
 
-            [Fact]
+            [ConditionalFact]
             public virtual void Principal_and_dependent_cannot_be_flipped_twice_in_reverse_order()
             {
                 var modelBuilder = CreateModelBuilder();
@@ -1774,7 +1774,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                             .HasForeignKey<OrderDetails>(e => e.OrderId)).Message);
             }
 
-            [Fact]
+            [ConditionalFact]
             public virtual void Principal_and_dependent_can_be_flipped_twice_in_reverse_order_separetely()
             {
                 var modelBuilder = CreateModelBuilder();
@@ -1810,7 +1810,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Empty(principalType.GetIndexes());
             }
 
-            [Fact]
+            [ConditionalFact]
             public virtual void Throws_if_not_principal_or_dependent_specified()
             {
                 var modelBuilder = CreateModelBuilder();
@@ -1839,7 +1839,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                     Assert.Throws<InvalidOperationException>(() => relationship.HasPrincipalKey<OrderCombination>(e => e.OrderId)).Message);
             }
 
-            [Fact]
+            [ConditionalFact]
             public virtual void Creates_principal_key_when_specified_on_principal_with_navigation_to_dependent()
             {
                 var modelBuilder = CreateModelBuilder();
@@ -1871,7 +1871,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Empty(principalType.GetIndexes());
             }
 
-            [Fact]
+            [ConditionalFact]
             public virtual void Creates_principal_key_when_specified_on_dependent_with_navigation_to_principal()
             {
                 var modelBuilder = CreateModelBuilder();
@@ -1902,7 +1902,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.True(fk.DeclaringEntityType.FindIndex(fk.Properties).IsUnique);
             }
 
-            [Fact]
+            [ConditionalFact]
             public virtual void Creates_principal_key_when_specified_on_principal_with_navigation_to_principal()
             {
                 var modelBuilder = CreateModelBuilder();
@@ -1934,7 +1934,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Equal(principalType.GetForeignKeys().Count(), principalType.GetIndexes().Count());
             }
 
-            [Fact]
+            [ConditionalFact]
             public virtual void Creates_principal_key_when_specified_on_dependent_with_navigation_to_dependent()
             {
                 var modelBuilder = CreateModelBuilder();
@@ -1967,7 +1967,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Empty(principalType.GetIndexes());
             }
 
-            [Fact]
+            [ConditionalFact]
             public virtual void Creates_principal_key_when_specified_on_principal_with_no_navigations()
             {
                 var modelBuilder = CreateModelBuilder();
@@ -2011,7 +2011,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Empty(principalType.GetIndexes());
             }
 
-            [Fact]
+            [ConditionalFact]
             public virtual void Creates_principal_key_when_specified_on_dependent_with_no_navigations()
             {
                 var modelBuilder = CreateModelBuilder();
@@ -2050,7 +2050,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Empty(principalType.GetIndexes());
             }
 
-            [Fact]
+            [ConditionalFact]
             public virtual void Creates_both_navigations_and_uses_existing_composite_FK()
             {
                 var modelBuilder = CreateModelBuilder();
@@ -2109,7 +2109,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Empty(principalType.GetIndexes());
             }
 
-            [Fact]
+            [ConditionalFact]
             public virtual void Creates_both_navigations_and_creates_composite_FK_specified()
             {
                 var modelBuilder = CreateModelBuilder();
@@ -2165,7 +2165,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Empty(principalType.GetIndexes());
             }
 
-            [Fact]
+            [ConditionalFact]
             public virtual void Can_use_alternate_composite_key()
             {
                 var modelBuilder = CreateModelBuilder();
@@ -2239,7 +2239,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Empty(principalType.GetIndexes());
             }
 
-            [Fact]
+            [ConditionalFact]
             public virtual void Can_use_alternate_composite_key_in_any_order()
             {
                 var modelBuilder = CreateModelBuilder();
@@ -2313,7 +2313,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Empty(principalType.GetIndexes());
             }
 
-            [Fact]
+            [ConditionalFact]
             public virtual void Uses_composite_PK_for_FK_by_convention()
             {
                 var modelBuilder = CreateModelBuilder();
@@ -2372,7 +2372,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Empty(principalType.GetIndexes());
             }
 
-            [Fact]
+            [ConditionalFact]
             public virtual void Principal_and_dependent_can_be_flipped_and_composite_PK_is_still_used_by_convention()
             {
                 var modelBuilder = CreateModelBuilder();
@@ -2430,7 +2430,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Empty(principalType.GetIndexes());
             }
 
-            [Fact]
+            [ConditionalFact]
             public virtual void Principal_and_dependent_can_be_flipped_using_principal_and_composite_PK_is_still_used_by_convention()
             {
                 var modelBuilder = CreateModelBuilder();
@@ -2492,7 +2492,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Empty(principalType.GetIndexes());
             }
 
-            [Fact]
+            [ConditionalFact]
             public virtual void Creates_composite_FK_when_specified_on_principal_with_navigation_to_dependent()
             {
                 var modelBuilder = CreateModelBuilder();
@@ -2541,7 +2541,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Empty(principalType.GetIndexes());
             }
 
-            [Fact]
+            [ConditionalFact]
             public virtual void Creates_composite_FK_when_specified_on_principal_with_navigation_to_principal()
             {
                 var modelBuilder = CreateModelBuilder();
@@ -2592,7 +2592,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                         .All(foreignKey => principalType.FindIndex(foreignKey.Properties).IsUnique == foreignKey.IsUnique));
             }
 
-            [Fact]
+            [ConditionalFact]
             public virtual void Creates_composite_FK_when_specified_on_principal_with_no_navigations()
             {
                 var modelBuilder = CreateModelBuilder();
@@ -2653,7 +2653,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                         .All(foreignKey => principalType.FindIndex(foreignKey.Properties).IsUnique == foreignKey.IsUnique));
             }
 
-            [Fact]
+            [ConditionalFact]
             public virtual void Principal_and_dependent_can_be_flipped_when_self_referencing()
             {
                 var modelBuilder = CreateModelBuilder();
@@ -2685,7 +2685,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 modelBuilder.FinalizeModel();
             }
 
-            [Fact]
+            [ConditionalFact]
             public virtual void Creates_self_referencing_FK_with_navigation_to_principal()
             {
                 var modelBuilder = CreateModelBuilder();
@@ -2713,7 +2713,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.True(fk.DeclaringEntityType.FindIndex(fk.Properties).IsUnique);
             }
 
-            [Fact]
+            [ConditionalFact]
             public virtual void Creates_self_referencing_FK_with_navigation_to_dependent()
             {
                 var modelBuilder = CreateModelBuilder();
@@ -2741,7 +2741,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.True(fk.DeclaringEntityType.FindIndex(fk.Properties).IsUnique);
             }
 
-            [Fact]
+            [ConditionalFact]
             public virtual void Creates_self_referencing_FK_on_PK()
             {
                 var modelBuilder = CreateModelBuilder();
@@ -2765,7 +2765,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Equal(1, fk.DeclaringEntityType.GetForeignKeys().Count());
             }
 
-            [Fact]
+            [ConditionalFact]
             public virtual void Principal_and_dependent_can_be_flipped_when_self_referencing_with_navigation_to_principal()
             {
                 var modelBuilder = CreateModelBuilder();
@@ -2800,7 +2800,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.True(fk.DeclaringEntityType.FindIndex(fk.Properties).IsUnique);
             }
 
-            [Fact]
+            [ConditionalFact]
             public virtual void Principal_and_dependent_can_be_flipped_when_self_referencing_with_navigation_to_dependent()
             {
                 var modelBuilder = CreateModelBuilder();
@@ -2833,7 +2833,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.True(fk.DeclaringEntityType.FindIndex(fk.Properties).IsUnique);
             }
 
-            [Fact]
+            [ConditionalFact]
             public virtual void Throws_on_duplicate_navigation_when_self_referencing()
             {
                 var modelBuilder = CreateModelBuilder();
@@ -2844,7 +2844,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                         () => modelBuilder.Entity<SelfRef>().HasOne(e => e.SelfRef1).WithOne(e => e.SelfRef1)).Message);
             }
 
-            [Fact]
+            [ConditionalFact]
             public virtual void Creates_self_referencing_FK_by_convention()
             {
                 var modelBuilder = CreateModelBuilder();
@@ -2865,7 +2865,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.True(fk.DeclaringEntityType.FindIndex(fk.Properties).IsUnique);
             }
 
-            [Fact]
+            [ConditionalFact]
             public virtual void Creates_self_referencing_FK_by_convention_inverted()
             {
                 var modelBuilder = CreateModelBuilder();
@@ -2886,7 +2886,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.True(fk.DeclaringEntityType.FindIndex(fk.Properties).IsUnique);
             }
 
-            [Fact]
+            [ConditionalFact]
             public virtual void Throws_on_ambiguous_FK_when_self_referencing()
             {
                 var modelBuilder = CreateModelBuilder();
@@ -2898,7 +2898,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                     Assert.Throws<InvalidOperationException>(() => modelBuilder.FinalizeModel()).Message);
             }
 
-            [Fact]
+            [ConditionalFact]
             public virtual void Throws_on_two_ambiguous_FK_when_self_referencing()
             {
                 var modelBuilder = CreateModelBuilder();
@@ -2912,7 +2912,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                     Assert.Throws<InvalidOperationException>(() => modelBuilder.FinalizeModel()).Message);
             }
 
-            [Fact]
+            [ConditionalFact]
             public virtual void Can_specify_shadow_fk_before_configuring_principal_PK()
             {
                 var modelBuilder = CreateModelBuilder();
@@ -2943,7 +2943,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                     typeof(string), modelBuilder.Model.FindEntityType(typeof(Hob)).GetForeignKeys().Single().Properties.Single().ClrType);
             }
 
-            [Fact]
+            [ConditionalFact]
             public virtual void Can_specify_shadow_fk_before_reconfiguring_principal_PK()
             {
                 var modelBuilder = CreateModelBuilder();
@@ -2986,7 +2986,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                     typeof(string), modelBuilder.Model.FindEntityType(typeof(Hob)).GetForeignKeys().Single().Properties.Single().ClrType);
             }
 
-            [Fact]
+            [ConditionalFact]
             public virtual void Can_specify_shadow_identifying_fk()
             {
                 var modelBuilder = CreateModelBuilder();
@@ -3029,7 +3029,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Equal(typeof(Guid), fk.Properties.Single().ClrType);
             }
 
-            [Fact]
+            [ConditionalFact]
             public virtual void Throws_if_specified_FK_types_do_not_match()
             {
                 var modelBuilder = CreateModelBuilder();
@@ -3046,7 +3046,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                             .HasForeignKey<CustomerDetails>("GuidProperty")).Message);
             }
 
-            [Fact]
+            [ConditionalFact]
             public virtual void Overrides_PK_if_specified_FK_types_do_not_match_separetely()
             {
                 var modelBuilder = CreateModelBuilder();
@@ -3069,7 +3069,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Equal(typeof(Guid), fk.PrincipalKey.Properties.Single().ClrType);
             }
 
-            [Fact]
+            [ConditionalFact]
             public virtual void Throws_if_specified_PK_types_do_not_match()
             {
                 var modelBuilder = CreateModelBuilder();
@@ -3087,7 +3087,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                                 .HasPrincipalKey<Customer>("Id")).Message);
             }
 
-            [Fact]
+            [ConditionalFact]
             public virtual void Overrides_FK_if_specified_PK_types_do_not_match_separetely()
             {
                 var modelBuilder = CreateModelBuilder();
@@ -3112,7 +3112,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Equal(typeof(int?), fk.Properties.Single().ClrType);
             }
 
-            [Fact]
+            [ConditionalFact]
             public virtual void Throws_if_specified_FK_count_does_not_match()
             {
                 var modelBuilder = CreateModelBuilder();
@@ -3130,7 +3130,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                                 .HasForeignKey<CustomerDetails>("Id", "GuidProperty")).Message);
             }
 
-            [Fact]
+            [ConditionalFact]
             public virtual void Overrides_PK_if_specified_FK_count_does_not_match_separetely()
             {
                 var modelBuilder = CreateModelBuilder();
@@ -3153,7 +3153,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Equal(2, fk.PrincipalKey.Properties.Count);
             }
 
-            [Fact]
+            [ConditionalFact]
             public virtual void Throws_if_specified_PK_count_does_not_match()
             {
                 var modelBuilder = CreateModelBuilder();
@@ -3171,7 +3171,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                                 .HasPrincipalKey<Customer>("Id")).Message);
             }
 
-            [Fact]
+            [ConditionalFact]
             public virtual void Overrides_FK_if_specified_PK_count_does_not_match_separetely()
             {
                 var modelBuilder = CreateModelBuilder();
@@ -3194,7 +3194,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Equal(1, fk.Properties.Count());
             }
 
-            [Fact]
+            [ConditionalFact]
             public virtual void Foreign_key_properties_are_not_discovered_for_one_to_one_relationship_with_ambiguous_principal_end()
             {
                 var modelBuilder = HobNobBuilder();
@@ -3217,7 +3217,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                     Assert.Throws<InvalidOperationException>(() => modelBuilder.FinalizeModel()).Message);
             }
 
-            [Fact]
+            [ConditionalFact]
             public virtual void Creates_relationship_on_existing_FK_if_using_different_principal_key()
             {
                 var modelBuilder = CreateModelBuilder();
@@ -3279,7 +3279,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Empty(principalType.GetIndexes());
             }
 
-            [Fact]
+            [ConditionalFact]
             public virtual void Creates_relationship_on_existing_FK_if_using_different_principal_key_different_order()
             {
                 var modelBuilder = CreateModelBuilder();
@@ -3340,7 +3340,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Empty(principalType.GetIndexes());
             }
 
-            [Fact]
+            [ConditionalFact]
             public virtual void Creates_index_even_if_covered_by_an_alternate_key()
             {
                 var modelBuilder = CreateModelBuilder();
@@ -3392,7 +3392,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Empty(principalType.GetIndexes());
             }
 
-            [Fact]
+            [ConditionalFact]
             public virtual void Throws_on_existing_many_to_one_relationship()
             {
                 var modelBuilder = HobNobBuilder();
@@ -3417,7 +3417,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                             modelBuilder.Entity<Nob>().HasOne(e => e.Hob).WithOne(e => e.Nob)).Message);
             }
 
-            [Fact]
+            [ConditionalFact]
             public virtual void Removes_existing_unidirectional_many_to_one_relationship()
             {
                 var modelBuilder = HobNobBuilder();
@@ -3445,7 +3445,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Same(dependentKey, dependentType.FindPrimaryKey());
             }
 
-            [Fact]
+            [ConditionalFact]
             public virtual void Throws_on_existing_one_to_many_relationship()
             {
                 var modelBuilder = HobNobBuilder();
@@ -3470,7 +3470,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                             modelBuilder.Entity<Nob>().HasOne(e => e.Hob).WithOne(e => e.Nob)).Message);
             }
 
-            [Fact]
+            [ConditionalFact]
             public virtual void Removes_existing_unidirectional_one_to_many_relationship()
             {
                 var modelBuilder = HobNobBuilder();
@@ -3500,7 +3500,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Same(dependentKey, dependentType.FindPrimaryKey());
             }
 
-            [Fact]
+            [ConditionalFact]
             public virtual void Can_add_annotations()
             {
                 var modelBuilder = CreateModelBuilder();
@@ -3519,7 +3519,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Equal("Ro", fk["Fus"]);
             }
 
-            [Fact]
+            [ConditionalFact]
             public virtual void Nullable_FK_are_optional_by_default()
             {
                 var modelBuilder = HobNobBuilder();
@@ -3541,7 +3541,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                     || entityType.FindProperty(nameof(Nob.HobId2)).IsNullable);
             }
 
-            [Fact]
+            [ConditionalFact]
             public virtual void Non_nullable_FK_are_required_by_default()
             {
                 var modelBuilder = HobNobBuilder();
@@ -3562,7 +3562,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.True(entityType.GetForeignKeys().Single().IsRequired);
             }
 
-            [Fact]
+            [ConditionalFact]
             public virtual void Nullable_FK_can_be_made_required()
             {
                 var modelBuilder = HobNobBuilder();
@@ -3600,7 +3600,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 AssertEqual(expectedDependentProperties, dependentType.GetProperties());
             }
 
-            [Fact]
+            [ConditionalFact]
             public virtual void Non_nullable_FK_can_be_made_optional()
             {
                 var modelBuilder = HobNobBuilder();
@@ -3635,7 +3635,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Contains(fkProperty2, fk.Properties);
             }
 
-            [Fact]
+            [ConditionalFact]
             public virtual void Non_nullable_FK_can_be_made_optional_separetely()
             {
                 var modelBuilder = HobNobBuilder();
@@ -3674,7 +3674,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Contains(fkProperty2, fk.Properties);
             }
 
-            [Fact]
+            [ConditionalFact]
             public virtual void Unspecified_FK_can_be_made_optional()
             {
                 var modelBuilder = HobNobBuilder();
@@ -3701,7 +3701,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 AssertEqual(expectedDependentProperties, dependentType.GetProperties());
             }
 
-            [Fact]
+            [ConditionalFact]
             public virtual void Unspecified_FK_can_be_made_optional_in_any_order()
             {
                 var modelBuilder = HobNobBuilder();
@@ -3728,7 +3728,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 AssertEqual(expectedDependentProperties, dependentType.GetProperties());
             }
 
-            [Fact]
+            [ConditionalFact]
             public virtual void Unspecified_FK_can_be_made_required()
             {
                 var modelBuilder = HobNobBuilder();
@@ -3756,7 +3756,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 AssertEqual(expectedDependentProperties, dependentType.GetProperties());
             }
 
-            [Fact]
+            [ConditionalFact]
             public virtual void Can_be_defined_before_the_PK_from_principal()
             {
                 var modelBuilder = CreateModelBuilder();
@@ -3803,7 +3803,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 AssertEqual(fk.PrincipalKey.Properties, principalEntityType.GetKeys().Single().Properties);
             }
 
-            [Fact]
+            [ConditionalFact]
             public virtual void Can_be_defined_before_the_PK_from_dependent()
             {
                 var modelBuilder = CreateModelBuilder();
@@ -3850,7 +3850,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 AssertEqual(fk.PrincipalKey.Properties, principalEntityType.GetKeys().Single().Properties);
             }
 
-            [Fact]
+            [ConditionalFact]
             public virtual void Can_change_delete_behavior()
             {
                 var modelBuilder = HobNobBuilder();
@@ -3875,7 +3875,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Equal(DeleteBehavior.SetNull, dependentType.GetNavigations().Single().ForeignKey.DeleteBehavior);
             }
 
-            [Fact]
+            [ConditionalFact]
             public virtual void Configuring_FK_properties_as_PK_sets_DeleteBehavior_Cascade()
             {
                 var modelBuilder = HobNobBuilder();
@@ -3893,7 +3893,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Equal(DeleteBehavior.Cascade, dependentType.GetNavigations().Single().ForeignKey.DeleteBehavior);
             }
 
-            [Fact]
+            [ConditionalFact]
             public virtual void Creates_shadow_FK_property_with_non_shadow_PK()
             {
                 var modelBuilder = CreateModelBuilder();
@@ -3914,7 +3914,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                     modelBuilder.Model.FindEntityType(typeof(Beta)).FindNavigation("FirstNav").ForeignKey.Properties.Single().Name);
             }
 
-            [Fact]
+            [ConditionalFact]
             public virtual void Creates_shadow_FK_property_with_shadow_PK()
             {
                 var modelBuilder = CreateModelBuilder();
@@ -3933,7 +3933,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                     modelBuilder.Model.FindEntityType(typeof(Beta)).FindNavigation("FirstNav").ForeignKey.Properties.Single().Name);
             }
 
-            [Fact]
+            [ConditionalFact]
             public virtual void Creates_field_backed_FK_property()
             {
                 var modelBuilder = CreateModelBuilder();
@@ -3949,7 +3949,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Equal("_forUp", fkProperty.FieldInfo.Name);
             }
 
-            [Fact]
+            [ConditionalFact]
             public virtual void Handles_identity_correctly_while_removing_navigation()
             {
                 var modelBuilder = CreateModelBuilder();
@@ -3960,7 +3960,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Equal(ValueGenerated.Never, property.ValueGenerated);
             }
 
-            [Fact]
+            [ConditionalFact]
             public virtual void Throws_if_multiple_navigations_are_pointing_to_same_foreign_key_property()
             {
                 var modelBuilder = CreateModelBuilder();
@@ -3969,7 +3969,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                     Assert.Throws<InvalidOperationException>(() => modelBuilder.Entity<Zeta>().HasOne<Alpha>().WithOne()).Message);
             }
 
-            [Fact]
+            [ConditionalFact]
             public virtual void Can_create_one_to_one_self_referencing_relationship_without_navigations()
             {
                 var modelBuilder = CreateModelBuilder();
@@ -3991,7 +3991,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Null(relationship.DependentToPrincipal);
             }
 
-            [Fact]
+            [ConditionalFact]
             public virtual void Can_create_one_to_one_relationship_if_dependent_has_matching_property_with_navigation_name()
             {
                 var modelBuilder = CreateModelBuilder();
@@ -4016,7 +4016,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Equal("NavOneToOnePrincipalEntityId", fk.Properties.First().Name);
             }
 
-            [Fact]
+            [ConditionalFact]
             public virtual void Can_create_one_to_one_relationship_if_dependent_has_matching_property_with_entity_type_name()
             {
                 var modelBuilder = CreateModelBuilder();
@@ -4041,7 +4041,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Equal("OneToOnePrincipalEntityId", fk.Properties.First().Name);
             }
 
-            [Fact]
+            [ConditionalFact]
             public virtual void Can_invert_one_to_one_relationship_if_principal_has_matching_property_with_navigation_name()
             {
                 var modelBuilder = CreateModelBuilder();
@@ -4066,7 +4066,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Equal("NavOneToOneDependentEntityId", fk.Properties.First().Name);
             }
 
-            [Fact]
+            [ConditionalFact]
             public virtual void Can_invert_one_to_one_relationship_if_principal_has_matching_property_with_entity_type_name()
             {
                 var modelBuilder = CreateModelBuilder();
@@ -4091,7 +4091,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Equal("OneToOneDependentEntityId", fk.Properties.First().Name);
             }
 
-            [Fact]
+            [ConditionalFact]
             public virtual void Ignoring_properties_resolves_ambiguity()
             {
                 var modelBuilder = CreateModelBuilder();
@@ -4112,7 +4112,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 modelBuilder.FinalizeModel();
             }
 
-            [Fact]
+            [ConditionalFact]
             public virtual void Ignoring_properties_on_principal_resolves_ambiguity()
             {
                 var modelBuilder = CreateModelBuilder();
@@ -4133,7 +4133,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 modelBuilder.FinalizeModel();
             }
 
-            [Fact]
+            [ConditionalFact]
             public virtual void Throws_for_one_to_one_relationship_if_no_side_has_matching_property()
             {
                 var modelBuilder = CreateModelBuilder();
@@ -4160,7 +4160,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                     Assert.Throws<InvalidOperationException>(() => modelBuilder.FinalizeModel()).Message);
             }
 
-            [Fact]
+            [ConditionalFact]
             public virtual void Throws_for_one_to_one_relationship_if_no_side_has_matching_property_anymore()
             {
                 var modelBuilder = CreateModelBuilder();
@@ -4189,7 +4189,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                     Assert.Throws<InvalidOperationException>(() => modelBuilder.FinalizeModel()).Message);
             }
 
-            [Fact]
+            [ConditionalFact]
             public virtual void Throws_for_one_to_one_relationship_if_both_sides_have_matching_property_with_navigation_name()
             {
                 var modelBuilder = CreateModelBuilder();
@@ -4206,7 +4206,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                     Assert.Throws<InvalidOperationException>(() => modelBuilder.FinalizeModel()).Message);
             }
 
-            [Fact]
+            [ConditionalFact]
             public virtual void Throws_for_one_to_one_relationship_if_both_sides_have_matching_property_with_entity_type_name()
             {
                 var modelBuilder = CreateModelBuilder();
@@ -4223,7 +4223,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                     Assert.Throws<InvalidOperationException>(() => modelBuilder.FinalizeModel()).Message);
             }
 
-            [Fact]
+            [ConditionalFact]
             public virtual void Throws_for_one_to_one_relationship_if_both_sides_have_matching_property_mixed()
             {
                 var modelBuilder = CreateModelBuilder();
@@ -4240,7 +4240,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                     Assert.Throws<InvalidOperationException>(() => modelBuilder.FinalizeModel()).Message);
             }
 
-            [Fact]
+            [ConditionalFact]
             public virtual void Throws_for_one_to_one_relationship_if_both_sides_have_matching_PKs()
             {
                 var modelBuilder = CreateModelBuilder();
@@ -4273,7 +4273,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                     Assert.Throws<InvalidOperationException>(() => modelBuilder.FinalizeModel()).Message);
             }
 
-            [Fact]
+            [ConditionalFact]
             public virtual void Can_create_one_to_one_relationship_if_user_specify_foreign_key_property()
             {
                 var modelBuilder = CreateModelBuilder();
@@ -4293,7 +4293,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Equal("NavOneToOnePrincipalEntityId", fk.Properties.First().Name);
             }
 
-            [Fact]
+            [ConditionalFact]
             public virtual void Can_create_one_to_one_relationship_if_user_specifies_principal_key_property()
             {
                 var modelBuilder = CreateModelBuilder();
@@ -4315,7 +4315,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Equal(nameof(OneToOnePrincipalEntity.NavOneToOneDependentEntityId), fk.Properties.First().Name);
             }
 
-            [Fact]
+            [ConditionalFact]
             public virtual void Can_create_one_to_one_relationship_if_foreign_key_attribute_is_used()
             {
                 var modelBuilder = CreateModelBuilder();
@@ -4335,7 +4335,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Equal("FkProperty", fk.Properties.First().Name);
             }
 
-            [Fact]
+            [ConditionalFact]
             public virtual void Can_use_pk_as_fk_if_principal_end_is_specified()
             {
                 var modelBuilder = CreateModelBuilder();
@@ -4351,7 +4351,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                         .Single().Name);
             }
 
-            [Fact]
+            [ConditionalFact]
             public virtual void Does_not_use_pk_as_fk_if_principal_end_is_not_specified()
             {
                 var modelBuilder = CreateModelBuilder();
@@ -4364,7 +4364,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.NotEqual("Id", fk.Properties.Single().Name);
             }
 
-            [Fact]
+            [ConditionalFact]
             public virtual void
                 Creates_one_to_one_relationship_with_single_ref_as_principal_to_dependent_if_matching_properties_are_on_the_other_side()
             {
@@ -4390,7 +4390,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Equal(OneToOnePrincipalEntity.EntityMatchingProperty.Name, fk.Properties.Single().Name);
             }
 
-            [Fact]
+            [ConditionalFact]
             public virtual void Can_use_self_referencing_overlapping_FK_PK()
             {
                 var modelBuilder = CreateModelBuilder();

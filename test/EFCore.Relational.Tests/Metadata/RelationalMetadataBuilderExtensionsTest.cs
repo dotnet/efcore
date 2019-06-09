@@ -16,7 +16,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         private InternalModelBuilder CreateBuilder()
             => new InternalModelBuilder(new Model());
 
-        [Fact]
+        [ConditionalFact]
         public void Can_access_model()
         {
             var builder = CreateBuilder();
@@ -26,7 +26,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Equal(77, ((IMutableModel)builder.Metadata).FindSequence("Mine").IncrementBy);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_set_table_name()
         {
             var typeBuilder = CreateBuilder().Entity(typeof(Splot), ConfigurationSource.Convention);
@@ -41,7 +41,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Equal("Splow", typeBuilder.Metadata.GetTableName());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_set_table_name_and_schema()
         {
             var typeBuilder = CreateBuilder().Entity(typeof(Splot), ConfigurationSource.Convention);
@@ -59,7 +59,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Equal("2", typeBuilder.Metadata.GetSchema());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_override_existing_schema()
         {
             var typeBuilder = CreateBuilder().Entity(typeof(Splot), ConfigurationSource.Convention);
@@ -79,7 +79,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Equal("1", typeBuilder.Metadata.GetSchema());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_access_property()
         {
             var propertyBuilder = CreateBuilder()
@@ -121,7 +121,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Equal("runthis()", propertyBuilder.Metadata.GetComputedColumnSql());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_access_key()
         {
             var modelBuilder = CreateBuilder();
@@ -139,7 +139,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Equal("Splow", keyBuilder.Metadata.GetName());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_access_index()
         {
             var modelBuilder = CreateBuilder();
@@ -157,7 +157,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Equal("Splow", indexBuilder.Metadata.GetName());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_access_relationship()
         {
             var modelBuilder = CreateBuilder();
@@ -175,7 +175,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Equal("Splow", relationshipBuilder.Metadata.GetConstraintName());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_access_check_constraint()
         {
             var typeBuilder = CreateBuilder().Entity(typeof(Splot), ConfigurationSource.Convention);

@@ -11,7 +11,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 {
     public class ForeignKeyIndexConventionTest
     {
-        [Fact]
+        [ConditionalFact]
         public void Does_not_override_foreign_key_index_uniqueness_when_referenced_key_changes()
         {
             var modelBuilder = InMemoryTestHelpers.Instance.CreateConventionBuilder();

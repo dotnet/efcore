@@ -9,7 +9,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
 {
     public class MemberEntryTest
     {
-        [Fact]
+        [ConditionalFact]
         public void Can_get_back_reference_property()
         {
             using (var context = new FreezerContext())
@@ -22,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_get_back_reference_reference()
         {
             using (var context = new FreezerContext())
@@ -35,7 +35,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_get_back_reference_collection()
         {
             using (var context = new FreezerContext())
@@ -48,7 +48,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_get_metadata_property()
         {
             using (var context = new FreezerContext())
@@ -60,7 +60,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_get_metadata_reference()
         {
             using (var context = new FreezerContext())
@@ -72,7 +72,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_get_metadata_collection()
         {
             using (var context = new FreezerContext())
@@ -84,7 +84,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_get_and_set_current_value_property()
         {
             using (var context = new FreezerContext())
@@ -104,7 +104,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_get_and_set_current_value_reference()
         {
             using (var context = new FreezerContext())
@@ -133,7 +133,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_get_and_set_current_value_collection()
         {
             using (var context = new FreezerContext())
@@ -165,7 +165,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void IsModified_tracks_state_of_FK_property_reference()
         {
             using (var context = new FreezerContext())
@@ -196,7 +196,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void IsModified_can_set_fk_to_modified_collection()
         {
             using (var context = new FreezerContext())

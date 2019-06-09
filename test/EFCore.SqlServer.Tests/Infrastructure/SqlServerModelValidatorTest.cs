@@ -73,7 +73,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                     "nvarchar(15)"), modelBuilder.Model);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Detects_duplicate_column_names_within_hierarchy_with_different_unicode()
         {
             var modelBuilder = CreateConventionalModelBuilder();
@@ -88,7 +88,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                     "nvarchar(max)"), modelBuilder.Model);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Detects_duplicate_column_names_within_hierarchy_with_different_value_generation_strategy()
         {
             var modelBuilder = CreateConventionalModelBuilder();
@@ -112,7 +112,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 modelBuilder.Model);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Passes_for_incompatible_foreignKeys_within_hierarchy_when_one_name_configured_explicitly_for_sqlServer()
         {
             var modelBuilder = CreateConventionalModelBuilder();
@@ -128,7 +128,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             Assert.Equal("FK_Animal_Person_Name1", fk2.GetConstraintName());
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Passes_for_incompatible_indexes_within_hierarchy_when_one_name_configured_explicitly_for_sqlServer()
         {
             var modelBuilder = CreateConventionalModelBuilder();
@@ -142,7 +142,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             Assert.Equal("IX_Animal_Name1", index2.GetName());
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Detects_incompatible_memory_optimized_shared_table()
         {
             var modelBuilder = CreateConventionalModelBuilder();
@@ -156,7 +156,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 modelBuilder.Model);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Detects_incompatible_non_clustered_shared_key()
         {
             var modelBuilder = CreateConventionalModelBuilder();
@@ -172,7 +172,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 modelBuilder.Model);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Detects_default_decimal_mapping()
         {
             var modelBuilder = CreateConventionalModelBuilder();
@@ -181,7 +181,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             VerifyWarning(SqlServerResources.LogDefaultDecimalTypeColumn(new TestLogger<SqlServerLoggingDefinitions>()).GenerateMessage("Price", nameof(Animal)), modelBuilder.Model);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Detects_default_nullable_decimal_mapping()
         {
             var modelBuilder = CreateConventionalModelBuilder();
@@ -190,7 +190,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             VerifyWarning(SqlServerResources.LogDefaultDecimalTypeColumn(new TestLogger<SqlServerLoggingDefinitions>()).GenerateMessage("Price", nameof(Animal)), modelBuilder.Model);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Detects_byte_identity_column()
         {
             var modelBuilder = CreateConventionalModelBuilder();
@@ -200,7 +200,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             VerifyWarning(SqlServerResources.LogByteIdentityColumn(new TestLogger<SqlServerLoggingDefinitions>()).GenerateMessage("Bite", nameof(Dog)), modelBuilder.Model);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Detects_nullable_byte_identity_column()
         {
             var modelBuilder = CreateConventionalModelBuilder();
@@ -210,7 +210,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             VerifyWarning(SqlServerResources.LogByteIdentityColumn(new TestLogger<SqlServerLoggingDefinitions>()).GenerateMessage("Bite", nameof(Dog)), modelBuilder.Model);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Passes_for_non_key_identity()
         {
             var modelBuilder = CreateConventionalModelBuilder();
@@ -220,7 +220,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             Validate(modelBuilder.Model);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Detects_multiple_identity_properties()
         {
             var modelBuilder = CreateConventionalModelBuilder();
@@ -231,7 +231,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             VerifyError(SqlServerStrings.MultipleIdentityColumns("'Dog.Tag', 'Dog.Type'", nameof(Dog)), modelBuilder.Model);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Detects_non_key_SequenceHiLo()
         {
             var modelBuilder = CreateConventionalModelBuilder();
@@ -240,7 +240,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             VerifyError(SqlServerStrings.NonKeyValueGeneration(nameof(Dog.Type), nameof(Dog)), modelBuilder.Model);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Passes_for_non_key_identity_on_model()
         {
             var modelBuilder = CreateConventionalModelBuilder();
@@ -251,7 +251,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             Validate(modelBuilder.Model);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Passes_for_non_key_SequenceHiLo_on_model()
         {
             var modelBuilder = CreateConventionalModelBuilder();
@@ -261,7 +261,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             Validate(modelBuilder.Model);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData("DefaultValue", "DefaultValueSql")]
         [InlineData("DefaultValue", "ComputedColumnSql")]
         [InlineData("DefaultValueSql", "ComputedColumnSql")]
@@ -301,7 +301,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Detects_missing_include_properties()
         {
             var modelBuilder = CreateConventionalModelBuilder();
@@ -311,7 +311,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             VerifyError(SqlServerStrings.IncludePropertyNotFound(nameof(Dog), "Tag"), modelBuilder.Model);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Detects_duplicate_include_properties()
         {
             var modelBuilder = CreateConventionalModelBuilder();
@@ -321,7 +321,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             VerifyError(SqlServerStrings.IncludePropertyDuplicated(nameof(Dog), nameof(Dog.Type)), modelBuilder.Model);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Detects_indexed_include_properties()
         {
             var modelBuilder = CreateConventionalModelBuilder();
@@ -331,7 +331,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             VerifyError(SqlServerStrings.IncludePropertyInIndex(nameof(Dog), nameof(Dog.Name)), modelBuilder.Model);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Passes_for_online_index()
         {
             var modelBuilder = CreateConventionalModelBuilder();

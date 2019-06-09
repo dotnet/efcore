@@ -16,7 +16,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 {
     public class RelationalEntityTypeAttributeConventionTest
     {
-        [Fact]
+        [ConditionalFact]
         public void TableAttribute_sets_column_name_order_and_type_with_conventional_builder()
         {
             var modelBuilder = CreateConventionalModelBuilder();
@@ -27,7 +27,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Equal("MySchema", entityBuilder.Metadata.GetSchema());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void TableAttribute_overrides_configuration_from_convention_source()
         {
             var entityBuilder = CreateInternalEntityTypeBuilder<A>();
@@ -41,7 +41,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Equal("MySchema", entityBuilder.Metadata.GetSchema());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void TableAttribute_does_not_override_configuration_from_explicit_source()
         {
             var entityBuilder = CreateInternalEntityTypeBuilder<A>();

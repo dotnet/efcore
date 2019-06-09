@@ -15,7 +15,7 @@ namespace Microsoft.EntityFrameworkCore
 
         protected InMemoryFixture Fixture { get; }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_use_different_entity_types_end_to_end()
         {
             Can_add_update_delete_end_to_end<Private>();

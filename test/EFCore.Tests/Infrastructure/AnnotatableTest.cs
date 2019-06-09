@@ -10,7 +10,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 {
     public class AnnotatableTest
     {
-        [Fact]
+        [ConditionalFact]
         public void Can_add_and_remove_annotation()
         {
             var annotatable = new Annotatable();
@@ -34,7 +34,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             Assert.Null(annotatable.FindAnnotation("Foo"));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Addind_duplicate_annotation_throws()
         {
             var annotatable = new Annotatable();
@@ -46,7 +46,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 Assert.Throws<InvalidOperationException>(() => annotatable.AddAnnotation("Foo", "Bar")).Message);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_get_and_set_model_annotations()
         {
             var annotatable = new Annotatable();
@@ -72,7 +72,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 Assert.Throws<InvalidOperationException>(() => annotatable.GetAnnotation("Foo")).Message);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Annotations_are_ordered_by_name()
         {
             var annotatable = new Annotatable();

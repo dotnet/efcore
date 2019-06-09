@@ -14,7 +14,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 {
     public class ExpressionEqualityComparerTest
     {
-        [Fact]
+        [ConditionalFact]
         public void Member_init_expressions_are_compared_correctly()
         {
             var expressionComparer = ExpressionEqualityComparer.Instance;
@@ -54,7 +54,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             Assert.True(expressionComparer.Equals(e1, e1));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Default_expressions_are_compared_correctly()
         {
             var expressionComparer = ExpressionEqualityComparer.Instance;
@@ -71,7 +71,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             Assert.True(expressionComparer.Equals(e1, e1));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Index_expressions_are_compared_correctly()
         {
             var expressionComparer = ExpressionEqualityComparer.Instance;

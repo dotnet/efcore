@@ -22,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
     {
         private readonly DbContext _fakeContext = new DbContext(new DbContextOptions<DbContext>());
 
-        [Fact]
+        [ConditionalFact]
         public void Can_create_materializer_for_entity_with_constructor_properties()
         {
             var entityType = CreateEntityType();
@@ -58,7 +58,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.False(entity.GooSetterCalled);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_create_materializer_for_entity_with_factory_method()
         {
             var entityType = CreateEntityType();
@@ -94,7 +94,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.False(entity.GooSetterCalled);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_create_materializer_for_entity_with_factory_method_with_object_array()
         {
             var entityType = CreateEntityType();
@@ -134,7 +134,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.False(entity.GooSetterCalled);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_create_materializer_for_entity_with_instance_factory_method()
         {
             var entityType = CreateEntityType();
@@ -189,7 +189,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             return entityType;
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_create_materializer_for_entity_with_auto_properties()
         {
             var entityType = CreateEntityType();
@@ -210,7 +210,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Equal(SomeEnum.EnumValue, entity.MaybeEnum);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_create_materializer_for_entity_with_fields()
         {
             var entityType = ((IMutableModel)new Model()).AddEntityType(typeof(SomeEntityWithFields));
@@ -236,7 +236,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Null(entity.MaybeEnum);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_read_nulls()
         {
             var entityType = ((IMutableModel)new Model()).AddEntityType(typeof(SomeEntity));
@@ -257,7 +257,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Null(entity.Goo);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_create_materializer_for_entity_ignoring_shadow_fields()
         {
             var entityType = ((IMutableModel)new Model()).AddEntityType(typeof(SomeEntity));
@@ -282,7 +282,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Equal(gu, entity.Goo);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Throws_if_parameterless_constructor_is_not_defined_on_entity_type()
         {
             var entityType = ((IMutableModel)new Model()).AddEntityType(typeof(EntityWithoutParameterlessConstructor));

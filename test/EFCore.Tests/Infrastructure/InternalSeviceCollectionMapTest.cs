@@ -12,7 +12,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 {
     public class InternalSeviceCollectionMapTest
     {
-        [Fact]
+        [ConditionalFact]
         public void Can_patch_transient_service_with_concrete_implementation()
         {
             var serviceMap = CreateServiceMap();
@@ -23,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             Can_patch_transient_service(serviceMap);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_patch_transient_service_with_delegate_implementation()
         {
             var serviceMap = CreateServiceMap();
@@ -34,7 +34,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             Can_patch_transient_service(serviceMap);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_patch_transient_service_with_service_typed_delegate_implementation()
         {
             var serviceMap = CreateServiceMap();
@@ -45,7 +45,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             Can_patch_transient_service(serviceMap);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_patch_transient_service_with_untyped_delegate_implementation()
         {
             var serviceMap = CreateServiceMap();
@@ -56,7 +56,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             Can_patch_transient_service(serviceMap);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_patch_transient_service_with_concrete_implementation_already_registered()
         {
             var serviceMap = CreateServiceMap();
@@ -90,7 +90,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             return service;
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_patch_scoped_service_with_concrete_implementation()
         {
             var serviceMap = CreateServiceMap();
@@ -101,7 +101,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             Can_patch_scoped_service(serviceMap);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_patch_scoped_service_with_delegate_implementation()
         {
             var serviceMap = CreateServiceMap();
@@ -112,7 +112,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             Can_patch_scoped_service(serviceMap);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_patch_scoped_service_with_service_typed_delegate_implementation()
         {
             var serviceMap = CreateServiceMap();
@@ -123,7 +123,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             Can_patch_scoped_service(serviceMap);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_patch_scoped_service_with_untyped_delegate_implementation()
         {
             var serviceMap = CreateServiceMap();
@@ -134,7 +134,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             Can_patch_scoped_service(serviceMap);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_patch_scoped_service_with_concrete_implementation_already_registered()
         {
             var serviceMap = CreateServiceMap();
@@ -168,7 +168,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             return service;
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_patch_singleton_service_with_concrete_implementation()
         {
             var serviceMap = CreateServiceMap();
@@ -179,7 +179,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             Can_patch_singleton_service(serviceMap);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_patch_singleton_service_with_delegate_implementation()
         {
             var serviceMap = CreateServiceMap();
@@ -190,7 +190,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             Can_patch_singleton_service(serviceMap);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_patch_singleton_service_with_service_typed_delegate_implementation()
         {
             var serviceMap = CreateServiceMap();
@@ -201,7 +201,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             Can_patch_singleton_service(serviceMap);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_patch_singleton_service_with_untyped_delegate_implementation()
         {
             var serviceMap = CreateServiceMap();
@@ -212,7 +212,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             Can_patch_singleton_service(serviceMap);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_patch_singleton_service_with_concrete_implementation_already_registered()
         {
             var serviceMap = CreateServiceMap();
@@ -224,7 +224,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             Assert.IsType<DerivedFakeSingletonService>(Can_patch_singleton_service(serviceMap));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_patch_singleton_service_with_instance_registered()
         {
             var serviceMap = CreateServiceMap();
@@ -235,7 +235,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             Assert.IsType<DerivedFakeSingletonService>(Can_patch_singleton_service(serviceMap));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_patch_singleton_service_with_instance_registered_non_generic()
         {
             var serviceMap = CreateServiceMap();
@@ -267,7 +267,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             return singletonService;
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Throws_if_attempt_is_made_to_register_dependency_as_delegate()
         {
             var serviceCollection = new ServiceCollection();
@@ -282,7 +282,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                     .Message);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Throws_if_attempt_is_made_to_register_dependency_as_instance()
         {
             var serviceCollection = new ServiceCollection();

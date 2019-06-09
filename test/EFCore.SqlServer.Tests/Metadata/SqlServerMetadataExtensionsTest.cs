@@ -12,7 +12,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 {
     public class SqlServerMetadataExtensionsTest
     {
-        [Fact]
+        [ConditionalFact]
         public void Can_get_and_set_column_name()
         {
             var modelBuilder = GetModelBuilder();
@@ -41,7 +41,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         }
 
 
-        [Fact]
+        [ConditionalFact]
         public void Can_get_and_set_column_key_name()
         {
             var modelBuilder = GetModelBuilder();
@@ -66,7 +66,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Equal("PK_Customer", key.GetName());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_get_and_set_index_clustering()
         {
             var modelBuilder = GetModelBuilder();
@@ -87,7 +87,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Null(index.GetSqlServerIsClustered());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_get_and_set_key_clustering()
         {
             var modelBuilder = GetModelBuilder();
@@ -108,7 +108,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Null(key.GetSqlServerIsClustered());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_get_and_set_sequence()
         {
             var modelBuilder = GetModelBuilder();
@@ -160,7 +160,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Same(sequence2.ClrType, sequence.ClrType);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_get_and_set_sequence_with_schema_name()
         {
             var modelBuilder = GetModelBuilder();
@@ -212,7 +212,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Same(sequence2.ClrType, sequence.ClrType);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_get_multiple_sequences()
         {
             var modelBuilder = GetModelBuilder();
@@ -228,7 +228,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Contains(sequences, s => s.Name == "Golomb");
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_get_multiple_sequences_when_overridden()
         {
             var modelBuilder = GetModelBuilder();
@@ -248,7 +248,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Equal(3, sequence.StartValue);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_get_and_set_value_generation_on_model()
         {
             var modelBuilder = GetModelBuilder();
@@ -265,7 +265,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Null(model.GetSqlServerValueGenerationStrategy());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_get_and_set_default_sequence_name_on_model()
         {
             var modelBuilder = GetModelBuilder();
@@ -280,7 +280,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Equal(SqlServerModelExtensions.DefaultHiLoSequenceName, model.GetSqlServerHiLoSequenceName());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_get_and_set_default_sequence_schema_on_model()
         {
             var modelBuilder = GetModelBuilder();
@@ -297,7 +297,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Null(model.GetSqlServerHiLoSequenceSchema());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_get_and_set_value_generation_on_property()
         {
             var modelBuilder = GetModelBuilder();
@@ -322,7 +322,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Equal(ValueGenerated.OnAdd, property.ValueGenerated);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_get_and_set_value_generation_on_nullable_property()
         {
             var modelBuilder = GetModelBuilder();
@@ -343,7 +343,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Equal(SqlServerValueGenerationStrategy.IdentityColumn, property.GetSqlServerValueGenerationStrategy());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Throws_setting_sequence_generation_for_invalid_type()
         {
             var modelBuilder = GetModelBuilder();
@@ -359,7 +359,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                     () => property.SetSqlServerValueGenerationStrategy(SqlServerValueGenerationStrategy.SequenceHiLo)).Message);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Throws_setting_identity_generation_for_invalid_type()
         {
             var modelBuilder = GetModelBuilder();
@@ -375,7 +375,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                     () => property.SetSqlServerValueGenerationStrategy(SqlServerValueGenerationStrategy.IdentityColumn)).Message);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_get_and_set_sequence_name_on_property()
         {
             var modelBuilder = GetModelBuilder();
@@ -397,7 +397,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Null(property.GetSqlServerHiLoSequenceName());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_get_and_set_sequence_schema_on_property()
         {
             var modelBuilder = GetModelBuilder();
@@ -418,7 +418,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Null(property.GetSqlServerHiLoSequenceSchema());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void TryGetSequence_returns_null_if_property_is_not_configured_for_sequence_value_generation()
         {
             var modelBuilder = GetModelBuilder();
@@ -446,7 +446,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Null(property.FindSqlServerHiLoSequence());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void TryGetSequence_returns_sequence_property_is_marked_for_sequence_generation()
         {
             var modelBuilder = GetModelBuilder();
@@ -464,7 +464,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Equal("DaneelOlivaw", property.FindSqlServerHiLoSequence().Name);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void TryGetSequence_returns_sequence_property_is_marked_for_default_generation_and_model_is_marked_for_sequence_generation()
         {
             var modelBuilder = GetModelBuilder();
@@ -482,7 +482,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Equal("DaneelOlivaw", property.FindSqlServerHiLoSequence().Name);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void TryGetSequence_returns_sequence_property_is_marked_for_sequence_generation_and_model_has_name()
         {
             var modelBuilder = GetModelBuilder();
@@ -500,7 +500,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Equal("DaneelOlivaw", property.FindSqlServerHiLoSequence().Name);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void
             TryGetSequence_returns_sequence_property_is_marked_for_default_generation_and_model_is_marked_for_sequence_generation_and_model_has_name()
         {
@@ -519,7 +519,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Equal("DaneelOlivaw", property.FindSqlServerHiLoSequence().Name);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void TryGetSequence_with_schema_returns_sequence_property_is_marked_for_sequence_generation()
         {
             var modelBuilder = GetModelBuilder();
@@ -539,7 +539,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Equal("R", property.FindSqlServerHiLoSequence().Schema);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void TryGetSequence_with_schema_returns_sequence_model_is_marked_for_sequence_generation()
         {
             var modelBuilder = GetModelBuilder();
@@ -559,7 +559,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Equal("R", property.FindSqlServerHiLoSequence().Schema);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void TryGetSequence_with_schema_returns_sequence_property_is_marked_for_sequence_generation_and_model_has_name()
         {
             var modelBuilder = GetModelBuilder();
@@ -579,7 +579,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Equal("R", property.FindSqlServerHiLoSequence().Schema);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void TryGetSequence_with_schema_returns_sequence_model_is_marked_for_sequence_generation_and_model_has_name()
         {
             var modelBuilder = GetModelBuilder();

@@ -15,7 +15,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 {
     public class MetadataBuilderTest
     {
-        [Fact]
+        [ConditionalFact]
         public void Can_write_convention_model_builder_extension()
         {
             var builder = CreateModelBuilder();
@@ -32,7 +32,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Equal("V2.Metadata", model["Metadata"]);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_write_convention_entity_builder_extension()
         {
             var builder = CreateModelBuilder();
@@ -51,7 +51,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Equal("V2.Metadata", entityType["Metadata"]);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_write_convention_entity_builder_extension_and_use_with_generic_builder()
         {
             var builder = CreateModelBuilder();
@@ -70,7 +70,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Equal("V2.Metadata", entityType["Metadata"]);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_write_generic_convention_entity_builder_extension()
         {
             var builder = CreateModelBuilder();
@@ -89,7 +89,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Equal("V2.Metadata", entityType["Metadata"]);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_write_convention_key_builder_extension()
         {
             var builder = CreateModelBuilder();
@@ -109,7 +109,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Equal("V2.Metadata", key["Metadata"]);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_write_convention_property_builder_extension()
         {
             var builder = CreateModelBuilder();
@@ -129,7 +129,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Equal("V2.Metadata", property["Metadata"]);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_write_convention_index_builder_extension()
         {
             var builder = CreateModelBuilder();
@@ -149,7 +149,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Equal("V2.Metadata", index["Metadata"]);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_write_convention_one_to_many_builder_extension()
         {
             var builder = CreateModelBuilder();
@@ -170,7 +170,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Equal("V2.Metadata", foreignKey["Metadata"]);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_write_convention_many_to_one_builder_extension()
         {
             var builder = CreateModelBuilder();
@@ -191,7 +191,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Equal("V2.Metadata", foreignKey["Metadata"]);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_write_convention_one_to_one_builder_extension()
         {
             var builder = CreateModelBuilder();
@@ -213,7 +213,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Equal("V2.Metadata", foreignKey["Metadata"]);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_write_convention_model_builder_extension_with_common_name()
         {
             var builder = CreateModelBuilder();
@@ -230,7 +230,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Equal("V2.Metadata", model["Metadata"]);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_write_convention_entity_builder_extension_with_common_name()
         {
             var builder = CreateModelBuilder();
@@ -249,7 +249,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Equal("V2.Metadata", entityType["Metadata"]);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_write_convention_entity_builder_extension_and_use_with_generic_builder_with_common_name()
         {
             var builder = CreateModelBuilder();
@@ -268,7 +268,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Equal("V2.Metadata", entityType["Metadata"]);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_write_generic_convention_entity_builder_extension_with_common_name()
         {
             var builder = CreateModelBuilder();
@@ -287,7 +287,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Equal("V2.Metadata", entityType["Metadata"]);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_write_convention_key_builder_extension_with_common_name()
         {
             var builder = CreateModelBuilder();
@@ -307,7 +307,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Equal("V2.Metadata", key["Metadata"]);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_write_convention_property_builder_extension_with_common_name()
         {
             var builder = CreateModelBuilder();
@@ -327,7 +327,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Equal("V2.Metadata", property["Metadata"]);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_write_convention_index_builder_extension_with_common_name()
         {
             var builder = CreateModelBuilder();
@@ -347,7 +347,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Equal("V2.Metadata", index["Metadata"]);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_write_convention_one_to_many_builder_extension_with_common_name()
         {
             var builder = CreateModelBuilder();
@@ -368,7 +368,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Equal("V2.Metadata", foreignKey["Metadata"]);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_write_convention_many_to_one_builder_extension_with_common_name()
         {
             var builder = CreateModelBuilder();
@@ -389,7 +389,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Equal("V2.Metadata", foreignKey["Metadata"]);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_write_convention_one_to_one_builder_extension_with_common_name()
         {
             var builder = CreateModelBuilder();

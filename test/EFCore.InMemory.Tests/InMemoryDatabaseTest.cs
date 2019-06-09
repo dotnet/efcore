@@ -22,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore
 {
     public class InMemoryDatabaseTest
     {
-        [Fact]
+        [ConditionalFact]
         public void Uses_persistent_database_by_default()
         {
             var serviceProvider = InMemoryTestHelpers.Instance.CreateServiceProvider();
@@ -35,7 +35,7 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Same(store1.Store, store2.Store);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Uses_persistent_database_if_configured_as_persistent()
         {
             var serviceProvider = InMemoryTestHelpers.Instance.CreateServiceProvider();
@@ -45,7 +45,7 @@ namespace Microsoft.EntityFrameworkCore
                 CreateStore(serviceProvider).Store);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void EnsureDatabaseCreated_returns_true_for_first_use_of_persistent_database_and_false_thereafter()
         {
             var serviceProvider = InMemoryTestHelpers.Instance.CreateServiceProvider();
@@ -71,7 +71,7 @@ namespace Microsoft.EntityFrameworkCore
             return InMemoryTestHelpers.Instance.CreateContextServices(serviceProvider, optionsBuilder.Options);
         }
 
-        [Fact]
+        [ConditionalFact]
         public async Task Save_changes_adds_new_objects_to_store()
         {
             var serviceProvider = InMemoryTestHelpers.Instance.CreateContextServices(CreateModel());
@@ -91,7 +91,7 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Equal(new object[] { 42, "Unikorn" }, inMemoryDatabase.Store.GetTables(entityEntry.EntityType).Single().Rows.Single());
         }
 
-        [Fact]
+        [ConditionalFact]
         public async Task Save_changes_updates_changed_objects_in_store()
         {
             var serviceProvider = InMemoryTestHelpers.Instance.CreateContextServices(CreateModel());
@@ -119,7 +119,7 @@ namespace Microsoft.EntityFrameworkCore
                 inMemoryDatabase.Store.GetTables(entityEntry.EntityType).Single().Rows.Single());
         }
 
-        [Fact]
+        [ConditionalFact]
         public async Task Save_changes_removes_deleted_objects_from_store()
         {
             var serviceProvider = InMemoryTestHelpers.Instance.CreateContextServices(CreateModel());
@@ -147,7 +147,7 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Equal(0, inMemoryDatabase.Store.GetTables(entityEntry.EntityType).SelectMany(t => t.Rows).Count());
         }
 
-        [Fact]
+        [ConditionalFact]
         public async Task Should_log_writes()
         {
             var loggerFactory = new ListLoggerFactory();

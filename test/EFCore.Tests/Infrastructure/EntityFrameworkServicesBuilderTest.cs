@@ -17,49 +17,49 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 {
     public class EntityFrameworkServicesBuilderTest
     {
-        [Fact]
+        [ConditionalFact]
         public void Can_register_scoped_service_with_concrete_implementation()
         {
             TestScoped(b => b.TryAdd<IConcurrencyDetector, FakeConcurrencyDetector>());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_register_scoped_service_with_concrete_implementation_non_generic()
         {
             TestScoped(b => b.TryAdd(typeof(IConcurrencyDetector), typeof(FakeConcurrencyDetector)));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_register_scoped_service_with_full_factory()
         {
             TestScoped(b => b.TryAdd<IConcurrencyDetector, FakeConcurrencyDetector>(p => new FakeConcurrencyDetector()));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_register_scoped_service_with_half_factory()
         {
             TestScoped(b => b.TryAdd<IConcurrencyDetector>(p => new FakeConcurrencyDetector()));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_register_scoped_service_with_full_factory_non_generic()
         {
             TestScoped(b => b.TryAdd(typeof(IConcurrencyDetector), typeof(FakeConcurrencyDetector), p => new FakeConcurrencyDetector()));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_register_scoped_service_with_half_factory_non_generic()
         {
             TestScoped(b => b.TryAdd(typeof(IConcurrencyDetector), typeof(IConcurrencyDetector), p => new FakeConcurrencyDetector()));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_register_scoped_service_with_object_factory()
         {
             TestScoped(b => b.TryAdd(typeof(IConcurrencyDetector), typeof(object), p => new FakeConcurrencyDetector()));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Cannot_register_scoped_with_instance()
         {
             var builder = new EntityFrameworkServicesBuilder(new ServiceCollection());
@@ -71,7 +71,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                     .Message);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Cannot_register_scoped_with_instance_non_generic()
         {
             var builder = new EntityFrameworkServicesBuilder(new ServiceCollection());
@@ -108,55 +108,55 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_register_singleton_service_with_concrete_implementation()
         {
             TestSingleton(b => b.TryAdd<IDbSetInitializer, FakeDbSetInitializer>());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_register_singleton_service_with_concrete_implementation_non_generic()
         {
             TestSingleton(b => b.TryAdd(typeof(IDbSetInitializer), typeof(FakeDbSetInitializer)));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_register_singleton_service_with_full_factory()
         {
             TestSingleton(b => b.TryAdd<IDbSetInitializer, FakeDbSetInitializer>(p => new FakeDbSetInitializer()));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_register_singleton_service_with_half_factory()
         {
             TestSingleton(b => b.TryAdd<IDbSetInitializer>(p => new FakeDbSetInitializer()));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_register_singleton_service_with_full_factory_non_generic()
         {
             TestSingleton(b => b.TryAdd(typeof(IDbSetInitializer), typeof(FakeDbSetInitializer), p => new FakeDbSetInitializer()));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_register_singleton_service_with_half_factory_non_generic()
         {
             TestSingleton(b => b.TryAdd(typeof(IDbSetInitializer), typeof(IDbSetInitializer), p => new FakeDbSetInitializer()));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_register_singleton_service_with_object_factory()
         {
             TestSingleton(b => b.TryAdd(typeof(IDbSetInitializer), typeof(object), p => new FakeDbSetInitializer()));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_register_singleton_with_instance()
         {
             TestSingleton(b => b.TryAdd<IDbSetInitializer>(new FakeDbSetInitializer()));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_register_singleton_with_instance_non_generic()
         {
             TestSingleton(b => b.TryAdd(typeof(IDbSetInitializer), new FakeDbSetInitializer()));
@@ -187,25 +187,25 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_register_multiple_scoped_service_with_concrete_implementation()
         {
             TestMultipleScoped(b => b.TryAdd<IResettableService, FakeResetableService>());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_register_multiple_scoped_service_with_concrete_implementation_non_generic()
         {
             TestMultipleScoped(b => b.TryAdd(typeof(IResettableService), typeof(FakeResetableService)));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_register_multiple_scoped_service_with_full_factory()
         {
             TestMultipleScoped(b => b.TryAdd<IResettableService, FakeResetableService>(p => new FakeResetableService()));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Cannot_register_multiple_scoped_service_with_half_factory()
         {
             var builder = new EntityFrameworkServicesBuilder(new ServiceCollection());
@@ -217,14 +217,14 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                     .Message);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_register_multiple_scoped_service_with_full_factory_non_generic()
         {
             TestMultipleScoped(
                 b => b.TryAdd(typeof(IResettableService), typeof(FakeResetableService), p => new FakeResetableService()));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Cannot_register_multiple_scoped_service_with_half_factory_non_generic()
         {
             var builder = new EntityFrameworkServicesBuilder(new ServiceCollection());
@@ -237,7 +237,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                     .Message);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Cannot_register_multiple_scoped_service_with_object_factory()
         {
             var builder = new EntityFrameworkServicesBuilder(new ServiceCollection());
@@ -249,7 +249,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                     .Message);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Cannot_register_multiple_scoped_with_instance()
         {
             var builder = new EntityFrameworkServicesBuilder(new ServiceCollection());
@@ -261,7 +261,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                     .Message);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Cannot_register_multiple_scoped_with_instance_non_generic()
         {
             var builder = new EntityFrameworkServicesBuilder(new ServiceCollection());

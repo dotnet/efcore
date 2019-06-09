@@ -10,7 +10,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
 {
     public class RawSqlCommandBuilderTest
     {
-        [Fact]
+        [ConditionalFact]
         public virtual void Builds_RelationalCommand_without_optional_parameters()
         {
             var builder = CreateBuilder();
@@ -35,7 +35,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                     new ParameterNameGeneratorDependencies()));
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Builds_RelationalCommand_with_empty_parameter_list()
         {
             var builder = CreateBuilder();
@@ -47,7 +47,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.Equal(0, rawSqlCommand.ParameterValues.Count);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Builds_RelationalCommand_with_parameters()
         {
             var builder = CreateBuilder();

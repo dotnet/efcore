@@ -14,7 +14,7 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
     {
         private static readonly IMutableModel _model = InMemoryTestHelpers.Instance.BuildModelFor<AnEntity>();
 
-        [Fact]
+        [ConditionalFact]
         public void Can_create_factories_for_all_integer_types()
         {
             var entityType = _model.FindEntityType(typeof(AnEntity));
@@ -40,7 +40,7 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
         private static object CreateAndUseFactory(IProperty property)
             => new TemporaryNumberValueGeneratorFactory().Create(property).Next(null);
 
-        [Fact]
+        [ConditionalFact]
         public void Throws_for_non_integer_property()
         {
             var property = _model.FindEntityType(typeof(AnEntity)).FindProperty("BadCheese");

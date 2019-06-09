@@ -12,7 +12,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
     public class ClrPropertyGetterFactoryTest
     {
-        [Fact]
+        [ConditionalFact]
         public void Property_is_returned_if_it_implements_IClrPropertyGetter()
         {
             var property = new FakeProperty();
@@ -39,7 +39,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             public FieldInfo FieldInfo { get; }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Delegate_getter_is_returned_for_IProperty_property()
         {
             var entityType = ((IMutableModel)new Model()).AddEntityType(typeof(Customer));
@@ -53,7 +53,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     }));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Delegate_getter_is_returned_for_property_info()
         {
             Assert.Equal(
@@ -64,7 +64,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     }));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Delegate_getter_is_returned_for_IProperty_struct_property()
         {
             var entityType = ((IMutableModel)new Model()).AddEntityType(typeof(Customer));
@@ -80,7 +80,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     }));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Delegate_getter_is_returned_for_struct_property_info()
         {
             Assert.Equal(

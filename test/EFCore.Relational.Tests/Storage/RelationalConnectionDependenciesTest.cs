@@ -8,7 +8,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
 {
     public class RelationalConnectionDependenciesTest
     {
-        [Fact]
+        [ConditionalFact]
         public void Can_use_With_methods_to_clone_and_replace_service()
         {
             RelationalTestHelpers.Instance.TestDependenciesClone<RelationalConnectionDependencies>();

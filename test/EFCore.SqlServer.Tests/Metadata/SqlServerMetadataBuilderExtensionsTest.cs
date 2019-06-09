@@ -17,7 +17,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         private IConventionModelBuilder CreateBuilder()
             => new InternalModelBuilder(new Model());
 
-        [Fact]
+        [ConditionalFact]
         public void Can_access_model()
         {
             var builder = CreateBuilder();
@@ -40,7 +40,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                     a => a.Name.StartsWith(SqlServerAnnotationNames.Prefix, StringComparison.Ordinal)));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_access_entity_type()
         {
             var typeBuilder = CreateBuilder().Entity(typeof(Splot));
@@ -59,7 +59,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                     a => a.Name.StartsWith(SqlServerAnnotationNames.Prefix, StringComparison.Ordinal)));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_access_property()
         {
             var propertyBuilder = CreateBuilder()
@@ -80,7 +80,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                     a => a.Name.StartsWith(SqlServerAnnotationNames.Prefix, StringComparison.Ordinal)));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Throws_setting_sequence_generation_for_invalid_type()
         {
             var propertyBuilder = CreateBuilder()
@@ -98,7 +98,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                     () => new PropertyBuilder((IMutableProperty)propertyBuilder.Metadata).ForSqlServerUseSequenceHiLo()).Message);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Throws_setting_identity_generation_for_invalid_type_only_with_explicit()
         {
             var propertyBuilder = CreateBuilder()
@@ -116,7 +116,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                     () => new PropertyBuilder((IMutableProperty)propertyBuilder.Metadata).ForSqlServerUseIdentityColumn()).Message);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_access_key()
         {
             var modelBuilder = CreateBuilder();
@@ -138,7 +138,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                     a => a.Name.StartsWith(SqlServerAnnotationNames.Prefix, StringComparison.Ordinal)));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_access_index()
         {
             var modelBuilder = CreateBuilder();
@@ -160,7 +160,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                     a => a.Name.StartsWith(SqlServerAnnotationNames.Prefix, StringComparison.Ordinal)));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_access_relationship()
         {
             var modelBuilder = CreateBuilder();

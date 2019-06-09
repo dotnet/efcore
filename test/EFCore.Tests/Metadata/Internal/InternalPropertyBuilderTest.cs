@@ -15,7 +15,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
     public class InternalPropertyBuilderTest
     {
-        [Fact]
+        [ConditionalFact]
         public void Property_added_by_name_is_non_shadow_if_matches_Clr_property()
         {
             var model = new Model();
@@ -28,7 +28,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.False(property.IsShadowProperty());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_only_override_lower_or_equal_source_ConcurrencyToken()
         {
             var builder = CreateInternalPropertyBuilder();
@@ -43,7 +43,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.False(metadata.IsConcurrencyToken);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_only_override_existing_ConcurrencyToken_value_explicitly()
         {
             var metadata = CreateProperty();
@@ -61,7 +61,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.False(metadata.IsConcurrencyToken);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_only_override_lower_or_equal_source_ValueGenerated()
         {
             var builder = CreateInternalPropertyBuilder();
@@ -76,7 +76,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Equal(ValueGenerated.Never, metadata.ValueGenerated);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_only_override_existing_ValueGenerated_value_explicitly()
         {
             var metadata = CreateProperty();
@@ -94,7 +94,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Equal(ValueGenerated.Never, metadata.ValueGenerated);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_only_override_lower_or_equal_source_MaxLength()
         {
             var builder = CreateInternalPropertyBuilder();
@@ -109,7 +109,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Equal(2, metadata.GetMaxLength().Value);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_only_override_existing_MaxLength_value_explicitly()
         {
             var metadata = CreateProperty();
@@ -125,7 +125,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Equal(2, metadata.GetMaxLength().Value);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_only_override_lower_or_equal_source_CustomValueGenerator_factory()
         {
             var builder = CreateInternalPropertyBuilder();
@@ -142,7 +142,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.True(metadata.RequiresValueGenerator());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_only_override_existing_CustomValueGenerator_factory_explicitly()
         {
             ValueGenerator factory(IProperty p, IEntityType e) => new CustomValueGenerator1();
@@ -162,7 +162,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.True(metadata.RequiresValueGenerator());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_clear_CustomValueGenerator_factory()
         {
             var metadata = CreateProperty();
@@ -187,7 +187,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.False(metadata.RequiresValueGenerator());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_only_override_lower_or_equal_source_CustomValueGenerator_type()
         {
             var builder = CreateInternalPropertyBuilder();
@@ -204,7 +204,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.True(metadata.RequiresValueGenerator());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_clear_CustomValueGenerator_type()
         {
             var metadata = CreateProperty();
@@ -249,7 +249,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             public override bool GeneratesTemporaryValues => false;
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_only_override_lower_or_equal_source_unicode()
         {
             var builder = CreateInternalPropertyBuilder();
@@ -264,7 +264,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.False(metadata.IsUnicode().Value);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_only_override_existing_unicode_value_explicitly()
         {
             var metadata = CreateProperty();
@@ -280,7 +280,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.False(metadata.IsUnicode().Value);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_only_override_lower_or_equal_source_Required()
         {
             var builder = CreateInternalPropertyBuilder();
@@ -295,7 +295,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.True(metadata.IsNullable);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_only_override_existing_Required_value_explicitly()
         {
             var metadata = CreateProperty();
@@ -313,7 +313,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.True(metadata.IsNullable);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Cannot_set_required_to_false_if_nonnullable()
         {
             var modelBuilder = new InternalModelBuilder(new Model());
@@ -327,7 +327,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 Assert.Throws<InvalidOperationException>(() => builder.IsRequired(false, ConfigurationSource.Explicit)).Message);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_only_override_lower_or_equal_source_BeforeSaveBehavior()
         {
             var builder = CreateInternalPropertyBuilder();
@@ -342,7 +342,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Equal(PropertySaveBehavior.Ignore, metadata.GetBeforeSaveBehavior());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_only_override_existing_BeforeSaveBehavior_value_explicitly()
         {
             var metadata = CreateProperty();
@@ -360,7 +360,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Equal(PropertySaveBehavior.Ignore, metadata.GetBeforeSaveBehavior());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_only_override_lower_or_equal_source_AfterSaveBehavior()
         {
             var builder = CreateInternalPropertyBuilder();
@@ -375,7 +375,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Equal(PropertySaveBehavior.Ignore, metadata.GetAfterSaveBehavior());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_only_override_existing_AfterSaveBehavior_value_explicitly()
         {
             var metadata = CreateProperty();

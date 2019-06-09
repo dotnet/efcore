@@ -25,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore
 
         protected DbContext CreateContext() => Fixture.CreateContext();
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual async Task Can_filter_projection_with_captured_enum_variable(bool async)
@@ -53,7 +53,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual async Task Can_filter_projection_with_inline_enum_variable(bool async)
@@ -79,7 +79,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Can_perform_query_with_max_length()
         {
             var shortString = "Sky";
@@ -139,7 +139,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Can_perform_query_with_ansi_strings_test()
         {
             var shortString = Fixture.SupportsUnicodeToAnsiConversion ? "Ϩky" : "sky";
@@ -203,7 +203,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Can_query_using_any_data_type()
         {
             using (var context = CreateContext())
@@ -216,7 +216,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Can_query_using_any_data_type_shadow()
         {
             using (var context = CreateContext())
@@ -549,7 +549,7 @@ namespace Microsoft.EntityFrameworkCore
             return entityEntry;
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Can_query_using_any_nullable_data_type()
         {
             using (var context = CreateContext())
@@ -562,7 +562,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Can_query_using_any_data_type_nullable_shadow()
         {
             using (var context = CreateContext())
@@ -925,7 +925,7 @@ namespace Microsoft.EntityFrameworkCore
             return entityEntry;
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Can_query_using_any_nullable_data_type_as_literal()
         {
             using (var context = CreateContext())
@@ -1149,7 +1149,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Can_query_with_null_parameters_using_any_nullable_data_type()
         {
             using (var context = CreateContext())
@@ -1319,7 +1319,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Can_insert_and_read_back_all_non_nullable_data_types()
         {
             using (var context = CreateContext())
@@ -1392,7 +1392,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Can_insert_and_read_with_max_length_set()
         {
             const string shortString = "Sky";
@@ -1431,7 +1431,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Can_insert_and_read_back_with_binary_key()
         {
             if (!Fixture.SupportsBinaryKeys)
@@ -1470,7 +1470,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Can_insert_and_read_back_with_null_binary_foreign_key()
         {
             using (var context = CreateContext())
@@ -1492,7 +1492,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Can_insert_and_read_back_with_string_key()
         {
             using (var context = CreateContext())
@@ -1528,7 +1528,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Can_insert_and_read_back_with_null_string_foreign_key()
         {
             using (var context = CreateContext())
@@ -1559,7 +1559,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Can_insert_and_read_back_all_nullable_data_types_with_values_set_to_null()
         {
             using (var context = CreateContext())
@@ -1607,7 +1607,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Can_insert_and_read_back_all_nullable_data_types_with_values_set_to_non_null()
         {
             using (var context = CreateContext())
@@ -1684,7 +1684,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Can_insert_and_read_back_object_backed_data_types()
         {
             using (var context = CreateContext())
@@ -1758,7 +1758,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Can_insert_and_read_back_nullable_backed_data_types()
         {
             using (var context = CreateContext())
@@ -1828,7 +1828,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Can_insert_and_read_back_non_nullable_backed_data_types()
         {
             using (var context = CreateContext())

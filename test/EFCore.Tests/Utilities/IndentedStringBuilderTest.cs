@@ -12,7 +12,7 @@ namespace Microsoft.EntityFrameworkCore.Utilities
     {
         private static readonly string EOL = Environment.NewLine;
 
-        [Fact]
+        [ConditionalFact]
         public void Append_at_start_with_indent()
         {
             var indentedStringBuilder = new IndentedStringBuilder();
@@ -25,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore.Utilities
             Assert.Equal("    Foo", indentedStringBuilder.ToString());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Append_in_middle_when_no_new_line()
         {
             var indentedStringBuilder = new IndentedStringBuilder();
@@ -40,7 +40,7 @@ namespace Microsoft.EntityFrameworkCore.Utilities
             Assert.Equal("FooFoo", indentedStringBuilder.ToString());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Append_in_middle_when_new_line()
         {
             var indentedStringBuilder = new IndentedStringBuilder();
@@ -56,7 +56,7 @@ namespace Microsoft.EntityFrameworkCore.Utilities
             Assert.Equal($"Foo{EOL}    Foo{EOL}", indentedStringBuilder.ToString());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Append_line_at_start_with_indent()
         {
             var indentedStringBuilder = new IndentedStringBuilder();
@@ -69,7 +69,7 @@ namespace Microsoft.EntityFrameworkCore.Utilities
             Assert.Equal("    Foo" + EOL, indentedStringBuilder.ToString());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Append_line_in_middle_when_no_new_line()
         {
             var indentedStringBuilder = new IndentedStringBuilder();
@@ -84,7 +84,7 @@ namespace Microsoft.EntityFrameworkCore.Utilities
             Assert.Equal($"Foo{EOL}    Foo{EOL}", indentedStringBuilder.ToString());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Append_line_with_indent_only()
         {
             var indentedStringBuilder = new IndentedStringBuilder();

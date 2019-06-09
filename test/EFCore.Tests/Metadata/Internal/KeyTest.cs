@@ -13,7 +13,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
     public class KeyTest
     {
-        [Fact]
+        [ConditionalFact]
         public void Use_of_custom_IKey_throws()
         {
             var key = new FakeKey();
@@ -32,7 +32,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             public IEntityType DeclaringEntityType { get; }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_create_key_from_properties()
         {
             var entityType = ((IConventionModel)CreateModel()).AddEntityType(typeof(Customer));
@@ -46,7 +46,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Equal(ConfigurationSource.Convention, key.GetConfigurationSource());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Validates_properties_from_same_entity()
         {
             var model = CreateModel();

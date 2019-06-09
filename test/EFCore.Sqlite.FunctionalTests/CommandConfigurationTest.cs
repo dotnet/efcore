@@ -14,7 +14,7 @@ namespace Microsoft.EntityFrameworkCore
 
         protected CommandConfigurationTestFixture Fixture { get; }
 
-        [Fact]
+        [ConditionalFact]
         public void Constructed_select_query_CommandBuilder_throws_when_negative_CommandTimeout_is_used()
         {
             using (var context = CreateContext())

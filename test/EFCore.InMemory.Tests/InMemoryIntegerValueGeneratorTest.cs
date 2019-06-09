@@ -9,7 +9,7 @@ namespace Microsoft.EntityFrameworkCore
 {
     public class InMemoryIntegerValueGeneratorTest
     {
-        [Fact]
+        [ConditionalFact]
         public void Creates_values()
         {
             var generator = new InMemoryIntegerValueGenerator<int>(0);
@@ -27,7 +27,7 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Equal(2, generator.Next(null));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_create_values_for_all_integer_types()
         {
             Assert.Equal(1, new InMemoryIntegerValueGenerator<int>(0).Next(null));
@@ -40,7 +40,7 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Equal((sbyte)1, new InMemoryIntegerValueGenerator<sbyte>(0).Next(null));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Throws_when_type_conversion_would_overflow()
         {
             var generator = new InMemoryIntegerValueGenerator<byte>(0);
@@ -53,7 +53,7 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Throws<OverflowException>(() => generator.Next(null));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Does_not_generate_temp_values()
         {
             Assert.False(new InMemoryIntegerValueGenerator<int>(0).GeneratesTemporaryValues);

@@ -31,7 +31,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
     {
         #region NotMappedAttribute
 
-        [Fact]
+        [ConditionalFact]
         public void NotMappedAttribute_overrides_configuration_from_convention_source()
         {
             var dependentEntityTypeBuilder = CreateInternalEntityTypeBuilder<BlogDetails>();
@@ -57,7 +57,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             Assert.Contains(dependentEntityTypeBuilder.Metadata.GetNavigations(), nav => nav.Name == nameof(BlogDetails.Blog));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void NotMappedAttribute_does_not_override_configuration_from_explicit_source()
         {
             var dependentEntityTypeBuilder = CreateInternalEntityTypeBuilder<BlogDetails>();
@@ -78,7 +78,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             Assert.Contains(dependentEntityTypeBuilder.Metadata.GetNavigations(), nav => nav.Name == nameof(BlogDetails.Blog));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void NotMappedAttribute_ignores_navigation_with_conventional_builder()
         {
             var modelBuilder = CreateModelBuilder();
@@ -93,7 +93,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
         #region RequiredAttribute
 
-        [Fact]
+        [ConditionalFact]
         public void RequiredAttribute_overrides_configuration_from_convention_source()
         {
             var dependentEntityTypeBuilder = CreateInternalEntityTypeBuilder<Post>();
@@ -118,7 +118,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             Assert.Contains(dependentEntityTypeBuilder.Metadata.GetNavigations(), nav => nav.Name == nameof(Post.Blog));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void RequiredAttribute_does_not_override_configuration_from_explicit_source()
         {
             var dependentEntityTypeBuilder = CreateInternalEntityTypeBuilder<Post>();
@@ -143,7 +143,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             Assert.Contains(dependentEntityTypeBuilder.Metadata.GetNavigations(), nav => nav.Name == nameof(Post.Blog));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void RequiredAttribute_does_not_set_is_required_for_collection_navigation()
         {
             var dependentEntityTypeBuilder = CreateInternalEntityTypeBuilder<Dependent>();
@@ -167,7 +167,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             Assert.Empty(ListLoggerFactory.Log);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void RequiredAttribute_does_not_set_is_required_for_navigation_to_dependent()
         {
             var dependentEntityTypeBuilder = CreateInternalEntityTypeBuilder<Dependent>();
@@ -191,7 +191,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             Assert.False(relationshipBuilder.Metadata.IsRequired);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void RequiredAttribute_inverts_when_navigation_to_dependent()
         {
             var dependentEntityTypeBuilder = CreateInternalEntityTypeBuilder<Dependent>();
@@ -223,7 +223,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                     nameof(Principal.Dependent), nameof(Principal)), logEntry.Message);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void RequiredAttribute_sets_is_required_with_conventional_builder()
         {
             var modelBuilder = CreateModelBuilder();
@@ -235,7 +235,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                     .IsRequired);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void RequiredAttribute_can_be_specified_on_both_navigations()
         {
             var modelBuilder = CreateModelBuilder();
@@ -257,7 +257,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
         #region InversePropertyAttribute
 
-        [Fact]
+        [ConditionalFact]
         public void InversePropertyAttribute_overrides_configuration_from_convention_source()
         {
             var dependentEntityTypeBuilder = CreateInternalEntityTypeBuilder<Dependent>();
@@ -283,7 +283,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             Validate(dependentEntityTypeBuilder);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void InversePropertyAttribute_does_not_override_configuration_from_explicit_source()
         {
             var dependentEntityTypeBuilder = CreateInternalEntityTypeBuilder<Dependent>();
@@ -309,7 +309,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             Validate(dependentEntityTypeBuilder);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void InversePropertyAttribute_does_not_configure_ambiguous_navigations()
         {
             var dependentEntityTypeBuilder = CreateInternalEntityTypeBuilder<AmbiguousDependent>();
@@ -357,7 +357,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                     nameof(AmbiguousPrincipal.Dependent)), logEntry.Message);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void InversePropertyAttribute_does_not_configure_non_defining_navigation()
         {
             var principalEntityTypeBuilder = CreateInternalEntityTypeBuilder<Principal>();
@@ -395,7 +395,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             Validate(dependentEntityTypeBuilder);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void InversePropertyAttribute_does_not_configure_non_ownership_navigation()
         {
             var principalEntityTypeBuilder = CreateInternalEntityTypeBuilder<Principal>();
@@ -430,7 +430,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                     nameof(Principal.Dependents)), logEntry.Message);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void InversePropertyAttribute_throws_if_self_navigation()
         {
             var entityTypeBuilder = CreateInternalEntityTypeBuilder<SelfReferencingEntity>();
@@ -442,7 +442,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                     () => RunConvention(entityTypeBuilder)).Message);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void InversePropertyAttribute_throws_if_navigation_does_not_exist()
         {
             var entityTypeBuilder = CreateInternalEntityTypeBuilder<NonExistentNavigation>();
@@ -454,7 +454,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                     () => RunConvention(entityTypeBuilder)).Message);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void InversePropertyAttribute_throws_if_navigation_return_type_is_wrong()
         {
             var entityTypeBuilder = CreateInternalEntityTypeBuilder<WrongNavigationType>();
@@ -465,7 +465,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                     () => RunConvention(entityTypeBuilder)).Message);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void InversePropertyAttribute_throws_if_inverse_properties_are_not_pointing_at_each_other()
         {
             var entityTypeBuilder = CreateInternalEntityTypeBuilder<MismatchedInverseProperty>();
@@ -481,7 +481,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
         #region ForeignKeyAttribute
 
-        [Fact]
+        [ConditionalFact]
         public void ForeignKeyAttribute_overrides_configuration_from_convention_source()
         {
             var dependentEntityTypeBuilder = CreateInternalEntityTypeBuilder<Dependent>();
@@ -508,7 +508,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             Assert.Equal("PrincipalFk", relationshipBuilder.Metadata.Properties.First().Name);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void ForeignKeyAttribute_does_not_override_configuration_from_explicit_source()
         {
             var dependentEntityTypeBuilder = CreateInternalEntityTypeBuilder<Dependent>();
@@ -535,7 +535,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             Assert.Equal("PrincipalId", relationshipBuilder.Metadata.Properties.First().Name);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void ForeignKeyAttribute_sets_foreign_key_properties_when_applied_on_dependent_to_principal_navigation()
         {
             var dependentEntityTypeBuilder = CreateInternalEntityTypeBuilder<Dependent>();
@@ -562,7 +562,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             Assert.Equal("PrincipalFk", relationshipBuilder.Metadata.Properties.First().Name);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void ForeignKeyAttribute_sets_foreign_key_properties_when_applied_on_principal_to_dependent_navigation()
         {
             var dependentEntityTypeBuilder = CreateInternalEntityTypeBuilder<Dependent>();
@@ -589,7 +589,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             Assert.Equal("PrincipalAnotherFk", relationshipBuilder.Metadata.Properties.First().Name);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void ForeignKeyAttribute_sets_foreign_key_properties_when_applied_on_property_on_dependent_side()
         {
             var dependentEntityTypeBuilder = CreateInternalEntityTypeBuilder<Dependent>();
@@ -616,7 +616,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             Assert.Equal("PrincipalAnotherFk", relationshipBuilder.Metadata.Properties.First().Name);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void ForeignKeyAttribute_on_field_sets_foreign_key_properties_when_applied_on_property_on_dependent_side()
         {
             var dependentEntityTypeBuilder = CreateInternalEntityTypeBuilder<DependentField>();
@@ -643,7 +643,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             Assert.Equal("_principalFieldAnotherFk", relationshipBuilder.Metadata.Properties.First().Name);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void ForeignKeyAttribute_sets_foreign_key_properties_after_inverting_when_applied_on_property_on_principal_side()
         {
             var dependentEntityTypeBuilder = CreateInternalEntityTypeBuilder<Principal>();
@@ -674,7 +674,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             Assert.Equal(typeof(Principal), relationshipBuilder.Metadata.PrincipalEntityType.ClrType);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void ForeignKeyAttribute_sets_composite_foreign_key_properties_when_applied_on_navigation()
         {
             var dependentEntityTypeBuilder = CreateInternalEntityTypeBuilder<Dependent>();
@@ -705,7 +705,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 p => Assert.Equal("PrincipalFk", p.Name));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void ForeignKeyAttribute_throws_when_values_on_property_and_navigtaion_in_entity_type_do_not_match()
         {
             var dependentEntityTypeBuilder = CreateInternalEntityTypeBuilder<FkPropertyNavigationMismatch>();
@@ -723,7 +723,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 Assert.Throws<InvalidOperationException>(() => RunConvention(relationshipBuilder)).Message);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void ForeignKeyAttribute_throws_when_defining_composite_foreign_key_using_attribute_on_properties()
         {
             var dependentEntityTypeBuilder = CreateInternalEntityTypeBuilder<CompositeFkOnProperty>();
@@ -741,7 +741,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 Assert.Throws<InvalidOperationException>(() => RunConvention(relationshipBuilder)).Message);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void ForeignKeyAttribute_throws_when_property_list_on_navigation_is_in_incorrect_format()
         {
             var dependentEntityTypeBuilder = CreateInternalEntityTypeBuilder<InvalidPropertyListOnNavigation>();
@@ -759,7 +759,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 Assert.Throws<InvalidOperationException>(() => RunConvention(relationshipBuilder)).Message);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void ForeignKeyAttribute_throws_when_same_set_of_properties_are_pointed_by_multiple_navigations()
         {
             var dependentEntityTypeBuilder = CreateInternalEntityTypeBuilder<MultipleNavigationsSameFk>();
@@ -777,7 +777,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 Assert.Throws<InvalidOperationException>(() => RunConvention(relationshipBuilder)).Message);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void ForeignKeyAttribute_throws_when_specified_on_principal_property_with_collection()
         {
             var dependentEntityTypeBuilder = CreateInternalEntityTypeBuilder<Dependent>();
@@ -856,7 +856,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
         #endregion
 
-        [Fact]
+        [ConditionalFact]
         public void Navigation_attribute_convention_runs_for_private_property()
         {
             var modelBuilder = CreateModelBuilder();

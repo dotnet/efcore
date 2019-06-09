@@ -25,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public async Task Can_add_update_delete_end_to_end()
         {
             var serviceProvider = new ServiceCollection()
@@ -113,7 +113,7 @@ namespace Microsoft.EntityFrameworkCore
             modelBuilder.Entity<Customer>();
         }
 
-        [Fact]
+        [ConditionalFact]
         public async Task Can_share_instance_between_contexts_with_sugar_experience()
         {
             using (var db = new SimpleContext())

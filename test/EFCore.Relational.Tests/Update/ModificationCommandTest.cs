@@ -16,7 +16,7 @@ namespace Microsoft.EntityFrameworkCore.Update
 {
     public class ModificationCommandTest
     {
-        [Fact]
+        [ConditionalFact]
         public void ModificationCommand_initialized_correctly_for_added_entities_with_temp_generated_key()
         {
             var entry = CreateEntry(EntityState.Added, generateKeyValues: true);
@@ -61,7 +61,7 @@ namespace Microsoft.EntityFrameworkCore.Update
             Assert.True(columnMod.IsWrite);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void ModificationCommand_initialized_correctly_for_added_entities_with_non_temp_generated_key()
         {
             var entry = CreateEntry(EntityState.Added, generateKeyValues: true);
@@ -105,7 +105,7 @@ namespace Microsoft.EntityFrameworkCore.Update
             Assert.True(columnMod.IsWrite);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void ModificationCommand_initialized_correctly_for_added_entities_with_explicitly_specified_key_value()
         {
             var entry = CreateEntry(EntityState.Added);
@@ -149,7 +149,7 @@ namespace Microsoft.EntityFrameworkCore.Update
             Assert.True(columnMod.IsWrite);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void ModificationCommand_initialized_correctly_for_modified_entities_with_identity_key()
         {
             var entry = CreateEntry(EntityState.Modified, generateKeyValues: true);
@@ -193,7 +193,7 @@ namespace Microsoft.EntityFrameworkCore.Update
             Assert.True(columnMod.IsWrite);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void ModificationCommand_initialized_correctly_for_modified_entities_with_client_generated_key()
         {
             var entry = CreateEntry(EntityState.Modified);
@@ -237,7 +237,7 @@ namespace Microsoft.EntityFrameworkCore.Update
             Assert.True(columnMod.IsWrite);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void ModificationCommand_initialized_correctly_for_modified_entities_with_concurrency_token()
         {
             var entry = CreateEntry(EntityState.Modified, computeNonKeyValue: true);
@@ -281,7 +281,7 @@ namespace Microsoft.EntityFrameworkCore.Update
             Assert.False(columnMod.IsWrite);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void ModificationCommand_initialized_correctly_for_deleted_entities()
         {
             var entry = CreateEntry(EntityState.Deleted);
@@ -305,7 +305,7 @@ namespace Microsoft.EntityFrameworkCore.Update
             Assert.False(columnMod.IsWrite);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void ModificationCommand_initialized_correctly_for_deleted_entities_with_concurrency_token()
         {
             var entry = CreateEntry(EntityState.Deleted, computeNonKeyValue: true);
@@ -349,7 +349,7 @@ namespace Microsoft.EntityFrameworkCore.Update
             Assert.False(columnMod.IsWrite);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void ModificationCommand_throws_for_unchanged_entities()
         {
             var entry = CreateEntry(EntityState.Unchanged);
@@ -361,7 +361,7 @@ namespace Microsoft.EntityFrameworkCore.Update
                 Assert.Throws<ArgumentException>(() => command.AddEntry(entry)).Message);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void ModificationCommand_throws_for_unknown_entities()
         {
             var entry = CreateEntry(EntityState.Detached);
@@ -373,7 +373,7 @@ namespace Microsoft.EntityFrameworkCore.Update
                 Assert.Throws<ArgumentException>(() => command.AddEntry(entry)).Message);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void RequiresResultPropagation_false_for_Delete_operation()
         {
             var entry = CreateEntry(
@@ -385,7 +385,7 @@ namespace Microsoft.EntityFrameworkCore.Update
             Assert.False(command.RequiresResultPropagation);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void RequiresResultPropagation_true_for_Insert_operation_if_store_generated_columns_exist()
         {
             var entry = CreateEntry(
@@ -397,7 +397,7 @@ namespace Microsoft.EntityFrameworkCore.Update
             Assert.True(command.RequiresResultPropagation);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void RequiresResultPropagation_false_for_Insert_operation_if_no_store_generated_columns_exist()
         {
             var entry = CreateEntry(EntityState.Added);
@@ -408,7 +408,7 @@ namespace Microsoft.EntityFrameworkCore.Update
             Assert.False(command.RequiresResultPropagation);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void RequiresResultPropagation_true_for_Update_operation_if_non_key_store_generated_columns_exist()
         {
             var entry = CreateEntry(
@@ -420,7 +420,7 @@ namespace Microsoft.EntityFrameworkCore.Update
             Assert.True(command.RequiresResultPropagation);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void RequiresResultPropagation_false_for_Update_operation_if_no_non_key_store_generated_columns_exist()
         {
             var entry = CreateEntry(EntityState.Modified, generateKeyValues: true);

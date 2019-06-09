@@ -11,7 +11,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 {
     public class InternalClrEntityEntryTest : InternalEntityEntryTestBase
     {
-        [Fact]
+        [ConditionalFact]
         public void Can_get_entity()
         {
             var model = BuildModel();
@@ -23,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Assert.Same(entity, entry.Entity);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_set_and_get_property_value_from_CLR_object()
         {
             var model = BuildModel();
@@ -49,7 +49,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Assert.Equal("Normal Tree House", entity.Name);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Asking_for_entity_instance_causes_it_to_be_materialized()
         {
             var model = BuildModel();
@@ -72,7 +72,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Assert.Equal("Kool", entity.Name);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void All_original_values_can_be_accessed_for_entity_that_does_no_notification()
         {
             var model = BuildModel();
@@ -86,7 +86,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 });
         }
 
-        [Fact]
+        [ConditionalFact]
         public void All_original_values_can_be_accessed_for_entity_that_does_changed_only_notifications()
         {
             var model = BuildModel();
@@ -100,7 +100,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 });
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Setting_CLR_property_with_snapshot_change_tracking_requires_DetectChanges()
             => SetPropertyClrTest(
                 new SomeEntity
@@ -109,7 +109,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     Name = "Kool"
                 }, needsDetectChanges: true);
 
-        [Fact]
+        [ConditionalFact]
         public void Setting_CLR_property_with_changed_only_notifications_does_not_require_DetectChanges()
             => SetPropertyClrTest(
                 new ChangedOnlyEntity
@@ -118,7 +118,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     Name = "Kool"
                 }, needsDetectChanges: false);
 
-        [Fact]
+        [ConditionalFact]
         public void Setting_CLR_property_with_full_notifications_does_not_require_DetectChanges()
             => SetPropertyClrTest(
                 new FullNotificationEntity
@@ -127,7 +127,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     Name = "Kool"
                 }, needsDetectChanges: false);
 
-        [Fact]
+        [ConditionalFact]
         public void Setting_an_explicit_value_on_the_entity_marks_property_as_not_temporary()
         {
             var model = BuildModel();

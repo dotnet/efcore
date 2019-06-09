@@ -18,7 +18,7 @@ namespace Microsoft.EntityFrameworkCore
 {
     public class InMemoryValueGeneratorSelectorTest
     {
-        [Fact]
+        [ConditionalFact]
         public void Returns_built_in_generators_for_types_setup_for_value_generation()
         {
             var model = BuildModel();
@@ -48,7 +48,7 @@ namespace Microsoft.EntityFrameworkCore
             Assert.IsType<BinaryValueGenerator>(selector.Select(entityType.FindProperty("Binary"), entityType));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_create_factories_for_all_integer_types()
         {
             var model = BuildModel();
@@ -81,7 +81,7 @@ namespace Microsoft.EntityFrameworkCore
             return selector.Select(property, property.DeclaringEntityType).Next(null);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Throws_for_unsupported_combinations()
         {
             var model = BuildModel();

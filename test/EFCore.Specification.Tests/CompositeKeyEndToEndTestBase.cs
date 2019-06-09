@@ -18,7 +18,7 @@ namespace Microsoft.EntityFrameworkCore
 
         private TFixture Fixture { get; }
 
-        [Fact]
+        [ConditionalFact]
         public virtual async Task Can_use_two_non_generated_integers_as_composite_key_end_to_end()
         {
             var ticks = DateTime.UtcNow.Ticks;
@@ -61,7 +61,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual async Task Can_use_generated_values_in_composite_key_end_to_end()
         {
             long id1;
@@ -119,7 +119,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual async Task Only_one_part_of_a_composite_key_needs_to_vary_for_uniqueness()
         {
             var ids = new int[3];

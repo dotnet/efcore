@@ -12,7 +12,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities.Xunit
     public sealed class UseCultureAttribute : BeforeAfterTestAttribute
     {
         private CultureInfo _originalCulture;
-        private CultureInfo _originalUICulture;
+        private CultureInfo _originalUiCulture;
 
         public UseCultureAttribute(string culture)
             : this(culture, culture)
@@ -22,25 +22,25 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities.Xunit
         public UseCultureAttribute(string culture, string uiCulture)
         {
             Culture = new CultureInfo(culture);
-            UICulture = new CultureInfo(uiCulture);
+            UiCulture = new CultureInfo(uiCulture);
         }
 
         public CultureInfo Culture { get; }
 
-        public CultureInfo UICulture { get; }
+        public CultureInfo UiCulture { get; }
 
         public override void Before(MethodInfo methodUnderTest)
         {
             _originalCulture = CultureInfo.CurrentCulture;
-            _originalUICulture = CultureInfo.CurrentUICulture;
+            _originalUiCulture = CultureInfo.CurrentUICulture;
             CultureInfo.CurrentCulture = Culture;
-            CultureInfo.CurrentUICulture = UICulture;
+            CultureInfo.CurrentUICulture = UiCulture;
         }
 
         public override void After(MethodInfo methodUnderTest)
         {
             CultureInfo.CurrentCulture = _originalCulture;
-            CultureInfo.CurrentUICulture = _originalUICulture;
+            CultureInfo.CurrentUICulture = _originalUiCulture;
         }
     }
 }

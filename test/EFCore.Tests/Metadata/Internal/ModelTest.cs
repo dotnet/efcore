@@ -16,7 +16,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
     public class ModelTest
     {
-        [Fact]
+        [ConditionalFact]
         public void Use_of_custom_IModel_throws()
         {
             var model = new FakeModel();
@@ -38,13 +38,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 throw new NotImplementedException();
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Snapshot_change_tracking_is_used_by_default()
         {
             Assert.Equal(ChangeTrackingStrategy.Snapshot, CreateModel().GetChangeTrackingStrategy());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Change_tracking_strategy_can_be_changed()
         {
             var model = CreateModel();
@@ -55,7 +55,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Equal(ChangeTrackingStrategy.ChangedNotifications, model.GetChangeTrackingStrategy());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_add_and_remove_entity_by_type()
         {
             var model = CreateModel();
@@ -80,7 +80,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Null(((EntityType)entityType).Builder);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_add_and_remove_entity_by_name()
         {
             var model = CreateModel();
@@ -106,7 +106,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Null(((EntityType)entityType).Builder);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_add_weak_entity_types()
         {
             IMutableModel model = CreateModel();
@@ -164,7 +164,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Null(((EntityType)dependentOrderType).Builder);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Cannot_remove_entity_type_when_referenced_by_foreign_key()
         {
             var model = CreateModel();
@@ -184,7 +184,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 Assert.Throws<InvalidOperationException>(() => model.RemoveEntityType(customerType.Name)).Message);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Cannot_remove_entity_type_when_it_has_derived_types()
         {
             var model = CreateModel();
@@ -198,7 +198,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 Assert.Throws<InvalidOperationException>(() => model.RemoveEntityType(customerType.Name)).Message);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Adding_duplicate_entity_by_type_throws()
         {
             var model = CreateModel();
@@ -211,7 +211,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 Assert.Throws<InvalidOperationException>(() => model.AddEntityType(typeof(Customer))).Message);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Adding_duplicate_entity_by_name_throws()
         {
             var model = CreateModel();
@@ -224,7 +224,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 Assert.Throws<InvalidOperationException>(() => model.AddEntityType(typeof(Customer).FullName)).Message);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_get_entity_by_type()
         {
             var model = CreateModel();
@@ -235,7 +235,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Null(model.FindEntityType(typeof(string)));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_get_entity_by_name()
         {
             var model = CreateModel();
@@ -246,7 +246,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Null(model.FindEntityType(typeof(string)));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Entities_are_ordered_by_name()
         {
             var model = CreateModel();
@@ -256,7 +256,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.True(new[] { entityType2, entityType1 }.SequenceEqual(model.GetEntityTypes()));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_get_referencing_foreign_keys()
         {
             var model = CreateModel();

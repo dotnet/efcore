@@ -16,7 +16,7 @@ namespace Microsoft.EntityFrameworkCore
 {
     public class InMemoryDatabaseCreatorTest
     {
-        [Fact]
+        [ConditionalFact]
         public void EnsureCreated_returns_true_for_first_use_of_persistent_database_and_false_thereafter()
         {
             var serviceProvider = InMemoryTestHelpers.Instance.CreateServiceProvider();
@@ -32,7 +32,7 @@ namespace Microsoft.EntityFrameworkCore
             Assert.False(creator.EnsureCreated());
         }
 
-        [Fact]
+        [ConditionalFact]
         public async Task EnsureCreatedAsync_returns_true_for_first_use_of_persistent_database_and_false_thereafter()
         {
             var serviceProvider = InMemoryTestHelpers.Instance.CreateServiceProvider();
@@ -57,13 +57,13 @@ namespace Microsoft.EntityFrameworkCore
             return new InMemoryDatabaseCreator(contextServices.GetRequiredService<IDatabase>());
         }
 
-        [Fact]
+        [ConditionalFact]
         public Task EnsureDeleted_clears_all_in_memory_data_and_returns_true()
         {
             return Delete_clears_all_in_memory_data_test(async: false);
         }
 
-        [Fact]
+        [ConditionalFact]
         public Task EnsureDeletedAsync_clears_all_in_memory_data_and_returns_true()
         {
             return Delete_clears_all_in_memory_data_test(async: true);

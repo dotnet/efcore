@@ -13,7 +13,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 {
     public class ModelCleanupConventionTest
     {
-        [Fact]
+        [ConditionalFact]
         public void Unreachable_entity_types_are_removed()
         {
             var principalEntityBuilder = CreateInternalEntityBuilder<OneToOnePrincipal>();
@@ -30,7 +30,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             Assert.Equal(nameof(OneToOnePrincipal), modelBuilder.Metadata.GetEntityTypes().Single().DisplayName());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Reachable_entity_types_are_not_removed()
         {
             var principalEntityBuilder = CreateInternalEntityBuilder<OneToOnePrincipal>();
@@ -44,7 +44,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             Assert.Equal(2, modelBuilder.Metadata.GetEntityTypes().Count());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Navigationless_foreign_keys_are_removed()
         {
             var principalEntityBuilder = CreateInternalEntityBuilder<OneToOnePrincipal>();

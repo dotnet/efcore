@@ -12,7 +12,7 @@ namespace Microsoft.EntityFrameworkCore.Utilities
 {
     public class TypeNameHelperTest
     {
-        [Theory]
+        [ConditionalTheory]
         // Predefined Types
         [InlineData(typeof(int), "int")]
         [InlineData(typeof(List<int>), "System.Collections.Generic.List<int>")]
@@ -63,7 +63,7 @@ namespace Microsoft.EntityFrameworkCore.Utilities
             Assert.Equal(expected, type.DisplayName());
         }
 
-        [Theory]
+        [ConditionalTheory]
         // Predefined Types
         [InlineData(typeof(int), "int")]
         [InlineData(typeof(List<int>), "List<int>")]
@@ -89,7 +89,7 @@ namespace Microsoft.EntityFrameworkCore.Utilities
             Assert.Equal(expected, type.ShortDisplayName());
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(typeof(bool), "bool")]
         [InlineData(typeof(byte), "byte")]
         [InlineData(typeof(char), "char")]
@@ -111,7 +111,7 @@ namespace Microsoft.EntityFrameworkCore.Utilities
             Assert.Equal(expected, type.DisplayName());
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(typeof(int[]), true, "int[]")]
         [InlineData(typeof(string[][]), true, "string[][]")]
         [InlineData(typeof(int[,]), true, "int[,]")]
@@ -179,7 +179,7 @@ namespace Microsoft.EntityFrameworkCore.Utilities
             };
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_pretty_print_open_generics()
         {
             foreach (var testData in OpenGenericsTestData)

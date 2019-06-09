@@ -12,7 +12,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         private static readonly StringToGuidConverter _stringToGuid
             = new StringToGuidConverter();
 
-        [Fact]
+        [ConditionalFact]
         public void Can_convert_String_to_GUIDs()
         {
             var converter = _stringToGuid.ConvertToProviderExpression.Compile();
@@ -28,7 +28,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.Equal(Guid.Empty, converter(null));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_convert_GUIDs_to_String()
         {
             var converter = _stringToGuid.ConvertFromProviderExpression.Compile();

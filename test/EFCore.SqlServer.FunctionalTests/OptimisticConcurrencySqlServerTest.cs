@@ -18,7 +18,7 @@ namespace Microsoft.EntityFrameworkCore
         {
         }
 
-        [Fact]
+        [ConditionalFact]
         public async Task Modifying_concurrency_token_only_is_noop()
         {
             using (var c = CreateF1Context())
@@ -56,7 +56,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public Task Database_concurrency_token_value_is_discarded_for_non_conflicting_entities()
         {
             byte[] firstVersion = null;
@@ -91,7 +91,7 @@ namespace Microsoft.EntityFrameworkCore
                 c => Assert.Equal(ClientPodiums, c.Drivers.Single(d => d.CarNumber == 2).Podiums));
         }
 
-        [Fact(Skip = "issue #15318")]
+        [ConditionalFact(Skip = "issue #15318")]
         public async Task Database_concurrency_token_value_is_updated_for_all_sharing_entities()
         {
             using (var c = CreateF1Context())
@@ -129,7 +129,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact(Skip = "issue #15285")]
+        [ConditionalFact(Skip = "issue #15285")]
         public async Task Original_concurrency_token_value_is_used_when_replacing_owned_instance()
         {
             using (var c = CreateF1Context())

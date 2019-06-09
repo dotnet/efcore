@@ -16,7 +16,7 @@ namespace Microsoft.EntityFrameworkCore
 
         private SqlServerTriggersFixture Fixture { get; }
 
-        [Fact]
+        [ConditionalFact]
         public void Triggers_run_on_insert_update_and_delete()
         {
             using (var context = CreateContext())
@@ -47,7 +47,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Triggers_work_with_batch_operations()
         {
             using (var context = CreateContext())

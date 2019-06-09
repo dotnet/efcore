@@ -20,7 +20,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
     {
         private static readonly string EOL = Environment.NewLine;
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(
             "single-line string with \"",
             "\"single-line string with \\\"\"")]
@@ -111,95 +111,95 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             Assert.Equal(expected, literal);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Literal_works_when_empty_ByteArray() =>
             Literal_works(
                 Array.Empty<byte>(),
                 "new byte[] {  }");
 
-        [Fact]
+        [ConditionalFact]
         public void Literal_works_when_single_ByteArray() =>
             Literal_works(
                 new byte[] { 1 },
                 "new byte[] { 1 }");
 
-        [Fact]
+        [ConditionalFact]
         public void Literal_works_when_many_ByteArray() =>
             Literal_works(
                 new byte[] { 1, 2 },
                 "new byte[] { 1, 2 }");
 
-        [Fact]
+        [ConditionalFact]
         public void Literal_works_when_multiline_string() =>
             Literal_works(
                 "multi-line" + Environment.NewLine + "string with \"",
                 "@\"multi-line" + Environment.NewLine + "string with \"\"\"");
 
-        [Fact]
+        [ConditionalFact]
         [UseCulture("de-DE")]
         public void Literal_works_when_DateTime() =>
             Literal_works(
                 new DateTime(2015, 3, 15, 20, 45, 17, 300, DateTimeKind.Local),
                 "new DateTime(2015, 3, 15, 20, 45, 17, 300, DateTimeKind.Local)");
 
-        [Fact]
+        [ConditionalFact]
         [UseCulture("de-DE")]
         public void Literal_works_when_DateTimeOffset() =>
             Literal_works(
                 new DateTimeOffset(new DateTime(2015, 3, 15, 19, 43, 47, 500), new TimeSpan(-7, 0, 0)),
                 "new DateTimeOffset(new DateTime(2015, 3, 15, 19, 43, 47, 500, DateTimeKind.Unspecified), new TimeSpan(0, -7, 0, 0, 0))");
 
-        [Fact]
+        [ConditionalFact]
         public void Literal_works_when_decimal() =>
             Literal_works(
                 4.2m,
                 "4.2m");
 
-        [Fact]
+        [ConditionalFact]
         public void Literal_works_when_decimal_max_value() =>
             Literal_works(
                 79228162514264337593543950335m, // Decimal MaxValue
                 "79228162514264337593543950335m");
 
-        [Fact]
+        [ConditionalFact]
         public void Literal_works_when_decimal_min_value() =>
             Literal_works(
                 -79228162514264337593543950335m, // Decimal MinValue
                 "-79228162514264337593543950335m");
 
-        [Fact]
+        [ConditionalFact]
         public void Literal_works_when_Guid() =>
             Literal_works(
                 new Guid("fad4f3c3-9501-4b3a-af99-afeb496f7664"),
                 "new Guid(\"fad4f3c3-9501-4b3a-af99-afeb496f7664\")");
 
-        [Fact]
+        [ConditionalFact]
         public void Literal_works_when_TimeSpan() =>
             Literal_works(
                 new TimeSpan(17, 21, 42, 37, 250),
                 "new TimeSpan(17, 21, 42, 37, 250)");
 
-        [Fact]
+        [ConditionalFact]
         public void Literal_works_when_NullableInt() =>
             Literal_works(
                 (int?)42,
                 "42");
 
-        [Fact]
+        [ConditionalFact]
         public void Literal_works_when_StringArray()
         {
             var literal = new CSharpHelper(TypeMappingSource).Literal(new[] { "A", "B" });
             Assert.Equal("new[] { \"A\", \"B\" }", literal);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Literal_works_when_ObjectArray()
         {
             var literal = new CSharpHelper(TypeMappingSource).Literal(new object[] { 'A', 1 });
             Assert.Equal("new object[] { 'A', 1 }", literal);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Literal_works_when_MultidimensionalArray()
         {
             var value = new object[,] { { 'A', 1 }, { 'B', 2 } };
@@ -215,13 +215,13 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                 result);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Literal_works_when_BigInteger() =>
             Literal_works(
                 new BigInteger(42),
                 "BigInteger.Parse(\"42\", NumberFormatInfo.InvariantInfo)");
 
-        [Fact]
+        [ConditionalFact]
         public void UnknownLiteral_throws_when_unknown()
         {
             var ex = Assert.Throws<InvalidOperationException>(
@@ -229,7 +229,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             Assert.Equal(DesignStrings.UnknownLiteral(typeof(object)), ex.Message);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(typeof(int), "int")]
         [InlineData(typeof(int?), "int?")]
         [InlineData(typeof(int[]), "int[]")]
@@ -260,7 +260,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             Default
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData("dash-er", "dasher")]
         [InlineData("params", "@params")]
         [InlineData("true", "@true")]
@@ -274,7 +274,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             Assert.Equal(expected, new CSharpHelper(TypeMappingSource).Identifier(input));
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(new[] { "WebApplication1", "Migration" }, "WebApplication1.Migration")]
         [InlineData(new[] { "WebApplication1.Migration" }, "WebApplication1.Migration")]
         [InlineData(new[] { "ef-xplat.namespace" }, "efxplat.@namespace")]
@@ -287,7 +287,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             Assert.Equal(excepted, new CSharpHelper(TypeMappingSource).Namespace(input));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Fragment_MethodCallCodeFragment_works()
         {
             var method = new MethodCallCodeFragment("Test", true, 42);
@@ -297,7 +297,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             Assert.Equal(".Test(true, 42)", result);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Fragment_MethodCallCodeFragment_works_with_arrays()
         {
             var method = new MethodCallCodeFragment("Test", new byte[] { 1, 2 }, new[] { 3, 4 }, new[] { "foo", "bar" });
@@ -307,7 +307,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             Assert.Equal(".Test(new byte[] { 1, 2 }, new[] { 3, 4 }, new[] { \"foo\", \"bar\" })", result);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Fragment_MethodCallCodeFragment_works_when_niladic()
         {
             var method = new MethodCallCodeFragment("Test");
@@ -317,7 +317,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             Assert.Equal(".Test()", result);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Fragment_MethodCallCodeFragment_works_when_chaining()
         {
             var method = new MethodCallCodeFragment("Test")
@@ -328,7 +328,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             Assert.Equal(".Test().Test()", result);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Fragment_MethodCallCodeFragment_works_when_chaining_on_chain()
         {
             var method = new MethodCallCodeFragment("One", Array.Empty<object>(), new MethodCallCodeFragment("Two"))
@@ -339,7 +339,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             Assert.Equal(".One().Two().Three()", result);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Fragment_MethodCallCodeFragment_works_when_chaining_on_chain_with_call()
         {
             var method = new MethodCallCodeFragment("One", Array.Empty<object>(), new MethodCallCodeFragment("Two"))
@@ -350,7 +350,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             Assert.Equal(".One().Two().Three().Four()", result);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Fragment_MethodCallCodeFragment_works_when_nested_closure()
         {
             var method = new MethodCallCodeFragment(
@@ -362,7 +362,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             Assert.Equal(".Test(x => x.Test())", result);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Really_unknown_literal_with_no_mapping_support()
         {
             var typeMapping = CreateTypeMappingSource<SimpleTestType>(null);
@@ -373,7 +373,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                     () => new CSharpHelper(typeMapping).UnknownLiteral(new SimpleTestType())).Message);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Literal_with_parameterless_constructor()
         {
             var typeMapping = CreateTypeMappingSource<SimpleTestType>(
@@ -384,7 +384,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                 new CSharpHelper(typeMapping).UnknownLiteral(new SimpleTestType()));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Literal_with_one_parameter_constructor()
         {
             var typeMapping = CreateTypeMappingSource<SimpleTestType>(
@@ -397,7 +397,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                 new CSharpHelper(typeMapping).UnknownLiteral(new SimpleTestType("Jerry")));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Literal_with_two_parameter_constructor()
         {
             var typeMapping = CreateTypeMappingSource<SimpleTestType>(
@@ -411,7 +411,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                 new CSharpHelper(typeMapping).UnknownLiteral(new SimpleTestType("Jerry", 77)));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Literal_with_parameterless_static_factory()
         {
             var typeMapping = CreateTypeMappingSource<SimpleTestType>(
@@ -425,7 +425,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                 new CSharpHelper(typeMapping).UnknownLiteral(new SimpleTestType()));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Literal_with_one_parameter_static_factory()
         {
             var typeMapping = CreateTypeMappingSource<SimpleTestType>(
@@ -440,7 +440,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                 new CSharpHelper(typeMapping).UnknownLiteral(new SimpleTestType("Jerry")));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Literal_with_two_parameter_static_factory()
         {
             var typeMapping = CreateTypeMappingSource<SimpleTestType>(
@@ -456,7 +456,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                 new CSharpHelper(typeMapping).UnknownLiteral(new SimpleTestType("Jerry", 77)));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Literal_with_parameterless_instance_factory()
         {
             var typeMapping = CreateTypeMappingSource<SimpleTestType>(
@@ -471,7 +471,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                 new CSharpHelper(typeMapping).UnknownLiteral(new SimpleTestType()));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Literal_with_one_parameter_instance_factory()
         {
             var typeMapping = CreateTypeMappingSource<SimpleTestType>(
@@ -489,7 +489,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                 new CSharpHelper(typeMapping).UnknownLiteral(new SimpleTestType("Jerry", 77)));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Literal_with_two_parameter_instance_factory()
         {
             var typeMapping = CreateTypeMappingSource<SimpleTestType>(
@@ -510,7 +510,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                 new CSharpHelper(typeMapping).UnknownLiteral(new SimpleTestType("Jerry", 77)));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Literal_with_two_parameter_instance_factory_and_internal_cast()
         {
             var typeMapping = CreateTypeMappingSource<SimpleTestType>(
@@ -533,7 +533,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                 new CSharpHelper(typeMapping).UnknownLiteral(new SimpleTestType("Jerry", 77)));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Literal_with_static_field()
         {
             var typeMapping = CreateTypeMappingSource<SimpleTestType>(
@@ -544,7 +544,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                 new CSharpHelper(typeMapping).UnknownLiteral(SimpleTestType.SomeField));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Literal_with_static_property()
         {
             var typeMapping = CreateTypeMappingSource<SimpleTestType>(
@@ -555,7 +555,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                 new CSharpHelper(typeMapping).UnknownLiteral(SimpleTestType.SomeProperty));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Literal_with_unsupported_node_throws()
         {
             var typeMapping = CreateTypeMappingSource<SimpleTestType>(
@@ -571,7 +571,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                     () => new CSharpHelper(typeMapping).UnknownLiteral(new SimpleTestType())).Message);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Can_generate_SqlHierarchyId_literal()
         {
             var typeMapping = CreateTypeMappingSource(
@@ -586,7 +586,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                         new SqlString("/1/1/3/"))));
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Can_generate_SqlGeometry_literal()
         {
             var typeMapping = CreateTypeMappingSource(
@@ -601,7 +601,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                 new CSharpHelper(typeMapping).UnknownLiteral(new FakeSqlGeometry("POINT (1 2)", 0)));
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Can_generate_SqlGeography_literal()
         {
             var typeMapping = CreateTypeMappingSource(

@@ -16,7 +16,7 @@ namespace Microsoft.EntityFrameworkCore
 {
     public class PropertyExtensionsTest
     {
-        [Fact]
+        [ConditionalFact]
         public virtual void Properties_can_have_store_type_set()
         {
             var model = CreateModel();
@@ -33,7 +33,7 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Null(property.GetProviderClrType());
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Properties_can_have_value_converter_set()
         {
             var model = CreateModel();
@@ -51,7 +51,7 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Null(property.GetValueConverter());
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Value_converter_type_is_checked()
         {
             var model = CreateModel();
@@ -71,7 +71,7 @@ namespace Microsoft.EntityFrameworkCore
                     () => property1.SetValueConverter(new CastingConverter<long, decimal>())).Message);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Get_generation_property_returns_null_for_property_without_generator()
         {
             var model = CreateModel();
@@ -82,7 +82,7 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Null(property.GetGenerationProperty());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Get_generation_property_returns_same_property_on_property_with_generator()
         {
             var model = CreateModel();
@@ -96,7 +96,7 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Equal(property, property.GetGenerationProperty());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Get_generation_property_returns_generation_property_from_foreign_key_chain()
         {
             var model = CreateModel();
@@ -119,7 +119,7 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Equal(firstProperty, thirdProperty.GetGenerationProperty());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Get_generation_property_returns_generation_property_from_foreign_key_tree()
         {
             var model = CreateModel();
@@ -150,7 +150,7 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Equal(rightId2, endProperty.GetGenerationProperty());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Get_generation_property_returns_generation_property_from_foreign_key_graph_with_cycle()
         {
             var model = CreateModel();
@@ -178,7 +178,7 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Equal(leafId1, secondId1.GetGenerationProperty());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Get_generation_property_for_one_to_one_FKs()
         {
             var model = BuildModel();
@@ -200,7 +200,7 @@ namespace Microsoft.EntityFrameworkCore
                 model.FindEntityType(typeof(ProductDetailsTagDetails)).GetForeignKeys().Single().Properties[0].GetGenerationProperty());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Get_generation_property_for_one_to_many_identifying_FKs()
         {
             var model = BuildModel();

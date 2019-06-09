@@ -15,13 +15,13 @@ namespace Microsoft.EntityFrameworkCore
     public class ExistingConnectionTest
     {
         // See aspnet/Data#135
-        [Fact]
+        [ConditionalFact]
         public Task Can_use_an_existing_closed_connection()
         {
             return Can_use_an_existing_closed_connection_test(openConnection: false);
         }
 
-        [Fact]
+        [ConditionalFact]
         public Task Can_use_an_existing_open_connection()
         {
             return Can_use_an_existing_closed_connection_test(openConnection: true);

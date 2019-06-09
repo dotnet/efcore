@@ -12,7 +12,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         private static readonly StringToUriConverter _stringToUri
             = new StringToUriConverter();
 
-        [Fact]
+        [ConditionalFact]
         public void Can_convert_strings_to_uris()
         {
             var converter = _stringToUri.ConvertToProviderExpression.Compile();
@@ -25,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.Null(converter(null));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_convert_strings_to_uris_object()
         {
             var converter = _stringToUri.ConvertToProvider;
@@ -38,7 +38,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.Null(converter(null));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_convert_uris_to_strings()
         {
             var converter = _stringToUri.ConvertFromProviderExpression.Compile();
@@ -50,7 +50,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.Null(converter(null));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_convert_uris_to_strings_object()
         {
             var converter = _stringToUri.ConvertFromProvider;

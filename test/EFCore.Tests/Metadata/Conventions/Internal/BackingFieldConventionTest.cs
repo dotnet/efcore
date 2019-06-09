@@ -25,51 +25,51 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 {
     public class BackingFieldConventionTest
     {
-        [Fact]
+        [ConditionalFact]
         public void Auto_property_name_matching_field_is_used_as_first_preference()
             => FieldMatchTest<TheDarkSideOfTheMoon>("ComfortablyNumb", "<ComfortablyNumb>k__BackingField");
 
-        [Fact]
+        [ConditionalFact]
         public void Property_name_matching_field_is_used_as_next_preference()
             => FieldMatchTest<TheDarkSideOfTheMoon>("IsThereAnybodyOutThere", "IsThereAnybodyOutThere");
 
-        [Fact]
+        [ConditionalFact]
         public void Camel_case_matching_field_is_used_as_next_preference()
             => FieldMatchTest<TheDarkSideOfTheMoon>("Breathe", "breathe");
 
-        [Fact]
+        [ConditionalFact]
         public void Camel_case_matching_field_is_not_used_if_type_is_not_compatible()
             => FieldMatchTest<TheDarkSideOfTheMoon>("OnTheRun", "_onTheRun");
 
-        [Fact]
+        [ConditionalFact]
         public void Underscore_camel_case_matching_field_is_used_as_next_preference()
             => FieldMatchTest<TheDarkSideOfTheMoon>("Time", "_time");
 
-        [Fact]
+        [ConditionalFact]
         public void Underscore_camel_case_matching_field_is_not_used_if_type_is_not_compatible()
             => FieldMatchTest<TheDarkSideOfTheMoon>("TheGreatGigInTheSky", "_TheGreatGigInTheSky");
 
-        [Fact]
+        [ConditionalFact]
         public void Underscore_matching_field_is_used_as_next_preference()
             => FieldMatchTest<TheDarkSideOfTheMoon>("Money", "_Money");
 
-        [Fact]
+        [ConditionalFact]
         public void Underscore_matching_field_is_not_used_if_type_is_not_compatible()
             => FieldMatchTest<TheDarkSideOfTheMoon>("UsAndThem", "m_usAndThem");
 
-        [Fact]
+        [ConditionalFact]
         public void M_Underscore_camel_case_matching_field_is_used_as_next_preference()
             => FieldMatchTest<TheDarkSideOfTheMoon>("AnyColourYouLike", "m_anyColourYouLike");
 
-        [Fact]
+        [ConditionalFact]
         public void M_underscore_camel_case_matching_field_is_not_used_if_type_is_not_compatible()
             => FieldMatchTest<TheDarkSideOfTheMoon>("BrainDamage", "m_BrainDamage");
 
-        [Fact]
+        [ConditionalFact]
         public void M_underscore_matching_field_is_used_as_next_preference()
             => FieldMatchTest<TheDarkSideOfTheMoon>("Eclipse", "m_Eclipse");
 
-        [Fact]
+        [ConditionalFact]
         public void M_underscore_matching_field_is_not_used_if_type_is_not_compatible()
         {
             var entityType = CreateModel().AddEntityType(typeof(TheDarkSideOfTheMoon));
@@ -80,47 +80,47 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             Assert.Null(property.GetFieldName());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Property_name_matching_field_is_used_as_first_preference_for_field_only()
             => FieldMatchTest<TheDarkerSideOfTheMoon>("IsThereAnybodyOutThere", "IsThereAnybodyOutThere");
 
-        [Fact]
+        [ConditionalFact]
         public void Camel_case_matching_field_is_not_used_as_next_preference_for_field_only()
             => FieldMatchTest<TheDarkerSideOfTheMoon>("Breathe", null);
 
-        [Fact]
+        [ConditionalFact]
         public void Camel_case_matching_field_is_not_used_if_type_is_not_compatible_for_field_only()
             => FieldMatchTest<TheDarkerSideOfTheMoon>("OnTheRun", null);
 
-        [Fact]
+        [ConditionalFact]
         public void Underscore_camel_case_matching_field_is_not_used_as_next_preference_for_field_only()
             => FieldMatchTest<TheDarkerSideOfTheMoon>("Time", null);
 
-        [Fact]
+        [ConditionalFact]
         public void Underscore_camel_case_matching_field_is_not_used_if_type_is_not_compatible_for_field_only()
             => FieldMatchTest<TheDarkerSideOfTheMoon>("TheGreatGigInTheSky", null);
 
-        [Fact]
+        [ConditionalFact]
         public void Underscore_matching_field_is_not_used_as_next_preference_for_field_only()
             => FieldMatchTest<TheDarkerSideOfTheMoon>("Money", null);
 
-        [Fact]
+        [ConditionalFact]
         public void Underscore_matching_field_is_not_used_if_type_is_not_compatible_for_field_only()
             => FieldMatchTest<TheDarkerSideOfTheMoon>("UsAndThem", null);
 
-        [Fact]
+        [ConditionalFact]
         public void M_underscore_camel_case_matching_field_is_not_used_as_next_preference_for_field_only()
             => FieldMatchTest<TheDarkerSideOfTheMoon>("AnyColourYouLike", null);
 
-        [Fact]
+        [ConditionalFact]
         public void M_underscore_camel_case_matching_field_is_not_used_if_type_is_not_compatible_for_field_only()
             => FieldMatchTest<TheDarkerSideOfTheMoon>("BrainDamage", null);
 
-        [Fact]
+        [ConditionalFact]
         public void M_underscore_matching_field_is_not_used_as_next_preference_for_field_only()
             => FieldMatchTest<TheDarkerSideOfTheMoon>("Eclipse", null);
 
-        [Fact]
+        [ConditionalFact]
         public void M_underscore_matching_field_is_not_used_if_type_is_not_compatible_for_field_only()
         {
             var entityType = CreateModel().AddEntityType(typeof(TheDarkerSideOfTheMoon));
@@ -141,7 +141,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             Assert.Equal(fieldName, property.GetFieldName());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Field_in_base_type_is_matched()
         {
             var entityType = CreateModel().AddEntityType(typeof(TheDarkSide));
@@ -152,7 +152,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             Assert.Equal("_theGreatGigInTheSky", property.GetFieldName());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Matched_field_on_base_class_is_found()
         {
             var entityType = CreateModel().AddEntityType(typeof(TheDarkSide));
@@ -163,7 +163,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             Assert.Equal("_onBase", property.GetFieldName());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Multiple_matches_throws()
         {
             var entityType = CreateModel().AddEntityType(typeof(AlwaysLookOnTheBrightSideOfLife));
@@ -176,7 +176,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                     () => RunConvention(property)).Message);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Object_field_non_object_property_matches_and_throws_ambiguous()
         {
             var entityType = CreateModel().AddEntityType(typeof(HesNotTheMessiah));
@@ -189,7 +189,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                     () => RunConvention(property)).Message);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Object_property_non_object_field_matches_and_throws_ambiguous()
         {
             var entityType = CreateModel().AddEntityType(typeof(HesAVeryNaughtyBoy));
@@ -202,7 +202,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                     () => RunConvention(property)).Message);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Explicitly_set_FieldInfo_is_used()
         {
             var entityType = CreateModel().AddEntityType(typeof(AlwaysLookOnTheBrightSideOfLife));
@@ -214,7 +214,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             Assert.Equal("m_onTheRun", property.GetFieldName());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void FieldInfo_set_by_annotation_is_used()
         {
             var entityType = ((IConventionModel)CreateModel()).AddEntityType(typeof(AlwaysLookOnTheBrightSideOfLife));

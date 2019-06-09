@@ -26,7 +26,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         public BadDataSqliteFixture Fixture { get; }
 
-        [Fact]
+        [ConditionalFact]
         public void Bad_data_error_handling_invalid_cast_key()
         {
             using (var context = CreateContext("bad int"))
@@ -39,7 +39,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Bad_data_error_handling_null_key()
         {
             using (var context = CreateContext(null, true))
@@ -52,7 +52,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Bad_data_error_handling_invalid_cast()
         {
             using (var context = CreateContext(1, true, 1))
@@ -65,7 +65,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Bad_data_error_handling_invalid_cast_projection()
         {
             using (var context = CreateContext(1))
@@ -80,7 +80,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Bad_data_error_handling_invalid_cast_no_tracking()
         {
             using (var context = CreateContext("bad int"))
@@ -96,7 +96,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Bad_data_error_handling_null()
         {
             using (var context = CreateContext(1, null))
@@ -109,7 +109,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Bad_data_error_handling_null_projection()
         {
             using (var context = CreateContext(new object[] { null }))
@@ -125,7 +125,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Bad_data_error_handling_null_no_tracking()
         {
             using (var context = CreateContext(null, true))

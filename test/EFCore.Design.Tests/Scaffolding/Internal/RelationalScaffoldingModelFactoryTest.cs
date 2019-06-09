@@ -50,7 +50,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 .GetRequiredService<IScaffoldingModelFactory>();
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Creates_entity_types()
         {
             var info = new DatabaseModel
@@ -104,7 +104,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             Assert.Empty(model.GetEntityTypeErrors().Values);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Creates_entity_types_case_insensitive()
         {
             var info = new DatabaseModel
@@ -135,7 +135,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             Assert.Equal(2, model.GetEntityTypes().Select(et => et.Name).Distinct(StringComparer.OrdinalIgnoreCase).Count());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Loads_column_types()
         {
             var info = new DatabaseModel
@@ -227,7 +227,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 });
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Use_database_names_for_columns()
         {
             var info = new DatabaseModel
@@ -271,7 +271,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 col3 => Assert.Equal("supplierID", col3.Name));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Do_not_use_database_names_for_columns()
         {
             var info = new DatabaseModel
@@ -315,7 +315,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 col3 => Assert.Equal("VendorDiscount", col3.Name));
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData("nvarchar(450)", null)]
         [InlineData("datetime2(4)", "datetime2(4)")]
         public void Column_type_annotation(string StoreType, string expectedColumnType)
@@ -353,7 +353,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             Assert.Equal(expectedColumnType, property.GetColumnType());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Column_ordinal_annotation()
         {
             var col1 = new DatabaseColumn
@@ -403,7 +403,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             Assert.Equal(2, property3.GetColumnOrdinal());
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData("cheese")]
         [InlineData(null)]
         public void Unmappable_column_type(string StoreType)
@@ -437,7 +437,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             Assert.Single(_reporter.Messages, t => t.Contains(DesignStrings.CannotFindTypeMappingForColumn("E.Coli", StoreType)));
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(new[] { "Id" }, 1)]
         [InlineData(new[] { "Id", "AltId" }, 2)]
         public void Primary_key(string[] keyProps, int length)
@@ -471,7 +471,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             Assert.Equal(keyProps, model.FindPrimaryKey().Properties.Select(p => p.GetColumnName()).ToArray());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Unique_constraint()
         {
             var myColumn = new DatabaseColumn
@@ -513,7 +513,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             Assert.Same(entityType.FindProperty("MyColumn"), index.Properties.Single());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Indexes_and_alternate_keys()
         {
             var c1 = new DatabaseColumn
@@ -628,7 +628,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             Assert.Equal(0, entityType.GetKeys().Count(k => !k.IsPrimaryKey()));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Foreign_key()
         {
             var parentTable = new DatabaseTable
@@ -697,7 +697,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             Assert.Same(parent.GetProperties().First(), principalKey.Properties[0]);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Foreign_key_to_unique_constraint()
         {
             var keyColumn = new DatabaseColumn
@@ -780,7 +780,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             Assert.Same(parent.GetProperties().First(p => p.Name == "Key"), principalKey.Properties[0]);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Unique_foreign_key()
         {
             var parentTable = new DatabaseTable
@@ -835,7 +835,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             Assert.Equal(DeleteBehavior.ClientSetNull, fk.DeleteBehavior);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Composite_foreign_key()
         {
             var ida = new DatabaseColumn
@@ -930,7 +930,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             Assert.Equal("IdB", principalKey.Properties[1].Name);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void It_loads_self_referencing_foreign_key()
         {
             var table = new DatabaseTable
@@ -982,7 +982,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             Assert.Equal("Id", principalKey.Properties[0].Name);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void It_logs_warning_for_bad_foreign_key()
         {
             var parentTable = new DatabaseTable
@@ -1046,7 +1046,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                         childrenTable.ForeignKeys.ElementAt(0).DisplayName(), "NotPkId", "Parent")));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Unique_nullable_index_unused_by_foreign_key()
         {
             var table = new DatabaseTable
@@ -1109,7 +1109,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             Assert.Equal(model.FindPrimaryKey(), fk.PrincipalKey);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Unique_nullable_index_used_by_foreign_key()
         {
             var table = new DatabaseTable
@@ -1179,7 +1179,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                         table.ForeignKeys.ElementAt(0).DisplayName(), "FriendsNameUniqueIndex", "Friends.BuddyId")));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Unique_index_composite_foreign_key()
         {
             var ida = new DatabaseColumn
@@ -1274,7 +1274,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             Assert.Equal(parent.FindPrimaryKey(), fk.PrincipalKey);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Unique_names()
         {
             var info = new DatabaseModel
@@ -1344,7 +1344,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 });
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Sequences()
         {
             var info = new DatabaseModel
@@ -1374,7 +1374,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 });
         }
 
-        [Fact]
+        [ConditionalFact]
         public void DbSet_annotation_is_set()
         {
             var info = new DatabaseModel
@@ -1397,7 +1397,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             Assert.Equal("Blog", model.GetEntityTypes().Single().GetDbSetName());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Pluralization_of_entity_and_DbSet()
         {
             var info = new DatabaseModel
@@ -1472,7 +1472,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             );
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Pluralization_of_collection_navigations()
         {
             var blogTable = new DatabaseTable
@@ -1552,7 +1552,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             );
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Not_null_bool_column_with_default_value_is_made_nullable()
         {
             var dbModel = new DatabaseModel
@@ -1595,7 +1595,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             Assert.Equal("Default", columns.First(c => c.Name == "NonNullBoolWithDefault")[RelationalAnnotationNames.DefaultValueSql]);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Nullable_column_with_default_value_sql_does_not_generate_warning()
         {
             var dbModel = new DatabaseModel
@@ -1632,7 +1632,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             Assert.Empty(_reporter.Messages);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Correct_arguments_to_scaffolding_typemapper()
         {
             var principalPkColumn = new DatabaseColumn
@@ -1768,7 +1768,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             Assert.Null(model.FindEntityType("Dependent").FindProperty("BlogAlternateKey").GetColumnType());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Unmapped_column_is_ignored()
         {
             var columnWithUnknownType = new DatabaseColumn

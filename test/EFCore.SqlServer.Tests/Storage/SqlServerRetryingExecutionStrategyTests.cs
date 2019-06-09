@@ -10,7 +10,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
 {
     public class SqlServerRetryingExecutionStrategyTests
     {
-        [Fact]
+        [ConditionalFact]
         public void GetNextDelay_returns_shorter_delay_for_InMemory_transient_errors()
         {
             var strategy = new TestSqlServerRetryingExecutionStrategy(CreateContext());

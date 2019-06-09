@@ -36,7 +36,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             public override Type Type { get; } = typeof(object);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(typeof(BoolTypeMapping), typeof(bool))]
         [InlineData(typeof(ByteTypeMapping), typeof(byte))]
         [InlineData(typeof(CharTypeMapping), typeof(char))]
@@ -93,7 +93,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.Equal(StoreTypePostfix.PrecisionAndScale, clone.StoreTypePostfix);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(typeof(ByteArrayTypeMapping), typeof(byte[]))]
         public virtual void Create_and_clone_sized_mappings_with_converter(Type mappingType, Type clrType)
         {
@@ -149,7 +149,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.Equal(StoreTypePostfix.Size, clone.StoreTypePostfix);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(typeof(StringTypeMapping), typeof(string))]
         public virtual void Create_and_clone_unicode_sized_mappings_with_converter(Type mappingType, Type clrType)
         {
@@ -247,7 +247,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 => new FakeTypeMapping(parameters);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_create_simple_parameter()
         {
             using (var command = CreateTestCommand())
@@ -263,7 +263,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_create_simple_nullable_parameter()
         {
             using (var command = CreateTestCommand())
@@ -279,7 +279,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_create_simple_parameter_with_DbType()
         {
             using (var command = CreateTestCommand())
@@ -295,7 +295,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_create_simple_nullable_parameter_with_DbType()
         {
             using (var command = CreateTestCommand())
@@ -311,7 +311,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_create_required_string_parameter()
         {
             using (var command = CreateTestCommand())
@@ -328,7 +328,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_create_string_parameter()
         {
             using (var command = CreateTestCommand())
@@ -351,7 +351,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.Equal(literalValue, typeMapping.GenerateSqlLiteral(value));
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Bool_literal_generated_correctly()
         {
             var typeMapping = new BoolTypeMapping("bool");
@@ -360,13 +360,13 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Test_GenerateSqlLiteral_helper(typeMapping, false, "0");
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void ByteArray_literal_generated_correctly()
         {
             Test_GenerateSqlLiteral_helper(new ByteArrayTypeMapping("byte[]"), new byte[] { 0xDA, 0x7A }, "X'DA7A'");
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Byte_literal_generated_correctly()
         {
             var typeMapping = new ByteTypeMapping("byte", DbType.Byte);
@@ -375,14 +375,14 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Test_GenerateSqlLiteral_helper(typeMapping, byte.MaxValue, "255");
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Char_literal_generated_correctly()
         {
             Test_GenerateSqlLiteral_helper(new CharTypeMapping("char"), 'A', "'A'");
             Test_GenerateSqlLiteral_helper(new CharTypeMapping("char"), '\'', "''''");
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void DateTimeOffset_literal_generated_correctly()
         {
             Test_GenerateSqlLiteral_helper(
@@ -391,7 +391,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 "TIMESTAMP '2015-03-12 13:36:37.3710000-07:00'");
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void DateTime_literal_generated_correctly()
         {
             Test_GenerateSqlLiteral_helper(
@@ -400,7 +400,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 "TIMESTAMP '2015-03-12 13:36:37.3710000'");
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Decimal_literal_generated_correctly()
         {
             var typeMapping = new DecimalTypeMapping("decimal", DbType.Decimal);
@@ -409,7 +409,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Test_GenerateSqlLiteral_helper(typeMapping, decimal.MaxValue, "79228162514264337593543950335.0");
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Double_literal_generated_correctly()
         {
             var typeMapping = new DoubleTypeMapping("double", DbType.Double);
@@ -421,7 +421,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Test_GenerateSqlLiteral_helper(typeMapping, double.MaxValue, "1.7976931348623157E+308");
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Float_literal_generated_correctly()
         {
             var typeMapping = new FloatTypeMapping("float", DbType.Single);
@@ -433,7 +433,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Test_GenerateSqlLiteral_helper(typeMapping, float.MaxValue, "3.4028235E+38");
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Guid_literal_generated_correctly()
         {
             Test_GenerateSqlLiteral_helper(
@@ -442,7 +442,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 "'c6f43a9e-91e1-45ef-a320-832ea23b7292'");
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void NullableInt_literal_generated_correctly()
         {
             var typeMapping = new IntTypeMapping("int?", DbType.Int32);
@@ -451,7 +451,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Test_GenerateSqlLiteral_helper(typeMapping, (int?)123, "123");
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Int_literal_generated_correctly()
         {
             var typeMapping = new IntTypeMapping("int", DbType.Int32);
@@ -460,7 +460,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Test_GenerateSqlLiteral_helper(typeMapping, int.MaxValue, "2147483647");
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Long_literal_generated_correctly()
         {
             var typeMapping = new LongTypeMapping("long", DbType.Int64);
@@ -469,7 +469,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Test_GenerateSqlLiteral_helper(typeMapping, long.MaxValue, "9223372036854775807");
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void SByte_literal_generated_correctly()
         {
             var typeMapping = new SByteTypeMapping("sbyte", DbType.SByte);
@@ -478,7 +478,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Test_GenerateSqlLiteral_helper(typeMapping, sbyte.MaxValue, "127");
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Short_literal_generated_correctly()
         {
             var typeMapping = new ShortTypeMapping("short", DbType.Int16);
@@ -487,19 +487,19 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Test_GenerateSqlLiteral_helper(typeMapping, short.MaxValue, "32767");
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void String_literal_generated_correctly()
         {
             Test_GenerateSqlLiteral_helper(new StringTypeMapping("string"), "Text", "'Text'");
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Timespan_literal_generated_correctly()
         {
             Test_GenerateSqlLiteral_helper(new TimeSpanTypeMapping("time"), new TimeSpan(7, 14, 30), "'07:14:30'");
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void UInt_literal_generated_correctly()
         {
             var typeMapping = new UIntTypeMapping("uint", DbType.UInt32);
@@ -508,7 +508,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Test_GenerateSqlLiteral_helper(typeMapping, uint.MaxValue, "4294967295");
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void ULong_literal_generated_correctly()
         {
             var typeMapping = new ULongTypeMapping("ulong", DbType.UInt64);
@@ -517,7 +517,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Test_GenerateSqlLiteral_helper(typeMapping, ulong.MaxValue, "18446744073709551615");
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void UShort_literal_generated_correctly()
         {
             var typeMapping = new UShortTypeMapping("ushort", DbType.UInt16);
@@ -526,7 +526,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Test_GenerateSqlLiteral_helper(typeMapping, ushort.MaxValue, "65535");
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Primary_key_type_mapping_is_picked_up_by_FK_without_going_through_store_type()
         {
             using (var context = new FruityContext(ContextOptions))
@@ -548,7 +548,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             public DbSet<Kiwi> Kiwi { get; set; }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Primary_key_type_mapping_can_differ_from_FK()
         {
             using (var context = new MismatchedFruityContext(ContextOptions))

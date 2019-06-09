@@ -205,7 +205,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void DbFunctions_with_duplicate_names_and_parameters_on_different_types_dont_collide()
         {
             var modelBuilder = GetModelBuilder();
@@ -225,7 +225,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Equal("Dup2", dbFunc2.FunctionName);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Finds_dbFunctions_on_dbContext()
         {
             var context = new MyDerivedContext();
@@ -248,7 +248,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Non_static_function_on_dbcontext_does_not_throw()
         {
             var modelBuilder = GetModelBuilder();
@@ -263,7 +263,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Equal(typeof(int), dbFunc.MethodInfo.ReturnType);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Non_static_function_on_non_dbcontext_throws()
         {
             var modelBuilder = GetModelBuilder();
@@ -277,7 +277,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 Assert.Throws<ArgumentException>(() => modelBuilder.HasDbFunction(methodInfo)).Message);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Detects_void_return_throws()
         {
             var modelBuilder = GetModelBuilder();
@@ -289,7 +289,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 Assert.Throws<ArgumentException>(() => modelBuilder.HasDbFunction(methodInfo)).Message);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Adding_method_fluent_only_convention_defaults()
         {
             var modelBuilder = GetModelBuilder();
@@ -302,7 +302,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Equal(typeof(int), dbFunc.MethodInfo.ReturnType);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Adding_method_fluent_only_convention_defaults_fluent_method_info()
         {
             var modelBuilder = GetModelBuilder();
@@ -315,7 +315,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Equal(typeof(int), dbFunc.MethodInfo.ReturnType);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Adding_method_fluent_only_convention_defaults_non_method_call_throws()
         {
             var modelBuilder = GetModelBuilder();
@@ -327,7 +327,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 Assert.Throws<ArgumentException>(() => modelBuilder.HasDbFunction(expression)).Message);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Adding_method_fluent_only_convention_defaults_property_call_throws()
         {
             var modelBuilder = GetModelBuilder();
@@ -339,7 +339,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 Assert.Throws<ArgumentException>(() => modelBuilder.HasDbFunction(expression)).Message);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Adding_method_fluent_only_with_name_schema()
         {
             var modelBuilder = GetModelBuilder();
@@ -355,7 +355,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Equal(typeof(int), dbFunc.MethodInfo.ReturnType);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Adding_method_fluent_only_with_builder()
         {
             var modelBuilder = GetModelBuilder();
@@ -369,7 +369,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Equal(typeof(int), dbFunc.MethodInfo.ReturnType);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Adding_method_with_attribute_only()
         {
             var modelBuilder = GetModelBuilder();
@@ -382,7 +382,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Equal(typeof(int), dbFunc.MethodInfo.ReturnType);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Adding_method_with_attribute_and_fluent_api_configuration_source()
         {
             var modelBuilder = GetModelBuilder();
@@ -398,7 +398,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Equal(typeof(int), dbFunc.MethodInfo.ReturnType);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Adding_method_with_attribute_and_fluent_configuration_source()
         {
             var modelBuilder = GetModelBuilder();
@@ -412,7 +412,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Equal(typeof(int), dbFunc.MethodInfo.ReturnType);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Adding_method_with_relational_schema()
         {
             var modelBuilder = GetModelBuilder();
@@ -424,7 +424,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Equal("dbo", dbFuncBuilder.Metadata.Schema);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Adding_method_with_relational_schema_fluent_overrides()
         {
             var modelBuilder = GetModelBuilder();
@@ -436,7 +436,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Equal("bar", dbFuncBuilder.Metadata.Schema);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Adding_method_with_relational_schema_attribute_overrides()
         {
             var modelBuilder = GetModelBuilder();
@@ -448,7 +448,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Equal("bar", dbFuncBuilder.Metadata.Schema);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Changing_default_schema_is_detected_by_dbfunction()
         {
             var modelBuilder = GetModelBuilder();
@@ -464,7 +464,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Equal("xyz", dbFuncBuilder.Metadata.Schema);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Add_method_generic_not_supported_throws()
         {
             var modelBuilder = GetModelBuilder();
@@ -474,7 +474,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 Assert.Throws<ArgumentException>(() => modelBuilder.HasDbFunction(MethodHmi)).Message);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Set_empty_function_name_throws()
         {
             var modelBuilder = GetModelBuilder();

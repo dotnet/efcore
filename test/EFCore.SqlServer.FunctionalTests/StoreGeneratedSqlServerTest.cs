@@ -23,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore
         protected override void UseTransaction(DatabaseFacade facade, IDbContextTransaction transaction)
             => facade.UseTransaction(transaction.GetDbTransaction());
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Exception_in_SaveChanges_causes_store_values_to_be_reverted()
         {
             var entities = new List<Darwin>();

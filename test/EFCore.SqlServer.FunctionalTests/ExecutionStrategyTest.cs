@@ -31,13 +31,13 @@ namespace Microsoft.EntityFrameworkCore
 
         protected ExecutionStrategyFixture Fixture { get; }
 
-        [Fact]
+        [ConditionalFact]
         public void Does_not_throw_or_retry_on_false_commit_failure()
         {
             Test_commit_failure(false);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Retries_on_true_commit_failure()
         {
             Test_commit_failure(true);
@@ -133,13 +133,13 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public Task Does_not_throw_or_retry_on_false_commit_failure_async()
         {
             return Test_commit_failure_async(false);
         }
 
-        [Fact]
+        [ConditionalFact]
         public Task Retries_on_true_commit_failure_async()
         {
             return Test_commit_failure_async(true);
@@ -240,13 +240,13 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Does_not_throw_or_retry_on_false_commit_failure_multiple_SaveChanges()
         {
             Test_commit_failure_multiple_SaveChanges(false);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Retries_on_true_commit_failure_multiple_SaveChanges()
         {
             Test_commit_failure_multiple_SaveChanges(true);
@@ -291,7 +291,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false, false, false)]
         [InlineData(true, false, false)]
         [InlineData(false, true, false)]
@@ -378,7 +378,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         //[InlineData(true)] (Skip = "QueryIssue")
         public async Task Retries_query_on_execution_failure(bool async)
@@ -437,7 +437,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public async Task Retries_OpenConnection_on_execution_failure(bool async)
@@ -471,7 +471,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public async Task Retries_BeginTransaction_on_execution_failure(bool async)
@@ -507,7 +507,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Verification_is_retried_using_same_retry_limit()
         {
             CleanContext();

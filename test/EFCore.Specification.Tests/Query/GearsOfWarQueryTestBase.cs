@@ -1128,7 +1128,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 gs => gs.Select(g => null != g.LeaderNickname ? g.LeaderNickname + g.LeaderNickname : null));
         }
 
-        [Theory(Skip = "issue #9201")]
+        [ConditionalTheory(Skip = "issue #9201")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Select_null_propagation_optimization8(bool isAsync)
         {
@@ -2301,7 +2301,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 expectedIncludes);
         }
 
-        [Theory(Skip = "issue #9256")]
+        [ConditionalTheory(Skip = "issue #9256")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Include_on_GroupJoin_SelectMany_DefaultIfEmpty_with_complex_projection_result(bool isAsync)
         {
@@ -2394,7 +2394,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 ts => ts.Where(t => !MaybeScalar<bool>(t.Gear, () => t.Gear.HasSoulPatch) == true));
         }
 
-        [Theory(Skip = "issue #9254")]
+        [ConditionalTheory(Skip = "issue #9254")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Optional_navigation_type_compensation_works_with_predicate_negated_complex1(bool isAsync)
         {
@@ -2403,7 +2403,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 ts => ts.Where(t => !(t.Gear.HasSoulPatch ? true : t.Gear.HasSoulPatch)));
         }
 
-        [Theory(Skip = "issue #9254")]
+        [ConditionalTheory(Skip = "issue #9254")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Optional_navigation_type_compensation_works_with_predicate_negated_complex2(bool isAsync)
         {
@@ -6577,7 +6577,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 elementAsserter: (e, a) => Assert.Equal(e.Name, a.Name));
         }
 
-        [Theory(Skip = "issue #11567")]
+        [ConditionalTheory(Skip = "issue #11567")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Include_with_order_by_constant_null_of_non_mapped_type(bool isAsync)
         {
@@ -7145,7 +7145,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 assertOrder: true);
         }
 
-        [Theory(Skip = "issue #12340")]
+        [ConditionalTheory(Skip = "issue #12340")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Group_by_entity_key_with_include_on_that_entity_with_key_in_result_selector(bool isAsync)
         {
@@ -7166,7 +7166,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 });
         }
 
-        [Theory(Skip = "issue #12340")]
+        [ConditionalTheory(Skip = "issue #12340")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Group_by_entity_key_with_include_on_that_entity_with_key_in_result_selector_using_EF_Property(bool isAsync)
         {

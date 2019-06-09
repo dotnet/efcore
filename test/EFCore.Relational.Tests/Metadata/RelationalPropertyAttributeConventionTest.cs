@@ -16,7 +16,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 {
     public class RelationalPropertyAttributeConventionTest
     {
-        [Fact]
+        [ConditionalFact]
         public void ColumnAttribute_sets_column_name_and_type_with_conventional_builder()
         {
             var modelBuilder = CreateConventionalModelBuilder();
@@ -27,7 +27,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Equal("DECIMAL", entityBuilder.Property(e => e.Name).Metadata.GetColumnType());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void ColumnAttribute_on_field_sets_column_name_and_type_with_conventional_builder()
         {
             var modelBuilder = CreateConventionalModelBuilder();
@@ -38,7 +38,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Equal("DECIMAL", entityBuilder.Property<string>(nameof(F.Name)).Metadata.GetColumnType());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void ColumnAttribute_overrides_configuration_from_convention_source()
         {
             var entityBuilder = CreateInternalEntityTypeBuilder<A>();
@@ -54,7 +54,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Equal("DECIMAL", propertyBuilder.Metadata.GetColumnType());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void ColumnAttribute_does_not_override_configuration_from_explicit_source()
         {
             var entityBuilder = CreateInternalEntityTypeBuilder<A>();

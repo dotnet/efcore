@@ -37,7 +37,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
         #region RequiresValueGenerator
 
-        [Fact]
+        [ConditionalFact]
         public void RequiresValueGenerator_flag_is_set_for_key_properties_that_use_value_generation()
         {
             var modelBuilder = CreateInternalModelBuilder();
@@ -65,7 +65,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             Assert.Equal(ValueGenerated.Never, keyProperties[1].ValueGenerated);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void RequiresValueGenerator_flag_is_not_set_for_foreign_key()
         {
             var modelBuilder = CreateInternalModelBuilder();
@@ -95,7 +95,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             Assert.Equal(ValueGenerated.Never, keyProperties[0].ValueGenerated);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void RequiresValueGenerator_flag_is_set_for_property_which_are_not_part_of_any_foreign_key()
         {
             var modelBuilder = CreateInternalModelBuilder();
@@ -128,7 +128,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             Assert.False(keyProperties[1].RequiresValueGenerator());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void RequiresValueGenerator_flag_is_not_set_for_properties_which_are_part_of_a_foreign_key()
         {
             var modelBuilder = CreateInternalModelBuilder();
@@ -160,7 +160,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             Assert.Equal(ValueGenerated.Never, keyProperties[0].ValueGenerated);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void KeyConvention_does_not_override_ValueGenerated_when_configured_explicitly()
         {
             var modelBuilder = CreateInternalModelBuilder();
@@ -183,7 +183,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             Assert.Equal(ValueGenerated.OnAdd, keyProperties[0].ValueGenerated);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void RequiresValueGenerator_flag_is_turned_off_when_foreign_key_is_added()
         {
             var modelBuilder = CreateInternalModelBuilder();
@@ -217,7 +217,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             Assert.Equal(ValueGenerated.Never, keyProperties[0].ValueGenerated);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void RequiresValueGenerator_flag_is_set_when_foreign_key_is_removed()
         {
             var modelBuilder = CreateInternalModelBuilder();
@@ -262,7 +262,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
         #region Identity
 
-        [Fact]
+        [ConditionalFact]
         public void Identity_is_set_for_primary_key()
         {
             var modelBuilder = CreateInternalModelBuilder();
@@ -281,7 +281,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             Assert.Equal(ValueGenerated.OnAdd, property.ValueGenerated);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Identity_is_not_set_for_non_primary_key()
         {
             var modelBuilder = CreateInternalModelBuilder();
@@ -300,7 +300,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             Assert.Equal(ValueGenerated.Never, property.ValueGenerated);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Identity_not_set_when_composite_primary_key()
         {
             var modelBuilder = CreateInternalModelBuilder();
@@ -321,7 +321,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             Assert.Equal(ValueGenerated.Never, keyProperties[1].ValueGenerated);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Identity_not_set_when_primary_key_property_is_string()
         {
             var modelBuilder = CreateInternalModelBuilder();
@@ -339,7 +339,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             Assert.False(property.RequiresValueGenerator());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Identity_not_set_when_primary_key_property_is_byte_array()
         {
             var modelBuilder = CreateInternalModelBuilder();
@@ -354,7 +354,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             Assert.False(property.RequiresValueGenerator());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Identity_not_set_when_primary_key_property_is_enum()
         {
             var modelBuilder = CreateInternalModelBuilder();
@@ -369,7 +369,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             Assert.False(property.RequiresValueGenerator());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Identity_is_recomputed_when_primary_key_is_changed()
         {
             var modelBuilder = CreateInternalModelBuilder();
@@ -403,7 +403,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             Assert.Equal(ValueGenerated.OnAdd, ((IProperty)numberProperty).ValueGenerated);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Convention_does_not_override_None_when_configured_explicitly()
         {
             var modelBuilder = CreateInternalModelBuilder();
@@ -425,7 +425,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             Assert.Equal(ValueGenerated.Never, property.ValueGenerated);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Identity_is_removed_when_foreign_key_is_added()
         {
             var modelBuilder = CreateInternalModelBuilder();
@@ -455,7 +455,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             Assert.Equal(ValueGenerated.Never, ((IProperty)property).ValueGenerated);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Identity_is_added_when_foreign_key_is_removed_and_key_is_primary_key()
         {
             var modelBuilder = CreateInternalModelBuilder();

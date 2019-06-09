@@ -8,7 +8,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
 {
     public class SqliteBuilderExtensionsTest
     {
-        [Fact]
+        [ConditionalFact]
         public void Can_set_srid()
         {
             var modelBuilder = CreateConventionModelBuilder();
@@ -22,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             Assert.Equal(1, property.GetSqliteSrid());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_set_srid_non_generic()
         {
             var modelBuilder = CreateConventionModelBuilder();
@@ -36,7 +36,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             Assert.Equal(1, property.GetSqliteSrid());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_set_srid_convention()
         {
             var modelBuilder = ((IConventionModel)CreateConventionModelBuilder().Model).Builder;
@@ -50,7 +50,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             Assert.Equal(1, property.GetSqliteSrid());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_set_dimension_convention()
         {
             var modelBuilder = ((IConventionModel)CreateConventionModelBuilder().Model).Builder;

@@ -12,7 +12,7 @@ namespace Microsoft.EntityFrameworkCore.Design
         protected abstract Assembly GetRuntimeAssembly();
         protected abstract Type GetDesignTimeServicesType();
 
-        [Fact]
+        [ConditionalFact]
         public void Ensure_assmebly_identity_matches()
         {
             var runtimeAssembly = GetRuntimeAssembly();

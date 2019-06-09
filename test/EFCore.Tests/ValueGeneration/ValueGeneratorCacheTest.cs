@@ -12,7 +12,7 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
 {
     public class ValueGeneratorCacheTest
     {
-        [Fact]
+        [ConditionalFact]
         public void Uses_single_generator_per_property()
         {
             var model = CreateModel();

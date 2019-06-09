@@ -13,7 +13,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 {
     public class EntityTypeExtensionsTest
     {
-        [Fact]
+        [ConditionalFact]
         public void Can_get_all_properties_and_navigations()
         {
             var entityType = CreateModel().AddEntityType(nameof(SelfRef));
@@ -30,7 +30,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 entityType.GetPropertiesAndNavigations().ToArray());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_get_referencing_foreign_keys()
         {
             var entityType = CreateModel().AddEntityType("Customer");
@@ -41,7 +41,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Same(fk, entityType.GetReferencingForeignKeys().Single());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_get_root_type()
         {
             var model = CreateModel();
@@ -56,7 +56,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Same(a, c.RootType());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_get_derived_types()
         {
             var model = CreateModel();
@@ -73,7 +73,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Equal(new[] { b, d }, a.GetDirectlyDerivedTypes().ToArray());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_determine_whether_IsAssignableFrom()
         {
             var model = CreateModel();
@@ -93,7 +93,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.False(b.IsAssignableFrom(d));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_get_proper_table_name_for_generic_entityType()
         {
             var entityType = CreateModel().AddEntityType(typeof(A<int>));
@@ -103,7 +103,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 entityType.DisplayName());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Setting_discriminator_on_non_root_type_throws()
         {
             var modelBuilder = new ModelBuilder(new ConventionSet());
@@ -123,7 +123,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 Assert.Throws<InvalidOperationException>(() => derivedType.SetDiscriminatorProperty(property)).Message);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Setting_discriminator_from_different_entity_type_throws()
         {
             var modelBuilder = new ModelBuilder(new ConventionSet());
@@ -143,7 +143,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 Assert.Throws<InvalidOperationException>(() => otherType.SetDiscriminatorProperty(property)).Message);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_get_and_set_discriminator_value()
         {
             var modelBuilder = new ModelBuilder(new ConventionSet());
@@ -166,7 +166,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Null(entityType.GetDiscriminatorValue());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Setting_discriminator_value_when_discriminator_not_set_throws()
         {
             var modelBuilder = new ModelBuilder(new ConventionSet());
@@ -181,7 +181,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                     () => entityType.SetDiscriminatorValue("V")).Message);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Setting_incompatible_discriminator_value_throws()
         {
             var modelBuilder = new ModelBuilder(new ConventionSet());

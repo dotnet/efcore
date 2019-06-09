@@ -9,7 +9,7 @@ namespace Microsoft.EntityFrameworkCore
 {
     public class SqlServerDatabaseFacadeTest
     {
-        [Fact]
+        [ConditionalFact]
         public void IsSqlServer_when_using_OnConfguring()
         {
             using (var context = new SqlServerOnConfiguringContext())
@@ -18,7 +18,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void IsSqlServer_in_OnModelCreating_when_using_OnConfguring()
         {
             using (var context = new SqlServerOnModelContext())
@@ -28,7 +28,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void IsSqlServer_in_constructor_when_using_OnConfguring()
         {
             using (var context = new SqlServerConstructorContext())
@@ -38,7 +38,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Cannot_use_IsSqlServer_in_OnConfguring()
         {
             using (var context = new SqlServerUseInOnConfiguringContext())
@@ -53,7 +53,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void IsSqlServer_when_using_constructor()
         {
             using (var context = new ProviderContext(
@@ -65,7 +65,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void IsSqlServer_in_OnModelCreating_when_using_constructor()
         {
             using (var context = new ProviderOnModelContext(
@@ -78,7 +78,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void IsSqlServer_in_constructor_when_using_constructor()
         {
             using (var context = new ProviderConstructorContext(
@@ -91,7 +91,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Cannot_use_IsSqlServer_in_OnConfguring_with_constructor()
         {
             using (var context = new ProviderUseInOnConfiguringContext(
@@ -109,7 +109,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Not_IsSqlServer_when_using_different_provider()
         {
             using (var context = new ProviderContext(

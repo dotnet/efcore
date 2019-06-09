@@ -26,7 +26,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             public string Something { get; set; }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Model_differ_does_not_detect_keyless_types()
         {
             Execute(
@@ -35,7 +35,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 result => Assert.Equal(0, result.Count));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Model_differ_detects_adding_store_type()
         {
             Execute(
@@ -72,7 +72,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     }));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Model_differ_detects_adding_value_converter()
         {
             Execute(
@@ -109,7 +109,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     }));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Model_differ_detects_changing_store_type_to_conversions()
         {
             Execute(
@@ -146,7 +146,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     }));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Model_differ_breaks_foreign_key_cycles_in_create_table_operations()
         {
             Execute(
@@ -188,7 +188,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 });
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Model_differ_breaks_foreign_key_cycles_in_drop_table_operations()
         {
             Execute(
@@ -223,7 +223,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 });
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Create_table()
         {
             Execute(
@@ -291,7 +291,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             public int C { get; set; }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Create_table_columns_use_property_order()
         {
             Execute(
@@ -309,7 +309,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 });
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Create_table_columns_use_dependent_to_principal_and_key_order_when_shadow_fk()
         {
             Execute(
@@ -344,7 +344,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 });
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Create_table_columns_uses_defining_navigation_order()
         {
             Execute(
@@ -363,7 +363,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 });
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Create_table_columns_uses_principal_to_dependent_order_when_splitting()
         {
             Execute(
@@ -383,7 +383,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 });
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Create_table_columns_groups_and_sorts_type_hierarchy()
         {
             Execute(
@@ -408,7 +408,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 });
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Create_table_columns_handles_aliased_columns()
         {
             Execute(
@@ -430,7 +430,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 });
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Create_table_columns_handles_shadow_defining_navigation()
         {
             Execute(
@@ -452,7 +452,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 });
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Create_table_columns_handles_shadow_principal_to_dependent_when_splitting()
         {
             Execute(
@@ -479,7 +479,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 });
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Create_table_columns_handles_no_principal_to_dependent_when_splitting()
         {
             Execute(
@@ -506,7 +506,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 });
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Create_table_columns_handles_shadow_dependent_to_principal()
         {
             Execute(
@@ -536,7 +536,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 });
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Create_table_columns_handles_no_dependent_to_principal()
         {
             Execute(
@@ -566,7 +566,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 });
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Create_table_columns_handles_self_referencing_one_to_many()
         {
             Execute(
@@ -593,7 +593,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 });
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Create_table_columns_handles_self_referencing_one_to_one()
         {
             Execute(
@@ -620,7 +620,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 });
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Rename_table()
         {
             Execute(
@@ -645,7 +645,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 });
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Move_table()
         {
             Execute(
@@ -666,7 +666,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 });
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Rename_entity_type()
         {
             Execute(
@@ -688,7 +688,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 Assert.Empty);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Create_shared_table_with_two_types()
         {
             Execute(
@@ -735,7 +735,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 });
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Add_type_to_shared_table()
         {
             Execute(
@@ -779,7 +779,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 });
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Move_type_from_one_shared_table_to_another_with_seed_data()
         {
             Execute(
@@ -903,7 +903,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     }));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_split_entity_in_two_using_shared_table_with_seed_data()
         {
             Execute(
@@ -960,7 +960,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 operations => Assert.Equal(0, operations.Count));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Add_owned_type_with_seed_data()
         {
             Execute(
@@ -1086,7 +1086,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     }));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Rename_entity_type_with_seed_data()
         {
             Execute(
@@ -1128,7 +1128,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 Assert.Empty);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Add_column_with_computed_value()
         {
             Execute(
@@ -1160,7 +1160,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 });
         }
 
-        [Fact] // Issue #4501
+        [ConditionalFact] // Issue #4501
         public void Add_column_ValueGeneratedOnAddOrUpdate_with_default_value_sql()
         {
             Execute(
@@ -1189,7 +1189,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 });
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Add_column_ValueGeneratedOnUpdate_with_default_value_sql()
         {
             Execute(
@@ -1218,7 +1218,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 });
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(typeof(int), 0)]
         [InlineData(typeof(int?), 0)]
         [InlineData(typeof(string), "")]
@@ -1247,7 +1247,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 });
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Add_property_converted_to_nullable()
         {
             Execute(
@@ -1267,7 +1267,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 });
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Add_column_with_seed_data()
         {
             Execute(
@@ -1354,7 +1354,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             NonDefault
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Rename_column()
         {
             Execute(
@@ -1386,7 +1386,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 });
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Rename_column_with_seed_data()
         {
             Execute(
@@ -1498,7 +1498,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     }));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Rename_property()
         {
             Execute(
@@ -1521,7 +1521,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 Assert.Empty);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Rename_property_with_same_seed_data()
         {
             Execute(
@@ -1558,7 +1558,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 Assert.Empty);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Rename_property_and_column()
         {
             Execute(
@@ -1575,7 +1575,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 });
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Rename_property_and_column_when_snapshot()
         {
             // NB: No conventions to simulate the snapshot.
@@ -1614,7 +1614,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             public string Id { get; set; }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Add_custom_value_generator()
         {
             Execute(
@@ -1636,7 +1636,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 operations => Assert.Equal(0, operations.Count));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Remove_custom_value_generator()
         {
             Execute(
@@ -1668,7 +1668,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             public override bool GeneratesTemporaryValues => false;
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Alter_column_nullability()
         {
             Execute(
@@ -1710,7 +1710,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 });
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Alter_column_type()
         {
             Execute(
@@ -1754,7 +1754,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 });
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Alter_column_type_with_seed_data()
         {
             Execute(
@@ -1808,7 +1808,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 });
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Alter_key_column_type_with_seed_data()
         {
             Execute(
@@ -1907,7 +1907,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     }));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Alter_column_max_length()
         {
             Execute(
@@ -1938,7 +1938,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 });
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Alter_column_unicode()
         {
             Execute(
@@ -1969,7 +1969,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 });
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Alter_column_fixed_length()
         {
             Execute(
@@ -2000,7 +2000,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 });
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Alter_column_default()
         {
             Execute(
@@ -2042,7 +2042,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 });
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Alter_column_default_expression()
         {
             Execute(
@@ -2084,7 +2084,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 });
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Alter_column_computed_expression()
         {
             Execute(
@@ -2126,7 +2126,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 });
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Add_unique_constraint()
         {
             Execute(
@@ -2159,7 +2159,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 });
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Drop_unique_constraint()
         {
             Execute(
@@ -2191,7 +2191,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 });
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Rename_unique_constraint()
         {
             Execute(
@@ -2230,7 +2230,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 });
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Alter_unique_constraint_columns()
         {
             Execute(
@@ -2271,7 +2271,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 });
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Add_check_constraint()
         {
             Execute(
@@ -2304,7 +2304,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 });
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Drop_check_constraint()
         {
             Execute(
@@ -2336,7 +2336,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 });
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Rename_check_constraint()
         {
             Execute(
@@ -2375,7 +2375,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 });
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Alter_check_constraint_expression()
         {
             Execute(
@@ -2414,7 +2414,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 });
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Rename_primary_key()
         {
             Execute(
@@ -2444,7 +2444,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 });
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Alter_primary_key_columns()
         {
             Execute(
@@ -2483,7 +2483,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 });
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Alter_primary_key_column_order_with_seed_data()
         {
             Execute(
@@ -2524,7 +2524,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 });
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Add_foreign_key()
         {
             Execute(
@@ -2564,7 +2564,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 });
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Add_optional_foreign_key()
         {
             Execute(
@@ -2608,7 +2608,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 });
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Add_optional_foreign_key_with_cascade_delete()
         {
             Execute(
@@ -2652,7 +2652,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 });
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Add_required_foreign_key_with_restrict()
         {
             Execute(
@@ -2696,7 +2696,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 });
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Add_required_foreign_key_with_default()
         {
             Execute(
@@ -2740,7 +2740,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 });
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Add_optional_foreign_key_with_set_null()
         {
             Execute(
@@ -2784,7 +2784,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 });
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Add_optional_foreign_key_with_restrict()
         {
             Execute(
@@ -2828,7 +2828,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 });
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Remove_foreign_key()
         {
             Execute(
@@ -2865,7 +2865,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 });
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Rename_foreign_key()
         {
             Execute(
@@ -2907,7 +2907,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 });
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Alter_foreign_key_columns()
         {
             Execute(
@@ -2962,7 +2962,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 });
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Alter_foreign_key_cascade_delete()
         {
             Execute(
@@ -3008,7 +3008,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 });
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Alter_foreign_key_on_delete_from_ClientSetNull_to_Restrict()
         {
             Execute(
@@ -3035,7 +3035,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 operations => Assert.Equal(0, operations.Count));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Alter_foreign_key_target()
         {
             Execute(
@@ -3087,7 +3087,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 });
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Create_index()
         {
             Execute(
@@ -3121,7 +3121,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 });
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Drop_index()
         {
             Execute(
@@ -3153,7 +3153,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 });
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Rename_index()
         {
             Execute(
@@ -3187,7 +3187,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 });
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Alter_index_columns()
         {
             Execute(
@@ -3228,7 +3228,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 });
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Alter_index_uniqueness()
         {
             Execute(
@@ -3267,7 +3267,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 });
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Create_sequence()
         {
             Execute(
@@ -3296,7 +3296,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 });
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Drop_sequence()
         {
             Execute(
@@ -3312,7 +3312,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 });
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Rename_sequence()
         {
             Execute(
@@ -3330,7 +3330,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 });
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Move_sequence()
         {
             Execute(
@@ -3350,7 +3350,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 });
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Alter_sequence_increment_by()
         {
             Execute(
@@ -3380,7 +3380,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 });
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Alter_sequence_max_value()
         {
             Execute(
@@ -3410,7 +3410,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 });
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Alter_sequence_min_value()
         {
             Execute(
@@ -3440,7 +3440,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 });
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Alter_sequence_cycle()
         {
             Execute(
@@ -3470,7 +3470,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 });
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Alter_sequence_type()
         {
             Execute(
@@ -3506,7 +3506,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 });
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Alter_sequence_start()
         {
             Execute(
@@ -3534,7 +3534,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 });
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Restart_altered_sequence()
         {
             Execute(
@@ -3556,7 +3556,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     o => Assert.IsType<RestartSequenceOperation>(o)));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Diff_IProperty_destructive_when_null_to_not_null()
         {
             Execute(
@@ -3583,7 +3583,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 });
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Diff_IProperty_not_destructive_when_not_null_to_null()
         {
             Execute(
@@ -3610,7 +3610,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 });
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Diff_IProperty_destructive_when_type_changed()
         {
             Execute(
@@ -3637,7 +3637,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 });
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Sort_works_with_primary_keys_and_columns()
         {
             Execute(
@@ -3657,7 +3657,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     o => Assert.IsType<AddPrimaryKeyOperation>(o)));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Sort_adds_unique_constraint_after_column()
         {
             Execute(
@@ -3676,7 +3676,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     o => Assert.IsType<AddUniqueConstraintOperation>(o)));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Sort_drops_unique_constraint_before_column()
         {
             Execute(
@@ -3695,7 +3695,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     o => Assert.IsType<DropColumnOperation>(o)));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Sort_creates_index_after_column()
         {
             Execute(
@@ -3714,7 +3714,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     o => Assert.IsType<CreateIndexOperation>(o)));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Sort_drops_index_before_column()
         {
             Execute(
@@ -3733,7 +3733,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     o => Assert.IsType<DropColumnOperation>(o)));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Sort_adds_foreign_key_after_column()
         {
             Execute(
@@ -3753,7 +3753,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     o => Assert.IsType<AddForeignKeyOperation>(o)));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Sort_drops_foreign_key_before_column()
         {
             Execute(
@@ -3773,7 +3773,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     o => Assert.IsType<DropColumnOperation>(o)));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Sort_adds_foreign_key_after_target_table()
         {
             Execute(
@@ -3803,7 +3803,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     o => Assert.IsType<AddForeignKeyOperation>(o)));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Sort_drops_foreign_key_before_target_table()
         {
             Execute(
@@ -3833,7 +3833,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     o => Assert.IsType<DropIndexOperation>(o)));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Sort_adds_foreign_key_after_target_column_and_unique_constraint()
         {
             Execute(
@@ -3874,7 +3874,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     o => Assert.IsType<AddForeignKeyOperation>(o)));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Sort_drops_foreign_key_before_target_column_and_unique_constraint()
         {
             Execute(
@@ -3915,7 +3915,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     o => Assert.IsType<DropColumnOperation>(o)));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Sort_creates_tables_in_topologic_order()
         {
             Execute(
@@ -3947,7 +3947,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 });
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Sort_drops_tables_in_topologic_order()
         {
             Execute(
@@ -3976,7 +3976,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 });
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Rename_column_with_primary_key()
         {
             Execute(
@@ -3990,7 +3990,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 });
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Rename_column_with_unique_constraint()
         {
             Execute(
@@ -4020,7 +4020,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 });
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Rename_column_with_index()
         {
             Execute(
@@ -4049,7 +4049,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 });
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Rename_table_with_unique_constraint()
         {
             Execute(
@@ -4079,7 +4079,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 });
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Rename_table_with_index()
         {
             Execute(
@@ -4109,7 +4109,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 });
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Rename_entity_type_with_primary_key_and_unique_constraint()
         {
             Execute(
@@ -4138,7 +4138,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 });
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Rename_entity_type_with_index()
         {
             Execute(
@@ -4167,7 +4167,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 });
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Rename_column_with_foreign_key()
         {
             Execute(
@@ -4198,7 +4198,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 });
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Rename_column_with_referencing_foreign_key()
         {
             Execute(
@@ -4225,7 +4225,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 });
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Rename_table_with_foreign_key()
         {
             Execute(
@@ -4263,7 +4263,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 });
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Rename_table_with_referencing_foreign_key()
         {
             Execute(
@@ -4306,7 +4306,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 });
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Create_table_with_property_on_subtype()
         {
             Execute(
@@ -4328,7 +4328,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 });
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Create_table_with_required_property_on_subtype()
         {
             Execute(
@@ -4350,7 +4350,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 });
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Create_table_with_seed_data()
         {
             Execute(
@@ -4397,7 +4397,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     }));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Add_property_on_subtype()
         {
             Execute(
@@ -4422,7 +4422,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 });
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Add_required_property_on_subtype()
         {
             Execute(
@@ -4447,7 +4447,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 });
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Remove_property_on_subtype()
         {
             Execute(
@@ -4472,7 +4472,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 });
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Alter_property_on_subtype()
         {
             Execute(
@@ -4499,7 +4499,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 });
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Create_index_on_subtype()
         {
             Execute(
@@ -4533,7 +4533,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 });
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Alter_index_on_subtype()
         {
             Execute(
@@ -4573,7 +4573,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 });
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Drop_index_on_subtype()
         {
             Execute(
@@ -4606,7 +4606,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 });
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Create_table_with_foreign_key_on_base_type()
         {
             Execute(
@@ -4646,7 +4646,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 });
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Create_table_with_foreign_key_on_subtype()
         {
             Execute(
@@ -4687,7 +4687,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 });
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Create_table_with_foreign_key_to_subtype()
         {
             Execute(
@@ -4728,7 +4728,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 });
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Create_table_with_selfReferencing_foreign_key_in_hierarchy()
         {
             Execute(
@@ -4765,7 +4765,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 });
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Add_subtype_with_shared_column_with_seed_data()
         {
             Execute(
@@ -4821,7 +4821,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     }));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Add_foreign_key_on_base_type()
         {
             Execute(
@@ -4868,7 +4868,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 });
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Add_shared_foreign_key_on_subtypes()
         {
             Execute(
@@ -4915,7 +4915,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 });
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Add_shared_property_with_foreign_key_on_subtypes()
         {
             Execute(
@@ -4947,7 +4947,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 operations => Assert.Equal(0, operations.Count));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Add_foreign_key_to_subtype()
         {
             Execute(
@@ -4994,7 +4994,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 });
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Drop_foreign_key_on_subtype()
         {
             Execute(
@@ -5031,7 +5031,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 });
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Create_shared_table_with_two_entity_types()
         {
             Execute(
@@ -5060,7 +5060,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 });
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Create_shared_table_with_inheritance_and_three_entity_types()
         {
             Execute(
@@ -5091,7 +5091,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 });
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Split_out_subtype_with_seed_data()
         {
             Execute(
@@ -5170,7 +5170,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     }));
         }
 
-        [Fact] // See #2802
+        [ConditionalFact] // See #2802
         public void Diff_IProperty_compares_values_not_references()
         {
             Execute(
@@ -5191,7 +5191,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 Assert.Empty);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Add_column_to_renamed_table()
         {
             Execute(
@@ -5221,7 +5221,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 });
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Add_foreign_key_to_renamed_table()
         {
             Execute(
@@ -5264,7 +5264,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 });
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Add_foreign_key_to_renamed_column()
         {
             Execute(
@@ -5302,7 +5302,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 });
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Add_foreign_key_referencing_renamed_table()
         {
             Execute(
@@ -5348,7 +5348,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 });
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Add_foreign_key_referencing_renamed_column_with_seed_data()
         {
             Execute(
@@ -5469,7 +5469,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     }));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Create_table_with_foreign_key_referencing_renamed_table()
         {
             Execute(
@@ -5511,7 +5511,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 });
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Create_table_with_foreign_key_referencing_renamed_column()
         {
             Execute(
@@ -5543,7 +5543,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 });
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Rename_primary_key_on_renamed_table()
         {
             Execute(
@@ -5569,7 +5569,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 });
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Rename_primary_key_on_renamed_column()
         {
             Execute(
@@ -5595,7 +5595,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 });
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Add_alternate_key_to_renamed_table()
         {
             Execute(
@@ -5632,7 +5632,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 });
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Add_alternate_key_to_renamed_column()
         {
             Execute(
@@ -5663,7 +5663,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 });
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Alter_column_on_renamed_table()
         {
             Execute(
@@ -5699,7 +5699,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 });
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Alter_renamed_column()
         {
             Execute(
@@ -5729,7 +5729,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 });
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Alter_renamed_sequence()
         {
             Execute(
@@ -5749,7 +5749,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 });
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Create_index_on_renamed_table()
         {
             Execute(
@@ -5786,7 +5786,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 });
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Create_index_on_renamed_column()
         {
             Execute(
@@ -5817,7 +5817,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 });
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Drop_column_on_renamed_table()
         {
             Execute(
@@ -5854,7 +5854,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 });
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Drop_foreign_key_on_renamed_table()
         {
             Execute(
@@ -5897,7 +5897,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 });
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Drop_alternate_key_on_renamed_table()
         {
             Execute(
@@ -5934,7 +5934,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 });
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Drop_index_on_renamed_table()
         {
             Execute(
@@ -5971,7 +5971,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 });
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Restart_renamed_sequence()
         {
             Execute(
@@ -5991,7 +5991,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 });
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Rename_column_on_renamed_table()
         {
             Execute(
@@ -6029,7 +6029,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 });
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Rename_index_on_renamed_table()
         {
             Execute(
@@ -6067,7 +6067,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 });
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Add_alternate_key_on_added_column()
         {
             Execute(
@@ -6090,7 +6090,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 });
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Add_foreign_key_referencing_added_alternate_key_with_seed_data()
         {
             Execute(
@@ -6192,7 +6192,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     }));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void SeedData_add_on_existing_table()
         {
             Execute(
@@ -6241,7 +6241,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     }));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void SeedData_remove()
         {
             Execute(
@@ -6290,7 +6290,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     }));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void SeedData_binary_change()
         {
             Execute(
@@ -6347,7 +6347,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     }));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void SeedData_binary_no_change()
         {
             Execute(
@@ -6382,7 +6382,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 downOps => Assert.Empty(downOps));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void SeedData_update_with_table_rename()
         {
             Execute(
@@ -6505,7 +6505,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     }));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void SeedData_nonkey_refactoring_value_conversion()
         {
             Execute(
@@ -6541,7 +6541,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 Assert.Empty);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void SeedData_nonkey_refactoring_value_conversion_with_structural_provider_type()
         {
             Execute(
@@ -6580,7 +6580,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 Assert.Empty);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void SeedData_key_refactoring_value_conversion()
         {
             Execute(
@@ -6616,7 +6616,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 Assert.Empty);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void SeedData_change_enum_conversion()
         {
             Execute(
@@ -6691,7 +6691,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     }));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void SeedData_no_change_enum_key()
         {
             Execute(
@@ -6726,7 +6726,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 Assert.Empty);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void SeedData_all_operations()
         {
             Execute(
@@ -6901,7 +6901,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     }));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void SeedData_with_timestamp_column()
         {
             Execute(
@@ -7077,7 +7077,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 });
         }
 
-        [Fact]
+        [ConditionalFact]
         public void SeedData_with_shadow_navigation_properties()
         {
             SeedData_with_navigation_properties(
@@ -7139,7 +7139,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 });
         }
 
-        [Fact]
+        [ConditionalFact]
         public void SeedData_with_CLR_navigation_properties()
         {
             SeedData_with_navigation_properties(
@@ -7414,7 +7414,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             public string AddressLine2 { get; set; }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Add_property_on_owned_type()
         {
             Execute(
@@ -7440,7 +7440,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 });
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Add_ownership()
         {
             Execute(
@@ -7479,7 +7479,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 });
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Add_type_with_additional_ownership()
         {
             Execute(
@@ -7500,7 +7500,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 });
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Add_type_with_ownership_SeedData()
         {
             Execute(
@@ -7558,7 +7558,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     }));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void SeedData_type_with_ownership_no_changes()
         {
             Execute(
@@ -7594,7 +7594,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 Assert.Empty);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Old_style_ownership_to_new_style()
         {
             Execute(
@@ -7650,7 +7650,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 Assert.Empty);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Move_properties_to_owned_type()
         {
             Execute(
@@ -7673,7 +7673,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 });
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Move_properties_to_owned_type_with_existing_ownership()
         {
             Execute(
@@ -7700,7 +7700,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 });
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Rename_property_on_owned_type_and_add_similar_to_owner()
         {
             Execute(
@@ -7732,7 +7732,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 });
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Rename_property_on_owning_type_and_add_similar_to_owned()
         {
             Execute(
@@ -7765,7 +7765,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 });
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Rename_property_on_dependent_and_add_similar_to_principal_with_shared_table()
         {
             Execute(
@@ -7793,7 +7793,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 });
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Rename_property_on_subtype_and_add_similar_to_base()
         {
             Execute(
@@ -7824,7 +7824,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 });
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Owner_pk_properties_appear_before_owned_pk_which_preserves_annotations()
         {
             Execute(
@@ -7889,7 +7889,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             public string Reason { get; set; }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Primary_key_properties_are_sorted_first()
         {
             Execute(

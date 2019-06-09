@@ -19,7 +19,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
 {
     public class SqlServerTypeMappingTest : RelationalTypeMappingTest
     {
-        [Theory]
+        [ConditionalTheory]
         [InlineData(nameof(ChangeTracker.DetectChanges), false)]
         [InlineData(nameof(PropertyEntry.CurrentValue), false)]
         [InlineData(nameof(PropertyEntry.OriginalValue), false)]
@@ -117,7 +117,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             base.Create_and_clone_unicode_sized_mappings_with_converter(mappingType, clrType);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Create_and_clone_UDT_mapping_with_converter()
         {
             Func<object, Expression> literalGenerator = Expression.Constant;
@@ -263,7 +263,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Test_GenerateSqlLiteral_helper(typeMapping, short.MaxValue, "CAST(32767 AS smallint)");
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void SqlVariant_literal_generated_correctly()
         {
             var typeMapping = GetMapping("sql_variant");
@@ -283,7 +283,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                     TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>())
                 .FindMapping(type);
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData("Microsoft.SqlServer.Types.SqlHierarchyId", "hierarchyid")]
         [InlineData("Microsoft.SqlServer.Types.SqlGeography", "geography")]
         [InlineData("Microsoft.SqlServer.Types.SqlGeometry", "geometry")]

@@ -10,7 +10,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
 {
     public class DbContextOperationsTest
     {
-        [Fact]
+        [ConditionalFact]
         public void CreateContext_gets_service()
         {
             var assembly = MockAssembly.Create(typeof(TestProgram), typeof(TestContext));

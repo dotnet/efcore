@@ -72,7 +72,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
 
         #region FilteringSchemaTable
 
-        [Fact]
+        [ConditionalFact]
         public void Filter_tables()
         {
             Test(
@@ -93,7 +93,7 @@ DROP TABLE Everest;
 DROP TABLE Denali;");
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Filter_tables_is_case_insensitive()
         {
             Test(
@@ -118,7 +118,7 @@ DROP TABLE Denali;");
 
         #region Table
 
-        [Fact]
+        [ConditionalFact]
         public void Create_tables()
         {
             Test(
@@ -139,7 +139,7 @@ DROP TABLE Everest;
 DROP TABLE Denali;");
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Create_columns()
         {
             Test(
@@ -164,7 +164,7 @@ CREATE TABLE MountainsColumns (
                 "DROP TABLE MountainsColumns;");
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Create_view_columns()
         {
             Test(
@@ -191,7 +191,7 @@ SELECT
                 "DROP VIEW MountainsColumnsView;");
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Create_primary_key()
         {
             Test(
@@ -212,7 +212,7 @@ SELECT
                 "DROP TABLE Place;");
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Create_unique_constraints()
         {
             Test(
@@ -241,7 +241,7 @@ CREATE INDEX IX_Location_Name ON Place (Location, Name);",
                 "DROP TABLE Place;");
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Create_indexes()
         {
             Test(
@@ -270,7 +270,7 @@ CREATE INDEX IX_INDEX on IndexTable ( IndexProperty );",
                 "DROP TABLE IndexTable;");
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Create_foreign_keys()
         {
             Test(
@@ -337,7 +337,7 @@ DROP TABLE PrincipalTable;");
 
         #region ColumnFacets
 
-        [Fact]
+        [ConditionalFact]
         public void Column_storetype_is_set()
         {
             Test(
@@ -364,7 +364,7 @@ CREATE TABLE StoreType (
                 "DROP TABLE StoreType;");
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Column_nullability_is_set()
         {
             Test(
@@ -386,7 +386,7 @@ CREATE TABLE Nullable (
                 "DROP TABLE Nullable;");
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Column_default_value_is_set()
         {
             Test(
@@ -410,7 +410,7 @@ CREATE TABLE DefaultValue (
                 "DROP TABLE DefaultValue;");
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData("DOUBLE NOT NULL DEFAULT 0")]
         [InlineData("FLOAT NOT NULL DEFAULT 0")]
         [InlineData("INT NOT NULL DEFAULT 0")]
@@ -436,7 +436,7 @@ CREATE TABLE DefaultValue (
 
         #region PrimaryKeyFacets
 
-        [Fact]
+        [ConditionalFact]
         public void Create_composite_primary_key()
         {
             Test(
@@ -463,7 +463,7 @@ CREATE TABLE CompositePrimaryKey (
                 "DROP TABLE CompositePrimaryKey;");
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Create_primary_key_when_integer_primary_key_alised_to_rowid()
         {
             Test(
@@ -487,7 +487,7 @@ CREATE TABLE RowidPrimaryKey (
                 "DROP TABLE RowidPrimaryKey;");
         }
 
-        [Fact(Skip = "See issue#8802")]
+        [ConditionalFact(Skip = "See issue#8802")]
         public void Set_name_for_primary_key()
         {
             Test(
@@ -517,7 +517,7 @@ CREATE TABLE PrimaryKeyName (
 
         #region UniqueConstraintFacets
 
-        [Fact]
+        [ConditionalFact]
         public void Create_composite_unique_constraint()
         {
             Test(
@@ -545,7 +545,7 @@ CREATE TABLE CompositeUniqueConstraint (
                 "DROP TABLE CompositeUniqueConstraint;");
         }
 
-        [Fact(Skip = "See issue#8802")]
+        [ConditionalFact(Skip = "See issue#8802")]
         public void Set_name_for_unique_constraint()
         {
             Test(
@@ -576,7 +576,7 @@ CREATE TABLE UniqueConstraintName (
 
         #region IndexFacets
 
-        [Fact]
+        [ConditionalFact]
         public void Create_composite_index()
         {
             Test(
@@ -606,7 +606,7 @@ CREATE INDEX IX_COMPOSITE on CompositeIndex (Id2, Id1);",
                 "DROP TABLE CompositeIndex;");
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Set_unique_for_unique_index()
         {
             Test(
@@ -640,7 +640,7 @@ CREATE UNIQUE INDEX IX_UNIQUE on UniqueIndex (Id2);",
 
         #region ForeignKeyFacets
 
-        [Fact]
+        [ConditionalFact]
         public void Create_composite_foreign_key()
         {
             Test(
@@ -685,7 +685,7 @@ DROP TABLE DependentTable;
 DROP TABLE PrincipalTable;");
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Create_multiple_foreign_key_in_same_table()
         {
             Test(
@@ -753,7 +753,7 @@ DROP TABLE AnotherPrincipalTable;
 DROP TABLE PrincipalTable;");
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Create_foreign_key_referencing_unique_constraint()
         {
             Test(
@@ -794,7 +794,7 @@ DROP TABLE DependentTable;
 DROP TABLE PrincipalTable;");
         }
 
-        [Fact(Skip = "See issue#8802")]
+        [ConditionalFact(Skip = "See issue#8802")]
         public void Set_name_for_foreign_key()
         {
             Test(
@@ -835,7 +835,7 @@ DROP TABLE DependentTable;
 DROP TABLE PrincipalTable;");
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Set_referential_action_for_foreign_key()
         {
             Test(
@@ -879,7 +879,7 @@ DROP TABLE PrincipalTable;");
 
         #region Warnings
 
-        [Fact]
+        [ConditionalFact]
         public void Warn_for_schema_filtering()
         {
             Test(
@@ -896,7 +896,7 @@ DROP TABLE PrincipalTable;");
                 "DROP TABLE Everest;");
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Warn_missing_table()
         {
             Test(
@@ -915,7 +915,7 @@ DROP TABLE PrincipalTable;");
                 "DROP TABLE Blank;");
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Warn_missing_principal_table_for_foreign_key()
         {
             Test(
@@ -943,7 +943,7 @@ DROP TABLE DependentTable;
 DROP TABLE PrincipalTable;");
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Warn_missing_principal_column_for_foreign_key()
         {
             Test(

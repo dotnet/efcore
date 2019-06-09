@@ -28,7 +28,7 @@ namespace Microsoft.EntityFrameworkCore
         protected TestStore TestStore { get; }
         protected DbContextOptions Options { get; }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Can_build_monster_model_and_seed_data_using_FKs()
         {
             CreateAndSeedDatabase(context => context.SeedUsingFKs());
@@ -38,7 +38,7 @@ namespace Microsoft.EntityFrameworkCore
             NavigationVerification();
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Can_build_monster_model_and_seed_data_using_all_navigations()
         {
             CreateAndSeedDatabase(context => context.SeedUsingNavigations(dependentNavs: true, principalNavs: true));
@@ -48,7 +48,7 @@ namespace Microsoft.EntityFrameworkCore
             NavigationVerification();
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Can_build_monster_model_and_seed_data_using_dependent_navigations()
         {
             CreateAndSeedDatabase(context => context.SeedUsingNavigations(dependentNavs: true, principalNavs: false));
@@ -58,7 +58,7 @@ namespace Microsoft.EntityFrameworkCore
             NavigationVerification();
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Can_build_monster_model_and_seed_data_using_principal_navigations()
         {
             CreateAndSeedDatabase(context => context.SeedUsingNavigations(dependentNavs: false, principalNavs: true));
@@ -68,7 +68,7 @@ namespace Microsoft.EntityFrameworkCore
             NavigationVerification();
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Can_build_monster_model_and_seed_data_using_navigations_with_deferred_add()
         {
             CreateAndSeedDatabase(context => context.SeedUsingNavigationsWithDeferredAdd());
@@ -78,7 +78,7 @@ namespace Microsoft.EntityFrameworkCore
             NavigationVerification();
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void One_to_many_fixup_happens_when_FKs_change_test()
         {
             CreateAndSeedDatabase(context => context.SeedUsingFKs());
@@ -168,7 +168,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void One_to_many_fixup_happens_when_reference_changes()
         {
             CreateAndSeedDatabase(context => context.SeedUsingFKs());
@@ -258,7 +258,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void One_to_many_fixup_happens_when_collection_changes()
         {
             CreateAndSeedDatabase(context => context.SeedUsingFKs());
@@ -337,7 +337,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void One_to_one_fixup_happens_when_FKs_change_test()
         {
             CreateAndSeedDatabase(context => context.SeedUsingFKs());
@@ -421,7 +421,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void One_to_one_fixup_happens_when_reference_change_test()
         {
             CreateAndSeedDatabase(context => context.SeedUsingFKs());
@@ -505,7 +505,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Composite_fixup_happens_when_FKs_change_test()
         {
             CreateAndSeedDatabase(context => context.SeedUsingFKs());
@@ -603,7 +603,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Fixup_with_binary_keys_happens_when_FKs_or_navigations_change_test()
         {
             CreateAndSeedDatabase(context => context.SeedUsingFKs());

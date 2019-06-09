@@ -13,7 +13,7 @@ namespace Microsoft.EntityFrameworkCore.Update
 {
     public class SqlServerModificationCommandBatchTest
     {
-        [Fact]
+        [ConditionalFact]
         public void AddCommand_returns_false_when_max_batch_size_is_reached()
         {
             var typeMapper = new SqlServerTypeMappingSource(

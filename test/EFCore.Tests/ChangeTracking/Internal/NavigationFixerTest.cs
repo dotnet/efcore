@@ -19,7 +19,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 {
     public class NavigationFixerTest
     {
-        [Fact]
+        [ConditionalFact]
         public void Does_not_throw_if_Add_during_fixup()
         {
             using (var context = new FixupContext())
@@ -85,7 +85,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Does_fixup_of_related_principals()
         {
             var contextServices = CreateContextServices();
@@ -117,7 +117,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Assert.DoesNotContain(dependent, principal1.Products);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Does_fixup_of_related_dependents()
         {
             var contextServices = CreateContextServices();
@@ -162,7 +162,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Assert.Contains(dependent3, principal.Products);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Does_fixup_of_one_to_one_relationship()
         {
             var contextServices = CreateContextServices();
@@ -228,7 +228,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Assert.Null(dependent4.Product);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Does_fixup_of_one_to_one_self_referencing_relationship()
         {
             var contextServices = CreateContextServices();
@@ -285,7 +285,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Assert.Same(entity2, entity3.OriginalProduct);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Does_fixup_of_FKs_and_related_principals_using_dependent_navigations()
         {
             var contextServices = CreateContextServices();
@@ -318,7 +318,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Assert.DoesNotContain(dependent, principal1.Products);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Does_fixup_of_FKs_and_related_principals_using_principal_navigations()
         {
             var contextServices = CreateContextServices();
@@ -352,7 +352,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Assert.DoesNotContain(dependent, principal1.Products);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Does_fixup_of_FKs_and_related_dependents_using_dependent_navigations()
         {
             var contextServices = CreateContextServices();
@@ -399,7 +399,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Assert.Contains(dependent3, principal.Products);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Does_fixup_of_FKs_and_related_dependents_using_principal_navigations()
         {
             var contextServices = CreateContextServices();
@@ -447,7 +447,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Assert.Contains(dependent3, principal.Products);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Does_fixup_of_one_to_one_self_referencing_relationship_using_dependent_navigations()
         {
             var contextServices = CreateContextServices();
@@ -517,7 +517,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Assert.Null(entity3.OriginalProduct);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Does_fixup_of_one_to_one_self_referencing_relationship_using_principal_navigations()
         {
             var contextServices = CreateContextServices();
@@ -602,7 +602,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Assert.Same(entity2, entity3.OriginalProduct);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Does_fixup_of_related_principals_when_FK_is_set()
         {
             var model = BuildModel();
@@ -653,7 +653,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Assert.DoesNotContain(dependent, principal2.Products);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Does_fixup_of_related_principals_when_FK_is_cleared()
         {
             var model = BuildModel();
@@ -704,7 +704,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Assert.DoesNotContain(dependent, principal1.Products);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Does_fixup_of_related_principals_when_FK_is_changed()
         {
             var model = BuildModel();
@@ -755,7 +755,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Assert.DoesNotContain(dependent, principal2.Products);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Does_fixup_of_one_to_one_relationship_when_FK_changes()
         {
             var model = BuildModel();
@@ -807,7 +807,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Assert.Null(principal1.Detail);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Does_fixup_of_one_to_one_relationship_when_FK_cleared()
         {
             var model = BuildModel();
@@ -851,7 +851,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Assert.Null(principal.Detail);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Does_fixup_of_one_to_one_relationship_when_FK_set()
         {
             var model = BuildModel();
@@ -895,7 +895,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Assert.Same(dependent, principal.Detail);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Does_fixup_of_one_to_one_self_referencing_relationship_when_FK_changes()
         {
             var model = BuildModel();
@@ -958,7 +958,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Assert.Same(entity1, entity3.OriginalProduct);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_steal_reference_of_one_to_one_self_referencing_relationship_when_FK_changes()
         {
             var model = BuildModel();
@@ -1024,7 +1024,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Assert.Null(entity2.AlternateProductId);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Does_fixup_of_all_related_principals_when_part_of_overlapping_composite_FK_is_changed()
         {
             var model = BuildModel();
@@ -1239,7 +1239,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Assert.Same(review4, tag8.Review);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Removes_dependent_from_collection_after_deletion()
         {
             var contextServices = CreateContextServices();
@@ -1329,7 +1329,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Assert.Equal(dependent3.CategoryId, principal1.Id);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Nulls_navigation_to_principal_after_after_deletion()
         {
             var contextServices = CreateContextServices();
@@ -1407,7 +1407,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Assert.Equal(dependent3.CategoryId, principal1.Id);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Nulls_one_to_one_navigation_to_principal_after_deletion()
         {
             var model = BuildModel();
@@ -1469,7 +1469,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Assert.Equal(dependent2.AlternateProductId, principal2.Id);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Nulls_one_to_one_navigation_to_dependent_after_after_deletion()
         {
             var model = BuildModel();

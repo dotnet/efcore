@@ -8,7 +8,7 @@ namespace Microsoft.EntityFrameworkCore
 {
     public class NullPluralizerTest
     {
-        [Fact]
+        [ConditionalFact]
         public void Returns_same_name()
         {
             var pluralizer = new NullPluralizer();
@@ -17,7 +17,7 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Equal(name, pluralizer.Singularize(name));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Returns_same_name_when_null()
         {
             var pluralizer = new NullPluralizer();

@@ -230,7 +230,7 @@ DROP SEQUENCE [db2].[Sequence];");
 
         #region Model
 
-        [Fact]
+        [ConditionalFact]
         public void Set_default_schema()
         {
             Test(
@@ -245,7 +245,7 @@ DROP SEQUENCE [db2].[Sequence];");
                 null);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Create_tables()
         {
             Test(
@@ -280,7 +280,7 @@ DROP TABLE [dbo].[Denali];");
 
         #region FilteringSchemaTable
 
-        [Fact]
+        [ConditionalFact]
         public void Filter_schemas()
         {
             Test(
@@ -305,7 +305,7 @@ DROP TABLE [dbo].[Kilimanjaro];
 DROP TABLE [db2].[K2];");
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Filter_tables()
         {
             Test(
@@ -330,7 +330,7 @@ DROP TABLE [dbo].[Kilimanjaro];
 DROP TABLE [dbo].[K2];");
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Filter_tables_with_qualified_name()
         {
             Test(
@@ -355,7 +355,7 @@ DROP TABLE [dbo].[Kilimanjaro];
 DROP TABLE [dbo].[K.2];");
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Filter_tables_with_schema_qualified_name1()
         {
             Test(
@@ -384,7 +384,7 @@ DROP TABLE [dbo].[K2];
 DROP TABLE [db2].[K2];");
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Filter_tables_with_schema_qualified_name2()
         {
             Test(
@@ -413,7 +413,7 @@ DROP TABLE [dbo].[K.2];
 DROP TABLE [db.2].[K.2];");
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Filter_tables_with_schema_qualified_name3()
         {
             Test(
@@ -442,7 +442,7 @@ DROP TABLE [dbo].[K.2];
 DROP TABLE [db2].[K.2];");
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Filter_tables_with_schema_qualified_name4()
         {
             Test(
@@ -471,7 +471,7 @@ DROP TABLE [dbo].[K2];
 DROP TABLE [db.2].[K2];");
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Complex_filtering_validation()
         {
             Test(
@@ -629,7 +629,7 @@ CREATE TABLE [Blogs] (
                 "DROP TABLE [Blogs]");
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Create_columns()
         {
             Test(
@@ -658,7 +658,7 @@ CREATE TABLE [dbo].[Blogs] (
                 "DROP TABLE [dbo].[Blogs]");
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Create_view_columns()
         {
             Test(
@@ -689,7 +689,7 @@ SELECT
                 "DROP VIEW [dbo].[BlogsView];");
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Create_primary_key()
         {
             Test(
@@ -716,7 +716,7 @@ CREATE TABLE PrimaryKeyTable (
                 "DROP TABLE PrimaryKeyTable;");
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Create_unique_constraints()
         {
             Test(
@@ -748,7 +748,7 @@ CREATE INDEX IX_INDEX on UniqueConstraint ( IndexProperty );",
                 "DROP TABLE UniqueConstraint;");
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Create_indexes()
         {
             Test(
@@ -781,7 +781,7 @@ CREATE INDEX IX_INDEX on IndexTable ( IndexProperty );",
                 "DROP TABLE IndexTable;");
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Create_foreign_keys()
         {
             Test(
@@ -852,7 +852,7 @@ DROP TABLE PrincipalTable;");
 
         #region ColumnFacets
 
-        [Fact]
+        [ConditionalFact]
         public void Column_with_type_alias_assigns_underlying_store_type()
         {
             Fixture.TestStore.ExecuteNonQuery(
@@ -881,7 +881,7 @@ DROP TYPE dbo.TestTypeAlias;
 DROP TYPE db2.TestTypeAlias;");
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Column_with_sysname_assigns_underlying_store_type_and_nullability()
         {
             Test(
@@ -904,7 +904,7 @@ CREATE TABLE TypeAlias (
 DROP TABLE TypeAlias;");
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Decimal_numeric_types_have_precision_scale()
         {
             Test(
@@ -936,7 +936,7 @@ CREATE TABLE NumericColumns (
                 "DROP TABLE NumericColumns;");
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Max_length_of_negative_one_translate_to_max_in_store_type()
         {
             Test(
@@ -969,7 +969,7 @@ CREATE TABLE MaxColumns (
                 "DROP TABLE MaxColumns;");
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Specific_max_length_are_add_to_store_type()
         {
             Test(
@@ -1013,7 +1013,7 @@ CREATE TABLE LengthColumns (
                 "DROP TABLE LengthColumns;");
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Default_max_length_are_added_to_binary_varbinary()
         {
             Test(
@@ -1037,7 +1037,7 @@ CREATE TABLE DefaultRequiredLengthBinaryColumns (
                 "DROP TABLE DefaultRequiredLengthBinaryColumns;");
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Default_max_length_are_added_to_char_1()
         {
             Test(
@@ -1057,7 +1057,7 @@ CREATE TABLE DefaultRequiredLengthCharColumns (
                 "DROP TABLE DefaultRequiredLengthCharColumns;");
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Default_max_length_are_added_to_char_2()
         {
             Test(
@@ -1077,7 +1077,7 @@ CREATE TABLE DefaultRequiredLengthCharColumns (
                 "DROP TABLE DefaultRequiredLengthCharColumns;");
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Default_max_length_are_added_to_varchar()
         {
             Test(
@@ -1101,7 +1101,7 @@ CREATE TABLE DefaultRequiredLengthVarcharColumns (
                 "DROP TABLE DefaultRequiredLengthVarcharColumns;");
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Default_max_length_are_added_to_nchar_1()
         {
             Test(
@@ -1121,7 +1121,7 @@ CREATE TABLE DefaultRequiredLengthNcharColumns (
                 "DROP TABLE DefaultRequiredLengthNcharColumns;");
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Default_max_length_are_added_to_nchar_2()
         {
             Test(
@@ -1141,7 +1141,7 @@ CREATE TABLE DefaultRequiredLengthNcharColumns (
                 "DROP TABLE DefaultRequiredLengthNcharColumns;");
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Default_max_length_are_added_to_nchar_3()
         {
             Test(
@@ -1161,7 +1161,7 @@ CREATE TABLE DefaultRequiredLengthNcharColumns (
                 "DROP TABLE DefaultRequiredLengthNcharColumns;");
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Default_max_length_are_added_to_nvarchar()
         {
             Test(
@@ -1185,7 +1185,7 @@ CREATE TABLE DefaultRequiredLengthNvarcharColumns (
                 "DROP TABLE DefaultRequiredLengthNvarcharColumns;");
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Datetime_types_have_precision_if_non_null_scale()
         {
             Test(
@@ -1209,7 +1209,7 @@ CREATE TABLE LengthColumns (
                 "DROP TABLE LengthColumns;");
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Types_with_required_length_uses_length_of_one()
         {
             Test(
@@ -1255,7 +1255,7 @@ CREATE TABLE OneLengthColumns (
                 "DROP TABLE OneLengthColumns;");
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Store_types_without_any_facets()
         {
             Test(
@@ -1333,7 +1333,7 @@ DROP TABLE NoFacetTypes;
 DROP TABLE RowversionType;");
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Default_and_computed_values_are_stored()
         {
             Test(
@@ -1364,7 +1364,7 @@ CREATE TABLE DefaultComputedValues (
                 "DROP TABLE DefaultComputedValues;");
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Default_value_matching_clr_default_is_not_stored()
         {
             Fixture.TestStore.ExecuteNonQuery(
@@ -1431,7 +1431,7 @@ DROP TYPE numericAlias;
 DROP TYPE timeAlias;");
         }
 
-        [Fact]
+        [ConditionalFact]
         public void ValueGenerated_is_set_for_identity_and_computed_column()
         {
             Test(
@@ -1458,7 +1458,7 @@ CREATE TABLE ValueGeneratedProperties (
                 "DROP TABLE ValueGeneratedProperties;");
         }
 
-        [Fact]
+        [ConditionalFact]
         public void ConcurrencyToken_is_set_for_rowVersion()
         {
             Test(
@@ -1478,7 +1478,7 @@ CREATE TABLE RowVersionTable (
                 "DROP TABLE RowVersionTable;");
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Column_nullability_is_set()
         {
             Test(
@@ -1537,7 +1537,7 @@ DROP TABLE dbo.HiddenColumnsTable;
 
         #region PrimaryKeyFacets
 
-        [Fact]
+        [ConditionalFact]
         public void Create_composite_primary_key()
         {
             Test(
@@ -1566,7 +1566,7 @@ CREATE TABLE CompositePrimaryKeyTable (
                 "DROP TABLE CompositePrimaryKeyTable;");
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Set_clustered_false_for_non_clustered_primary_key()
         {
             Test(
@@ -1594,7 +1594,7 @@ CREATE TABLE NonClusteredPrimaryKeyTable (
                 "DROP TABLE NonClusteredPrimaryKeyTable;");
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Set_clustered_false_for_primary_key_if_different_clustered_index()
         {
             Test(
@@ -1624,7 +1624,7 @@ CREATE CLUSTERED INDEX ClusteredIndex ON NonClusteredPrimaryKeyTableWithClustere
                 "DROP TABLE NonClusteredPrimaryKeyTableWithClusteredIndex;");
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Set_clustered_false_for_primary_key_if_different_clustered_constraint()
         {
             Test(
@@ -1653,7 +1653,7 @@ CREATE TABLE NonClusteredPrimaryKeyTableWithClusteredConstraint (
                 "DROP TABLE NonClusteredPrimaryKeyTableWithClusteredConstraint;");
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Set_primary_key_name_from_index()
         {
             Test(
@@ -1686,7 +1686,7 @@ CREATE TABLE PrimaryKeyName (
 
         #region UniqueConstraintFacets
 
-        [Fact]
+        [ConditionalFact]
         public void Create_composite_unique_constraint()
         {
             Test(
@@ -1716,7 +1716,7 @@ CREATE TABLE CompositeUniqueConstraintTable (
                 "DROP TABLE CompositeUniqueConstraintTable;");
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Set_clustered_true_for_clustered_unique_constraint()
         {
             Test(
@@ -1745,7 +1745,7 @@ CREATE TABLE ClusteredUniqueConstraintTable (
                 "DROP TABLE ClusteredUniqueConstraintTable;");
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Set_unique_constraint_name_from_index()
         {
             Test(
@@ -1778,7 +1778,7 @@ CREATE TABLE UniqueConstraintName (
 
         #region IndexFacets
 
-        [Fact]
+        [ConditionalFact]
         public void Create_composite_index()
         {
             Test(
@@ -1809,7 +1809,7 @@ CREATE INDEX IX_COMPOSITE ON CompositeIndexTable ( Id2, Id1 );",
                 "DROP TABLE CompositeIndexTable;");
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Set_clustered_true_for_clustered_index()
         {
             Test(
@@ -1840,7 +1840,7 @@ CREATE CLUSTERED INDEX IX_CLUSTERED ON ClusteredIndexTable ( Id2 );",
                 "DROP TABLE ClusteredIndexTable;");
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Set_unique_true_for_unique_index()
         {
             Test(
@@ -1872,7 +1872,7 @@ CREATE UNIQUE INDEX IX_UNIQUE ON UniqueIndexTable ( Id2 );",
                 "DROP TABLE UniqueIndexTable;");
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Set_filter_for_filtered_index()
         {
             Test(
@@ -1907,7 +1907,7 @@ CREATE UNIQUE INDEX IX_UNIQUE ON FilteredIndexTable ( Id2 ) WHERE Id2 > 10;",
 
         #region ForeignKeyFacets
 
-        [Fact]
+        [ConditionalFact]
         public void Create_composite_foreign_key()
         {
             Test(
@@ -1954,7 +1954,7 @@ DROP TABLE DependentTable;
 DROP TABLE PrincipalTable;");
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Create_multiple_foreign_key_in_same_table()
         {
             Test(
@@ -2026,7 +2026,7 @@ DROP TABLE AnotherPrincipalTable;
 DROP TABLE PrincipalTable;");
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Create_foreign_key_referencing_unique_constraint()
         {
             Test(
@@ -2069,7 +2069,7 @@ DROP TABLE DependentTable;
 DROP TABLE PrincipalTable;");
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Set_name_for_foreign_key()
         {
             Test(
@@ -2112,7 +2112,7 @@ DROP TABLE DependentTable;
 DROP TABLE PrincipalTable;");
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Set_referential_action_for_foreign_key()
         {
             Test(
@@ -2158,7 +2158,7 @@ DROP TABLE PrincipalTable;");
 
         #region Warnings
 
-        [Fact]
+        [ConditionalFact]
         public void Warn_missing_schema()
         {
             Test(
@@ -2180,7 +2180,7 @@ CREATE TABLE Blank (
                 "DROP TABLE Blank;");
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Warn_missing_table()
         {
             Test(
@@ -2202,7 +2202,7 @@ CREATE TABLE Blank (
                 "DROP TABLE Blank;");
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Warn_missing_principal_table_for_foreign_key()
         {
             Test(
@@ -2232,7 +2232,7 @@ DROP TABLE DependentTable;
 DROP TABLE PrincipalTable;");
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Skip_reflexive_foreign_key()
         {
             Test(

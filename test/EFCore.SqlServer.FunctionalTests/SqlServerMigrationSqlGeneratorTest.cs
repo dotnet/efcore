@@ -35,7 +35,7 @@ namespace Microsoft.EntityFrameworkCore
                 Sql);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void AddColumnOperation_with_computedSql()
         {
             Generate(
@@ -52,7 +52,7 @@ namespace Microsoft.EntityFrameworkCore
                 Sql);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void AddColumnOperation_with_computed_column_SQL()
         {
             Generate(
@@ -71,7 +71,7 @@ namespace Microsoft.EntityFrameworkCore
                 Sql);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void AddColumnOperation_identity()
         {
             Generate(
@@ -91,7 +91,7 @@ namespace Microsoft.EntityFrameworkCore
                 "ALTER TABLE [People] ADD [Id] int NOT NULL IDENTITY;" + EOL,
                 Sql);
         }
-        [Fact]
+        [ConditionalFact]
         public virtual void AddColumnOperation_identity_seed_increment()
         {
             Generate(
@@ -186,7 +186,7 @@ namespace Microsoft.EntityFrameworkCore
                 Sql);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void AddColumnOperation_with_rowversion_overridden()
         {
             Generate(
@@ -205,7 +205,7 @@ namespace Microsoft.EntityFrameworkCore
                 Sql);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void AddColumnOperation_with_rowversion_no_model()
         {
             Generate(
@@ -223,7 +223,7 @@ namespace Microsoft.EntityFrameworkCore
                 Sql);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void AddPrimaryKeyOperation_nonclustered()
         {
             Generate(
@@ -272,7 +272,7 @@ namespace Microsoft.EntityFrameworkCore
                 Sql);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void AlterColumnOperation_with_identity()
         {
             Generate(
@@ -297,7 +297,7 @@ namespace Microsoft.EntityFrameworkCore
                 Sql);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void AlterColumnOperation_computed()
         {
             Generate(
@@ -322,7 +322,7 @@ namespace Microsoft.EntityFrameworkCore
                 Sql);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void AlterColumnOperation_computed_with_index()
         {
             Generate(
@@ -363,7 +363,7 @@ namespace Microsoft.EntityFrameworkCore
                 Sql);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void AlterColumnOperation_memoryOptimized_with_index()
         {
             Generate(
@@ -403,7 +403,7 @@ namespace Microsoft.EntityFrameworkCore
                 Sql);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void AlterColumnOperation_with_index_no_narrowing()
         {
             Generate(
@@ -441,7 +441,7 @@ namespace Microsoft.EntityFrameworkCore
                 Sql);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void AlterColumnOperation_with_index()
         {
             Generate(
@@ -482,7 +482,7 @@ namespace Microsoft.EntityFrameworkCore
                 Sql);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void AlterColumnOperation_with_index_included_column()
         {
             Generate(
@@ -526,7 +526,7 @@ namespace Microsoft.EntityFrameworkCore
                 Sql);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void AlterColumnOperation_with_index_no_included()
         {
             Generate(
@@ -566,7 +566,7 @@ namespace Microsoft.EntityFrameworkCore
                 Sql);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void AlterColumnOperation_with_index_no_oldColumn()
         {
             Generate(
@@ -600,7 +600,7 @@ namespace Microsoft.EntityFrameworkCore
                 Sql);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void AlterColumnOperation_with_composite_index()
         {
             Generate(
@@ -641,7 +641,7 @@ namespace Microsoft.EntityFrameworkCore
                 Sql);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void AlterColumnOperation_with_added_index()
         {
             Generate(
@@ -688,7 +688,7 @@ namespace Microsoft.EntityFrameworkCore
                 Sql);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void AlterColumnOperation_with_added_online_index()
         {
             Generate(
@@ -736,7 +736,7 @@ namespace Microsoft.EntityFrameworkCore
                 Sql);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void AlterColumnOperation_identity()
         {
             Generate(
@@ -766,7 +766,7 @@ namespace Microsoft.EntityFrameworkCore
                 Sql);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void AlterColumnOperation_add_identity()
         {
             var ex = Assert.Throws<InvalidOperationException>(
@@ -787,7 +787,7 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Equal(SqlServerStrings.AlterIdentityColumn, ex.Message);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void AlterColumnOperation_remove_identity()
         {
             var ex = Assert.Throws<InvalidOperationException>(
@@ -808,7 +808,7 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Equal(SqlServerStrings.AlterIdentityColumn, ex.Message);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void CreateDatabaseOperation()
         {
             Generate(
@@ -828,7 +828,7 @@ namespace Microsoft.EntityFrameworkCore
                 Sql);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void CreateDatabaseOperation_with_filename()
         {
             Generate(
@@ -854,7 +854,7 @@ namespace Microsoft.EntityFrameworkCore
                 Sql);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void CreateDatabaseOperation_with_filename_and_datadirectory()
         {
             var baseDirectory = AppDomain.CurrentDomain.BaseDirectory;
@@ -882,7 +882,7 @@ namespace Microsoft.EntityFrameworkCore
                 Sql);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void CreateDatabaseOperation_with_filename_and_custom_datadirectory()
         {
             var dataDirectory = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Data");
@@ -914,7 +914,7 @@ namespace Microsoft.EntityFrameworkCore
                 Sql);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void AlterDatabaseOperationOperation()
         {
             Generate(
@@ -947,7 +947,7 @@ namespace Microsoft.EntityFrameworkCore
                 Sql);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void CreateIndexOperation_unique_non_legacy()
         {
             Generate(
@@ -966,7 +966,7 @@ namespace Microsoft.EntityFrameworkCore
                 Sql);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void CreateIndexOperation_clustered()
         {
             Generate(
@@ -983,7 +983,7 @@ namespace Microsoft.EntityFrameworkCore
                 Sql);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void CreateIndexOperation_unique_clustered()
         {
             Generate(
@@ -1001,7 +1001,7 @@ namespace Microsoft.EntityFrameworkCore
                 Sql);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void CreateIndexOperation_with_include()
         {
             Generate(
@@ -1018,7 +1018,7 @@ namespace Microsoft.EntityFrameworkCore
                 Sql);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void CreateIndexOperation_with_include_and_filter()
         {
             Generate(
@@ -1037,7 +1037,7 @@ namespace Microsoft.EntityFrameworkCore
                 Sql);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void CreateIndexOperation_unique_with_include()
         {
             Generate(
@@ -1056,7 +1056,7 @@ namespace Microsoft.EntityFrameworkCore
                 Sql);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void CreateIndexOperation_unique_with_include_and_filter()
         {
             Generate(
@@ -1076,7 +1076,7 @@ namespace Microsoft.EntityFrameworkCore
                 Sql);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void CreateIndexOperation_unique_with_include_and_filter_online()
         {
             Generate(
@@ -1097,7 +1097,7 @@ namespace Microsoft.EntityFrameworkCore
                 Sql);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void CreateIndexOperation_unique_with_include_non_legacy()
         {
             Generate(
@@ -1116,7 +1116,7 @@ namespace Microsoft.EntityFrameworkCore
                 Sql);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void CreateIndexOperation_unique_bound_null()
         {
             Generate(
@@ -1134,7 +1134,7 @@ namespace Microsoft.EntityFrameworkCore
                 Sql);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void CreateIndexOperation_unique_bound_not_null()
         {
             Generate(
@@ -1156,7 +1156,7 @@ namespace Microsoft.EntityFrameworkCore
                 Sql);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void CreateIndexOperation_memoryOptimized_unique_nullable()
         {
             Generate(
@@ -1180,7 +1180,7 @@ namespace Microsoft.EntityFrameworkCore
                 Sql);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void CreateIndexOperation_memoryOptimized_unique_nullable_with_filter()
         {
             Generate(
@@ -1204,7 +1204,7 @@ namespace Microsoft.EntityFrameworkCore
                 Sql);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void CreateIndexOperation_memoryOptimized_unique_nonclustered_not_nullable()
         {
             Generate(
@@ -1227,7 +1227,7 @@ namespace Microsoft.EntityFrameworkCore
                 Sql);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void CreateSchemaOperation()
         {
             Generate(
@@ -1241,7 +1241,7 @@ namespace Microsoft.EntityFrameworkCore
                 Sql);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void CreateSchemaOperation_dbo()
         {
             Generate(
@@ -1271,7 +1271,7 @@ namespace Microsoft.EntityFrameworkCore
                 Sql);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void DropDatabaseOperation()
         {
             Generate(
@@ -1300,7 +1300,7 @@ namespace Microsoft.EntityFrameworkCore
                 Sql);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void DropIndexOperation_memoryOptimized()
         {
             Generate(
@@ -1321,7 +1321,7 @@ namespace Microsoft.EntityFrameworkCore
                 Sql);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void MoveSequenceOperation_legacy()
         {
             Generate(
@@ -1337,7 +1337,7 @@ namespace Microsoft.EntityFrameworkCore
                 Sql);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void MoveSequenceOperation()
         {
             Generate(
@@ -1355,7 +1355,7 @@ namespace Microsoft.EntityFrameworkCore
                 Sql);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void MoveSequenceOperation_into_default()
         {
             Generate(
@@ -1373,7 +1373,7 @@ namespace Microsoft.EntityFrameworkCore
                 Sql);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void MoveTableOperation_legacy()
         {
             Generate(
@@ -1389,7 +1389,7 @@ namespace Microsoft.EntityFrameworkCore
                 Sql);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void MoveTableOperation()
         {
             Generate(
@@ -1407,7 +1407,7 @@ namespace Microsoft.EntityFrameworkCore
                 Sql);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void MoveTableOperation_into_default()
         {
             Generate(
@@ -1425,7 +1425,7 @@ namespace Microsoft.EntityFrameworkCore
                 Sql);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void RenameColumnOperation()
         {
             Generate(
@@ -1442,7 +1442,7 @@ namespace Microsoft.EntityFrameworkCore
                 Sql);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void RenameIndexOperation()
         {
             Generate(
@@ -1459,7 +1459,7 @@ namespace Microsoft.EntityFrameworkCore
                 Sql);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void RenameIndexOperations_throws_when_no_table()
         {
             var migrationBuilder = new MigrationBuilder("SqlServer");
@@ -1474,7 +1474,7 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Equal(SqlServerStrings.IndexTableRequired, ex.Message);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void RenameSequenceOperation_legacy()
         {
             Generate(
@@ -1490,7 +1490,7 @@ namespace Microsoft.EntityFrameworkCore
                 Sql);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void RenameSequenceOperation()
         {
             Generate(
@@ -1508,7 +1508,7 @@ namespace Microsoft.EntityFrameworkCore
                 Sql);
         }
 
-        [Fact]
+        [ConditionalFact]
         public override void RenameTableOperation_legacy()
         {
             base.RenameTableOperation_legacy();
@@ -1518,7 +1518,7 @@ namespace Microsoft.EntityFrameworkCore
                 Sql);
         }
 
-        [Fact]
+        [ConditionalFact]
         public override void RenameTableOperation()
         {
             base.RenameTableOperation();
@@ -1528,7 +1528,7 @@ namespace Microsoft.EntityFrameworkCore
                 Sql);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void SqlOperation_handles_backslash()
         {
             Generate(
@@ -1543,7 +1543,7 @@ namespace Microsoft.EntityFrameworkCore
                 Sql);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void SqlOperation_ignores_sequential_gos()
         {
             Generate(
@@ -1559,7 +1559,7 @@ namespace Microsoft.EntityFrameworkCore
                 Sql);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void SqlOperation_handles_go()
         {
             Generate(
@@ -1578,7 +1578,7 @@ namespace Microsoft.EntityFrameworkCore
                 Sql);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void SqlOperation_handles_go_with_count()
         {
             Generate(
@@ -1596,7 +1596,7 @@ namespace Microsoft.EntityFrameworkCore
                 Sql);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void SqlOperation_ignores_non_go()
         {
             Generate(

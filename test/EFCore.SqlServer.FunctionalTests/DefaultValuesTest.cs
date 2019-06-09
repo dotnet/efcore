@@ -15,7 +15,7 @@ namespace Microsoft.EntityFrameworkCore
             .AddEntityFrameworkSqlServer()
             .BuildServiceProvider();
 
-        [Fact]
+        [ConditionalFact]
         public void Can_use_SQL_Server_default_values()
         {
             using (var context = new ChipsContext(_serviceProvider, TestStore.Name))

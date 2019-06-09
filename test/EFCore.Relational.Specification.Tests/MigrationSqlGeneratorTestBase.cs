@@ -20,7 +20,7 @@ namespace Microsoft.EntityFrameworkCore
 
         protected virtual string Sql { get; set; }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void CreateIndexOperation_with_filter_where_clause()
             => Generate(
                 modelBuilder => modelBuilder.Entity("People").Property<string>("Name").IsRequired(),
@@ -32,7 +32,7 @@ namespace Microsoft.EntityFrameworkCore
                     Filter = "[Name] IS NOT NULL"
                 });
 
-        [Fact]
+        [ConditionalFact]
         public virtual void CreateIndexOperation_with_filter_where_clause_and_is_unique()
             => Generate(
                 modelBuilder => modelBuilder.Entity("People").Property<string>("Name"),
@@ -45,7 +45,7 @@ namespace Microsoft.EntityFrameworkCore
                     Filter = "[Name] IS NOT NULL AND <> ''"
                 });
 
-        [Fact]
+        [ConditionalFact]
         public virtual void AddColumnOperation_with_defaultValue()
             => Generate(
                 new AddColumnOperation
@@ -59,7 +59,7 @@ namespace Microsoft.EntityFrameworkCore
                     DefaultValue = "John Doe"
                 });
 
-        [Fact]
+        [ConditionalFact]
         public virtual void AddColumnOperation_with_defaultValueSql()
             => Generate(
                 new AddColumnOperation
@@ -72,7 +72,7 @@ namespace Microsoft.EntityFrameworkCore
                     DefaultValueSql = "CURRENT_TIMESTAMP"
                 });
 
-        [Fact]
+        [ConditionalFact]
         public virtual void AddColumnOperation_without_column_type()
             => Generate(
                 new AddColumnOperation
@@ -82,7 +82,7 @@ namespace Microsoft.EntityFrameworkCore
                     ClrType = typeof(string)
                 });
 
-        [Fact]
+        [ConditionalFact]
         public virtual void AddColumnOperation_with_ansi()
             => Generate(
                 modelBuilder => modelBuilder.Entity("Person").Property<string>("Name").IsUnicode(false),
@@ -95,7 +95,7 @@ namespace Microsoft.EntityFrameworkCore
                     IsNullable = true
                 });
 
-        [Fact]
+        [ConditionalFact]
         public virtual void AddColumnOperation_with_unicode_overridden()
             => Generate(
                 modelBuilder => modelBuilder.Entity("Person").Property<string>("Name").IsUnicode(false),
@@ -108,7 +108,7 @@ namespace Microsoft.EntityFrameworkCore
                     IsNullable = true
                 });
 
-        [Fact]
+        [ConditionalFact]
         public virtual void AddColumnOperation_with_unicode_no_model()
             => Generate(
                 new AddColumnOperation
@@ -120,7 +120,7 @@ namespace Microsoft.EntityFrameworkCore
                     IsNullable = true
                 });
 
-        [Fact]
+        [ConditionalFact]
         public virtual void AddColumnOperation_with_fixed_length()
             => Generate(
                 modelBuilder => modelBuilder.Entity("Person").Property<string>("Name").IsFixedLength(),
@@ -134,7 +134,7 @@ namespace Microsoft.EntityFrameworkCore
                     IsFixedLength = true
                 });
 
-        [Fact]
+        [ConditionalFact]
         public virtual void AddColumnOperation_with_fixed_length_no_model()
             => Generate(
                 new AddColumnOperation
@@ -147,7 +147,7 @@ namespace Microsoft.EntityFrameworkCore
                     IsFixedLength = true
                 });
 
-        [Fact]
+        [ConditionalFact]
         public virtual void AddColumnOperation_with_maxLength()
             => Generate(
                 modelBuilder => modelBuilder.Entity("Person").Property<string>("Name").HasMaxLength(30),
@@ -160,7 +160,7 @@ namespace Microsoft.EntityFrameworkCore
                     IsNullable = true
                 });
 
-        [Fact]
+        [ConditionalFact]
         public virtual void AddColumnOperation_with_maxLength_overridden()
             => Generate(
                 modelBuilder => modelBuilder.Entity("Person").Property<string>("Name").HasMaxLength(30),
@@ -173,7 +173,7 @@ namespace Microsoft.EntityFrameworkCore
                     IsNullable = true
                 });
 
-        [Fact]
+        [ConditionalFact]
         public virtual void AddColumnOperation_with_maxLength_no_model()
             => Generate(
                 new AddColumnOperation
@@ -185,7 +185,7 @@ namespace Microsoft.EntityFrameworkCore
                     IsNullable = true
                 });
 
-        [Fact]
+        [ConditionalFact]
         public virtual void AddColumnOperation_with_maxLength_on_derived()
             => Generate(
                 modelBuilder =>
@@ -209,7 +209,7 @@ namespace Microsoft.EntityFrameworkCore
                     IsNullable = true
                 });
 
-        [Fact]
+        [ConditionalFact]
         public virtual void AddColumnOperation_with_shared_column()
             => Generate(
                 modelBuilder =>
@@ -244,7 +244,7 @@ namespace Microsoft.EntityFrameworkCore
             public string Foo { get; set; }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void AddForeignKeyOperation_with_name()
             => Generate(
                 new AddForeignKeyOperation
@@ -259,7 +259,7 @@ namespace Microsoft.EntityFrameworkCore
                     OnDelete = ReferentialAction.Cascade
                 });
 
-        [Fact]
+        [ConditionalFact]
         public virtual void AddForeignKeyOperation_without_name()
             => Generate(
                 new AddForeignKeyOperation
@@ -270,7 +270,7 @@ namespace Microsoft.EntityFrameworkCore
                     PrincipalColumns = new[] { "Id" }
                 });
 
-        [Fact]
+        [ConditionalFact]
         public virtual void AddForeignKeyOperation_without_principal_columns()
             => Generate(
                 new AddForeignKeyOperation
@@ -280,7 +280,7 @@ namespace Microsoft.EntityFrameworkCore
                     PrincipalTable = "People"
                 });
 
-        [Fact]
+        [ConditionalFact]
         public virtual void AddPrimaryKeyOperation_with_name()
             => Generate(
                 new AddPrimaryKeyOperation
@@ -291,7 +291,7 @@ namespace Microsoft.EntityFrameworkCore
                     Columns = new[] { "Id1", "Id2" }
                 });
 
-        [Fact]
+        [ConditionalFact]
         public virtual void AddPrimaryKeyOperation_without_name()
             => Generate(
                 new AddPrimaryKeyOperation
@@ -300,7 +300,7 @@ namespace Microsoft.EntityFrameworkCore
                     Columns = new[] { "Id" }
                 });
 
-        [Fact]
+        [ConditionalFact]
         public virtual void AddUniqueConstraintOperation_with_name()
             => Generate(
                 new AddUniqueConstraintOperation
@@ -311,7 +311,7 @@ namespace Microsoft.EntityFrameworkCore
                     Columns = new[] { "DriverLicense_State", "DriverLicense_Number" }
                 });
 
-        [Fact]
+        [ConditionalFact]
         public virtual void AddUniqueConstraintOperation_without_name()
             => Generate(
                 new AddUniqueConstraintOperation
@@ -320,7 +320,7 @@ namespace Microsoft.EntityFrameworkCore
                     Columns = new[] { "SSN" }
                 });
 
-        [Fact]
+        [ConditionalFact]
         public virtual void CreateCheckConstraintOperation_with_name()
             => Generate(
                 new CreateCheckConstraintOperation
@@ -330,8 +330,8 @@ namespace Microsoft.EntityFrameworkCore
                     Name = "CK_People_DriverLicense",
                     Sql = "DriverLicense_Number > 0"
                 });
-        
-        [Fact]
+
+        [ConditionalFact]
         public virtual void AlterColumnOperation()
             => Generate(
                 new AlterColumnOperation
@@ -345,7 +345,7 @@ namespace Microsoft.EntityFrameworkCore
                     DefaultValue = 7
                 });
 
-        [Fact]
+        [ConditionalFact]
         public virtual void AlterColumnOperation_without_column_type()
             => Generate(
                 new AlterColumnOperation
@@ -355,7 +355,7 @@ namespace Microsoft.EntityFrameworkCore
                     ClrType = typeof(int)
                 });
 
-        [Fact]
+        [ConditionalFact]
         public virtual void AlterSequenceOperation_with_minValue_and_maxValue()
             => Generate(
                 new AlterSequenceOperation
@@ -368,7 +368,7 @@ namespace Microsoft.EntityFrameworkCore
                     IsCyclic = true
                 });
 
-        [Fact]
+        [ConditionalFact]
         public virtual void AlterSequenceOperation_without_minValue_and_maxValue()
             => Generate(
                 new AlterSequenceOperation
@@ -377,7 +377,7 @@ namespace Microsoft.EntityFrameworkCore
                     IncrementBy = 1
                 });
 
-        [Fact]
+        [ConditionalFact]
         public virtual void RenameTableOperation_legacy()
             => Generate(
                 new RenameTableOperation
@@ -387,7 +387,7 @@ namespace Microsoft.EntityFrameworkCore
                     NewName = "Person"
                 });
 
-        [Fact]
+        [ConditionalFact]
         public virtual void RenameTableOperation()
             => Generate(
                 modelBuilder => modelBuilder.HasAnnotation(CoreAnnotationNames.ProductVersion, "2.1.0"),
@@ -399,7 +399,7 @@ namespace Microsoft.EntityFrameworkCore
                     NewSchema = "dbo"
                 });
 
-        [Fact]
+        [ConditionalFact]
         public virtual void CreateIndexOperation_unique()
             => Generate(
                 new CreateIndexOperation
@@ -411,7 +411,7 @@ namespace Microsoft.EntityFrameworkCore
                     IsUnique = true
                 });
 
-        [Fact]
+        [ConditionalFact]
         public virtual void CreateIndexOperation_nonunique()
             => Generate(
                 new CreateIndexOperation
@@ -422,7 +422,7 @@ namespace Microsoft.EntityFrameworkCore
                     IsUnique = false
                 });
 
-        [Fact]
+        [ConditionalFact]
         public virtual void CreateIndexOperation_with_where_clauses()
             => Generate(
                 new CreateIndexOperation
@@ -434,7 +434,7 @@ namespace Microsoft.EntityFrameworkCore
                     Filter = "[Id] > 2"
                 });
 
-        [Fact]
+        [ConditionalFact]
         public virtual void CreateSequenceOperation_with_minValue_and_maxValue()
             => Generate(
                 new CreateSequenceOperation
@@ -449,7 +449,7 @@ namespace Microsoft.EntityFrameworkCore
                     IsCyclic = true
                 });
 
-        [Fact]
+        [ConditionalFact]
         public virtual void CreateSequenceOperation_with_minValue_and_maxValue_not_long()
             => Generate(
                 new CreateSequenceOperation
@@ -464,7 +464,7 @@ namespace Microsoft.EntityFrameworkCore
                     IsCyclic = true
                 });
 
-        [Fact]
+        [ConditionalFact]
         public virtual void CreateSequenceOperation_without_minValue_and_maxValue()
             => Generate(
                 new CreateSequenceOperation
@@ -475,7 +475,7 @@ namespace Microsoft.EntityFrameworkCore
                     IncrementBy = 1
                 });
 
-        [Fact]
+        [ConditionalFact]
         public virtual void CreateTableOperation()
             => Generate(
                 new CreateTableOperation
@@ -536,7 +536,7 @@ namespace Microsoft.EntityFrameworkCore
                     }
                 });
 
-        [Fact]
+        [ConditionalFact]
         public virtual void DropColumnOperation()
             => Generate(
                 new DropColumnOperation
@@ -546,7 +546,7 @@ namespace Microsoft.EntityFrameworkCore
                     Name = "LuckyNumber"
                 });
 
-        [Fact]
+        [ConditionalFact]
         public virtual void DropForeignKeyOperation()
             => Generate(
                 new DropForeignKeyOperation
@@ -556,7 +556,7 @@ namespace Microsoft.EntityFrameworkCore
                     Name = "FK_People_Companies"
                 });
 
-        [Fact]
+        [ConditionalFact]
         public virtual void DropIndexOperation()
             => Generate(
                 new DropIndexOperation
@@ -566,7 +566,7 @@ namespace Microsoft.EntityFrameworkCore
                     Schema = "dbo"
                 });
 
-        [Fact]
+        [ConditionalFact]
         public virtual void DropPrimaryKeyOperation()
             => Generate(
                 new DropPrimaryKeyOperation
@@ -576,7 +576,7 @@ namespace Microsoft.EntityFrameworkCore
                     Name = "PK_People"
                 });
 
-        [Fact]
+        [ConditionalFact]
         public virtual void DropSequenceOperation()
             => Generate(
                 new DropSequenceOperation
@@ -585,7 +585,7 @@ namespace Microsoft.EntityFrameworkCore
                     Schema = "dbo"
                 });
 
-        [Fact]
+        [ConditionalFact]
         public virtual void DropTableOperation()
             => Generate(
                 new DropTableOperation
@@ -594,7 +594,7 @@ namespace Microsoft.EntityFrameworkCore
                     Schema = "dbo"
                 });
 
-        [Fact]
+        [ConditionalFact]
         public virtual void DropUniqueConstraintOperation()
             => Generate(
                 new DropUniqueConstraintOperation
@@ -604,7 +604,7 @@ namespace Microsoft.EntityFrameworkCore
                     Name = "AK_People_SSN"
                 });
 
-        [Fact]
+        [ConditionalFact]
         public virtual void DropCheckConstraintOperation()
             => Generate(
                 new DropCheckConstraintOperation
@@ -614,7 +614,7 @@ namespace Microsoft.EntityFrameworkCore
                     Name = "CK_People_SSN"
                 });
 
-        [Fact]
+        [ConditionalFact]
         public virtual void SqlOperation()
             => Generate(
                 new SqlOperation
@@ -622,7 +622,7 @@ namespace Microsoft.EntityFrameworkCore
                     Sql = "-- I <3 DDL"
                 });
 
-        [Fact]
+        [ConditionalFact]
         public virtual void InsertDataOperation()
             => Generate(
                 new InsertDataOperation
@@ -639,7 +639,7 @@ namespace Microsoft.EntityFrameworkCore
                     }
                 });
 
-        [Fact]
+        [ConditionalFact]
         public virtual void DeleteDataOperation_simple_key()
             => Generate(
                 new DeleteDataOperation
@@ -653,7 +653,7 @@ namespace Microsoft.EntityFrameworkCore
                     }
                 });
 
-        [Fact]
+        [ConditionalFact]
         public virtual void DeleteDataOperation_composite_key()
             => Generate(
                 new DeleteDataOperation
@@ -667,7 +667,7 @@ namespace Microsoft.EntityFrameworkCore
                     }
                 });
 
-        [Fact]
+        [ConditionalFact]
         public virtual void UpdateDataOperation_simple_key()
             => Generate(
                 new UpdateDataOperation
@@ -687,7 +687,7 @@ namespace Microsoft.EntityFrameworkCore
                     }
                 });
 
-        [Fact]
+        [ConditionalFact]
         public virtual void UpdateDataOperation_composite_key()
             => Generate(
                 new UpdateDataOperation
@@ -707,7 +707,7 @@ namespace Microsoft.EntityFrameworkCore
                     }
                 });
 
-        [Fact]
+        [ConditionalFact]
         public virtual void UpdateDataOperation_multiple_columns()
             => Generate(
                 new UpdateDataOperation

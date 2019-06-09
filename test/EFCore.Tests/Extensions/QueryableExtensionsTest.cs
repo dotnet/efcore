@@ -21,7 +21,7 @@ namespace Microsoft.EntityFrameworkCore
 {
     public class QueryableExtensionsTest
     {
-        [Fact]
+        [ConditionalFact]
         public void Include_on_non_ef_queryable_is_no_op()
         {
             var q = new List<Customer>().AsQueryable();
@@ -30,7 +30,7 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Equal(0, q2.Count);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void AsTracking_on_non_ef_queryable_is_no_op()
         {
             var q = new List<Customer>().AsQueryable();
@@ -39,7 +39,7 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Equal(0, q2.Count);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void AsNoTracking_on_non_ef_queryable_is_no_op()
         {
             var q = new List<Customer>().AsQueryable();
@@ -50,7 +50,7 @@ namespace Microsoft.EntityFrameworkCore
 
         // ReSharper disable MethodSupportsCancellation
 
-        [Fact]
+        [ConditionalFact]
         public void Extension_methods_call_provider_ExecuteAsync()
         {
             var cancellationTokenSource = new CancellationTokenSource();
@@ -200,7 +200,7 @@ namespace Microsoft.EntityFrameworkCore
             IEnumerator IEnumerable.GetEnumerator() => throw new NotImplementedException();
         }
 
-        [Fact]
+        [ConditionalFact]
         public async Task Extension_methods_throw_on_non_async_source()
         {
             await SourceNonAsyncQueryableTest(() => Source().AllAsync(e => true));
@@ -327,7 +327,7 @@ namespace Microsoft.EntityFrameworkCore
                 CoreStrings.IQueryableNotAsync(typeof(T)),
                 (await Assert.ThrowsAsync<InvalidOperationException>(test)).Message);
 
-        [Fact]
+        [ConditionalFact]
         public async Task Extension_methods_validate_arguments()
         {
             // ReSharper disable AssignNullToNotNullAttribute

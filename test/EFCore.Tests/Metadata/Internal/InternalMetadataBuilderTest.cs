@@ -8,7 +8,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
     public class InternalMetadataBuilderTest
     {
-        [Fact]
+        [ConditionalFact]
         public void Can_only_override_lower_source_annotation()
         {
             var builder = CreateInternalMetadataBuilder();
@@ -23,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Equal("2", metadata.GetAnnotations().Single().Value);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_only_override_existing_annotation_explicitly()
         {
             var builder = CreateInternalMetadataBuilder();
@@ -39,7 +39,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Equal("2", metadata.GetAnnotations().Single().Value);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Annotation_set_explicitly_can_not_be_removed_by_convention()
         {
             var builder = CreateInternalMetadataBuilder();

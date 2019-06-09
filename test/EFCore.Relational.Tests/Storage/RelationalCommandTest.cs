@@ -37,7 +37,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
     {
         private static readonly string _eol = Environment.NewLine;
 
-        [Fact]
+        [ConditionalFact]
         public void Configures_DbCommand()
         {
             var fakeConnection = CreateConnection();
@@ -55,7 +55,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.Equal(FakeDbCommand.DefaultCommandTimeout, command.CommandTimeout);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Configures_DbCommand_with_transaction()
         {
             var fakeConnection = CreateConnection();
@@ -74,7 +74,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.Same(relationalTransaction.GetDbTransaction(), command.Transaction);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Configures_DbCommand_with_timeout()
         {
             var optionsExtension = new FakeRelationalOptionsExtension()
@@ -95,7 +95,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.Equal(42, command.CommandTimeout);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_ExecuteNonQuery()
         {
             var executeNonQueryCount = 0;
@@ -134,7 +134,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.Equal(1, fakeDbConnection.DbCommands[0].DisposeCount);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual async Task Can_ExecuteNonQueryAsync()
         {
             var executeNonQueryCount = 0;
@@ -173,7 +173,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.Equal(1, fakeDbConnection.DbCommands[0].DisposeCount);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_ExecuteScalar()
         {
             var executeScalarCount = 0;
@@ -212,7 +212,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.Equal(1, fakeDbConnection.DbCommands[0].DisposeCount);
         }
 
-        [Fact]
+        [ConditionalFact]
         public async Task Can_ExecuteScalarAsync()
         {
             var executeScalarCount = 0;
@@ -251,7 +251,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.Equal(1, fakeDbConnection.DbCommands[0].DisposeCount);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_ExecuteReader()
         {
             var executeReaderCount = 0;
@@ -299,7 +299,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.Equal(expectedCount, fakeDbConnection.CloseCount);
         }
 
-        [Fact]
+        [ConditionalFact]
         public async Task Can_ExecuteReaderAsync()
         {
             var executeReaderCount = 0;
@@ -394,7 +394,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 }
             };
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(CommandActions))]
         public async Task Throws_when_parameters_are_configured_and_parameter_values_is_null(
             Delegate commandDelegate,
@@ -431,7 +431,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(CommandActions))]
         public async Task Throws_when_parameters_are_configured_and_value_is_missing(
             Delegate commandDelegate,
@@ -474,7 +474,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(CommandActions))]
         public async Task Configures_DbCommand_with_type_mapped_parameters(
             Delegate commandDelegate,
@@ -537,7 +537,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.Equal(FakeDbParameter.DefaultDbType, parameter.DbType);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(CommandActions))]
         public async Task Configures_DbCommand_with_dynamic_parameters(
             Delegate commandDelegate,
@@ -607,7 +607,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.Equal(FakeDbParameter.DefaultDbType, parameter.DbType);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(CommandActions))]
         public async Task Configures_DbCommand_with_composite_parameters(
             Delegate commandDelegate,
@@ -674,7 +674,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.Equal(FakeDbParameter.DefaultDbType, parameter.DbType);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(CommandActions))]
         public async Task Throws_when_composite_parameters_are_configured_and_value_is_missing(
             Delegate commandDelegate,
@@ -722,7 +722,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(CommandActions))]
         public async Task Throws_when_composite_parameters_are_configured_and_value_is_not_object_array(
             Delegate commandDelegate,
@@ -767,7 +767,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(CommandActions))]
         public async Task Disposes_command_on_exception(
             Delegate commandDelegate,
@@ -810,7 +810,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.Equal(1, fakeDbConnection.DbCommands[0].DisposeCount);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(CommandActions))]
         public async Task Closes_managed_connections_on_exception(
             Delegate commandDelegate,
@@ -857,7 +857,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.Equal(1, fakeDbConnection.CloseCount);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(CommandActions))]
         public async Task Does_not_close_unmanaged_connections_on_exception(
             Delegate commandDelegate,
@@ -904,7 +904,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.Equal(1, fakeDbConnection.CloseCount);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(CommandActions))]
         public async Task Logs_commands_without_parameter_values(
             Delegate commandDelegate,
@@ -958,7 +958,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(CommandActions))]
         public async Task Logs_commands_parameter_values(
             Delegate commandDelegate,
@@ -1016,7 +1016,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(CommandActions))]
         public async Task Reports_command_diagnostic(
             Delegate commandDelegate,
@@ -1072,7 +1072,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.Equal(async, afterData.IsAsync);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(CommandActions))]
         public async Task Reports_command_diagnostic_on_exception(
             Delegate commandDelegate,

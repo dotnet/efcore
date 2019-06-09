@@ -10,7 +10,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 {
     public class SequenceTest
     {
-        [Fact]
+        [ConditionalFact]
         public void Can_be_created_with_default_values()
         {
             var sequence = ((IMutableModel)new Model()).AddSequence("Foo");
@@ -24,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Same(typeof(long), sequence.ClrType);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_be_created_with_specified_values()
         {
             var sequence = ((IMutableModel)new Model()).AddSequence("Foo", "Smoo");
@@ -43,7 +43,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Same(typeof(int), sequence.ClrType);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_only_be_created_for_byte_short_int_and_long_decimal()
         {
             var sequence = ((IMutableModel)new Model()).AddSequence("Foo");
@@ -64,7 +64,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                     () => sequence.ClrType = typeof(bool)).Message);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_get_model()
         {
             IMutableModel model = new Model();
@@ -74,7 +74,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Same(model, sequence.Model);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_get_model_default_schema_if_sequence_schema_not_specified()
         {
             IMutableModel model = new Model();
@@ -88,7 +88,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Equal("db0", sequence.Schema);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_get_sequence_schema_if_specified_explicitly()
         {
             IMutableModel model = new Model();
@@ -99,7 +99,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Equal("db1", sequence.Schema);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_serialize_and_deserialize()
         {
             IMutableModel model = new Model();
@@ -121,7 +121,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Same(typeof(int), sequence.ClrType);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_serialize_and_deserialize_with_defaults()
         {
             IMutableModel model = new Model();
@@ -138,7 +138,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Same(typeof(long), sequence.ClrType);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_serialize_and_deserialize_with_funky_names()
         {
             IMutableModel model = new Model();
@@ -158,7 +158,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Same(typeof(int), sequence.ClrType);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Throws_on_bad_serialized_form()
         {
             IMutableModel model = new Model();

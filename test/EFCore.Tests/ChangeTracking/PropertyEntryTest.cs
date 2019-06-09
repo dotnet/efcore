@@ -15,7 +15,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
 {
     public class PropertyEntryTest
     {
-        [Fact]
+        [ConditionalFact]
         public void Setting_IsModified_should_not_be_dependent_on_other_properties()
         {
             Guid id;
@@ -60,7 +60,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void SetValues_with_IsModified_can_mark_a_set_of_values_as_changed()
         {
             Guid id;
@@ -150,7 +150,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Setting_IsModified_is_not_reset_by_OriginalValues()
         {
             Guid id;
@@ -193,11 +193,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_get_name()
             => Can_get_name<Wotty>();
 
-        [Fact]
+        [ConditionalFact]
         public void Can_get_name_with_object_field()
             => Can_get_name<ObjectWotty>();
 
@@ -221,11 +221,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_get_current_value()
             => Can_get_current_value<Wotty>();
 
-        [Fact]
+        [ConditionalFact]
         public void Can_get_current_value_with_object_field()
             => Can_get_current_value<ObjectWotty>();
 
@@ -250,11 +250,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_set_current_value()
             => Can_set_current_value<Wotty>();
 
-        [Fact]
+        [ConditionalFact]
         public void Can_set_current_value_with_object_field()
             => Can_set_current_value<ObjectWotty>();
 
@@ -284,11 +284,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_set_current_value_to_null()
             => Can_set_current_value_to_null<Wotty>();
 
-        [Fact]
+        [ConditionalFact]
         public void Can_set_current_value_to_null_with_object_field()
             => Can_set_current_value_to_null<ObjectWotty>();
 
@@ -318,11 +318,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_set_and_get_original_value()
             => Can_set_and_get_original_value<Wotty>();
 
-        [Fact]
+        [ConditionalFact]
         public void Can_set_and_get_original_value_with_object_field()
             => Can_set_and_get_original_value<ObjectWotty>();
 
@@ -361,11 +361,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_set_and_get_original_value_starting_null()
             => Can_set_and_get_original_value_starting_null<Wotty>();
 
-        [Fact]
+        [ConditionalFact]
         public void Can_set_and_get_original_value_starting_null_with_object_field()
             => Can_set_and_get_original_value_starting_null<ObjectWotty>();
 
@@ -402,11 +402,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_set_original_value_to_null()
             => Can_set_original_value_to_null<Wotty>();
 
-        [Fact]
+        [ConditionalFact]
         public void Can_set_original_value_to_null_with_object_field()
             => Can_set_original_value_to_null<ObjectWotty>();
 
@@ -436,11 +436,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_set_and_clear_modified_on_Modified_entity()
             => Can_set_and_clear_modified_on_Modified_entity<Wotty>();
 
-        [Fact]
+        [ConditionalFact]
         public void Can_set_and_clear_modified_on_Modified_entity_with_object_field()
             => Can_set_and_clear_modified_on_Modified_entity<ObjectWotty>();
 
@@ -487,13 +487,13 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Deleted)]
         public void Can_set_and_clear_modified_on_Added_or_Deleted_entity(EntityState initialState)
             => Can_set_and_clear_modified_on_Added_or_Deleted_entity<Wotty>(initialState);
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Deleted)]
         public void Can_set_and_clear_modified_on_Added_or_Deleted_entity_with_object_field(EntityState initialState)
@@ -533,13 +533,13 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Detached)]
         [InlineData(EntityState.Unchanged)]
         public void Can_set_and_clear_modified_on_Unchanged_or_Detached_entity(EntityState initialState)
             => Can_set_and_clear_modified_on_Unchanged_or_Detached_entity<Wotty>(initialState);
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Detached)]
         [InlineData(EntityState.Unchanged)]
         public void Can_set_and_clear_modified_on_Unchanged_or_Detached_entity_with_object_field(EntityState initialState)
@@ -579,11 +579,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_reject_changes_when_clearing_modified_flag()
             => Can_reject_changes_when_clearing_modified_flag<Wotty>();
 
-        [Fact]
+        [ConditionalFact]
         public void Can_reject_changes_when_clearing_modified_flag_with_object_field()
             => Can_reject_changes_when_clearing_modified_flag<ObjectWotty>();
 
@@ -671,11 +671,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_get_name_generic()
             => Can_get_name_generic<Wotty>();
 
-        [Fact]
+        [ConditionalFact]
         public void Can_get_name_generic_with_object_field()
             => Can_get_name_generic<ObjectWotty>();
 
@@ -693,11 +693,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             Assert.Equal("Primate", new PropertyEntry<Wotty, string>(entry, "Primate").Metadata.Name);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_get_current_value_generic()
             => Can_get_current_value_generic<Wotty>();
 
-        [Fact]
+        [ConditionalFact]
         public void Can_get_current_value_generic_with_object_field()
             => Can_get_current_value_generic<ObjectWotty>();
 
@@ -715,11 +715,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             Assert.Equal("Monkey", new PropertyEntry<Wotty, string>(entry, "Primate").CurrentValue);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_set_current_value_generic()
             => Can_set_current_value_generic<Wotty>();
 
-        [Fact]
+        [ConditionalFact]
         public void Can_set_current_value_generic_with_object_field()
             => Can_set_current_value_generic<ObjectWotty>();
 
@@ -741,11 +741,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             Assert.Equal("Chimp", entity.Primate);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_set_current_value_to_null_generic()
             => Can_set_current_value_to_null_generic<Wotty>();
 
-        [Fact]
+        [ConditionalFact]
         public void Can_set_current_value_to_null_generic_with_object_field()
             => Can_set_current_value_to_null_generic<ObjectWotty>();
 
@@ -767,11 +767,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             Assert.Null(entity.Primate);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_set_and_get_original_value_generic()
             => Can_set_and_get_original_value_generic<Wotty>();
 
-        [Fact]
+        [ConditionalFact]
         public void Can_set_and_get_original_value_generic_with_object_field()
             => Can_set_and_get_original_value_generic<ObjectWotty>();
 
@@ -796,11 +796,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             Assert.Equal("Monkey", entity.Primate);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_set_original_value_to_null_generic()
             => Can_set_original_value_to_null_generic<Wotty>();
 
-        [Fact]
+        [ConditionalFact]
         public void Can_set_original_value_to_null_generic_with_object_field()
             => Can_set_original_value_to_null_generic<ObjectWotty>();
 
@@ -820,11 +820,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             Assert.Null(new PropertyEntry<Wotty, string>(entry, "Primate").OriginalValue);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_set_and_clear_modified_generic()
             => Can_set_and_clear_modified_generic<Wotty>();
 
-        [Fact]
+        [ConditionalFact]
         public void Can_set_and_clear_modified_generic_with_object_field()
             => Can_set_and_clear_modified_generic<ObjectWotty>();
 
@@ -852,7 +852,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             Assert.False(new PropertyEntry<Wotty, string>(entry, "Primate").IsModified);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_set_and_get_original_value_notifying_entities()
         {
             var entity = new NotifyingWotty
@@ -874,7 +874,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             Assert.Equal("Monkey", entity.Primate);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_set_original_value_to_null_notifying_entities()
         {
             var entry = InMemoryTestHelpers.Instance.CreateInternalEntry(
@@ -891,7 +891,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             Assert.Null(new PropertyEntry(entry, "Primate").OriginalValue);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_set_and_get_original_value_generic_notifying_entities()
         {
             var entity = new NotifyingWotty
@@ -913,7 +913,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             Assert.Equal("Monkey", entity.Primate);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_set_original_value_to_null_generic_notifying_entities()
         {
             var entry = InMemoryTestHelpers.Instance.CreateInternalEntry(
@@ -930,7 +930,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             Assert.Null(new PropertyEntry<NotifyingWotty, string>(entry, "Primate").OriginalValue);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_set_and_get_concurrency_token_original_value_full_notification_entities()
         {
             var entity = new FullyNotifyingWotty
@@ -952,7 +952,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             Assert.Equal("Monkey", entity.ConcurrentPrimate);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_set_concurrency_token_original_value_to_null_full_notification_entities()
         {
             var entry = InMemoryTestHelpers.Instance.CreateInternalEntry(
@@ -969,7 +969,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             Assert.Null(new PropertyEntry(entry, "ConcurrentPrimate").OriginalValue);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_set_and_get_concurrency_token_original_value_generic_full_notification_entities()
         {
             var entity = new FullyNotifyingWotty
@@ -991,7 +991,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             Assert.Equal("Monkey", entity.ConcurrentPrimate);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_set_concurrency_token_original_value_to_null_generic_full_notification_entities()
         {
             var entry = InMemoryTestHelpers.Instance.CreateInternalEntry(
@@ -1008,7 +1008,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             Assert.Null(new PropertyEntry<FullyNotifyingWotty, string>(entry, "ConcurrentPrimate").OriginalValue);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Cannot_set_or_get_original_value_when_not_tracked()
         {
             var entity = new FullyNotifyingWotty
@@ -1033,7 +1033,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
                 Assert.Throws<InvalidOperationException>(() => propertyEntry.OriginalValue = "Chimp").Message);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Cannot_set_or_get_original_value_when_not_tracked_generic()
         {
             var entity = new FullyNotifyingWotty
@@ -1058,7 +1058,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
                 Assert.Throws<InvalidOperationException>(() => propertyEntry.OriginalValue = "Chimp").Message);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_set_or_get_original_value_when_property_explicitly_marked_to_be_tracked()
         {
             var entity = new FullyNotifyingWotty
@@ -1080,7 +1080,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             Assert.Equal("Monkey", entity.Primate);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_set_or_get_original_value_when_property_explicitly_marked_to_be_tracked_generic()
         {
             var entity = new FullyNotifyingWotty

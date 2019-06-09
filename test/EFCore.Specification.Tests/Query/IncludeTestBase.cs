@@ -28,7 +28,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         protected TFixture Fixture { get; }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Include_reference_invalid()
         {
             Assert.Throws<InvalidOperationException>(
@@ -89,7 +89,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact(Skip = "issue #15312")]
+        [ConditionalFact(Skip = "issue #15312")]
         public virtual void Include_bad_navigation_property()
         {
             using (var context = CreateContext())
@@ -101,7 +101,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact(Skip = "issue #15312")]
+        [ConditionalFact(Skip = "issue #15312")]
         public virtual void Include_bad_navigation_property_simple()
         {
             using (var context = CreateContext())
@@ -113,7 +113,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact(Skip = "issue #15312")]
+        [ConditionalFact(Skip = "issue #15312")]
         public virtual void Include_property_expression_invalid()
         {
             var anonymousType = new
@@ -197,7 +197,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact(Skip = "issue#15312")]
+        [ConditionalFact(Skip = "issue#15312")]
         public virtual void Then_include_property_expression_invalid()
         {
             var anonymousType = new
@@ -4119,7 +4119,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Theory(Skip = "Issue #11916")]
+        [ConditionalTheory(Skip = "Issue #11916")]
         [InlineData(false, false)]
         [InlineData(true, false)]
         // async blocked by issue #11917

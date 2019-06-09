@@ -11,7 +11,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 {
     public class ObservableBackedBindingListTest
     {
-        [Fact]
+        [ConditionalFact]
         public void Items_added_to_ObservableCollection_are_added_to_binding_list()
         {
             var oc = new ObservableCollection<ListElement>();
@@ -23,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Assert.True(obbl.Contains(item));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Items_removed_from_ObservableCollection_are_removed_from_binding_list()
         {
             var item = new ListElement(4);
@@ -44,7 +44,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Assert.Equal(5, obbl.Count);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Items_replaced_in_the_ObservableCollection_are_replaced_in_the_binding_list()
         {
             var item = new ListElement(4);
@@ -67,7 +67,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Assert.Equal(6, obbl.Count);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Items_cleared_in_the_ObservableCollection_are_cleared_in_the_binding_list()
         {
             var oc = new ObservableCollection<ListElement>
@@ -86,7 +86,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Assert.Equal(0, obbl.Count);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Adding_duplicate_item_to_the_ObservableCollection_adds_duplicate_to_the_binding_list()
         {
             var item = new ListElement(4);
@@ -107,7 +107,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Assert.Equal(2, obbl.Count(i => ReferenceEquals(i, item)));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Items_added_to_the_binding_list_are_added_to_the_ObservableCollection()
         {
             var oc = new ObservableCollection<ListElement>();
@@ -119,7 +119,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Assert.True(oc.Contains(item));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Items_added_to_the_binding_list_with_AddNew_are_added_to_the_ObservableCollection()
         {
             var oc = new ObservableCollection<ListElement>();
@@ -131,7 +131,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Assert.True(oc.Contains(item));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Items_canceled_during_AddNew_are_not_added_to_the_ObservableCollection()
         {
             var oc = new ObservableCollection<ListElement>();
@@ -143,7 +143,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Assert.False(oc.Contains(item));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Items_inserted_into_the_binding_list_are_added_to_the_ObservableCollection()
         {
             var oc = new ObservableCollection<ListElement>();
@@ -155,7 +155,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Assert.True(oc.Contains(item));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Items_set_in_the_binding_list_are_replaced_in_the_ObservableCollection()
         {
             var item = new ListElement(4);
@@ -177,7 +177,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Assert.False(oc.Contains(item));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Items_removed_from_the_binding_list_are_removed_from_the_ObservableCollection()
         {
             var item = new ListElement(4);
@@ -197,7 +197,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Assert.False(oc.Contains(item));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Items_removed_by_index_from_the_binding_list_are_removed_from_the_ObservableCollection()
         {
             var item = new ListElement(4);
@@ -217,7 +217,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Assert.False(oc.Contains(item));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Items_cleared_from_the_binding_list_are_cleared_from_the_ObservableCollection()
         {
             var oc = new ObservableCollection<ListElement>
@@ -236,7 +236,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Assert.Equal(0, oc.Count);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Adding_duplicate_item_to_the_binding_list_adds_duplicate_to_the_ObservableCollection()
         {
             var item = new ListElement(4);
@@ -258,7 +258,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Assert.Equal(2, oc.Count(i => ReferenceEquals(i, item)));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Attempt_to_AddNew_for_abstract_type_works_if_AddingNew_event_is_used_to_create_new_object()
         {
             var obbl = new ObservableBackedBindingList<NotXNode>(new ObservableCollection<NotXNode>());
@@ -271,7 +271,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Assert.True(obbl.Contains(item));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Attempt_to_AddNew_for_type_without_parameterless_constructor_works_if_AddingNew_event_is_used_to_create_new_object()
         {
             var obbl = new ObservableBackedBindingList<NotXText>(new ObservableCollection<NotXText>());
@@ -284,7 +284,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Assert.True(obbl.Contains(item));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Items_added_to_ObservableHashSet_are_added_to_binding_list()
         {
             var oc = new ObservableHashSet<ListElement>();
@@ -296,7 +296,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Assert.True(obbl.Contains(item));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Items_removed_from_ObservableHashSet_are_removed_from_binding_list()
         {
             var item = new ListElement(4);
@@ -317,7 +317,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Assert.Equal(5, obbl.Count);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Items_cleared_in_the_ObservableHashSet_are_cleared_in_the_binding_list()
         {
             var oc = new ObservableHashSet<ListElement>
@@ -336,7 +336,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Assert.Equal(0, obbl.Count);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Adding_duplicate_item_to_the_ObservableHashSet_is_ignored()
         {
             var item = new ListElement(4);
@@ -357,7 +357,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Assert.Equal(1, obbl.Count(i => ReferenceEquals(i, item)));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Items_added_to_the_binding_list_are_added_to_the_ObservableHashSet()
         {
             var oc = new ObservableHashSet<ListElement>();
@@ -369,7 +369,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Assert.True(oc.Contains(item));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Items_added_to_the_binding_list_with_AddNew_are_added_to_the_ObservableHashSet()
         {
             var oc = new ObservableHashSet<ListElement>();
@@ -381,7 +381,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Assert.True(oc.Contains(item));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Items_canceled_during_AddNew_are_not_added_to_the_ObservableHashSet()
         {
             var oc = new ObservableHashSet<ListElement>();
@@ -393,7 +393,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Assert.False(oc.Contains(item));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Items_inserted_into_the_binding_list_are_added_to_the_ObservableHashSet()
         {
             var oc = new ObservableHashSet<ListElement>();
@@ -405,7 +405,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Assert.True(oc.Contains(item));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Items_set_in_the_binding_list_are_replaced_in_the_ObservableHashSet()
         {
             var item = new ListElement(4);
@@ -427,7 +427,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Assert.False(oc.Contains(item));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Items_removed_from_the_binding_list_are_removed_from_the_ObservableHashSet()
         {
             var item = new ListElement(4);
@@ -447,7 +447,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Assert.False(oc.Contains(item));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Items_removed_by_index_from_the_binding_list_are_removed_from_the_ObservableHashSet()
         {
             var item = new ListElement(4);
@@ -467,7 +467,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Assert.False(oc.Contains(item));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Items_cleared_from_the_binding_list_are_cleared_from_the_ObservableHashSet()
         {
             var oc = new ObservableHashSet<ListElement>
@@ -486,7 +486,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Assert.Equal(0, oc.Count);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Adding_duplicate_item_to_the_binding_list_is_ignored()
         {
             var item = new ListElement(4);
@@ -508,7 +508,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Assert.Equal(1, oc.Count(i => ReferenceEquals(i, item)));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Attempt_to_AddNew_on_set_for_abstract_type_works_if_AddingNew_event_is_used_to_create_new_object()
         {
             var obbl = new ObservableBackedBindingList<NotXNode>(new ObservableHashSet<NotXNode>());
@@ -521,7 +521,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Assert.True(obbl.Contains(item));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void
             Attempt_to_AddNew_on_set_for_type_without_parameterless_constructor_works_if_AddingNew_event_is_used_to_create_new_object()
         {

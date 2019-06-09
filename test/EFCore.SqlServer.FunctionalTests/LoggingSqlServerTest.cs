@@ -12,7 +12,7 @@ namespace Microsoft.EntityFrameworkCore
 {
     public class LoggingSqlServerTest : LoggingRelationalTestBase<SqlServerDbContextOptionsBuilder, SqlServerOptionsExtension>
     {
-        [Fact]
+        [ConditionalFact]
         public void Logs_context_initialization_row_number_paging()
         {
             Assert.Equal(

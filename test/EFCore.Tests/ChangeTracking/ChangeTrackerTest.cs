@@ -27,7 +27,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
     // issue #15318
     internal class ChangeTrackerTest
     {
-        [Fact]
+        [ConditionalFact]
         public void DetectChanges_is_logged()
         {
             Seed();
@@ -48,7 +48,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public void Detect_property_change_is_logged(bool sensitive)
@@ -82,7 +82,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             }
         }
 
-        [Theory(Skip = "TaskList#19")]
+        [ConditionalTheory(Skip = "TaskList#19")]
         [InlineData(false)]
         [InlineData(true)]
         public void Detect_foreign_key_property_change_is_logged(bool sensitive)
@@ -122,7 +122,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             }
         }
 
-        [Theory(Skip = "TaskList#19")]
+        [ConditionalTheory(Skip = "TaskList#19")]
         [InlineData(false)]
         [InlineData(true)]
         public void Detect_collection_change_is_logged(bool sensitive)
@@ -162,7 +162,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             }
         }
 
-        [Theory(Skip = "TaskList#19")]
+        [ConditionalTheory(Skip = "TaskList#19")]
         [InlineData(false)]
         [InlineData(true)]
         public void Detect_reference_change_is_logged(bool sensitive)
@@ -202,7 +202,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public void Start_tracking_is_logged_from_query(bool sensitive)
@@ -224,7 +224,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public void Start_tracking_is_logged_from_attach(bool sensitive)
@@ -244,7 +244,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public void State_change_is_logged(bool sensitive)
@@ -271,7 +271,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false, false, false)]
         [InlineData(true, false, false)]
         [InlineData(false, true, false)]
@@ -353,7 +353,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             }
         }
 
-        [Theory(Skip = "TaskList#19")]
+        [ConditionalTheory(Skip = "TaskList#19")]
         [InlineData(false, CascadeTiming.OnSaveChanges, CascadeTiming.OnSaveChanges)]
         [InlineData(false, CascadeTiming.OnSaveChanges, CascadeTiming.Immediate)]
         [InlineData(false, CascadeTiming.OnSaveChanges, CascadeTiming.Never)]
@@ -472,7 +472,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             }
         }
 
-        [Theory(Skip = "TaskList#19")]
+        [ConditionalTheory(Skip = "TaskList#19")]
         [InlineData(false, CascadeTiming.OnSaveChanges, CascadeTiming.OnSaveChanges)]
         [InlineData(false, CascadeTiming.OnSaveChanges, CascadeTiming.Immediate)]
         [InlineData(false, CascadeTiming.OnSaveChanges, CascadeTiming.Never)]
@@ -594,7 +594,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public async Task SaveChanges_is_logged(bool async)
@@ -628,7 +628,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Context_Dispose_is_logged()
         {
             using (var context = new LikeAZooContext())
@@ -643,7 +643,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             Assert.Equal(CoreResources.LogContextDisposed(new TestLogger<TestLoggingDefinitions>()).GenerateMessage(nameof(LikeAZooContext)), message);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void State_change_events_fire_from_query()
         {
             var tracked = new List<EntityTrackedEventArgs>();
@@ -677,7 +677,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void State_change_events_fire_from_Attach()
         {
             var tracked = new List<EntityTrackedEventArgs>();
@@ -705,7 +705,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void State_change_events_fire_from_Add()
         {
             var tracked = new List<EntityTrackedEventArgs>();
@@ -733,7 +733,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void State_change_events_fire_from_Update()
         {
             var tracked = new List<EntityTrackedEventArgs>();
@@ -761,7 +761,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void State_change_events_fire_for_tracked_state_changes()
         {
             var tracked = new List<EntityTrackedEventArgs>();
@@ -829,7 +829,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void State_change_events_fire_when_saving_changes()
         {
             var tracked = new List<EntityTrackedEventArgs>();
@@ -873,7 +873,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void State_change_events_fire_when_property_modified_flags_cause_state_change()
         {
             var tracked = new List<EntityTrackedEventArgs>();
@@ -912,7 +912,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void State_change_events_are_limited_to_the_current_context()
         {
             var tracked1 = new List<EntityTrackedEventArgs>();
@@ -1142,7 +1142,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public void Can_remove_dependent_identifying_one_to_many(bool saveEntities)
@@ -1192,7 +1192,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Keyless_type_negative_cases()
         {
             using (var context = new EarlyLearningCenter())
@@ -1229,7 +1229,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_get_all_entries()
         {
             using (var context = new EarlyLearningCenter())
@@ -1243,7 +1243,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_get_all_entities_for_an_entity_of_a_given_type()
         {
             using (var context = new EarlyLearningCenter())
@@ -1265,7 +1265,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_get_Context()
         {
             using (var context = new EarlyLearningCenter())
@@ -1285,7 +1285,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
                 : entry.Metadata.DisplayName()
                   + ":" + entry.Property(entry.Metadata.FindPrimaryKey().Properties[0].Name).CurrentValue;
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false, false)]
         [InlineData(false, true)]
         [InlineData(true, false)]
@@ -1364,7 +1364,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false, false)]
         [InlineData(false, true)]
         [InlineData(true, false)]
@@ -1418,7 +1418,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false, false, false)]
         [InlineData(false, true, false)]
         [InlineData(true, false, false)]
@@ -1508,7 +1508,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false, false)]
         [InlineData(false, true)]
         [InlineData(true, false)]
@@ -1583,7 +1583,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_attach_parent_with_child_collection()
         {
             using (var context = new EarlyLearningCenter())
@@ -1644,7 +1644,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_attach_child_with_reference_to_parent()
         {
             using (var context = new EarlyLearningCenter())
@@ -1685,7 +1685,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_attach_parent_with_one_to_one_children()
         {
             using (var context = new EarlyLearningCenter())
@@ -1732,7 +1732,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_attach_child_with_one_to_one_parents()
         {
             using (var context = new EarlyLearningCenter())
@@ -1779,7 +1779,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_attach_entity_with_one_to_one_parent_and_child()
         {
             using (var context = new EarlyLearningCenter())
@@ -1826,7 +1826,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Entities_that_are_already_tracked_will_not_get_attached()
         {
             using (var context = new EarlyLearningCenter())
@@ -1890,7 +1890,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Further_graph_traversal_stops_if_an_entity_is_not_attached()
         {
             using (var context = new EarlyLearningCenter())
@@ -1979,7 +1979,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Graph_iterator_does_not_go_visit_Apple()
         {
             using (var context = new EarlyLearningCenter())
@@ -2009,7 +2009,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_attach_parent_with_some_new_and_some_existing_entities()
         {
             KeyValueAttachTest(
@@ -2039,7 +2039,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
                 });
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_attach_graph_using_built_in_tracker()
         {
             var tracker = new KeyValueEntityTracker(updateExistingEntities: false);
@@ -2047,7 +2047,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             KeyValueAttachTest((category, changeTracker) => changeTracker.TrackGraph(category, tracker.TrackEntity));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_update_graph_using_built_in_tracker()
         {
             var tracker = new KeyValueEntityTracker(updateExistingEntities: true);
@@ -2107,7 +2107,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_attach_graph_using_custom_delegate()
         {
             var tracker = new MyTracker(updateExistingEntities: false);
@@ -2179,7 +2179,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false, false)]
         [InlineData(false, true)]
         [InlineData(true, false)]
@@ -2257,7 +2257,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public void Adding_derived_owned_throws(bool useAdd)
@@ -2295,7 +2295,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Moving_derived_owned_to_non_derived_reference_throws()
         {
             using (var context = new EarlyLearningCenter())
@@ -2320,7 +2320,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             }
         }
 
-        [Fact] // Issue #1207
+        [ConditionalFact] // Issue #1207
         public void Can_add_principal_and_then_identifying_dependents_with_key_generation()
         {
             using (var context = new EarlyLearningCenter())
@@ -2359,7 +2359,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             }
         }
 
-        [Fact] // Issue #1207
+        [ConditionalFact] // Issue #1207
         public void Can_add_identifying_dependents_and_then_principal_with_key_generation()
         {
             using (var context = new EarlyLearningCenter())
@@ -2399,7 +2399,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             }
         }
 
-        [Fact] // Issue #1207
+        [ConditionalFact] // Issue #1207
         public void Can_add_identifying_dependents_and_then_principal_interleaved_with_key_generation()
         {
             using (var context = new EarlyLearningCenter())
@@ -2439,7 +2439,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             }
         }
 
-        [Fact] // Issue #1207
+        [ConditionalFact] // Issue #1207
         public void Can_add_identifying_dependents_and_principal_starting_in_the_middle_with_key_generation()
         {
             using (var context = new EarlyLearningCenter())
@@ -2479,7 +2479,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             }
         }
 
-        [Fact] // Issue #1207
+        [ConditionalFact] // Issue #1207
         public void Can_add_principal_and_identifying_dependents_starting_in_the_middle_with_key_generation()
         {
             using (var context = new EarlyLearningCenter())
@@ -2518,7 +2518,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             }
         }
 
-        [Fact] // Issue #1207
+        [ConditionalFact] // Issue #1207
         public void Can_add_identifying_dependents_and_principal_with_post_nav_fixup_with_key_generation()
         {
             using (var context = new EarlyLearningCenter())
@@ -2556,7 +2556,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             }
         }
 
-        [Fact] // Issue #1207
+        [ConditionalFact] // Issue #1207
         public void Can_add_identifying_dependents_and_principal_with_reverse_post_nav_fixup_with_key_generation()
         {
             using (var context = new EarlyLearningCenter())
@@ -2640,7 +2640,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             Assert.Same(product2.Details.Tag, product2.Details.Tag.TagDetails.Tag);
         }
 
-        [Fact] // Issue #1207
+        [ConditionalFact] // Issue #1207
         public void Can_add_identifying_one_to_many_via_principal_with_key_generation()
         {
             using (var context = new EarlyLearningCenter())
@@ -2685,7 +2685,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             }
         }
 
-        [Fact] // Issue #1207
+        [ConditionalFact] // Issue #1207
         public void Can_add_identifying_one_to_many_via_dependents_with_key_generation()
         {
             using (var context = new EarlyLearningCenter())
@@ -2790,7 +2790,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             Assert.Contains(orderDetails2b, orderDetails1b.Product.OrderDetails);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public void Entries_calls_DetectChanges_by_default(bool useGenericOverload)
@@ -2821,7 +2821,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public void Auto_DetectChanges_for_Entries_can_be_switched_off(bool useGenericOverload)
@@ -2854,7 +2854,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Explicitly_calling_DetectChanges_works_even_if_auto_DetectChanges_is_switched_off()
         {
             using (var context = new EarlyLearningCenter())
@@ -2878,7 +2878,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void TrackGraph_does_not_call_DetectChanges()
         {
             var provider =
@@ -2900,7 +2900,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void TrackGraph_overload_can_visit_an_already_attached_graph()
         {
             using (var context = new EarlyLearningCenter())
@@ -2977,7 +2977,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void TrackGraph_overload_can_visit_a_graph_without_attaching()
         {
             using (var context = new EarlyLearningCenter())
@@ -3059,7 +3059,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Does_not_throw_when_instance_of_unmapped_derived_type_is_used()
         {
             using (var context = new EarlyLearningCenter())
@@ -3070,7 +3070,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Shadow_properties_are_not_included_in_update_unless_value_explicitly_set()
         {
             int id;

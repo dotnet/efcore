@@ -23,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 {
     public class ChangeDetectorTest
     {
-        [Fact]
+        [ConditionalFact]
         public void PropertyChanging_does_not_snapshot_if_eager_snapshots_are_in_use()
         {
             var contextServices = InMemoryTestHelpers.Instance.CreateContextServices(BuildModel());
@@ -39,7 +39,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Assert.False(entry.HasRelationshipSnapshot);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void PropertyChanging_snapshots_original_and_FK_value_if_lazy_snapshots_are_in_use()
         {
             var contextServices = InMemoryTestHelpers.Instance.CreateContextServices(BuildNotifyingModel());
@@ -72,7 +72,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Assert.Equal(777, entry.GetCurrentValue(property));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void PropertyChanging_does_not_snapshot_original_values_for_properties_with_no_original_value_tracking()
         {
             var contextServices = InMemoryTestHelpers.Instance.CreateContextServices(BuildNotifyingModel());
@@ -99,7 +99,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Assert.Equal("Pickle", entry.GetCurrentValue(property));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void PropertyChanging_snapshots_reference_navigations_if_lazy_snapshots_are_in_use()
         {
             var contextServices = InMemoryTestHelpers.Instance.CreateContextServices(BuildNotifyingModel());
@@ -136,7 +136,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Assert.NotSame(category, entry.GetCurrentValue(navigation));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void PropertyChanging_snapshots_PK_for_relationships_if_lazy_snapshots_are_in_use()
         {
             var contextServices = InMemoryTestHelpers.Instance.CreateContextServices(BuildNotifyingModel());
@@ -169,7 +169,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Assert.Equal(newId, entry.GetCurrentValue(property));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Detects_scalar_property_change()
         {
             var contextServices = InMemoryTestHelpers.Instance.CreateContextServices(BuildModel());
@@ -192,7 +192,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Assert.True(entry.IsModified(entry.EntityType.FindProperty("Name")));
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(true, true, true)]
         [InlineData(false, true, true)]
         [InlineData(true, false, true)]
@@ -247,7 +247,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(true)]
         [InlineData(false)]
         public void Detects_scalar_property_change_with_custom_comparer(bool useTypeMapping)
@@ -279,7 +279,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(true)]
         [InlineData(false)]
         public void Detects_scalar_shadow_property_change_with_custom_comparer(bool useTypeMapping)
@@ -405,7 +405,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Skips_detection_of_scalar_property_change_for_notification_entities()
         {
             var contextServices = InMemoryTestHelpers.Instance.CreateContextServices(BuildModelWithChanged());
@@ -429,7 +429,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Assert.False(entry.IsModified(entry.EntityType.FindProperty("Name")));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Detects_principal_key_change()
         {
             var contextServices = CreateContextServices();
@@ -464,7 +464,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Assert.Null(testListener.CollectionChange);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Detects_principal_key_changing_back_to_original_value()
         {
             var contextServices = CreateContextServices();
@@ -501,7 +501,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Assert.Null(testListener.CollectionChange);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Reacts_to_principal_key_change_in_sidecar()
         {
             var contextServices = CreateContextServices();
@@ -537,7 +537,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Assert.Null(testListener.CollectionChange);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Detects_primary_key_change()
         {
             var contextServices = CreateContextServices();
@@ -571,7 +571,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Assert.Null(testListener.CollectionChange);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Reacts_to_primary_key_change_in_sidecar()
         {
             var contextServices = CreateContextServices();
@@ -608,7 +608,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Assert.Null(testListener.CollectionChange);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Ignores_no_change_to_principal_key()
         {
             var contextServices = CreateContextServices();
@@ -635,7 +635,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Assert.Null(testListener.CollectionChange);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Ignores_no_change_to_principal_key_in_sidecar()
         {
             var contextServices = CreateContextServices();
@@ -665,7 +665,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Assert.Null(testListener.CollectionChange);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Detects_foreign_key_change()
         {
             var contextServices = CreateContextServices();
@@ -698,7 +698,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Assert.Null(testListener.CollectionChange);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Detects_foreign_key_changing_back_to_original_value()
         {
             var contextServices = CreateContextServices();
@@ -735,7 +735,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Assert.Null(testListener.CollectionChange);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Reacts_to_foreign_key_change_in_sidecar()
         {
             var contextServices = CreateContextServices();
@@ -770,7 +770,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Assert.Null(testListener.CollectionChange);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Ignores_no_change_to_foreign_key()
         {
             var contextServices = CreateContextServices();
@@ -797,7 +797,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Assert.Null(testListener.CollectionChange);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Ignores_no_change_to_foreign_key_in_sidecar()
         {
             var contextServices = CreateContextServices();
@@ -826,7 +826,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Assert.Null(testListener.CollectionChange);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Detects_reference_navigation_change()
         {
             var contextServices = CreateContextServices();
@@ -871,7 +871,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Assert.Equal(2, testListener.KeyChange.Item6);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public void Detects_reference_navigation_changing_back_to_original_value(bool useNull)
@@ -924,7 +924,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Assert.Equal(1, testListener.KeyChange.Item6);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Ignores_no_change_to_reference_navigation()
         {
             var contextServices = CreateContextServices();
@@ -957,7 +957,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Assert.Null(testListener.KeyChange);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Detects_adding_to_collection_navigation()
         {
             var contextServices = CreateContextServices();
@@ -1010,7 +1010,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Assert.Null(testListener.ReferenceChange);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Detects_removing_from_collection_navigation()
         {
             var contextServices = CreateContextServices();
@@ -1056,7 +1056,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Assert.Null(testListener.ReferenceChange);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Ignores_no_change_to_collection_navigation()
         {
             var contextServices = CreateContextServices();
@@ -1099,7 +1099,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Assert.Null(testListener.ReferenceChange);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Skips_detecting_changes_to_primary_principal_key_for_notification_entities()
         {
             var contextServices = CreateContextServices(BuildModelWithChanged());
@@ -1125,7 +1125,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Assert.Null(testListener.CollectionChange);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Skips_detecting_changes_to_foreign_key_for_notification_entities()
         {
             var contextServices = CreateContextServices(BuildModelWithChanged());
@@ -1152,7 +1152,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Assert.Null(testListener.CollectionChange);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Skips_detecting_changes_to_reference_navigation_for_notification_entities()
         {
             var contextServices = CreateContextServices(BuildModelWithChanged());
@@ -1187,7 +1187,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Assert.Null(testListener.KeyChange);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Skips_detecting_changes_to_notifying_collections()
         {
             var contextServices = CreateContextServices(BuildModelWithChanged());
@@ -1234,7 +1234,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Assert.Null(testListener.ReferenceChange);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Brings_in_single_new_entity_set_on_reference_navigation()
         {
             var contextServices = CreateContextServices();
@@ -1271,7 +1271,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Assert.Equal(EntityState.Added, testAttacher.Attached.Item2);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Brings_in_new_entity_set_on_principal_of_one_to_one_navigation()
         {
             var contextServices = CreateContextServices();
@@ -1299,7 +1299,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Assert.Equal(EntityState.Added, testAttacher.Attached.Item2);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Brings_in_new_entity_set_on_dependent_of_one_to_one_navigation()
         {
             var contextServices = CreateContextServices();
@@ -1329,7 +1329,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Assert.Equal(EntityState.Added, testAttacher.Attached.Item2);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Brings_in_single_new_entity_set_on_collection_navigation()
         {
             var contextServices = CreateContextServices();
@@ -1374,7 +1374,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Assert.Equal(EntityState.Added, testAttacher.Attached.Item2);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Brings_in_new_entity_set_on_principal_of_one_to_one_self_ref()
         {
             var contextServices = CreateContextServices();
@@ -1397,7 +1397,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Assert.Equal(EntityState.Added, testAttacher.Attached.Item2);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Brings_in_new_entity_set_on_dependent_of_one_to_one_self_ref()
         {
             var contextServices = CreateContextServices();
@@ -1420,7 +1420,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Assert.Equal(EntityState.Added, testAttacher.Attached.Item2);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Handles_notification_of_principal_key_change()
         {
             var contextServices = CreateContextServices(BuildNotifyingModel());
@@ -1451,7 +1451,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Assert.Null(testListener.CollectionChange);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Handles_notification_of_principal_key_changing_back_to_original_value()
         {
             var contextServices = CreateContextServices(BuildNotifyingModel());
@@ -1482,7 +1482,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Assert.Null(testListener.CollectionChange);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Handles_notification_of_primary_key_change()
         {
             var contextServices = CreateContextServices(BuildNotifyingModel());
@@ -1513,7 +1513,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Assert.Null(testListener.CollectionChange);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Handles_notification_of_no_change_to_principal_key()
         {
             var contextServices = CreateContextServices(BuildNotifyingModel());
@@ -1537,7 +1537,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Assert.Null(testListener.CollectionChange);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Handles_notification_of_foreign_key_change()
         {
             var contextServices = CreateContextServices(BuildNotifyingModel());
@@ -1567,7 +1567,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Assert.Null(testListener.CollectionChange);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Handles_notification_of_foreign_key_changing_back_to_original_value()
         {
             var contextServices = CreateContextServices(BuildNotifyingModel());
@@ -1598,7 +1598,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Assert.Null(testListener.CollectionChange);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Handles_notification_of_no_change_to_foreign_key()
         {
             var contextServices = CreateContextServices(BuildNotifyingModel());
@@ -1622,7 +1622,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Assert.Null(testListener.CollectionChange);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Handles_notification_of_reference_navigation_change()
         {
             var contextServices = CreateContextServices(BuildNotifyingModel());
@@ -1662,7 +1662,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Assert.Equal(2, testListener.KeyChange.Item6);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public void Handles_notification_of_reference_navigation_changing_back_to_original_value(bool useNull)
@@ -1710,7 +1710,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Assert.Equal(1, testListener.KeyChange.Item6);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Handles_notification_of_no_change_to_reference_navigation()
         {
             var contextServices = CreateContextServices(BuildNotifyingModel());
@@ -1740,7 +1740,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Assert.Null(testListener.KeyChange);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Handles_notification_of_adding_to_collection_navigation()
         {
             var contextServices = CreateContextServices(BuildNotifyingModel());
@@ -1788,7 +1788,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Assert.Null(testListener.KeyChange);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Handles_notification_of_removing_from_collection_navigation()
         {
             var contextServices = CreateContextServices(BuildNotifyingModel());
@@ -1834,7 +1834,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Assert.Null(testListener.KeyChange);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Brings_in_single_new_entity_on_notification_of_set_on_reference_navigation()
         {
             var contextServices = CreateContextServices(BuildNotifyingModel());
@@ -1867,7 +1867,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Assert.Equal(EntityState.Added, testAttacher.Attached.Item2);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Brings_in_new_entity_on_notification_of_set_on_principal_of_one_to_one_navigation()
         {
             var contextServices = CreateContextServices(BuildNotifyingModel());
@@ -1895,7 +1895,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Assert.Equal(EntityState.Added, testAttacher.Attached.Item2);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Brings_in_new_entity_on_notification_of_set_on_dependent_of_one_to_one_navigation()
         {
             var contextServices = CreateContextServices(BuildNotifyingModel());
@@ -1922,7 +1922,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Assert.Equal(EntityState.Added, testAttacher.Attached.Item2);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Brings_in_single_new_entity_on_notification_of_set_on_collection_navigation()
         {
             var contextServices = CreateContextServices(BuildNotifyingModel());
@@ -1965,7 +1965,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Assert.Equal(EntityState.Added, testAttacher.Attached.Item2);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Brings_in_new_entity_on_notification_of_set_on_principal_of_one_to_one_self_ref()
         {
             var contextServices = CreateContextServices(BuildNotifyingModel());
@@ -1985,7 +1985,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Assert.Equal(EntityState.Added, testAttacher.Attached.Item2);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Brings_in_new_entity_on_notification_of_set_on_dependent_of_one_to_one_self_ref()
         {
             var contextServices = CreateContextServices(BuildNotifyingModel());

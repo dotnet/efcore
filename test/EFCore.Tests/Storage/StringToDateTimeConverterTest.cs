@@ -12,7 +12,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         private static readonly StringToDateTimeConverter _stringToDateTime
             = new StringToDateTimeConverter();
 
-        [Fact]
+        [ConditionalFact]
         public void Can_convert_string_to_DateTime()
         {
             var converter = _stringToDateTime.ConvertToProviderExpression.Compile();
@@ -24,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.Equal(new DateTime(), converter("0001-01-01 00:00:00"));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_convert_DateTime_to_string()
         {
             var converter = _stringToDateTime.ConvertFromProviderExpression.Compile();

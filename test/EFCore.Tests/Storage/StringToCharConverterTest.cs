@@ -11,7 +11,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         private static readonly StringToCharConverter _stringToChar
             = new StringToCharConverter();
 
-        [Fact]
+        [ConditionalFact]
         public void Can_convert_strings_to_chars()
         {
             var converter = _stringToChar.ConvertToProviderExpression.Compile();
@@ -22,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.Equal('\0', converter(null));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_convert_strings_to_chars_object()
         {
             var converter = _stringToChar.ConvertToProvider;
@@ -33,7 +33,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.Null(converter(null));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_convert_chars_to_strings()
         {
             var converter = _stringToChar.ConvertFromProviderExpression.Compile();
@@ -42,7 +42,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.Equal("!", converter('!'));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_convert_chars_to_strings_object()
         {
             var converter = _stringToChar.ConvertFromProvider;

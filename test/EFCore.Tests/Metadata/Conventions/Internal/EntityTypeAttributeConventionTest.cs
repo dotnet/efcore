@@ -18,7 +18,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
     {
         #region NotMappedAttribute
 
-        [Fact]
+        [ConditionalFact]
         public void NotMappedAttribute_overrides_configuration_from_convention_source()
         {
             var modelBuilder = new InternalModelBuilder(new Model());
@@ -30,7 +30,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             Assert.Equal(0, modelBuilder.Metadata.GetEntityTypes().Count());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void NotMappedAttribute_does_not_override_configuration_from_explicit_source()
         {
             var modelBuilder = new InternalModelBuilder(new Model());
@@ -42,7 +42,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             Assert.Equal(1, modelBuilder.Metadata.GetEntityTypes().Count());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void NotMappedAttribute_ignores_entityTypes_with_conventional_builder()
         {
             var modelBuilder = InMemoryTestHelpers.Instance.CreateConventionBuilder();

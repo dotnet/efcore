@@ -332,7 +332,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         #region Static
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Scalar_Function_Extension_Method_Static()
         {
             using (var context = CreateContext())
@@ -343,7 +343,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Scalar_Function_With_Translator_Translates_Static()
         {
             using (var context = CreateContext())
@@ -357,7 +357,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact(Skip = "Issue#14935")]
+        [ConditionalFact(Skip = "Issue#14935")]
         public virtual void Scalar_Function_ClientEval_Method_As_Translateable_Method_Parameter_Static()
         {
             using (var context = CreateContext())
@@ -373,7 +373,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Scalar_Function_Constant_Parameter_Static()
         {
             using (var context = CreateContext())
@@ -386,7 +386,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Scalar_Function_Anonymous_Type_Select_Correlated_Static()
         {
             using (var context = CreateContext())
@@ -404,7 +404,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Scalar_Function_Anonymous_Type_Select_Not_Correlated_Static()
         {
             using (var context = CreateContext())
@@ -422,7 +422,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Scalar_Function_Anonymous_Type_Select_Parameter_Static()
         {
             using (var context = CreateContext())
@@ -442,7 +442,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Scalar_Function_Anonymous_Type_Select_Nested_Static()
         {
             using (var context = CreateContext())
@@ -463,7 +463,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Scalar_Function_Where_Correlated_Static()
         {
             using (var context = CreateContext())
@@ -476,7 +476,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Scalar_Function_Where_Not_Correlated_Static()
         {
             using (var context = CreateContext())
@@ -491,7 +491,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Scalar_Function_Where_Parameter_Static()
         {
             using (var context = CreateContext())
@@ -507,7 +507,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Scalar_Function_Where_Nested_Static()
         {
             using (var context = CreateContext())
@@ -522,7 +522,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Scalar_Function_Let_Correlated_Static()
         {
             using (var context = CreateContext())
@@ -541,7 +541,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Scalar_Function_Let_Not_Correlated_Static()
         {
             using (var context = CreateContext())
@@ -560,7 +560,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Scalar_Function_Let_Not_Parameter_Static()
         {
             var customerId = 2;
@@ -581,7 +581,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Scalar_Function_Let_Nested_Static()
         {
             using (var context = CreateContext())
@@ -603,7 +603,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact(Skip = "Issue#14935")]
+        [ConditionalFact(Skip = "Issue#14935")]
         public virtual void Scalar_Nested_Function_Unwind_Client_Eval_Where_Static()
         {
             using (var context = CreateContext())
@@ -616,7 +616,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact(Skip = "Issue#14935")]
+        [ConditionalFact(Skip = "Issue#14935")]
         public virtual void Scalar_Nested_Function_Unwind_Client_Eval_OrderBy_Static()
         {
             using (var context = CreateContext())
@@ -630,7 +630,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact(Skip = "Issue#14935")]
+        [ConditionalFact(Skip = "Issue#14935")]
         public virtual void Scalar_Nested_Function_Unwind_Client_Eval_Select_Static()
         {
             using (var context = CreateContext())
@@ -644,7 +644,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact(Skip = "Issue#14935")]
+        [ConditionalFact(Skip = "Issue#14935")]
         public virtual void Scalar_Nested_Function_Client_BCL_UDF_Static()
         {
             using (var context = CreateContext())
@@ -657,7 +657,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact(Skip = "Issue#14935")]
+        [ConditionalFact(Skip = "Issue#14935")]
         public virtual void Scalar_Nested_Function_Client_UDF_BCL_Static()
         {
             using (var context = CreateContext())
@@ -670,7 +670,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact(Skip = "Issue#14935")]
+        [ConditionalFact(Skip = "Issue#14935")]
         public virtual void Scalar_Nested_Function_BCL_Client_UDF_Static()
         {
             using (var context = CreateContext())
@@ -683,7 +683,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact(Skip = "Issue#14935")]
+        [ConditionalFact(Skip = "Issue#14935")]
         public virtual void Scalar_Nested_Function_BCL_UDF_Client_Static()
         {
             using (var context = CreateContext())
@@ -696,7 +696,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact(Skip = "Issue#14935")]
+        [ConditionalFact(Skip = "Issue#14935")]
         public virtual void Scalar_Nested_Function_UDF_BCL_Client_Static()
         {
             using (var context = CreateContext())
@@ -709,7 +709,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact(Skip = "Issue#14935")]
+        [ConditionalFact(Skip = "Issue#14935")]
         public virtual void Scalar_Nested_Function_UDF_Client_BCL_Static()
         {
             using (var context = CreateContext())
@@ -722,7 +722,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact(Skip = "Issue#14935")]
+        [ConditionalFact(Skip = "Issue#14935")]
         public virtual void Scalar_Nested_Function_Client_BCL_Static()
         {
             using (var context = CreateContext())
@@ -735,7 +735,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact(Skip = "Issue#14935")]
+        [ConditionalFact(Skip = "Issue#14935")]
         public virtual void Scalar_Nested_Function_Client_UDF_Static()
         {
             using (var context = CreateContext())
@@ -748,7 +748,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact(Skip = "Issue#14935")]
+        [ConditionalFact(Skip = "Issue#14935")]
         public virtual void Scalar_Nested_Function_BCL_Client_Static()
         {
             using (var context = CreateContext())
@@ -761,7 +761,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Scalar_Nested_Function_BCL_UDF_Static()
         {
             using (var context = CreateContext())
@@ -774,7 +774,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact(Skip = "Issue#14935")]
+        [ConditionalFact(Skip = "Issue#14935")]
         public virtual void Scalar_Nested_Function_UDF_Client_Static()
         {
             using (var context = CreateContext())
@@ -787,7 +787,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Scalar_Nested_Function_UDF_BCL_Static()
         {
             using (var context = CreateContext())
@@ -800,7 +800,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact(Skip = "Tasklist#6")]
+        [ConditionalFact(Skip = "Tasklist#6")]
         public virtual void Nullable_navigation_property_access_preserves_schema_for_sql_function()
         {
             using (var context = CreateContext())
@@ -818,7 +818,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         #region Instance
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Scalar_Function_Non_Static()
         {
             using (var context = CreateContext())
@@ -835,7 +835,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Scalar_Function_Extension_Method_Instance()
         {
             using (var context = CreateContext())
@@ -846,7 +846,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Scalar_Function_With_Translator_Translates_Instance()
         {
             using (var context = CreateContext())
@@ -860,7 +860,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact (Skip = "Issue#14935")]
+        [ConditionalFact (Skip = "Issue#14935")]
         public virtual void Scalar_Function_ClientEval_Method_As_Translateable_Method_Parameter_Instance()
         {
             using (var context = CreateContext())
@@ -876,7 +876,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Scalar_Function_Constant_Parameter_Instance()
         {
             using (var context = CreateContext())
@@ -889,7 +889,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Scalar_Function_Anonymous_Type_Select_Correlated_Instance()
         {
             using (var context = CreateContext())
@@ -907,7 +907,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Scalar_Function_Anonymous_Type_Select_Not_Correlated_Instance()
         {
             using (var context = CreateContext())
@@ -925,7 +925,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Scalar_Function_Anonymous_Type_Select_Parameter_Instance()
         {
             using (var context = CreateContext())
@@ -945,7 +945,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Scalar_Function_Anonymous_Type_Select_Nested_Instance()
         {
             using (var context = CreateContext())
@@ -966,7 +966,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Scalar_Function_Where_Correlated_Instance()
         {
             using (var context = CreateContext())
@@ -979,7 +979,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Scalar_Function_Where_Not_Correlated_Instance()
         {
             using (var context = CreateContext())
@@ -994,7 +994,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Scalar_Function_Where_Parameter_Instance()
         {
             using (var context = CreateContext())
@@ -1010,7 +1010,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Scalar_Function_Where_Nested_Instance()
         {
             using (var context = CreateContext())
@@ -1025,7 +1025,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Scalar_Function_Let_Correlated_Instance()
         {
             using (var context = CreateContext())
@@ -1044,7 +1044,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Scalar_Function_Let_Not_Correlated_Instance()
         {
             using (var context = CreateContext())
@@ -1063,7 +1063,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Scalar_Function_Let_Not_Parameter_Instance()
         {
             var customerId = 2;
@@ -1084,7 +1084,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Scalar_Function_Let_Nested_Instance()
         {
             using (var context = CreateContext())
@@ -1106,7 +1106,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact(Skip = "Issue#14935")]
+        [ConditionalFact(Skip = "Issue#14935")]
         public virtual void Scalar_Nested_Function_Unwind_Client_Eval_Where_Instance()
         {
             using (var context = CreateContext())
@@ -1119,7 +1119,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact(Skip = "Issue#14935")]
+        [ConditionalFact(Skip = "Issue#14935")]
         public virtual void Scalar_Nested_Function_Unwind_Client_Eval_OrderBy_Instance()
         {
             using (var context = CreateContext())
@@ -1133,7 +1133,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact(Skip = "Issue#14935")]
+        [ConditionalFact(Skip = "Issue#14935")]
         public virtual void Scalar_Nested_Function_Unwind_Client_Eval_Select_Instance()
         {
             using (var context = CreateContext())
@@ -1147,7 +1147,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact(Skip = "Issue#14935")]
+        [ConditionalFact(Skip = "Issue#14935")]
         public virtual void Scalar_Nested_Function_Client_BCL_UDF_Instance()
         {
             using (var context = CreateContext())
@@ -1160,7 +1160,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact(Skip = "Issue#14935")]
+        [ConditionalFact(Skip = "Issue#14935")]
         public virtual void Scalar_Nested_Function_Client_UDF_BCL_Instance()
         {
             using (var context = CreateContext())
@@ -1173,7 +1173,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact(Skip = "Issue#14935")]
+        [ConditionalFact(Skip = "Issue#14935")]
         public virtual void Scalar_Nested_Function_BCL_Client_UDF_Instance()
         {
             using (var context = CreateContext())
@@ -1186,7 +1186,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact(Skip = "Issue#14935")]
+        [ConditionalFact(Skip = "Issue#14935")]
         public virtual void Scalar_Nested_Function_BCL_UDF_Client_Instance()
         {
             using (var context = CreateContext())
@@ -1199,7 +1199,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact(Skip = "Issue#14935")]
+        [ConditionalFact(Skip = "Issue#14935")]
         public virtual void Scalar_Nested_Function_UDF_BCL_Client_Instance()
         {
             using (var context = CreateContext())
@@ -1212,7 +1212,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact(Skip = "Issue#14935")]
+        [ConditionalFact(Skip = "Issue#14935")]
         public virtual void Scalar_Nested_Function_UDF_Client_BCL_Instance()
         {
             using (var context = CreateContext())
@@ -1225,7 +1225,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact(Skip = "Issue#14935")]
+        [ConditionalFact(Skip = "Issue#14935")]
         public virtual void Scalar_Nested_Function_Client_BCL_Instance()
         {
             using (var context = CreateContext())
@@ -1238,7 +1238,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact(Skip = "Issue#14935")]
+        [ConditionalFact(Skip = "Issue#14935")]
         public virtual void Scalar_Nested_Function_Client_UDF_Instance()
         {
             using (var context = CreateContext())
@@ -1251,7 +1251,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact(Skip = "Issue#14935")]
+        [ConditionalFact(Skip = "Issue#14935")]
         public virtual void Scalar_Nested_Function_BCL_Client_Instance()
         {
             using (var context = CreateContext())
@@ -1264,7 +1264,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Scalar_Nested_Function_BCL_UDF_Instance()
         {
             using (var context = CreateContext())
@@ -1277,7 +1277,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact(Skip = "Issue#14935")]
+        [ConditionalFact(Skip = "Issue#14935")]
         public virtual void Scalar_Nested_Function_UDF_Client_Instance()
         {
             using (var context = CreateContext())
@@ -1290,7 +1290,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Scalar_Nested_Function_UDF_BCL_Instance()
         {
             using (var context = CreateContext())

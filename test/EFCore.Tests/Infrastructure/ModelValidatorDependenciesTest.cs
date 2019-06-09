@@ -8,7 +8,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 {
     public class ModelValidatorDependenciesTest
     {
-        [Fact]
+        [ConditionalFact]
         public void Can_use_With_methods_to_clone_and_replace_service()
         {
             InMemoryTestHelpers.Instance.TestDependenciesClone<ModelValidatorDependencies>();

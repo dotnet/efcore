@@ -25,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore.Update
 
         protected override TestHelpers TestHelpers => SqlServerTestHelpers.Instance;
 
-        [Fact]
+        [ConditionalFact]
         public void AppendBatchHeader_should_append_SET_NOCOUNT_ON()
         {
             var sb = new StringBuilder();
@@ -100,7 +100,7 @@ WHERE @@ROWCOUNT = 1 AND [Id] = scope_identity();
                 stringBuilder.ToString());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void AppendBulkInsertOperation_appends_insert_if_store_generated_columns_exist()
         {
             var stringBuilder = new StringBuilder();
@@ -129,7 +129,7 @@ ORDER BY [i].[_Position];
             Assert.Equal(ResultSetMapping.NotLastInResultSet, grouping);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void AppendBulkInsertOperation_appends_insert_if_no_store_generated_columns_exist()
         {
             var stringBuilder = new StringBuilder();
@@ -147,7 +147,7 @@ VALUES (@p0, @p1, @p2, @p3),
             Assert.Equal(ResultSetMapping.NoResultSet, grouping);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void AppendBulkInsertOperation_appends_insert_if_store_generated_columns_exist_default_values_only()
         {
             var stringBuilder = new StringBuilder();
@@ -171,7 +171,7 @@ INNER JOIN @inserted0 i ON ([t].[Id] = [i].[Id]);
             Assert.Equal(ResultSetMapping.NotLastInResultSet, grouping);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void AppendBulkInsertOperation_appends_insert_if_no_store_generated_columns_exist_default_values_only()
         {
             var stringBuilder = new StringBuilder();

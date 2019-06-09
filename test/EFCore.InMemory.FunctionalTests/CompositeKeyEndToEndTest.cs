@@ -13,7 +13,7 @@ namespace Microsoft.EntityFrameworkCore
 {
     public class CompositeKeyEndToEndTest
     {
-        [Fact]
+        [ConditionalFact]
         public async Task Can_use_two_non_generated_integers_as_composite_key_end_to_end()
         {
             var serviceProvider = new ServiceCollection()
@@ -60,7 +60,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public async Task Can_use_generated_values_in_composite_key_end_to_end()
         {
             var serviceProvider = new ServiceCollection()
@@ -120,7 +120,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public async Task Only_one_part_of_a_composite_key_needs_to_vary_for_uniquness()
         {
             var serviceProvider = new ServiceCollection()

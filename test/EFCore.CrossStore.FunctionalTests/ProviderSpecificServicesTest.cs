@@ -10,7 +10,7 @@ namespace Microsoft.EntityFrameworkCore
 {
     public class ProviderSpecificServicesTest
     {
-        [Fact]
+        [ConditionalFact]
         public void Throws_with_new_when_non_relational_provider_in_use()
         {
             var options = new DbContextOptionsBuilder<ConstructorTestContext1A>()
@@ -29,7 +29,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Throws_with_add_when_non_relational_provider_in_use()
         {
             var appServiceProivder = new ServiceCollection()

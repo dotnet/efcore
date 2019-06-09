@@ -4730,7 +4730,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 l2s => l2s.Select(l2 => l2s.OrderBy(l => l.Id).First().OneToOne_Required_FK_Inverse2.Name == "L1 02"));
         }
 
-        [Theory(Skip = "issue #8526")]
+        [ConditionalTheory(Skip = "issue #8526")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Select_subquery_with_client_eval_and_multi_level_navigation(bool isAsync)
         {
@@ -5386,7 +5386,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     .Select(l1 => Math.Max(l1.OneToOne_Optional_PK1.Level1_Required_Id, 7)));
         }
 
-        [Theory(Skip = "See issue#11464")]
+        [ConditionalTheory(Skip = "See issue#11464")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Accessing_optional_property_inside_result_operator_subquery(bool isAsync)
         {

@@ -20,7 +20,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 {
     internal class WarningsTest
     {
-        [Fact]
+        [ConditionalFact]
         public void Should_throw_by_default_when_transaction()
         {
             var optionsBuilder
@@ -40,7 +40,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Should_throw_by_default_when_transaction_enlisted()
         {
             var optionsBuilder
@@ -60,7 +60,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Should_not_throw_by_default_when_transaction_and_ignored()
         {
             var optionsBuilder
@@ -76,7 +76,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
 #pragma warning disable CS0612 // Type or member is obsolete
-        [Fact]
+        [ConditionalFact]
         public void Throws_when_warning_as_error_all()
         {
             var serviceProvider = new ServiceCollection()
@@ -96,7 +96,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Throws_when_warning_as_error_specific()
         {
             var serviceProvider = new ServiceCollection()
@@ -116,7 +116,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact(Skip = "issue #15312")]
+        [ConditionalFact(Skip = "issue #15312")]
         public void Logs_by_default_for_ignored_includes()
         {
             var loggerFactory = new ListLoggerFactory();
@@ -134,7 +134,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact(Skip = "issue #15312")]
+        [ConditionalFact(Skip = "issue #15312")]
         public void Ignored_includes_can_be_configured_to_throw()
         {
             var serviceProvider = new ServiceCollection()
@@ -155,7 +155,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 #pragma warning restore CS0612 // Type or member is obsolete
 
-        [Fact]
+        [ConditionalFact]
         public void Throws_by_default_for_lazy_load_with_disposed_context()
         {
             var loggerFactory = new ListLoggerFactory();
@@ -191,7 +191,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     () => entity.Nav).Message);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Lazy_load_with_disposed_context_can_be_configured_to_log()
         {
             var loggerFactory = new ListLoggerFactory();
@@ -234,7 +234,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             Assert.Equal(LogLevel.Warning, log.Level);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Lazy_load_with_disposed_context_can_be_configured_to_log_at_debug_level()
         {
             var loggerFactory = new ListLoggerFactory();
@@ -277,7 +277,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             Assert.Equal(LogLevel.Debug, log.Level);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Lazy_loading_is_logged_only_when_actually_loading()
         {
             var loggerFactory = new ListLoggerFactory();
@@ -316,7 +316,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void No_throw_when_event_id_not_registered()
         {
             var serviceProvider = new ServiceCollection()

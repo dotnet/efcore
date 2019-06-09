@@ -13,7 +13,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
     {
         public class SqlServerGenericNonRelationship : GenericNonRelationship
         {
-            [Fact]
+            [ConditionalFact]
             public virtual void Index_has_a_filter_if_nonclustered_unique_with_nullable_properties()
             {
                 var modelBuilder = CreateModelBuilder();
@@ -78,7 +78,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
         public class SqlServerGenericInheritance : GenericInheritance
         {
-            [Fact] // #7240
+            [ConditionalFact] // #7240
             public void Can_use_shadow_FK_that_collides_with_convention_shadow_FK_on_other_derived_type()
             {
                 var modelBuilder = CreateModelBuilder();
@@ -98,7 +98,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Equal("DisjointChildSubclass2_ParentId", property2.GetColumnName());
             }
 
-            [Fact]
+            [ConditionalFact]
             public void Inherited_clr_properties_are_mapped_to_the_same_column()
             {
                 var modelBuilder = CreateModelBuilder();
@@ -115,7 +115,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Equal(nameof(Child.Name), property2.GetColumnName());
             }
 
-            [Fact] //Issue#10659
+            [ConditionalFact] //Issue#10659
             public void Index_convention_run_for_fk_when_derived_type_discovered_before_base_type()
             {
                 var modelBuilder = CreateModelBuilder();
@@ -128,7 +128,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Equal("[CustomerId] IS NOT NULL", index.GetFilter());
             }
 
-            [Fact]
+            [ConditionalFact]
             public void Index_convention_sets_filter_for_unique_index_when_base_type_changed()
             {
                 var modelBuilder = CreateModelBuilder();
@@ -197,7 +197,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
         public class SqlServerGenericOwnedTypes : GenericOwnedTypes
         {
-            [Fact]
+            [ConditionalFact]
             public virtual void Owned_types_use_table_splitting_by_default()
             {
                 var modelBuilder = CreateModelBuilder();
@@ -281,7 +281,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                     bookLabel2Ownership1.DeclaringEntityType.FindProperty(nameof(BookLabel.Id)).GetColumnName());
             }
 
-            [Fact]
+            [ConditionalFact]
             public virtual void Owned_types_can_be_mapped_to_different_tables()
             {
                 var modelBuilder = CreateModelBuilder();
@@ -416,7 +416,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Equal(4, model.GetEntityTypes().Count(e => e.ClrType == typeof(SpecialBookLabel)));
             }
 
-            [Fact]
+            [ConditionalFact]
             public virtual void Owned_type_collections_can_be_mapped_to_different_tables()
             {
                 var modelBuilder = CreateModelBuilder();
@@ -469,7 +469,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Equal("foo", owned.GetSchema());
             }
 
-            [Fact]
+            [ConditionalFact]
             public override void Can_configure_owned_type()
             {
                 var modelBuilder = CreateModelBuilder();
@@ -502,7 +502,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Equal(1, model.GetEntityTypes().Count(e => e.ClrType == typeof(CustomerDetails)));
             }
 
-            [Fact]
+            [ConditionalFact]
             public override void Can_configure_owned_type_key()
             {
                 var modelBuilder = CreateModelBuilder();

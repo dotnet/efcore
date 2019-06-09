@@ -26,7 +26,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
         }
 
         // #13579
-        // [Fact]
+        // [ConditionalFact]
         public virtual void Can_update_dependents()
         {
             using (CreateTestStore())
@@ -56,7 +56,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
         }
 
         // #13579
-        // [Fact]
+        // [ConditionalFact]
         public virtual void Can_update_owner_with_dependents()
         {
             using (CreateTestStore())
@@ -79,7 +79,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Can_add_collection_dependent_to_owner()
         {
             using (CreateTestStore())
@@ -174,7 +174,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
         }
 
         // #13559
-        //[Fact]
+        //[ConditionalFact]
         public virtual void Can_update_just_dependents()
         {
             using (CreateTestStore())
@@ -199,7 +199,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Inserting_dependent_without_principal_throws()
         {
             using (CreateTestStore())
@@ -222,7 +222,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Can_change_nested_instance_non_derived()
         {
             using (CreateTestStore())
@@ -255,7 +255,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Can_change_principal_instance_non_derived()
         {
             using (CreateTestStore())
