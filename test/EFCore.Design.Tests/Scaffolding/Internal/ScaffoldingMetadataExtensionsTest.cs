@@ -11,7 +11,7 @@ namespace Microsoft.EntityFrameworkCore
 {
     public class ScaffoldingMetadataExtensionsTest
     {
-        [Fact]
+        [ConditionalFact]
         public void It_sets_gets_entity_type_errors()
         {
             IMutableModel model = new Model();
@@ -27,7 +27,7 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Empty(model.GetEntityTypeErrors().Values);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void It_sets_DbSet_name()
         {
             IMutableModel model = new Model();
@@ -37,7 +37,7 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Equal("Blogs", entity.GetDbSetName());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void It_sets_gets_database_name()
         {
             var model = new Model();

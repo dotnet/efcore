@@ -7,7 +7,7 @@ namespace Microsoft.EntityFrameworkCore
 {
     public abstract class DbSetAsTableNameTest
     {
-        [Fact]
+        [ConditionalFact]
         public virtual void DbSet_names_are_used_as_table_names()
         {
             using (var context = CreateContext())
@@ -16,7 +16,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void DbSet_name_of_base_type_is_used_as_table_name_for_TPH()
         {
             using (var context = CreateContext())
@@ -27,7 +27,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Type_name_of_base_type_is_used_as_table_name_for_TPH_if_not_added_as_set()
         {
             using (var context = CreateContext())
@@ -38,7 +38,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void DbSet_names_of_derived_types_are_used_as_table_names_when_base_type_not_mapped()
         {
             using (var context = CreateContext())
@@ -48,7 +48,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Name_of_duplicate_DbSet_is_not_used_as_table_name()
         {
             using (var context = CreateContext())
@@ -57,7 +57,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Explicit_names_can_be_used_as_table_names()
         {
             using (var context = CreateNamedTablesContext())
@@ -66,7 +66,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Explicit_name_of_base_type_can_be_used_as_table_name_for_TPH()
         {
             using (var context = CreateNamedTablesContext())
@@ -77,7 +77,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Explicit_name_of_base_type_can_be_used_as_table_name_for_TPH_if_not_added_as_set()
         {
             using (var context = CreateNamedTablesContext())
@@ -88,7 +88,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Explicit_names_of_derived_types_can_be_used_as_table_names_when_base_type_not_mapped()
         {
             using (var context = CreateNamedTablesContext())
@@ -98,7 +98,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Explicit_name_can_be_used_for_type_with_duplicated_sets()
         {
             using (var context = CreateNamedTablesContext())

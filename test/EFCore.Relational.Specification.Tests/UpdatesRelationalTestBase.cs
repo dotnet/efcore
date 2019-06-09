@@ -17,7 +17,7 @@ namespace Microsoft.EntityFrameworkCore
         {
         }
 
-        [Fact]
+        [ConditionalFact]
         public abstract void Identifiers_are_generated_correctly();
 
         protected override void UseTransaction(DatabaseFacade facade, IDbContextTransaction transaction)

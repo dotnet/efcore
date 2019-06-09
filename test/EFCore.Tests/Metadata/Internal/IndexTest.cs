@@ -11,7 +11,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
     public class IndexTest
     {
-        [Fact]
+        [ConditionalFact]
         public void Can_create_index_from_properties()
         {
             var entityType = ((IConventionModel)CreateModel()).AddEntityType(typeof(Customer));
@@ -25,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Equal(ConfigurationSource.Convention, index.GetConfigurationSource());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_create_unique_index_from_properties()
         {
             var entityType = CreateModel().AddEntityType(typeof(Customer));
@@ -39,7 +39,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.True(index.IsUnique);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Constructor_validates_properties_from_same_entity()
         {
             var model = CreateModel();

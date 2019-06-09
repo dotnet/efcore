@@ -24,61 +24,61 @@ namespace Microsoft.EntityFrameworkCore
 {
     public class SqlServerDatabaseCreatorTest
     {
-        [Fact]
+        [ConditionalFact]
         public Task Create_checks_for_existence_and_retries_if_no_proccess_until_it_passes()
         {
             return Create_checks_for_existence_and_retries_until_it_passes(233, async: false);
         }
 
-        [Fact]
+        [ConditionalFact]
         public Task Create_checks_for_existence_and_retries_if_timeout_until_it_passes()
         {
             return Create_checks_for_existence_and_retries_until_it_passes(-2, async: false);
         }
 
-        [Fact]
+        [ConditionalFact]
         public Task Create_checks_for_existence_and_retries_if_cannot_open_until_it_passes()
         {
             return Create_checks_for_existence_and_retries_until_it_passes(4060, async: false);
         }
 
-        [Fact]
+        [ConditionalFact]
         public Task Create_checks_for_existence_and_retries_if_cannot_attach_file_until_it_passes()
         {
             return Create_checks_for_existence_and_retries_until_it_passes(1832, async: false);
         }
 
-        [Fact]
+        [ConditionalFact]
         public Task Create_checks_for_existence_and_retries_if_cannot_open_file_until_it_passes()
         {
             return Create_checks_for_existence_and_retries_until_it_passes(5120, async: false);
         }
 
-        [Fact]
+        [ConditionalFact]
         public Task CreateAsync_checks_for_existence_and_retries_if_no_proccess_until_it_passes()
         {
             return Create_checks_for_existence_and_retries_until_it_passes(233, async: true);
         }
 
-        [Fact]
+        [ConditionalFact]
         public Task CreateAsync_checks_for_existence_and_retries_if_timeout_until_it_passes()
         {
             return Create_checks_for_existence_and_retries_until_it_passes(-2, async: true);
         }
 
-        [Fact]
+        [ConditionalFact]
         public Task CreateAsync_checks_for_existence_and_retries_if_cannot_open_until_it_passes()
         {
             return Create_checks_for_existence_and_retries_until_it_passes(4060, async: true);
         }
 
-        [Fact]
+        [ConditionalFact]
         public Task CreateAsync_checks_for_existence_and_retries_if_cannot_attach_file_until_it_passes()
         {
             return Create_checks_for_existence_and_retries_until_it_passes(1832, async: true);
         }
 
-        [Fact]
+        [ConditionalFact]
         public Task CreateAsync_checks_for_existence_and_retries_if_cannot_open_file_until_it_passes()
         {
             return Create_checks_for_existence_and_retries_until_it_passes(5120, async: true);
@@ -115,13 +115,13 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Equal(2, connection.OpenCount);
         }
 
-        [Fact]
+        [ConditionalFact]
         public Task Create_checks_for_existence_and_ultimately_gives_up_waiting()
         {
             return Create_checks_for_existence_and_ultimately_gives_up_waiting_test(async: false);
         }
 
-        [Fact]
+        [ConditionalFact]
         public Task CreateAsync_checks_for_existence_and_ultimately_gives_up_waiting()
         {
             return Create_checks_for_existence_and_ultimately_gives_up_waiting_test(async: true);

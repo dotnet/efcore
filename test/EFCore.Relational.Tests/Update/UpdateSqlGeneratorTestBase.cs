@@ -18,7 +18,7 @@ namespace Microsoft.EntityFrameworkCore.Update
 {
     public abstract class UpdateSqlGeneratorTestBase
     {
-        [Fact]
+        [ConditionalFact]
         public virtual void AppendDeleteOperation_creates_full_delete_command_text()
         {
             var stringBuilder = new StringBuilder();
@@ -33,7 +33,7 @@ namespace Microsoft.EntityFrameworkCore.Update
                 stringBuilder.ToString());
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void AppendDeleteOperation_creates_full_delete_command_text_with_concurrency_check()
         {
             var stringBuilder = new StringBuilder();
@@ -49,7 +49,7 @@ namespace Microsoft.EntityFrameworkCore.Update
                 stringBuilder.ToString());
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void AppendInsertOperation_appends_insert_and_select_and_where_if_store_generated_columns_exist()
         {
             var stringBuilder = new StringBuilder();
@@ -76,7 +76,7 @@ namespace Microsoft.EntityFrameworkCore.Update
                 stringBuilder.ToString());
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void
             AppendInsertOperation_appends_insert_and_select_rowcount_if_no_store_generated_columns_exist_or_conditions_exist()
         {
@@ -93,7 +93,7 @@ namespace Microsoft.EntityFrameworkCore.Update
                 stringBuilder.ToString());
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void AppendInsertOperation_appends_insert_and_select_store_generated_columns_but_no_identity()
         {
             var stringBuilder = new StringBuilder();
@@ -120,7 +120,7 @@ namespace Microsoft.EntityFrameworkCore.Update
                 stringBuilder.ToString());
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void AppendInsertOperation_appends_insert_and_select_for_only_identity()
         {
             var stringBuilder = new StringBuilder();
@@ -145,7 +145,7 @@ namespace Microsoft.EntityFrameworkCore.Update
                 stringBuilder.ToString());
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void AppendInsertOperation_appends_insert_and_select_for_all_store_generated_columns()
         {
             var stringBuilder = new StringBuilder();
@@ -170,7 +170,7 @@ namespace Microsoft.EntityFrameworkCore.Update
                 stringBuilder.ToString());
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void AppendInsertOperation_appends_insert_and_select_for_only_single_identity_columns()
         {
             var stringBuilder = new StringBuilder();
@@ -194,7 +194,7 @@ namespace Microsoft.EntityFrameworkCore.Update
                 stringBuilder.ToString());
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void AppendUpdateOperation_appends_update_and_select_if_store_generated_columns_exist()
         {
             var stringBuilder = new StringBuilder();
@@ -221,7 +221,7 @@ namespace Microsoft.EntityFrameworkCore.Update
                 stringBuilder.ToString());
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void AppendUpdateOperation_appends_update_and_select_rowcount_if_store_generated_columns_dont_exist()
         {
             var stringBuilder = new StringBuilder();
@@ -238,7 +238,7 @@ namespace Microsoft.EntityFrameworkCore.Update
                 stringBuilder.ToString());
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void AppendUpdateOperation_appends_where_for_concurrency_token()
         {
             var stringBuilder = new StringBuilder();
@@ -256,7 +256,7 @@ namespace Microsoft.EntityFrameworkCore.Update
                 stringBuilder.ToString());
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void AppendUpdateOperation_appends_select_for_computed_property()
         {
             var stringBuilder = new StringBuilder();
@@ -281,7 +281,7 @@ namespace Microsoft.EntityFrameworkCore.Update
                 stringBuilder.ToString());
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void GenerateNextSequenceValueOperation_returns_statement_with_sanitized_sequence()
         {
             var statement = CreateSqlGenerator().GenerateNextSequenceValueOperation("sequence" + CloseDelimiter + "; --", null);
@@ -291,7 +291,7 @@ namespace Microsoft.EntityFrameworkCore.Update
                 statement);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void GenerateNextSequenceValueOperation_correctly_handles_schemas()
         {
             var statement = CreateSqlGenerator().GenerateNextSequenceValueOperation("mysequence", "dbo");

@@ -12,7 +12,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
 {
     public class AppServiceProviderFactoryTest
     {
-        [Fact]
+        [ConditionalFact]
         public void Create_works()
         {
             var factory = new TestAppServiceProviderFactory(
@@ -43,7 +43,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         {
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Create_works_when_no_BuildWebHost()
         {
             var factory = new TestAppServiceProviderFactory(
@@ -59,7 +59,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         {
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Create_works_when_BuildWebHost_throws()
         {
             var reporter = new TestOperationReporter();

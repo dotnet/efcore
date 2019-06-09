@@ -12,7 +12,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         private static readonly StringToDateTimeOffsetConverter _stringToDateTimeOffset
             = new StringToDateTimeOffsetConverter();
 
-        [Fact]
+        [ConditionalFact]
         public void Can_convert_string_to_DateTimeOffset()
         {
             var converter = _stringToDateTimeOffset.ConvertToProviderExpression.Compile();
@@ -25,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 new DateTimeOffset(), converter("0001-01-01 00:00:00+00:00"));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_convert_DateTimeOffset_to_string()
         {
             var converter = _stringToDateTimeOffset.ConvertFromProviderExpression.Compile();

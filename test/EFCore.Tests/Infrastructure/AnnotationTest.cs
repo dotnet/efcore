@@ -10,7 +10,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 {
     public class AnnotationTest
     {
-        [Fact]
+        [ConditionalFact]
         public void Members_check_arguments()
         {
             Assert.Equal(
@@ -18,7 +18,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 Assert.Throws<ArgumentException>(() => new Annotation("", "Kake")).Message);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_create_annotation()
         {
             var annotation = new Annotation("Foo", "Bar");

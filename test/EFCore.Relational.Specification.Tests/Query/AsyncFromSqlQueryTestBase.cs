@@ -24,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         protected TFixture Fixture { get; }
 
-        [Fact]
+        [ConditionalFact]
         public virtual async Task FromSqlRaw_queryable_simple()
         {
             using (var context = CreateContext())
@@ -38,7 +38,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual async Task FromSqlRaw_queryable_simple_columns_out_of_order()
         {
             using (var context = CreateContext())
@@ -53,7 +53,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual async Task FromSqlRaw_queryable_simple_columns_out_of_order_and_extra_columns()
         {
             using (var context = CreateContext())
@@ -68,7 +68,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual async Task FromSqlRaw_queryable_composed()
         {
             using (var context = CreateContext())
@@ -81,7 +81,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual async Task FromSqlRaw_queryable_multiple_composed()
         {
             using (var context = CreateContext())
@@ -101,7 +101,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual async Task FromSqlRaw_queryable_multiple_composed_with_closure_parameters()
         {
             var startDate = new DateTime(1997, 1, 1);
@@ -125,7 +125,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual async Task FromSqlRaw_queryable_multiple_composed_with_parameters_and_closure_parameters()
         {
             var city = "London";
@@ -151,7 +151,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual async Task FromSqlRaw_queryable_multiple_line_query()
         {
             using (var context = CreateContext())
@@ -168,7 +168,7 @@ WHERE [City] = 'London'"))
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual async Task FromSqlRaw_queryable_composed_multiple_line_query()
         {
             using (var context = CreateContext())
@@ -185,7 +185,7 @@ FROM [Customers]"))
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual async Task FromSqlRaw_queryable_with_parameters()
         {
             var city = "London";
@@ -203,7 +203,7 @@ FROM [Customers]"))
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual async Task FromSqlRaw_queryable_with_parameters_and_closure()
         {
             var city = "London";
@@ -222,7 +222,7 @@ FROM [Customers]"))
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual async Task FromSqlRaw_queryable_simple_cache_key_includes_query_string()
         {
             using (var context = CreateContext())
@@ -241,7 +241,7 @@ FROM [Customers]"))
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual async Task FromSqlRaw_queryable_with_parameters_cache_key_includes_parameters()
         {
             var city = "London";
@@ -269,7 +269,7 @@ FROM [Customers]"))
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual async Task FromSqlRaw_queryable_simple_as_no_tracking_not_composed()
         {
             using (var context = CreateContext())
@@ -283,7 +283,7 @@ FROM [Customers]"))
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual async Task FromSqlRaw_queryable_simple_projection_not_composed()
         {
             using (var context = CreateContext())
@@ -303,7 +303,7 @@ FROM [Customers]"))
             }
         }
 
-        [Fact(Skip = "issue #15991")]
+        [ConditionalFact(Skip = "issue #15991")]
         public virtual async Task FromSqlRaw_queryable_simple_include()
         {
             using (var context = CreateContext())
@@ -316,7 +316,7 @@ FROM [Customers]"))
             }
         }
 
-        [Fact(Skip = "issue #15991")]
+        [ConditionalFact(Skip = "issue #15991")]
         public virtual async Task FromSqlRaw_queryable_simple_composed_include()
         {
             using (var context = CreateContext())
@@ -330,7 +330,7 @@ FROM [Customers]"))
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual async Task FromSqlRaw_annotations_do_not_affect_successive_calls()
         {
             using (var context = CreateContext())
@@ -348,7 +348,7 @@ FROM [Customers]"))
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual async Task FromSqlRaw_composed_with_nullable_predicate()
         {
             using (var context = CreateContext())
@@ -361,7 +361,7 @@ FROM [Customers]"))
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual async Task Include_does_not_close_user_opened_connection_for_empty_result()
         {
             Fixture.TestStore.CloseConnection();
@@ -391,7 +391,7 @@ FROM [Customers]"))
             Fixture.TestStore.OpenConnection();
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual async Task Include_closed_connection_opened_by_it_when_buffering()
         {
             Fixture.TestStore.CloseConnection();

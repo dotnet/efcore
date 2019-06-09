@@ -14,7 +14,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
 {
     public class NamedConnectionStringResolverTest
     {
-        [Fact]
+        [ConditionalFact]
         public void Throws_if_no_app_service_provider()
         {
             var resolver = new NamedConnectionStringResolver(new FakeOptions(null, false));
@@ -25,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                     () => resolver.ResolveConnectionString("name=foo")).Message);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Throws_if_no_IConfiguration()
         {
             var resolver = new NamedConnectionStringResolver(new FakeOptions(null));
@@ -36,7 +36,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                     () => resolver.ResolveConnectionString("name=foo")).Message);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Throws_if_IConfiguration_does_not_contain_key()
         {
             var resolver = new NamedConnectionStringResolver(new FakeOptions(new ConfigurationBuilder().Build()));
@@ -47,7 +47,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                     () => resolver.ResolveConnectionString("name=foo")).Message);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Returns_resolved_string_if_IConfiguration_contains_key()
         {
             var resolver = new NamedConnectionStringResolver(
@@ -70,7 +70,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.Equal("Conn1", resolver.ResolveConnectionString("  NamE = MyConnectuonString   "));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Returns_given_string_named_connection_string_doesnt_match_pattern()
         {
             var resolver = new NamedConnectionStringResolver(

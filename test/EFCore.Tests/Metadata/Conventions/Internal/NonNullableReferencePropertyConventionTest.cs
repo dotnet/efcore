@@ -13,7 +13,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 {
     public class NonNullableReferencePropertyConventionTest
     {
-        [Fact]
+        [ConditionalFact]
         public void Non_nullability_does_not_override_configuration_from_explicit_source()
         {
             var entityTypeBuilder = CreateInternalEntityTypeBuilder<A>();
@@ -27,7 +27,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             Assert.True(propertyBuilder.Metadata.IsNullable);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Non_nullability_does_not_override_configuration_from_data_annotation_source()
         {
             var entityTypeBuilder = CreateInternalEntityTypeBuilder<A>();
@@ -41,7 +41,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             Assert.True(propertyBuilder.Metadata.IsNullable);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Non_nullability_sets_is_nullable_with_conventional_builder()
         {
             var modelBuilder = CreateModelBuilder();
@@ -50,7 +50,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             Assert.False(entityTypeBuilder.Property(e => e.Name).Metadata.IsNullable);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(nameof(A.NullAwareNonNullable), false)]
         [InlineData(nameof(A.NullAwareNullable), true)]
         [InlineData(nameof(A.NullObliviousNonNullable), true)]

@@ -25,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 {
     public abstract class InternalEntityEntryTestBase
     {
-        [Fact]
+        [ConditionalFact]
         public virtual void Store_setting_null_for_non_nullable_store_generated_property_throws()
         {
             var model = BuildModel();
@@ -44,7 +44,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 Assert.Throws<InvalidOperationException>(() => entry.SetStoreGeneratedValue(keyProperty, null)).Message);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Changing_state_from_Unknown_causes_entity_to_start_tracking()
         {
             var model = BuildModel();
@@ -62,7 +62,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Assert.Contains(entry, contextServices.GetRequiredService<IStateManager>().Entries);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Changing_state_to_Unknown_causes_entity_to_stop_tracking()
         {
             var model = BuildModel();
@@ -81,7 +81,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Assert.DoesNotContain(entry, contextServices.GetRequiredService<IStateManager>().Entries);
         }
 
-        [Fact] // GitHub #251, #1247
+        [ConditionalFact] // GitHub #251, #1247
         public virtual void Changing_state_from_Added_to_Deleted_does_what_you_ask()
         {
             var model = BuildModel();
@@ -100,7 +100,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Assert.Contains(entry, contextServices.GetRequiredService<IStateManager>().Entries);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Changing_state_to_Modified_or_Unchanged_causes_all_properties_to_be_marked_accordingly()
         {
             var model = BuildModel();
@@ -132,7 +132,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Assert.True(entry.IsModified(nonKeyProperty));
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Key_properties_throw_immediately_if_modified()
         {
             var model = BuildModel();
@@ -167,7 +167,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Assert.False(entry.IsModified(keyProperty));
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Added_entities_can_have_temporary_values()
         {
             var model = BuildModel();
@@ -232,7 +232,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Assert.False(entry.IsModified(nonKeyProperty));
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Unchanged)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Deleted)]
@@ -253,7 +253,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 Assert.Throws<InvalidOperationException>(() => entry.SetEntityState(targetState)).Message);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Detaching_with_temp_values_does_not_throw()
         {
             var model = BuildModel();
@@ -279,7 +279,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Assert.False(entry.HasTemporaryValue(keyProperty));
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Setting_an_explicit_value_marks_property_as_not_temporary()
         {
             var model = BuildModel();
@@ -301,7 +301,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             entry.SetEntityState(EntityState.Unchanged); // Does not throw
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Key_properties_share_value_generation_space_with_base()
         {
             var model = BuildModel(finalize: false);
@@ -337,7 +337,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Assert.NotEqual(entry[altKeyProperty], baseEntry[altKeyProperty]);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Value_generation_does_not_happen_if_property_has_non_default_value()
         {
             var model = BuildModel();
@@ -354,7 +354,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Assert.Equal(31143, entry[keyProperty]);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Temporary_values_are_npt_reset_when_entity_is_detached()
         {
             var model = BuildModel();
@@ -383,7 +383,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Assert.Equal(-1, entry[keyProperty]);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Modified_values_are_reset_when_entity_is_changed_to_Added()
         {
             var model = BuildModel();
@@ -402,7 +402,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Assert.False(entry.HasTemporaryValue(property));
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Changing_state_to_Added_triggers_value_generation_for_any_property()
         {
             var model = BuildModel();
@@ -425,7 +425,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Assert.NotEqual(0, entry[property]);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Notification_that_an_FK_property_has_changed_updates_the_snapshot()
         {
             var model = BuildModel();
@@ -446,7 +446,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Assert.Equal(79, keyValue);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Setting_property_to_the_same_value_does_not_update_the_snapshot()
         {
             var model = BuildModel();
@@ -464,7 +464,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Assert.Equal(78, keyValue);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Can_get_property_value_after_creation_from_value_buffer()
         {
             var model = BuildModel();
@@ -485,7 +485,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Assert.Equal(1, entry[keyProperty]);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Can_set_property_value_after_creation_from_value_buffer()
         {
             var model = BuildModel();
@@ -508,7 +508,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Assert.Equal("Mule", entry[nameProperty]);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Can_set_and_get_property_values()
         {
             var model = BuildModel();
@@ -526,7 +526,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Assert.Equal("Magic Tree House", entry[nonKeyProperty]);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Can_set_and_get_property_values_genericly()
         {
             var model = BuildModel();
@@ -544,7 +544,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Assert.Equal("Magic Tree House", entry.GetCurrentValue<string>(nonKeyProperty));
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Can_get_value_buffer_from_properties()
         {
             var model = BuildModel();
@@ -564,7 +564,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         private static object[] CreateValueBuffer(IUpdateEntry entry)
             => entry.EntityType.GetProperties().Select(entry.GetCurrentValue).ToArray();
 
-        [Fact]
+        [ConditionalFact]
         public virtual void All_original_values_can_be_accessed_for_entity_that_does_full_change_tracking_if_eager_values_on()
         {
             var model = BuildModel(finalize: false);
@@ -614,7 +614,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Assert.Equal("Beans", entry[nameProperty]);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Required_original_values_can_be_accessed_for_entity_that_does_full_change_tracking()
         {
             var model = BuildModel();
@@ -626,7 +626,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 });
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Required_original_values_can_be_accessed_for_entity_that_does_changed_only_notification()
         {
             var model = BuildModel();
@@ -638,7 +638,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 });
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Required_original_values_can_be_accessed_for_entity_that_does_no_notification()
         {
             var model = BuildModel();
@@ -672,7 +672,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Assert.Equal("Beans", entry[nameProperty]);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Required_original_values_can_be_accessed_generically_for_entity_that_does_full_change_tracking()
         {
             var model = BuildModel();
@@ -684,7 +684,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 });
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Required_original_values_can_be_accessed_generically_for_entity_that_does_changed_only_notification()
         {
             var model = BuildModel();
@@ -696,7 +696,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 });
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Required_original_values_can_be_accessed_generically_for_entity_that_does_no_notification()
         {
             var model = BuildModel();
@@ -730,7 +730,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Assert.Equal("Beans", entry.GetCurrentValue<string>(nameProperty));
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Null_original_values_are_handled_for_entity_that_does_full_change_tracking()
         {
             var model = BuildModel();
@@ -741,7 +741,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 });
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Null_original_values_are_handled_for_entity_that_does_changed_only_notification()
         {
             var model = BuildModel();
@@ -752,7 +752,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 });
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Null_original_values_are_handled_for_entity_that_does_no_notification()
         {
             var model = BuildModel();
@@ -790,7 +790,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Assert.Equal("Beans", entry[nameProperty]);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Null_original_values_are_handled_generically_for_entity_that_does_full_change_tracking()
         {
             var model = BuildModel();
@@ -801,7 +801,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 });
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Null_original_values_are_handled_generically_for_entity_that_does_changed_only_notification()
         {
             var model = BuildModel();
@@ -812,7 +812,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 });
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Null_original_values_are_handled_generically_for_entity_that_does_no_notification()
         {
             var model = BuildModel();
@@ -850,7 +850,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Assert.Equal("Beans", entry.GetCurrentValue<string>(nameProperty));
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Setting_property_using_state_entry_always_marks_as_modified()
         {
             var model = BuildModel();
@@ -935,11 +935,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Assert.Equal(EntityState.Modified, entry.EntityState);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void AcceptChanges_does_nothing_for_unchanged_entities()
             => AcceptChangesNoop(EntityState.Unchanged);
 
-        [Fact]
+        [ConditionalFact]
         public virtual void AcceptChanges_does_nothing_for_unknown_entities()
             => AcceptChangesNoop(EntityState.Detached);
 
@@ -966,13 +966,13 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Assert.Equal(entityState, entry.EntityState);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void AcceptChanges_makes_Modified_entities_Unchanged_and_resets_used_original_values()
         {
             AcceptChangesKeep(EntityState.Modified);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void AcceptChanges_makes_Added_entities_Unchanged()
         {
             AcceptChangesKeep(EntityState.Added);
@@ -1007,7 +1007,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Assert.Equal("Pickle", entry.GetOriginalValue(nameProperty));
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void AcceptChanges_makes_Modified_entities_Unchanged_and_effectively_resets_unused_original_values()
         {
             var model = BuildModel();
@@ -1036,7 +1036,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Assert.Equal("Pickle", entry.GetOriginalValue(nameProperty));
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void AcceptChanges_detaches_Deleted_entities()
         {
             var model = BuildModel();
@@ -1060,23 +1060,23 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Assert.Equal(EntityState.Detached, entry.EntityState);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void AcceptChanges_does_nothing_for_unchanged_owned_entities()
             => AcceptChangesOwned(EntityState.Unchanged);
 
-        [Fact]
+        [ConditionalFact]
         public virtual void AcceptChanges_does_nothing_for_unknown_owned_entities()
             => AcceptChangesOwned(EntityState.Detached);
 
-        [Fact]
+        [ConditionalFact]
         public virtual void AcceptChanges_makes_Modified_owned_entities_Unchanged_and_resets_used_original_values()
             => AcceptChangesOwned(EntityState.Modified);
 
-        [Fact]
+        [ConditionalFact]
         public virtual void AcceptChanges_makes_Added_owned_entities_Unchanged()
             => AcceptChangesOwned(EntityState.Added);
 
-        [Fact]
+        [ConditionalFact]
         public virtual void AcceptChanges_detaches_Deleted_owned_entities()
             => AcceptChangesOwned(EntityState.Deleted);
 
@@ -1125,7 +1125,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Non_transparent_sidecar_does_not_intercept_normal_property_read_and_write()
         {
             var model = BuildModel();
@@ -1242,7 +1242,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             return modelBuilder.FinalizeModel();
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Unchanged_entity_with_conceptually_null_FK_with_cascade_delete_is_marked_Deleted()
         {
             var model = BuildOneToOneModel();
@@ -1260,7 +1260,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Assert.Equal(EntityState.Deleted, entry.EntityState);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Added_entity_with_conceptually_null_FK_with_cascade_delete_is_detached()
         {
             var model = BuildOneToOneModel();
@@ -1278,7 +1278,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Assert.Equal(EntityState.Detached, entry.EntityState);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Entity_with_partially_null_composite_FK_with_cascade_delete_is_marked_Deleted()
         {
             var model = BuildOneToOneCompositeModel(required: true);
@@ -1301,7 +1301,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Assert.Equal(EntityState.Deleted, entry.EntityState);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Entity_with_partially_null_composite_FK_without_cascade_delete_is_orphaned()
         {
             var model = BuildOneToOneCompositeModel(required: false);

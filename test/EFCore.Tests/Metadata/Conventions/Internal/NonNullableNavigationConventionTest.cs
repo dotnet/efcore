@@ -19,7 +19,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 {
     public class NonNullableNavigationConventionTest
     {
-        [Fact]
+        [ConditionalFact]
         public void Non_nullability_does_not_override_configuration_from_explicit_source()
         {
             var dependentEntityTypeBuilder = CreateInternalEntityTypeBuilder<Post>();
@@ -44,7 +44,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             Assert.Contains(dependentEntityTypeBuilder.Metadata.GetNavigations(), nav => nav.Name == nameof(Post.Blog));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Non_nullability_does_not_override_configuration_from_data_annotation()
         {
             var dependentEntityTypeBuilder = CreateInternalEntityTypeBuilder<Post>();
@@ -69,7 +69,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             Assert.Contains(dependentEntityTypeBuilder.Metadata.GetNavigations(), nav => nav.Name == nameof(Post.Blog));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Non_nullability_does_not_set_is_required_for_collection_navigation()
         {
             var dependentEntityTypeBuilder = CreateInternalEntityTypeBuilder<Dependent>();
@@ -93,7 +93,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             Assert.Empty(ListLoggerFactory.Log);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Non_nullability_does_not_set_is_required_for_navigation_to_dependent()
         {
             var dependentEntityTypeBuilder = CreateInternalEntityTypeBuilder<Dependent>();
@@ -117,7 +117,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             Assert.False(relationshipBuilder.Metadata.IsRequired);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Non_nullability_inverts_when_navigation_to_dependent()
         {
             var dependentEntityTypeBuilder = CreateInternalEntityTypeBuilder<Dependent>();
@@ -147,7 +147,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                     nameof(Principal.Dependent), nameof(Principal)), logEntry.Message);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Non_nullability_sets_is_required_with_conventional_builder()
         {
             var modelBuilder = CreateModelBuilder();
@@ -159,7 +159,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                     .IsRequired);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Non_nullability_can_be_specified_on_both_navigations()
         {
             var modelBuilder = CreateModelBuilder();

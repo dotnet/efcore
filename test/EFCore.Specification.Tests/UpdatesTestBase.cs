@@ -21,7 +21,7 @@ namespace Microsoft.EntityFrameworkCore
 
         protected TFixture Fixture { get; }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Mutation_of_tracked_values_does_not_mutate_values_in_store()
         {
             var id1 = Guid.NewGuid();
@@ -72,7 +72,7 @@ namespace Microsoft.EntityFrameworkCore
                 });
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Save_partial_update()
         {
             var productId = new Guid("984ade3c-2f7b-4651-a351-642e92ab7146");
@@ -104,7 +104,7 @@ namespace Microsoft.EntityFrameworkCore
                 });
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Save_partial_update_on_missing_record_throws()
         {
             ExecuteWithStrategyInTransaction(
@@ -126,7 +126,7 @@ namespace Microsoft.EntityFrameworkCore
                 });
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Save_partial_update_on_concurrency_token_original_value_mismatch_throws()
         {
             var productId = new Guid("984ade3c-2f7b-4651-a351-642e92ab7146");
@@ -151,7 +151,7 @@ namespace Microsoft.EntityFrameworkCore
                 });
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Update_on_bytes_concurrency_token_original_value_mismatch_throws()
         {
             var productId = Guid.NewGuid();
@@ -187,7 +187,7 @@ namespace Microsoft.EntityFrameworkCore
                 context => Assert.Equal("MegaChips", context.ProductWithBytes.Find(productId).Name));
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Update_on_bytes_concurrency_token_original_value_matches_does_not_throw()
         {
             var productId = Guid.NewGuid();
@@ -222,7 +222,7 @@ namespace Microsoft.EntityFrameworkCore
                 context => Assert.Equal("GigaChips", context.ProductWithBytes.Find(productId).Name));
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Remove_on_bytes_concurrency_token_original_value_mismatch_throws()
         {
             var productId = Guid.NewGuid();
@@ -258,7 +258,7 @@ namespace Microsoft.EntityFrameworkCore
                 context => Assert.Equal("MegaChips", context.ProductWithBytes.Find(productId).Name));
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Remove_on_bytes_concurrency_token_original_value_matches_does_not_throw()
         {
             var productId = Guid.NewGuid();
@@ -293,7 +293,7 @@ namespace Microsoft.EntityFrameworkCore
                 context => Assert.Null(context.ProductWithBytes.Find(productId)));
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Can_remove_partial()
         {
             var productId = new Guid("984ade3c-2f7b-4651-a351-642e92ab7146");
@@ -318,7 +318,7 @@ namespace Microsoft.EntityFrameworkCore
                 });
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Remove_partial_on_missing_record_throws()
         {
             ExecuteWithStrategyInTransaction(
@@ -337,7 +337,7 @@ namespace Microsoft.EntityFrameworkCore
                 });
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Remove_partial_on_concurrency_token_original_value_mismatch_throws()
         {
             var productId = new Guid("984ade3c-2f7b-4651-a351-642e92ab7146");
@@ -359,7 +359,7 @@ namespace Microsoft.EntityFrameworkCore
                 });
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Save_replaced_principal()
         {
             ExecuteWithStrategyInTransaction(
@@ -391,7 +391,7 @@ namespace Microsoft.EntityFrameworkCore
                 });
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void SaveChanges_processes_all_tracked_entities()
         {
             ExecuteWithStrategyInTransaction(
@@ -445,7 +445,7 @@ namespace Microsoft.EntityFrameworkCore
                 });
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void SaveChanges_false_processes_all_tracked_entities_without_calling_AcceptAllChanges()
         {
             ExecuteWithStrategyInTransaction(
@@ -501,7 +501,7 @@ namespace Microsoft.EntityFrameworkCore
                 });
         }
 
-        [Fact]
+        [ConditionalFact]
         public Task SaveChangesAsync_processes_all_tracked_entities()
         {
             return ExecuteWithStrategyInTransactionAsync(
@@ -555,7 +555,7 @@ namespace Microsoft.EntityFrameworkCore
                 });
         }
 
-        [Fact]
+        [ConditionalFact]
         public Task SaveChangesAsync_false_processes_all_tracked_entities_without_calling_AcceptAllChanges()
         {
             return ExecuteWithStrategyInTransactionAsync(

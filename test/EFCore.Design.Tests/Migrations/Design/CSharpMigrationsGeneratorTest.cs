@@ -36,7 +36,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         private static readonly string _nl = Environment.NewLine;
         private static readonly string _toTable = _nl + @"modelBuilder.ToTable(""WithAnnotations"");" + _nl;
 
-        [Fact]
+        [ConditionalFact]
         public void Test_new_annotations_handled_for_entity_types()
         {
             var model = RelationalTestHelpers.Instance.CreateConventionBuilder();
@@ -109,7 +109,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 (g, m, b) => g.TestGenerateEntityTypeAnnotations("modelBuilder", (IEntityType)m, b));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Test_new_annotations_handled_for_properties()
         {
             var model = RelationalTestHelpers.Instance.CreateConventionBuilder();
@@ -283,7 +283,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         {
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Snapshot_with_enum_discriminator_uses_converted_values()
         {
             var codeHelper = new CSharpHelper(
@@ -327,7 +327,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             Assert.Equal((int)RawEnum.B, snapshotModel.FindEntityType(typeof(Derived)).GetDiscriminatorValue());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Value_converters_with_mapping_hints_are_scaffolded_correctly()
         {
             var commonPrefix
@@ -387,7 +387,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             Assert.Equal(expected + _nl + ".HasMaxLength(1000)", sb.ToString());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Migrations_compile()
         {
             var generator = CreateMigrationsCodeGenerator();
@@ -547,7 +547,7 @@ namespace MyNamespace
             public int Id { get; }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Snapshots_compile()
         {
             var generator = CreateMigrationsCodeGenerator();
@@ -640,7 +640,7 @@ namespace MyNamespace
             Assert.Equal(2, snapshot.Model.GetEntityTypes().Count());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Snapshot_with_default_values_are_round_tripped()
         {
             var generator = CreateMigrationsCodeGenerator();
@@ -794,7 +794,7 @@ namespace MyNamespace
         {
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Namespaces_imported_for_insert_data()
         {
             var generator = CreateMigrationsCodeGenerator();
@@ -820,7 +820,7 @@ namespace MyNamespace
             Assert.Contains("using System.Text.RegularExpressions;", migration);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Namespaces_imported_for_update_data_Values()
         {
             var generator = CreateMigrationsCodeGenerator();
@@ -844,7 +844,7 @@ namespace MyNamespace
             Assert.Contains("using System.Text.RegularExpressions;", migration);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Namespaces_imported_for_update_data_KeyValues()
         {
             var generator = CreateMigrationsCodeGenerator();
@@ -868,7 +868,7 @@ namespace MyNamespace
             Assert.Contains("using System.Text.RegularExpressions;", migration);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Namespaces_imported_for_delete_data()
         {
             var generator = CreateMigrationsCodeGenerator();

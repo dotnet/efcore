@@ -28,7 +28,7 @@ namespace Microsoft.EntityFrameworkCore
         protected override void UseTransaction(DatabaseFacade facade, IDbContextTransaction transaction)
             => facade.UseTransaction(transaction.GetDbTransaction());
 
-        [Fact]
+        [ConditionalFact]
         public virtual ModelBuilder Default_for_key_string_column_throws()
         {
             var modelBuilder = CreateModelBuilder();

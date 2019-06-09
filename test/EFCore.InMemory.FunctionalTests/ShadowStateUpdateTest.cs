@@ -12,7 +12,7 @@ namespace Microsoft.EntityFrameworkCore
 {
     public class ShadowStateUpdateTest : IClassFixture<InMemoryFixture>
     {
-        [Fact]
+        [ConditionalFact]
         public async Task Can_add_update_delete_end_to_end_using_partial_shadow_state()
         {
             IMutableModel model = new Model();

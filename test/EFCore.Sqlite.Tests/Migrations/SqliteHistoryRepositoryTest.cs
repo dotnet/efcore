@@ -14,7 +14,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
     {
         private static string EOL => Environment.NewLine;
 
-        [Fact]
+        [ConditionalFact]
         public void GetCreateScript_works()
         {
             var sql = CreateHistoryRepository().GetCreateScript();
@@ -27,7 +27,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 sql);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void GetCreateIfNotExistsScript_works()
         {
             var sql = CreateHistoryRepository().GetCreateIfNotExistsScript();
@@ -40,7 +40,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 sql);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void GetDeleteScript_works()
         {
             var sql = CreateHistoryRepository().GetDeleteScript("Migration1");
@@ -51,7 +51,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 sql);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void GetInsertScript_works()
         {
             var sql = CreateHistoryRepository().GetInsertScript(
@@ -63,7 +63,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 sql);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void GetBeginIfNotExistsScript_works()
         {
             var repository = CreateHistoryRepository();
@@ -72,7 +72,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             Assert.Equal(SqliteStrings.MigrationScriptGenerationNotSupported, ex.Message);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void GetBeginIfExistsScript_works()
         {
             var repository = CreateHistoryRepository();
@@ -81,7 +81,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             Assert.Equal(SqliteStrings.MigrationScriptGenerationNotSupported, ex.Message);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void GetEndIfScript_works()
         {
             var repository = CreateHistoryRepository();

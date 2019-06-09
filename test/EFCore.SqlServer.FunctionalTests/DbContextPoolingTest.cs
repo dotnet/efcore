@@ -127,7 +127,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Invalid_pool_size()
         {
             Assert.Throws<ArgumentOutOfRangeException>(
@@ -137,7 +137,7 @@ namespace Microsoft.EntityFrameworkCore
                 () => BuildServiceProvider<PooledContext>(poolSize: -1));
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(true)]
         [InlineData(false)]
         public void Options_modified_in_on_configuring(bool useInterface)
@@ -167,7 +167,7 @@ namespace Microsoft.EntityFrameworkCore
         {
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Throws_when_used_with_parameterless_constructor_context()
         {
             var serviceCollection = new ServiceCollection();
@@ -185,7 +185,7 @@ namespace Microsoft.EntityFrameworkCore
                         (_, __) => { })).Message);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_pool_non_derived_context()
         {
             var serviceProvider = BuildServiceProvider<DbContext>();
@@ -216,7 +216,7 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Same(context2, context4);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(true)]
         [InlineData(false)]
         public void Contexts_are_pooled(bool useInterface)
@@ -282,7 +282,7 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Same(secondContext2, secondContext4);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(true)]
         [InlineData(false)]
         public void Context_configuration_is_reset(bool useInterface)
@@ -324,7 +324,7 @@ namespace Microsoft.EntityFrameworkCore
             Assert.False(context2.Database.AutoTransactionsEnabled);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Default_Context_configuration__is_reset()
         {
             var serviceProvider = BuildServiceProvider<DefaultOptionsPooledContext>();
@@ -358,7 +358,7 @@ namespace Microsoft.EntityFrameworkCore
             Assert.True(context2.Database.AutoTransactionsEnabled);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(true)]
         [InlineData(false)]
         public void State_manager_is_reset(bool useInterface)
@@ -403,7 +403,7 @@ namespace Microsoft.EntityFrameworkCore
 
         private static T Scoper<T>(Func<T> getter) => getter();
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(true)]
         [InlineData(false)]
         public void Pool_disposes_context_when_context_not_pooled(bool useInterface)
@@ -437,7 +437,7 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Throws<ObjectDisposedException>(() => context.Customers.ToList());
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(true)]
         [InlineData(false)]
         public void Pool_disposes_contexts_when_disposed(bool useInterface)
@@ -460,7 +460,7 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Throws<ObjectDisposedException>(() => context.Customers.ToList());
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(true)]
         [InlineData(false)]
         public void Object_in_pool_is_disposed(bool useInterface)
@@ -481,7 +481,7 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Throws<ObjectDisposedException>(() => context.Customers.ToList());
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(true)]
         [InlineData(false)]
         public void Double_dispose_does_not_enter_pool_twice(bool useInterface)
@@ -503,7 +503,7 @@ namespace Microsoft.EntityFrameworkCore
             Assert.NotSame(context1, context2);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(true)]
         [InlineData(false)]
         public void Provider_services_are_reset(bool useInterface)

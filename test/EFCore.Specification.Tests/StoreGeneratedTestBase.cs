@@ -22,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore
 
         protected TFixture Fixture { get; }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Value_generation_throws_for_common_cases()
         {
             ValueGenerationNegative<int, IntToString, NumberToStringConverter<int>>();
@@ -43,7 +43,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact(Skip = "Issue#15589")]
+        [ConditionalFact(Skip = "Issue#15589")]
         public virtual void Value_generation_works_for_common_GUID_conversions()
         {
             ValueGenerationPositive<Guid, GuidToString>();
@@ -70,7 +70,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(nameof(Anais.NeverThrowBeforeUseAfter))]
         [InlineData(nameof(Anais.NeverThrowBeforeIgnoreAfter))]
         [InlineData(nameof(Anais.NeverThrowBeforeThrowAfter))]
@@ -96,7 +96,7 @@ namespace Microsoft.EntityFrameworkCore
                 });
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(nameof(Anais.NeverThrowBeforeUseAfter), null)]
         [InlineData(nameof(Anais.NeverThrowBeforeIgnoreAfter), null)]
         [InlineData(nameof(Anais.NeverThrowBeforeThrowAfter), null)]
@@ -124,7 +124,7 @@ namespace Microsoft.EntityFrameworkCore
                 context => Assert.Equal(expectedValue, GetValue(context.Set<Anais>().Find(id), propertyName)));
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(nameof(Anais.Never))]
         [InlineData(nameof(Anais.OnAdd))]
         [InlineData(nameof(Anais.OnUpdate))]
@@ -155,7 +155,7 @@ namespace Microsoft.EntityFrameworkCore
                 context => Assert.Equal("Pink", GetValue(context.Set<Anais>().Find(id), propertyName)));
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(nameof(Anais.Never), null)]
         [InlineData(nameof(Anais.OnAdd), "Rabbit")]
         [InlineData(nameof(Anais.OnUpdate), null)]
@@ -186,7 +186,7 @@ namespace Microsoft.EntityFrameworkCore
                 context => Assert.Equal(expectedValue, GetValue(context.Set<Anais>().Find(id), propertyName)));
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(nameof(Anais.OnAddOrUpdate), "Rabbit")]
         [InlineData(nameof(Anais.NeverIgnoreBeforeUseAfter), null)]
         [InlineData(nameof(Anais.NeverIgnoreBeforeIgnoreAfter), null)]
@@ -215,7 +215,7 @@ namespace Microsoft.EntityFrameworkCore
                 context => Assert.Equal(expectedValue, GetValue(context.Set<Anais>().Find(id), propertyName)));
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(nameof(Anais.OnAddOrUpdate), "Rabbit")]
         [InlineData(nameof(Anais.NeverIgnoreBeforeUseAfter), null)]
         [InlineData(nameof(Anais.NeverIgnoreBeforeIgnoreAfter), null)]
@@ -244,7 +244,7 @@ namespace Microsoft.EntityFrameworkCore
                 context => Assert.Equal(expectedValue, GetValue(context.Set<Anais>().Find(id), propertyName)));
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(nameof(Anais.NeverUseBeforeThrowAfter))]
         [InlineData(nameof(Anais.NeverIgnoreBeforeThrowAfter))]
         [InlineData(nameof(Anais.NeverThrowBeforeThrowAfter))]
@@ -270,7 +270,7 @@ namespace Microsoft.EntityFrameworkCore
                 });
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(nameof(Anais.NeverUseBeforeThrowAfter), null)]
         [InlineData(nameof(Anais.NeverIgnoreBeforeThrowAfter), null)]
         [InlineData(nameof(Anais.NeverThrowBeforeThrowAfter), null)]
@@ -307,7 +307,7 @@ namespace Microsoft.EntityFrameworkCore
                 context => Assert.Equal(expectedValue, GetValue(context.Set<Anais>().Find(id), propertyName)));
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(nameof(Anais.OnAddOrUpdate), "Rabbit")]
         [InlineData(nameof(Anais.OnUpdate), null)]
         [InlineData(nameof(Anais.NeverUseBeforeIgnoreAfter), null)]
@@ -346,7 +346,7 @@ namespace Microsoft.EntityFrameworkCore
                 context => Assert.Equal(expectedValue, GetValue(context.Set<Anais>().Find(id), propertyName)));
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(nameof(Anais.OnAddOrUpdate), "Rabbit")]
         [InlineData(nameof(Anais.OnUpdate), null)]
         [InlineData(nameof(Anais.NeverUseBeforeIgnoreAfter), null)]
@@ -385,7 +385,7 @@ namespace Microsoft.EntityFrameworkCore
                 context => Assert.Equal(expectedValue, GetValue(context.Set<Anais>().Find(id), propertyName)));
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(nameof(Anais.Never), null)]
         [InlineData(nameof(Anais.OnAdd), "Rabbit")]
         [InlineData(nameof(Anais.OnAddOrUpdate), "Rabbit")]
@@ -426,7 +426,7 @@ namespace Microsoft.EntityFrameworkCore
                 context => Assert.Equal(expectedValue, GetValue(context.Set<Anais>().Find(id), propertyName)));
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(nameof(Anais.Never), "Daisy")]
         [InlineData(nameof(Anais.OnAdd), "Daisy")]
         [InlineData(nameof(Anais.NeverUseBeforeUseAfter), "Daisy")]
@@ -476,7 +476,7 @@ namespace Microsoft.EntityFrameworkCore
         private static string GetValue(Anais entity, string propertyName)
             => (string)entity.GetType().GetTypeInfo().GetDeclaredProperty(propertyName).GetValue(entity);
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Identity_key_with_read_only_before_save_throws_if_explicit_values_set()
         {
             ExecuteWithStrategyInTransaction(
@@ -490,7 +490,7 @@ namespace Microsoft.EntityFrameworkCore
                 });
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Identity_property_on_Added_entity_with_temporary_value_gets_value_from_store()
         {
             var id = 0;
@@ -510,7 +510,7 @@ namespace Microsoft.EntityFrameworkCore
                 context => Assert.Equal("Banana Joe", context.Set<Gumball>().Single(e => e.Id == id).Identity));
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Identity_property_on_Added_entity_with_temporary_value_gets_value_from_store_even_if_same()
         {
             var id = 0;
@@ -530,7 +530,7 @@ namespace Microsoft.EntityFrameworkCore
                 context => Assert.Equal("Banana Joe", context.Set<Gumball>().Single(e => e.Id == id).Identity));
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Identity_property_on_Added_entity_with_default_value_gets_value_from_store()
         {
             var id = 0;
@@ -548,7 +548,7 @@ namespace Microsoft.EntityFrameworkCore
                 context => Assert.Equal("Banana Joe", context.Set<Gumball>().Single(e => e.Id == id).Identity));
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Identity_property_on_Added_entity_with_read_only_before_save_throws_if_explicit_values_set()
         {
             ExecuteWithStrategyInTransaction(
@@ -562,7 +562,7 @@ namespace Microsoft.EntityFrameworkCore
                 });
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Identity_property_on_Added_entity_can_have_value_set_explicitly()
         {
             var id = 0;
@@ -580,7 +580,7 @@ namespace Microsoft.EntityFrameworkCore
                 context => Assert.Equal("Masami", context.Set<Gumball>().Single(e => e.Id == id).Identity));
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Identity_property_on_Modified_entity_with_read_only_after_save_throws_if_value_is_in_modified_state()
         {
             var id = 0;
@@ -608,7 +608,7 @@ namespace Microsoft.EntityFrameworkCore
                 });
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Identity_property_on_Modified_entity_is_included_in_update_when_modified()
         {
             var id = 0;
@@ -637,7 +637,7 @@ namespace Microsoft.EntityFrameworkCore
                 context => Assert.Equal("Masami", context.Set<Gumball>().Single(e => e.Id == id).Identity));
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Identity_property_on_Modified_entity_is_not_included_in_update_when_not_modified()
         {
             var id = 0;
@@ -669,7 +669,7 @@ namespace Microsoft.EntityFrameworkCore
                 context => Assert.Equal("Banana Joe", context.Set<Gumball>().Single(e => e.Id == id).Identity));
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Always_identity_property_on_Added_entity_with_temporary_value_gets_value_from_store()
         {
             var id = 0;
@@ -688,7 +688,7 @@ namespace Microsoft.EntityFrameworkCore
                 context => Assert.Equal("Banana Joe", context.Set<Gumball>().Single(e => e.Id == id).AlwaysIdentity));
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Always_identity_property_on_Added_entity_with_default_value_gets_value_from_store()
         {
             var id = 0;
@@ -706,7 +706,7 @@ namespace Microsoft.EntityFrameworkCore
                 context => Assert.Equal("Banana Joe", context.Set<Gumball>().Single(e => e.Id == id).AlwaysIdentity));
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Always_identity_property_on_Added_entity_with_read_only_before_save_throws_if_explicit_values_set()
         {
             ExecuteWithStrategyInTransaction(
@@ -720,7 +720,7 @@ namespace Microsoft.EntityFrameworkCore
                 });
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Always_identity_property_on_Modified_entity_with_read_only_after_save_throws_if_value_is_in_modified_state()
         {
             var id = 0;
@@ -748,7 +748,7 @@ namespace Microsoft.EntityFrameworkCore
                 });
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Always_identity_property_on_Modified_entity_is_not_included_in_the_update_when_not_modified()
         {
             var id = 0;
@@ -779,7 +779,7 @@ namespace Microsoft.EntityFrameworkCore
                 }, context => Assert.Equal("Banana Joe", context.Set<Gumball>().Single(e => e.Id == id).AlwaysIdentity));
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Computed_property_on_Added_entity_with_temporary_value_gets_value_from_store()
         {
             var id = 0;
@@ -798,7 +798,7 @@ namespace Microsoft.EntityFrameworkCore
                 context => Assert.Equal("Alan", context.Set<Gumball>().Single(e => e.Id == id).Computed));
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Computed_property_on_Added_entity_with_default_value_gets_value_from_store()
         {
             var id = 0;
@@ -816,7 +816,7 @@ namespace Microsoft.EntityFrameworkCore
                 context => Assert.Equal("Alan", context.Set<Gumball>().Single(e => e.Id == id).Computed));
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Computed_property_on_Added_entity_with_read_only_before_save_throws_if_explicit_values_set()
         {
             ExecuteWithStrategyInTransaction(
@@ -830,7 +830,7 @@ namespace Microsoft.EntityFrameworkCore
                 });
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Computed_property_on_Added_entity_can_have_value_set_explicitly()
         {
             var id = 0;
@@ -848,7 +848,7 @@ namespace Microsoft.EntityFrameworkCore
                 context => Assert.Equal("Masami", context.Set<Gumball>().Single(e => e.Id == id).Computed));
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Computed_property_on_Modified_entity_with_read_only_after_save_throws_if_value_is_in_modified_state()
         {
             var id = 0;
@@ -876,7 +876,7 @@ namespace Microsoft.EntityFrameworkCore
                 });
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Computed_property_on_Modified_entity_is_included_in_update_when_modified()
         {
             var id = 0;
@@ -905,7 +905,7 @@ namespace Microsoft.EntityFrameworkCore
                 context => Assert.Equal("Masami", context.Set<Gumball>().Single(e => e.Id == id).Computed));
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Computed_property_on_Modified_entity_is_read_from_store_when_not_modified()
         {
             var id = 0;
@@ -937,7 +937,7 @@ namespace Microsoft.EntityFrameworkCore
                 context => Assert.Equal("Alan", context.Set<Gumball>().Single(e => e.Id == id).Computed));
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Always_computed_property_on_Added_entity_with_temporary_value_gets_value_from_store()
         {
             var id = 0;
@@ -956,7 +956,7 @@ namespace Microsoft.EntityFrameworkCore
                 context => Assert.Equal("Alan", context.Set<Gumball>().Single(e => e.Id == id).AlwaysComputed));
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Always_computed_property_on_Added_entity_with_default_value_gets_value_from_store()
         {
             var id = 0;
@@ -974,7 +974,7 @@ namespace Microsoft.EntityFrameworkCore
                 context => Assert.Equal("Alan", context.Set<Gumball>().Single(e => e.Id == id).AlwaysComputed));
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Always_computed_property_on_Added_entity_with_read_only_before_save_throws_if_explicit_values_set()
         {
             ExecuteWithStrategyInTransaction(
@@ -988,7 +988,7 @@ namespace Microsoft.EntityFrameworkCore
                 });
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Always_computed_property_on_Modified_entity_with_read_only_after_save_throws_if_value_is_in_modified_state()
         {
             var id = 0;
@@ -1016,7 +1016,7 @@ namespace Microsoft.EntityFrameworkCore
                 });
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Always_computed_property_on_Modified_entity_is_read_from_store_when_not_modified()
         {
             var id = 0;
@@ -1048,7 +1048,7 @@ namespace Microsoft.EntityFrameworkCore
                 context => Assert.Equal("Alan", context.Set<Gumball>().Single(e => e.Id == id).AlwaysComputed));
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Fields_used_correctly_for_store_generated_values()
         {
             var id = 0;
@@ -1068,7 +1068,7 @@ namespace Microsoft.EntityFrameworkCore
                 });
         }
 
-        [Fact(Skip="Issue #15182")]
+        [ConditionalFact(Skip="Issue #15182")]
         public virtual void Nullable_fields_get_defaults_when_not_set()
         {
             ExecuteWithStrategyInTransaction(
@@ -1090,7 +1090,7 @@ namespace Microsoft.EntityFrameworkCore
                 });
         }
 
-        [Fact(Skip="Issue #15182")]
+        [ConditionalFact(Skip="Issue #15182")]
         public virtual void Nullable_fields_store_non_defaults_when_set()
         {
             ExecuteWithStrategyInTransaction(
@@ -1116,7 +1116,7 @@ namespace Microsoft.EntityFrameworkCore
                 });
         }
 
-        [Fact(Skip="Issue #15182")]
+        [ConditionalFact(Skip="Issue #15182")]
         public virtual void Nullable_fields_store_any_value_when_set()
         {
             ExecuteWithStrategyInTransaction(

@@ -13,7 +13,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 {
     public class InternalEntityEntryFactoryTest
     {
-        [Fact]
+        [ConditionalFact]
         public void Creates_shadow_state_only_entry_when_entity_is_fully_shadow_state()
         {
             var model = CreateModel();
@@ -35,7 +35,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Assert.Null(entry.Entity);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Creates_CLR_only_entry_when_entity_has_no_shadow_properties()
         {
             var model = CreateModel();
@@ -58,7 +58,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Assert.Same(entity, entry.Entity);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Creates_mixed_entry_when_entity_CLR_entity_type_and_shadow_properties()
         {
             var model = CreateModel();

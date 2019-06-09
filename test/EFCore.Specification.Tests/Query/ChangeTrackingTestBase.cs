@@ -17,7 +17,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         protected TFixture Fixture { get; }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Entity_reverts_when_state_set_to_unchanged()
         {
             using (var context = CreateContext())
@@ -45,7 +45,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Multiple_entities_can_revert()
         {
             using (var context = CreateContext())
@@ -76,7 +76,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Entity_does_not_revert_when_attached_on_DbContext()
         {
             using (var context = CreateContext())
@@ -102,7 +102,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Entity_does_not_revert_when_attached_on_DbSet()
         {
             using (var context = CreateContext())
@@ -129,7 +129,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         // ReSharper disable PossibleMultipleEnumeration
-        [Fact]
+        [ConditionalFact]
         public virtual void Entity_range_does_not_revert_when_attached_dbContext()
         {
             using (var context = CreateContext())
@@ -169,7 +169,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Entity_range_does_not_revert_when_attached_dbSet()
         {
             using (var context = CreateContext())
@@ -210,7 +210,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
         // ReSharper restore PossibleMultipleEnumeration
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Can_disable_and_reenable_query_result_tracking()
         {
             using (var context = CreateContext())
@@ -240,7 +240,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Can_disable_and_reenable_query_result_tracking_starting_with_NoTracking()
         {
             using (var context = CreateNoTrackingContext())
@@ -263,7 +263,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Can_disable_and_reenable_query_result_tracking_query_caching()
         {
             using (var context = CreateContext())
@@ -289,7 +289,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Can_disable_and_reenable_query_result_tracking_query_caching_using_options()
         {
             using (var context = CreateContext())
@@ -313,7 +313,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Can_disable_and_reenable_query_result_tracking_query_caching_single_context()
         {
             using (var context = CreateContext())
@@ -336,7 +336,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void AsTracking_switches_tracking_on_when_off_in_options()
         {
             using (var context = CreateNoTrackingContext())
@@ -348,7 +348,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Precendence_of_tracking_modifiers()
         {
             using (var context = CreateContext())
@@ -360,7 +360,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Precendence_of_tracking_modifiers2()
         {
             using (var context = CreateContext())

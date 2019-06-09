@@ -10,7 +10,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
 {
     public class SqliteCodeGeneratorTest
     {
-        [Fact]
+        [ConditionalFact]
         public virtual void Use_provider_method_is_generated_correctly()
         {
             var codeGenerator = new SqliteCodeGenerator(
@@ -26,7 +26,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
             Assert.Null(result.ChainedCall);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Use_provider_method_is_generated_correctly_with_options()
         {
             var codeGenerator = new SqliteCodeGenerator(

@@ -18,7 +18,7 @@ namespace Microsoft.EntityFrameworkCore
         {
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual Task FromSql_logs_concurrent_access_nonasync()
         {
             return ConcurrencyDetectorTest(
@@ -30,7 +30,7 @@ namespace Microsoft.EntityFrameworkCore
                 });
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual Task FromSql_logs_concurrent_access_async()
         {
             return ConcurrencyDetectorTest(c => c.Products.FromSqlRaw("select * from products").ToListAsync());

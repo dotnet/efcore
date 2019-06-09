@@ -502,7 +502,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     where c.Orders.FirstOrDefault() != null
                     select c.CustomerID);
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Entity_equality_through_subquery_composite_key()
         {
             Assert.Throws<NotSupportedException>(() =>
@@ -1444,7 +1444,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 19);
         }
 
-        [Theory(Skip = "issue #8956")]
+        [ConditionalTheory(Skip = "issue #8956")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Where_subquery_anon(bool isAsync)
         {
@@ -1470,7 +1470,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 2);
         }
 
-        [Theory(Skip = "issue #8956")]
+        [ConditionalTheory(Skip = "issue #8956")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Where_subquery_anon_nested(bool isAsync)
         {
@@ -5552,7 +5552,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 e => e.Id1 + " " + e.Id2);
         }
 
-        [Theory(Skip = "issue #8366")]
+        [ConditionalTheory(Skip = "issue #8366")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Compare_two_collection_navigations_using_equals(bool isAsync)
         {

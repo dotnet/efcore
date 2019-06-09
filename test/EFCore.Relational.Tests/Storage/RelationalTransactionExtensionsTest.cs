@@ -15,7 +15,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
 {
     public class RelationalTransactionExtensionsTest
     {
-        [Fact]
+        [ConditionalFact]
         public void GetDbTransaction_returns_the_DbTransaction()
         {
             var dbConnection = new FakeDbConnection(ConnectionString);
@@ -39,7 +39,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.Equal(dbTransaction, transaction.GetDbTransaction());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void GetDbTransaction_throws_on_non_relational_provider()
         {
             var transaction = new NonRelationalTransaction();

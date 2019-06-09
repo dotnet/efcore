@@ -16,7 +16,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         public TFixture Fixture { get; }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Include_address()
         {
             using (var context = CreateContext())
@@ -32,7 +32,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Include_address_shadow()
         {
             using (var context = CreateContext())
@@ -48,7 +48,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Include_address_no_tracking()
         {
             using (var context = CreateContext())
@@ -65,7 +65,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Include_person()
         {
             using (var context = CreateContext())
@@ -81,7 +81,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Include_person_shadow()
         {
             using (var context = CreateContext())
@@ -97,7 +97,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Include_person_no_tracking()
         {
             using (var context = CreateContext())
@@ -114,7 +114,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Include_address_when_person_already_tracked()
         {
             using (var context = CreateContext())
@@ -135,7 +135,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Include_person_when_address_already_tracked()
         {
             using (var context = CreateContext())

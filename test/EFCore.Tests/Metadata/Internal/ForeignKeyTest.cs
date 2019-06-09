@@ -13,7 +13,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
     public class ForeignKeyTest
     {
-        [Fact]
+        [ConditionalFact]
         public void Use_of_custom_IForeignKey_throws()
         {
             var foreignKey = new FakeForeignKey();
@@ -40,7 +40,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             public DeleteBehavior DeleteBehavior { get; }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_create_foreign_key()
         {
             var entityType = (IConventionEntityType)CreateModel().AddEntityType("E");
@@ -64,7 +64,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Equal(ConfigurationSource.DataAnnotation, foreignKey.GetConfigurationSource());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Constructor_throws_when_referenced_key_not_on_referenced_entity()
         {
             var model = CreateModel();
@@ -81,7 +81,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     () => dependentEntityType.AddForeignKey(new[] { fk }, principalKey, principalEntityType)).Message);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Constructor_throws_when_principal_and_depedent_property_count_do_not_match()
         {
             var model = CreateModel();
@@ -102,7 +102,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     .Message);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Constructor_throws_when_principal_and_depedent_property_types_do_not_match()
         {
             var dependentEntityType = CreateModel().AddEntityType("D");
@@ -128,7 +128,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     .Message);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_create_foreign_key_with_non_pk_principal()
         {
             var entityType = CreateModel().AddEntityType("E");
@@ -148,7 +148,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Same(principalKey, foreignKey.PrincipalKey);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void IsRequired_and_IsUnique_false_when_dependent_property_not_nullable()
         {
             var entityType = CreateModel().AddEntityType("E");
@@ -163,7 +163,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.False(foreignKey.IsUnique);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void IsRequired_and_IsUnique_false_when_dependent_property_nullable()
         {
             var entityType = CreateModel().AddEntityType("E");
@@ -178,7 +178,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.False(foreignKey.IsUnique);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void IsRequired_false_when_no_part_of_composite_FK_is_nullable()
         {
             var entityType = CreateModel().AddEntityType("E");
@@ -204,7 +204,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.False(foreignKey.IsRequired);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Setting_IsRequired_to_true_does_not_configure_FK_properties_as_non_nullable()
         {
             var entityType = CreateModel().AddEntityType("E");
@@ -229,7 +229,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.True(dependentProp2.IsNullable);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Setting_IsRequired_to_false_will_not_configure_FK_properties_as_nullable()
         {
             var entityType = CreateModel().AddEntityType("E");
@@ -341,7 +341,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         {
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Throws_when_setting_navigation_to_principal_on_wrong_FK()
         {
             var foreignKey1 = CreateOneToManyFK();
@@ -364,7 +364,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                         => foreignKey2.HasDependentToPrincipal(OneToManyDependent.DeceptionProperty)).Message);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Throws_when_setting_navigation_to_dependent_on_wrong_FK()
         {
             var foreignKey1 = CreateOneToManyFK();
@@ -418,7 +418,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             public int? SelfRefId { get; set; }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void IsSelfReferencing_returns_true_for_self_ref_foreign_keys()
         {
             var fk = CreateSelfRefFK();
@@ -426,7 +426,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.True(fk.IsSelfReferencing());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void IsSelfReferencing_returns_true_for_non_pk_self_ref_foreign_keys()
         {
             var fk = CreateSelfRefFK(useAltKey: true);
@@ -434,7 +434,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.True(fk.IsSelfReferencing());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void IsSelfReferencing_returns_false_for_same_hierarchy_foreign_keys()
         {
             var fk = CreateOneToManySameHierarchyFK();
@@ -442,7 +442,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.False(fk.IsSelfReferencing());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void IsSelfReferencing_returns_false_for_same_base_foreign_keys()
         {
             var fk = CreateOneToManySameBaseFK();
@@ -450,7 +450,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.False(fk.IsSelfReferencing());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void IsSelfReferencing_returns_false_for_non_hierarchical_foreign_keys()
         {
             var fk = CreateOneToManyFK();
@@ -458,7 +458,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.False(fk.IsSelfReferencing());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void IsIntraHierarchical_returns_true_for_self_ref_foreign_keys()
         {
             var fk = CreateSelfRefFK();
@@ -466,7 +466,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.True(fk.IsIntraHierarchical());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void IsIntraHierarchical_returns_true_for_non_pk_self_ref_foreign_keys()
         {
             var fk = CreateSelfRefFK(useAltKey: true);
@@ -474,7 +474,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.True(fk.IsIntraHierarchical());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void IsIntraHierarchical_returns_true_for_same_hierarchy_foreign_keys()
         {
             var fk = CreateOneToManySameHierarchyFK();
@@ -482,7 +482,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.True(fk.IsIntraHierarchical());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void IsIntraHierarchical_returns_false_for_same_base_foreign_keys()
         {
             var fk = CreateOneToManySameBaseFK();
@@ -490,7 +490,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.False(fk.IsIntraHierarchical());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void IsIntraHierarchical_returns_false_for_non_hierarchical_foreign_keys()
         {
             var fk = CreateOneToManyFK();
@@ -498,7 +498,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.False(fk.IsIntraHierarchical());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void IsSelfPrimaryKeyReferencing_returns_true_for_self_ref_foreign_keys()
         {
             var fk = CreateSelfRefFK();
@@ -506,7 +506,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.True(fk.IsSelfPrimaryKeyReferencing());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void IsSelfPrimaryKeyReferencing_returns_false_for_non_pk_self_ref_foreign_keys()
         {
             var fk = CreateSelfRefFK(useAltKey: true);
@@ -514,7 +514,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.False(fk.IsSelfPrimaryKeyReferencing());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void IsSelfPrimaryKeyReferencing_returns_true_for_same_hierarchy_foreign_keys()
         {
             var fk = CreateOneToManySameHierarchyFK();
@@ -522,7 +522,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.True(fk.IsSelfPrimaryKeyReferencing());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void IsSelfPrimaryKeyReferencing_returns_true_for_same_base_foreign_keys()
         {
             var fk = CreateOneToManySameBaseFK();
@@ -530,7 +530,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.True(fk.IsSelfPrimaryKeyReferencing());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void IsSelfPrimaryKeyReferencing_returns_false_for_non_hierarchical_foreign_keys()
         {
             var fk = CreateOneToManyFK();
@@ -538,7 +538,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.False(fk.IsSelfPrimaryKeyReferencing());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_change_cascade_delete_flag()
         {
             var entityType = CreateModel().AddEntityType("E");
@@ -569,7 +569,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Equal(DeleteBehavior.ClientSetNull, foreignKey.DeleteBehavior);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_change_cascade_ownership()
         {
             var entityType = CreateModel().AddEntityType("E");
@@ -588,7 +588,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.True(foreignKey.IsOwnership);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_find_targets_for_non_hierarchical_foreign_keys()
         {
             var fk = CreateOneToManyFK();
@@ -610,7 +610,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Equal(new[] { fk.PrincipalToDependent }, fk.FindNavigationsToInHierarchy(fk.DeclaringEntityType));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_find_targets_for_same_base_foreign_keys()
         {
             var fk = CreateOneToManySameBaseFK();
@@ -673,7 +673,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Equal(new[] { fk.PrincipalToDependent }.Where(n => n != null), fk.FindNavigationsToInHierarchy(derivedDependent));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_find_targets_for_self_ref_foreign_keys()
         {
             var fk = CreateSelfRefFK();
@@ -708,7 +708,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 fk.FindNavigationsToInHierarchy(fk.DeclaringEntityType).ToArray());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_finding_targets_for_same_hierarchy_foreign_keys()
         {
             var fk = CreateOneToManySameHierarchyFK();
@@ -756,7 +756,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 fk.FindNavigationsToInHierarchy(fk.DeclaringEntityType));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Finding_targets_throws_for_entity_types_not_in_the_relationship()
         {
             var fk = CreateOneToManyFK();

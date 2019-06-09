@@ -24,42 +24,42 @@ namespace Microsoft.EntityFrameworkCore
 {
     public class SqlServerSequenceValueGeneratorTest
     {
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public async Task Generates_sequential_int_values(bool async) => await Generates_sequential_values<int>(async);
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public async Task Generates_sequential_long_values(bool async) => await Generates_sequential_values<long>(async);
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public async Task Generates_sequential_short_values(bool async) => await Generates_sequential_values<short>(async);
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public async Task Generates_sequential_byte_values(bool async) => await Generates_sequential_values<byte>(async);
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public async Task Generates_sequential_uint_values(bool async) => await Generates_sequential_values<uint>(async);
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public async Task Generates_sequential_ulong_values(bool async) => await Generates_sequential_values<ulong>(async);
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public async Task Generates_sequential_ushort_values(bool async) => await Generates_sequential_values<ushort>(async);
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public async Task Generates_sequential_sbyte_values(bool async) => await Generates_sequential_values<sbyte>(async);
@@ -95,7 +95,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public async Task Multiple_threads_can_use_the_same_generator_state()
         {
             const int threadCount = 50;
@@ -170,7 +170,7 @@ namespace Microsoft.EntityFrameworkCore
             return generatedValues;
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Does_not_generate_temp_values()
         {
             var sequence = ((IMutableModel)new Model()).AddSequence("Foo");

@@ -20,7 +20,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 {
     public class StateManagerTest
     {
-        [Fact]
+        [ConditionalFact]
         public void Can_get_existing_entry_if_entity_is_already_tracked_otherwise_new_entry()
         {
             var stateManager = CreateStateManager(BuildModel());
@@ -40,7 +40,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Assert.Equal(EntityState.Detached, entry.EntityState);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Identity_conflict_throws_for_primary_key()
         {
             using (var context = new IdentityConflictContext())
@@ -64,7 +64,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Identity_conflict_throws_for_alternate_key()
         {
             using (var context = new IdentityConflictContext())
@@ -88,7 +88,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Identity_conflict_throws_for_composite_primary_key()
         {
             using (var context = new IdentityConflictContext())
@@ -116,7 +116,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Identity_conflict_throws_for_composite_alternate_key()
         {
             using (var context = new IdentityConflictContext())
@@ -144,7 +144,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Identity_conflict_throws_for_primary_key_values_logged()
         {
             using (var context = new SensitiveIdentityConflictContext())
@@ -168,7 +168,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Identity_conflict_throws_for_alternate_key_values_logged()
         {
             using (var context = new SensitiveIdentityConflictContext())
@@ -192,7 +192,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Identity_conflict_throws_for_composite_primary_key_values_logged()
         {
             using (var context = new SensitiveIdentityConflictContext())
@@ -220,7 +220,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Identity_conflict_throws_for_composite_alternate_key_values_logged()
         {
             using (var context = new SensitiveIdentityConflictContext())
@@ -248,7 +248,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Identity_null_throws_for_primary_key()
         {
             using (var context = new IdentityConflictContext())
@@ -265,7 +265,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Identity_null_throws_for_alternate_key()
         {
             using (var context = new IdentityConflictContext())
@@ -282,7 +282,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Identity_null_throws_for_composite_primary_key()
         {
             using (var context = new IdentityConflictContext())
@@ -301,7 +301,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Identity_null_throws_for_composite_alternate_key()
         {
             using (var context = new IdentityConflictContext())
@@ -381,7 +381,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             public int? AlternateId2 { get; set; }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void StartTracking_is_no_op_if_entity_is_already_tracked()
         {
             var model = BuildModel();
@@ -400,7 +400,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Assert.Same(entry, stateManager.StartTrackingFromQuery(categoryType, category, valueBuffer, null));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void StartTracking_throws_for_invalid_entity_key()
         {
             var model = BuildModel();
@@ -418,7 +418,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     () => stateManager.StartTracking(entry)).Message);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void StartTracking_throws_for_invalid_alternate_key()
         {
             var model = BuildModel();
@@ -437,7 +437,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     () => stateManager.StartTracking(entry)).Message);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void State_manager_switches_out_of_single_query_mode_when_second_query_begins()
         {
             var model = BuildModel();
@@ -488,7 +488,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Assert.Equal(TrackingQueryMode.Multiple, stateManager.GetTrackingQueryMode(categoryType));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void State_manager_switches_out_of_single_query_mode_when_entity_has_self_refs()
         {
             var model = BuildModel();
@@ -502,7 +502,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Assert.Equal(TrackingQueryMode.Single, stateManager.GetTrackingQueryMode(widgetType));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void State_manager_switches_out_of_single_query_mode_when_entity_included()
         {
             var model = BuildModel();
@@ -521,7 +521,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Assert.Equal(TrackingQueryMode.Single, stateManager.GetTrackingQueryMode(categoryType));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void State_manager_switches_out_of_single_query_mode_when_tracked_state_changes_to_Modified()
         {
             var model = BuildModel();
@@ -561,7 +561,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Assert.Equal(TrackingQueryMode.Multiple, stateManager.GetTrackingQueryMode(categoryType));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void State_manager_switches_out_of_single_query_mode_when_tracked_state_changes_to_Added()
         {
             var model = BuildModel();
@@ -601,7 +601,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Assert.Equal(TrackingQueryMode.Multiple, stateManager.GetTrackingQueryMode(categoryType));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void State_manager_does_not_switch_out_of_single_query_mode_when_getting_existing_entry()
         {
             var model = BuildModel();
@@ -641,7 +641,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Assert.Equal(TrackingQueryMode.Simple, stateManager.GetTrackingQueryMode(categoryType));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_get_existing_entry_even_if_state_not_yet_set()
         {
             var stateManager = CreateStateManager(BuildModel());
@@ -657,7 +657,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Assert.Equal(EntityState.Detached, entry.EntityState);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_stop_tracking_and_then_start_tracking_again()
         {
             var stateManager = CreateStateManager(BuildModel());
@@ -676,7 +676,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Assert.Same(entry, entry2);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_stop_tracking_and_then_start_tracking_using_a_new_state_entry()
         {
             var stateManager = CreateStateManager(BuildModel());
@@ -696,7 +696,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             entry2.SetEntityState(EntityState.Added);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void StopTracking_releases_reference_to_entry()
         {
             var stateManager = CreateStateManager(BuildModel());
@@ -717,7 +717,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Assert.Equal(EntityState.Detached, entry.EntityState);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Throws_on_attempt_to_start_tracking_entity_with_null_key()
         {
             var stateManager = CreateStateManager(BuildModel());
@@ -730,7 +730,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 Assert.Throws<InvalidOperationException>(() => stateManager.StartTracking(entry)).Message);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Throws_on_attempt_to_start_tracking_with_wrong_manager()
         {
             var model = BuildModel();
@@ -744,7 +744,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 Assert.Throws<InvalidOperationException>(() => stateManager2.StartTracking(entry)).Message);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Will_get_new_entry_if_another_entity_with_the_same_key_is_already_tracked()
         {
             var stateManager = CreateStateManager(BuildModel());
@@ -762,7 +762,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     }));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_get_all_entities()
         {
             var stateManager = CreateStateManager(BuildModel());
@@ -865,7 +865,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void DetectChanges_is_called_for_all_tracked_entities_and_returns_true_if_any_changes_detected()
         {
             var contextServices = InMemoryTestHelpers.Instance.CreateContextServices(BuildModel());
@@ -912,7 +912,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
         }
 
-        [Fact]
+        [ConditionalFact]
         public void AcceptAllChanges_processes_all_tracked_entities()
         {
             var stateManager = CreateStateManager(BuildModel());
@@ -961,7 +961,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Assert.Equal(EntityState.Detached, entry4.EntityState);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_get_all_dependent_entries()
         {
             var model = BuildModel();
@@ -1045,7 +1045,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Assert.Empty(stateManager.GetDependents(categoryEntry4, fk).ToArray());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Does_not_throws_when_instance_of_unmapped_derived_type_is_used()
         {
             var model = BuildModel();

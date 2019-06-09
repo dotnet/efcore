@@ -7,7 +7,7 @@ namespace Microsoft.EntityFrameworkCore.Design
 {
     public class DbContextActivatorTest
     {
-        [Fact]
+        [ConditionalFact]
         public void CreateInstance_works()
         {
             var result = DbContextActivator.CreateInstance(typeof(TestContext));

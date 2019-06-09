@@ -14,26 +14,26 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 {
     public class DiagnosticsLoggerTest
     {
-        [Fact]
+        [ConditionalFact]
         public void Can_filter_for_messages_of_one_category()
         {
             FilterTest(c => c == DbLoggerCategory.Database.Command.Name, "SQL1", "SQL2");
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_filter_for_messages_of_one_subcategory()
         {
             FilterTest(c => c.StartsWith(DbLoggerCategory.Database.Name, StringComparison.Ordinal), "DB1", "SQL1", "DB2", "SQL2");
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_filter_for_all_EF_messages()
         {
             FilterTest(
                 c => c.StartsWith(DbLoggerCategory.Name, StringComparison.Ordinal), "DB1", "SQL1", "Query1", "DB2", "SQL2", "Query2");
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_get_all_messages()
         {
             FilterTest(c => true, "DB1", "SQL1", "Query1", "Random1", "DB2", "SQL2", "Query2", "Random2");

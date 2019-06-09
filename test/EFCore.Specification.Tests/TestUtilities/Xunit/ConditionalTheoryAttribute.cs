@@ -5,7 +5,8 @@ using System;
 using Xunit;
 using Xunit.Sdk;
 
-namespace Microsoft.EntityFrameworkCore.TestUtilities.Xunit
+// ReSharper disable once CheckNamespace
+namespace Xunit
 {
     [AttributeUsage(AttributeTargets.Method)]
     [XunitTestCaseDiscoverer(

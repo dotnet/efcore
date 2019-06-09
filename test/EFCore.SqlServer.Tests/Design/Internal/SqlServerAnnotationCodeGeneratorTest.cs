@@ -11,7 +11,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
 {
     public class SqlServerAnnotationCodeGeneratorTest
     {
-        [Fact]
+        [ConditionalFact]
         public void GenerateFluentApi_IKey_works_when_clustered()
         {
             var generator = new SqlServerAnnotationCodeGenerator(new AnnotationCodeGeneratorDependencies());
@@ -33,7 +33,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             Assert.Equal(0, result.Arguments.Count);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void GenerateFluentApi_IKey_works_when_nonclustered()
         {
             var generator = new SqlServerAnnotationCodeGenerator(new AnnotationCodeGeneratorDependencies());
@@ -56,7 +56,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             Assert.Equal(false, result.Arguments[0]);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void GenerateFluentApi_IIndex_works_when_clustered()
         {
             var generator = new SqlServerAnnotationCodeGenerator(new AnnotationCodeGeneratorDependencies());
@@ -79,7 +79,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             Assert.Equal(0, result.Arguments.Count);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void GenerateFluentApi_IIndex_works_when_nonclustered()
         {
             var generator = new SqlServerAnnotationCodeGenerator(new AnnotationCodeGeneratorDependencies());
@@ -103,7 +103,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             Assert.Equal(false, result.Arguments[0]);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void GenerateFluentApi_IIndex_works_with_includes()
         {
             var generator = new SqlServerAnnotationCodeGenerator(new AnnotationCodeGeneratorDependencies());

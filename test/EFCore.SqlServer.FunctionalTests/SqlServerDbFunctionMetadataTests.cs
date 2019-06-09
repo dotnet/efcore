@@ -24,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore
 
         public static MethodInfo MethodFoo = typeof(TestMethods).GetRuntimeMethod(nameof(TestMethods.Foo), Array.Empty<Type>());
 
-        [Fact]
+        [ConditionalFact]
         public virtual void DbFunction_defaults_schema_to_dbo_if_no_default_schema_or_set_schema()
         {
             var modelBuilder = GetModelBuilder();
@@ -36,7 +36,7 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Equal("dbo", dbFunction.Metadata.Schema);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void DbFunction_set_schema_is_not_overridden_by_default_or_dbo()
         {
             var modelBuilder = GetModelBuilder();
@@ -50,7 +50,7 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Equal("abc", dbFunction.Metadata.Schema);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void DbFunction_default_schema_not_overridden_by_dbo()
         {
             var modelBuilder = GetModelBuilder();

@@ -12,7 +12,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 {
     public class IEntityTypeConfigurationTest
     {
-        [Fact]
+        [ConditionalFact]
         public void Configure_entity_not_already_in_model()
         {
             var builder = InMemoryTestHelpers.Instance.CreateConventionBuilder();
@@ -24,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             Assert.Equal(nameof(Customer.AlternateKey), entityType.GetKeys().Single().Properties.Single().Name);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Configure_entity_already_in_model()
         {
             var builder = InMemoryTestHelpers.Instance.CreateConventionBuilder();
@@ -36,7 +36,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             Assert.Equal(nameof(Customer.AlternateKey), entityType.GetKeys().Single().Properties.Single().Name);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Override_config_in_entity_type_configuration()
         {
             var builder = InMemoryTestHelpers.Instance.CreateConventionBuilder();
@@ -48,7 +48,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             Assert.Equal(200, entityType.FindProperty(nameof(Customer.Name)).GetMaxLength());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Override_config_after_entity_type_configuration()
         {
             var builder = InMemoryTestHelpers.Instance.CreateConventionBuilder();
@@ -60,7 +60,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             Assert.Equal(500, entityType.FindProperty(nameof(Customer.Name)).GetMaxLength());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Apply_multiple_entity_type_configurations()
         {
             var builder = InMemoryTestHelpers.Instance.CreateConventionBuilder();

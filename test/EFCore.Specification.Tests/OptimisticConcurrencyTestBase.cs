@@ -28,7 +28,7 @@ namespace Microsoft.EntityFrameworkCore
 
         protected TFixture Fixture { get; }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void External_model_builder_uses_validation()
         {
             var modelBuilder = Fixture.CreateModelBuilder();
@@ -40,7 +40,7 @@ namespace Microsoft.EntityFrameworkCore
                     (() => modelBuilder.FinalizeModel()).Message);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Nullable_client_side_concurrency_token_can_be_used()
         {
             string originalName;
@@ -76,7 +76,7 @@ namespace Microsoft.EntityFrameworkCore
 
         #region Concurrency resolution with FK associations
 
-        [Fact]
+        [ConditionalFact]
         public virtual Task Simple_concurrency_exception_can_be_resolved_with_client_values()
         {
             return ConcurrencyTestAsync(
@@ -88,7 +88,7 @@ namespace Microsoft.EntityFrameworkCore
                 });
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual Task Simple_concurrency_exception_can_be_resolved_with_store_values()
         {
             return ConcurrencyTestAsync(
@@ -102,7 +102,7 @@ namespace Microsoft.EntityFrameworkCore
                 });
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual Task Simple_concurrency_exception_can_be_resolved_with_new_values()
         {
             return ConcurrencyTestAsync(
@@ -115,7 +115,7 @@ namespace Microsoft.EntityFrameworkCore
                 });
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual Task Simple_concurrency_exception_can_be_resolved_with_store_values_using_equivalent_of_accept_changes()
         {
             return ConcurrencyTestAsync(
@@ -129,13 +129,13 @@ namespace Microsoft.EntityFrameworkCore
                 });
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual Task Simple_concurrency_exception_can_be_resolved_with_store_values_using_Reload()
         {
             return ConcurrencyTestAsync(StorePodiums, (c, ex) => ex.Entries.Single().Reload());
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual Task Two_concurrency_issues_in_one_to_one_related_entities_can_be_handled_by_dealing_with_dependent_first()
         {
             return ConcurrencyTestAsync(
@@ -182,7 +182,7 @@ namespace Microsoft.EntityFrameworkCore
                 });
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual Task Two_concurrency_issues_in_one_to_many_related_entities_can_be_handled_by_dealing_with_dependent_first()
         {
             return ConcurrencyTestAsync(
@@ -229,7 +229,7 @@ namespace Microsoft.EntityFrameworkCore
                 });
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual Task Concurrency_issue_where_the_FK_is_the_concurrency_token_can_be_handled()
         {
             return ConcurrencyTestAsync(
@@ -253,7 +253,7 @@ namespace Microsoft.EntityFrameworkCore
 
         #region Concurrency exceptions with shadow FK associations
 
-        [Fact]
+        [ConditionalFact]
         public virtual Task Change_in_independent_association_results_in_independent_association_exception()
         {
             return ConcurrencyTestAsync(
@@ -266,7 +266,7 @@ namespace Microsoft.EntityFrameworkCore
                 null);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual Task
             Change_in_independent_association_after_change_in_different_concurrency_token_results_in_independent_association_exception()
         {
@@ -320,7 +320,7 @@ namespace Microsoft.EntityFrameworkCore
         #region Concurrency exceptions with complex types
 
         // Depends on an aggregate-friendly Reload, see #13890
-        //[Fact]
+        //[ConditionalFact]
         public virtual Task Concurrency_issue_where_a_complex_type_nested_member_is_the_concurrency_token_can_be_handled()
         {
             return ConcurrencyTestAsync(
@@ -339,7 +339,7 @@ namespace Microsoft.EntityFrameworkCore
 
         #region Tests for update exceptions involving adding and deleting entities
 
-        [Fact]
+        [ConditionalFact]
         public virtual async Task Adding_the_same_entity_twice_results_in_DbUpdateException()
         {
             using (var c = CreateF1Context())
@@ -385,7 +385,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual Task Deleting_the_same_entity_twice_results_in_DbUpdateConcurrencyException()
         {
             return ConcurrencyTestAsync(
@@ -399,7 +399,7 @@ namespace Microsoft.EntityFrameworkCore
                 c => Assert.Null(c.Drivers.SingleOrDefault(d => d.Name == "Fernando Alonso")));
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual Task Updating_then_deleting_the_same_entity_results_in_DbUpdateConcurrencyException()
         {
             return ConcurrencyTestAsync(
@@ -414,7 +414,7 @@ namespace Microsoft.EntityFrameworkCore
                 c => Assert.Equal(1, c.Drivers.Single(d => d.Name == "Fernando Alonso").Wins));
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual Task
             Updating_then_deleting_the_same_entity_results_in_DbUpdateConcurrencyException_which_can_be_resolved_with_store_values()
         {
@@ -435,7 +435,7 @@ namespace Microsoft.EntityFrameworkCore
                 c => Assert.Equal(1, c.Drivers.Single(d => d.Name == "Fernando Alonso").Wins));
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual Task Deleting_then_updating_the_same_entity_results_in_DbUpdateConcurrencyException()
         {
             return ConcurrencyTestAsync(
@@ -450,7 +450,7 @@ namespace Microsoft.EntityFrameworkCore
                 c => Assert.Null(c.Drivers.SingleOrDefault(d => d.Name == "Fernando Alonso")));
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual Task
             Deleting_then_updating_the_same_entity_results_in_DbUpdateConcurrencyException_which_can_be_resolved_with_store_values()
         {
@@ -472,7 +472,7 @@ namespace Microsoft.EntityFrameworkCore
 
         #region Tests for calling Reload on an entity in various states
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual async Task Calling_Reload_on_an__Added_entity_that_is_not_in_database_is_no_op(bool async)
@@ -506,25 +506,25 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual async Task Calling_Reload_on_an_Unchanged_entity_that_is_not_in_database_detaches_it(bool async)
             => await TestReloadGone(EntityState.Unchanged, async);
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual async Task Calling_Reload_on_a_Modified_entity_that_is_not_in_database_detaches_it(bool async)
             => await TestReloadGone(EntityState.Modified, async);
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual async Task Calling_Reload_on_a_Deleted_entity_that_is_not_in_database_detaches_it(bool async)
             => await TestReloadGone(EntityState.Deleted, async);
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual async Task Calling_Reload_on_a_Detached_entity_that_is_not_in_database_detaches_it(bool async)
@@ -564,31 +564,31 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual async Task Calling_Reload_on_an_Unchanged_entity_makes_the_entity_unchanged(bool async)
             => await TestReloadPositive(EntityState.Unchanged, async);
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual async Task Calling_Reload_on_a_Modified_entity_makes_the_entity_unchanged(bool async)
             => await TestReloadPositive(EntityState.Modified, async);
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual async Task Calling_Reload_on_a_Deleted_entity_makes_the_entity_unchanged(bool async)
             => await TestReloadPositive(EntityState.Deleted, async);
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual async Task Calling_Reload_on_an_Added_entity_that_was_saved_elsewhere_makes_the_entity_unchanged(bool async)
             => await TestReloadPositive(EntityState.Added, async);
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual async Task Calling_Reload_on_a_Detached_entity_makes_the_entity_unchanged(bool async)

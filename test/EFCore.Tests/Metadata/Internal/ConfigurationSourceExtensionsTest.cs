@@ -7,7 +7,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
     public class ConfigurationSourceExtensionsTest
     {
-        [Fact]
+        [ConditionalFact]
         public void Overrides_returns_expected_value()
         {
             Assert.True(ConfigurationSource.Explicit.Overrides(ConfigurationSource.Explicit));
@@ -21,7 +21,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.True(ConfigurationSource.Convention.Overrides(ConfigurationSource.Convention));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Max_returns_expected_value()
         {
             Assert.Equal(ConfigurationSource.Explicit, ConfigurationSource.Explicit.Max(ConfigurationSource.Convention));

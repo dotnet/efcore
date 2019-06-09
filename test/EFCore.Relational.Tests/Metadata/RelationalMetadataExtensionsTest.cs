@@ -11,7 +11,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 {
     public class RelationalMetadataExtensionsTest
     {
-        [Fact]
+        [ConditionalFact]
         public void Can_get_and_set_fixed_length()
         {
             var modelBuilder = new ModelBuilder(new ConventionSet());
@@ -32,7 +32,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.False(property.IsFixedLength());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_get_and_set_index_filter()
         {
             var modelBuilder = new ModelBuilder(new ConventionSet());
@@ -50,7 +50,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Equal("[Id] % 3 = 0", property.GetFilter());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_get_and_set_column_name()
         {
             var modelBuilder = new ModelBuilder(new ConventionSet());
@@ -72,7 +72,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Equal("Name", property.GetColumnName());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_get_and_set_table_name()
         {
             var modelBuilder = new ModelBuilder(new ConventionSet());
@@ -93,7 +93,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Equal("Customer", entityType.GetTableName());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_get_and_set_schema_name_on_entity_type()
         {
             var modelBuilder = new ModelBuilder(new ConventionSet());
@@ -113,7 +113,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Null(entityType.GetSchema());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Gets_model_schema_if_schema_on_entity_type_not_set()
         {
             var modelBuilder = new ModelBuilder(new ConventionSet());
@@ -133,7 +133,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Null(entityType.GetSchema());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_get_and_set_column_type()
         {
             var modelBuilder = new ModelBuilder(new ConventionSet());
@@ -154,7 +154,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Null(property.GetColumnType());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_get_and_set_column_default_expression()
         {
             var modelBuilder = new ModelBuilder(new ConventionSet());
@@ -175,7 +175,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Null(property.GetDefaultValueSql());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_get_and_set_column_computed_expression()
         {
             var modelBuilder = new ModelBuilder(new ConventionSet());
@@ -196,7 +196,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Null(property.GetComputedColumnSql());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_get_and_set_column_default_value()
         {
             var modelBuilder = new ModelBuilder(new ConventionSet());
@@ -219,7 +219,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Null(property.GetDefaultValue());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_get_and_set_column_default_value_of_enum_type()
         {
             var modelBuilder = new ModelBuilder(new ConventionSet());
@@ -241,7 +241,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Null(property.GetDefaultValue());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Throws_when_setting_column_default_value_of_wrong_type()
         {
             var modelBuilder = new ModelBuilder(new ConventionSet());
@@ -261,7 +261,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 Assert.Throws<InvalidOperationException>(() => property.SetDefaultValue(guid)).Message);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_get_and_set_column_key_name()
         {
             var modelBuilder = new ModelBuilder(new ConventionSet());
@@ -282,7 +282,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Equal("PK_Customer", key.GetName());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_get_and_set_column_foreign_key_name()
         {
             var modelBuilder = new ModelBuilder(new ConventionSet());
@@ -309,7 +309,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Equal("FK_Order_Customer_CustomerId", foreignKey.GetConstraintName());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_get_and_set_index_name()
         {
             var modelBuilder = new ModelBuilder(new ConventionSet());
@@ -330,7 +330,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Equal("IX_Customer_Id", index.GetName());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_get_and_set_discriminator()
         {
             var modelBuilder = new ModelBuilder(new ConventionSet());
@@ -352,7 +352,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Null(entityType.GetDiscriminatorProperty());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_get_and_set_schema_name_on_model()
         {
             var modelBuilder = new ModelBuilder(new ConventionSet());
@@ -369,7 +369,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Null(model.GetDefaultSchema());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_get_and_set_dbfunction()
         {
             var testMethod = typeof(TestDbFunctions).GetTypeInfo().GetDeclaredMethod(nameof(TestDbFunctions.MethodA));
@@ -386,7 +386,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Null(dbFunc.Schema);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_get_and_set_sequence()
         {
             var modelBuilder = new ModelBuilder(new ConventionSet());
@@ -431,7 +431,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Same(sequence2.ClrType, sequence.ClrType);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_get_and_set_sequence_with_schema_name()
         {
             var modelBuilder = new ModelBuilder(new ConventionSet());
@@ -477,7 +477,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Same(sequence2.ClrType, sequence.ClrType);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Sequence_is_in_model_schema_if_schema_not_specified()
         {
             var modelBuilder = new ModelBuilder(new ConventionSet());
@@ -499,7 +499,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Same(typeof(long), sequence.ClrType);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Returns_same_sequence_if_schema_not_specified_explicitly()
         {
             var modelBuilder = new ModelBuilder(new ConventionSet());
@@ -546,7 +546,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Same(sequence2.ClrType, sequence.ClrType);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_get_multiple_sequences()
         {
             var modelBuilder = new ModelBuilder(new ConventionSet());

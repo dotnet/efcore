@@ -19,19 +19,19 @@ namespace Microsoft.EntityFrameworkCore
 {
     public class ExceptionTest
     {
-        [Fact]
+        [ConditionalFact]
         public void RetryLimitExceededException_exposes_public_empty_constructor()
         {
             new RetryLimitExceededException();
         }
 
-        [Fact]
+        [ConditionalFact]
         public void RetryLimitExceededException_exposes_public_string_constructor()
         {
             Assert.Equal("Foo", new RetryLimitExceededException("Foo").Message);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void RetryLimitExceededException_exposes_public_string_and_inner_exception_constructor()
         {
             var inner = new Exception();
@@ -42,7 +42,7 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Same(inner, ex.InnerException);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Deserialized_RetryLimitExceededException_can_be_serialized_and_deserialized_again()
         {
             var transportedException = SerializeAndDeserialize(
@@ -55,19 +55,19 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Equal("Bang!", transportedException.InnerException.Message);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void DbUpdateException_exposes_public_empty_constructor()
         {
             new DbUpdateException();
         }
 
-        [Fact]
+        [ConditionalFact]
         public void DbUpdateException_exposes_public_string_constructor()
         {
             Assert.Equal("Foo", new DbUpdateException("Foo").Message);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void DbUpdateException_exposes_public_string_and_inner_exception_constructor()
         {
             var inner = new Exception();
@@ -78,7 +78,7 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Same(inner, ex.InnerException);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Deserialized_DbUpdateException_can_be_serialized_and_deserialized_again()
         {
             var transportedException = SerializeAndDeserialize(
@@ -88,7 +88,7 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Equal("But somehow the vital connection is made", transportedException.Message);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Deserialized_DbUpdateException_can_be_serialized_and_deserialized_again_with_entries()
         {
             var transportedException = SerializeAndDeserialize(
@@ -106,19 +106,19 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Empty(transportedException.Entries); // Because the entries cannot be serialized
         }
 
-        [Fact]
+        [ConditionalFact]
         public void DbUpdateConcurrencyException_exposes_public_empty_constructor()
         {
             new DbUpdateConcurrencyException();
         }
 
-        [Fact]
+        [ConditionalFact]
         public void DbUpdateConcurrencyException_exposes_public_string_constructor()
         {
             Assert.Equal("Foo", new DbUpdateConcurrencyException("Foo").Message);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void DbUpdateConcurrencyException_exposes_public_string_and_inner_exception_constructor()
         {
             var inner = new Exception();
@@ -129,7 +129,7 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Same(inner, ex.InnerException);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Deserialized_DbUpdateConcurrencyException_can_be_serialized_and_deserialized_again()
         {
             var transportedException = SerializeAndDeserialize(
@@ -141,7 +141,7 @@ namespace Microsoft.EntityFrameworkCore
                 transportedException.Message);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Deserialized_DbUpdateConcurrencyException_can_be_serialized_and_deserialized_again_with_entries()
         {
             var transportedException = SerializeAndDeserialize(

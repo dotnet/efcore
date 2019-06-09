@@ -13,7 +13,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 {
     public class SqlServerBuilderExtensionsTest
     {
-        [Fact]
+        [ConditionalFact]
         public void Setting_column_default_value_does_not_set_identity_column()
         {
             var modelBuilder = CreateConventionModelBuilder();
@@ -30,7 +30,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Equal(ValueGenerated.OnAdd, property.ValueGenerated);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Setting_column_default_value_sql_does_not_set_identity_column()
         {
             var modelBuilder = CreateConventionModelBuilder();
@@ -47,7 +47,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Equal(ValueGenerated.OnAdd, property.ValueGenerated);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_set_index_filter()
         {
             var modelBuilder = CreateConventionModelBuilder();
@@ -63,7 +63,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Equal("SqlServer-specific expression", index.GetFilter());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_set_MemoryOptimized()
         {
             var modelBuilder = CreateConventionModelBuilder();
@@ -83,7 +83,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.False(entityType.GetSqlServerIsMemoryOptimized());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_set_MemoryOptimized_non_generic()
         {
             var modelBuilder = CreateConventionModelBuilder();
@@ -103,7 +103,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.False(entityType.GetSqlServerIsMemoryOptimized());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_set_index_clustering()
         {
             var modelBuilder = CreateConventionModelBuilder();
@@ -118,7 +118,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.True(index.GetSqlServerIsClustered().Value);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_set_key_clustering()
         {
             var modelBuilder = CreateConventionModelBuilder();
@@ -133,7 +133,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.True(key.GetSqlServerIsClustered().Value);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_set_index_include()
         {
             var modelBuilder = CreateConventionModelBuilder();
@@ -151,7 +151,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 c => Assert.Equal(nameof(Customer.Offset), c));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_set_index_include_after_unique_using_generic_builder()
         {
             var modelBuilder = CreateConventionModelBuilder();
@@ -171,7 +171,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 c => Assert.Equal(nameof(Customer.Offset), c));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_set_index_include_after_annotation_using_generic_builder()
         {
             var modelBuilder = CreateConventionModelBuilder();
@@ -195,7 +195,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 c => Assert.Equal(nameof(Customer.Offset), c));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_set_index_include_non_generic()
         {
             var modelBuilder = CreateConventionModelBuilder();
@@ -213,7 +213,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 c => Assert.Equal(nameof(Customer.Offset), c));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_set_index_online()
         {
             var modelBuilder = CreateConventionModelBuilder();
@@ -228,7 +228,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.True(index.GetSqlServerIsCreatedOnline());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_set_index_online_non_generic()
         {
             var modelBuilder = CreateConventionModelBuilder();
@@ -243,7 +243,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.True(index.GetSqlServerIsCreatedOnline());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_set_sequences_for_model()
         {
             var modelBuilder = CreateConventionModelBuilder();
@@ -261,7 +261,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.NotNull(sqlServerExtensions.FindSequence(SqlServerModelExtensions.DefaultHiLoSequenceName));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_set_sequences_with_name_for_model()
         {
             var modelBuilder = CreateConventionModelBuilder();
@@ -288,7 +288,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Same(typeof(long), sequence.ClrType);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_set_sequences_with_schema_and_name_for_model()
         {
             var modelBuilder = CreateConventionModelBuilder();
@@ -314,7 +314,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Same(typeof(long), sequence.ClrType);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_set_use_of_existing_relational_sequence_for_model()
         {
             var modelBuilder = CreateConventionModelBuilder();
@@ -339,7 +339,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             ValidateSchemaNamedSpecificSequence(sqlServerExtensions.FindSequence("Snook", "Tasty"));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_set_use_of_existing_SQL_sequence_for_model()
         {
             var modelBuilder = CreateConventionModelBuilder();
@@ -375,7 +375,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Same(typeof(int), sequence.ClrType);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_set_identities_for_model()
         {
             var modelBuilder = CreateConventionModelBuilder();
@@ -391,7 +391,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Null(model.FindSequence(SqlServerModelExtensions.DefaultHiLoSequenceName));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Setting_SqlServer_identities_for_model_is_lower_priority_than_relational_default_values()
         {
             var modelBuilder = CreateConventionModelBuilder();
@@ -427,7 +427,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Equal("Now", offsetProperty.GetDefaultValueSql());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_set_sequence_for_property()
         {
             var modelBuilder = CreateConventionModelBuilder();
@@ -448,7 +448,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.NotNull(model.FindSequence(SqlServerModelExtensions.DefaultHiLoSequenceName));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_set_sequences_with_name_for_property()
         {
             var modelBuilder = CreateConventionModelBuilder();
@@ -479,7 +479,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Same(typeof(long), sequence.ClrType);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_set_sequences_with_schema_and_name_for_property()
         {
             var modelBuilder = CreateConventionModelBuilder();
@@ -509,7 +509,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Same(typeof(long), sequence.ClrType);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_set_use_of_existing_relational_sequence_for_property()
         {
             var modelBuilder = CreateConventionModelBuilder();
@@ -538,7 +538,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             ValidateSchemaNamedSpecificSequence(model.FindSequence("Snook", "Tasty"));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_set_use_of_existing_relational_sequence_for_property_using_nested_closure()
         {
             var modelBuilder = CreateConventionModelBuilder();
@@ -561,7 +561,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             ValidateSchemaNamedSpecificSequence(model.FindSequence("Snook", "Tasty"));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_set_use_of_existing_SQL_sequence_for_property()
         {
             var modelBuilder = CreateConventionModelBuilder();
@@ -589,7 +589,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             ValidateSchemaNamedSpecificSequence(model.FindSequence("Snook", "Tasty"));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_set_use_of_existing_SQL_sequence_for_property_using_nested_closure()
         {
             var modelBuilder = CreateConventionModelBuilder();
@@ -618,7 +618,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             ValidateSchemaNamedSpecificSequence(model.FindSequence("Snook", "Tasty"));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_set_identities_for_property()
         {
             var modelBuilder = CreateConventionModelBuilder();
@@ -641,7 +641,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Null(model.FindSequence(SqlServerModelExtensions.DefaultHiLoSequenceName));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_set_identities_with_seed_and_identity_for_property()
         {
             var modelBuilder = CreateConventionModelBuilder();
@@ -664,7 +664,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Null(model.FindSequence(SqlServerModelExtensions.DefaultHiLoSequenceName));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void SqlServer_entity_methods_dont_break_out_of_the_generics()
         {
             var modelBuilder = CreateConventionModelBuilder();
@@ -675,7 +675,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                     .ForSqlServerIsMemoryOptimized());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void SqlServer_entity_methods_have_non_generic_overloads()
         {
             var modelBuilder = CreateConventionModelBuilder();
@@ -685,7 +685,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 .ForSqlServerIsMemoryOptimized();
         }
 
-        [Fact]
+        [ConditionalFact]
         public void SqlServer_property_methods_dont_break_out_of_the_generics()
         {
             var modelBuilder = CreateConventionModelBuilder();
@@ -703,7 +703,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                     .ForSqlServerUseIdentityColumn());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void SqlServer_property_methods_have_non_generic_overloads()
         {
             var modelBuilder = CreateConventionModelBuilder();
@@ -719,7 +719,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 .ForSqlServerUseIdentityColumn();
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_write_index_filter_with_where_clauses_generic()
         {
             var modelBuilder = CreateConventionModelBuilder();

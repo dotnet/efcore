@@ -14,7 +14,7 @@ namespace Microsoft.EntityFrameworkCore
     {
         protected override DiagnosticAnalyzer CreateDiagnosticAnalyzer() => new InternalUsageDiagnosticAnalyzer();
 
-        [Fact]
+        [ConditionalFact]
         public async Task No_warning_on_ef_non_internal()
             => await AssertNoDiagnostics(@"
 var a = new Microsoft.EntityFrameworkCore.Infrastructure.Annotatable();
@@ -23,7 +23,7 @@ var x = a.GetAnnotations();
 
         #region Namespace
 
-        [Fact]
+        [ConditionalFact]
         public async Task Warning_on_ef_internal_namespace_invocation()
         {
             var (diagnostics, source) = await GetDiagnosticsAsync(@"var x = typeof(object).GetMethod(nameof(object.ToString), Type.EmptyTypes).DisplayName();");
@@ -39,7 +39,7 @@ var x = a.GetAnnotations();
             Assert.Equal("DisplayName", source.Substring(span.Start, span.End - span.Start));
         }
 
-        [Fact]
+        [ConditionalFact]
         public async Task Warning_on_ef_internal_namespace_instantiation()
         {
             var (diagnostics, source) = await GetDiagnosticsAsync(@"new CoreSingletonOptions();");
@@ -55,7 +55,7 @@ var x = a.GetAnnotations();
             Assert.Equal("CoreSingletonOptions", source.Substring(span.Start, span.End - span.Start));
         }
 
-        [Fact]
+        [ConditionalFact]
         public async Task Warning_on_ef_internal_namespace_subclass()
         {
             var source = @"
@@ -77,7 +77,7 @@ class MyClass : Microsoft.EntityFrameworkCore.Storage.Internal.RawRelationalPara
                 source.Substring(span.Start, span.End - span.Start));
         }
 
-        [Fact]
+        [ConditionalFact]
         public async Task No_warning_on_ef_internal_namespace_in_same_assembly()
         {
             var diagnostics = await GetDiagnosticsFullSourceAsync(@"
@@ -106,7 +106,7 @@ namespace Bar
 
         #region Attribute
 
-        [Fact]
+        [ConditionalFact]
         public async Task Warning_on_ef_internal_attribute_property_access()
         {
             var (diagnostics, source) = await GetDiagnosticsAsync(@"var x = Microsoft.EntityFrameworkCore.Infrastructure.EntityFrameworkRelationalServicesBuilder.RelationalServices.Count;");
@@ -123,7 +123,7 @@ namespace Bar
             Assert.Equal("RelationalServices", source.Substring(span.Start, span.End - span.Start));
         }
 
-        [Fact]
+        [ConditionalFact]
         public async Task Warning_on_ef_internal_name_instantiation()
         {
             var (diagnostics, source) = await GetDiagnosticsAsync(@"new Microsoft.EntityFrameworkCore.Update.UpdateSqlGeneratorDependencies(null, null);");

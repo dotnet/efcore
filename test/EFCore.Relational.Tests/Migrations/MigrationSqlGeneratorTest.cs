@@ -131,13 +131,13 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         public override void CreateCheckConstraintOperation_with_name()
         {
             base.CreateCheckConstraintOperation_with_name();
-            
+
             Assert.Equal(
                 "ALTER TABLE \"dbo\".\"People\" ADD CONSTRAINT \"CK_People_DriverLicense\" CHECK (DriverLicense_Number > 0);"
                 + EOL,
                 Sql);
         }
-        
+
         public override void AlterSequenceOperation_with_minValue_and_maxValue()
         {
             base.AlterSequenceOperation_with_minValue_and_maxValue();
@@ -300,7 +300,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 Sql);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Generate_doesnt_batch_by_default()
         {
             Generate(

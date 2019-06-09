@@ -16,7 +16,7 @@ namespace Microsoft.EntityFrameworkCore
         {
         }
 
-        [Fact(Skip = "See issue#13857")]
+        [ConditionalFact(Skip = "See issue#13857")]
         public override void Query_with_keyless_type()
         {
             base.Query_with_keyless_type();

@@ -22,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore
             // In-memory doesn't use real store-generated values.
         }
 
-        [Fact]
+        [ConditionalFact]
         public void InMemory_database_does_not_use_temp_values()
         {
             using (var context = CreateContext())

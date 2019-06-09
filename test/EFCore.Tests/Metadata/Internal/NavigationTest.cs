@@ -12,7 +12,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
     public class NavigationTest
     {
-        [Fact]
+        [ConditionalFact]
         public void Use_of_custom_INavigation_throws()
         {
             var navigation = new FakeNavigation();
@@ -37,7 +37,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             public bool IsEagerLoaded { get; }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_create_navigation()
         {
             var foreignKey = CreateForeignKey();
@@ -49,7 +49,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Same(foreignKey.DeclaringEntityType, navigation.DeclaringEntityType);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Detects_navigations_to_keyless_types()
         {
             IMutableModel model = new Model();

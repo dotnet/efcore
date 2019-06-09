@@ -10,7 +10,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.ValueGenerator.Internal
 {
     public class IdValueGeneratorTest
     {
-        [Fact]
+        [ConditionalFact]
         public void Generated_ids_do_not_clash()
         {
             var modelBuilder = CosmosTestHelpers.Instance.CreateConventionBuilder();

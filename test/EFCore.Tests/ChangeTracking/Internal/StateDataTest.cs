@@ -7,7 +7,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 {
     public class StateDataTest
     {
-        [Fact]
+        [ConditionalFact]
         public void Can_read_and_manipulate_modification_flags()
         {
             for (var i = 0; i < 70; i++)
@@ -21,7 +21,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_read_and_manipulate_null_flags()
         {
             for (var i = 0; i < 70; i++)
@@ -35,7 +35,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_read_and_manipulate_not_set_flags()
         {
             for (var i = 0; i < 70; i++)
@@ -49,7 +49,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_read_and_manipulate_is_loaded_flags()
         {
             for (var i = 0; i < 70; i++)
@@ -152,7 +152,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_get_and_set_EntityState()
         {
             var data = new InternalEntityEntry.StateData(70, 0);

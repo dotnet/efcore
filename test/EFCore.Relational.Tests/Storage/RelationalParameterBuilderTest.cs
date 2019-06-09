@@ -13,7 +13,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
 {
     public class RelationalParameterBuilderTest
     {
-        [Fact]
+        [ConditionalFact]
         public void Can_add_dynamic_parameter()
         {
             var typeMapper = new TestRelationalTypeMappingSource(
@@ -37,7 +37,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.Equal("Name", parameter.Name);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(true)]
         [InlineData(false)]
         public void Can_add_type_mapped_parameter_by_type(bool nullable)
@@ -68,7 +68,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.Equal(nullable, parameter.IsNullable);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(true)]
         [InlineData(false)]
         public void Can_add_type_mapped_parameter_by_property(bool nullable)
@@ -101,7 +101,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.Equal(nullable, parameter.IsNullable);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_add_composite_parameter()
         {
             var typeMapper = new TestRelationalTypeMappingSource(
@@ -137,7 +137,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.Equal(2, parameter.RelationalParameters.Count);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Does_not_add_empty_composite_parameter()
         {
             var typeMapper = new TestRelationalTypeMappingSource(

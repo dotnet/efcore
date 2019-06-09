@@ -10,7 +10,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
     {
         public abstract class QueryTypesTestBase : ModelBuilderTestBase
         {
-            [Fact]
+            [ConditionalFact]
             public virtual void Keyless_type_discovered_before_entity_type_does_not_leave_temp_id()
             {
                 var modelBuilder = CreateModelBuilder();
@@ -27,7 +27,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Null(modelBuilder.Model.FindEntityType(typeof(QueryType)).FindPrimaryKey());
             }
 
-            [Fact]
+            [ConditionalFact]
             public virtual void Keyless_type_with_collection_navigations_does_not_throw()
             {
                 var modelBuilder = CreateModelBuilder();

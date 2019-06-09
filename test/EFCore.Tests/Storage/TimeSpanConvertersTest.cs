@@ -13,7 +13,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         private static readonly TimeSpanToStringConverter _timeSpanToString
             = new TimeSpanToStringConverter();
 
-        [Fact]
+        [ConditionalFact]
         public void Can_convert_TimeSpan_to_string()
         {
             var converter = _timeSpanToString.ConvertToProviderExpression.Compile();
@@ -25,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.Equal("00:00:00", converter(new TimeSpan()));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_convert_string_to_TimeSpan()
         {
             var converter = _timeSpanToString.ConvertFromProviderExpression.Compile();
@@ -40,7 +40,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         private static readonly TimeSpanToTicksConverter _timeSpanToTicks
             = new TimeSpanToTicksConverter();
 
-        [Fact]
+        [ConditionalFact]
         public void Can_convert_TimeSpan_to_ticks()
         {
             var converter = _timeSpanToTicks.ConvertToProviderExpression.Compile();
@@ -49,7 +49,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.Equal(0, converter(new TimeSpan()));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_convert_ticks_to_TimeSpan()
         {
             var converter = _timeSpanToTicks.ConvertFromProviderExpression.Compile();
@@ -62,7 +62,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             = (CompositeValueConverter<TimeSpan, long, uint>)new TimeSpanToTicksConverter().ComposeWith(
                 new CastingConverter<long, uint>());
 
-        [Fact]
+        [ConditionalFact]
         public void Can_convert_TimeSpan_to_int_ticks()
         {
             var converter = _timeSpanToIntTicks.ConvertToProviderExpression.Compile();
@@ -71,7 +71,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.Equal((uint)0, converter(new TimeSpan()));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_convert_int_ticks_to_TimeSpan()
         {
             var converter = _timeSpanToIntTicks.ConvertFromProviderExpression.Compile();

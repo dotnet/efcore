@@ -18,7 +18,7 @@ namespace Microsoft.EntityFrameworkCore.Query
     {
         #region Bug9849
 
-        [Fact]
+        [ConditionalFact]
         public void Include_throw_when_empty_9849()
         {
             using (CreateScratch<DatabaseContext>(_ => { }, "9849"))
@@ -32,7 +32,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Include_throw_when_empty_9849_2()
         {
             using (CreateScratch<DatabaseContext>(_ => { }, "9849"))
@@ -46,7 +46,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Include_throw_when_empty_9849_3()
         {
             using (CreateScratch<DatabaseContext>(_ => { }, "9849"))
@@ -60,7 +60,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Include_throw_when_empty_9849_4()
         {
             using (CreateScratch<DatabaseContext>(_ => { }, "9849"))
@@ -74,7 +74,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Include_throw_when_empty_9849_5()
         {
             using (CreateScratch<DatabaseContext>(_ => { }, "9849"))
@@ -92,7 +92,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Include_throw_when_empty_9849_6()
         {
             using (CreateScratch<DatabaseContext>(_ => { }, "9849"))
@@ -150,7 +150,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         #region Bug3595
 
-        [Fact]
+        [ConditionalFact]
         public void GroupBy_with_uninitialized_datetime_projection_3595()
         {
             using (CreateScratch<Context3595>(Seed3595, "3595"))
@@ -236,7 +236,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         #region Bug3101
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Repro3101_simple_coalesce1()
         {
             using (CreateScratch<MyContext3101>(Seed3101, "3101"))
@@ -255,7 +255,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Repro3101_simple_coalesce2()
         {
             using (CreateScratch<MyContext3101>(Seed3101, "3101"))
@@ -275,7 +275,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Repro3101_simple_coalesce3()
         {
             using (CreateScratch<MyContext3101>(Seed3101, "3101"))
@@ -296,7 +296,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Repro3101_complex_coalesce1()
         {
             using (CreateScratch<MyContext3101>(Seed3101, "3101"))
@@ -320,7 +320,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Repro3101_complex_coalesce2()
         {
             using (CreateScratch<MyContext3101>(Seed3101, "3101"))
@@ -344,7 +344,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Repro3101_nested_coalesce1()
         {
             using (CreateScratch<MyContext3101>(Seed3101, "3101"))
@@ -368,7 +368,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Repro3101_nested_coalesce2()
         {
             using (CreateScratch<MyContext3101>(Seed3101, "3101"))
@@ -393,7 +393,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Repro3101_conditional()
         {
             using (CreateScratch<MyContext3101>(Seed3101, "3101"))
@@ -415,7 +415,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Repro3101_coalesce_tracking()
         {
             using (CreateScratch<MyContext3101>(Seed3101, "3101"))
@@ -541,7 +541,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         #region Bug5456
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Repro5456_include_group_join_is_per_query_context()
         {
             using (CreateScratch<MyContext5456>(Seed5456, "5456"))
@@ -559,7 +559,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Repro5456_include_group_join_is_per_query_context_async()
         {
             using (CreateScratch<MyContext5456>(Seed5456, "5456"))
@@ -577,7 +577,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Repro5456_multiple_include_group_join_is_per_query_context()
         {
             using (CreateScratch<MyContext5456>(Seed5456, "5456"))
@@ -595,7 +595,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Repro5456_multiple_include_group_join_is_per_query_context_async()
         {
             using (CreateScratch<MyContext5456>(Seed5456, "5456"))
@@ -614,7 +614,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Repro5456_multi_level_include_group_join_is_per_query_context()
         {
             using (CreateScratch<MyContext5456>(Seed5456, "5456"))
@@ -632,7 +632,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Repro5456_multi_level_include_group_join_is_per_query_context_async()
         {
             using (CreateScratch<MyContext5456>(Seed5456, "5456"))
@@ -728,7 +728,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         #region Bug8282
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Entity_passed_to_DTO_constructor_works()
         {
             using (CreateScratch<MyContext8282>(e => { }, "8282"))

@@ -20,7 +20,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 {
     public class RelationalModelValidatorTest : ModelValidatorTestBase
     {
-        [Fact]
+        [ConditionalFact]
         public virtual void Ignores_bool_with_default_value_false()
         {
             var model = CreateConventionlessModelBuilder().Model;
@@ -38,7 +38,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             Assert.False(LoggerFactory.Log.Any(l => l.Level == LogLevel.Warning));
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Detects_bool_with_default_value_not_false()
         {
             var model = CreateConventionlessModelBuilder().Model;
@@ -54,7 +54,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             VerifyWarning(RelationalResources.LogBoolWithDefaultWarning(new TestLogger<TestRelationalLoggingDefinitions>()).GenerateMessage("ImBool", "E"), model);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Detects_bool_with_default_expression()
         {
             var model = CreateConventionlessModelBuilder().Model;
@@ -70,7 +70,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             VerifyWarning(RelationalResources.LogBoolWithDefaultWarning(new TestLogger<TestRelationalLoggingDefinitions>()).GenerateMessage("ImBool", "E"), model);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Detects_primary_key_with_default_value()
         {
             var model = CreateConventionlessModelBuilder().Model;
@@ -86,7 +86,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 new TestLogger<TestRelationalLoggingDefinitions>()).GenerateMessage("Id", "A"), model);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Detects_alternate_key_with_default_value()
         {
             var model = CreateConventionlessModelBuilder().Model;
@@ -105,7 +105,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             VerifyWarning(RelationalResources.LogKeyHasDefaultValue(new TestLogger<TestRelationalLoggingDefinitions>()).GenerateMessage("P0", "A"), model);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Detects_duplicate_table_names_without_identifying_relationship()
         {
             var model = CreateConventionlessModelBuilder().Model;
@@ -132,7 +132,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 model);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Passes_for_duplicate_table_names_in_different_schema()
         {
             var model = CreateConventionlessModelBuilder().Model;
@@ -155,7 +155,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             Validate(model);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Passes_for_duplicate_table_names_for_inherited_entities()
         {
             var model = CreateConventionlessModelBuilder().Model;
@@ -170,7 +170,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             Validate(model);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Detects_incompatible_primary_keys_with_shared_table()
         {
             var modelBuilder = CreateConventionalModelBuilder();
@@ -186,7 +186,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 modelBuilder.Model);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Detects_incompatible_primary_key_columns_with_shared_table()
         {
             var modelBuilder = CreateConventionalModelBuilder();
@@ -202,7 +202,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                     "{'Id'}", nameof(B), "{'Id'}", nameof(A), "Table", "PK_Table", "{'Id'}", "{'Key'}"), modelBuilder.Model);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Detects_incompatible_shared_columns_with_shared_table()
         {
             var modelBuilder = CreateConventionalModelBuilder();
@@ -219,7 +219,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 modelBuilder.Model);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Detects_multiple_shared_table_roots()
         {
             var modelBuilder = CreateConventionalModelBuilder();
@@ -235,7 +235,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 modelBuilder.Model);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Detects_shared_table_root_cycle()
         {
             var modelBuilder = CreateConventionalModelBuilder();
@@ -250,7 +250,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 modelBuilder.Model);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Passes_for_compatible_shared_table()
         {
             var modelBuilder = CreateConventionalModelBuilder();
@@ -274,7 +274,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             Validate(modelBuilder.Model);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Passes_for_compatible_shared_table_inverted()
         {
             var modelBuilder = CreateConventionalModelBuilder();
@@ -286,7 +286,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             Validate(modelBuilder.Model);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Detects_duplicate_column_names()
         {
             var modelBuilder = CreateConventionalModelBuilder();
@@ -301,7 +301,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 modelBuilder.Model);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Detects_duplicate_columns_in_derived_types_with_different_types()
         {
             var modelBuilder = CreateConventionalModelBuilder();
@@ -316,7 +316,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                     "default_int_mapping"), modelBuilder.Model);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Detects_duplicate_column_names_within_hierarchy_with_different_MaxLength()
         {
             var modelBuilder = CreateConventionalModelBuilder();
@@ -331,7 +331,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                     "just_string(15)"), modelBuilder.Model);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Detects_duplicate_column_names_within_hierarchy_with_different_ComputedColumnSql()
         {
             var modelBuilder = CreateConventionalModelBuilder();
@@ -345,7 +345,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 modelBuilder.Model);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Detects_duplicate_column_names_within_hierarchy_with_different_DefaultValue()
         {
             var modelBuilder = CreateConventionalModelBuilder();
@@ -359,7 +359,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 modelBuilder.Model);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Detects_duplicate_column_names_within_hierarchy_with_different_DefaultValueSql()
         {
             var modelBuilder = CreateConventionalModelBuilder();
@@ -373,7 +373,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 modelBuilder.Model);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Detects_duplicate_column_names_within_hierarchy_with_different_nullability()
         {
             var modelBuilder = CreateConventionalModelBuilder();
@@ -387,7 +387,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 modelBuilder.Model);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Passes_for_compatible_duplicate_column_names_within_hierarchy()
         {
             var modelBuilder = CreateConventionalModelBuilder();
@@ -414,7 +414,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             Validate(modelBuilder.Model);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Detects_duplicate_foreignKey_names_within_hierarchy_with_different_principal_tables()
         {
             var modelBuilder = CreateConventionalModelBuilder();
@@ -432,7 +432,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 modelBuilder.Model);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Detects_duplicate_foreignKey_names_within_hierarchy_with_different_column_count()
         {
             var modelBuilder = CreateConventionalModelBuilder();
@@ -456,7 +456,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 modelBuilder.Model);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Detects_duplicate_foreignKey_names_within_hierarchy_with_different_column_order()
         {
             var modelBuilder = CreateConventionalModelBuilder();
@@ -511,7 +511,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 modelBuilder.Model);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Detects_duplicate_foreignKey_names_within_hierarchy_mapped_to_different_columns()
         {
             var modelBuilder = CreateConventionalModelBuilder();
@@ -550,7 +550,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 modelBuilder.Model);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Detects_duplicate_foreignKey_names_within_hierarchy_referencing_different_columns()
         {
             var modelBuilder = CreateConventionalModelBuilder();
@@ -573,7 +573,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 modelBuilder.Model);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Detects_duplicate_foreignKey_names_within_hierarchy_with_different_uniqueness()
         {
             var modelBuilder = CreateConventionalModelBuilder();
@@ -597,7 +597,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             Assert.NotEqual(index1.GetName(), index2.GetName());
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Detects_duplicate_foreignKey_names_within_hierarchy_with_different_delete_behavior()
         {
             var modelBuilder = CreateConventionalModelBuilder();
@@ -616,7 +616,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 modelBuilder.Model);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Passes_for_incompatible_foreignKeys_within_hierarchy()
         {
             var modelBuilder = CreateConventionalModelBuilder();
@@ -637,7 +637,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             Assert.NotEqual(index1.GetName(), index2.GetName());
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Passes_for_incompatible_foreignKeys_within_hierarchy_when_one_name_configured_explicitly()
         {
             var modelBuilder = CreateConventionalModelBuilder();
@@ -658,7 +658,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             Assert.NotEqual(index1.GetName(), index2.GetName());
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Passes_for_compatible_duplicate_foreignKey_names_within_hierarchy()
         {
             var modelBuilder = CreateConventionalModelBuilder();
@@ -720,7 +720,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             Assert.Equal(index1.GetName(), index2.GetName());
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Passes_for_compatible_duplicate_foreignKey_names_within_hierarchy_name_configured_explicitly()
         {
             var modelBuilder = CreateConventionalModelBuilder();
@@ -784,7 +784,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             Assert.Equal(index1.GetName(), index2.GetName());
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Detects_duplicate_index_names_within_hierarchy_with_different_column_count()
         {
             var modelBuilder = CreateConventionalModelBuilder();
@@ -802,7 +802,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 modelBuilder.Model);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Detects_duplicate_index_names_within_hierarchy_with_different_column_order()
         {
             var modelBuilder = CreateConventionalModelBuilder();
@@ -841,7 +841,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 modelBuilder.Model);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Detects_duplicate_index_names_within_hierarchy_mapped_to_different_columns()
         {
             var modelBuilder = CreateConventionalModelBuilder();
@@ -870,7 +870,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 modelBuilder.Model);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Detects_duplicate_index_names_within_hierarchy_with_different_uniqueness()
         {
             var modelBuilder = CreateConventionalModelBuilder();
@@ -886,7 +886,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 modelBuilder.Model);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Passes_for_incompatible_indexes_within_hierarchy_when_one_name_configured_explicitly()
         {
             var modelBuilder = CreateConventionalModelBuilder();
@@ -900,7 +900,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             Assert.Equal("IX_Animal_Name1", index2.GetName());
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Passes_for_compatible_duplicate_index_names_within_hierarchy()
         {
             var modelBuilder = CreateConventionalModelBuilder();
@@ -926,7 +926,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             Assert.Equal(index1.GetName(), index2.GetName());
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Detects_missing_concurrency_token_on_the_base_type()
         {
             var modelBuilder = CreateConventionalModelBuilder();
@@ -941,7 +941,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 modelBuilder.Model);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Detects_missing_concurrency_token_on_the_sharing_type()
         {
             var modelBuilder = CreateConventionalModelBuilder();
@@ -954,7 +954,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 modelBuilder.Model);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Passes_for_correctly_mapped_concurrency_tokens_with_table_sharing()
         {
             var modelBuilder = CreateConventionalModelBuilder();
@@ -970,7 +970,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             Validate(modelBuilder.Model);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Passes_for_correctly_mapped_concurrency_tokens_with_owned()
         {
             var modelBuilder = CreateConventionalModelBuilder();
@@ -982,7 +982,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             Validate(modelBuilder.Model);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Passes_for_non_hierarchical_model()
         {
             var model = CreateConventionlessModelBuilder().Model;
@@ -994,7 +994,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             Validate(model);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Does_not_detect_missing_discriminator_value_for_abstract_class()
         {
             var modelBuilder = CreateConventionalModelBuilder();
@@ -1008,7 +1008,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             Validate(modelBuilder.Model);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Detects_ToTable_on_derived_entity_types()
         {
             var modelBuilder = CreateConventionalModelBuilder();
@@ -1020,7 +1020,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 modelBuilder.Model);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Detects_function_with_invalid_return_type_throws()
         {
             var modelBuilder = CreateConventionalModelBuilder();
@@ -1038,7 +1038,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 modelBuilder.Model);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Detects_function_with_invalid_parameter_type_but_translate_callback_does_not_throw()
         {
             var modelBuilder = CreateConventionalModelBuilder();
@@ -1056,7 +1056,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             Validate(modelBuilder.Model);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Detects_function_with_invalid_parameter_type_but_no_translate_callback_throws()
         {
             var modelBuilder = CreateConventionalModelBuilder();

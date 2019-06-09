@@ -191,7 +191,7 @@ namespace Microsoft.EntityFrameworkCore
                 });
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(CascadeTiming.OnSaveChanges)]
         [InlineData(CascadeTiming.Immediate)]
         [InlineData(CascadeTiming.Never)]

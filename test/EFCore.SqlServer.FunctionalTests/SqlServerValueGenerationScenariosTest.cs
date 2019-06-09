@@ -21,7 +21,7 @@ namespace Microsoft.EntityFrameworkCore
 
         // Positive cases
 
-        [Fact]
+        [ConditionalFact]
         public void Insert_with_Identity_column()
         {
             using (var testStore = SqlServerTestStore.CreateInitialized(DatabaseName))
@@ -325,7 +325,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Insert_with_explicit_non_default_keys()
         {
             using (var testStore = SqlServerTestStore.CreateInitialized(DatabaseName))
@@ -374,7 +374,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Insert_with_explicit_with_default_keys()
         {
             using (var testStore = SqlServerTestStore.CreateInitialized(DatabaseName))
@@ -424,7 +424,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Insert_with_non_key_default_value()
         {
             using (var testStore = SqlServerTestStore.CreateInitialized(DatabaseName))
@@ -500,7 +500,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Insert_with_non_key_default_value_readonly()
         {
             using (var testStore = SqlServerTestStore.CreateInitialized(DatabaseName))
@@ -567,7 +567,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Insert_and_update_with_computed_column()
         {
             using (var testStore = SqlServerTestStore.CreateInitialized(DatabaseName))
@@ -623,7 +623,7 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         // #6044
-        [Fact]
+        [ConditionalFact]
         public void Insert_and_update_with_computed_column_with_function()
         {
             using (var testStore = SqlServerTestStore.CreateInitialized(DatabaseName))
@@ -685,7 +685,7 @@ RETURNS NVARCHAR(MAX) WITH SCHEMABINDING AS BEGIN RETURN @First + @Second END");
         }
 
         // #6044
-        [Fact]
+        [ConditionalFact]
         public void Insert_and_update_with_computed_column_with_querying_function()
         {
             using (var testStore = SqlServerTestStore.CreateInitialized(DatabaseName))
@@ -769,7 +769,7 @@ END");
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Insert_with_client_generated_GUID_key()
         {
             using (var testStore = SqlServerTestStore.CreateInitialized(DatabaseName))
@@ -858,7 +858,7 @@ END");
                 => modelBuilder.Entity<GuidBlog>().Property(e => e.NotId).ValueGeneratedOnAdd();
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Insert_with_server_generated_GUID_key()
         {
             using (var testStore = SqlServerTestStore.CreateInitialized(DatabaseName))
@@ -920,7 +920,7 @@ END");
         }
 
         // Negative cases
-        [Fact]
+        [ConditionalFact]
         public void Insert_with_explicit_non_default_keys_by_default()
         {
             using (var testStore = SqlServerTestStore.CreateInitialized(DatabaseName))
@@ -951,7 +951,7 @@ END");
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Insert_with_explicit_default_keys()
         {
             using (var testStore = SqlServerTestStore.CreateInitialized(DatabaseName))
@@ -988,7 +988,7 @@ END");
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Insert_with_implicit_default_keys()
         {
             using (var testStore = SqlServerTestStore.CreateInitialized(DatabaseName))
@@ -1085,7 +1085,7 @@ END");
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Insert_explicit_value_throws_when_readonly_before_save()
         {
             using (var testStore = SqlServerTestStore.CreateInitialized(DatabaseName))
@@ -1114,7 +1114,7 @@ END");
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Insert_explicit_value_into_computed_column()
         {
             using (var testStore = SqlServerTestStore.CreateInitialized(DatabaseName))
@@ -1140,7 +1140,7 @@ END");
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Update_explicit_value_in_computed_column()
         {
             using (var testStore = SqlServerTestStore.CreateInitialized(DatabaseName))
@@ -1175,7 +1175,7 @@ END");
         }
 
         // Concurrency
-        [Fact]
+        [ConditionalFact]
         public void Resolve_concurreny()
         {
             using (var testStore = SqlServerTestStore.CreateInitialized(DatabaseName))

@@ -10,7 +10,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 {
     public class CosmosMetadataExtensionsTest
     {
-        [Fact]
+        [ConditionalFact]
         public void Can_get_and_set_collection_name()
         {
             var modelBuilder = new ModelBuilder(new ConventionSet());

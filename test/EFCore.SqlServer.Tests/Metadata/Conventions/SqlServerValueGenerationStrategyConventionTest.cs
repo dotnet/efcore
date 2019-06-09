@@ -12,7 +12,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 {
     public class SqlServerValueGenerationStrategyConventionTest
     {
-        [Fact]
+        [ConditionalFact]
         public void Annotations_are_added_when_conventional_model_builder_is_used()
         {
             var model = SqlServerTestHelpers.Instance.CreateConventionBuilder().Model;
@@ -25,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             Assert.Equal(SqlServerValueGenerationStrategy.IdentityColumn, annotations.Last().Value);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Annotations_are_added_when_conventional_model_builder_is_used_with_sequences()
         {
             var model = SqlServerTestHelpers.Instance.CreateConventionBuilder()
@@ -48,7 +48,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
             Assert.Equal(SqlServerAnnotationNames.HiLoSequenceName, annotations[2].Name);
             Assert.Equal(SqlServerModelExtensions.DefaultHiLoSequenceName, annotations[2].Value);
-            
+
             Assert.Equal(SqlServerAnnotationNames.ValueGenerationStrategy, annotations[3].Name);
             Assert.Equal(SqlServerValueGenerationStrategy.SequenceHiLo, annotations[3].Value);
         }

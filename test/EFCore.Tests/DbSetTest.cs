@@ -22,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore
 {
     public class DbSetTest
     {
-        [Fact]
+        [ConditionalFact]
         public void DbSets_are_cached()
         {
             DbSet<Category> set;
@@ -40,7 +40,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public async Task Use_of_set_throws_if_context_is_disposed()
         {
             DbSet<Category> set;
@@ -61,7 +61,7 @@ namespace Microsoft.EntityFrameworkCore
             await Assert.ThrowsAsync<ObjectDisposedException>(() => set.ToListAsync());
         }
 
-        [Fact]
+        [ConditionalFact]
         public async Task Use_of_set_throws_if_obtained_from_disposed_context()
         {
             var context = new EarlyLearningCenter();
@@ -80,7 +80,7 @@ namespace Microsoft.EntityFrameworkCore
             await Assert.ThrowsAsync<ObjectDisposedException>(() => set.ToListAsync());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Direct_use_of_Set_throws_if_context_disposed()
         {
             var context = new EarlyLearningCenter();
@@ -89,7 +89,7 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Throws<ObjectDisposedException>(() => context.Set<Category>());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Use_of_LocalView_throws_if_context_is_disposed()
         {
             LocalView<Category> view;
@@ -107,7 +107,7 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Throws<ObjectDisposedException>(() => view.GetEnumerator());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Using_ignored_entity_that_has_DbSet_on_context_throws_appropriately()
         {
             using (var context = new IgnoredCntext())
@@ -136,31 +136,31 @@ namespace Microsoft.EntityFrameworkCore
             public int Id { get; set; }
         }
 
-        [Fact]
+        [ConditionalFact]
         public Task Can_add_existing_entities_to_context_to_be_deleted()
         {
             return TrackEntitiesTest((c, e) => c.Remove(e), (c, e) => c.Remove(e), EntityState.Deleted);
         }
 
-        [Fact]
+        [ConditionalFact]
         public Task Can_add_new_entities_to_context_graph()
         {
             return TrackEntitiesTest((c, e) => c.Add(e), (c, e) => c.Add(e), EntityState.Added);
         }
 
-        [Fact]
+        [ConditionalFact]
         public Task Can_add_new_entities_to_context_graph_async()
         {
             return TrackEntitiesTest((c, e) => c.AddAsync(e), (c, e) => c.AddAsync(e), EntityState.Added);
         }
 
-        [Fact]
+        [ConditionalFact]
         public Task Can_add_existing_entities_to_context_to_be_attached_graph()
         {
             return TrackEntitiesTest((c, e) => c.Attach(e), (c, e) => c.Attach(e), EntityState.Unchanged);
         }
 
-        [Fact]
+        [ConditionalFact]
         public Task Can_add_existing_entities_to_context_to_be_updated_graph()
         {
             return TrackEntitiesTest((c, e) => c.Update(e), (c, e) => c.Update(e), EntityState.Modified);
@@ -230,7 +230,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public Task Can_add_multiple_new_entities_to_set()
         {
             return TrackMultipleEntitiesTest(
@@ -239,7 +239,7 @@ namespace Microsoft.EntityFrameworkCore
                 EntityState.Added);
         }
 
-        [Fact]
+        [ConditionalFact]
         public Task Can_add_multiple_new_entities_to_set_async()
         {
             return TrackMultipleEntitiesTest(
@@ -248,7 +248,7 @@ namespace Microsoft.EntityFrameworkCore
                 EntityState.Added);
         }
 
-        [Fact]
+        [ConditionalFact]
         public Task Can_add_multiple_existing_entities_to_set_to_be_attached()
         {
             return TrackMultipleEntitiesTest(
@@ -257,7 +257,7 @@ namespace Microsoft.EntityFrameworkCore
                 EntityState.Unchanged);
         }
 
-        [Fact]
+        [ConditionalFact]
         public Task Can_add_multiple_existing_entities_to_set_to_be_updated()
         {
             return TrackMultipleEntitiesTest(
@@ -266,7 +266,7 @@ namespace Microsoft.EntityFrameworkCore
                 EntityState.Modified);
         }
 
-        [Fact]
+        [ConditionalFact]
         public Task Can_add_multiple_existing_entities_to_set_to_be_deleted()
         {
             return TrackMultipleEntitiesTest(
@@ -340,13 +340,13 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_add_no_new_entities_to_set()
         {
             TrackNoEntitiesTest(c => c.Categories.AddRange(), c => c.Products.AddRange());
         }
 
-        [Fact]
+        [ConditionalFact]
         public async Task Can_add_no_new_entities_to_set_async()
         {
             using (var context = new EarlyLearningCenter())
@@ -357,19 +357,19 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_add_no_existing_entities_to_set_to_be_attached()
         {
             TrackNoEntitiesTest(c => c.Categories.AttachRange(), c => c.Products.AttachRange());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_add_no_existing_entities_to_set_to_be_updated()
         {
             TrackNoEntitiesTest(c => c.Categories.UpdateRange(), c => c.Products.UpdateRange());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_add_no_existing_entities_to_set_to_be_deleted()
         {
             TrackNoEntitiesTest(c => c.Categories.RemoveRange(), c => c.Products.RemoveRange());
@@ -385,7 +385,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public Task Can_add_multiple_existing_entities_to_set_to_be_deleted_Enumerable()
         {
             return TrackMultipleEntitiesTestEnumerable(
@@ -394,7 +394,7 @@ namespace Microsoft.EntityFrameworkCore
                 EntityState.Deleted);
         }
 
-        [Fact]
+        [ConditionalFact]
         public Task Can_add_multiple_new_entities_to_set_Enumerable_graph()
         {
             return TrackMultipleEntitiesTestEnumerable(
@@ -403,7 +403,7 @@ namespace Microsoft.EntityFrameworkCore
                 EntityState.Added);
         }
 
-        [Fact]
+        [ConditionalFact]
         public Task Can_add_multiple_new_entities_to_set_Enumerable_graph_async()
         {
             return TrackMultipleEntitiesTestEnumerable(
@@ -412,7 +412,7 @@ namespace Microsoft.EntityFrameworkCore
                 EntityState.Added);
         }
 
-        [Fact]
+        [ConditionalFact]
         public Task Can_add_multiple_existing_entities_to_set_to_be_attached_Enumerable_graph()
         {
             return TrackMultipleEntitiesTestEnumerable(
@@ -421,7 +421,7 @@ namespace Microsoft.EntityFrameworkCore
                 EntityState.Unchanged);
         }
 
-        [Fact]
+        [ConditionalFact]
         public Task Can_add_multiple_existing_entities_to_set_to_be_updated_Enumerable_graph()
         {
             return TrackMultipleEntitiesTestEnumerable(
@@ -505,19 +505,19 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_add_no_existing_entities_to_set_to_be_deleted_Enumerable()
         {
             TrackNoEntitiesTestEnumerable((c, e) => c.Categories.RemoveRange(e), (c, e) => c.Products.RemoveRange(e));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_add_no_new_entities_to_set_Enumerable_graph()
         {
             TrackNoEntitiesTestEnumerable((c, e) => c.Categories.AddRange(e), (c, e) => c.Products.AddRange(e));
         }
 
-        [Fact]
+        [ConditionalFact]
         public async Task Can_add_no_new_entities_to_set_Enumerable_graph_async()
         {
             using (var context = new EarlyLearningCenter())
@@ -528,13 +528,13 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_add_no_existing_entities_to_set_to_be_attached_Enumerable_graph()
         {
             TrackNoEntitiesTestEnumerable((c, e) => c.Categories.AttachRange(e), (c, e) => c.Products.AttachRange(e));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_add_no_existing_entities_to_set_to_be_updated_Enumerable_graph()
         {
             TrackNoEntitiesTestEnumerable((c, e) => c.Categories.UpdateRange(e), (c, e) => c.Products.UpdateRange(e));
@@ -552,7 +552,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public async Task Can_use_Add_to_change_entity_state()
         {
             await ChangeStateWithMethod((c, e) => c.Categories.Add(e), EntityState.Detached, EntityState.Added);
@@ -562,7 +562,7 @@ namespace Microsoft.EntityFrameworkCore
             await ChangeStateWithMethod((c, e) => c.Categories.Add(e), EntityState.Added, EntityState.Added);
         }
 
-        [Fact]
+        [ConditionalFact]
         public async Task Can_use_Add_to_change_entity_state_async()
         {
             await ChangeStateWithMethod((c, e) => c.Categories.AddAsync(e), EntityState.Detached, EntityState.Added);
@@ -572,7 +572,7 @@ namespace Microsoft.EntityFrameworkCore
             await ChangeStateWithMethod((c, e) => c.Categories.AddAsync(e), EntityState.Added, EntityState.Added);
         }
 
-        [Fact]
+        [ConditionalFact]
         public async Task Can_use_Attach_to_change_entity_state()
         {
             await ChangeStateWithMethod((c, e) => c.Categories.Attach(e), EntityState.Detached, EntityState.Unchanged);
@@ -582,7 +582,7 @@ namespace Microsoft.EntityFrameworkCore
             await ChangeStateWithMethod((c, e) => c.Categories.Attach(e), EntityState.Added, EntityState.Unchanged);
         }
 
-        [Fact]
+        [ConditionalFact]
         public async Task Can_use_Update_to_change_entity_state()
         {
             await ChangeStateWithMethod((c, e) => c.Categories.Update(e), EntityState.Detached, EntityState.Modified);
@@ -592,7 +592,7 @@ namespace Microsoft.EntityFrameworkCore
             await ChangeStateWithMethod((c, e) => c.Categories.Update(e), EntityState.Added, EntityState.Modified);
         }
 
-        [Fact]
+        [ConditionalFact]
         public async Task Can_use_Remove_to_change_entity_state()
         {
             await ChangeStateWithMethod((c, e) => c.Categories.Remove(e), EntityState.Detached, EntityState.Deleted);
@@ -637,7 +637,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(true)]
         [InlineData(false)]
         public async Task Can_add_new_entities_to_context_with_key_generation(bool async)
@@ -678,7 +678,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_get_scoped_service_provider()
         {
             using (var context = new EarlyLearningCenter())
@@ -689,7 +689,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Throws_when_using_with_IListSource()
         {
             using (var context = new EarlyLearningCenter())
@@ -700,7 +700,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Throws_when_using_query_with_IListSource()
         {
             using (var context = new EarlyLearningCenter())
@@ -711,7 +711,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Throws_when_using_Local_with_IListSource()
         {
             using (var context = new EarlyLearningCenter())

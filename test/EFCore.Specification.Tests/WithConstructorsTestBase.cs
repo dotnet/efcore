@@ -34,7 +34,7 @@ namespace Microsoft.EntityFrameworkCore
         {
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Query_and_update_using_constructors_with_property_parameters()
         {
             TestHelpers.ExecuteWithStrategyInTransaction(
@@ -95,7 +95,7 @@ namespace Microsoft.EntityFrameworkCore
                 });
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Query_with_keyless_type()
         {
             using (var context = CreateContext())
@@ -109,7 +109,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Query_with_context_injected()
         {
             using (var context = CreateContext())
@@ -128,7 +128,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Query_with_context_injected_into_property()
         {
             using (var context = CreateContext())
@@ -147,7 +147,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Query_with_context_injected_into_constructor_with_property()
         {
             HasContextPc<DbContext> entityWithBase;
@@ -195,7 +195,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Attaching_entity_sets_context()
         {
             int id1, id2, id3;
@@ -231,7 +231,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Query_with_EntityType_injected()
         {
             using (var context = CreateContext())
@@ -242,7 +242,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Query_with_EntityType_injected_into_property()
         {
             using (var context = CreateContext())
@@ -253,7 +253,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Query_with_EntityType_injected_into_constructor_with_property()
         {
             HasEntityTypePc entity;
@@ -279,7 +279,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Attaching_entity_sets_EntityType()
         {
             int id;
@@ -301,7 +301,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Query_with_StateManager_injected()
         {
             using (var context = CreateContext())
@@ -312,7 +312,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Query_with_StateManager_injected_into_property()
         {
             using (var context = CreateContext())
@@ -323,7 +323,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Query_with_StateManager_injected_into_constructor_with_property()
         {
             HasStateManagerPc entity;
@@ -349,7 +349,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Attaching_entity_sets_StateManager()
         {
             int id;
@@ -371,7 +371,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Query_with_loader_injected_for_reference()
         {
             using (var context = CreateContext())
@@ -383,7 +383,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Query_with_loader_injected_for_collections()
         {
             using (var context = CreateContext())
@@ -396,7 +396,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual async Task Query_with_loader_injected_for_reference_async()
         {
             using (var context = CreateContext())
@@ -411,7 +411,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual async Task Query_with_loader_injected_for_collections_async()
         {
             using (var context = CreateContext())
@@ -427,7 +427,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Query_with_POCO_loader_injected_for_reference()
         {
             using (var context = CreateContext())
@@ -439,7 +439,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Query_with_POCO_loader_injected_for_collections()
         {
             using (var context = CreateContext())
@@ -452,7 +452,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual async Task Query_with_loader_delegate_injected_for_reference_async()
         {
             using (var context = CreateContext())
@@ -467,7 +467,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual async Task Query_with_loader_delegate_injected_for_collections_async()
         {
             using (var context = CreateContext())
@@ -483,7 +483,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Query_with_loader_injected_into_property_for_reference()
         {
             using (var context = CreateContext())
@@ -495,7 +495,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Query_with_loader_injected_into_property_for_collections()
         {
             using (var context = CreateContext())
@@ -508,7 +508,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Attaching_entity_sets_lazy_loader()
         {
             int id, fk;
@@ -537,7 +537,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Detatching_entity_resets_lazy_loader_so_it_can_be_reattached()
         {
             LazyPropertyPost post;
@@ -565,7 +565,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Query_with_loader_injected_into_field_for_reference()
         {
             using (var context = CreateContext())
@@ -577,7 +577,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Query_with_loader_injected_into_field_for_collections()
         {
             using (var context = CreateContext())
@@ -590,7 +590,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Attaching_entity_sets_lazy_loader_field()
         {
             int id, fk;
@@ -619,7 +619,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Detatching_entity_resets_lazy_loader_field_so_it_can_be_reattached()
         {
             LazyFieldPost post;
@@ -647,7 +647,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Attaching_entity_sets_lazy_loader_delegate()
         {
             int id, fk;
@@ -676,7 +676,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Detatching_entity_resets_lazy_loader_delegate_so_it_can_be_reattached()
         {
             LazyPcsPost post;
@@ -704,7 +704,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Query_with_loader_delegate_injected_into_property_for_reference()
         {
             using (var context = CreateContext())
@@ -716,7 +716,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Query_with_loader_delgate_injected_into_property_for_collections()
         {
             using (var context = CreateContext())
@@ -729,7 +729,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual async Task Query_with_loader_delegate_injected_into_property_for_reference_async()
         {
             using (var context = CreateContext())
@@ -744,7 +744,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual async Task Query_with_loader_delegate_injected_into_property_for_collections_async()
         {
             using (var context = CreateContext())
@@ -760,7 +760,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Query_with_loader_injected_into_property_via_constructor_for_reference()
         {
             using (var context = CreateContext())
@@ -774,7 +774,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Query_with_loader_injected_into_property_via_constructor_for_collections()
         {
             using (var context = CreateContext())
@@ -789,7 +789,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Query_with_loader_delegate_injected_into_property_via_constructor_for_reference()
         {
             using (var context = CreateContext())
@@ -803,7 +803,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Query_with_loader_delegate_injected_into_property_via_constructor_for_collections()
         {
             using (var context = CreateContext())

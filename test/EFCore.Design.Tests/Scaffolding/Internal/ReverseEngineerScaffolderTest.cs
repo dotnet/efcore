@@ -15,7 +15,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 {
     public class ReverseEngineerScaffolderTest
     {
-        [Fact]
+        [ConditionalFact]
         public void Save_works()
         {
             using (var directory = new TempDirectory())
@@ -54,7 +54,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Save_throws_when_existing_files()
         {
             using (var directory = new TempDirectory())
@@ -94,7 +94,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Save_works_when_overwriteFiles()
         {
             using (var directory = new TempDirectory())
@@ -119,7 +119,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Save_throws_when_readonly_files()
         {
             using (var directory = new TempDirectory())

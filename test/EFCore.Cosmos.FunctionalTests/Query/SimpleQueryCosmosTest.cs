@@ -27,7 +27,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query
             //Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
         }
 
-        [Fact(Skip = "See issue#13857")]
+        [ConditionalFact(Skip = "See issue#13857")]
         public override void Auto_initialized_view_set()
         {
             base.Auto_initialized_view_set();

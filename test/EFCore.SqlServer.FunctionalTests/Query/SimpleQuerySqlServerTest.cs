@@ -93,7 +93,7 @@ FROM (
 FROM [Orders] AS [c1_Orders]");
         }
 
-        [Fact(Skip = "Issue #16006")]
+        [ConditionalFact(Skip = "Issue #16006")]
         public virtual void Cache_key_contexts_are_detached()
         {
             var weakRef = Scoper(

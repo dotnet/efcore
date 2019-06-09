@@ -14,7 +14,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 {
     public class ReverseEngineeringConfigurationTests
     {
-        [Fact]
+        [ConditionalFact]
         public void Throws_exceptions_for_invalid_context_name()
         {
             ValidateContextNameInReverseEngineerGenerator("Invalid!CSharp*Class&Name");

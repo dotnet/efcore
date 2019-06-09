@@ -36,7 +36,7 @@ namespace Microsoft.EntityFrameworkCore
 
         protected TFixture Fixture { get; set; }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void SaveChanges_can_be_used_with_no_transaction()
         {
             using (var context = CreateContext())
@@ -73,7 +73,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual async Task SaveChangesAsync_can_be_used_with_no_transaction()
         {
             using (var context = CreateContext())
@@ -109,7 +109,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void SaveChanges_implicitly_starts_transaction()
         {
             using (var context = CreateContext())
@@ -133,7 +133,7 @@ namespace Microsoft.EntityFrameworkCore
             AssertStoreInitialState();
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual async Task SaveChangesAsync_implicitly_starts_transaction()
         {
             using (var context = CreateContext())
@@ -163,7 +163,7 @@ namespace Microsoft.EntityFrameworkCore
             AssertStoreInitialState();
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(true, true)]
         [InlineData(true, false)]
         [InlineData(false, true)]
@@ -213,7 +213,7 @@ namespace Microsoft.EntityFrameworkCore
             AssertStoreInitialState();
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(true, true)]
         [InlineData(true, false)]
         [InlineData(false, true)]
@@ -266,7 +266,7 @@ namespace Microsoft.EntityFrameworkCore
             AssertStoreInitialState();
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(true, true)]
         [InlineData(true, false)]
         [InlineData(false, true)]
@@ -315,7 +315,7 @@ namespace Microsoft.EntityFrameworkCore
             AssertStoreInitialState();
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(true, true)]
         [InlineData(true, false)]
         [InlineData(false, true)]
@@ -369,7 +369,7 @@ namespace Microsoft.EntityFrameworkCore
             AssertStoreInitialState();
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(true, true)]
         [InlineData(true, false)]
         [InlineData(false, true)]
@@ -422,7 +422,7 @@ namespace Microsoft.EntityFrameworkCore
             AssertStoreInitialState();
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(true)]
         [InlineData(false)]
         public virtual void SaveChanges_throws_for_suppressed_ambient_transactions(bool connectionString)
@@ -458,7 +458,7 @@ namespace Microsoft.EntityFrameworkCore
             AssertStoreInitialState();
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void SaveChanges_uses_enlisted_transaction_after_ambient_transaction()
         {
             if (!AmbientTransactionsSupported)
@@ -498,7 +498,7 @@ namespace Microsoft.EntityFrameworkCore
             AssertStoreInitialState();
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void SaveChanges_does_not_close_connection_opened_by_user()
         {
             using (var context = CreateContext())
@@ -533,7 +533,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual async Task SaveChangesAsync_does_not_close_connection_opened_by_user()
         {
             using (var context = CreateContext())
@@ -568,7 +568,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(true)]
         [InlineData(false)]
         public virtual void SaveChanges_uses_explicit_transaction_without_committing(bool autoTransaction)
@@ -593,7 +593,7 @@ namespace Microsoft.EntityFrameworkCore
             AssertStoreInitialState();
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(true)]
         [InlineData(false)]
         public virtual void SaveChanges_false_uses_explicit_transaction_without_committing_or_accepting_changes(bool autoTransaction)
@@ -622,7 +622,7 @@ namespace Microsoft.EntityFrameworkCore
             AssertStoreInitialState();
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(true)]
         [InlineData(false)]
         public virtual async Task SaveChangesAsync_uses_explicit_transaction_without_committing(bool autoTransaction)
@@ -647,7 +647,7 @@ namespace Microsoft.EntityFrameworkCore
             AssertStoreInitialState();
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(true)]
         [InlineData(false)]
         public virtual async Task SaveChangesAsync_false_uses_explicit_transaction_without_committing_or_accepting_changes(
@@ -677,7 +677,7 @@ namespace Microsoft.EntityFrameworkCore
             AssertStoreInitialState();
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(true)]
         [InlineData(false)]
         public virtual void SaveChanges_uses_explicit_transaction_and_does_not_rollback_on_failure(bool autoTransaction)
@@ -713,7 +713,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(true)]
         [InlineData(false)]
         public virtual async Task SaveChangesAsync_uses_explicit_transaction_and_does_not_rollback_on_failure(bool autoTransaction)
@@ -749,7 +749,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(true)]
         [InlineData(false)]
         public virtual async Task RelationalTransaction_can_be_commited(bool autoTransaction)
@@ -774,7 +774,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(true)]
         [InlineData(false)]
         public virtual async Task RelationalTransaction_can_be_commited_from_context(bool autoTransaction)
@@ -799,7 +799,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(true)]
         [InlineData(false)]
         public virtual async Task RelationalTransaction_can_be_rolled_back(bool autoTransaction)
@@ -821,7 +821,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(true)]
         [InlineData(false)]
         public virtual async Task RelationalTransaction_can_be_rolled_back_from_context(bool autoTransaction)
@@ -843,7 +843,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(true)]
         [InlineData(false)]
         public virtual void Query_uses_explicit_transaction(bool autoTransaction)
@@ -895,7 +895,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(true)]
         [InlineData(false)]
         public virtual async Task QueryAsync_uses_explicit_transaction(bool autoTransaction)
@@ -947,7 +947,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(true)]
         [InlineData(false)]
         public virtual async Task Can_use_open_connection_with_started_transaction(bool autoTransaction)
@@ -970,7 +970,7 @@ namespace Microsoft.EntityFrameworkCore
             AssertStoreInitialState();
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void UseTransaction_throws_if_mismatched_connection()
         {
             using (var transaction = TestStore.BeginTransaction())
@@ -985,7 +985,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void UseTransaction_throws_if_another_transaction_started()
         {
             using (var transaction = TestStore.BeginTransaction())
@@ -1006,7 +1006,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void UseTransaction_will_not_dispose_external_transaction()
         {
             using (var transaction = TestStore.BeginTransaction())
@@ -1022,7 +1022,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void UseTransaction_throws_if_ambient_transaction_started()
         {
             if (!AmbientTransactionsSupported)
@@ -1044,7 +1044,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void UseTransaction_throws_if_enlisted_in_transaction()
         {
             if (!AmbientTransactionsSupported)
@@ -1071,7 +1071,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void BeginTransaction_throws_if_another_transaction_started()
         {
             using (var context = CreateContextWithConnectionString())
@@ -1085,7 +1085,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void BeginTransaction_throws_if_ambient_transaction_started()
         {
             if (!AmbientTransactionsSupported)
@@ -1104,7 +1104,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void BeginTransaction_throws_if_enlisted_in_transaction()
         {
             if (!AmbientTransactionsSupported)
@@ -1131,7 +1131,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void BeginTransaction_can_be_used_after_ambient_transaction_ended()
         {
             if (!AmbientTransactionsSupported)
@@ -1154,7 +1154,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void BeginTransaction_can_be_used_after_enlisted_transaction_ended()
         {
             if (!AmbientTransactionsSupported)
@@ -1179,7 +1179,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void BeginTransaction_can_be_used_after_another_transaction_if_connection_closed()
         {
             using (var context = CreateContextWithConnectionString())
@@ -1194,7 +1194,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void BeginTransaction_can_be_used_after_enlisted_transaction_if_connection_closed()
         {
             if (!AmbientTransactionsSupported)
@@ -1219,7 +1219,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void EnlistTransaction_throws_if_another_transaction_started()
         {
             if (!AmbientTransactionsSupported)
@@ -1240,7 +1240,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void EnlistTransaction_throws_if_ambient_transaction_started()
         {
             if (!AmbientTransactionsSupported)
@@ -1265,7 +1265,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(true)]
         [InlineData(false)]
         public virtual async Task Externally_closed_connections_are_handled_correctly(bool async)

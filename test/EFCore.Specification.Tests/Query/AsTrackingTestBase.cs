@@ -17,7 +17,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         protected TFixture Fixture { get; }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Entity_added_to_state_manager(bool useParam)
@@ -51,7 +51,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Applied_to_multiple_body_clauses()
         {
             using (var context = CreateContext())

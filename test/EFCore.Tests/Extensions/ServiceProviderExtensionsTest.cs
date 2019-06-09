@@ -10,7 +10,7 @@ namespace Microsoft.EntityFrameworkCore
 {
     public class ServiceProviderExtensionsTest
     {
-        [Fact]
+        [ConditionalFact]
         public void GetRequiredService_throws_useful_exception_if_service_not_registered()
         {
             var serviceProvider = new ServiceCollection().BuildServiceProvider();
@@ -19,7 +19,7 @@ namespace Microsoft.EntityFrameworkCore
                 () => serviceProvider.GetRequiredService<IPilkington>());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Non_generic_GetRequiredService_throws_useful_exception_if_service_not_registered()
         {
             var serviceProvider = new ServiceCollection().BuildServiceProvider();
@@ -28,7 +28,7 @@ namespace Microsoft.EntityFrameworkCore
                 () => serviceProvider.GetRequiredService(typeof(IPilkington)));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void GetRequiredService_throws_useful_exception_if_resolution_fails()
         {
             var serviceCollection = new ServiceCollection();
@@ -41,7 +41,7 @@ namespace Microsoft.EntityFrameworkCore
                     () => serviceProvider.GetRequiredService<IPilkington>()).Message);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Non_generic_GetRequiredService_throws_useful_exception_if_resolution_fails()
         {
             var serviceCollection = new ServiceCollection();
@@ -55,7 +55,7 @@ namespace Microsoft.EntityFrameworkCore
                     () => serviceProvider.GetRequiredService(typeof(IPilkington))).Message);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void GetService_returns_null_if_service_not_registered()
         {
             var serviceProvider = new ServiceCollection().BuildServiceProvider();
@@ -63,7 +63,7 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Null(serviceProvider.GetService<IPilkington>());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Non_generic_GetService_returns_null_if_service_not_registered()
         {
             var serviceProvider = new ServiceCollection().BuildServiceProvider();
@@ -71,7 +71,7 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Null(serviceProvider.GetService(typeof(IPilkington)));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void GetService_throws_useful_exception_if_resolution_fails()
         {
             var serviceCollection = new ServiceCollection();
@@ -84,7 +84,7 @@ namespace Microsoft.EntityFrameworkCore
                     () => serviceProvider.GetService<IPilkington>()).Message);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Non_generic_GetService_throws_useful_exception_if_resolution_fails()
         {
             var serviceCollection = new ServiceCollection();

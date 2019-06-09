@@ -17,7 +17,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 {
     public class FixupTest
     {
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
@@ -27,7 +27,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 entityState, principalFirst: false, setFk: true, setToPrincipal: true, setToDependent: true);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
@@ -37,7 +37,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 entityState, principalFirst: false, setFk: false, setToPrincipal: true, setToDependent: true);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
@@ -47,7 +47,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 entityState, principalFirst: false, setFk: true, setToPrincipal: false, setToDependent: false);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
@@ -57,7 +57,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 entityState, principalFirst: false, setFk: true, setToPrincipal: false, setToDependent: true);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
@@ -67,7 +67,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 entityState, principalFirst: false, setFk: true, setToPrincipal: true, setToDependent: false);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
@@ -77,7 +77,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 entityState, principalFirst: false, setFk: false, setToPrincipal: false, setToDependent: true);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
@@ -87,7 +87,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 entityState, principalFirst: false, setFk: false, setToPrincipal: true, setToDependent: false);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
@@ -97,7 +97,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 entityState, principalFirst: true, setFk: true, setToPrincipal: true, setToDependent: true);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
@@ -107,7 +107,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 entityState, principalFirst: true, setFk: false, setToPrincipal: true, setToDependent: true);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
@@ -117,7 +117,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 entityState, principalFirst: true, setFk: true, setToPrincipal: false, setToDependent: false);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
@@ -127,7 +127,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 entityState, principalFirst: true, setFk: true, setToPrincipal: false, setToDependent: true);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
@@ -137,7 +137,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 entityState, principalFirst: true, setFk: true, setToPrincipal: true, setToDependent: false);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
@@ -147,7 +147,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 entityState, principalFirst: true, setFk: false, setToPrincipal: false, setToDependent: true);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
@@ -203,7 +203,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
@@ -212,7 +212,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Add_principal_and_dependent_one_to_many_prin_uni(entityState, principalFirst: false, setFk: true, setToDependent: false);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
@@ -221,7 +221,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Add_principal_and_dependent_one_to_many_prin_uni(entityState, principalFirst: false, setFk: true, setToDependent: true);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
@@ -230,7 +230,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Add_principal_and_dependent_one_to_many_prin_uni(entityState, principalFirst: false, setFk: false, setToDependent: true);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
@@ -239,7 +239,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Add_principal_and_dependent_one_to_many_prin_uni(entityState, principalFirst: true, setFk: true, setToDependent: false);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
@@ -248,7 +248,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Add_principal_and_dependent_one_to_many_prin_uni(entityState, principalFirst: true, setFk: true, setToDependent: true);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
@@ -303,7 +303,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
@@ -312,7 +312,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Add_principal_and_dependent_one_to_many_dep_uni(entityState, principalFirst: false, setFk: true, setToPrincipal: false);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
@@ -321,7 +321,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Add_principal_and_dependent_one_to_many_dep_uni(entityState, principalFirst: false, setFk: true, setToPrincipal: true);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
@@ -330,7 +330,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Add_principal_and_dependent_one_to_many_dep_uni(entityState, principalFirst: false, setFk: false, setToPrincipal: true);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
@@ -339,7 +339,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Add_principal_and_dependent_one_to_many_dep_uni(entityState, principalFirst: true, setFk: true, setToPrincipal: false);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
@@ -348,7 +348,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Add_principal_and_dependent_one_to_many_dep_uni(entityState, principalFirst: true, setFk: true, setToPrincipal: true);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
@@ -403,7 +403,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
@@ -435,7 +435,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
@@ -467,7 +467,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
@@ -477,7 +477,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 entityState, principalFirst: false, setFk: true, setToPrincipal: true, setToDependent: true);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
@@ -487,7 +487,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 entityState, principalFirst: false, setFk: false, setToPrincipal: true, setToDependent: true);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
@@ -497,7 +497,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 entityState, principalFirst: false, setFk: true, setToPrincipal: false, setToDependent: false);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
@@ -507,7 +507,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 entityState, principalFirst: false, setFk: true, setToPrincipal: false, setToDependent: true);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
@@ -517,7 +517,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 entityState, principalFirst: false, setFk: true, setToPrincipal: true, setToDependent: false);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
@@ -527,7 +527,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 entityState, principalFirst: false, setFk: false, setToPrincipal: false, setToDependent: true);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
@@ -537,7 +537,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 entityState, principalFirst: false, setFk: false, setToPrincipal: true, setToDependent: false);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
@@ -547,7 +547,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 entityState, principalFirst: true, setFk: true, setToPrincipal: true, setToDependent: true);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
@@ -557,7 +557,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 entityState, principalFirst: true, setFk: false, setToPrincipal: true, setToDependent: true);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
@@ -567,7 +567,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 entityState, principalFirst: true, setFk: true, setToPrincipal: false, setToDependent: false);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
@@ -577,7 +577,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 entityState, principalFirst: true, setFk: true, setToPrincipal: false, setToDependent: true);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
@@ -587,7 +587,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 entityState, principalFirst: true, setFk: true, setToPrincipal: true, setToDependent: false);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
@@ -597,7 +597,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 entityState, principalFirst: true, setFk: false, setToPrincipal: false, setToDependent: true);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
@@ -653,7 +653,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
@@ -662,7 +662,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Add_principal_and_dependent_one_to_one_prin_uni(entityState, principalFirst: false, setFk: true, setToDependent: false);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
@@ -671,7 +671,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Add_principal_and_dependent_one_to_one_prin_uni(entityState, principalFirst: false, setFk: true, setToDependent: true);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
@@ -680,7 +680,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Add_principal_and_dependent_one_to_one_prin_uni(entityState, principalFirst: false, setFk: false, setToDependent: true);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
@@ -689,7 +689,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Add_principal_and_dependent_one_to_one_prin_uni(entityState, principalFirst: true, setFk: true, setToDependent: false);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
@@ -698,7 +698,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Add_principal_and_dependent_one_to_one_prin_uni(entityState, principalFirst: true, setFk: true, setToDependent: true);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
@@ -755,7 +755,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
@@ -765,7 +765,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 entityState, principalFirst: false, setFk: true, setToPrincipal: false);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
@@ -775,7 +775,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 entityState, principalFirst: false, setFk: true, setToPrincipal: true);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
@@ -785,7 +785,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 entityState, principalFirst: false, setFk: false, setToPrincipal: true);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
@@ -795,7 +795,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 entityState, principalFirst: true, setFk: true, setToPrincipal: false);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
@@ -805,7 +805,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 entityState, principalFirst: true, setFk: true, setToPrincipal: true);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
@@ -863,7 +863,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
@@ -895,7 +895,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
@@ -927,7 +927,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
@@ -936,7 +936,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Add_dependent_but_not_principal_one_to_many(entityState, setFk: true, setToPrincipal: true, setToDependent: true);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
@@ -945,7 +945,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Add_dependent_but_not_principal_one_to_many(entityState, setFk: false, setToPrincipal: true, setToDependent: true);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
@@ -954,7 +954,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Add_dependent_but_not_principal_one_to_many(entityState, setFk: true, setToPrincipal: false, setToDependent: false);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
@@ -963,7 +963,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Add_dependent_but_not_principal_one_to_many(entityState, setFk: true, setToPrincipal: false, setToDependent: true);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
@@ -972,7 +972,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Add_dependent_but_not_principal_one_to_many(entityState, setFk: true, setToPrincipal: true, setToDependent: false);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
@@ -981,7 +981,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Add_dependent_but_not_principal_one_to_many(entityState, setFk: false, setToPrincipal: false, setToDependent: true);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
@@ -1032,7 +1032,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
@@ -1041,7 +1041,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Add_principal_but_not_dependent_one_to_many(entityState, setFk: true, setToPrincipal: true, setToDependent: true);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
@@ -1050,7 +1050,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Add_principal_but_not_dependent_one_to_many(entityState, setFk: false, setToPrincipal: true, setToDependent: true);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
@@ -1059,7 +1059,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Add_principal_but_not_dependent_one_to_many(entityState, setFk: true, setToPrincipal: false, setToDependent: false);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
@@ -1068,7 +1068,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Add_principal_but_not_dependent_one_to_many(entityState, setFk: true, setToPrincipal: false, setToDependent: true);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
@@ -1077,7 +1077,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Add_principal_but_not_dependent_one_to_many(entityState, setFk: true, setToPrincipal: true, setToDependent: false);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
@@ -1086,7 +1086,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Add_principal_but_not_dependent_one_to_many(entityState, setFk: false, setToPrincipal: false, setToDependent: true);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
@@ -1135,7 +1135,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
@@ -1144,7 +1144,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Add_dependent_but_not_principal_one_to_many_prin_uni(entityState, setFk: true, setToDependent: false);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
@@ -1153,7 +1153,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Add_dependent_but_not_principal_one_to_many_prin_uni(entityState, setFk: true, setToDependent: true);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
@@ -1203,7 +1203,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
@@ -1212,7 +1212,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Add_principal_but_not_dependent_one_to_many_prin_uni(entityState, setFk: true, setToDependent: false);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
@@ -1221,7 +1221,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Add_principal_but_not_dependent_one_to_many_prin_uni(entityState, setFk: true, setToDependent: true);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
@@ -1269,7 +1269,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
@@ -1278,7 +1278,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Add_dependent_but_not_principal_one_to_many_dep_uni(entityState, setFk: true, setToPrincipal: false);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
@@ -1287,7 +1287,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Add_dependent_but_not_principal_one_to_many_dep_uni(entityState, setFk: true, setToPrincipal: true);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
@@ -1337,7 +1337,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
@@ -1346,7 +1346,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Add_principal_but_not_dependent_one_to_many_dep_uni(entityState, setFk: true, setToPrincipal: false);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
@@ -1355,7 +1355,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Add_principal_but_not_dependent_one_to_many_dep_uni(entityState, setFk: true, setToPrincipal: true);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
@@ -1403,7 +1403,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
@@ -1438,7 +1438,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
@@ -1472,7 +1472,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
@@ -1481,7 +1481,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Add_dependent_but_not_principal_one_to_one(entityState, setFk: true, setToPrincipal: true, setToDependent: true);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
@@ -1490,7 +1490,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Add_dependent_but_not_principal_one_to_one(entityState, setFk: false, setToPrincipal: true, setToDependent: true);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
@@ -1499,7 +1499,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Add_dependent_but_not_principal_one_to_one(entityState, setFk: true, setToPrincipal: false, setToDependent: false);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
@@ -1508,7 +1508,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Add_dependent_but_not_principal_one_to_one(entityState, setFk: true, setToPrincipal: false, setToDependent: true);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
@@ -1517,7 +1517,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Add_dependent_but_not_principal_one_to_one(entityState, setFk: true, setToPrincipal: true, setToDependent: false);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
@@ -1526,7 +1526,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Add_dependent_but_not_principal_one_to_one(entityState, setFk: false, setToPrincipal: false, setToDependent: true);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
@@ -1579,7 +1579,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
@@ -1589,7 +1589,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 entityState, setFk: true, setToPrincipal: true, setToDependent: true);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
@@ -1599,7 +1599,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 entityState, setFk: false, setToPrincipal: true, setToDependent: true);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
@@ -1609,7 +1609,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 entityState, setFk: true, setToPrincipal: false, setToDependent: false);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
@@ -1619,7 +1619,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 entityState, setFk: true, setToPrincipal: false, setToDependent: true);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
@@ -1629,7 +1629,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 entityState, setFk: true, setToPrincipal: true, setToDependent: false);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
@@ -1639,7 +1639,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 entityState, setFk: false, setToPrincipal: false, setToDependent: true);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
@@ -1689,7 +1689,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
@@ -1698,7 +1698,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Add_dependent_but_not_principal_one_to_one_prin_uni(entityState, setFk: true, setToDependent: false);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
@@ -1707,7 +1707,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Add_dependent_but_not_principal_one_to_one_prin_uni(entityState, setFk: true, setToDependent: true);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
@@ -1757,7 +1757,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
@@ -1766,7 +1766,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Add_principal_but_not_dependent_one_to_one_prin_uni(entityState, setFk: true, setToDependent: false);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
@@ -1775,7 +1775,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Add_principal_but_not_dependent_one_to_one_prin_uni(entityState, setFk: true, setToDependent: true);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
@@ -1823,7 +1823,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
@@ -1832,7 +1832,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Add_dependent_but_not_principal_one_to_one_dep_uni(entityState, setFk: true, setToPrincipal: false);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
@@ -1841,7 +1841,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Add_dependent_but_not_principal_one_to_one_dep_uni(entityState, setFk: true, setToPrincipal: true);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
@@ -1890,7 +1890,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
@@ -1899,7 +1899,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Add_principal_but_not_dependent_one_to_one_dep_uni(entityState, setFk: true, setToPrincipal: false);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
@@ -1908,7 +1908,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Add_principal_but_not_dependent_one_to_one_dep_uni(entityState, setFk: true, setToPrincipal: true);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
@@ -1956,7 +1956,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
@@ -1991,7 +1991,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
@@ -2025,7 +2025,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added, EntityState.Added)]
         [InlineData(EntityState.Added, EntityState.Modified)]
         [InlineData(EntityState.Added, EntityState.Unchanged)]
@@ -2039,7 +2039,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Replace_dependent_one_to_one(oldEntityState, newEntityState, setFk: true, setToPrincipal: true, setToDependent: true);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added, EntityState.Added)]
         [InlineData(EntityState.Added, EntityState.Modified)]
         [InlineData(EntityState.Added, EntityState.Unchanged)]
@@ -2053,7 +2053,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Replace_dependent_one_to_one(oldEntityState, newEntityState, setFk: false, setToPrincipal: true, setToDependent: true);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added, EntityState.Added)]
         [InlineData(EntityState.Added, EntityState.Modified)]
         [InlineData(EntityState.Added, EntityState.Unchanged)]
@@ -2067,7 +2067,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Replace_dependent_one_to_one(oldEntityState, newEntityState, setFk: true, setToPrincipal: false, setToDependent: false);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added, EntityState.Added)]
         [InlineData(EntityState.Added, EntityState.Modified)]
         [InlineData(EntityState.Added, EntityState.Unchanged)]
@@ -2081,7 +2081,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Replace_dependent_one_to_one(oldEntityState, newEntityState, setFk: true, setToPrincipal: false, setToDependent: true);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added, EntityState.Added)]
         [InlineData(EntityState.Added, EntityState.Modified)]
         [InlineData(EntityState.Added, EntityState.Unchanged)]
@@ -2095,7 +2095,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Replace_dependent_one_to_one(oldEntityState, newEntityState, setFk: true, setToPrincipal: true, setToDependent: false);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added, EntityState.Added)]
         [InlineData(EntityState.Added, EntityState.Modified)]
         [InlineData(EntityState.Modified, EntityState.Added)]
@@ -2109,7 +2109,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 detectChanges: true);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added, EntityState.Added)]
         [InlineData(EntityState.Added, EntityState.Modified)]
         [InlineData(EntityState.Modified, EntityState.Added)]
@@ -2174,7 +2174,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added, EntityState.Added)]
         [InlineData(EntityState.Added, EntityState.Modified)]
         [InlineData(EntityState.Added, EntityState.Unchanged)]
@@ -2188,7 +2188,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Replace_dependent_one_to_one_prin_uni(oldEntityState, newEntityState, setFk: true, setToDependent: false);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added, EntityState.Added)]
         [InlineData(EntityState.Added, EntityState.Modified)]
         [InlineData(EntityState.Added, EntityState.Unchanged)]
@@ -2202,7 +2202,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Replace_dependent_one_to_one_prin_uni(oldEntityState, newEntityState, setFk: true, setToDependent: true);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added, EntityState.Added)]
         [InlineData(EntityState.Added, EntityState.Modified)]
         [InlineData(EntityState.Modified, EntityState.Added)]
@@ -2270,7 +2270,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added, EntityState.Added)]
         [InlineData(EntityState.Added, EntityState.Modified)]
         [InlineData(EntityState.Added, EntityState.Unchanged)]
@@ -2284,7 +2284,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Replace_dependent_one_to_one_dep_uni(oldEntityState, newEntityState, setFk: true, setToPrincipal: false);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added, EntityState.Added)]
         [InlineData(EntityState.Added, EntityState.Modified)]
         [InlineData(EntityState.Added, EntityState.Unchanged)]
@@ -2298,7 +2298,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Replace_dependent_one_to_one_dep_uni(oldEntityState, newEntityState, setFk: true, setToPrincipal: true);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added, EntityState.Added)]
         [InlineData(EntityState.Added, EntityState.Modified)]
         [InlineData(EntityState.Modified, EntityState.Added)]
@@ -2362,7 +2362,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Added, EntityState.Added)]
         [InlineData(EntityState.Added, EntityState.Modified)]
         [InlineData(EntityState.Added, EntityState.Unchanged)]
@@ -2414,7 +2414,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             }
         }
 
-        [Fact(Skip = "issue #15318")] // Issue #6067
+        [ConditionalFact(Skip = "issue #15318")] // Issue #6067
         public void Collection_nav_props_remain_fixed_up_after_manual_fixup_and_DetectChanges()
         {
             using (var context = new FixupContext())
@@ -2456,7 +2456,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Navigation_fixup_happens_when_new_entities_are_tracked()
         {
             using (var context = new FixupContext())
@@ -2493,7 +2493,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Navigation_fixup_happens_when_entities_are_tracked_from_query()
         {
             using (var context = new FixupContext())
@@ -2543,7 +2543,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Navigation_fixup_is_non_destructive_to_existing_graphs()
         {
             using (var context = new FixupContext())
@@ -2988,7 +2988,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             asserts();
         }
 
-        [Fact(Skip = "issue #15318")] // Issue #4853
+        [ConditionalFact(Skip = "issue #15318")] // Issue #4853
         public void Collection_nav_props_remain_fixed_up_after_DetectChanges()
         {
             using (var db = new Context4853())

@@ -21,7 +21,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         protected TFixture Fixture { get; }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Throws_when_where()
         {
             using (var context = CreateContext())
@@ -37,7 +37,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Throws_when_orderby()
         {
             using (var context = CreateContext())
@@ -52,7 +52,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Throws_when_orderby_multiple()
         {
             using (var context = CreateContext())
@@ -72,7 +72,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         private static object ClientMethod(object o) => o.GetHashCode();
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Throws_when_where_subquery_correlated()
         {
             using (var context = CreateContext())
@@ -92,7 +92,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Throws_when_all()
         {
             using (var context = CreateContext())
@@ -107,7 +107,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Throws_when_from_sql_composed()
         {
             using (var context = CreateContext())
@@ -125,7 +125,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Doesnt_throw_when_from_sql_not_composed()
         {
             using (var context = CreateContext())
@@ -139,7 +139,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Throws_when_subquery_main_from_clause()
         {
             using (var context = CreateContext())
@@ -160,7 +160,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact(Skip = "issue #15312")]
+        [ConditionalFact(Skip = "issue #15312")]
         public virtual void Throws_when_select_many()
         {
             using (var context = CreateContext())
@@ -179,7 +179,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Throws_when_join()
         {
             using (var context = CreateContext())
@@ -200,7 +200,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Throws_when_group_join()
         {
             using (var context = CreateContext())
@@ -221,7 +221,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Throws_when_group_by()
         {
             using (var context = CreateContext())
@@ -238,7 +238,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Throws_when_first()
         {
             using (var context = CreateContext())
@@ -253,7 +253,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Throws_when_single()
         {
             using (var context = CreateContext())
@@ -268,7 +268,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Throws_when_first_or_default()
         {
             using (var context = CreateContext())
@@ -283,7 +283,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Throws_when_single_or_default()
         {
             using (var context = CreateContext())

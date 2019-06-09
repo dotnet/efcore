@@ -20,7 +20,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 {
     public class ServicePropertyDiscoveryConventionTest
     {
-        [Fact]
+        [ConditionalFact]
         public void Finds_one_service_property()
         {
             var entityType = RunConvention<BlogOneService>();
@@ -32,7 +32,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             Assert.Equal(typeof(ILazyLoader), binding.ServiceType);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Does_not_find_service_property_configured_as_property()
         {
             var entityType = new Model().AddEntityType(typeof(BlogOneService), ConfigurationSource.Explicit);
@@ -45,7 +45,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             Assert.Null(entityType.FindServiceProperty(nameof(BlogOneService.Loader)));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Does_not_find_service_property_configured_as_navigation()
         {
             var model = new Model();
@@ -60,7 +60,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             Assert.Null(entityType.FindServiceProperty(nameof(BlogOneService.Loader)));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Does_not_find_duplicate_service_properties()
         {
             var entityType = RunConvention<BlogDuplicateService>();
@@ -74,7 +74,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                     () => Validate(entityType)).Message);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Finds_service_property_duplicate_ignored()
         {
             var entityType = RunConvention<BlogDuplicateService>();

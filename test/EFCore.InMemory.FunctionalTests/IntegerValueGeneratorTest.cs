@@ -11,7 +11,7 @@ namespace Microsoft.EntityFrameworkCore
 {
     public class IntegerValueGeneratorTest
     {
-        [Fact]
+        [ConditionalFact]
         public void Each_property_gets_its_own_generator()
         {
             var olives = new Olive[4];
@@ -68,7 +68,7 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Equal(4, toasts[3].Id);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Generators_are_associated_with_database_root()
         {
             var serviceProvider1 = new ServiceCollection()
@@ -112,7 +112,7 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Equal(2, toasts[1].Id);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Mixing_explicit_values_with_generated_values_with_care_works()
         {
             var olives = new Olive[4];
@@ -152,7 +152,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Each_database_gets_its_own_generators()
         {
             var olives = new List<Olive>();
@@ -186,7 +186,7 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Equal(1, toasts[1].Id);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Each_root_gets_its_own_generators()
         {
             var olives = new List<Olive>();
@@ -220,7 +220,7 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Equal(1, toasts[1].Id);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void EnsureDeleted_resets_generators()
         {
             var olives = new List<Olive>();

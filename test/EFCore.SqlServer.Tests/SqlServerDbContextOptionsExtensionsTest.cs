@@ -11,7 +11,7 @@ namespace Microsoft.EntityFrameworkCore
 {
     public class SqlServerDbContextOptionsExtensionsTest
     {
-        [Fact]
+        [ConditionalFact]
         public void Can_add_extension_with_max_batch_size()
         {
             var optionsBuilder = new DbContextOptionsBuilder();
@@ -22,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Equal(123, extension.MaxBatchSize);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_add_extension_with_command_timeout()
         {
             var optionsBuilder = new DbContextOptionsBuilder();
@@ -33,7 +33,7 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Equal(30, extension.CommandTimeout);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_add_extension_with_connection_string()
         {
             var optionsBuilder = new DbContextOptionsBuilder();
@@ -45,7 +45,7 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Null(extension.Connection);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_add_extension_with_connection_string_using_generic_options()
         {
             var optionsBuilder = new DbContextOptionsBuilder<DbContext>();
@@ -57,7 +57,7 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Null(extension.Connection);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_add_extension_with_connection()
         {
             var optionsBuilder = new DbContextOptionsBuilder();
@@ -71,7 +71,7 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Null(extension.ConnectionString);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_add_extension_with_connection_using_generic_options()
         {
             var optionsBuilder = new DbContextOptionsBuilder<DbContext>();
@@ -85,7 +85,7 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Null(extension.ConnectionString);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_add_extension_with_legacy_paging()
         {
             var optionsBuilder = new DbContextOptionsBuilder<DbContext>();
@@ -98,7 +98,7 @@ namespace Microsoft.EntityFrameworkCore
             Assert.True(extension.RowNumberPaging.Value);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_add_extension_with_connection_stringbuilder_action_generic()
         {
             var optionsBuilder = new DbContextOptionsBuilder<SampleDbContext>();
@@ -109,7 +109,7 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Null(extension.Connection);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_add_extension_with_connection_stringbuilder_action()
         {
             var optionsBuilder = new DbContextOptionsBuilder();

@@ -11,7 +11,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         private static readonly StringToBoolConverter _stringToBool
             = new StringToBoolConverter();
 
-        [Fact]
+        [ConditionalFact]
         public void Can_convert_strings_to_bools()
         {
             var converter = _stringToBool.ConvertToProviderExpression.Compile();
@@ -23,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.False(converter(null));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_convert_bools_to_strings()
         {
             var converter = _stringToBool.ConvertFromProviderExpression.Compile();

@@ -15,7 +15,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         protected TFixture Fixture { get; }
 
-        [Fact(Skip = "issue #15611")]
+        [ConditionalFact(Skip = "issue #15611")]
         public virtual void Changes_in_derived_related_entities_are_detected()
         {
             using (var context = CreateContext())
@@ -52,7 +52,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Entity_can_make_separate_relationships_with_base_type_and_derived_type_both()
         {
             using (var context = CreateContext())
@@ -77,7 +77,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Include_reference_with_inheritance1()
         {
             using (var context = CreateContext())
@@ -89,7 +89,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Include_reference_with_inheritance_reverse()
         {
             using (var context = CreateContext())
@@ -101,7 +101,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Include_self_refence_with_inheritence()
         {
             using (var context = CreateContext())
@@ -113,7 +113,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Include_self_refence_with_inheritence_reverse()
         {
             using (var context = CreateContext())
@@ -125,7 +125,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Include_reference_with_inheritance_with_filter1()
         {
             using (var context = CreateContext())
@@ -137,7 +137,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Include_reference_with_inheritance_with_filter_reverse()
         {
             using (var context = CreateContext())
@@ -149,7 +149,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Include_reference_without_inheritance()
         {
             using (var context = CreateContext())
@@ -161,7 +161,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Include_reference_without_inheritance_reverse()
         {
             using (var context = CreateContext())
@@ -173,7 +173,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Include_reference_without_inheritance_with_filter()
         {
             using (var context = CreateContext())
@@ -185,7 +185,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Include_reference_without_inheritance_with_filter_reverse()
         {
             using (var context = CreateContext())
@@ -197,7 +197,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact(Skip = "issue #15611")]
+        [ConditionalFact(Skip = "issue #15611")]
         public virtual void Include_collection_with_inheritance1()
         {
             using (var context = CreateContext())
@@ -211,7 +211,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Include_collection_with_inheritance_reverse()
         {
             using (var context = CreateContext())
@@ -223,7 +223,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact(Skip = "issue #15611")]
+        [ConditionalFact(Skip = "issue #15611")]
         public virtual void Include_collection_with_inheritance_with_filter1()
         {
             using (var context = CreateContext())
@@ -237,7 +237,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Include_collection_with_inheritance_with_filter_reverse()
         {
             using (var context = CreateContext())
@@ -249,7 +249,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact(Skip = "issue #15611")]
+        [ConditionalFact(Skip = "issue #15611")]
         public virtual void Include_collection_without_inheritance()
         {
             using (var context = CreateContext())
@@ -261,7 +261,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Include_collection_without_inheritance_reverse()
         {
             using (var context = CreateContext())
@@ -273,7 +273,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact(Skip = "issue #15611")]
+        [ConditionalFact(Skip = "issue #15611")]
         public virtual void Include_collection_without_inheritance_with_filter()
         {
             using (var context = CreateContext())
@@ -285,7 +285,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Include_collection_without_inheritance_with_filter_reverse()
         {
             using (var context = CreateContext())
@@ -297,7 +297,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Include_reference_with_inheritance_on_derived1()
         {
             using (var context = CreateContext())
@@ -309,7 +309,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Include_reference_with_inheritance_on_derived2()
         {
             using (var context = CreateContext())
@@ -321,7 +321,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Include_reference_with_inheritance_on_derived4()
         {
             using (var context = CreateContext())
@@ -333,7 +333,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Include_reference_with_inheritance_on_derived_reverse()
         {
             using (var context = CreateContext())
@@ -345,7 +345,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Include_reference_with_inheritance_on_derived_with_filter1()
         {
             using (var context = CreateContext())
@@ -357,7 +357,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Include_reference_with_inheritance_on_derived_with_filter2()
         {
             using (var context = CreateContext())
@@ -369,7 +369,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Include_reference_with_inheritance_on_derived_with_filter4()
         {
             using (var context = CreateContext())
@@ -381,7 +381,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Include_reference_with_inheritance_on_derived_with_filter_reverse()
         {
             using (var context = CreateContext())
@@ -393,7 +393,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Include_reference_without_inheritance_on_derived1()
         {
             using (var context = CreateContext())
@@ -405,7 +405,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Include_reference_without_inheritance_on_derived2()
         {
             using (var context = CreateContext())
@@ -417,7 +417,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Include_reference_without_inheritance_on_derived_reverse()
         {
             using (var context = CreateContext())
@@ -429,7 +429,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact(Skip = "issue #15611")]
+        [ConditionalFact(Skip = "issue #15611")]
         public virtual void Include_collection_with_inheritance_on_derived1()
         {
             using (var context = CreateContext())
@@ -443,7 +443,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact(Skip = "issue #15611")]
+        [ConditionalFact(Skip = "issue #15611")]
         public virtual void Include_collection_with_inheritance_on_derived2()
         {
             using (var context = CreateContext())
@@ -455,7 +455,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact(Skip = "issue #15611")]
+        [ConditionalFact(Skip = "issue #15611")]
         public virtual void Include_collection_with_inheritance_on_derived3()
         {
             using (var context = CreateContext())
@@ -467,7 +467,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Include_collection_with_inheritance_on_derived_reverse()
         {
             using (var context = CreateContext())
@@ -479,7 +479,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Nested_include_with_inheritance_reference_reference1()
         {
             using (var context = CreateContext())
@@ -491,7 +491,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Nested_include_with_inheritance_reference_reference3()
         {
             using (var context = CreateContext())
@@ -503,7 +503,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Nested_include_with_inheritance_reference_reference_reverse()
         {
             using (var context = CreateContext())
@@ -515,7 +515,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact(Skip = "issue #15611")]
+        [ConditionalFact(Skip = "issue #15611")]
         public virtual void Nested_include_with_inheritance_reference_collection1()
         {
             using (var context = CreateContext())
@@ -527,7 +527,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact(Skip = "issue #15611")]
+        [ConditionalFact(Skip = "issue #15611")]
         public virtual void Nested_include_with_inheritance_reference_collection3()
         {
             using (var context = CreateContext())
@@ -539,7 +539,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Nested_include_with_inheritance_reference_collection_reverse()
         {
             using (var context = CreateContext())
@@ -551,7 +551,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact(Skip = "issue #15611")]
+        [ConditionalFact(Skip = "issue #15611")]
         public virtual void Nested_include_with_inheritance_collection_reference1()
         {
             using (var context = CreateContext())
@@ -565,7 +565,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Nested_include_with_inheritance_collection_reference_reverse()
         {
             using (var context = CreateContext())
@@ -577,7 +577,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact(Skip = "issue #15611")]
+        [ConditionalFact(Skip = "issue #15611")]
         public virtual void Nested_include_with_inheritance_collection_collection1()
         {
             using (var context = CreateContext())
@@ -591,7 +591,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Nested_include_with_inheritance_collection_collection_reverse()
         {
             using (var context = CreateContext())
@@ -603,7 +603,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact(Skip = "issue #15611")]
+        [ConditionalFact(Skip = "issue #15611")]
         public virtual void Nested_include_collection_reference_on_non_entity_base()
         {
             using (var context = CreateContext())

@@ -12,7 +12,7 @@ namespace Microsoft.EntityFrameworkCore
 {
     public class ConfigPatternsInMemoryTest
     {
-        [Fact]
+        [ConditionalFact]
         public void Can_save_and_query_with_implicit_services_and_OnConfiguring()
         {
             using (var context = new ImplicitServicesAndConfigBlogContext())
@@ -48,7 +48,7 @@ namespace Microsoft.EntityFrameworkCore
                     .UseInMemoryDatabase(nameof(ImplicitServicesAndConfigBlogContext));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_save_and_query_with_implicit_services_and_explicit_config()
         {
             var optionsBuilder = new DbContextOptionsBuilder();
@@ -88,7 +88,7 @@ namespace Microsoft.EntityFrameworkCore
             public DbSet<Blog> Blogs { get; set; }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_save_and_query_with_explicit_services_and_OnConfiguring()
         {
             var services = new ServiceCollection();
@@ -136,7 +136,7 @@ namespace Microsoft.EntityFrameworkCore
                     .UseInMemoryDatabase(nameof(ExplicitServicesImplicitConfigBlogContext));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_save_and_query_with_explicit_services_and_explicit_config()
         {
             var optionsBuilder = new DbContextOptionsBuilder()
@@ -179,7 +179,7 @@ namespace Microsoft.EntityFrameworkCore
             public DbSet<Blog> Blogs { get; set; }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Throws_on_attempt_to_use_context_with_no_store()
         {
             Assert.Equal(
@@ -207,7 +207,7 @@ namespace Microsoft.EntityFrameworkCore
                 => optionsBuilder.EnableServiceProviderCaching(false);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Throws_on_attempt_to_use_store_with_no_store_services()
         {
             var serviceCollection = new ServiceCollection();
@@ -248,7 +248,7 @@ namespace Microsoft.EntityFrameworkCore
                     .UseInternalServiceProvider(_serviceProvider);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_register_context_with_DI_container_and_have_it_injected()
         {
             var services = new ServiceCollection();
@@ -306,7 +306,7 @@ namespace Microsoft.EntityFrameworkCore
             public DbSet<Blog> Blogs { get; set; }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_register_context_and_configuration_with_DI_container_and_have_both_injected()
         {
             var optionsBuilder = new DbContextOptionsBuilder()
@@ -360,7 +360,7 @@ namespace Microsoft.EntityFrameworkCore
             public DbSet<Blog> Blogs { get; set; }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_register_configuration_with_DI_container_and_have_it_injected()
         {
             var optionsBuilder = new DbContextOptionsBuilder();
@@ -420,7 +420,7 @@ namespace Microsoft.EntityFrameworkCore
             public DbSet<Blog> Blogs { get; set; }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_inject_different_configurations_into_different_contexts()
         {
             var blogOptions = new DbContextOptionsBuilder<InjectDifferentConfigurationsBlogContext>()

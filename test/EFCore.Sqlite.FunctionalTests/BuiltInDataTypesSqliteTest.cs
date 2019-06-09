@@ -25,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore
             //fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
         }
 
-        [Fact(Skip = "Issue#13487")]
+        [ConditionalFact(Skip = "Issue#13487")]
         public void Translate_array_length()
         {
             using (var db = CreateContext())
@@ -45,7 +45,7 @@ LIMIT 1",
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Can_insert_and_query_decimal()
         {
             using (var context = CreateContext())
@@ -68,7 +68,7 @@ LIMIT 1",
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Can_insert_and_read_back_all_mapped_data_types()
         {
             using (var context = CreateContext())
@@ -106,7 +106,7 @@ LIMIT 1",
                 Blob = new byte[] { 86 }
             };
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Can_insert_and_read_back_all_mapped_nullable_data_types()
         {
             using (var context = CreateContext())
@@ -144,7 +144,7 @@ LIMIT 1",
                 Blob = new byte[] { 86 }
             };
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Can_insert_and_read_back_all_mapped_data_types_set_to_null()
         {
             using (var context = CreateContext())
@@ -175,7 +175,7 @@ LIMIT 1",
             Assert.Null(entity.Int);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Can_insert_and_read_back_all_mapped_sized_data_types()
         {
             // Size expected to be ignored, but everything should still work
@@ -208,7 +208,7 @@ LIMIT 1",
                 Binary = new byte[] { 10, 11, 12, 13 }
             };
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Can_insert_and_read_back_nulls_for_all_mapped_sized_data_types()
         {
             using (var context = CreateContext())
@@ -235,7 +235,7 @@ LIMIT 1",
             Assert.Null(entity.Binary);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Can_insert_and_read_back_all_mapped_data_types_with_scale()
         {
             // Scale expected to be ignored, but everything should still work
@@ -272,7 +272,7 @@ LIMIT 1",
                 Decimal = 101.1m
             };
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Can_insert_and_read_back_all_mapped_data_types_with_precision_and_scale()
         {
             // Precision and scale expected to be ignored, but everything should still work
@@ -297,7 +297,7 @@ LIMIT 1",
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Can_insert_and_read_back_all_mapped_data_types_with_Identity()
         {
             using (var context = CreateContext())
@@ -335,7 +335,7 @@ LIMIT 1",
                 Blob = new byte[] { 86 }
             };
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Can_insert_and_read_back_all_mapped_nullable_data_types_with_Identity()
         {
             using (var context = CreateContext())
@@ -374,7 +374,7 @@ LIMIT 1",
                 Blob = new byte[] { 86 }
             };
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Can_insert_and_read_back_all_mapped_data_types_set_to_null_with_Identity()
         {
             using (var context = CreateContext())
@@ -406,7 +406,7 @@ LIMIT 1",
             Assert.Null(entity.Int);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Can_insert_and_read_back_all_mapped_sized_data_types_with_Identity()
         {
             // Size expected to be ignored, but everything should still work
@@ -439,7 +439,7 @@ LIMIT 1",
                 Binary = new byte[] { 10, 11, 12, 13 }
             };
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Can_insert_and_read_back_nulls_for_all_mapped_sized_data_types_with_Identity()
         {
             using (var context = CreateContext())
@@ -466,7 +466,7 @@ LIMIT 1",
             Assert.Null(entity.Binary);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Can_insert_and_read_back_all_mapped_data_types_with_scale_with_Identity()
         {
             // Scale expected to be ignored, but everything should still work
@@ -503,7 +503,7 @@ LIMIT 1",
                 Decimal = 101.1m
             };
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Can_insert_and_read_back_all_mapped_data_types_with_precision_and_scale_with_Identity()
         {
             // Precision and scale expected to be ignored, but everything should still work
@@ -528,7 +528,7 @@ LIMIT 1",
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Can_insert_and_read_back_all_mapped_data_types_in_batch()
         {
             using (var context = CreateContext())
@@ -548,7 +548,7 @@ LIMIT 1",
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Can_insert_and_read_back_all_mapped_nullable_data_types_in_batch()
         {
             using (var context = CreateContext())
@@ -568,7 +568,7 @@ LIMIT 1",
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Can_insert_and_read_back_all_mapped_data_types_set_to_null_in_batch()
         {
             using (var context = CreateContext())
@@ -600,7 +600,7 @@ LIMIT 1",
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Can_insert_and_read_back_all_mapped_sized_data_types_in_batch()
         {
             // Size expected to be ignored, but everything should still work
@@ -622,7 +622,7 @@ LIMIT 1",
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Can_insert_and_read_back_nulls_for_all_mapped_sized_data_types_in_batch()
         {
             using (var context = CreateContext())
@@ -654,7 +654,7 @@ LIMIT 1",
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Can_insert_and_read_back_all_mapped_data_types_with_scale_in_batch()
         {
             // Scale expected to be ignored, but everything should still work
@@ -676,7 +676,7 @@ LIMIT 1",
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Can_insert_and_read_back_all_mapped_data_types_with_precision_and_scale_in_batch()
         {
             // Precision and scale expected to be ignored, but everything should still work
@@ -721,7 +721,7 @@ LIMIT 1",
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Can_insert_and_read_back_all_mapped_data_types_with_Identity_in_batch()
         {
             using (var context = CreateContext())
@@ -741,7 +741,7 @@ LIMIT 1",
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Can_insert_and_read_back_all_mapped_nullable_data_types_with_Identity_in_batch()
         {
             using (var context = CreateContext())
@@ -764,7 +764,7 @@ LIMIT 1",
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Can_insert_and_read_back_all_mapped_data_types_set_to_null_with_Identity_in_batch()
         {
             using (var context = CreateContext())
@@ -799,7 +799,7 @@ LIMIT 1",
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Can_insert_and_read_back_all_mapped_sized_data_types_with_Identity_in_batch()
         {
             // Size expected to be ignored, but everything should still work
@@ -821,7 +821,7 @@ LIMIT 1",
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Can_insert_and_read_back_nulls_for_all_mapped_sized_data_types_with_Identity_in_batch()
         {
             using (var context = CreateContext())
@@ -856,7 +856,7 @@ LIMIT 1",
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Can_insert_and_read_back_all_mapped_data_types_with_scale_with_Identity_in_batch()
         {
             // Scale expected to be ignored, but everything should still work
@@ -878,7 +878,7 @@ LIMIT 1",
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Can_insert_and_read_back_all_mapped_data_types_with_precision_and_scale_with_Identity_in_batch()
         {
             // Precision and scale expected to be ignored, but everything should still work
@@ -920,7 +920,7 @@ LIMIT 1",
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_get_column_types_from_built_model()
         {
             using (var context = CreateContext())
@@ -942,7 +942,7 @@ LIMIT 1",
             }
         }
 
-        [Fact(Skip = "Issue #14935. Cannot eval 'Min()'")]
+        [ConditionalFact(Skip = "Issue #14935. Cannot eval 'Min()'")]
         public virtual void Can_query_Min_of_converted_types()
         {
             using (var context = CreateContext())
@@ -1000,7 +1000,7 @@ LIMIT 1",
             }
         }
 
-        [Fact(Skip = "Issue #14935. Cannot eval 'Max()'")]
+        [ConditionalFact(Skip = "Issue #14935. Cannot eval 'Max()'")]
         public virtual void Can_query_Max_of_converted_types()
         {
             using (var context = CreateContext())
@@ -1057,7 +1057,7 @@ LIMIT 1",
             }
         }
 
-        [Fact(Skip = "Issue #14935. Cannot eval 'Average()'")]
+        [ConditionalFact(Skip = "Issue #14935. Cannot eval 'Average()'")]
         public virtual void Can_query_Average_of_converted_types()
         {
             using (var context = CreateContext())
@@ -1088,7 +1088,7 @@ LIMIT 1",
             }
         }
 
-        [Fact(Skip = "Issue #14935. Cannot eval 'Sum()'")]
+        [ConditionalFact(Skip = "Issue #14935. Cannot eval 'Sum()'")]
         public virtual void Can_query_Sum_of_converted_types()
         {
             using (var context = CreateContext())
@@ -1119,7 +1119,7 @@ LIMIT 1",
             }
         }
 
-        [Fact(Skip = "QueryIssue")]
+        [ConditionalFact(Skip = "QueryIssue")]
         public virtual void Can_query_negation_of_converted_types()
         {
             using (var context = CreateContext())
@@ -1150,7 +1150,7 @@ LIMIT 1",
             }
         }
 
-        [Fact(Skip = "QueryIssue")]
+        [ConditionalFact(Skip = "QueryIssue")]
         public virtual void Can_query_add_of_converted_types()
         {
             using (var context = CreateContext())
@@ -1190,7 +1190,7 @@ LIMIT 1",
             }
         }
 
-        [Fact(Skip = "QueryIssue")]
+        [ConditionalFact(Skip = "QueryIssue")]
         public virtual void Can_query_subtract_of_converted_types()
         {
             using (var context = CreateContext())
@@ -1234,7 +1234,7 @@ LIMIT 1",
             }
         }
 
-        [Fact(Skip = "QueryIssue")]
+        [ConditionalFact(Skip = "QueryIssue")]
         public virtual void Can_query_less_than_of_converted_types()
         {
             using (var context = CreateContext())
@@ -1277,7 +1277,7 @@ LIMIT 1",
             }
         }
 
-        [Fact(Skip = "QueryIssue")]
+        [ConditionalFact(Skip = "QueryIssue")]
         public virtual void Can_query_less_than_or_equal_of_converted_types()
         {
             using (var context = CreateContext())
@@ -1320,7 +1320,7 @@ LIMIT 1",
             }
         }
 
-        [Fact(Skip = "QueryIssue")]
+        [ConditionalFact(Skip = "QueryIssue")]
         public virtual void Can_query_greater_than_of_converted_types()
         {
             using (var context = CreateContext())
@@ -1363,7 +1363,7 @@ LIMIT 1",
             }
         }
 
-        [Fact(Skip = "QueryIssue")]
+        [ConditionalFact(Skip = "QueryIssue")]
         public virtual void Can_query_greater_than_or_equal_of_converted_types()
         {
             using (var context = CreateContext())
@@ -1406,7 +1406,7 @@ LIMIT 1",
             }
         }
 
-        [Fact(Skip = "QueryIssue")]
+        [ConditionalFact(Skip = "QueryIssue")]
         public virtual void Can_query_divide_of_converted_types()
         {
             using (var context = CreateContext())
@@ -1442,7 +1442,7 @@ LIMIT 1",
             }
         }
 
-        [Fact(Skip = "QueryIssue")]
+        [ConditionalFact(Skip = "QueryIssue")]
         public virtual void Can_query_multiply_of_converted_types()
         {
             using (var context = CreateContext())
@@ -1478,7 +1478,7 @@ LIMIT 1",
             }
         }
 
-        [Fact(Skip = "QueryIssue")]
+        [ConditionalFact(Skip = "QueryIssue")]
         public virtual void Can_query_modulo_of_converted_types()
         {
             using (var context = CreateContext())

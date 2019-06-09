@@ -8,7 +8,7 @@ namespace Microsoft.EntityFrameworkCore
 {
     public class EFTest
     {
-        [Fact]
+        [ConditionalFact]
         public void Property_throws_when_invoked_outside_of_query()
         {
             Assert.Equal(

@@ -27,7 +27,7 @@ namespace Microsoft.EntityFrameworkCore
         private readonly IConventionSetBuilder _nullConventionSetBuilder
             = new NullConventionSetBuilder();
 
-        [Fact]
+        [ConditionalFact]
         public void OnModelCreating_is_only_called_once()
         {
             const int threadCount = 5;
@@ -70,7 +70,7 @@ namespace Microsoft.EntityFrameworkCore
                     .UseInMemoryDatabase(nameof(SlowContext));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Adds_all_entities_based_on_all_distinct_entity_types_found()
         {
             var setFinder = new FakeSetFinder();
@@ -123,7 +123,7 @@ namespace Microsoft.EntityFrameworkCore
             public int Id { get; set; }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Caches_model_by_context_type()
         {
             var modelSource = CreateDefaultModelSource(new DbSetFinder());
@@ -136,7 +136,7 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Same(model2, modelSource.GetModel(new Context2(), _nullConventionSetBuilder));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Stores_model_version_information_as_annotation_on_model()
         {
             var modelSource = CreateDefaultModelSource(new DbSetFinder());

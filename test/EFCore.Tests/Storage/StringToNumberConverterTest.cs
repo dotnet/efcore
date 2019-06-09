@@ -15,7 +15,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         private static readonly StringToNumberConverter<ulong> _naturalStringToUlong
             = new StringToNumberConverter<ulong>();
 
-        [Fact]
+        [ConditionalFact]
         public void Can_convert_natural_strings_to_ulongs()
         {
             var converter = _naturalStringToUlong.ConvertToProviderExpression.Compile();
@@ -27,7 +27,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.Equal((ulong)0, converter(null));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_convert_natural_strings_to_ulongs_object()
         {
             var converter = _naturalStringToUlong.ConvertToProvider;
@@ -39,7 +39,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.Null(converter(null));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_convert_ulongs_to_natural_strings()
         {
             var converter = _naturalStringToUlong.ConvertFromProviderExpression.Compile();
@@ -49,7 +49,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.Equal("0", converter(0));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_convert_ulongs_to_natural_strings_object()
         {
             var converter = _naturalStringToUlong.ConvertFromProvider;
@@ -64,7 +64,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         private static readonly StringToNumberConverter<long> _naturalStringToLong
             = new StringToNumberConverter<long>();
 
-        [Fact]
+        [ConditionalFact]
         public void Can_convert_natural_strings_to_longs()
         {
             var converter = _naturalStringToLong.ConvertToProviderExpression.Compile();
@@ -77,7 +77,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.Equal(0, converter(null));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_convert_natural_strings_to_longs_object()
         {
             var converter = _naturalStringToLong.ConvertToProvider;
@@ -90,7 +90,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.Null(converter(null));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_convert_longs_to_natural_strings()
         {
             var converter = _naturalStringToLong.ConvertFromProviderExpression.Compile();
@@ -102,7 +102,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.Equal("0", converter(0));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_convert_longs_to_natural_strings_object()
         {
             var converter = _naturalStringToLong.ConvertFromProvider;
@@ -119,7 +119,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         private static readonly StringToNumberConverter<uint> _naturalStringToUint
             = new StringToNumberConverter<uint>();
 
-        [Fact]
+        [ConditionalFact]
         public void Can_convert_natural_strings_to_uints()
         {
             var converter = _naturalStringToUint.ConvertToProviderExpression.Compile();
@@ -131,7 +131,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.Equal((uint)0, converter(null));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_convert_natural_strings_to_uints_object()
         {
             var converter = _naturalStringToUint.ConvertToProvider;
@@ -143,7 +143,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.Null(converter(null));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_convert_uints_to_natural_strings()
         {
             var converter = _naturalStringToUint.ConvertFromProviderExpression.Compile();
@@ -153,7 +153,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.Equal("0", converter(0));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_convert_uints_to_natural_strings_object()
         {
             var converter = _naturalStringToUint.ConvertFromProvider;
@@ -168,7 +168,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         private static readonly StringToNumberConverter<int> _naturalStringToInt
             = new StringToNumberConverter<int>();
 
-        [Fact]
+        [ConditionalFact]
         public void Can_convert_natural_strings_to_ints()
         {
             var converter = _naturalStringToInt.ConvertToProviderExpression.Compile();
@@ -181,7 +181,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.Equal(0, converter(null));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_convert_natural_strings_to_ints_object()
         {
             var converter = _naturalStringToInt.ConvertToProvider;
@@ -194,7 +194,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.Null(converter(null));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_convert_ints_to_natural_strings()
         {
             var converter = _naturalStringToInt.ConvertFromProviderExpression.Compile();
@@ -206,7 +206,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.Equal("0", converter(0));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_convert_ints_to_natural_strings_object()
         {
             var converter = _naturalStringToInt.ConvertFromProvider;
@@ -223,7 +223,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         private static readonly StringToNumberConverter<ushort> _naturalStringToUshort
             = new StringToNumberConverter<ushort>();
 
-        [Fact]
+        [ConditionalFact]
         public void Can_convert_natural_strings_to_ushorts()
         {
             var converter = _naturalStringToUshort.ConvertToProviderExpression.Compile();
@@ -235,7 +235,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.Equal((ushort)0, converter(null));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_convert_natural_strings_to_ushorts_object()
         {
             var converter = _naturalStringToUshort.ConvertToProvider;
@@ -247,7 +247,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.Null(converter(null));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_convert_ushorts_to_natural_strings()
         {
             var converter = _naturalStringToUshort.ConvertFromProviderExpression.Compile();
@@ -257,7 +257,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.Equal("0", converter(0));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_convert_ushorts_to_natural_strings_object()
         {
             var converter = _naturalStringToUshort.ConvertFromProvider;
@@ -272,7 +272,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         private static readonly StringToNumberConverter<short> _naturalStringToShort
             = new StringToNumberConverter<short>();
 
-        [Fact]
+        [ConditionalFact]
         public void Can_convert_natural_strings_to_shorts()
         {
             var converter = _naturalStringToShort.ConvertToProviderExpression.Compile();
@@ -285,7 +285,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.Equal(0, converter(null));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_convert_natural_strings_to_shorts_object()
         {
             var converter = _naturalStringToShort.ConvertToProvider;
@@ -298,7 +298,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.Null(converter(null));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_convert_shorts_to_natural_strings()
         {
             var converter = _naturalStringToShort.ConvertFromProviderExpression.Compile();
@@ -310,7 +310,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.Equal("0", converter(0));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_convert_shorts_to_natural_strings_object()
         {
             var converter = _naturalStringToShort.ConvertFromProvider;
@@ -327,7 +327,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         private static readonly StringToNumberConverter<byte> _naturalStringToByte
             = new StringToNumberConverter<byte>();
 
-        [Fact]
+        [ConditionalFact]
         public void Can_convert_natural_strings_to_bytes()
         {
             var converter = _naturalStringToByte.ConvertToProviderExpression.Compile();
@@ -339,7 +339,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.Equal((byte)0, converter(null));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_convert_natural_strings_to_bytes_object()
         {
             var converter = _naturalStringToByte.ConvertToProvider;
@@ -351,7 +351,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.Null(converter(null));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_convert_bytes_to_natural_strings()
         {
             var converter = _naturalStringToByte.ConvertFromProviderExpression.Compile();
@@ -361,7 +361,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.Equal("0", converter(0));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_convert_bytes_to_natural_strings_object()
         {
             var converter = _naturalStringToByte.ConvertFromProvider;
@@ -376,7 +376,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         private static readonly StringToNumberConverter<sbyte> _naturalStringToSbyte
             = new StringToNumberConverter<sbyte>();
 
-        [Fact]
+        [ConditionalFact]
         public void Can_convert_natural_strings_to_sbytes()
         {
             var converter = _naturalStringToSbyte.ConvertToProviderExpression.Compile();
@@ -389,7 +389,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.Equal(0, converter(null));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_convert_natural_strings_to_sbytes_object()
         {
             var converter = _naturalStringToSbyte.ConvertToProvider;
@@ -402,7 +402,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.Null(converter(null));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_convert_sbytes_to_natural_strings()
         {
             var converter = _naturalStringToSbyte.ConvertFromProviderExpression.Compile();
@@ -414,7 +414,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.Equal("0", converter(0));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_convert_sbytes_to_natural_strings_object()
         {
             var converter = _naturalStringToSbyte.ConvertFromProvider;
@@ -431,7 +431,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         private static readonly StringToNumberConverter<decimal> _naturalStringToDecimal
             = new StringToNumberConverter<decimal>();
 
-        [Fact]
+        [ConditionalFact]
         public void Can_convert_natural_strings_to_decimals()
         {
             var converter = _naturalStringToDecimal.ConvertToProviderExpression.Compile();
@@ -445,7 +445,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.Equal(0, converter(null));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_convert_decimals_to_natural_strings()
         {
             var converter = _naturalStringToDecimal.ConvertFromProviderExpression.Compile();
@@ -461,7 +461,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         private static readonly StringToNumberConverter<double> _naturalStringToDouble
             = new StringToNumberConverter<double>();
 
-        [Fact]
+        [ConditionalFact]
         public void Can_convert_natural_strings_to_doubles()
         {
             var converter = _naturalStringToDouble.ConvertToProviderExpression.Compile();
@@ -475,7 +475,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.Equal(0, converter(null));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_convert_doubles_to_natural_strings()
         {
             var converter = _naturalStringToDouble.ConvertFromProviderExpression.Compile();
@@ -491,7 +491,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         private static readonly StringToNumberConverter<float> _naturalStringToFloat
             = new StringToNumberConverter<float>();
 
-        [Fact]
+        [ConditionalFact]
         public void Can_convert_natural_strings_to_floats()
         {
             var converter = _naturalStringToFloat.ConvertToProviderExpression.Compile();
@@ -505,7 +505,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.Equal(0, converter(null));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_convert_floats_to_natural_strings()
         {
             var converter = _naturalStringToFloat.ConvertFromProviderExpression.Compile();
@@ -521,7 +521,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         private static readonly StringToNumberConverter<sbyte?> _naturalStringToNullableSbyte
             = new StringToNumberConverter<sbyte?>();
 
-        [Fact]
+        [ConditionalFact]
         public void Can_convert_natural_strings_to_nullable_sbytes()
         {
             var converter = _naturalStringToNullableSbyte.ConvertToProviderExpression.Compile();
@@ -534,7 +534,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.Null(converter(null));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_convert_natural_strings_to_nullable_sbytes_object()
         {
             var converter = _naturalStringToNullableSbyte.ConvertToProvider;
@@ -547,7 +547,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.Null(converter(null));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_convert_nullable_sbytes_to_natural_strings()
         {
             var converter = _naturalStringToNullableSbyte.ConvertFromProviderExpression.Compile();
@@ -560,7 +560,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.Null(converter(null));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_convert_nullable_sbytes_to_natural_strings_object()
         {
             var converter = _naturalStringToNullableSbyte.ConvertFromProvider;
@@ -573,7 +573,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.Null(converter(null));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void String_to_integer_converter_throws_for_bad_type()
         {
             Assert.Equal(

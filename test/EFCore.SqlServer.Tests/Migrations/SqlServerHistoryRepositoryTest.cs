@@ -14,7 +14,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
     {
         private static string EOL => Environment.NewLine;
 
-        [Fact]
+        [ConditionalFact]
         public void GetCreateScript_works()
         {
             var sql = CreateHistoryRepository().GetCreateScript();
@@ -28,7 +28,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 sql);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void GetCreateScript_works_with_schema()
         {
             var sql = CreateHistoryRepository("my").GetCreateScript();
@@ -43,7 +43,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 sql);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void GetCreateIfNotExistsScript_works()
         {
             var sql = CreateHistoryRepository().GetCreateIfNotExistsScript();
@@ -60,7 +60,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 sql);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void GetCreateIfNotExistsScript_works_with_schema()
         {
             var sql = CreateHistoryRepository("my").GetCreateIfNotExistsScript();
@@ -78,7 +78,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 sql);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void GetDeleteScript_works()
         {
             var sql = CreateHistoryRepository().GetDeleteScript("Migration1");
@@ -89,7 +89,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 sql);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void GetInsertScript_works()
         {
             var sql = CreateHistoryRepository().GetInsertScript(
@@ -101,7 +101,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 sql);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void GetBeginIfNotExistsScript_works()
         {
             var sql = CreateHistoryRepository().GetBeginIfNotExistsScript("Migration1");
@@ -112,7 +112,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 sql);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void GetBeginIfExistsScript_works()
         {
             var sql = CreateHistoryRepository().GetBeginIfExistsScript("Migration1");
@@ -123,7 +123,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 sql);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void GetEndIfScript_works()
         {
             var sql = CreateHistoryRepository().GetEndIfScript();

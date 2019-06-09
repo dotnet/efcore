@@ -17,7 +17,7 @@ namespace Microsoft.EntityFrameworkCore
 {
     public class SqlServerValueGeneratorSelectorTest
     {
-        [Fact]
+        [ConditionalFact]
         public void Returns_built_in_generators_for_types_setup_for_value_generation()
         {
             var model = BuildModel();
@@ -42,7 +42,7 @@ namespace Microsoft.EntityFrameworkCore
             Assert.IsType<SqlServerSequenceHiLoValueGenerator<int>>(selector.Select(entityType.FindProperty("AlwaysSequence"), entityType));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Returns_temp_guid_generator_when_default_sql_set()
         {
             var model = BuildModel();
@@ -55,7 +55,7 @@ namespace Microsoft.EntityFrameworkCore
             Assert.IsType<TemporaryGuidValueGenerator>(selector.Select(entityType.FindProperty("Guid"), entityType));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Returns_temp_string_generator_when_default_sql_set()
         {
             var model = BuildModel();
@@ -70,7 +70,7 @@ namespace Microsoft.EntityFrameworkCore
             Assert.True(generator.GeneratesTemporaryValues);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Returns_temp_binary_generator_when_default_sql_set()
         {
             var model = BuildModel();
@@ -85,7 +85,7 @@ namespace Microsoft.EntityFrameworkCore
             Assert.True(generator.GeneratesTemporaryValues);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Returns_sequence_value_generators_when_configured_for_model()
         {
             var model = BuildModel();
@@ -113,7 +113,7 @@ namespace Microsoft.EntityFrameworkCore
             Assert.IsType<SqlServerSequenceHiLoValueGenerator<int>>(selector.Select(entityType.FindProperty("AlwaysSequence"), entityType));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Throws_for_unsupported_combinations()
         {
             var model = BuildModel();
@@ -126,7 +126,7 @@ namespace Microsoft.EntityFrameworkCore
                 Assert.Throws<NotSupportedException>(() => selector.Select(entityType.FindProperty("Random"), entityType)).Message);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Returns_generator_configured_on_model_when_property_is_identity()
         {
             var model = SqlServerTestHelpers.Instance.BuildModelFor<AnEntity>();

@@ -10,37 +10,37 @@ namespace Microsoft.EntityFrameworkCore.Utilities
 {
     public class EnumerableExtensionsTest
     {
-        [Fact]
+        [ConditionalFact]
         public void Order_by_ordinal_should_respect_case()
         {
             Assert.Equal(new[] { "A", "a", "b" }, new[] { "b", "A", "a" }.OrderByOrdinal(s => s));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Join_empty_input_returns_empty_string()
         {
             Assert.Equal("", Array.Empty<object>().Join());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Join_single_element_does_not_use_separator()
         {
             Assert.Equal("42", new object[] { 42 }.Join());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Join_should_use_comma_by_default()
         {
             Assert.Equal("42, bar", new object[] { 42, "bar" }.Join());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Join_should_use_explicit_separator_when_provided()
         {
             Assert.Equal("42-bar", new object[] { 42, "bar" }.Join("-"));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Structural_sequence_equal_uses_structural_comparison_for_elements_()
         {
             var value1A = new byte[] { 1, 2, 3, 4 };

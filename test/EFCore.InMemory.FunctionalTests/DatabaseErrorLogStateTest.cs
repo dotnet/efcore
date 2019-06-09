@@ -20,11 +20,11 @@ namespace Microsoft.EntityFrameworkCore
 {
     public class DatabaseErrorLogStateTest
     {
-        [Fact]
+        [ConditionalFact]
         public Task SaveChanges_logs_DatabaseErrorLogState_nonasync()
             => SaveChanges_logs_DatabaseErrorLogState_test(async: false);
 
-        [Fact]
+        [ConditionalFact]
         public Task SaveChanges_logs_DatabaseErrorLogState_async()
             => SaveChanges_logs_DatabaseErrorLogState_test(async: true);
 
@@ -63,15 +63,15 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public Task Query_logs_DatabaseErrorLogState_during_DbSet_enumeration()
             => Query_logs_DatabaseErrorLogState_test(c => c.Blogs.ToList());
 
-        [Fact]
+        [ConditionalFact]
         public Task Query_logs_DatabaseErrorLogState_during_DbSet_enumeration_async()
             => Query_logs_DatabaseErrorLogState_test(c => c.Blogs.ToListAsync());
 
-        [Fact]
+        [ConditionalFact]
         public Task Query_logs_DatabaseErrorLogState_during_LINQ_enumeration()
             => Query_logs_DatabaseErrorLogState_test(
                 c => c.Blogs
@@ -79,7 +79,7 @@ namespace Microsoft.EntityFrameworkCore
                     .Where(b => b.Url.StartsWith("http://"))
                     .ToList());
 
-        [Fact]
+        [ConditionalFact]
         public Task Query_logs_DatabaseErrorLogState_during_LINQ_enumeration_async()
             => Query_logs_DatabaseErrorLogState_test(
                 c => c.Blogs
@@ -87,11 +87,11 @@ namespace Microsoft.EntityFrameworkCore
                     .Where(b => b.Url.StartsWith("http://"))
                     .ToListAsync());
 
-        [Fact]
+        [ConditionalFact]
         public Task Query_logs_DatabaseErrorLogState_during_single()
             => Query_logs_DatabaseErrorLogState_test(c => c.Blogs.FirstOrDefault());
 
-        [Fact]
+        [ConditionalFact]
         public Task Query_logs_DatabaseErrorLogState_during_single_async()
             => Query_logs_DatabaseErrorLogState_test(c => c.Blogs.FirstOrDefaultAsync());
 

@@ -10,7 +10,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
     public class IndexedPropertyGetterFactoryTest
     {
-        [Fact]
+        [ConditionalFact]
         public void Delegate_getter_is_returned_for_indexed_property()
         {
             var entityType = ((IMutableModel)new Model()).AddEntityType(typeof(IndexedClass));
@@ -25,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 123, new IndexedPropertyGetterFactory().Create(propertyB).GetClrValue(indexedClass));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Exception_is_returned_for_indexed_property_without_indexer()
         {
             var entityType = ((IMutableModel)new Model()).AddEntityType(typeof(NonIndexedClass));

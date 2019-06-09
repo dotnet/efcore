@@ -76,14 +76,14 @@ namespace Microsoft.EntityFrameworkCore.Query
             return Assert.ThrowsAsync<ObjectDisposedException>(() => task.SingleAsync(c => c.CustomerID == "ALFKI"));
         }
 
-        [Fact(Skip = "QueryIssue")]
+        [ConditionalFact(Skip = "QueryIssue")]
         public Task Single_Predicate_Cancellation()
         {
             return Assert.ThrowsAnyAsync<OperationCanceledException>(
                 () => Single_Predicate_Cancellation_test(Fixture.TestSqlLoggerFactory.CancelQuery()));
         }
 
-        [Fact(Skip = "QueryIssue")]
+        [ConditionalFact(Skip = "QueryIssue")]
         public async Task Concurrent_async_queries_are_serialized()
         {
             using (var context = CreateContext())
@@ -116,7 +116,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact(Skip = "QueryIssue")]
+        [ConditionalFact(Skip = "QueryIssue")]
         public async Task Concurrent_async_queries_are_serialized_find()
         {
             using (var context = CreateContext())
@@ -133,7 +133,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact(Skip = "QueryIssue")]
+        [ConditionalFact(Skip = "QueryIssue")]
         public async Task Concurrent_async_queries_are_serialized_mixed1()
         {
             using (var context = CreateContext())
@@ -144,7 +144,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact(Skip = "QueryIssue")]
+        [ConditionalFact(Skip = "QueryIssue")]
         public async Task Concurrent_async_queries_are_serialized_mixed2()
         {
             using (var context = CreateContext())
@@ -156,7 +156,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public async Task Concurrent_async_queries_when_raw_query()
         {
             using (var context = CreateContext())

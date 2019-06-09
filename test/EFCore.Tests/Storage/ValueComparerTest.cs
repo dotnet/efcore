@@ -12,7 +12,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
 {
     public class ValueComparerTest
     {
-        [Theory]
+        [ConditionalTheory]
         [InlineData(typeof(byte), (byte)1, (byte)2, 1)]
         [InlineData(typeof(ushort), (ushort)1, (ushort)2, 1)]
         [InlineData(typeof(uint), (uint)1, (uint)2, 1)]
@@ -81,13 +81,13 @@ namespace Microsoft.EntityFrameworkCore.Storage
             B
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Default_comparer_works_for_decimals()
         {
             CompareTest(typeof(decimal), (decimal)1, (decimal)2);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Default_comparer_works_for_structs()
         {
             CompareTest(
@@ -123,7 +123,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             public string B { get; set; }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Default_comparer_works_for_structs_with_equality()
         {
             CompareTest(
@@ -153,7 +153,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             public override int GetHashCode() => A;
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Default_comparer_works_for_structs_with_equality_operators()
         {
             CompareTest(
@@ -185,7 +185,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 => !(left == right);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Default_comparer_works_for_classes()
         {
             CompareTest(
@@ -205,7 +205,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             public int A { get; set; }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Default_comparer_works_for_classes_with_equality_members()
         {
             var comparer = CompareTest(
@@ -246,7 +246,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             public override int GetHashCode() => A;
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Default_comparer_works_for_classes_with_equality_operators()
         {
             var comparer = CompareTest(
@@ -316,7 +316,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.Equal(hashCode ?? value1.GetHashCode(), getKeyHashCode(value1));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Default_raw_comparer_works_for_non_null_normal_types()
         {
             GenericCompareTest<byte>(1, 2, 1);
@@ -384,7 +384,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 });
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Default_comparer_works_for_normal_types_mixing_nullables()
         {
             CompareTest(typeof(byte), (byte)1, (byte?)2, 1);
@@ -435,7 +435,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 });
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Default_comparer_works_for_normal_nullable_types_mixing_nullables()
         {
             CompareTest(typeof(byte?), (byte)1, (byte?)2, 1);
@@ -486,7 +486,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 });
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_clone_to_nullable()
         {
             CompareTest(typeof(byte), (byte)1, (byte?)2, 1, true);
@@ -543,7 +543,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 true);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Structural_objects_get_deep_key_comperer_by_default()
         {
             var comparer = new ValueComparer<byte[]>(false);
@@ -582,7 +582,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             public byte Value1 { get; }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_define_different_custom_equals_for_key_and_non_key()
         {
             var comparer = new ValueComparer<Binary>(
@@ -632,7 +632,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         private static readonly MethodInfo _getValue1Method
             = typeof(DeepBinary).GetProperty(nameof(DeepBinary.Value1)).GetMethod;
 
-        [Fact]
+        [ConditionalFact]
         public void Can_create_new_comparer_composing_existing_comparers()
         {
             var bytesComparer = new ValueComparer<byte[]>(false);

@@ -12,7 +12,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         private static readonly GuidToBytesConverter _guidToBytes
             = new GuidToBytesConverter();
 
-        [Fact]
+        [ConditionalFact]
         public void Can_convert_GUIDs_to_bytes()
         {
             var converter = _guidToBytes.ConvertToProviderExpression.Compile();
@@ -26,7 +26,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 converter(Guid.Empty));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_convert_GUIDs_to_bytes_object()
         {
             var converter = _guidToBytes.ConvertToProvider;
@@ -50,7 +50,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.Null(converter(null));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_convert_bytes_to_GUIDs()
         {
             var converter = _guidToBytes.ConvertFromProviderExpression.Compile();
@@ -78,7 +78,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.Equal(Guid.Empty, converter(null));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_convert_bytes_to_GUIDs_object()
         {
             var converter = _guidToBytes.ConvertFromProvider;

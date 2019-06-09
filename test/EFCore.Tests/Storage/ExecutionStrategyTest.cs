@@ -37,7 +37,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                     return null;
                 });
 
-        [Fact]
+        [ConditionalFact]
         public void GetNextDelay_returns_the_expected_default_sequence()
         {
             var strategy = new TestExecutionStrategy(Context);
@@ -69,7 +69,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void RetriesOnFailure_returns_true()
         {
             var mockExecutionStrategy = new TestExecutionStrategy(Context);
@@ -77,13 +77,13 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.True(mockExecutionStrategy.RetriesOnFailure);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Execute_Action_throws_for_an_existing_transaction()
         {
             Execute_throws_for_an_existing_transaction(e => e.Execute(() => { }));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Execute_Func_throws_for_an_existing_transaction()
         {
             Execute_throws_for_an_existing_transaction(e => e.Execute(() => 1));
@@ -103,13 +103,13 @@ namespace Microsoft.EntityFrameworkCore.Storage
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Execute_Action_throws_for_an_ambient_transaction()
         {
             Execute_throws_for_an_ambient_transaction(e => e.Execute(() => { }));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Execute_Func_throws_for_an_ambient_transaction()
         {
             Execute_throws_for_an_ambient_transaction(e => e.Execute(() => 1));
@@ -129,13 +129,13 @@ namespace Microsoft.EntityFrameworkCore.Storage
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Execute_Action_throws_for_an_enlisted_transaction()
         {
             Execute_throws_for_an_enlisted_transaction(e => e.Execute(() => { }));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Execute_Func_throws_for_an_enlisted_transaction()
         {
             Execute_throws_for_an_enlisted_transaction(e => e.Execute(() => 1));
@@ -157,13 +157,13 @@ namespace Microsoft.EntityFrameworkCore.Storage
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Execute_Action_does_not_throw_when_invoked_twice()
         {
             Execute_does_not_throw_when_invoked_twice((e, f) => e.Execute(() => f()));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Execute_Func_does_not_throw_when_invoked_twice()
         {
             Execute_does_not_throw_when_invoked_twice((e, f) => e.Execute(f));
@@ -196,13 +196,13 @@ namespace Microsoft.EntityFrameworkCore.Storage
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Execute_Action_doesnt_retry_if_succesful()
         {
             Execute_doesnt_retry_if_succesful((e, f) => e.Execute(() => f()));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Execute_Func_doesnt_retry_if_succesful()
         {
             Execute_doesnt_retry_if_succesful((e, f) => e.Execute(f));
@@ -216,13 +216,13 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.Equal(1, executionCount);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Execute_Action_doesnt_retry_if_suspended()
         {
             Execute_doesnt_retry_if_suspended((e, f) => e.Execute(() => f()));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Execute_Func_doesnt_retry_if_suspended()
         {
             Execute_doesnt_retry_if_suspended((e, f) => e.Execute(f));
@@ -245,13 +245,13 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.Equal(1, executionCount);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Execute_Action_retries_until_succesful()
         {
             Execute_retries_until_succesful((e, f) => e.Execute(() => f()));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Execute_Func_retries_until_succesful()
         {
             Execute_retries_until_succesful((e, f) => e.Execute(f));
@@ -280,13 +280,13 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.Equal(4, executionCount);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Execute_Action_retries_until_not_retrieable_exception_is_thrown()
         {
             Execute_retries_until_not_retrieable_exception_is_thrown((e, f) => e.Execute(() => f()));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Execute_Func_retries_until_not_retrieable_exception_is_thrown()
         {
             Execute_retries_until_not_retrieable_exception_is_thrown((e, f) => e.Execute(f));
@@ -317,13 +317,13 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.Equal(4, executionCount);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Execute_Action_retries_until_limit_is_reached()
         {
             Execute_retries_until_limit_is_reached((e, f) => e.Execute(() => f()));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Execute_Func_retries_until_limit_is_reached()
         {
             Execute_retries_until_limit_is_reached((e, f) => e.Execute(f));
@@ -358,13 +358,13 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.Equal(3, executionCount);
         }
 
-        [Fact]
+        [ConditionalFact]
         public Task ExecuteAsync_Action_throws_for_an_existing_transaction()
         {
             return ExecuteAsync_throws_for_an_existing_transaction(e => e.ExecuteAsync(() => (Task)Task.FromResult(1)));
         }
 
-        [Fact]
+        [ConditionalFact]
         public Task ExecuteAsync_Func_throws_for_an_existing_transaction()
         {
             return ExecuteAsync_throws_for_an_existing_transaction(e => e.ExecuteAsync(ct => Task.FromResult(1), CancellationToken.None));
@@ -383,13 +383,13 @@ namespace Microsoft.EntityFrameworkCore.Storage
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public async Task ExecuteAsync_Action_throws_for_an_ambient_transaction()
         {
             await ExecuteAsync_throws_for_an_ambient_transaction(e => e.ExecuteAsync(() => (Task)Task.FromResult(1)));
         }
 
-        [Fact]
+        [ConditionalFact]
         public async Task ExecuteAsync_Func_throws_for_an_ambient_transaction()
         {
             await ExecuteAsync_throws_for_an_ambient_transaction(e => e.ExecuteAsync(ct => Task.FromResult(1), CancellationToken.None));
@@ -409,13 +409,13 @@ namespace Microsoft.EntityFrameworkCore.Storage
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public async Task ExecuteAsync_Action_throws_for_an_enlisted_transaction()
         {
             await ExecuteAsync_throws_for_an_enlisted_transaction(e => e.ExecuteAsync(() => (Task)Task.FromResult(1)));
         }
 
-        [Fact]
+        [ConditionalFact]
         public async Task ExecuteAsync_Func_throws_for_an_enlisted_transaction()
         {
             await ExecuteAsync_throws_for_an_enlisted_transaction(e => e.ExecuteAsync(ct => Task.FromResult(1), CancellationToken.None));
@@ -437,13 +437,13 @@ namespace Microsoft.EntityFrameworkCore.Storage
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public Task ExecuteAsync_Action_does_not_throw_when_invoked_twice()
         {
             return ExecuteAsync_does_not_throw_when_invoked_twice((e, f) => e.ExecuteAsync(() => (Task)f(CancellationToken.None)));
         }
 
-        [Fact]
+        [ConditionalFact]
         public Task ExecuteAsync_Func_does_not_throw_when_invoked_twice()
         {
             return ExecuteAsync_does_not_throw_when_invoked_twice((e, f) => e.ExecuteAsync(f, CancellationToken.None));
@@ -477,13 +477,13 @@ namespace Microsoft.EntityFrameworkCore.Storage
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public Task ExecuteAsync_Action_doesnt_retry_if_succesful()
         {
             return ExecuteAsync_doesnt_retry_if_succesful((e, f) => e.ExecuteAsync(ct => (Task)f(ct), CancellationToken.None));
         }
 
-        [Fact]
+        [ConditionalFact]
         public Task ExecuteAsync_Func_doesnt_retry_if_succesful()
         {
             return ExecuteAsync_doesnt_retry_if_succesful((e, f) => e.ExecuteAsync(f, CancellationToken.None));
@@ -498,13 +498,13 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.Equal(1, executionCount);
         }
 
-        [Fact]
+        [ConditionalFact]
         public Task ExecuteAsync_Action_doesnt_retry_if_suspended()
         {
             return ExecuteAsync_doesnt_retry_if_suspended((e, f) => e.ExecuteAsync(() => (Task)f(CancellationToken.None)));
         }
 
-        [Fact]
+        [ConditionalFact]
         public Task ExecuteAsync_Func_doesnt_retry_if_suspended()
         {
             return ExecuteAsync_doesnt_retry_if_suspended((e, f) => e.ExecuteAsync(f, CancellationToken.None));
@@ -528,13 +528,13 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.Equal(1, executionCount);
         }
 
-        [Fact]
+        [ConditionalFact]
         public Task ExecuteAsync_Action_retries_until_succesful()
         {
             return ExecuteAsync_retries_until_succesful((e, f) => e.ExecuteAsync(ct => (Task)f(ct), CancellationToken.None));
         }
 
-        [Fact]
+        [ConditionalFact]
         public Task ExecuteAsync_Func_retries_until_succesful()
         {
             return ExecuteAsync_retries_until_succesful((e, f) => e.ExecuteAsync(f, CancellationToken.None));
@@ -564,14 +564,14 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.Equal(4, executionCount);
         }
 
-        [Fact]
+        [ConditionalFact]
         public Task ExecuteAsync_Action_retries_until_not_retrieable_exception_is_thrown()
         {
             return ExecuteAsync_retries_until_not_retrieable_exception_is_thrown(
                 (e, f) => e.ExecuteAsync(ct => (Task)f(ct), CancellationToken.None));
         }
 
-        [Fact]
+        [ConditionalFact]
         public Task ExecuteAsync_Func_retries_until_not_retrieable_exception_is_thrown()
         {
             return ExecuteAsync_retries_until_not_retrieable_exception_is_thrown((e, f) => e.ExecuteAsync(f, CancellationToken.None));
@@ -602,13 +602,13 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.Equal(4, executionCount);
         }
 
-        [Fact]
+        [ConditionalFact]
         public Task ExecuteAsync_Action_retries_until_limit_is_reached()
         {
             return ExecuteAsync_retries_until_limit_is_reached((e, f) => e.ExecuteAsync(ct => (Task)f(ct), CancellationToken.None));
         }
 
-        [Fact]
+        [ConditionalFact]
         public Task ExecuteAsync_Func_retries_until_limit_is_reached()
         {
             return ExecuteAsync_retries_until_limit_is_reached((e, f) => e.ExecuteAsync(f, CancellationToken.None));

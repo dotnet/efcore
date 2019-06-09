@@ -14,7 +14,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 {
     public class RelationalPropertyMappingValidationConventionTest : PropertyMappingValidationConventionTest
     {
-        [Fact]
+        [ConditionalFact]
         public void Throws_when_added_property_is_not_mapped_to_store()
         {
             var modelBuilder = CreateConventionlessModelBuilder().GetInfrastructure();
@@ -28,7 +28,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 Assert.Throws<InvalidOperationException>(() => CreatePropertyMappingValidator()(modelBuilder.Metadata)).Message);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Throws_when_added_property_is_not_mapped_to_store_even_if_configured_to_use_column_type()
         {
             var modelBuilder = CreateConventionlessModelBuilder().GetInfrastructure();

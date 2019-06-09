@@ -18,7 +18,7 @@ namespace Microsoft.EntityFrameworkCore
 {
     public class LazyLoadingProxyTests
     {
-        [Fact]
+        [ConditionalFact]
         public void Materialization_uses_parameterless_constructor()
         {
             using (var context = new NeweyContext(nameof(Materialization_uses_parameterless_constructor)))
@@ -33,7 +33,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Materialization_uses_parameterized_constructor()
         {
             using (var context = new NeweyContext(nameof(Materialization_uses_parameterized_constructor)))
@@ -52,7 +52,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Materialization_uses_parameterized_constructor_taking_context()
         {
             using (var context = new NeweyContext(nameof(Materialization_uses_parameterized_constructor_taking_context)))
@@ -72,7 +72,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void CreateProxy_uses_parameterless_constructor()
         {
             using (var context = new NeweyContext())
@@ -81,7 +81,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void CreateProxy_uses_parameterized_constructor()
         {
             using (var context = new NeweyContext())
@@ -94,7 +94,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void CreateProxy_uses_parameterized_constructor_taking_context()
         {
             using (var context = new NeweyContext())
@@ -108,7 +108,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Proxies_only_created_if_Use_called()
         {
             using (var context = new NeweyContext(nameof(Proxies_only_created_if_Use_called), false))
@@ -128,7 +128,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Proxy_services_must_be_available()
         {
             var withoutProxies = new ServiceCollection()
@@ -160,7 +160,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Throws_if_sealed_class()
         {
             using (var context = new NeweyContextN1())
@@ -172,7 +172,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Throws_if_non_virtual_navigation()
         {
             using (var context = new NeweyContextN2())
@@ -184,7 +184,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Throws_if_no_field_found()
         {
             using (var context = new NeweyContextN3())
@@ -196,7 +196,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Throws_if_type_not_available_to_Castle()
         {
             using (var context = new NeweyContextN4())
@@ -205,7 +205,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Throws_if_constructor_not_available_to_Castle()
         {
             using (var context = new NeweyContextN5())
@@ -214,7 +214,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void CreateProxy_throws_if_constructor_args_do_not_match()
         {
             using (var context = new NeweyContext())
@@ -223,7 +223,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void CreateProxy_throws_if_wrong_number_of_constructor_args()
         {
             using (var context = new NeweyContext())
@@ -232,7 +232,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Throws_if_create_proxy_for_non_mapped_type()
         {
             using (var context = new NeweyContextN())
@@ -244,7 +244,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Throws_if_create_proxy_when_proxies_not_used()
         {
             using (var context = new NeweyContextN6())
@@ -256,7 +256,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Throws_if_create_proxy_when_proxies_not_enabled()
         {
             using (var context = new NeweyContextN7())
@@ -268,7 +268,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Throws_when_context_is_disposed()
         {
             var serviceProvider = new ServiceCollection()

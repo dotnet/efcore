@@ -14,7 +14,7 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
 {
     public class ValueGeneratorSelectorTest
     {
-        [Fact]
+        [ConditionalFact]
         public void Returns_built_in_generators_for_types_setup_for_value_generation()
         {
             var model = BuildModel();
@@ -68,7 +68,7 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
             Assert.IsType<BinaryValueGenerator>(selector.Select(entityType.FindProperty("Binary"), entityType));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Throws_for_unsupported_combinations()
         {
             var model = BuildModel();

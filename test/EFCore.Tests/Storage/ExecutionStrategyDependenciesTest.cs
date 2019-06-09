@@ -8,7 +8,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
 {
     public class ExecutionStrategyDependenciesTest
     {
-        [Fact]
+        [ConditionalFact]
         public void Can_use_With_methods_to_clone_and_replace_service()
         {
             InMemoryTestHelpers.Instance.TestDependenciesClone<ExecutionStrategyDependencies>();

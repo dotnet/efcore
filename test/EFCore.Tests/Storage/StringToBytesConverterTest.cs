@@ -13,7 +13,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         private static readonly StringToBytesConverter _stringToUtf8Converter
             = new StringToBytesConverter(Encoding.UTF8);
 
-        [Fact]
+        [ConditionalFact]
         public void Can_convert_strings_to_UTF8()
         {
             var converter = _stringToUtf8Converter.ConvertToProviderExpression.Compile();
@@ -23,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.Null(converter(null));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_convert_UTF8_to_strings()
         {
             var converter = _stringToUtf8Converter.ConvertFromProviderExpression.Compile();

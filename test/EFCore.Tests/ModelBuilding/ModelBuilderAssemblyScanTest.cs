@@ -26,7 +26,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 typeof(ScannerCustomerEntityConfiguration), typeof(ScannerCustomer2QueryConfiguration));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Should_scan_assemblies_for_entity_type_configurations()
         {
             var builder = CreateModelBuilder();
@@ -43,7 +43,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             Assert.Single(entityType.GetIndexes());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Should_support_filtering_for_entity_type_configurations()
         {
             var builder = CreateModelBuilder();
@@ -61,7 +61,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             Assert.Empty(entityType.GetIndexes());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Should_skip_abstract_classes_for_entity_type_configurations()
         {
             var builder = CreateModelBuilder();
@@ -73,7 +73,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             Assert.Null(entityType);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Should_scan_assemblies_for_query_type_configurations()
         {
             var builder = CreateModelBuilder();
@@ -90,7 +90,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             Assert.Equal(2000, entityType.FindProperty(nameof(ScannerCustomer.Address)).GetMaxLength());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Should_support_filtering_for_query_type_configurations()
         {
             var builder = CreateModelBuilder();
@@ -107,7 +107,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             Assert.Null(entityType.FindProperty(nameof(ScannerCustomer.Address)).GetMaxLength());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Should_skip_abstract_classes_for_query_type_configurations()
         {
             var builder = CreateModelBuilder();
@@ -119,7 +119,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             Assert.Null(entityType);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Should_support_both_entity_and_query_type_configurations_in_same_assembly()
         {
             var builder = CreateModelBuilder();

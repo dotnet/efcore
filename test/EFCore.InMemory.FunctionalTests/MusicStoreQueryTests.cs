@@ -11,7 +11,7 @@ namespace Microsoft.EntityFrameworkCore
 {
     public class MusicStoreQueryTests
     {
-        [Fact]
+        [ConditionalFact]
         public void Music_store_project_to_mapped_entity()
         {
             var serviceProvider

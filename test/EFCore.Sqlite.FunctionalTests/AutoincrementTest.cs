@@ -15,7 +15,7 @@ namespace Microsoft.EntityFrameworkCore
 
         protected AutoincrementFixture Fixture { get; }
 
-        [Fact]
+        [ConditionalFact]
         public void Autoincrement_prevents_reusing_rowid()
         {
             using (var context = CreateContext())

@@ -13,7 +13,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 {
     public class CSharpModelGeneratorTest
     {
-        [Fact]
+        [ConditionalFact]
         public void Language_works()
         {
             var generator = CreateGenerator();
@@ -23,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             Assert.Equal("C#", result);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void WriteCode_works()
         {
             var generator = CreateGenerator();

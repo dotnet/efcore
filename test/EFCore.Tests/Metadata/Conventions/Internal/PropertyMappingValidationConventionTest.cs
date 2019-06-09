@@ -20,7 +20,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 {
     public class PropertyMappingValidationConventionTest : ModelValidatorTestBase
     {
-        [Fact]
+        [ConditionalFact]
         public virtual void Throws_when_added_property_is_not_of_primitive_type()
         {
             var modelBuilder = CreateConventionlessModelBuilder().GetInfrastructure();
@@ -35,7 +35,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 Assert.Throws<InvalidOperationException>(() => CreatePropertyMappingValidator()(modelBuilder.Metadata)).Message);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Does_not_throw_when_added_shadow_property_by_convention_is_not_of_primitive_type()
         {
             var modelBuilder = CreateConventionlessModelBuilder().GetInfrastructure();
@@ -46,7 +46,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             CreatePropertyMappingValidator()(modelBuilder.Metadata);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Throws_when_primitive_type_property_is_not_added_or_ignored()
         {
             var modelBuilder = CreateConventionlessModelBuilder().GetInfrastructure();
@@ -58,7 +58,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 Assert.Throws<InvalidOperationException>(() => CreatePropertyMappingValidator()(modelBuilder.Metadata)).Message);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Throws_when_nonprimitive_value_type_property_is_not_added_or_ignored()
         {
             var modelBuilder = CreateConventionlessModelBuilder().GetInfrastructure();
@@ -70,7 +70,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 Assert.Throws<InvalidOperationException>(() => CreatePropertyMappingValidator()(modelBuilder.Metadata)).Message);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Throws_when_keyless_type_property_is_not_added_or_ignored()
         {
             var modelBuilder = CreateConventionlessModelBuilder().GetInfrastructure();
@@ -84,7 +84,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 Assert.Throws<InvalidOperationException>(() => CreatePropertyMappingValidator()(modelBuilder.Metadata)).Message);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Does_not_throw_when_primitive_type_property_is_added()
         {
             var modelBuilder = CreateConventionlessModelBuilder().GetInfrastructure();
@@ -94,7 +94,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             CreatePropertyMappingValidator()(modelBuilder.Metadata);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Does_not_throw_when_primitive_type_property_is_ignored()
         {
             var modelBuilder = CreateConventionlessModelBuilder().GetInfrastructure();
@@ -104,7 +104,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             CreatePropertyMappingValidator()(modelBuilder.Metadata);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Throws_when_navigation_is_not_added_or_ignored()
         {
             var modelBuilder = CreateConventionlessModelBuilder().GetInfrastructure();
@@ -117,7 +117,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 Assert.Throws<InvalidOperationException>(() => CreatePropertyMappingValidator()(modelBuilder.Metadata)).Message);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Does_not_throw_when_navigation_is_added()
         {
             var modelBuilder = CreateConventionlessModelBuilder().GetInfrastructure();
@@ -129,7 +129,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             CreatePropertyMappingValidator()(modelBuilder.Metadata);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Does_not_throw_when_navigation_is_ignored()
         {
             var modelBuilder = CreateConventionlessModelBuilder().GetInfrastructure();
@@ -139,7 +139,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             CreatePropertyMappingValidator()(modelBuilder.Metadata);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Does_not_throw_when_navigation_target_entity_is_ignored()
         {
             var modelBuilder = CreateConventionlessModelBuilder().GetInfrastructure();
@@ -149,7 +149,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             CreatePropertyMappingValidator()(modelBuilder.Metadata);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Does_not_throw_when_explicit_navigation_is_not_added()
         {
             var modelBuilder = CreateConventionlessModelBuilder().GetInfrastructure();
@@ -162,7 +162,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             CreatePropertyMappingValidator()(modelBuilder.Metadata);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Throws_when_interface_type_property_is_not_added_or_ignored()
         {
             var modelBuilder = CreateConventionlessModelBuilder().GetInfrastructure();
@@ -176,7 +176,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 Assert.Throws<InvalidOperationException>(() => CreatePropertyMappingValidator()(modelBuilder.Metadata)).Message);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Does_not_throw_when_non_candidate_property_is_not_added()
         {
             var modelBuilder = CreateConventionlessModelBuilder().GetInfrastructure();

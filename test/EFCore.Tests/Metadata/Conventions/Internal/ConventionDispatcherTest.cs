@@ -17,7 +17,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
     {
         [InlineData(false)]
         [InlineData(true)]
-        [Theory]
+        [ConditionalTheory]
         public void OnModelInitialized_calls_conventions_in_order(bool useBuilder)
         {
             var conventions = new ConventionSet();
@@ -68,7 +68,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
         [InlineData(false)]
         [InlineData(true)]
-        [Theory]
+        [ConditionalTheory]
         public void OnModelFinalized_calls_conventions_in_order(bool useBuilder)
         {
             var conventions = new ConventionSet();
@@ -123,7 +123,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         [InlineData(true, false)]
         [InlineData(false, true)]
         [InlineData(true, true)]
-        [Theory]
+        [ConditionalTheory]
         public void OnModelAnnotationChanged_calls_conventions_in_order(bool useBuilder, bool useScope)
         {
             var conventions = new ConventionSet();
@@ -221,7 +221,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         [InlineData(true, false)]
         [InlineData(false, true)]
         [InlineData(true, true)]
-        [Theory]
+        [ConditionalTheory]
         public void OnEntityTypeAdded_calls_conventions_in_order(bool useBuilder, bool useScope)
         {
             var conventions = new ConventionSet();
@@ -269,7 +269,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         [InlineData(true, false)]
         [InlineData(false, true)]
         [InlineData(true, true)]
-        [Theory]
+        [ConditionalTheory]
         public void OnEntityTypeAdded_calls_conventions_in_order_for_weak_entity_types(bool useBuilder, bool useScope)
         {
             var conventions = new ConventionSet();
@@ -364,7 +364,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         [InlineData(true, false)]
         [InlineData(false, true)]
         [InlineData(true, true)]
-        [Theory]
+        [ConditionalTheory]
         public void OnEntityTypeIgnored_calls_conventions_in_order(bool useBuilder, bool useScope)
         {
             var conventions = new ConventionSet();
@@ -467,7 +467,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         [InlineData(true, false)]
         [InlineData(false, true)]
         [InlineData(true, true)]
-        [Theory]
+        [ConditionalTheory]
         public void OnEntityTypeMemberIgnored_calls_conventions_in_order(bool useBuilder, bool useScope)
         {
             var conventions = new ConventionSet();
@@ -547,7 +547,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         [InlineData(true, false)]
         [InlineData(false, true)]
         [InlineData(true, true)]
-        [Theory]
+        [ConditionalTheory]
         public void OnBaseTypeChanged_calls_conventions_in_order(bool useBuilder, bool useScope)
         {
             var conventions = new ConventionSet();
@@ -641,7 +641,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         [InlineData(true, false)]
         [InlineData(false, true)]
         [InlineData(true, true)]
-        [Theory]
+        [ConditionalTheory]
         public void OnPrimaryKeyChanged_calls_conventions_in_order(bool useBuilder, bool useScope)
         {
             var conventions = new ConventionSet();
@@ -744,7 +744,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         [InlineData(true, false)]
         [InlineData(false, true)]
         [InlineData(true, true)]
-        [Theory]
+        [ConditionalTheory]
         public void OnEntityTypeAnnotationChanged_calls_conventions_in_order(bool useBuilder, bool useScope)
         {
             var conventions = new ConventionSet();
@@ -841,7 +841,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         [InlineData(true, false)]
         [InlineData(false, true)]
         [InlineData(true, true)]
-        [Theory]
+        [ConditionalTheory]
         public void OnForeignKeyAdded_calls_conventions_in_order(bool useBuilder, bool useScope)
         {
             var conventions = new ConventionSet();
@@ -917,7 +917,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
         [InlineData(false)]
         [InlineData(true)]
-        [Theory]
+        [ConditionalTheory]
         public void OnForeignKeyRemoved_calls_conventions_in_order(bool useScope)
         {
             var conventions = new ConventionSet();
@@ -983,7 +983,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
         [InlineData(false)]
         [InlineData(true)]
-        [Theory]
+        [ConditionalTheory]
         public void OnForeignKeyPrincipalEndChanged_calls_conventions_in_order(bool useScope)
         {
             var conventions = new ConventionSet();
@@ -1109,7 +1109,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
         [InlineData(false)]
         [InlineData(true)]
-        [Theory]
+        [ConditionalTheory]
         public void OnForeignKeyPropertiesChangedConvention_calls_conventions_in_order(bool useScope)
         {
             var conventions = new ConventionSet();
@@ -1182,7 +1182,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         [InlineData(true, false)]
         [InlineData(false, true)]
         [InlineData(true, true)]
-        [Theory]
+        [ConditionalTheory]
         public void OnForeignKeyUniquenessChanged_calls_conventions_in_order(bool useBuilder, bool useScope)
         {
             var conventions = new ConventionSet();
@@ -1281,7 +1281,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         [InlineData(true, false)]
         [InlineData(false, true)]
         [InlineData(true, true)]
-        [Theory]
+        [ConditionalTheory]
         public void OnForeignKeyRequirednessChanged_calls_conventions_in_order(bool useBuilder, bool useScope)
         {
             var conventions = new ConventionSet();
@@ -1380,7 +1380,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         [InlineData(true, false)]
         [InlineData(false, true)]
         [InlineData(true, true)]
-        [Theory]
+        [ConditionalTheory]
         public void OnForeignKeyOwnershipChanged_calls_conventions_in_order(bool useBuilder, bool useScope)
         {
             var conventions = new ConventionSet();
@@ -1480,7 +1480,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         [InlineData(true, false)]
         [InlineData(false, true)]
         [InlineData(true, true)]
-        [Theory]
+        [ConditionalTheory]
         public void OnForeignKeyAnnotationChanged_calls_conventions_in_order(bool useBuilder, bool useScope)
         {
             var conventions = new ConventionSet();
@@ -1590,7 +1590,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         [InlineData(true, false)]
         [InlineData(false, true)]
         [InlineData(true, true)]
-        [Theory]
+        [ConditionalTheory]
         public void OnNavigationAdded_calls_conventions_in_order(bool useBuilder, bool useScope)
         {
             var conventions = new ConventionSet();
@@ -1681,7 +1681,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         [InlineData(true, false)]
         [InlineData(false, true)]
         [InlineData(true, true)]
-        [Theory]
+        [ConditionalTheory]
         public void OnNavigationRemoved_calls_conventions_in_order(bool useBuilder, bool useScope)
         {
             var conventions = new ConventionSet();
@@ -1770,7 +1770,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         [InlineData(true, false)]
         [InlineData(false, true)]
         [InlineData(true, true)]
-        [Theory]
+        [ConditionalTheory]
         public void OnKeyAdded_calls_conventions_in_order(bool useBuilder, bool useScope)
         {
             var conventions = new ConventionSet();
@@ -1845,7 +1845,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
         [InlineData(false)]
         [InlineData(true)]
-        [Theory]
+        [ConditionalTheory]
         public void OnKeyRemoved_calls_conventions_in_order(bool useScope)
         {
             var conventions = new ConventionSet();
@@ -1913,7 +1913,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         [InlineData(true, false)]
         [InlineData(false, true)]
         [InlineData(true, true)]
-        [Theory]
+        [ConditionalTheory]
         public void OnKeyAnnotationChanged_calls_conventions_in_order(bool useBuilder, bool useScope)
         {
             var conventions = new ConventionSet();
@@ -1995,7 +1995,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             {
                 _terminate = terminate;
             }
-            
+
             public void ProcessKeyAnnotationChanged(
                 IConventionKeyBuilder keyBuilder,
                 string name, IConventionAnnotation annotation, IConventionAnnotation oldAnnotation,
@@ -2016,7 +2016,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         [InlineData(true, false)]
         [InlineData(false, true)]
         [InlineData(true, true)]
-        [Theory]
+        [ConditionalTheory]
         public void OnIndexAdded_calls_conventions_in_order(bool useBuilder, bool useScope)
         {
             var conventions = new ConventionSet();
@@ -2090,7 +2090,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
         [InlineData(false)]
         [InlineData(true)]
-        [Theory]
+        [ConditionalTheory]
         public void OnIndexRemoved_calls_conventions_in_order(bool useScope)
         {
             var conventions = new ConventionSet();
@@ -2155,7 +2155,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         [InlineData(true, false)]
         [InlineData(false, true)]
         [InlineData(true, true)]
-        [Theory]
+        [ConditionalTheory]
         public void OnIndexUniquenessChanged_calls_conventions_in_order(bool useBuilder, bool useScope)
         {
             var conventions = new ConventionSet();
@@ -2254,7 +2254,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         [InlineData(true, false)]
         [InlineData(false, true)]
         [InlineData(true, true)]
-        [Theory]
+        [ConditionalTheory]
         public void OnIndexAnnotationChanged_calls_conventions_in_order(bool useBuilder, bool useScope)
         {
             var conventions = new ConventionSet();
@@ -2354,7 +2354,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         [InlineData(true, false)]
         [InlineData(false, true)]
         [InlineData(true, true)]
-        [Theory]
+        [ConditionalTheory]
         public void OnPropertyAdded_calls_conventions_in_order(bool useBuilder, bool useScope)
         {
             var conventions = new ConventionSet();
@@ -2455,7 +2455,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         [InlineData(true, false)]
         [InlineData(false, true)]
         [InlineData(true, true)]
-        [Theory]
+        [ConditionalTheory]
         public void OnPropertyNullabilityChanged_calls_conventions_in_order(bool useBuilder, bool useScope)
         {
             var conventions = new ConventionSet();
@@ -2593,7 +2593,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         [InlineData(true, false)]
         [InlineData(false, true)]
         [InlineData(true, true)]
-        [Theory]
+        [ConditionalTheory]
         public void OnPropertyFieldChanged_calls_conventions_in_order(bool useBuilder, bool useScope)
         {
             var conventions = new ConventionSet();
@@ -2687,7 +2687,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         [InlineData(true, false)]
         [InlineData(false, true)]
         [InlineData(true, true)]
-        [Theory]
+        [ConditionalTheory]
         public void OnPropertyAnnotationChanged_calls_conventions_in_order(bool useBuilder, bool useScope)
         {
             var conventions = new ConventionSet();

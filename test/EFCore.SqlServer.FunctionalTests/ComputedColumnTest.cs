@@ -10,7 +10,7 @@ namespace Microsoft.EntityFrameworkCore
 {
     public class ComputedColumnTest : IDisposable
     {
-        [Fact]
+        [ConditionalFact]
         public void Can_use_computed_columns()
         {
             var serviceProvider = new ServiceCollection()
@@ -30,7 +30,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_use_computed_columns_with_null_values()
         {
             var serviceProvider = new ServiceCollection()
@@ -130,7 +130,7 @@ namespace Microsoft.EntityFrameworkCore
                     .HasComputedColumnSql("FlagEnum | OptionalFlagEnum");
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_use_computed_columns_with_nullable_enum()
         {
             var serviceProvider = new ServiceCollection()

@@ -8,7 +8,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
 {
     public class RelationalCommandBuilderTest
     {
-        [Fact]
+        [ConditionalFact]
         public void Builds_simple_command()
         {
             var commandBuilder = CreateCommandBuilder();
@@ -19,7 +19,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.Equal(0, command.Parameters.Count);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Build_command_with_parameter()
         {
             var commandBuilder = CreateCommandBuilder();

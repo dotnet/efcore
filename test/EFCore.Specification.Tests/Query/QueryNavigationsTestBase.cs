@@ -1240,7 +1240,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     .Select(e => e));
         }
 
-        [Theory(Skip = "issue #6061")]
+        [ConditionalTheory(Skip = "issue #6061")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Project_first_or_default_on_empty_collection_of_value_types_returns_proper_default(bool isAsync)
         {

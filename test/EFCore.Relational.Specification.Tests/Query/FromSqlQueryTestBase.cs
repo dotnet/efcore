@@ -33,7 +33,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         protected TFixture Fixture { get; }
 
-        [Fact(Skip = "#15751")]
+        [ConditionalFact(Skip = "#15751")]
         public virtual void Bad_data_error_handling_invalid_cast_key()
         {
             using (var context = CreateContext())
@@ -50,7 +50,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact(Skip = "#15751")]
+        [ConditionalFact(Skip = "#15751")]
         public virtual void Bad_data_error_handling_invalid_cast()
         {
             using (var context = CreateContext())
@@ -67,7 +67,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact(Skip = "#15751")]
+        [ConditionalFact(Skip = "#15751")]
         public virtual void Bad_data_error_handling_invalid_cast_projection()
         {
             using (var context = CreateContext())
@@ -85,7 +85,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact(Skip = "#15751")]
+        [ConditionalFact(Skip = "#15751")]
         public virtual void Bad_data_error_handling_invalid_cast_no_tracking()
         {
             using (var context = CreateContext())
@@ -103,7 +103,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact(Skip = "#15751")]
+        [ConditionalFact(Skip = "#15751")]
         public virtual void Bad_data_error_handling_null()
         {
             using (var context = CreateContext())
@@ -125,7 +125,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact(Skip = "#15751")]
+        [ConditionalFact(Skip = "#15751")]
         public virtual void Bad_data_error_handling_null_projection()
         {
             using (var context = CreateContext())
@@ -143,7 +143,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact(Skip = "#15751")]
+        [ConditionalFact(Skip = "#15751")]
         public virtual void Bad_data_error_handling_null_no_tracking()
         {
             using (var context = CreateContext())
@@ -161,7 +161,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void FromSqlRaw_queryable_simple()
         {
             using (var context = CreateContext())
@@ -175,7 +175,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void FromSqlRaw_queryable_simple_columns_out_of_order()
         {
             using (var context = CreateContext())
@@ -190,7 +190,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void FromSqlRaw_queryable_simple_columns_out_of_order_and_extra_columns()
         {
             using (var context = CreateContext())
@@ -205,7 +205,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact(Skip = "#15751")]
+        [ConditionalFact(Skip = "#15751")]
         public virtual void FromSqlRaw_queryable_simple_columns_out_of_order_and_not_enough_columns_throws()
         {
             using (var context = CreateContext())
@@ -221,7 +221,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void FromSqlRaw_queryable_composed()
         {
             using (var context = CreateContext())
@@ -234,7 +234,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void FromSqlRaw_queryable_composed_after_removing_whitespaces()
         {
             using (var context = CreateContext())
@@ -254,7 +254,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact(Skip = "Compiled queries not yet supported, #14551")]
+        [ConditionalFact(Skip = "Compiled queries not yet supported, #14551")]
         public virtual void FromSqlRaw_queryable_composed_compiled()
         {
             var query = EF.CompileQuery(
@@ -269,7 +269,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void FromSqlRaw_composed_contains()
         {
             using (var context = CreateContext())
@@ -286,7 +286,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void FromSqlRaw_composed_contains2()
         {
             using (var context = CreateContext())
@@ -305,7 +305,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void FromSqlRaw_queryable_multiple_composed()
         {
             using (var context = CreateContext())
@@ -325,7 +325,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void FromSqlRaw_queryable_multiple_composed_with_closure_parameters()
         {
             var startDate = new DateTime(1997, 1, 1);
@@ -351,7 +351,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void FromSqlRaw_queryable_multiple_composed_with_parameters_and_closure_parameters()
         {
             var city = "London";
@@ -400,7 +400,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void FromSqlRaw_queryable_multiple_line_query()
         {
             using (var context = CreateContext())
@@ -417,7 +417,7 @@ WHERE [City] = 'London'"))
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void FromSqlRaw_queryable_composed_multiple_line_query()
         {
             using (var context = CreateContext())
@@ -434,7 +434,7 @@ FROM [Customers]"))
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void FromSqlRaw_queryable_with_parameters()
         {
             var city = "London";
@@ -452,7 +452,7 @@ FROM [Customers]"))
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void FromSqlRaw_queryable_with_parameters_inline()
         {
             using (var context = CreateContext())
@@ -468,7 +468,7 @@ FROM [Customers]"))
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void FromSqlInterpolated_queryable_with_parameters_interpolated()
         {
             var city = "London";
@@ -487,7 +487,7 @@ FROM [Customers]"))
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void FromSqlInterpolated_queryable_with_parameters_inline_interpolated()
         {
             using (var context = CreateContext())
@@ -503,7 +503,7 @@ FROM [Customers]"))
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void FromSqlInterpolated_queryable_multiple_composed_with_parameters_and_closure_parameters_interpolated()
         {
             var city = "London";
@@ -546,7 +546,7 @@ FROM [Customers]"))
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void FromSqlRaw_queryable_with_null_parameter()
         {
             uint? reportsTo = null;
@@ -563,7 +563,7 @@ FROM [Customers]"))
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void FromSqlRaw_queryable_with_parameters_and_closure()
         {
             var city = "London";
@@ -581,7 +581,7 @@ FROM [Customers]"))
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void FromSqlRaw_queryable_simple_cache_key_includes_query_string()
         {
             using (var context = CreateContext())
@@ -600,7 +600,7 @@ FROM [Customers]"))
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void FromSqlRaw_queryable_with_parameters_cache_key_includes_parameters()
         {
             var city = "London";
@@ -628,7 +628,7 @@ FROM [Customers]"))
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void FromSqlRaw_queryable_simple_as_no_tracking_not_composed()
         {
             using (var context = CreateContext())
@@ -642,7 +642,7 @@ FROM [Customers]"))
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void FromSqlRaw_queryable_simple_projection_composed()
         {
             using (var context = CreateContext())
@@ -661,7 +661,7 @@ AND (([UnitsInStock] + [UnitsOnOrder]) < [ReorderLevel])"))
             }
         }
 
-        [Fact(Skip = "issue #15991")]
+        [ConditionalFact(Skip = "issue #15991")]
         public virtual void FromSqlRaw_queryable_simple_include()
         {
             using (var context = CreateContext())
@@ -674,7 +674,7 @@ AND (([UnitsInStock] + [UnitsOnOrder]) < [ReorderLevel])"))
             }
         }
 
-        [Fact(Skip = "issue #15991")]
+        [ConditionalFact(Skip = "issue #15991")]
         public virtual void FromSqlRaw_queryable_simple_composed_include()
         {
             using (var context = CreateContext())
@@ -688,7 +688,7 @@ AND (([UnitsInStock] + [UnitsOnOrder]) < [ReorderLevel])"))
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void FromSqlRaw_annotations_do_not_affect_successive_calls()
         {
             using (var context = CreateContext())
@@ -705,7 +705,7 @@ AND (([UnitsInStock] + [UnitsOnOrder]) < [ReorderLevel])"))
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void FromSqlRaw_composed_with_nullable_predicate()
         {
             using (var context = CreateContext())
@@ -718,7 +718,7 @@ AND (([UnitsInStock] + [UnitsOnOrder]) < [ReorderLevel])"))
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void FromSqlRaw_with_dbParameter()
         {
             using (var context = CreateContext())
@@ -733,7 +733,7 @@ AND (([UnitsInStock] + [UnitsOnOrder]) < [ReorderLevel])"))
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void FromSqlRaw_with_dbParameter_mixed()
         {
             using (var context = CreateContext())
@@ -765,7 +765,7 @@ AND (([UnitsInStock] + [UnitsOnOrder]) < [ReorderLevel])"))
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Include_does_not_close_user_opened_connection_for_empty_result()
         {
             Fixture.TestStore.CloseConnection();
@@ -795,7 +795,7 @@ AND (([UnitsInStock] + [UnitsOnOrder]) < [ReorderLevel])"))
             Fixture.TestStore.OpenConnection();
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void FromSqlRaw_with_db_parameters_called_multiple_times()
         {
             using (var context = CreateContext())
@@ -816,7 +816,7 @@ AND (([UnitsInStock] + [UnitsOnOrder]) < [ReorderLevel])"))
             }
         }
 
-        [Fact(Skip = "issue #15991")]
+        [ConditionalFact(Skip = "issue #15991")]
         public virtual void FromSqlRaw_with_SelectMany_and_include()
         {
             using (var context = CreateContext())
@@ -849,7 +849,7 @@ AND (([UnitsInStock] + [UnitsOnOrder]) < [ReorderLevel])"))
             }
         }
 
-        [Fact(Skip = "issue #15991")]
+        [ConditionalFact(Skip = "issue #15991")]
         public virtual void FromSqlRaw_with_join_and_include()
         {
             using (var context = CreateContext())
@@ -877,7 +877,7 @@ AND (([UnitsInStock] + [UnitsOnOrder]) < [ReorderLevel])"))
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Include_closed_connection_opened_by_it_when_buffering()
         {
             Fixture.TestStore.CloseConnection();
@@ -897,7 +897,7 @@ AND (([UnitsInStock] + [UnitsOnOrder]) < [ReorderLevel])"))
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void FromSqlInterpolated_with_inlined_db_parameter()
         {
             using (var context = CreateContext())
@@ -910,7 +910,7 @@ AND (([UnitsInStock] + [UnitsOnOrder]) < [ReorderLevel])"))
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void FromSqlInterpolated_parameterization_issue_12213()
         {
             using (var context = CreateContext())
@@ -940,7 +940,7 @@ AND (([UnitsInStock] + [UnitsOnOrder]) < [ReorderLevel])"))
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void FromSqlRaw_does_not_parameterize_interpolated_string()
         {
             using (var context = CreateContext())
@@ -955,7 +955,7 @@ AND (([UnitsInStock] + [UnitsOnOrder]) < [ReorderLevel])"))
             }
         }
 
-        [Fact(Skip = "#15855")]
+        [ConditionalFact(Skip = "#15855")]
         public virtual void Entity_equality_through_fromsql()
         {
             using (var context = CreateContext())

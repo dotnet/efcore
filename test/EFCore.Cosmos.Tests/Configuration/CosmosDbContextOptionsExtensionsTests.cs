@@ -6,7 +6,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Configuration
 {
     public class CosmosDbContextOptionsExtensionsTests
     {
-        [Fact]
+        [ConditionalFact]
         public void Can_create_options_with_specified_region()
         {
             var regionName = CosmosRegions.EastAsia;
@@ -25,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Configuration
         /// <summary>
         /// The region will be checked by the cosmosdb sdk, because the region list is not constant
         /// </summary>
-        [Fact]
+        [ConditionalFact]
         public void Can_create_options_with_wrong_region()
         {
             var regionName = "FakeRegion";

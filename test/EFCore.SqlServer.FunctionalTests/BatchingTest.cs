@@ -24,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore
 
         protected BatchingTestFixture Fixture { get; }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(true, true, true)]
         [InlineData(false, true, true)]
         [InlineData(true, false, true)]
@@ -71,7 +71,7 @@ namespace Microsoft.EntityFrameworkCore
                 context => AssertDatabaseState(context, clientOrder, expectedBlogs));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Inserts_and_updates_are_batched_correctly()
         {
             var expectedBlogs = new List<Blog>();
@@ -124,7 +124,7 @@ namespace Microsoft.EntityFrameworkCore
                 context => AssertDatabaseState(context, true, expectedBlogs));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Inserts_when_database_type_is_different()
         {
             ExecuteWithStrategyInTransaction(
@@ -140,7 +140,7 @@ namespace Microsoft.EntityFrameworkCore
                 context => Assert.Equal(2, context.Owners.Count()));
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(3)]
         [InlineData(4)]
         public void Inserts_are_batched_only_when_necessary(int minBatchSize)

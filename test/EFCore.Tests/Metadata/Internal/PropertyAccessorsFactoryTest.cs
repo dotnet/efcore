@@ -14,7 +14,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
     public class PropertyAccessorsFactoryTest
     {
-        [Fact]
+        [ConditionalFact]
         public void Can_use_PropertyAccessorsFactory_on_indexed_property()
         {
             IMutableModel model = new Model();
@@ -40,7 +40,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Equal("ValueA", propertyAccessors.ValueBufferGetter(valueBuffer));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_use_PropertyAccessorsFactory_on_non_indexed_property()
         {
             IMutableModel model = new Model();

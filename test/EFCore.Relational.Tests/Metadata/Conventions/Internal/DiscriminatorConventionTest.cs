@@ -16,7 +16,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 {
     public class DiscriminatorConventionTest
     {
-        [Fact]
+        [ConditionalFact]
         public void Sets_discriminator_for_two_level_hierarchy()
         {
             var entityTypeBuilder = CreateInternalEntityTypeBuilder<Entity>();
@@ -43,7 +43,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             Assert.Null(entityTypeBuilder.Metadata.GetDiscriminatorProperty());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Sets_discriminator_for_three_level_hierarchy()
         {
             var entityTypeBuilder = CreateInternalEntityTypeBuilder<Entity>();
@@ -86,7 +86,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             Assert.Equal(typeof(DerivedEntity).Name, derivedTypeBuilder.Metadata.GetDiscriminatorValue());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Uses_explicit_discriminator_if_compatible()
         {
             var entityTypeBuilder = CreateInternalEntityTypeBuilder<Entity>();
@@ -106,7 +106,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             Assert.Equal(typeof(Entity).Name, entityTypeBuilder.Metadata.GetDiscriminatorValue());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Does_nothing_if_explicit_discriminator_is_not_compatible()
         {
             var entityTypeBuilder = CreateInternalEntityTypeBuilder<Entity>();
@@ -126,7 +126,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             Assert.Null(entityTypeBuilder.Metadata.GetDiscriminatorValue());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Does_nothing_if_explicit_discriminator_set_on_derived_type()
         {
             var entityTypeBuilder = CreateInternalEntityTypeBuilder<Entity>();

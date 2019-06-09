@@ -21,7 +21,7 @@ namespace Microsoft.EntityFrameworkCore.Update
 {
     public class CommandBatchPreparerTest
     {
-        [Fact]
+        [ConditionalFact]
         public void BatchCommands_creates_valid_batch_for_added_entities()
         {
             var stateManager = CreateContextServices(CreateSimpleFKModel()).GetRequiredService<IStateManager>();
@@ -68,7 +68,7 @@ namespace Microsoft.EntityFrameworkCore.Update
             Assert.True(columnMod.IsWrite);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void BatchCommands_creates_valid_batch_for_modified_entities()
         {
             var stateManager = CreateContextServices(CreateSimpleFKModel()).GetRequiredService<IStateManager>();
@@ -115,7 +115,7 @@ namespace Microsoft.EntityFrameworkCore.Update
             Assert.True(columnMod.IsWrite);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void BatchCommands_creates_valid_batch_for_deleted_entities()
         {
             var stateManager = CreateContextServices(CreateSimpleFKModel()).GetRequiredService<IStateManager>();
@@ -152,7 +152,7 @@ namespace Microsoft.EntityFrameworkCore.Update
             Assert.False(columnMod.IsWrite);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void BatchCommands_sorts_related_added_entities()
         {
             var configuration = CreateContextServices(CreateSimpleFKModel());
@@ -184,7 +184,7 @@ namespace Microsoft.EntityFrameworkCore.Update
                 commandBatches.Select(cb => cb.ModificationCommands.Single()).Select(mc => mc.Entries.Single()));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void BatchCommands_sorts_added_and_related_modified_entities()
         {
             var configuration = CreateContextServices(CreateSimpleFKModel());
@@ -216,7 +216,7 @@ namespace Microsoft.EntityFrameworkCore.Update
                 commandBatches.Select(cb => cb.ModificationCommands.Single()).Select(mc => mc.Entries.Single()));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void BatchCommands_sorts_unrelated_entities()
         {
             var configuration = CreateContextServices(CreateSimpleFKModel());
@@ -248,7 +248,7 @@ namespace Microsoft.EntityFrameworkCore.Update
                 commandBatches.Select(cb => cb.ModificationCommands.Single()).Select(mc => mc.Entries.Single()));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void BatchCommands_sorts_entities_when_reparenting()
         {
             var configuration = CreateContextServices(CreateCyclicFKModel());
@@ -290,7 +290,7 @@ namespace Microsoft.EntityFrameworkCore.Update
                 commandBatches.Select(cb => cb.ModificationCommands.Single()).Select(mc => mc.Entries.Single()));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void BatchCommands_sorts_when_reassigning_child()
         {
             var configuration = CreateContextServices(CreateSimpleFKModel());
@@ -331,7 +331,7 @@ namespace Microsoft.EntityFrameworkCore.Update
                 commandBatches.Select(cb => cb.ModificationCommands.Single()).Select(mc => mc.Entries.Single()));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void BatchCommands_sorts_entities_while_reassigning_child_tree()
         {
             var configuration = CreateContextServices(CreateTwoLevelFKModel());
@@ -390,7 +390,7 @@ namespace Microsoft.EntityFrameworkCore.Update
                 sortedEntities);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void BatchCommands_creates_batches_lazily()
         {
             var configuration = RelationalTestHelpers.Instance.CreateContextServices(
@@ -434,7 +434,7 @@ namespace Microsoft.EntityFrameworkCore.Update
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Batch_command_does_not_order_non_unique_index_values()
         {
             var model = CreateCyclicFKModel();
@@ -480,7 +480,7 @@ namespace Microsoft.EntityFrameworkCore.Update
                 sortedEntities);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void BatchCommands_throws_on_non_store_generated_temporary_values()
         {
             var configuration = CreateContextServices(CreateTwoLevelFKModel());
@@ -502,7 +502,7 @@ namespace Microsoft.EntityFrameworkCore.Update
 
         [InlineData(true)]
         [InlineData(false)]
-        [Theory]
+        [ConditionalTheory]
         public void Batch_command_throws_on_commands_with_circular_dependencies(bool sensitiveLogging)
         {
             var model = CreateCyclicFKModel();
@@ -542,7 +542,7 @@ namespace Microsoft.EntityFrameworkCore.Update
 
         [InlineData(true)]
         [InlineData(false)]
-        [Theory]
+        [ConditionalTheory]
         public void Batch_command_throws_on_commands_with_circular_dependencies_including_indexes(bool sensitiveLogging)
         {
             var model = CreateCyclicFKModel();
@@ -592,7 +592,7 @@ namespace Microsoft.EntityFrameworkCore.Update
 
         [InlineData(true)]
         [InlineData(false)]
-        [Theory]
+        [ConditionalTheory]
         public void Batch_command_throws_on_delete_commands_with_circular_dependencies(bool sensitiveLogging)
         {
             var model = CreateCyclicFkWithTailModel();
@@ -639,7 +639,7 @@ namespace Microsoft.EntityFrameworkCore.Update
                         new[] { anotherFakeEntry, fakeEntry, relatedFakeEntry }, modelData).ToArray()).Message);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void BatchCommands_works_with_duplicate_values_for_unique_indexes()
         {
             var model = CreateCyclicFKModel();
@@ -673,7 +673,7 @@ namespace Microsoft.EntityFrameworkCore.Update
             Assert.Equal(2, batches.Length);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void BatchCommands_creates_valid_batch_for_shared_table_added_entities()
         {
             var currentDbContext = CreateContextServices(CreateSharedTableModel()).GetRequiredService<ICurrentDbContext>();
@@ -738,7 +738,7 @@ namespace Microsoft.EntityFrameworkCore.Update
             Assert.True(columnMod.IsWrite);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void BatchCommands_creates_valid_batch_for_shared_table_modified_entities()
         {
             var currentDbContext = CreateContextServices(CreateSharedTableModel()).GetRequiredService<ICurrentDbContext>();
@@ -799,7 +799,7 @@ namespace Microsoft.EntityFrameworkCore.Update
             Assert.True(columnMod.IsWrite);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void BatchCommands_creates_valid_batch_for_shared_table_deleted_entities()
         {
             var currentDbContext = CreateContextServices(CreateSharedTableModel()).GetRequiredService<ICurrentDbContext>();
@@ -856,7 +856,7 @@ namespace Microsoft.EntityFrameworkCore.Update
 
         [InlineData(true)]
         [InlineData(false)]
-        [Theory]
+        [ConditionalTheory]
         public void BatchCommands_throws_on_conflicting_updates_for_shared_table_added_entities(bool sensitiveLogging)
         {
             var currentDbContext = CreateContextServices(CreateSharedTableModel()).GetRequiredService<ICurrentDbContext>();
@@ -906,7 +906,7 @@ namespace Microsoft.EntityFrameworkCore.Update
         [InlineData(true, false)]
         [InlineData(false, true)]
         [InlineData(false, false)]
-        [Theory]
+        [ConditionalTheory]
         public void BatchCommands_throws_on_conflicting_values_for_shared_table_added_entities(bool useCurrentValues, bool sensitiveLogging)
         {
             var currentDbContext = CreateContextServices(CreateSharedTableModel()).GetRequiredService<ICurrentDbContext>();
@@ -993,7 +993,7 @@ namespace Microsoft.EntityFrameworkCore.Update
         [InlineData(EntityState.Added, false)]
         [InlineData(EntityState.Deleted, true)]
         [InlineData(EntityState.Deleted, false)]
-        [Theory]
+        [ConditionalTheory]
         public void BatchCommands_throws_on_incomplete_updates_for_shared_table_no_principal(EntityState state, bool sensitiveLogging)
         {
             var currentDbContext = CreateContextServices(CreateSharedTableModel()).GetRequiredService<ICurrentDbContext>();
@@ -1039,7 +1039,7 @@ namespace Microsoft.EntityFrameworkCore.Update
 
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Deleted)]
-        [Theory]
+        [ConditionalTheory]
         public void BatchCommands_works_with_incomplete_updates_for_shared_table_no_leaf_dependent(EntityState state)
         {
             var currentDbContext = CreateContextServices(CreateSharedTableModel()).GetRequiredService<ICurrentDbContext>();
@@ -1073,7 +1073,7 @@ namespace Microsoft.EntityFrameworkCore.Update
         [InlineData(EntityState.Added, false)]
         [InlineData(EntityState.Deleted, true)]
         [InlineData(EntityState.Deleted, false)]
-        [Theory]
+        [ConditionalTheory]
         public void BatchCommands_throws_on_incomplete_updates_for_shared_table_no_middle_dependent(
             EntityState state, bool sensitiveLogging)
         {

@@ -8,7 +8,7 @@ namespace Microsoft.EntityFrameworkCore
 {
     public class SqliteDatabaseFacadeTest
     {
-        [Fact]
+        [ConditionalFact]
         public void IsSqlite_when_using_SQLite()
         {
             using (var context = new ProviderContext(
@@ -23,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Not_IsSqlite_when_using_different_provider()
         {
             using (var context = new ProviderContext(

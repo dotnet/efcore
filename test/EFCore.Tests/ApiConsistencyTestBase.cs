@@ -26,7 +26,7 @@ namespace Microsoft.EntityFrameworkCore
         protected virtual IEnumerable<Type> FluentApiTypes
             => Enumerable.Empty<Type>();
 
-        [Fact]
+        [ConditionalFact]
         public void Fluent_api_methods_should_not_return_void()
         {
             var voidMethods
@@ -42,7 +42,7 @@ namespace Microsoft.EntityFrameworkCore
                 "\r\n-- Missing fluent returns --\r\n" + string.Join(Environment.NewLine, voidMethods));
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Service_implementations_should_use_dependencies_parameter_object()
         {
             var serviceCollection = new ServiceCollection();
@@ -79,7 +79,7 @@ namespace Microsoft.EntityFrameworkCore
                ?? descriptor.ImplementationInstance?.GetType()
                ?? descriptor.ImplementationFactory?.GetType().GetTypeInfo().GenericTypeArguments[1];
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Public_inheritable_apis_should_be_virtual()
         {
             var nonVirtualMethods
@@ -108,7 +108,7 @@ namespace Microsoft.EntityFrameworkCore
         protected virtual bool ShouldHaveVirtualMethods(Type type)
             => true;
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Public_api_arguments_should_have_not_null_annotation()
         {
             var parametersMissingAttribute
@@ -145,7 +145,7 @@ namespace Microsoft.EntityFrameworkCore
         protected virtual bool ShouldHaveNotNullAnnotation(MethodBase method, Type type)
             => method is ConstructorInfo || ((MethodInfo)method).GetBaseDefinition().DeclaringType == method.DeclaringType;
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Public_api_arguments_should_not_have_redundant_not_null_annotation()
         {
             var parametersWithRedundantAttribute
@@ -175,7 +175,7 @@ namespace Microsoft.EntityFrameworkCore
                 "\r\n-- Redundant NotNull annotations --\r\n" + string.Join(Environment.NewLine, parametersWithRedundantAttribute));
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Async_methods_should_have_overload_with_cancellation_token_and_end_with_async_suffix()
         {
             var asyncMethods
@@ -224,7 +224,7 @@ namespace Microsoft.EntityFrameworkCore
                 "\r\n-- Missing async suffix --\r\n" + string.Join(Environment.NewLine, missingSuffixMethods));
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Public_api_bool_parameters_should_not_be_prefixed()
         {
             var prefixes = new[]

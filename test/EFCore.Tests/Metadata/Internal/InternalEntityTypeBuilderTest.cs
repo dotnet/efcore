@@ -22,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
     public class InternalEntityTypeBuilderTest
     {
-        [Fact]
+        [ConditionalFact]
         public void Relationship_returns_same_instance_for_same_navigations()
         {
             var modelBuilder = CreateModelBuilder();
@@ -49,7 +49,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     ConfigurationSource.Convention));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_add_relationship_if_principal_entity_has_no_PK()
         {
             var modelBuilder = CreateModelBuilder();
@@ -71,7 +71,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.True(fkProperty.IsShadowProperty());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_add_relationship_if_principal_entity_PK_name_contains_principal_entity_name()
         {
             var modelBuilder = CreateModelBuilder();
@@ -95,7 +95,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.True(fkProperty.IsShadowProperty());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_add_relationship_if_principal_entity_PK_name_contains_principal_navigation_name()
         {
             var modelBuilder = CreateModelBuilder();
@@ -120,7 +120,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.True(fkProperty.IsShadowProperty());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_add_relationship_if_navigation_to_dependent_ignored_at_lower_source()
         {
             var modelBuilder = CreateModelBuilder();
@@ -136,7 +136,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     ConfigurationSource.DataAnnotation));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_add_relationship_if_navigation_to_principal_ignored_at_lower_source()
         {
             var modelBuilder = CreateModelBuilder();
@@ -152,7 +152,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     ConfigurationSource.DataAnnotation));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void ForeignKey_creates_shadow_properties_if_corresponding_principal_key_property_is_non_shadow()
         {
             var modelBuilder = CreateModelBuilder();
@@ -171,7 +171,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Equal(shadowProperty, relationshipBuilder.Metadata.Properties.First());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void ForeignKey_creates_shadow_properties_if_principal_type_does_not_have_primary_key()
         {
             var modelBuilder = CreateModelBuilder();
@@ -189,7 +189,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Equal(1, relationshipBuilder.Metadata.PrincipalKey.Properties.Count);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void ForeignKey_does_not_create_shadow_properties_if_corresponding_principal_key_properties_has_different_count()
         {
             var modelBuilder = CreateModelBuilder();
@@ -211,7 +211,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                         ConfigurationSource.Convention)).Message);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void ForeignKey_creates_shadow_properties_if_corresponding_principal_key_property_is_shadow()
         {
             var modelBuilder = CreateModelBuilder();
@@ -235,7 +235,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Equal(shadowProperty, relationshipBuilder.Metadata.Properties.First());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void ForeignKey_promotes_derived_foreign_key_of_lower_or_equal_source()
         {
             var modelBuilder = CreateModelBuilder();
@@ -273,7 +273,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.True(foreignKeyBuilder.Metadata.IsUnique);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void ForeignKey_returns_inherited_foreign_key_of_lower_or_equal_source()
         {
             var modelBuilder = CreateModelBuilder();
@@ -307,7 +307,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     ConfigurationSource.Convention));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void ForeignKey_matches_existing_foreign_key_if_same_or_no_principal_key_specified_or_lower_source()
         {
             var modelBuilder = CreateModelBuilder();
@@ -347,7 +347,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Equal(2, dependentEntityBuilder.Metadata.GetForeignKeys().Count());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Promotes_derived_relationship()
         {
             var modelBuilder = CreateModelBuilder();
@@ -381,7 +381,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Same(relationship.Metadata.PrincipalKey, principalEntityBuilder.Metadata.GetKeys().Single());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Returns_inherited_relationship_of_lower_or_equal_source()
         {
             var modelBuilder = CreateModelBuilder();
@@ -418,7 +418,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Same(relationshipBuilder.Metadata, dependentEntityBuilder.Metadata.GetForeignKeys().Single());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Does_not_add_index_on_foreign_key_properties_by_convention()
         {
             var modelBuilder = CreateModelBuilder();
@@ -435,7 +435,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Empty(dependentEntityBuilder.Metadata.GetIndexes());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_create_foreign_key_on_mix_of_inherited_properties()
         {
             var modelBuilder = CreateModelBuilder();
@@ -467,7 +467,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 t2 => Assert.Same(derivedEntityBuilder.Metadata, t2.DeclaringEntityType));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_only_remove_lower_or_equal_source_relationship()
         {
             var modelBuilder = CreateModelBuilder();
@@ -493,7 +493,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Empty(dependentEntityBuilder.Metadata.GetForeignKeys());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Removing_relationship_removes_unused_contained_shadow_properties()
         {
             var modelBuilder = CreateModelBuilder();
@@ -517,7 +517,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Empty(dependentEntityBuilder.Metadata.GetForeignKeys());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Removing_relationship_removes_unused_conventional_index()
         {
             var modelBuilder = CreateModelBuilder();
@@ -538,7 +538,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Empty(dependentEntityBuilder.Metadata.GetForeignKeys());
         }
 
-        [Fact] // TODO: Add test if the index is being used by another FK when support for multiple FK on same set of properties is added
+        [ConditionalFact] // TODO: Add test if the index is being used by another FK when support for multiple FK on same set of properties is added
         public void Removing_relationship_does_not_remove_conventional_index_if_in_use()
         {
             var modelBuilder = CreateModelBuilder();
@@ -560,7 +560,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Empty(dependentEntityBuilder.Metadata.GetForeignKeys());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Removing_relationship_does_not_remove_contained_shadow_properties_if_referenced_elsewhere()
         {
             Test_removing_relationship_does_not_remove_contained_shadow_properties_if_referenced_elsewhere(
@@ -606,7 +606,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     foreignKey => foreignKey.Properties.SequenceEqual(relationshipBuilder.Metadata.Properties)));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Index_returns_same_instance_for_clr_properties()
         {
             var modelBuilder = CreateModelBuilder();
@@ -620,7 +620,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 entityBuilder.HasIndex(new[] { Order.IdProperty.Name, Order.CustomerIdProperty.Name }, ConfigurationSource.DataAnnotation));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Index_returns_same_instance_for_property_names()
         {
             var modelBuilder = CreateModelBuilder();
@@ -634,7 +634,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 indexBuilder, entityBuilder.HasIndex(new[] { Order.IdProperty, Order.CustomerIdProperty }, ConfigurationSource.Explicit));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_promote_index_to_base()
         {
             var modelBuilder = CreateModelBuilder();
@@ -650,7 +650,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Empty(derivedEntityBuilder.Metadata.GetDeclaredIndexes());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_promote_index_to_base_with_facets()
         {
             var modelBuilder = CreateModelBuilder();
@@ -668,7 +668,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Empty(derivedEntityBuilder.Metadata.GetDeclaredIndexes());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_configure_inherited_index()
         {
             var modelBuilder = CreateModelBuilder();
@@ -686,7 +686,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.True(indexBuilder.Metadata.IsUnique);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_create_index_on_inherited_property()
         {
             var modelBuilder = CreateModelBuilder();
@@ -703,7 +703,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Same(entityBuilder.Metadata, indexBuilder.Metadata.Properties.First().DeclaringEntityType);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_create_index_on_mix_of_inherited_properties()
         {
             var modelBuilder = CreateModelBuilder();
@@ -725,7 +725,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 t2 => Assert.Same(derivedEntityBuilder.Metadata, t2.DeclaringEntityType));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Index_returns_null_for_ignored_clr_properties()
         {
             var modelBuilder = CreateModelBuilder();
@@ -735,7 +735,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Null(entityBuilder.HasIndex(new[] { Order.IdProperty, Order.CustomerIdProperty }, ConfigurationSource.DataAnnotation));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Index_returns_null_for_ignored_property_names()
         {
             var modelBuilder = CreateModelBuilder();
@@ -746,7 +746,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 entityBuilder.HasIndex(new[] { Order.IdProperty.Name, Order.CustomerIdProperty.Name }, ConfigurationSource.Convention));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_only_remove_lower_or_equal_source_index()
         {
             var modelBuilder = CreateModelBuilder();
@@ -765,7 +765,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Empty(entityBuilder.Metadata.GetIndexes());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Removing_index_removes_unused_contained_shadow_properties()
         {
             var modelBuilder = CreateModelBuilder();
@@ -782,7 +782,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Empty(entityBuilder.Metadata.GetIndexes());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Removing_index_does_not_remove_contained_shadow_properties_if_referenced_elsewhere()
         {
             Test_removing_index_does_not_remove_contained_shadow_properties_if_referenced_elsewhere(
@@ -822,7 +822,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Empty(entityBuilder.Metadata.GetIndexes().Where(i => i.Properties.SequenceEqual(index.Metadata.Properties)));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Key_returns_same_instance_for_clr_properties()
         {
             var modelBuilder = CreateModelBuilder();
@@ -836,7 +836,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 entityBuilder.PrimaryKey(new[] { Order.IdProperty.Name, Order.CustomerIdProperty.Name }, ConfigurationSource.Convention));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Key_returns_same_instance_for_property_names()
         {
             var modelBuilder = CreateModelBuilder();
@@ -850,7 +850,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 keyBuilder, entityBuilder.HasKey(new[] { Order.IdProperty, Order.CustomerIdProperty }, ConfigurationSource.DataAnnotation));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Key_sets_properties_to_required()
         {
             var modelBuilder = CreateModelBuilder();
@@ -877,7 +877,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Null(entityBuilder.Metadata.FindPrimaryKey());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Key_throws_for_property_names_if_they_do_not_exist()
         {
             var modelBuilder = CreateModelBuilder();
@@ -890,7 +890,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                         entityBuilder.HasKey(new[] { Customer.UniqueProperty.Name }, ConfigurationSource.Convention)).Message);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Key_throws_for_derived_type()
         {
             var modelBuilder = CreateModelBuilder();
@@ -906,7 +906,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                                  new[] { Order.IdProperty.Name, Order.CustomerIdProperty.Name }, ConfigurationSource.DataAnnotation)).Message);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Key_throws_if_conflicting_with_derived_foreign_key()
         {
             var modelBuilder = CreateModelBuilder();
@@ -933,7 +933,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     () => dependentEntityBuilder.HasKey(new[] { Order.IdProperty }, ConfigurationSource.Explicit)).Message);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Key_throws_for_property_names_for_shadow_entity_type_if_they_do_not_exist()
         {
             var modelBuilder = CreateModelBuilder();
@@ -946,7 +946,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                         entityBuilder.HasKey(new[] { Order.IdProperty.Name }, ConfigurationSource.Convention)).Message);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Key_works_for_property_names_for_shadow_entity_type()
         {
             var modelBuilder = CreateModelBuilder();
@@ -958,7 +958,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Equal(Order.CustomerIdProperty.Name, entityBuilder.Metadata.GetKeys().Single().Properties.Single().Name);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Key_returns_null_for_ignored_clr_properties()
         {
             var modelBuilder = CreateModelBuilder();
@@ -968,7 +968,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Null(entityBuilder.HasKey(new[] { Order.IdProperty, Order.CustomerIdProperty }, ConfigurationSource.DataAnnotation));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Key_returns_null_for_ignored_property_names()
         {
             var modelBuilder = CreateModelBuilder();
@@ -979,7 +979,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 entityBuilder.HasKey(new[] { Order.IdProperty.Name, Order.CustomerIdProperty.Name }, ConfigurationSource.Convention));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_only_remove_lower_or_equal_source_key()
         {
             var modelBuilder = CreateModelBuilder();
@@ -995,7 +995,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Empty(entityBuilder.Metadata.GetKeys());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Removing_key_removes_unused_contained_shadow_properties()
         {
             var modelBuilder = CreateModelBuilder();
@@ -1012,7 +1012,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Empty(entityBuilder.Metadata.GetKeys());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Removing_key_does_not_remove_contained_shadow_properties_if_referenced_elsewhere()
         {
             Test_removing_key_does_not_remove_contained_shadow_properties_if_referenced_elsewhere(
@@ -1058,7 +1058,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 entityBuilder.Metadata.GetKeys().Where(foreignKey => foreignKey.Properties.SequenceEqual(key.Metadata.Properties)));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void HasNoKey_can_override_lower_or_equal_source_key()
         {
             var modelBuilder = CreateModelBuilder();
@@ -1097,7 +1097,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.NotEmpty(entityType.GetKeys());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void HasKey_can_override_lower_or_equal_source_HasNoKey()
         {
             var modelBuilder = CreateModelBuilder();
@@ -1136,7 +1136,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     entityBuilder.HasKey(new[] { Order.CustomerIdProperty.Name }, ConfigurationSource.Explicit)).Message);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void PrimaryKey_returns_same_instance_for_clr_properties()
         {
             var modelBuilder = CreateModelBuilder();
@@ -1153,7 +1153,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Same(entityBuilder.Metadata.FindPrimaryKey(), entityBuilder.Metadata.GetKeys().Single());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void PrimaryKey_returns_same_instance_for_property_names()
         {
             var modelBuilder = CreateModelBuilder();
@@ -1170,7 +1170,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Same(entityBuilder.Metadata.FindPrimaryKey(), entityBuilder.Metadata.GetKeys().Single());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void PrimaryKey_throws_for_property_names_if_they_do_not_exist()
         {
             var modelBuilder = CreateModelBuilder();
@@ -1183,7 +1183,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                         entityBuilder.PrimaryKey(new[] { Customer.UniqueProperty.Name }, ConfigurationSource.Convention)).Message);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void PrimaryKey_throws_for_property_names_for_shadow_entity_type_if_they_do_not_exist()
         {
             var modelBuilder = CreateModelBuilder();
@@ -1196,7 +1196,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                         entityBuilder.PrimaryKey(new[] { Order.IdProperty.Name }, ConfigurationSource.Convention)).Message);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void PrimaryKey_throws_for_derived_type()
         {
             var modelBuilder = CreateModelBuilder();
@@ -1214,7 +1214,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                             new[] { Order.IdProperty.Name, Order.CustomerIdProperty.Name }, ConfigurationSource.DataAnnotation)).Message);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void PrimaryKey_works_for_property_names_for_shadow_entity_type()
         {
             var modelBuilder = CreateModelBuilder();
@@ -1226,7 +1226,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Equal(Order.CustomerIdProperty.Name, entityBuilder.Metadata.FindPrimaryKey().Properties.Single().Name);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void PrimaryKey_returns_null_for_ignored_clr_properties()
         {
             var modelBuilder = CreateModelBuilder();
@@ -1236,7 +1236,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Null(entityBuilder.PrimaryKey(new[] { Order.IdProperty, Order.CustomerIdProperty }, ConfigurationSource.DataAnnotation));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void PrimaryKey_returns_null_for_ignored_property_names()
         {
             var modelBuilder = CreateModelBuilder();
@@ -1247,7 +1247,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 entityBuilder.PrimaryKey(new[] { Order.IdProperty.Name, Order.CustomerIdProperty.Name }, ConfigurationSource.Convention));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_only_override_lower_or_equal_source_primary_key()
         {
             var modelBuilder = CreateModelBuilder();
@@ -1279,7 +1279,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Equal(2, entityType.GetKeys().Count());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_only_override_existing_primary_key_explicitly()
         {
             var modelBuilder = CreateModelBuilder();
@@ -1307,7 +1307,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Equal(Order.IdProperty.Name, entityType.FindPrimaryKey().Properties.Single().Name);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Changing_primary_key_removes_previously_referenced_primary_key_of_lower_or_equal_source()
         {
             var modelBuilder = CreateModelBuilder();
@@ -1329,7 +1329,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Equal(new[] { fkProperty1, fkProperty2 }, fk.Properties);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Changing_primary_key_removes_previously_referenced_key_of_lower_or_equal_source()
         {
             var modelBuilder = CreateModelBuilder();
@@ -1349,7 +1349,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Same(keyBuilder.Metadata, principalEntityBuilder.Metadata.GetKeys().Single());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Changing_primary_key_does_not_remove_previously_explicitly_referenced_key()
         {
             var modelBuilder = CreateModelBuilder();
@@ -1367,7 +1367,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Contains(keyBuilder.Metadata, principalEntityBuilder.Metadata.GetKeys());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Property_returns_same_instance_for_clr_properties()
         {
             var modelBuilder = CreateModelBuilder();
@@ -1379,7 +1379,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Same(propertyBuilder, entityBuilder.Property(typeof(int), Order.IdProperty.Name, ConfigurationSource.Explicit));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Property_returns_same_instance_for_property_names()
         {
             var modelBuilder = CreateModelBuilder();
@@ -1391,7 +1391,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Same(propertyBuilder, entityBuilder.Property(Order.IdProperty, ConfigurationSource.DataAnnotation));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Property_returns_same_instance_if_type_matches()
         {
             var modelBuilder = CreateModelBuilder();
@@ -1421,7 +1421,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Equal(new[] { propertyBuilder.Metadata }, entityBuilder.GetActualProperties(new[] { propertyBuilder.Metadata }, null));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Property_throws_for_navigation()
         {
             var modelBuilder = CreateModelBuilder();
@@ -1443,7 +1443,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                         .Property(Order.CustomerProperty, ConfigurationSource.Explicit)).Message);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Cannot_add_shadow_property_without_type()
         {
             var modelBuilder = CreateModelBuilder();
@@ -1455,7 +1455,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     .Message);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_promote_property_to_base()
         {
             var modelBuilder = CreateModelBuilder();
@@ -1480,7 +1480,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Equal(1, propertyBuilder.Metadata.GetMaxLength());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_configure_inherited_property()
         {
             var modelBuilder = CreateModelBuilder();
@@ -1509,7 +1509,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.NotNull(entityBuilder.Metadata.FindPrimaryKey());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_reuniquify_temporary_properties_with_same_names()
         {
             var modelBuilder = CreateModelBuilder();
@@ -1540,7 +1540,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Equal(2, dependentEntityBuilder.Metadata.GetProperties().Count());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_reuniquify_temporary_properties_with_same_names_different_types_in_two_passes()
         {
             var modelBuilder = CreateModelBuilder();
@@ -1571,7 +1571,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Equal(2, dependentEntityBuilder.Metadata.GetProperties().Count());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_reuniquify_temporary_properties_avoiding_unmapped_clr_properties()
         {
             var modelBuilder = CreateModelBuilder();
@@ -1602,7 +1602,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Equal(2, dependentEntityBuilder.Metadata.GetProperties().Count());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_ignore_same_or_lower_source_property()
         {
             var modelBuilder = CreateModelBuilder();
@@ -1618,7 +1618,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.NotNull(entityBuilder.Property(typeof(int), Order.IdProperty.Name, ConfigurationSource.Explicit));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Cannot_ignore_higher_source_property()
         {
             var modelBuilder = CreateModelBuilder();
@@ -1641,7 +1641,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Null(entityType.FindProperty(Order.IdProperty.Name));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_ignore_existing_property()
         {
             var modelBuilder = CreateModelBuilder();
@@ -1656,7 +1656,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Null(entityType.FindProperty(Order.IdProperty.Name));
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(ConfigurationSource.Explicit, ConfigurationSource.Explicit)]
         [InlineData(ConfigurationSource.Explicit, ConfigurationSource.DataAnnotation)]
         [InlineData(ConfigurationSource.Explicit, ConfigurationSource.Convention)]
@@ -1811,7 +1811,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             derivedEntityBuilder.HasBaseType(typeof(SpecialOrderMinimal), ConfigurationSource.Explicit);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_ignore_service_property()
         {
             var modelBuilder = CreateModelBuilder();
@@ -1824,7 +1824,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Empty(entityBuilder.Metadata.GetServiceProperties());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_ignore_property_that_is_part_of_lower_source_foreign_key_preserving_the_relationship()
         {
             var modelBuilder = CreateModelBuilder();
@@ -1866,7 +1866,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.NotNull(dependentEntityBuilder.Metadata.GetForeignKeys().Where(foreignKey => foreignKey != newFk));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Cannot_ignore_property_that_is_part_of_higher_source_foreign_key()
         {
             var modelBuilder = CreateModelBuilder();
@@ -1888,7 +1888,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.NotEmpty(dependentEntityBuilder.Metadata.GetForeignKeys());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_ignore_property_that_is_part_of_lower_source_index()
         {
             var modelBuilder = CreateModelBuilder();
@@ -1903,7 +1903,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Empty(entityBuilder.Metadata.GetIndexes());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Cannot_ignore_property_that_is_part_of_same_or_higher_source_index()
         {
             var modelBuilder = CreateModelBuilder();
@@ -1917,7 +1917,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.NotEmpty(entityBuilder.Metadata.GetIndexes());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_ignore_property_that_is_part_of_lower_source_key()
         {
             var modelBuilder = CreateModelBuilder();
@@ -1932,7 +1932,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Empty(entityBuilder.Metadata.GetKeys());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_ignore_property_that_is_part_of_lower_source_principal_key_preserving_the_relationship()
         {
             var modelBuilder = CreateModelBuilder();
@@ -1975,7 +1975,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Equal(Customer.OrdersProperty.Name, newFk.PrincipalToDependent.Name);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Cannot_ignore_property_that_is_part_of_same_or_higher_source_key()
         {
             var modelBuilder = CreateModelBuilder();
@@ -1989,7 +1989,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.NotEmpty(entityBuilder.Metadata.GetKeys());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Navigation_returns_same_value()
         {
             var modelBuilder = CreateModelBuilder();
@@ -2031,7 +2031,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Same(foreignKeyBuilder.Metadata.PrincipalKey, principalEntityBuilder.Metadata.GetKeys().Single());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_ignore_lower_or_equal_source_navigation()
         {
             var modelBuilder = CreateModelBuilder();
@@ -2085,7 +2085,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.NotNull(foreignKeyBuilder);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Cannot_ignore_higher_source_navigation()
         {
             var modelBuilder = CreateModelBuilder();
@@ -2128,7 +2128,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 ConfigurationSource.DataAnnotation));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_ignore_existing_navigation()
         {
             var modelBuilder = CreateModelBuilder();
@@ -2170,7 +2170,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Null(principalEntityBuilder.Metadata.FindNavigation(Customer.OrdersProperty.Name));
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(ConfigurationSource.Explicit, ConfigurationSource.Explicit)]
         [InlineData(ConfigurationSource.Explicit, ConfigurationSource.DataAnnotation)]
         [InlineData(ConfigurationSource.Explicit, ConfigurationSource.Convention)]
@@ -2218,7 +2218,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                           ignoreConfigurationSource) != null,
                 OrderMinimal.CustomerProperty.Name);
 
-        [Fact]
+        [ConditionalFact]
         public void Can_merge_with_intrahierarchical_relationship_of_higher_source()
         {
             var modelBuilder = CreateModelBuilder();
@@ -2244,7 +2244,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Equal(nameof(SpecialCustomer.Customer), baseNavigation.FindInverse()?.Name);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Relationship_does_not_return_same_instance_if_no_navigations()
         {
             var modelBuilder = CreateModelBuilder();
@@ -2259,7 +2259,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Equal(2, orderEntityBuilder.Metadata.GetForeignKeys().Count());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_ignore_lower_source_weak_entity_type()
         {
             var modelBuilder = CreateModelBuilder();
@@ -2272,7 +2272,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Equal(typeof(Customer).FullName, modelBuilder.Metadata.GetEntityTypes().Single().Name);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_ignore_lower_source_principal_entity_type()
         {
             var modelBuilder = CreateModelBuilder();
@@ -2285,7 +2285,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Equal(typeof(Order).FullName, modelBuilder.Metadata.GetEntityTypes().Single().Name);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_ignore_lower_source_navigation_to_dependent()
         {
             var modelBuilder = CreateModelBuilder();
@@ -2306,7 +2306,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     principalEntityBuilder.Metadata, null, Customer.OrdersProperty.Name, ConfigurationSource.Convention));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_ignore_lower_source_navigation_to_principal()
         {
             var modelBuilder = CreateModelBuilder();
@@ -2325,7 +2325,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 dependentEntityBuilder.HasRelationship(principalEntityBuilder.Metadata, Order.CustomerProperty, null, ConfigurationSource.Convention));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Cannot_add_navigation_to_principal_if_null_navigation_is_higher_source()
         {
             var modelBuilder = CreateModelBuilder();
@@ -2344,7 +2344,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Equal(Customer.OrdersProperty.Name, fk.PrincipalToDependent.Name);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Cannot_add_navigation_to_dependent_if_null_navigation_is_higher_source()
         {
             var modelBuilder = CreateModelBuilder();
@@ -2363,7 +2363,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Equal(Order.CustomerProperty.Name, fk.DependentToPrincipal.Name);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Dependent_conflicting_relationship_is_not_removed_if_principal_conflicting_relationship_cannot_be_removed()
         {
             var modelBuilder = CreateModelBuilder();
@@ -2391,7 +2391,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Null(customerFk.DependentToPrincipal);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Principal_conflicting_relationship_is_not_removed_if_dependent_conflicting_relationship_cannot_be_removed()
         {
             var modelBuilder = CreateModelBuilder();
@@ -2417,7 +2417,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Null(customerRelationship.Metadata.DependentToPrincipal);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Conflicting_navigations_are_not_removed_if_conflicting_fk_cannot_be_removed()
         {
             var modelBuilder = CreateModelBuilder();
@@ -2461,7 +2461,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.NotNull(fkRelationship.Metadata.Builder);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_only_override_lower_or_equal_source_base_type()
         {
             var modelBuilder = CreateModelBuilder();
@@ -2482,7 +2482,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Same(entityBuilder.Metadata, derivedEntityBuilder.Metadata.BaseType);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_only_override_existing_base_type_explicitly()
         {
             var modelBuilder = CreateModelBuilder();
@@ -2496,7 +2496,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Null(derivedEntityBuilder.Metadata.BaseType);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_set_base_type_if_duplicate_properties_of_higher_source()
         {
             var modelBuilder = CreateModelBuilder();
@@ -2513,7 +2513,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Equal(0, derivedEntityBuilder.Metadata.GetDeclaredProperties().Count());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_only_set_base_type_if_keys_of_data_annotation_or_lower_source()
         {
             var modelBuilder = CreateModelBuilder();
@@ -2532,7 +2532,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Equal(0, derivedEntityBuilder.Metadata.GetDeclaredKeys().Count());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_only_set_base_type_if_relationship_with_conflicting_navigation_of_data_annotation_or_lower_source()
         {
             var modelBuilder = CreateModelBuilder();
@@ -2559,7 +2559,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Equal(0, derivedDependentEntityBuilder.Metadata.GetDeclaredNavigations().Count());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_set_base_type_if_relationship_with_conflicting_foreign_key_of_data_annotation_or_lower_source()
         {
             var modelBuilder = CreateModelBuilder();
@@ -2579,7 +2579,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Equal(0, derivedDependentEntityBuilder.Metadata.GetDeclaredForeignKeys().Count());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Setting_base_type_preserves_index()
         {
             var modelBuilder = CreateModelBuilder();
@@ -2599,7 +2599,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.True(derivedEntityBuilder.Metadata.GetDeclaredIndexes().First().IsUnique);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Setting_base_type_preserves_non_conflicting_referencing_relationship()
         {
             var modelBuilder = CreateModelBuilder();
@@ -2631,7 +2631,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Equal(Customer.OrdersProperty.Name, fk.PrincipalToDependent.Name);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Setting_base_type_preserves_non_conflicting_relationship_on_duplicate_foreign_key_properties()
         {
             var modelBuilder = CreateModelBuilder();
@@ -2660,7 +2660,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Equal(Order.IdProperty.Name, fk.Properties.Single().Name);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Setting_base_type_fixes_relationship_conflicting_with_PK()
         {
             var modelBuilder = CreateModelBuilder();
@@ -2692,7 +2692,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Equal(1, dependentEntityBuilder.Metadata.GetDeclaredProperties().Count());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Setting_base_type_removes_duplicate_service_properties()
         {
             var modelBuilder = CreateModelBuilder();
@@ -2711,7 +2711,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Equal(1, derivedEntityBuilder.Metadata.GetServiceProperties().Count());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_access_discriminator()
         {
             IConventionEntityTypeBuilder typeBuilder = CreateModelBuilder().Entity(typeof(Order), ConfigurationSource.Convention);
@@ -2747,7 +2747,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Null(typeBuilder.HasNoDeclaredDiscriminator());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Discriminator_is_not_set_if_ignored()
         {
             IConventionEntityTypeBuilder typeBuilder = CreateModelBuilder().Entity(typeof(Order), ConfigurationSource.Convention);
@@ -2762,7 +2762,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Equal(typeof(string), typeBuilder.Metadata.GetDiscriminatorProperty().ClrType);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Discriminator_is_not_set_if_default_ignored()
         {
             IConventionEntityTypeBuilder typeBuilder = CreateModelBuilder().Entity(typeof(Order), ConfigurationSource.Convention);
@@ -2772,7 +2772,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Equal(0, typeBuilder.Metadata.GetProperties().Count());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_access_discriminator_value()
         {
             IConventionEntityTypeBuilder typeBuilder = CreateModelBuilder().Entity("Splot", ConfigurationSource.Convention);
@@ -2829,7 +2829,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Empty(typeBuilder.Metadata.GetProperties());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Changing_discriminator_type_removes_values()
         {
             IConventionEntityTypeBuilder typeBuilder = CreateModelBuilder().Entity("Splot", ConfigurationSource.Convention);
@@ -2881,7 +2881,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     .Metadata.GetDiscriminatorValue());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_access_discriminator_value_generic()
         {
             IConventionEntityTypeBuilder typeBuilder = CreateModelBuilder().Entity(typeof(Splot), ConfigurationSource.Convention);
@@ -2918,7 +2918,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Equal(6, splod.GetDiscriminatorValue());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void DiscriminatorValue_throws_if_base_cannot_be_set()
         {
             IConventionModelBuilder modelBuilder = CreateModelBuilder();

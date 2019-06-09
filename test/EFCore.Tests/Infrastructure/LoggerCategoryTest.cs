@@ -7,7 +7,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 {
     public class DbLoggerCategoryTest
     {
-        [Fact]
+        [ConditionalFact]
         public void Logger_categories_have_the_correct_names()
         {
             Assert.Equal("Microsoft.EntityFrameworkCore.Database", DbLoggerCategory.Database.Name);
@@ -23,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             Assert.Equal("Microsoft.EntityFrameworkCore.Update", DbLoggerCategory.Update.Name);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void DbLoggerCategory_instances_generate_the_correct_names()
         {
             Assert.Equal(DbLoggerCategory.Database.Name, new DbLoggerCategory.Database());

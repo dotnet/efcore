@@ -13,7 +13,7 @@ namespace Microsoft.EntityFrameworkCore
         where TBuilder : RelationalDbContextOptionsBuilder<TBuilder, TExtension>
         where TExtension : RelationalOptionsExtension, new()
     {
-        [Fact]
+        [ConditionalFact]
         public void Logs_context_initialization_max_batch_size()
         {
             Assert.Equal(
@@ -21,7 +21,7 @@ namespace Microsoft.EntityFrameworkCore
                 ActualMessage(s => CreateOptionsBuilder(s, b => b.MaxBatchSize(10))));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Logs_context_initialization_command_timeout()
         {
             Assert.Equal(
@@ -29,7 +29,7 @@ namespace Microsoft.EntityFrameworkCore
                 ActualMessage(s => CreateOptionsBuilder(s, b => b.CommandTimeout(10))));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Logs_context_initialization_relational_nulls()
         {
             Assert.Equal(
@@ -37,7 +37,7 @@ namespace Microsoft.EntityFrameworkCore
                 ActualMessage(s => CreateOptionsBuilder(s, b => b.UseRelationalNulls())));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Logs_context_initialization_migrations_assembly()
         {
             Assert.Equal(
@@ -45,7 +45,7 @@ namespace Microsoft.EntityFrameworkCore
                 ActualMessage(s => CreateOptionsBuilder(s, b => b.MigrationsAssembly("A.B.C"))));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Logs_context_initialization_migrations_history_table()
         {
             Assert.Equal(
@@ -53,7 +53,7 @@ namespace Microsoft.EntityFrameworkCore
                 ActualMessage(s => CreateOptionsBuilder(s, b => b.MigrationsHistoryTable("MyHistory"))));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Logs_context_initialization_migrations_history_table_schema()
         {
             Assert.Equal(

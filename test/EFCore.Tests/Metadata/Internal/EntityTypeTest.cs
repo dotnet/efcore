@@ -26,7 +26,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
     public partial class EntityTypeTest
     {
-        [Fact]
+        [ConditionalFact]
         public void Invalid_filter_expressions_throws()
         {
             var model = CreateModel();
@@ -46,7 +46,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 Assert.Throws<InvalidOperationException>(() => entityTypeA.SetQueryFilter(badExpression2)).Message);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Use_of_custom_IEntityType_throws()
         {
             var type = new FakeEntityType();
@@ -88,7 +88,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             public IEnumerable<IDictionary<string, object>> GetSeedData() => throw new NotImplementedException();
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Display_name_is_prettified_CLR_name()
         {
             Assert.Equal("EntityTypeTest", CreateModel().AddEntityType(typeof(EntityTypeTest)).DisplayName());
@@ -96,13 +96,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Equal("List<Customer>", CreateModel().AddEntityType(typeof(List<Customer>)).DisplayName());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Display_name_is_entity_type_name_when_no_CLR_type()
             => Assert.Equal(
                 "Everything.Is+Awesome<When.We, re.Living<Our.Dream>>",
                 CreateModel().AddEntityType("Everything.Is+Awesome<When.We, re.Living<Our.Dream>>").DisplayName());
 
-        [Fact]
+        [ConditionalFact]
         public void Name_is_prettified_CLR_full_name()
         {
             Assert.Equal(
@@ -115,7 +115,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 CreateModel().AddEntityType(typeof(List<Customer>)).Name);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_set_reset_and_clear_primary_key()
         {
             var model = CreateModel();
@@ -153,7 +153,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Equal(2, entityType.GetKeys().Count());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Setting_primary_key_throws_if_properties_from_different_type()
         {
             var model = CreateModel();
@@ -166,7 +166,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 Assert.Throws<InvalidOperationException>(() => entityType1.SetPrimaryKey(idProperty)).Message);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_get_set_reset_and_clear_primary_key()
         {
             var model = CreateModel();
@@ -204,7 +204,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Equal(2, entityType.GetKeys().Count());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_clear_the_primary_key_if_it_is_referenced_from_a_foreign_key()
         {
             var model = CreateModel();
@@ -223,7 +223,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Same(customerPk, fk.PrincipalKey);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_change_the_primary_key_if_it_is_referenced_from_a_foreign_key()
         {
             var model = CreateModel();
@@ -243,7 +243,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Same(customerPk, fk.PrincipalKey);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_add_and_get_a_key()
         {
             var model = CreateModel();
@@ -267,7 +267,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Contains(key2, entityType.GetKeys());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Adding_a_key_throws_if_properties_from_different_type()
         {
             var model = CreateModel();
@@ -280,7 +280,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 Assert.Throws<InvalidOperationException>(() => entityType1.AddKey(idProperty)).Message);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Adding_a_key_throws_if_duplicated()
         {
             var model = CreateModel();
@@ -297,7 +297,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 Assert.Throws<InvalidOperationException>(() => entityType.AddKey(new[] { idProperty, nameProperty })).Message);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Adding_a_key_throws_if_duplicated_properties()
         {
             var model = CreateModel();
@@ -310,7 +310,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 Assert.Throws<InvalidOperationException>(() => entityType.AddKey(new[] { idProperty, idProperty })).Message);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Adding_a_key_throws_if_properties_were_removed()
         {
             var model = CreateModel();
@@ -323,7 +323,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 Assert.Throws<InvalidOperationException>(() => entityType.AddKey(new[] { idProperty })).Message);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Adding_a_key_throws_if_same_as_primary()
         {
             var model = CreateModel();
@@ -340,7 +340,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 Assert.Throws<InvalidOperationException>(() => entityType.AddKey(new[] { idProperty, nameProperty })).Message);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_add_a_key_if_any_properties_are_part_of_derived_foreign_key()
         {
             var model = CreateModel();
@@ -355,7 +355,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.NotNull(baseType.AddKey(new[] { fkProperty }));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Adding_a_key_with_value_generation_throws_if_any_properties_are_part_of_derived_foreign_key()
         {
             var model = CreateModel();
@@ -373,7 +373,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 Assert.Throws<InvalidOperationException>(() => baseType.AddKey(new[] { fkProperty })).Message);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_remove_keys()
         {
             var model = CreateModel();
@@ -409,7 +409,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Empty(idProperty.GetContainingKeys());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Removing_a_key_throws_if_it_referenced_from_a_foreign_key_in_the_model()
         {
             var model = CreateModel();
@@ -426,7 +426,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 Assert.Throws<InvalidOperationException>(() => customerType.RemoveKey(customerKey.Properties)).Message);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Keys_are_ordered_by_property_count_then_property_names()
         {
             var model = CreateModel();
@@ -445,7 +445,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.True(new[] { k1, k2, k3, k4 }.SequenceEqual(customerType.GetKeys()));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Store_computed_values_are_ignored_before_and_after_save_by_default()
         {
             var model = CreateModel();
@@ -471,7 +471,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Equal(PropertySaveBehavior.Save, nameProperty.GetAfterSaveBehavior());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Store_computed_values_are_ignored_after_save_by_default()
         {
             var model = CreateModel();
@@ -497,7 +497,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Equal(PropertySaveBehavior.Throw, nameProperty.GetAfterSaveBehavior());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_add_a_foreign_key()
         {
             var model = CreateModel();
@@ -522,7 +522,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Equal(new[] { fk1, fk2 }, orderType.GetForeignKeys().ToArray());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_add_a_foreign_key_targeting_different_key()
         {
             var model = CreateModel();
@@ -547,7 +547,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Equal(new[] { fk2, fk1 }, orderType.GetForeignKeys().ToArray());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_add_a_foreign_key_targeting_different_entity_type()
         {
             var model = CreateModel();
@@ -572,7 +572,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Equal(new[] { fk1, fk2 }, orderType.GetForeignKeys().ToArray());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Adding_a_foreign_key_throws_if_duplicate()
         {
             var model = CreateModel();
@@ -592,7 +592,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 Assert.Throws<InvalidOperationException>(() => orderType.AddForeignKey(customerFk1, customerKey, customerType)).Message);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Adding_a_foreign_key_throws_if_duplicated_properties()
         {
             var model = CreateModel();
@@ -614,7 +614,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     () => orderType.AddForeignKey(new[] { customerFk1, customerFk1 }, customerKey, customerType)).Message);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Adding_a_foreign_key_throws_if_properties_from_different_type()
         {
             var model = CreateModel();
@@ -629,7 +629,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     () => entityType1.AddForeignKey(new[] { fkProperty }, entityType2.AddKey(idProperty), entityType2)).Message);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Adding_a_foreign_key_throws_if_properties_were_removed()
         {
             var model = CreateModel();
@@ -644,7 +644,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 Assert.Throws<InvalidOperationException>(() => entityType.AddForeignKey(new[] { fkProperty }, key, entityType)).Message);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_add_a_foreign_key_if_any_properties_are_part_of_inherited_key()
         {
             var model = CreateModel();
@@ -659,7 +659,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.NotNull(entityType.AddForeignKey(new[] { fkProperty, idProperty }, key, entityType));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_add_a_foreign_key_if_any_properties_are_part_of_inherited_key_with_value_generation()
         {
             var model = CreateModel();
@@ -675,7 +675,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.NotNull(entityType.AddForeignKey(new[] { fkProperty, idProperty }, key, entityType));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Adding_a_foreign_key_throws_if_key_was_removed()
         {
             var model = CreateModel();
@@ -690,7 +690,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 Assert.Throws<InvalidOperationException>(() => entityType.AddForeignKey(new[] { fkProperty }, key, entityType)).Message);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Adding_a_foreign_key_throws_if_related_entity_is_from_different_model()
         {
             var dependentEntityType = CreateModel().AddEntityType(typeof(Customer));
@@ -705,7 +705,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                         new[] { fkProperty }, principalEntityType.AddKey(idProperty), principalEntityType)).Message);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_get_or_add_a_foreign_key()
         {
             var model = CreateModel();
@@ -741,7 +741,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             return model;
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_remove_foreign_keys()
         {
             var model = CreateModel();
@@ -778,7 +778,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Empty(orderType.GetForeignKeys());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_remove_a_foreign_key_if_it_is_referenced_from_a_navigation_in_the_model()
         {
             var model = CreateModel();
@@ -798,7 +798,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Empty(customerType.GetNavigations());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Foreign_keys_are_ordered_by_property_count_then_property_names()
         {
             var model = CreateModel();
@@ -824,7 +824,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.True(new[] { fk1, fk2, fk3, fk4 }.SequenceEqual(orderType.GetForeignKeys()));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_add_and_remove_navigations()
         {
             var model = CreateModel();
@@ -868,7 +868,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Empty(((IEntityType)customerType).GetNavigations());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_add_new_navigations_or_get_existing_navigations()
         {
             var model = CreateModel();
@@ -891,7 +891,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.True(customerNavigation.IsDependentToPrincipal());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_get_navigation_and_can_try_get_navigation()
         {
             var model = CreateModel();
@@ -909,7 +909,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Null(orderType.FindNavigation("Nose"));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Adding_a_new_navigation_with_a_name_that_conflicts_with_a_property_throws()
         {
             var model = CreateModel();
@@ -928,7 +928,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     () => customerForeignKey.HasDependentToPrincipal("Customer")).Message);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Adding_a_new_navigation_with_a_name_that_conflicts_with_a_service_property_throws()
         {
             var model = CreateModel();
@@ -947,7 +947,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     () => customerForeignKey.HasDependentToPrincipal(nameof(Order.Customer))).Message);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_add_a_navigation_to_shadow_entity()
         {
             var model = CreateModel();
@@ -961,7 +961,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.NotNull(customerForeignKey.HasDependentToPrincipal("Customer"));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Adding_a_navigation_on_non_shadow_entity_type_pointing_to_a_shadow_entity_type_throws()
         {
             var model = CreateModel();
@@ -978,7 +978,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     () => customerForeignKey.HasDependentToPrincipal(Order.CustomerProperty)).Message);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Collection_navigation_properties_must_be_IEnumerables_of_the_target_type()
         {
             var model = CreateModel();
@@ -996,7 +996,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     () => customerForeignKey.HasPrincipalToDependent(Customer.NotCollectionOrdersProperty)).Message);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Collection_navigation_properties_cannot_be_IEnumerables_of_derived_target_type()
         {
             var model = CreateModel();
@@ -1017,7 +1017,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     () => customerForeignKey.HasPrincipalToDependent(SpecialCustomer.DerivedOrdersProperty)).Message);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Collection_navigation_properties_can_be_IEnumerables_of_base_target_type()
         {
             var model = CreateModel();
@@ -1039,7 +1039,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Same(ordersNavigation, customerForeignKey.PrincipalToDependent);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Reference_navigation_properties_must_be_of_the_target_type()
         {
             var model = CreateModel();
@@ -1056,7 +1056,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     () => customerForeignKey.HasDependentToPrincipal(Order.OrderCustomerProperty)).Message);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Reference_navigation_properties_cannot_be_of_derived_type()
         {
             var model = CreateModel();
@@ -1074,7 +1074,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     () => customerForeignKey.HasDependentToPrincipal(SpecialOrder.DerivedCustomerProperty)).Message);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Reference_navigation_properties_can_be_of_base_type()
         {
             var model = CreateModel();
@@ -1095,7 +1095,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Same(customerType, customerNavigation.GetTargetType());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_create_self_referencing_navigations()
         {
             var model = CreateModel();
@@ -1113,7 +1113,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Same(fk.DependentToPrincipal, navigationToPrincipal);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Throws_when_adding_same_self_referencing_navigation_twice()
         {
             var model = CreateModel();
@@ -1130,7 +1130,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 Assert.Throws<InvalidOperationException>(() => fk.HasDependentToPrincipal(SelfRef.SelfRef1Property)).Message);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Navigations_are_ordered_by_name()
         {
             var model = CreateModel();
@@ -1152,7 +1152,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.True(new[] { navigation1, navigation2 }.SequenceEqual(((IEntityType)customerType).GetNavigations()));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_add_retrieve_and_remove_indexes()
         {
             var model = CreateModel();
@@ -1202,7 +1202,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Empty(property1.GetContainingIndexes());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void AddIndex_throws_if_not_from_same_entity()
         {
             var model = CreateModel();
@@ -1218,7 +1218,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     () => entityType2.AddIndex(new[] { property1, property2 })).Message);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void AddIndex_throws_if_duplicate()
         {
             var model = CreateModel();
@@ -1235,7 +1235,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     () => entityType.AddIndex(new[] { property1, property2 })).Message);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_add_and_remove_properties()
         {
             var model = CreateModel();
@@ -1268,7 +1268,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Empty(entityType.GetProperties());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_add_new_properties_or_get_existing_properties_using_PropertyInfo_or_name()
         {
             var model = CreateModel();
@@ -1299,7 +1299,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.True(new[] { idProperty, nameProperty }.SequenceEqual(entityType.GetProperties()));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_add_new_properties_using_name_of_property_in_base_class()
         {
             var model = CreateModel();
@@ -1315,7 +1315,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Null(property.FieldInfo);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_add_new_properties_using_name_of_field_in_base_class()
         {
             var model = CreateModel();
@@ -1354,7 +1354,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void AddProperty_throws_if_shadow_entity_type()
         {
             var entityType = CreateModel().AddEntityType("Customer");
@@ -1366,7 +1366,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                         entityType.AddProperty(Customer.NameProperty)).Message);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void AddProperty_throws_if_no_clr_property_or_field()
         {
             var entityType = CreateModel().AddEntityType(typeof(Customer));
@@ -1377,7 +1377,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     () => entityType.AddProperty("_foo")).Message);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void AddProperty_throws_if_clr_type_does_not_match()
         {
             var entityType = CreateModel().AddEntityType(typeof(Customer));
@@ -1390,7 +1390,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                         entityType.AddProperty(nameof(Customer.Name), typeof(int))).Message);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void AddProperty_throws_if_name_does_not_match()
         {
             var entityType = CreateModel().AddEntityType(typeof(Customer));
@@ -1403,7 +1403,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                         entityType.AddProperty(nameof(Customer.Id), typeof(int), Customer.NameProperty)).Message);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void AddProperty_ignores_clr_type_if_implicit()
         {
             var entityType = (IConventionEntityType)CreateModel().AddEntityType(typeof(Customer));
@@ -1413,7 +1413,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Equal(typeof(string), property.ClrType);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void AddIndexedProperty_adds_indexed_property()
         {
             var entityType = CreateModel().AddEntityType(typeof(Customer));
@@ -1425,7 +1425,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Equal(typeof(int), property.ClrType);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void AddIndexedProperty_throws_when_no_indexer()
         {
             var entityType = CreateModel().AddEntityType(typeof(Order));
@@ -1435,7 +1435,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 Assert.Throws<InvalidOperationException>(() => entityType.AddIndexedProperty("A", typeof(int))).Message);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void AddIndexedProperty_throws_when_clashing_with_other_property()
         {
             var entityType = CreateModel().AddEntityType(typeof(Customer));
@@ -1445,7 +1445,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 Assert.Throws<InvalidOperationException>(() => entityType.AddIndexedProperty("Name", typeof(int))).Message);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Cannot_remove_property_when_used_by_primary_key()
         {
             var model = CreateModel();
@@ -1459,7 +1459,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 Assert.Throws<InvalidOperationException>(() => entityType.RemoveProperty(property.Name)).Message);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Cannot_remove_property_when_used_by_non_primary_key()
         {
             var model = CreateModel();
@@ -1473,7 +1473,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 Assert.Throws<InvalidOperationException>(() => entityType.RemoveProperty(property.Name)).Message);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Cannot_remove_property_when_used_by_foreign_key()
         {
             var model = CreateModel();
@@ -1489,7 +1489,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 Assert.Throws<InvalidOperationException>(() => orderType.RemoveProperty(customerFk.Name)).Message);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Cannot_remove_property_when_used_by_an_index()
         {
             var model = CreateModel();
@@ -1503,7 +1503,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 Assert.Throws<InvalidOperationException>(() => entityType.RemoveProperty(property.Name)).Message);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Properties_are_ordered_by_name()
         {
             var model = CreateModel();
@@ -1515,7 +1515,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.True(new[] { property1, property2 }.SequenceEqual(entityType.GetProperties()));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Primary_key_properties_precede_others()
         {
             var model = CreateModel();
@@ -1529,7 +1529,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.True(new[] { pkProperty, aProperty }.SequenceEqual(entityType.GetProperties()));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Composite_primary_key_properties_are_listed_in_key_order()
         {
             var model = CreateModel();
@@ -1544,7 +1544,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.True(new[] { pkProperty1, pkProperty2, aProperty }.SequenceEqual(entityType.GetProperties()));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Properties_on_base_type_are_listed_before_derived_properties()
         {
             var model = CreateModel();
@@ -1561,7 +1561,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.True(new[] { property1, property2, property3, property4 }.SequenceEqual(childType.GetProperties()));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Properties_are_properly_ordered_when_primary_key_changes()
         {
             var model = CreateModel();
@@ -1579,7 +1579,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.True(new[] { aProperty, bProperty }.SequenceEqual(entityType.GetProperties()));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_get_property_and_can_try_get_property()
         {
             var model = CreateModel();
@@ -1594,7 +1594,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Null(entityType.FindProperty("Nose"));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Shadow_properties_have_CLR_flag_set_to_false()
         {
             var model = CreateModel();
@@ -1609,7 +1609,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.True(entityType.FindProperty("Mane_").IsShadowProperty());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Adding_a_new_property_with_a_name_that_already_exists_throws()
         {
             var model = CreateModel();
@@ -1621,7 +1621,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 Assert.Throws<InvalidOperationException>(() => entityType.AddProperty("Id")).Message);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Adding_a_new_property_with_a_name_that_conflicts_with_a_navigation_throws()
         {
             var model = CreateModel();
@@ -1639,7 +1639,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 Assert.Throws<InvalidOperationException>(() => orderType.AddProperty("Customer")).Message);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Adding_a_new_property_with_a_name_that_conflicts_with_a_service_property_throws()
         {
             var model = CreateModel();
@@ -1657,7 +1657,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 Assert.Throws<InvalidOperationException>(() => orderType.AddServiceProperty(Order.CustomerProperty)).Message);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Adding_a_new_service_property_with_a_name_that_conflicts_with_a_property_throws()
         {
             var model = CreateModel();
@@ -1669,7 +1669,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 Assert.Throws<InvalidOperationException>(() => entityType.AddServiceProperty(Customer.OrdersProperty)).Message);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Adding_a_new_service_property_with_a_name_that_conflicts_with_a_navigation_throws()
         {
             var model = CreateModel();
@@ -1687,7 +1687,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 Assert.Throws<InvalidOperationException>(() => orderType.AddServiceProperty(Order.CustomerProperty)).Message);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Adding_a_new_service_property_with_a_name_that_already_exists_throws()
         {
             var model = CreateModel();
@@ -1699,7 +1699,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 Assert.Throws<InvalidOperationException>(() => entityType.AddServiceProperty(Customer.OrdersProperty)).Message);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Adding_a_new_service_property_with_a_type_that_already_exists_throws()
         {
             var model = CreateModel();
@@ -1716,7 +1716,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 Assert.Throws<InvalidOperationException>(() => entityType.AddServiceProperty(Customer.MoreOrdersProperty)).Message);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Adding_a_CLR_property_from_wrong_CLR_type_throws()
         {
             var model = CreateModel();
@@ -1727,7 +1727,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 Assert.Throws<ArgumentException>(() => entityType.AddProperty(Order.CustomerIdProperty)).Message);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Adding_a_CLR_property_to_shadow_type_throws()
         {
             var model = CreateModel();
@@ -1738,7 +1738,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 Assert.Throws<InvalidOperationException>(() => entityType.AddProperty(Order.CustomerIdProperty)).Message);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_get_property_indexes()
         {
             var model = CreateModel();
@@ -1761,7 +1761,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Equal(2, entityType.ShadowPropertyCount());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Indexes_for_derived_types_are_calculated_correctly()
         {
             using (var context = new Levels())
@@ -1938,7 +1938,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Indexes_are_ordered_by_property_count_then_property_names()
         {
             var model = CreateModel();
@@ -1957,7 +1957,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.True(new[] { i1, i2, i3, i4 }.SequenceEqual(customerType.GetIndexes()));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Adding_inheritance_to_weak_entity_types_throws()
         {
             var model = CreateModel();
@@ -1976,7 +1976,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 Assert.Throws<InvalidOperationException>(() => derivedType.BaseType = orderType).Message);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Adding_non_delegated_inheritance_to_delegated_identity_definition_entity_types_throws()
         {
             var model = CreateModel();
@@ -1996,7 +1996,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 Assert.Throws<InvalidOperationException>(() => derivedType.BaseType = orderType).Message);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Change_tracking_from_model_is_used_by_default_regardless_of_CLR_type()
         {
             var model = BuildFullNotificationEntityModel();
@@ -2009,7 +2009,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Equal(ChangeTrackingStrategy.ChangedNotifications, entityType.GetChangeTrackingStrategy());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Change_tracking_from_model_is_used_by_default_for_shadow_entities()
         {
             var model = CreateModel();
@@ -2022,7 +2022,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Equal(ChangeTrackingStrategy.ChangedNotifications, entityType.GetChangeTrackingStrategy());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Change_tracking_can_be_set_to_anything_for_full_notification_entities()
         {
             var model = BuildFullNotificationEntityModel();
@@ -2045,7 +2045,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Equal(ChangeTrackingStrategy.ChangingAndChangedNotificationsWithOriginalValues, entityType.GetChangeTrackingStrategy());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Change_tracking_can_be_set_to_snapshot_or_changed_only_for_changed_only_entities()
         {
             var model = CreateModel();
@@ -2075,7 +2075,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     .Message);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Change_tracking_can_be_set_to_snapshot_only_for_non_notifying_entities()
         {
             var model = CreateModel();
@@ -2105,7 +2105,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     .Message);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void All_properties_have_original_value_indexes_when_using_snapshot_change_tracking()
         {
             var entityType = BuildFullNotificationEntityModel().FindEntityType(typeof(FullNotificationEntity));
@@ -2120,7 +2120,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Equal(4, entityType.OriginalValueCount());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void All_relationship_properties_have_relationship_indexes_when_using_snapshot_change_tracking()
         {
             var entityType = BuildFullNotificationEntityModel().FindEntityType(typeof(FullNotificationEntity));
@@ -2137,7 +2137,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Equal(4, entityType.RelationshipPropertyCount());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void All_properties_have_original_value_indexes_when_using_changed_only_tracking()
         {
             var entityType = BuildFullNotificationEntityModel().FindEntityType(typeof(FullNotificationEntity));
@@ -2152,7 +2152,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Equal(4, entityType.OriginalValueCount());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Collections_dont_have_relationship_indexes_when_using_changed_only_change_tracking()
         {
             var entityType = BuildFullNotificationEntityModel().FindEntityType(typeof(FullNotificationEntity));
@@ -2169,7 +2169,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Equal(3, entityType.RelationshipPropertyCount());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Only_concurrency_and_key_properties_have_original_value_indexes_when_using_full_notifications()
         {
             var entityType = BuildFullNotificationEntityModel().FindEntityType(typeof(FullNotificationEntity));
@@ -2184,7 +2184,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Equal(3, entityType.OriginalValueCount());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Collections_dont_have_relationship_indexes_when_using_full_notifications()
         {
             var entityType = BuildFullNotificationEntityModel().FindEntityType(typeof(FullNotificationEntity));
@@ -2201,7 +2201,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Equal(3, entityType.RelationshipPropertyCount());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void All_properties_have_original_value_indexes_when_full_notifications_with_original_values()
         {
             var entityType = BuildFullNotificationEntityModel().FindEntityType(typeof(FullNotificationEntity));
@@ -2216,7 +2216,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Equal(4, entityType.OriginalValueCount());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Collections_dont_have_relationship_indexes_when_full_notifications_with_original_values()
         {
             var entityType = BuildFullNotificationEntityModel().FindEntityType(typeof(FullNotificationEntity));

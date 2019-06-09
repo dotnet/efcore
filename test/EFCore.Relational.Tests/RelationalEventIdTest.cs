@@ -30,7 +30,7 @@ namespace Microsoft.EntityFrameworkCore
 {
     public class RelationalEventIdTest : EventIdTestBase
     {
-        [Fact]
+        [ConditionalFact]
         public void Every_eventId_has_a_logger_method_and_logs_when_level_enabled()
         {
             var constantExpression = Expression.Constant("A");

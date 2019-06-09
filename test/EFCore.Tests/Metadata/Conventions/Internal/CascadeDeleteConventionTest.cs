@@ -14,7 +14,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 {
     public class CascadeDeleteConventionTest
     {
-        [Fact]
+        [ConditionalFact]
         public void Cascade_delete_is_set_when_required_FK_is_added()
         {
             var modelBuilder = CreateModelBuilder();
@@ -30,7 +30,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             Assert.Equal(DeleteBehavior.Cascade, fk.DeleteBehavior);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Cascade_delete_is_not_set_when_optional_FK_is_added()
         {
             var modelBuilder = CreateModelBuilder();
@@ -42,7 +42,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             Assert.Equal(DeleteBehavior.ClientSetNull, fk.DeleteBehavior);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Cascade_delete_is_set_when_optional_FK_is_made_required()
         {
             var modelBuilder = CreateModelBuilder();
@@ -58,7 +58,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             Assert.Equal(DeleteBehavior.Cascade, fk.DeleteBehavior);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Cascade_delete_is_not_set_when_required_FK_is_made_optional()
         {
             var modelBuilder = CreateModelBuilder();
@@ -78,7 +78,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             Assert.Equal(DeleteBehavior.ClientSetNull, fk.DeleteBehavior);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Cascade_delete_is_not_changed_when_set_explicitly_on_added_FK()
         {
             var modelBuilder = CreateModelBuilder();
@@ -92,7 +92,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             Assert.Equal(DeleteBehavior.Cascade, fk.DeleteBehavior);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Cascade_delete_is_not_changed_when_set_explicitly_on_FK()
         {
             var modelBuilder = CreateModelBuilder();

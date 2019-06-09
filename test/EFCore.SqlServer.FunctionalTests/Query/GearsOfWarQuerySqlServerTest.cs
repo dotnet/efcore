@@ -783,7 +783,7 @@ WHERE [g].[Discriminator] IN (N'Gear', N'Officer') AND ((1 & [g].[Rank]) = [g].[
         {
             await base.Where_enum_has_flag_subquery_with_pushdown(isAsync);
 
-            // issue #15994            
+            // issue #15994
 //            AssertSql(
 //                @"SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOrBirthName], [g].[Discriminator], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank]
 //FROM [Gears] AS [g]
@@ -3884,7 +3884,7 @@ WHERE @_outer_FullName = [w].[OwnerFullName]");
 
             AssertSql(
                 @"SELECT [f].[Name], [f].[Eradicated]
-FROM [Factions] AS [f]
+FROM [ConditionalFactions] AS [f]
 WHERE ([f].[Discriminator] = N'LocustHorde') AND ([f].[Discriminator] = N'LocustHorde')
 ORDER BY [f].[Name]");
         }
@@ -3895,7 +3895,7 @@ ORDER BY [f].[Name]");
 
             AssertSql(
                 @"SELECT [f].[Id], [f].[CapitalName], [f].[Discriminator], [f].[Name], [f].[CommanderName], [f].[Eradicated], [f].[Eradicated]
-FROM [Factions] AS [f]
+FROM [ConditionalFactions] AS [f]
 WHERE ([f].[Discriminator] = N'LocustHorde') AND ([f].[Discriminator] = N'LocustHorde')
 ORDER BY [f].[Name]");
         }
@@ -3906,7 +3906,7 @@ ORDER BY [f].[Name]");
 
             AssertSql(
                 @"SELECT [f].[Name], [f].[Eradicated]
-FROM [Factions] AS [f]
+FROM [ConditionalFactions] AS [f]
 WHERE ([f].[Discriminator] = N'LocustHorde') AND ([f].[Discriminator] = N'LocustHorde')
 ORDER BY [f].[Name]");
         }
@@ -3917,7 +3917,7 @@ ORDER BY [f].[Name]");
 
             AssertSql(
                 @"SELECT [f].[Name], [f].[Eradicated]
-FROM [Factions] AS [f]
+FROM [ConditionalFactions] AS [f]
 WHERE ([f].[Discriminator] = N'LocustHorde') AND ([f].[Discriminator] = N'LocustHorde')
 ORDER BY [f].[Name]");
         }
@@ -3999,7 +3999,7 @@ INNER JOIN [Cities] AS [c2] ON [c1].[Nation] = [c2].[Nation]");
             // issue #15944
 //            AssertSql(
 //                @"SELECT [f].[Name], [t].[ThreatLevel] AS [Threat]
-//FROM [Factions] AS [f]
+//FROM [ConditionalFactions] AS [f]
 //LEFT JOIN (
 //    SELECT [f.Commander].*
 //    FROM [LocustLeaders] AS [f.Commander]
@@ -4016,7 +4016,7 @@ INNER JOIN [Cities] AS [c2] ON [c1].[Nation] = [c2].[Nation]");
             // issue #15944
 //            AssertSql(
 //                @"SELECT [f].[Id], [f].[CapitalName], [f].[Discriminator], [f].[Name], [f].[CommanderName], [f].[Eradicated], [t].[ThreatLevel]
-//FROM [Factions] AS [f]
+//FROM [ConditionalFactions] AS [f]
 //LEFT JOIN (
 //    SELECT [f.Commander].*
 //    FROM [LocustLeaders] AS [f.Commander]
@@ -4033,7 +4033,7 @@ INNER JOIN [Cities] AS [c2] ON [c1].[Nation] = [c2].[Nation]");
             // issue #15994
 //            AssertSql(
 //                @"SELECT [f].[Name], [t].[ThreatLevel] AS [Threat]
-//FROM [Factions] AS [f]
+//FROM [ConditionalFactions] AS [f]
 //LEFT JOIN (
 //    SELECT [f.Commander].*
 //    FROM [LocustLeaders] AS [f.Commander]
@@ -4050,7 +4050,7 @@ INNER JOIN [Cities] AS [c2] ON [c1].[Nation] = [c2].[Nation]");
             // issue #15994
 //            AssertSql(
 //                @"SELECT [f].[Name] AS [Name0], [t].[Name] AS [CommanderName]
-//FROM [Factions] AS [f]
+//FROM [ConditionalFactions] AS [f]
 //LEFT JOIN (
 //    SELECT [f.Commander].*
 //    FROM [LocustLeaders] AS [f.Commander]
@@ -4070,7 +4070,7 @@ INNER JOIN [Cities] AS [c2] ON [c1].[Nation] = [c2].[Nation]");
     FROM [LocustLeaders] AS [ll]
     WHERE [ll].[Discriminator] IN (N'LocustCommander', N'LocustLeader') AND ([f].[Id] = [ll].[LocustHordeId])
 ) AS [LeadersCount]
-FROM [Factions] AS [f]
+FROM [ConditionalFactions] AS [f]
 WHERE ([f].[Discriminator] = N'LocustHorde') AND ([f].[Discriminator] = N'LocustHorde')
 ORDER BY [f].[Name]");
         }
@@ -4082,14 +4082,14 @@ ORDER BY [f].[Name]");
             // TODO: this will later be translated to INNER JOIN
 //            AssertSql(
 //                @"SELECT [f].[Name] AS [Name0], [f.Leaders].[Name] AS [LeaderName]
-//FROM [Factions] AS [f]
+//FROM [ConditionalFactions] AS [f]
 //INNER JOIN [LocustLeaders] AS [f.Leaders] ON [f].[Id] = [f.Leaders].[LocustHordeId]
 //WHERE (([f].[Discriminator] = N'LocustHorde') AND ([f].[Discriminator] = N'LocustHorde')) AND [f.Leaders].[Discriminator] IN (N'LocustCommander', N'LocustLeader')
 //ORDER BY [LeaderName]");
 
             AssertSql(
                 @"SELECT [f].[Name] AS [Name0], [ll].[Name] AS [LeaderName]
-FROM [Factions] AS [f]
+FROM [ConditionalFactions] AS [f]
 CROSS JOIN [LocustLeaders] AS [ll]
 WHERE (([f].[Discriminator] = N'LocustHorde') AND ([f].[Discriminator] = N'LocustHorde')) AND ([f].[Id] = [ll].[LocustHordeId])
 ORDER BY [LeaderName]");
@@ -4101,7 +4101,7 @@ ORDER BY [LeaderName]");
 
             AssertSql(
                 @"SELECT [lh].[Id], [lh].[CapitalName], [lh].[Discriminator], [lh].[Name], [lh].[CommanderName], [lh].[Eradicated], [t].[Name], [t].[Discriminator], [t].[LocustHordeId], [t].[ThreatLevel], [t].[DefeatedByNickname], [t].[DefeatedBySquadId], [t].[HighCommandId]
-FROM [Factions] AS [lh]
+FROM [ConditionalFactions] AS [lh]
 LEFT JOIN (
     SELECT [lh.Commander].*
     FROM [LocustLeaders] AS [lh.Commander]
@@ -4114,7 +4114,7 @@ ORDER BY [lh].[Name], [lh].[Id]",
 FROM [LocustLeaders] AS [lh.Leaders]
 INNER JOIN (
     SELECT DISTINCT [lh0].[Id], [lh0].[Name]
-    FROM [Factions] AS [lh0]
+    FROM [ConditionalFactions] AS [lh0]
     LEFT JOIN (
         SELECT [lh.Commander0].*
         FROM [LocustLeaders] AS [lh.Commander0]
@@ -4132,7 +4132,7 @@ ORDER BY [t1].[Name], [t1].[Id]");
 
             AssertSql(
                 @"SELECT [f].[Id], [f].[CapitalName], [f].[Discriminator], [f].[Name], [f].[CommanderName], [f].[Eradicated], [t].[Name], [t].[Discriminator], [t].[LocustHordeId], [t].[ThreatLevel], [t].[DefeatedByNickname], [t].[DefeatedBySquadId], [t].[HighCommandId]
-FROM [Factions] AS [f]
+FROM [ConditionalFactions] AS [f]
 LEFT JOIN (
     SELECT [f.Commander].*
     FROM [LocustLeaders] AS [f.Commander]
@@ -4145,7 +4145,7 @@ ORDER BY [f].[Name], [f].[Id]",
 FROM [LocustLeaders] AS [f.Leaders]
 INNER JOIN (
     SELECT DISTINCT [f0].[Id], [f0].[Name]
-    FROM [Factions] AS [f0]
+    FROM [ConditionalFactions] AS [f0]
     LEFT JOIN (
         SELECT [f.Commander0].*
         FROM [LocustLeaders] AS [f.Commander0]
@@ -4163,7 +4163,7 @@ ORDER BY [t1].[Name], [t1].[Id]");
 
             AssertSql(
                 @"SELECT [f].[Id], [f].[CapitalName], [f].[Discriminator], [f].[Name], [f].[CommanderName], [f].[Eradicated], [t].[Name], [t].[Discriminator], [t].[LocustHordeId], [t].[ThreatLevel], [t].[DefeatedByNickname], [t].[DefeatedBySquadId], [t].[HighCommandId]
-FROM [Factions] AS [f]
+FROM [ConditionalFactions] AS [f]
 LEFT JOIN (
     SELECT [f.Commander].*
     FROM [LocustLeaders] AS [f.Commander]
@@ -4176,7 +4176,7 @@ ORDER BY [f].[Name], [f].[Id]",
 FROM [LocustLeaders] AS [f.Leaders]
 INNER JOIN (
     SELECT DISTINCT [f0].[Id], [f0].[Name]
-    FROM [Factions] AS [f0]
+    FROM [ConditionalFactions] AS [f0]
     LEFT JOIN (
         SELECT [f.Commander0].*
         FROM [LocustLeaders] AS [f.Commander0]
@@ -4194,13 +4194,13 @@ ORDER BY [t1].[Name], [t1].[Id]");
 
             AssertSql(
                 @"SELECT [f2].[Id], [f2].[CapitalName], [f2].[Discriminator], [f2].[Name], [f2].[CommanderName], [f2].[Eradicated], [t].[Name], [t].[Discriminator], [t].[LocustHordeId], [t].[ThreatLevel], [t].[DefeatedByNickname], [t].[DefeatedBySquadId], [t].[HighCommandId], [ff].[Id], [ff].[CapitalName], [ff].[Discriminator], [ff].[Name], [ff].[CommanderName], [ff].[Eradicated], [ff.Capital].[Name], [ff.Capital].[Location], [ff.Capital].[Nation]
-FROM [Factions] AS [f2]
+FROM [ConditionalFactions] AS [f2]
 LEFT JOIN (
     SELECT [f2.Commander].*
     FROM [LocustLeaders] AS [f2.Commander]
     WHERE [f2.Commander].[Discriminator] = N'LocustCommander'
 ) AS [t] ON ([f2].[Discriminator] = N'LocustHorde') AND ([f2].[CommanderName] = [t].[Name])
-CROSS JOIN [Factions] AS [ff]
+CROSS JOIN [ConditionalFactions] AS [ff]
 LEFT JOIN [Cities] AS [ff.Capital] ON [ff].[CapitalName] = [ff.Capital].[Name]
 WHERE ([f2].[Discriminator] = N'LocustHorde') AND ([f2].[Discriminator] = N'LocustHorde')
 ORDER BY [f2].[Name], [ff].[Name], [f2].[Id]",
@@ -4209,13 +4209,13 @@ ORDER BY [f2].[Name], [ff].[Name], [f2].[Id]",
 FROM [LocustLeaders] AS [f2.Leaders]
 INNER JOIN (
     SELECT DISTINCT [f20].[Id], [f20].[Name], [ff0].[Name] AS [Name0]
-    FROM [Factions] AS [f20]
+    FROM [ConditionalFactions] AS [f20]
     LEFT JOIN (
         SELECT [f2.Commander0].*
         FROM [LocustLeaders] AS [f2.Commander0]
         WHERE [f2.Commander0].[Discriminator] = N'LocustCommander'
     ) AS [t0] ON ([f20].[Discriminator] = N'LocustHorde') AND ([f20].[CommanderName] = [t0].[Name])
-    CROSS JOIN [Factions] AS [ff0]
+    CROSS JOIN [ConditionalFactions] AS [ff0]
     LEFT JOIN [Cities] AS [ff.Capital0] ON [ff0].[CapitalName] = [ff.Capital0].[Name]
     WHERE ([f20].[Discriminator] = N'LocustHorde') AND ([f20].[Discriminator] = N'LocustHorde')
 ) AS [t1] ON [f2.Leaders].[LocustHordeId] = [t1].[Id]
@@ -4242,7 +4242,7 @@ FROM (
 
             AssertSql(
                 @"SELECT [f].[Eradicated]
-FROM [Factions] AS [f]
+FROM [ConditionalFactions] AS [f]
 WHERE [f].[Discriminator] = N'LocustHorde'");
         }
 
@@ -4264,7 +4264,7 @@ ORDER BY [Nickname1]");
 
             AssertSql(
                 @"SELECT [f].[Name], [o].[Nickname]
-FROM [Factions] AS [f]
+FROM [ConditionalFactions] AS [f]
 CROSS JOIN [Gears] AS [o]
 LEFT JOIN (
     SELECT [join.Commander].*
@@ -4324,7 +4324,7 @@ WHERE ([t0].[Discriminator] = N'Officer') AND ((
             // issue #15994
 //            AssertSql(
 //                @"SELECT [f].[CommanderName]
-//FROM [Factions] AS [f]
+//FROM [ConditionalFactions] AS [f]
 //WHERE ([f].[Discriminator] = N'LocustHorde') AND ([f].[Discriminator] = N'LocustHorde')");
         }
 
@@ -4337,7 +4337,7 @@ WHERE ([t0].[Discriminator] = N'Officer') AND ((
     WHEN [f].[CommanderName] IS NOT NULL THEN [f].[Eradicated]
     ELSE NULL
 END
-FROM [Factions] AS [f]
+FROM [ConditionalFactions] AS [f]
 WHERE ([f].[Discriminator] = N'LocustHorde') AND ([f].[Discriminator] = N'LocustHorde')");
         }
 
@@ -4347,7 +4347,7 @@ WHERE ([f].[Discriminator] = N'LocustHorde') AND ([f].[Discriminator] = N'Locust
 
             AssertSql(
                 @"SELECT [h].[Id], [t0].[Id]
-FROM [Factions] AS [h]
+FROM [ConditionalFactions] AS [h]
 LEFT JOIN (
     SELECT [h.Commander].*
     FROM [LocustLeaders] AS [h.Commander]
@@ -4355,7 +4355,7 @@ LEFT JOIN (
 ) AS [t] ON [h].[CommanderName] = [t].[Name]
 LEFT JOIN (
     SELECT [h.Commander.CommandingFaction].*
-    FROM [Factions] AS [h.Commander.CommandingFaction]
+    FROM [ConditionalFactions] AS [h.Commander.CommandingFaction]
     WHERE [h.Commander.CommandingFaction].[Discriminator] = N'LocustHorde'
 ) AS [t0] ON [t].[Name] = [t0].[CommanderName]
 WHERE [h].[Discriminator] = N'LocustHorde'
@@ -4365,7 +4365,7 @@ ORDER BY [h].[Id], [t0].[Id]",
 FROM [LocustLeaders] AS [h.Commander.CommandingFaction.Leaders]
 INNER JOIN (
     SELECT [h0].[Id], [t2].[Id] AS [Id0]
-    FROM [Factions] AS [h0]
+    FROM [ConditionalFactions] AS [h0]
     LEFT JOIN (
         SELECT [h.Commander0].*
         FROM [LocustLeaders] AS [h.Commander0]
@@ -4373,7 +4373,7 @@ INNER JOIN (
     ) AS [t1] ON [h0].[CommanderName] = [t1].[Name]
     LEFT JOIN (
         SELECT [h.Commander.CommandingFaction0].*
-        FROM [Factions] AS [h.Commander.CommandingFaction0]
+        FROM [ConditionalFactions] AS [h.Commander.CommandingFaction0]
         WHERE [h.Commander.CommandingFaction0].[Discriminator] = N'LocustHorde'
     ) AS [t2] ON [t1].[Name] = [t2].[CommanderName]
     WHERE [h0].[Discriminator] = N'LocustHorde'
@@ -4388,7 +4388,7 @@ ORDER BY [t3].[Id], [t3].[Id0]");
 
             AssertSql(
                 @"SELECT [h].[Id], [t0].[Nickname], [t0].[SquadId]
-FROM [Factions] AS [h]
+FROM [ConditionalFactions] AS [h]
 LEFT JOIN (
     SELECT [h.Commander].*
     FROM [LocustLeaders] AS [h.Commander]
@@ -4406,7 +4406,7 @@ ORDER BY [h].[Id], [t0].[Nickname], [t0].[SquadId]",
 FROM [Gears] AS [h.Commander.DefeatedBy.Reports]
 INNER JOIN (
     SELECT [h0].[Id], [t2].[Nickname], [t2].[SquadId]
-    FROM [Factions] AS [h0]
+    FROM [ConditionalFactions] AS [h0]
     LEFT JOIN (
         SELECT [h.Commander0].*
         FROM [LocustLeaders] AS [h.Commander0]
@@ -4429,7 +4429,7 @@ ORDER BY [t3].[Id], [t3].[Nickname], [t3].[SquadId]");
 
             AssertSql(
                 @"SELECT [f].[Id], [t0].[Nickname], [t0].[SquadId]
-FROM [Factions] AS [f]
+FROM [ConditionalFactions] AS [f]
 LEFT JOIN (
     SELECT [f.Commander].*
     FROM [LocustLeaders] AS [f.Commander]
@@ -4447,7 +4447,7 @@ ORDER BY [f].[Id], [t0].[Nickname], [t0].[SquadId]",
 FROM [Gears] AS [f.Commander.DefeatedBy.Reports]
 INNER JOIN (
     SELECT [f0].[Id], [t2].[Nickname], [t2].[SquadId]
-    FROM [Factions] AS [f0]
+    FROM [ConditionalFactions] AS [f0]
     LEFT JOIN (
         SELECT [f.Commander0].*
         FROM [LocustLeaders] AS [f.Commander0]
@@ -4691,7 +4691,7 @@ ORDER BY [t3].[FullName]");
 
             AssertSql(
                 @"SELECT [f].[Id], [f].[CapitalName], [f].[Discriminator], [f].[Name], [f].[CommanderName], [f].[Eradicated], [t].[Name], [t].[Discriminator], [t].[LocustHordeId], [t].[ThreatLevel], [t].[DefeatedByNickname], [t].[DefeatedBySquadId], [t].[HighCommandId], [t0].[Nickname], [t0].[SquadId], [t0].[AssignedCityName], [t0].[CityOrBirthName], [t0].[Discriminator], [t0].[FullName], [t0].[HasSoulPatch], [t0].[LeaderNickname], [t0].[LeaderSquadId], [t0].[Rank]
-FROM [Factions] AS [f]
+FROM [ConditionalFactions] AS [f]
 LEFT JOIN (
     SELECT [f.Commander].*
     FROM [LocustLeaders] AS [f.Commander]
@@ -4709,7 +4709,7 @@ ORDER BY [t0].[Nickname], [t0].[SquadId]",
 FROM [Gears] AS [f.Commander.DefeatedBy.Reports]
 INNER JOIN (
     SELECT DISTINCT [t2].[Nickname], [t2].[SquadId]
-    FROM [Factions] AS [f0]
+    FROM [ConditionalFactions] AS [f0]
     LEFT JOIN (
         SELECT [f.Commander0].*
         FROM [LocustLeaders] AS [f.Commander0]
@@ -4768,7 +4768,7 @@ ORDER BY [t1].[Nickname0], [t1].[SquadId0], [t1].[Nickname], [t1].[SquadId]");
 
             AssertSql(
                 @"SELECT [f].[Id], [f].[CapitalName], [f].[Discriminator], [f].[Name], [f].[CommanderName], [f].[Eradicated]
-FROM [Factions] AS [f]
+FROM [ConditionalFactions] AS [f]
 WHERE [f].[Discriminator] = N'LocustHorde'
 ORDER BY [f].[Id]",
                 //
@@ -4781,7 +4781,7 @@ LEFT JOIN (
 ) AS [t] ON (([f.Leaders].[Discriminator] = N'LocustCommander') AND ([f.Leaders].[DefeatedByNickname] = [t].[Nickname])) AND (([f.Leaders].[Discriminator] = N'LocustCommander') AND ([f.Leaders].[DefeatedBySquadId] = [t].[SquadId]))
 INNER JOIN (
     SELECT [f0].[Id]
-    FROM [Factions] AS [f0]
+    FROM [ConditionalFactions] AS [f0]
     WHERE [f0].[Discriminator] = N'LocustHorde'
 ) AS [t0] ON [f.Leaders].[LocustHordeId] = [t0].[Id]
 WHERE [f.Leaders].[Discriminator] IN (N'LocustCommander', N'LocustLeader')
@@ -4794,7 +4794,7 @@ ORDER BY [t0].[Id]");
 
             AssertSql(
                 @"SELECT [f].[Id], [f].[CapitalName], [f].[Discriminator], [f].[Name], [f].[CommanderName], [f].[Eradicated], [t].[Name], [t].[Discriminator], [t].[LocustHordeId], [t].[ThreatLevel], [t].[DefeatedByNickname], [t].[DefeatedBySquadId], [t].[HighCommandId], [t0].[Nickname], [t0].[SquadId], [t0].[AssignedCityName], [t0].[CityOrBirthName], [t0].[Discriminator], [t0].[FullName], [t0].[HasSoulPatch], [t0].[LeaderNickname], [t0].[LeaderSquadId], [t0].[Rank]
-FROM [Factions] AS [f]
+FROM [ConditionalFactions] AS [f]
 LEFT JOIN (
     SELECT [f.Commander].*
     FROM [LocustLeaders] AS [f.Commander]
@@ -4812,7 +4812,7 @@ ORDER BY [t0].[Nickname], [t0].[SquadId]",
 FROM [Gears] AS [f.Commander.DefeatedBy.Reports]
 INNER JOIN (
     SELECT DISTINCT [t2].[Nickname], [t2].[SquadId]
-    FROM [Factions] AS [f0]
+    FROM [ConditionalFactions] AS [f0]
     LEFT JOIN (
         SELECT [f.Commander0].*
         FROM [LocustLeaders] AS [f.Commander0]
@@ -6523,7 +6523,7 @@ ORDER BY [t].[Nickname], [t].[FullName]");
 FROM [LocustLeaders] AS [l]
 INNER JOIN (
     SELECT [f].[Id], [f].[CapitalName], [f].[Discriminator], [f].[Name], [f].[CommanderName], [f].[Eradicated]
-    FROM [Factions] AS [f]
+    FROM [ConditionalFactions] AS [f]
     WHERE (([f].[Discriminator] = N'LocustHorde') AND ([f].[Discriminator] = N'LocustHorde')) AND (([f].[Name] = N'Swarm') AND [f].[Name] IS NOT NULL)
 ) AS [t] ON [l].[Name] = [t].[CommanderName]
 WHERE [l].[Discriminator] IN (N'LocustLeader', N'LocustCommander') AND (([t].[Eradicated] <> CAST(1 AS bit)) OR [t].[Eradicated] IS NULL)");
@@ -6538,7 +6538,7 @@ WHERE [l].[Discriminator] IN (N'LocustLeader', N'LocustCommander') AND (([t].[Er
 FROM [LocustLeaders] AS [l]
 LEFT JOIN (
     SELECT [f].[Id], [f].[CapitalName], [f].[Discriminator], [f].[Name], [f].[CommanderName], [f].[Eradicated]
-    FROM [Factions] AS [f]
+    FROM [ConditionalFactions] AS [f]
     WHERE (([f].[Discriminator] = N'LocustHorde') AND ([f].[Discriminator] = N'LocustHorde')) AND (([f].[Name] = N'Swarm') AND [f].[Name] IS NOT NULL)
 ) AS [t] ON [l].[Name] = [t].[CommanderName]
 WHERE [l].[Discriminator] IN (N'LocustLeader', N'LocustCommander') AND (([t].[Eradicated] <> CAST(1 AS bit)) OR [t].[Eradicated] IS NULL)");
@@ -7072,7 +7072,7 @@ ORDER BY [t].[Id], [t].[FullName]");
 
             AssertSql(
                 @"SELECT [f].[Id], [f].[CapitalName], [f].[Discriminator], [f].[Name], [f].[CommanderName], [f].[Eradicated], [t0].[Nickname], [t0].[SquadId], [t0].[AssignedCityName], [t0].[CityOrBirthName], [t0].[Discriminator], [t0].[FullName], [t0].[HasSoulPatch], [t0].[LeaderNickname], [t0].[LeaderSquadId], [t0].[Rank]
-FROM [Factions] AS [f]
+FROM [ConditionalFactions] AS [f]
 LEFT JOIN (
     SELECT [l.Commander].*
     FROM [LocustLeaders] AS [l.Commander]
@@ -7090,7 +7090,7 @@ ORDER BY [t0].[Nickname], [t0].[SquadId], [f].[Id]",
 FROM [LocustLeaders] AS [l.Leaders]
 INNER JOIN (
     SELECT DISTINCT [f0].[Id], [t2].[Nickname], [t2].[SquadId]
-    FROM [Factions] AS [f0]
+    FROM [ConditionalFactions] AS [f0]
     LEFT JOIN (
         SELECT [l.Commander0].*
         FROM [LocustLeaders] AS [l.Commander0]
@@ -8477,7 +8477,7 @@ WHERE [t].[Id] = @__p_0");
             // issue #15994
 //            AssertSql(
 //                @"SELECT [t].[Name], [t].[Discriminator], [t].[LocustHordeId], [t].[ThreatLevel], [t].[DefeatedByNickname], [t].[DefeatedBySquadId], [t].[HighCommandId]
-//FROM [Factions] AS [f]
+//FROM [ConditionalFactions] AS [f]
 //LEFT JOIN [Cities] AS [f.Capital] ON [f].[CapitalName] = [f.Capital].[Name]
 //LEFT JOIN (
 //    SELECT [f.Capital.Commander].*
@@ -8494,7 +8494,7 @@ WHERE [t].[Id] = @__p_0");
             // issue #15994
 //            AssertSql(
 //                @"SELECT [f].[Id], [f].[CapitalName], [f].[Discriminator], [f].[Name], [f].[CommanderName], [f].[Eradicated]
-//FROM [Factions] AS [f]
+//FROM [ConditionalFactions] AS [f]
 //LEFT JOIN [Cities] AS [f.Capital] ON [f].[CapitalName] = [f.Capital].[Name]
 //LEFT JOIN (
 //    SELECT [f.Capital.Commander].*
@@ -8511,7 +8511,7 @@ WHERE [t].[Id] = @__p_0");
             // issue #15994
 //            AssertSql(
 //                @"SELECT [f].[Id], [f].[CapitalName], [f].[Discriminator], [f].[Name], [f].[CommanderName], [f].[Eradicated]
-//FROM [Factions] AS [f]
+//FROM [ConditionalFactions] AS [f]
 //LEFT JOIN [Cities] AS [f.Capital] ON [f].[CapitalName] = [f.Capital].[Name]
 //LEFT JOIN (
 //    SELECT [f.Capital.Commander].*

@@ -18,7 +18,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
     public class PropertyTest
     {
-        [Fact]
+        [ConditionalFact]
         public void Use_of_custom_IProperty_throws()
         {
             var property = new FakeProperty();
@@ -28,7 +28,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 Assert.Throws<NotSupportedException>(() => property.AsProperty()).Message);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Use_of_custom_IPropertyBase_throws()
         {
             var property = new FakeProperty();
@@ -55,7 +55,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             public FieldInfo FieldInfo { get; }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_set_ClrType()
         {
             var entityType = CreateModel().AddEntityType(typeof(object));
@@ -64,7 +64,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Equal(typeof(string), property.ClrType);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Default_nullability_of_property_is_based_on_nullability_of_CLR_type()
         {
             var entityType = CreateModel().AddEntityType(typeof(object));
@@ -77,7 +77,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.False(intProperty.IsNullable);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Property_nullability_can_be_mutated()
         {
             var entityType = CreateModel().AddEntityType(typeof(object));
@@ -94,7 +94,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.False(intProperty.IsNullable);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Adding_a_nullable_property_to_a_key_throws()
         {
             var entityType = CreateModel().AddEntityType(typeof(object));
@@ -110,7 +110,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                         stringProperty.DeclaringEntityType.AddKey(stringProperty)).Message);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Properties_with_non_nullable_types_cannot_be_made_nullable()
         {
             var entityType = CreateModel().AddEntityType(typeof(object));
@@ -121,7 +121,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 Assert.Throws<InvalidOperationException>(() => intProperty.IsNullable = true).Message);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Properties_which_are_part_of_primary_key_cannot_be_made_nullable()
         {
             var entityType = CreateModel().AddEntityType(typeof(object));
@@ -134,7 +134,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 Assert.Throws<InvalidOperationException>(() => stringProperty.IsNullable = true).Message);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void UnderlyingType_returns_correct_underlying_type()
         {
             var entityType = CreateModel().AddEntityType(typeof(Entity));
@@ -142,7 +142,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Equal(typeof(int), property1.ClrType.UnwrapNullableType());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void IsShadowProperty_is_set()
         {
             var entityType = CreateModel().AddEntityType(typeof(Entity));
@@ -151,7 +151,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.False(property.IsShadowProperty());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Property_does_not_use_ValueGenerated_by_default()
         {
             var entityType = CreateModel().AddEntityType(typeof(Entity));
@@ -160,7 +160,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Equal(ValueGenerated.Never, property.ValueGenerated);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_mark_property_as_using_ValueGenerated()
         {
             var entityType = CreateModel().AddEntityType(typeof(Entity));
@@ -173,7 +173,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Equal(ValueGenerated.Never, property.ValueGenerated);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Property_is_not_concurrency_token_by_default()
         {
             var entityType = CreateModel().AddEntityType(typeof(Entity));
@@ -182,7 +182,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.False(property.IsConcurrencyToken);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_mark_property_as_concurrency_token()
         {
             var entityType = CreateModel().AddEntityType(typeof(Entity));

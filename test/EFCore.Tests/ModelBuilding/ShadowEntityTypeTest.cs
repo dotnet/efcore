@@ -13,7 +13,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 {
     public class ShadowEntityTypeTest
     {
-        [Fact]
+        [ConditionalFact]
         public virtual void Can_create_two_shadow_weak_owned_types()
         {
             var modelBuilder = CreateModelBuilder();
@@ -65,7 +65,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             Assert.Equal(2, model.GetEntityTypes().Count(e => e.Name == "CustomerDetails"));
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Can_create_One_to_One_shadow_navigations_between_shadow_entity_types()
         {
             var modelBuilder = CreateModelBuilder();
@@ -84,7 +84,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Throws<InvalidOperationException>(() => modelBuilder.FinalizeModel()).Message);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Can_create_One_to_Many_shadow_navigations_between_shadow_entity_types()
         {
             var modelBuilder = CreateModelBuilder();
@@ -102,7 +102,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Throws<InvalidOperationException>(() => modelBuilder.FinalizeModel()).Message);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Cannot_create_navigation_on_non_shadow_entity_targeting_shadow_entity()
         {
             var modelBuilder = CreateModelBuilder();
@@ -113,7 +113,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Throws<InvalidOperationException>(() => orderEntityType.HasOne("Customer", "Customer")).Message);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Cannot_create_shadow_navigation_between_non_shadow_entity_types()
         {
             var modelBuilder = CreateModelBuilder();

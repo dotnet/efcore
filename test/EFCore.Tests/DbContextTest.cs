@@ -26,7 +26,7 @@ namespace Microsoft.EntityFrameworkCore
 {
     public partial class DbContextTest
     {
-        [Fact]
+        [ConditionalFact]
         public void Set_throws_for_type_not_in_model()
         {
             var optionsBuilder = new DbContextOptionsBuilder();
@@ -41,7 +41,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Local_calls_DetectChanges()
         {
             var provider =
@@ -72,7 +72,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Local_does_not_call_DetectChanges_when_disabled()
         {
             var provider =
@@ -110,7 +110,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Set_throws_for_weak_types()
         {
             var model = new Model(new ConventionSet());
@@ -129,7 +129,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void SaveChanges_calls_DetectChanges()
         {
             var services = new ServiceCollection()
@@ -156,7 +156,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Entry_methods_check_arguments()
         {
             var services = new ServiceCollection()
@@ -207,7 +207,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public async Task Can_change_navigation_while_attaching_entities(bool async)
@@ -303,7 +303,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Context_can_build_model_using_DbSet_properties()
         {
             using (var context = new EarlyLearningCenter(InMemoryTestHelpers.Instance.CreateServiceProvider()))
@@ -332,7 +332,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Context_will_use_explicit_model_if_set_in_config()
         {
             IMutableModel model = new Model();
@@ -348,7 +348,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Context_initializes_all_DbSet_properties_with_setters()
         {
             using (var context = new ContextWithSets())
@@ -374,7 +374,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Model_cannot_be_used_in_OnModelCreating()
         {
             var serviceProvider = new ServiceCollection()
@@ -412,7 +412,7 @@ namespace Microsoft.EntityFrameworkCore
                     .UseInternalServiceProvider(_serviceProvider);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Context_cannot_be_used_in_OnModelCreating()
         {
             var serviceProvider = new ServiceCollection()
@@ -448,7 +448,7 @@ namespace Microsoft.EntityFrameworkCore
                     .UseInternalServiceProvider(_serviceProvider);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Context_cannot_be_used_in_OnConfiguring()
         {
             var serviceProvider = new ServiceCollection()
@@ -485,7 +485,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public async Task SaveChanges_calls_DetectChanges_by_default(bool async)
@@ -530,7 +530,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public async Task Auto_DetectChanges_for_SaveChanges_can_be_switched_off(bool async)
@@ -593,7 +593,7 @@ namespace Microsoft.EntityFrameworkCore
                     .UseInternalServiceProvider(_serviceProvider);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public void Entry_calls_DetectChanges_by_default(bool useGenericOverload)
@@ -624,7 +624,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public void Auto_DetectChanges_for_Entry_can_be_switched_off(bool useGenericOverload)
@@ -657,7 +657,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public async Task Add_Attach_Remove_Update_do_not_call_DetectChanges()
         {
             var provider =
@@ -916,7 +916,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public async Task It_throws_object_disposed_exception()
         {
             var context = new DbContext(new DbContextOptions<DbContext>());
@@ -964,7 +964,7 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Throws<ObjectDisposedException>(() => ((IInfrastructure<IServiceProvider>)context).Instance);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void It_throws_with_derived_name()
         {
             var context = new EarlyLearningCenter();
@@ -974,7 +974,7 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Throws<ObjectDisposedException>(() => context.Model);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void It_disposes_scope()
         {
             var fakeServiceProvider = new FakeServiceProvider();
@@ -1036,7 +1036,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Adding_entities_with_shadow_keys_should_not_throw()
         {
             using (var context = new NullShadowKeyContext())

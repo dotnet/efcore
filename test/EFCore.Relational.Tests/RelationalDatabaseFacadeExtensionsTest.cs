@@ -23,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore
 {
     public class RelationalDatabaseFacadeExtensionsTest
     {
-        [Fact]
+        [ConditionalFact]
         public void GetDbConnection_returns_the_current_connection()
         {
             var dbConnection = new FakeDbConnection("A=B");
@@ -34,7 +34,7 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Same(dbConnection, context.Database.GetDbConnection());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Relational_specific_methods_throws_when_non_relational_provider_is_in_use()
         {
             var optionsBuilder = new DbContextOptionsBuilder()
@@ -48,7 +48,7 @@ namespace Microsoft.EntityFrameworkCore
                 Assert.Throws<InvalidOperationException>(() => context.Database.GetDbConnection()).Message);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(true)]
         [InlineData(false)]
         public async Task Can_open_the_underlying_connection(bool async)
@@ -70,7 +70,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_close_the_underlying_connection()
         {
             var dbConnection = new FakeDbConnection("A=B");
@@ -84,7 +84,7 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Equal(1, dbConnection.CloseCount);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(true)]
         [InlineData(false)]
         public async Task Can_begin_transaction_with_isolation_level(bool async)
@@ -101,7 +101,7 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Equal(System.Data.IsolationLevel.Chaos, transaction.GetDbTransaction().IsolationLevel);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_use_transaction()
         {
             var dbConnection = new FakeDbConnection("A=B");
@@ -112,7 +112,7 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Same(transaction, context.Database.UseTransaction(transaction).GetDbTransaction());
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(true)]
         [InlineData(false)]
         public async Task Begin_transaction_ignores_isolation_level_on_non_relational_provider(bool async)
@@ -172,7 +172,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void use_transaction_throws_on_non_relational_provider()
         {
             var transaction = new FakeDbTransaction(new FakeDbConnection("A=B"));
@@ -184,7 +184,7 @@ namespace Microsoft.EntityFrameworkCore
                     () => context.Database.UseTransaction(transaction)).Message);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void GetMigrations_works()
         {
             var migrations = new[]
@@ -214,7 +214,7 @@ namespace Microsoft.EntityFrameworkCore
             public Migration CreateMigration(TypeInfo migrationClass, string activeProvider) => throw new NotImplementedException();
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(true)]
         [InlineData(false)]
         public async Task GetAppliedMigrations_works(bool async)
@@ -261,7 +261,7 @@ namespace Microsoft.EntityFrameworkCore
             public string GetEndIfScript() => throw new NotImplementedException();
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(true)]
         [InlineData(false)]
         public async Task GetPendingMigrations_works(bool async)

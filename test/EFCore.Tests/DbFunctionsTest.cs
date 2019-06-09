@@ -12,7 +12,7 @@ namespace Microsoft.EntityFrameworkCore
     {
         private readonly DbFunctions _functions = new DbFunctions();
 
-        [Fact]
+        [ConditionalFact]
         public void Like_when_null_inputs()
         {
             Assert.False(_functions.Like(null, "abc"));
@@ -20,7 +20,7 @@ namespace Microsoft.EntityFrameworkCore
             Assert.False(_functions.Like(null, null));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Like_when_empty_inputs()
         {
             Assert.True(_functions.Like("", ""));
@@ -28,7 +28,7 @@ namespace Microsoft.EntityFrameworkCore
             Assert.False(_functions.Like("", "ABC"));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Like_when_no_wildcards()
         {
             Assert.True(_functions.Like("abc", "abc"));
@@ -39,7 +39,7 @@ namespace Microsoft.EntityFrameworkCore
             Assert.False(_functions.Like("ab", "abc"));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Like_when_wildcards()
         {
             Assert.True(_functions.Like("abc", "%"));
@@ -55,7 +55,7 @@ namespace Microsoft.EntityFrameworkCore
             Assert.False(_functions.Like("a_", "a\\_"));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Like_when_regex_chars()
         {
             Assert.True(_functions.Like("a.c", "a.c"));
@@ -89,7 +89,7 @@ namespace Microsoft.EntityFrameworkCore
             Assert.False(_functions.Like("abc", "a\\c"));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Like_when_escaping()
         {
             Assert.True(_functions.Like("50%", "%!%", "!"));
@@ -101,7 +101,7 @@ namespace Microsoft.EntityFrameworkCore
             Assert.False(_functions.Like("50%abc", "50!%", "!"));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Like_when_escaping_with_regex_char()
         {
             Assert.True(_functions.Like("50%", "%|%", "|"));
@@ -113,7 +113,7 @@ namespace Microsoft.EntityFrameworkCore
             Assert.False(_functions.Like("50%abc", "50|%", "|"));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Like_when_trailing_spaces()
         {
             Assert.True(_functions.Like("abc ", "abc "));
@@ -123,7 +123,7 @@ namespace Microsoft.EntityFrameworkCore
             Assert.False(_functions.Like("ABC", "ab "));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Like_when_multiline()
         {
             Assert.True(_functions.Like("abc\r\ndef", "abc%"));

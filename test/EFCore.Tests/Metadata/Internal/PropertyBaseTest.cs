@@ -27,7 +27,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         private const string Reference = "Reference";
         private const string Collection = "Collection";
 
-        [Fact]
+        [ConditionalFact]
         public void Get_MemberInfos_for_auto_props()
         {
             const string field = "<Foo>k__BackingField";
@@ -41,7 +41,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             MemberInfoTest(CreateProperty<AutoProp>(field), PropertyAccessMode.PreferProperty, Property, Property, Property);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Get_MemberInfos_for_full_props()
         {
             const string field = "_foo";
@@ -55,7 +55,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             MemberInfoTest(CreateProperty<FullProp>(field), PropertyAccessMode.PreferProperty, Property, Property, Property);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Get_MemberInfos_for_read_only_props()
         {
             const string field = "_foo";
@@ -69,7 +69,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             MemberInfoTest(CreateProperty<ReadOnlyProp>(field), PropertyAccessMode.PreferProperty, field, field, Property);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Get_MemberInfos_for_read_only_auto_props()
         {
             const string field = "<Foo>k__BackingField";
@@ -83,7 +83,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             MemberInfoTest(CreateProperty<ReadOnlyAutoProp>(field), PropertyAccessMode.PreferProperty, field, field, Property);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Get_MemberInfos_for_read_only_field_props()
         {
             const string field = "_foo";
@@ -97,7 +97,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             MemberInfoTest(CreateProperty<ReadOnlyFieldProp>(field), PropertyAccessMode.PreferProperty, field, field, Property);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Get_MemberInfos_for_write_only_props()
         {
             const string field = "_foo";
@@ -111,7 +111,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             MemberInfoTest(CreateProperty<WriteOnlyProp>(field), PropertyAccessMode.PreferProperty, Property, Property, field);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Get_MemberInfos_for_field_only_props()
         {
             const string field = "_foo";
@@ -127,7 +127,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             MemberInfoTest(CreateProperty<FieldOnly>(field, field), PropertyAccessMode.PreferProperty, field, field, field);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Get_MemberInfos_for_read_only_field_only_props()
         {
             const string field = "_foo";
@@ -143,7 +143,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             MemberInfoTest(CreateProperty<ReadOnlyFieldOnly>(field, field), PropertyAccessMode.PreferProperty, field, field, field);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Get_MemberInfos_for_full_props_with_field_not_found()
         {
             MemberInfoTest(CreateProperty<FullPropNoField>(null), null, Property, Property, Property);
@@ -157,7 +157,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             MemberInfoTest(CreateProperty<FullPropNoField>(null), PropertyAccessMode.PreferProperty, Property, Property, Property);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Get_MemberInfos_for_read_only_props_with_field_not_found()
         {
             MemberInfoTest(
@@ -183,7 +183,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 NoFieldOrSetter<ReadOnlyPropNoField>(), NoFieldOrSetter<ReadOnlyPropNoField>(), Property);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Get_MemberInfos_for_write_only_props_with_field_not_found()
         {
             MemberInfoTest(CreateProperty<WriteOnlyPropNoField>(null), null, Property, Property, NoFieldOrGetter<WriteOnlyPropNoField>());
@@ -207,7 +207,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 Property, Property, NoFieldOrGetter<WriteOnlyPropNoField>());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Get_MemberInfos_for_full_props_private_setter_in_base()
         {
             const string field = "_foo";
@@ -221,7 +221,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             MemberInfoTest(CreateProperty<PrivateSetterInBase>(field), PropertyAccessMode.PreferProperty, Property, Property, Property);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Get_MemberInfos_for_full_props_private_getter_in_base()
         {
             const string field = "_foo";
@@ -235,7 +235,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             MemberInfoTest(CreateProperty<PrivateGetterInBase>(field), PropertyAccessMode.PreferProperty, Property, Property, Property);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Get_MemberInfos_for_auto_prop_navigations()
         {
             const string field = "<Reference>k__BackingField";
@@ -249,7 +249,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             MemberInfoTest(CreateReferenceNavigation<AutoProp>(field), PropertyAccessMode.PreferProperty, Reference, Reference, Reference);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Get_MemberInfos_for_full_prop_navigations()
         {
             const string field = "_reference";
@@ -263,7 +263,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             MemberInfoTest(CreateReferenceNavigation<FullProp>(field), PropertyAccessMode.PreferProperty, Reference, Reference, Reference);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Get_MemberInfos_for_read_only_prop_navigations()
         {
             const string field = "_reference";
@@ -277,7 +277,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             MemberInfoTest(CreateReferenceNavigation<ReadOnlyProp>(field), PropertyAccessMode.PreferProperty, field, field, Reference);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Get_MemberInfos_for_read_only_auto_prop_navigations()
         {
             const string field = "<Reference>k__BackingField";
@@ -292,7 +292,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             MemberInfoTest(CreateReferenceNavigation<ReadOnlyAutoProp>(field), PropertyAccessMode.PreferProperty, field, field, Reference);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Get_MemberInfos_for_read_only_field_prop_navigations()
         {
             const string field = "_reference";
@@ -307,7 +307,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             MemberInfoTest(CreateReferenceNavigation<ReadOnlyFieldProp>(field), PropertyAccessMode.PreferProperty, field, field, Reference);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Get_MemberInfos_for_write_only_prop_navigations()
         {
             const string field = "_reference";
@@ -321,7 +321,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             MemberInfoTest(CreateReferenceNavigation<WriteOnlyProp>(field), PropertyAccessMode.PreferProperty, Reference, Reference, field);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Get_MemberInfos_for_full_prop_navigations_with_field_not_found()
         {
             MemberInfoTest(CreateReferenceNavigation<FullPropNoField>(null), null, Reference, Reference, Reference);
@@ -335,7 +335,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             MemberInfoTest(CreateReferenceNavigation<FullPropNoField>(null), PropertyAccessMode.PreferProperty, Reference, Reference, Reference);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Get_MemberInfos_for_read_only_prop_navigations_with_field_not_found()
         {
             MemberInfoTest(
@@ -359,7 +359,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 NoFieldOrSetterRef<ReadOnlyPropNoField>(), Reference);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Get_MemberInfos_for_write_only_prop_navigations_with_field_not_found()
         {
             MemberInfoTest(CreateReferenceNavigation<WriteOnlyPropNoField>(null), null,
@@ -381,7 +381,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 Reference, Reference, NoFieldOrGetterRef<WriteOnlyPropNoField>());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Get_MemberInfos_for_full_prop_navigations_private_setter_in_base()
         {
             const string field = "_reference";
@@ -395,7 +395,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             MemberInfoTest(CreateReferenceNavigation<PrivateSetterInBase>(field), PropertyAccessMode.PreferProperty, Reference, Reference, Reference);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Get_MemberInfos_for_full_prop_navigations_private_getter_in_base()
         {
             const string field = "_reference";
@@ -411,7 +411,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             MemberInfoTest(CreateReferenceNavigation<PrivateGetterInBase>(field), PropertyAccessMode.PreferProperty, Reference, Reference, Reference);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Get_MemberInfos_for_auto_prop_collection_navigations()
         {
             const string field = "<Collection>k__BackingField";
@@ -425,7 +425,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             MemberInfoTest(CreateCollectionNavigation<AutoProp>(field), PropertyAccessMode.PreferProperty, Collection, Collection, Collection);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Get_MemberInfos_for_full_prop_collection_navigations()
         {
             const string field = "_collection";
@@ -439,7 +439,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             MemberInfoTest(CreateCollectionNavigation<FullProp>(field), PropertyAccessMode.PreferProperty, Collection, Collection, Collection);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Get_MemberInfos_for_read_only_prop_collection_navigations()
         {
             const string field = "_collection";
@@ -453,7 +453,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             MemberInfoTest(CreateCollectionNavigation<ReadOnlyProp>(field), PropertyAccessMode.PreferProperty, field, field, Collection);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Get_MemberInfos_for_read_only_auto_prop_collection_navigations()
         {
             const string field = "<Collection>k__BackingField";
@@ -468,7 +468,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             MemberInfoTest(CreateCollectionNavigation<ReadOnlyAutoProp>(field), PropertyAccessMode.PreferProperty, field, field, Collection);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Get_MemberInfos_for_read_only_field_prop_collection_navigations()
         {
             const string field = "_collection";
@@ -483,7 +483,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             MemberInfoTest(CreateCollectionNavigation<ReadOnlyFieldProp>(field), PropertyAccessMode.PreferProperty, field, field, Collection);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Get_MemberInfos_for_write_only_prop_collection_navigations()
         {
             const string field = "_collection";
@@ -498,7 +498,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             MemberInfoTest(CreateCollectionNavigation<WriteOnlyProp>(field), PropertyAccessMode.PreferProperty, Collection, Collection, field);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Get_MemberInfos_for_full_prop_collection_navigations_with_field_not_found()
         {
             MemberInfoTest(CreateCollectionNavigation<FullPropNoField>(null), null, Collection, Collection, Collection);
@@ -511,7 +511,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             MemberInfoTest(CreateCollectionNavigation<FullPropNoField>(null), PropertyAccessMode.PreferProperty, Collection, Collection, Collection);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Get_MemberInfos_for_read_only_prop_collection_navigations_with_field_not_found()
         {
             MemberInfoTest(CreateCollectionNavigation<ReadOnlyPropNoField>(null), null, null, null, Collection);
@@ -525,7 +525,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             MemberInfoTest(CreateCollectionNavigation<ReadOnlyPropNoField>(null), PropertyAccessMode.PreferProperty, null, null, Collection);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Get_MemberInfos_for_write_only_prop_collection_navigations_with_field_not_found()
         {
             MemberInfoTest(CreateCollectionNavigation<WriteOnlyPropNoField>(null), null,
@@ -542,7 +542,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 Collection, Collection, NoFieldOrGetterColl<WriteOnlyPropNoField>());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Get_MemberInfos_for_full_prop_collection_navigations_private_setter_in_base()
         {
             const string field = "_collection";
@@ -556,7 +556,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             MemberInfoTest(CreateCollectionNavigation<PrivateSetterInBase>(field), PropertyAccessMode.PreferProperty, Collection, Collection, Collection);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Get_MemberInfos_for_full_prop_collection_navigations_private_getter_in_base()
         {
             const string field = "_collection";
@@ -749,7 +749,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Access_mode_can_be_overriden_at_entity_and_property_levels()
         {
             IMutableModel model = new Model();
@@ -777,7 +777,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Equal(PropertyAccessMode.Property, e2p2.GetPropertyAccessMode());
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Properties_can_have_field_cleared()
         {
             var propertyInfo = typeof(FullProp).GetAnyProperty("Foo");
@@ -786,7 +786,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 ((IMutableModel)new Model()).AddEntityType(typeof(FullProp)).AddProperty(propertyInfo), propertyInfo, "_foo");
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Field_only_properties_throws_when_field_cleared()
         {
             var propertyBase = ((IMutableModel)new Model()).AddEntityType(typeof(FieldOnly)).AddProperty("_foo", typeof(int));
@@ -795,7 +795,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 Assert.Throws<InvalidOperationException>(() => propertyBase.SetField(null)).Message);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Navigations_can_have_field_cleared()
         {
             var entityType = ((IMutableModel)new Model()).AddEntityType(typeof(FullProp));
@@ -840,7 +840,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Same(propertyInfo, propertyBase.GetIdentifyingMemberInfo());
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Setting_fieldInfo_for_shadow_property_throws()
         {
             IMutableModel model = new Model();

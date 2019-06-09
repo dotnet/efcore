@@ -31,7 +31,7 @@ namespace Microsoft.EntityFrameworkCore
             Fixture.TestSqlLoggerFactory.Clear();
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_use_decimal_and_byte_as_identity_columns()
         {
             using (var testDatabase = SqlServerTestStore.CreateInitialized(DatabaseName))
@@ -279,7 +279,7 @@ namespace Microsoft.EntityFrameworkCore
             public string Lucy { get; set; }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_use_string_enum_or_byte_array_as_key()
         {
             using (var testDatabase = SqlServerTestStore.CreateInitialized(DatabaseName))
@@ -337,7 +337,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_remove_multiple_byte_array_as_key()
         {
             using (var testDatabase = SqlServerTestStore.CreateInitialized(DatabaseName))
@@ -414,7 +414,7 @@ namespace Microsoft.EntityFrameworkCore
             public string TheWalrus { get; set; }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_run_linq_query_on_entity_set()
         {
             using (var testStore = SqlServerTestStore.GetNorthwindStore())
@@ -440,7 +440,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_run_linq_query_on_entity_set_with_value_buffer_reader()
         {
             using (var testStore = SqlServerTestStore.GetNorthwindStore())
@@ -466,7 +466,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_enumerate_entity_set()
         {
             using (var testStore = SqlServerTestStore.GetNorthwindStore())
@@ -486,7 +486,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public async Task Can_save_changes()
         {
             using (var testDatabase = SqlServerTestStore.CreateInitialized(DatabaseName))
@@ -561,7 +561,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public async Task Can_save_changes_in_tracked_entities()
         {
             using (var testDatabase = SqlServerTestStore.CreateInitialized(DatabaseName))
@@ -620,7 +620,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_track_an_entity_with_more_than_10_properties()
         {
             using (var testDatabase = SqlServerTestStore.CreateInitialized(DatabaseName))
@@ -655,7 +655,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Adding_an_item_to_a_collection_marks_it_as_modified()
         {
             using (var testDatabase = SqlServerTestStore.CreateInitialized(DatabaseName))
@@ -691,7 +691,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact(Skip = "issue #15992")]
+        [ConditionalFact(Skip = "issue #15992")]
         public void Can_set_reference_twice()
         {
             using (var testDatabase = SqlServerTestStore.CreateInitialized(DatabaseName))
@@ -740,7 +740,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact(Skip = "issue #15992")]
+        [ConditionalFact(Skip = "issue #15992")]
         public void Can_include_on_loaded_entity()
         {
             using (var testDatabase = SqlServerTestStore.CreateInitialized(DatabaseName))
@@ -995,7 +995,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public async Task Tracking_entities_asynchronously_returns_tracked_entities_back()
         {
             using (var testStore = SqlServerTestStore.GetNorthwindStore())
@@ -1013,7 +1013,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact] // Issue #931
+        [ConditionalFact] // Issue #931
         public async Task Can_save_and_query_with_schema()
         {
             using (var testStore = SqlServerTestStore.CreateInitialized(DatabaseName))
@@ -1081,19 +1081,19 @@ namespace Microsoft.EntityFrameworkCore
             public int MyKey { get; set; }
         }
 
-        [Fact]
+        [ConditionalFact]
         public Task Can_round_trip_changes_with_snapshot_change_tracking()
         {
             return RoundTripChanges<Blog>();
         }
 
-        [Fact]
+        [ConditionalFact]
         public Task Can_round_trip_changes_with_full_notification_entities()
         {
             return RoundTripChanges<ChangedChangingBlog>();
         }
 
-        [Fact]
+        [ConditionalFact]
         public Task Can_round_trip_changes_with_changed_only_notification_entities()
         {
             return RoundTripChanges<ChangedOnlyBlog>();

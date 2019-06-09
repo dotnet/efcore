@@ -11,7 +11,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         private static readonly BoolToZeroOneConverter<decimal> _boolToZeroOne
             = new BoolToZeroOneConverter<decimal>();
 
-        [Fact]
+        [ConditionalFact]
         public void Can_convert_bools_to_zero_one()
         {
             var converter = _boolToZeroOne.ConvertToProviderExpression.Compile();
@@ -20,7 +20,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.Equal(0, converter(false));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_convert_bools_to_zero_one_object()
         {
             var converter = _boolToZeroOne.ConvertToProvider;
@@ -32,7 +32,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.Null(converter(null));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_convert_zero_one_to_bool()
         {
             var converter = _boolToZeroOne.ConvertFromProviderExpression.Compile();
@@ -42,7 +42,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.False(converter(77));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_convert_zero_one_to_bool_object()
         {
             var converter = _boolToZeroOne.ConvertFromProvider;
@@ -55,13 +55,13 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.Null(converter(null));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Ordering_preserved_for_bools_to_zero_one()
         {
             ValueConverterTest.OrderingTest(_boolToZeroOne, false, true);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_convert_bools_to_zero_one_for_all_numerics()
         {
             GenericConvertTest(0, 1);

@@ -18,7 +18,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         protected DbContext CreateContext() => Fixture.CreateContext();
 
-        [Fact] // Issue #1093
+        [ConditionalFact] // Issue #1093
         public virtual void Include_with_null_FKs_and_nullable_PK()
         {
             using (var context = CreateContext())
@@ -46,7 +46,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Include_with_non_nullable_FKs_and_nullable_PK()
         {
             using (var context = CreateContext())
@@ -70,7 +70,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact] // Issue #1093
+        [ConditionalFact] // Issue #1093
         public virtual void Include_with_null_fKs_and_non_nullable_PK()
         {
             using (var context = CreateContext())
@@ -97,7 +97,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact] // Issue #1093
+        [ConditionalFact] // Issue #1093
         public virtual void Include_with_null_fKs_and_nullable_PK()
         {
             using (var context = CreateContext())
@@ -124,7 +124,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact] // Issue #1292
+        [ConditionalFact] // Issue #1292
         public virtual void One_to_one_self_ref_Include()
         {
             using (var context = CreateContext())

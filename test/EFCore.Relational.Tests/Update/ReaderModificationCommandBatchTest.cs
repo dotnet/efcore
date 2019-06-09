@@ -24,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore.Update
 {
     public class ReaderModificationCommandBatchTest
     {
-        [Fact]
+        [ConditionalFact]
         public void AddCommand_adds_command_if_possible()
         {
             var command = new ModificationCommand("T1", null, new ParameterNameGenerator().GenerateNext, true, null);
@@ -41,7 +41,7 @@ namespace Microsoft.EntityFrameworkCore.Update
             Assert.Equal("..", batch.CommandText);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void AddCommand_does_not_add_command_if_not_possible()
         {
             var command = new ModificationCommand("T1", null, new ParameterNameGenerator().GenerateNext, true, null);
@@ -57,7 +57,7 @@ namespace Microsoft.EntityFrameworkCore.Update
             Assert.Equal(".", batch.CommandText);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void AddCommand_does_not_add_command_if_resulting_sql_is_invalid()
         {
             var command = new ModificationCommand("T1", null, new ParameterNameGenerator().GenerateNext, true, null);
@@ -73,7 +73,7 @@ namespace Microsoft.EntityFrameworkCore.Update
             Assert.Equal(".", batch.CommandText);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void UpdateCommandText_compiles_inserts()
         {
             var entry = CreateEntry(EntityState.Added);
@@ -92,7 +92,7 @@ namespace Microsoft.EntityFrameworkCore.Update
             Assert.Equal(1, fakeSqlGenerator.AppendInsertOperationCalls);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void UpdateCommandText_compiles_updates()
         {
             var entry = CreateEntry(EntityState.Modified, generateKeyValues: true);
@@ -111,7 +111,7 @@ namespace Microsoft.EntityFrameworkCore.Update
             Assert.Equal(1, fakeSqlGenerator.AppendUpdateOperationCalls);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void UpdateCommandText_compiles_deletes()
         {
             var entry = CreateEntry(EntityState.Deleted);
@@ -130,7 +130,7 @@ namespace Microsoft.EntityFrameworkCore.Update
             Assert.Equal(1, fakeSqlGenerator.AppendDeleteOperationCalls);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void UpdateCommandText_compiles_multiple_commands()
         {
             var entry = CreateEntry(EntityState.Added);
@@ -149,7 +149,7 @@ namespace Microsoft.EntityFrameworkCore.Update
             Assert.Equal(1, fakeSqlGenerator.AppendBatchHeaderCalls);
         }
 
-        [Fact]
+        [ConditionalFact]
         public async Task ExecuteAsync_executes_batch_commands_and_consumes_reader()
         {
             var entry = CreateEntry(EntityState.Added);
@@ -170,7 +170,7 @@ namespace Microsoft.EntityFrameworkCore.Update
             Assert.Equal(1, dbDataReader.GetInt32Count);
         }
 
-        [Fact]
+        [ConditionalFact]
         public async Task ExecuteAsync_saves_store_generated_values()
         {
             var entry = CreateEntry(EntityState.Added, generateKeyValues: true);
@@ -195,7 +195,7 @@ namespace Microsoft.EntityFrameworkCore.Update
             Assert.Equal("Test", entry[entry.EntityType.FindProperty("Name")]);
         }
 
-        [Fact]
+        [ConditionalFact]
         public async Task ExecuteAsync_saves_store_generated_values_on_non_key_columns()
         {
             var entry = CreateEntry(
@@ -221,7 +221,7 @@ namespace Microsoft.EntityFrameworkCore.Update
             Assert.Equal("FortyTwo", entry[entry.EntityType.FindProperty("Name")]);
         }
 
-        [Fact]
+        [ConditionalFact]
         public async Task ExecuteAsync_saves_store_generated_values_when_updating()
         {
             var entry = CreateEntry(
@@ -246,7 +246,7 @@ namespace Microsoft.EntityFrameworkCore.Update
             Assert.Equal("FortyTwo", entry[entry.EntityType.FindProperty("Name")]);
         }
 
-        [Fact]
+        [ConditionalFact]
         public async Task Exception_not_thrown_for_more_than_one_row_returned_for_single_command()
         {
             var entry = CreateEntry(EntityState.Added, generateKeyValues: true);
@@ -272,7 +272,7 @@ namespace Microsoft.EntityFrameworkCore.Update
             Assert.Equal(42, entry[entry.EntityType.FindProperty("Id")]);
         }
 
-        [Fact]
+        [ConditionalFact]
         public async Task Exception_thrown_if_rows_returned_for_command_without_store_generated_values_is_not_1()
         {
             var entry = CreateEntry(EntityState.Added);
@@ -296,7 +296,7 @@ namespace Microsoft.EntityFrameworkCore.Update
                     async () => await batch.ExecuteAsync(connection))).Message);
         }
 
-        [Fact]
+        [ConditionalFact]
         public async Task Exception_thrown_if_no_rows_returned_for_command_with_store_generated_values()
         {
             var entry = CreateEntry(EntityState.Added, generateKeyValues: true);
@@ -317,7 +317,7 @@ namespace Microsoft.EntityFrameworkCore.Update
                     async () => await batch.ExecuteAsync(connection))).Message);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void CreateStoreCommand_creates_parameters_for_each_ModificationCommand()
         {
             var entry = CreateEntry(EntityState.Added, generateKeyValues: true);
@@ -368,7 +368,7 @@ namespace Microsoft.EntityFrameworkCore.Update
             Assert.Equal(1, storeCommand.ParameterValues["p1"]);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void PopulateParameters_creates_parameter_for_write_ModificationCommand()
         {
             var entry = CreateEntry(EntityState.Added, generateKeyValues: true);
@@ -401,7 +401,7 @@ namespace Microsoft.EntityFrameworkCore.Update
             Assert.Equal(1, storeCommand.ParameterValues["p0"]);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void PopulateParameters_creates_parameter_for_condition_ModificationCommand()
         {
             var entry = CreateEntry(EntityState.Added, generateKeyValues: true);
@@ -434,7 +434,7 @@ namespace Microsoft.EntityFrameworkCore.Update
             Assert.Equal(1, storeCommand.ParameterValues["p0"]);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void PopulateParameters_creates_parameter_for_write_and_condition_ModificationCommand()
         {
             var entry = CreateEntry(EntityState.Added, generateKeyValues: true);
@@ -467,7 +467,7 @@ namespace Microsoft.EntityFrameworkCore.Update
             Assert.Equal(1, storeCommand.ParameterValues["p0"]);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void PopulateParameters_does_not_create_parameter_for_read_ModificationCommand()
         {
             var entry = CreateEntry(EntityState.Added, generateKeyValues: true);

@@ -16,7 +16,7 @@ namespace Microsoft.EntityFrameworkCore
 {
     public class RelationalConnectionTest
     {
-        [Fact]
+        [ConditionalFact]
         public void Throws_with_new_when_no_EF_services_use_Database()
         {
             var options = new DbContextOptionsBuilder<ConstructorTestContext1A>()
@@ -28,7 +28,7 @@ namespace Microsoft.EntityFrameworkCore
                 Assert.Throws<InvalidOperationException>(() => new ConstructorTestContext1A(options)).Message);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Throws_with_add_when_no_EF_services_use_Database()
         {
             var appServiceProivder = new ServiceCollection()
@@ -47,7 +47,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Throws_with_new_when_no_provider_use_Database()
         {
             var serviceCollection = new ServiceCollection();
@@ -66,7 +66,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Throws_with_add_when_no_provider_use_Database()
         {
             var serviceCollection = new ServiceCollection();
@@ -89,7 +89,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Throws_with_new_when_no_EF_services_because_parameterless_constructor_use_Database()
         {
             using (var context = new ConstructorTestContextNoConfiguration())
@@ -100,7 +100,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Throws_with_add_when_no_EF_services_because_parameterless_constructor_use_Database()
         {
             var appServiceProvider = new ServiceCollection()
@@ -134,7 +134,7 @@ namespace Microsoft.EntityFrameworkCore
                     new ServiceCollection().AddEntityFrameworkInMemoryDatabase().BuildServiceProvider());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_create_new_connection_lazily_using_given_connection_string()
         {
             using (var connection = new FakeRelationalConnection(
@@ -149,7 +149,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Lazy_connection_is_opened_and_closed_when_necessary()
         {
             using (var connection = new FakeRelationalConnection(
@@ -191,7 +191,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public async Task Lazy_connection_is_async_opened_and_closed_when_necessary()
         {
             using (var connection = new FakeRelationalConnection(
@@ -234,7 +234,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Lazy_connection_is_recreated_if_used_again_after_being_disposed()
         {
             var connection = new FakeRelationalConnection(
@@ -267,7 +267,7 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Equal(1, dbConnection.DisposeCount);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Lazy_connection_is_not_created_just_so_it_can_be_disposed()
         {
             var connection = new FakeRelationalConnection(
@@ -278,7 +278,7 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Equal(0, connection.DbConnections.Count);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_create_new_connection_from_exsting_DbConnection()
         {
             var dbConnection = new FakeDbConnection("Database=FrodoLives");
@@ -294,7 +294,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Existing_connection_is_opened_and_closed_when_necessary()
         {
             var dbConnection = new FakeDbConnection("Database=FrodoLives");
@@ -337,7 +337,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Existing_connection_can_start_in_opened_state()
         {
             var dbConnection = new FakeDbConnection(
@@ -382,7 +382,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Existing_connection_can_be_opened_and_closed_externally()
         {
             var dbConnection = new FakeDbConnection(
@@ -464,7 +464,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public async Task Existing_connection_can_be_opened_and_closed_externally_async()
         {
             var dbConnection = new FakeDbConnection(
@@ -546,7 +546,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Existing_connection_is_not_disposed_even_after_being_opened_and_closed()
         {
             var dbConnection = new FakeDbConnection("Database=FrodoLives");
@@ -576,7 +576,7 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Equal(0, dbConnection.DisposeCount);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Connection_is_opened_and_closed_by_using_transaction()
         {
             using (var connection = new FakeRelationalConnection(
@@ -609,7 +609,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public async Task Connection_is_opened_and_closed_by_using_transaction_async()
         {
             using (var connection = new FakeRelationalConnection(
@@ -642,7 +642,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Transaction_can_begin_with_isolation_level()
         {
             using (var connection = new FakeRelationalConnection(
@@ -669,7 +669,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public async Task Transaction_can_begin_with_isolation_level_async()
         {
             using (var connection = new FakeRelationalConnection(
@@ -696,7 +696,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Current_transaction_is_disposed_when_connection_is_disposed()
         {
             var connection = new FakeRelationalConnection(
@@ -723,7 +723,7 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Null(connection.CurrentTransaction);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_use_existing_transaction()
         {
             var dbConnection = new FakeDbConnection("Database=FrodoLives");
@@ -744,7 +744,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Commit_calls_commit_on_DbTransaction()
         {
             using (var connection = new FakeRelationalConnection(
@@ -773,7 +773,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Rollback_calls_rollback_on_DbTransaction()
         {
             using (var connection = new FakeRelationalConnection(
@@ -802,7 +802,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_create_new_connection_with_CommandTimeout()
         {
             using (var connection = new FakeRelationalConnection(
@@ -815,7 +815,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_set_CommandTimeout()
         {
             using (var connection = new FakeRelationalConnection(
@@ -827,7 +827,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Throws_if_CommandTimeout_out_of_range()
         {
             using (var connection = new FakeRelationalConnection(
@@ -838,7 +838,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Throws_if_no_relational_store_configured()
         {
             Assert.Equal(
@@ -847,7 +847,7 @@ namespace Microsoft.EntityFrameworkCore
                     () => new FakeRelationalConnection(CreateOptions())).Message);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Throws_if_multiple_relational_stores_configured()
         {
             Assert.Equal(
@@ -859,7 +859,7 @@ namespace Microsoft.EntityFrameworkCore
                             new FakeRelationalOptionsExtension()))).Message);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Throws_if_no_connection_or_connection_string_is_specified()
         {
             Assert.Equal(
@@ -870,7 +870,7 @@ namespace Microsoft.EntityFrameworkCore
                             new FakeRelationalOptionsExtension()))).Message);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Throws_if_both_connection_and_connection_string_are_specified()
         {
             Assert.Equal(
@@ -883,7 +883,7 @@ namespace Microsoft.EntityFrameworkCore
                                 .WithConnectionString("Database=FrodoLives")))).Message);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Throws_when_commit_is_called_without_active_transaction()
         {
             using (var connection = new FakeRelationalConnection(
@@ -898,7 +898,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Throws_when_rollback_is_called_without_active_transaction()
         {
             using (var connection = new FakeRelationalConnection(

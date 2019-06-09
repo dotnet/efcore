@@ -15,7 +15,7 @@ namespace Microsoft.EntityFrameworkCore
 {
     public class SqlServerConnectionTest
     {
-        [Fact]
+        [ConditionalFact]
         public void Creates_SQL_Server_connection_string()
         {
             using (var connection = new SqlServerConnection(CreateDependencies()))
@@ -24,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_create_master_connection()
         {
             using (var connection = new SqlServerConnection(CreateDependencies()))
@@ -37,7 +37,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Master_connection_string_contains_filename()
         {
             var options = new DbContextOptionsBuilder()
@@ -55,7 +55,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Master_connection_string_none_default_command_timeout()
         {
             var options = new DbContextOptionsBuilder()

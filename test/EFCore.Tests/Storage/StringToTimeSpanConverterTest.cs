@@ -12,7 +12,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         private static readonly StringToTimeSpanConverter _stringToTimeSpan
             = new StringToTimeSpanConverter();
 
-        [Fact]
+        [ConditionalFact]
         public void Can_convert_string_to_TimeSpan()
         {
             var converter = _stringToTimeSpan.ConvertToProviderExpression.Compile();
@@ -24,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.Equal(new TimeSpan(), converter("00:00:00"));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_convert_TimeSpan_to_string()
         {
             var converter = _stringToTimeSpan.ConvertFromProviderExpression.Compile();

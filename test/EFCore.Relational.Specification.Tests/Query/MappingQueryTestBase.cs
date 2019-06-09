@@ -16,7 +16,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         protected MappingQueryFixtureBase Fixture { get; }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void All_customers()
         {
             using (var context = CreateContext())
@@ -29,7 +29,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void All_employees()
         {
             using (var context = CreateContext())
@@ -42,7 +42,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void All_orders()
         {
             using (var context = CreateContext())
@@ -55,7 +55,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Project_nullable_enum()
         {
             using (var context = CreateContext())

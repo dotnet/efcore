@@ -16,7 +16,7 @@ namespace Microsoft.EntityFrameworkCore
 {
     public class ServiceProviderCacheTest
     {
-        [Fact]
+        [ConditionalFact]
         public void Returns_same_provider_for_same_type_of_configured_extensions()
         {
             var loggerFactory = new ListLoggerFactory();
@@ -35,7 +35,7 @@ namespace Microsoft.EntityFrameworkCore
                 loggerFactory.Log[0].Message);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Returns_different_provider_for_different_type_of_configured_extensions()
         {
             var loggerFactory = new ListLoggerFactory();
@@ -65,7 +65,7 @@ namespace Microsoft.EntityFrameworkCore
                 loggerFactory.Log[1].Message);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Returns_same_provider_for_same_type_of_configured_extensions_and_replaced_service_types()
         {
             var loggerFactory = new ListLoggerFactory();
@@ -91,7 +91,7 @@ namespace Microsoft.EntityFrameworkCore
                 loggerFactory.Log[0].Message);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Returns_different_provider_for_different_replaced_service_types()
         {
             var loggerFactory = new ListLoggerFactory();
@@ -125,7 +125,7 @@ namespace Microsoft.EntityFrameworkCore
                 loggerFactory.Log[1].Message);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Different_ILoggerFactory_instances_does_not_trigger_new_internal_provider()
         {
             var config1 = CreateOptions<CoreOptionsExtension>(new ListLoggerFactory());
@@ -142,7 +142,7 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Same(first, second);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Reports_debug_info_for_most_similar_existing_service_provider()
         {
             // Do this a bunch of times since in the past this exposed issues with cache collisions

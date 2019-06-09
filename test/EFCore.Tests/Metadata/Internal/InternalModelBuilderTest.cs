@@ -20,7 +20,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
     public class InternalModelBuilderTest
     {
-        [Fact]
+        [ConditionalFact]
         public void Entity_returns_same_instance_for_entity_clr_type()
         {
             var model = new Model();
@@ -33,7 +33,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Same(entityBuilder, modelBuilder.Entity(typeof(Customer).FullName, ConfigurationSource.DataAnnotation));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Entity_returns_same_instance_for_entity_type_name()
         {
             var model = new Model();
@@ -46,7 +46,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Same(entityBuilder, modelBuilder.Entity(typeof(Customer), ConfigurationSource.Explicit));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_ignore_lower_or_equal_source_entity_type_using_entity_clr_type()
         {
             var model = new Model();
@@ -65,7 +65,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Null(model.FindEntityType(typeof(Customer)));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_ignore_lower_or_equal_source_entity_type_using_entity_type_name()
         {
             var model = new Model();
@@ -84,7 +84,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Null(model.FindEntityType(typeof(Customer).FullName));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Cannot_ignore_higher_source_entity_type_using_entity_clr_type()
         {
             var model = new Model();
@@ -99,7 +99,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.NotNull(model.FindEntityType(typeof(Customer)));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Cannot_ignore_higher_source_entity_type_using_entity_type_name()
         {
             var model = new Model();
@@ -114,7 +114,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.NotNull(model.FindEntityType(typeof(Customer).FullName));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_ignore_existing_entity_type_using_entity_clr_type()
         {
             var model = new Model();
@@ -129,7 +129,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Null(model.FindEntityType(typeof(Customer)));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_ignore_existing_entity_type_using_entity_type_name()
         {
             var model = new Model();
@@ -145,7 +145,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Null(model.FindEntityType(typeof(Customer).FullName));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_ignore_entity_type_referenced_from_lower_or_equal_source_foreign_key()
         {
             var modelBuilder = CreateModelBuilder();
@@ -164,7 +164,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Empty(orderEntityTypeBuilder.Metadata.GetForeignKeys());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_ignore_entity_type_referencing_higher_or_equal_source_foreign_key()
         {
             var modelBuilder = CreateModelBuilder();
@@ -183,7 +183,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Empty(customerEntityTypeBuilder.Metadata.GetReferencingForeignKeys());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_ignore_entity_type_with_base_and_derived_types()
         {
             var modelBuilder = CreateModelBuilder();
@@ -201,7 +201,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Same(baseEntityTypeBuilder.Metadata, specialCustomerEntityTypeBuilder.Metadata.BaseType);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Cannot_ignore_entity_type_referenced_from_higher_source_foreign_key()
         {
             var modelBuilder = CreateModelBuilder();
@@ -219,7 +219,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Equal(1, orderEntityTypeBuilder.Metadata.GetForeignKeys().Count());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Ignoring_an_entity_type_removes_lower_source_orphaned_entity_types()
         {
             var modelBuilder = CreateModelBuilder();
@@ -240,7 +240,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Empty(modelBuilder.Metadata.GetEntityTypes());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Ignoring_an_entity_type_does_not_remove_referenced_lower_source_entity_types()
         {
             var modelBuilder = CreateModelBuilder();
@@ -264,7 +264,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Equal(typeof(Product), orderEntityTypeBuilder.Metadata.GetForeignKeys().Single().PrincipalEntityType.ClrType);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Ignoring_an_entity_type_does_not_remove_referencing_lower_source_entity_types()
         {
             var modelBuilder = CreateModelBuilder();
@@ -288,7 +288,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Equal(typeof(Product), orderEntityTypeBuilder.Metadata.GetForeignKeys().Single().PrincipalEntityType.ClrType);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_mark_type_as_owned_type()
         {
             var model = new Model();

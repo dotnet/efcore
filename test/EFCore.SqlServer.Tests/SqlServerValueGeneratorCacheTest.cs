@@ -18,7 +18,7 @@ namespace Microsoft.EntityFrameworkCore
 {
     public class SqlServerValueGeneratorCacheTest
     {
-        [Fact]
+        [ConditionalFact]
         public void Uses_single_generator_per_property()
         {
             var model = CreateModel();
@@ -37,7 +37,7 @@ namespace Microsoft.EntityFrameworkCore
             Assert.NotSame(generator1, generator2);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Uses_single_sequence_generator_per_sequence()
         {
             var model = CreateModel();
@@ -62,7 +62,7 @@ namespace Microsoft.EntityFrameworkCore
             Assert.NotSame(generator1, generator3);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Uses_single_sequence_generator_per_database()
         {
             var model = CreateModel();
@@ -81,7 +81,7 @@ namespace Microsoft.EntityFrameworkCore
             Assert.NotSame(generator1, generator2);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Uses_single_sequence_generator_per_server()
         {
             var model = CreateModel();
@@ -112,7 +112,7 @@ namespace Microsoft.EntityFrameworkCore
             return connection;
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Block_size_is_obtained_from_default_sequence()
         {
             var property = CreateConventionModelBuilder()
@@ -126,7 +126,7 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Equal(10, cache.GetOrAddSequenceState(property, CreateConnection()).Sequence.IncrementBy);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Block_size_is_obtained_from_named_sequence()
         {
             var property = CreateConventionModelBuilder()
@@ -140,7 +140,7 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Equal(10, cache.GetOrAddSequenceState(property, CreateConnection()).Sequence.IncrementBy);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Block_size_is_obtained_from_model_default_sequence()
         {
             var property = CreateConventionModelBuilder()
@@ -154,7 +154,7 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Equal(10, cache.GetOrAddSequenceState(property, CreateConnection()).Sequence.IncrementBy);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Block_size_is_obtained_from_named_model_default_sequence()
         {
             var property = CreateConventionModelBuilder()
@@ -168,7 +168,7 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Equal(10, cache.GetOrAddSequenceState(property, CreateConnection()).Sequence.IncrementBy);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Block_size_is_obtained_from_specified_sequence()
         {
             var property = CreateConventionModelBuilder()
@@ -183,7 +183,7 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Equal(11, cache.GetOrAddSequenceState(property, CreateConnection()).Sequence.IncrementBy);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Non_positive_block_sizes_are_not_allowed()
         {
             var property = CreateConventionModelBuilder()
@@ -201,7 +201,7 @@ namespace Microsoft.EntityFrameworkCore
                     () => cache.GetOrAddSequenceState(property, CreateConnection()).Sequence.IncrementBy).Message);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Block_size_is_obtained_from_specified_model_default_sequence()
         {
             var property = CreateConventionModelBuilder()
@@ -216,7 +216,7 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Equal(11, cache.GetOrAddSequenceState(property, CreateConnection()).Sequence.IncrementBy);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Sequence_name_is_obtained_from_default_sequence()
         {
             var property = CreateConventionModelBuilder()
@@ -230,7 +230,7 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Equal("EntityFrameworkHiLoSequence", cache.GetOrAddSequenceState(property, CreateConnection()).Sequence.Name);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Sequence_name_is_obtained_from_named_sequence()
         {
             var property = CreateConventionModelBuilder()
@@ -244,7 +244,7 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Equal("DaneelOlivaw", cache.GetOrAddSequenceState(property, CreateConnection()).Sequence.Name);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Sequence_name_is_obtained_from_model_default_sequence()
         {
             var property = CreateConventionModelBuilder()
@@ -258,7 +258,7 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Equal("EntityFrameworkHiLoSequence", cache.GetOrAddSequenceState(property, CreateConnection()).Sequence.Name);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Sequence_name_is_obtained_from_named_model_default_sequence()
         {
             var property = CreateConventionModelBuilder()
@@ -272,7 +272,7 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Equal("DaneelOlivaw", cache.GetOrAddSequenceState(property, CreateConnection()).Sequence.Name);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Sequence_name_is_obtained_from_specified_sequence()
         {
             var property = CreateConventionModelBuilder()
@@ -287,7 +287,7 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Equal("DaneelOlivaw", cache.GetOrAddSequenceState(property, CreateConnection()).Sequence.Name);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Sequence_name_is_obtained_from_specified_model_default_sequence()
         {
             var property = CreateConventionModelBuilder()
@@ -302,7 +302,7 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Equal("DaneelOlivaw", cache.GetOrAddSequenceState(property, CreateConnection()).Sequence.Name);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Schema_qualified_sequence_name_is_obtained_from_named_sequence()
         {
             var property = CreateConventionModelBuilder()
@@ -317,7 +317,7 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Equal("R", cache.GetOrAddSequenceState(property, CreateConnection()).Sequence.Schema);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Schema_qualified_sequence_name_is_obtained_from_named_model_default_sequence()
         {
             var property = CreateConventionModelBuilder()
@@ -332,7 +332,7 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Equal("R", cache.GetOrAddSequenceState(property, CreateConnection()).Sequence.Schema);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Schema_qualified_sequence_name_is_obtained_from_specified_sequence()
         {
             var property = CreateConventionModelBuilder()
@@ -348,7 +348,7 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Equal("R", cache.GetOrAddSequenceState(property, CreateConnection()).Sequence.Schema);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Schema_qualified_sequence_name_is_obtained_from_specified_model_default_sequence()
         {
             var property = CreateConventionModelBuilder()

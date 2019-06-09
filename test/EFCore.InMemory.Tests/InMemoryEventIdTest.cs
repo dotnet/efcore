@@ -15,7 +15,7 @@ namespace Microsoft.EntityFrameworkCore
 {
     public class InMemoryEventIdTest : EventIdTestBase
     {
-        [Fact]
+        [ConditionalFact]
         public void Every_eventId_has_a_logger_method_and_logs_when_level_enabled()
         {
             var fakeFactories = new Dictionary<Type, Func<object>>

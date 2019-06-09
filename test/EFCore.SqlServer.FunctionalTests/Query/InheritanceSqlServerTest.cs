@@ -19,7 +19,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             //Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Common_property_shares_column()
         {
             using (var context = CreateContext())

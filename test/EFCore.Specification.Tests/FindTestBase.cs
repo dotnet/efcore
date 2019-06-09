@@ -24,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore
         protected abstract ValueTask<TEntity> FindAsync<TEntity>(DbContext context, params object[] keyValues)
             where TEntity : class;
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Find_int_key_tracked()
         {
             using (var context = CreateContext())
@@ -39,7 +39,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Find_int_key_from_store()
         {
             using (var context = CreateContext())
@@ -48,7 +48,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Returns_null_for_int_key_not_in_store()
         {
             using (var context = CreateContext())
@@ -57,7 +57,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Find_nullable_int_key_tracked()
         {
             using (var context = CreateContext())
@@ -72,7 +72,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Find_nullable_int_key_from_store()
         {
             using (var context = CreateContext())
@@ -81,7 +81,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Returns_null_for_nullable_int_key_not_in_store()
         {
             using (var context = CreateContext())
@@ -90,7 +90,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Find_string_key_tracked()
         {
             using (var context = CreateContext())
@@ -105,7 +105,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Find_string_key_from_store()
         {
             using (var context = CreateContext())
@@ -114,7 +114,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Returns_null_for_string_key_not_in_store()
         {
             using (var context = CreateContext())
@@ -123,7 +123,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Find_composite_key_tracked()
         {
             using (var context = CreateContext())
@@ -139,7 +139,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Find_composite_key_from_store()
         {
             using (var context = CreateContext())
@@ -148,7 +148,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Returns_null_for_composite_key_not_in_store()
         {
             using (var context = CreateContext())
@@ -157,7 +157,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Find_base_type_tracked()
         {
             using (var context = CreateContext())
@@ -172,7 +172,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Find_base_type_from_store()
         {
             using (var context = CreateContext())
@@ -181,7 +181,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Returns_null_for_base_type_not_in_store()
         {
             using (var context = CreateContext())
@@ -190,7 +190,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Find_derived_type_tracked()
         {
             using (var context = CreateContext())
@@ -205,7 +205,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Find_derived_type_from_store()
         {
             using (var context = CreateContext())
@@ -216,7 +216,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Returns_null_for_derived_type_not_in_store()
         {
             using (var context = CreateContext())
@@ -225,7 +225,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Find_base_type_using_derived_set_tracked()
         {
             using (var context = CreateContext())
@@ -240,7 +240,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Find_base_type_using_derived_set_from_store()
         {
             using (var context = CreateContext())
@@ -249,7 +249,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Find_derived_type_using_base_set_tracked()
         {
             using (var context = CreateContext())
@@ -264,7 +264,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Find_derived_using_base_set_type_from_store()
         {
             using (var context = CreateContext())
@@ -275,7 +275,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Find_shadow_key_tracked()
         {
             using (var context = CreateContext())
@@ -288,7 +288,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Find_shadow_key_from_store()
         {
             using (var context = CreateContext())
@@ -297,7 +297,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Returns_null_for_shadow_key_not_in_store()
         {
             using (var context = CreateContext())
@@ -306,7 +306,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Returns_null_for_null_key_values_array()
         {
             using (var context = CreateContext())
@@ -315,7 +315,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Returns_null_for_null_key()
         {
             using (var context = CreateContext())
@@ -324,7 +324,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Returns_null_for_null_nullable_key()
         {
             using (var context = CreateContext())
@@ -333,7 +333,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Returns_null_for_null_in_composite_key()
         {
             using (var context = CreateContext())
@@ -342,7 +342,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Throws_for_multiple_values_passed_for_simple_key()
         {
             using (var context = CreateContext())
@@ -353,7 +353,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Throws_for_wrong_number_of_values_for_composite_key()
         {
             using (var context = CreateContext())
@@ -364,7 +364,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Throws_for_bad_type_for_simple_key()
         {
             using (var context = CreateContext())
@@ -375,7 +375,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Throws_for_bad_type_for_composite_key()
         {
             using (var context = CreateContext())
@@ -386,7 +386,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Throws_for_bad_entity_type()
         {
             using (var context = CreateContext())
@@ -397,7 +397,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual async Task Find_int_key_tracked_async()
         {
             using (var context = CreateContext())
@@ -414,7 +414,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual async Task Find_int_key_from_store_async()
         {
             using (var context = CreateContext())
@@ -423,7 +423,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual async Task Returns_null_for_int_key_not_in_store_async()
         {
             using (var context = CreateContext())
@@ -432,7 +432,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual async Task Find_nullable_int_key_tracked_async()
         {
             using (var context = CreateContext())
@@ -447,7 +447,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual async Task Find_nullable_int_key_from_store_async()
         {
             using (var context = CreateContext())
@@ -456,7 +456,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual async Task Returns_null_for_nullable_int_key_not_in_store_async()
         {
             using (var context = CreateContext())
@@ -465,7 +465,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual async Task Find_string_key_tracked_async()
         {
             using (var context = CreateContext())
@@ -480,7 +480,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual async Task Find_string_key_from_store_async()
         {
             using (var context = CreateContext())
@@ -489,7 +489,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual async Task Returns_null_for_string_key_not_in_store_async()
         {
             using (var context = CreateContext())
@@ -498,7 +498,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual async Task Find_composite_key_tracked_async()
         {
             using (var context = CreateContext())
@@ -514,7 +514,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual async Task Find_composite_key_from_store_async()
         {
             using (var context = CreateContext())
@@ -523,7 +523,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual async Task Returns_null_for_composite_key_not_in_store_async()
         {
             using (var context = CreateContext())
@@ -532,7 +532,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual async Task Find_base_type_tracked_async()
         {
             using (var context = CreateContext())
@@ -547,7 +547,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual async Task Find_base_type_from_store_async()
         {
             using (var context = CreateContext())
@@ -556,7 +556,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual async Task Returns_null_for_base_type_not_in_store_async()
         {
             using (var context = CreateContext())
@@ -565,7 +565,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual async Task Find_derived_type_tracked_async()
         {
             using (var context = CreateContext())
@@ -580,7 +580,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual async Task Find_derived_type_from_store_async()
         {
             using (var context = CreateContext())
@@ -591,7 +591,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual async Task Returns_null_for_derived_type_not_in_store_async()
         {
             using (var context = CreateContext())
@@ -600,7 +600,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual async Task Find_base_type_using_derived_set_tracked_async()
         {
             using (var context = CreateContext())
@@ -615,7 +615,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual async Task Find_base_type_using_derived_set_from_store_async()
         {
             using (var context = CreateContext())
@@ -624,7 +624,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual async Task Find_derived_type_using_base_set_tracked_async()
         {
             using (var context = CreateContext())
@@ -639,7 +639,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual async Task Find_derived_using_base_set_type_from_store_async()
         {
             using (var context = CreateContext())
@@ -650,7 +650,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual async Task Find_shadow_key_tracked_async()
         {
             using (var context = CreateContext())
@@ -663,7 +663,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual async Task Find_shadow_key_from_store_async()
         {
             using (var context = CreateContext())
@@ -672,7 +672,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual async Task Returns_null_for_shadow_key_not_in_store_async()
         {
             using (var context = CreateContext())
@@ -681,7 +681,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual async Task Returns_null_for_null_key_values_array_async()
         {
             using (var context = CreateContext())
@@ -690,7 +690,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual async Task Returns_null_for_null_key_async()
         {
             using (var context = CreateContext())
@@ -699,7 +699,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual async Task Returns_null_for_null_in_composite_key_async()
         {
             using (var context = CreateContext())
@@ -708,7 +708,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual async Task Throws_for_multiple_values_passed_for_simple_key_async()
         {
             using (var context = CreateContext())
@@ -719,7 +719,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual async Task Throws_for_wrong_number_of_values_for_composite_key_async()
         {
             using (var context = CreateContext())
@@ -730,7 +730,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual async Task Throws_for_bad_type_for_simple_key_async()
         {
             using (var context = CreateContext())
@@ -741,7 +741,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual async Task Throws_for_bad_type_for_composite_key_async()
         {
             using (var context = CreateContext())
@@ -752,7 +752,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual async Task Throws_for_bad_entity_type_async()
         {
             using (var context = CreateContext())

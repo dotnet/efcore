@@ -8,7 +8,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
     public class IndexedPropertySetterFactoryTest
     {
-        [Fact]
+        [ConditionalFact]
         public void Delegate_setter_is_returned_for_indexed_property()
         {
             var entityType = ((IMutableModel)new Model()).AddEntityType(typeof(IndexedClass));

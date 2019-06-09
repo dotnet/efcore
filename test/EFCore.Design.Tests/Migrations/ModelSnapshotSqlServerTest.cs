@@ -226,7 +226,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 
         #region Model
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Model_annotations_are_stored_in_snapshot()
         {
             Test(
@@ -244,7 +244,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 });
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Model_default_schema_annotation_is_stored_in_snapshot_as_fluent_api()
         {
             Test(
@@ -268,7 +268,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 });
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Entities_are_stored_in_model_snapshot()
         {
             Test(
@@ -314,7 +314,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 });
         }
 
-        //[Fact]
+        //[ConditionalFact]
         //Issue #14103
         public virtual void Sequence_is_stored_in_snapshot_as_fluent_api()
         {
@@ -344,7 +344,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 });
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void CheckConstraint_is_stored_in_snapshot_as_fluent_api()
         {
             Test(
@@ -376,7 +376,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 });
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void CheckConstraint_is_only_stored_in_snapshot_once_for_TPH()
         {
             Test(
@@ -425,7 +425,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 
         #region EntityType
 
-        [Fact]
+        [ConditionalFact]
         public virtual void EntityType_annotations_are_stored_in_snapshot()
         {
             Test(
@@ -455,7 +455,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 });
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void BaseType_is_stored_in_snapshot()
         {
             Test(
@@ -512,7 +512,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 });
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Discriminator_annotations_are_stored_in_snapshot()
         {
             Test(
@@ -572,7 +572,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 });
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Properties_are_stored_in_snapshot()
         {
             Test(
@@ -606,7 +606,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 });
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Primary_key_is_stored_in_snapshot()
         {
             Test(
@@ -643,7 +643,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 });
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Alternate_keys_are_stored_in_snapshot()
         {
             Test(
@@ -683,7 +683,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 });
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Indexes_are_stored_in_snapshot()
         {
             Test(
@@ -715,7 +715,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 });
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Indexes_are_stored_in_snapshot_including_composite_index()
         {
             Test(
@@ -755,7 +755,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 });
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Foreign_keys_are_stored_in_snapshot()
         {
             Test(
@@ -813,7 +813,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 });
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void TableName_preserved_when_generic()
         {
             IModel originalModel = null;
@@ -846,7 +846,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 });
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void PrimaryKey_name_preserved_when_generic()
         {
             IModel originalModel = null;
@@ -882,7 +882,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 });
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void AlternateKey_name_preserved_when_generic()
         {
             IModel originalModel = null;
@@ -923,7 +923,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 });
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Discriminator_of_enum()
         {
             Test(
@@ -947,7 +947,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 model => Assert.Equal(typeof(long), model.GetEntityTypes().First().GetDiscriminatorProperty().ClrType));
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Discriminator_of_enum_to_string()
         {
             Test(
@@ -986,7 +986,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 
         #region Owned types
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Owned_types_are_stored_in_snapshot()
         {
             Test(
@@ -1188,7 +1188,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 });
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Weak_owned_types_are_stored_in_snapshot()
         {
             Test(
@@ -1358,7 +1358,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 
         #region Property
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Property_annotations_are_stored_in_snapshot()
         {
             Test(
@@ -1388,7 +1388,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             );
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Custom_value_generator_is_ignored_in_snapshot()
         {
             Test(
@@ -1413,7 +1413,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             );
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Property_isNullable_is_stored_in_snapshot()
         {
             Test(
@@ -1436,7 +1436,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 o => Assert.False(o.GetEntityTypes().First().FindProperty("Name").IsNullable));
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Property_ValueGenerated_value_is_stored_in_snapshot()
         {
             Test(
@@ -1464,7 +1464,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 o => Assert.Equal(ValueGenerated.OnAdd, o.GetEntityTypes().First().FindProperty("AlternateId").ValueGenerated));
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Property_maxLength_is_stored_in_snapshot()
         {
             Test(
@@ -1487,7 +1487,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 o => Assert.Equal(100, o.GetEntityTypes().First().FindProperty("Name").GetMaxLength()));
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Property_unicodeness_is_stored_in_snapshot()
         {
             Test(
@@ -1510,7 +1510,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 o => Assert.False(o.GetEntityTypes().First().FindProperty("Name").IsUnicode()));
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Property_fixedlengthness_is_stored_in_snapshot()
         {
             Test(
@@ -1533,7 +1533,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 o => Assert.True(o.GetEntityTypes().First().FindProperty("Name").IsFixedLength()));
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Many_facets_chained_in_snapshot()
         {
             Test(
@@ -1571,7 +1571,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 });
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Property_concurrencyToken_is_stored_in_snapshot()
         {
             Test(
@@ -1598,7 +1598,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 o => Assert.True(o.GetEntityTypes().First().FindProperty("AlternateId").IsConcurrencyToken));
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Property_column_name_annotation_is_stored_in_snapshot_as_fluent_api()
         {
             Test(
@@ -1625,7 +1625,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 o => Assert.Equal("CName", o.GetEntityTypes().First().FindProperty("AlternateId")["Relational:ColumnName"]));
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Property_column_type_annotation_is_stored_in_snapshot_as_fluent_api()
         {
             Test(
@@ -1652,7 +1652,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 o => Assert.Equal("CType", o.GetEntityTypes().First().FindProperty("AlternateId")["Relational:ColumnType"]));
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Property_default_value_annotation_is_stored_in_snapshot_as_fluent_api()
         {
             Test(
@@ -1680,7 +1680,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 o => Assert.Equal(1, o.GetEntityTypes().First().FindProperty("AlternateId")["Relational:DefaultValue"]));
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Property_default_value_sql_annotation_is_stored_in_snapshot_as_fluent_api()
         {
             Test(
@@ -1708,7 +1708,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 o => Assert.Equal("SQL", o.GetEntityTypes().First().FindProperty("AlternateId")["Relational:DefaultValueSql"]));
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Property_computed_column_sql_annotation_is_stored_in_snapshot_as_fluent_api()
         {
             Test(
@@ -1736,7 +1736,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 o => Assert.Equal("SQL", o.GetEntityTypes().First().FindProperty("AlternateId")["Relational:ComputedColumnSql"]));
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Property_default_value_of_enum_type_is_stored_in_snapshot_without_actual_enum()
         {
             Test(
@@ -1760,7 +1760,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 o => Assert.Equal(3L, o.GetEntityTypes().First().FindProperty("Day")["Relational:DefaultValue"]));
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Property_enum_type_is_stored_in_snapshot_with_custom_conversion_and_seed_data()
         {
             Test(
@@ -1809,7 +1809,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 });
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Property_of_nullable_enum()
         {
             Test(
@@ -1831,7 +1831,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 o => Assert.True(o.GetEntityTypes().First().FindProperty("Day").IsNullable));
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Property_of_enum_to_nullable()
         {
             Test(
@@ -1854,7 +1854,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 o => Assert.False(o.GetEntityTypes().First().FindProperty("Day").IsNullable));
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Property_of_nullable_enum_to_string()
         {
             Test(
@@ -1876,7 +1876,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 o => Assert.True(o.GetEntityTypes().First().FindProperty("Day").IsNullable));
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Property_multiple_annotations_are_stored_in_snapshot()
         {
             Test(
@@ -1915,7 +1915,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 
         #region HasKey
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Key_annotations_are_stored_in_snapshot()
         {
             Test(
@@ -1946,7 +1946,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     "AnnotationValue", o.GetEntityTypes().First().GetKeys().Where(k => !k.IsPrimaryKey()).First()["AnnotationName"]));
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Key_name_annotation_is_stored_in_snapshot_as_fluent_api()
         {
             Test(
@@ -1976,7 +1976,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     "KeyName", o.GetEntityTypes().First().GetKeys().Where(k => !k.IsPrimaryKey()).First()["Relational:Name"]));
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Key_multiple_annotations_are_stored_in_snapshot()
         {
             Test(
@@ -2017,7 +2017,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 
         #region HasIndex
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Index_annotations_are_stored_in_snapshot()
         {
             Test(
@@ -2047,7 +2047,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 o => Assert.Equal("AnnotationValue", o.GetEntityTypes().First().GetIndexes().First()["AnnotationName"]));
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Index_isUnique_is_stored_in_snapshot()
         {
             Test(
@@ -2076,7 +2076,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 o => Assert.True(o.GetEntityTypes().First().GetIndexes().First().IsUnique));
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Index_name_annotation_is_stored_in_snapshot_as_fluent_api()
         {
             Test(
@@ -2105,7 +2105,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 o => Assert.Equal("IndexName", o.GetEntityTypes().First().GetIndexes().First()["Relational:Name"]));
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Index_filter_is_stored_in_snapshot()
         {
             Test(
@@ -2137,7 +2137,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     o.GetEntityTypes().First().GetIndexes().First().GetFilter()));
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Index_multiple_annotations_are_stored_in_snapshot()
         {
             Test(
@@ -2174,7 +2174,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 });
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Index_with_default_constraint_name_exceeding_max()
         {
             Test(
@@ -2211,7 +2211,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 
         #region ForeignKey
 
-        [Fact]
+        [ConditionalFact]
         public virtual void ForeignKey_annotations_are_stored_in_snapshot()
         {
             Test(
@@ -2265,7 +2265,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     "AnnotationValue", o.FindEntityType(typeof(EntityWithTwoProperties)).GetForeignKeys().First()["AnnotationName"]));
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void ForeignKey_isRequired_is_stored_in_snapshot()
         {
             Test(
@@ -2317,7 +2317,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 o => Assert.False(o.FindEntityType(typeof(EntityWithStringProperty)).FindProperty("Name").IsNullable));
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void ForeignKey_isUnique_is_stored_in_snapshot()
         {
             Test(
@@ -2363,7 +2363,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 o => Assert.False(o.FindEntityType(typeof(EntityWithStringProperty)).GetForeignKeys().First().IsUnique));
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void ForeignKey_deleteBehavior_is_stored_in_snapshot()
         {
             Test(
@@ -2411,7 +2411,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     DeleteBehavior.Cascade, o.FindEntityType(typeof(EntityWithOneProperty)).GetForeignKeys().First().DeleteBehavior));
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void ForeignKey_deleteBehavior_is_stored_in_snapshot_for_one_to_one()
         {
             Test(
@@ -2458,7 +2458,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     DeleteBehavior.Cascade, o.FindEntityType(typeof(EntityWithOneProperty)).GetForeignKeys().First().DeleteBehavior));
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void ForeignKey_name_preserved_when_generic()
         {
             IModel originalModel = null;
@@ -2534,7 +2534,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 });
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void ForeignKey_constraint_name_is_stored_in_snapshot_as_fluent_api()
         {
             Test(
@@ -2588,7 +2588,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     "Constraint", o.FindEntityType(typeof(EntityWithTwoProperties)).GetForeignKeys().First()["Relational:Name"]));
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void ForeignKey_multiple_annotations_are_stored_in_snapshot()
         {
             Test(
@@ -2649,7 +2649,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 });
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Do_not_generate_entity_type_builder_again_if_no_foreign_key_is_defined_on_it()
         {
             Test(
@@ -2708,7 +2708,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 o => { });
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void ForeignKey_principal_key_is_stored_in_snapshot()
         {
             Test(
@@ -2760,7 +2760,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 });
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void ForeignKey_principal_key_with_non_default_name_is_stored_in_snapshot()
         {
             Test(
@@ -2823,7 +2823,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 
         #region SeedData
 
-        [Fact]
+        [ConditionalFact]
         public virtual void SeedData_annotations_are_stored_in_snapshot()
         {
             var lineString1 = new LineString(

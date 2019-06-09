@@ -79,7 +79,7 @@ namespace Microsoft.EntityFrameworkCore
                 });
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void No_fixup_to_Deleted_entities()
         {
             using (var context = CreateContext())

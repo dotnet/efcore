@@ -10,7 +10,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
 {
     public class ReferenceEntryTest
     {
-        [Fact]
+        [ConditionalFact]
         public void Can_get_back_reference()
         {
             using (var context = new FreezerContext())
@@ -23,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_get_back_reference_generic()
         {
             using (var context = new FreezerContext())
@@ -36,7 +36,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_get_metadata()
         {
             using (var context = new FreezerContext())
@@ -48,7 +48,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_get_metadata_generic()
         {
             using (var context = new FreezerContext())
@@ -60,7 +60,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_get_and_set_current_value()
         {
             using (var context = new FreezerContext())
@@ -91,7 +91,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_get_and_set_current_value_generic()
         {
             using (var context = new FreezerContext())
@@ -122,7 +122,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_get_and_set_current_value_not_tracked()
         {
             using (var context = new FreezerContext())
@@ -150,7 +150,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_get_and_set_current_value_not_tracked_generic()
         {
             using (var context = new FreezerContext())
@@ -178,7 +178,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_get_and_set_current_value_start_tracking()
         {
             using (var context = new FreezerContext())
@@ -215,7 +215,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_get_and_set_current_value_start_tracking_generic()
         {
             using (var context = new FreezerContext())
@@ -252,7 +252,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_get_and_set_current_value_attached()
         {
             using (var context = new FreezerContext())
@@ -289,7 +289,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_get_and_set_current_value_generic_attached()
         {
             using (var context = new FreezerContext())
@@ -326,7 +326,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void IsModified_tracks_state_of_FK_property()
         {
             using (var context = new FreezerContext())
@@ -357,7 +357,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void IsModified_can_set_fk_to_modified()
         {
             using (var context = new FreezerContext())
@@ -391,7 +391,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void IsModified_tracks_state_of_FK_property_principal()
         {
             using (var context = new FreezerContext())
@@ -418,7 +418,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Detached, EntityState.Added)]
         [InlineData(EntityState.Added, EntityState.Added)]
         [InlineData(EntityState.Modified, EntityState.Added)]
@@ -462,7 +462,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Detached, EntityState.Unchanged)]
         [InlineData(EntityState.Added, EntityState.Unchanged)]
         [InlineData(EntityState.Modified, EntityState.Unchanged)]
@@ -501,7 +501,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(EntityState.Detached, EntityState.Modified)]
         [InlineData(EntityState.Added, EntityState.Modified)]
         [InlineData(EntityState.Modified, EntityState.Modified)]

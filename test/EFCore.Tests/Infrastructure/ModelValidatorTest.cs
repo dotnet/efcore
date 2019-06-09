@@ -19,7 +19,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 {
     public class ModelValidatorTest : ModelValidatorTestBase
     {
-        [Fact]
+        [ConditionalFact]
         public virtual void Detects_filter_on_derived_type()
         {
             var modelBuilder = CreateConventionalModelBuilder();
@@ -31,7 +31,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             VerifyError(CoreStrings.BadFilterDerivedType(entityTypeD.GetQueryFilter(), entityTypeD.DisplayName()), modelBuilder.Model);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Detects_shadow_entities()
         {
             var model = CreateConventionlessModelBuilder().Model;
@@ -41,7 +41,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             VerifyError(CoreStrings.ShadowEntity("BewareTheShadows"), model);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Passes_on_shadow_key_created_explicitly()
         {
             var model = CreateConventionlessModelBuilder().Model;
@@ -56,7 +56,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             VerifyWarning(CoreResources.LogShadowPropertyCreated(new TestLogger<TestLoggingDefinitions>()).GenerateMessage("Key", "A"), model, LogLevel.Debug);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Passes_on_shadow_primary_key_created_by_convention_in_dependent_type()
         {
             var model = (IConventionModel)CreateConventionlessModelBuilder().Model;
@@ -72,7 +72,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 .GenerateMessage("Key", "A"), (IMutableModel)model, LogLevel.Debug);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Detects_shadow_key_referenced_by_foreign_key_by_convention()
         {
             var modelBuilder = CreateConventionlessModelBuilder().GetInfrastructure();
@@ -116,7 +116,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 modelBuilder.Metadata);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Detects_a_null_primary_key()
         {
             var builder = CreateConventionlessModelBuilder();
@@ -133,7 +133,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             VerifyError(CoreStrings.EntityRequiresKey(nameof(A)), builder.Model);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Detects_key_property_with_value_generated_on_update()
         {
             var model = CreateConventionlessModelBuilder().Model;
@@ -145,7 +145,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             VerifyError(CoreStrings.MutableKeyProperty(nameof(A.Id)), model);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Detects_key_property_with_value_generated_on_add_or_update()
         {
             var model = CreateConventionlessModelBuilder().Model;
@@ -157,7 +157,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             VerifyError(CoreStrings.MutableKeyProperty(nameof(A.Id)), model);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Detects_relationship_cycle()
         {
             var modelBuilder = base.CreateConventionalModelBuilder();
@@ -174,7 +174,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 modelBuilder.Model);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Passes_on_redundant_foreign_key()
         {
             var modelBuilder = base.CreateConventionalModelBuilder();
@@ -184,7 +184,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             VerifyWarning(CoreResources.LogRedundantForeignKey(new TestLogger<TestLoggingDefinitions>()).GenerateMessage("{'Id'}", "A"), modelBuilder.Model, LogLevel.Warning);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Passes_on_escapable_foreign_key_cycles()
         {
             var model = CreateConventionlessModelBuilder().Model;
@@ -213,7 +213,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             Validate(model);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Passes_on_escapable_foreign_key_cycles_not_starting_at_hub()
         {
             var model = CreateConventionlessModelBuilder().Model;
@@ -243,7 +243,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             Validate(model);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Passes_on_foreign_key_cycle_with_one_GenerateOnAdd()
         {
             var model = CreateConventionlessModelBuilder().Model;
@@ -272,7 +272,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             Validate(model);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Passes_on_double_reference_to_root_principal_property()
         {
             var model = CreateConventionlessModelBuilder().Model;
@@ -301,7 +301,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             Validate(model);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Passes_on_diamond_path_to_root_principal_property()
         {
             var model = CreateConventionlessModelBuilder().Model;
@@ -335,7 +335,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             Validate(model);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Passes_on_correct_inheritance()
         {
             var modelBuilder = CreateConventionalModelBuilder();
@@ -345,7 +345,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             Validate(modelBuilder.Model);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Detects_skipped_base_type()
         {
             var model = CreateConventionlessModelBuilder().Model;
@@ -363,7 +363,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             VerifyError(CoreStrings.InconsistentInheritance(nameof(F), nameof(D)), model);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Detects_abstract_leaf_type()
         {
             var model = CreateConventionlessModelBuilder().Model;
@@ -378,7 +378,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             VerifyError(CoreStrings.AbstractLeafEntityType(entityAbstract.DisplayName()), model);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Detects_generic_leaf_type()
         {
             var model = CreateConventionlessModelBuilder().Model;
@@ -393,7 +393,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             VerifyError(CoreStrings.AbstractLeafEntityType(entityGeneric.DisplayName()), model);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Passes_on_valid_owned_entity_types()
         {
             var modelBuilder = CreateConventionlessModelBuilder().GetInfrastructure();
@@ -414,7 +414,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             Validate(modelBuilder.Metadata);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Detects_weak_entity_type_without_defining_navigation()
         {
             var modelBuilder = CreateConventionlessModelBuilder().GetInfrastructure();
@@ -445,7 +445,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 modelBuilder.Metadata);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Detects_entity_type_with_multiple_ownerships()
         {
             var modelBuilder = CreateConventionlessModelBuilder().GetInfrastructure();
@@ -474,7 +474,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 modelBuilder.Metadata);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Detects_weak_entity_type_with_non_defining_ownership()
         {
             var modelBuilder = CreateConventionlessModelBuilder().GetInfrastructure();
@@ -506,7 +506,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 modelBuilder.Metadata);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Detects_weak_entity_type_without_ownership()
         {
             var modelBuilder = CreateConventionlessModelBuilder().GetInfrastructure();
@@ -534,7 +534,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 modelBuilder.Metadata);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Detects_principal_owned_entity_type()
         {
             var modelBuilder = CreateConventionlessModelBuilder().GetInfrastructure();
@@ -568,7 +568,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 modelBuilder.Metadata);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Detects_non_owner_navigation_to_owned_entity_type()
         {
             var modelBuilder = CreateConventionlessModelBuilder().GetInfrastructure();
@@ -600,7 +600,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 modelBuilder.Metadata);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Detects_derived_owned_entity_type()
         {
             var modelBuilder = CreateConventionlessModelBuilder().GetInfrastructure();
@@ -630,7 +630,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             VerifyError(CoreStrings.OwnedDerivedType(nameof(D)), modelBuilder.Metadata);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Detects_owned_entity_type_without_ownership()
         {
             var modelBuilder = CreateConventionlessModelBuilder().GetInfrastructure();
@@ -646,7 +646,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             VerifyError(CoreStrings.OwnerlessOwnedType(nameof(A)), modelBuilder.Metadata);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Detects_ForeignKey_on_inherited_generated_key_property()
         {
             var modelBuilder = CreateConventionalModelBuilder();
@@ -662,7 +662,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                     nameof(Abstract)), modelBuilder.Model);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Passes_ForeignKey_on_inherited_generated_key_property_abstract_base()
         {
             var modelBuilder = CreateConventionalModelBuilder();
@@ -672,7 +672,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             Validate(modelBuilder.Model);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Detects_ToQuery_on_derived_keyless_types()
         {
             var modelBuilder = base.CreateConventionalModelBuilder();
@@ -685,7 +685,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 modelBuilder.Model);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(ChangeTrackingStrategy.ChangedNotifications)]
         [InlineData(ChangeTrackingStrategy.ChangingAndChangedNotifications)]
         [InlineData(ChangeTrackingStrategy.ChangingAndChangedNotificationsWithOriginalValues)]
@@ -703,7 +703,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 model);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(ChangeTrackingStrategy.ChangingAndChangedNotifications)]
         [InlineData(ChangeTrackingStrategy.ChangingAndChangedNotificationsWithOriginalValues)]
         public virtual void Detects_changed_only_notifying_entities(ChangeTrackingStrategy changeTrackingStrategy)
@@ -720,7 +720,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 model);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(ChangeTrackingStrategy.Snapshot)]
         [InlineData(ChangeTrackingStrategy.ChangedNotifications)]
         [InlineData(ChangeTrackingStrategy.ChangingAndChangedNotifications)]
@@ -737,7 +737,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             Validate(model);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(ChangeTrackingStrategy.Snapshot)]
         [InlineData(ChangeTrackingStrategy.ChangedNotifications)]
         public virtual void Passes_for_changed_only_entities_with_snapshot_or_changed_only_tracking(
@@ -753,7 +753,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             Validate(model);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Passes_for_non_notifying_entities_with_snapshot_tracking()
         {
             var model = CreateConventionlessModelBuilder().Model;
@@ -766,7 +766,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             Validate(model);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Passes_for_valid_seeds()
         {
             var modelBuilder = CreateConventionalModelBuilder();
@@ -785,7 +785,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             Validate(modelBuilder.Model);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Passes_for_ignored_invalid_properties()
         {
             var modelBuilder = CreateConventionalModelBuilder();
@@ -819,7 +819,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             Assert.Equal(-2, data.Last().Values.Single());
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Detects_derived_seeds()
         {
             var modelBuilder = CreateConventionalModelBuilder();
@@ -835,7 +835,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                         })).Message);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Detects_derived_seeds_for_owned_types()
         {
             var modelBuilder = CreateConventionalModelBuilder();
@@ -854,7 +854,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                         .OwnsOne(b => b.AnotherA)).Message);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Detects_missing_required_values_in_seeds()
         {
             var modelBuilder = CreateConventionalModelBuilder();
@@ -874,7 +874,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 modelBuilder.Model);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Passes_on_missing_required_store_generated_values_in_seeds()
         {
             var modelBuilder = CreateConventionalModelBuilder();
@@ -892,7 +892,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             Validate(modelBuilder.Model);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Detects_missing_key_values_in_seeds()
         {
             var entity = new NonSignedIntegerKeyEntity();
@@ -908,7 +908,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 modelBuilder.Model);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Detects_missing_signed_integer_key_values_in_seeds()
         {
             var modelBuilder = CreateConventionalModelBuilder();
@@ -919,7 +919,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 modelBuilder.Model);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(true)]
         [InlineData(false)]
         public virtual void Detects_duplicate_seeds(bool sensitiveDataLoggingEnabled)
@@ -943,7 +943,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 modelBuilder.Model);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(true)]
         [InlineData(false)]
         public virtual void Detects_incompatible_values(bool sensitiveDataLoggingEnabled)
@@ -967,7 +967,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 modelBuilder.Model);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(true)]
         [InlineData(false)]
         public virtual void Detects_reference_navigations_in_seeds(bool sensitiveDataLoggingEnabled)
@@ -1003,7 +1003,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 modelBuilder.Model);
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(true)]
         [InlineData(false)]
         public virtual void Detects_collection_navigations_in_seeds(bool sensitiveDataLoggingEnabled)
@@ -1044,7 +1044,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         }
 
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Detects_missing_discriminator_property()
         {
             var model = CreateConventionlessModelBuilder().Model;
@@ -1059,7 +1059,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             VerifyError(CoreStrings.NoDiscriminatorProperty(entityA.DisplayName()), model);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Detects_missing_discriminator_value_on_base()
         {
             var model = CreateConventionlessModelBuilder().Model;
@@ -1077,7 +1077,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             VerifyError(CoreStrings.NoDiscriminatorValue(entityA.DisplayName()), model);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Detects_missing_discriminator_value_on_leaf()
         {
             var model = CreateConventionlessModelBuilder().Model;
@@ -1095,7 +1095,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             VerifyError(CoreStrings.NoDiscriminatorValue(entityGeneric.DisplayName()), model);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Detects_missing_non_string_discriminator_values()
         {
             var modelBuilder = CreateConventionalModelBuilder();
@@ -1108,7 +1108,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             VerifyError(CoreStrings.NoDiscriminatorValue(typeof(C).Name), model);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Detects_duplicate_discriminator_values()
         {
             var modelBuilder = CreateConventionalModelBuilder();

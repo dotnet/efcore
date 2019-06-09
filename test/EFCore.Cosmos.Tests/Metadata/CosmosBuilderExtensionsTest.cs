@@ -9,7 +9,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 {
     public class CosmosBuilderExtensionsTest
     {
-        [Fact]
+        [ConditionalFact]
         public void Default_container_name_is_used_if_not_set()
         {
             var modelBuilder = CreateConventionModelBuilder();

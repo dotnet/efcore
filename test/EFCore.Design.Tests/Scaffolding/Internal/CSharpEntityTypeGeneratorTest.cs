@@ -8,7 +8,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 {
     public class CSharpEntityTypeGeneratorTest : ModelCodeGeneratorTestBase
     {
-        [Fact]
+        [ConditionalFact]
         public void Navigation_properties()
         {
             Test(

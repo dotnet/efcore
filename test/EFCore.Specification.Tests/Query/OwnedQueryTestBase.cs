@@ -23,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         protected TFixture Fixture { get; }
 
-        [Fact(Skip = "Issue #14935. Cannot eval 'where ([a.LeafAAddress] == [b.LeafBAddress])'")]
+        [ConditionalFact(Skip = "Issue #14935. Cannot eval 'where ([a.LeafAAddress] == [b.LeafBAddress])'")]
         public virtual void Query_with_owned_entity_equality_operator()
         {
             using (var context = CreateContext())
@@ -38,7 +38,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Query_with_owned_entity_equality_method()
         {
             using (var context = CreateContext())
@@ -53,7 +53,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Query_with_owned_entity_equality_object_method()
         {
             using (var context = CreateContext())
@@ -68,7 +68,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Query_for_base_type_loads_all_owned_navs()
         {
             using (var context = CreateContext())
@@ -85,7 +85,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void No_ignored_include_warning_when_implicit_load()
         {
             using (var context = CreateContext())
@@ -96,7 +96,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Query_for_branch_type_loads_all_owned_navs()
         {
             using (var context = CreateContext())
@@ -112,7 +112,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Query_for_leaf_type_loads_all_owned_navs()
         {
             using (var context = CreateContext())
@@ -126,7 +126,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact(Skip = "Issue #14935. Cannot eval 'GroupBy([op].Id, _Include(queryContext, [op], new [] {[op.PersonAddress], [op.PersonAddress.Country], [op.BranchAddress], [op.BranchAddress.Country], [op.LeafAAddress], [op.LeafAAddress.Country], [op.LeafBAddress], [op.LeafBAddress.Country]}, (queryContext, entity, included) => { ... }))'")]
+        [ConditionalFact(Skip = "Issue #14935. Cannot eval 'GroupBy([op].Id, _Include(queryContext, [op], new [] {[op.PersonAddress], [op.PersonAddress.Country], [op.BranchAddress], [op.BranchAddress.Country], [op.LeafAAddress], [op.LeafAAddress.Country], [op.LeafBAddress], [op.LeafBAddress.Country]}, (queryContext, entity, included) => { ... }))'")]
         public virtual void Query_when_group_by()
         {
             using (var context = CreateContext())
@@ -141,7 +141,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Query_when_subquery()
         {
             using (var context = CreateContext())
@@ -166,7 +166,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Navigation_rewrite_on_owned_reference_projecting_scalar()
         {
             using (var ctx = CreateContext())
@@ -182,7 +182,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Navigation_rewrite_on_owned_reference_projecting_entity()
         {
             using (var ctx = CreateContext())
@@ -194,7 +194,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact(Skip = "issue #15043")]
+        [ConditionalFact(Skip = "issue #15043")]
         public virtual void Navigation_rewrite_on_owned_collection()
         {
             using (var ctx = CreateContext())
@@ -207,7 +207,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact(Skip = "issue #15043")]
+        [ConditionalFact(Skip = "issue #15043")]
         public virtual void Navigation_rewrite_on_owned_collection_with_composition()
         {
             using (var ctx = CreateContext())
@@ -221,7 +221,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
 
-        [Fact(Skip = "issue #15043")]
+        [ConditionalFact(Skip = "issue #15043")]
         public virtual void Navigation_rewrite_on_owned_collection_with_composition_complex()
         {
             using (var ctx = CreateContext())
@@ -235,7 +235,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Select_many_on_owned_collection()
         {
             using (var ctx = CreateContext())
@@ -247,7 +247,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Set_throws_for_owned_type()
         {
             using (var ctx = CreateContext())
@@ -257,7 +257,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Navigation_rewrite_on_owned_reference_followed_by_regular_entity()
         {
             using (var ctx = CreateContext())
@@ -269,7 +269,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Filter_owned_entity_chained_with_regular_entity_followed_by_projecting_owned_collection()
         {
             using (var ctx = CreateContext())
@@ -281,7 +281,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Project_multiple_owned_navigations()
         {
             using (var ctx = CreateContext())
@@ -293,7 +293,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Project_multiple_owned_navigations_with_expansion_on_owned_collections()
         {
             using (var ctx = CreateContext())
@@ -305,7 +305,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Navigation_rewrite_on_owned_reference_followed_by_regular_entity_filter()
         {
             using (var ctx = CreateContext())
@@ -317,7 +317,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Navigation_rewrite_on_owned_reference_followed_by_regular_entity_and_property()
         {
             using (var ctx = CreateContext())
@@ -330,7 +330,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Navigation_rewrite_on_owned_reference_followed_by_regular_entity_and_collection()
         {
             using (var ctx = CreateContext())
@@ -343,7 +343,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void SelectMany_on_owned_reference_followed_by_regular_entity_and_collection()
         {
             using (var ctx = CreateContext())
@@ -356,7 +356,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void SelectMany_on_owned_reference_with_entity_in_between_ending_in_owned_collection()
         {
             using (var ctx = CreateContext())
@@ -369,7 +369,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Navigation_rewrite_on_owned_reference_followed_by_regular_entity_and_collection_count()
         {
             using (var ctx = CreateContext())
@@ -382,7 +382,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Navigation_rewrite_on_owned_reference_followed_by_regular_entity_and_another_reference()
         {
             using (var ctx = CreateContext())
@@ -395,7 +395,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Navigation_rewrite_on_owned_reference_followed_by_regular_entity_and_another_reference_and_scalar()
         {
             using (var ctx = CreateContext())
@@ -408,7 +408,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Navigation_rewrite_on_owned_reference_followed_by_regular_entity_and_another_reference_in_predicate_and_projection()
         {
             using (var ctx = CreateContext())
@@ -422,7 +422,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Query_with_OfType_eagerly_loads_correct_owned_navigations()
         {
             using (var ctx = CreateContext())
