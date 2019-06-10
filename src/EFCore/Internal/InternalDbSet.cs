@@ -26,7 +26,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
     /// </summary>
     public class InternalDbSet<TEntity> :
 #pragma warning disable CS0618 // Type or member is obsolete
-        DbQuery<TEntity>, IQueryable<TEntity>, IAsyncEnumerableAccessor<TEntity>, IInfrastructure<IServiceProvider>, IResettableService
+        DbQuery<TEntity>, IQueryable<TEntity>, IAsyncEnumerable<TEntity>, IInfrastructure<IServiceProvider>, IResettableService
 #pragma warning restore CS0618 // Type or member is obsolete
         where TEntity : class
     {
@@ -311,7 +311,8 @@ namespace Microsoft.EntityFrameworkCore.Internal
 
         IEnumerator IEnumerable.GetEnumerator() => EntityQueryable.GetEnumerator();
 
-        IAsyncEnumerable<TEntity> IAsyncEnumerableAccessor<TEntity>.AsyncEnumerable => EntityQueryable;
+        IAsyncEnumerator<TEntity> IAsyncEnumerable<TEntity>.GetAsyncEnumerator(CancellationToken cancellationToken)
+            => EntityQueryable.GetAsyncEnumerator(cancellationToken);
 
         Type IQueryable.ElementType => EntityQueryable.ElementType;
 

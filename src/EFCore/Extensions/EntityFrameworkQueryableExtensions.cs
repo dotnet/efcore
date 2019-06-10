@@ -2903,6 +2903,37 @@ namespace Microsoft.EntityFrameworkCore
 
         #endregion
 
+        #region AsAsyncEnumerable
+
+        /// <summary>
+        ///     Returns an <see cref="IAsyncEnumerable{T}" /> which can be enumerated asynchronously.
+        /// </summary>
+        /// <remarks>
+        ///     Multiple active operations on the same context instance are not supported.  Use 'await' to ensure
+        ///     that any asynchronous operations have completed before calling another method on this context.
+        /// </remarks>
+        /// <typeparam name="TSource">
+        ///     The type of the elements of <paramref name="source" />.
+        /// </typeparam>
+        /// <param name="source">
+        ///     An <see cref="IQueryable{T}" /> to enumerate.
+        /// </param>
+        /// <returns> The query results. </returns>
+        public static IAsyncEnumerable<TSource> AsAsyncEnumerable<TSource>(
+            [NotNull] this IQueryable<TSource> source)
+        {
+            Check.NotNull(source, nameof(source));
+
+            if (source is IAsyncEnumerable<TSource> asyncEnumerable)
+            {
+                return asyncEnumerable;
+            }
+
+            throw new InvalidOperationException(CoreStrings.IQueryableNotAsync(typeof(TSource)));
+        }
+
+        #endregion
+
         #region Impl.
 
         private static TResult ExecuteAsync<TSource, TResult>(
