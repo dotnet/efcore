@@ -185,6 +185,13 @@ CreatedTable
     Id INTEGER NOT NULL
     ColumnWithDefaultToDrop INTEGER NULL DEFAULT 0
     ColumnWithDefaultToAlter INTEGER NULL DEFAULT 1
+
+Foos
+    Id INTEGER NOT NULL
+
+sqlite_sequence
+    name  NULL
+    seq  NULL
 ",
                 sql,
                 ignoreLineEndingDifferences: true);
@@ -214,6 +221,13 @@ CreatedTable
     Id INTEGER NOT NULL
     ColumnWithDefaultToDrop INTEGER NULL DEFAULT 0
     ColumnWithDefaultToAlter INTEGER NULL DEFAULT 1
+
+Foos
+    Id INTEGER NOT NULL
+
+sqlite_sequence
+    name  NULL
+    seq  NULL
 ",
                 sql,
                 ignoreLineEndingDifferences: true);

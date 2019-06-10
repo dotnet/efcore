@@ -40,6 +40,13 @@ namespace Microsoft.EntityFrameworkCore
                 : base(options)
             {
             }
+
+            public DbSet<Foo> Foos { get; set; }
+        }
+
+        public class Foo
+        {
+            public int Id { get; set; }
         }
 
         [DbContext(typeof(MigrationsContext))]

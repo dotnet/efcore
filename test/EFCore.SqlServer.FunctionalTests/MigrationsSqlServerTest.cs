@@ -359,6 +359,9 @@ CreatedTable
     Id int NOT NULL
     ColumnWithDefaultToDrop int NULL DEFAULT ((0))
     ColumnWithDefaultToAlter int NULL DEFAULT ((1))
+
+Foos
+    Id int NOT NULL
 ",
                 sql,
                 ignoreLineEndingDifferences: true);
@@ -372,6 +375,9 @@ CreatedTable
 CreatedTable
     Id int NOT NULL
     ColumnWithDefaultToAlter int NULL
+
+Foos
+    Id int NOT NULL
 ",
                 sql,
                 ignoreLineEndingDifferences: true);
