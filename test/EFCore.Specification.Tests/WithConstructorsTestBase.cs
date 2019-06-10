@@ -101,7 +101,7 @@ namespace Microsoft.EntityFrameworkCore
             using (var context = CreateContext())
             {
 #pragma warning disable CS0618 // Type or member is obsolete
-                var blogs = context.Query<BlogQuery>().AsNoTracking().ToList();
+                var blogs = context.Query<BlogQuery>().ToList();
 #pragma warning restore CS0618 // Type or member is obsolete
 
                 Assert.Equal(1, blogs.Count);

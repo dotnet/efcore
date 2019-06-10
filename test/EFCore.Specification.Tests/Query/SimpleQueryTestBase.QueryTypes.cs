@@ -16,53 +16,53 @@ namespace Microsoft.EntityFrameworkCore.Query
     // ReSharper disable once UnusedTypeParameter
     public abstract partial class SimpleQueryTestBase<TFixture>
     {
-        [Theory(Skip = "QueryIssue")]
+        [Theory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task QueryType_simple(bool isAsync)
         {
             return AssertQuery<CustomerView>(
                 isAsync,
-                cvs => cvs);
+                cvs => cvs.AsNoTracking());
         }
 
-        [Theory(Skip = "QueryIssue")]
+        [Theory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task QueryType_where_simple(bool isAsync)
         {
             return AssertQuery<CustomerView>(
                 isAsync,
-                cvs => cvs.Where(c => c.City == "London"));
+                cvs => cvs.AsNoTracking().Where(c => c.City == "London"));
         }
 
-        [ConditionalFact(Skip = "QueryIssue")]
+        [ConditionalFact]
         public virtual void Query_backed_by_database_view()
         {
             using (var context = CreateContext())
             {
-                var results = context.Set<ProductQuery>().ToArray();
+                var results = context.Set<ProductQuery>().AsNoTracking().ToArray();
 
                 Assert.Equal(69, results.Length);
             }
         }
 
-        [ConditionalFact(Skip = "QueryIssue")]
+        [ConditionalFact]
         public virtual void Auto_initialized_view_set()
         {
             using (var context = CreateContext())
             {
-                var results = context.CustomerQueries.ToArray();
+                var results = context.CustomerQueries.AsNoTracking().ToArray();
 
                 Assert.Equal(91, results.Length);
             }
         }
 
-        [ConditionalFact(Skip = "See issue#13587")]
+        [ConditionalFact(Skip = "Issue#15264")]
         public virtual void QueryType_with_nav_defining_query()
         {
             using (var context = CreateContext())
             {
                 var results
-                    = context.Set<CustomerQuery>()
+                    = context.Set<CustomerQuery>().AsNoTracking()
                         .Where(cq => cq.OrderCount > 0)
                         .ToArray();
 
@@ -70,13 +70,13 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Theory(Skip = "See issue#13587")]
+        [Theory(Skip = "Issue#15264")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task QueryType_with_defining_query(bool isAsync)
         {
             return AssertQuery<OrderQuery>(
                 isAsync,
-                ovs => ovs.Where(ov => ov.CustomerID == "ALFKI"));
+                ovs => ovs.AsNoTracking().Where(ov => ov.CustomerID == "ALFKI"));
         }
 
         // #issue 12873
@@ -86,11 +86,11 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             return AssertQuery<OrderQuery>(
                 isAsync,
-                ovs => ovs.Where(ov => ov.CustomerID == "ALFKI").Select(ov => ov.Customer)
+                ovs => ovs.AsNoTracking().Where(ov => ov.CustomerID == "ALFKI").Select(ov => ov.Customer)
                     .Select(cv => cv.Orders.Where(cc => true).ToList()));
         }
 
-        [Theory(Skip = "See issue#13587")]
+        [Theory(Skip = "Issue#15264")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task QueryType_with_mixed_tracking(bool isAsync)
         {
@@ -98,7 +98,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 isAsync,
                 (cs, ovs)
                     => from c in cs
-                       from o in ovs.Where(ov => ov.CustomerID == c.CustomerID)
+                       from o in ovs.AsNoTracking().Where(ov => ov.CustomerID == c.CustomerID)
                        select new
                        {
                            c,
@@ -107,13 +107,13 @@ namespace Microsoft.EntityFrameworkCore.Query
                 e => e.c.CustomerID);
         }
 
-        [Theory(Skip = "See issue#13587")]
+        [Theory(Skip = "Issue#15264")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task QueryType_with_included_nav(bool isAsync)
         {
             return AssertIncludeQuery<OrderQuery>(
                 isAsync,
-                ovs => from ov in ovs.Include(ov => ov.Customer)
+                ovs => from ov in ovs.AsNoTracking().Include(ov => ov.Customer)
                        where ov.CustomerID == "ALFKI"
                        select ov,
                 new List<IExpectedInclude>
@@ -122,13 +122,13 @@ namespace Microsoft.EntityFrameworkCore.Query
                 });
         }
 
-        [Theory(Skip = "See issue#13587")]
+        [Theory(Skip = "Issue#15264")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task QueryType_with_included_navs_multi_level(bool isAsync)
         {
             return AssertIncludeQuery<OrderQuery>(
                 isAsync,
-                ovs => from ov in ovs.Include(ov => ov.Customer.Orders)
+                ovs => from ov in ovs.AsNoTracking().Include(ov => ov.Customer.Orders)
                        where ov.CustomerID == "ALFKI"
                        select ov,
                 new List<IExpectedInclude>
@@ -138,24 +138,24 @@ namespace Microsoft.EntityFrameworkCore.Query
                 });
         }
 
-        [Theory(Skip = "See issue#13587")]
+        [Theory(Skip = "Issue#15264")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task QueryType_select_where_navigation(bool isAsync)
         {
             return AssertQuery<OrderQuery>(
                 isAsync,
-                ovs => from ov in ovs
+                ovs => from ov in ovs.AsNoTracking()
                        where ov.Customer.City == "Seattle"
                        select ov);
         }
 
-        [Theory(Skip = "See issue#13587")]
+        [Theory(Skip = "Issue#15264")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task QueryType_select_where_navigation_multi_level(bool isAsync)
         {
             return AssertQuery<OrderQuery>(
                 isAsync,
-                ovs => from ov in ovs
+                ovs => from ov in ovs.AsNoTracking()
                        where ov.Customer.Orders.Any()
                        select ov);
         }
