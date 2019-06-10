@@ -10,6 +10,8 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using Microsoft.EntityFrameworkCore.Metadata.Conventions;
+using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
@@ -92,8 +94,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         {
             if (_model == null)
             {
-                var modelBuilder = new ModelBuilder(Dependencies.ConventionSetBuilder.CreateConventionSet());
+                var conventionSet = Dependencies.ConventionSetBuilder.CreateConventionSet();
+                ConventionSet.Remove(conventionSet.ModelInitializedConventions, typeof(DbSetFindingConvention));
 
+                var modelBuilder = new ModelBuilder(conventionSet);
                 modelBuilder.Entity<HistoryRow>(
                     x =>
                     {
