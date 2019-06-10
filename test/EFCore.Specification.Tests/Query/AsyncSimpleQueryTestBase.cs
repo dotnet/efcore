@@ -43,7 +43,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             var _ = groups[0].First();
         }
 
-        [ConditionalFact(Skip = "QueryIssue")]
+        [ConditionalFact]
         public virtual async Task Query_backed_by_database_view()
         {
             using (var context = CreateContext())

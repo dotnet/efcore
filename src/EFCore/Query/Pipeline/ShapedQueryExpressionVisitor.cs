@@ -233,7 +233,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Pipeline
 
                 if (_trackQueryResults && primaryKey == null)
                 {
-                    throw new InvalidOperationException();
+                    throw new InvalidOperationException("A tracking query contains entityType without key in final result.");
                 }
 
                 if (_trackQueryResults)
