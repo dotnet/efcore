@@ -40,7 +40,7 @@ namespace Microsoft.EntityFrameworkCore
     /// </summary>
     /// <typeparam name="TEntity"> The type of entity being operated on by this set. </typeparam>
     public abstract class DbSet<TEntity>
-        : IQueryable<TEntity>, IAsyncEnumerableAccessor<TEntity>, IInfrastructure<IServiceProvider>, IListSource
+        : IQueryable<TEntity>, IAsyncEnumerable<TEntity>, IInfrastructure<IServiceProvider>, IListSource
         where TEntity : class
     {
         /// <summary>
@@ -471,11 +471,12 @@ namespace Microsoft.EntityFrameworkCore
         IEnumerator IEnumerable.GetEnumerator() => throw new NotImplementedException();
 
         /// <summary>
-        ///     Returns an <see cref="IAsyncEnumerable{T}" /> which when enumerated will asynchronously execute the query against
+        ///     Returns an <see cref="IAsyncEnumerator{T}" /> which when enumerated will asynchronously execute a query against
         ///     the database.
         /// </summary>
         /// <returns> The query results. </returns>
-        IAsyncEnumerable<TEntity> IAsyncEnumerableAccessor<TEntity>.AsyncEnumerable => throw new NotImplementedException();
+        IAsyncEnumerator<TEntity> IAsyncEnumerable<TEntity>.GetAsyncEnumerator(CancellationToken cancellationToken)
+            => throw new NotImplementedException();
 
         /// <summary>
         ///     Gets the IQueryable element type.
