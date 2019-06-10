@@ -256,7 +256,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Pipeline
 
             if (arguments.Count == 2)
             {
-                var selector = arguments[1].UnwrapQuote();
+                var selector = arguments[1].UnwrapLambdaFromQuote();
                 var newSelector = RewriteAndVisitLambda(selector, sourceWrapper);
 
                 newMethodCall = methodCallExpression.Update(null, new[] { Unwrap(newSource), Unwrap(newSelector) });
@@ -267,10 +267,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Pipeline
 
             if (arguments.Count == 3)
             {
-                var collectionSelector = arguments[1].UnwrapQuote();
+                var collectionSelector = arguments[1].UnwrapLambdaFromQuote();
                 var newCollectionSelector = RewriteAndVisitLambda(collectionSelector, sourceWrapper);
 
-                var resultSelector = arguments[2].UnwrapQuote();
+                var resultSelector = arguments[2].UnwrapLambdaFromQuote();
                 var newResultSelector = newCollectionSelector.Body is EntityReferenceExpression newCollectionSelectorWrapper
                     ? RewriteAndVisitLambda(resultSelector, sourceWrapper, newCollectionSelectorWrapper)
                     : (LambdaExpression)Visit(resultSelector);
@@ -295,9 +295,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Pipeline
 
             var newOuter = Visit(arguments[0]);
             var newInner = Visit(arguments[1]);
-            var outerKeySelector = arguments[2].UnwrapQuote();
-            var innerKeySelector = arguments[3].UnwrapQuote();
-            var resultSelector = arguments[4].UnwrapQuote();
+            var outerKeySelector = arguments[2].UnwrapLambdaFromQuote();
+            var innerKeySelector = arguments[3].UnwrapLambdaFromQuote();
+            var resultSelector = arguments[4].UnwrapLambdaFromQuote();
 
             if (!(newOuter is EntityReferenceExpression outerWrapper && newInner is EntityReferenceExpression innerWrapper))
             {
@@ -396,12 +396,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Pipeline
             EntityReferenceExpression source2)
             => Expression.Lambda(
                 lambda.Type,
-                Visit(new ReplacingExpressionVisitor(
-                    new Dictionary<Expression, Expression>
-                    {
-                        { lambda.Parameters[0], source1.Update(lambda.Parameters[0]) },
-                        { lambda.Parameters[1], source2.Update(lambda.Parameters[1]) }
-                    }).Visit(lambda.Body)),
+                Visit(ReplacingExpressionVisitor.Replace(
+                    lambda.Parameters[0], source1.Update(lambda.Parameters[0]),
+                    lambda.Parameters[1], source2.Update(lambda.Parameters[1]),
+                    lambda.Body)),
                 lambda.TailCall,
                 lambda.Parameters);
 

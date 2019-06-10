@@ -133,12 +133,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             Check.NotNull(leftExpression, nameof(leftExpression));
             Check.NotNull(rightExpression, nameof(rightExpression));
 
-            return new ReplacingExpressionVisitor(
-                new Dictionary<Expression, Expression>
-                {
-                    { EqualsExpression.Parameters[0], leftExpression },
-                    { EqualsExpression.Parameters[1], rightExpression }
-                }).Visit(EqualsExpression.Body);
+            return ReplacingExpressionVisitor.Replace(
+                EqualsExpression.Parameters[0], leftExpression,
+                EqualsExpression.Parameters[1], rightExpression,
+                EqualsExpression.Body);
         }
 
         /// <summary>

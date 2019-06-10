@@ -207,13 +207,13 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
             var translation = _sqlExpressionFactory.ApplyDefaultTypeMapping(
                 _sqlExpressionFactory.Function("COUNT", new[] { _sqlExpressionFactory.Fragment("*") }, typeof(int)));
 
-            var _projectionMapping = new Dictionary<ProjectionMember, Expression>
+            var projectionMapping = new Dictionary<ProjectionMember, Expression>
             {
                 { new ProjectionMember(), translation }
             };
 
             selectExpression.ClearOrdering();
-            selectExpression.ReplaceProjection(_projectionMapping);
+            selectExpression.ReplaceProjection(projectionMapping);
             source.ShaperExpression = new ProjectionBindingExpression(source.QueryExpression, new ProjectionMember(), typeof(int));
 
             return source;
@@ -482,13 +482,13 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
 
             var translation = _sqlExpressionFactory.ApplyDefaultTypeMapping(
                 _sqlExpressionFactory.Function("COUNT", new[] { _sqlExpressionFactory.Fragment("*") }, typeof(long)));
-            var _projectionMapping = new Dictionary<ProjectionMember, Expression>
+            var projectionMapping = new Dictionary<ProjectionMember, Expression>
             {
                 { new ProjectionMember(), translation }
             };
 
             selectExpression.ClearOrdering();
-            selectExpression.ReplaceProjection(_projectionMapping);
+            selectExpression.ReplaceProjection(projectionMapping);
             source.ShaperExpression = new ProjectionBindingExpression(source.QueryExpression, new ProjectionMember(), typeof(long));
 
             return source;
@@ -629,7 +629,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
             return source;
         }
 
-        private static MethodInfo _defaultIfEmptyWithoutArgMethodInfo = typeof(Enumerable).GetTypeInfo()
+        private static readonly MethodInfo _defaultIfEmptyWithoutArgMethodInfo = typeof(Enumerable).GetTypeInfo()
             .GetDeclaredMethods(nameof(Enumerable.DefaultIfEmpty)).Single(mi => mi.GetParameters().Length == 1);
 
         protected override ShapedQueryExpression TranslateSelectMany(ShapedQueryExpression source, LambdaExpression collectionSelector, LambdaExpression resultSelector)

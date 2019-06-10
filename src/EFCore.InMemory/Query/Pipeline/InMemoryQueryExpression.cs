@@ -64,7 +64,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Pipeline
         }
 
         public static ParameterExpression ValueBufferParameter = Parameter(typeof(ValueBuffer), "valueBuffer");
-        private static ConstructorInfo _valueBufferConstructor = typeof(ValueBuffer).GetConstructors().Single(ci => ci.GetParameters().Length == 1);
+        private static readonly ConstructorInfo _valueBufferConstructor = typeof(ValueBuffer).GetConstructors().Single(ci => ci.GetParameters().Length == 1);
 
         private List<Expression> _valueBufferSlots = new List<Expression>();
         private IDictionary<ProjectionMember, Expression> _projectionMapping = new Dictionary<ProjectionMember, Expression>();
