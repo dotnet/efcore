@@ -59,17 +59,11 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
 
         protected override ShapedQueryExpression TranslateAll(ShapedQueryExpression source, LambdaExpression predicate)
         {
-            var selectExpression = (SelectExpression)source.QueryExpression;
-            if (selectExpression.Limit != null
-                || selectExpression.Offset != null)
-            {
-                selectExpression.PushdownIntoSubQuery();
-            }
-
             var translation = TranslateLambdaExpression(source, predicate);
 
             if (translation != null)
             {
+                var selectExpression = (SelectExpression)source.QueryExpression;
                 selectExpression.ApplyPredicate(_sqlExpressionFactory.Not(translation));
                 selectExpression.ReplaceProjectionMapping(new Dictionary<ProjectionMember, Expression>());
                 if (selectExpression.Limit == null
@@ -113,11 +107,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
         protected override ShapedQueryExpression TranslateAverage(ShapedQueryExpression source, LambdaExpression selector, Type resultType)
         {
             var selectExpression = (SelectExpression)source.QueryExpression;
-            if (selectExpression.Limit != null
-                || selectExpression.Offset != null)
-            {
-                selectExpression.PushdownIntoSubQuery();
-            }
+            selectExpression.PrepareForAggregate();
 
             if (selector != null)
             {
@@ -192,13 +182,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
         protected override ShapedQueryExpression TranslateCount(ShapedQueryExpression source, LambdaExpression predicate)
         {
             var selectExpression = (SelectExpression)source.QueryExpression;
-
-            if (selectExpression.IsDistinct
-                || selectExpression.Limit != null
-                || selectExpression.Offset != null)
-            {
-                selectExpression.PushdownIntoSubQuery();
-            }
+            selectExpression.PrepareForAggregate();
 
             if (predicate != null)
             {
@@ -307,19 +291,6 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
             LambdaExpression innerKeySelector,
             LambdaExpression resultSelector)
         {
-            // TODO: write a test which has distinct on outer so that we can verify pushdown
-            var innerSelectExpression = (SelectExpression)inner.QueryExpression;
-            if (innerSelectExpression.Orderings.Any()
-                || innerSelectExpression.Limit != null
-                || innerSelectExpression.Offset != null
-                || innerSelectExpression.IsDistinct
-                // TODO: Predicate can be lifted in inner join
-                || innerSelectExpression.Predicate != null
-                || innerSelectExpression.Tables.Count > 1)
-            {
-                innerSelectExpression.PushdownIntoSubQuery();
-            }
-
             var joinPredicate = CreateJoinPredicate(outer, outerKeySelector, inner, innerKeySelector);
             if (joinPredicate != null)
             {
@@ -328,7 +299,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
                     resultSelector.Parameters[1].Type);
 
                 ((SelectExpression)outer.QueryExpression).AddInnerJoin(
-                    innerSelectExpression, joinPredicate, transparentIdentifierType);
+                    (SelectExpression)inner.QueryExpression, joinPredicate, transparentIdentifierType);
 
                 return TranslateResultSelectorForJoin(
                     outer,
@@ -343,25 +314,6 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
 
         protected override ShapedQueryExpression TranslateLeftJoin(ShapedQueryExpression outer, ShapedQueryExpression inner, LambdaExpression outerKeySelector, LambdaExpression innerKeySelector, LambdaExpression resultSelector)
         {
-            var outerSelectExpression = (SelectExpression)outer.QueryExpression;
-            if (outerSelectExpression.Limit != null
-                || outerSelectExpression.Offset != null
-                || outerSelectExpression.IsDistinct)
-            {
-                outerSelectExpression.PushdownIntoSubQuery();
-            }
-
-            var innerSelectExpression = (SelectExpression)inner.QueryExpression;
-            if (innerSelectExpression.Orderings.Any()
-                || innerSelectExpression.Limit != null
-                || innerSelectExpression.Offset != null
-                || innerSelectExpression.IsDistinct
-                || innerSelectExpression.Predicate != null
-                || innerSelectExpression.Tables.Count > 1)
-            {
-                innerSelectExpression.PushdownIntoSubQuery();
-            }
-
             var joinPredicate = CreateJoinPredicate(outer, outerKeySelector, inner, innerKeySelector);
             if (joinPredicate != null)
             {
@@ -369,8 +321,8 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
                     resultSelector.Parameters[0].Type,
                     resultSelector.Parameters[1].Type);
 
-                outerSelectExpression.AddLeftJoin(
-                    innerSelectExpression, joinPredicate, transparentIdentifierType);
+                ((SelectExpression)outer.QueryExpression).AddLeftJoin(
+                    (SelectExpression)inner.QueryExpression, joinPredicate, transparentIdentifierType);
 
                 return TranslateResultSelectorForJoin(
                     outer,
@@ -447,13 +399,6 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
             }
 
             var selectExpression = (SelectExpression)source.QueryExpression;
-
-            if (selectExpression.Limit != null
-                || selectExpression.Offset != null)
-            {
-                selectExpression.PushdownIntoSubQuery();
-            }
-
             selectExpression.ReverseOrderings();
             selectExpression.ApplyLimit(TranslateExpression(Expression.Constant(1)));
 
@@ -468,13 +413,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
         protected override ShapedQueryExpression TranslateLongCount(ShapedQueryExpression source, LambdaExpression predicate)
         {
             var selectExpression = (SelectExpression)source.QueryExpression;
-
-            if (selectExpression.IsDistinct
-                || selectExpression.Limit != null
-                || selectExpression.Offset != null)
-            {
-                selectExpression.PushdownIntoSubQuery();
-            }
+            selectExpression.PrepareForAggregate();
 
             if (predicate != null)
             {
@@ -498,11 +437,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
         protected override ShapedQueryExpression TranslateMax(ShapedQueryExpression source, LambdaExpression selector, Type resultType)
         {
             var selectExpression = (SelectExpression)source.QueryExpression;
-            if (selectExpression.Limit != null
-                || selectExpression.Offset != null)
-            {
-                selectExpression.PushdownIntoSubQuery();
-            }
+            selectExpression.PrepareForAggregate();
 
             if (selector != null)
             {
@@ -519,11 +454,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
         protected override ShapedQueryExpression TranslateMin(ShapedQueryExpression source, LambdaExpression selector, Type resultType)
         {
             var selectExpression = (SelectExpression)source.QueryExpression;
-            if (selectExpression.Limit != null
-                || selectExpression.Offset != null)
-            {
-                selectExpression.PushdownIntoSubQuery();
-            }
+            selectExpression.PrepareForAggregate();
 
             if (selector != null)
             {
@@ -600,19 +531,10 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
 
         protected override ShapedQueryExpression TranslateOrderBy(ShapedQueryExpression source, LambdaExpression keySelector, bool ascending)
         {
-            var selectExpression = (SelectExpression)source.QueryExpression;
-            if (selectExpression.IsDistinct
-                || selectExpression.Limit != null
-                || selectExpression.Offset != null)
-            {
-                selectExpression.PushdownIntoSubQuery();
-            }
-
             var translation = TranslateLambdaExpression(source, keySelector);
-
             if (translation != null)
             {
-                selectExpression.ApplyOrdering(new OrderingExpression(translation, ascending));
+                ((SelectExpression)source.QueryExpression).ApplyOrdering(new OrderingExpression(translation, ascending));
 
                 return source;
             }
@@ -632,7 +554,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
             var selectExpression = (SelectExpression)source.QueryExpression;
             if (selectExpression.IsDistinct)
             {
-                selectExpression.PushdownIntoSubQuery();
+                selectExpression.PushdownIntoSubquery();
             }
 
             var newSelectorBody = ReplacingExpressionVisitor.Replace(selector.Parameters.Single(), source.ShaperExpression, selector.Body);
@@ -669,31 +591,11 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
             {
                 if (Visit(collectionSelectorBody) is ShapedQueryExpression inner)
                 {
-                    var outerSelectExpression = (SelectExpression)source.QueryExpression;
-                    if (outerSelectExpression.Limit != null
-                        || outerSelectExpression.Offset != null
-                        || outerSelectExpression.IsDistinct
-                        || outerSelectExpression.Predicate != null)
-                    {
-                        outerSelectExpression.PushdownIntoSubQuery();
-                    }
-
-                    var innerSelectExpression = (SelectExpression)inner.QueryExpression;
-                    if (innerSelectExpression.Orderings.Any()
-                        || innerSelectExpression.Limit != null
-                        || innerSelectExpression.Offset != null
-                        || innerSelectExpression.IsDistinct
-                        || innerSelectExpression.Predicate != null)
-                    {
-                        innerSelectExpression.PushdownIntoSubQuery();
-                    }
-
                     var transparentIdentifierType = CreateTransparentIdentifierType(
                         resultSelector.Parameters[0].Type,
                         resultSelector.Parameters[1].Type);
-
-                    outerSelectExpression.AddCrossJoin(
-                        innerSelectExpression, transparentIdentifierType);
+                    ((SelectExpression)source.QueryExpression).AddCrossJoin(
+                        (SelectExpression)inner.QueryExpression, transparentIdentifierType);
 
                     return TranslateResultSelectorForJoin(
                         source,
@@ -775,11 +677,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
         protected override ShapedQueryExpression TranslateSum(ShapedQueryExpression source, LambdaExpression selector, Type resultType)
         {
             var selectExpression = (SelectExpression)source.QueryExpression;
-            if (selectExpression.Limit != null
-                || selectExpression.Offset != null)
-            {
-                selectExpression.PushdownIntoSubQuery();
-            }
+            selectExpression.PrepareForAggregate();
 
             if (selector != null)
             {
@@ -825,7 +723,6 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
         protected override ShapedQueryExpression TranslateThenBy(ShapedQueryExpression source, LambdaExpression keySelector, bool ascending)
         {
             var translation = TranslateLambdaExpression(source, keySelector);
-
             if (translation != null)
             {
                 ((SelectExpression)source.QueryExpression).AppendOrdering(new OrderingExpression(translation, ascending));
@@ -840,17 +737,10 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
 
         protected override ShapedQueryExpression TranslateWhere(ShapedQueryExpression source, LambdaExpression predicate)
         {
-            var selectExpression = (SelectExpression)source.QueryExpression;
-            if (selectExpression.Limit != null
-                || selectExpression.Offset != null)
-            {
-                selectExpression.PushdownIntoSubQuery();
-            }
-
             var translation = TranslateLambdaExpression(source, predicate);
             if (translation != null)
             {
-                selectExpression.ApplyPredicate(translation);
+                ((SelectExpression)source.QueryExpression).ApplyPredicate(translation);
 
                 return source;
             }
