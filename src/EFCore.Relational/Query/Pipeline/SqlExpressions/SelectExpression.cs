@@ -205,12 +205,29 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
             return dictionary;
         }
 
+        public void PrepareForAggregate()
+        {
+            if (IsDistinct
+                || Limit != null
+                || Offset != null)
+            {
+                PushdownIntoSubquery();
+            }
+        }
+
         public void ApplyPredicate(SqlExpression expression)
         {
             if (expression is SqlConstantExpression sqlConstant
                 && (bool)sqlConstant.Value)
             {
                 return;
+            }
+
+            if (Limit != null
+                || Offset != null)
+            {
+                var mappings = PushdownIntoSubquery();
+                expression = new SqlRemappingVisitor(mappings).Remap(expression);
             }
 
             if (Predicate == null)
@@ -233,6 +250,15 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
 
         public void ApplyOrdering(OrderingExpression orderingExpression)
         {
+            if (IsDistinct
+                || Limit != null
+                || Offset != null)
+            {
+                orderingExpression = orderingExpression.Update(
+                    new SqlRemappingVisitor(PushdownIntoSubquery())
+                        .Remap(orderingExpression.Expression));
+            }
+
             _orderings.Clear();
             _orderings.Add(orderingExpression);
         }
@@ -249,7 +275,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
         {
             if (Limit != null)
             {
-                PushdownIntoSubQuery();
+                PushdownIntoSubquery();
             }
 
             Limit = sqlExpression;
@@ -260,7 +286,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
             if (Limit != null
                 || Offset != null)
             {
-                PushdownIntoSubQuery();
+                PushdownIntoSubquery();
             }
 
             Offset = sqlExpression;
@@ -268,6 +294,12 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
 
         public void ReverseOrderings()
         {
+            if (Limit != null
+                || Offset != null)
+            {
+                PushdownIntoSubquery();
+            }
+
             var existingOrdering = _orderings.ToArray();
 
             _orderings.Clear();
@@ -286,7 +318,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
             if (Limit != null
                 || Offset != null)
             {
-                PushdownIntoSubQuery();
+                PushdownIntoSubquery();
             }
 
             IsDistinct = true;
@@ -298,7 +330,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
             _orderings.Clear();
         }
 
-        public SelectExpression PushdownIntoSubQuery()
+        public IDictionary<SqlExpression, ColumnExpression> PushdownIntoSubquery()
         {
             var subquery = new SelectExpression("t", new List<ProjectionExpression>(), _tables.ToList(), _orderings.ToList())
             {
@@ -393,7 +425,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
             _tables.Clear();
             _tables.Add(subquery);
 
-            return subquery;
+            return projectionMap;
         }
 
         private static bool IsNullableProjection(ProjectionExpression projection)
@@ -445,8 +477,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
                    || Limit != null
                    || Offset != null)
                 {
-                    var subquery = PushdownIntoSubQuery();
-                    outer = LiftFromSubquery(subquery, outer);
+                    outer = new SqlRemappingVisitor(PushdownIntoSubquery()).Remap(outer);
                 }
 
                 if (innerSelectExpression.Offset != null
@@ -455,8 +486,8 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
                     || innerSelectExpression.Predicate != null
                     || innerSelectExpression.Tables.Count > 1)
                 {
-                    var subquery = innerSelectExpression.PushdownIntoSubQuery();
-                    inner = LiftFromSubquery(subquery, inner);
+                    inner = new SqlRemappingVisitor(innerSelectExpression.PushdownIntoSubquery())
+                        .Remap(inner);
                 }
 
                 var leftJoinExpression = new LeftJoinExpression(innerSelectExpression.Tables.Single(),
@@ -608,15 +639,21 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
             return selectExpression.Tables.Any(te => ReferenceEquals(te is JoinExpressionBase jeb ? jeb.Table : te, table));
         }
 
-        private ColumnExpression LiftFromSubquery(SelectExpression subquery, SqlExpression column)
-        {
-            var subqueryProjection = subquery._projection.Single(pe => pe.Expression.Equals(column));
-
-            return new ColumnExpression(subqueryProjection, subquery, IsNullableProjection(subqueryProjection));
-        }
-
         public void AddInnerJoin(SelectExpression innerSelectExpression, SqlExpression joinPredicate, Type transparentIdentifierType)
         {
+            // TODO: write a test which has distinct on outer so that we can verify pushdown
+            if (innerSelectExpression.Orderings.Any()
+                || innerSelectExpression.Limit != null
+                || innerSelectExpression.Offset != null
+                || innerSelectExpression.IsDistinct
+                // TODO: Predicate can be lifted in inner join
+                || innerSelectExpression.Predicate != null
+                || innerSelectExpression.Tables.Count > 1)
+            {
+                joinPredicate = new SqlRemappingVisitor(innerSelectExpression.PushdownIntoSubquery())
+                    .Remap(joinPredicate);
+            }
+
             _identifyingProjection.AddRange(innerSelectExpression._identifyingProjection);
             var joinTable = new InnerJoinExpression(innerSelectExpression.Tables.Single(), joinPredicate);
             _tables.Add(joinTable);
@@ -639,6 +676,25 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
 
         public void AddLeftJoin(SelectExpression innerSelectExpression, SqlExpression joinPredicate, Type transparentIdentifierType)
         {
+            if (Limit != null
+                || Offset != null
+                || IsDistinct)
+            {
+                joinPredicate = new SqlRemappingVisitor(PushdownIntoSubquery())
+                    .Remap(joinPredicate);
+            }
+
+            if (innerSelectExpression.Orderings.Any()
+                || innerSelectExpression.Limit != null
+                || innerSelectExpression.Offset != null
+                || innerSelectExpression.IsDistinct
+                || innerSelectExpression.Predicate != null
+                || innerSelectExpression.Tables.Count > 1)
+            {
+                joinPredicate = new SqlRemappingVisitor(innerSelectExpression.PushdownIntoSubquery())
+                    .Remap(joinPredicate);
+            }
+
             var joinTable = new LeftJoinExpression(innerSelectExpression.Tables.Single(), joinPredicate);
             _tables.Add(joinTable);
 
@@ -670,6 +726,23 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
 
         public void AddCrossJoin(SelectExpression innerSelectExpression, Type transparentIdentifierType)
         {
+            if (Limit != null
+                || Offset != null
+                || IsDistinct
+                || Predicate != null)
+            {
+                PushdownIntoSubquery();
+            }
+
+            if (innerSelectExpression.Orderings.Any()
+                || innerSelectExpression.Limit != null
+                || innerSelectExpression.Offset != null
+                || innerSelectExpression.IsDistinct
+                || innerSelectExpression.Predicate != null)
+            {
+                innerSelectExpression.PushdownIntoSubquery();
+            }
+
             _identifyingProjection.AddRange(innerSelectExpression._identifyingProjection);
             var joinTable = new CrossJoinExpression(innerSelectExpression.Tables.Single());
             _tables.Add(joinTable);
@@ -688,6 +761,29 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
             }
 
             _projectionMapping = projectionMapping;
+        }
+
+        private class SqlRemappingVisitor : ExpressionVisitor
+        {
+            private readonly IDictionary<SqlExpression, ColumnExpression> _mappings;
+
+            public SqlRemappingVisitor(IDictionary<SqlExpression, ColumnExpression> mappings)
+            {
+                _mappings = mappings;
+            }
+
+            public SqlExpression Remap(SqlExpression sqlExpression) => (SqlExpression)Visit(sqlExpression);
+
+            public override Expression Visit(Expression expression)
+            {
+                if (expression is SqlExpression sqlExpression
+                    && _mappings.TryGetValue(sqlExpression, out var outer))
+                {
+                    return outer;
+                }
+
+                return base.Visit(expression);
+            }
         }
 
         protected override Expression VisitChildren(ExpressionVisitor visitor)
@@ -876,7 +972,6 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
                 return hashCode;
             }
         }
-
         public override void Print(ExpressionPrinter expressionPrinter)
         {
             expressionPrinter.StringBuilder.AppendLine("Projection Mapping:");
