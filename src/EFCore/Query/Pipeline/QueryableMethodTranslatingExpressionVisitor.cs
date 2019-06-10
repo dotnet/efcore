@@ -43,14 +43,14 @@ namespace Microsoft.EntityFrameworkCore.Query.Pipeline
                             shapedQueryExpression.ResultType = ResultType.Single;
                             return TranslateAll(
                                 shapedQueryExpression,
-                                UnwrapLambdaFromQuoteExpression(methodCallExpression.Arguments[1]));
+                                methodCallExpression.Arguments[1].UnwrapLambdaFromQuote());
 
                         case nameof(Queryable.Any):
                             shapedQueryExpression.ResultType = ResultType.Single;
                             return TranslateAny(
                                 shapedQueryExpression,
                                 methodCallExpression.Arguments.Count == 2
-                                ? UnwrapLambdaFromQuoteExpression(methodCallExpression.Arguments[1])
+                                ? methodCallExpression.Arguments[1].UnwrapLambdaFromQuote()
                                 : null);
 
                         case nameof(Queryable.AsQueryable):
@@ -62,7 +62,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Pipeline
                             return TranslateAverage(
                                shapedQueryExpression,
                                methodCallExpression.Arguments.Count == 2
-                                   ? UnwrapLambdaFromQuoteExpression(methodCallExpression.Arguments[1])
+                                   ? methodCallExpression.Arguments[1].UnwrapLambdaFromQuote()
                                    : null,
                                methodCallExpression.Type);
 
@@ -92,7 +92,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Pipeline
                             return TranslateCount(
                                 shapedQueryExpression,
                                 methodCallExpression.Arguments.Count == 2
-                                   ? UnwrapLambdaFromQuoteExpression(methodCallExpression.Arguments[1])
+                                   ? methodCallExpression.Arguments[1].UnwrapLambdaFromQuote()
                                    : null);
 
                         case nameof(Queryable.DefaultIfEmpty):
@@ -133,7 +133,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Pipeline
                             return TranslateFirstOrDefault(
                                 shapedQueryExpression,
                                 methodCallExpression.Arguments.Count == 2
-                                   ? UnwrapLambdaFromQuoteExpression(methodCallExpression.Arguments[1])
+                                   ? methodCallExpression.Arguments[1].UnwrapLambdaFromQuote()
                                    : null,
                                 methodCallExpression.Type,
                                 false);
@@ -143,14 +143,14 @@ namespace Microsoft.EntityFrameworkCore.Query.Pipeline
                             return TranslateFirstOrDefault(
                                 shapedQueryExpression,
                                 methodCallExpression.Arguments.Count == 2
-                                   ? UnwrapLambdaFromQuoteExpression(methodCallExpression.Arguments[1])
+                                   ? methodCallExpression.Arguments[1].UnwrapLambdaFromQuote()
                                    : null,
                                 methodCallExpression.Type,
                                 true);
 
                         case nameof(Queryable.GroupBy):
                             {
-                                var keySelector = UnwrapLambdaFromQuoteExpression(methodCallExpression.Arguments[1]);
+                                var keySelector = methodCallExpression.Arguments[1].UnwrapLambdaFromQuote();
                                 if (methodCallExpression.Arguments[argumentCount - 1] is ConstantExpression)
                                 {
                                     // This means last argument is EqualityComparer on key
@@ -168,7 +168,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Pipeline
                                             null);
 
                                     case 3:
-                                        var lambda = UnwrapLambdaFromQuoteExpression(methodCallExpression.Arguments[2]);
+                                        var lambda = methodCallExpression.Arguments[2].UnwrapLambdaFromQuote();
                                         if (lambda.Parameters.Count == 1)
                                         {
                                             return TranslateGroupBy(
@@ -190,8 +190,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Pipeline
                                         return TranslateGroupBy(
                                             shapedQueryExpression,
                                             keySelector,
-                                            UnwrapLambdaFromQuoteExpression(methodCallExpression.Arguments[2]),
-                                            UnwrapLambdaFromQuoteExpression(methodCallExpression.Arguments[3]));
+                                            methodCallExpression.Arguments[2].UnwrapLambdaFromQuote(),
+                                            methodCallExpression.Arguments[3].UnwrapLambdaFromQuote());
                                 }
                             }
 
@@ -206,9 +206,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Pipeline
                                     return TranslateGroupJoin(
                                         shapedQueryExpression,
                                         innerShapedQueryExpression,
-                                        UnwrapLambdaFromQuoteExpression(methodCallExpression.Arguments[2]),
-                                        UnwrapLambdaFromQuoteExpression(methodCallExpression.Arguments[3]),
-                                        UnwrapLambdaFromQuoteExpression(methodCallExpression.Arguments[4]));
+                                        methodCallExpression.Arguments[2].UnwrapLambdaFromQuote(),
+                                        methodCallExpression.Arguments[3].UnwrapLambdaFromQuote(),
+                                        methodCallExpression.Arguments[4].UnwrapLambdaFromQuote());
                                 }
                             }
 
@@ -237,9 +237,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Pipeline
                                     return TranslateJoin(
                                         shapedQueryExpression,
                                         innerShapedQueryExpression,
-                                        UnwrapLambdaFromQuoteExpression(methodCallExpression.Arguments[2]),
-                                        UnwrapLambdaFromQuoteExpression(methodCallExpression.Arguments[3]),
-                                        UnwrapLambdaFromQuoteExpression(methodCallExpression.Arguments[4]));
+                                        methodCallExpression.Arguments[2].UnwrapLambdaFromQuote(),
+                                        methodCallExpression.Arguments[3].UnwrapLambdaFromQuote(),
+                                        methodCallExpression.Arguments[4].UnwrapLambdaFromQuote());
                                 }
                             }
 
@@ -254,9 +254,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Pipeline
                                     return TranslateLeftJoin(
                                         shapedQueryExpression,
                                         innerShapedQueryExpression,
-                                        UnwrapLambdaFromQuoteExpression(methodCallExpression.Arguments[2]),
-                                        UnwrapLambdaFromQuoteExpression(methodCallExpression.Arguments[3]),
-                                        UnwrapLambdaFromQuoteExpression(methodCallExpression.Arguments[4]));
+                                        methodCallExpression.Arguments[2].UnwrapLambdaFromQuote(),
+                                        methodCallExpression.Arguments[3].UnwrapLambdaFromQuote(),
+                                        methodCallExpression.Arguments[4].UnwrapLambdaFromQuote());
                                 }
                             }
 
@@ -267,7 +267,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Pipeline
                             return TranslateLastOrDefault(
                                 shapedQueryExpression,
                                 methodCallExpression.Arguments.Count == 2
-                                   ? UnwrapLambdaFromQuoteExpression(methodCallExpression.Arguments[1])
+                                   ? methodCallExpression.Arguments[1].UnwrapLambdaFromQuote()
                                    : null,
                                 methodCallExpression.Type,
                                 false);
@@ -277,7 +277,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Pipeline
                             return TranslateLastOrDefault(
                                 shapedQueryExpression,
                                 methodCallExpression.Arguments.Count == 2
-                                   ? UnwrapLambdaFromQuoteExpression(methodCallExpression.Arguments[1])
+                                   ? methodCallExpression.Arguments[1].UnwrapLambdaFromQuote()
                                    : null,
                                 methodCallExpression.Type,
                                 true);
@@ -287,7 +287,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Pipeline
                             return TranslateLongCount(
                                shapedQueryExpression,
                                methodCallExpression.Arguments.Count == 2
-                                   ? UnwrapLambdaFromQuoteExpression(methodCallExpression.Arguments[1])
+                                   ? methodCallExpression.Arguments[1].UnwrapLambdaFromQuote()
                                    : null);
 
                         case nameof(Queryable.Max):
@@ -295,7 +295,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Pipeline
                             return TranslateMax(
                                shapedQueryExpression,
                                methodCallExpression.Arguments.Count == 2
-                                   ? UnwrapLambdaFromQuoteExpression(methodCallExpression.Arguments[1])
+                                   ? methodCallExpression.Arguments[1].UnwrapLambdaFromQuote()
                                    : null,
                                methodCallExpression.Type);
 
@@ -304,7 +304,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Pipeline
                             return TranslateMin(
                                shapedQueryExpression,
                                methodCallExpression.Arguments.Count == 2
-                                   ? UnwrapLambdaFromQuoteExpression(methodCallExpression.Arguments[1])
+                                   ? methodCallExpression.Arguments[1].UnwrapLambdaFromQuote()
                                    : null,
                                methodCallExpression.Type);
 
@@ -315,14 +315,14 @@ namespace Microsoft.EntityFrameworkCore.Query.Pipeline
                         when argumentCount == 2:
                             return TranslateOrderBy(
                                 shapedQueryExpression,
-                                UnwrapLambdaFromQuoteExpression(methodCallExpression.Arguments[1]),
+                                methodCallExpression.Arguments[1].UnwrapLambdaFromQuote(),
                                 true);
 
                         case nameof(Queryable.OrderByDescending)
                         when argumentCount == 2:
                             return TranslateOrderBy(
                                 shapedQueryExpression,
-                                UnwrapLambdaFromQuoteExpression(methodCallExpression.Arguments[1]),
+                                methodCallExpression.Arguments[1].UnwrapLambdaFromQuote(),
                                 false);
 
                         case nameof(Queryable.Reverse):
@@ -331,17 +331,17 @@ namespace Microsoft.EntityFrameworkCore.Query.Pipeline
                         case nameof(Queryable.Select):
                             return TranslateSelect(
                                 shapedQueryExpression,
-                                UnwrapLambdaFromQuoteExpression(methodCallExpression.Arguments[1]));
+                                methodCallExpression.Arguments[1].UnwrapLambdaFromQuote());
 
                         case nameof(Queryable.SelectMany):
                             return methodCallExpression.Arguments.Count == 2
                                 ? TranslateSelectMany(
                                     shapedQueryExpression,
-                                    UnwrapLambdaFromQuoteExpression(methodCallExpression.Arguments[1]))
+                                    methodCallExpression.Arguments[1].UnwrapLambdaFromQuote())
                                 : TranslateSelectMany(
                                     shapedQueryExpression,
-                                    UnwrapLambdaFromQuoteExpression(methodCallExpression.Arguments[1]),
-                                    UnwrapLambdaFromQuoteExpression(methodCallExpression.Arguments[2]));
+                                    methodCallExpression.Arguments[1].UnwrapLambdaFromQuote(),
+                                    methodCallExpression.Arguments[2].UnwrapLambdaFromQuote());
 
                         case nameof(Queryable.SequenceEqual):
                             // don't know
@@ -352,7 +352,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Pipeline
                             return TranslateSingleOrDefault(
                                 shapedQueryExpression,
                                 methodCallExpression.Arguments.Count == 2
-                                   ? UnwrapLambdaFromQuoteExpression(methodCallExpression.Arguments[1])
+                                   ? methodCallExpression.Arguments[1].UnwrapLambdaFromQuote()
                                    : null,
                                 methodCallExpression.Type,
                                 false);
@@ -362,7 +362,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Pipeline
                             return TranslateSingleOrDefault(
                                 shapedQueryExpression,
                                 methodCallExpression.Arguments.Count == 2
-                                   ? UnwrapLambdaFromQuoteExpression(methodCallExpression.Arguments[1])
+                                   ? methodCallExpression.Arguments[1].UnwrapLambdaFromQuote()
                                    : null,
                                 methodCallExpression.Type,
                                 true);
@@ -373,14 +373,14 @@ namespace Microsoft.EntityFrameworkCore.Query.Pipeline
                         case nameof(Queryable.SkipWhile):
                             return TranslateSkipWhile(
                                 shapedQueryExpression,
-                                UnwrapLambdaFromQuoteExpression(methodCallExpression.Arguments[1]));
+                                methodCallExpression.Arguments[1].UnwrapLambdaFromQuote());
 
                         case nameof(Queryable.Sum):
                             shapedQueryExpression.ResultType = ResultType.Single;
                             return TranslateSum(
                                shapedQueryExpression,
                                methodCallExpression.Arguments.Count == 2
-                                   ? UnwrapLambdaFromQuoteExpression(methodCallExpression.Arguments[1])
+                                   ? methodCallExpression.Arguments[1].UnwrapLambdaFromQuote()
                                    : null,
                                methodCallExpression.Type);
 
@@ -390,20 +390,20 @@ namespace Microsoft.EntityFrameworkCore.Query.Pipeline
                         case nameof(Queryable.TakeWhile):
                             return TranslateTakeWhile(
                                 shapedQueryExpression,
-                                UnwrapLambdaFromQuoteExpression(methodCallExpression.Arguments[1]));
+                                methodCallExpression.Arguments[1].UnwrapLambdaFromQuote());
 
                         case nameof(Queryable.ThenBy)
                         when argumentCount == 2:
                             return TranslateThenBy(
                                 shapedQueryExpression,
-                                UnwrapLambdaFromQuoteExpression(methodCallExpression.Arguments[1]),
+                                methodCallExpression.Arguments[1].UnwrapLambdaFromQuote(),
                                 true);
 
                         case nameof(Queryable.ThenByDescending)
                         when argumentCount == 2:
                             return TranslateThenBy(
                                 shapedQueryExpression,
-                                UnwrapLambdaFromQuoteExpression(methodCallExpression.Arguments[1]),
+                                methodCallExpression.Arguments[1].UnwrapLambdaFromQuote(),
                                 false);
 
                         case nameof(Queryable.Union)
@@ -423,7 +423,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Pipeline
                         case nameof(Queryable.Where):
                             return TranslateWhere(
                                 shapedQueryExpression,
-                                UnwrapLambdaFromQuoteExpression(methodCallExpression.Arguments[1]));
+                                methodCallExpression.Arguments[1].UnwrapLambdaFromQuote());
 
                         case nameof(Queryable.Zip):
                             // Don't know
@@ -443,11 +443,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Pipeline
 
             return base.VisitMethodCall(methodCallExpression);
         }
-
-        private LambdaExpression UnwrapLambdaFromQuoteExpression(Expression expression)
-            => (LambdaExpression)(expression is UnaryExpression unary
-            ? unary.Operand
-            : expression);
 
         protected Type CreateTransparentIdentifierType(Type outerType, Type innerType)
         {
@@ -487,14 +482,12 @@ namespace Microsoft.EntityFrameworkCore.Query.Pipeline
 
             var transparentIdentifierParameter = Expression.Parameter(transparentIdentifierType);
 
-            var replacements = new Dictionary<Expression, Expression>
-                {
-                    { resultSelector.Parameters[0], AccessOuterTransparentField(transparentIdentifierType, transparentIdentifierParameter) },
-                    { resultSelector.Parameters[1], AccessInnerTransparentField(transparentIdentifierType, transparentIdentifierParameter) },
-                };
-
-            var resultBody = new ReplacingExpressionVisitor(replacements).Visit(resultSelector.Body);
-            var newResultSelector = Expression.Lambda(resultBody, transparentIdentifierParameter);
+            var newResultSelector = Expression.Lambda(
+                ReplacingExpressionVisitor.Replace(
+                    resultSelector.Parameters[0], AccessOuterTransparentField(transparentIdentifierType, transparentIdentifierParameter),
+                    resultSelector.Parameters[1], AccessInnerTransparentField(transparentIdentifierType, transparentIdentifierParameter),
+                    resultSelector.Body),
+                transparentIdentifierParameter);
 
             return TranslateSelect(outer, newResultSelector);
         }

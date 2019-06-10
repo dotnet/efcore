@@ -198,15 +198,6 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public static Expression RemoveNullConditional([CanBeNull] this Expression expression)
-            => expression is NullConditionalExpression conditional ? conditional.AccessOperation : expression;
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
         public static Expression RemoveTypeAs([CanBeNull] this Expression expression)
         {
             while ((expression?.NodeType == ExpressionType.TypeAs))
@@ -215,23 +206,6 @@ namespace Microsoft.EntityFrameworkCore.Internal
             }
 
             return expression;
-        }
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public static TExpression GetRootExpression<TExpression>([NotNull] this Expression expression)
-            where TExpression : Expression
-        {
-            while (expression is MemberExpression memberExpression)
-            {
-                expression = memberExpression.Expression;
-            }
-
-            return expression as TExpression;
         }
 
         /// <summary>
@@ -365,10 +339,10 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public static LambdaExpression UnwrapQuote(this Expression expression)
-            => expression is UnaryExpression unary && expression.NodeType == ExpressionType.Quote
-            ? (LambdaExpression)unary.Operand
-            : (LambdaExpression)expression;
+        public static LambdaExpression UnwrapLambdaFromQuote(this Expression expression)
+            => (LambdaExpression)(expression is UnaryExpression unary && expression.NodeType == ExpressionType.Quote
+            ? unary.Operand
+            : expression);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -395,54 +369,6 @@ namespace Microsoft.EntityFrameworkCore.Internal
             }
 
             return result;
-        }
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public static Expression CombineAndRemap(
-            this Expression source,
-            ParameterExpression sourceParameter,
-            Expression replaceWith)
-            => new ExpressionCombiningVisitor(sourceParameter, replaceWith).Visit(source);
-
-        private class ExpressionCombiningVisitor : ExpressionVisitor
-        {
-            private ParameterExpression _sourceParameter;
-            private Expression _replaceWith;
-
-            public ExpressionCombiningVisitor(
-                ParameterExpression sourceParameter,
-                Expression replaceWith)
-            {
-                _sourceParameter = sourceParameter;
-                _replaceWith = replaceWith;
-            }
-
-            protected override Expression VisitParameter(ParameterExpression parameterExpression)
-                => parameterExpression == _sourceParameter
-                ? _replaceWith
-                : base.VisitParameter(parameterExpression);
-
-            protected override Expression VisitMember(MemberExpression memberExpression)
-            {
-                var newSource = Visit(memberExpression.Expression);
-                if (newSource is NewExpression newExpression)
-                {
-                    var matchingMemberIndex = newExpression.Members.Select((m, i) => new { index = i, match = m == memberExpression.Member }).Where(r => r.match).SingleOrDefault()?.index;
-                    if (matchingMemberIndex.HasValue)
-                    {
-                        return newExpression.Arguments[matchingMemberIndex.Value];
-                    }
-                }
-
-                return newSource != memberExpression.Expression
-                    ? memberExpression.Update(newSource)
-                    : memberExpression;
-            }
         }
     }
 }

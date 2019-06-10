@@ -17,6 +17,16 @@ namespace Microsoft.EntityFrameworkCore.Query.Pipeline
                 new Dictionary<Expression, Expression> { { original, replacement } }).Visit(tree);
         }
 
+        public static Expression Replace(
+            Expression original1, Expression replacement1, Expression original2, Expression replacement2, Expression tree)
+        {
+            return new ReplacingExpressionVisitor(
+                new Dictionary<Expression, Expression> {
+                    { original1, replacement1 },
+                    { original2, replacement2 }
+                }).Visit(tree);
+        }
+
         public ReplacingExpressionVisitor(IDictionary<Expression, Expression> replacements)
         {
             _replacements = replacements;

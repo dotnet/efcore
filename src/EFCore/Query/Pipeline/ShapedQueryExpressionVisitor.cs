@@ -30,7 +30,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Pipeline
 
         private readonly IEntityMaterializerSource _entityMaterializerSource;
         protected readonly bool TrackQueryResults;
-        private readonly Expression cancellationTokenParameter;
+        private readonly Expression _cancellationTokenParameter;
         protected readonly bool Async;
 
         public ShapedQueryCompilingExpressionVisitor(IEntityMaterializerSource entityMaterializerSource, bool trackQueryResults, bool async)
@@ -40,7 +40,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Pipeline
             Async = async;
             if (async)
             {
-                cancellationTokenParameter = Expression.MakeMemberAccess(
+                _cancellationTokenParameter = Expression.MakeMemberAccess(
                     QueryCompilationContext.QueryContextParameter,
                     _cancellationTokenMemberInfo);
             }
@@ -62,7 +62,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Pipeline
                                 ? Expression.Call(
                                     _singleAsyncMethodInfo.MakeGenericMethod(serverEnumerable.Type.TryGetSequenceType()),
                                     serverEnumerable,
-                                    cancellationTokenParameter)
+                                    _cancellationTokenParameter)
                                 : Expression.Call(
                                     _singleMethodInfo.MakeGenericMethod(serverEnumerable.Type.TryGetSequenceType()),
                                     serverEnumerable);
@@ -72,7 +72,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Pipeline
                                 ? Expression.Call(
                                     _singleOrDefaultAsyncMethodInfo.MakeGenericMethod(serverEnumerable.Type.TryGetSequenceType()),
                                     serverEnumerable,
-                                    cancellationTokenParameter)
+                                    _cancellationTokenParameter)
                                 : Expression.Call(
                                     _singleOrDefaultMethodInfo.MakeGenericMethod(serverEnumerable.Type.TryGetSequenceType()),
                                     serverEnumerable);

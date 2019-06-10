@@ -8,12 +8,13 @@ using System.Reflection;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Query.Internal;
+using Microsoft.EntityFrameworkCore.Query.Pipeline;
 
 namespace Microsoft.EntityFrameworkCore.Query.NavigationExpansion.Visitors
 {
     public partial class NavigationExpandingVisitor : ExpressionVisitor
     {
-        private IModel _model;
+        private readonly IModel _model;
 
         public NavigationExpandingVisitor(IModel model)
         {
@@ -107,7 +108,8 @@ namespace Microsoft.EntityFrameworkCore.Query.NavigationExpansion.Visitors
             }
 
             var selector = Expression.Lambda(selectorBody, selectorParameter);
-            var remappedSelectorBody = selector.Body.CombineAndRemap(selectorParameter, navigationExpansionExpression.State.PendingSelector.Body);
+            var remappedSelectorBody = ReplacingExpressionVisitor.Replace(
+                selectorParameter, navigationExpansionExpression.State.PendingSelector.Body, selector.Body);
 
             var binder = new NavigationPropertyBindingVisitor(
                 navigationExpansionExpression.State.CurrentParameter,
@@ -135,7 +137,8 @@ namespace Microsoft.EntityFrameworkCore.Query.NavigationExpansion.Visitors
                             lastNavigation.ForeignKey.PrincipalKey.Properties),
                         innerParameter);
 
-                    var combinedKeySelectorBody = innerKeyAccessLambda.Body.CombineAndRemap(innerKeyAccessLambda.Parameters[0], navigationExpansionExpression.State.PendingSelector.Body);
+                    var combinedKeySelectorBody = ReplacingExpressionVisitor.Replace(
+                        innerKeyAccessLambda.Parameters[0], navigationExpansionExpression.State.PendingSelector.Body, innerKeyAccessLambda.Body);
                     if (outerKeyAccess.Type != combinedKeySelectorBody.Type)
                     {
                         if (combinedKeySelectorBody.Type.IsNullableType())
