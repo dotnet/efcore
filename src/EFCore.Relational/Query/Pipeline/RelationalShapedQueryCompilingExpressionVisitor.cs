@@ -49,38 +49,19 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
             var selectExpression = (SelectExpression)shapedQueryExpression.QueryExpression;
 
             shaperBody = new RelationalProjectionBindingRemovingExpressionVisitor(selectExpression).Visit(shaperBody);
-
             shaperBody = new IncludeCompilingExpressionVisitor(TrackQueryResults).Visit(shaperBody);
+            var indexMapParameter = Expression.Parameter(typeof(int[]), "indexMap");
 
             if (selectExpression.IsNonComposedFromSql())
             {
-                var indexMapParameter = Expression.Parameter(typeof(int[]), "indexMap");
                 shaperBody = new IndexMapInjectingExpressionVisitor(indexMapParameter).Visit(shaperBody);
-                var remappedShaperLambda =
-                    Expression.Lambda(
-                        shaperBody,
-                        QueryCompilationContext.QueryContextParameter,
-                        RelationalProjectionBindingRemovingExpressionVisitor.DataReaderParameter,
-                        indexMapParameter);
-
-                return Expression.New(
-                    Async
-                        ? typeof(FromSqlNonComposedAsyncQueryingEnumerable<>).MakeGenericType(remappedShaperLambda.ReturnType.GetGenericArguments().Single()).GetConstructors()[0]
-                        : typeof(FromSqlNonComposedQueryingEnumerable<>).MakeGenericType(remappedShaperLambda.ReturnType).GetConstructors()[0],
-                    Expression.Convert(QueryCompilationContext.QueryContextParameter, typeof(RelationalQueryContext)),
-                    Expression.Constant(_querySqlGeneratorFactory),
-                    Expression.Constant(_sqlExpressionFactory),
-                    Expression.Constant(_parameterNameGeneratorFactory),
-                    Expression.Constant(selectExpression),
-                    Expression.Constant(remappedShaperLambda.Compile()),
-                    Expression.Constant(_contextType),
-                    Expression.Constant(_logger));
             }
 
             var shaperLambda = Expression.Lambda(
                 shaperBody,
                 QueryCompilationContext.QueryContextParameter,
                 RelationalProjectionBindingRemovingExpressionVisitor.DataReaderParameter,
+                indexMapParameter,
                 _resultCoordinatorParameter);
 
             if (Async)
