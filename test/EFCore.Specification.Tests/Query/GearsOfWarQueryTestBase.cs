@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Internal;
@@ -3155,48 +3156,6 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Order_by_is_properly_lifted_from_subquery_created_by_include()
-        {
-            using (var ctx = CreateContext())
-            {
-                var query = ctx.Gears
-                    .OrderBy(g => g.Rank)
-                    .Include(g => g.Tag)
-                    .OrderBy(g => g.FullName)
-                    .Where(g => !g.HasSoulPatch)
-                    .Select(g => g.FullName);
-
-                var result = query.ToList();
-
-                Assert.Equal(3, result.Count);
-                Assert.Equal("Augustus Cole", result[0]);
-                Assert.Equal("Dominic Santiago", result[1]);
-                Assert.Equal("Garron Paduk", result[2]);
-            }
-        }
-
-        [ConditionalFact]
-        public virtual void Order_by_then_by_is_properly_lifted_from_subquery_created_by_include()
-        {
-            using (var ctx = CreateContext())
-            {
-                var query = ctx.Gears
-                    .OrderBy(g => g.Rank).ThenByDescending(g => g.Nickname)
-                    .Include(g => g.Tag)
-                    .OrderBy(g => g.FullName)
-                    .Where(g => !g.HasSoulPatch)
-                    .Select(g => g.FullName);
-
-                var result = query.ToList();
-
-                Assert.Equal(3, result.Count);
-                Assert.Equal("Augustus Cole", result[0]);
-                Assert.Equal("Dominic Santiago", result[1]);
-                Assert.Equal("Garron Paduk", result[2]);
-            }
-        }
-
-        [ConditionalFact]
         public virtual void Multiple_order_bys_are_properly_lifted_from_subquery_created_by_include()
         {
             using (var ctx = CreateContext())
@@ -3260,23 +3219,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                 Assert.Equal("Garron Paduk", result[1].FullName);
                 Assert.Equal("Paduk's Tag", result[1].Tag.Note);
             }
-        }
-
-        [ConditionalTheory]
-        [MemberData(nameof(IsAsyncData))]
-        public virtual Task Where_and_order_by_are_properly_lifted_from_subquery_created_by_tracking(bool isAsync)
-        {
-            return AssertQuery<Gear>(
-                isAsync,
-                gs => gs
-                    .Where(g => g.FullName != "Augustus Cole")
-                    .AsNoTracking()
-                    .OrderBy(g => g.Rank)
-                    .AsTracking()
-                    .OrderBy(g => g.FullName)
-                    .Where(g => !g.HasSoulPatch)
-                    .Select(g => g.FullName),
-                assertOrder: true);
         }
 
         [ConditionalFact]
@@ -3800,7 +3742,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalFact]
+        [ConditionalFact(Skip = "issue #16089")]
         public virtual void Navigation_access_via_EFProperty_on_derived_entity_using_cast()
         {
             using (var ctx = CreateContext())
@@ -3824,7 +3766,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalFact]
+        [ConditionalFact(Skip = "issue #16089")]
         public virtual void Navigation_access_fk_on_derived_entity_using_cast()
         {
             using (var ctx = CreateContext())
@@ -4111,7 +4053,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalFact]
+        [ConditionalFact(Skip = "issue #16089")]
         public virtual void Select_null_conditional_with_inheritance()
         {
             using (var context = CreateContext())
@@ -5896,7 +5838,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 elementSorter: e => e.Name);
         }
 
-        [ConditionalTheory]
+        [ConditionalTheory(Skip = "issue #16089")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Select_required_navigation_on_derived_type(bool isAsync)
         {
@@ -5916,7 +5858,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 gs => gs.Select(g => g.CityOfBirth.Name));
         }
 
-        [ConditionalTheory]
+        [ConditionalTheory(Skip = "issue #16089")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Where_required_navigation_on_derived_type(bool isAsync)
         {

@@ -216,9 +216,27 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Pipeline
             {
                 var pattern = arguments[0];
                 var stringTypeMapping = ExpressionExtensions.InferTypeMapping(instance, pattern);
-
                 instance = _sqlExpressionFactory.ApplyTypeMapping(instance, stringTypeMapping);
                 pattern = _sqlExpressionFactory.ApplyTypeMapping(pattern, stringTypeMapping);
+
+                if (pattern is SqlConstantExpression constantPattern)
+                {
+                    if ((string)constantPattern.Value == string.Empty)
+                    {
+                        return _sqlExpressionFactory.Constant(true);
+                    }
+
+                    return _sqlExpressionFactory.GreaterThan(
+                        _sqlExpressionFactory.Function(
+                            "CHARINDEX",
+                            new[]
+                            {
+                        pattern,
+                        instance
+                            },
+                            typeof(int)),
+                        _sqlExpressionFactory.Constant(0));
+                }
 
                 return _sqlExpressionFactory.OrElse(
                     _sqlExpressionFactory.Equal(

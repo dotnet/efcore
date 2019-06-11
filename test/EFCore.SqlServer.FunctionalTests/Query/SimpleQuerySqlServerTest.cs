@@ -2044,7 +2044,7 @@ SELECT CASE
             ORDER BY [c].[CustomerID]
             OFFSET @__p_0 ROWS FETCH NEXT @__p_1 ROWS ONLY
         ) AS [t]
-        WHERE ([t].[CustomerID] IS NULL AND (CAST(0 AS bit) = CAST(1 AS bit))) OR ((N'B' IS NULL AND (CAST(0 AS bit) = CAST(1 AS bit))) OR NOT ([t].[CustomerID] LIKE N'B%'))) THEN CAST(1 AS bit)
+        WHERE ([t].[CustomerID] IS NULL AND (CAST(0 AS bit) = CAST(1 AS bit))) OR NOT ([t].[CustomerID] LIKE N'B%')) THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
 END");
         }
@@ -2065,7 +2065,7 @@ SELECT CASE
             FROM [Customers] AS [c]
             ORDER BY [c].[CustomerID]
         ) AS [t]
-        WHERE ([t].[CustomerID] IS NULL AND (CAST(0 AS bit) = CAST(1 AS bit))) OR ((N'A' IS NULL AND (CAST(0 AS bit) = CAST(1 AS bit))) OR NOT ([t].[CustomerID] LIKE N'A%'))) THEN CAST(1 AS bit)
+        WHERE ([t].[CustomerID] IS NULL AND (CAST(0 AS bit) = CAST(1 AS bit))) OR NOT ([t].[CustomerID] LIKE N'A%')) THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
 END");
         }
@@ -3243,7 +3243,7 @@ WHERE [c2].[CustomerID] = @_outer_CustomerID1");
             AssertSql(
                 @"SELECT [o].[CustomerID]
 FROM [Orders] AS [o]
-WHERE [o].[OrderDate] IS NOT NULL AND ((N'10' = N'') OR (CHARINDEX(N'10', CONVERT(VARCHAR(10), [o].[EmployeeID])) > 0))");
+WHERE [o].[OrderDate] IS NOT NULL AND (CHARINDEX(N'10', CONVERT(VARCHAR(10), [o].[EmployeeID])) > 0)");
         }
 
         public override async Task Select_expression_long_to_string(bool isAsync)

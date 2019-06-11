@@ -46,31 +46,29 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             base.FromSqlRaw_queryable_composed();
 
-            // issue #15994
-//            AssertSql(
-//                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
-//FROM (
-//    SELECT * FROM ""Customers""
-//) AS [c]
-//WHERE CHARINDEX(N'z', [c].[ContactName]) > 0");
+            AssertSql(
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM (
+    SELECT * FROM ""Customers""
+) AS [c]
+WHERE CHARINDEX(N'z', [c].[ContactName]) > 0");
         }
 
         public override void FromSqlRaw_queryable_composed_after_removing_whitespaces()
         {
             base.FromSqlRaw_queryable_composed_after_removing_whitespaces();
 
-            // issue #15994
-//            AssertSql(
-//                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
-//FROM (
+            AssertSql(
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM (
+
+        
 
 
-
-
-//    SELECT
-//    * FROM ""Customers""
-//) AS [c]
-//WHERE CHARINDEX(N'z', [c].[ContactName]) > 0");
+    SELECT
+    * FROM ""Customers""
+) AS [c]
+WHERE CHARINDEX(N'z', [c].[ContactName]) > 0");
         }
 
         public override void FromSqlRaw_queryable_composed_compiled()
@@ -342,7 +340,7 @@ SELECT * FROM ""Customers"" WHERE ""City"" = @p0 AND ""ContactTitle"" = @p1");
         {
             base.FromSqlRaw_queryable_simple_projection_composed();
 
-            // issue #15994
+            // issue #16079
 //            AssertSql(
 //                @"SELECT [p].[ProductName]
 //FROM (

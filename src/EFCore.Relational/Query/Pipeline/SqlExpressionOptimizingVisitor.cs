@@ -10,6 +10,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Pipeline
     public class SqlExpressionOptimizingVisitor : ExpressionVisitor
     {
         private readonly ISqlExpressionFactory _sqlExpressionFactory;
+        private readonly bool _useRelationalNulls;
 
         private static bool TryNegate(ExpressionType expressionType, out ExpressionType result)
         {
@@ -29,9 +30,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Pipeline
             return negated.HasValue;
         }
 
-        public SqlExpressionOptimizingVisitor(ISqlExpressionFactory sqlExpressionFactory)
+        public SqlExpressionOptimizingVisitor(ISqlExpressionFactory sqlExpressionFactory, bool useRelationalNulls)
         {
             _sqlExpressionFactory = sqlExpressionFactory;
+            _useRelationalNulls = useRelationalNulls;
         }
 
         protected override Expression VisitExtension(Expression extensionExpression)
@@ -51,15 +53,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Pipeline
 
         private Expression VisitSqlUnaryExpression(SqlUnaryExpression sqlUnaryExpression)
         {
-            // !(true) -> false
-            // !(false) -> true
-            if (sqlUnaryExpression.OperatorType == ExpressionType.Not
-                && sqlUnaryExpression.Operand is SqlConstantExpression innerConstantBool
-                && innerConstantBool.Value is bool value)
+            if (sqlUnaryExpression.OperatorType == ExpressionType.Not)
             {
-                return value
-                    ? _sqlExpressionFactory.Constant(false, sqlUnaryExpression.TypeMapping)
-                    : _sqlExpressionFactory.Constant(true, sqlUnaryExpression.TypeMapping);
+                return VisitNot(sqlUnaryExpression);
             }
 
             // NULL IS NULL -> true
@@ -80,27 +76,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Pipeline
 
             if (sqlUnaryExpression.Operand is SqlUnaryExpression innerUnary)
             {
-                if (sqlUnaryExpression.OperatorType == ExpressionType.Not)
-                {
-                    // !(!a) -> a
-                    if (innerUnary.OperatorType == ExpressionType.Not)
-                    {
-                        return Visit(innerUnary.Operand);
-                    }
-
-                    if (innerUnary.OperatorType == ExpressionType.Equal)
-                    {
-                        //!(a IS NULL) -> a IS NOT NULL
-                        return Visit(_sqlExpressionFactory.IsNotNull(innerUnary.Operand));
-                    }
-
-                    //!(a IS NOT NULL) -> a IS NULL
-                    if (innerUnary.OperatorType == ExpressionType.NotEqual)
-                    {
-                        return Visit(_sqlExpressionFactory.IsNull(innerUnary.Operand));
-                    }
-                }
-
                 // (!a) IS NULL <==> a IS NULL
                 if (sqlUnaryExpression.OperatorType == ExpressionType.Equal
                     && innerUnary.OperatorType == ExpressionType.Not)
@@ -113,6 +88,47 @@ namespace Microsoft.EntityFrameworkCore.Query.Pipeline
                     && innerUnary.OperatorType == ExpressionType.Not)
                 {
                     return Visit(_sqlExpressionFactory.IsNotNull(innerUnary.Operand));
+                }
+            }
+
+            var newOperand = (SqlExpression)Visit(sqlUnaryExpression.Operand);
+
+            return sqlUnaryExpression.Update(newOperand);
+        }
+
+        private Expression VisitNot(SqlUnaryExpression sqlUnaryExpression)
+        {
+            // !(true) -> false
+            // !(false) -> true
+            if (sqlUnaryExpression.Operand is SqlConstantExpression innerConstantBool
+                && innerConstantBool.Value is bool value)
+            {
+                return _sqlExpressionFactory.Constant(!value, sqlUnaryExpression.TypeMapping);
+            }
+
+            if (sqlUnaryExpression.Operand is InExpression inExpression)
+            {
+                return Visit(inExpression.Negate());
+            }
+
+            if (sqlUnaryExpression.Operand is SqlUnaryExpression innerUnary)
+            {
+                // !(!a) -> a
+                if (innerUnary.OperatorType == ExpressionType.Not)
+                {
+                    return Visit(innerUnary.Operand);
+                }
+
+                if (innerUnary.OperatorType == ExpressionType.Equal)
+                {
+                    //!(a IS NULL) -> a IS NOT NULL
+                    return Visit(_sqlExpressionFactory.IsNotNull(innerUnary.Operand));
+                }
+
+                //!(a IS NOT NULL) -> a IS NULL
+                if (innerUnary.OperatorType == ExpressionType.NotEqual)
+                {
+                    return Visit(_sqlExpressionFactory.IsNull(innerUnary.Operand));
                 }
             }
 
@@ -130,11 +146,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Pipeline
                         : _sqlExpressionFactory.AndAlso(newLeft, newRight);
                 }
 
-                // note that those optimizations are only valid in 2-value logic
+                // those optimizations are only valid in 2-value logic
                 // they are safe to do here because null semantics removes possibility of nulls in the tree
                 // however if we decide to do "partial" null semantics (that doesn't distinguish between NULL and FALSE, e.g. for predicates)
                 // we need to be extra careful here
-                if (TryNegate(innerBinary.OperatorType, out var negated))
+                if (!_useRelationalNulls && TryNegate(innerBinary.OperatorType, out var negated))
                 {
                     return Visit(
                         _sqlExpressionFactory.MakeBinary(
@@ -158,7 +174,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Pipeline
             if (sqlBinaryExpression.OperatorType == ExpressionType.AndAlso
                 || sqlBinaryExpression.OperatorType == ExpressionType.OrElse)
             {
-
                 var newLeftConstant = newLeft as SqlConstantExpression;
                 var newRightConstant = newRight as SqlConstantExpression;
 
@@ -192,6 +207,31 @@ namespace Microsoft.EntityFrameworkCore.Query.Pipeline
                 }
 
                 return sqlBinaryExpression.Update(newLeft, newRight);
+            }
+
+            // those optimizations are only valid in 2-value logic
+            // they are safe to do here because null semantics removes possibility of nulls in the tree
+            // however if we decide to do "partial" null semantics (that doesn't distinguish between NULL and FALSE, e.g. for predicates)
+            // we need to be extra careful here
+            if (!_useRelationalNulls
+                && (sqlBinaryExpression.OperatorType == ExpressionType.Equal || sqlBinaryExpression.OperatorType == ExpressionType.NotEqual))
+            {
+                // op(a, b) == true -> op(a, b)
+                // op(a, b) != false -> op(a, b)
+                // op(a, b) == false -> !op(a, b)
+                // op(a, b) != true -> !op(a, b)
+                var constant = sqlBinaryExpression.Left as SqlConstantExpression ?? sqlBinaryExpression.Right as SqlConstantExpression;
+                var binary = sqlBinaryExpression.Left as SqlBinaryExpression ?? sqlBinaryExpression.Right as SqlBinaryExpression;
+                if (constant != null && binary != null && TryNegate(binary.OperatorType, out var negated))
+                {
+                    return (bool)constant.Value == (sqlBinaryExpression.OperatorType == ExpressionType.Equal)
+                        ? binary
+                        : _sqlExpressionFactory.MakeBinary(
+                            negated,
+                            sqlBinaryExpression.Left,
+                            sqlBinaryExpression.Right,
+                            sqlBinaryExpression.TypeMapping);
+                }
             }
 
             return sqlBinaryExpression.Update(newLeft, newRight);

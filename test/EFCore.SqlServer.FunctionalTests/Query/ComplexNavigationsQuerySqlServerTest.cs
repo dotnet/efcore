@@ -377,12 +377,11 @@ WHERE UPPER([l0].[Name]) IS NOT NULL AND (UPPER([l0].[Name]) LIKE N'L%')");
         {
             await base.Method_call_on_optional_navigation_translates_to_null_conditional_properly_for_arguments(isAsync);
 
-            // issue #15994
-//            AssertSql(
-//                @"SELECT [e1].[Id], [e1].[Date], [e1].[Name], [e1].[OneToMany_Optional_Self_Inverse1Id], [e1].[OneToMany_Required_Self_Inverse1Id], [e1].[OneToOne_Optional_Self1Id]
-//FROM [LevelOne] AS [e1]
-//LEFT JOIN [LevelTwo] AS [e1.OneToOne_Optional_FK1] ON [e1].[Id] = [e1.OneToOne_Optional_FK1].[Level1_Optional_Id]
-//WHERE ([e1.OneToOne_Optional_FK1].[Name] LIKE [e1.OneToOne_Optional_FK1].[Name] + N'%' AND (LEFT([e1.OneToOne_Optional_FK1].[Name], LEN([e1.OneToOne_Optional_FK1].[Name])) = [e1.OneToOne_Optional_FK1].[Name])) OR ([e1.OneToOne_Optional_FK1].[Name] = N'')");
+            AssertSql(
+                @"SELECT [l].[Id], [l].[Date], [l].[Name], [l].[OneToMany_Optional_Self_Inverse1Id], [l].[OneToMany_Required_Self_Inverse1Id], [l].[OneToOne_Optional_Self1Id]
+FROM [LevelOne] AS [l]
+LEFT JOIN [LevelTwo] AS [l0] ON [l].[Id] = [l0].[Level1_Optional_Id]
+WHERE (([l0].[Name] = N'') AND [l0].[Name] IS NOT NULL) OR ([l0].[Name] IS NOT NULL AND ([l0].[Name] IS NOT NULL AND (([l0].[Name] LIKE [l0].[Name] + N'%') AND (((LEFT([l0].[Name], LEN([l0].[Name])) = [l0].[Name]) AND (LEFT([l0].[Name], LEN([l0].[Name])) IS NOT NULL AND [l0].[Name] IS NOT NULL)) OR (LEFT([l0].[Name], LEN([l0].[Name])) IS NULL AND [l0].[Name] IS NULL)))))");
         }
 
         public override async Task Optional_navigation_inside_method_call_translated_to_join_keeps_original_nullability(bool isAsync)

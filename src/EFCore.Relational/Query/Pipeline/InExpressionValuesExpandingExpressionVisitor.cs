@@ -77,17 +77,21 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
                         : null;
 
                     var nullCheckExpression = hasNullValue
-                        ? _sqlExpressionFactory.IsNull(inExpression.Item)
+                        ? inExpression.Negated
+                            ? _sqlExpressionFactory.IsNotNull(inExpression.Item)
+                            : _sqlExpressionFactory.IsNull(inExpression.Item)
                         : null;
 
                     if (updatedInExpression != null && nullCheckExpression != null)
                     {
-                        return _sqlExpressionFactory.OrElse(updatedInExpression, nullCheckExpression);
+                        return inExpression.Negated
+                            ? _sqlExpressionFactory.AndAlso(updatedInExpression, nullCheckExpression)
+                            : _sqlExpressionFactory.OrElse(updatedInExpression, nullCheckExpression);
                     }
 
                     if (updatedInExpression == null && nullCheckExpression == null)
                     {
-                        return _sqlExpressionFactory.Equal(_sqlExpressionFactory.Constant(true), _sqlExpressionFactory.Constant(false));
+                        return _sqlExpressionFactory.Equal(_sqlExpressionFactory.Constant(true), _sqlExpressionFactory.Constant(inExpression.Negated));
                     }
 
                     return (SqlExpression)updatedInExpression ?? nullCheckExpression;

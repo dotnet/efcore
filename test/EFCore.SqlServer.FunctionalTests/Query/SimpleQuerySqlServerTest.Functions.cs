@@ -137,7 +137,7 @@ WHERE (([c].[ContactName] = N'') AND [c].[ContactName] IS NOT NULL) OR (CHARINDE
             AssertSql(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE (N'M' = N'') OR (CHARINDEX(N'M', [c].[ContactName]) > 0)");
+WHERE CHARINDEX(N'M', [c].[ContactName]) > 0");
         }
 
         public override async Task String_Compare_simple_zero(bool isAsync)
@@ -1134,7 +1134,8 @@ WHERE (([o].[CustomerID] = N'ALFKI') AND [o].[CustomerID] IS NOT NULL) AND (CONV
                 //
                 @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
-WHERE (([o].[CustomerID] = N'ALFKI') AND [o].[CustomerID] IS NOT NULL) AND (((N'1997' = N'') OR (CHARINDEX(N'1997', CONVERT(nvarchar(max), [o].[OrderDate])) > 0)) OR ((N'1998' = N'') OR (CHARINDEX(N'1998', CONVERT(nvarchar(max), [o].[OrderDate])) > 0)))");
+WHERE (([o].[CustomerID] = N'ALFKI') AND [o].[CustomerID] IS NOT NULL) AND ((CHARINDEX(N'1997', CONVERT(nvarchar(max), [o].[OrderDate])) > 0) OR (CHARINDEX(N'1998', CONVERT(nvarchar(max), [o].[OrderDate])) > 0))");
+
         }
 
         public override async Task Indexof_with_emptystring(bool isAsync)

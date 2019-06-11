@@ -20,6 +20,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Pipeline
         {
             query = base.Visit(query);
             query = new SearchConditionConvertingExpressionVisitor(SqlExpressionFactory).Visit(query);
+            query = new SqlExpressionOptimizingVisitor(SqlExpressionFactory, UseRelationalNulls).Visit(query);
 
             return query;
         }

@@ -315,7 +315,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Pipeline
             }
 
             var genericMethodDefinition = methodCallExpression.Method.GetGenericMethodDefinition();
-            var isFirstOrdering =
+            var firstOrdering =
                 genericMethodDefinition == LinqMethodHelpers.QueryableOrderByMethodInfo
                 || genericMethodDefinition == LinqMethodHelpers.QueryableOrderByDescendingMethodInfo;
             var isAscending =
@@ -336,7 +336,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Pipeline
                         body.CreateEFPropertyExpression(keyProperty, makeNullable: false)),
                     param);
 
-                var orderingMethodInfo = GetOrderingMethodInfo(isFirstOrdering, isAscending);
+                var orderingMethodInfo = GetOrderingMethodInfo(firstOrdering, isAscending);
 
                 expression = Expression.Call(
                     orderingMethodInfo.MakeGenericMethod(entityType.ClrType, keyProperty.ClrType),
@@ -344,20 +344,20 @@ namespace Microsoft.EntityFrameworkCore.Query.Pipeline
                     rewrittenKeySelector
                 );
 
-                isFirstOrdering = false;
+                firstOrdering = false;
             }
 
             return expression;
 
-            static MethodInfo GetOrderingMethodInfo(bool isFirstOrdering, bool isAscending)
+            static MethodInfo GetOrderingMethodInfo(bool firstOrdering, bool ascending)
             {
-                if (isFirstOrdering)
+                if (firstOrdering)
                 {
-                    return isAscending
+                    return ascending
                         ? LinqMethodHelpers.QueryableOrderByMethodInfo
                         : LinqMethodHelpers.QueryableOrderByDescendingMethodInfo;
                 }
-                return isAscending
+                return ascending
                     ? LinqMethodHelpers.QueryableThenByMethodInfo
                     : LinqMethodHelpers.QueryableThenByDescendingMethodInfo;
             }

@@ -388,17 +388,17 @@ LEFT JOIN [Orders] AS [o] ON [e].[EmployeeID] = [o].[EmployeeID]");
         {
             await base.GroupJoin_DefaultIfEmpty3(isAsync);
 
-            // issue #15994
-//            AssertSql(
-//                @"@__p_0='1'
+            AssertSql(
+                @"@__p_0='1'
 
-//SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
-//FROM (
-//    SELECT TOP(@__p_0) [c].*
-//    FROM [Customers] AS [c]
-//    ORDER BY [c].[CustomerID]
-//) AS [t]
-//LEFT JOIN [Orders] AS [o] ON [t].[CustomerID] = [o].[CustomerID]");
+SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM (
+    SELECT TOP(@__p_0) [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+    FROM [Customers] AS [c]
+    ORDER BY [c].[CustomerID]
+) AS [t]
+LEFT JOIN [Orders] AS [o] ON [t].[CustomerID] = [o].[CustomerID]
+ORDER BY [t].[CustomerID]");
         }
 
         public override async Task GroupJoin_Where(bool isAsync)

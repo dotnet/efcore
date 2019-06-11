@@ -724,7 +724,7 @@ WHERE [e].[NullableStringA] IN (N'Foo') OR [e].[NullableStringA] IS NULL");
             AssertSql(
                 @"SELECT [e].[Id]
 FROM [Entities1] AS [e]
-WHERE NOT ([e].[NullableStringA] IN (N'Foo') OR [e].[NullableStringA] IS NULL)");
+WHERE [e].[NullableStringA] NOT IN (N'Foo') AND [e].[NullableStringA] IS NOT NULL");
         }
 
         public override void Contains_with_local_array_closure_with_multiple_nulls()

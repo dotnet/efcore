@@ -1154,7 +1154,7 @@ WHERE [p].[Discontinued] = CAST(1 AS bit)");
             AssertSql(
                 @"SELECT [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[SupplierID], [p].[UnitPrice], [p].[UnitsInStock]
 FROM [Products] AS [p]
-WHERE NOT ([p].[Discontinued] = CAST(1 AS bit))");
+WHERE [p].[Discontinued] <> CAST(1 AS bit)");
         }
 
         public override async Task Where_bool_member_equals_constant(bool isAsync)
@@ -1281,18 +1281,17 @@ END");
             AssertSql(
                 @"SELECT [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[SupplierID], [p].[UnitPrice], [p].[UnitsInStock]
 FROM [Products] AS [p]
-WHERE NOT ([p].[Discontinued] = CAST(1 AS bit)) AND ([p].[ProductID] >= 20)");
+WHERE ([p].[Discontinued] <> CAST(1 AS bit)) AND ([p].[ProductID] >= 20)");
         }
 
         public override async Task Where_de_morgan_and_optimizated(bool isAsync)
         {
             await base.Where_de_morgan_and_optimizated(isAsync);
 
-            // issue #16037
-//            AssertSql(
-//                @"SELECT [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[SupplierID], [p].[UnitPrice], [p].[UnitsInStock]
-//FROM [Products] AS [p]
-//WHERE ([p].[Discontinued] = CAST(0 AS bit)) OR ([p].[ProductID] >= 20)");
+            AssertSql(
+                @"SELECT [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[SupplierID], [p].[UnitPrice], [p].[UnitsInStock]
+FROM [Products] AS [p]
+WHERE ([p].[Discontinued] <> CAST(1 AS bit)) OR ([p].[ProductID] >= 20)");
         }
 
         public override async Task Where_complex_negated_expression_optimized(bool isAsync)
@@ -1302,7 +1301,7 @@ WHERE NOT ([p].[Discontinued] = CAST(1 AS bit)) AND ([p].[ProductID] >= 20)");
             AssertSql(
                 @"SELECT [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[SupplierID], [p].[UnitPrice], [p].[UnitsInStock]
 FROM [Products] AS [p]
-WHERE (NOT ([p].[Discontinued] = CAST(1 AS bit)) AND ([p].[ProductID] < 60)) AND ([p].[ProductID] > 30)");
+WHERE (([p].[Discontinued] <> CAST(1 AS bit)) AND ([p].[ProductID] < 60)) AND ([p].[ProductID] > 30)");
         }
 
         public override async Task Where_short_member_comparison(bool isAsync)
@@ -1319,11 +1318,10 @@ WHERE [p].[UnitsInStock] > CAST(10 AS smallint)");
         {
             await base.Where_comparison_to_nullable_bool(isAsync);
 
-            // issue #15994
-//            AssertSql(
-//                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
-//FROM [Customers] AS [c]
-//WHERE [c].[CustomerID] LIKE N'%KI'");
+            AssertSql(
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] LIKE N'%KI'");
         }
 
         public override async Task Where_true(bool isAsync)
