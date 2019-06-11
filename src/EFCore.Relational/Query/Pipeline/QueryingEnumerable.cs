@@ -78,75 +78,55 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
 
                 object IEnumerator.Current => Current;
 
-                public void Dispose()
-                {
-                    _dataReader?.Dispose();
-                    _dataReader = null;
-                    _relationalQueryContext.Connection.Close();
-                }
-
                 public bool MoveNext()
                 {
                     try
                     {
                         if (_dataReader == null)
                         {
-                            _relationalQueryContext.Connection.Open();
+                            var selectExpression = new ParameterValueBasedSelectExpressionOptimizer(
+                                _sqlExpressionFactory,
+                                _parameterNameGeneratorFactory)
+                                .Optimize(_selectExpression, _relationalQueryContext.ParameterValues);
 
-                            try
+                            var relationalCommand = _querySqlGeneratorFactory.Create().GetCommand(selectExpression);
+
+                            _dataReader
+                                = relationalCommand.ExecuteReader(
+                                    _relationalQueryContext.Connection,
+                                    _relationalQueryContext.ParameterValues,
+                                    _relationalQueryContext.CommandLogger);
+
+                            if (selectExpression.IsNonComposedFromSql())
                             {
-                                var selectExpression = new ParameterValueBasedSelectExpressionOptimizer(
-                                    _sqlExpressionFactory,
-                                    _parameterNameGeneratorFactory)
-                                    .Optimize(_selectExpression, _relationalQueryContext.ParameterValues);
+                                var projection = _selectExpression.Projection.ToList();
+                                var readerColumns = Enumerable.Range(0, _dataReader.DbDataReader.FieldCount)
+                                    .ToDictionary(i => _dataReader.DbDataReader.GetName(i), i => i, StringComparer.OrdinalIgnoreCase);
 
-                                var relationalCommand = _querySqlGeneratorFactory.Create().GetCommand(selectExpression);
-
-                                _dataReader
-                                    = relationalCommand.ExecuteReader(
-                                        _relationalQueryContext.Connection,
-                                        _relationalQueryContext.ParameterValues,
-                                        _relationalQueryContext.CommandLogger);
-
-                                if (selectExpression.IsNonComposedFromSql())
+                                _indexMap = new int[projection.Count];
+                                for (var i = 0; i < projection.Count; i++)
                                 {
-                                    var projection = _selectExpression.Projection.ToList();
-                                    var readerColumns = Enumerable.Range(0, _dataReader.DbDataReader.FieldCount)
-                                        .ToDictionary(i => _dataReader.DbDataReader.GetName(i), i => i, StringComparer.OrdinalIgnoreCase);
-
-                                    _indexMap = new int[projection.Count];
-                                    for (var i = 0; i < projection.Count; i++)
+                                    if (projection[i].Expression is ColumnExpression columnExpression)
                                     {
-                                        if (projection[i].Expression is ColumnExpression columnExpression)
+                                        var columnName = columnExpression.Name;
+                                        if (columnName != null)
                                         {
-                                            var columnName = columnExpression.Name;
-                                            if (columnName != null)
+                                            if (!readerColumns.TryGetValue(columnName, out var ordinal))
                                             {
-                                                if (!readerColumns.TryGetValue(columnName, out var ordinal))
-                                                {
-                                                    throw new InvalidOperationException(RelationalStrings.FromSqlMissingColumn(columnName));
-                                                }
-
-                                                _indexMap[i] = ordinal;
+                                                throw new InvalidOperationException(RelationalStrings.FromSqlMissingColumn(columnName));
                                             }
+
+                                            _indexMap[i] = ordinal;
                                         }
                                     }
                                 }
-                                else
-                                {
-                                    _indexMap = null;
-                                }
-
-                                _resultCoordinator = new ResultCoordinator();
                             }
-                            catch (Exception)
+                            else
                             {
-                                // If failure happens creating the data reader, then it won't be available to
-                                // handle closing the connection, so do it explicitly here to preserve ref counting.
-                                _relationalQueryContext.Connection.Close();
-
-                                throw;
+                                _indexMap = null;
                             }
+
+                            _resultCoordinator = new ResultCoordinator();
                         }
 
                         var hasNext = _resultCoordinator.HasNext ?? _dataReader.Read();
@@ -165,6 +145,12 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
 
                         throw;
                     }
+                }
+
+                public void Dispose()
+                {
+                    _dataReader?.Dispose();
+                    _dataReader = null;
                 }
 
                 public void Reset() => throw new NotImplementedException();
