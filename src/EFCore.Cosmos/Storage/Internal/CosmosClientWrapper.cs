@@ -33,7 +33,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
 
         private static readonly string _userAgent = " Microsoft.EntityFrameworkCore.Cosmos/" + ProductInfo.GetVersion();
         public static readonly JsonSerializer Serializer = new JsonSerializer();
-        private string _region;
+        private readonly string _region;
 
         static CosmosClientWrapper()
         {
@@ -57,21 +57,19 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
         }
 
         private CosmosClient Client =>
-            _client
-            ?? (_client = new CosmosClient(
-                BuildCosmosConfiguration()));
+            _client ??= new CosmosClient(BuildCosmosConfiguration());
 
-        private CosmosConfiguration BuildCosmosConfiguration()
+        private CosmosClientOptions BuildCosmosConfiguration()
         {
-            var configuration = new CosmosConfiguration(_endPoint, _authKey)
+            var configuration = new CosmosClientOptions(_endPoint, _authKey)
             {
-                UserAgentSuffix = _userAgent,
-                ConnectionMode = ConnectionMode.Direct
+                ApplicationName = _userAgent,
+                ConnectionMode = ConnectionMode.Direct,
             };
 
             if (_region != null)
             {
-                configuration = configuration.UseCurrentRegion(_region);
+                configuration.ApplicationRegion = _region;
             }
 
             return configuration;
@@ -96,7 +94,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
             object __,
             CancellationToken cancellationToken = default)
         {
-            var response = await Client.Databases.CreateDatabaseIfNotExistsAsync(_databaseId, cancellationToken: cancellationToken);
+            var response = await Client.CreateDatabaseIfNotExistsAsync(_databaseId, cancellationToken: cancellationToken);
 
             return response.StatusCode == HttpStatusCode.Created;
         }
@@ -119,7 +117,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
             object __,
             CancellationToken cancellationToken = default)
         {
-            var response = await Client.Databases[_databaseId].DeleteAsync(cancellationToken: cancellationToken);
+            var response = await Client.GetDatabase(_databaseId).DeleteAsync(cancellationToken: cancellationToken);
 
             return response.StatusCode == HttpStatusCode.NoContent;
         }
@@ -147,8 +145,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
             (string ContainerId, string PartitionKey) parameters,
             CancellationToken cancellationToken = default)
         {
-            var response = await Client.Databases[_databaseId].Containers
-                .CreateContainerIfNotExistsAsync(
+            var response = await Client.GetDatabase(_databaseId).CreateContainerIfNotExistsAsync(
                 new CosmosContainerSettings(parameters.ContainerId, "/" + parameters.PartitionKey), cancellationToken: cancellationToken);
 
             return response.StatusCode == HttpStatusCode.Created;
@@ -182,10 +179,10 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
             using (var jsonWriter = new JsonTextWriter(writer))
             {
                 JsonSerializer.Create().Serialize(jsonWriter, parameters.Document);
-                await jsonWriter.FlushAsync();
+                await jsonWriter.FlushAsync(cancellationToken);
 
-                var items = Client.Databases[_databaseId].Containers[parameters.ContainerId].Items;
-                using (var response = await items.CreateItemStreamAsync("0", stream, new CosmosItemRequestOptions(), cancellationToken))
+                var container = Client.GetDatabase(_databaseId).GetContainer(parameters.ContainerId);
+                using (var response = await container.CreateItemStreamAsync(PartitionKey.NonePartitionKeyValue, stream, null, cancellationToken))
                 {
                     return response.StatusCode == HttpStatusCode.Created;
                 }
@@ -222,10 +219,11 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
             using (var jsonWriter = new JsonTextWriter(writer))
             {
                 JsonSerializer.Create().Serialize(jsonWriter, parameters.Document);
-                await jsonWriter.FlushAsync();
+                await jsonWriter.FlushAsync(cancellationToken);
 
-                var items = Client.Databases[_databaseId].Containers[parameters.ContainerId].Items;
-                using (var response = await items.ReplaceItemStreamAsync("0", parameters.ItemId, stream, null, cancellationToken))
+                var container = Client.GetDatabase(_databaseId).GetContainer(parameters.ContainerId);
+                using (var response = await container.ReplaceItemStreamAsync(
+                    PartitionKey.NonePartitionKeyValue, parameters.ItemId, stream, null, cancellationToken))
                 {
                     return response.StatusCode == HttpStatusCode.OK;
                 }
@@ -255,8 +253,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
             (string ContainerId, string DocumentId) parameters,
             CancellationToken cancellationToken = default)
         {
-            var items = Client.Databases[_databaseId].Containers[parameters.ContainerId].Items;
-            using (var response = await items.DeleteItemStreamAsync("0", parameters.DocumentId, null, cancellationToken))
+            var items = Client.GetDatabase(_databaseId).GetContainer(parameters.ContainerId);
+            using (var response = await items.DeleteItemStreamAsync(PartitionKey.NonePartitionKeyValue, parameters.DocumentId, null, cancellationToken))
             {
                 return response.StatusCode == HttpStatusCode.NoContent;
             }
@@ -280,18 +278,18 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
             return new DocumentAsyncEnumerable(this, containerId, query);
         }
 
-        private CosmosResultSetIterator CreateQuery(
+        private FeedIterator CreateQuery(
             string containerId,
             CosmosSqlQuery query)
         {
-            var items = Client.Databases[_databaseId].Containers[containerId].Items;
+            var container = Client.GetDatabase(_databaseId).GetContainer(containerId);
             var queryDefinition = new CosmosSqlQueryDefinition(query.Query);
             foreach (var parameter in query.Parameters)
             {
                 queryDefinition.UseParameter(parameter.Name, parameter.Value);
             }
 
-            return items.CreateItemQueryAsStream(queryDefinition, "0");
+            return container.CreateItemQueryStream(queryDefinition, maxConcurrency: 1, PartitionKey.NonePartitionKeyValue);
         }
 
         private class DocumentEnumerable : IEnumerable<JObject>
@@ -316,7 +314,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
 
             private class Enumerator : IEnumerator<JObject>
             {
-                private CosmosResultSetIterator _query;
+                private FeedIterator _query;
                 private Stream _responseStream;
                 private StreamReader _reader;
                 private JsonTextReader _jsonReader;
@@ -430,9 +428,10 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
 
             public IAsyncEnumerator<JObject> GetAsyncEnumerator(CancellationToken cancellationToken = default)
                 => new AsyncEnumerator(this, cancellationToken);
+
             private class AsyncEnumerator : IAsyncEnumerator<JObject>
             {
-                private CosmosResultSetIterator _query;
+                private FeedIterator _query;
                 private Stream _responseStream;
                 private StreamReader _reader;
                 private JsonTextReader _jsonReader;

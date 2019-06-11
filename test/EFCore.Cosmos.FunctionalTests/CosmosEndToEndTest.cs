@@ -7,7 +7,6 @@ using System.Threading.Tasks;
 using Microsoft.Azure.Cosmos;
 using Microsoft.EntityFrameworkCore.Cosmos.TestUtilities;
 using Microsoft.EntityFrameworkCore.TestUtilities;
-using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
 using Newtonsoft.Json.Linq;
 using Xunit;
 
@@ -284,17 +283,17 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
 
                 var customer = new Customer { Id = 42, Name = "Theon" };
 
-                using (var context = new UnmpappedCustomerContext(options))
+                using (var context = new UnmappedCustomerContext(options))
                 {
                     context.Database.EnsureCreated();
 
-                    var entry = context.Add(customer);
+                    context.Add(customer);
 
                     context.SaveChanges();
                     Assert.Equal("Theon", customer.Name);
                 }
 
-                using (var context = new UnmpappedCustomerContext(options))
+                using (var context = new UnmappedCustomerContext(options))
                 {
                     var customerFromStore = context.Set<Customer>().Single();
 
@@ -308,9 +307,9 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
             }
         }
 
-        public class UnmpappedCustomerContext : CustomerContext
+        public class UnmappedCustomerContext : CustomerContext
         {
-            public UnmpappedCustomerContext(DbContextOptions dbContextOptions)
+            public UnmappedCustomerContext(DbContextOptions dbContextOptions)
                 : base(dbContextOptions)
             {
             }
