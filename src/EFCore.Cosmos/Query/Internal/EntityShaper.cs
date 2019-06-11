@@ -101,7 +101,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
             var materializationContextParameter
                 = Expression.Parameter(typeof(MaterializationContext), "materializationContext");
 
-            var concreteEntityTypes = entityType.GetConcreteTypesInHierarchy().ToList();
+            var concreteEntityTypes = entityType.GetConcreteDerivedTypesInclusive().ToList();
             var firstEntityType = concreteEntityTypes[0];
             var indexMap = new int[firstEntityType.PropertyCount()];
 

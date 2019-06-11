@@ -40,7 +40,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Expressions.Internal
             }
 
             var concreteEntityTypes
-                = entityType.GetConcreteTypesInHierarchy().ToList();
+                = entityType.GetConcreteDerivedTypesInclusive().ToList();
 
             var discriminatorProperty = entityType.GetDiscriminatorProperty();
 

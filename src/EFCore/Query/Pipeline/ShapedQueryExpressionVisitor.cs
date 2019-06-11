@@ -327,7 +327,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Pipeline
                                 QueryCompilationContext.QueryContextParameter,
                                 _dbContextMemberInfo))));
 
-                var concreteEntityTypes = entityType.GetConcreteTypesInHierarchy().ToList();
+                var concreteEntityTypes = entityType.GetConcreteDerivedTypesInclusive().ToList();
 
                 Expression materializationExpression = null;
                 Expression shadowValuesExpression = Expression.Constant(ValueBuffer.Empty);

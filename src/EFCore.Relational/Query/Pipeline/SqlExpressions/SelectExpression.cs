@@ -8,6 +8,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Query.Pipeline;
 
@@ -123,8 +124,8 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
                 if (keyValuePair.Value is EntityProjectionExpression entityProjection)
                 {
                     var map = new Dictionary<IProperty, int>();
-                    foreach (var property in entityProjection.EntityType
-                        .GetDerivedTypesInclusive().SelectMany(e => e.GetDeclaredProperties()))
+
+                    foreach (var property in GetAllPropertiesInHierarchy(entityProjection.EntityType))
                     {
                         map[property] = AddToProjection(entityProjection.GetProperty(property));
                     }
@@ -138,6 +139,11 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
             }
 
             _projectionMapping = result;
+        }
+
+        private IEnumerable<IProperty> GetAllPropertiesInHierarchy(IEntityType entityType)
+        {
+            return entityType.GetTypesInHierarchy().SelectMany(e => e.GetDeclaredProperties());
         }
 
         public void ReplaceProjectionMapping(IDictionary<ProjectionMember, Expression> projectionMapping)
@@ -188,8 +194,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
             if (!_entityProjectionCache.TryGetValue(entityProjection, out var dictionary))
             {
                 dictionary = new Dictionary<IProperty, int>();
-                foreach (var property in entityProjection.EntityType
-                    .GetDerivedTypesInclusive().SelectMany(e => e.GetDeclaredProperties()))
+                foreach (var property in GetAllPropertiesInHierarchy(entityProjection.EntityType))
                 {
                     dictionary[property] = AddToProjection(entityProjection.GetProperty(property));
                 }
@@ -293,23 +298,6 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
             _orderings.Clear();
         }
 
-        private string GenerateUniqueName(HashSet<string> usedNames, string prefix)
-        {
-            if (!usedNames.Contains(prefix))
-            {
-                return prefix;
-            }
-
-            var counter = 0;
-            var uniqueName = prefix + counter;
-            while (usedNames.Contains(uniqueName))
-            {
-                uniqueName = prefix + counter++;
-            }
-
-            return uniqueName;
-        }
-
         public SelectExpression PushdownIntoSubQuery()
         {
             var subquery = new SelectExpression("t", new List<ProjectionExpression>(), _tables.ToList(), _orderings.ToList())
@@ -346,8 +334,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
                     if (mapping.Value is EntityProjectionExpression entityProjection)
                     {
                         var propertyExpressions = new Dictionary<IProperty, ColumnExpression>();
-                        foreach (var property in entityProjection.EntityType
-                            .GetDerivedTypesInclusive().SelectMany(e => e.GetDeclaredProperties()))
+                        foreach (var property in GetAllPropertiesInHierarchy(entityProjection.EntityType))
                         {
                             var innerColumn = entityProjection.GetProperty(property);
                             var index = subquery.AddToProjection(innerColumn);

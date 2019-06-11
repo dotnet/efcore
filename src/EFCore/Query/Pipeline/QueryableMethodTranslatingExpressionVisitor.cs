@@ -493,12 +493,14 @@ namespace Microsoft.EntityFrameworkCore.Query.Pipeline
         }
 
         protected ShapedQueryExpression TranslateResultSelectorForGroupJoin(
+#pragma warning disable IDE0060 // Remove unused parameter
             ShapedQueryExpression outer,
             Expression innerShaper,
             LambdaExpression outerKeySelector,
             LambdaExpression innerKeySelector,
             LambdaExpression resultSelector,
             Type transparentIdentifierType)
+#pragma warning restore IDE0060 // Remove unused parameter
         {
             throw new NotImplementedException();
         }

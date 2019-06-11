@@ -21,7 +21,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
         private readonly IParameterNameGeneratorFactory _parameterNameGeneratorFactory;
         private readonly Type _contextType;
         private readonly IDiagnosticsLogger<DbLoggerCategory.Query> _logger;
-        private static ParameterExpression _resultCoordinatorParameter
+        private static readonly ParameterExpression _resultCoordinatorParameter
             = Expression.Parameter(typeof(ResultCoordinator), "resultCoordinator");
 
         public RelationalShapedQueryCompilingExpressionVisitor(
@@ -111,7 +111,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
 
         private class IndexMapInjectingExpressionVisitor : ExpressionVisitor
         {
-            private ParameterExpression _indexMapParameter;
+            private readonly ParameterExpression _indexMapParameter;
 
             public IndexMapInjectingExpressionVisitor(ParameterExpression indexMapParameter)
             {

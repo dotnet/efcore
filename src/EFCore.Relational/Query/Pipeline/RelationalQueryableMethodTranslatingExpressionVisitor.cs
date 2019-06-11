@@ -14,6 +14,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Query.Pipeline;
 using Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions;
 using System.IO;
+using System.Diagnostics;
 
 namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
 {
@@ -559,7 +560,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
                 if (derivedType != null)
                 {
                     var selectExpression = (SelectExpression)source.QueryExpression;
-                    var concreteEntityTypes = derivedType.GetConcreteTypesInHierarchy().ToList();
+                    var concreteEntityTypes = derivedType.GetConcreteDerivedTypesInclusive().ToList();
                     var discriminatorColumn = selectExpression
                         .BindProperty(entityShaperExpression.ValueBufferExpression, entityType.GetDiscriminatorProperty());
 
@@ -571,6 +572,19 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
                             negated: false);
 
                     selectExpression.ApplyPredicate(predicate);
+
+                    var projectionMember = entityShaperExpression.ValueBufferExpression.ProjectionMember;
+
+                    Debug.Assert(new ProjectionMember().Equals(projectionMember),
+                        "Invalid ProjectionMember when processing OfType");
+
+                    var entityProjection = (EntityProjectionExpression)selectExpression.GetMappedProjection(projectionMember);
+
+                    selectExpression.ReplaceProjectionMapping(
+                        new Dictionary<ProjectionMember, Expression>
+                        {
+                            { projectionMember, entityProjection.UpdateEntityType(derivedType)}
+                        });
 
                     source.ShaperExpression = new EntityShaperExpression(
                         derivedType, entityShaperExpression.ValueBufferExpression, entityShaperExpression.Nullable);

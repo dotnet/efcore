@@ -3,8 +3,10 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions;
 
 namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
@@ -18,14 +20,14 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
 
         public EntityProjectionExpression(IEntityType entityType, TableExpressionBase innerTable, bool nullable)
         {
-            EntityType = entityType.RootType();
+            EntityType = entityType;
             _innerTable = innerTable;
             _nullable = nullable;
         }
 
         public EntityProjectionExpression(IEntityType entityType, IDictionary<IProperty, ColumnExpression> propertyExpressions)
         {
-            EntityType = entityType.RootType();
+            EntityType = entityType;
             _propertyExpressionsCache = propertyExpressions;
         }
 
@@ -75,13 +77,23 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
             }
         }
 
+        public EntityProjectionExpression UpdateEntityType(IEntityType derivedType)
+        {
+            if (_innerTable != null)
+            {
+                return new EntityProjectionExpression(derivedType, _innerTable, _nullable);
+            }
+
+            throw new InvalidOperationException("EntityProjectionExpression: Cannot update EntityType when _innerTable is null");
+        }
+
         public IEntityType EntityType { get; }
         public override ExpressionType NodeType => ExpressionType.Extension;
         public override Type Type => EntityType.ClrType;
 
         public ColumnExpression GetProperty(IProperty property)
         {
-            if (property.DeclaringEntityType.RootType() != EntityType)
+            if (!EntityType.GetTypesInHierarchy().Contains(property.DeclaringEntityType))
             {
                 throw new InvalidOperationException("Called EntityProjectionExpression.GetProperty() with incorrect IProperty");
             }

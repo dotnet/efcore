@@ -145,7 +145,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
                 var derivedType = entityType.GetDerivedTypes().SingleOrDefault(et => et.ClrType == typeBinaryExpression.TypeOperand);
                 if (derivedType != null)
                 {
-                    var concreteEntityTypes = derivedType.GetConcreteTypesInHierarchy().ToList();
+                    var concreteEntityTypes = derivedType.GetConcreteDerivedTypesInclusive().ToList();
                     var discriminatorColumn = BindProperty(entityShaperExpression, entityType.GetDiscriminatorProperty());
 
                     return concreteEntityTypes.Count == 1

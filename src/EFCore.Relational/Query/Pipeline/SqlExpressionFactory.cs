@@ -539,7 +539,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
 
         private void AddDiscriminator(SelectExpression selectExpression, IEntityType entityType)
         {
-            var concreteEntityTypes = entityType.GetConcreteTypesInHierarchy().ToList();
+            var concreteEntityTypes = entityType.GetConcreteDerivedTypesInclusive().ToList();
 
             if (concreteEntityTypes.Count == 1)
             {
