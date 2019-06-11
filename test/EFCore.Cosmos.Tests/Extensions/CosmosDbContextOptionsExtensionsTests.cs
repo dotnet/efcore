@@ -2,7 +2,8 @@
 using Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.Internal;
 using Xunit;
 
-namespace Microsoft.EntityFrameworkCore.Cosmos.Configuration
+// ReSharper disable once CheckNamespace
+namespace Microsoft.EntityFrameworkCore
 {
     public class CosmosDbContextOptionsExtensionsTests
     {

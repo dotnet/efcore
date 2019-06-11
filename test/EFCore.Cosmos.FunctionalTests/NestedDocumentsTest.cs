@@ -156,7 +156,9 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
                     var json = context.Entry(people[1]).Property<JObject>("__jObject").CurrentValue;
                     var jsonAddress = (JObject)((JArray)json["Stored Addresses"])[0];
                     Assert.Equal("Second", jsonAddress[nameof(Address.Street)]);
+                    // Uncomment when issue #13578 is fixed
                     //Assert.Equal(2, jsonAddress["unmappedId"]);
+                    //Assert.Equal(2, jsonAddress.Count);
 
                     addresses = people[2].Addresses.ToList();
                     Assert.Equal(3, addresses.Count);
@@ -375,7 +377,6 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
                     eb => eb.OwnsMany(v => v.Addresses, b =>
                     {
                         b.ForCosmosToProperty("Stored Addresses");
-                        b.HasKey(v => new { v.Street, v.City });
                     }));
             }
         }
