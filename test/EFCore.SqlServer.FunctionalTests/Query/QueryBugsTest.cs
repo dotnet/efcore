@@ -850,18 +850,16 @@ Queen of the Andals and the Rhoynar and the First Men, Khaleesi of the Great Gra
                 using (var ctx = new MyContext925(_options))
                 {
                     var firstName = details.FirstName;
-
                     ctx.Customers.Where(c => c.FirstName == firstName && c.LastName == details.LastName).ToList();
 
-                    const string expectedSql
-                        = @"@__firstName_0='Foo' (Size = 450)
-@__8__locals1_details_LastName_1='Bar' (Size = 450)
+                    // issue #16057
+//                    AssertSql(
+//                        @"@__firstName_0='Foo' (Size = 450)
+//@__8__locals1_details_LastName_1='Bar' (Size = 450)
 
-SELECT [c].[FirstName], [c].[LastName]
-FROM [Customer] AS [c]
-WHERE ([c].[FirstName] = @__firstName_0) AND ([c].[LastName] = @__8__locals1_details_LastName_1)";
-
-                    AssertSql(expectedSql);
+//SELECT [c].[FirstName], [c].[LastName]
+//FROM [Customer] AS [c]
+//WHERE (([c].[FirstName] = @__firstName_0) AND @__firstName_0 IS NOT NULL) AND (([c].[LastName] = @__8__locals1_details_LastName_1) AND @__8__locals1_details_LastName_1 IS NOT NULL)");
                 }
             }
         }
@@ -2280,15 +2278,15 @@ WHERE ([e].[PermissionShort] & CAST(4 AS smallint)) = CAST(4 AS smallint)");
                     AssertSql(
                         @"@__id_0='1'
 
-SELECT [c].[Id], [c].[Name]
-FROM [Entities] AS [c]
-WHERE [c].[Id] = @__id_0",
+SELECT [e].[Id], [e].[Name]
+FROM [Entities] AS [e]
+WHERE ([e].[Id] = @__id_0) AND @__id_0 IS NOT NULL",
                         //
                         @"@__id_0='2'
 
-SELECT [c].[Id], [c].[Name]
-FROM [Entities] AS [c]
-WHERE [c].[Id] = @__id_0");
+SELECT [e].[Id], [e].[Name]
+FROM [Entities] AS [e]
+WHERE ([e].[Id] = @__id_0) AND @__id_0 IS NOT NULL");
                 }
             }
         }
@@ -2317,15 +2315,15 @@ WHERE [c].[Id] = @__id_0");
                     AssertSql(
                         @"@__id_0='1'
 
-SELECT [c].[Id], [c].[Name]
-FROM [Entities] AS [c]
-WHERE [c].[Id] = @__id_0",
+SELECT [e].[Id], [e].[Name]
+FROM [Entities] AS [e]
+WHERE ([e].[Id] = @__id_0) AND @__id_0 IS NOT NULL",
                         //
                         @"@__id_0='2'
 
-SELECT [c].[Id], [c].[Name]
-FROM [Entities] AS [c]
-WHERE [c].[Id] = @__id_0");
+SELECT [e].[Id], [e].[Name]
+FROM [Entities] AS [e]
+WHERE ([e].[Id] = @__id_0) AND @__id_0 IS NOT NULL");
                 }
             }
         }
@@ -4404,38 +4402,32 @@ WHERE ([t].[Name] <> N'Bar') OR [t].[Name] IS NULL");
                     Assert.Equal(prices.Average(e => e.NullableDecimalColumn), context.Prices.Average(e => e.NullableDecimalColumn));
 
                     AssertSql(
-                        @"SELECT AVG([e].[Price])
-FROM [Prices] AS [e]",
+                        @"SELECT AVG([p].[Price])
+FROM [Prices] AS [p]",
                         //
-                        @"SELECT AVG(CAST([e].[IntColumn] AS float))
-FROM [Prices] AS [e]",
+                        @"SELECT AVG(CAST([p].[IntColumn] AS float))
+FROM [Prices] AS [p]",
                         //
-                        @"SELECT AVG(CAST([e].[NullableIntColumn] AS float))
-FROM [Prices] AS [e]",
+                        @"SELECT AVG(CAST([p].[NullableIntColumn] AS float))
+FROM [Prices] AS [p]",
                         //
-                        @"SELECT AVG(CAST([e].[LongColumn] AS float))
-FROM [Prices] AS [e]",
+                        @"SELECT AVG(CAST([p].[LongColumn] AS float))
+FROM [Prices] AS [p]",
                         //
-                        @"SELECT AVG(CAST([e].[NullableLongColumn] AS float))
-FROM [Prices] AS [e]",
+                        @"SELECT AVG(CAST([p].[NullableLongColumn] AS float))
+FROM [Prices] AS [p]",
                         //
-                        @"SELECT CAST(AVG([e].[FloatColumn]) AS real)
-FROM [Prices] AS [e]",
+                        @"SELECT CAST(AVG([p].[FloatColumn]) AS real)
+FROM [Prices] AS [p]",
                         //
-                        @"SELECT CAST(AVG([e].[NullableFloatColumn]) AS real)
-FROM [Prices] AS [e]",
+                        @"SELECT CAST(AVG([p].[NullableFloatColumn]) AS real)
+FROM [Prices] AS [p]",
                         //
-                        @"SELECT AVG([e].[DoubleColumn])
-FROM [Prices] AS [e]",
+                        @"SELECT AVG([p].[DoubleColumn])
+FROM [Prices] AS [p]",
                         //
-                        @"SELECT AVG([e].[NullableDoubleColumn])
-FROM [Prices] AS [e]",
-                        //
-                        @"SELECT AVG([e].[DecimalColumn])
-FROM [Prices] AS [e]",
-                        //
-                        @"SELECT AVG([e].[NullableDecimalColumn])
-FROM [Prices] AS [e]");
+                        @"SELECT AVG([p].[NullableDoubleColumn])
+FROM [Prices] AS [p]");
                 }
             }
         }
@@ -4971,9 +4963,9 @@ FROM [Prices] AS [e]");
                     Assert.Single(findRecordsWithDateInList);
 
                     AssertSql(
-                        @"SELECT [a].[Id], [a].[MyTime]
-FROM [ReproEntity] AS [a]
-WHERE [a].[MyTime] IN ('2018-10-07T00:00:00.000')");
+                        @"SELECT [r].[Id], [r].[MyTime]
+FROM [ReproEntity] AS [r]
+WHERE [r].[MyTime] IN ('2018-10-07T00:00:00.000')");
                 }
             }
         }
@@ -5044,11 +5036,11 @@ WHERE [a].[MyTime] IN ('2018-10-07T00:00:00.000')");
                     AssertSql(
                         @"@__key_2='5f221fb9-66f4-442a-92c9-d97ed5989cc7'
 
-SELECT [x].[Id], [x].[Type]
-FROM [Todos] AS [x]
+SELECT [t].[Id], [t].[Type]
+FROM [Todos] AS [t]
 WHERE CASE
-    WHEN [x].[Type] IN (0)
-    THEN @__key_2 ELSE @__key_2
+    WHEN [t].[Type] IN (0) THEN @__key_2
+    ELSE @__key_2
 END IN ('0a47bcb7-a1cb-4345-8944-c58f82d6aac7', '5f221fb9-66f4-442a-92c9-d97ed5989cc7')");
                 }
             }
@@ -5360,8 +5352,8 @@ WHERE @@ROWCOUNT = 1 AND [Id] = scope_identity();");
                     var result = context.InventoryPools.Sum(p => (decimal)p.Quantity);
 
                     AssertSql(
-                        @"SELECT SUM(CAST([p].[Quantity] AS decimal(18,2)))
-FROM [InventoryPools] AS [p]");
+                        @"SELECT SUM(CAST([i].[Quantity] AS decimal(18,2)))
+FROM [InventoryPools] AS [i]");
                 }
             }
         }

@@ -23,7 +23,7 @@ FROM [Customers] AS [c]");
             AssertSql(
                 @"SELECT [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle]
 FROM [Customers] AS [c]
-WHERE [c].[City] = N'London'");
+WHERE ([c].[City] = N'London') AND [c].[City] IS NOT NULL");
         }
 
         public override void Query_backed_by_database_view()

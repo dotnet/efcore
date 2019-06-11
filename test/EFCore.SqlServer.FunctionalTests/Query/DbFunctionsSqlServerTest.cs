@@ -423,8 +423,8 @@ WHERE (CONTAINS([c.Manager].[Title], N'President')) AND (CONTAINS([c].[Title], N
 
                 AssertSql(
                     @"SELECT COUNT(*)
-FROM [Orders] AS [c]
-WHERE DATEDIFF(YEAR, [c].[OrderDate], GETDATE()) = 0");
+FROM [Orders] AS [o]
+WHERE (DATEDIFF(YEAR, [o].[OrderDate], GETDATE()) = 0) AND DATEDIFF(YEAR, [o].[OrderDate], GETDATE()) IS NOT NULL");
             }
         }
 
@@ -439,8 +439,8 @@ WHERE DATEDIFF(YEAR, [c].[OrderDate], GETDATE()) = 0");
                 Assert.Equal(0, count);
                 AssertSql(
                     @"SELECT COUNT(*)
-FROM [Orders] AS [c]
-WHERE DATEDIFF(MONTH, [c].[OrderDate], GETDATE()) = 0");
+FROM [Orders] AS [o]
+WHERE (DATEDIFF(MONTH, [o].[OrderDate], GETDATE()) = 0) AND DATEDIFF(MONTH, [o].[OrderDate], GETDATE()) IS NOT NULL");
             }
         }
 
@@ -455,8 +455,8 @@ WHERE DATEDIFF(MONTH, [c].[OrderDate], GETDATE()) = 0");
                 Assert.Equal(0, count);
                 AssertSql(
                     @"SELECT COUNT(*)
-FROM [Orders] AS [c]
-WHERE DATEDIFF(DAY, [c].[OrderDate], GETDATE()) = 0");
+FROM [Orders] AS [o]
+WHERE (DATEDIFF(DAY, [o].[OrderDate], GETDATE()) = 0) AND DATEDIFF(DAY, [o].[OrderDate], GETDATE()) IS NOT NULL");
             }
         }
 
@@ -471,8 +471,8 @@ WHERE DATEDIFF(DAY, [c].[OrderDate], GETDATE()) = 0");
                 Assert.Equal(0, count);
                 AssertSql(
                     @"SELECT COUNT(*)
-FROM [Orders] AS [c]
-WHERE DATEDIFF(HOUR, [c].[OrderDate], GETDATE()) = 0");
+FROM [Orders] AS [o]
+WHERE (DATEDIFF(HOUR, [o].[OrderDate], GETDATE()) = 0) AND DATEDIFF(HOUR, [o].[OrderDate], GETDATE()) IS NOT NULL");
             }
         }
 
@@ -487,8 +487,8 @@ WHERE DATEDIFF(HOUR, [c].[OrderDate], GETDATE()) = 0");
                 Assert.Equal(0, count);
                 AssertSql(
                     @"SELECT COUNT(*)
-FROM [Orders] AS [c]
-WHERE DATEDIFF(MINUTE, [c].[OrderDate], GETDATE()) = 0");
+FROM [Orders] AS [o]
+WHERE (DATEDIFF(MINUTE, [o].[OrderDate], GETDATE()) = 0) AND DATEDIFF(MINUTE, [o].[OrderDate], GETDATE()) IS NOT NULL");
             }
         }
 
@@ -503,8 +503,8 @@ WHERE DATEDIFF(MINUTE, [c].[OrderDate], GETDATE()) = 0");
                 Assert.Equal(0, count);
                 AssertSql(
                     @"SELECT COUNT(*)
-FROM [Orders] AS [c]
-WHERE DATEDIFF(SECOND, [c].[OrderDate], GETDATE()) = 0");
+FROM [Orders] AS [o]
+WHERE (DATEDIFF(SECOND, [o].[OrderDate], GETDATE()) = 0) AND DATEDIFF(SECOND, [o].[OrderDate], GETDATE()) IS NOT NULL");
             }
         }
 
@@ -519,8 +519,8 @@ WHERE DATEDIFF(SECOND, [c].[OrderDate], GETDATE()) = 0");
                 Assert.Equal(0, count);
                 AssertSql(
                     @"SELECT COUNT(*)
-FROM [Orders] AS [c]
-WHERE DATEDIFF(MILLISECOND, GETDATE(), DATEADD(day, 1.0E0, GETDATE())) = 0");
+FROM [Orders] AS [o]
+WHERE DATEDIFF(MILLISECOND, GETDATE(), DATEADD(day, CAST(1.0E0 AS int), GETDATE())) = 0");
             }
         }
 
@@ -535,8 +535,8 @@ WHERE DATEDIFF(MILLISECOND, GETDATE(), DATEADD(day, 1.0E0, GETDATE())) = 0");
                 Assert.Equal(0, count);
                 AssertSql(
                     @"SELECT COUNT(*)
-FROM [Orders] AS [c]
-WHERE DATEDIFF(MICROSECOND, GETDATE(), DATEADD(second, 1.0E0, GETDATE())) = 0");
+FROM [Orders] AS [o]
+WHERE DATEDIFF(MICROSECOND, GETDATE(), DATEADD(second, CAST(1.0E0 AS int), GETDATE())) = 0");
             }
         }
 
@@ -551,8 +551,8 @@ WHERE DATEDIFF(MICROSECOND, GETDATE(), DATEADD(second, 1.0E0, GETDATE())) = 0");
                 Assert.Equal(0, count);
                 AssertSql(
                     @"SELECT COUNT(*)
-FROM [Orders] AS [c]
-WHERE DATEDIFF(NANOSECOND, GETDATE(), DATEADD(second, 1.0E0, GETDATE())) = 0");
+FROM [Orders] AS [o]
+WHERE DATEDIFF(NANOSECOND, GETDATE(), DATEADD(second, CAST(1.0E0 AS int), GETDATE())) = 0");
             }
         }
 

@@ -29,10 +29,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             AssertSql(
                 @"SELECT COUNT(*)
 FROM [Customers] AS [c]
-WHERE CASE
-    WHEN IsDate([c].[FirstName]) = CAST(1 AS bit)
-    THEN CAST(1 AS bit) ELSE CAST(0 AS bit)
-END = CAST(0 AS bit)");
+WHERE (IsDate([c].[FirstName]) = CAST(0 AS bit)) AND IsDate([c].[FirstName]) IS NOT NULL");
         }
 
         public override void Scalar_Function_With_Translator_Translates_Static()
@@ -44,7 +41,7 @@ END = CAST(0 AS bit)");
 
 SELECT TOP(2) len([c].[LastName])
 FROM [Customers] AS [c]
-WHERE [c].[Id] = @__customerId_0");
+WHERE ([c].[Id] = @__customerId_0) AND @__customerId_0 IS NOT NULL");
         }
 
 
@@ -88,7 +85,7 @@ WHERE [c].[Id] = 1");
 
 SELECT TOP(2) [c].[LastName], [dbo].[CustomerOrderCount](@__customerId_0) AS [OrderCount]
 FROM [Customers] AS [c]
-WHERE [c].[Id] = @__customerId_0");
+WHERE ([c].[Id] = @__customerId_0) AND @__customerId_0 IS NOT NULL");
         }
 
         public override void Scalar_Function_Anonymous_Type_Select_Nested_Static()
@@ -101,7 +98,7 @@ WHERE [c].[Id] = @__customerId_0");
 
 SELECT TOP(2) [c].[LastName], [dbo].[StarValue](@__starCount_1, [dbo].[CustomerOrderCount](@__customerId_0)) AS [OrderCount]
 FROM [Customers] AS [c]
-WHERE [c].[Id] = @__customerId_0");
+WHERE ([c].[Id] = @__customerId_0) AND @__customerId_0 IS NOT NULL");
         }
 
         public override void Scalar_Function_Where_Correlated_Static()
@@ -123,7 +120,7 @@ WHERE [dbo].[IsTopCustomer]([c].[Id]) = CAST(1 AS bit)");
 
 SELECT TOP(2) [c].[Id]
 FROM [Customers] AS [c]
-WHERE [dbo].[GetCustomerWithMostOrdersAfterDate](@__startDate_0) = [c].[Id]");
+WHERE ([dbo].[GetCustomerWithMostOrdersAfterDate](@__startDate_0) = [c].[Id]) AND [dbo].[GetCustomerWithMostOrdersAfterDate](@__startDate_0) IS NOT NULL");
         }
 
         public override void Scalar_Function_Where_Parameter_Static()
@@ -135,7 +132,7 @@ WHERE [dbo].[GetCustomerWithMostOrdersAfterDate](@__startDate_0) = [c].[Id]");
 
 SELECT TOP(2) [c].[Id]
 FROM [Customers] AS [c]
-WHERE [c].[Id] = [dbo].[GetCustomerWithMostOrdersAfterDate]([dbo].[GetReportingPeriodStartDate](@__period_0))");
+WHERE ([c].[Id] = [dbo].[GetCustomerWithMostOrdersAfterDate]([dbo].[GetReportingPeriodStartDate](@__period_0))) AND [dbo].[GetCustomerWithMostOrdersAfterDate]([dbo].[GetReportingPeriodStartDate](@__period_0)) IS NOT NULL");
         }
 
         public override void Scalar_Function_Where_Nested_Static()
@@ -177,7 +174,7 @@ WHERE [c].[Id] = 2");
 
 SELECT TOP(2) [c].[LastName], [dbo].[CustomerOrderCount](@__customerId_0) AS [OrderCount]
 FROM [Customers] AS [c]
-WHERE [c].[Id] = @__customerId_0");
+WHERE ([c].[Id] = @__customerId_0) AND @__customerId_0 IS NOT NULL");
         }
 
         public override void Scalar_Function_Let_Nested_Static()
@@ -190,7 +187,7 @@ WHERE [c].[Id] = @__customerId_0");
 
 SELECT TOP(2) [c].[LastName], [dbo].[StarValue](@__starCount_0, [dbo].[CustomerOrderCount](@__customerId_1)) AS [OrderCount]
 FROM [Customers] AS [c]
-WHERE [c].[Id] = @__customerId_1");
+WHERE ([c].[Id] = @__customerId_1) AND @__customerId_1 IS NOT NULL");
         }
 
         [ConditionalFact(Skip = "Issue #14935. Cannot eval 'where (2 == AddOneStatic([c].Id))'")]
@@ -375,10 +372,7 @@ WHERE [c].[Id] = 1");
             AssertSql(
                 @"SELECT COUNT(*)
 FROM [Customers] AS [c]
-WHERE CASE
-    WHEN IsDate([c].[FirstName]) = CAST(1 AS bit)
-    THEN CAST(1 AS bit) ELSE CAST(0 AS bit)
-END = CAST(0 AS bit)");
+WHERE (IsDate([c].[FirstName]) = CAST(0 AS bit)) AND IsDate([c].[FirstName]) IS NOT NULL");
         }
 
         public override void Scalar_Function_With_Translator_Translates_Instance()
@@ -390,7 +384,7 @@ END = CAST(0 AS bit)");
 
 SELECT TOP(2) len([c].[LastName])
 FROM [Customers] AS [c]
-WHERE [c].[Id] = @__customerId_0");
+WHERE ([c].[Id] = @__customerId_0) AND @__customerId_0 IS NOT NULL");
         }
 
         public override void Scalar_Function_Constant_Parameter_Instance()
@@ -433,7 +427,7 @@ WHERE [c].[Id] = 1");
 
 SELECT TOP(2) [c].[LastName], [dbo].[CustomerOrderCount](@__customerId_0) AS [OrderCount]
 FROM [Customers] AS [c]
-WHERE [c].[Id] = @__customerId_0");
+WHERE ([c].[Id] = @__customerId_0) AND @__customerId_0 IS NOT NULL");
         }
 
         public override void Scalar_Function_Anonymous_Type_Select_Nested_Instance()
@@ -446,7 +440,7 @@ WHERE [c].[Id] = @__customerId_0");
 
 SELECT TOP(2) [c].[LastName], [dbo].[StarValue](@__starCount_2, [dbo].[CustomerOrderCount](@__customerId_0)) AS [OrderCount]
 FROM [Customers] AS [c]
-WHERE [c].[Id] = @__customerId_0");
+WHERE ([c].[Id] = @__customerId_0) AND @__customerId_0 IS NOT NULL");
         }
 
         public override void Scalar_Function_Where_Correlated_Instance()
@@ -468,7 +462,7 @@ WHERE [dbo].[IsTopCustomer]([c].[Id]) = CAST(1 AS bit)");
 
 SELECT TOP(2) [c].[Id]
 FROM [Customers] AS [c]
-WHERE [dbo].[GetCustomerWithMostOrdersAfterDate](@__startDate_1) = [c].[Id]");
+WHERE ([dbo].[GetCustomerWithMostOrdersAfterDate](@__startDate_1) = [c].[Id]) AND [dbo].[GetCustomerWithMostOrdersAfterDate](@__startDate_1) IS NOT NULL");
         }
 
         public override void Scalar_Function_Where_Parameter_Instance()
@@ -480,7 +474,7 @@ WHERE [dbo].[GetCustomerWithMostOrdersAfterDate](@__startDate_1) = [c].[Id]");
 
 SELECT TOP(2) [c].[Id]
 FROM [Customers] AS [c]
-WHERE [c].[Id] = [dbo].[GetCustomerWithMostOrdersAfterDate]([dbo].[GetReportingPeriodStartDate](@__period_1))");
+WHERE ([c].[Id] = [dbo].[GetCustomerWithMostOrdersAfterDate]([dbo].[GetReportingPeriodStartDate](@__period_1))) AND [dbo].[GetCustomerWithMostOrdersAfterDate]([dbo].[GetReportingPeriodStartDate](@__period_1)) IS NOT NULL");
         }
 
         public override void Scalar_Function_Where_Nested_Instance()
@@ -522,7 +516,7 @@ WHERE [c].[Id] = 2");
 
 SELECT TOP(2) [c].[LastName], [dbo].[CustomerOrderCount](@__8__locals1_customerId_1) AS [OrderCount]
 FROM [Customers] AS [c]
-WHERE [c].[Id] = @__8__locals1_customerId_1");
+WHERE ([c].[Id] = @__8__locals1_customerId_1) AND @__8__locals1_customerId_1 IS NOT NULL");
         }
 
         public override void Scalar_Function_Let_Nested_Instance()
@@ -535,7 +529,7 @@ WHERE [c].[Id] = @__8__locals1_customerId_1");
 
 SELECT TOP(2) [c].[LastName], [dbo].[StarValue](@__starCount_1, [dbo].[CustomerOrderCount](@__customerId_2)) AS [OrderCount]
 FROM [Customers] AS [c]
-WHERE [c].[Id] = @__customerId_2");
+WHERE ([c].[Id] = @__customerId_2) AND @__customerId_2 IS NOT NULL");
         }
 
         [ConditionalFact(Skip = "Issue #14935. Cannot eval 'where (2 == __context_0.AddOneInstance([c].Id))'")]
