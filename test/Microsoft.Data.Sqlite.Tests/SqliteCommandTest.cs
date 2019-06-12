@@ -341,6 +341,19 @@ namespace Microsoft.Data.Sqlite
         }
 
         [Fact]
+        public void ExecuteScalar_returns_null_when_non_query()
+        {
+            using (var connection = new SqliteConnection("Data Source=:memory:"))
+            {
+                var command = connection.CreateCommand();
+                command.CommandText = "CREATE TABLE Data (Value);";
+                connection.Open();
+
+                Assert.Null(command.ExecuteScalar());
+            }
+        }
+
+        [Fact]
         public void ExecuteScalar_returns_long_when_integer()
         {
             using (var connection = new SqliteConnection("Data Source=:memory:"))
