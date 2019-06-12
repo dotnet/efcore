@@ -4,7 +4,7 @@
     "runtimes": {
       "dotnet": [
         "2.0.9",
-        "$(MicrosoftNETCoreAppPackageVersion)"
+        "$(MicrosoftNETCoreAppRuntimeVersion)"
       ]
     }
   },
