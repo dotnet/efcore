@@ -756,15 +756,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         }
 
         /// <summary>
-        ///     Configures the discriminator column used to identify which entity type each row in a table represents
-        ///     when an inheritance hierarchy is mapped to a single table in a relational database.
+        ///     Configures the discriminator property used to identify the entity type in the store.
         /// </summary>
-        /// <typeparam name="TDiscriminator"> The type of values stored in the discriminator column. </typeparam>
+        /// <typeparam name="TDiscriminator"> The type of values stored in the discriminator property. </typeparam>
         /// <param name="propertyExpression">
         ///     A lambda expression representing the property to be used as the discriminator (
         ///     <c>blog => blog.Discriminator</c>).
         /// </param>
-        /// <returns> A builder that allows the discriminator column to be configured. </returns>
+        /// <returns> A builder that allows the discriminator property to be configured. </returns>
         public virtual DiscriminatorBuilder<TDiscriminator> HasDiscriminator<TDiscriminator>(
             [NotNull] Expression<Func<TEntity, TDiscriminator>> propertyExpression)
         {
@@ -773,6 +772,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             return new DiscriminatorBuilder<TDiscriminator>(
                Builder.DiscriminatorBuilder(Property(propertyExpression).GetInfrastructure(), ConfigurationSource.Explicit));
         }
+
+        /// <summary>
+        ///     Configures the entity type as having no discriminator property.
+        /// </summary>
+        /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
+        public new virtual EntityTypeBuilder<TEntity> HasNoDiscriminator()
+            => (EntityTypeBuilder<TEntity>)base.HasNoDiscriminator();
 
         private InternalEntityTypeBuilder Builder => this.GetInfrastructure();
     }

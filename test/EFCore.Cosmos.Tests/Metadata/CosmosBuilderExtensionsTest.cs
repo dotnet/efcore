@@ -34,6 +34,33 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Equal("db1", entityType.GetCosmosContainerName());
         }
 
+        [ConditionalFact]
+        public void Default_discriminator_can_be_removed()
+        {
+            var modelBuilder = CreateConventionModelBuilder();
+
+            modelBuilder.Entity<Customer>();
+
+            var entityType = modelBuilder.Model.FindEntityType(typeof(Customer));
+
+            Assert.Equal("Discriminator", entityType.GetDiscriminatorProperty().Name);
+            Assert.Equal(nameof(Customer), entityType.GetDiscriminatorValue());
+
+            modelBuilder.Entity<Customer>().HasNoDiscriminator();
+
+            Assert.Null(entityType.GetDiscriminatorProperty());
+            Assert.Null(entityType.GetDiscriminatorValue());
+
+            modelBuilder.Entity<Customer>().HasBaseType<object>();
+
+            Assert.Equal("Discriminator", entityType.GetDiscriminatorProperty().Name);
+            Assert.Equal(nameof(Customer), entityType.GetDiscriminatorValue());
+
+            modelBuilder.Entity<Customer>().HasBaseType((string)null);
+
+            Assert.Null(entityType.GetDiscriminatorProperty());
+        }
+
         protected virtual ModelBuilder CreateConventionModelBuilder() => CosmosTestHelpers.Instance.CreateConventionBuilder();
 
         private class Customer

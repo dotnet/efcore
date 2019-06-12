@@ -859,21 +859,19 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         }
 
         /// <summary>
-        ///     Configures the discriminator column used to identify which entity type each row in a table represents
-        ///     when an inheritance hierarchy is mapped to a single table in a relational database.
+        ///     Configures the discriminator property used to identify the entity type in the store.
         /// </summary>
-        /// <returns> A builder that allows the discriminator column to be configured. </returns>
+        /// <returns> A builder that allows the discriminator property to be configured. </returns>
         public virtual DiscriminatorBuilder HasDiscriminator()
             => Builder.DiscriminatorBuilder(
                 Builder.GetOrCreateDiscriminatorProperty(null, null, true), ConfigurationSource.Explicit);
 
         /// <summary>
-        ///     Configures the discriminator column used to identify which entity type each row in a table represents
-        ///     when an inheritance hierarchy is mapped to a single table in a relational database.
+        ///     Configures the discriminator property used to identify the entity type in the store.
         /// </summary>
-        /// <param name="name"> The name of the discriminator column. </param>
-        /// <param name="type"> The type of values stored in the discriminator column. </param>
-        /// <returns> A builder that allows the discriminator column to be configured. </returns>
+        /// <param name="name"> The name of the discriminator property. </param>
+        /// <param name="type"> The type of values stored in the discriminator property. </param>
+        /// <returns> A builder that allows the discriminator property to be configured. </returns>
         public virtual DiscriminatorBuilder HasDiscriminator(
             [NotNull] string name,
             [NotNull] Type type)
@@ -885,18 +883,27 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         }
 
         /// <summary>
-        ///     Configures the discriminator column used to identify which entity type each row in a table represents
-        ///     when an inheritance hierarchy is mapped to a single table in a relational database.
+        ///     Configures the discriminator property used to identify the entity type in the store.
         /// </summary>
-        /// <typeparam name="TDiscriminator"> The type of values stored in the discriminator column. </typeparam>
-        /// <param name="name"> The name of the discriminator column. </param>
-        /// <returns> A builder that allows the discriminator column to be configured. </returns>
+        /// <typeparam name="TDiscriminator"> The type of values stored in the discriminator property. </typeparam>
+        /// <param name="name"> The name of the discriminator property. </param>
+        /// <returns> A builder that allows the discriminator property to be configured. </returns>
         public virtual DiscriminatorBuilder<TDiscriminator> HasDiscriminator<TDiscriminator>([NotNull] string name)
         {
             Check.NotEmpty(name, nameof(name));
 
             return new DiscriminatorBuilder<TDiscriminator>(
                 Builder.DiscriminatorBuilder(Property(typeof(TDiscriminator), name).GetInfrastructure(), ConfigurationSource.Explicit));
+        }
+
+        /// <summary>
+        ///     Configures the entity type as having no discriminator property.
+        /// </summary>
+        /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
+        public virtual EntityTypeBuilder HasNoDiscriminator()
+        {
+            Builder.HasNoDeclaredDiscriminator(ConfigurationSource.Explicit);
+            return this;
         }
 
         #region Hidden System.Object members

@@ -2825,7 +2825,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             Assert.NotNull(typeBuilder.HasNoDeclaredDiscriminator(fromDataAnnotation: true));
             Assert.Null(typeBuilder.Metadata.GetDiscriminatorProperty());
-            Assert.Equal(4, typeBuilder.Metadata.GetDiscriminatorValue());
+            Assert.Null(typeBuilder.Metadata.GetDiscriminatorValue());
             Assert.Empty(typeBuilder.Metadata.GetProperties());
         }
 

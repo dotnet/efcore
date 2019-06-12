@@ -9,6 +9,8 @@ variables:
     value: true
   - name: _DotNetArtifactsCategory
     value: ENTITYFRAMEWORKCORE
+  - name: _CosmosConnectionUrl
+    value: 'https://ef-nightly-test.documents.azure.com:443/'
 
 trigger:
   - master
@@ -77,6 +79,8 @@ jobs:
                 '@
               displayName: Cleanup databases
             - script: eng\common\cibuild.cmd -configuration $(_BuildConfig) -prepareMachine $(_InternalBuildArgs)
+              env:
+                Test__Cosmos__Sql__DefaultConnection: $(_CosmosConnectionUrl)
               name: Build
             - task: PublishBuildArtifacts@1
               displayName: Upload artifacts
@@ -92,7 +96,6 @@ jobs:
             vmImage: macOS-10.13
           variables:
             - ${{ if and(eq(variables['System.TeamProject'], 'public'), eq(variables['system.pullrequest.isfork'], false), notin(variables['Build.Reason'], 'IndividualCI', 'BatchedCI', 'PullRequest')) }}:
-              - _CosmosConnection: https://ef-nightly-test.documents.azure.com:443/
               - _CosmosToken: $(ef-nightly-cosmos-key)
           steps:
             - bash: brew install libspatialite
@@ -100,7 +103,7 @@ jobs:
               continueOnError: true
             - script: eng/common/cibuild.sh --configuration $(_BuildConfig) --binaryLog --prepareMachine
               env:
-                Test__Cosmos__Sql__DefaultConnection: $(_CosmosConnection)
+                Test__Cosmos__Sql__DefaultConnection: $(_CosmosConnectionUrl)
                 Test__Cosmos__Sql__AuthToken: $(_CosmosToken)
               name: Build
               continueOnError: true
@@ -113,4 +116,6 @@ jobs:
               displayName: Install SpatiaLite
               continueOnError: true
             - script: eng/common/cibuild.sh --configuration $(_BuildConfig) --prepareMachine
+              env:
+                Test__Cosmos__Sql__DefaultConnection: $(_CosmosConnectionUrl)
               name: Build

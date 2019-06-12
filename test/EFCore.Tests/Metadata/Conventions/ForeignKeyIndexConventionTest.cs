@@ -7,7 +7,7 @@ using Xunit;
 // ReSharper disable ClassNeverInstantiated.Local
 // ReSharper disable ClassWithVirtualMembersNeverInherited.Local
 // ReSharper disable InconsistentNaming
-namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
+namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 {
     public class ForeignKeyIndexConventionTest
     {

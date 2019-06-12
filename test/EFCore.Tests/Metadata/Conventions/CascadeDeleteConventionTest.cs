@@ -10,7 +10,7 @@ using Xunit;
 // ReSharper disable ClassNeverInstantiated.Local
 // ReSharper disable CollectionNeverUpdated.Local
 // ReSharper disable InconsistentNaming
-namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
+namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 {
     public class CascadeDeleteConventionTest
     {

@@ -2519,23 +2519,27 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         {
             CheckDiscriminatorProperty(property);
 
-            if (property != null
-                && !property.ClrType.IsInstanceOfType(this.GetDiscriminatorValue()))
+            if ((property == null
+                 || !property.ClrType.IsInstanceOfType(this.GetDiscriminatorValue())))
             {
-                foreach (var derivedType in GetDerivedTypesInclusive())
+                ((IMutableEntityType)this).RemoveDiscriminatorValue();
+                if (BaseType == null)
                 {
-                    ((IMutableEntityType)derivedType).RemoveDiscriminatorValue();
+                    foreach (var derivedType in GetDerivedTypes())
+                    {
+                        ((IMutableEntityType)derivedType).RemoveDiscriminatorValue();
+                    }
                 }
             }
 
-            this.SetOrRemoveAnnotation(CoreAnnotationNames.DiscriminatorProperty, property?.Name, configurationSource);
+            SetAnnotation(CoreAnnotationNames.DiscriminatorProperty, property?.Name, configurationSource);
         }
 
         private void CheckDiscriminatorProperty(IProperty property)
         {
             if (property != null)
             {
-                if (this != RootType())
+                if (BaseType != null)
                 {
                     throw new InvalidOperationException(
                         CoreStrings.DiscriminatorPropertyMustBeOnRoot(this.DisplayName()));

@@ -3374,9 +3374,38 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             discriminatorPropertyBuilder = rootTypeBuilder.Property(
                 discriminatorProperty.ClrType, discriminatorProperty.Name, null, ConfigurationSource.Convention);
 
+            RemoveUnusedDiscriminatorProperty(discriminatorProperty, configurationSource);
+
+            rootTypeBuilder.Metadata.SetDiscriminatorProperty(discriminatorProperty, configurationSource);
+            discriminatorPropertyBuilder.IsRequired(true, configurationSource);
+            discriminatorPropertyBuilder.HasValueGenerator(DiscriminatorValueGenerator.Factory, configurationSource);
+
+            return new DiscriminatorBuilder(Metadata);
+        }
+
+        public virtual InternalEntityTypeBuilder HasNoDeclaredDiscriminator(ConfigurationSource configurationSource)
+        {
+            if (Metadata[CoreAnnotationNames.DiscriminatorProperty] != null
+                && !configurationSource.Overrides(Metadata.GetDiscriminatorPropertyConfigurationSource()))
+            {
+                return null;
+            }
+
+            if (Metadata.BaseType == null)
+            {
+                RemoveUnusedDiscriminatorProperty(null, configurationSource);
+            }
+
+            Metadata.SetDiscriminatorProperty(null, configurationSource);
+
+            return this;
+        }
+
+        private void RemoveUnusedDiscriminatorProperty(Property newDiscriminatorProperty, ConfigurationSource configurationSource)
+        {
             var oldDiscriminatorProperty = Metadata.GetDiscriminatorProperty() as Property;
             if (oldDiscriminatorProperty?.Builder != null
-                && oldDiscriminatorProperty != discriminatorProperty)
+                && oldDiscriminatorProperty != newDiscriminatorProperty)
             {
                 oldDiscriminatorProperty.DeclaringEntityType.Builder.RemoveUnusedShadowProperties(
                     new[]
@@ -3390,12 +3419,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     oldDiscriminatorProperty.Builder.HasValueGenerator((Type)null, configurationSource);
                 }
             }
-
-            rootTypeBuilder.Metadata.SetDiscriminatorProperty(discriminatorProperty, configurationSource);
-            discriminatorPropertyBuilder.IsRequired(true, configurationSource);
-            discriminatorPropertyBuilder.HasValueGenerator(DiscriminatorValueGenerator.Factory, configurationSource);
-
-            return new DiscriminatorBuilder(Metadata);
         }
 
         private bool CanSetDiscriminator(
@@ -3403,10 +3426,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             string name,
             Type discriminatorType,
             bool fromDataAnnotation)
-            => discriminatorProperty == null
-               || ((name != null || discriminatorType != null)
-                   && (name == null || discriminatorProperty.Name == name)
-                   && (discriminatorType == null || discriminatorProperty.ClrType == discriminatorType))
+            => (name == null && discriminatorType == null)
+               || ((name == null || discriminatorProperty?.Name == name)
+                   && (discriminatorType == null || discriminatorProperty?.ClrType == discriminatorType))
                || (fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention)
                .Overrides(Metadata.GetDiscriminatorPropertyConfigurationSource());
 
@@ -3745,31 +3767,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
         /// <inheritdoc />
         IConventionEntityTypeBuilder IConventionEntityTypeBuilder.HasNoDeclaredDiscriminator(bool fromDataAnnotation)
-        {
-            var discriminatorName = (string)Metadata[CoreAnnotationNames.DiscriminatorProperty];
-            if (discriminatorName == null)
-            {
-                return this;
-            }
-
-            var discriminatorProperty = Metadata.FindProperty(discriminatorName);
-            if (discriminatorProperty != null)
-            {
-                if (!CanSetDiscriminator(discriminatorProperty, null, null, fromDataAnnotation))
-                {
-                    return null;
-                }
-
-                discriminatorProperty.DeclaringEntityType.Builder.RemoveUnusedShadowProperties(
-                    new[]
-                    {
-                        discriminatorProperty
-                    });
-            }
-
-            Metadata.SetDiscriminatorProperty(null, fromDataAnnotation);
-            return this;
-        }
+            => HasNoDeclaredDiscriminator(fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
         /// <inheritdoc />
         bool IConventionEntityTypeBuilder.CanSetDiscriminator(string name, bool fromDataAnnotation)
