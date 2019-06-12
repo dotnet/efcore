@@ -8,7 +8,7 @@
 
   <ItemGroup>
     <!-- HACK: Use the latest version instead of the one bundled with the SDK -->
-    <KnownFrameworkReference Update="Microsoft.NETCore.App.Runtime.win-x64">
+    <KnownFrameworkReference Update="Microsoft.NETCore.App">
       <LatestRuntimeFrameworkVersion Condition="'%(TargetFramework)' == 'netcoreapp3.0'">$(MicrosoftNETCoreAppRuntimeVersion)</LatestRuntimeFrameworkVersion>
       <DefaultRuntimeFrameworkVersion Condition="'%(TargetFramework)' == 'netcoreapp3.0'">$(MicrosoftNETCoreAppRuntimeVersion)</DefaultRuntimeFrameworkVersion>
       <TargetingPackVersion Condition="'%(TargetFramework)' == 'netcoreapp3.0'">$(MicrosoftNETCoreAppRefPackageVersion)</TargetingPackVersion>
