@@ -292,7 +292,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             TryAdd<IParameterBindingFactory, EntityTypeParameterBindingFactory>();
 
             ServiceCollectionMap
-                .TryAddSingleton<DiagnosticSource>(new DiagnosticListener(DbLoggerCategory.Name));
+                .TryAddSingleton<DiagnosticSource>(p => new DiagnosticListener(DbLoggerCategory.Name));
 
             ServiceCollectionMap.GetInfrastructure()
                 .AddDependencySingleton<DatabaseProviderDependencies>()
