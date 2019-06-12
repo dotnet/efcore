@@ -3,10 +3,12 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Text;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.Internal
@@ -15,10 +17,11 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.Internal
     {
         private string _serviceEndPoint;
         private string _authKeyOrResourceToken;
+        private string _region;
         private string _databaseName;
         private Func<ExecutionStrategyDependencies, IExecutionStrategy> _executionStrategyFactory;
         private string _logFragment;
-        private string _region;
+        private long? _serviceProviderHash;
 
         public CosmosDbOptionsExtension()
         {
@@ -108,18 +111,43 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.Internal
             return true;
         }
 
-        public long GetServiceProviderHashCode()
+        /// <summary>
+        ///     Returns a hash code created from any options that would cause a new <see cref="IServiceProvider" />
+        ///     to be needed.
+        /// </summary>
+        /// <returns> A hash over options that require a new service provider when changed. </returns>
+        public virtual long GetServiceProviderHashCode()
         {
-            return 0;
+            if (_serviceProviderHash == null)
+            {
+                var hashCode = _serviceEndPoint.GetHashCode();
+                hashCode = (hashCode * 397) ^ _authKeyOrResourceToken.GetHashCode();
+                hashCode = (hashCode * 397) ^ (_region?.GetHashCode() ?? 0);
+
+                _serviceProviderHash = hashCode;
+            }
+
+            return _serviceProviderHash.Value;
+        }
+
+        /// <summary>
+        ///     Populates a dictionary of information that may change between uses of the
+        ///     extension such that it can be compared to a previous configuration for
+        ///     this option and differences can be logged. The dictionary key prefix
+        ///     <c>"Cosmos:"</c> is used.
+        /// </summary>
+        /// <param name="debugInfo"> The dictionary to populate. </param>
+        public virtual void PopulateDebugInfo(IDictionary<string, string> debugInfo)
+        {
+            Check.NotNull(debugInfo, nameof(debugInfo));
+
+            debugInfo["Cosmos:" + nameof(ServiceEndPoint)] = _serviceEndPoint.GetHashCode().ToString(CultureInfo.InvariantCulture);
+            debugInfo["Cosmos:" + nameof(AuthKeyOrResourceToken)] = _authKeyOrResourceToken.GetHashCode().ToString(CultureInfo.InvariantCulture);
+            debugInfo["Cosmos:" + nameof(CosmosDbContextOptionsBuilder.Region)] = (_region?.GetHashCode() ?? 0).ToString(CultureInfo.InvariantCulture);
         }
 
         public void Validate(IDbContextOptions options)
         {
-        }
-
-        public virtual void PopulateDebugInfo(IDictionary<string, string> debugInfo)
-        {
-            debugInfo["Cosmos"] = "1";
         }
 
         public string LogFragment

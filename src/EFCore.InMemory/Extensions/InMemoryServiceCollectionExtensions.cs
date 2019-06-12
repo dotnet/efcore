@@ -68,6 +68,7 @@ namespace Microsoft.Extensions.DependencyInjection
                 .TryAdd<IDatabaseCreator, InMemoryDatabaseCreator>()
                 .TryAdd<IQueryContextFactory, InMemoryQueryContextFactory>()
                 .TryAdd<IProviderConventionSetBuilder, InMemoryConventionSetBuilder>()
+                .TryAdd<ITypeMappingSource, InMemoryTypeMappingSource>()
 
                 // New Query pipeline
                 .TryAdd<IShapedQueryCompilingExpressionVisitorFactory, InMemoryShapedQueryCompilingExpressionVisitorFactory>()
@@ -76,7 +77,6 @@ namespace Microsoft.Extensions.DependencyInjection
                 .TryAdd<IShapedQueryOptimizerFactory, InMemoryShapedQueryOptimizerFactory>()
 
                 .TryAdd<ISingletonOptions, IInMemorySingletonOptions>(p => p.GetService<IInMemorySingletonOptions>())
-                .TryAdd<ITypeMappingSource, InMemoryTypeMappingSource>()
                 .TryAddProviderSpecificServices(
                     b => b
                         .TryAddSingleton<IInMemorySingletonOptions, InMemorySingletonOptions>()

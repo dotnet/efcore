@@ -265,6 +265,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             TryAdd<IQueryOptimizerFactory, QueryOptimizerFactory>();
             TryAdd<IShapedQueryOptimizerFactory, ShapedQueryOptimizerFactory>();
 
+            // This has to be lazy to avoid creating instances that are not disposed
             ServiceCollectionMap
                 .TryAddSingleton<DiagnosticSource>(p => new DiagnosticListener(DbLoggerCategory.Name));
 

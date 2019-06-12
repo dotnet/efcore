@@ -19,6 +19,12 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
             = new ResourceManager("Microsoft.EntityFrameworkCore.Cosmos.Properties.CosmosStrings", typeof(CosmosStrings).GetTypeInfo().Assembly);
 
         /// <summary>
+        ///     Cosmos-specific methods can only be used when the context is using the Cosmos provider.
+        /// </summary>
+        public static string CosmosNotInUse
+            => GetString("CosmosNotInUse");
+
+        /// <summary>
         ///     The entity of type '{entityType}' is mapped as a part of the document mapped to '{missingEntityType}', but there is no tracked entity of this type with the corresponding key value. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see the key values.
         /// </summary>
         public static string OrphanedNestedDocument([CanBeNull] object entityType, [CanBeNull] object missingEntityType)

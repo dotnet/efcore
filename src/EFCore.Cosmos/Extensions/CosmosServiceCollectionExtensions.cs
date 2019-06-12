@@ -45,8 +45,11 @@ namespace Microsoft.Extensions.DependencyInjection
                 .TryAdd<IQueryableMethodTranslatingExpressionVisitorFactory, CosmosQueryableMethodTranslatingExpressionVisitorFactory>()
                 .TryAdd<IShapedQueryCompilingExpressionVisitorFactory, CosmosShapedQueryCompilingExpressionVisitorFactory>()
 
+                .TryAdd<ISingletonOptions, ICosmosSingletonOptions>(p => p.GetService<ICosmosSingletonOptions>())
                 .TryAddProviderSpecificServices(
                     b => b
+                        .TryAddSingleton<ICosmosSingletonOptions, CosmosSingletonOptions>()
+                        .TryAddSingleton<SingletonCosmosClientWrapper, SingletonCosmosClientWrapper>()
                         .TryAddScoped<CosmosClientWrapper, CosmosClientWrapper>()
                         .TryAddScoped<ISqlGeneratorFactory, CosmosSqlGeneratorFactory>()
                 );

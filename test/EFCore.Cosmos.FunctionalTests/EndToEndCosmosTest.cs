@@ -4,21 +4,21 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.Azure.Cosmos;
 using Microsoft.EntityFrameworkCore.Cosmos.TestUtilities;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Newtonsoft.Json.Linq;
 using Xunit;
 
+// ReSharper disable UnusedMember.Local
 namespace Microsoft.EntityFrameworkCore.Cosmos
 {
-    public class CosmosEndToEndTest : IClassFixture<CosmosEndToEndTest.CosmosFixture>
+    public class EndToEndCosmosTest : IClassFixture<EndToEndCosmosTest.CosmosFixture>
     {
         private const string DatabaseName = "CosmosEndToEndTest";
 
         protected CosmosFixture Fixture { get; }
 
-        public CosmosEndToEndTest(CosmosFixture fixture)
+        public EndToEndCosmosTest(CosmosFixture fixture)
         {
             Fixture = fixture;
         }
@@ -127,7 +127,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
             public string Name { get; set; }
         }
 
-        public class CustomerContext : DbContext
+        private class CustomerContext : DbContext
         {
             public CustomerContext(DbContextOptions dbContextOptions)
                 : base(dbContextOptions)
@@ -260,7 +260,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
             }
         }
 
-        public class ExtraCustomerContext : CustomerContext
+        private class ExtraCustomerContext : CustomerContext
         {
             public ExtraCustomerContext(DbContextOptions dbContextOptions)
                 : base(dbContextOptions)
@@ -307,7 +307,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
             }
         }
 
-        public class UnmappedCustomerContext : CustomerContext
+        private class UnmappedCustomerContext : CustomerContext
         {
             public UnmappedCustomerContext(DbContextOptions dbContextOptions)
                 : base(dbContextOptions)
@@ -360,56 +360,6 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
             {
                 modelBuilder.Entity<ConflictingIncompatibleId>();
             }
-        }
-
-        [ConditionalFact]
-        public void Should_not_throw_if_specified_region_is_right()
-        {
-            var regionName = CosmosRegions.AustraliaCentral;
-
-            using (var testDatabase = CosmosTestStore.CreateInitialized(DatabaseName, o => o.Region(regionName)))
-            {
-                var options = Fixture.CreateOptions(testDatabase);
-
-                var customer = new Customer { Id = 42, Name = "Theon" };
-
-                using (var context = new CustomerContext(options))
-                {
-                    context.Database.EnsureCreated();
-
-                    context.Add(customer);
-
-                    context.SaveChanges();
-                }
-            }
-        }
-
-        [ConditionalFact]
-        public void Should_throw_if_specified_region_is_wrong()
-        {
-            var regionName = "FakeRegion";
-
-            Action a = () =>
-            {
-                using (var testDatabase = CosmosTestStore.CreateInitialized(DatabaseName, o => o.Region(regionName)))
-                {
-                    var options = Fixture.CreateOptions(testDatabase);
-
-                    var customer = new Customer {Id = 42, Name = "Theon"};
-
-                    using (var context = new CustomerContext(options))
-                    {
-                        context.Database.EnsureCreated();
-
-                        context.Add(customer);
-
-                        context.SaveChanges();
-                    }
-                }
-            };
-
-            var ex = Assert.Throws<ArgumentException>(a);
-            Assert.Equal("Current location is not a valid Azure region.", ex.Message);
         }
 
         [ConditionalFact]

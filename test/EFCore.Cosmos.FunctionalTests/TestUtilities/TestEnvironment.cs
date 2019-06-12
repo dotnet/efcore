@@ -22,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.TestUtilities
                 .GetSection("Test:Cosmos:Sql");
         }
 
-        public static string DefaultConnection => Config["DefaultConnection"];
+        public static string DefaultConnection => Config["DefaultConnection"] ?? "https://localhost:8081";
 
         public static string AuthToken => Config["AuthToken"];
     }

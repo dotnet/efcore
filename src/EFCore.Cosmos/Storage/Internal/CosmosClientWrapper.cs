@@ -15,25 +15,35 @@ using Microsoft.Azure.Cosmos;
 using Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.Internal;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
 {
-    public class CosmosClientWrapper : IDisposable
+    /// <summary>
+    ///     <para>
+    ///         This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///         the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///         any release. You should only use it directly in your code with extreme caution and knowing that
+    ///         doing so can result in application failures when updating to a new Entity Framework Core release.
+    ///     </para>
+    ///     <para>
+    ///         The service lifetime is <see cref="ServiceLifetime.Scoped"/>. This means that each
+    ///         <see cref="DbContext"/> instance will use its own instance of this service.
+    ///         The implementation may depend on other services registered with any lifetime.
+    ///         The implementation does not need to be thread-safe.
+    ///     </para>
+    /// </summary>
+    public class CosmosClientWrapper
     {
+        public static readonly JsonSerializer Serializer = new JsonSerializer();
+
+        private readonly SingletonCosmosClientWrapper _singletonWrapper;
         private readonly string _databaseId;
-        private readonly string _endPoint;
-        private readonly string _authKey;
-        private CosmosClient _client;
         private readonly IExecutionStrategyFactory _executionStrategyFactory;
         private readonly IDiagnosticsLogger<DbLoggerCategory.Database.Command> _commandLogger;
-
-        private static readonly string _userAgent = " Microsoft.EntityFrameworkCore.Cosmos/" + ProductInfo.GetVersion();
-        public static readonly JsonSerializer Serializer = new JsonSerializer();
-        private readonly string _region;
 
         static CosmosClientWrapper()
         {
@@ -42,38 +52,20 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
         }
 
         public CosmosClientWrapper(
+            [NotNull] SingletonCosmosClientWrapper singletonWrapper,
             [NotNull] IDbContextOptions dbContextOptions,
             [NotNull] IExecutionStrategyFactory executionStrategyFactory,
             [NotNull] IDiagnosticsLogger<DbLoggerCategory.Database.Command> commandLogger)
         {
             var options = dbContextOptions.FindExtension<CosmosDbOptionsExtension>();
 
+            _singletonWrapper = singletonWrapper;
             _databaseId = options.DatabaseName;
-            _endPoint = options.ServiceEndPoint;
-            _authKey = options.AuthKeyOrResourceToken;
-            _region = options.Region;
             _executionStrategyFactory = executionStrategyFactory;
             _commandLogger = commandLogger;
         }
 
-        private CosmosClient Client =>
-            _client ??= new CosmosClient(BuildCosmosConfiguration());
-
-        private CosmosClientOptions BuildCosmosConfiguration()
-        {
-            var configuration = new CosmosClientOptions(_endPoint, _authKey)
-            {
-                ApplicationName = _userAgent,
-                ConnectionMode = ConnectionMode.Direct,
-            };
-
-            if (_region != null)
-            {
-                configuration.ApplicationRegion = _region;
-            }
-
-            return configuration;
-        }
+        private CosmosClient Client => _singletonWrapper.Client;
 
         public bool CreateDatabaseIfNotExists()
             => _executionStrategyFactory.Create().Execute(
@@ -528,7 +520,5 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
                 }
             }
         }
-
-        public void Dispose() => _client?.Dispose();
     }
 }

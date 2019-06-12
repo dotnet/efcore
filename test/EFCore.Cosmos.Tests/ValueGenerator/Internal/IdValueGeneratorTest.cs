@@ -3,7 +3,6 @@
 
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore.Cosmos.TestUtilities;
-using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.ValueGenerator.Internal

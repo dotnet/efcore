@@ -18,6 +18,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.TestUtilities
     {
         private readonly TestStoreContext _storeContext;
         private readonly string _dataFilePath;
+        private readonly Action<CosmosDbContextOptionsBuilder> _configureCosmos;
 
         public static CosmosTestStore Create(string name, Action<CosmosDbContextOptionsBuilder> extensionConfiguration = null) => new CosmosTestStore(name, shared: false, extensionConfiguration: extensionConfiguration);
 
@@ -35,8 +36,9 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.TestUtilities
         {
             ConnectionUri = TestEnvironment.DefaultConnection;
             AuthToken = TestEnvironment.AuthToken;
+            _configureCosmos = extensionConfiguration;
 
-            _storeContext = new TestStoreContext(this, extensionConfiguration);
+            _storeContext = new TestStoreContext(this);
 
             if (dataFilePath != null)
             {
@@ -48,12 +50,16 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.TestUtilities
 
         public string ConnectionUri { get; }
         public string AuthToken { get; }
+        public Action<CosmosDbContextOptionsBuilder> ConfigureCosmos => _configureCosmos ?? (_ => { });
+
+        protected override DbContext CreateDefaultContext() => new TestStoreContext(this);
 
         public override DbContextOptionsBuilder AddProviderOptions(DbContextOptionsBuilder builder)
             => builder.UseCosmos(
                 ConnectionUri,
                 AuthToken,
-                Name);
+                Name,
+                ConfigureCosmos);
 
         protected override void Initialize(Func<DbContext> createContext, Action<DbContext> seed, Action<DbContext> clean)
         {
@@ -150,19 +156,15 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.TestUtilities
         private class TestStoreContext : DbContext
         {
             private readonly CosmosTestStore _testStore;
-            private readonly Action<CosmosDbContextOptionsBuilder> _extensionConfiguration;
 
-            public TestStoreContext(CosmosTestStore testStore,
-                Action<CosmosDbContextOptionsBuilder> extensionConfiguration)
+            public TestStoreContext(CosmosTestStore testStore)
             {
                 _testStore = testStore;
-                _extensionConfiguration = extensionConfiguration;
             }
 
             protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             {
-                var extensionConfiguration = _extensionConfiguration ?? (_ => { });
-                optionsBuilder.UseCosmos(_testStore.ConnectionUri, _testStore.AuthToken, _testStore.Name, extensionConfiguration);
+                optionsBuilder.UseCosmos(_testStore.ConnectionUri, _testStore.AuthToken, _testStore.Name, _testStore.ConfigureCosmos);
             }
         }
     }
