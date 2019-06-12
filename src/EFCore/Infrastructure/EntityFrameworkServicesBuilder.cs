@@ -266,7 +266,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             TryAdd<IShapedQueryOptimizerFactory, ShapedQueryOptimizerFactory>();
 
             ServiceCollectionMap
-                .TryAddSingleton<DiagnosticSource>(new DiagnosticListener(DbLoggerCategory.Name));
+                .TryAddSingleton<DiagnosticSource>(p => new DiagnosticListener(DbLoggerCategory.Name));
 
             ServiceCollectionMap.GetInfrastructure()
                 .AddDependencySingleton<LazyLoaderParameterBindingFactoryDependencies>()
