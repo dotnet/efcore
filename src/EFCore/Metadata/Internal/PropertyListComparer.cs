@@ -69,6 +69,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public int GetHashCode(IReadOnlyList<IProperty> obj)
-            => obj.Aggregate(0, (hash, p) => unchecked((hash * 397) ^ p.GetHashCode()));
+        {
+            var hash = new HashCode();
+            for (var i = 0; i < obj.Count; i++)
+            {
+                hash.Add(obj[i]);
+            }
+            return hash.ToHashCode();
+        }
     }
 }

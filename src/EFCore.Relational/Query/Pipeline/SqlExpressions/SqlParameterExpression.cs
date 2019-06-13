@@ -1,6 +1,7 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -35,15 +36,6 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
             => base.Equals(sqlParameterExpression)
             && string.Equals(Name, sqlParameterExpression.Name);
 
-        public override int GetHashCode()
-        {
-            unchecked
-            {
-                var hashCode = base.GetHashCode();
-                hashCode = (hashCode * 397) ^ Name.GetHashCode();
-
-                return hashCode;
-            }
-        }
+        public override int GetHashCode() => HashCode.Combine(base.GetHashCode(), Name);
     }
 }

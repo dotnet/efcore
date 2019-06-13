@@ -257,15 +257,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         /// <returns> The hash code. </returns>
         public override int GetHashCode()
-        {
-            var hashCode = ClrType?.GetHashCode() ?? 0;
-            hashCode = (hashCode * 397) ^ IsKeyOrIndex.GetHashCode();
-            hashCode = (hashCode * 397) ^ (Size?.GetHashCode() ?? 0);
-            hashCode = (hashCode * 397) ^ (IsUnicode?.GetHashCode() ?? 0);
-            hashCode = (hashCode * 397) ^ (IsRowVersion?.GetHashCode() ?? 0);
-            hashCode = (hashCode * 397) ^ (Scale?.GetHashCode() ?? 0);
-            hashCode = (hashCode * 397) ^ (Precision?.GetHashCode() ?? 0);
-            return hashCode;
-        }
+            => HashCode.Combine(ClrType, IsKeyOrIndex, Size, IsUnicode, IsRowVersion, Scale, Precision);
     }
 }

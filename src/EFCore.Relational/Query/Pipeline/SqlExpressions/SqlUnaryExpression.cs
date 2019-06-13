@@ -78,16 +78,6 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
             && OperatorType == sqlUnaryExpression.OperatorType
             && Operand.Equals(sqlUnaryExpression.Operand);
 
-        public override int GetHashCode()
-        {
-            unchecked
-            {
-                var hashCode = base.GetHashCode();
-                hashCode = (hashCode * 397) ^ OperatorType.GetHashCode();
-                hashCode = (hashCode * 397) ^ Operand.GetHashCode();
-
-                return hashCode;
-            }
-        }
+        public override int GetHashCode() => HashCode.Combine(base.GetHashCode(), OperatorType, Operand);
     }
 }

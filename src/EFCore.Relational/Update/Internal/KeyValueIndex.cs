@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Collections.Generic;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -71,9 +72,13 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public override int GetHashCode()
-            => (((((typeof(TKey).GetHashCode() * 397)
-                   ^ _fromOriginalValues.GetHashCode()) * 397)
-                 ^ _foreignKey.GetHashCode()) * 397)
-               ^ _keyComparer.GetHashCode(_keyValue);
+        {
+            var hash = new HashCode();
+            hash.Add(typeof(TKey));
+            hash.Add(_fromOriginalValues);
+            hash.Add(_foreignKey);
+            hash.Add(_keyValue, _keyComparer);
+            return hash.ToHashCode();
+        }
     }
 }

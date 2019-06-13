@@ -948,30 +948,33 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
 
         public override int GetHashCode()
         {
-            unchecked
+            var hash = new HashCode();
+            hash.Add(base.GetHashCode());
+            foreach (var projectionMapping in _projectionMapping)
             {
-                var hashCode = base.GetHashCode();
-                foreach (var projectionMapping in _projectionMapping)
-                {
-                    hashCode = (hashCode * 397) ^ projectionMapping.Key.GetHashCode();
-                    hashCode = (hashCode * 397) ^ projectionMapping.Value.GetHashCode();
-                }
-
-                hashCode = (hashCode * 397) ^ _tables.Aggregate(
-                    0, (current, value) => current + ((current * 397) ^ value.GetHashCode()));
-
-                hashCode = (hashCode * 397) ^ (Predicate?.GetHashCode() ?? 0);
-
-                hashCode = (hashCode * 397) ^ _orderings.Aggregate(
-                    0, (current, value) => current + ((current * 397) ^ value.GetHashCode()));
-
-                hashCode = (hashCode * 397) ^ (Offset?.GetHashCode() ?? 0);
-                hashCode = (hashCode * 397) ^ (Limit?.GetHashCode() ?? 0);
-                hashCode = (hashCode * 397) ^ IsDistinct.GetHashCode();
-
-                return hashCode;
+                hash.Add(projectionMapping.Key);
+                hash.Add(projectionMapping.Value);
             }
+
+            foreach (var table in _tables)
+            {
+                hash.Add(table);
+            }
+
+            hash.Add(Predicate);
+
+            foreach (var ordering in _orderings)
+            {
+                hash.Add(ordering);
+            }
+
+            hash.Add(Offset);
+            hash.Add(Limit);
+            hash.Add(IsDistinct);
+
+            return hash.ToHashCode();
         }
+
         public override void Print(ExpressionPrinter expressionPrinter)
         {
             expressionPrinter.StringBuilder.AppendLine("Projection Mapping:");

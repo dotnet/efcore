@@ -1,6 +1,7 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -60,17 +61,6 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
             && Pattern.Equals(likeExpression.Pattern)
             && EscapeChar.Equals(likeExpression.EscapeChar);
 
-        public override int GetHashCode()
-        {
-            unchecked
-            {
-                var hashCode = base.GetHashCode();
-                hashCode = (hashCode * 397) ^ Match.GetHashCode();
-                hashCode = (hashCode * 397) ^ Pattern.GetHashCode();
-                hashCode = (hashCode * 397) ^ (EscapeChar?.GetHashCode() ?? 0);
-
-                return hashCode;
-            }
-        }
+        public override int GetHashCode() => HashCode.Combine(base.GetHashCode(), Match, Pattern, EscapeChar);
     }
 }

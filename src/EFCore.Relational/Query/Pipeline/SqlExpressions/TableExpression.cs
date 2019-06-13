@@ -1,6 +1,7 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 
@@ -37,16 +38,6 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
             // This should be reference equal only.
             => obj != null && ReferenceEquals(this, obj);
 
-        public override int GetHashCode()
-        {
-            unchecked
-            {
-                var hashCode = base.GetHashCode();
-                hashCode = (hashCode * 397) ^ Table.GetHashCode();
-                hashCode = (hashCode * 397) ^ (Schema?.GetHashCode() ?? 0);
-
-                return hashCode;
-            }
-        }
+        public override int GetHashCode() => HashCode.Combine(base.GetHashCode(), Table, Schema);
     }
 }

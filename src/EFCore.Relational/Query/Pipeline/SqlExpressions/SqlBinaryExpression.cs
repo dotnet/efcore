@@ -128,17 +128,6 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
             && Left.Equals(sqlBinaryExpression.Left)
             && Right.Equals(sqlBinaryExpression.Right);
 
-        public override int GetHashCode()
-        {
-            unchecked
-            {
-                var hashCode = base.GetHashCode();
-                hashCode = (hashCode * 397) ^ OperatorType.GetHashCode();
-                hashCode = (hashCode * 397) ^ Left.GetHashCode();
-                hashCode = (hashCode * 397) ^ Right.GetHashCode();
-
-                return hashCode;
-            }
-        }
+        public override int GetHashCode() => HashCode.Combine(base.GetHashCode(), OperatorType, Left, Right);
     }
 }

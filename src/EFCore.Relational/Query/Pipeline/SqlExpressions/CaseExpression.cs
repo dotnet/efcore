@@ -122,16 +122,14 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
 
         public override int GetHashCode()
         {
-            unchecked
+            var hash = new HashCode();
+            hash.Add(Operand);
+            for (var i = 0; i < WhenClauses.Count; i++)
             {
-                var hashCode = base.GetHashCode();
-                hashCode = (hashCode * 397) ^ (Operand?.GetHashCode() ?? 0);
-                hashCode = (hashCode * 397) ^ WhenClauses.Aggregate(
-                    0, (current, value) => current + ((current * 397) ^ value.GetHashCode()));
-                hashCode = (hashCode * 397) ^ (ElseResult?.GetHashCode() ?? 0);
-
-                return hashCode;
+                hash.Add(WhenClauses[i]);
             }
+            hash.Add(ElseResult);
+            return hash.ToHashCode();
         }
     }
 }

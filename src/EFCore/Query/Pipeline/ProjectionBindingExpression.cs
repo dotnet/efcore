@@ -62,19 +62,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Pipeline
             // Using reference equality here since if we are this far, we don't need to compare this.
             && IndexMap == projectionBindingExpression.IndexMap;
 
-        public override int GetHashCode()
-        {
-            unchecked
-            {
-                var hashCode = base.GetHashCode();
-                hashCode = (hashCode * 397) ^ QueryExpression.GetHashCode();
-                hashCode = (hashCode * 397) ^ (ProjectionMember?.GetHashCode() ?? 0);
-                hashCode = (hashCode * 397) ^ (Index?.GetHashCode() ?? 0);
-                hashCode = (hashCode * 397) ^ (IndexMap?.GetHashCode() ?? 0);
-
-                return hashCode;
-            }
-        }
+        public override int GetHashCode() => HashCode.Combine(base.GetHashCode(), QueryExpression, ProjectionMember, Index, IndexMap);
 
         #endregion
 

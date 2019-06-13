@@ -46,15 +46,6 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
             => Expression.Equals(orderingExpression.Expression)
             && Ascending == orderingExpression.Ascending;
 
-        public override int GetHashCode()
-        {
-            unchecked
-            {
-                var hashCode = Expression.GetHashCode();
-                hashCode = (hashCode * 397) ^ Ascending.GetHashCode();
-
-                return hashCode;
-            }
-        }
+        public override int GetHashCode() => HashCode.Combine(Expression, Ascending);
     }
 }
