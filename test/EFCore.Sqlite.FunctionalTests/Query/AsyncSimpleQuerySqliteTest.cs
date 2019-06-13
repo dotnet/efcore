@@ -23,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             return Task.CompletedTask;
         }
 
-        [ConditionalFact(Skip = "QueryIssue")]
+        [ConditionalFact]
         public async Task Single_Predicate_Cancellation()
         {
             await Assert.ThrowsAnyAsync<OperationCanceledException>(

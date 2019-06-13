@@ -31,7 +31,8 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
             ExpressionPrinter expressionPrinter)
         {
             if (value is IEnumerable enumerable
-                && !(value is string))
+                && !(value is string)
+                && !(value is byte[]))
             {
                 bool first = true;
                 foreach (var item in enumerable)

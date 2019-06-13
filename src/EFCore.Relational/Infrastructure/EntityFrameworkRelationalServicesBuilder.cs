@@ -145,7 +145,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             TryAdd<IRelationalValueBufferFactoryFactory, TypedRelationalValueBufferFactoryFactory>();
             TryAdd<IDatabaseCreator>(p => p.GetService<IRelationalDatabaseCreator>());
             TryAdd<IDbContextTransactionManager>(p => p.GetService<IRelationalConnection>());
-            TryAdd<IExpressionPrinter, RelationalExpressionPrinter>();
             TryAdd<IQueryContextFactory, RelationalQueryContextFactory>();
             TryAdd<ICompiledQueryCacheKeyGenerator, RelationalCompiledQueryCacheKeyGenerator>();
             TryAdd<INamedConnectionStringResolver, NamedConnectionStringResolver>();
