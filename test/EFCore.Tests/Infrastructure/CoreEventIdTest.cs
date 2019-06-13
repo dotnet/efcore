@@ -41,7 +41,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 { typeof(DbContext), () => new DbContext(options) },
                 { typeof(DbContextOptions), () => options },
                 { typeof(string), () => "Fake" },
-                { typeof(IExpressionPrinter), () => new ExpressionPrinter() },
+                { typeof(ExpressionPrinter), () => new ExpressionPrinter() },
                 { typeof(Expression), () => Expression.Constant("A") },
                 { typeof(IEntityType), () => entityType },
                 { typeof(IKey), () => new Key(new[] { property }, ConfigurationSource.Convention) },

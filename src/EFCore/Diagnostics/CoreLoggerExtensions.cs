@@ -400,7 +400,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="queryExecutorExpression"> The query expression tree. </param>
         public static void QueryExecutionPlanned(
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Query> diagnostics,
-            [NotNull] IExpressionPrinter expressionPrinter,
+            [NotNull] ExpressionPrinter expressionPrinter,
             [NotNull] Expression queryExecutorExpression)
         {
             var definition = CoreResources.LogQueryExecutionPlanned(diagnostics);

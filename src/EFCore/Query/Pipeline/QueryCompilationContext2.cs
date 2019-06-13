@@ -6,6 +6,7 @@ using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Query.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Query.Pipeline
 {
@@ -65,10 +66,18 @@ namespace Microsoft.EntityFrameworkCore.Query.Pipeline
             // Inject tracking
             query = _shapedQueryCompilingExpressionVisitorFactory.Create(this).Visit(query);
 
-            return Expression.Lambda<Func<QueryContext, TResult>>(
+            var queryExecutorExpression = Expression.Lambda<Func<QueryContext, TResult>>(
                 query,
-                QueryContextParameter)
-                .Compile();
+                QueryContextParameter);
+
+            try
+            {
+                return queryExecutorExpression.Compile();
+            }
+            finally
+            {
+                Logger.QueryExecutionPlanned(new ExpressionPrinter(), queryExecutorExpression);
+            }
         }
     }
 }

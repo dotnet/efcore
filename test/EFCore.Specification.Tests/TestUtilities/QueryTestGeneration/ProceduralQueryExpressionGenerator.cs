@@ -480,7 +480,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities.QueryTestGeneration
             }
 
             // printed just for debugging purposes
-            var queryString = new ExpressionPrinter().PrintDebug(newExpression, printConnections: false);
+            var queryString = new ExpressionPrinter().Print(newExpression, printConnections: false);
 
             try
             {

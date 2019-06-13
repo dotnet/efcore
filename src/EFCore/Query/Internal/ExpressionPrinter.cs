@@ -24,14 +24,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
     ///         any release. You should only use it directly in your code with extreme caution and knowing that
     ///         doing so can result in application failures when updating to a new Entity Framework Core release.
     ///     </para>
-    ///     <para>
-    ///         The service lifetime is <see cref="ServiceLifetime.Scoped"/>. This means that each
-    ///         <see cref="DbContext"/> instance will use its own instance of this service.
-    ///         The implementation may depend on other services registered with any lifetime.
-    ///         The implementation does not need to be thread-safe.
-    ///     </para>
     /// </summary>
-    public class ExpressionPrinter : ExpressionVisitor, IExpressionPrinter
+    public class ExpressionPrinter : ExpressionVisitor
     {
         private readonly IndentedStringBuilder _stringBuilder;
         private readonly Dictionary<ParameterExpression, string> _parametersInScope;
@@ -59,12 +53,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             { ExpressionType.ExclusiveOr, " ^ " }
         };
 
-        private bool _highlightNonreducibleNodes;
-        private bool _reduceBeforePrinting;
-
-        private const string HighlightLeft = " ---> ";
-        private const string HighlightRight = " <--- ";
-
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
         ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -72,39 +60,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public ExpressionPrinter()
-            : this(new List<ConstantPrinterBase>())
-        {
-        }
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        protected List<ConstantPrinterBase> ConstantPrinters = new List<ConstantPrinterBase>();
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        protected ExpressionPrinter(List<ConstantPrinterBase> additionalConstantPrinters)
         {
             _stringBuilder = new IndentedStringBuilder();
             _parametersInScope = new Dictionary<ParameterExpression, string>();
             _namelessParameters = new List<ParameterExpression>();
-
-            ConstantPrinters.AddRange(additionalConstantPrinters);
-
-            ConstantPrinters.AddRange(
-                new List<ConstantPrinterBase>
-                {
-                    new EntityQueryableConstantPrinter(),
-                    new MetadataPropertyPrinter(),
-                    new DefaultConstantPrinter()
-                });
         }
 
         /// <summary>
@@ -199,45 +158,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             int? characterLimit = null,
             bool printConnections = true)
         {
-            return PrintInternal(
-                expression,
-                removeFormatting,
-                characterLimit,
-                highlightNonreducibleNodes: false,
-                reduceBeforePrinting: false,
-                printConnections: printConnections);
-        }
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public virtual string PrintDebug(
-            Expression expression,
-            bool highlightNonreducibleNodes = true,
-            bool reduceBeforePrinting = true,
-            bool generateUniqueQsreIds = true,
-            bool printConnections = true)
-        {
-            return PrintInternal(
-                expression,
-                removeFormatting: false,
-                characterLimit: null,
-                highlightNonreducibleNodes: highlightNonreducibleNodes,
-                reduceBeforePrinting: reduceBeforePrinting,
-                printConnections: printConnections);
-        }
-
-        private string PrintInternal(
-            Expression expression,
-            bool removeFormatting,
-            int? characterLimit,
-            bool highlightNonreducibleNodes,
-            bool reduceBeforePrinting,
-            bool printConnections)
-        {
             _stringBuilder.Clear();
             _parametersInScope.Clear();
             _namelessParameters.Clear();
@@ -245,9 +165,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             RemoveFormatting = removeFormatting;
             CharacterLimit = characterLimit;
             PrintConnections = printConnections;
-
-            _highlightNonreducibleNodes = highlightNonreducibleNodes;
-            _reduceBeforePrinting = reduceBeforePrinting;
 
             Visit(expression);
 
@@ -529,15 +446,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             {
                 printable.Print(this);
             }
-            else
+            else if (constantExpression.IsEntityQueryable())
             {
-                foreach (var constantPrinter in ConstantPrinters)
-                {
-                    if (constantPrinter.TryPrintConstant(constantExpression, _stringBuilder, RemoveFormatting))
-                    {
-                        break;
-                    }
-                }
+                _stringBuilder.Append($"DbSet<{constantExpression.Type.GetTypeInfo().GenericTypeArguments.First().ShortDisplayName()}>");
             }
 
             if (PrintConnections)
@@ -1053,19 +964,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         /// </summary>
         protected override Expression VisitExtension(Expression extensionExpression)
         {
-            if (_highlightNonreducibleNodes && !extensionExpression.CanReduce)
-            {
-                StringBuilder.Append(HighlightLeft);
-            }
-
-            if (_reduceBeforePrinting && extensionExpression.CanReduce)
-            {
-                var reduced = extensionExpression.Reduce();
-                Visit(reduced);
-
-                return extensionExpression;
-            }
-
             if (extensionExpression is IPrintable printable)
             {
                 printable.Print(this);
@@ -1073,11 +971,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             else
             {
                 UnhandledExpressionType(extensionExpression);
-            }
-
-            if (_highlightNonreducibleNodes && !extensionExpression.CanReduce)
-            {
-                StringBuilder.Append(HighlightRight);
             }
 
             return extensionExpression;
@@ -1116,131 +1009,5 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
         private void UnhandledExpressionType(Expression expression)
             => AppendLine(expression.ToString());
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        protected abstract class ConstantPrinterBase
-        {
-            /// <summary>
-            ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-            ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-            ///     any release. You should only use it directly in your code with extreme caution and knowing that
-            ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-            /// </summary>
-            public abstract bool TryPrintConstant(
-                [NotNull] ConstantExpression constantExpression,
-                [NotNull] IndentedStringBuilder stringBuilder,
-                bool removeFormatting);
-
-            /// <summary>
-            ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-            ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-            ///     any release. You should only use it directly in your code with extreme caution and knowing that
-            ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-            /// </summary>
-            protected virtual Action<IndentedStringBuilder, string> Append => (sb, s) => sb.Append(s);
-
-            /// <summary>
-            ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-            ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-            ///     any release. You should only use it directly in your code with extreme caution and knowing that
-            ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-            /// </summary>
-            protected virtual Action<IndentedStringBuilder, string> AppendLine => (sb, s) => sb.AppendLine(s);
-        }
-
-        private class EntityQueryableConstantPrinter : ConstantPrinterBase
-        {
-            public override bool TryPrintConstant(
-                ConstantExpression constantExpression,
-                IndentedStringBuilder stringBuilder,
-                bool removeFormatting)
-            {
-                if (constantExpression.IsEntityQueryable())
-                {
-                    stringBuilder.Append($"DbSet<{constantExpression.Type.GetTypeInfo().GenericTypeArguments.First().ShortDisplayName()}>");
-                    return true;
-                }
-
-                return false;
-            }
-        }
-
-        private class MetadataPropertyPrinter : ConstantPrinterBase
-        {
-            public override bool TryPrintConstant(
-                ConstantExpression constantExpression,
-                IndentedStringBuilder stringBuilder,
-                bool removeFormatting)
-            {
-                if (constantExpression.Value is PropertyBase property)
-                {
-                    stringBuilder.Append(property.DeclaringType.ClrType.Name + "." + property.Name);
-
-                    return true;
-                }
-
-                return false;
-            }
-        }
-
-        private class DefaultConstantPrinter : ConstantPrinterBase
-        {
-            public override bool TryPrintConstant(
-                ConstantExpression constantExpression,
-                IndentedStringBuilder stringBuilder,
-                bool removeFormatting)
-            {
-                Print(constantExpression.Value, stringBuilder, removeFormatting);
-
-                return true;
-            }
-
-            private void Print(
-                object value,
-                IndentedStringBuilder stringBuilder,
-                bool removeFormatting)
-            {
-                if (value is IEnumerable enumerable
-                    && !(value is string))
-                {
-                    var appendAction = value is byte[] || removeFormatting ? Append : AppendLine;
-
-                    appendAction(stringBuilder, value.GetType().ShortDisplayName() + " ");
-                    appendAction(stringBuilder, "{ ");
-                    stringBuilder.IncrementIndent();
-                    foreach (var item in enumerable)
-                    {
-                        Print(item, stringBuilder, removeFormatting);
-
-                        appendAction(stringBuilder, ", ");
-                    }
-
-                    stringBuilder.DecrementIndent();
-
-                    stringBuilder.Append("}");
-
-                    return;
-                }
-
-                var stringValue = value == null
-                    ? "null"
-                    : value.ToString() != value.GetType().ToString()
-                        ? value.ToString()
-                        : value.GetType().ShortDisplayName();
-
-                if (value != null
-                    && value is string)
-                {
-                    stringValue = $@"""{stringValue}""";
-                }
-
-                stringBuilder.Append(stringValue);
-            }
-        }
     }
 }

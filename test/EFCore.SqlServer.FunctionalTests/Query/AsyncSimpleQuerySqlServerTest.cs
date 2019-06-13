@@ -76,7 +76,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             return Assert.ThrowsAsync<ObjectDisposedException>(() => task.SingleAsync(c => c.CustomerID == "ALFKI"));
         }
 
-        [ConditionalFact(Skip = "QueryIssue")]
+        [ConditionalFact]
         public Task Single_Predicate_Cancellation()
         {
             return Assert.ThrowsAnyAsync<OperationCanceledException>(
