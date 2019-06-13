@@ -176,18 +176,16 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
 
         public override int GetHashCode()
         {
-            unchecked
+            var hash = new HashCode();
+            hash.Add(base.GetHashCode());
+            hash.Add(FunctionName);
+            hash.Add(Schema);
+            hash.Add(Instance);
+            for (var i = 0; i < Arguments.Count; i++)
             {
-                var hashCode = base.GetHashCode();
-                hashCode = (hashCode * 397) ^ FunctionName.GetHashCode();
-                hashCode = (hashCode * 397) ^ (Schema?.GetHashCode() ?? 0);
-                hashCode = (hashCode * 397) ^ (Instance?.GetHashCode() ?? 0);
-                hashCode = (hashCode * 397) ^ Arguments.Aggregate(
-                    0, (current, value) => current + ((current * 397) ^ value.GetHashCode()));
-
-
-                return hashCode;
+                hash.Add(Arguments[i]);
             }
+            return hash.ToHashCode();
         }
     }
 }

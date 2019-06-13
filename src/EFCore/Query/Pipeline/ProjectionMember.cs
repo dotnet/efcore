@@ -1,6 +1,7 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Linq;
 using System.Collections.Generic;
 using System.Reflection;
@@ -43,10 +44,13 @@ namespace Microsoft.EntityFrameworkCore.Query.Pipeline
 
         public override int GetHashCode()
         {
-            unchecked
+            var hash = new HashCode();
+            for (var i = 0; i < _memberChain.Count; i++)
             {
-                return _memberChain.Aggregate(seed: 0, (current, value) => (current * 397) ^ value.GetHashCode());
+                hash.Add(_memberChain[i]);
             }
+
+            return hash.ToHashCode();
         }
 
         public override bool Equals(object obj)

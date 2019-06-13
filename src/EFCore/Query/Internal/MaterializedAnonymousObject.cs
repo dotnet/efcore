@@ -1,6 +1,7 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
@@ -117,13 +118,12 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         /// </summary>
         public override int GetHashCode()
         {
-            unchecked
+            var hash = new HashCode();
+            foreach (var value in _values)
             {
-                return _values.Aggregate(
-                    0,
-                    (current, argument)
-                        => current + ((current * 397) ^ (argument?.GetHashCode() ?? 0)));
+                hash.Add(value);
             }
+            return hash.ToHashCode();
         }
 
         /// <summary>

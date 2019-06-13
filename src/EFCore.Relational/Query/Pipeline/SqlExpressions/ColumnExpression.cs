@@ -64,18 +64,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
             && Table.Equals(columnExpression.Table)
             && Nullable == columnExpression.Nullable;
 
-        public override int GetHashCode()
-        {
-            unchecked
-            {
-                var hashCode = base.GetHashCode();
-                hashCode = (hashCode * 397) ^ Name.GetHashCode();
-                hashCode = (hashCode * 397) ^ Table.GetHashCode();
-                hashCode = (hashCode * 397) ^ Nullable.GetHashCode();
-
-                return hashCode;
-            }
-        }
+        public override int GetHashCode() => HashCode.Combine(base.GetHashCode(), Name, Table, Nullable);
 
         private string DebuggerDisplay() => $"{Table.Alias}.{Name}";
     }

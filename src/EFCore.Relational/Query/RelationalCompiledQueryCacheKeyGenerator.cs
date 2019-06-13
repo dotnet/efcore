@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
@@ -118,13 +119,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             /// <returns>
             ///     The hash code for the key.
             /// </returns>
-            public override int GetHashCode()
-            {
-                unchecked
-                {
-                    return (_compiledQueryCacheKey.GetHashCode() * 397) ^ _useRelationalNulls.GetHashCode();
-                }
-            }
+            public override int GetHashCode() => HashCode.Combine(_compiledQueryCacheKey, _useRelationalNulls);
         }
     }
 }

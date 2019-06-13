@@ -1,6 +1,8 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
+
 namespace Microsoft.EntityFrameworkCore.TestModels.TransportationModel
 {
     public class SolidFuelTank : FuelTank
@@ -13,8 +15,6 @@ namespace Microsoft.EntityFrameworkCore.TestModels.TransportationModel
                && base.Equals(other)
                && GrainGeometry == other.GrainGeometry;
 
-        public override int GetHashCode()
-            => base.GetHashCode() * 397
-               ^ GrainGeometry.GetHashCode();
+        public override int GetHashCode() => HashCode.Combine(base.GetHashCode(), GrainGeometry);
     }
 }

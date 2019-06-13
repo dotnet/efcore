@@ -250,12 +250,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     Returns a hash code for this object.
         /// </summary>
         /// <returns> The hash code. </returns>
-        public override int GetHashCode()
-        {
-            var hashCode = _coreTypeMappingInfo.GetHashCode();
-            hashCode = (hashCode * 397) ^ (StoreTypeName?.GetHashCode() ?? 0);
-            hashCode = (hashCode * 397) ^ (IsFixedLength?.GetHashCode() ?? 0);
-            return hashCode;
-        }
+        public override int GetHashCode() => HashCode.Combine(_coreTypeMappingInfo, StoreTypeName, IsFixedLength);
     }
 }

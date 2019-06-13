@@ -152,17 +152,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         /// <returns> A hash code for the current object. </returns>
         public override int GetHashCode()
-        {
-            unchecked
-            {
-                var hashCode = ProviderClrType.GetHashCode();
-                hashCode = (hashCode * 397) ^ ModelClrType.GetHashCode();
-                hashCode = (hashCode * 397) ^ (Mapping?.GetHashCode() ?? 0);
-                hashCode = (hashCode * 397) ^ (Property?.GetHashCode() ?? 0);
-                hashCode = (hashCode * 397) ^ Index;
-                hashCode = (hashCode * 397) ^ (IsFromLeftOuterJoin?.GetHashCode() ?? 0);
-                return hashCode;
-            }
-        }
+            => HashCode.Combine(ProviderClrType, ModelClrType, Mapping, Property, Index, IsFromLeftOuterJoin);
     }
 }

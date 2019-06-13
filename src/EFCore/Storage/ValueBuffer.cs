@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
@@ -143,12 +144,18 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </returns>
         public override int GetHashCode()
         {
-            unchecked
+            if (_values == null)
             {
-                return _values != null
-                    ? _values.Aggregate((_offset.GetHashCode()), (current, value) => (current * 397) ^ (value?.GetHashCode() ?? 0))
-                    : _offset.GetHashCode();
+                return _offset.GetHashCode();
             }
+
+            var hash = new HashCode();
+            hash.Add(_offset);
+            foreach (var value in _values)
+            {
+                hash.Add(value);
+            }
+            return hash.ToHashCode();
         }
     }
 }

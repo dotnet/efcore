@@ -1,6 +1,7 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -72,18 +73,6 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
             && (Values == null ? inExpression.Values == null : Values.Equals(inExpression.Values))
             && (Subquery == null ? inExpression.Subquery == null : Subquery.Equals(inExpression.Subquery));
 
-        public override int GetHashCode()
-        {
-            unchecked
-            {
-                var hashCode = base.GetHashCode();
-                hashCode = (hashCode * 397) ^ Item.GetHashCode();
-                hashCode = (hashCode * 397) ^ Negated.GetHashCode();
-                hashCode = (hashCode * 397) ^ (Values?.GetHashCode() ?? 0);
-                hashCode = (hashCode * 397) ^ (Subquery?.GetHashCode() ?? 0);
-
-                return hashCode;
-            }
-        }
+        public override int GetHashCode() => HashCode.Combine(base.GetHashCode(), Item, Negated, Values, Subquery);
     }
 }

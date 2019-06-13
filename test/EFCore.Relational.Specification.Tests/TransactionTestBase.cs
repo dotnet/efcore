@@ -1377,8 +1377,7 @@ namespace Microsoft.EntityFrameworkCore
 
             public override string ToString() => "Id = " + Id + ", Name = " + Name;
 
-            // ReSharper disable NonReadonlyMemberInGetHashCode
-            public override int GetHashCode() => Id.GetHashCode() * 397 ^ Name.GetHashCode();
+            public override int GetHashCode() => HashCode.Combine(Id, Name);
         }
     }
 }

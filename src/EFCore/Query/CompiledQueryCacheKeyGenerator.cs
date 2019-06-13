@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -135,14 +136,12 @@ namespace Microsoft.EntityFrameworkCore.Query
             /// </returns>
             public override int GetHashCode()
             {
-                unchecked
-                {
-                    var hashCode = ExpressionEqualityComparer.Instance.GetHashCode(_query);
-                    hashCode = (hashCode * 397) ^ _model.GetHashCode();
-                    hashCode = (hashCode * 397) ^ (int)_queryTrackingBehavior;
-                    hashCode = (hashCode * 397) ^ _async.GetHashCode();
-                    return hashCode;
-                }
+                var hash = new HashCode();
+                hash.Add(_query, ExpressionEqualityComparer.Instance);
+                hash.Add(_model);
+                hash.Add(_queryTrackingBehavior);
+                hash.Add(_async);
+                return hash.ToHashCode();
             }
         }
     }

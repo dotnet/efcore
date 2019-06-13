@@ -61,13 +61,7 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
                 return obj is null ? false : obj is CacheKey cacheKey && Equals(cacheKey);
             }
 
-            public override int GetHashCode()
-            {
-                unchecked
-                {
-                    return (Property.GetHashCode() * 397) ^ EntityType.GetHashCode();
-                }
-            }
+            public override int GetHashCode() => HashCode.Combine(Property, EntityType);
         }
 
         /// <summary>

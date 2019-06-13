@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Collections.Generic;
 
 // ReSharper disable NonReadonlyMemberInGetHashCode
@@ -55,15 +56,6 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ComplexNavigationsModel
                    && Level2_Optional_Id == other.Level2_Optional_Id;
         }
 
-        public override int GetHashCode()
-        {
-            unchecked
-            {
-                var hashCode = Id;
-                hashCode = (hashCode * 397) ^ (Name?.GetHashCode() ?? 0);
-                hashCode = (hashCode * 397) ^ Level2_Required_Id;
-                return (hashCode * 397) ^ (Level2_Optional_Id?.GetHashCode() ?? 0);
-            }
-        }
+        public override int GetHashCode() => HashCode.Combine(Id, Name, Level2_Required_Id, Level2_Optional_Id);
     }
 }

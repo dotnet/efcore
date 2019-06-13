@@ -86,7 +86,15 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 => TypeMaterializationInfo.SequenceEqual(other.TypeMaterializationInfo);
 
             public override int GetHashCode()
-                => TypeMaterializationInfo.Aggregate(0, (t, v) => (t * 397) ^ v.GetHashCode());
+            {
+                var hash = new HashCode();
+                // ReSharper disable once ForCanBeConvertedToForeach
+                for (var i = 0; i < TypeMaterializationInfo.Count; i++)
+                {
+                    hash.Add(TypeMaterializationInfo[i]);
+                }
+                return hash.ToHashCode();
+            }
         }
 
         private readonly ConcurrentDictionary<CacheKey, TypedRelationalValueBufferFactory> _cache

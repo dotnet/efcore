@@ -1770,15 +1770,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 return string.Equals(Id, other.Id) && Count == other.Count;
             }
 
-            public override int GetHashCode()
-            {
-                unchecked
-                {
-                    // ReSharper disable NonReadonlyMemberInGetHashCode
-                    return ((Id?.GetHashCode() ?? 0) * 397) ^ Count;
-                    // ReSharper restore NonReadonlyMemberInGetHashCode
-                }
-            }
+            public override int GetHashCode() => HashCode.Combine(Id, Count);
         }
 
         [ConditionalTheory(Skip = "Issue#15611")]

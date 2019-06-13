@@ -113,6 +113,13 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Expressions.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public override int GetHashCode()
-            => _orderings.Aggregate(0, (current, ordering) => current + ((current * 397) ^ ordering.GetHashCode()));
+        {
+            var hash = new HashCode();
+            foreach (var ordering in _orderings)
+            {
+                hash.Add(ordering);
+            }
+            return hash.ToHashCode();
+        }
     }
 }

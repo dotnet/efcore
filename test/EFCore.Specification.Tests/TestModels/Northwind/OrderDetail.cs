@@ -1,6 +1,8 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
+
 namespace Microsoft.EntityFrameworkCore.TestModels.Northwind
 {
     public class OrderDetail
@@ -31,12 +33,6 @@ namespace Microsoft.EntityFrameworkCore.TestModels.Northwind
                   && Equals((OrderDetail)obj);
         }
 
-        public override int GetHashCode()
-        {
-            unchecked
-            {
-                return (OrderID * 397) ^ ProductID;
-            }
-        }
+        public override int GetHashCode() => HashCode.Combine(OrderID, ProductID);
     }
 }
