@@ -17,18 +17,16 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
 
         protected override Expression VisitExtension(Expression extensionExpression)
         {
-            switch (extensionExpression)
+            var visitedExpression = base.VisitExtension(extensionExpression);
+            if (visitedExpression is TableExpressionBase tableExpressionBase
+                && !_visitedTableExpressionBases.Contains(tableExpressionBase)
+                && tableExpressionBase.Alias != null)
             {
-                case TableExpressionBase tableExpressionBase
-                    when !_visitedTableExpressionBases.Contains(tableExpressionBase)
-                        && tableExpressionBase.Alias != null:
-                    tableExpressionBase.Alias = GenerateUniqueAlias(tableExpressionBase.Alias);
-                    _visitedTableExpressionBases.Add(tableExpressionBase);
-                    return tableExpressionBase;
-
-                default:
-                    return base.VisitExtension(extensionExpression);
+                tableExpressionBase.Alias = GenerateUniqueAlias(tableExpressionBase.Alias);
+                _visitedTableExpressionBases.Add(tableExpressionBase);
             }
+
+            return visitedExpression;
         }
 
         private string GenerateUniqueAlias(string currentAlias)

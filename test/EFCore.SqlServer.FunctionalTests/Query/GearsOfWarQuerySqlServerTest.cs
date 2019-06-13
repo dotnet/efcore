@@ -2093,17 +2093,17 @@ INNER JOIN (
             await base.Join_navigation_translated_to_subquery_composite_key(isAsync);
 
             AssertSql(
-                @"SELECT [g].[FullName], [t].[Note]
+                @"SELECT [g].[FullName], [t1].[Note]
 FROM [Gears] AS [g]
 INNER JOIN (
-    SELECT [t0].[Id], [t0].[GearNickName], [t0].[GearSquadId], [t0].[Note], [t1].[Nickname], [t1].[SquadId], [t1].[AssignedCityName], [t1].[CityOrBirthName], [t1].[Discriminator], [t1].[FullName], [t1].[HasSoulPatch], [t1].[LeaderNickname], [t1].[LeaderSquadId], [t1].[Rank]
-    FROM [Tags] AS [t0]
+    SELECT [t].[Id], [t].[GearNickName], [t].[GearSquadId], [t].[Note], [t0].[Nickname], [t0].[SquadId], [t0].[AssignedCityName], [t0].[CityOrBirthName], [t0].[Discriminator], [t0].[FullName], [t0].[HasSoulPatch], [t0].[LeaderNickname], [t0].[LeaderSquadId], [t0].[Rank]
+    FROM [Tags] AS [t]
     LEFT JOIN (
         SELECT [g0].[Nickname], [g0].[SquadId], [g0].[AssignedCityName], [g0].[CityOrBirthName], [g0].[Discriminator], [g0].[FullName], [g0].[HasSoulPatch], [g0].[LeaderNickname], [g0].[LeaderSquadId], [g0].[Rank]
         FROM [Gears] AS [g0]
         WHERE [g0].[Discriminator] IN (N'Gear', N'Officer')
-    ) AS [t1] ON (([t0].[GearNickName] = [t1].[Nickname]) AND [t0].[GearNickName] IS NOT NULL) AND (([t0].[GearSquadId] = [t1].[SquadId]) AND [t0].[GearSquadId] IS NOT NULL)
-) AS [t] ON [g].[FullName] = [t].[FullName]
+    ) AS [t0] ON (([t].[GearNickName] = [t0].[Nickname]) AND [t].[GearNickName] IS NOT NULL) AND (([t].[GearSquadId] = [t0].[SquadId]) AND [t].[GearSquadId] IS NOT NULL)
+) AS [t1] ON [g].[FullName] = [t1].[FullName]
 WHERE [g].[Discriminator] IN (N'Gear', N'Officer')");
         }
 
