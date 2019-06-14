@@ -55,7 +55,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.Internal
         /// </summary>
         public virtual void Initialize(IDbContextOptions options)
         {
-            var cosmosOptions = options.FindExtension<CosmosDbOptionsExtension>();
+            var cosmosOptions = options.FindExtension<CosmosOptionsExtension>();
             if (cosmosOptions != null)
             {
                 ServiceEndPoint = cosmosOptions.ServiceEndPoint;
@@ -72,7 +72,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.Internal
         /// </summary>
         public virtual void Validate(IDbContextOptions options)
         {
-            var inMemoryOptions = options.FindExtension<CosmosDbOptionsExtension>();
+            var inMemoryOptions = options.FindExtension<CosmosOptionsExtension>();
 
             if (inMemoryOptions != null
                 && (ServiceEndPoint != inMemoryOptions.ServiceEndPoint

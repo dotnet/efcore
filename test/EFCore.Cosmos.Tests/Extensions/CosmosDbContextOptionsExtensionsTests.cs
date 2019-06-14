@@ -18,14 +18,11 @@ namespace Microsoft.EntityFrameworkCore
                 o => { o.Region(regionName); });
 
             var extension = options
-                .Options.FindExtension<CosmosDbOptionsExtension>();
+                .Options.FindExtension<CosmosOptionsExtension>();
 
             Assert.Equal(regionName, extension.Region);
         }
 
-        /// <summary>
-        /// The region will be checked by the cosmosdb sdk, because the region list is not constant
-        /// </summary>
         [ConditionalFact]
         public void Can_create_options_with_wrong_region()
         {
@@ -37,8 +34,9 @@ namespace Microsoft.EntityFrameworkCore
                 o => { o.Region(regionName); });
 
             var extension = options
-                .Options.FindExtension<CosmosDbOptionsExtension>();
+                .Options.FindExtension<CosmosOptionsExtension>();
 
+            // The region will be validated by the Cosmos SDK, because the region list is not constant
             Assert.Equal(regionName, extension.Region);
         }
     }

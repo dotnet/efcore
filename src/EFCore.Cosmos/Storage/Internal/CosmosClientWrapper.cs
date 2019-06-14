@@ -57,7 +57,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
             [NotNull] IExecutionStrategyFactory executionStrategyFactory,
             [NotNull] IDiagnosticsLogger<DbLoggerCategory.Database.Command> commandLogger)
         {
-            var options = dbContextOptions.FindExtension<CosmosDbOptionsExtension>();
+            var options = dbContextOptions.FindExtension<CosmosOptionsExtension>();
 
             _singletonWrapper = singletonWrapper;
             _databaseId = options.DatabaseName;
