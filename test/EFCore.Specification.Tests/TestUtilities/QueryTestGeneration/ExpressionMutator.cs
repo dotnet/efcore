@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using GeoAPI.Geometries;
+using NetTopologySuite.Geometries;
 
 namespace Microsoft.EntityFrameworkCore.TestUtilities.QueryTestGeneration
 {
@@ -94,8 +94,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities.QueryTestGeneration
                || expression.Type.GetInterfaces().Any(i => IsOrderedQueryableType(i));
 
         protected static bool IsOrderedableType(Type type)
-            => type != typeof(IGeometry)
-               && !type.GetInterfaces().Any(i => i == typeof(IGeometry))
+            => !typeof(Geometry).IsAssignableFrom(type)
                && type.GetInterfaces().Any(i => i == typeof(IComparable));
 
         protected List<PropertyInfo> FilterPropertyInfos(Type type, List<PropertyInfo> properties)

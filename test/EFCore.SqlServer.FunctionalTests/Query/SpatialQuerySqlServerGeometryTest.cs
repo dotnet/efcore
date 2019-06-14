@@ -25,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             await base.SimpleSelect(isAsync);
 
             AssertSql(
-                @"SELECT [p].[Id], [p].[ConcretePoint], [p].[Geometry], [p].[Point]
+                @"SELECT [p].[Id], [p].[Geometry], [p].[Point]
 FROM [PointEntity] AS [p]");
         }
 
@@ -292,18 +292,6 @@ FROM [PointEntity] AS [p]");
 //                @"@__point_0='0x00000000010C0000000000000000000000000000F03F' (Size = 22) (DbType = Binary)
 
 //SELECT [e].[Id], [e].[Geometry].STDistance(@__point_0) AS [Distance]
-//FROM [PointEntity] AS [e]");
-        }
-
-        public override async Task Distance_concrete(bool isAsync)
-        {
-            await base.Distance_concrete(isAsync);
-
-            // issue #15994
-//            AssertSql(
-//                @"@__point_0='0x00000000010C0000000000000000000000000000F03F' (Size = 22) (DbType = Binary)
-
-//SELECT [e].[Id], [e].[ConcretePoint].STDistance(@__point_0) AS [Distance]
 //FROM [PointEntity] AS [e]");
         }
 
@@ -618,15 +606,6 @@ FROM [PointEntity] AS [p]");
 
             AssertSql(
                 @"SELECT [p].[Id], [p].[Geometry].STSrid AS [SRID]
-FROM [PointEntity] AS [p]");
-        }
-
-        public override async Task SRID_concrete(bool isAsync)
-        {
-            await base.SRID_concrete(isAsync);
-
-            AssertSql(
-                @"SELECT [p].[Id], [p].[ConcretePoint].STSrid AS [SRID]
 FROM [PointEntity] AS [p]");
         }
 

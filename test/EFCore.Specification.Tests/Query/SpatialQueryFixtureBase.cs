@@ -2,16 +2,16 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Threading;
-using GeoAPI.Geometries;
 using Microsoft.EntityFrameworkCore.TestModels.SpatialModel;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using NetTopologySuite;
+using NetTopologySuite.Geometries;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
     public abstract class SpatialQueryFixtureBase : SharedStoreFixtureBase<SpatialContext>, IQueryFixtureBase
     {
-        private IGeometryFactory _geometryFactory;
+        private GeometryFactory _geometryFactory;
 
         protected SpatialQueryFixtureBase()
         {
@@ -24,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         public QueryAsserterBase QueryAsserter { get; set; }
 
-        public virtual IGeometryFactory GeometryFactory
+        public virtual GeometryFactory GeometryFactory
             => LazyInitializer.EnsureInitialized(
                 ref _geometryFactory,
                 () => NtsGeometryServices.Instance.CreateGeometryFactory(srid: 0));

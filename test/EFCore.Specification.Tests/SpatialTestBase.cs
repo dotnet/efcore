@@ -3,7 +3,6 @@
 
 using System;
 using System.Linq;
-using GeoAPI.Geometries;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.TestModels.SpatialModel;

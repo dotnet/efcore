@@ -6,13 +6,12 @@ using System.Data.Common;
 using System.Data.SqlTypes;
 using System.Reflection;
 using System.Text;
-using GeoAPI;
-using GeoAPI.Geometries;
 using JetBrains.Annotations;
 using Microsoft.Data.SqlClient; // Note: Hard reference to SqlClient here.
 using Microsoft.EntityFrameworkCore.SqlServer.Storage.ValueConversion.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+using NetTopologySuite;
 using NetTopologySuite.Geometries;
 using NetTopologySuite.IO;
 
@@ -25,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public class SqlServerGeometryTypeMapping<TGeometry> : RelationalGeometryTypeMapping<TGeometry, SqlBytes>
-        where TGeometry : IGeometry
+        where TGeometry : Geometry
     {
         private static readonly MethodInfo _getSqlBytes
             = typeof(SqlDataReader).GetRuntimeMethod(nameof(SqlDataReader.GetSqlBytes), new[] { typeof(int) });
@@ -39,7 +38,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [UsedImplicitly]
-        public SqlServerGeometryTypeMapping(IGeometryServices geometryServices, string storeType)
+        public SqlServerGeometryTypeMapping(NtsGeometryServices geometryServices, string storeType)
             : base(
                 new GeometryValueConverter<TGeometry>(
                     CreateReader(geometryServices, IsGeography(storeType)),
@@ -79,7 +78,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
         protected override string GenerateNonNullSqlLiteral(object value)
         {
             var builder = new StringBuilder();
-            var geometry = (IGeometry)value;
+            var geometry = (Geometry)value;
             var defaultSrid = geometry.SRID == (_isGeography ? 4326 : 0);
             if (geometry == Point.Empty)
             {
@@ -91,7 +90,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
                 .Append("::")
                 .Append(defaultSrid ? "Parse" : "STGeomFromText")
                 .Append("('")
-                .Append(geometry.AsText())
+                .Append(WKTWriter.ForMicrosoftSqlServer().Write(geometry))
                 .Append("'");
 
             if (!defaultSrid)
@@ -122,7 +121,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         protected override string AsText(object value)
-            => ((IGeometry)value).AsText();
+            => ((Geometry)value).AsText();
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -131,7 +130,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         protected override int GetSrid(object value)
-            => ((IGeometry)value).SRID;
+            => ((Geometry)value).SRID;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -156,7 +155,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
             }
         }
 
-        private static SqlServerBytesReader CreateReader(IGeometryServices services, bool isGeography)
+        private static SqlServerBytesReader CreateReader(NtsGeometryServices services, bool isGeography)
             => new SqlServerBytesReader(services)
             {
                 IsGeography = isGeography

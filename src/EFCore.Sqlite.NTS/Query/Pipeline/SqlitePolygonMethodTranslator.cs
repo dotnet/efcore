@@ -3,27 +3,27 @@
 
 using System.Collections.Generic;
 using System.Reflection;
-using GeoAPI.Geometries;
 using Microsoft.EntityFrameworkCore.Relational.Query.Pipeline;
 using Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions;
+using NetTopologySuite.Geometries;
 
 namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Pipeline
 {
     public class SqlitePolygonMethodTranslator : IMethodCallTranslator
     {
         private static readonly MethodInfo _getInteriorRingN
-            = typeof(IPolygon).GetRuntimeMethod(nameof(IPolygon.GetInteriorRingN), new[] { typeof(int) });
+            = typeof(Polygon).GetRuntimeMethod(nameof(Polygon.GetInteriorRingN), new[] { typeof(int) });
 
         private readonly ISqlExpressionFactory _sqlExpressionFactory;
 
-        public SqlitePolygonMethodTranslator(            ISqlExpressionFactory sqlExpressionFactory)
+        public SqlitePolygonMethodTranslator(ISqlExpressionFactory sqlExpressionFactory)
         {
             _sqlExpressionFactory = sqlExpressionFactory;
         }
 
         public SqlExpression Translate(SqlExpression instance, MethodInfo method, IList<SqlExpression> arguments)
         {
-            if (Equals(method.OnInterface(typeof(IPolygon)), _getInteriorRingN))
+            if (Equals(method, _getInteriorRingN))
             {
                 return _sqlExpressionFactory.Function(
                     "InteriorRingN",

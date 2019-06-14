@@ -3,10 +3,8 @@
 
 using System.Linq;
 using System.Threading.Tasks;
-using GeoAPI.Geometries;
 using Microsoft.EntityFrameworkCore.TestModels.SpatialModel;
 using Microsoft.EntityFrameworkCore.TestUtilities;
-using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
 using NetTopologySuite.Geometries;
 using Xunit;
 
@@ -35,9 +33,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 {
                     Assert.Equal(e.Id, a.Id);
 
-                    Assert.Equal((IGeometry)e.Geometry, (IGeometry)a.Geometry, GeometryComparer.Instance);
-                    Assert.Equal((IPoint)e.Point, (IPoint)a.Point, GeometryComparer.Instance);
-                    Assert.Equal((Point)e.ConcretePoint, (Point)a.ConcretePoint, GeometryComparer.Instance);
+                    Assert.Equal((Geometry)e.Geometry, (Geometry)a.Geometry, GeometryComparer.Instance);
+                    Assert.Equal((Point)e.Point, (Point)a.Point, GeometryComparer.Instance);
                 });
         }
 
@@ -122,7 +119,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 elementAsserter: (e, a) =>
                 {
                     Assert.Equal(e.Id, a.Id);
-                    Assert.Equal((IGeometry)e.Boundary, (IGeometry)a.Boundary, GeometryComparer.Instance);
+                    Assert.Equal((Geometry)e.Boundary, (Geometry)a.Boundary, GeometryComparer.Instance);
                 });
         }
 
@@ -137,7 +134,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 elementAsserter: (e, a) =>
                 {
                     Assert.Equal(e.Id, a.Id);
-                    Assert.Equal((IPoint)e.Buffer?.Centroid, (IPoint)a.Buffer?.Centroid, GeometryComparer.Instance);
+                    Assert.Equal((Point)e.Buffer?.Centroid, (Point)a.Buffer?.Centroid, GeometryComparer.Instance);
 
                     if (e.Buffer == null)
                     {
@@ -161,7 +158,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 elementAsserter: (e, a) =>
                 {
                     Assert.Equal(e.Id, a.Id);
-                    Assert.Equal((IPoint)e.Buffer?.Centroid, (IPoint)a.Buffer?.Centroid, GeometryComparer.Instance);
+                    Assert.Equal((Point)e.Buffer?.Centroid, (Point)a.Buffer?.Centroid, GeometryComparer.Instance);
 
                     if (e.Buffer == null)
                     {
@@ -185,7 +182,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 elementAsserter: (e, a) =>
                 {
                     Assert.Equal(e.Id, a.Id);
-                    Assert.Equal((IPoint)e.Centroid, (IPoint)a.Centroid, GeometryComparer.Instance);
+                    Assert.Equal((Point)e.Centroid, (Point)a.Centroid, GeometryComparer.Instance);
                 });
         }
 
@@ -217,7 +214,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 elementAsserter: (e, a) =>
                 {
                     Assert.Equal(e.Id, a.Id);
-                    Assert.Equal((IGeometry)e.ConvexHull, (IGeometry)a.ConvexHull, GeometryComparer.Instance);
+                    Assert.Equal((Geometry)e.ConvexHull, (Geometry)a.ConvexHull, GeometryComparer.Instance);
                 });
         }
 
@@ -336,7 +333,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 elementAsserter: (e, a) =>
                 {
                     Assert.Equal(e.Id, a.Id);
-                    Assert.Equal((IGeometry)e.Difference, (IGeometry)a.Difference, GeometryComparer.Instance);
+                    Assert.Equal((Geometry)e.Difference, (Geometry)a.Difference, GeometryComparer.Instance);
                 });
         }
 
@@ -410,36 +407,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                     {
                         e.Id,
                         Distance = e.Geometry == null ? (double?)null : e.Geometry.Distance(point)
-                    }),
-                elementSorter: e => e.Id,
-                elementAsserter: (e, a) =>
-                {
-                    Assert.Equal(e.Id, a.Id);
-
-                    if (e.Distance == null)
-                    {
-                        Assert.Null(a.Distance);
-                    }
-                    else if (AssertDistances)
-                    {
-                        Assert.Equal(e.Distance, a.Distance);
-                    }
-                });
-        }
-
-        [ConditionalTheory]
-        [MemberData(nameof(IsAsyncData))]
-        public virtual Task Distance_concrete(bool isAsync)
-        {
-            var point = Fixture.GeometryFactory.CreatePoint(new Coordinate(0, 1));
-
-            return AssertQuery<PointEntity>(
-                isAsync,
-                es => es.Select(
-                    e => new
-                    {
-                        e.Id,
-                        Distance = e.ConcretePoint == null ? (double?)null : e.ConcretePoint.Distance(point)
                     }),
                 elementSorter: e => e.Id,
                 elementAsserter: (e, a) =>
@@ -572,7 +539,19 @@ namespace Microsoft.EntityFrameworkCore.Query
                         Distance = e.Location.Distance(new GeoPoint(1, 0))
                     }),
                 elementSorter: e => e.Id,
-                elementAsserter: (e, a) => { Assert.Equal(e.Id, a.Id); });
+                elementAsserter: (e, a) =>
+                {
+                    Assert.Equal(e.Id, a.Id);
+
+                    if (e.Distance == null)
+                    {
+                        Assert.Null(a.Distance);
+                    }
+                    else if (AssertDistances)
+                    {
+                        Assert.Equal(e.Distance, a.Distance);
+                    }
+                });
         }
 
         [ConditionalTheory]
@@ -588,7 +567,19 @@ namespace Microsoft.EntityFrameworkCore.Query
                         Distance = new GeoPoint(1, 0).Distance(e.Location)
                     }),
                 elementSorter: e => e.Id,
-                elementAsserter: (e, a) => { Assert.Equal(e.Id, a.Id); });
+                elementAsserter: (e, a) =>
+                {
+                    Assert.Equal(e.Id, a.Id);
+
+                    if (e.Distance == null)
+                    {
+                        Assert.Null(a.Distance);
+                    }
+                    else if (AssertDistances)
+                    {
+                        Assert.Equal(e.Distance, a.Distance);
+                    }
+                });
         }
 
         [ConditionalTheory]
@@ -612,7 +603,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 elementAsserter: (e, a) =>
                 {
                     Assert.Equal(e.Id, a.Id);
-                    Assert.Equal((IGeometry)e.Envelope, (IGeometry)a.Envelope, GeometryComparer.Instance);
+                    Assert.Equal((Geometry)e.Envelope, (Geometry)a.Envelope, GeometryComparer.Instance);
                 });
         }
 
@@ -751,7 +742,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 elementAsserter: (e, a) =>
                 {
                     Assert.Equal(e.Id, a.Id);
-                    Assert.Equal((IGeometry)e.Intersection, (IGeometry)a.Intersection, GeometryComparer.Instance);
+                    Assert.Equal((Geometry)e.Intersection, (Geometry)a.Intersection, GeometryComparer.Instance);
                 });
         }
 
@@ -1129,21 +1120,6 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task SRID_concrete(bool isAsync)
-        {
-            return AssertQuery<PointEntity>(
-                isAsync,
-                es => es.Select(
-                    e => new
-                    {
-                        e.Id,
-                        SRID = e.ConcretePoint == null ? (int?)null : e.ConcretePoint.SRID
-                    }),
-                elementSorter: x => x.Id);
-        }
-
-        [ConditionalTheory]
-        [MemberData(nameof(IsAsyncData))]
         public virtual Task StartPoint(bool isAsync)
         {
             return AssertQuery<LineStringEntity>(
@@ -1178,8 +1154,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 {
                     Assert.Equal(e.Id, a.Id);
                     Assert.Equal(
-                        (IGeometry)e.SymmetricDifference,
-                        (IGeometry)a.SymmetricDifference,
+                        (Geometry)e.SymmetricDifference,
+                        (Geometry)a.SymmetricDifference,
                         GeometryComparer.Instance);
                 });
         }
@@ -1263,7 +1239,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 elementAsserter: (e, a) =>
                 {
                     Assert.Equal(e.Id, a.Id);
-                    Assert.Equal((IGeometry)e.Union, (IGeometry)a.Union, GeometryComparer.Instance);
+                    Assert.Equal((Geometry)e.Union, (Geometry)a.Union, GeometryComparer.Instance);
                 });
         }
 

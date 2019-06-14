@@ -4,9 +4,9 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
-using GeoAPI.Geometries;
 using Microsoft.EntityFrameworkCore.Relational.Query.Pipeline;
 using Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions;
+using NetTopologySuite.Geometries;
 
 namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Pipeline
 {
@@ -15,8 +15,8 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Pipeline
         private static readonly IDictionary<MemberInfo, string> _memberToFunctionName
             = new Dictionary<MemberInfo, string>
             {
-                { typeof(IPolygon).GetRuntimeProperty(nameof(IPolygon.ExteriorRing)), "ExteriorRing" },
-                { typeof(IPolygon).GetRuntimeProperty(nameof(IPolygon.NumInteriorRings)), "NumInteriorRing" }
+                { typeof(Polygon).GetRuntimeProperty(nameof(Polygon.ExteriorRing)), "ExteriorRing" },
+                { typeof(Polygon).GetRuntimeProperty(nameof(Polygon.NumInteriorRings)), "NumInteriorRing" }
             };
         private readonly ISqlExpressionFactory _sqlExpressionFactory;
 
@@ -27,7 +27,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Pipeline
 
         public SqlExpression Translate(SqlExpression instance, MemberInfo member, Type returnType)
         {
-            return _memberToFunctionName.TryGetValue(member.OnInterface(typeof(IPolygon)), out var functionName)
+            return _memberToFunctionName.TryGetValue(member, out var functionName)
                 ? _sqlExpressionFactory.Function(functionName, new[] { instance }, returnType)
                 : null;
         }

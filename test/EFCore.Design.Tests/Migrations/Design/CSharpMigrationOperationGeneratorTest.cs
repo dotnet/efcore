@@ -4,7 +4,6 @@
 using System;
 using System.Linq;
 using System.Reflection;
-using GeoAPI.Geometries;
 using Microsoft.EntityFrameworkCore.Design.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
@@ -2316,7 +2315,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         };
 
         private static readonly MultiPoint _multiPoint = new MultiPoint(
-            new IPoint[] { new Point(1.1, 2.2), new Point(2.2, 2.2), new Point(2.2, 1.1) })
+            new Point[] { new Point(1.1, 2.2), new Point(2.2, 2.2), new Point(2.2, 1.1) })
         {
             SRID = 4326
         };
@@ -2341,19 +2340,19 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         };
 
         private static readonly MultiLineString _multiLineString = new MultiLineString(
-            new ILineString[] { _lineString1, _lineString2 })
+            new LineString[] { _lineString1, _lineString2 })
         {
             SRID = 4326
         };
 
         private static readonly MultiPolygon _multiPolygon = new MultiPolygon(
-            new IPolygon[] { _polygon2, _polygon1 })
+            new Polygon[] { _polygon2, _polygon1 })
         {
             SRID = 4326
         };
 
         private static readonly GeometryCollection _geometryCollection = new GeometryCollection(
-            new IGeometry[] { _lineString1, _lineString2, _multiPoint, _polygon1, _polygon2, _point1, _multiLineString, _multiPolygon })
+            new Geometry[] { _lineString1, _lineString2, _multiPoint, _polygon1, _polygon2, _point1, _multiLineString, _multiPolygon })
         {
             SRID = 4326
         };
@@ -2386,7 +2385,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 "    values: new object[,]" + _eol +
                 "    {" + _eol +
                 "        { 0, null, null }," + _eol +
-                "        { 1, \"Daenerys Targaryen\", (NetTopologySuite.Geometries.Point)new NetTopologySuite.IO.WKTReader().Read(\"SRID=4326;POINT (1.1 2.2 3.3)\") },"
+                "        { 1, \"Daenerys Targaryen\", (NetTopologySuite.Geometries.Point)new NetTopologySuite.IO.WKTReader().Read(\"SRID=4326;POINT Z(1.1 2.2 3.3)\") },"
                 + _eol +
                 "        { 2, \"John Snow\", (NetTopologySuite.Geometries.Polygon)new NetTopologySuite.IO.WKTReader().Read(\"SRID=4326;POLYGON ((1.1 2.2, 2.2 2.2, 2.2 1.1, 1.1 2.2))\") },"
                 + _eol +
@@ -2398,7 +2397,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 + _eol +
                 "        { 6, \"The Kingslayer\", (NetTopologySuite.Geometries.MultiLineString)new NetTopologySuite.IO.WKTReader().Read(\"SRID=4326;MULTILINESTRING ((1.1 2.2, 2.2 2.2, 2.2 1.1, 7.1 7.2), (7.1 7.2, 20.2 20.2, 20.2 1.1, 70.1 70.2))\") },"
                 + _eol +
-                "        { 7, \"Aemon Targaryen\", (NetTopologySuite.Geometries.GeometryCollection)new NetTopologySuite.IO.WKTReader().Read(\"SRID=4326;GEOMETRYCOLLECTION (LINESTRING (1.1 2.2, 2.2 2.2, 2.2 1.1, 7.1 7.2), LINESTRING (7.1 7.2, 20.2 20.2, 20.2 1.1, 70.1 70.2), MULTIPOINT ((1.1 2.2), (2.2 2.2), (2.2 1.1)), POLYGON ((1.1 2.2, 2.2 2.2, 2.2 1.1, 1.1 2.2)), POLYGON ((10.1 20.2, 20.2 20.2, 20.2 10.1, 10.1 20.2)), POINT (1.1 2.2 3.3), MULTILINESTRING ((1.1 2.2, 2.2 2.2, 2.2 1.1, 7.1 7.2), (7.1 7.2, 20.2 20.2, 20.2 1.1, 70.1 70.2)), MULTIPOLYGON (((10.1 20.2, 20.2 20.2, 20.2 10.1, 10.1 20.2)), ((1.1 2.2, 2.2 2.2, 2.2 1.1, 1.1 2.2))))\") }"
+                "        { 7, \"Aemon Targaryen\", (NetTopologySuite.Geometries.GeometryCollection)new NetTopologySuite.IO.WKTReader().Read(\"SRID=4326;GEOMETRYCOLLECTION Z(LINESTRING Z(1.1 2.2 NaN, 2.2 2.2 NaN, 2.2 1.1 NaN, 7.1 7.2 NaN), LINESTRING Z(7.1 7.2 NaN, 20.2 20.2 NaN, 20.2 1.1 NaN, 70.1 70.2 NaN), MULTIPOINT Z((1.1 2.2 NaN), (2.2 2.2 NaN), (2.2 1.1 NaN)), POLYGON Z((1.1 2.2 NaN, 2.2 2.2 NaN, 2.2 1.1 NaN, 1.1 2.2 NaN)), POLYGON Z((10.1 20.2 NaN, 20.2 20.2 NaN, 20.2 10.1 NaN, 10.1 20.2 NaN)), POINT Z(1.1 2.2 3.3), MULTILINESTRING Z((1.1 2.2 NaN, 2.2 2.2 NaN, 2.2 1.1 NaN, 7.1 7.2 NaN), (7.1 7.2 NaN, 20.2 20.2 NaN, 20.2 1.1 NaN, 70.1 70.2 NaN)), MULTIPOLYGON Z(((10.1 20.2 NaN, 20.2 20.2 NaN, 20.2 10.1 NaN, 10.1 20.2 NaN)), ((1.1 2.2 NaN, 2.2 2.2 NaN, 2.2 1.1 NaN, 1.1 2.2 NaN))))\") }"
                 + _eol +
                 "    });",
                 o =>
@@ -2433,7 +2432,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 "mb.InsertData(" + _eol +
                 "    table: \"People\"," + _eol +
                 "    column: \"Geometry\"," + _eol +
-                "    value: (NetTopologySuite.Geometries.Point)new NetTopologySuite.IO.WKTReader().Read(\"SRID=4326;POINT (1.1 2.2 3.3)\"));",
+                "    value: (NetTopologySuite.Geometries.Point)new NetTopologySuite.IO.WKTReader().Read(\"SRID=4326;POINT Z(1.1 2.2 3.3)\"));",
                 o =>
                 {
                     Assert.Equal("People", o.Table);
@@ -3025,7 +3024,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 References =
                 {
                     BuildReference.ByName("Microsoft.EntityFrameworkCore.Relational"),
-                    BuildReference.ByName("GeoAPI"),
                     BuildReference.ByName("NetTopologySuite")
                 },
                 Sources =

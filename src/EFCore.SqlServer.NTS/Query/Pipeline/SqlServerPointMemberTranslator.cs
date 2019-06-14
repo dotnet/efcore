@@ -5,9 +5,9 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Reflection;
-using GeoAPI.Geometries;
 using Microsoft.EntityFrameworkCore.Relational.Query.Pipeline;
 using Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions;
+using NetTopologySuite.Geometries;
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Pipeline
 {
@@ -15,20 +15,20 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Pipeline
     {
         private static readonly IDictionary<MemberInfo, string> _memberToPropertyName = new Dictionary<MemberInfo, string>
         {
-            { typeof(IPoint).GetRuntimeProperty(nameof(IPoint.M)), "M" },
-            { typeof(IPoint).GetRuntimeProperty(nameof(IPoint.Z)), "Z" }
+            { typeof(Point).GetRuntimeProperty(nameof(Point.M)), "M" },
+            { typeof(Point).GetRuntimeProperty(nameof(Point.Z)), "Z" }
         };
 
         private static readonly IDictionary<MemberInfo, string> _geographyMemberToPropertyName = new Dictionary<MemberInfo, string>
         {
-            { typeof(IPoint).GetRuntimeProperty(nameof(IPoint.X)), "Long" },
-            { typeof(IPoint).GetRuntimeProperty(nameof(IPoint.Y)), "Lat" }
+            { typeof(Point).GetRuntimeProperty(nameof(Point.X)), "Long" },
+            { typeof(Point).GetRuntimeProperty(nameof(Point.Y)), "Lat" }
         };
 
         private static readonly IDictionary<MemberInfo, string> _geometryMemberToPropertyName = new Dictionary<MemberInfo, string>
         {
-            { typeof(IPoint).GetRuntimeProperty(nameof(IPoint.X)), "STX" },
-            { typeof(IPoint).GetRuntimeProperty(nameof(IPoint.Y)), "STY" }
+            { typeof(Point).GetRuntimeProperty(nameof(Point.X)), "STX" },
+            { typeof(Point).GetRuntimeProperty(nameof(Point.Y)), "STY" }
         };
 
         private readonly ISqlExpressionFactory _sqlExpressionFactory;
@@ -40,13 +40,12 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Pipeline
 
         public SqlExpression Translate(SqlExpression instance, MemberInfo member, Type returnType)
         {
-            if (typeof(IPoint).IsAssignableFrom(member.DeclaringType))
+            if (typeof(Point).IsAssignableFrom(member.DeclaringType))
             {
                 Debug.Assert(instance.TypeMapping != null, "Instance must have typeMapping assigned.");
                 var storeType = instance.TypeMapping.StoreType;
                 var isGeography = string.Equals(storeType, "geography", StringComparison.OrdinalIgnoreCase);
 
-                member = member.OnInterface(typeof(IPoint));
                 if (_memberToPropertyName.TryGetValue(member, out var propertyName)
                     || (isGeography
                         ? _geographyMemberToPropertyName.TryGetValue(member, out propertyName)

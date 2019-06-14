@@ -27,11 +27,10 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Pipeline
         {
             Translators = new IMemberTranslator[]
             {
-                new SqliteCurveMemberTranslator(sqlExpressionFactory),
                 new SqliteGeometryMemberTranslator(sqlExpressionFactory),
                 new SqliteGeometryCollectionMemberTranslator(sqlExpressionFactory),
                 new SqliteLineStringMemberTranslator(sqlExpressionFactory),
-                new SqliteMultiCurveMemberTranslator(sqlExpressionFactory),
+                new SqliteMultiLineStringMemberTranslator(sqlExpressionFactory),
                 new SqlitePointMemberTranslator(sqlExpressionFactory),
                 new SqlitePolygonMemberTranslator(sqlExpressionFactory)
             };

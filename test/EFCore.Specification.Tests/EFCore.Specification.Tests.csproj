@@ -18,7 +18,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="NetTopologySuite.Core" Version="$(NetTopologySuiteCorePackageVersion)" />
+    <PackageReference Include="NetTopologySuite" Version="$(NetTopologySuitePackageVersion)" />
   </ItemGroup>
 
 </Project>

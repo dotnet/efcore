@@ -3,16 +3,16 @@
 
 using System.Collections.Generic;
 using System.Reflection;
-using GeoAPI.Geometries;
 using Microsoft.EntityFrameworkCore.Relational.Query.Pipeline;
 using Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions;
 using Microsoft.EntityFrameworkCore.Storage;
+using NetTopologySuite.Geometries;
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Pipeline
 {
     public class SqlServerGeometryCollectionMethodTranslator : IMethodCallTranslator
     {
-        private static readonly MethodInfo _item = typeof(IGeometryCollection).GetRuntimeProperty("Item").GetMethod;
+        private static readonly MethodInfo _item = typeof(GeometryCollection).GetRuntimeProperty("Item").GetMethod;
         private readonly IRelationalTypeMappingSource _typeMappingSource;
         private readonly ISqlExpressionFactory _sqlExpressionFactory;
 
@@ -26,8 +26,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Pipeline
 
         public SqlExpression Translate(SqlExpression instance, MethodInfo method, IList<SqlExpression> arguments)
         {
-            if (typeof(IGeometryCollection).IsAssignableFrom(method.DeclaringType)
-                && Equals(method.OnInterface(typeof(IGeometryCollection)), _item))
+            if (Equals(method, _item))
             {
                 return _sqlExpressionFactory.Function(
                     instance,
@@ -38,7 +37,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Pipeline
                             _sqlExpressionFactory.Constant(1))
                     },
                     method.ReturnType,
-                    _typeMappingSource.FindMapping(typeof(IGeometry), instance.TypeMapping.StoreType));
+                    _typeMappingSource.FindMapping(typeof(Geometry), instance.TypeMapping.StoreType));
             }
 
             return null;

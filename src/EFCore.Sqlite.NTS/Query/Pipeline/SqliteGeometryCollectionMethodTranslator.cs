@@ -3,15 +3,15 @@
 
 using System.Collections.Generic;
 using System.Reflection;
-using GeoAPI.Geometries;
 using Microsoft.EntityFrameworkCore.Relational.Query.Pipeline;
 using Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions;
+using NetTopologySuite.Geometries;
 
 namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Pipeline
 {
     public class SqliteGeometryCollectionMethodTranslator : IMethodCallTranslator
     {
-        private static readonly MethodInfo _item = typeof(IGeometryCollection).GetRuntimeProperty("Item").GetMethod;
+        private static readonly MethodInfo _item = typeof(GeometryCollection).GetRuntimeProperty("Item").GetMethod;
         private readonly ISqlExpressionFactory _sqlExpressionFactory;
 
         public SqliteGeometryCollectionMethodTranslator(ISqlExpressionFactory sqlExpressionFactory)
@@ -21,7 +21,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Pipeline
 
         public SqlExpression Translate(SqlExpression instance, MethodInfo method, IList<SqlExpression> arguments)
         {
-            if (Equals(method.OnInterface(typeof(IGeometryCollection)), _item))
+            if (Equals(method, _item))
             {
                 return _sqlExpressionFactory.Function(
                     "GeometryN",

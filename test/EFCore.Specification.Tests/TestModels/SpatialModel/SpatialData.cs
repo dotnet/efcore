@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using GeoAPI.Geometries;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using NetTopologySuite.Geometries;
 
@@ -18,7 +17,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.SpatialModel
         private readonly IReadOnlyList<PolygonEntity> _polygonEntities;
         private readonly IReadOnlyList<MultiLineStringEntity> _multiLineStringEntities;
 
-        public SpatialData(IGeometryFactory factory)
+        public SpatialData(GeometryFactory factory)
         {
             _pointEntities = CreatePointEntities(factory);
             _geoPointEntities = CreateGeoPointEntities();
@@ -58,7 +57,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.SpatialModel
             throw new InvalidOperationException("Unknown entity type: " + typeof(TEntity));
         }
 
-        public static IReadOnlyList<PointEntity> CreatePointEntities(IGeometryFactory factory)
+        public static IReadOnlyList<PointEntity> CreatePointEntities(GeometryFactory factory)
         {
             var entities = new[]
             {
@@ -78,7 +77,6 @@ namespace Microsoft.EntityFrameworkCore.TestModels.SpatialModel
             foreach (var entity in entities)
             {
                 entity.Geometry = entity.Point?.Copy();
-                entity.ConcretePoint = (Point)entity.Point?.Copy();
             }
 
             return entities;
@@ -99,7 +97,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.SpatialModel
                 }
             };
 
-        public static IReadOnlyList<LineStringEntity> CreateLineStringEntities(IGeometryFactory factory)
+        public static IReadOnlyList<LineStringEntity> CreateLineStringEntities(GeometryFactory factory)
             => new[]
             {
                 new LineStringEntity
@@ -119,7 +117,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.SpatialModel
                 }
             };
 
-        public static IReadOnlyList<PolygonEntity> CreatePolygonEntities(IGeometryFactory factory)
+        public static IReadOnlyList<PolygonEntity> CreatePolygonEntities(GeometryFactory factory)
             => new[]
             {
                 new PolygonEntity
@@ -141,7 +139,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.SpatialModel
                 }
             };
 
-        public static IReadOnlyList<MultiLineStringEntity> CreateMultiLineStringEntities(IGeometryFactory factory)
+        public static IReadOnlyList<MultiLineStringEntity> CreateMultiLineStringEntities(GeometryFactory factory)
             => new[]
             {
                 new MultiLineStringEntity

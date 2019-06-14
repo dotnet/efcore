@@ -8,7 +8,7 @@ using System.Reflection;
 namespace Microsoft.EntityFrameworkCore.ChangeTracking
 {
     /// <summary>
-    ///     Value snapshotting and comparison logic for GeoAPI.Geometries.IGeometry instances.
+    ///     Value snapshotting and comparison logic for NetTopologySuite.Geometries.Geometry instances.
     /// </summary>
     public class GeometryValueComparer<TGeometry> : ValueComparer<TGeometry>
     {
@@ -31,7 +31,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             return Expression.Lambda<Func<TGeometry, TGeometry, bool>>(
                 Expression.Call(
                     left,
-                    GetGeometryType().GetRuntimeMethod("EqualsTopologically", new[] { typeof(TGeometry) }),
+                    typeof(TGeometry).GetRuntimeMethod("EqualsTopologically", new[] { typeof(TGeometry) }),
                     right),
                 left,
                 right);
@@ -41,23 +41,16 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         {
             var instance = Expression.Parameter(typeof(TGeometry), "instance");
 
-            var geometryType = GetGeometryType();
-
             Expression body = Expression.Call(
                 instance,
-                geometryType.GetRuntimeMethod("Copy", Type.EmptyTypes));
+                typeof(TGeometry).GetRuntimeMethod("Copy", Type.EmptyTypes));
 
-            if (geometryType != typeof(TGeometry))
+            if (typeof(TGeometry).FullName != "NetTopologySuite.Geometries.Geometry")
             {
                 body = Expression.Convert(body, typeof(TGeometry));
             }
 
             return Expression.Lambda<Func<TGeometry, TGeometry>>(body, instance);
         }
-
-        private static Type GetGeometryType()
-            => typeof(TGeometry).FullName != "GeoAPI.Geometries.IGeometry"
-                ? typeof(TGeometry).GetInterface("GeoAPI.Geometries.IGeometry")
-                : typeof(TGeometry);
     }
 }

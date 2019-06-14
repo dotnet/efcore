@@ -3,25 +3,25 @@
 
 using System;
 using System.Reflection;
-using GeoAPI.Geometries;
 using Microsoft.EntityFrameworkCore.Relational.Query.Pipeline;
 using Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions;
+using NetTopologySuite.Geometries;
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Pipeline
 {
-    public class SqlServerMultiCurveMemberTranslator : IMemberTranslator
+    public class SqlServerMultiLineStringMemberTranslator : IMemberTranslator
     {
-        private static readonly MemberInfo _isClosed = typeof(IMultiCurve).GetRuntimeProperty(nameof(IMultiCurve.IsClosed));
+        private static readonly MemberInfo _isClosed = typeof(MultiLineString).GetRuntimeProperty(nameof(MultiLineString.IsClosed));
         private readonly ISqlExpressionFactory _sqlExpressionFactory;
 
-        public SqlServerMultiCurveMemberTranslator(ISqlExpressionFactory sqlExpressionFactory)
+        public SqlServerMultiLineStringMemberTranslator(ISqlExpressionFactory sqlExpressionFactory)
         {
             _sqlExpressionFactory = sqlExpressionFactory;
         }
 
         public SqlExpression Translate(SqlExpression instance, MemberInfo member, Type returnType)
         {
-            if (Equals(member.OnInterface(typeof(IMultiCurve)), _isClosed))
+            if (Equals(member, _isClosed))
             {
                 return _sqlExpressionFactory.Function(
                     instance,

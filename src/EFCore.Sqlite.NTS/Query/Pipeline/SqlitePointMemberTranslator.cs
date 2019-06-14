@@ -4,9 +4,9 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
-using GeoAPI.Geometries;
 using Microsoft.EntityFrameworkCore.Relational.Query.Pipeline;
 using Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions;
+using NetTopologySuite.Geometries;
 
 namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Pipeline
 {
@@ -14,10 +14,10 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Pipeline
     {
         private static readonly IDictionary<MemberInfo, string> _memberToFunctionName = new Dictionary<MemberInfo, string>
         {
-            { typeof(IPoint).GetRuntimeProperty(nameof(IPoint.M)), "M" },
-            { typeof(IPoint).GetRuntimeProperty(nameof(IPoint.X)), "X" },
-            { typeof(IPoint).GetRuntimeProperty(nameof(IPoint.Y)), "Y" },
-            { typeof(IPoint).GetRuntimeProperty(nameof(IPoint.Z)), "Z" }
+            { typeof(Point).GetRuntimeProperty(nameof(Point.M)), "M" },
+            { typeof(Point).GetRuntimeProperty(nameof(Point.X)), "X" },
+            { typeof(Point).GetRuntimeProperty(nameof(Point.Y)), "Y" },
+            { typeof(Point).GetRuntimeProperty(nameof(Point.Z)), "Z" }
         };
         private readonly ISqlExpressionFactory _sqlExpressionFactory;
 
@@ -28,7 +28,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Pipeline
 
         public SqlExpression Translate(SqlExpression instance, MemberInfo member, Type returnType)
         {
-            return _memberToFunctionName.TryGetValue(member.OnInterface(typeof(IPoint)), out var functionName)
+            return _memberToFunctionName.TryGetValue(member, out var functionName)
                 ? _sqlExpressionFactory.Function(functionName, new[] { instance }, returnType)
                 : null;
         }

@@ -3,6 +3,7 @@
 
 using System;
 using System.Diagnostics;
+using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -58,8 +59,8 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
                 return new InMemoryTypeMapping(clrType, structuralComparer: new ArrayStructuralComparer<byte>());
             }
 
-            if (clrType.FullName == "GeoAPI.Geometries.IGeometry"
-                || clrType.GetInterface("GeoAPI.Geometries.IGeometry") != null)
+            if (clrType.FullName == "NetTopologySuite.Geometries.Geometry"
+                || clrType.GetBaseTypes().Any(t => t.FullName == "NetTopologySuite.Geometries.Geometry"))
             {
                 var comparer = (ValueComparer)Activator.CreateInstance(typeof(GeometryValueComparer<>).MakeGenericType(clrType));
 

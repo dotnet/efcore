@@ -14,7 +14,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Microsoft.EntityFrameworkCore.Storage
 {
     /// <summary>
-    ///     Base class for relation type mappings to NTS IGeometry and implementing types.
+    ///     Base class for relation type mappings to NTS Geometry and derived types.
     /// </summary>
     /// <typeparam name="TGeometry"> The geometry type. </typeparam>
     /// <typeparam name="TProvider"> The native type of the database provider. </typeparam>
@@ -47,7 +47,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         }
 
         /// <summary>
-        ///     The underlying IGeometry converter.
+        ///     The underlying Geometry converter.
         /// </summary>
         protected virtual ValueConverter<TGeometry, TProvider> SpatialConverter { get; }
 
@@ -151,14 +151,14 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <summary>
         ///     Returns the Well-Known-Text (WKT) representation of the given object.
         /// </summary>
-        /// <param name="value"> The 'IGeometry' value. </param>
+        /// <param name="value"> The 'Geometry' value. </param>
         /// <returns> The WKT. </returns>
         protected abstract string AsText([NotNull] object value);
 
         /// <summary>
         ///     Returns the SRID representation of the given object.
         /// </summary>
-        /// <param name="value"> The 'IGeometry' value. </param>
+        /// <param name="value"> The 'Geometry' value. </param>
         /// <returns> The SRID. </returns>
         protected abstract int GetSrid([NotNull] object value);
     }

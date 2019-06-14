@@ -33,11 +33,10 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Pipeline
             IRelationalTypeMappingSource typeMappingSource, ISqlExpressionFactory sqlExpressionFactory)
         {
             Translators = new IMemberTranslator[] {
-                new SqlServerCurveMemberTranslator(typeMappingSource, sqlExpressionFactory),
                 new SqlServerGeometryMemberTranslator(typeMappingSource, sqlExpressionFactory),
                 new SqlServerGeometryCollectionMemberTranslator(sqlExpressionFactory),
-                new SqlServerLineStringMemberTranslator(sqlExpressionFactory),
-                new SqlServerMultiCurveMemberTranslator(sqlExpressionFactory),
+                new SqlServerLineStringMemberTranslator(typeMappingSource, sqlExpressionFactory),
+                new SqlServerMultiLineStringMemberTranslator(sqlExpressionFactory),
                 new SqlServerPointMemberTranslator(sqlExpressionFactory),
                 new SqlServerPolygonMemberTranslator(typeMappingSource, sqlExpressionFactory)
             };

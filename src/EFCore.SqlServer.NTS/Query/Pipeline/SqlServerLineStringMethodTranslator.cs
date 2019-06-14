@@ -3,16 +3,16 @@
 
 using System.Collections.Generic;
 using System.Reflection;
-using GeoAPI.Geometries;
 using Microsoft.EntityFrameworkCore.Relational.Query.Pipeline;
 using Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions;
 using Microsoft.EntityFrameworkCore.Storage;
+using NetTopologySuite.Geometries;
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Pipeline
 {
     public class SqlServerLineStringMethodTranslator : IMethodCallTranslator
     {
-        private static readonly MethodInfo _getPointN = typeof(ILineString).GetRuntimeMethod(nameof(ILineString.GetPointN), new[] { typeof(int) });
+        private static readonly MethodInfo _getPointN = typeof(LineString).GetRuntimeMethod(nameof(LineString.GetPointN), new[] { typeof(int) });
 
         private readonly IRelationalTypeMappingSource _typeMappingSource;
         private readonly ISqlExpressionFactory _sqlExpressionFactory;
@@ -27,21 +27,18 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Pipeline
 
         public SqlExpression Translate(SqlExpression instance, MethodInfo method, IList<SqlExpression> arguments)
         {
-            if (typeof(ILineString).IsAssignableFrom(method.DeclaringType))
+            if (Equals(method, _getPointN))
             {
-                if (Equals(method.OnInterface(typeof(ILineString)), _getPointN))
-                {
-                    return _sqlExpressionFactory.Function(
-                        instance,
-                        "STPointN",
-                        new[] {
-                            _sqlExpressionFactory.Add(
-                                arguments[0],
-                                _sqlExpressionFactory.Constant(1))
-                        },
-                        method.ReturnType,
-                        _typeMappingSource.FindMapping(method.ReturnType, instance.TypeMapping.StoreType));
-                }
+                return _sqlExpressionFactory.Function(
+                    instance,
+                    "STPointN",
+                    new[] {
+                        _sqlExpressionFactory.Add(
+                            arguments[0],
+                            _sqlExpressionFactory.Constant(1))
+                    },
+                    method.ReturnType,
+                    _typeMappingSource.FindMapping(method.ReturnType, instance.TypeMapping.StoreType));
             }
 
             return null;

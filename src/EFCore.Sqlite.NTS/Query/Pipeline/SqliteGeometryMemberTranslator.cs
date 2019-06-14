@@ -4,9 +4,9 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
-using GeoAPI.Geometries;
 using Microsoft.EntityFrameworkCore.Relational.Query.Pipeline;
 using Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions;
+using NetTopologySuite.Geometries;
 
 namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Pipeline
 {
@@ -14,24 +14,24 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Pipeline
     {
         private static readonly IDictionary<MemberInfo, string> _memberToFunctionName = new Dictionary<MemberInfo, string>
         {
-            { typeof(IGeometry).GetRuntimeProperty(nameof(IGeometry.Area)), "Area" },
-            { typeof(IGeometry).GetRuntimeProperty(nameof(IGeometry.Boundary)), "Boundary" },
-            { typeof(IGeometry).GetRuntimeProperty(nameof(IGeometry.Centroid)), "Centroid" },
-            { typeof(IGeometry).GetRuntimeProperty(nameof(IGeometry.Dimension)), "Dimension" },
-            { typeof(IGeometry).GetRuntimeProperty(nameof(IGeometry.Envelope)), "Envelope" },
-            { typeof(IGeometry).GetRuntimeProperty(nameof(IGeometry.InteriorPoint)), "PointOnSurface" },
-            { typeof(IGeometry).GetRuntimeProperty(nameof(IGeometry.IsEmpty)), "IsEmpty" },
-            { typeof(IGeometry).GetRuntimeProperty(nameof(IGeometry.IsSimple)), "IsSimple" },
-            { typeof(IGeometry).GetRuntimeProperty(nameof(IGeometry.IsValid)), "IsValid" },
-            { typeof(IGeometry).GetRuntimeProperty(nameof(IGeometry.Length)), "GLength" },
-            { typeof(IGeometry).GetRuntimeProperty(nameof(IGeometry.NumGeometries)), "NumGeometries" },
-            { typeof(IGeometry).GetRuntimeProperty(nameof(IGeometry.NumPoints)), "NumPoints" },
-            { typeof(IGeometry).GetRuntimeProperty(nameof(IGeometry.PointOnSurface)), "PointOnSurface" },
-            { typeof(IGeometry).GetRuntimeProperty(nameof(IGeometry.SRID)), "SRID" }
+            { typeof(Geometry).GetRuntimeProperty(nameof(Geometry.Area)), "Area" },
+            { typeof(Geometry).GetRuntimeProperty(nameof(Geometry.Boundary)), "Boundary" },
+            { typeof(Geometry).GetRuntimeProperty(nameof(Geometry.Centroid)), "Centroid" },
+            { typeof(Geometry).GetRuntimeProperty(nameof(Geometry.Dimension)), "Dimension" },
+            { typeof(Geometry).GetRuntimeProperty(nameof(Geometry.Envelope)), "Envelope" },
+            { typeof(Geometry).GetRuntimeProperty(nameof(Geometry.InteriorPoint)), "PointOnSurface" },
+            { typeof(Geometry).GetRuntimeProperty(nameof(Geometry.IsEmpty)), "IsEmpty" },
+            { typeof(Geometry).GetRuntimeProperty(nameof(Geometry.IsSimple)), "IsSimple" },
+            { typeof(Geometry).GetRuntimeProperty(nameof(Geometry.IsValid)), "IsValid" },
+            { typeof(Geometry).GetRuntimeProperty(nameof(Geometry.Length)), "GLength" },
+            { typeof(Geometry).GetRuntimeProperty(nameof(Geometry.NumGeometries)), "NumGeometries" },
+            { typeof(Geometry).GetRuntimeProperty(nameof(Geometry.NumPoints)), "NumPoints" },
+            { typeof(Geometry).GetRuntimeProperty(nameof(Geometry.PointOnSurface)), "PointOnSurface" },
+            { typeof(Geometry).GetRuntimeProperty(nameof(Geometry.SRID)), "SRID" }
         };
 
-        private static readonly MemberInfo _geometryType = typeof(IGeometry).GetRuntimeProperty(nameof(IGeometry.GeometryType));
-        private static readonly MemberInfo _ogcGeometryType = typeof(IGeometry).GetRuntimeProperty(nameof(IGeometry.OgcGeometryType));
+        private static readonly MemberInfo _geometryType = typeof(Geometry).GetRuntimeProperty(nameof(Geometry.GeometryType));
+        private static readonly MemberInfo _ogcGeometryType = typeof(Geometry).GetRuntimeProperty(nameof(Geometry.OgcGeometryType));
         private readonly ISqlExpressionFactory _sqlExpressionFactory;
 
         public SqliteGeometryMemberTranslator(ISqlExpressionFactory sqlExpressionFactory)
@@ -41,7 +41,6 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Pipeline
 
         public SqlExpression Translate(SqlExpression instance, MemberInfo member, Type returnType)
         {
-            member = member.OnInterface(typeof(IGeometry));
             if (_memberToFunctionName.TryGetValue(member, out var functionName))
             {
                 SqlExpression translation = _sqlExpressionFactory.Function(functionName, new[] { instance }, returnType);

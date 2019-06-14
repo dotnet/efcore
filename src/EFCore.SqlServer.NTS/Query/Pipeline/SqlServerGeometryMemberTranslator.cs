@@ -5,10 +5,10 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Reflection;
-using GeoAPI.Geometries;
 using Microsoft.EntityFrameworkCore.Relational.Query.Pipeline;
 using Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions;
 using Microsoft.EntityFrameworkCore.Storage;
+using NetTopologySuite.Geometries;
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Pipeline
 {
@@ -16,28 +16,28 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Pipeline
     {
         private static readonly IDictionary<MemberInfo, string> _memberToFunctionName = new Dictionary<MemberInfo, string>
         {
-            { typeof(IGeometry).GetRuntimeProperty(nameof(IGeometry.Area)), "STArea" },
-            { typeof(IGeometry).GetRuntimeProperty(nameof(IGeometry.Dimension)), "STDimension" },
-            { typeof(IGeometry).GetRuntimeProperty(nameof(IGeometry.GeometryType)), "STGeometryType" },
-            { typeof(IGeometry).GetRuntimeProperty(nameof(IGeometry.IsEmpty)), "STIsEmpty" },
-            { typeof(IGeometry).GetRuntimeProperty(nameof(IGeometry.IsValid)), "STIsValid" },
-            { typeof(IGeometry).GetRuntimeProperty(nameof(IGeometry.Length)), "STLength" },
-            { typeof(IGeometry).GetRuntimeProperty(nameof(IGeometry.NumGeometries)), "STNumGeometries" },
-            { typeof(IGeometry).GetRuntimeProperty(nameof(IGeometry.NumPoints)), "STNumPoints" }
+            { typeof(Geometry).GetRuntimeProperty(nameof(Geometry.Area)), "STArea" },
+            { typeof(Geometry).GetRuntimeProperty(nameof(Geometry.Dimension)), "STDimension" },
+            { typeof(Geometry).GetRuntimeProperty(nameof(Geometry.GeometryType)), "STGeometryType" },
+            { typeof(Geometry).GetRuntimeProperty(nameof(Geometry.IsEmpty)), "STIsEmpty" },
+            { typeof(Geometry).GetRuntimeProperty(nameof(Geometry.IsValid)), "STIsValid" },
+            { typeof(Geometry).GetRuntimeProperty(nameof(Geometry.Length)), "STLength" },
+            { typeof(Geometry).GetRuntimeProperty(nameof(Geometry.NumGeometries)), "STNumGeometries" },
+            { typeof(Geometry).GetRuntimeProperty(nameof(Geometry.NumPoints)), "STNumPoints" }
         };
 
         private static readonly IDictionary<MemberInfo, string> _geometryMemberToFunctionName = new Dictionary<MemberInfo, string>
         {
-            { typeof(IGeometry).GetRuntimeProperty(nameof(IGeometry.Boundary)), "STBoundary" },
-            { typeof(IGeometry).GetRuntimeProperty(nameof(IGeometry.Centroid)), "STCentroid" },
-            { typeof(IGeometry).GetRuntimeProperty(nameof(IGeometry.Envelope)), "STEnvelope" },
-            { typeof(IGeometry).GetRuntimeProperty(nameof(IGeometry.InteriorPoint)), "STPointOnSurface" },
-            { typeof(IGeometry).GetRuntimeProperty(nameof(IGeometry.IsSimple)), "STIsSimple" },
-            { typeof(IGeometry).GetRuntimeProperty(nameof(IGeometry.PointOnSurface)), "STPointOnSurface" }
+            { typeof(Geometry).GetRuntimeProperty(nameof(Geometry.Boundary)), "STBoundary" },
+            { typeof(Geometry).GetRuntimeProperty(nameof(Geometry.Centroid)), "STCentroid" },
+            { typeof(Geometry).GetRuntimeProperty(nameof(Geometry.Envelope)), "STEnvelope" },
+            { typeof(Geometry).GetRuntimeProperty(nameof(Geometry.InteriorPoint)), "STPointOnSurface" },
+            { typeof(Geometry).GetRuntimeProperty(nameof(Geometry.IsSimple)), "STIsSimple" },
+            { typeof(Geometry).GetRuntimeProperty(nameof(Geometry.PointOnSurface)), "STPointOnSurface" }
         };
 
-        private static readonly MemberInfo _ogcGeometryType = typeof(IGeometry).GetRuntimeProperty(nameof(IGeometry.OgcGeometryType));
-        private static readonly MemberInfo _srid = typeof(IGeometry).GetRuntimeProperty(nameof(IGeometry.SRID));
+        private static readonly MemberInfo _ogcGeometryType = typeof(Geometry).GetRuntimeProperty(nameof(Geometry.OgcGeometryType));
+        private static readonly MemberInfo _srid = typeof(Geometry).GetRuntimeProperty(nameof(Geometry.SRID));
 
         private readonly IRelationalTypeMappingSource _typeMappingSource;
         private readonly ISqlExpressionFactory _sqlExpressionFactory;
@@ -51,17 +51,16 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Pipeline
 
         public SqlExpression Translate(SqlExpression instance, MemberInfo member, Type returnType)
         {
-            if (typeof(IGeometry).IsAssignableFrom(member.DeclaringType))
+            if (typeof(Geometry).IsAssignableFrom(member.DeclaringType))
             {
                 Debug.Assert(instance.TypeMapping != null, "Instance must have typeMapping assigned.");
                 var storeType = instance.TypeMapping.StoreType;
                 var isGeography = string.Equals(storeType, "geography", StringComparison.OrdinalIgnoreCase);
 
-                member = member.OnInterface(typeof(IGeometry));
                 if (_memberToFunctionName.TryGetValue(member, out var functionName)
                     || (!isGeography && _geometryMemberToFunctionName.TryGetValue(member, out functionName)))
                 {
-                    var resultTypeMapping = typeof(IGeometry).IsAssignableFrom(returnType)
+                    var resultTypeMapping = typeof(Geometry).IsAssignableFrom(returnType)
                         ? _typeMappingSource.FindMapping(returnType, storeType)
                         : _typeMappingSource.FindMapping(returnType);
 

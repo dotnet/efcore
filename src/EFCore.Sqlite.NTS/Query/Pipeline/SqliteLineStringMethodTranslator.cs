@@ -3,16 +3,16 @@
 
 using System.Collections.Generic;
 using System.Reflection;
-using GeoAPI.Geometries;
 using Microsoft.EntityFrameworkCore.Relational.Query.Pipeline;
 using Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions;
+using NetTopologySuite.Geometries;
 
 namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Pipeline
 {
     public class SqliteLineStringMethodTranslator : IMethodCallTranslator
     {
         private static readonly MethodInfo _getPointN
-            = typeof(ILineString).GetRuntimeMethod(nameof(ILineString.GetPointN), new[] { typeof(int) });
+            = typeof(LineString).GetRuntimeMethod(nameof(LineString.GetPointN), new[] { typeof(int) });
         private readonly ISqlExpressionFactory _sqlExpressionFactory;
 
         public SqliteLineStringMethodTranslator(ISqlExpressionFactory sqlExpressionFactory)
@@ -22,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Pipeline
 
         public SqlExpression Translate(SqlExpression instance, MethodInfo method, IList<SqlExpression> arguments)
         {
-            if (Equals(method.OnInterface(typeof(ILineString)), _getPointN))
+            if (Equals(method, _getPointN))
             {
                 return _sqlExpressionFactory.Function(
                     "PointN",

@@ -4,16 +4,16 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
-using GeoAPI.Geometries;
 using Microsoft.EntityFrameworkCore.Relational.Query.Pipeline;
 using Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions;
 using Microsoft.EntityFrameworkCore.Storage;
+using NetTopologySuite.Geometries;
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Pipeline
 {
     public class SqlServerPolygonMethodTranslator : IMethodCallTranslator
     {
-        private static readonly MethodInfo _getInteriorRingN = typeof(IPolygon).GetRuntimeMethod(nameof(IPolygon.GetInteriorRingN), new[] { typeof(int) });
+        private static readonly MethodInfo _getInteriorRingN = typeof(Polygon).GetRuntimeMethod(nameof(Polygon.GetInteriorRingN), new[] { typeof(int) });
 
         private readonly IRelationalTypeMappingSource _typeMappingSource;
         private readonly ISqlExpressionFactory _sqlExpressionFactory;
@@ -28,14 +28,12 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Pipeline
 
         public SqlExpression Translate(SqlExpression instance, MethodInfo method, IList<SqlExpression> arguments)
         {
-            if (typeof(IPolygon).IsAssignableFrom(method.DeclaringType))
+            if (Equals(method, _getInteriorRingN))
             {
                 var storeType = instance.TypeMapping.StoreType;
                 var isGeography = string.Equals(storeType, "geography", StringComparison.OrdinalIgnoreCase);
 
-                method = method.OnInterface(typeof(IPolygon));
-                if (isGeography
-                    && Equals(method, _getInteriorRingN))
+                if (isGeography)
                 {
                     return _sqlExpressionFactory.Function(
                         instance,
@@ -48,7 +46,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Pipeline
                         method.ReturnType,
                         _typeMappingSource.FindMapping(method.ReturnType, storeType));
                 }
-                else if (Equals(method, _getInteriorRingN))
+                else
                 {
                     return _sqlExpressionFactory.Function(
                         instance,

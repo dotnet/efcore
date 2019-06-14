@@ -1,8 +1,8 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using GeoAPI.Geometries;
 using Microsoft.EntityFrameworkCore.TestUtilities;
+using NetTopologySuite.Geometries;
 
 namespace Microsoft.EntityFrameworkCore.TestModels.SpatialModel
 {
@@ -13,7 +13,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.SpatialModel
         {
         }
 
-        public static void Seed(SpatialContext context, IGeometryFactory factory)
+        public static void Seed(SpatialContext context, GeometryFactory factory)
         {
             context.AddRange(SpatialData.CreatePointEntities(factory));
             context.AddRange(SpatialData.CreateGeoPointEntities());

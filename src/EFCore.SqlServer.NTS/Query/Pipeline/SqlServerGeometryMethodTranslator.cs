@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
-using GeoAPI.Geometries;
 using Microsoft.EntityFrameworkCore.Relational.Query.Pipeline;
 using Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -18,34 +17,34 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Pipeline
     {
         private static readonly IDictionary<MethodInfo, string> _methodToFunctionName = new Dictionary<MethodInfo, string>
         {
-            { typeof(IGeometry).GetRuntimeMethod(nameof(IGeometry.AsBinary), Type.EmptyTypes), "STAsBinary" },
-            { typeof(IGeometry).GetRuntimeMethod(nameof(IGeometry.AsText), Type.EmptyTypes), "AsTextZM" },
-            { typeof(IGeometry).GetRuntimeMethod(nameof(IGeometry.Buffer), new[] { typeof(double) }), "STBuffer" },
-            { typeof(IGeometry).GetRuntimeMethod(nameof(IGeometry.Contains), new[] { typeof(IGeometry) }), "STContains" },
-            { typeof(IGeometry).GetRuntimeMethod(nameof(IGeometry.ConvexHull), Type.EmptyTypes), "STConvexHull" },
-            { typeof(IGeometry).GetRuntimeMethod(nameof(IGeometry.Difference), new[] { typeof(IGeometry) }), "STDifference" },
-            { typeof(IGeometry).GetRuntimeMethod(nameof(IGeometry.Disjoint), new[] { typeof(IGeometry) }), "STDisjoint" },
-            { typeof(IGeometry).GetRuntimeMethod(nameof(IGeometry.Distance), new[] { typeof(IGeometry) }), "STDistance" },
-            { typeof(IGeometry).GetRuntimeMethod(nameof(IGeometry.EqualsTopologically), new[] { typeof(IGeometry) }), "STEquals" },
-            { typeof(IGeometry).GetRuntimeMethod(nameof(IGeometry.Intersection), new[] { typeof(IGeometry) }), "STIntersection" },
-            { typeof(IGeometry).GetRuntimeMethod(nameof(IGeometry.Intersects), new[] { typeof(IGeometry) }), "STIntersects" },
-            { typeof(IGeometry).GetRuntimeMethod(nameof(IGeometry.Overlaps), new[] { typeof(IGeometry) }), "STOverlaps" },
-            { typeof(IGeometry).GetRuntimeMethod(nameof(IGeometry.SymmetricDifference), new[] { typeof(IGeometry) }), "STSymDifference" },
+            { typeof(Geometry).GetRuntimeMethod(nameof(Geometry.AsBinary), Type.EmptyTypes), "STAsBinary" },
+            { typeof(Geometry).GetRuntimeMethod(nameof(Geometry.AsText), Type.EmptyTypes), "AsTextZM" },
+            { typeof(Geometry).GetRuntimeMethod(nameof(Geometry.Buffer), new[] { typeof(double) }), "STBuffer" },
+            { typeof(Geometry).GetRuntimeMethod(nameof(Geometry.Contains), new[] { typeof(Geometry) }), "STContains" },
+            { typeof(Geometry).GetRuntimeMethod(nameof(Geometry.ConvexHull), Type.EmptyTypes), "STConvexHull" },
+            { typeof(Geometry).GetRuntimeMethod(nameof(Geometry.Difference), new[] { typeof(Geometry) }), "STDifference" },
+            { typeof(Geometry).GetRuntimeMethod(nameof(Geometry.Disjoint), new[] { typeof(Geometry) }), "STDisjoint" },
+            { typeof(Geometry).GetRuntimeMethod(nameof(Geometry.Distance), new[] { typeof(Geometry) }), "STDistance" },
+            { typeof(Geometry).GetRuntimeMethod(nameof(Geometry.EqualsTopologically), new[] { typeof(Geometry) }), "STEquals" },
+            { typeof(Geometry).GetRuntimeMethod(nameof(Geometry.Intersection), new[] { typeof(Geometry) }), "STIntersection" },
+            { typeof(Geometry).GetRuntimeMethod(nameof(Geometry.Intersects), new[] { typeof(Geometry) }), "STIntersects" },
+            { typeof(Geometry).GetRuntimeMethod(nameof(Geometry.Overlaps), new[] { typeof(Geometry) }), "STOverlaps" },
+            { typeof(Geometry).GetRuntimeMethod(nameof(Geometry.SymmetricDifference), new[] { typeof(Geometry) }), "STSymDifference" },
             { typeof(Geometry).GetRuntimeMethod(nameof(Geometry.ToBinary), Type.EmptyTypes), "STAsBinary" },
             { typeof(Geometry).GetRuntimeMethod(nameof(Geometry.ToText), Type.EmptyTypes), "AsTextZM" },
-            { typeof(IGeometry).GetRuntimeMethod(nameof(IGeometry.Union), new[] { typeof(IGeometry) }), "STUnion" },
-            { typeof(IGeometry).GetRuntimeMethod(nameof(IGeometry.Within), new[] { typeof(IGeometry) }), "STWithin" }
+            { typeof(Geometry).GetRuntimeMethod(nameof(Geometry.Union), new[] { typeof(Geometry) }), "STUnion" },
+            { typeof(Geometry).GetRuntimeMethod(nameof(Geometry.Within), new[] { typeof(Geometry) }), "STWithin" }
         };
 
         private static readonly IDictionary<MethodInfo, string> _geometryMethodToFunctionName = new Dictionary<MethodInfo, string>
         {
-            { typeof(IGeometry).GetRuntimeMethod(nameof(IGeometry.Crosses), new[] { typeof(IGeometry) }), "STCrosses" },
-            { typeof(IGeometry).GetRuntimeMethod(nameof(IGeometry.Relate), new[] { typeof(IGeometry), typeof(string) }), "STRelate" },
-            { typeof(IGeometry).GetRuntimeMethod(nameof(IGeometry.Touches), new[] { typeof(IGeometry) }), "STTouches" }
+            { typeof(Geometry).GetRuntimeMethod(nameof(Geometry.Crosses), new[] { typeof(Geometry) }), "STCrosses" },
+            { typeof(Geometry).GetRuntimeMethod(nameof(Geometry.Relate), new[] { typeof(Geometry), typeof(string) }), "STRelate" },
+            { typeof(Geometry).GetRuntimeMethod(nameof(Geometry.Touches), new[] { typeof(Geometry) }), "STTouches" }
         };
 
-        private static readonly MethodInfo _getGeometryN = typeof(IGeometry).GetRuntimeMethod(nameof(IGeometry.GetGeometryN), new[] { typeof(int) });
-        private static readonly MethodInfo _isWithinDistance = typeof(IGeometry).GetRuntimeMethod(nameof(IGeometry.IsWithinDistance), new[] { typeof(IGeometry), typeof(double) });
+        private static readonly MethodInfo _getGeometryN = typeof(Geometry).GetRuntimeMethod(nameof(Geometry.GetGeometryN), new[] { typeof(int) });
+        private static readonly MethodInfo _isWithinDistance = typeof(Geometry).GetRuntimeMethod(nameof(Geometry.IsWithinDistance), new[] { typeof(Geometry), typeof(double) });
 
         private readonly IRelationalTypeMappingSource _typeMappingSource;
         private readonly ISqlExpressionFactory _sqlExpressionFactory;
@@ -60,17 +59,16 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Pipeline
 
         public SqlExpression Translate(SqlExpression instance, MethodInfo method, IList<SqlExpression> arguments)
         {
-            if (typeof(IGeometry).IsAssignableFrom(method.DeclaringType))
+            if (typeof(Geometry).IsAssignableFrom(method.DeclaringType))
             {
                 var geometryExpressions = new[] { instance }.Concat(
-                    arguments.Where(e => typeof(IGeometry).IsAssignableFrom(e.Type)));
+                    arguments.Where(e => typeof(Geometry).IsAssignableFrom(e.Type)));
                 var typeMapping = ExpressionExtensions.InferTypeMapping(geometryExpressions.ToArray());
 
                 Debug.Assert(typeMapping != null, "At least one argument must have typeMapping.");
                 var storeType = typeMapping.StoreType;
                 var isGeography = string.Equals(storeType, "geography", StringComparison.OrdinalIgnoreCase);
 
-                method = method.OnInterface(typeof(IGeometry));
                 if (_methodToFunctionName.TryGetValue(method, out var functionName)
                     || (!isGeography && _geometryMethodToFunctionName.TryGetValue(method, out functionName)))
                 {
@@ -83,12 +81,12 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Pipeline
                         typeMappedArguments.Add(
                             _sqlExpressionFactory.ApplyTypeMapping(
                                 argument,
-                                typeof(IGeometry).IsAssignableFrom(argument.Type)
+                                typeof(Geometry).IsAssignableFrom(argument.Type)
                                     ? _typeMappingSource.FindMapping(argument.Type, storeType)
                                     : _typeMappingSource.FindMapping(argument.Type)));
                     }
 
-                    var resultTypeMapping = typeof(IGeometry).IsAssignableFrom(method.ReturnType)
+                    var resultTypeMapping = typeof(Geometry).IsAssignableFrom(method.ReturnType)
                         ? _typeMappingSource.FindMapping(method.ReturnType, storeType)
                         : _typeMappingSource.FindMapping(method.ReturnType);
 
@@ -125,7 +123,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Pipeline
                         typeMappedArguments.Add(
                             _sqlExpressionFactory.ApplyTypeMapping(
                                 argument,
-                                typeof(IGeometry).IsAssignableFrom(argument.Type)
+                                typeof(Geometry).IsAssignableFrom(argument.Type)
                                     ? _typeMappingSource.FindMapping(argument.Type, storeType)
                                     : _typeMappingSource.FindMapping(argument.Type)));
                     }
@@ -148,7 +146,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Pipeline
             foreach (var argument in arguments)
             {
                 if (argument is SqlConstantExpression constant
-                    && constant.Value is IGeometry geometry
+                    && constant.Value is Geometry geometry
                     && geometry.SRID == (isGeography ? 4326 : 0))
                 {
                     yield return _sqlExpressionFactory.Fragment("'" + geometry.AsText() + "'");

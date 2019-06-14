@@ -3,15 +3,15 @@
 
 using System;
 using System.Reflection;
-using GeoAPI.Geometries;
 using Microsoft.EntityFrameworkCore.Relational.Query.Pipeline;
 using Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions;
+using NetTopologySuite.Geometries;
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Pipeline
 {
     public class SqlServerGeometryCollectionMemberTranslator : IMemberTranslator
     {
-        private static readonly MemberInfo _count = typeof(IGeometryCollection).GetRuntimeProperty(nameof(IGeometryCollection.Count));
+        private static readonly MemberInfo _count = typeof(GeometryCollection).GetRuntimeProperty(nameof(GeometryCollection.Count));
         private readonly ISqlExpressionFactory _sqlExpressionFactory;
 
         public SqlServerGeometryCollectionMemberTranslator(ISqlExpressionFactory sqlExpressionFactory)
@@ -21,7 +21,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Pipeline
 
         public SqlExpression Translate(SqlExpression instance, MemberInfo member, Type returnType)
         {
-            if (Equals(member.OnInterface(typeof(IGeometryCollection)), _count))
+            if (Equals(member, _count))
             {
                 return _sqlExpressionFactory.Function(
                     instance,

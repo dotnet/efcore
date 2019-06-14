@@ -5,17 +5,17 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Reflection;
-using GeoAPI.Geometries;
 using Microsoft.EntityFrameworkCore.Relational.Query.Pipeline;
 using Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions;
 using Microsoft.EntityFrameworkCore.Storage;
+using NetTopologySuite.Geometries;
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Pipeline
 {
     public class SqlServerPolygonMemberTranslator : IMemberTranslator
     {
-        private static readonly MemberInfo _exteriorRing = typeof(IPolygon).GetRuntimeProperty(nameof(IPolygon.ExteriorRing));
-        private static readonly MemberInfo _numInteriorRings = typeof(IPolygon).GetRuntimeProperty(nameof(IPolygon.NumInteriorRings));
+        private static readonly MemberInfo _exteriorRing = typeof(Polygon).GetRuntimeProperty(nameof(Polygon.ExteriorRing));
+        private static readonly MemberInfo _numInteriorRings = typeof(Polygon).GetRuntimeProperty(nameof(Polygon.NumInteriorRings));
 
         private static readonly IDictionary<MemberInfo, string> _geometryMemberToFunctionName = new Dictionary<MemberInfo, string>
         {
@@ -35,9 +35,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Pipeline
 
         public SqlExpression Translate(SqlExpression instance, MemberInfo member, Type returnType)
         {
-            if (typeof(IPolygon).IsAssignableFrom(member.DeclaringType))
+            if (typeof(Polygon).IsAssignableFrom(member.DeclaringType))
             {
-                member = member.OnInterface(typeof(IPolygon));
                 Debug.Assert(instance.TypeMapping != null, "Instance must have typeMapping assigned.");
                 var storeType = instance.TypeMapping.StoreType;
                 var isGeography = string.Equals(storeType, "geography", StringComparison.OrdinalIgnoreCase);
@@ -68,7 +67,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Pipeline
 
                 if (_geometryMemberToFunctionName.TryGetValue(member, out var functionName))
                 {
-                    var resultTypeMapping = typeof(IGeometry).IsAssignableFrom(returnType)
+                    var resultTypeMapping = typeof(Geometry).IsAssignableFrom(returnType)
                         ? _typeMappingSource.FindMapping(returnType, storeType)
                         : _typeMappingSource.FindMapping(returnType);
 
