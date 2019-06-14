@@ -380,7 +380,7 @@ namespace Microsoft.EntityFrameworkCore
 
         [ConditionalTheory]
         [InlineData(false)]
-        //[InlineData(true)] (Skip = "QueryIssue")
+        //[InlineData(true)]
         public async Task Retries_query_on_execution_failure(bool async)
         {
             CleanContext();

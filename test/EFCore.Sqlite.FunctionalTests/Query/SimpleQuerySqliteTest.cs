@@ -819,7 +819,7 @@ FROM ""Orders"" AS ""o""");
 FROM ""Orders"" AS ""o""");
         }
 
-        [ConditionalTheory(Skip = "QueryIssue")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual async Task Select_datetime_millisecond_component_composed(bool isAsync)
         {
@@ -828,7 +828,7 @@ FROM ""Orders"" AS ""o""");
                 os => os.Select(o => o.OrderDate.Value.AddYears(1).Millisecond));
 
             AssertSql(
-                @"SELECT (CAST(strftime('%f', ""o"".""OrderDate"", CAST(1 AS TEXT) || ' years') AS REAL) * 1000) % 1000
+                @"SELECT (CAST(strftime('%f', ""o"".""OrderDate"", CAST(1 AS TEXT) || ' years') AS REAL) * 1000.0) % 1000.0
 FROM ""Orders"" AS ""o""");
         }
 

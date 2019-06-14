@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.TestUtilities;
 
 namespace Microsoft.EntityFrameworkCore
 {
-    // TODO: See Tasklist#23
+    // TODO: See Issue#14534
     internal class ConcurrencyDetectorInMemoryTest : ConcurrencyDetectorTestBase<NorthwindQueryInMemoryFixture<NoopModelCustomizer>>
     {
         public ConcurrencyDetectorInMemoryTest(NorthwindQueryInMemoryFixture<NoopModelCustomizer> fixture)

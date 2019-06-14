@@ -56,7 +56,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalFact(Skip = "QueryIssue")]
+        [ConditionalFact(Skip = "Issue#15611")]
         public virtual async Task ToList_context_subquery_deadlock_issue()
         {
             using (var context = CreateContext())
@@ -95,7 +95,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalFact(Skip = "QueryIssue")]
+        [ConditionalFact(Skip = "Issue#15611")]
         public virtual async Task ToArray_on_nav_subquery_in_projection_nested()
         {
             using (var context = CreateContext())
@@ -117,7 +117,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalFact(Skip = "QueryIssue")]
+        [ConditionalFact(Skip = "Issue#15611")]
         public virtual async Task ToList_on_nav_subquery_in_projection()
         {
             using (var context = CreateContext())
@@ -134,7 +134,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalFact(Skip = "QueryIssue")]
+        [ConditionalFact(Skip = "Issue#15611")]
         public virtual async Task ToList_on_nav_subquery_with_predicate_in_projection()
         {
             using (var context = CreateContext())

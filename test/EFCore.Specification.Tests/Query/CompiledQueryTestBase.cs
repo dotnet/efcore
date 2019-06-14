@@ -80,7 +80,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalFact(Skip = "issue #15611")]
+        [ConditionalFact]
         public virtual void Query_ending_with_include()
         {
             var query = EF.CompileQuery(

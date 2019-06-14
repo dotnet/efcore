@@ -41,7 +41,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Pipeline
                 if (node.Method.DeclaringType == typeof(Enumerable)
                     && node.Arguments[0].Type.IsGenericType
                     && node.Arguments[0].Type.GetGenericTypeDefinition() == typeof(IQueryable<>)
-                    && !string.Equals(node.Method.Name, nameof(Enumerable.ToList)))
+                    && !string.Equals(node.Method.Name, nameof(Enumerable.ToList))
+                    && !string.Equals(node.Method.Name, nameof(Enumerable.ToArray)))
                 {
                     throw new InvalidFilterCriteriaException();
                 }

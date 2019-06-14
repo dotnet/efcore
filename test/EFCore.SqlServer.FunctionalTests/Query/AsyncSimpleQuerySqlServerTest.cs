@@ -28,7 +28,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             //Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
         }
 
-        [ConditionalFact(Skip = "QueryIssue")]
+        [ConditionalFact]
         public Task Query_compiler_concurrency()
         {
             const int threadCount = 50;
@@ -83,7 +83,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 () => Single_Predicate_Cancellation_test(Fixture.TestSqlLoggerFactory.CancelQuery()));
         }
 
-        [ConditionalFact(Skip = "QueryIssue")]
+        [ConditionalFact(Skip = "Issue#10914")]
         public async Task Concurrent_async_queries_are_serialized()
         {
             using (var context = CreateContext())
@@ -116,7 +116,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalFact(Skip = "QueryIssue")]
+        [ConditionalFact(Skip = "Issue#10914")]
         public async Task Concurrent_async_queries_are_serialized_find()
         {
             using (var context = CreateContext())
@@ -133,7 +133,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalFact(Skip = "QueryIssue")]
+        [ConditionalFact(Skip = "Issue#10914")]
         public async Task Concurrent_async_queries_are_serialized_mixed1()
         {
             using (var context = CreateContext())
@@ -144,7 +144,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalFact(Skip = "QueryIssue")]
+        [ConditionalFact(Skip = "Issue#10914")]
         public async Task Concurrent_async_queries_are_serialized_mixed2()
         {
             using (var context = CreateContext())
