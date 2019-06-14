@@ -37,6 +37,17 @@ SELECT ""g"".""Id"", Distance(""g"".""Location"", @__point_0) AS ""Distance""
 FROM ""GeoPointEntity"" AS ""g""");
         }
 
+        public override async Task Distance_on_converted_geometry_type_lhs(bool isAsync)
+        {
+            await base.Distance_on_converted_geometry_type_lhs(isAsync);
+
+            AssertSql(
+                @"@__point_0='0x0001000000000000000000000000000000000000F03F00000000000000000000...' (Nullable = false) (Size = 60) (DbType = String)
+
+SELECT ""g"".""Id"", Distance(@__point_0, ""g"".""Location"") AS ""Distance""
+FROM ""GeoPointEntity"" AS ""g""");
+        }
+
         public override async Task Distance_on_converted_geometry_type_constant(bool isAsync)
         {
             await base.Distance_on_converted_geometry_type_constant(isAsync);

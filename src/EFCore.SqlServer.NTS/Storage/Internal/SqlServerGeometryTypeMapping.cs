@@ -2,10 +2,13 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Data;
 using System.Data.Common;
 using System.Data.SqlTypes;
+using System.Linq.Expressions;
 using System.Reflection;
 using System.Text;
+using System.Threading;
 using JetBrains.Annotations;
 using Microsoft.Data.SqlClient; // Note: Hard reference to SqlClient here.
 using Microsoft.EntityFrameworkCore.SqlServer.Storage.ValueConversion.Internal;
@@ -28,6 +31,9 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
     {
         private static readonly MethodInfo _getSqlBytes
             = typeof(SqlDataReader).GetRuntimeMethod(nameof(SqlDataReader.GetSqlBytes), new[] { typeof(int) });
+
+        private static Action<DbParameter, SqlDbType> _sqlDbTypeSetter;
+        private static Action<DbParameter, string> _udtTypeNameSetter;
 
         private readonly bool _isGeography;
 
@@ -149,10 +155,17 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
         /// </summary>
         protected override void ConfigureParameter(DbParameter parameter)
         {
+            var type = parameter.GetType();
+            LazyInitializer.EnsureInitialized(ref _sqlDbTypeSetter, () => CreateSqlDbTypeAccessor(type));
+            LazyInitializer.EnsureInitialized(ref _udtTypeNameSetter, () => CreateUdtTypeNameAccessor(type));
+
             if (parameter.Value == DBNull.Value)
             {
                 parameter.Value = SqlBytes.Null;
             }
+
+            _sqlDbTypeSetter(parameter, SqlDbType.Udt);
+            _udtTypeNameSetter(parameter, _isGeography ? "geography" : "geometry");
         }
 
         private static SqlServerBytesReader CreateReader(NtsGeometryServices services, bool isGeography)
@@ -169,5 +182,33 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
 
         private static bool IsGeography(string storeType)
             => string.Equals(storeType, "geography", StringComparison.OrdinalIgnoreCase);
+
+        private static Action<DbParameter, SqlDbType> CreateSqlDbTypeAccessor(Type paramType)
+        {
+            var paramParam = Expression.Parameter(typeof(DbParameter), "parameter");
+            var valueParam = Expression.Parameter(typeof(SqlDbType), "value");
+
+            return Expression.Lambda<Action<DbParameter, SqlDbType>>(
+                Expression.Call(
+                    Expression.Convert(paramParam, paramType),
+                    paramType.GetProperty("SqlDbType").SetMethod,
+                    valueParam),
+                paramParam,
+                valueParam).Compile();
+        }
+
+        private static Action<DbParameter, string> CreateUdtTypeNameAccessor(Type paramType)
+        {
+            var paramParam = Expression.Parameter(typeof(DbParameter), "parameter");
+            var valueParam = Expression.Parameter(typeof(string), "value");
+
+            return Expression.Lambda<Action<DbParameter, string>>(
+                Expression.Call(
+                    Expression.Convert(paramParam, paramType),
+                    paramType.GetProperty("UdtTypeName").SetMethod,
+                    valueParam),
+                paramParam,
+                valueParam).Compile();
+        }
     }
 }

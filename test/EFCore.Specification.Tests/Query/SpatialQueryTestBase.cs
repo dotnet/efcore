@@ -528,6 +528,24 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
+        public virtual Task Distance_on_converted_geometry_type_lhs(bool isAsync)
+        {
+            var point = new GeoPoint(1, 0);
+
+            return AssertQuery<GeoPointEntity>(
+                isAsync,
+                es => es.Select(
+                    e => new
+                    {
+                        e.Id,
+                        Distance = point.Distance(e.Location)
+                    }),
+                elementSorter: e => e.Id,
+                elementAsserter: (e, a) => { Assert.Equal(e.Id, a.Id); });
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task Distance_on_converted_geometry_type_constant(bool isAsync)
         {
             return AssertQuery<GeoPointEntity>(
