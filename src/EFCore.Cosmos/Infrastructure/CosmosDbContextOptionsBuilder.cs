@@ -43,10 +43,10 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Infrastructure
         /// </summary>
         /// <param name="setAction"> An action to set the option. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
-        protected virtual CosmosDbContextOptionsBuilder WithOption([NotNull] Func<CosmosDbOptionsExtension, CosmosDbOptionsExtension> setAction)
+        protected virtual CosmosDbContextOptionsBuilder WithOption([NotNull] Func<CosmosOptionsExtension, CosmosOptionsExtension> setAction)
         {
             ((IDbContextOptionsBuilderInfrastructure)OptionsBuilder).AddOrUpdateExtension(
-                setAction(OptionsBuilder.Options.FindExtension<CosmosDbOptionsExtension>() ?? new CosmosDbOptionsExtension()));
+                setAction(OptionsBuilder.Options.FindExtension<CosmosOptionsExtension>() ?? new CosmosOptionsExtension()));
 
             return this;
         }

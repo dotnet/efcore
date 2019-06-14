@@ -30,6 +30,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
                 {
                     client = context.Database.GetCosmosClient();
                     Assert.NotNull(client);
+                    Assert.True(context.Database.IsCosmos());
                 }
 
                 using (var context = new CustomerContext(options))

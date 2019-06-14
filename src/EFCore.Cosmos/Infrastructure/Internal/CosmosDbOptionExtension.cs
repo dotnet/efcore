@@ -13,7 +13,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.Internal
 {
-    public class CosmosDbOptionsExtension : IDbContextOptionsExtension
+    public class CosmosOptionsExtension : IDbContextOptionsExtension
     {
         private string _serviceEndPoint;
         private string _authKeyOrResourceToken;
@@ -23,11 +23,11 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.Internal
         private string _logFragment;
         private long? _serviceProviderHash;
 
-        public CosmosDbOptionsExtension()
+        public CosmosOptionsExtension()
         {
         }
 
-        protected CosmosDbOptionsExtension(CosmosDbOptionsExtension copyFrom)
+        protected CosmosOptionsExtension(CosmosOptionsExtension copyFrom)
         {
             _serviceEndPoint = copyFrom._serviceEndPoint;
             _authKeyOrResourceToken = copyFrom._authKeyOrResourceToken;
@@ -38,7 +38,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.Internal
 
         public virtual string ServiceEndPoint => _serviceEndPoint;
 
-        public virtual CosmosDbOptionsExtension WithServiceEndPoint(string serviceEndPoint)
+        public virtual CosmosOptionsExtension WithServiceEndPoint(string serviceEndPoint)
         {
             var clone = Clone();
 
@@ -49,7 +49,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.Internal
 
         public virtual string AuthKeyOrResourceToken => _authKeyOrResourceToken;
 
-        public virtual CosmosDbOptionsExtension WithAuthKeyOrResourceToken(string authKeyOrResourceToken)
+        public virtual CosmosOptionsExtension WithAuthKeyOrResourceToken(string authKeyOrResourceToken)
         {
             var clone = Clone();
 
@@ -60,7 +60,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.Internal
 
         public virtual string DatabaseName => _databaseName;
 
-        public virtual CosmosDbOptionsExtension WithDatabaseName(string database)
+        public virtual CosmosOptionsExtension WithDatabaseName(string database)
         {
             var clone = Clone();
 
@@ -71,7 +71,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.Internal
 
         public virtual string Region => _region;
 
-        public virtual CosmosDbOptionsExtension WithRegion(string region)
+        public virtual CosmosOptionsExtension WithRegion(string region)
         {
             var clone = Clone();
 
@@ -92,7 +92,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.Internal
         /// </summary>
         /// <param name="executionStrategyFactory"> The option to change. </param>
         /// <returns> A new instance with the option changed. </returns>
-        public virtual CosmosDbOptionsExtension WithExecutionStrategyFactory(
+        public virtual CosmosOptionsExtension WithExecutionStrategyFactory(
             [CanBeNull] Func<ExecutionStrategyDependencies, IExecutionStrategy> executionStrategyFactory)
         {
             var clone = Clone();
@@ -102,7 +102,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.Internal
             return clone;
         }
 
-        protected virtual CosmosDbOptionsExtension Clone() => new CosmosDbOptionsExtension(this);
+        protected virtual CosmosOptionsExtension Clone() => new CosmosOptionsExtension(this);
 
         public bool ApplyServices(IServiceCollection services)
         {

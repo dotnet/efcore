@@ -30,7 +30,7 @@ namespace Microsoft.Extensions.DependencyInjection
 
             var builder = new EntityFrameworkServicesBuilder(serviceCollection)
                 .TryAdd<LoggingDefinitions, CosmosLoggingDefinitions>()
-                .TryAdd<IDatabaseProvider, DatabaseProvider<CosmosDbOptionsExtension>>()
+                .TryAdd<IDatabaseProvider, DatabaseProvider<CosmosOptionsExtension>>()
                 .TryAdd<IDatabase, CosmosDatabaseWrapper>()
                 .TryAdd<IExecutionStrategyFactory, CosmosExecutionStrategyFactory>()
                 .TryAdd<IDbContextTransactionManager, CosmosTransactionManager>()

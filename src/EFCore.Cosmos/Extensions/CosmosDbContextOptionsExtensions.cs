@@ -39,8 +39,8 @@ namespace Microsoft.EntityFrameworkCore
             Check.NotEmpty(authKeyOrResourceToken, nameof(authKeyOrResourceToken));
             Check.NotEmpty(databaseName, nameof(databaseName));
 
-            var extension = optionsBuilder.Options.FindExtension<CosmosDbOptionsExtension>()
-                            ?? new CosmosDbOptionsExtension();
+            var extension = optionsBuilder.Options.FindExtension<CosmosOptionsExtension>()
+                            ?? new CosmosOptionsExtension();
 
             extension = extension
                 .WithServiceEndPoint(serviceEndPoint)
