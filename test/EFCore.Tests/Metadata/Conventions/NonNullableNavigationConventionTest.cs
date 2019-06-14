@@ -233,9 +233,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             return modelLogger;
         }
 
-#nullable enable
-#pragma warning disable CS8618
-
         private class Blog
         {
             public int Id { get; set; }
@@ -298,7 +295,5 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             [ForeignKey("PrincipalId, PrincipalFk")]
             public Principal? CompositePrincipal { get; set; }
         }
-#pragma warning restore CS8618
-#nullable disable
     }
 }
