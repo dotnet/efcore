@@ -800,7 +800,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalFact(Skip = "Tasklist#6")]
+        [ConditionalFact]
         public virtual void Nullable_navigation_property_access_preserves_schema_for_sql_function()
         {
             using (var context = CreateContext())

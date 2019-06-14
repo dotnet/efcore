@@ -52,7 +52,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalFact(Skip = "QueryIssue")]
+        [ConditionalFact(Skip = "Issue#14534")]
         public virtual void Throws_on_concurrent_command()
         {
             using (var context = CreateContext())

@@ -345,9 +345,9 @@ WHERE 3 = [dbo].[CustomerOrderCount](ABS([c].[Id]))");
             base.Nullable_navigation_property_access_preserves_schema_for_sql_function();
 
             AssertSql(
-                @"SELECT TOP(1) [dbo].[IdentityString]([o.Customer].[FirstName])
+                @"SELECT TOP(1) [dbo].[IdentityString]([c].[FirstName])
 FROM [Orders] AS [o]
-LEFT JOIN [Customers] AS [o.Customer] ON [o].[CustomerId] = [o.Customer].[Id]
+LEFT JOIN [Customers] AS [c] ON [o].[CustomerId] = [c].[Id]
 ORDER BY [o].[Id]");
         }
 
