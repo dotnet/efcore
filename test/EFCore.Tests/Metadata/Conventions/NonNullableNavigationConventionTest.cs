@@ -288,12 +288,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
             [ForeignKey("PrincipalFk")]
             [InverseProperty("Dependent")]
-            public Principal? Principal { get; set; }
+            public Principal Principal { get; set; }
 
-            public Principal? AnotherPrincipal { get; set; }
+            public Principal AnotherPrincipal { get; set; }
 
             [ForeignKey("PrincipalId, PrincipalFk")]
-            public Principal? CompositePrincipal { get; set; }
+            public Principal CompositePrincipal { get; set; }
         }
     }
 }
