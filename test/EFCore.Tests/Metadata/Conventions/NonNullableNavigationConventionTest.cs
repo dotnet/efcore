@@ -138,14 +138,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
             navigation = RunConvention(relationshipBuilder, navigation);
 
-            Assert.Equal(nameof(Principal), navigation.ForeignKey.DeclaringEntityType.DisplayName());
-            Assert.True(navigation.ForeignKey.IsRequired);
+            Assert.Equal(nameof(Dependent), navigation.ForeignKey.DeclaringEntityType.DisplayName());
+            Assert.False(navigation.ForeignKey.IsRequired);
 
-            var logEntry = ListLoggerFactory.Log.Single();
-            Assert.Equal(LogLevel.Debug, logEntry.Level);
-            Assert.Equal(
-                CoreResources.LogNonNullableOnDependent(new TestLogger<TestLoggingDefinitions>()).GenerateMessage(
-                    nameof(Principal.Dependent), nameof(Principal)), logEntry.Message);
+            Assert.Empty(ListLoggerFactory.Log);
         }
 
         [ConditionalFact]
@@ -155,7 +151,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             var model = (Model)modelBuilder.Model;
             modelBuilder.Entity<BlogDetails>();
 
-            Assert.True(
+            Assert.False(
                 model.FindEntityType(typeof(BlogDetails)).GetForeignKeys().Single(fk => fk.PrincipalEntityType?.ClrType == typeof(Blog))
                     .IsRequired);
         }
@@ -167,15 +163,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             var model = (Model)modelBuilder.Model;
             modelBuilder.Entity<BlogDetails>().HasOne(b => b.Blog).WithOne(b => b.BlogDetails);
 
-            Assert.True(
+            Assert.False(
                 model.FindEntityType(typeof(BlogDetails)).GetForeignKeys()
                     .Single(fk => fk.PrincipalEntityType?.ClrType == typeof(Blog)).IsRequired);
 
-            var logEntry = ListLoggerFactory.Log.Single();
-            Assert.Equal(LogLevel.Debug, logEntry.Level);
-            Assert.Equal(
-                CoreResources.LogNonNullableReferenceOnBothNavigations(new TestLogger<TestLoggingDefinitions>()).GenerateMessage(
-                    nameof(Blog), nameof(Blog.BlogDetails), nameof(BlogDetails), nameof(BlogDetails.Blog)), logEntry.Message);
+            Assert.Empty(ListLoggerFactory.Log);
         }
 
         private Navigation RunConvention(InternalRelationshipBuilder relationshipBuilder, Navigation navigation)
