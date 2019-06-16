@@ -25,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure.Internal
             var builder = new StringBuilder();
             foreach (var extension in contextOptions.Extensions)
             {
-                builder.Append(extension.LogFragment);
+                builder.Append(extension.Info.LogFragment);
             }
 
             var fragment = builder.ToString();

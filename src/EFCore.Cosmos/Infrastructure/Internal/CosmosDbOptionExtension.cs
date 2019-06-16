@@ -20,8 +20,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.Internal
         private string _region;
         private string _databaseName;
         private Func<ExecutionStrategyDependencies, IExecutionStrategy> _executionStrategyFactory;
-        private string _logFragment;
-        private long? _serviceProviderHash;
+        private DbContextOptionsExtensionInfo _info;
 
         public CosmosOptionsExtension()
         {
@@ -35,6 +34,9 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.Internal
             _executionStrategyFactory = copyFrom._executionStrategyFactory;
             _region = copyFrom._region;
         }
+
+        public virtual DbContextOptionsExtensionInfo Info
+            => _info ??= new ExtensionInfo(this);
 
         public virtual string ServiceEndPoint => _serviceEndPoint;
 
@@ -104,68 +106,68 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.Internal
 
         protected virtual CosmosOptionsExtension Clone() => new CosmosOptionsExtension(this);
 
-        public bool ApplyServices(IServiceCollection services)
-        {
-            services.AddEntityFrameworkCosmos();
-
-            return true;
-        }
-
-        /// <summary>
-        ///     Returns a hash code created from any options that would cause a new <see cref="IServiceProvider" />
-        ///     to be needed.
-        /// </summary>
-        /// <returns> A hash over options that require a new service provider when changed. </returns>
-        public virtual long GetServiceProviderHashCode()
-        {
-            if (_serviceProviderHash == null)
-            {
-                var hashCode = _serviceEndPoint.GetHashCode();
-                hashCode = (hashCode * 397) ^ _authKeyOrResourceToken.GetHashCode();
-                hashCode = (hashCode * 397) ^ (_region?.GetHashCode() ?? 0);
-
-                _serviceProviderHash = hashCode;
-            }
-
-            return _serviceProviderHash.Value;
-        }
-
-        /// <summary>
-        ///     Populates a dictionary of information that may change between uses of the
-        ///     extension such that it can be compared to a previous configuration for
-        ///     this option and differences can be logged. The dictionary key prefix
-        ///     <c>"Cosmos:"</c> is used.
-        /// </summary>
-        /// <param name="debugInfo"> The dictionary to populate. </param>
-        public virtual void PopulateDebugInfo(IDictionary<string, string> debugInfo)
-        {
-            Check.NotNull(debugInfo, nameof(debugInfo));
-
-            debugInfo["Cosmos:" + nameof(ServiceEndPoint)] = _serviceEndPoint.GetHashCode().ToString(CultureInfo.InvariantCulture);
-            debugInfo["Cosmos:" + nameof(AuthKeyOrResourceToken)] = _authKeyOrResourceToken.GetHashCode().ToString(CultureInfo.InvariantCulture);
-            debugInfo["Cosmos:" + nameof(CosmosDbContextOptionsBuilder.Region)] = (_region?.GetHashCode() ?? 0).ToString(CultureInfo.InvariantCulture);
-        }
+        public void ApplyServices(IServiceCollection services)
+            => services.AddEntityFrameworkCosmos();
 
         public void Validate(IDbContextOptions options)
         {
         }
 
-        public string LogFragment
+        private sealed class ExtensionInfo : DbContextOptionsExtensionInfo
         {
-            get
+            private string _logFragment;
+            private long? _serviceProviderHash;
+
+            public ExtensionInfo(IDbContextOptionsExtension extension)
+                : base(extension)
             {
-                if (_logFragment == null)
+            }
+
+            private new CosmosOptionsExtension Extension
+                => (CosmosOptionsExtension)base.Extension;
+
+            public override bool IsDatabaseProvider => true;
+
+            public override long GetServiceProviderHashCode()
+            {
+                if (_serviceProviderHash == null)
                 {
-                    var builder = new StringBuilder();
+                    var hashCode = Extension._serviceEndPoint.GetHashCode();
+                    hashCode = (hashCode * 397) ^ Extension._authKeyOrResourceToken.GetHashCode();
+                    hashCode = (hashCode * 397) ^ (Extension._region?.GetHashCode() ?? 0);
 
-                    builder.Append("ServiceEndPoint=").Append(_serviceEndPoint).Append(' ');
-
-                    builder.Append("Database=").Append(_databaseName).Append(' ');
-
-                    _logFragment = builder.ToString();
+                    _serviceProviderHash = hashCode;
                 }
 
-                return _logFragment;
+                return _serviceProviderHash.Value;
+            }
+
+            public override void PopulateDebugInfo(IDictionary<string, string> debugInfo)
+            {
+                Check.NotNull(debugInfo, nameof(debugInfo));
+
+                debugInfo["Cosmos:" + nameof(ServiceEndPoint)] = Extension._serviceEndPoint.GetHashCode().ToString(CultureInfo.InvariantCulture);
+                debugInfo["Cosmos:" + nameof(AuthKeyOrResourceToken)] = Extension._authKeyOrResourceToken.GetHashCode().ToString(CultureInfo.InvariantCulture);
+                debugInfo["Cosmos:" + nameof(CosmosDbContextOptionsBuilder.Region)] = (Extension._region?.GetHashCode() ?? 0).ToString(CultureInfo.InvariantCulture);
+            }
+
+            public override string LogFragment
+            {
+                get
+                {
+                    if (_logFragment == null)
+                    {
+                        var builder = new StringBuilder();
+
+                        builder.Append("ServiceEndPoint=").Append(Extension._serviceEndPoint).Append(' ');
+
+                        builder.Append("Database=").Append(Extension._databaseName).Append(' ');
+
+                        _logFragment = builder.ToString();
+                    }
+
+                    return _logFragment;
+                }
             }
         }
     }

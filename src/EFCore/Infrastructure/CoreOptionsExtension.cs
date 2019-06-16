@@ -39,9 +39,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         private QueryTrackingBehavior _queryTrackingBehavior = QueryTrackingBehavior.TrackAll;
         private IDictionary<Type, Type> _replacedServices;
         private int? _maxPoolSize;
-        private long? _serviceProviderHash;
-        private string _logFragment;
         private bool _serviceProviderCachingEnabled = true;
+        private DbContextOptionsExtensionInfo _info;
 
         private WarningsConfiguration _warningsConfiguration
             = new WarningsConfiguration()
@@ -81,6 +80,12 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 _replacedServices = new Dictionary<Type, Type>(copyFrom._replacedServices);
             }
         }
+
+        /// <summary>
+        ///    Information/metadata about the extension.
+        /// </summary>
+        public virtual DbContextOptionsExtensionInfo Info
+            => _info ??= new ExtensionInfo(this);
 
         /// <summary>
         ///     Override this method in a derived class to ensure that any clone created is also of that class.
@@ -344,71 +349,17 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     required services when EF is creating an service provider.
         /// </summary>
         /// <param name="services"> The collection to add services to. </param>
-        /// <returns> False since no database provider is registered. </returns>
-        public virtual bool ApplyServices(IServiceCollection services)
+        public virtual void ApplyServices(IServiceCollection services)
         {
             var memoryCache = GetMemoryCache();
             if (memoryCache != null)
             {
                 services.AddSingleton(memoryCache);
             }
-
-            return false;
         }
 
         private IMemoryCache GetMemoryCache()
             => MemoryCache;
-
-        /// <summary>
-        ///     Returns a hash code created from any options that would cause a new <see cref="IServiceProvider" />
-        ///     to be needed.
-        /// </summary>
-        /// <returns> A hash over options that require a new service provider when changed. </returns>
-        public virtual long GetServiceProviderHashCode()
-        {
-            if (_serviceProviderHash == null)
-            {
-                var hashCode = GetMemoryCache()?.GetHashCode() ?? 0L;
-                hashCode = (hashCode * 3) ^ _sensitiveDataLoggingEnabled.GetHashCode();
-                hashCode = (hashCode * 3) ^ _detailedErrorsEnabled.GetHashCode();
-                hashCode = (hashCode * 1073742113) ^ _warningsConfiguration.GetServiceProviderHashCode();
-
-                if (_replacedServices != null)
-                {
-                    hashCode = _replacedServices.Aggregate(hashCode, (t, e) => (t * 397) ^ e.Value.GetHashCode());
-                }
-
-                _serviceProviderHash = hashCode;
-            }
-
-            return _serviceProviderHash.Value;
-        }
-
-        /// <summary>
-        ///     Populates a dictionary of information that may change between uses of the
-        ///     extension such that it can be compared to a previous configuration for
-        ///     this option and differences can be logged. The dictionary key prefix
-        ///     <c>"Core:"</c> is used.
-        /// </summary>
-        /// <param name="debugInfo"> The dictionary to populate. </param>
-        public virtual void PopulateDebugInfo(IDictionary<string, string> debugInfo)
-        {
-            Check.NotNull(debugInfo, nameof(debugInfo));
-
-            debugInfo["Core:" + nameof(DbContextOptionsBuilder.UseMemoryCache)] = (GetMemoryCache()?.GetHashCode() ?? 0L).ToString(CultureInfo.InvariantCulture);
-            debugInfo["Core:" + nameof(DbContextOptionsBuilder.EnableSensitiveDataLogging)] = _sensitiveDataLoggingEnabled.GetHashCode().ToString(CultureInfo.InvariantCulture);
-            debugInfo["Core:" + nameof(DbContextOptionsBuilder.EnableDetailedErrors)] = _detailedErrorsEnabled.GetHashCode().ToString(CultureInfo.InvariantCulture);
-            debugInfo["Core:" + nameof(DbContextOptionsBuilder.ConfigureWarnings)] = _warningsConfiguration.GetServiceProviderHashCode().ToString(CultureInfo.InvariantCulture);
-
-            if (_replacedServices != null)
-            {
-                foreach (var replacedService in _replacedServices)
-                {
-                    debugInfo["Core:" + nameof(DbContextOptionsBuilder.ReplaceService) + ":" + replacedService.Key.DisplayName()]
-                        = replacedService.Value.GetHashCode().ToString(CultureInfo.InvariantCulture);
-                }
-            }
-        }
 
         /// <summary>
         ///     Gives the extension a chance to validate that all options in the extension are valid.
@@ -447,42 +398,97 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             }
         }
 
-        /// <summary>
-        ///     Creates a message fragment for logging typically containing information about
-        ///     any useful non-default options that have been configured.
-        /// </summary>
-        public virtual string LogFragment
+        private sealed class ExtensionInfo : DbContextOptionsExtensionInfo
         {
-            get
+            private long? _serviceProviderHash;
+            private string _logFragment;
+
+            public ExtensionInfo(CoreOptionsExtension extension)
+                : base(extension)
             {
-                if (_logFragment == null)
+            }
+
+            private new CoreOptionsExtension Extension
+                => (CoreOptionsExtension)base.Extension;
+
+            public override bool IsDatabaseProvider => false;
+
+            public override string LogFragment
+            {
+                get
                 {
-                    var builder = new StringBuilder();
-
-                    if (_queryTrackingBehavior != QueryTrackingBehavior.TrackAll)
+                    if (_logFragment == null)
                     {
-                        builder.Append(_queryTrackingBehavior).Append(' ');
+                        var builder = new StringBuilder();
+
+                        if (Extension._queryTrackingBehavior != QueryTrackingBehavior.TrackAll)
+                        {
+                            builder.Append(Extension._queryTrackingBehavior).Append(' ');
+                        }
+
+                        if (Extension._sensitiveDataLoggingEnabled)
+                        {
+                            builder.Append("SensitiveDataLoggingEnabled ");
+                        }
+
+                        if (Extension._detailedErrorsEnabled)
+                        {
+                            builder.Append("DetailedErrorsEnabled ");
+                        }
+
+                        if (Extension._maxPoolSize != null)
+                        {
+                            builder.Append("MaxPoolSize=").Append(Extension._maxPoolSize).Append(' ');
+                        }
+
+                        _logFragment = builder.ToString();
                     }
 
-                    if (_sensitiveDataLoggingEnabled)
+                    return _logFragment;
+                }
+            }
+
+            public override void PopulateDebugInfo(IDictionary<string, string> debugInfo)
+            {
+                Check.NotNull(debugInfo, nameof(debugInfo));
+
+                debugInfo["Core:" + nameof(DbContextOptionsBuilder.UseMemoryCache)] =
+                    (Extension.GetMemoryCache()?.GetHashCode() ?? 0L).ToString(CultureInfo.InvariantCulture);
+                debugInfo["Core:" + nameof(DbContextOptionsBuilder.EnableSensitiveDataLogging)] =
+                    Extension._sensitiveDataLoggingEnabled.GetHashCode().ToString(CultureInfo.InvariantCulture);
+                debugInfo["Core:" + nameof(DbContextOptionsBuilder.EnableDetailedErrors)] =
+                    Extension._detailedErrorsEnabled.GetHashCode().ToString(CultureInfo.InvariantCulture);
+                debugInfo["Core:" + nameof(DbContextOptionsBuilder.ConfigureWarnings)] =
+                    Extension._warningsConfiguration.GetServiceProviderHashCode().ToString(CultureInfo.InvariantCulture);
+
+                if (Extension._replacedServices != null)
+                {
+                    foreach (var replacedService in Extension._replacedServices)
                     {
-                        builder.Append("SensitiveDataLoggingEnabled ");
+                        debugInfo["Core:" + nameof(DbContextOptionsBuilder.ReplaceService) + ":" + replacedService.Key.DisplayName()]
+                            = replacedService.Value.GetHashCode().ToString(CultureInfo.InvariantCulture);
+                    }
+                }
+            }
+
+            public override long GetServiceProviderHashCode()
+            {
+                if (_serviceProviderHash == null)
+                {
+                    var hashCode = Extension.GetMemoryCache()?.GetHashCode() ?? 0L;
+                    hashCode = (hashCode * 3) ^ Extension._sensitiveDataLoggingEnabled.GetHashCode();
+                    hashCode = (hashCode * 3) ^ Extension._detailedErrorsEnabled.GetHashCode();
+                    hashCode = (hashCode * 1073742113) ^ Extension._warningsConfiguration.GetServiceProviderHashCode();
+
+                    if (Extension._replacedServices != null)
+                    {
+                        hashCode = Extension._replacedServices.Aggregate(hashCode, (t, e) => (t * 397) ^ e.Value.GetHashCode());
                     }
 
-                    if (_detailedErrorsEnabled)
-                    {
-                        builder.Append("DetailedErrorsEnabled ");
-                    }
-
-                    if (_maxPoolSize != null)
-                    {
-                        builder.Append("MaxPoolSize=").Append(_maxPoolSize).Append(' ');
-                    }
-
-                    _logFragment = builder.ToString();
+                    _serviceProviderHash = hashCode;
                 }
 
-                return _logFragment;
+                return _serviceProviderHash.Value;
             }
         }
     }

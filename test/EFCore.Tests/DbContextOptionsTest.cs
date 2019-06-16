@@ -101,9 +101,12 @@ namespace Microsoft.EntityFrameworkCore
 
             Assert.False(optionsBuilder.IsConfigured);
 
-            ((IDbContextOptionsBuilderInfrastructure)optionsBuilder).AddOrUpdateExtension(new FakeDbContextOptionsExtension2());
+            var extension = new FakeDbContextOptionsExtension2();
+
+            ((IDbContextOptionsBuilderInfrastructure)optionsBuilder).AddOrUpdateExtension(extension);
 
             Assert.True(optionsBuilder.IsConfigured);
+            Assert.False(extension.AppliedServices);
         }
 
         [ConditionalFact]
@@ -113,44 +116,82 @@ namespace Microsoft.EntityFrameworkCore
 
             Assert.False(optionsBuilder.IsConfigured);
 
-            ((IDbContextOptionsBuilderInfrastructure)optionsBuilder).AddOrUpdateExtension(new FakeDbContextOptionsExtension1());
+            var extension = new FakeDbContextOptionsExtension1();
+            ((IDbContextOptionsBuilderInfrastructure)optionsBuilder).AddOrUpdateExtension(extension);
 
             Assert.False(optionsBuilder.IsConfigured);
+            Assert.False(extension.AppliedServices);
         }
 
         private class FakeDbContextOptionsExtension1 : IDbContextOptionsExtension
         {
+            private DbContextOptionsExtensionInfo _info;
+
             public string Something { get; set; }
 
-            public virtual bool ApplyServices(IServiceCollection services) => false;
+            public DbContextOptionsExtensionInfo Info
+                => _info ??= new ExtensionInfo(this);
 
-            public virtual long GetServiceProviderHashCode() => 0;
+            public bool AppliedServices { get; private set; }
+
+            public virtual void ApplyServices(IServiceCollection services)
+                => AppliedServices = true;
 
             public virtual void Validate(IDbContextOptions options)
             {
             }
 
-            public virtual string LogFragment => "";
-
-            public void PopulateDebugInfo(IDictionary<string, string> debugInfo)
+            private sealed class ExtensionInfo : DbContextOptionsExtensionInfo
             {
+                public ExtensionInfo(IDbContextOptionsExtension extension)
+                    : base(extension)
+                {
+                }
+
+                public override bool IsDatabaseProvider => false;
+
+                public override long GetServiceProviderHashCode() => 0;
+
+                public override string LogFragment => "";
+
+                public override void PopulateDebugInfo(IDictionary<string, string> debugInfo)
+                {
+                }
             }
         }
 
         private class FakeDbContextOptionsExtension2 : IDbContextOptionsExtension
         {
-            public virtual bool ApplyServices(IServiceCollection services) => true;
+            private DbContextOptionsExtensionInfo _info;
 
-            public virtual long GetServiceProviderHashCode() => 0;
+            public DbContextOptionsExtensionInfo Info
+                => _info ??= new ExtensionInfo(this);
+
+            public bool AppliedServices { get; private set; }
+
+            public virtual void ApplyServices(IServiceCollection services)
+                => AppliedServices = true;
 
             public virtual void Validate(IDbContextOptions options)
             {
             }
 
-            public virtual string LogFragment => "";
-
-            public void PopulateDebugInfo(IDictionary<string, string> debugInfo)
+            private sealed class ExtensionInfo : DbContextOptionsExtensionInfo
             {
+                public ExtensionInfo(IDbContextOptionsExtension extension)
+                    : base(extension)
+                {
+                }
+
+                public override bool IsDatabaseProvider => true;
+
+                public override long GetServiceProviderHashCode() => 0;
+
+                public override string LogFragment => "";
+
+                public override void PopulateDebugInfo(IDictionary<string, string> debugInfo)
+                {
+                }
             }
         }
 
