@@ -21,8 +21,8 @@ namespace Microsoft.EntityFrameworkCore.Proxies.Internal
     /// </summary>
     public class ProxiesOptionsExtension : IDbContextOptionsExtension
     {
+        private DbContextOptionsExtensionInfo _info;
         private bool _useLazyLoadingProxies;
-        private string _logFragment;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -44,6 +44,15 @@ namespace Microsoft.EntityFrameworkCore.Proxies.Internal
         {
             _useLazyLoadingProxies = copyFrom._useLazyLoadingProxies;
         }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual DbContextOptionsExtensionInfo Info
+            => _info ??= new ExtensionInfo(this);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -82,26 +91,6 @@ namespace Microsoft.EntityFrameworkCore.Proxies.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual long GetServiceProviderHashCode() => _useLazyLoadingProxies ? 541 : 0;
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public virtual void PopulateDebugInfo(IDictionary<string, string> debugInfo)
-        {
-            debugInfo["Proxies:" + nameof(ProxiesExtensions.UseLazyLoadingProxies)]
-                = (_useLazyLoadingProxies ? 541 : 0).ToString(CultureInfo.InvariantCulture);
-        }
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
         public virtual void Validate(IDbContextOptions options)
         {
             if (_useLazyLoadingProxies)
@@ -128,23 +117,33 @@ namespace Microsoft.EntityFrameworkCore.Proxies.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual bool ApplyServices(IServiceCollection services)
+        public virtual void ApplyServices(IServiceCollection services)
+            => services.AddEntityFrameworkProxies();
+
+        private sealed class ExtensionInfo : DbContextOptionsExtensionInfo
         {
-            services.AddEntityFrameworkProxies();
+            private string _logFragment;
 
-            return false;
+            public ExtensionInfo(IDbContextOptionsExtension extension)
+                : base(extension)
+            {
+            }
+
+            private new ProxiesOptionsExtension Extension
+                => (ProxiesOptionsExtension)base.Extension;
+
+            public override bool IsDatabaseProvider => false;
+
+            public override string LogFragment
+                => _logFragment ??= Extension._useLazyLoadingProxies
+                    ? "using lazy-loading proxies "
+                    : "";
+
+            public override long GetServiceProviderHashCode() => Extension._useLazyLoadingProxies ? 541 : 0;
+
+            public override void PopulateDebugInfo(IDictionary<string, string> debugInfo)
+                => debugInfo["Proxies:" + nameof(ProxiesExtensions.UseLazyLoadingProxies)]
+                    = (Extension._useLazyLoadingProxies ? 541 : 0).ToString(CultureInfo.InvariantCulture);
         }
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public virtual string LogFragment
-            => _logFragment
-               ?? (_logFragment = _useLazyLoadingProxies
-                   ? "using lazy-loading proxies "
-                   : "");
     }
 }
