@@ -174,6 +174,27 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
                     break;
 
                 case ExpressionType.Add:
+                {
+                    inferredTypeMapping = typeMapping ?? ExpressionExtensions.InferTypeMapping(left, right);
+                    resultType = left.Type;
+                    resultTypeMapping = inferredTypeMapping;
+
+                    if (left.Type == typeof(string)
+                        && left is ColumnExpression leftColumnExpression
+                        && leftColumnExpression.Nullable)
+                    {
+                        left = Coalesce(left, Constant(string.Empty));
+                    }
+
+                    if (right.Type == typeof(string)
+                        && right is ColumnExpression rightColumnExpression
+                        && rightColumnExpression.Nullable)
+                    {
+                        right = Coalesce(right, Constant(string.Empty));
+                    }
+                }
+                break;
+
                 case ExpressionType.Subtract:
                 case ExpressionType.Multiply:
                 case ExpressionType.Divide:

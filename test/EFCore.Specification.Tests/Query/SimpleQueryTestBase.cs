@@ -3873,6 +3873,17 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
+        public virtual void String_concat_with_null_produces_string()
+        {
+            using (var context = CreateContext())
+            {
+                var query = context.Customers.Select(c => new { c.City, c.Region, Concat = c.City + " " + c.Region }).ToList();
+
+                Assert.All(query, t => Assert.Equal(t.City + " " + t.Region, t.Concat));
+            }
+        }
+
+        [ConditionalFact]
         public virtual void Select_bitwise_or()
         {
             using (var context = CreateContext())

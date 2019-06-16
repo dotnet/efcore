@@ -2880,6 +2880,15 @@ FROM [Orders] AS [o]
 LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]");
         }
 
+        public override void String_concat_with_null_produces_string()
+        {
+            base.String_concat_with_null_produces_string();
+
+            AssertSql(
+                @"SELECT [c].[City], [c].[Region], (COALESCE([c].[City], N'') + N' ') + COALESCE([c].[Region], N'') AS [Concat]
+FROM [Customers] AS [c]");
+        }
+
         public override void Select_bitwise_or()
         {
             base.Select_bitwise_or();
