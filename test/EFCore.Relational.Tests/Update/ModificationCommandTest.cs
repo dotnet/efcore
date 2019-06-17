@@ -440,21 +440,21 @@ namespace Microsoft.EntityFrameworkCore.Update
 
         private static IModel BuildModel(bool generateKeyValues, bool computeNonKeyValue)
         {
-            IMutableModel model = new Model();
+            IMutableModel model = new Model(TestRelationalConventionSetBuilder.Build());
             var entityType = model.AddEntityType(typeof(T1));
 
-            var key = entityType.AddProperty("Id", typeof(int));
+            var key = entityType.FindProperty("Id");
             key.ValueGenerated = generateKeyValues ? ValueGenerated.OnAdd : ValueGenerated.Never;
             key.SetColumnName("Col1");
             entityType.SetPrimaryKey(key);
 
-            var nonKey1 = entityType.AddProperty("Name1", typeof(string));
+            var nonKey1 = entityType.FindProperty("Name1");
             nonKey1.IsConcurrencyToken = computeNonKeyValue;
 
             nonKey1.SetColumnName("Col2");
             nonKey1.ValueGenerated = computeNonKeyValue ? ValueGenerated.OnAddOrUpdate : ValueGenerated.Never;
 
-            var nonKey2 = entityType.AddProperty("Name2", typeof(string));
+            var nonKey2 = entityType.FindProperty("Name2");
             nonKey2.IsConcurrencyToken = computeNonKeyValue;
 
             nonKey2.SetColumnName("Col3");

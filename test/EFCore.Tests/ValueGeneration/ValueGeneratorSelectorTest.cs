@@ -79,25 +79,22 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
             var selector = contextServices.GetRequiredService<IValueGeneratorSelector>();
 
             Assert.Equal(
-                CoreStrings.NoValueGenerator("Random", "AnEntity", typeof(Random).Name),
+                CoreStrings.NoValueGenerator("Random", "AnEntity", "char"),
                 Assert.Throws<NotSupportedException>(() => selector.Select(entityType.FindProperty("Random"), entityType)).Message);
         }
 
-        private static IMutableModel BuildModel(bool generateValues = true)
+        private static IModel BuildModel(bool generateValues = true)
         {
             var builder = InMemoryTestHelpers.Instance.CreateConventionBuilder();
-            builder.Ignore<Random>();
             builder.Entity<AnEntity>().Property(e => e.Custom).HasValueGenerator<CustomValueGenerator>();
-            var model = builder.Model;
-            var entityType = model.FindEntityType(typeof(AnEntity));
-            entityType.AddProperty("Random", typeof(Random));
+            var entityType = builder.Model.FindEntityType(typeof(AnEntity));
 
             foreach (var property in entityType.GetProperties())
             {
                 property.ValueGenerated = generateValues ? ValueGenerated.OnAdd : ValueGenerated.Never;
             }
 
-            return model;
+            return builder.FinalizeModel();
         }
 
         private class AnEntity
@@ -133,7 +130,7 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
             public DateTime? NullableDateTime { get; set; }
             public DateTimeOffset DateTimeOffset { get; set; }
             public DateTimeOffset? NullableDateTimeOffset { get; set; }
-            public Random Random { get; set; }
+            public char Random { get; set; }
         }
 
         private class CustomValueGenerator : ValueGenerator<int>

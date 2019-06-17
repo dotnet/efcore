@@ -521,8 +521,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         }
 
         private static ValueConverter FindValueConverter(IProperty property)
-            => property.FindMapping()?.Converter
-               ?? property.GetValueConverter();
+            => property.GetTypeMapping().Converter;
 
         /// <summary>
         ///     Generates code for <see cref="IKey" /> objects.

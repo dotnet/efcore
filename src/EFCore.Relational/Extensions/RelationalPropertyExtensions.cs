@@ -397,13 +397,22 @@ namespace Microsoft.EntityFrameworkCore
             => property.FindAnnotation(RelationalAnnotationNames.IsFixedLength)?.GetConfigurationSource();
 
         /// <summary>
-        ///     Returns the <see cref="RelationalTypeMapping" /> for the given property.
+        ///     Returns the <see cref="RelationalTypeMapping" /> for the given property on a finalized model.
+        /// </summary>
+        /// <param name="property"> The property. </param>
+        /// <returns> The type mapping. </returns>
+        [DebuggerStepThrough]
+        public static RelationalTypeMapping GetRelationalTypeMapping([NotNull] this IProperty property)
+            => (RelationalTypeMapping)property.GetTypeMapping();
+
+        /// <summary>
+        ///     Returns the <see cref="RelationalTypeMapping" /> for the given property on a finalized model.
         /// </summary>
         /// <param name="property"> The property. </param>
         /// <returns> The type mapping, or null if none was found. </returns>
         [DebuggerStepThrough]
         public static RelationalTypeMapping FindRelationalMapping([NotNull] this IProperty property)
-            => property[CoreAnnotationNames.TypeMapping] as RelationalTypeMapping;
+            => (RelationalTypeMapping)property.FindMapping();
 
         /// <summary>
         ///     <para>

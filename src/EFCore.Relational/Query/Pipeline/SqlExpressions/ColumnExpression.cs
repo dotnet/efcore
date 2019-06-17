@@ -14,7 +14,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
     public class ColumnExpression : SqlExpression
     {
         internal ColumnExpression(IProperty property, TableExpressionBase table, bool nullable)
-            : this(property.GetColumnName(), table, property.ClrType, property.FindRelationalMapping(),
+            : this(property.GetColumnName(), table, property.ClrType, property.GetRelationalTypeMapping(),
                   nullable || property.IsNullable || property.DeclaringEntityType.BaseType != null)
         {
         }

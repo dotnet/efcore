@@ -532,8 +532,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
             using (var context = new FruityContext(ContextOptions))
             {
                 Assert.Same(
-                    context.Model.FindEntityType(typeof(Banana)).FindProperty("Id").FindMapping(),
-                    context.Model.FindEntityType(typeof(Kiwi)).FindProperty("BananaId").FindMapping());
+                    context.Model.FindEntityType(typeof(Banana)).FindProperty("Id").GetTypeMapping(),
+                    context.Model.FindEntityType(typeof(Kiwi)).FindProperty("BananaId").GetTypeMapping());
             }
         }
 
@@ -555,8 +555,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
             {
                 Assert.Equal(
                     typeof(short),
-                    context.Model.FindEntityType(typeof(Banana)).FindProperty("Id").FindMapping().Converter.ProviderClrType);
-                Assert.Null(context.Model.FindEntityType(typeof(Kiwi)).FindProperty("Id").FindMapping().Converter);
+                    context.Model.FindEntityType(typeof(Banana)).FindProperty("Id").GetTypeMapping().Converter.ProviderClrType);
+                Assert.Null(context.Model.FindEntityType(typeof(Kiwi)).FindProperty("Id").GetTypeMapping().Converter);
             }
         }
 

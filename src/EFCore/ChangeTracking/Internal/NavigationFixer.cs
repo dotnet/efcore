@@ -859,7 +859,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             object dependentValue,
             object principalValue)
             => (principalProperty.GetKeyValueComparer()
-                ?? principalProperty.FindMapping()?.KeyComparer)
+                ?? principalProperty.GetTypeMapping().KeyComparer)
                 ?.Equals(dependentValue, principalValue)
                 ?? StructuralComparisons.StructuralEqualityComparer.Equals(
                    dependentValue,

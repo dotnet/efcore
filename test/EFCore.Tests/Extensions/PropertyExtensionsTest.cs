@@ -17,6 +17,20 @@ namespace Microsoft.EntityFrameworkCore
     public class PropertyExtensionsTest
     {
         [ConditionalFact]
+        public virtual void Asking_for_type_mapping_before_finalize_throws()
+        {
+            var model = CreateModel();
+
+            var entityType = model.AddEntityType("Entity");
+            var property = entityType.AddProperty("Property", typeof(int));
+
+            Assert.Equal(
+                CoreStrings.ModelNotFinalized(nameof(PropertyExtensions.GetTypeMapping)),
+                Assert.Throws<InvalidOperationException>(
+                    () => property.GetTypeMapping()).Message);
+        }
+
+        [ConditionalFact]
         public virtual void Properties_can_have_store_type_set()
         {
             var model = CreateModel();

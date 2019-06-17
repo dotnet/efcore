@@ -3,11 +3,9 @@
 
 using System;
 using System.Linq;
-using System.Reflection;
 using System.Text;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.Extensions.DependencyInjection;
@@ -411,14 +409,9 @@ namespace Microsoft.EntityFrameworkCore.Update
 
         private IMutableEntityType GetDuckType()
         {
-            var entityType = ((IMutableModel)new Model()).AddEntityType(typeof(Duck));
-            var id = entityType.AddProperty(typeof(Duck).GetTypeInfo().GetDeclaredProperty(nameof(Duck.Id)));
-            entityType.AddProperty(typeof(Duck).GetTypeInfo().GetDeclaredProperty(nameof(Duck.Name)));
-            entityType.AddProperty(typeof(Duck).GetTypeInfo().GetDeclaredProperty(nameof(Duck.Quacks)));
-            entityType.AddProperty(typeof(Duck).GetTypeInfo().GetDeclaredProperty(nameof(Duck.Computed)));
-            entityType.AddProperty(typeof(Duck).GetTypeInfo().GetDeclaredProperty(nameof(Duck.ConcurrencyToken)));
-            entityType.SetPrimaryKey(id);
-            return entityType;
+            var modelBuilder = TestHelpers.CreateConventionBuilder();
+            modelBuilder.Entity<Duck>().Property(e => e.Id).ValueGeneratedNever();
+            return modelBuilder.Model.FindEntityType(typeof(Duck));
         }
 
         protected class Duck

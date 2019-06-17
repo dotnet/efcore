@@ -170,7 +170,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Update.Internal
                 return null;
             }
 
-            var converter = property.FindMapping().Converter;
+            var converter = property.GetTypeMapping().Converter;
             if (converter != null)
             {
                 value = converter.ConvertToProvider(value);

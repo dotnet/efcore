@@ -84,7 +84,6 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Migrations.Internal
         }
 
         private static bool HasConverter(IProperty property)
-            => (property.FindMapping()?.Converter
-                ?? property.GetValueConverter()) != null;
+            => property.GetTypeMapping().Converter  != null;
     }
 }
