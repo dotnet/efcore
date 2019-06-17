@@ -60,6 +60,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <param name="defaultValueSql"> The SQL expression to use for the column's default constraint. </param>
         /// <param name="computedColumnSql"> The SQL expression to use to compute the column value. </param>
         /// <param name="fixedLength"> Indicates whether or not the column is constrained to fixed-length data. </param>
+        /// <param name="comment"> A comment to associate with the column. </param>
         /// <returns> A builder to allow annotations to be added to the operation. </returns>
         public virtual OperationBuilder<AddColumnOperation> AddColumn<T>(
             [NotNull] string name,
@@ -73,7 +74,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             [CanBeNull] object defaultValue = null,
             [CanBeNull] string defaultValueSql = null,
             [CanBeNull] string computedColumnSql = null,
-            bool? fixedLength = null)
+            bool? fixedLength = null,
+            [CanBeNull] string comment = null)
         {
             Check.NotEmpty(name, nameof(name));
             Check.NotEmpty(table, nameof(table));
@@ -92,7 +94,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 DefaultValue = defaultValue,
                 DefaultValueSql = defaultValueSql,
                 ComputedColumnSql = computedColumnSql,
-                IsFixedLength = fixedLength
+                IsFixedLength = fixedLength,
+                Comment = comment
             };
             Operations.Add(operation);
 
@@ -341,6 +344,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// </param>
         /// <param name="fixedLength"> Indicates whether or not the column is constrained to fixed-length data. </param>
         /// <param name="oldFixedLength"> Indicates whether or not the column was previously constrained to fixed-length data. </param>
+        /// <param name="comment"> A comment to associate with the column. </param>
+        /// <param name="oldComment"> The previous comment to associate with the column. </param>
         /// <returns> A builder to allow annotations to be added to the operation. </returns>
         public virtual AlterOperationBuilder<AlterColumnOperation> AlterColumn<T>(
             [NotNull] string name,
@@ -364,7 +369,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             [CanBeNull] string oldDefaultValueSql = null,
             [CanBeNull] string oldComputedColumnSql = null,
             bool? fixedLength = null,
-            bool? oldFixedLength = null)
+            bool? oldFixedLength = null,
+            [CanBeNull] string comment = null,
+            [CanBeNull] string oldComment = null)
         {
             Check.NotEmpty(name, nameof(name));
             Check.NotEmpty(table, nameof(table));
@@ -384,6 +391,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 DefaultValueSql = defaultValueSql,
                 ComputedColumnSql = computedColumnSql,
                 IsFixedLength = fixedLength,
+                Comment = comment,
                 OldColumn = new ColumnOperation
                 {
                     ClrType = oldClrType ?? typeof(T),
@@ -395,7 +403,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     DefaultValue = oldDefaultValue,
                     DefaultValueSql = oldDefaultValueSql,
                     ComputedColumnSql = oldComputedColumnSql,
-                    IsFixedLength = oldFixedLength
+                    IsFixedLength = oldFixedLength,
+                    Comment = oldComment
                 }
             };
 
@@ -470,17 +479,20 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// </summary>
         /// <param name="name"> The table name. </param>
         /// <param name="schema"> The schema that contains the table, or <c>null</c> to use the default schema. </param>
+        /// <param name="comment"> A comment to associate with the table. </param>
         /// <returns> A builder to allow annotations to be added to the operation. </returns>
         public virtual AlterOperationBuilder<AlterTableOperation> AlterTable(
             [NotNull] string name,
-            [CanBeNull] string schema = null)
+            [CanBeNull] string schema = null,
+            [CanBeNull] string comment = null)
         {
             Check.NotEmpty(name, nameof(name));
 
             var operation = new AlterTableOperation
             {
                 Schema = schema,
-                Name = name
+                Name = name,
+                Comment = comment
             };
             Operations.Add(operation);
 
@@ -667,12 +679,14 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <param name="constraints">
         ///     A delegate allowing constraints to be applied over the columns configured by the 'columns' delegate above.
         /// </param>
+        /// <param name="comment"> A comment to been applied to the table. </param>
         /// <returns> A <see cref="CreateTableBuilder{TColumns}" /> to allow further configuration to be chained. </returns>
         public virtual CreateTableBuilder<TColumns> CreateTable<TColumns>(
             [NotNull] string name,
             [NotNull] Func<ColumnsBuilder, TColumns> columns,
             [CanBeNull] string schema = null,
-            [CanBeNull] Action<CreateTableBuilder<TColumns>> constraints = null)
+            [CanBeNull] Action<CreateTableBuilder<TColumns>> constraints = null,
+            [CanBeNull] string comment = null)
         {
             Check.NotEmpty(name, nameof(name));
             Check.NotNull(columns, nameof(columns));
@@ -680,7 +694,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             var createTableOperation = new CreateTableOperation
             {
                 Schema = schema,
-                Name = name
+                Name = name,
+                Comment = comment
             };
 
             var columnsBuilder = new ColumnsBuilder(createTableOperation);

@@ -22,6 +22,11 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations
         public virtual string Schema { get; [param: CanBeNull] set; }
 
         /// <summary>
+        ///     Comment for this table
+        /// </summary>
+        public virtual string Comment { get; [param: CanBeNull] set; }
+
+        /// <summary>
         ///     The <see cref="AddPrimaryKeyOperation" /> representing the creation of the primary key for the table.
         /// </summary>
         public virtual AddPrimaryKeyOperation PrimaryKey { get; [param: CanBeNull] set; }

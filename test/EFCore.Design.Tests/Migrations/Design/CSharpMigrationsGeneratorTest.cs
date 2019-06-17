@@ -100,7 +100,13 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     ("MyDiscriminatorValue",
                         _toTable + _nl + "modelBuilder.HasDiscriminator"
                         + "()." + nameof(DiscriminatorBuilder.HasValue) + @"(""MyDiscriminatorValue"");" + _nl)
-                }
+                },
+                {
+                    RelationalAnnotationNames.Comment,
+                    ("My Comment",
+                        _toTable + _nl + "modelBuilder.HasComment"
+                        + @"(""My Comment"");" + _nl)
+                },
             };
 
             MissingAnnotationCheck(
@@ -189,6 +195,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 {
                     RelationalAnnotationNames.IsFixedLength,
                     (true, _nl + "." + nameof(RelationalPropertyBuilderExtensions.IsFixedLength) + "(true)")
+                },
+                {
+                    RelationalAnnotationNames.Comment,
+                    ("My Comment", _nl + "." + nameof(RelationalPropertyBuilderExtensions.HasComment) + @"(""My Comment"")")
                 }
             };
 

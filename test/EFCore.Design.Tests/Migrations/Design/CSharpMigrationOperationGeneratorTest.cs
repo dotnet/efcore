@@ -94,7 +94,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     IsRowVersion = true,
                     IsNullable = true,
                     DefaultValue = 1,
-                    IsFixedLength = true
+                    IsFixedLength = true,
+                    Comment = "My Comment"
                 },
                 "mb.AddColumn<int>(" + _eol +
                 "    name: \"Id\"," + _eol +
@@ -106,7 +107,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 "    maxLength: 30," + _eol +
                 "    rowVersion: true," + _eol +
                 "    nullable: true," + _eol +
-                "    defaultValue: 1);",
+                "    defaultValue: 1," + _eol +
+                "    comment: \"My Comment\");",
                 o =>
                 {
                     Assert.Equal("Id", o.Name);
@@ -118,6 +120,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     Assert.Equal(1, o.DefaultValue);
                     Assert.False(o.IsUnicode);
                     Assert.True(o.IsFixedLength);
+                    Assert.Equal("My Comment", o.Comment);
                 });
         }
 
@@ -508,6 +511,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     IsNullable = true,
                     DefaultValue = 1,
                     IsFixedLength = true,
+                    Comment = "My Comment 2",
                     OldColumn =
                     {
                         ClrType = typeof(string),
@@ -517,7 +521,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                         IsRowVersion = true,
                         IsNullable = true,
                         DefaultValue = 0,
-                        IsFixedLength = true
+                        IsFixedLength = true,
+                        Comment = "My Comment",
                     }
                 },
                 "mb.AlterColumn<int>(" + _eol +
@@ -531,6 +536,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 "    rowVersion: true," + _eol +
                 "    nullable: true," + _eol +
                 "    defaultValue: 1," + _eol +
+                "    comment: \"My Comment 2\"," + _eol +
                 "    oldClrType: typeof(string)," + _eol +
                 "    oldType: \"string\"," + _eol +
                 "    oldUnicode: false," + _eol +
@@ -538,7 +544,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 "    oldMaxLength: 20," + _eol +
                 "    oldRowVersion: true," + _eol +
                 "    oldNullable: true," + _eol +
-                "    oldDefaultValue: 0);",
+                "    oldDefaultValue: 0," + _eol +
+                "    oldComment: \"My Comment\");",
                 o =>
                 {
                     Assert.Equal("Id", o.Name);
@@ -554,6 +561,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     Assert.Equal(1, o.DefaultValue);
                     Assert.Null(o.DefaultValueSql);
                     Assert.Null(o.ComputedColumnSql);
+                    Assert.Equal("My Comment 2", o.Comment);
                     Assert.Equal(typeof(string), o.OldColumn.ClrType);
                     Assert.Equal("string", o.OldColumn.ColumnType);
                     Assert.False(o.OldColumn.IsUnicode);
@@ -564,6 +572,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     Assert.Equal(0, o.OldColumn.DefaultValue);
                     Assert.Null(o.OldColumn.DefaultValueSql);
                     Assert.Null(o.OldColumn.ComputedColumnSql);
+                    Assert.Equal("My Comment", o.OldColumn.Comment);
                 });
         }
 
@@ -747,21 +756,40 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         }
 
         [ConditionalFact]
-        public void AlterTableOperation()
+        public void AlterTableOperation_required_args()
+        {
+            Test(
+                new AlterTableOperation
+                {
+                    Name = "Customer"
+                },
+                "mb.AlterTable(" + _eol +
+                "    name: \"Customer\");",
+                o =>
+                {
+                    Assert.Equal("Customer", o.Name);
+                });
+        }
+
+        [ConditionalFact]
+        public void AlterTableOperation_all_args()
         {
             Test(
                 new AlterTableOperation
                 {
                     Name = "Customer",
-                    Schema = "dbo"
+                    Schema = "dbo",
+                    Comment = "My Comment"
                 },
                 "mb.AlterTable(" + _eol +
                 "    name: \"Customer\"," + _eol +
-                "    schema: \"dbo\");",
+                "    schema: \"dbo\"," + _eol +
+                "    comment: \"My Comment\");",
                 o =>
                 {
                     Assert.Equal("Customer", o.Name);
                     Assert.Equal("dbo", o.Schema);
+                    Assert.Equal("My Comment", o.Comment);
                 });
         }
 
@@ -1691,6 +1719,41 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     Assert.Equal("dbo", o.CheckConstraints[0].Schema);
                     Assert.Equal("Post", o.CheckConstraints[0].Table);
                     Assert.Equal("AltId1 > AltId2", o.CheckConstraints[0].Sql);
+                });
+        }
+
+        [ConditionalFact]
+        public void CreateTableOperation_Comment()
+        {
+            Test(
+                new CreateTableOperation
+                {
+                    Name = "Post",
+                    Schema = "dbo",
+                    Columns =
+                    {
+                        new AddColumnOperation
+                        {
+                            Name = "AltId1",
+                            ClrType = typeof(int)
+                        }
+                    },
+                    Comment = "My Comment"
+                },
+                "mb.CreateTable(" + _eol +
+                "    name: \"Post\"," + _eol +
+                "    schema: \"dbo\"," + _eol +
+                "    columns: table => new" + _eol +
+                "    {" + _eol +
+                "        AltId1 = table.Column<int>(nullable: false)" + _eol +
+                "    }," + _eol +
+                "    constraints: table =>" + _eol +
+                "    {" + _eol +
+                "    }," + _eol +
+                "    comment: \"My Comment\");",
+                o =>
+                {
+                    Assert.Equal("My Comment", o.Comment);
                 });
         }
 

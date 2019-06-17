@@ -946,7 +946,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
             Assert.Equal(2, logFactory.Log.Count);
 
-            Assert.Equal(LogLevel.Debug, logFactory.Log[0].Level);
+            Assert.Equal(LogLevel.Information, logFactory.Log[0].Level);
             Assert.Equal(LogLevel.Debug, logFactory.Log[1].Level);
 
             foreach (var (_, _, message, _, _) in logFactory.Log)
@@ -1004,7 +1004,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.Equal(LogLevel.Warning, logFactory.Log[0].Level);
             Assert.Equal(CoreResources.LogSensitiveDataLoggingEnabled(new TestLogger<TestRelationalLoggingDefinitions>()).GenerateMessage(), logFactory.Log[0].Message);
 
-            Assert.Equal(LogLevel.Debug, logFactory.Log[1].Level);
+            Assert.Equal(LogLevel.Information, logFactory.Log[1].Level);
             Assert.Equal(LogLevel.Debug, logFactory.Log[2].Level);
 
             foreach (var (_, _, message, _, _) in logFactory.Log.Skip(1))

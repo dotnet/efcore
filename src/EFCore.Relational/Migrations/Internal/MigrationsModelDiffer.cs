@@ -582,7 +582,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 var alterTableOperation = new AlterTableOperation
                 {
                     Name = target.Name,
-                    Schema = target.Schema
+                    Schema = target.Schema,
+                    Comment = target.GetComment()
                 };
                 alterTableOperation.AddAnnotations(targetMigrationsAnnotations);
 
@@ -600,12 +601,14 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         protected virtual IEnumerable<MigrationOperation> Add(
             [NotNull] TableMapping target, [NotNull] DiffContext diffContext)
         {
+            var entityType = target.EntityTypes[0];
             var createTableOperation = new CreateTableOperation
             {
                 Schema = target.Schema,
-                Name = target.Name
+                Name = target.Name,
+                Comment = target.GetComment()
             };
-            createTableOperation.AddAnnotations(MigrationsAnnotations.For(target.EntityTypes[0]));
+            createTableOperation.AddAnnotations(MigrationsAnnotations.For(entityType));
 
             createTableOperation.Columns.AddRange(
                 GetSortedProperties(target).SelectMany(p => Add(p, diffContext, inline: true)).Cast<AddColumnOperation>());
@@ -1037,6 +1040,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 
             columnOperation.DefaultValueSql = property.GetDefaultValueSql();
             columnOperation.ComputedColumnSql = property.GetComputedColumnSql();
+            columnOperation.Comment = property.GetComment();
             columnOperation.AddAnnotations(migrationsAnnotations);
         }
 

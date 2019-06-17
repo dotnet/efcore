@@ -23,6 +23,11 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations
         public virtual string Schema { get; [param: CanBeNull] set; }
 
         /// <summary>
+        ///     Comment for this table
+        /// </summary>
+        public virtual string Comment { get; [param: CanBeNull] set; }
+
+        /// <summary>
         ///     An operation representing the table as it was before being altered.
         /// </summary>
         public virtual Annotatable OldTable { get; [param: NotNull] set; } = new Annotatable();
