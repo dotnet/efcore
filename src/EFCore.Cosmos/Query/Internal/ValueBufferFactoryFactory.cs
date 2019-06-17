@@ -54,7 +54,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
             var storeName = property.GetCosmosPropertyName();
             if (storeName.Length == 0)
             {
-                var type = property.FindMapping()?.Converter?.ProviderClrType
+                var type = property.GetTypeMapping().Converter?.ProviderClrType
                            ?? property.ClrType;
 
                 Expression calculatedExpression = Expression.Default(type);
@@ -80,7 +80,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                                 Expression.Constant(storeName));
 
             var modelClrType = property.ClrType;
-            var converter = property.FindMapping().Converter;
+            var converter = property.GetTypeMapping().Converter;
             if (converter != null)
             {
                 var nullableExpression = valueExpression;

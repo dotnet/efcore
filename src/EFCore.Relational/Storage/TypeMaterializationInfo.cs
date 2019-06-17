@@ -78,7 +78,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
             if (mapping == null)
             {
-                mapping = property?.FindRelationalMapping()
+                mapping = property?.GetRelationalTypeMapping()
                           ?? typeMappingSource?.GetMapping(modelClrType);
             }
 

@@ -57,6 +57,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.ValueGeneration.Internal
 
             return property.GetValueGeneratorFactory() == null
                    && property.ClrType.IsInteger()
+                   && property.ClrType.UnwrapNullableType() != typeof(char)
                 ? GetOrCreate(property)
                 : base.Select(property, entityType);
         }

@@ -58,7 +58,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <param name="property"> The property. </param>
         /// <returns> The store value generation strategy to set for the given property. </returns>
         protected override ValueGenerated? GetValueGenerated(IConventionProperty property)
-            => GetValueGenerated((IProperty)property);
+            => GetValueGenerated(property);
 
         /// <summary>
         ///     Returns the store value generation strategy to set for the given property.

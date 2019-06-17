@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.EntityFrameworkCore.Update.Internal;
 using Xunit;
 
@@ -18,7 +19,7 @@ namespace Microsoft.EntityFrameworkCore.Update
         [ConditionalFact]
         public void Compare_returns_0_only_for_commands_that_are_equal()
         {
-            IMutableModel model = new Model();
+            IMutableModel model = new Model(TestRelationalConventionSetBuilder.Build());
             var entityType = model.AddEntityType(typeof(object));
             var key = entityType.AddProperty("Id", typeof(int));
             entityType.SetPrimaryKey(key);
@@ -152,7 +153,7 @@ namespace Microsoft.EntityFrameworkCore.Update
 
         private void Compare_returns_0_only_for_entries_that_have_same_key_values_generic<T>(T value1, T value2)
         {
-            IMutableModel model = new Model();
+            IMutableModel model = new Model(TestRelationalConventionSetBuilder.Build());
             var entityType = model.AddEntityType(typeof(object));
 
             var keyProperty = entityType.AddProperty("Id", typeof(T));

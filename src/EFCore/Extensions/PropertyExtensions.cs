@@ -3,9 +3,11 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -22,6 +24,25 @@ namespace Microsoft.EntityFrameworkCore
     /// </summary>
     public static class PropertyExtensions
     {
+        /// <summary>
+        ///     Returns the <see cref="CoreTypeMapping" /> for the given property from a finalized model.
+        /// </summary>
+        /// <param name="property"> The property. </param>
+        /// <returns> The type mapping. </returns>
+        public static CoreTypeMapping GetTypeMapping(
+            [NotNull] this IProperty property)
+        {
+            var mapping = (CoreTypeMapping)property[CoreAnnotationNames.TypeMapping];
+
+            if (mapping == null)
+            {
+                throw new InvalidOperationException(
+                    CoreStrings.ModelNotFinalized(nameof(GetTypeMapping)));
+            }
+
+            return mapping;
+        }
+
         /// <summary>
         ///     Returns the <see cref="CoreTypeMapping" /> for the given property.
         /// </summary>

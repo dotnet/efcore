@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using Microsoft.EntityFrameworkCore.InMemory.Metadata.Conventions;
 using Xunit;
 
 // ReSharper disable InconsistentNaming
@@ -13,10 +14,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         [ConditionalFact]
         public void Delegate_getter_is_returned_for_indexed_property()
         {
-            var entityType = ((IMutableModel)new Model()).AddEntityType(typeof(IndexedClass));
-            entityType.AddProperty("Id", typeof(int));
+            var modelBuilder = new ModelBuilder(InMemoryConventionSetBuilder.Build());
+            modelBuilder.Entity<IndexedClass>().Property(e => e.Id);
+            var entityType = modelBuilder.Model.FindEntityType(typeof(IndexedClass));
             var propertyA = entityType.AddIndexedProperty("PropertyA", typeof(string));
             var propertyB = entityType.AddIndexedProperty("PropertyB", typeof(int));
+            modelBuilder.FinalizeModel();
 
             var indexedClass = new IndexedClass();
             Assert.Equal(
@@ -49,6 +52,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             public object this[string name]
             {
                 get => _internalValues[name];
+                set => _internalValues[name] = value;
             }
         }
 

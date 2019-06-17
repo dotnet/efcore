@@ -73,7 +73,7 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
 
             if (factory == null)
             {
-                var mapping = property.FindMapping();
+                var mapping = property.GetTypeMapping();
                 factory = mapping?.ValueGeneratorFactory;
 
                 if (factory == null)

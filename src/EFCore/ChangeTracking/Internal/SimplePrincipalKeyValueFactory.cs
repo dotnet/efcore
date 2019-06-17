@@ -35,7 +35,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             _propertyAccessors = _property.GetPropertyAccessors();
 
             var comparer = property.GetKeyValueComparer()
-                           ?? property.FindMapping()?.KeyComparer;
+                           ?? property.GetTypeMapping().KeyComparer;
 
             EqualityComparer
                 = comparer != null

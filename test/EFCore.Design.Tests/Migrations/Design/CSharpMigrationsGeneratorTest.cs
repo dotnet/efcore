@@ -39,9 +39,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         [ConditionalFact]
         public void Test_new_annotations_handled_for_entity_types()
         {
-            var model = RelationalTestHelpers.Instance.CreateConventionBuilder();
-            var entityType = model.Entity<WithAnnotations>().Metadata;
-
             // Only add the annotation here if it will never be present on IEntityType
             var notForEntityType = new HashSet<string>
             {
@@ -110,7 +107,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             };
 
             MissingAnnotationCheck(
-                entityType, notForEntityType, forEntityType,
+                b => b.Entity<WithAnnotations>().Metadata,
+                notForEntityType, forEntityType,
                 _toTable,
                 (g, m, b) => g.TestGenerateEntityTypeAnnotations("modelBuilder", (IEntityType)m, b));
         }
@@ -118,9 +116,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         [ConditionalFact]
         public void Test_new_annotations_handled_for_properties()
         {
-            var model = RelationalTestHelpers.Instance.CreateConventionBuilder();
-            var property = model.Entity<WithAnnotations>().Property(e => e.Id).Metadata;
-
             // Only add the annotation here if it will never be present on IProperty
             var notForProperty = new HashSet<string>
             {
@@ -203,13 +198,14 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             };
 
             MissingAnnotationCheck(
-                property, notForProperty, forProperty,
+                b => b.Entity<WithAnnotations>().Property(e => e.Id).Metadata,
+                notForProperty, forProperty,
                 "",
                 (g, m, b) => g.TestGeneratePropertyAnnotations((IProperty)m, b));
         }
 
         private static void MissingAnnotationCheck(
-            IMutableAnnotatable metadataItem,
+            Func<ModelBuilder, IMutableAnnotatable> createMetadataItem,
             HashSet<string> invalidAnnotations,
             Dictionary<string, (object Value, string Expected)> validAnnotations,
             string generationDefault,
@@ -240,9 +236,13 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
 
                 if (!invalidAnnotations.Contains(annotationName))
                 {
+                    var modelBuilder = RelationalTestHelpers.Instance.CreateConventionBuilder();
+                    var metadataItem = createMetadataItem(modelBuilder);
                     metadataItem[annotationName] = validAnnotations.ContainsKey(annotationName)
                         ? validAnnotations[annotationName].Value
-                        : new Random(); // Something that cannot be scaffolded by default
+                        : null;
+
+                    modelBuilder.FinalizeModel();
 
                     var sb = new IndentedStringBuilder();
 
@@ -261,8 +261,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                             ? validAnnotations[annotationName].Expected
                             : generationDefault,
                         sb.ToString());
-
-                    metadataItem[annotationName] = null;
                 }
             }
         }
@@ -703,6 +701,8 @@ namespace MyNamespace
                     eb.HasKey(e => e.Boolean);
                 });
 
+            modelBuilder.FinalizeModel();
+
             var modelSnapshotCode = generator.GenerateSnapshot(
                 "MyNamespace",
                 typeof(MyContext),
@@ -715,8 +715,26 @@ namespace MyNamespace
 
             foreach (var property in modelBuilder.Model.GetEntityTypes().Single().GetProperties())
             {
-                var snapshotProperty = entityType.FindProperty(property.Name);
-                Assert.Equal(property.GetDefaultValue(), snapshotProperty.GetDefaultValue());
+                var expected = property.GetDefaultValue();
+                var actual = entityType.FindProperty(property.Name).GetDefaultValue();
+
+                if (actual != null
+                    && expected != null)
+                {
+                    if (expected.GetType().IsEnum)
+                    {
+                        actual = actual is string actualString
+                            ? Enum.Parse(expected.GetType(), actualString)
+                            : Enum.ToObject(expected.GetType(), actual);
+                    }
+
+                    if (actual.GetType() != expected.GetType())
+                    {
+                        actual = Convert.ChangeType(actual, expected.GetType());
+                    }
+                }
+
+                Assert.Equal(expected, actual);
             }
         }
 

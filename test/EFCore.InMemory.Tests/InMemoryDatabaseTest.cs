@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.InMemory.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.InMemory.Internal;
+using Microsoft.EntityFrameworkCore.InMemory.Metadata.Conventions;
 using Microsoft.EntityFrameworkCore.InMemory.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
@@ -177,7 +178,7 @@ namespace Microsoft.EntityFrameworkCore
 
         private static IModel CreateModel()
         {
-            var modelBuilder = new ModelBuilder(new ConventionSet());
+            var modelBuilder = new ModelBuilder(InMemoryConventionSetBuilder.Build());
 
             modelBuilder.Entity<Customer>(
                 b =>

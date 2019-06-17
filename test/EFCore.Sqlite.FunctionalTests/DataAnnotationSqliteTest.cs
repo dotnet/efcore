@@ -62,7 +62,7 @@ namespace Microsoft.EntityFrameworkCore
 
             var property = GetProperty<ColumnKeyAnnotationClass2>(modelBuilder, "PersonFirstName");
 
-            var storeType = property.FindRelationalMapping().StoreType;
+            var storeType = property.GetRelationalTypeMapping().StoreType;
 
             Assert.Equal("TEXT", storeType);
 
@@ -75,7 +75,7 @@ namespace Microsoft.EntityFrameworkCore
 
             var property = GetProperty<TimestampAndMaxlen>(modelBuilder, "MaxTimestamp");
 
-            var storeType = property.FindRelationalMapping().StoreType;
+            var storeType = property.GetRelationalTypeMapping().StoreType;
 
             Assert.Equal("BLOB", storeType);
 

@@ -359,9 +359,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                     }
 
                     var currentTypeString = property.GetColumnType()
-                                            ?? property.FindRelationalMapping()?.StoreType;
+                                            ?? property.GetRelationalTypeMapping().StoreType;
                     var previousTypeString = duplicateProperty.GetColumnType()
-                                             ?? duplicateProperty.FindRelationalMapping()?.StoreType;
+                                             ?? duplicateProperty.GetRelationalTypeMapping().StoreType;
                     if (!string.Equals(currentTypeString, previousTypeString, StringComparison.OrdinalIgnoreCase))
                     {
                         throw new InvalidOperationException(

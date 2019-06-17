@@ -78,7 +78,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
                     return CreateGetValueExpression(
                         projectionIndex,
                         IsNullableProjection(projection),
-                        property.FindRelationalMapping(),
+                        property.GetRelationalTypeMapping(),
                         methodCallExpression.Type);
                 }
 

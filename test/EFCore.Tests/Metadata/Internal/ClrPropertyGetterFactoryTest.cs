@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.InMemory.Metadata.Conventions;
 using Xunit;
 
 // ReSharper disable InconsistentNaming
@@ -32,7 +33,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             public Type ClrType { get; }
             public IEntityType DeclaringEntityType { get; }
             public bool IsNullable { get; }
-            public bool IsStoreGeneratedAlways { get; }
             public ValueGenerated ValueGenerated { get; }
             public bool IsConcurrencyToken { get; }
             public PropertyInfo PropertyInfo { get; }
@@ -42,8 +42,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         [ConditionalFact]
         public void Delegate_getter_is_returned_for_IProperty_property()
         {
-            var entityType = ((IMutableModel)new Model()).AddEntityType(typeof(Customer));
-            var idProperty = entityType.AddProperty("Id", typeof(int));
+            var modelBuilder = new ModelBuilder(InMemoryConventionSetBuilder.Build());
+            var idProperty = modelBuilder.Entity<Customer>().Property(e => e.Id).Metadata;
+            modelBuilder.FinalizeModel();
 
             Assert.Equal(
                 7, new ClrPropertyGetterFactory().Create(idProperty).GetClrValue(
@@ -67,8 +68,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         [ConditionalFact]
         public void Delegate_getter_is_returned_for_IProperty_struct_property()
         {
-            var entityType = ((IMutableModel)new Model()).AddEntityType(typeof(Customer));
-            var fuelProperty = entityType.AddProperty("Fuel", typeof(Fuel));
+            var modelBuilder = new ModelBuilder(InMemoryConventionSetBuilder.Build());
+            modelBuilder.Entity<Customer>().Property(e => e.Id);
+            var fuelProperty = modelBuilder.Entity<Customer>().Property(e => e.Fuel).Metadata;
+            modelBuilder.FinalizeModel();
 
             Assert.Equal(
                 new Fuel(1.0),

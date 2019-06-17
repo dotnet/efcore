@@ -198,7 +198,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     var current = entry[property];
                     var original = entry.GetOriginalValue(property);
 
-                    var comparer = property.GetValueComparer() ?? property.FindMapping()?.Comparer;
+                    var comparer = property.GetValueComparer() ?? property.GetTypeMapping().Comparer;
 
                     if (comparer == null)
                     {
@@ -253,7 +253,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 var currentValue = entry[property];
 
                 var comparer = property.GetKeyValueComparer()
-                               ?? property.FindMapping()?.KeyComparer;
+                               ?? property.GetTypeMapping().KeyComparer;
 
                 // Note that mutation of a byte[] key is not supported or detected, but two different instances
                 // of byte[] with the same content must be detected as equal.

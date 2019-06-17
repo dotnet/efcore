@@ -181,7 +181,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         protected virtual IEnumerable<string> GetNamespaces([NotNull] IModel model)
             => model.GetEntityTypes().SelectMany(
                     e => e.GetDeclaredProperties()
-                        .SelectMany(p => (p.FindMapping()?.Converter?.ProviderClrType ?? p.ClrType).GetNamespaces()))
+                        .SelectMany(p => (p.GetTypeMapping().Converter?.ProviderClrType ?? p.ClrType).GetNamespaces()))
                 .Concat(GetAnnotationNamespaces(GetAnnotatables(model)));
 
         private static IEnumerable<IAnnotatable> GetAnnotatables(IModel model)
@@ -264,7 +264,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         private static Type GetProviderType(IAnnotatable annotatable, Type valueType)
             => annotatable is IProperty property
                && valueType.UnwrapNullableType() == property.ClrType.UnwrapNullableType()
-                ? property.FindMapping()?.Converter?.ProviderClrType ?? valueType
+                ? property.GetTypeMapping().Converter?.ProviderClrType ?? valueType
                 : valueType;
     }
 }
