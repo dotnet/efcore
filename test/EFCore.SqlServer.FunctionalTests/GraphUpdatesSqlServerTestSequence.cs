@@ -6,8 +6,7 @@ using Microsoft.EntityFrameworkCore.TestUtilities;
 namespace Microsoft.EntityFrameworkCore
 {
     [SqlServerCondition(SqlServerCondition.SupportsSequences)]
-    // issue #15318
-    internal class GraphUpdatesSqlServerTestSequence : GraphUpdatesSqlServerTestBase<
+    public class GraphUpdatesSqlServerTestSequence : GraphUpdatesSqlServerTestBase<
         GraphUpdatesSqlServerTestSequence.GraphUpdatesWithSequenceSqlServerFixture>
     {
         public GraphUpdatesSqlServerTestSequence(GraphUpdatesWithSequenceSqlServerFixture fixture)

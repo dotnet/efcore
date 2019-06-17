@@ -371,7 +371,7 @@ namespace Microsoft.EntityFrameworkCore
                                 });
                     });
 
-                modelBuilder.Entity<OptionalOverlaping2>(
+                modelBuilder.Entity<OptionalOverlapping2>(
                     eb =>
                     {
                         eb.Property(e => e.Id).ValueGeneratedNever();
@@ -620,13 +620,13 @@ namespace Microsoft.EntityFrameworkCore
                         new RequiredComposite1
                         {
                             Id = 1,
-                            CompositeChildren = new ObservableHashSet<OptionalOverlaping2>(ReferenceEqualityComparer.Instance)
+                            CompositeChildren = new ObservableHashSet<OptionalOverlapping2>(ReferenceEqualityComparer.Instance)
                             {
-                                new OptionalOverlaping2
+                                new OptionalOverlapping2
                                 {
                                     Id = 1
                                 },
-                                new OptionalOverlaping2
+                                new OptionalOverlapping2
                                 {
                                     Id = 2
                                 }
@@ -635,13 +635,13 @@ namespace Microsoft.EntityFrameworkCore
                         new RequiredComposite1
                         {
                             Id = 2,
-                            CompositeChildren = new ObservableHashSet<OptionalOverlaping2>(ReferenceEqualityComparer.Instance)
+                            CompositeChildren = new ObservableHashSet<OptionalOverlapping2>(ReferenceEqualityComparer.Instance)
                             {
-                                new OptionalOverlaping2
+                                new OptionalOverlapping2
                                 {
                                     Id = 3
                                 },
-                                new OptionalOverlaping2
+                                new OptionalOverlapping2
                                 {
                                     Id = 4
                                 }
@@ -1132,13 +1132,13 @@ namespace Microsoft.EntityFrameworkCore
                 return Id == other?.Id;
             }
 
-            public virtual ICollection<OptionalOverlaping2> CompositeChildren { get; set; }
-                = new ObservableHashSet<OptionalOverlaping2>(ReferenceEqualityComparer.Instance);
+            public virtual ICollection<OptionalOverlapping2> CompositeChildren { get; set; }
+                = new ObservableHashSet<OptionalOverlapping2>(ReferenceEqualityComparer.Instance);
 
             public override int GetHashCode() => Id;
         }
 
-        public class OptionalOverlaping2
+        public class OptionalOverlapping2
         {
             public virtual int Id { get; set; }
 
@@ -1152,7 +1152,7 @@ namespace Microsoft.EntityFrameworkCore
 
             public override bool Equals(object obj)
             {
-                var other = obj as OptionalOverlaping2;
+                var other = obj as OptionalOverlapping2;
                 return Id == other?.Id;
             }
 

@@ -377,7 +377,7 @@ namespace Microsoft.EntityFrameworkCore
                                 });
                     });
 
-                modelBuilder.Entity<OptionalOverlaping2>(
+                modelBuilder.Entity<OptionalOverlapping2>(
                     eb =>
                     {
                         eb.Property(e => e.Id).ValueGeneratedNever();
@@ -642,13 +642,13 @@ namespace Microsoft.EntityFrameworkCore
                         new RequiredComposite1
                         {
                             Id = 1,
-                            CompositeChildren = new ObservableHashSet<OptionalOverlaping2>(ReferenceEqualityComparer.Instance)
+                            CompositeChildren = new ObservableHashSet<OptionalOverlapping2>(ReferenceEqualityComparer.Instance)
                             {
-                                new OptionalOverlaping2
+                                new OptionalOverlapping2
                                 {
                                     Id = 1
                                 },
-                                new OptionalOverlaping2
+                                new OptionalOverlapping2
                                 {
                                     Id = 2
                                 }
@@ -657,13 +657,13 @@ namespace Microsoft.EntityFrameworkCore
                         new RequiredComposite1
                         {
                             Id = 2,
-                            CompositeChildren = new ObservableHashSet<OptionalOverlaping2>(ReferenceEqualityComparer.Instance)
+                            CompositeChildren = new ObservableHashSet<OptionalOverlapping2>(ReferenceEqualityComparer.Instance)
                             {
-                                new OptionalOverlaping2
+                                new OptionalOverlapping2
                                 {
                                     Id = 3
                                 },
-                                new OptionalOverlaping2
+                                new OptionalOverlapping2
                                 {
                                     Id = 4
                                 }
@@ -719,70 +719,158 @@ namespace Microsoft.EntityFrameworkCore
         protected Expression<Func<Root, bool>> IsTheRoot => r => r.AlternateId == Fixture.RootAK;
 
         protected Root LoadRequiredGraph(DbContext context)
-            => context.Set<Root>()
-                .Include(e => e.RequiredChildren).ThenInclude(e => e.Children)
-                .Include(e => e.RequiredSingle).ThenInclude(e => e.Single)
-                .Single(IsTheRoot);
+        {
+            context.Set<Required1>().Load();
+            context.Set<Required2>().Load();
+            context.Set<RequiredSingle1>().Include(e => e.Single).Load();
+
+            return context.Set<Root>().Single(IsTheRoot);
+
+            // Issue #15318 Change this back to a single query with Includes:
+            // return context.Set<Root>()
+            //     .Include(e => e.RequiredChildren).ThenInclude(e => e.Children)
+            //     .Include(e => e.RequiredSingle).ThenInclude(e => e.Single)
+            //     .Single(IsTheRoot);
+        }
 
         protected Root LoadOptionalGraph(DbContext context)
-            => context.Set<Root>()
-                .Include(e => e.OptionalChildren).ThenInclude(e => e.Children)
-                .Include(e => e.OptionalChildren).ThenInclude(e => e.CompositeChildren)
-                .Include(e => e.OptionalSingle).ThenInclude(e => e.Single)
-                .Include(e => e.OptionalSingleDerived).ThenInclude(e => e.Single)
-                .Include(e => e.OptionalSingleMoreDerived).ThenInclude(e => e.Single)
-                .Single(IsTheRoot);
+        {
+            context.Set<Optional1>().Load();
+            context.Set<Optional2>().Load();
+            context.Set<OptionalComposite2>().Load();
+            context.Set<OptionalSingle1>().Include(e => e.Single).Load();
+            context.Set<OptionalSingle1Derived>().Include(e => e.Single).Load();
+            context.Set<OptionalSingle1MoreDerived>().Include(e => e.Single).Load();
+
+            return context.Set<Root>().Single(IsTheRoot);
+
+            // Issue #15318 Change this back to a single query with Includes:
+            // return context.Set<Root>()
+            //     .Include(e => e.OptionalChildren).ThenInclude(e => e.Children)
+            //     .Include(e => e.OptionalChildren).ThenInclude(e => e.CompositeChildren)
+            //     .Include(e => e.OptionalSingle).ThenInclude(e => e.Single)
+            //     .Include(e => e.OptionalSingleDerived).ThenInclude(e => e.Single)
+            //     .Include(e => e.OptionalSingleMoreDerived).ThenInclude(e => e.Single)
+            //     .Single(IsTheRoot);
+        }
 
         protected Root LoadRequiredNonPkGraph(DbContext context)
-            => context.Set<Root>()
-                .Include(e => e.RequiredNonPkSingle).ThenInclude(e => e.Single)
-                .Include(e => e.RequiredNonPkSingleDerived).ThenInclude(e => e.Single)
-                .Include(e => e.RequiredNonPkSingleDerived).ThenInclude(e => e.Root)
-                .Include(e => e.RequiredNonPkSingleMoreDerived).ThenInclude(e => e.Single)
-                .Include(e => e.RequiredNonPkSingleMoreDerived).ThenInclude(e => e.Root)
-                .Include(e => e.RequiredNonPkSingleMoreDerived).ThenInclude(e => e.DerivedRoot)
-                .Single(IsTheRoot);
+        {
+            context.Set<RequiredNonPkSingle1>().Include(e => e.Single).Load();
+            context.Set<RequiredNonPkSingle1Derived>().Include(e => e.Single).Load();
+            context.Set<RequiredNonPkSingle1Derived>().Include(e => e.Root).Load();
+            context.Set<RequiredNonPkSingle1MoreDerived>().Include(e => e.Single).Load();
+            context.Set<RequiredNonPkSingle1MoreDerived>().Include(e => e.Root).Load();
+            context.Set<RequiredNonPkSingle1MoreDerived>().Include(e => e.DerivedRoot).Load();
+
+            return context.Set<Root>().Single(IsTheRoot);
+
+            // Issue #15318 Change this back to a single query with Includes:
+            // return context.Set<Root>()
+            //     .Include(e => e.RequiredNonPkSingle).ThenInclude(e => e.Single)
+            //     .Include(e => e.RequiredNonPkSingleDerived).ThenInclude(e => e.Single)
+            //     .Include(e => e.RequiredNonPkSingleDerived).ThenInclude(e => e.Root)
+            //     .Include(e => e.RequiredNonPkSingleMoreDerived).ThenInclude(e => e.Single)
+            //     .Include(e => e.RequiredNonPkSingleMoreDerived).ThenInclude(e => e.Root)
+            //     .Include(e => e.RequiredNonPkSingleMoreDerived).ThenInclude(e => e.DerivedRoot)
+            //     .Single(IsTheRoot);
+        }
 
         protected Root LoadRequiredAkGraph(DbContext context)
-            => context.Set<Root>()
-                .Include(e => e.RequiredChildrenAk).ThenInclude(e => e.Children)
-                .Include(e => e.RequiredChildrenAk).ThenInclude(e => e.CompositeChildren)
-                .Include(e => e.RequiredSingleAk).ThenInclude(e => e.Single)
-                .Include(e => e.RequiredSingleAk).ThenInclude(e => e.SingleComposite)
-                .Single(IsTheRoot);
+        {
+            context.Set<RequiredAk1>().Load();
+            context.Set<RequiredAk2>().Load();
+            context.Set<RequiredComposite2>().Load();
+            context.Set<RequiredSingleAk1>().Include(e => e.Single).Load();
+            context.Set<RequiredSingleAk1>().Include(e => e.SingleComposite).Load();
+
+            return context.Set<Root>().Single(IsTheRoot);
+
+            // Issue #15318 Change this back to a single query with Includes:
+            // return context.Set<Root>()
+            //     .Include(e => e.RequiredChildrenAk).ThenInclude(e => e.Children)
+            //     .Include(e => e.RequiredChildrenAk).ThenInclude(e => e.CompositeChildren)
+            //     .Include(e => e.RequiredSingleAk).ThenInclude(e => e.Single)
+            //     .Include(e => e.RequiredSingleAk).ThenInclude(e => e.SingleComposite)
+            //     .Single(IsTheRoot);
+        }
 
         protected Root LoadOptionalAkGraph(DbContext context)
-            => context.Set<Root>()
-                .Include(e => e.OptionalChildrenAk).ThenInclude(e => e.Children)
-                .Include(e => e.OptionalChildrenAk).ThenInclude(e => e.CompositeChildren)
-                .Include(e => e.OptionalSingleAk).ThenInclude(e => e.Single)
-                .Include(e => e.OptionalSingleAk).ThenInclude(e => e.SingleComposite)
-                .Include(e => e.OptionalSingleAkDerived).ThenInclude(e => e.Single)
-                .Include(e => e.OptionalSingleAkMoreDerived).ThenInclude(e => e.Single)
-                .Single(IsTheRoot);
+        {
+            context.Set<OptionalAk1>().Load();
+            context.Set<OptionalAk2>().Load();
+            context.Set<OptionalComposite2>().Load();
+            context.Set<OptionalSingleAk1>().Include(e => e.Single).Load();
+            context.Set<OptionalSingleAk1>().Include(e => e.SingleComposite).Load();
+            context.Set<OptionalSingleAk1Derived>().Include(e => e.Single).Load();
+            context.Set<OptionalSingleAk1MoreDerived>().Include(e => e.Single).Load();
+
+            return context.Set<Root>().Single(IsTheRoot);
+
+            // Issue #15318 Change this back to a single query with Includes:
+            // return context.Set<Root>()
+            //     .Include(e => e.OptionalChildrenAk).ThenInclude(e => e.Children)
+            //     .Include(e => e.OptionalChildrenAk).ThenInclude(e => e.CompositeChildren)
+            //     .Include(e => e.OptionalSingleAk).ThenInclude(e => e.Single)
+            //     .Include(e => e.OptionalSingleAk).ThenInclude(e => e.SingleComposite)
+            //     .Include(e => e.OptionalSingleAkDerived).ThenInclude(e => e.Single)
+            //     .Include(e => e.OptionalSingleAkMoreDerived).ThenInclude(e => e.Single)
+            //     .Single(IsTheRoot);
+        }
 
         protected Root LoadRequiredNonPkAkGraph(DbContext context)
-            => context.Set<Root>()
-                .Include(e => e.RequiredNonPkSingleAk).ThenInclude(e => e.Single)
-                .Include(e => e.RequiredNonPkSingleAkDerived).ThenInclude(e => e.Single)
-                .Include(e => e.RequiredNonPkSingleAkDerived).ThenInclude(e => e.Root)
-                .Include(e => e.RequiredNonPkSingleAkMoreDerived).ThenInclude(e => e.Single)
-                .Include(e => e.RequiredNonPkSingleAkMoreDerived).ThenInclude(e => e.Root)
-                .Include(e => e.RequiredNonPkSingleAkMoreDerived).ThenInclude(e => e.DerivedRoot)
-                .Single(IsTheRoot);
+        {
+            context.Set<RequiredNonPkSingleAk1>().Include(e => e.Single).Load();
+            context.Set<RequiredNonPkSingleAk1Derived>().Include(e => e.Single).Load();
+            context.Set<RequiredNonPkSingleAk1Derived>().Include(e => e.Root).Load();
+            context.Set<RequiredNonPkSingleAk1MoreDerived>().Include(e => e.Single).Load();
+            context.Set<RequiredNonPkSingleAk1MoreDerived>().Include(e => e.Root).Load();
+            context.Set<RequiredNonPkSingleAk1MoreDerived>().Include(e => e.DerivedRoot).Load();
+
+            return context.Set<Root>().Single(IsTheRoot);
+
+            // Issue #15318 Change this back to a single query with Includes:
+            // return context.Set<Root>()
+            //     .Include(e => e.RequiredNonPkSingleAk).ThenInclude(e => e.Single)
+            //     .Include(e => e.RequiredNonPkSingleAkDerived).ThenInclude(e => e.Single)
+            //     .Include(e => e.RequiredNonPkSingleAkDerived).ThenInclude(e => e.Root)
+            //     .Include(e => e.RequiredNonPkSingleAkMoreDerived).ThenInclude(e => e.Single)
+            //     .Include(e => e.RequiredNonPkSingleAkMoreDerived).ThenInclude(e => e.Root)
+            //     .Include(e => e.RequiredNonPkSingleAkMoreDerived).ThenInclude(e => e.DerivedRoot)
+            //     .Single(IsTheRoot);
+        }
 
         protected Root LoadOptionalOneToManyGraph(DbContext context)
-            => context.Set<Root>()
-                .Include(e => e.OptionalChildren).ThenInclude(e => e.Children)
-                .Include(e => e.OptionalChildren).ThenInclude(e => e.CompositeChildren)
-                .Include(e => e.OptionalChildrenAk).ThenInclude(e => e.Children)
-                .Include(e => e.OptionalChildrenAk).ThenInclude(e => e.CompositeChildren)
-                .Single(IsTheRoot);
+        {
+            context.Set<Optional1>().Load();
+            context.Set<Optional2>().Load();
+            context.Set<OptionalComposite2>().Load();
+            context.Set<OptionalAk1>().Load();
+            context.Set<OptionalAk2>().Load();
+
+            return context.Set<Root>().Single(IsTheRoot);
+
+            // Issue #15318 Change this back to a single query with Includes:
+            // return context.Set<Root>()
+            //     .Include(e => e.OptionalChildren).ThenInclude(e => e.Children)
+            //     .Include(e => e.OptionalChildren).ThenInclude(e => e.CompositeChildren)
+            //     .Include(e => e.OptionalChildrenAk).ThenInclude(e => e.Children)
+            //     .Include(e => e.OptionalChildrenAk).ThenInclude(e => e.CompositeChildren)
+            //     .Single(IsTheRoot);
+        }
 
         protected Root LoadRequiredCompositeGraph(DbContext context)
-            => context.Set<Root>()
-                .Include(e => e.RequiredCompositeChildren).ThenInclude(e => e.CompositeChildren)
-                .Single(IsTheRoot);
+        {
+            context.Set<RequiredComposite1>().Load();
+            context.Set<OptionalOverlapping2>().Load();
+
+            return context.Set<Root>().Single(IsTheRoot);
+
+            // Issue #15318 Change this back to a single query with Includes:
+            // return context.Set<Root>()
+            //     .Include(e => e.RequiredCompositeChildren).ThenInclude(e => e.CompositeChildren)
+            //     .Single(IsTheRoot);
+        }
 
         private static void AssertEntries(IReadOnlyList<EntityEntry> expectedEntries, IReadOnlyList<EntityEntry> actualEntries)
         {
@@ -1896,8 +1984,8 @@ namespace Microsoft.EntityFrameworkCore
             private Guid _parentAlternateId;
             private Root _parent;
 
-            private ICollection<OptionalOverlaping2> _compositeChildren =
-                new ObservableHashSet<OptionalOverlaping2>(ReferenceEqualityComparer.Instance);
+            private ICollection<OptionalOverlapping2> _compositeChildren =
+                new ObservableHashSet<OptionalOverlapping2>(ReferenceEqualityComparer.Instance);
 
             public int Id
             {
@@ -1923,7 +2011,7 @@ namespace Microsoft.EntityFrameworkCore
                 return _id == other?.Id;
             }
 
-            public ICollection<OptionalOverlaping2> CompositeChildren
+            public ICollection<OptionalOverlapping2> CompositeChildren
             {
                 get => _compositeChildren;
                 set => SetWithNotify(value, ref _compositeChildren);
@@ -1932,7 +2020,7 @@ namespace Microsoft.EntityFrameworkCore
             public override int GetHashCode() => _id;
         }
 
-        protected class OptionalOverlaping2 : NotifyingEntity
+        protected class OptionalOverlapping2 : NotifyingEntity
         {
             private int _id;
             private Guid _parentAlternateId;
@@ -1972,7 +2060,7 @@ namespace Microsoft.EntityFrameworkCore
 
             public override bool Equals(object obj)
             {
-                var other = obj as OptionalOverlaping2;
+                var other = obj as OptionalOverlapping2;
                 return _id == other?.Id;
             }
 
