@@ -193,12 +193,24 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
             modelBuilder.Entity<A>().HasOne<B>().WithOne().IsRequired().HasPrincipalKey<A>(a => a.Id).HasForeignKey<B>(b => b.Id);
             modelBuilder.Entity<A>().ToTable("Table").HasComment("My comment");
-            modelBuilder.Entity<B>().ToTable("Table");
+            modelBuilder.Entity<B>().ToTable("Table").HasComment("my comment");
 
             VerifyError(
                 RelationalStrings.IncompatibleTableCommentMismatch(
-                    "Table", nameof(A), nameof(B), "My comment", ""),
+                    "Table", nameof(A), nameof(B), "My comment", "my comment"),
                 modelBuilder.Model);
+        }
+
+        [ConditionalFact]
+        public virtual void Passes_on_null_comments()
+        {
+            var modelBuilder = CreateConventionalModelBuilder();
+
+            modelBuilder.Entity<A>().HasOne<B>().WithOne().IsRequired().HasPrincipalKey<A>(a => a.Id).HasForeignKey<B>(b => b.Id);
+            modelBuilder.Entity<A>().ToTable("Table").HasComment("My comment");
+            modelBuilder.Entity<B>().ToTable("Table");
+
+            Validate(modelBuilder.Model);
         }
 
         [ConditionalFact]

@@ -252,16 +252,23 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                     }
 
                     var nextComment = nextEntityType.GetComment();
-                    comment ??= nextComment;
-                    if (comment != null && !comment.Equals(nextComment, StringComparison.Ordinal))
+                    if (comment != null)
                     {
-                        throw new InvalidOperationException(
-                            RelationalStrings.IncompatibleTableCommentMismatch(
-                                tableName,
-                                entityType.DisplayName(),
-                                nextEntityType.DisplayName(),
-                                comment,
-                                nextComment));
+                        if (nextComment != null
+                            && !comment.Equals(nextComment, StringComparison.Ordinal))
+                        {
+                            throw new InvalidOperationException(
+                                RelationalStrings.IncompatibleTableCommentMismatch(
+                                    tableName,
+                                    entityType.DisplayName(),
+                                    nextEntityType.DisplayName(),
+                                    comment,
+                                    nextComment));
+                        }
+                    }
+                    else
+                    {
+                        comment = nextComment;
                     }
 
                     typesToValidate.Enqueue(nextEntityType);
@@ -433,7 +440,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
                     var currentComment = property.GetComment() ?? "";
                     var previousComment = duplicateProperty.GetComment() ?? "";
-                    if (!currentComment.Equals(previousComment, StringComparison.OrdinalIgnoreCase))
+                    if (!currentComment.Equals(previousComment, StringComparison.Ordinal))
                     {
                         throw new InvalidOperationException(
                             RelationalStrings.DuplicateColumnNameCommentMismatch(
