@@ -170,14 +170,16 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
             {
                 if (extensionExpression is IncludeExpression includeExpression)
                 {
+                    Expression result;
+                    var entityClrType = includeExpression.EntityExpression.Type;
+                    var inverseNavigation = includeExpression.Navigation.FindInverse();
                     if (includeExpression.Navigation.IsCollection())
                     {
-                        var entityClrType = includeExpression.EntityExpression.Type;
                         var relatedEntityClrType = includeExpression.NavigationExpression.Type.TryGetSequenceType();
-                        var inverseNavigation = includeExpression.Navigation.FindInverse();
                         var collectionShaper = (RelationalCollectionShaperExpression)includeExpression.NavigationExpression;
                         var innerShaper = Visit(collectionShaper.InnerShaper);
-                        return Expression.Call(
+
+                        result = Expression.Call(
                             _includeCollectionMethodInfo.MakeGenericMethod(entityClrType, relatedEntityClrType),
                             QueryCompilationContext.QueryContextParameter,
                             _dbDataReaderParameter,
@@ -208,10 +210,8 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
                     }
                     else
                     {
-                        var entityClrType = includeExpression.EntityExpression.Type;
                         var relatedEntityClrType = includeExpression.NavigationExpression.Type;
-                        var inverseNavigation = includeExpression.Navigation.FindInverse();
-                        return Expression.Call(
+                        result =  Expression.Call(
                             _includeReferenceMethodInfo.MakeGenericMethod(entityClrType, relatedEntityClrType),
                             QueryCompilationContext.QueryContextParameter,
                             _dbDataReaderParameter,
@@ -230,6 +230,12 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
                             Expression.Constant(_tracking),
                             _resultCoordinatorParameter);
                     }
+
+                    return entityClrType != includeExpression.Navigation.DeclaringEntityType.ClrType
+                        ? Expression.IfThen(
+                            Expression.TypeIs(includeExpression.EntityExpression, includeExpression.Navigation.DeclaringEntityType.ClrType),
+                            result)
+                        : result;
                 }
 
                 return base.VisitExtension(extensionExpression);

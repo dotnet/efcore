@@ -6,8 +6,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Xml;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Query.Pipeline;
 
@@ -974,41 +976,115 @@ namespace Microsoft.EntityFrameworkCore.Query.NavigationExpansion.Visitors
             }
 
             var source = VisitSourceExpression(methodCallExpression.Arguments[0]);
-
             var includeString = (string)((ConstantExpression)methodCallExpression.Arguments[1]).Value;
-            var includeElements = includeString.Split(new[] { "." }, StringSplitOptions.RemoveEmptyEntries);
+            var includeElements = includeString.Split(new[] { "." }, StringSplitOptions.None);
 
             var result = (Expression)new NavigationExpansionRootExpression(source, new List<string>());
 
             // TODO: this is not always correct IF we allow includes in random places (e.g. after joins)
             var rootEntityType = source.State.SourceMappings.Single().RootEntityType;
-            var entityType = rootEntityType;
-
-            var previousCollectionInclude = false;
-            for (var i = 0; i < includeElements.Length; i++)
+            var navigations = FindNavigations(rootEntityType, includeElements[0]);
+            if (navigations.Count == 0)
             {
-                var parameter = Expression.Parameter(entityType.ClrType, entityType.ClrType.GenerateParameterName());
+                throw new InvalidOperationException("Invalid include path: '" + includeString + "' - couldn't find navigation for: '" + includeElements[0] + "'");
+            }
 
-                // TODO: issue #15381 - deal with inheritance AND case where multiple children have navigation with the same name - we need to branch out in that scenario
-                var navigation = entityType.FindNavigation(includeElements[i]);
-                if (navigation == null)
+            var foundIncludeChains = navigations.Select(n => new List<INavigation> { n }).ToList();
+            if (includeElements.Length > 1)
+            {
+                for (var i = 1; i < includeElements.Length; i++)
                 {
-                    throw new InvalidOperationException("Invalid include path: '" + includeString + "' - couldn't find navigation for: '" + includeElements[i] + "'");
+                    if (PopulateIncludeChains(foundIncludeChains, includeElements[i], i, out var newIncludeChains))
+                    {
+                        foundIncludeChains = newIncludeChains;
+                    }
+                    else
+                    {
+                        // we require at least one match for each include element
+                        throw new InvalidOperationException("Invalid include path: '" + includeString + "' - couldn't find navigation for: '" + includeElements[i] + "'");
+                    }
                 }
+            }
 
-                var lambda = Expression.Lambda(Expression.PropertyOrField(parameter, navigation.PropertyInfo?.Name ?? navigation.FieldInfo.Name), parameter);
-                var includeMethodInfo = i == 0
-                    ? EntityFrameworkQueryableExtensions.IncludeMethodInfo.MakeGenericMethod(rootEntityType.ClrType, navigation.ClrType)
-                    : previousCollectionInclude
-                        ? EntityFrameworkQueryableExtensions.ThenIncludeAfterEnumerableMethodInfo.MakeGenericMethod(rootEntityType.ClrType, entityType.ClrType, navigation.ClrType)
-                        : EntityFrameworkQueryableExtensions.ThenIncludeAfterReferenceMethodInfo.MakeGenericMethod(rootEntityType.ClrType, entityType.ClrType, navigation.ClrType);
+            foreach (var includeChain in foundIncludeChains)
+            {
+                var entityType = rootEntityType;
+                var previousCollectionInclude = false;
+                for (var i = 0; i < includeChain.Count; i++)
+                {
+                    var navigation = includeChain[i];
+                    var parameter = Expression.Parameter(entityType.ClrType, entityType.ClrType.GenerateParameterName());
+                    var fieldOrPropertyName = navigation.GetIdentifyingMemberInfo().Name;
 
-                result = Expression.Call(includeMethodInfo, result, lambda);
-                previousCollectionInclude = navigation.IsCollection();
-                entityType = navigation.GetTargetType();
+                    var lambdaBody = entityType != navigation.DeclaringEntityType
+                        ? Expression.PropertyOrField(Expression.Convert(parameter, navigation.DeclaringEntityType.ClrType), fieldOrPropertyName)
+                        : Expression.PropertyOrField(parameter, fieldOrPropertyName);
+
+                    var lambda = Expression.Lambda(lambdaBody, parameter);
+                    var includeMethodInfo = i == 0
+                        ? EntityFrameworkQueryableExtensions.IncludeMethodInfo.MakeGenericMethod(rootEntityType.ClrType, navigation.ClrType)
+                        : previousCollectionInclude
+                            ? EntityFrameworkQueryableExtensions.ThenIncludeAfterEnumerableMethodInfo.MakeGenericMethod(rootEntityType.ClrType, entityType.ClrType, navigation.ClrType)
+                            : EntityFrameworkQueryableExtensions.ThenIncludeAfterReferenceMethodInfo.MakeGenericMethod(rootEntityType.ClrType, entityType.ClrType, navigation.ClrType);
+
+                    result = Expression.Call(includeMethodInfo, result, lambda);
+                    previousCollectionInclude = navigation.IsCollection();
+                    entityType = navigation.GetTargetType();
+                }
             }
 
             return (MethodCallExpression)result;
+        }
+
+        private bool PopulateIncludeChains(
+            List<List<INavigation>> foundIncludeChains,
+            string navigationName,
+            int index,
+            out List<List<INavigation>> newIncludeChains)
+        {
+            newIncludeChains = new List<List<INavigation>>();
+            var matchFound = false;
+            foreach (var includeChain in foundIncludeChains)
+            {
+                if (includeChain.Count == index)
+                {
+                    var entityType = includeChain[index - 1].GetTargetType();
+                    var navigations = FindNavigations(entityType, navigationName);
+                    foreach (var navigation in navigations)
+                    {
+                        var newIncludeChain = includeChain.ToList();
+                        newIncludeChain.Add(navigation);
+                        newIncludeChains.Add(newIncludeChain);
+                    }
+
+                    if (navigations.Count > 0)
+                    {
+                        matchFound = true;
+
+                        continue;
+                    }
+                }
+
+                newIncludeChains.Add(includeChain.ToList());
+            }
+
+            return matchFound;
+        }
+
+        private List<INavigation> FindNavigations(IEntityType entityType, string navigationName)
+        {
+            var result = new List<INavigation>();
+            var navigation = entityType.FindNavigation(navigationName);
+            if (navigation != null)
+            {
+                result.Add(navigation);
+            }
+            else
+            {
+                result = entityType.GetDerivedTypes().Select(dt => dt.FindDeclaredNavigation(navigationName)).Where(n => n != null).ToList();
+            }
+
+            return result;
         }
 
         private Expression ProcessInclude(MethodCallExpression methodCallExpression)

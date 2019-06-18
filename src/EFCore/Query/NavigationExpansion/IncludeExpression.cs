@@ -42,13 +42,12 @@ namespace Microsoft.EntityFrameworkCore.Query.NavigationExpansion
 
         public virtual void Print(ExpressionPrinter expressionPrinter)
         {
-            expressionPrinter.StringBuilder.AppendLine("Include(");
-            expressionPrinter.StringBuilder.IncrementIndent();
             expressionPrinter.Visit(EntityExpression);
-            expressionPrinter.StringBuilder.AppendLine(", ");
+            expressionPrinter.StringBuilder.AppendLine($".Include[{Navigation.Name}](");
+            expressionPrinter.StringBuilder.IncrementIndent();
             expressionPrinter.Visit(NavigationExpression);
-            expressionPrinter.StringBuilder.AppendLine($", {Navigation.Name})");
             expressionPrinter.StringBuilder.DecrementIndent();
+            expressionPrinter.StringBuilder.AppendLine(")");
         }
     }
 }
