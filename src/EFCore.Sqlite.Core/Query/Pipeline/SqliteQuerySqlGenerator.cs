@@ -24,11 +24,6 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Pipeline
                 ? " || "
                 : base.GenerateOperator(binaryExpression);
 
-        protected override void GenerateTop(SelectExpression selectExpression)
-        {
-            // Handled by GenerateLimitOffset
-        }
-
         protected override void GenerateLimitOffset(SelectExpression selectExpression)
         {
             Check.NotNull(selectExpression, nameof(selectExpression));

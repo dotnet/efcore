@@ -531,19 +531,12 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
 
         protected virtual void GenerateTop(SelectExpression selectExpression)
         {
-            if (selectExpression.Limit != null
-                && selectExpression.Offset == null)
-            {
-                _relationalCommandBuilder.Append("TOP(");
-
-                Visit(selectExpression.Limit);
-
-                _relationalCommandBuilder.Append(") ");
-            }
         }
 
         protected virtual void GenerateLimitOffset(SelectExpression selectExpression)
         {
+            // The below implements ISO SQL:2008
+
             if (selectExpression.Offset != null)
             {
                 _relationalCommandBuilder.AppendLine()
@@ -561,6 +554,15 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
 
                     _relationalCommandBuilder.Append(" ROWS ONLY");
                 }
+            }
+            else if (selectExpression.Limit != null)
+            {
+                _relationalCommandBuilder.AppendLine()
+                    .Append("FETCH FIRST ");
+
+                Visit(selectExpression.Limit);
+
+                _relationalCommandBuilder.Append(" ROWS ONLY");
             }
         }
 
