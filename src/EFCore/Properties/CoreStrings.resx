@@ -1177,4 +1177,7 @@
   <data name="SubqueryWithCompositeKeyNotSupported" xml:space="preserve">
     <value>This query would cause multiple evaluation of a subquery because entity '{entityType}' has a composite key. Rewrite your query avoiding the subquery.</value>
   </data>
+  <data name="EntityEqualityContainsWithCompositeKeyNotSupported" xml:space="preserve">
+    <value>Cannot translate a Contains() operator on entity '{entityType}' because it has a composite key.</value>
+  </data>
 </root>

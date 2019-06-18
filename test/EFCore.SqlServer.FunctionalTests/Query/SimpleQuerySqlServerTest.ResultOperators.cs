@@ -1209,6 +1209,14 @@ SELECT CASE
 END");
         }
 
+        public override void Contains_over_entityType_with_null_should_rewrite_to_identity_equality()
+        {
+            base.Contains_over_entityType_with_null_should_rewrite_to_identity_equality();
+
+            AssertSql(
+                @"TODO");
+        }
+
         public override void Contains_over_entityType_should_materialize_when_composite()
         {
             base.Contains_over_entityType_should_materialize_when_composite();
