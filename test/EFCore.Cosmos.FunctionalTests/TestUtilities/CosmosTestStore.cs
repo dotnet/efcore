@@ -112,12 +112,9 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.TestUtilities
                                                         if (reader.TokenType == JsonToken.StartObject)
                                                         {
                                                             var document = serializer.Deserialize<JObject>(reader);
-
-                                                            document["id"] = $"{entityName}|{document["id"]}";
                                                             document["Discriminator"] = entityName;
-                                                            document["__partitionKey"] = "0";
 
-                                                            await cosmosClient.CreateItemAsync("NorthwindContext", document);
+                                                            await cosmosClient.CreateItemAsync(entityName, document);
                                                         }
                                                         else if (reader.TokenType == JsonToken.EndObject)
                                                         {

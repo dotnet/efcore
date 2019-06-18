@@ -367,14 +367,9 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
                     {
                         if (_jsonReader.TokenType == JsonToken.StartObject)
                         {
-                            while (_jsonReader.Read())
-                            {
-                                if (_jsonReader.TokenType == JsonToken.StartObject)
-                                {
-                                    Current = new JsonSerializer().Deserialize<JObject>(_jsonReader);
-                                    return true;
-                                }
-                            }
+                            Current = new JsonSerializer().Deserialize<JObject>(_jsonReader);
+
+                            return true;
                         }
                     }
 
@@ -487,14 +482,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
                     {
                         if (_jsonReader.TokenType == JsonToken.StartObject)
                         {
-                            while (_jsonReader.Read())
-                            {
-                                if (_jsonReader.TokenType == JsonToken.StartObject)
-                                {
-                                    Current = new JsonSerializer().Deserialize<JObject>(_jsonReader);
-                                    return true;
-                                }
-                            }
+                            Current = new JsonSerializer().Deserialize<JObject>(_jsonReader);
+                            return true;
                         }
                     }
 

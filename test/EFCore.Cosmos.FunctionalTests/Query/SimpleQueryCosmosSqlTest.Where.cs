@@ -6,7 +6,6 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.TestModels.Northwind;
-using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Query
@@ -88,12 +87,12 @@ FROM root c
 WHERE ((c[""Discriminator""] = ""Order"") AND ((c[""OrderID""] % 10248) = 0))");
         }
 
-        public override Task Where_bitwise_or(bool isAsync)
+        [ConditionalTheory(Skip = "Issue #13168")]
+        public override async Task Where_bitwise_or(bool isAsync)
         {
-            // #13168
-            //await base.Where_bitwise_or(isAsync);
+            await base.Where_bitwise_or(isAsync);
 
-            return Task.CompletedTask;
+            AssertSql(" ");
         }
 
         public override async Task Where_bitwise_and(bool isAsync)
@@ -106,12 +105,12 @@ FROM root c
 WHERE ((c[""Discriminator""] = ""Customer"") AND ((c[""CustomerID""] = ""ALFKI"") & (c[""CustomerID""] = ""ANATR"")))");
         }
 
-        public override Task Where_bitwise_xor(bool isAsync)
+        [ConditionalTheory(Skip = "Issue #13168")]
+        public override async Task Where_bitwise_xor(bool isAsync)
         {
-            // #13168
-            // await base.Where_bitwise_xor(isAsync);
+            await base.Where_bitwise_xor(isAsync);
 
-            return Task.CompletedTask;
+            AssertSql(" ");
         }
 
         [ConditionalTheory]
@@ -465,6 +464,7 @@ FROM root c
 WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""City""] = @__city_0))");
         }
 
+        [ConditionalTheory(Skip = "Issue #14935")]
         public override async Task Where_method_call_nullable_type_closure_via_query_cache(bool isAsync)
         {
             await base.Where_method_call_nullable_type_closure_via_query_cache(isAsync);
@@ -483,6 +483,7 @@ FROM root c
 WHERE ((c[""Discriminator""] = ""Employee"") AND (c[""ReportsTo""] = @__p_0))");
         }
 
+        [ConditionalTheory(Skip = "Issue #14935")]
         public override async Task Where_method_call_nullable_type_reverse_closure_via_query_cache(bool isAsync)
         {
             await base.Where_method_call_nullable_type_reverse_closure_via_query_cache(isAsync);
@@ -611,6 +612,7 @@ FROM root c
 WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""City""] = @__InstanceFieldValue_0))");
         }
 
+        [ConditionalTheory(Skip = "Issue #14935")]
         public override async Task Where_simple_closure_via_query_cache_nullable_type(bool isAsync)
         {
             await base.Where_simple_closure_via_query_cache_nullable_type(isAsync);
@@ -635,6 +637,7 @@ FROM root c
 WHERE ((c[""Discriminator""] = ""Employee"") AND (c[""ReportsTo""] = @__p_0))");
         }
 
+        [ConditionalTheory(Skip = "Issue #14935")]
         public override async Task Where_simple_closure_via_query_cache_nullable_type_reverse(bool isAsync)
         {
             await base.Where_simple_closure_via_query_cache_nullable_type_reverse(isAsync);
@@ -659,6 +662,7 @@ FROM root c
 WHERE ((c[""Discriminator""] = ""Employee"") AND (c[""ReportsTo""] = @__p_0))");
         }
 
+        [ConditionalFact(Skip = "Issue #14935")]
         public override void Where_subquery_closure_via_query_cache()
         {
             base.Where_subquery_closure_via_query_cache();
@@ -684,11 +688,12 @@ WHERE ((c[""Discriminator""] = ""Employee"") AND (c[""Title""] = ""Sales Represe
             await base.Where_simple_shadow_projection(isAsync);
 
             AssertSql(
-                @"SELECT c
+                @"SELECT c[""Title""]
 FROM root c
 WHERE ((c[""Discriminator""] = ""Employee"") AND (c[""Title""] = ""Sales Representative""))");
         }
 
+        [ConditionalTheory(Skip = "Issue #14935")]
         public override async Task Where_shadow_subquery_FirstOrDefault(bool isAsync)
         {
             await base.Where_shadow_subquery_FirstOrDefault(isAsync);
@@ -709,6 +714,7 @@ FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
 
+        [ConditionalTheory(Skip = "Issue #14935")]
         public override async Task Where_subquery_correlated(bool isAsync)
         {
             await base.Where_subquery_correlated(isAsync);
@@ -776,7 +782,7 @@ WHERE (c[""Discriminator""] = ""Customer"")");
             AssertSql(
                 @"SELECT c
 FROM root c
-WHERE (c[""Discriminator""] = ""Customer"")");
+WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""City""] = ""London""))");
         }
 
         public override async Task Where_equals_method_int(bool isAsync)
@@ -786,9 +792,10 @@ WHERE (c[""Discriminator""] = ""Customer"")");
             AssertSql(
                 @"SELECT c
 FROM root c
-WHERE (c[""Discriminator""] = ""Employee"")");
+WHERE ((c[""Discriminator""] = ""Employee"") AND (c[""EmployeeID""] = 1))");
         }
 
+        [ConditionalTheory(Skip = "Issue #14935")]
         public override async Task Where_equals_using_object_overload_on_mismatched_types(bool isAsync)
         {
             await base.Where_equals_using_object_overload_on_mismatched_types(isAsync);
@@ -804,11 +811,14 @@ WHERE (c[""Discriminator""] = ""Employee"")");
             await base.Where_equals_using_int_overload_on_mismatched_types(isAsync);
 
             AssertSql(
-                @"SELECT c
+                @"@__p_0='1'
+
+SELECT c
 FROM root c
-WHERE (c[""Discriminator""] = ""Employee"")");
+WHERE ((c[""Discriminator""] = ""Employee"") AND (c[""EmployeeID""] = @__p_0))");
         }
 
+        [ConditionalTheory(Skip = "Issue #14935")]
         public override async Task Where_equals_on_mismatched_types_nullable_int_long(bool isAsync)
         {
             await base.Where_equals_on_mismatched_types_nullable_int_long(isAsync);
@@ -819,6 +829,7 @@ FROM root c
 WHERE (c[""Discriminator""] = ""Employee"")");
         }
 
+        [ConditionalTheory(Skip = "Issue #14935")]
         public override async Task Where_equals_on_mismatched_types_nullable_long_nullable_int(bool isAsync)
         {
             await base.Where_equals_on_mismatched_types_nullable_long_nullable_int(isAsync);
@@ -829,6 +840,7 @@ FROM root c
 WHERE (c[""Discriminator""] = ""Employee"")");
         }
 
+        [ConditionalTheory(Skip = "Issue #14935")]
         public override async Task Where_equals_on_mismatched_types_int_nullable_int(bool isAsync)
         {
             await base.Where_equals_on_mismatched_types_int_nullable_int(isAsync);
@@ -839,6 +851,7 @@ FROM root c
 WHERE (c[""Discriminator""] = ""Employee"")");
         }
 
+        [ConditionalTheory(Skip = "Issue #14935")]
         public override async Task Where_equals_on_matched_nullable_int_types(bool isAsync)
         {
             await base.Where_equals_on_matched_nullable_int_types(isAsync);
@@ -849,6 +862,7 @@ FROM root c
 WHERE (c[""Discriminator""] = ""Employee"")");
         }
 
+        [ConditionalTheory(Skip = "Issue #14935")]
         public override async Task Where_equals_on_null_nullable_int_types(bool isAsync)
         {
             await base.Where_equals_on_null_nullable_int_types(isAsync);
@@ -879,6 +893,7 @@ FROM root c
 WHERE ((c[""Discriminator""] = ""Employee"") AND (c[""ReportsTo""] = null))");
         }
 
+        [ConditionalTheory(Skip = "Issue #14935")]
         public override async Task Where_string_length(bool isAsync)
         {
             await base.Where_string_length(isAsync);
@@ -899,6 +914,7 @@ FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
 
+        [ConditionalTheory(Skip = "Issue #14935")]
         public override async Task Where_string_replace(bool isAsync)
         {
             await base.Where_string_replace(isAsync);
@@ -909,6 +925,7 @@ FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
 
+        [ConditionalTheory(Skip = "Issue #14935")]
         public override async Task Where_string_substring(bool isAsync)
         {
             await base.Where_string_substring(isAsync);
@@ -919,6 +936,7 @@ FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
 
+        [ConditionalTheory(Skip = "Issue #14935")]
         public override async Task Where_datetime_now(bool isAsync)
         {
             await base.Where_datetime_now(isAsync);
@@ -929,6 +947,7 @@ FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
 
+        [ConditionalTheory(Skip = "Issue #14935")]
         public override async Task Where_datetime_utcnow(bool isAsync)
         {
             await base.Where_datetime_utcnow(isAsync);
@@ -939,6 +958,7 @@ FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
 
+        [ConditionalTheory(Skip = "Issue #14935")]
         public override async Task Where_datetime_today(bool isAsync)
         {
             await base.Where_datetime_today(isAsync);
@@ -949,6 +969,7 @@ FROM root c
 WHERE (c[""Discriminator""] = ""Employee"")");
         }
 
+        [ConditionalTheory(Skip = "Issue #14935")]
         public override async Task Where_datetime_date_component(bool isAsync)
         {
             await base.Where_datetime_date_component(isAsync);
@@ -959,6 +980,7 @@ FROM root c
 WHERE (c[""Discriminator""] = ""Order"")");
         }
 
+        [ConditionalTheory(Skip = "Issue #14935")]
         public override async Task Where_date_add_year_constant_component(bool isAsync)
         {
             await base.Where_date_add_year_constant_component(isAsync);
@@ -969,6 +991,7 @@ FROM root c
 WHERE (c[""Discriminator""] = ""Order"")");
         }
 
+        [ConditionalTheory(Skip = "Issue #14935")]
         public override async Task Where_datetime_year_component(bool isAsync)
         {
             await base.Where_datetime_year_component(isAsync);
@@ -979,6 +1002,7 @@ FROM root c
 WHERE (c[""Discriminator""] = ""Order"")");
         }
 
+        [ConditionalTheory(Skip = "Issue #14935")]
         public override async Task Where_datetime_month_component(bool isAsync)
         {
             await base.Where_datetime_month_component(isAsync);
@@ -989,6 +1013,7 @@ FROM root c
 WHERE (c[""Discriminator""] = ""Order"")");
         }
 
+        [ConditionalTheory(Skip = "Issue #14935")]
         public override async Task Where_datetime_dayOfYear_component(bool isAsync)
         {
             await base.Where_datetime_dayOfYear_component(isAsync);
@@ -999,6 +1024,7 @@ FROM root c
 WHERE (c[""Discriminator""] = ""Order"")");
         }
 
+        [ConditionalTheory(Skip = "Issue #14935")]
         public override async Task Where_datetime_day_component(bool isAsync)
         {
             await base.Where_datetime_day_component(isAsync);
@@ -1009,6 +1035,7 @@ FROM root c
 WHERE (c[""Discriminator""] = ""Order"")");
         }
 
+        [ConditionalTheory(Skip = "Issue #14935")]
         public override async Task Where_datetime_hour_component(bool isAsync)
         {
             await base.Where_datetime_hour_component(isAsync);
@@ -1019,6 +1046,7 @@ FROM root c
 WHERE (c[""Discriminator""] = ""Order"")");
         }
 
+        [ConditionalTheory(Skip = "Issue #14935")]
         public override async Task Where_datetime_minute_component(bool isAsync)
         {
             await base.Where_datetime_minute_component(isAsync);
@@ -1029,6 +1057,7 @@ FROM root c
 WHERE (c[""Discriminator""] = ""Order"")");
         }
 
+        [ConditionalTheory(Skip = "Issue #14935")]
         public override async Task Where_datetime_second_component(bool isAsync)
         {
             await base.Where_datetime_second_component(isAsync);
@@ -1039,6 +1068,7 @@ FROM root c
 WHERE (c[""Discriminator""] = ""Order"")");
         }
 
+        [ConditionalTheory(Skip = "Issue #14935")]
         public override async Task Where_datetime_millisecond_component(bool isAsync)
         {
             await base.Where_datetime_millisecond_component(isAsync);
@@ -1049,6 +1079,7 @@ FROM root c
 WHERE (c[""Discriminator""] = ""Order"")");
         }
 
+        [ConditionalTheory(Skip = "Issue #14935")]
         public override async Task Where_datetimeoffset_now_component(bool isAsync)
         {
             await base.Where_datetimeoffset_now_component(isAsync);
@@ -1058,6 +1089,7 @@ FROM root c
 WHERE (c[""Discriminator""] = ""Order"")");
         }
 
+        [ConditionalTheory(Skip = "Issue #14935")]
         public override async Task Where_datetimeoffset_utcnow_component(bool isAsync)
         {
             await base.Where_datetimeoffset_utcnow_component(isAsync);
@@ -1094,7 +1126,7 @@ WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""City""] = null))");
             AssertSql(
                 @"SELECT c
 FROM root c
-WHERE ((c[""Discriminator""] = ""Customer"") AND true)");
+WHERE (c[""Discriminator""] = ""Customer"")");
         }
 
         public override async Task Where_constant_is_null(bool isAsync)
@@ -1134,7 +1166,7 @@ WHERE ((c[""Discriminator""] = ""Customer"") AND false)");
             AssertSql(
                 @"SELECT c
 FROM root c
-WHERE ((c[""Discriminator""] = ""Customer"") AND true)");
+WHERE (c[""Discriminator""] = ""Customer"")");
         }
 
         public override async Task Where_identity_comparison(bool isAsync)
@@ -1207,6 +1239,7 @@ FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
 
+        [ConditionalTheory(Skip = "Issue #14935")]
         public override async Task Where_primitive(bool isAsync)
         {
             await base.Where_primitive(isAsync);
@@ -1284,7 +1317,7 @@ WHERE ((c[""Discriminator""] = ""Product"") AND NOT(c[""Discontinued""]))");
             AssertSql(
                 @"SELECT c
 FROM root c
-WHERE (c[""Discriminator""] = ""Product"")");
+WHERE ((c[""Discriminator""] = ""Product"") AND (c[""Discontinued""] = true))");
         }
 
         public override async Task Where_bool_member_in_complex_predicate(bool isAsync)
@@ -1413,6 +1446,7 @@ FROM root c
 WHERE ((c[""Discriminator""] = ""Product"") AND (c[""UnitsInStock""] > 10))");
         }
 
+        [ConditionalTheory(Skip = "Issue #14935")]
         public override async Task Where_comparison_to_nullable_bool(bool isAsync)
         {
             await base.Where_comparison_to_nullable_bool(isAsync);
@@ -1430,7 +1464,7 @@ WHERE (c[""Discriminator""] = ""Customer"")");
             AssertSql(
                 @"SELECT c
 FROM root c
-WHERE ((c[""Discriminator""] = ""Customer"") AND true)");
+WHERE (c[""Discriminator""] = ""Customer"")");
         }
 
         public override async Task Where_false(bool isAsync)
@@ -1473,6 +1507,7 @@ FROM root c
 WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] = ""ALFKI""))");
         }
 
+        [ConditionalTheory(Skip = "Issue #14935")]
         public override async Task Where_concat_string_int_comparison1(bool isAsync)
         {
             await base.Where_concat_string_int_comparison1(isAsync);
@@ -1485,6 +1520,7 @@ FROM root c
 WHERE ((c[""Discriminator""] = ""Customer"") AND ((c[""CustomerID""] || @__i_0) = c[""CompanyName""]))");
         }
 
+        [ConditionalTheory(Skip = "Issue #14935")]
         public override async Task Where_concat_string_int_comparison2(bool isAsync)
         {
             await base.Where_concat_string_int_comparison2(isAsync);
@@ -1497,6 +1533,7 @@ FROM root c
 WHERE ((c[""Discriminator""] = ""Customer"") AND ((@__i_0 + c[""CustomerID""]) = c[""CompanyName""]))");
         }
 
+        [ConditionalTheory(Skip = "Issue #14935")]
         public override async Task Where_concat_string_int_comparison3(bool isAsync)
         {
             await base.Where_concat_string_int_comparison3(isAsync);
@@ -1713,6 +1750,7 @@ FROM root c
 WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] = @__p_0))");
         }
 
+        [ConditionalTheory(Skip = "Issue #14935")]
         public override async Task Where_multiple_contains_in_subquery_with_or(bool isAsync)
         {
             await AssertQuery<OrderDetail, Product, Order>(
@@ -1730,6 +1768,7 @@ FROM root c
 WHERE ((c[""Discriminator""] = ""OrderDetail"") AND (c[""OrderID""] < 10250))");
         }
 
+        [ConditionalTheory(Skip = "Issue #14935")]
         public override async Task Where_multiple_contains_in_subquery_with_and(bool isAsync)
         {
             await AssertQuery<OrderDetail, Product, Order>(
@@ -1747,6 +1786,7 @@ FROM root c
 WHERE ((c[""Discriminator""] = ""OrderDetail"") AND (c[""OrderID""] < 10260))");
         }
 
+        [ConditionalTheory(Skip = "Issue #14935")]
         public override async Task Where_contains_on_navigation(bool isAsync)
         {
             await AssertQuery<Order, Customer>(
@@ -1763,6 +1803,7 @@ FROM root c
 WHERE ((c[""Discriminator""] = ""Order"") AND ((c[""OrderID""] > 10354) AND (c[""OrderID""] < 10360)))");
         }
 
+        [ConditionalTheory(Skip = "Issue #14935")]
         public override async Task Where_subquery_FirstOrDefault_is_null(bool isAsync)
         {
             await AssertQuery<Customer>(
@@ -1776,6 +1817,7 @@ FROM root c
 WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] = ""PARIS""))");
         }
 
+        [ConditionalTheory(Skip = "Issue #14935")]
         public override async Task Where_subquery_FirstOrDefault_compared_to_entity(bool isAsync)
         {
             await AssertQuery<Customer>(
@@ -1797,7 +1839,7 @@ WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] = ""ALFKI"")
             await base.Time_of_day_datetime(isAsync);
 
             AssertSql(
-                @"SELECT c
+                @"SELECT c[""OrderDate""]
 FROM root c
 WHERE (c[""Discriminator""] = ""Order"")");
         }

@@ -104,11 +104,10 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
                 && Projection.All(pe => pe.Expression is ColumnExpression column ? ReferenceEquals(column.Table, fromSql) : false);
         }
 
-        public SqlExpression BindProperty(Expression projectionExpression, IProperty property)
+        public SqlExpression BindProperty(ProjectionBindingExpression projectionBindingExpression, IProperty property)
         {
-            var member = (projectionExpression as ProjectionBindingExpression).ProjectionMember;
-
-            return ((EntityProjectionExpression)_projectionMapping[member]).GetProperty(property);
+            return ((EntityProjectionExpression)_projectionMapping[projectionBindingExpression.ProjectionMember])
+                .GetProperty(property);
         }
 
         public void ApplyProjection()

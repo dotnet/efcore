@@ -7,13 +7,11 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Query.Pipeline;
 using Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions;
-using System.IO;
 using System.Diagnostics;
 
 namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
@@ -31,7 +29,6 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
             ISqlExpressionFactory sqlExpressionFactory)
         {
             _sqlTranslator = relationalSqlTranslatingExpressionVisitorFactory.Create(model, this);
-
             _projectionBindingExpressionVisitor = new RelationalProjectionBindingExpressionVisitor(this, _sqlTranslator);
             _model = model;
             _sqlExpressionFactory = sqlExpressionFactory;

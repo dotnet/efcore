@@ -2,38 +2,33 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Query.Expressions.Internal;
-using Microsoft.EntityFrameworkCore.Query.NavigationExpansion;
 using Microsoft.EntityFrameworkCore.Query.Pipeline;
-using Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions;
 
-namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
+namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Pipeline
 {
-    public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
+    public class CosmosSqlTranslatingExpressionVisitor : ExpressionVisitor
     {
         private readonly IModel _model;
-        private readonly QueryableMethodTranslatingExpressionVisitor _queryableMethodTranslatingExpressionVisitor;
         private readonly ISqlExpressionFactory _sqlExpressionFactory;
         private readonly IMemberTranslatorProvider _memberTranslatorProvider;
-        private readonly IMethodCallTranslatorProvider _methodCallTranslatorProvider;
         private readonly SqlTypeMappingVerifyingExpressionVisitor _sqlVerifyingExpressionVisitor;
+        private readonly IMethodCallTranslatorProvider _methodCallTranslatorProvider;
 
-        public RelationalSqlTranslatingExpressionVisitor(
+        public CosmosSqlTranslatingExpressionVisitor(
             IModel model,
-            QueryableMethodTranslatingExpressionVisitor queryableMethodTranslatingExpressionVisitor,
             ISqlExpressionFactory sqlExpressionFactory,
             IMemberTranslatorProvider memberTranslatorProvider,
             IMethodCallTranslatorProvider methodCallTranslatorProvider)
         {
             _model = model;
-            _queryableMethodTranslatingExpressionVisitor = queryableMethodTranslatingExpressionVisitor;
             _sqlExpressionFactory = sqlExpressionFactory;
             _memberTranslatorProvider = memberTranslatorProvider;
             _methodCallTranslatorProvider = methodCallTranslatorProvider;
@@ -43,13 +38,6 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
         public SqlExpression Translate(Expression expression)
         {
             var translation = (SqlExpression)Visit(expression);
-
-            if (translation is SqlUnaryExpression sqlUnaryExpression
-                && sqlUnaryExpression.OperatorType == ExpressionType.Convert
-                && sqlUnaryExpression.Type == typeof(object))
-            {
-                translation = sqlUnaryExpression.Operand;
-            }
 
             translation = _sqlExpressionFactory.ApplyDefaultTypeMapping(translation);
 
@@ -62,8 +50,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
         {
             protected override Expression VisitExtension(Expression node)
             {
-                if (node is SqlExpression sqlExpression
-                    && !(node is SqlFragmentExpression))
+                if (node is SqlExpression sqlExpression)
                 {
                     if (sqlExpression.TypeMapping == null)
                     {
@@ -77,10 +64,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
 
         protected override Expression VisitMember(MemberExpression memberExpression)
         {
-            if (memberExpression.Expression is EntityShaperExpression
-                || (memberExpression.Expression is UnaryExpression innerUnaryExpression
-                    && innerUnaryExpression.NodeType == ExpressionType.Convert
-                    && innerUnaryExpression.Operand is EntityShaperExpression))
+            if (memberExpression.Expression is EntityShaperExpression)
             {
                 return BindProperty(memberExpression.Expression, memberExpression.Member.GetSimpleMemberName());
             }
@@ -94,30 +78,9 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
 
         private SqlExpression BindProperty(Expression source, string propertyName)
         {
-            Type convertedType = null;
-            if (source is UnaryExpression unaryExpression
-                && unaryExpression.NodeType == ExpressionType.Convert)
-            {
-                source = unaryExpression.Operand;
-                if (unaryExpression.Type != typeof(object))
-                {
-                    convertedType = unaryExpression.Type;
-                }
-            }
-
             if (source is EntityShaperExpression entityShaper)
             {
                 var entityType = entityShaper.EntityType;
-                if (convertedType != null)
-                {
-                    entityType = entityType.RootType().GetDerivedTypesInclusive()
-                        .FirstOrDefault(et => et.ClrType == convertedType);
-
-                    if (entityType == null)
-                    {
-                        return null;
-                    }
-                }
 
                 return BindProperty(entityShaper, entityType.FindProperty(propertyName));
             }
@@ -131,37 +94,6 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
                 .BindProperty(entityShaper.ValueBufferExpression, property);
         }
 
-        protected override Expression VisitTypeBinary(TypeBinaryExpression typeBinaryExpression)
-        {
-            if (typeBinaryExpression.NodeType == ExpressionType.TypeIs
-                && typeBinaryExpression.Expression is EntityShaperExpression entityShaperExpression)
-            {
-                var entityType = entityShaperExpression.EntityType;
-                if (entityType.GetAllBaseTypesInclusive().Any(et => et.ClrType == typeBinaryExpression.TypeOperand))
-                {
-                    return _sqlExpressionFactory.Constant(true);
-                }
-
-                var derivedType = entityType.GetDerivedTypes().SingleOrDefault(et => et.ClrType == typeBinaryExpression.TypeOperand);
-                if (derivedType != null)
-                {
-                    var concreteEntityTypes = derivedType.GetConcreteDerivedTypesInclusive().ToList();
-                    var discriminatorColumn = BindProperty(entityShaperExpression, entityType.GetDiscriminatorProperty());
-
-                    return concreteEntityTypes.Count == 1
-                        ? _sqlExpressionFactory.Equal(discriminatorColumn,
-                            _sqlExpressionFactory.Constant(concreteEntityTypes[0].GetDiscriminatorValue()))
-                        : (Expression)_sqlExpressionFactory.In(discriminatorColumn,
-                            _sqlExpressionFactory.Constant(concreteEntityTypes.Select(et => et.GetDiscriminatorValue()).ToList()),
-                            negated: false);
-                }
-
-                return _sqlExpressionFactory.Constant(false);
-            }
-
-            return null;
-        }
-
         protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
         {
             if (methodCallExpression.TryGetEFPropertyArguments(out var source, out var propertyName))
@@ -169,28 +101,28 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
                 return BindProperty(source, propertyName);
             }
 
-            if (methodCallExpression.Method.DeclaringType == typeof(Queryable))
-            {
-                var translation = _queryableMethodTranslatingExpressionVisitor.TranslateSubquery(methodCallExpression);
+            //if (methodCallExpression.Method.DeclaringType == typeof(Queryable))
+            //{
+            //    var translation = _queryableMethodTranslatingExpressionVisitor.TranslateSubquery(methodCallExpression);
 
-                var subquery = (SelectExpression)translation.QueryExpression;
-                subquery.ApplyProjection();
+            //    var subquery = (SelectExpression)translation.QueryExpression;
+            //    subquery.ApplyProjection();
 
-                if (methodCallExpression.Method.Name == nameof(Queryable.Any)
-                    || methodCallExpression.Method.Name == nameof(Queryable.All)
-                    || methodCallExpression.Method.Name == nameof(Queryable.Contains))
-                {
-                    if (subquery.Tables.Count == 0
-                        && subquery.Projection.Count == 1)
-                    {
-                        return subquery.Projection[0].Expression;
-                    }
+            //    if (methodCallExpression.Method.Name == nameof(Queryable.Any)
+            //        || methodCallExpression.Method.Name == nameof(Queryable.All)
+            //        || methodCallExpression.Method.Name == nameof(Queryable.Contains))
+            //    {
+            //        if (subquery.Tables.Count == 0
+            //            && subquery.Projection.Count == 1)
+            //        {
+            //            return subquery.Projection[0].Expression;
+            //        }
 
-                    throw new InvalidOperationException();
-                }
+            //        throw new InvalidOperationException();
+            //    }
 
-                return new SubSelectExpression(subquery);
-            }
+            //    return new SubSelectExpression(subquery);
+            //}
 
             var @object = Visit(methodCallExpression.Object);
             if (TranslationFailed(methodCallExpression.Object, @object))
@@ -263,46 +195,6 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
                 null);
         }
 
-        protected override Expression VisitNew(NewExpression node) => null;
-
-        protected override Expression VisitMemberInit(MemberInitExpression node) => null;
-
-        protected override Expression VisitNewArray(NewArrayExpression node) => null;
-
-        protected override Expression VisitListInit(ListInitExpression node) => null;
-        protected override Expression VisitConstant(ConstantExpression constantExpression)
-            => new SqlConstantExpression(constantExpression, null);
-
-        protected override Expression VisitParameter(ParameterExpression parameterExpression)
-            => new SqlParameterExpression(parameterExpression, null);
-
-        protected override Expression VisitExtension(Expression extensionExpression)
-        {
-            if (extensionExpression is EntityShaperExpression)
-            {
-                return extensionExpression;
-            }
-
-            if (extensionExpression is ProjectionBindingExpression projectionBindingExpression)
-            {
-                var selectExpression = (SelectExpression)projectionBindingExpression.QueryExpression;
-
-                return selectExpression.GetMappedProjection(projectionBindingExpression.ProjectionMember);
-            }
-
-            if (extensionExpression is NullConditionalExpression nullConditionalExpression)
-            {
-                return Visit(nullConditionalExpression.AccessOperation);
-            }
-
-            if (extensionExpression is CorrelationPredicateExpression correlationPredicateExpression)
-            {
-                return Visit(correlationPredicateExpression.EqualExpression);
-            }
-
-            return base.VisitExtension(extensionExpression);
-        }
-
         protected override Expression VisitConditional(ConditionalExpression conditionalExpression)
         {
             var test = Visit(conditionalExpression.Test);
@@ -316,12 +208,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
                 return null;
             }
 
-            return _sqlExpressionFactory.Case(
-                new[]
-                {
-                    new CaseWhenClause((SqlExpression)test,(SqlExpression) ifTrue)
-                },
-                (SqlExpression)ifFalse);
+            return _sqlExpressionFactory.Condition((SqlExpression)test, (SqlExpression)ifTrue, (SqlExpression)ifFalse);
         }
 
         protected override Expression VisitUnary(UnaryExpression unaryExpression)
@@ -354,19 +241,55 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
                         return sqlOperand;
                     }
 
-                    // Introduce explicit cast only if the target type is mapped else we need to client eval
-                    if (unaryExpression.Type == typeof(object)
-                        || _sqlExpressionFactory.FindMapping(unaryExpression.Type) != null)
-                    {
-                        sqlOperand = _sqlExpressionFactory.ApplyDefaultTypeMapping(sqlOperand);
+                    //// Introduce explicit cast only if the target type is mapped else we need to client eval
+                    //if (unaryExpression.Type == typeof(object)
+                    //    || _sqlExpressionFactory.FindMapping(unaryExpression.Type) != null)
+                    //{
+                    //    sqlOperand = _sqlExpressionFactory.ApplyDefaultTypeMapping(sqlOperand);
 
-                        return _sqlExpressionFactory.Convert(sqlOperand, unaryExpression.Type);
-                    }
+                    //    return _sqlExpressionFactory.Convert(sqlOperand, unaryExpression.Type);
+                    //}
 
                     break;
             }
 
             return null;
+        }
+
+        protected override Expression VisitNew(NewExpression node) => null;
+
+        protected override Expression VisitMemberInit(MemberInitExpression node) => null;
+
+        protected override Expression VisitNewArray(NewArrayExpression node) => null;
+
+        protected override Expression VisitListInit(ListInitExpression node) => null;
+
+        protected override Expression VisitConstant(ConstantExpression constantExpression)
+            => new SqlConstantExpression(constantExpression, null);
+
+        protected override Expression VisitParameter(ParameterExpression parameterExpression)
+            => new SqlParameterExpression(parameterExpression, null);
+
+        protected override Expression VisitExtension(Expression extensionExpression)
+        {
+            if (extensionExpression is EntityShaperExpression)
+            {
+                return extensionExpression;
+            }
+
+            if (extensionExpression is ProjectionBindingExpression projectionBindingExpression)
+            {
+                var selectExpression = (SelectExpression)projectionBindingExpression.QueryExpression;
+
+                return selectExpression.GetMappedProjection(projectionBindingExpression.ProjectionMember);
+            }
+
+            if (extensionExpression is NullConditionalExpression nullConditionalExpression)
+            {
+                return Visit(nullConditionalExpression.AccessOperation);
+            }
+
+            return base.VisitExtension(extensionExpression);
         }
 
         [DebuggerStepThrough]
