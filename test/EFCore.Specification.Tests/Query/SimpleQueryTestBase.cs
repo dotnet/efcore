@@ -527,6 +527,24 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
+        public virtual Task Entity_equality_orderby(bool isAsync)
+            => AssertQuery<Customer>(
+                isAsync,
+                cs => cs.OrderBy(c => c),
+                entryCount: 91,
+                assertOrder: true);
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Entity_equality_orderby_descending_composite_key(bool isAsync)
+            => AssertQuery<OrderDetail>(
+                isAsync,
+                od => od.OrderByDescending(o => o),
+                entryCount: 2155,
+                assertOrder: true);
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task Null_conditional_simple(bool isAsync)
         {
             var c = Expression.Parameter(typeof(Customer));

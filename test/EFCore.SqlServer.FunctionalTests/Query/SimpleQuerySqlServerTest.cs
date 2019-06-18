@@ -283,6 +283,26 @@ FROM [Customers] AS [c]
 WHERE CAST(0 AS bit) = CAST(1 AS bit)");
         }
 
+        public override async Task Entity_equality_orderby(bool isAsync)
+        {
+            await base.Entity_equality_orderby(isAsync);
+
+            AssertSql(
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+ORDER BY [c].[CustomerID]");
+        }
+
+        public override async Task Entity_equality_orderby_descending_composite_key(bool isAsync)
+        {
+            await base.Entity_equality_orderby_descending_composite_key(isAsync);
+
+            AssertSql(
+                @"SELECT [o].[OrderID], [o].[ProductID], [o].[Discount], [o].[Quantity], [o].[UnitPrice]
+FROM [Order Details] AS [o]
+ORDER BY [o].[OrderID] DESC, [o].[ProductID] DESC");
+        }
+
         public override async Task Queryable_reprojection(bool isAsync)
         {
             await base.Queryable_reprojection(isAsync);

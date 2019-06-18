@@ -158,6 +158,12 @@ namespace Microsoft.EntityFrameworkCore.Query.Pipeline
                     case nameof(Queryable.Contains) when arguments.Count == 2:
                         return VisitContainsMethodCall(methodCallExpression);
 
+                    case nameof(Queryable.OrderBy) when arguments.Count == 2:
+                    case nameof(Queryable.OrderByDescending) when arguments.Count == 2:
+                    case nameof(Queryable.ThenBy) when arguments.Count == 2:
+                    case nameof(Queryable.ThenByDescending) when arguments.Count == 2:
+                        return VisitOrderingMethodCall(methodCallExpression);
+
                     // The following are projecting methods, which flow the entity type from *within* the lambda outside.
                     case nameof(Queryable.Select):
                     case nameof(Queryable.SelectMany):
@@ -207,7 +213,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Pipeline
                     || sourceParamType == typeof(IQueryable))   // OfType
                 {
                     // If the method returns the element same type as the source, flow the type information
-                    // (e.g. Where, OrderBy)
+                    // (e.g. Where)
                     if (methodCallExpression.Method.ReturnType.TryGetSequenceType() is Type returnElementType
                         && (returnElementType == sourceElementType || sourceElementType == null))
                     {
@@ -287,6 +293,74 @@ namespace Microsoft.EntityFrameworkCore.Query.Pipeline
                 keyProjection,
                 rewrittenItem
             );
+        }
+
+        protected virtual Expression VisitOrderingMethodCall(MethodCallExpression methodCallExpression)
+        {
+            var arguments = methodCallExpression.Arguments;
+            var newSource = Visit(arguments[0]);
+
+            if (!(newSource is EntityReferenceExpression sourceWrapper))
+            {
+                return methodCallExpression.Update(null, new[] { newSource, Unwrap(Visit(arguments[1])) });
+            }
+
+            var newKeySelector = RewriteAndVisitLambda(arguments[1].UnwrapLambdaFromQuote(), sourceWrapper);
+
+            if (!(newKeySelector.Body is EntityReferenceExpression keySelectorWrapper)
+                || !(keySelectorWrapper.EntityType is IEntityType entityType))
+            {
+                return sourceWrapper.Update(
+                    methodCallExpression.Update(null, new[] { Unwrap(newSource), Unwrap(newKeySelector) }));
+            }
+
+            var genericMethodDefinition = methodCallExpression.Method.GetGenericMethodDefinition();
+            var isFirstOrdering =
+                genericMethodDefinition == LinqMethodHelpers.QueryableOrderByMethodInfo
+                || genericMethodDefinition == LinqMethodHelpers.QueryableOrderByDescendingMethodInfo;
+            var isAscending =
+                genericMethodDefinition == LinqMethodHelpers.QueryableOrderByMethodInfo
+                || genericMethodDefinition == LinqMethodHelpers.QueryableThenByMethodInfo;
+
+            var keyProperties = entityType.FindPrimaryKey().Properties;
+            var expression = Unwrap(newSource);
+            var body = Unwrap(newKeySelector.Body);
+            var oldParam = newKeySelector.Parameters.Single();
+
+            foreach (var keyProperty in keyProperties)
+            {
+                var param = Expression.Parameter(entityType.ClrType, "v");
+                var rewrittenKeySelector = Expression.Lambda(
+                    ReplacingExpressionVisitor.Replace(
+                        oldParam, param,
+                        body.CreateEFPropertyExpression(keyProperty, makeNullable: false)),
+                    param);
+
+                var orderingMethodInfo = GetOrderingMethodInfo(isFirstOrdering, isAscending);
+
+                expression = Expression.Call(
+                    orderingMethodInfo.MakeGenericMethod(entityType.ClrType, keyProperty.ClrType),
+                    expression,
+                    rewrittenKeySelector
+                );
+
+                isFirstOrdering = false;
+            }
+
+            return expression;
+
+            static MethodInfo GetOrderingMethodInfo(bool isFirstOrdering, bool isAscending)
+            {
+                if (isFirstOrdering)
+                {
+                    return isAscending
+                        ? LinqMethodHelpers.QueryableOrderByMethodInfo
+                        : LinqMethodHelpers.QueryableOrderByDescendingMethodInfo;
+                }
+                return isAscending
+                    ? LinqMethodHelpers.QueryableThenByMethodInfo
+                    : LinqMethodHelpers.QueryableThenByDescendingMethodInfo;
+            }
         }
 
         protected virtual Expression VisitSelectMethodCall(MethodCallExpression methodCallExpression)

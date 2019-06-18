@@ -5,7 +5,7 @@ using System;
 
 namespace Microsoft.EntityFrameworkCore.TestModels.Northwind
 {
-    public class OrderDetail
+    public class OrderDetail : IComparable<OrderDetail>
     {
         public int OrderID { get; set; }
         public int ProductID { get; set; }
@@ -34,5 +34,18 @@ namespace Microsoft.EntityFrameworkCore.TestModels.Northwind
         }
 
         public override int GetHashCode() => HashCode.Combine(OrderID, ProductID);
+
+        public int CompareTo(OrderDetail other)
+        {
+            if (other == null)
+            {
+                return 1;
+            }
+
+            var comp1 = OrderID.CompareTo(other.OrderID);
+            return comp1 == 0
+                ? ProductID.CompareTo(other.ProductID)
+                : comp1;
+        }
     }
 }
