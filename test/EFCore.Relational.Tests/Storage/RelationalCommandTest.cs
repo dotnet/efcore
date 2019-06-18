@@ -43,7 +43,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
             var fakeConnection = CreateConnection();
             var relationalCommand = CreateRelationalCommand(commandText: "CommandText");
 
-            relationalCommand.ExecuteNonQuery(fakeConnection, null, null);
+            relationalCommand.ExecuteNonQuery(
+                new RelationalCommandParameterObject(fakeConnection, null, null, null));
 
             Assert.Equal(1, fakeConnection.DbConnections.Count);
             Assert.Equal(1, fakeConnection.DbConnections[0].DbCommands.Count);
@@ -64,7 +65,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
             var relationalCommand = CreateRelationalCommand();
 
-            relationalCommand.ExecuteNonQuery(fakeConnection, null, null);
+            relationalCommand.ExecuteNonQuery(
+                new RelationalCommandParameterObject(fakeConnection, null, null, null));
 
             Assert.Equal(1, fakeConnection.DbConnections.Count);
             Assert.Equal(1, fakeConnection.DbConnections[0].DbCommands.Count);
@@ -85,7 +87,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
             var relationalCommand = CreateRelationalCommand();
 
-            relationalCommand.ExecuteNonQuery(fakeConnection, null, null);
+            relationalCommand.ExecuteNonQuery(
+                new RelationalCommandParameterObject(fakeConnection, null, null, null));
 
             Assert.Equal(1, fakeConnection.DbConnections.Count);
             Assert.Equal(1, fakeConnection.DbConnections[0].DbCommands.Count);
@@ -118,7 +121,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
             var relationalCommand = CreateRelationalCommand();
 
             var result = relationalCommand.ExecuteNonQuery(
-                new FakeRelationalConnection(options), null, null);
+                new RelationalCommandParameterObject(
+                    new FakeRelationalConnection(options), null, null, null));
 
             Assert.Equal(1, result);
 
@@ -157,7 +161,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
             var relationalCommand = CreateRelationalCommand();
 
             var result = await relationalCommand.ExecuteNonQueryAsync(
-                new FakeRelationalConnection(options), null, null);
+                new RelationalCommandParameterObject(
+                    new FakeRelationalConnection(options), null, null, null));
 
             Assert.Equal(1, result);
 
@@ -196,7 +201,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
             var relationalCommand = CreateRelationalCommand();
 
             var result = (string)relationalCommand.ExecuteScalar(
-                new FakeRelationalConnection(options), null, null);
+                new RelationalCommandParameterObject(
+                    new FakeRelationalConnection(options), null, null, null));
 
             Assert.Equal("ExecuteScalar Result", result);
 
@@ -235,7 +241,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
             var relationalCommand = CreateRelationalCommand();
 
             var result = (string)await relationalCommand.ExecuteScalarAsync(
-                new FakeRelationalConnection(options), null, null);
+                new RelationalCommandParameterObject(
+                    new FakeRelationalConnection(options), null, null, null));
 
             Assert.Equal("ExecuteScalar Result", result);
 
@@ -276,7 +283,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
             var relationalCommand = CreateRelationalCommand();
 
             var result = relationalCommand.ExecuteReader(
-                new FakeRelationalConnection(options), null, null);
+                new RelationalCommandParameterObject(
+                    new FakeRelationalConnection(options), null, null, null));
 
             Assert.Same(dbDataReader, result.DbDataReader);
             Assert.Equal(0, fakeDbConnection.CloseCount);
@@ -324,7 +332,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
             var relationalCommand = CreateRelationalCommand();
 
             var result = await relationalCommand.ExecuteReaderAsync(
-                new FakeRelationalConnection(options), null, null);
+                new RelationalCommandParameterObject(
+                    new FakeRelationalConnection(options), null, null, null));
 
             Assert.Same(dbDataReader, result.DbDataReader);
             Assert.Equal(0, fakeDbConnection.CloseCount);
@@ -353,42 +362,48 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 {
                     new CommandAction(
                         (connection, command, parameterValues, logger)
-                            => command.ExecuteNonQuery(connection, parameterValues, logger)),
+                            => command.ExecuteNonQuery(
+                                new RelationalCommandParameterObject(connection, parameterValues, null, logger))),
                     DbCommandMethod.ExecuteNonQuery,
                     false
                 },
                 {
                     new CommandAction(
                         (connection, command, parameterValues, logger)
-                            => command.ExecuteScalar(connection, parameterValues, logger)),
+                            => command.ExecuteScalar(
+                                new RelationalCommandParameterObject(connection, parameterValues, null, logger))),
                     DbCommandMethod.ExecuteScalar,
                     false
                 },
                 {
                     new CommandAction(
                         (connection, command, parameterValues, logger)
-                            => command.ExecuteReader(connection, parameterValues, logger)),
+                            => command.ExecuteReader(
+                                new RelationalCommandParameterObject(connection, parameterValues, null, logger))),
                     DbCommandMethod.ExecuteReader,
                     false
                 },
                 {
                     new CommandFunc(
                         (connection, command, parameterValues, logger)
-                            => command.ExecuteNonQueryAsync(connection, parameterValues, logger)),
+                            => command.ExecuteNonQueryAsync(
+                                new RelationalCommandParameterObject(connection, parameterValues, null, logger))),
                     DbCommandMethod.ExecuteNonQuery,
                     true
                 },
                 {
                     new CommandFunc(
                         (connection, command, parameterValues, logger)
-                            => command.ExecuteScalarAsync(connection, parameterValues, logger)),
+                            => command.ExecuteScalarAsync(
+                                new RelationalCommandParameterObject(connection, parameterValues, null, logger))),
                     DbCommandMethod.ExecuteScalar,
                     true
                 },
                 {
                     new CommandFunc(
                         (connection, command, parameterValues, logger)
-                            => command.ExecuteReaderAsync(connection, parameterValues, logger)),
+                            => command.ExecuteReaderAsync(
+                                new RelationalCommandParameterObject(connection, parameterValues, null, logger))),
                     DbCommandMethod.ExecuteReader,
                     true
                 }

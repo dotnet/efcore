@@ -58,7 +58,12 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal
             Dependencies.Connection.Open();
 
             _rawSqlCommandBuilder.Build("PRAGMA journal_mode = 'wal';")
-                .ExecuteNonQuery(Dependencies.Connection, null, Dependencies.CommandLogger);
+                .ExecuteNonQuery(
+                    new RelationalCommandParameterObject(
+                        Dependencies.Connection,
+                        null,
+                        null,
+                        Dependencies.CommandLogger));
 
             Dependencies.Connection.Close();
         }
@@ -96,7 +101,12 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal
         {
             var count = (long)_rawSqlCommandBuilder
                 .Build("SELECT COUNT(*) FROM \"sqlite_master\" WHERE \"type\" = 'table' AND \"rootpage\" IS NOT NULL;")
-                .ExecuteScalar(Dependencies.Connection, null, Dependencies.CommandLogger);
+                .ExecuteScalar(
+                    new RelationalCommandParameterObject(
+                        Dependencies.Connection,
+                        null,
+                        null,
+                        Dependencies.CommandLogger));
 
             return count != 0;
         }

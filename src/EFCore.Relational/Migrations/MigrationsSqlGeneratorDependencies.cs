@@ -59,6 +59,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <param name="updateSqlGenerator"> High level SQL generator. </param>
         /// <param name="sqlGenerationHelper"> Helpers for SQL generation. </param>
         /// <param name="typeMappingSource"> The type mapper. </param>
+        /// <param name="currentDbContext"> Contains the <see cref="DbContext"/> currently in use. </param>
         /// <param name="logger"> A logger. </param>
         [EntityFrameworkInternal]
         public MigrationsSqlGeneratorDependencies(
@@ -66,18 +67,21 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             [NotNull] IUpdateSqlGenerator updateSqlGenerator,
             [NotNull] ISqlGenerationHelper sqlGenerationHelper,
             [NotNull] IRelationalTypeMappingSource typeMappingSource,
+            [NotNull] ICurrentDbContext currentDbContext,
             [NotNull] IDiagnosticsLogger<DbLoggerCategory.Database.Command> logger)
         {
             Check.NotNull(commandBuilderFactory, nameof(commandBuilderFactory));
             Check.NotNull(updateSqlGenerator, nameof(updateSqlGenerator));
             Check.NotNull(sqlGenerationHelper, nameof(sqlGenerationHelper));
             Check.NotNull(typeMappingSource, nameof(typeMappingSource));
+            Check.NotNull(currentDbContext, nameof(currentDbContext));
             Check.NotNull(logger, nameof(logger));
 
             CommandBuilderFactory = commandBuilderFactory;
             SqlGenerationHelper = sqlGenerationHelper;
             UpdateSqlGenerator = updateSqlGenerator;
             TypeMappingSource = typeMappingSource;
+            CurrentDbContext = currentDbContext;
             Logger = logger;
         }
 
@@ -102,6 +106,11 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         public IRelationalTypeMappingSource TypeMappingSource { get; }
 
         /// <summary>
+        ///    Contains the <see cref="DbContext"/> currently in use.
+        /// </summary>
+        public ICurrentDbContext CurrentDbContext { get; }
+
+        /// <summary>
         ///     A logger.
         /// </summary>
         public IDiagnosticsLogger<DbLoggerCategory.Database.Command> Logger { get; }
@@ -117,6 +126,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 UpdateSqlGenerator,
                 SqlGenerationHelper,
                 TypeMappingSource,
+                CurrentDbContext,
                 Logger);
 
         /// <summary>
@@ -130,6 +140,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 updateSqlGenerator,
                 SqlGenerationHelper,
                 TypeMappingSource,
+                CurrentDbContext,
                 Logger);
 
         /// <summary>
@@ -143,6 +154,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 UpdateSqlGenerator,
                 sqlGenerationHelper,
                 TypeMappingSource,
+                CurrentDbContext,
                 Logger);
 
         /// <summary>
@@ -156,6 +168,21 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 UpdateSqlGenerator,
                 SqlGenerationHelper,
                 typeMappingSource,
+                CurrentDbContext,
+                Logger);
+
+        /// <summary>
+        ///     Clones this dependency parameter object with one service replaced.
+        /// </summary>
+        /// <param name="currentDbContext"> A replacement for the current dependency of this type. </param>
+        /// <returns> A new parameter object with the given service replaced. </returns>
+        public MigrationsSqlGeneratorDependencies With([NotNull] ICurrentDbContext currentDbContext)
+            => new MigrationsSqlGeneratorDependencies(
+                CommandBuilderFactory,
+                UpdateSqlGenerator,
+                SqlGenerationHelper,
+                TypeMappingSource,
+                currentDbContext,
                 Logger);
 
         /// <summary>
@@ -169,6 +196,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 UpdateSqlGenerator,
                 SqlGenerationHelper,
                 TypeMappingSource,
+                CurrentDbContext,
                 logger);
     }
 }

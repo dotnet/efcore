@@ -97,9 +97,11 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
 
                             _dataReader
                                 = await relationalCommand.ExecuteReaderAsync(
-                                    _relationalQueryContext.Connection,
-                                    _relationalQueryContext.ParameterValues,
-                                    _relationalQueryContext.CommandLogger,
+                                    new RelationalCommandParameterObject(
+                                        _relationalQueryContext.Connection,
+                                        _relationalQueryContext.ParameterValues,
+                                        _relationalQueryContext.Context,
+                                        _relationalQueryContext.CommandLogger),
                                     _cancellationToken);
 
                             if (selectExpression.IsNonComposedFromSql())

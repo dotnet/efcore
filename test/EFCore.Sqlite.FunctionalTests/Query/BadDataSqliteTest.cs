@@ -184,14 +184,14 @@ namespace Microsoft.EntityFrameworkCore.Query
                         _values = values;
                     }
 
-                    public override RelationalDataReader ExecuteReader(
-                        IRelationalConnection connection,
-                        IReadOnlyDictionary<string, object> parameterValues,
-                        IDiagnosticsLogger<DbLoggerCategory.Database.Command> logger)
+                    public override RelationalDataReader ExecuteReader(RelationalCommandParameterObject parameterObject)
                     {
-                        var command = connection.DbConnection.CreateCommand();
+                        var command = parameterObject.Connection.DbConnection.CreateCommand();
                         command.CommandText = CommandText;
-                        return new BadDataRelationalDataReader(command, _values, logger);
+                        return new BadDataRelationalDataReader(
+                            command,
+                            _values,
+                            parameterObject.Logger);
                     }
 
                     private class BadDataRelationalDataReader : RelationalDataReader

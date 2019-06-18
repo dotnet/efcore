@@ -118,9 +118,11 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
                     _connection,
                     connection => (int)CreateHasTablesCommand()
                                       .ExecuteScalar(
-                                          connection,
-                                          null,
-                                          Dependencies.CommandLogger) != 0);
+                                          new RelationalCommandParameterObject(
+                                              connection,
+                                              null,
+                                              Dependencies.CurrentDbContext.Context,
+                                              Dependencies.CommandLogger)) != 0);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -133,9 +135,11 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
                 _connection,
                 async (connection, ct) => (int)await CreateHasTablesCommand()
                                               .ExecuteScalarAsync(
-                                                  connection,
-                                                  null,
-                                                  Dependencies.CommandLogger,
+                                                  new RelationalCommandParameterObject(
+                                                      connection,
+                                                      null,
+                                                      Dependencies.CurrentDbContext.Context,
+                                                      Dependencies.CommandLogger),
                                                   cancellationToken: ct) != 0, cancellationToken);
 
         private IRelationalCommand CreateHasTablesCommand()

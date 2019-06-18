@@ -73,7 +73,8 @@ namespace Microsoft.EntityFrameworkCore
                 { typeof(IProperty), () => property },
                 { typeof(TypeInfo), () => typeof(object).GetTypeInfo() },
                 { typeof(Type), () => typeof(object) },
-                { typeof(ValueConverter), () => new BoolToZeroOneConverter<int>() }
+                { typeof(ValueConverter), () => new BoolToZeroOneConverter<int>() },
+                { typeof(DbContext), () => new FakeDbContext() }
             };
 
             TestEventLogging(
@@ -106,6 +107,10 @@ namespace Microsoft.EntityFrameworkCore
                         }
                     }
                 });
+        }
+
+        private class FakeDbContext : DbContext
+        {
         }
 
         private class FakeMigration : Migration

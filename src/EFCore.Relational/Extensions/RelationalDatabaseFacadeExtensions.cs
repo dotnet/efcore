@@ -220,9 +220,11 @@ namespace Microsoft.EntityFrameworkCore
                 return rawSqlCommand
                     .RelationalCommand
                     .ExecuteNonQuery(
-                        databaseFacade.GetRelationalService<IRelationalConnection>(),
-                        rawSqlCommand.ParameterValues,
-                        logger);
+                        new RelationalCommandParameterObject(
+                            databaseFacade.GetRelationalService<IRelationalConnection>(),
+                            rawSqlCommand.ParameterValues,
+                            databaseFacade.GetService<ICurrentDbContext>().Context,
+                            logger));
             }
         }
 
@@ -384,9 +386,11 @@ namespace Microsoft.EntityFrameworkCore
                 return await rawSqlCommand
                     .RelationalCommand
                     .ExecuteNonQueryAsync(
-                        databaseFacade.GetRelationalService<IRelationalConnection>(),
-                        rawSqlCommand.ParameterValues,
-                        logger,
+                        new RelationalCommandParameterObject(
+                            databaseFacade.GetRelationalService<IRelationalConnection>(),
+                            rawSqlCommand.ParameterValues,
+                            databaseFacade.GetService<ICurrentDbContext>().Context,
+                            logger),
                         cancellationToken);
             }
         }
@@ -498,9 +502,11 @@ namespace Microsoft.EntityFrameworkCore
                 return rawSqlCommand
                     .RelationalCommand
                     .ExecuteNonQuery(
-                        databaseFacade.GetRelationalService<IRelationalConnection>(),
-                        rawSqlCommand.ParameterValues,
-                        logger);
+                        new RelationalCommandParameterObject(
+                            databaseFacade.GetRelationalService<IRelationalConnection>(),
+                            rawSqlCommand.ParameterValues,
+                            databaseFacade.GetService<ICurrentDbContext>().Context,
+                            logger));
             }
         }
 
@@ -648,9 +654,11 @@ namespace Microsoft.EntityFrameworkCore
                 return await rawSqlCommand
                     .RelationalCommand
                     .ExecuteNonQueryAsync(
-                        databaseFacade.GetRelationalService<IRelationalConnection>(),
-                        rawSqlCommand.ParameterValues,
-                        logger,
+                        new RelationalCommandParameterObject(
+                            databaseFacade.GetRelationalService<IRelationalConnection>(),
+                            rawSqlCommand.ParameterValues,
+                            databaseFacade.GetService<ICurrentDbContext>().Context,
+                            logger),
                         cancellationToken);
             }
         }

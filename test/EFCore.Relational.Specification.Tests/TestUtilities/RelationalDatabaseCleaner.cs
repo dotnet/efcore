@@ -84,7 +84,9 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                     var customSql = BuildCustomSql(databaseModel);
                     if (!string.IsNullOrWhiteSpace(customSql))
                     {
-                        sqlBuilder.Build(customSql).ExecuteNonQuery(connection, null, null);
+                        sqlBuilder.Build(customSql).ExecuteNonQuery(
+                            new RelationalCommandParameterObject(
+                                connection,null, null,null));
                     }
 
                     if (operations.Count > 0)
@@ -96,7 +98,8 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                     customSql = BuildCustomEndingSql(databaseModel);
                     if (!string.IsNullOrWhiteSpace(customSql))
                     {
-                        sqlBuilder.Build(customSql).ExecuteNonQuery(connection, null, null);
+                        sqlBuilder.Build(customSql).ExecuteNonQuery(
+                            new RelationalCommandParameterObject(connection, null, null, null));
                     }
                 }
                 finally
