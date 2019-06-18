@@ -12,6 +12,7 @@ using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Query.Expressions.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
+using Microsoft.EntityFrameworkCore.Query.NavigationExpansion;
 
 namespace Microsoft.EntityFrameworkCore.Query.Pipeline
 {
@@ -153,8 +154,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Pipeline
             {
                 switch (methodCallExpression.Method.Name)
                 {
+                    // These are methods that require special handling
+                    case nameof(Queryable.Contains) when arguments.Count == 2:
+                        return VisitContainsMethodCall(methodCallExpression);
+
                     // The following are projecting methods, which flow the entity type from *within* the lambda outside.
-                    // These are handled by dedicated methods
                     case nameof(Queryable.Select):
                     case nameof(Queryable.SelectMany):
                         return VisitSelectMethodCall(methodCallExpression);
@@ -236,6 +240,53 @@ namespace Microsoft.EntityFrameworkCore.Query.Pipeline
             }
 
             return methodCallExpression.Update(Unwrap(Visit(methodCallExpression.Object)), newArguments);
+        }
+
+        protected virtual Expression VisitContainsMethodCall(MethodCallExpression methodCallExpression)
+        {
+            var arguments = methodCallExpression.Arguments;
+            var newSource = Visit(arguments[0]);
+            var newItem = Visit(arguments[1]);
+
+            var sourceEntityType = (newSource as EntityReferenceExpression)?.EntityType;
+            var itemEntityType = (newItem as EntityReferenceExpression)?.EntityType;
+
+            if (sourceEntityType == null && itemEntityType == null)
+            {
+                return methodCallExpression.Update(null, new[] { newSource, newItem });
+            }
+
+            if (sourceEntityType != null && itemEntityType != null
+                && sourceEntityType.RootType() != itemEntityType.RootType())
+            {
+                return Expression.Constant(false);
+            }
+
+            // One side of the comparison may have an unknown entity type (closure parameter, inline instantiation)
+            var entityType = sourceEntityType ?? itemEntityType;
+
+            var keyProperties = entityType.FindPrimaryKey().Properties;
+            var keyProperty = keyProperties.Count == 1
+                ? keyProperties.Single()
+                : throw new NotSupportedException(CoreStrings.EntityEqualityContainsWithCompositeKeyNotSupported(entityType.DisplayName()));
+
+            // Wrap the source with a projection to its primary key, and the item with a primary key access expression
+            var param = Expression.Parameter(entityType.ClrType, "v");
+            var keySelector = Expression.Lambda(param.CreateEFPropertyExpression(keyProperty, makeNullable: false), param);
+            var keyProjection = Expression.Call(
+                LinqMethodHelpers.QueryableSelectMethodInfo.MakeGenericMethod(entityType.ClrType, keyProperty.ClrType),
+                Unwrap(newSource),
+                keySelector);
+
+            var rewrittenItem = newItem.IsNullConstantExpression()
+                ? Expression.Constant(null)
+                : Unwrap(newItem).CreateEFPropertyExpression(keyProperty, makeNullable: false);
+
+            return Expression.Call(
+                LinqMethodHelpers.QueryableContainsMethodInfo.MakeGenericMethod(keyProperty.ClrType),
+                keyProjection,
+                rewrittenItem
+            );
         }
 
         protected virtual Expression VisitSelectMethodCall(MethodCallExpression methodCallExpression)

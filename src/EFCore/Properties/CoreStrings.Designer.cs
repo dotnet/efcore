@@ -2124,6 +2124,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 GetString("SubqueryWithCompositeKeyNotSupported", nameof(entityType)),
                 entityType);
 
+        /// <summary>
+        ///     Cannot translate a Contains() operator on entity '{entityType}' because it has a composite key.
+        /// </summary>
+        public static string EntityEqualityContainsWithCompositeKeyNotSupported([CanBeNull] object entityType)
+            => string.Format(
+                GetString("EntityEqualityContainsWithCompositeKeyNotSupported", nameof(entityType)),
+                entityType);
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);
