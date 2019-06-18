@@ -141,7 +141,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Pipeline
         protected virtual Expression InjectEntityMaterializer(Expression expression)
         {
             return new EntityMaterializerInjectingExpressionVisitor(
-                _entityMaterializerSource, TrackQueryResults, Async).Inject(expression);
+                _entityMaterializerSource, TrackQueryResults).Inject(expression);
         }
 
         private class EntityMaterializerInjectingExpressionVisitor : ExpressionVisitor
@@ -155,9 +155,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Pipeline
                 = typeof(QueryContext).GetProperty(nameof(QueryContext.StateManager));
             private static readonly PropertyInfo _entityMemberInfo
                 = typeof(InternalEntityEntry).GetProperty(nameof(InternalEntityEntry.Entity));
-            private static readonly MethodInfo _taskFromResultMethodInfo
-                = typeof(Task).GetTypeInfo().GetDeclaredMethods(nameof(Task.FromResult))
-                    .Single();
 
             private static readonly MethodInfo _tryGetEntryMethodInfo
                 = typeof(IStateManager).GetTypeInfo().GetDeclaredMethods(nameof(IStateManager.TryGetEntry))
@@ -167,27 +164,21 @@ namespace Microsoft.EntityFrameworkCore.Query.Pipeline
 
             private readonly IEntityMaterializerSource _entityMaterializerSource;
             private readonly bool _trackQueryResults;
-            private readonly bool _async;
 
             private readonly List<ParameterExpression> _variables = new List<ParameterExpression>();
             private readonly List<Expression> _expressions = new List<Expression>();
             private int _currentEntityIndex;
 
             public EntityMaterializerInjectingExpressionVisitor(
-                IEntityMaterializerSource entityMaterializerSource, bool trackQueryResults, bool async)
+                IEntityMaterializerSource entityMaterializerSource, bool trackQueryResults)
             {
                 _entityMaterializerSource = entityMaterializerSource;
                 _trackQueryResults = trackQueryResults;
-                _async = async;
             }
 
             public Expression Inject(Expression expression)
             {
-                var modifiedBody = Visit(expression);
-                _expressions.Add(
-                    _async
-                    ? Expression.Call(_taskFromResultMethodInfo.MakeGenericMethod(expression.Type), modifiedBody)
-                    : modifiedBody);
+                _expressions.Add(Visit(expression));
 
                 return Expression.Block(_variables, _expressions);
             }

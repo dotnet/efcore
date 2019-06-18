@@ -9,8 +9,14 @@ using Microsoft.EntityFrameworkCore.Query.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Query.Pipeline
 {
-    public abstract class ShapedQueryExpression : Expression, IPrintable
+    public class ShapedQueryExpression : Expression, IPrintable
     {
+        public ShapedQueryExpression(Expression queryExpression, Expression shaperExpression)
+        {
+            QueryExpression = queryExpression;
+            ShaperExpression = shaperExpression;
+        }
+
         public Expression QueryExpression { get; set; }
         public ResultType ResultType { get; set; }
 

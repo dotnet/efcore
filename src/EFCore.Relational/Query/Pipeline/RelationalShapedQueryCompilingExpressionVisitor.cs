@@ -64,22 +64,10 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
                 indexMapParameter,
                 _resultCoordinatorParameter);
 
-            if (Async)
-            {
-                return Expression.New(
-                    typeof(AsyncQueryingEnumerable<>).MakeGenericType(shaperLambda.ReturnType.GetGenericArguments().Single()).GetConstructors()[0],
-                    Expression.Convert(QueryCompilationContext.QueryContextParameter, typeof(RelationalQueryContext)),
-                    Expression.Constant(_querySqlGeneratorFactory),
-                    Expression.Constant(_sqlExpressionFactory),
-                    Expression.Constant(_parameterNameGeneratorFactory),
-                    Expression.Constant(selectExpression),
-                    Expression.Constant(shaperLambda.Compile()),
-                    Expression.Constant(_contextType),
-                    Expression.Constant(_logger));
-            }
-
             return Expression.New(
-                typeof(QueryingEnumerable<>).MakeGenericType(shaperLambda.ReturnType).GetConstructors()[0],
+                (Async
+                    ? typeof(AsyncQueryingEnumerable<>)
+                    : typeof(QueryingEnumerable<>)).MakeGenericType(shaperLambda.ReturnType).GetConstructors()[0],
                 Expression.Convert(QueryCompilationContext.QueryContextParameter, typeof(RelationalQueryContext)),
                 Expression.Constant(_querySqlGeneratorFactory),
                 Expression.Constant(_sqlExpressionFactory),
