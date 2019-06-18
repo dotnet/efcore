@@ -2,50 +2,58 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Linq;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Query.Pipeline;
+using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Pipeline
 {
     public class CosmosEntityQueryableTranslatorFactory : EntityQueryableTranslatorFactory
     {
         private readonly IModel _model;
+        private readonly ISqlExpressionFactory _sqlExpressionFactory;
 
-        public CosmosEntityQueryableTranslatorFactory(IModel model)
+        public CosmosEntityQueryableTranslatorFactory(IModel model,
+            ISqlExpressionFactory sqlExpressionFactory)
         {
             _model = model;
+            _sqlExpressionFactory = sqlExpressionFactory;
         }
 
         public override EntityQueryableTranslator Create(QueryCompilationContext queryCompilationContext)
         {
-            throw new NotImplementedException();
+            return new CosmosEntityQueryableTranslator(_model, _sqlExpressionFactory);
         }
     }
 
-    public class CosmosQueryableMethodTranslatingExpressionVisitorFactory : IQueryableMethodTranslatingExpressionVisitorFactory
+    public class CosmosEntityQueryableTranslator : EntityQueryableTranslator
     {
-        public QueryableMethodTranslatingExpressionVisitor Create(IModel model)
-        {
-            throw new NotImplementedException();
-        }
-    }
+        private readonly IModel _model;
+        private readonly ISqlExpressionFactory _sqlExpressionFactory;
 
-    public class CosmosShapedQueryCompilingExpressionVisitorFactory : IShapedQueryCompilingExpressionVisitorFactory
-    {
-        private readonly IEntityMaterializerSource _entityMaterializerSource;
-
-        public CosmosShapedQueryCompilingExpressionVisitorFactory(IEntityMaterializerSource entityMaterializerSource)
+        public CosmosEntityQueryableTranslator(IModel model,
+            ISqlExpressionFactory sqlExpressionFactory)
         {
-            _entityMaterializerSource = entityMaterializerSource;
+            _model = model;
+            _sqlExpressionFactory = sqlExpressionFactory;
         }
 
-        public ShapedQueryCompilingExpressionVisitor Create(QueryCompilationContext queryCompilationContext)
+        protected override ShapedQueryExpression CreateShapedQueryExpression(Type elementType)
         {
-            throw new NotImplementedException();
-            //return new CosmosShapedQueryCompilingExpressionVisitor(
-            //    _entityMaterializerSource,
-            //    queryCompilationContext.TrackQueryResults,
-            //    queryCompilationContext.Async);
+            var entityType = _model.FindEntityType(elementType);
+            var selectExpression = _sqlExpressionFactory.Select(entityType);
+
+            return new ShapedQueryExpression(
+                selectExpression,
+                new EntityShaperExpression(
+                entityType,
+                new ProjectionBindingExpression(
+                    selectExpression,
+                    new ProjectionMember(),
+                    typeof(ValueBuffer)),
+                false));
         }
     }
 }

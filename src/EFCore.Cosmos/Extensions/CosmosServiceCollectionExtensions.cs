@@ -8,8 +8,6 @@ using Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Metadata.Conventions.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Query.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Query.Pipeline;
-using Microsoft.EntityFrameworkCore.Cosmos.Query.Sql;
-using Microsoft.EntityFrameworkCore.Cosmos.Query.Sql.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
@@ -50,8 +48,11 @@ namespace Microsoft.Extensions.DependencyInjection
                     b => b
                         .TryAddSingleton<ICosmosSingletonOptions, CosmosSingletonOptions>()
                         .TryAddSingleton<SingletonCosmosClientWrapper, SingletonCosmosClientWrapper>()
+                        .TryAddSingleton<ISqlExpressionFactory, SqlExpressionFactory>()
+                        .TryAddSingleton<IQuerySqlGeneratorFactory, QuerySqlGeneratorFactory>()
+                        .TryAddSingleton<IMethodCallTranslatorProvider, CosmosMethodCallTranslatorProvider>()
+                        .TryAddSingleton<IMemberTranslatorProvider, CosmosMemberTranslatorProvider>()
                         .TryAddScoped<CosmosClientWrapper, CosmosClientWrapper>()
-                        .TryAddScoped<ISqlGeneratorFactory, CosmosSqlGeneratorFactory>()
                 );
 
             builder.TryAddCoreServices();

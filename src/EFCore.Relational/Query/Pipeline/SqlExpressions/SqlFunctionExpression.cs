@@ -179,6 +179,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
             var hash = new HashCode();
             hash.Add(base.GetHashCode());
             hash.Add(FunctionName);
+            hash.Add(IsNiladic);
             hash.Add(Schema);
             hash.Add(Instance);
             for (var i = 0; i < Arguments.Count; i++)

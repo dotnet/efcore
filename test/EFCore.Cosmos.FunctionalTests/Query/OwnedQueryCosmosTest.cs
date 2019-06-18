@@ -11,7 +11,7 @@ using Xunit.Abstractions;
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Query
 {
-    public class OwnedQueryCosmosTest : OwnedQueryTestBase<OwnedQueryCosmosTest.OwnedQueryCosmosFixture>
+    internal class OwnedQueryCosmosTest : OwnedQueryTestBase<OwnedQueryCosmosTest.OwnedQueryCosmosFixture>
     {
         public OwnedQueryCosmosTest(OwnedQueryCosmosFixture fixture, ITestOutputHelper testOutputHelper)
             : base(fixture)

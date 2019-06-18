@@ -5,7 +5,7 @@ using System;
 using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore.Metadata;
 
-namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Expressions.Internal
+namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Pipeline
 {
     public class RootReferenceExpression : Expression
     {
@@ -20,6 +20,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Expressions.Internal
             _entityType = entityType;
             _alias = alias;
         }
+
+        protected override Expression VisitChildren(ExpressionVisitor visitor) => this;
 
         public override string ToString() => _alias;
     }
