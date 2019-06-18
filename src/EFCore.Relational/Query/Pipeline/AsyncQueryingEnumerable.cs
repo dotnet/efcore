@@ -20,7 +20,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
         {
             private readonly RelationalQueryContext _relationalQueryContext;
             private readonly SelectExpression _selectExpression;
-            private readonly Func<QueryContext, DbDataReader, int[], ResultCoordinator, Task<T>> _shaper;
+            private readonly Func<QueryContext, DbDataReader, int[], ResultCoordinator, T> _shaper;
             private readonly IQuerySqlGeneratorFactory _querySqlGeneratorFactory;
             private readonly Type _contextType;
             private readonly IDiagnosticsLogger<DbLoggerCategory.Query> _logger;
@@ -33,7 +33,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
                 ISqlExpressionFactory sqlExpressionFactory,
                 IParameterNameGeneratorFactory parameterNameGeneratorFactory,
                 SelectExpression selectExpression,
-                Func<QueryContext, DbDataReader, int[], ResultCoordinator, Task<T>> shaper,
+                Func<QueryContext, DbDataReader, int[], ResultCoordinator, T> shaper,
                 Type contextType,
                 IDiagnosticsLogger<DbLoggerCategory.Query> logger)
             {
@@ -57,7 +57,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
                 private ResultCoordinator _resultCoordinator;
                 private readonly RelationalQueryContext _relationalQueryContext;
                 private readonly SelectExpression _selectExpression;
-                private readonly Func<QueryContext, DbDataReader, int[], ResultCoordinator, Task<T>> _shaper;
+                private readonly Func<QueryContext, DbDataReader, int[], ResultCoordinator, T> _shaper;
                 private readonly IQuerySqlGeneratorFactory _querySqlGeneratorFactory;
                 private readonly Type _contextType;
                 private readonly IDiagnosticsLogger<DbLoggerCategory.Query> _logger;
@@ -139,7 +139,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
 
                         Current
                             = hasNext
-                                ? await _shaper(_relationalQueryContext, _dataReader.DbDataReader, _indexMap, _resultCoordinator)
+                                ? _shaper(_relationalQueryContext, _dataReader.DbDataReader, _indexMap, _resultCoordinator)
                                 : default;
 
                         return hasNext;

@@ -450,6 +450,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             {
                 _stringBuilder.Append($"DbSet<{constantExpression.Type.GetTypeInfo().GenericTypeArguments.First().ShortDisplayName()}>");
             }
+            else
+            {
+                Print(constantExpression.Value);
+            }
 
             if (PrintConnections)
             {
@@ -457,6 +461,37 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             }
 
             return constantExpression;
+        }
+
+        private void Print(object value)
+        {
+            if (value is IEnumerable enumerable
+                && !(value is string))
+            {
+                _stringBuilder.Append(value.GetType().ShortDisplayName() + " { ");
+                foreach (var item in enumerable)
+                {
+                    Print(item);
+                    _stringBuilder.Append(", ");
+                }
+
+                _stringBuilder.Append("}");
+                return;
+            }
+
+            var stringValue = value == null
+                ? "null"
+                : value.ToString() != value.GetType().ToString()
+                    ? value.ToString()
+                    : value.GetType().ShortDisplayName();
+
+            if (value != null
+                && value is string)
+            {
+                stringValue = $@"""{stringValue}""";
+            }
+
+            _stringBuilder.Append(stringValue);
         }
 
         /// <summary>
