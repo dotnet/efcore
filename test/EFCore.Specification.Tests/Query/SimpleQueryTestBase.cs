@@ -1461,7 +1461,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 19);
         }
 
-        [ConditionalTheory(Skip = "Issue#16157")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Where_subquery_anon(bool isAsync)
         {
@@ -1487,7 +1487,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 2);
         }
 
-        [ConditionalTheory]
+        [ConditionalTheory(Skip = "Issue#16157")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Where_subquery_anon_nested(bool isAsync)
         {
