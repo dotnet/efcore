@@ -24,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Pipeline
             return _methodInfo.Equals(method)
                 ? _sqlExpressionFactory.Function(
                     "NEWID",
-                    false,
+                    Array.Empty<SqlExpression>(),
                     method.ReturnType)
                 : null;
         }

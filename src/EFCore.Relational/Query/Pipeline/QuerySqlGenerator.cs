@@ -163,14 +163,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
 
         protected override Expression VisitSqlFunction(SqlFunctionExpression sqlFunctionExpression)
         {
-            if (!string.IsNullOrEmpty(sqlFunctionExpression.Schema))
-            {
-                _relationalCommandBuilder
-                    .Append(_sqlGenerationHelper.DelimitIdentifier(sqlFunctionExpression.Schema))
-                    .Append(".")
-                    .Append(_sqlGenerationHelper.DelimitIdentifier(sqlFunctionExpression.FunctionName));
-            }
-            else
+            if (sqlFunctionExpression.IsBuiltIn)
             {
                 if (sqlFunctionExpression.Instance != null)
                 {
@@ -179,6 +172,18 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
                 }
 
                 _relationalCommandBuilder.Append(sqlFunctionExpression.FunctionName);
+            }
+            else
+            {
+                if (!string.IsNullOrEmpty(sqlFunctionExpression.Schema))
+                {
+                    _relationalCommandBuilder
+                        .Append(_sqlGenerationHelper.DelimitIdentifier(sqlFunctionExpression.Schema))
+                        .Append(".");
+                }
+
+                _relationalCommandBuilder
+                    .Append(_sqlGenerationHelper.DelimitIdentifier(sqlFunctionExpression.FunctionName));
             }
 
             if (!sqlFunctionExpression.IsNiladic)

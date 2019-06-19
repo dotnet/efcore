@@ -13,7 +13,6 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Pipeline
     {
         SqlExpression ApplyTypeMapping(SqlExpression sqlExpression, CoreTypeMapping typeMapping);
         SqlExpression ApplyDefaultTypeMapping(SqlExpression sqlExpression);
-        //CoreTypeMapping GetTypeMappingForValue(object value);
         CoreTypeMapping FindMapping(Type type);
 
         SqlBinaryExpression MakeBinary(ExpressionType operatorType, SqlExpression left, SqlExpression right, CoreTypeMapping typeMapping);

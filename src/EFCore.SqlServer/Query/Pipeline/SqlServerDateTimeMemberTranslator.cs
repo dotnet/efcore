@@ -69,13 +69,13 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Pipeline
                     case nameof(DateTime.Now):
                         return _sqlExpressionFactory.Function(
                             declaringType == typeof(DateTime) ? "GETDATE" : "SYSDATETIMEOFFSET",
-                            false,
+                            Array.Empty<SqlExpression>(),
                             returnType);
 
                     case nameof(DateTime.UtcNow):
                         var serverTranslation = _sqlExpressionFactory.Function(
                             declaringType == typeof(DateTime) ? "GETUTCDATE" : "SYSUTCDATETIME",
-                            false,
+                            Array.Empty<SqlExpression>(),
                             returnType);
 
                         return declaringType == typeof(DateTime)
@@ -90,7 +90,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Pipeline
                                 _sqlExpressionFactory.Fragment("date"),
                                 _sqlExpressionFactory.Function(
                                     "GETDATE",
-                                    false,
+                                    Array.Empty<SqlExpression>(),
                                     typeof(DateTime))
                             },
                             returnType);
