@@ -1300,7 +1300,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                         o.Mod
                     },
                 elementSorter: e => e.e2.EmployeeID + " " + e.o2.OrderID,
-                // issue #8956
                 entryCount: 3);
         }
 
@@ -1462,7 +1461,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 19);
         }
 
-        [ConditionalTheory(Skip = "issue #8956")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Where_subquery_anon(bool isAsync)
         {
@@ -1488,7 +1487,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 2);
         }
 
-        [ConditionalTheory(Skip = "issue #8956")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Where_subquery_anon_nested(bool isAsync)
         {
@@ -1521,7 +1520,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                         t.e,
                         t.o,
                         c
-                    });
+                    },
+                entryCount: 8);
         }
 
         [ConditionalTheory]

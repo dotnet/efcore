@@ -168,7 +168,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 e => e.OrderID);
         }
 
-        [ConditionalTheory(Skip = "Issue #14935. Cannot eval 'join <>f__AnonymousType371`1 o1 in {from Order o2 in value(Microsoft.EntityFrameworkCore.Query.Internal.EntityQueryable`1[Microsoft.EntityFrameworkCore.TestModels.Northwind.Order]) orderby [o2].OrderID asc select new <>f__AnonymousType371`1(o2 = [o2])} on [c].CustomerID equals [o1].o2.CustomerID'")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Join_customers_orders_with_subquery_anonymous_property_method(bool isAsync)
         {
@@ -190,10 +190,11 @@ namespace Microsoft.EntityFrameworkCore.Query
                         o1.o2,
                         Shadow = EF.Property<DateTime?>(o1.o2, "OrderDate")
                     },
-                e => e.o1.o2.OrderID);
+                e => e.o1.o2.OrderID,
+                entryCount: 6);
         }
 
-        [ConditionalTheory(Skip = "Issue #14935. Cannot eval 'join <>f__AnonymousType371`1 o1 in {from Order o2 in value(Microsoft.EntityFrameworkCore.Query.Internal.EntityQueryable`1[Microsoft.EntityFrameworkCore.TestModels.Northwind.Order]) orderby [o2].OrderID asc select new <>f__AnonymousType371`1(o2 = [o2]) => Take(__p_0)} on [c].CustomerID equals [o1].o2.CustomerID'")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Join_customers_orders_with_subquery_anonymous_property_method_with_take(bool isAsync)
         {

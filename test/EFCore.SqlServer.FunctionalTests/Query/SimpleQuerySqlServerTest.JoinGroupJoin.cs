@@ -123,35 +123,31 @@ WHERE ([t].[CustomerID] = N'ALFKI') AND [t].[CustomerID] IS NOT NULL");
         {
             await base.Join_customers_orders_with_subquery_anonymous_property_method(isAsync);
 
-            AssertContainsSql(
-                @"SELECT [c].[CustomerID]
-FROM [Customers] AS [c]",
-                //
+            AssertSql(
                 @"SELECT [t].[OrderID], [t].[CustomerID], [t].[EmployeeID], [t].[OrderDate]
-FROM (
-    SELECT [o2].[OrderID], [o2].[CustomerID], [o2].[EmployeeID], [o2].[OrderDate]
-    FROM [Orders] AS [o2]
-    ORDER BY [o2].[OrderID]
-    OFFSET 0 ROWS
-) AS [t]");
+FROM [Customers] AS [c]
+INNER JOIN (
+    SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+    FROM [Orders] AS [o]
+) AS [t] ON [c].[CustomerID] = [t].[CustomerID]
+WHERE ([t].[CustomerID] = N'ALFKI') AND [t].[CustomerID] IS NOT NULL");
         }
 
         public override async Task Join_customers_orders_with_subquery_anonymous_property_method_with_take(bool isAsync)
         {
             await base.Join_customers_orders_with_subquery_anonymous_property_method_with_take(isAsync);
 
-            AssertContainsSql(
+            AssertSql(
                 @"@__p_0='5'
 
 SELECT [t].[OrderID], [t].[CustomerID], [t].[EmployeeID], [t].[OrderDate]
-FROM (
-    SELECT TOP(@__p_0) [o2].[OrderID], [o2].[CustomerID], [o2].[EmployeeID], [o2].[OrderDate]
-    FROM [Orders] AS [o2]
-    ORDER BY [o2].[OrderID]
-) AS [t]",
-                //
-                @"SELECT [c].[CustomerID]
-FROM [Customers] AS [c]");
+FROM [Customers] AS [c]
+INNER JOIN (
+    SELECT TOP(@__p_0) [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+    FROM [Orders] AS [o]
+    ORDER BY [o].[OrderID]
+) AS [t] ON [c].[CustomerID] = [t].[CustomerID]
+WHERE ([t].[CustomerID] = N'ALFKI') AND [t].[CustomerID] IS NOT NULL");
         }
 
         public override async Task Join_customers_orders_with_subquery_predicate(bool isAsync)
