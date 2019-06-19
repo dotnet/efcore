@@ -303,7 +303,7 @@ FROM [Customers]"))
             }
         }
 
-        [ConditionalFact(Skip = "issue #15991")]
+        [ConditionalFact]
         public virtual async Task FromSqlRaw_queryable_simple_include()
         {
             using (var context = CreateContext())
@@ -316,7 +316,7 @@ FROM [Customers]"))
             }
         }
 
-        [ConditionalFact(Skip = "issue #15991")]
+        [ConditionalFact]
         public virtual async Task FromSqlRaw_queryable_simple_composed_include()
         {
             using (var context = CreateContext())
