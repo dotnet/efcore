@@ -20,7 +20,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.TestUtilities
         private readonly string _dataFilePath;
         private readonly Action<CosmosDbContextOptionsBuilder> _configureCosmos;
 
-        public static CosmosTestStore Create(string name, Action<CosmosDbContextOptionsBuilder> extensionConfiguration = null) => new CosmosTestStore(name, shared: false, extensionConfiguration: extensionConfiguration);
+        public static CosmosTestStore Create(string name, Action<CosmosDbContextOptionsBuilder> extensionConfiguration = null)
+            => new CosmosTestStore(name, shared: false, extensionConfiguration: extensionConfiguration);
 
         public static CosmosTestStore CreateInitialized(string name, Action<CosmosDbContextOptionsBuilder> extensionConfiguration = null)
             => (CosmosTestStore)Create(name, extensionConfiguration).Initialize(null, (Func<DbContext>)null, null, null);
@@ -112,9 +113,11 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.TestUtilities
                                                         if (reader.TokenType == JsonToken.StartObject)
                                                         {
                                                             var document = serializer.Deserialize<JObject>(reader);
+
+                                                            document["id"] = $"{entityName}|{document["id"]}";
                                                             document["Discriminator"] = entityName;
 
-                                                            await cosmosClient.CreateItemAsync(entityName, document);
+                                                            await cosmosClient.CreateItemAsync("NorthwindContext", document, null);
                                                         }
                                                         else if (reader.TokenType == JsonToken.EndObject)
                                                         {

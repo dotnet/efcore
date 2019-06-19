@@ -1,8 +1,12 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
+using System.Linq.Expressions;
+using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Cosmos.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Utilities;
 
@@ -159,6 +163,97 @@ namespace Microsoft.EntityFrameworkCore
             Check.NullButNotEmpty(name, nameof(name));
 
             return entityTypeBuilder.CanSetAnnotation(CosmosAnnotationNames.PropertyName, name, fromDataAnnotation);
+        }
+
+        /// <summary>
+        ///     Configures the property that is used to store the partition key.
+        /// </summary>
+        /// <param name="entityTypeBuilder"> The builder for the entity type being configured. </param>
+        /// <param name="name"> The name of the partition key property. </param>
+        /// <returns> The same builder instance so that multiple calls can be chained. </returns>
+        public static EntityTypeBuilder ForCosmosHasPartitionKey(
+            [NotNull] this EntityTypeBuilder entityTypeBuilder,
+            [CanBeNull] string name)
+        {
+            entityTypeBuilder.Metadata.SetCosmosPartitionKeyPropertyName(name);
+
+            return entityTypeBuilder;
+        }
+
+        /// <summary>
+        ///     Configures the property that is used to store the partition key.
+        /// </summary>
+        /// <param name="entityTypeBuilder"> The builder for the entity type being configured. </param>
+        /// <param name="name"> The name of the partition key property. </param>
+        /// <returns> The same builder instance so that multiple calls can be chained. </returns>
+        public static EntityTypeBuilder<TEntity> ForCosmosHasPartitionKey<TEntity>(
+            [NotNull] this EntityTypeBuilder<TEntity> entityTypeBuilder,
+            [CanBeNull] string name)
+            where TEntity : class
+        {
+            entityTypeBuilder.Metadata.SetCosmosPartitionKeyPropertyName(name);
+
+            return entityTypeBuilder;
+        }
+
+        /// <summary>
+        ///     Configures the property that is used to store the partition key.
+        /// </summary>
+        /// <param name="entityTypeBuilder"> The builder for the entity type being configured. </param>
+        /// <param name="propertyExpression"> The  partition key property. </param>
+        /// <returns> The same builder instance so that multiple calls can be chained. </returns>
+        public static EntityTypeBuilder<TEntity> ForCosmosHasPartitionKey<TEntity, TProperty>(
+            [NotNull] this EntityTypeBuilder<TEntity> entityTypeBuilder,
+            [NotNull] Expression<Func<TEntity, TProperty>> propertyExpression)
+            where TEntity : class
+        {
+            Check.NotNull(propertyExpression, nameof(propertyExpression));
+
+            entityTypeBuilder.Metadata.SetCosmosPartitionKeyPropertyName(propertyExpression.GetPropertyAccess().GetSimpleMemberName());
+
+            return entityTypeBuilder;
+        }
+
+        /// <summary>
+        ///     Configures the property that is used to store the partition key.
+        /// </summary>
+        /// <param name="entityTypeBuilder"> The builder for the entity type being configured. </param>
+        /// <param name="name"> The name of the partition key property. </param>
+        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <returns>
+        ///     The same builder instance if the configuration was applied,
+        ///     <c>null</c> otherwise.
+        /// </returns>
+        public static IConventionEntityTypeBuilder ForCosmosHasPartitionKey(
+            [NotNull] this IConventionEntityTypeBuilder entityTypeBuilder,
+            [CanBeNull] string name,
+            bool fromDataAnnotation = false)
+        {
+            if (!entityTypeBuilder.ForCosmosCanSetPartitionKey(name, fromDataAnnotation))
+            {
+                return null;
+            }
+
+            entityTypeBuilder.Metadata.SetCosmosPartitionKeyPropertyName(name, fromDataAnnotation);
+
+            return entityTypeBuilder;
+        }
+
+        /// <summary>
+        ///     Returns a value indicating whether the property that is used to store the partition key can be set
+        ///     from the current configuration source
+        /// </summary>
+        /// <param name="entityTypeBuilder"> The builder for the entity type being configured. </param>
+        /// <param name="name"> The name of the partition key property. </param>
+        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <returns> <c>true</c> if the configuration can be applied. </returns>
+        public static bool ForCosmosCanSetPartitionKey(
+            [NotNull] this IConventionEntityTypeBuilder entityTypeBuilder, [CanBeNull] string name, bool fromDataAnnotation = false)
+        {
+            Check.NotNull(entityTypeBuilder, nameof(entityTypeBuilder));
+            Check.NullButNotEmpty(name, nameof(name));
+
+            return entityTypeBuilder.CanSetAnnotation(CosmosAnnotationNames.PartitionKeyName, name, fromDataAnnotation);
         }
     }
 }

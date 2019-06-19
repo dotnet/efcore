@@ -125,6 +125,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
         {
             public int Id { get; set; }
             public string Name { get; set; }
+            public int PartitionKey { get; set; }
         }
 
         private class CustomerContext : DbContext
@@ -206,6 +207,70 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
                 {
                     Assert.Equal(0, context.Set<Customer>().Count());
                 }
+            }
+        }
+
+        [ConditionalFact]
+        public void Can_add_update_delete_end_to_end_with_partition_key()
+        {
+            using (var testDatabase = CosmosTestStore.CreateInitialized(DatabaseName))
+            {
+                var options = Fixture.CreateOptions(testDatabase);
+
+                var customer = new Customer { Id = 42, Name = "Theon", PartitionKey = 1 };
+
+                using (var context = new PartitionKeyContext(options))
+                {
+                    context.Database.EnsureCreated();
+
+                    context.Add(customer);
+
+                    context.SaveChanges();
+                }
+
+                using (var context = new PartitionKeyContext(options))
+                {
+                    var customerFromStore = context.Set<Customer>().Single();
+
+                    Assert.Equal(42, customerFromStore.Id);
+                    Assert.Equal("Theon", customerFromStore.Name);
+                    Assert.Equal(1, customerFromStore.PartitionKey);
+
+                    customerFromStore.Name = "Theon Greyjoy";
+
+                    context.SaveChanges();
+                }
+
+                using (var context = new PartitionKeyContext(options))
+                {
+                    var customerFromStore = context.Set<Customer>().Single();
+
+                    Assert.Equal(42, customerFromStore.Id);
+                    Assert.Equal("Theon Greyjoy", customerFromStore.Name);
+                    Assert.Equal(1, customerFromStore.PartitionKey);
+
+                    context.Remove(customerFromStore);
+
+                    context.SaveChanges();
+                }
+
+                using (var context = new PartitionKeyContext(options))
+                {
+                    Assert.Equal(0, context.Set<Customer>().Count());
+                }
+            }
+        }
+
+        private class PartitionKeyContext : DbContext
+        {
+            public PartitionKeyContext(DbContextOptions dbContextOptions)
+                : base(dbContextOptions)
+            {
+            }
+
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
+            {
+                modelBuilder.Entity<Customer>().ForCosmosHasPartitionKey(c => c.PartitionKey);
             }
         }
 

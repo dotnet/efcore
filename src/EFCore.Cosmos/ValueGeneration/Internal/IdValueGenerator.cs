@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
+using Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
 using Microsoft.EntityFrameworkCore.ValueGeneration;
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.ValueGeneration.Internal
@@ -17,19 +18,21 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.ValueGeneration.Internal
         protected override object NextValue([NotNull] EntityEntry entry)
         {
             var builder = new StringBuilder();
+            var entityType = entry.Metadata;
 
-            var pk = entry.Metadata.FindPrimaryKey();
-            var discriminator = entry.Metadata.GetDiscriminatorValue();
+            var pk = entityType.FindPrimaryKey();
+            var discriminator = entityType.GetDiscriminatorValue();
             if (discriminator != null
-                && !pk.Properties.Contains(entry.Metadata.GetDiscriminatorProperty()))
+                && !pk.Properties.Contains(entityType.GetDiscriminatorProperty()))
             {
-                AppendString(builder,discriminator);
+                AppendString(builder, discriminator);
                 builder.Append("|");
             }
 
+            var partitionKey = entityType.GetCosmosPartitionKeyPropertyName() ?? CosmosClientWrapper.DefaultPartitionKey;
             foreach (var property in pk.Properties)
             {
-                if (property.Name == "__partitionKey")
+                if (property.Name == partitionKey)
                 {
                     continue;
                 }

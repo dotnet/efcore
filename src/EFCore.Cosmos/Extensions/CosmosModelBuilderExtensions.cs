@@ -49,7 +49,7 @@ namespace Microsoft.EntityFrameworkCore
             [CanBeNull] string name,
             bool fromDataAnnotation = false)
         {
-            if (modelBuilder.ForCosmosCanSetDefaultContainerName(name, fromDataAnnotation))
+            if (!modelBuilder.ForCosmosCanSetDefaultContainerName(name, fromDataAnnotation))
             {
                 return null;
             }

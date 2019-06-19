@@ -3,6 +3,7 @@
 
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Cosmos.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Utilities;
 
@@ -104,5 +105,61 @@ namespace Microsoft.EntityFrameworkCore
         public static ConfigurationSource? GetCosmosContainingPropertyNameConfigurationSource([NotNull] this IConventionEntityType entityType)
             => entityType.FindAnnotation(CosmosAnnotationNames.PropertyName)
                 ?.GetConfigurationSource();
+
+        /// <summary>
+        ///     Returns the name of the property that is used to store the partition key.
+        /// </summary>
+        /// <param name="entityType"> The entity type to get the partition key property name for. </param>
+        /// <returns> The name of the partition key property. </returns>
+        public static string GetCosmosPartitionKeyPropertyName([NotNull] this IEntityType entityType) =>
+            entityType[CosmosAnnotationNames.PartitionKeyName] as string;
+
+        /// <summary>
+        ///     Sets the name of the property that is used to store the partition key key.
+        /// </summary>
+        /// <param name="entityType"> The entity type to set the partition key property name for. </param>
+        /// <param name="name"> The name to set. </param>
+        public static void SetCosmosPartitionKeyPropertyName([NotNull] this IMutableEntityType entityType, [CanBeNull] string name)
+            => entityType.SetOrRemoveAnnotation(
+                CosmosAnnotationNames.PartitionKeyName,
+                Check.NullButNotEmpty(name, nameof(name)));
+
+        /// <summary>
+        ///     Sets the name of the property that is used to store the partition key.
+        /// </summary>
+        /// <param name="entityType"> The entity type to set the partition key property name for. </param>
+        /// <param name="name"> The name to set. </param>
+        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        public static void SetCosmosPartitionKeyPropertyName(
+            [NotNull] this IConventionEntityType entityType, [CanBeNull] string name, bool fromDataAnnotation = false)
+            => entityType.SetOrRemoveAnnotation(
+                CosmosAnnotationNames.PartitionKeyName,
+                Check.NullButNotEmpty(name, nameof(name)),
+                fromDataAnnotation);
+
+        /// <summary>
+        ///     Gets the <see cref="ConfigurationSource" /> for the property that is used to store the partition key.
+        /// </summary>
+        /// <param name="entityType"> The entity type to find configuration source for. </param>
+        /// <returns> The <see cref="ConfigurationSource" /> for the partition key property. </returns>
+        public static ConfigurationSource? GetCosmosPartitionKeyPropertyNameConfigurationSource([NotNull] this IConventionEntityType entityType)
+            => entityType.FindAnnotation(CosmosAnnotationNames.PartitionKeyName)
+                ?.GetConfigurationSource();
+
+        /// <summary>
+        ///     Returns the store name of the property that is used to store the partition key.
+        /// </summary>
+        /// <param name="entityType"> The entity type to get the partition key property name for. </param>
+        /// <returns> The name of the partition key property. </returns>
+        public static string GetCosmosPartitionKeyStoreName([NotNull] this IEntityType entityType)
+        {
+            var name = entityType.GetCosmosPartitionKeyPropertyName();
+            if (name != null)
+            {
+                return entityType.FindProperty(name).GetCosmosPropertyName();
+            }
+
+            return CosmosClientWrapper.DefaultPartitionKey;
+        }
     }
 }

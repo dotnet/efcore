@@ -916,7 +916,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             => AddIgnored(name, ConfigurationSource.Explicit);
 
         /// <inheritdoc />
-        IConventionModelBuilder IConventionModel.Builder => Builder;
+        IConventionModelBuilder IConventionModel.Builder
+        {
+            [DebuggerStepThrough]
+            get => Builder;
+        }
 
         /// <inheritdoc />
         IConventionEntityType IConventionModel.FindEntityType(string name) => FindEntityType(name);

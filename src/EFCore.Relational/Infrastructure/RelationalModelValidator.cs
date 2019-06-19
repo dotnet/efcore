@@ -297,11 +297,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         }
 
         private static bool IsIdentifyingPrincipal(IEntityType dependentEntityType, IEntityType principalEntityType)
-        {
-            return dependentEntityType.FindForeignKeys(dependentEntityType.FindPrimaryKey().Properties)
+            => dependentEntityType.FindForeignKeys(dependentEntityType.FindPrimaryKey().Properties)
                 .Any(fk => fk.PrincipalKey.IsPrimaryKey()
                           && fk.PrincipalEntityType == principalEntityType);
-        }
 
         /// <summary>
         ///     Validates the compatibility of properties sharing columns in a given table.

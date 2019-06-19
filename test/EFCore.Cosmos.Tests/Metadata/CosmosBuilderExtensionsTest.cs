@@ -10,6 +10,51 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     public class CosmosBuilderExtensionsTest
     {
         [ConditionalFact]
+        public void Can_get_and_set_collection_name()
+        {
+            var modelBuilder = CreateConventionModelBuilder();
+
+            var entityType = modelBuilder
+                .Entity<Customer>();
+
+            Assert.Equal(nameof(Customer), entityType.Metadata.GetCosmosContainerName());
+
+            entityType.ForCosmosToContainer("Customizer");
+            Assert.Equal("Customizer", entityType.Metadata.GetCosmosContainerName());
+
+            entityType.ForCosmosToContainer(null);
+            Assert.Equal(nameof(Customer), entityType.Metadata.GetCosmosContainerName());
+
+            modelBuilder.ForCosmosHasDefaultContainerName("Unicorn");
+            Assert.Equal("Unicorn", entityType.Metadata.GetCosmosContainerName());
+        }
+
+        [ConditionalFact]
+        public void Can_get_and_set_partition_key_name()
+        {
+            var modelBuilder = CreateConventionModelBuilder();
+
+            var entityTypeBuilder = modelBuilder.Entity<Customer>();
+            var entityType = entityTypeBuilder.Metadata;
+
+            ((IConventionEntityType)entityType).Builder.ForCosmosHasPartitionKey("pk");
+            Assert.Equal("pk", entityType.GetCosmosPartitionKeyPropertyName());
+            Assert.Equal(ConfigurationSource.Convention,
+                ((IConventionEntityType)entityType).GetCosmosPartitionKeyPropertyNameConfigurationSource());
+
+            entityTypeBuilder.ForCosmosHasPartitionKey("pk");
+            Assert.Equal("pk", entityType.GetCosmosPartitionKeyPropertyName());
+            Assert.Equal(ConfigurationSource.Explicit,
+                ((IConventionEntityType)entityType).GetCosmosPartitionKeyPropertyNameConfigurationSource());
+
+            Assert.False(((IConventionEntityType)entityType).Builder.ForCosmosCanSetPartitionKey("partition"));
+
+            entityTypeBuilder.ForCosmosHasPartitionKey(null);
+            Assert.Null(entityType.GetCosmosPartitionKeyPropertyName());
+            Assert.Null(((IConventionEntityType)entityType).GetCosmosPartitionKeyPropertyNameConfigurationSource());
+        }
+
+        [ConditionalFact]
         public void Default_container_name_is_used_if_not_set()
         {
             var modelBuilder = CreateConventionModelBuilder();

@@ -172,8 +172,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
             {
                 case EntityState.Added:
                     var newDocument = documentSource.CreateDocument(entry);
-                    newDocument["__partitionKey"] = "0";
-                    return _cosmosClient.CreateItem(collectionId, newDocument);
+
+                    return _cosmosClient.CreateItem(collectionId, newDocument, GetPartitionKey(entry));
                 case EntityState.Modified:
                     var jObjectProperty = entityType.FindProperty(StoreKeyConvention.JObjectPropertyName);
                     var document = jObjectProperty != null
@@ -189,16 +189,15 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
                     else
                     {
                         document = documentSource.CreateDocument(entry);
-                        document["__partitionKey"] = "0";
 
                         document[entityType.GetDiscriminatorProperty().GetCosmosPropertyName()] =
                             JToken.FromObject(entityType.GetDiscriminatorValue(), CosmosClientWrapper.Serializer);
                     }
 
                     return _cosmosClient.ReplaceItem(
-                        collectionId, documentSource.GetId(entry.SharedIdentityEntry ?? entry), document);
+                        collectionId, documentSource.GetId(entry.SharedIdentityEntry ?? entry), document, GetPartitionKey(entry));
                 case EntityState.Deleted:
-                    return _cosmosClient.DeleteItem(collectionId, documentSource.GetId(entry));
+                    return _cosmosClient.DeleteItem(collectionId, documentSource.GetId(entry), GetPartitionKey(entry));
                 default:
                     return false;
             }
@@ -228,8 +227,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
             {
                 case EntityState.Added:
                     var newDocument = documentSource.CreateDocument(entry);
-                    newDocument["__partitionKey"] = "0";
-                    return _cosmosClient.CreateItemAsync(collectionId, newDocument, cancellationToken);
+                    return _cosmosClient.CreateItemAsync(collectionId, newDocument, GetPartitionKey(entry), cancellationToken);
                 case EntityState.Modified:
                     var jObjectProperty = entityType.FindProperty(StoreKeyConvention.JObjectPropertyName);
                     var document = jObjectProperty != null
@@ -245,16 +243,15 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
                     else
                     {
                         document = documentSource.CreateDocument(entry);
-                        document["__partitionKey"] = "0";
 
                         document[entityType.GetDiscriminatorProperty().GetCosmosPropertyName()] =
                             JToken.FromObject(entityType.GetDiscriminatorValue(), CosmosClientWrapper.Serializer);
                     }
 
                     return _cosmosClient.ReplaceItemAsync(
-                        collectionId, documentSource.GetId(entry.SharedIdentityEntry ?? entry), document, cancellationToken);
+                        collectionId, documentSource.GetId(entry.SharedIdentityEntry ?? entry), document, GetPartitionKey(entry), cancellationToken);
                 case EntityState.Deleted:
-                    return _cosmosClient.DeleteItemAsync(collectionId, documentSource.GetId(entry), cancellationToken);
+                    return _cosmosClient.DeleteItemAsync(collectionId, documentSource.GetId(entry), GetPartitionKey(entry), cancellationToken);
                 default:
                     return Task.FromResult(false);
             }
@@ -294,6 +291,25 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
             }
 
             return principal.EntityType.IsDocumentRoot() ? principal : GetRootDocument(principal);
+        }
+
+        private static object GetPartitionKey(IUpdateEntry entry)
+        {
+            object partitionKey = null;
+            var partitionKeyPropertyName = entry.EntityType.GetCosmosPartitionKeyPropertyName();
+            if (partitionKeyPropertyName != null)
+            {
+                var partitionKeyProperty = entry.EntityType.FindProperty(partitionKeyPropertyName);
+                partitionKey = entry.GetCurrentValue(partitionKeyProperty);
+
+                var converter = partitionKeyProperty.FindMapping().Converter;
+                if (converter != null)
+                {
+                    partitionKey = converter.ConvertToProvider(partitionKey);
+                }
+            }
+
+            return partitionKey;
         }
     }
 }
