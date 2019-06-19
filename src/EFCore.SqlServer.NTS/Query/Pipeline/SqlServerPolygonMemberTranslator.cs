@@ -60,7 +60,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Pipeline
                             _sqlExpressionFactory.Function(
                                 instance,
                                 "NumRings",
-                                false,
+                                Array.Empty<SqlExpression>(),
                                 returnType),
                             _sqlExpressionFactory.Constant(1));
                     }
@@ -75,7 +75,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Pipeline
                     return _sqlExpressionFactory.Function(
                         instance,
                         functionName,
-                        false,
+                        Array.Empty<SqlExpression>(),
                         returnType,
                         resultTypeMapping);
                 }

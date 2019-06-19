@@ -211,7 +211,9 @@ namespace Microsoft.EntityFrameworkCore.Query
                     .HasName("GetCustomerWithMostOrdersAfterDate");
                 modelBuilder.HasDbFunction(typeof(UDFSqlContext).GetMethod(nameof(GetReportingPeriodStartDateStatic)))
                     .HasName("GetReportingPeriodStartDate");
-                modelBuilder.HasDbFunction(typeof(UDFSqlContext).GetMethod(nameof(IsDateStatic))).HasSchema("").HasName("IsDate");
+                var isDateMethodInfo = typeof(UDFSqlContext).GetMethod(nameof(IsDateStatic));
+                modelBuilder.HasDbFunction(isDateMethodInfo)
+                    .HasTranslation(args => new SqlFunctionExpression("IsDate", args, isDateMethodInfo.ReturnType, null));
 
                 var methodInfo = typeof(UDFSqlContext).GetMethod(nameof(MyCustomLengthStatic));
 
@@ -229,7 +231,9 @@ namespace Microsoft.EntityFrameworkCore.Query
                     .HasName("GetCustomerWithMostOrdersAfterDate");
                 modelBuilder.HasDbFunction(typeof(UDFSqlContext).GetMethod(nameof(GetReportingPeriodStartDateInstance)))
                     .HasName("GetReportingPeriodStartDate");
-                modelBuilder.HasDbFunction(typeof(UDFSqlContext).GetMethod(nameof(IsDateInstance))).HasSchema("").HasName("IsDate");
+                var isDateMethodInfo2 = typeof(UDFSqlContext).GetMethod(nameof(IsDateInstance));
+                modelBuilder.HasDbFunction(isDateMethodInfo2)
+                    .HasTranslation(args => new SqlFunctionExpression("IsDate", args, isDateMethodInfo2.ReturnType, null));
 
                 modelBuilder.HasDbFunction(typeof(UDFSqlContext).GetMethod(nameof(DollarValueInstance))).HasName("DollarValue");
 
@@ -860,7 +864,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalFact (Skip = "Issue#14935")]
+        [ConditionalFact(Skip = "Issue#14935")]
         public virtual void Scalar_Function_ClientEval_Method_As_Translateable_Method_Parameter_Instance()
         {
             using (var context = CreateContext())

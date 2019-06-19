@@ -12,51 +12,32 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
 {
     public class SqlFunctionExpression : SqlExpression
     {
+        // niladic
         public SqlFunctionExpression(
             string functionName,
-            bool niladic,
             Type type,
             RelationalTypeMapping typeMapping)
-            : this(null, null, functionName, niladic, null, type, typeMapping)
+            : this(instance: null, schema: null, functionName, niladic: true, arguments: null, builtIn: true, type, typeMapping)
         {
         }
 
+        // niladic
         public SqlFunctionExpression(
             string schema,
             string functionName,
-            bool niladic,
             Type type,
             RelationalTypeMapping typeMapping)
-            : this(null, schema, functionName, niladic, null, type, typeMapping)
+            : this(instance: null, schema, functionName, niladic: true, arguments: null, builtIn: true, type, typeMapping)
         {
         }
 
+        // niladic
         public SqlFunctionExpression(
             SqlExpression instance,
             string functionName,
-            bool niladic,
             Type type,
             RelationalTypeMapping typeMapping)
-            : this(instance, null, functionName, niladic, null, type, typeMapping)
-        {
-        }
-
-        public SqlFunctionExpression(
-            string functionName,
-            IEnumerable<SqlExpression> arguments,
-            Type type,
-            RelationalTypeMapping typeMapping)
-            : this(null, null, functionName, false, arguments, type, typeMapping)
-        {
-        }
-
-        public SqlFunctionExpression(
-            string schema,
-            string functionName,
-            IEnumerable<SqlExpression> arguments,
-            Type type,
-            RelationalTypeMapping typeMapping)
-            : this(null, schema, functionName, false, arguments, type, typeMapping)
+            : this(instance, schema: null, functionName, niladic: true, arguments: null, builtIn: true, type, typeMapping)
         {
         }
 
@@ -66,7 +47,26 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
             IEnumerable<SqlExpression> arguments,
             Type type,
             RelationalTypeMapping typeMapping)
-            : this(instance, null, functionName, false, arguments, type, typeMapping)
+            : this(instance, schema: null, functionName, niladic: false, arguments, builtIn: true, type, typeMapping)
+        {
+        }
+
+        public SqlFunctionExpression(
+            string functionName,
+            IEnumerable<SqlExpression> arguments,
+            Type type,
+            RelationalTypeMapping typeMapping)
+            : this(instance: null, schema: null, functionName, niladic: false, arguments, builtIn: true, type, typeMapping)
+        {
+        }
+
+        public SqlFunctionExpression(
+            string schema,
+            string functionName,
+            IEnumerable<SqlExpression> arguments,
+            Type type,
+            RelationalTypeMapping typeMapping)
+            : this(instance: null, schema, functionName, niladic: false, arguments, builtIn: false, type, typeMapping)
         {
         }
 
@@ -76,6 +76,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
             string functionName,
             bool niladic,
             IEnumerable<SqlExpression> arguments,
+            bool builtIn,
             Type type,
             RelationalTypeMapping typeMapping)
             : base(type, typeMapping)
@@ -84,12 +85,14 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
             FunctionName = functionName;
             Schema = schema;
             IsNiladic = niladic;
+            IsBuiltIn = builtIn;
             Arguments = (arguments ?? Array.Empty<SqlExpression>()).ToList();
         }
 
         public string FunctionName { get; }
         public string Schema { get; }
         public bool IsNiladic { get; }
+        public bool IsBuiltIn { get; }
         public IReadOnlyList<SqlExpression> Arguments { get; }
         public Expression Instance { get; }
 
@@ -112,6 +115,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
                     FunctionName,
                     IsNiladic,
                     arguments,
+                    IsBuiltIn,
                     Type,
                     TypeMapping)
                 : this;
@@ -124,12 +128,13 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
                 FunctionName,
                 IsNiladic,
                 Arguments,
+                IsBuiltIn,
                 Type,
                 typeMapping ?? TypeMapping);
 
         public SqlFunctionExpression Update(SqlExpression instance, IReadOnlyList<SqlExpression> arguments)
             => instance != Instance || !arguments.SequenceEqual(Arguments)
-                ? new SqlFunctionExpression(instance, Schema, FunctionName, IsNiladic, arguments, Type, TypeMapping)
+                ? new SqlFunctionExpression(instance, Schema, FunctionName, IsNiladic, arguments, IsBuiltIn, Type, TypeMapping)
                 : this;
 
         public override void Print(ExpressionPrinter expressionPrinter)

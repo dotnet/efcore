@@ -406,7 +406,6 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
             string schema, string functionName, IEnumerable<SqlExpression> arguments, Type returnType, RelationalTypeMapping typeMapping = null)
         {
             var typeMappedArguments = new List<SqlExpression>();
-
             foreach (var argument in arguments)
             {
                 typeMappedArguments.Add(ApplyDefaultTypeMapping(argument));
@@ -439,22 +438,22 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
         }
 
         public SqlFunctionExpression Function(
-            string functionName, bool niladic, Type returnType, RelationalTypeMapping typeMapping = null)
+            string functionName, Type returnType, RelationalTypeMapping typeMapping = null)
         {
-            return new SqlFunctionExpression(functionName, niladic, returnType, typeMapping);
+            return new SqlFunctionExpression(functionName, returnType, typeMapping);
         }
 
         public SqlFunctionExpression Function(
-            string schema, string functionName, bool niladic, Type returnType, RelationalTypeMapping typeMapping = null)
+            string schema, string functionName, Type returnType, RelationalTypeMapping typeMapping = null)
         {
-            return new SqlFunctionExpression(schema, functionName, niladic, returnType, typeMapping);
+            return new SqlFunctionExpression(schema, functionName, returnType, typeMapping);
         }
 
         public SqlFunctionExpression Function(
-            SqlExpression instance, string functionName, bool niladic, Type returnType, RelationalTypeMapping typeMapping = null)
+            SqlExpression instance, string functionName, Type returnType, RelationalTypeMapping typeMapping = null)
         {
             instance = ApplyDefaultTypeMapping(instance);
-            return new SqlFunctionExpression(instance, functionName, niladic, returnType, typeMapping);
+            return new SqlFunctionExpression(instance, functionName, returnType, typeMapping);
         }
 
         public ExistsExpression Exists(SelectExpression subquery, bool negated)

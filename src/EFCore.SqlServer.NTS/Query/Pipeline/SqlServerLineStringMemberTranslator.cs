@@ -26,7 +26,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Pipeline
                 return _sqlExpressionFactory.Function(
                     instance,
                     "STNumPoints",
-                    false,
+                    Array.Empty<SqlExpression>(),
                     returnType);
             }
 

@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore.Relational.Query.Pipeline;
 using Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -50,6 +51,23 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Pipeline
                     Sql.Append(" ROWS ONLY");
                 }
             }
+        }
+
+        protected override Expression VisitSqlFunction(SqlFunctionExpression sqlFunctionExpression)
+        {
+            if (!sqlFunctionExpression.IsBuiltIn
+                && string.IsNullOrEmpty(sqlFunctionExpression.Schema))
+            {
+                sqlFunctionExpression = new SqlFunctionExpression(
+                    schema: "dbo",
+                    sqlFunctionExpression.FunctionName,
+                    sqlFunctionExpression.Arguments,
+                    sqlFunctionExpression.Type,
+                    sqlFunctionExpression.TypeMapping);
+            }
+
+
+            return base.VisitSqlFunction(sqlFunctionExpression);
         }
     }
 }

@@ -92,10 +92,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             ReplaceConvention(
                 conventionSet.PropertyAnnotationChangedConventions, (RelationalValueGenerationConvention)valueGenerationConvention);
 
-            ReplaceConvention(
-                conventionSet.ModelAnnotationChangedConventions,
-                (RelationalDbFunctionAttributeConvention)new SqlServerDbFunctionAttributeConvention(Dependencies, RelationalDependencies));
-
             ReplaceConvention(conventionSet.ModelFinalizedConventions, storeGenerationConvention);
 
             return conventionSet;

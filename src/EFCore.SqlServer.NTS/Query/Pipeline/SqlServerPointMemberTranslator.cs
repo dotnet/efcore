@@ -55,7 +55,6 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Pipeline
                     return _sqlExpressionFactory.Function(
                         instance,
                         propertyName,
-                        true,
                         returnType);
                 }
             }

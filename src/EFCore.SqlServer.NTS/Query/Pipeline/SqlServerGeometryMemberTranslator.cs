@@ -68,7 +68,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Pipeline
                     return _sqlExpressionFactory.Function(
                         instance,
                         functionName,
-                        false,
+                        Array.Empty<SqlExpression>(),
                         returnType,
                         resultTypeMapping);
                 }
@@ -98,7 +98,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Pipeline
                         _sqlExpressionFactory.Function(
                             instance,
                             "STGeometryType",
-                            false,
+                            Array.Empty<SqlExpression>(),
                             typeof(string)),
                         whenClauses.ToArray());
                 }
@@ -108,7 +108,6 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Pipeline
                     return _sqlExpressionFactory.Function(
                         instance,
                         "STSrid",
-                        true,
                         returnType);
                 }
             }

@@ -56,11 +56,11 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
         SqlFunctionExpression Function(
             SqlExpression instance, string functionName, IEnumerable<SqlExpression> arguments, Type returnType, RelationalTypeMapping typeMapping = null);
         SqlFunctionExpression Function(
-            string functionName, bool niladic, Type returnType, RelationalTypeMapping typeMapping = null);
+            string functionName, Type returnType, RelationalTypeMapping typeMapping = null);
         SqlFunctionExpression Function(
-            string schema, string functionName, bool niladic, Type returnType, RelationalTypeMapping typeMapping = null);
+            string schema, string functionName, Type returnType, RelationalTypeMapping typeMapping = null);
         SqlFunctionExpression Function(
-            SqlExpression instance, string functionName, bool niladic, Type returnType, RelationalTypeMapping typeMapping = null);
+            SqlExpression instance, string functionName, Type returnType, RelationalTypeMapping typeMapping = null);
 
         ExistsExpression Exists(SelectExpression subquery, bool negated);
         InExpression In(SqlExpression item, SqlExpression values, bool negated);
