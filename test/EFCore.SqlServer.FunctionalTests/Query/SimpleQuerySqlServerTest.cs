@@ -4884,6 +4884,19 @@ WHERE (
 //))");
         }
 
+        public override async Task Inner_parameter_in_nested_lambdas_gets_preserved(bool isAsync)
+        {
+            await base.Inner_parameter_in_nested_lambdas_gets_preserved(isAsync);
+
+            AssertSql(
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE (
+    SELECT COUNT(*)
+    FROM [Orders] AS [o]
+    WHERE (([c].[CustomerID] = [o].[CustomerID]) AND [o].[CustomerID] IS NOT NULL) AND (([c].[CustomerID] = [o].[CustomerID]) AND [o].[CustomerID] IS NOT NULL)) > 0");
+        }
+
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 

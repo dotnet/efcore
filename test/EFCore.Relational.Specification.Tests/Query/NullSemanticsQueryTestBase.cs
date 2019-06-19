@@ -319,6 +319,13 @@ namespace Microsoft.EntityFrameworkCore.Query
             AssertQuery<NullSemanticsEntity1>(es => es.Where(e => !ids.Contains(e.NullableStringA)));
         }
 
+        [ConditionalFact(Skip = "issue #14171")]
+        public virtual void Contains_with_local_nullable_array_closure_negated()
+        {
+            string[] ids = { "Foo" };
+            AssertQuery<NullSemanticsEntity1>(es => es.Where(e => !ids.Contains(e.NullableStringA)));
+        }
+
         [ConditionalFact]
         public virtual void Where_multiple_ors_with_null()
         {

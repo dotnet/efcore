@@ -5943,12 +5943,12 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public void Inner_parameter_in_nested_lambdas_gets_preserved(bool isAsync)
+        public virtual Task Inner_parameter_in_nested_lambdas_gets_preserved(bool isAsync)
         {
-            AssertQuery<Customer>(
+            return AssertQuery<Customer>(
                 isAsync,
                 cs => cs.Where(c => c.Orders.Where(o => c == new Customer { CustomerID = o.CustomerID }).Count() > 0),
-                entryCount: 90);
+                entryCount: 89);
         }
     }
 }

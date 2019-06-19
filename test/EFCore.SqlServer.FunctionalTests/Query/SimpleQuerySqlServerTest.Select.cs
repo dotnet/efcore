@@ -663,14 +663,19 @@ FROM [Customers] AS [c]");
 FROM [Customers] AS [c]");
         }
 
-        public override async Task
-            Project_single_element_from_collection_with_OrderBy_Distinct_and_FirstOrDefault_followed_by_projecting_length(bool isAsync)
+        public override async Task Project_single_element_from_collection_with_OrderBy_Distinct_and_FirstOrDefault_followed_by_projecting_length(bool isAsync)
         {
-            await base.Project_single_element_from_collection_with_OrderBy_Distinct_and_FirstOrDefault_followed_by_projecting_length(
-                isAsync);
+            await base.Project_single_element_from_collection_with_OrderBy_Distinct_and_FirstOrDefault_followed_by_projecting_length(isAsync);
 
             AssertSql(
-                "");
+                @"SELECT (
+    SELECT TOP(1) CAST(LEN([t].[CustomerID]) AS int)
+    FROM (
+        SELECT DISTINCT [o].[CustomerID]
+        FROM [Orders] AS [o]
+        WHERE ([c].[CustomerID] = [o].[CustomerID]) AND [o].[CustomerID] IS NOT NULL
+    ) AS [t])
+FROM [Customers] AS [c]");
         }
 
         public override async Task Project_single_element_from_collection_with_OrderBy_Take_and_SingleOrDefault(bool isAsync)
@@ -978,6 +983,18 @@ LEFT JOIN [Orders] AS [o] ON [c].[CustomerID] = [o].[CustomerID]");
 
             AssertSql(
                 @"SELECT CAST([o].[OrderID] AS float)
+FROM [Orders] AS [o]");
+        }
+
+        public override async Task Projecting_nullable_struct(bool isAsync)
+        {
+            await base.Projecting_nullable_struct(isAsync);
+
+            AssertSql(
+                @"SELECT [o].[CustomerID], CASE
+    WHEN ([o].[CustomerID] = N'ALFKI') AND [o].[CustomerID] IS NOT NULL THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
+END, [o].[OrderID], CAST(LEN([o].[CustomerID]) AS int)
 FROM [Orders] AS [o]");
         }
     }

@@ -847,16 +847,17 @@ namespace Microsoft.EntityFrameworkCore.Query
                     c => c.Orders.OrderBy(o => o.OrderID).Select(o => o.CustomerID).Distinct().FirstOrDefault()));
         }
 
-        // issue #12580
-        //[ConditionalTheory]
-        //[MemberData(nameof(IsAsyncData))]
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task Project_single_element_from_collection_with_OrderBy_Distinct_and_FirstOrDefault_followed_by_projecting_length(
             bool isAsync)
         {
             return AssertQueryScalar<Customer>(
                 isAsync,
                 cs => cs.Select(
-                    c => c.Orders.OrderBy(o => o.OrderID).Select(o => o.CustomerID).Distinct().FirstOrDefault()).Select(e => e.Length));
+                    c => c.Orders.OrderBy(o => o.OrderID).Select(o => o.CustomerID).Distinct().FirstOrDefault()).Select(e => e.Length),
+                cs => cs.Select(
+                    c => c.Orders.OrderBy(o => o.OrderID).Select(o => o.CustomerID).Distinct().FirstOrDefault()).Select(e => e == null ? 0 : e.Length));
         }
 
         [ConditionalTheory(Skip = "Issue #14935. Cannot eval 'SingleOrDefault()'")]
@@ -1173,6 +1174,27 @@ namespace Microsoft.EntityFrameworkCore.Query
                 isAsync,
                 cs => cs.Where(c => c.CustomerID.StartsWith("A")).Select(c => ClientMethod(c)),
                 entryCount: 4);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Projecting_nullable_struct(bool isAsync)
+        {
+            return AssertQuery<Order>(
+                isAsync,
+                os => os.Select(o => new
+                {
+                    One = o.CustomerID,
+                    Two = o.CustomerID == "ALFKI"
+                        ? new MyStruct { X = o.OrderID, Y = o.CustomerID.Length }
+                        : (MyStruct?)null
+                }),
+                elementSorter: e => e.One + " " + e.Two?.X);
+        }
+
+        public struct MyStruct
+        {
+            public int X, Y;
         }
 
         private static string ClientMethod(Customer c) => c.CustomerID;

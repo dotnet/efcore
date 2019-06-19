@@ -4,6 +4,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using Microsoft.EntityFrameworkCore.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Query.Pipeline
 {
@@ -65,6 +66,30 @@ namespace Microsoft.EntityFrameworkCore.Query.Pipeline
             }
 
             return memberExpression.Update(innerExpression);
+        }
+
+        protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
+        {
+            if (methodCallExpression.TryGetEFPropertyArguments(out var entityExpression, out var propertyName))
+            {
+                var newEntityExpression = Visit(entityExpression);
+                if (newEntityExpression is NewExpression newExpression)
+                {
+                    var index = newExpression.Members.Select(m => m.Name).IndexOf(propertyName);
+
+                    return newExpression.Arguments[index];
+                }
+
+                if (newEntityExpression is MemberInitExpression memberInitExpression)
+                {
+                    return ((MemberAssignment)memberInitExpression.Bindings
+                        .Single(mb => mb.Member.Name == propertyName)).Expression;
+                }
+
+                return methodCallExpression.Update(null, new[] { newEntityExpression, methodCallExpression.Arguments[1] });
+            }
+
+            return base.VisitMethodCall(methodCallExpression);
         }
     }
 

@@ -8542,6 +8542,29 @@ WHERE [g].[Discriminator] IN (N'Officer', N'Gear') AND EXISTS (
         WHERE ([g0].[Discriminator] IN (N'Officer', N'Gear') AND ([c].[Name] = [g0].[CityOrBirthName])) AND (([g0].[Nickname] = [g].[Nickname]) AND ([g0].[SquadId] = [g].[SquadId]))))");
         }
 
+        public override void Include_with_complex_order_by()
+        {
+            base.Include_with_complex_order_by();
+
+            AssertSql(
+                @"SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOrBirthName], [g].[Discriminator], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank], [w].[Id], [w].[AmmunitionType], [w].[IsAutomatic], [w].[Name], [w].[OwnerFullName], [w].[SynergyWithId]
+FROM [Gears] AS [g]
+LEFT JOIN [Weapons] AS [w] ON [g].[FullName] = [w].[OwnerFullName]
+WHERE [g].[Discriminator] IN (N'Gear', N'Officer')
+ORDER BY (
+    SELECT TOP(1) [w0].[Name]
+    FROM [Weapons] AS [w0]
+    WHERE (([g].[FullName] = [w0].[OwnerFullName]) AND [w0].[OwnerFullName] IS NOT NULL) AND (CHARINDEX(N'Gnasher', [w0].[Name]) > 0)), [g].[Nickname], [g].[SquadId]");
+        }
+
+        public override async Task Anonymous_projection_take_followed_by_projecting_single_element_from_collection_navigation(bool isAsync)
+        {
+            await base.Anonymous_projection_take_followed_by_projecting_single_element_from_collection_navigation(isAsync);
+
+            AssertSql(
+                @"");
+        }
+
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 

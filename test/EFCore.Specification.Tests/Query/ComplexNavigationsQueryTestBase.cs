@@ -843,9 +843,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 e => e.Id2 + " " + e.Name2 + " " + e.Id1 + " " + e.Name1);
         }
 
-        // issue #12804
-        //[ConditionalTheory]
-        //[MemberData(nameof(IsAsyncData))]
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task Join_with_orderby_on_inner_sequence_navigation_non_key_join(bool isAsync)
         {
             return AssertQuery<Level1, Level2>(

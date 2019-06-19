@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel.DataAnnotations;
 using System.Data;
+using System.Data.Common;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -15,6 +16,7 @@ using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Query.Internal;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
@@ -853,13 +855,13 @@ Queen of the Andals and the Rhoynar and the First Men, Khaleesi of the Great Gra
                     ctx.Customers.Where(c => c.FirstName == firstName && c.LastName == details.LastName).ToList();
 
                     // issue #16057
-//                    AssertSql(
-//                        @"@__firstName_0='Foo' (Size = 450)
-//@__8__locals1_details_LastName_1='Bar' (Size = 450)
+                    //                    AssertSql(
+                    //                        @"@__firstName_0='Foo' (Size = 450)
+                    //@__8__locals1_details_LastName_1='Bar' (Size = 450)
 
-//SELECT [c].[FirstName], [c].[LastName]
-//FROM [Customer] AS [c]
-//WHERE (([c].[FirstName] = @__firstName_0) AND @__firstName_0 IS NOT NULL) AND (([c].[LastName] = @__8__locals1_details_LastName_1) AND @__8__locals1_details_LastName_1 IS NOT NULL)");
+                    //SELECT [c].[FirstName], [c].[LastName]
+                    //FROM [Customer] AS [c]
+                    //WHERE (([c].[FirstName] = @__firstName_0) AND @__firstName_0 IS NOT NULL) AND (([c].[LastName] = @__8__locals1_details_LastName_1) AND @__8__locals1_details_LastName_1 IS NOT NULL)");
                 }
             }
         }
@@ -1369,7 +1371,7 @@ Queen of the Andals and the Rhoynar and the First Men, Khaleesi of the Great Gra
                                     on eVersion.RootEntityId equals (int?)eRoot.Id
                                     into RootEntities
                                 from eRootJoined in RootEntities.DefaultIfEmpty()
-                                // ReSharper disable once ConstantNullCoalescingCondition
+                                    // ReSharper disable once ConstantNullCoalescingCondition
                                 select new
                                 {
                                     One = 1,
@@ -1394,7 +1396,7 @@ Queen of the Andals and the Rhoynar and the First Men, Khaleesi of the Great Gra
                                     on eVersion.RootEntityId equals (int?)eRoot.Id
                                     into RootEntities
                                 from eRootJoined in RootEntities.DefaultIfEmpty()
-                                // ReSharper disable once ConstantNullCoalescingCondition
+                                    // ReSharper disable once ConstantNullCoalescingCondition
                                 select new
                                 {
                                     One = eRootJoined,
@@ -1420,7 +1422,7 @@ Queen of the Andals and the Rhoynar and the First Men, Khaleesi of the Great Gra
                                     on eVersion.RootEntityId equals (int?)eRoot.Id
                                     into RootEntities
                                 from eRootJoined in RootEntities.DefaultIfEmpty()
-                                // ReSharper disable once MergeConditionalExpression
+                                    // ReSharper disable once MergeConditionalExpression
 #pragma warning disable IDE0029 // Use coalesce expression
                                 select eRootJoined != null ? eRootJoined : eVersion;
 #pragma warning restore IDE0029 // Use coalesce expression
@@ -5390,6 +5392,81 @@ FROM [InventoryPools] AS [i]");
         {
             public int Id { get; set; }
             public double Quantity { get; set; }
+        }
+
+        #endregion
+
+        #region Bug12518
+
+        [ConditionalFact]
+        public virtual void Projecting_entity_with_value_converter_and_include_works()
+        {
+            using (CreateDatabase12518())
+            {
+                using (var context = new MyContext12518(_options))
+                {
+                    var result = context.Parents.Include(p => p.Child).FirstOrDefault();
+
+                    AssertSql(
+                        @"SELECT TOP(1) [p].[Id], [p].[ChildId], [c].[Id], [c].[ParentId], [c].[ULongRowVersion]
+FROM [Parents] AS [p]
+LEFT JOIN [Children] AS [c] ON [p].[ChildId] = [c].[Id]");
+                }
+            }
+        }
+
+        private SqlServerTestStore CreateDatabase12518()
+        {
+            return CreateTestStore(
+                () => new MyContext12518(_options),
+                context =>
+                {
+                    context.Parents.Add(new Parent12518());
+                    context.SaveChanges();
+
+                    ClearLog();
+                });
+        }
+
+
+        public class MyContext12518 : DbContext
+        {
+            public virtual DbSet<Parent12518> Parents { get; set; }
+            public virtual DbSet<Child12518> Children { get; set; }
+
+            public MyContext12518(DbContextOptions options)
+                : base(options)
+            {
+            }
+
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
+            {
+                var child = modelBuilder.Entity<Child12518>();
+                child.HasOne(_ => _.Parent)
+                   .WithOne(_ => _.Child)
+                   .HasForeignKey<Parent12518>(_ => _.ChildId);
+                child.Property(x => x.ULongRowVersion)
+                   .HasConversion(new NumberToBytesConverter<ulong>())
+                   .IsRowVersion()
+                   .IsRequired()
+                   .HasColumnType("RowVersion");
+
+                modelBuilder.Entity<Parent12518>();
+            }
+        }
+
+        public class Parent12518
+        {
+            public Guid Id { get; set; } = Guid.NewGuid();
+            public Guid? ChildId { get; set; }
+            public Child12518 Child { get; set; }
+        }
+        public class Child12518
+        {
+            public Guid Id { get; set; } = Guid.NewGuid();
+            public ulong ULongRowVersion { get; set; }
+            public Guid ParentId { get; set; }
+            public Parent12518 Parent { get; set; }
         }
 
         #endregion

@@ -5,13 +5,11 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.TestModels.GearsOfWarModel;
 using Microsoft.EntityFrameworkCore.TestUtilities;
-using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
 using Xunit;
 
 // ReSharper disable AccessToModifiedClosure
@@ -514,7 +512,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             var expectedIncludes = new List<IExpectedInclude>
             {
-                new ExpectedInclude<Officer>(o => o.CityOfBirth, "CityOfBirth")
+                new ExpectedInclude<Officer>(o => o.Reports, "Reports")
             };
 
             return AssertIncludeQuery<Gear, CogTag>(
@@ -7485,6 +7483,25 @@ namespace Microsoft.EntityFrameworkCore.Query
                 var query = ctx.Factions.OfType<LocustHorde>().Select(f => (Faction)f);
                 var result = query.ToList();
             }
+        }
+
+        [ConditionalFact]
+        public virtual void Include_with_complex_order_by()
+        {
+            using (var ctx = CreateContext())
+            {
+                var query = ctx.Gears.Include(g => g.Weapons).OrderBy(g => g.Weapons.FirstOrDefault(w => w.Name.Contains("Gnasher")).Name).ThenBy(g => g.Nickname);
+                var result = query.ToList();
+            }
+        }
+
+        [ConditionalTheory(Skip = "issue #12603")]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Anonymous_projection_take_followed_by_projecting_single_element_from_collection_navigation(bool isAsync)
+        {
+            return AssertQuery<Gear>(
+                isAsync,
+                gs => gs.Select(g => new { Gear = g }).Take(25).Select(e => e.Gear.Weapons.OrderBy(w => w.Id).FirstOrDefault()));
         }
 
         protected GearsOfWarContext CreateContext() => Fixture.CreateContext();
