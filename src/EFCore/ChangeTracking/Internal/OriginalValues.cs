@@ -107,7 +107,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             private static object SnapshotValue(IProperty property, object value)
             {
-                var comparer = property.GetValueComparer() ?? property.GetTypeMapping().Comparer;
+                var comparer = property.GetValueComparer() ?? property.FindMapping()?.Comparer;
 
                 return comparer == null ? value : comparer.Snapshot(value);
             }

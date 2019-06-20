@@ -242,13 +242,14 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         {
             var conventionSet = new ConventionSet();
 
-            conventionSet.ModelFinalizedConventions.Add(
-                new ValidatingConvention(CreateDependencies(sensitiveDataLoggingEnabled)));
+            var dependencies = CreateDependencies(sensitiveDataLoggingEnabled);
+            conventionSet.ModelFinalizedConventions.Add(new TypeMappingConvention(dependencies));
+            conventionSet.ModelFinalizedConventions.Add(new ValidatingConvention(dependencies));
 
             return new ModelBuilder(conventionSet);
         }
 
-        private ProviderConventionSetBuilderDependencies CreateDependencies(bool sensitiveDataLoggingEnabled = false)
+        protected ProviderConventionSetBuilderDependencies CreateDependencies(bool sensitiveDataLoggingEnabled = false)
             => TestHelpers.CreateContextServices().GetRequiredService<ProviderConventionSetBuilderDependencies>()
                 .With(CreateValidationLogger(sensitiveDataLoggingEnabled));
 
