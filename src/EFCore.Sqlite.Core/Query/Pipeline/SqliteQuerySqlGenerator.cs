@@ -1,6 +1,7 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore.Relational.Query.Pipeline;
 using Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions;
@@ -44,6 +45,23 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Pipeline
                     Visit(selectExpression.Offset);
                 }
             }
+        }
+
+        protected override void GenerateSetOperationOperand(
+            SelectExpression setOperationExpression,
+            SelectExpression operandExpression)
+        {
+            // Sqlite doesn't support parentheses around set operation operands
+
+            IDisposable indent = null;
+            if (!operandExpression.IsSetOperation)
+            {
+                indent = Sql.Indent();
+            }
+
+            Visit(operandExpression);
+
+            indent?.Dispose();
         }
     }
 }

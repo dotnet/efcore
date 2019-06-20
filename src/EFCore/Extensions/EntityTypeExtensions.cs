@@ -98,6 +98,26 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         /// <summary>
+        ///     Returns the closest entity type that is a parent of both given entity types. If one of the given entities is
+        ///     a parent of the other, that parent is returned. Returns null if the two entity types aren't in the same hierarchy.
+        /// </summary>
+        /// <param name="entityType1"> An entity type.</param>
+        /// <param name="entityType2"> Another entity type.</param>
+        /// <returns>
+        ///     The closest common parent of <paramref name="entityType1"/> and <paramref name="entityType2"/>,
+        ///     or null if they have not common parent.
+        /// </returns>
+        public static IEntityType GetClosestCommonParent([NotNull] this IEntityType entityType1, [NotNull] IEntityType entityType2)
+        {
+            Check.NotNull(entityType1, nameof(entityType1));
+            Check.NotNull(entityType2, nameof(entityType2));
+
+            return entityType1
+                .GetAllBaseTypesInclusiveAscending()
+                .FirstOrDefault(i => entityType2.GetAllBaseTypesInclusiveAscending().Any(j => j == i));
+        }
+
+        /// <summary>
         ///     Determines if an entity type derives from (but is not the same as) a given entity type.
         /// </summary>
         /// <param name="entityType"> The derived entity type. </param>
@@ -141,15 +161,28 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         /// <summary>
-        ///     Returns all base types of the given <see cref="IEntityType" />, including the type itself.
+        ///     Returns all base types of the given <see cref="IEntityType" />, including the type itself, top to bottom.
         /// </summary>
         /// <param name="entityType"> The entity type. </param>
         /// <returns> Base types. </returns>
         public static IEnumerable<IEntityType> GetAllBaseTypesInclusive([NotNull] this IEntityType entityType)
-            => new List<IEntityType>(entityType.GetAllBaseTypes())
+            => GetAllBaseTypesInclusiveAscending(entityType).Reverse();
+
+        /// <summary>
+        ///     Returns all base types of the given <see cref="IEntityType" />, including the type itself, bottom to top.
+        /// </summary>
+        /// <param name="entityType"> The entity type. </param>
+        /// <returns> Base types. </returns>
+        public static IEnumerable<IEntityType> GetAllBaseTypesInclusiveAscending([NotNull] this IEntityType entityType)
+        {
+            Check.NotNull(entityType, nameof(entityType));
+
+            while (entityType != null)
             {
-                entityType
-            };
+                yield return entityType;
+                entityType = entityType.BaseType;
+            }
+        }
 
         /// <summary>
         ///     <para>

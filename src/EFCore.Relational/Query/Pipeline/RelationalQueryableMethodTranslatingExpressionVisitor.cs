@@ -13,6 +13,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Query.Pipeline;
 using Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions;
 using System.Diagnostics;
+using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
 {
@@ -150,7 +151,13 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
             return source;
         }
 
-        protected override ShapedQueryExpression TranslateConcat(ShapedQueryExpression source1, ShapedQueryExpression source2) => throw new NotImplementedException();
+        protected override ShapedQueryExpression TranslateConcat(ShapedQueryExpression source1, ShapedQueryExpression source2)
+        {
+            var operand1 = (SelectExpression)source1.QueryExpression;
+            var operand2 = (SelectExpression)source2.QueryExpression;
+            source1.ShaperExpression = operand1.ApplySetOperation(SetOperationType.UnionAll, operand2, source1.ShaperExpression);
+            return source1;
+        }
 
         protected override ShapedQueryExpression TranslateContains(ShapedQueryExpression source, Expression item)
         {
@@ -212,7 +219,13 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
 
         protected override ShapedQueryExpression TranslateElementAtOrDefault(ShapedQueryExpression source, Expression index, bool returnDefault) => throw new NotImplementedException();
 
-        protected override ShapedQueryExpression TranslateExcept(ShapedQueryExpression source1, ShapedQueryExpression source2) => throw new NotImplementedException();
+        protected override ShapedQueryExpression TranslateExcept(ShapedQueryExpression source1, ShapedQueryExpression source2)
+        {
+            var operand1 = (SelectExpression)source1.QueryExpression;
+            var operand2 = (SelectExpression)source2.QueryExpression;
+            source1.ShaperExpression = operand1.ApplySetOperation(SetOperationType.Except, operand2, source1.ShaperExpression);
+            return source1;
+        }
 
         protected override ShapedQueryExpression TranslateFirstOrDefault(ShapedQueryExpression source, LambdaExpression predicate, Type returnType, bool returnDefault)
         {
@@ -279,7 +292,13 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
             throw new NotImplementedException();
         }
 
-        protected override ShapedQueryExpression TranslateIntersect(ShapedQueryExpression source1, ShapedQueryExpression source2) => throw new NotImplementedException();
+        protected override ShapedQueryExpression TranslateIntersect(ShapedQueryExpression source1, ShapedQueryExpression source2)
+        {
+            var operand1 = (SelectExpression)source1.QueryExpression;
+            var operand2 = (SelectExpression)source2.QueryExpression;
+            source1.ShaperExpression = operand1.ApplySetOperation(SetOperationType.Intersect, operand2, source1.ShaperExpression);
+            return source1;
+        }
 
         protected override ShapedQueryExpression TranslateJoin(
             ShapedQueryExpression outer,
@@ -730,7 +749,13 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
             throw new InvalidOperationException();
         }
 
-        protected override ShapedQueryExpression TranslateUnion(ShapedQueryExpression source1, ShapedQueryExpression source2) => throw new NotImplementedException();
+        protected override ShapedQueryExpression TranslateUnion(ShapedQueryExpression source1, ShapedQueryExpression source2)
+        {
+            var operand1 = (SelectExpression)source1.QueryExpression;
+            var operand2 = (SelectExpression)source2.QueryExpression;
+            source1.ShaperExpression = operand1.ApplySetOperation(SetOperationType.Union, operand2, source1.ShaperExpression);
+            return source1;
+        }
 
         protected override ShapedQueryExpression TranslateWhere(ShapedQueryExpression source, LambdaExpression predicate)
         {

@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions;
@@ -79,6 +80,28 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
                 subQueryIndent = _relationalCommandBuilder.Indent();
             }
 
+            if (selectExpression.IsSetOperation)
+            {
+                GenerateSetOperation(selectExpression);
+            }
+            else
+            {
+                GenerateSelect(selectExpression);
+            }
+
+            if (selectExpression.Alias != null)
+            {
+                subQueryIndent.Dispose();
+
+                _relationalCommandBuilder.AppendLine()
+                    .Append(") AS " + _sqlGenerationHelper.DelimitIdentifier(selectExpression.Alias));
+            }
+
+            return selectExpression;
+        }
+
+        protected virtual void GenerateSelect(SelectExpression selectExpression)
+        {
             _relationalCommandBuilder.Append("SELECT ");
 
             if (selectExpression.IsDistinct)
@@ -111,40 +134,55 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
                 Visit(selectExpression.Predicate);
             }
 
-            if (selectExpression.Orderings.Any())
-            {
-                var orderings = selectExpression.Orderings.ToList();
-
-                if (selectExpression.Limit == null
-                    && selectExpression.Offset == null)
-                {
-                    orderings.RemoveAll(oe => oe.Expression is SqlConstantExpression || oe.Expression is SqlParameterExpression);
-                }
-
-                if (orderings.Count > 0)
-                {
-                    _relationalCommandBuilder.AppendLine()
-                        .Append("ORDER BY ");
-
-                    GenerateList(orderings, e => Visit(e));
-                }
-            }
-            else if (selectExpression.Offset != null)
-            {
-                _relationalCommandBuilder.AppendLine().Append("ORDER BY (SELECT 1)");
-            }
-
+            GenerateOrderings(selectExpression);
             GenerateLimitOffset(selectExpression);
+        }
 
-            if (selectExpression.Alias != null)
+        protected virtual void GenerateSetOperation(SelectExpression setOperationExpression)
+        {
+            Debug.Assert(setOperationExpression.Tables.Count == 2,
+                $"{nameof(SelectExpression)} with {setOperationExpression.Tables.Count} tables, must be 2");
+
+            GenerateSetOperationOperand(setOperationExpression, (SelectExpression)setOperationExpression.Tables[0]);
+
+            _relationalCommandBuilder
+                .AppendLine()
+                .AppendLine(GenerateSetOperationType(setOperationExpression.SetOperationType));
+
+            GenerateSetOperationOperand(setOperationExpression, (SelectExpression)setOperationExpression.Tables[1]);
+
+            GenerateOrderings(setOperationExpression);
+            GenerateLimitOffset(setOperationExpression);
+        }
+
+        private static string GenerateSetOperationType(SetOperationType setOperationType)
+            => setOperationType switch {
+                SetOperationType.Union     => "UNION",
+                SetOperationType.UnionAll  => "UNION ALL",
+                SetOperationType.Intersect => "INTERSECT",
+                SetOperationType.Except    => "EXCEPT",
+                _ => throw new NotSupportedException($"Invalid {nameof(SetOperationType)}: {setOperationType}")
+                };
+
+        protected virtual void GenerateSetOperationOperand(
+            SelectExpression setOperationExpression,
+            SelectExpression operandExpression)
+        {
+            // INTERSECT has higher precedence over UNION and EXCEPT, but otherwise evaluation is left-to-right.
+            // To preserve meaning, add parentheses whenever a set operation is nested within a different set operation.
+            if (operandExpression.IsSetOperation
+                && operandExpression.SetOperationType != setOperationExpression.SetOperationType)
             {
-                subQueryIndent.Dispose();
-
-                _relationalCommandBuilder.AppendLine()
-                    .Append(") AS " + _sqlGenerationHelper.DelimitIdentifier(selectExpression.Alias));
+                _relationalCommandBuilder.AppendLine("(");
+                using (_relationalCommandBuilder.Indent())
+                {
+                    Visit(operandExpression);
+                }
+                _relationalCommandBuilder.AppendLine().Append(")");
+                return;
             }
 
-            return selectExpression;
+            Visit(operandExpression);
         }
 
         protected override Expression VisitProjection(ProjectionExpression projectionExpression)
@@ -198,9 +236,13 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
 
         protected override Expression VisitColumn(ColumnExpression columnExpression)
         {
+            if (columnExpression.Table.Alias != null)
+            {
+                _relationalCommandBuilder
+                    .Append(_sqlGenerationHelper.DelimitIdentifier(columnExpression.Table.Alias))
+                    .Append(".");
+            }
             _relationalCommandBuilder
-                .Append(_sqlGenerationHelper.DelimitIdentifier(columnExpression.Table.Alias))
-                .Append(".")
                 .Append(_sqlGenerationHelper.DelimitIdentifier(columnExpression.Name));
 
             return columnExpression;
@@ -536,6 +578,32 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
 
         protected virtual void GenerateTop(SelectExpression selectExpression)
         {
+        }
+
+        protected virtual void GenerateOrderings(SelectExpression selectExpression)
+        {
+            if (selectExpression.Orderings.Any())
+            {
+                var orderings = selectExpression.Orderings.ToList();
+
+                if (selectExpression.Limit == null
+                    && selectExpression.Offset == null)
+                {
+                    orderings.RemoveAll(oe => oe.Expression is SqlConstantExpression || oe.Expression is SqlParameterExpression);
+                }
+
+                if (orderings.Count > 0)
+                {
+                    _relationalCommandBuilder.AppendLine()
+                        .Append("ORDER BY ");
+
+                    GenerateList(orderings, e => Visit(e));
+                }
+            }
+            else if (selectExpression.Offset != null)
+            {
+                _relationalCommandBuilder.AppendLine().Append("ORDER BY (SELECT 1)");
+            }
         }
 
         protected virtual void GenerateLimitOffset(SelectExpression selectExpression)

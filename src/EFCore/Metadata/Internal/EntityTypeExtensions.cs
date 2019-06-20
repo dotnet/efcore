@@ -55,19 +55,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public static IEnumerable<IEntityType> GetAllBaseTypes([NotNull] this IEntityType entityType)
-        {
-            var baseTypes = new List<IEntityType>();
-            var currentEntityType = entityType;
-            while (currentEntityType.BaseType != null)
-            {
-                currentEntityType = currentEntityType.BaseType;
-                baseTypes.Add(currentEntityType);
-            }
+            => entityType.GetAllBaseTypesAscending().Reverse();
 
-            baseTypes.Reverse();
-
-            return baseTypes;
-        }
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public static IEnumerable<IEntityType> GetAllBaseTypesAscending([NotNull] this IEntityType entityType)
+            => entityType.GetAllBaseTypesInclusiveAscending().Skip(1);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

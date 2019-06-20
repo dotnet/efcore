@@ -481,4 +481,7 @@
   <data name="PendingAmbientTransaction" xml:space="preserve">
     <value>This connection was used with an ambient transaction. The original ambient transaction needs to be completed before this connection can be used outside of it.</value>
   </data>
+  <data name="SetOperationNotWithinEntityTypeHierarchy" xml:space="preserve">
+    <value>Set operations (Union, Concat, Intersect, Except) are only supported over entity types within the same type hierarchy.</value>
+  </data>
 </root>

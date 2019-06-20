@@ -48,9 +48,14 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
         public ColumnExpression MakeNullable()
             => new ColumnExpression(Name, Table, Type.MakeNullable(), TypeMapping, true);
 
-
         public override void Print(ExpressionPrinter expressionPrinter)
-            => expressionPrinter.StringBuilder.Append(Table.Alias).Append(".").Append(Name);
+        {
+            if (Table.Alias != null)
+            {
+                expressionPrinter.StringBuilder.Append(Table.Alias).Append(".");
+            }
+            expressionPrinter.StringBuilder.Append(Name);
+        }
 
         public override bool Equals(object obj)
             => obj != null
@@ -66,6 +71,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
 
         public override int GetHashCode() => HashCode.Combine(base.GetHashCode(), Name, Table, Nullable);
 
-        private string DebuggerDisplay() => $"{Table.Alias}.{Name}";
+        private string DebuggerDisplay()
+            => Table.Alias == null ? Name : $"{Table.Alias}.{Name}";
     }
 }
