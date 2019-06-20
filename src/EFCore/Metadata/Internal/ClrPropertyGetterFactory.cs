@@ -93,7 +93,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             {
                 var property = propertyBase as IProperty;
                 var comparer = property?.GetValueComparer()
-                               ?? property?.GetTypeMapping().Comparer
+                               ?? property?.FindMapping()?.Comparer
                                ?? (ValueComparer)Activator.CreateInstance(
                                    typeof(ValueComparer<>).MakeGenericType(typeof(TValue)),
                                    new object[]

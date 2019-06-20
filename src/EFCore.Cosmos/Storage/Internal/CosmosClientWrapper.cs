@@ -139,7 +139,10 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
             CancellationToken cancellationToken = default)
         {
             var response = await Client.GetDatabase(_databaseId).CreateContainerIfNotExistsAsync(
-                new ContainerProperties(parameters.ContainerId, "/" + parameters.PartitionKey), cancellationToken: cancellationToken);
+                new ContainerProperties(parameters.ContainerId, "/" + parameters.PartitionKey)
+                {
+                    PartitionKeyDefinitionVersion = PartitionKeyDefinitionVersion.V2
+                }, cancellationToken: cancellationToken);
 
             return response.StatusCode == HttpStatusCode.Created;
         }

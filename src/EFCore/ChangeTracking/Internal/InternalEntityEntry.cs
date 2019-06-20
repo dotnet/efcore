@@ -1184,7 +1184,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         private static Func<object, object, bool> ValuesEqualFunc(IProperty property)
         {
             var comparer = property.GetValueComparer()
-                           ?? property.GetTypeMapping().Comparer;
+                           ?? property.FindMapping()?.Comparer;
 
             return comparer != null
                 ? (Func<object, object, bool>)((l, r) => comparer.Equals(l, r))

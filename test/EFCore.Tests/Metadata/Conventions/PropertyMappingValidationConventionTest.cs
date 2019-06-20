@@ -185,6 +185,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             CreatePropertyMappingValidator()(modelBuilder.Metadata);
         }
 
+        protected override ModelBuilder CreateConventionlessModelBuilder(bool sensitiveDataLoggingEnabled = false)
+        {
+            var conventionSet = new ConventionSet();
+
+            var dependencies = CreateDependencies(sensitiveDataLoggingEnabled);
+            conventionSet.ModelFinalizedConventions.Add(new TypeMappingConvention(dependencies));
+
+            return new ModelBuilder(conventionSet);
+        }
+
         protected virtual Action<IModel> CreatePropertyMappingValidator()
         {
             var validator = CreateModelValidator();
@@ -196,6 +206,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             {
                 try
                 {
+                    ((Model)m).FinalizeModel();
                     validatePropertyMappingMethod.Invoke(
                         validator, new object[]
                         {

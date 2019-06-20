@@ -125,7 +125,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 var unmappedProperty = entityType.GetProperties().FirstOrDefault(
                     p => (!ConfigurationSource.Convention.Overrides(p.GetConfigurationSource())
                           || !p.IsShadowProperty())
-                         && !IsMappedPrimitiveProperty(p));
+                         && p.FindMapping() == null);
 
                 if (unmappedProperty != null)
                 {
@@ -228,9 +228,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 }
             }
         }
-
-        private bool IsMappedPrimitiveProperty(IProperty property)
-            => Dependencies.TypeMappingSource.FindMapping(property) != null;
 
         private Type FindCandidateNavigationPropertyType(PropertyInfo propertyInfo)
             => Dependencies.MemberClassifier.FindCandidateNavigationPropertyType(propertyInfo);

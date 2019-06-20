@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.InMemory.Metadata.Conventions;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
@@ -613,56 +614,56 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             => CoreStrings.NoGetter(Collection, typeof(TEntity).Name, nameof(PropertyAccessMode));
 
         private static IMutableProperty CreateProperty<TEntity>(string fieldName, string propertyName = Property)
+            where TEntity : class
         {
-            IMutableModel model = new Model();
-            var entityType = model.AddEntityType(typeof(TEntity));
+            var model = CreateModelBuilder();
+            var property = model.Entity<TEntity>()
+                .Ignore("Reference")
+                .Ignore("Collection")
+                .Property<int>(propertyName)
+                .Metadata;
 
-            entityType.SetPrimaryKey(entityType.AddProperty("Id", typeof(int)));
-
-            entityType.AddIgnored("Reference");
-            entityType.AddIgnored("Collection");
-
-            var property = entityType.AddProperty(propertyName, typeof(int));
             property.SetField(fieldName);
             Assert.False(property.IsShadowProperty());
+
             return property;
         }
 
         private static IMutableNavigation CreateReferenceNavigation<TEntity>(
             string fieldName, string navigationName = Reference)
+            where TEntity : class
         {
-            IMutableModel model = new Model();
-            var entityType = model.AddEntityType(typeof(TEntity));
+            var model = CreateModelBuilder();
+            var relationship = model.Entity<TEntity>()
+                .Ignore("Foo")
+                .Ignore("Collection")
+                .HasOne(typeof(TEntity), navigationName)
+                .WithMany();
 
-            var property = entityType.AddProperty("Id", typeof(int));
-            var key = entityType.SetPrimaryKey(property);
-            var foreignKey = entityType.AddForeignKey(property, key, entityType);
-
-            entityType.AddIgnored("Foo");
-            entityType.AddIgnored("Collection");
-
-            var navigation = foreignKey.HasDependentToPrincipal(typeof(TEntity).GetProperty(navigationName));
+            var navigation = relationship.Metadata.DependentToPrincipal;
             navigation.SetField(fieldName);
+
             return navigation;
         }
 
         private static IMutableNavigation CreateCollectionNavigation<TEntity>(
             string fieldName, string navigationName = Collection)
+            where TEntity : class
         {
-            IMutableModel model = new Model();
-            var entityType = model.AddEntityType(typeof(TEntity));
+            var model = CreateModelBuilder();
+            var relationship = model.Entity<TEntity>()
+                .Ignore("Foo")
+                .Ignore("Reference")
+                .HasMany(typeof(TEntity), navigationName)
+                .WithOne();
 
-            var property = entityType.AddProperty("Id", typeof(int));
-            var key = entityType.SetPrimaryKey(property);
-            var foreignKey = entityType.AddForeignKey(property, key, entityType);
-
-            entityType.AddIgnored("Foo");
-            entityType.AddIgnored("Reference");
-
-            var navigation = foreignKey.HasPrincipalToDependent(typeof(TEntity).GetProperty(navigationName));
+            var navigation = relationship.Metadata.PrincipalToDependent;
             navigation.SetField(fieldName);
+
             return navigation;
         }
+
+        private static ModelBuilder CreateModelBuilder() => new ModelBuilder(InMemoryConventionSetBuilder.Build());
 
         private void MemberInfoTest(
             IMutableProperty property, PropertyAccessMode? accessMode, string forConstruction, string forSet, string forGet)
@@ -737,9 +738,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             try
             {
+                var model = ((Model)propertyBase.DeclaringType.Model).FinalizeModel();
                 InMemoryTestHelpers.Instance.CreateContextServices().GetRequiredService<IModelValidator>()
-                    .Validate(propertyBase.DeclaringType.Model,
-                        new TestLogger<DbLoggerCategory.Model.Validation, TestLoggingDefinitions>());
+                    .Validate(model, new TestLogger<DbLoggerCategory.Model.Validation, TestLoggingDefinitions>());
 
                 Assert.Null(failMessage);
             }
@@ -895,6 +896,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             public int Id { get; set; }
 
+            public ReadOnlyProp()
+            {
+            }
+
             public ReadOnlyProp(int id, ReadOnlyProp reference, IEnumerable<ReadOnlyProp> collection)
             {
                 _foo = id;
@@ -909,6 +914,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
         private class ReadOnlyAutoProp
         {
+            public ReadOnlyAutoProp()
+            {
+            }
+
             public ReadOnlyAutoProp(int id, ReadOnlyAutoProp reference, IEnumerable<ReadOnlyAutoProp> collection)
             {
                 Foo = id;
@@ -927,6 +936,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             private readonly int _foo;
             private readonly ReadOnlyFieldProp _reference;
             private readonly IEnumerable<ReadOnlyFieldProp> _collection;
+
+            public ReadOnlyFieldProp()
+            {
+            }
 
             public ReadOnlyFieldProp(int id, ReadOnlyFieldProp reference, IEnumerable<ReadOnlyFieldProp> collection)
             {
@@ -1021,6 +1034,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             private readonly int _notFound;
             private readonly ReadOnlyPropNoField _notFoundRef;
             private readonly IEnumerable<ReadOnlyPropNoField> _notFoundColl;
+
+            public ReadOnlyPropNoField()
+            {
+            }
 
             public ReadOnlyPropNoField(int id, ReadOnlyPropNoField notFoundRef, IEnumerable<ReadOnlyPropNoField> notFoundColl)
             {
