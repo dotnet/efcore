@@ -304,7 +304,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Pipeline
                 {
                     var originalIndex = (int)((ConstantExpression)methodCallExpression.Arguments[1]).Value;
                     var indexOffset = methodCallExpression.Arguments[0] is ProjectionBindingExpression projectionBindingExpression
-                        ? ((EntityProjectionExpression)_queryExpression.GetProjectionExpression(projectionBindingExpression.ProjectionMember)).StartIndex
+                        ? ((EntityProjectionExpression)_queryExpression.GetMappedProjection(projectionBindingExpression.ProjectionMember)).StartIndex
                         : _materializationContextBindings[(ParameterExpression)((MethodCallExpression)methodCallExpression.Arguments[0]).Object];
 
                     return Expression.Call(
@@ -321,7 +321,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Pipeline
             {
                 if (extensionExpression is ProjectionBindingExpression projectionBindingExpression)
                 {
-                    return _queryExpression.GetProjectionExpression(projectionBindingExpression.ProjectionMember);
+                    return _queryExpression.GetMappedProjection(projectionBindingExpression.ProjectionMember);
                 }
 
                 return base.VisitExtension(extensionExpression);

@@ -21,8 +21,6 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
         private readonly IParameterNameGeneratorFactory _parameterNameGeneratorFactory;
         private readonly Type _contextType;
         private readonly IDiagnosticsLogger<DbLoggerCategory.Query> _logger;
-        private static readonly ParameterExpression _resultCoordinatorParameter
-            = Expression.Parameter(typeof(ResultCoordinator), "resultCoordinator");
 
         public RelationalShapedQueryCompilingExpressionVisitor(
             IEntityMaterializerSource entityMaterializerSource,
@@ -48,9 +46,14 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
 
             var selectExpression = (SelectExpression)shapedQueryExpression.QueryExpression;
 
-            shaperBody = new RelationalProjectionBindingRemovingExpressionVisitor(selectExpression).Visit(shaperBody);
-            shaperBody = new IncludeCompilingExpressionVisitor(TrackQueryResults).Visit(shaperBody);
+            var dataReaderParameter = Expression.Parameter(typeof(DbDataReader), "dataReader");
             var indexMapParameter = Expression.Parameter(typeof(int[]), "indexMap");
+            var resultCoordinatorParameter = Expression.Parameter(typeof(ResultCoordinator), "resultCoordinator");
+
+            shaperBody = new RelationalProjectionBindingRemovingExpressionVisitor(selectExpression, dataReaderParameter)
+                .Visit(shaperBody);
+            shaperBody = new IncludeCompilingExpressionVisitor(dataReaderParameter, resultCoordinatorParameter, TrackQueryResults)
+                .Visit(shaperBody);
 
             if (selectExpression.IsNonComposedFromSql())
             {
@@ -60,9 +63,9 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
             var shaperLambda = Expression.Lambda(
                 shaperBody,
                 QueryCompilationContext.QueryContextParameter,
-                RelationalProjectionBindingRemovingExpressionVisitor.DataReaderParameter,
+                dataReaderParameter,
                 indexMapParameter,
-                _resultCoordinatorParameter);
+                resultCoordinatorParameter);
 
             return Expression.New(
                 (Async

@@ -102,7 +102,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Pipeline
             return _valueBufferSlots[offset + property.GetIndex()];
         }
 
-        public void ApplyProjection(IDictionary<ProjectionMember, Expression> projectionMappings)
+        public void ReplaceProjectionMapping(IDictionary<ProjectionMember, Expression> projectionMappings)
         {
             _valueBufferSlots.Clear();
             _projectionMapping.Clear();
@@ -130,7 +130,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Pipeline
             }
         }
 
-        public Expression GetProjectionExpression(ProjectionMember member)
+        public Expression GetMappedProjection(ProjectionMember member)
         {
             var projection = _projectionMapping[member];
             if (projection is EntityProjectionExpression entityValues)

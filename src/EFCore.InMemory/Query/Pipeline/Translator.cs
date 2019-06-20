@@ -69,7 +69,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Pipeline
 
             if (extensionExpression is ProjectionBindingExpression projectionBindingExpression)
             {
-                return _inMemoryQueryExpression.GetProjectionExpression(projectionBindingExpression.ProjectionMember);
+                return _inMemoryQueryExpression.GetMappedProjection(projectionBindingExpression.ProjectionMember);
             }
 
             if (extensionExpression is NullConditionalExpression nullConditionalExpression)

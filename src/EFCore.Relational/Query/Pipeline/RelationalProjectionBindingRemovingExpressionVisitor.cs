@@ -20,15 +20,19 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
     {
         private class RelationalProjectionBindingRemovingExpressionVisitor : ExpressionVisitor
         {
-            public static readonly ParameterExpression DataReaderParameter
-                = Expression.Parameter(typeof(DbDataReader), "dataReader");
+            private static readonly MethodInfo _isDbNullMethod =
+                typeof(DbDataReader).GetRuntimeMethod(nameof(DbDataReader.IsDBNull), new[] { typeof(int) });
 
+            private readonly SelectExpression _selectExpression;
+            private readonly ParameterExpression _dbDataReaderParameter;
             private readonly IDictionary<ParameterExpression, IDictionary<IProperty, int>> _materializationContextBindings
                 = new Dictionary<ParameterExpression, IDictionary<IProperty, int>>();
 
-            public RelationalProjectionBindingRemovingExpressionVisitor(SelectExpression selectExpression)
+            public RelationalProjectionBindingRemovingExpressionVisitor(
+                SelectExpression selectExpression, ParameterExpression dbDataReaderParameter)
             {
                 _selectExpression = selectExpression;
+                _dbDataReaderParameter = dbDataReaderParameter;
             }
 
             protected override Expression VisitBinary(BinaryExpression binaryExpression)
@@ -76,6 +80,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
                     var projection = _selectExpression.Projection[projectionIndex];
 
                     return CreateGetValueExpression(
+                        _dbDataReaderParameter,
                         projectionIndex,
                         IsNullableProjection(projection),
                         property.FindRelationalMapping(),
@@ -93,6 +98,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
                     var projection = _selectExpression.Projection[projectionIndex];
 
                     return CreateGetValueExpression(
+                        _dbDataReaderParameter,
                         projectionIndex,
                         IsNullableProjection(projection),
                         projection.Expression.TypeMapping,
@@ -127,6 +133,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
             }
 
             private static Expression CreateGetValueExpression(
+                Expression dbDataReader,
                 int index,
                 bool nullable,
                 RelationalTypeMapping typeMapping,
@@ -139,8 +146,8 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
                 Expression valueExpression
                     = Expression.Call(
                         getMethod.DeclaringType != typeof(DbDataReader)
-                            ? Expression.Convert(DataReaderParameter, getMethod.DeclaringType)
-                            : (Expression)DataReaderParameter,
+                            ? Expression.Convert(dbDataReader, getMethod.DeclaringType)
+                            : (Expression)dbDataReader,
                         getMethod,
                         indexExpression);
 
@@ -199,7 +206,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
                 {
                     valueExpression
                         = Expression.Condition(
-                            Expression.Call(DataReaderParameter, _isDbNullMethod, indexExpression),
+                            Expression.Call(dbDataReader, _isDbNullMethod, indexExpression),
                             Expression.Default(valueExpression.Type),
                             valueExpression);
                 }
@@ -207,10 +214,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
                 return valueExpression;
             }
 
-            private static readonly MethodInfo _isDbNullMethod =
-                typeof(DbDataReader).GetRuntimeMethod(nameof(DbDataReader.IsDBNull), new[] { typeof(int) });
 
-            private readonly SelectExpression _selectExpression;
         }
     }
 }

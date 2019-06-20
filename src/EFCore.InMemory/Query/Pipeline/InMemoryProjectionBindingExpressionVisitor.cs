@@ -34,7 +34,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Pipeline
 
             var result = Visit(expression);
 
-            _queryExpression.ApplyProjection(_projectionMapping);
+            _queryExpression.ReplaceProjectionMapping(_projectionMapping);
 
             _queryExpression = null;
             _projectionMapping.Clear();
@@ -70,7 +70,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Pipeline
                     VerifyQueryExpression(entityShaperExpression.ValueBufferExpression);
 
                     _projectionMapping[_projectionMembers.Peek()]
-                       = _queryExpression.GetProjectionExpression(
+                       = _queryExpression.GetMappedProjection(
                            entityShaperExpression.ValueBufferExpression.ProjectionMember);
 
                     return new EntityValuesExpression(entityShaperExpression.EntityType, entityShaperExpression.ValueBufferExpression);
@@ -93,7 +93,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Pipeline
                 VerifyQueryExpression(entityShaperExpression.ValueBufferExpression);
 
                 _projectionMapping[_projectionMembers.Peek()]
-                    = _queryExpression.GetProjectionExpression(
+                    = _queryExpression.GetMappedProjection(
                         entityShaperExpression.ValueBufferExpression.ProjectionMember);
 
                 return entityShaperExpression.Update(
