@@ -95,7 +95,7 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.Query
             var query = _context.Products
                 .FromSqlRaw(@"SELECT * FROM ""Products""")
                 .ApplyTracking(Tracking)
-                .Where(p => p.CurrentPrice >= 10 && p.CurrentPrice <= 14)
+                .Where(p => p.ActualStockLevel >= 2 && p.ActualStockLevel <= 6)
                 .OrderBy(p => p.Name);
 
             if (Async)

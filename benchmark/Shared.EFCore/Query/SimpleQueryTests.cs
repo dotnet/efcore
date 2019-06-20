@@ -65,7 +65,7 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.Query
         {
             var query = _context.Products
                 .ApplyTracking(Tracking)
-                .Where(p => p.Retail < 15);
+                .Where(p => p.ActualStockLevel < 5);
 
             if (Async)
             {
@@ -82,7 +82,7 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.Query
         {
             var query = _context.Products
                 .ApplyTracking(Tracking)
-                .OrderBy(p => p.Retail);
+                .OrderBy(p => p.ActualStockLevel);
 
             if (Async)
             {
@@ -128,15 +128,16 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.Query
             }
         }
 
-        [Benchmark]
+        // Disabled because of current state of query pipeline
+        // [Benchmark]
         public virtual async Task GroupBy()
         {
             var query = _context.Products
-                .GroupBy(p => p.Retail)
+                .GroupBy(p => p.ActualStockLevel)
                 .Select(
                     g => new
                     {
-                        Retail = g.Key,
+                        ActualStockLevel = g.Key,
                         Products = g
                     });
 
