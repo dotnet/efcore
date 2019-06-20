@@ -26,8 +26,8 @@ namespace Microsoft.Data.Sqlite
 
         private readonly List<WeakReference<SqliteCommand>> _commands = new List<WeakReference<SqliteCommand>>();
 
-        private readonly Dictionary<string, (object state, delegate_collation collation)> _collations
-            = new Dictionary<string, (object, delegate_collation)>(StringComparer.OrdinalIgnoreCase);
+        private readonly Dictionary<string, (object state, strdelegate_collation collation)> _collations
+            = new Dictionary<string, (object, strdelegate_collation)>(StringComparer.OrdinalIgnoreCase);
 
         private readonly Dictionary<(string name, int arity), (int flags, object state, delegate_function_scalar func)> _functions
             = new Dictionary<(string, int), (int, object, delegate_function_scalar)>(FunctionsKeyComparer.Instance);
@@ -108,7 +108,7 @@ namespace Microsoft.Data.Sqlite
                 string dataSource = null;
                 if (State == ConnectionState.Open)
                 {
-                    dataSource = sqlite3_db_filename(_db, MainDatabaseName);
+                    dataSource = sqlite3_db_filename(_db, MainDatabaseName).utf8_to_string();
                 }
 
                 return dataSource ?? ConnectionOptions.DataSource;
@@ -128,7 +128,7 @@ namespace Microsoft.Data.Sqlite
         /// </summary>
         /// <value>The version of SQLite used by the connection.</value>
         public override string ServerVersion
-            => sqlite3_libversion();
+            => sqlite3_libversion().utf8_to_string();
 
         /// <summary>
         ///     Gets the current state of the connection.
@@ -309,7 +309,7 @@ namespace Microsoft.Data.Sqlite
             }
             catch
             {
-                _db.Dispose2();
+                _db.Dispose();
                 _db = null;
 
                 _state = ConnectionState.Closed;
@@ -344,7 +344,7 @@ namespace Microsoft.Data.Sqlite
 
             Debug.Assert(_commands.Count == 0);
 
-            _db.Dispose2();
+            _db.Dispose();
             _db = null;
 
             _state = ConnectionState.Closed;
@@ -427,7 +427,7 @@ namespace Microsoft.Data.Sqlite
                 throw new ArgumentNullException(nameof(name));
             }
 
-            var collation = comparison != null ? (v, s1, s2) => comparison((T)v, s1, s2) : (delegate_collation)null;
+            var collation = comparison != null ? (v, s1, s2) => comparison((T)v, s1, s2) : (strdelegate_collation)null;
 
             if (State == ConnectionState.Open)
             {
@@ -583,7 +583,7 @@ namespace Microsoft.Data.Sqlite
                 using (var backup = sqlite3_backup_init(destination._db, destinationName, _db, sourceName))
                 {
                     int rc;
-                    if (backup.ptr == IntPtr.Zero)
+                    if (backup.IsInvalid)
                     {
                         rc = sqlite3_errcode(destination._db);
                         SqliteException.ThrowExceptionForRC(rc, destination._db);

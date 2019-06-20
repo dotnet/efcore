@@ -651,12 +651,12 @@ namespace Microsoft.Data.Sqlite
                 schemaRow[NumericPrecision] = DBNull.Value;
                 schemaRow[NumericScale] = DBNull.Value;
                 schemaRow[BaseServerName] = _command.Connection.DataSource;
-                var databaseName = sqlite3_column_database_name(_record.Handle, i);
+                var databaseName = sqlite3_column_database_name(_record.Handle, i).utf8_to_string();
                 schemaRow[BaseCatalogName] = databaseName;
-                var columnName = sqlite3_column_origin_name(_record.Handle, i);
+                var columnName = sqlite3_column_origin_name(_record.Handle, i).utf8_to_string();
                 schemaRow[BaseColumnName] = columnName;
                 schemaRow[BaseSchemaName] = DBNull.Value;
-                var tableName = sqlite3_column_table_name(_record.Handle, i);
+                var tableName = sqlite3_column_table_name(_record.Handle, i).utf8_to_string();
                 schemaRow[BaseTableName] = tableName;
                 schemaRow[DataType] = GetFieldType(i);
                 schemaRow[DataTypeName] = GetDataTypeName(i);

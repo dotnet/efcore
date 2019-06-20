@@ -72,15 +72,15 @@ namespace Microsoft.Data.Sqlite
             string message;
             int extendedErrorCode;
             if (db == null
-                || db.ptr == IntPtr.Zero
+                || db.IsInvalid
                 || rc != sqlite3_errcode(db))
             {
-                message = sqlite3_errstr(rc) + " " + Resources.DefaultNativeError;
+                message = sqlite3_errstr(rc).utf8_to_string() + " " + Resources.DefaultNativeError;
                 extendedErrorCode = rc;
             }
             else
             {
-                message = sqlite3_errmsg(db);
+                message = sqlite3_errmsg(db).utf8_to_string();
                 extendedErrorCode = sqlite3_extended_errcode(db);
             }
 

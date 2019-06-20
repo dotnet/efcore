@@ -263,14 +263,14 @@ namespace Microsoft.Data.Sqlite
         [Fact]
         public void Open_works_when_password()
         {
-            switch (SQLitePCLExtensions.GetProviderName())
+            switch (SQLitePCL.raw.GetNativeLibraryName())
             {
-                case "SQLite3Provider_e_sqlite3":
+                case "e_sqlite3":
                     Open_works_when_password_e_sqlite3();
                     break;
 
                 // NB: Change project dependencies to test this
-                case "SQLite3Provider_sqlcipher":
+                case "e_sqlcipher":
                     Open_works_when_password_sqlcipher();
                     break;
             }

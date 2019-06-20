@@ -55,10 +55,10 @@ namespace Microsoft.Data.Sqlite
             => sqlite3_column_int64(Handle, ordinal);
 
         protected override string GetStringCore(int ordinal)
-            => sqlite3_column_text(Handle, ordinal);
+            => sqlite3_column_text(Handle, ordinal).utf8_to_string();
 
         protected override byte[] GetBlobCore(int ordinal)
-            => sqlite3_column_blob(Handle, ordinal);
+            => sqlite3_column_blob(Handle, ordinal).ToArray();
 
         protected override int GetSqliteType(int ordinal)
         {
@@ -80,7 +80,7 @@ namespace Microsoft.Data.Sqlite
 
         public virtual string GetName(int ordinal)
         {
-            var name = sqlite3_column_name(Handle, ordinal);
+            var name = sqlite3_column_name(Handle, ordinal).utf8_to_string();
             if (name == null
                 && (ordinal < 0 || ordinal >= FieldCount))
             {
@@ -107,7 +107,7 @@ namespace Microsoft.Data.Sqlite
 
         public virtual string GetDataTypeName(int ordinal)
         {
-            var typeName = sqlite3_column_decltype(Handle, ordinal);
+            var typeName = sqlite3_column_decltype(Handle, ordinal).utf8_to_string();
             if (typeName != null)
             {
                 var i = typeName.IndexOf('(');
@@ -210,8 +210,8 @@ namespace Microsoft.Data.Sqlite
                 throw new ArgumentOutOfRangeException(nameof(ordinal), ordinal, message: null);
             }
 
-            var blobDatabaseName = sqlite3_column_database_name(Handle, ordinal);
-            var blobTableName = sqlite3_column_table_name(Handle, ordinal);
+            var blobDatabaseName = sqlite3_column_database_name(Handle, ordinal).utf8_to_string();
+            var blobTableName = sqlite3_column_table_name(Handle, ordinal).utf8_to_string();
 
             var rowidOrdinal = -1;
             for (var i = 0; i < FieldCount; i++)
@@ -221,19 +221,19 @@ namespace Microsoft.Data.Sqlite
                     continue;
                 }
 
-                var databaseName = sqlite3_column_database_name(Handle, i);
+                var databaseName = sqlite3_column_database_name(Handle, i).utf8_to_string();
                 if (databaseName != blobDatabaseName)
                 {
                     continue;
                 }
 
-                var tableName = sqlite3_column_table_name(Handle, i);
+                var tableName = sqlite3_column_table_name(Handle, i).utf8_to_string();
                 if (tableName != blobTableName)
                 {
                     continue;
                 }
 
-                var columnName = sqlite3_column_origin_name(Handle, i);
+                var columnName = sqlite3_column_origin_name(Handle, i).utf8_to_string();
                 if (columnName == "rowid")
                 {
                     rowidOrdinal = i;
@@ -264,7 +264,7 @@ namespace Microsoft.Data.Sqlite
                 return new MemoryStream(GetCachedBlob(ordinal), false);
             }
 
-            var blobColumnName = sqlite3_column_origin_name(Handle, ordinal);
+            var blobColumnName = sqlite3_column_origin_name(Handle, ordinal).utf8_to_string();
             var rowid = GetInt32(rowidOrdinal);
 
             return new SqliteBlob(_connection, blobTableName, blobColumnName, rowid, readOnly: true);

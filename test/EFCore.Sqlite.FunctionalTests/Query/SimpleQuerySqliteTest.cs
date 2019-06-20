@@ -977,6 +977,10 @@ FROM ""Products"" AS ""p""
 WHERE CAST(""p"".""UnitPrice"" AS REAL) > 100.0");
         }
 
+        [ConditionalTheory(Skip = "SQLite bug")]
+        public override Task Project_single_element_from_collection_with_multiple_OrderBys_Take_and_FirstOrDefault_2(bool isAsync)
+            => base.Project_single_element_from_collection_with_multiple_OrderBys_Take_and_FirstOrDefault_2(isAsync);
+
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
     }

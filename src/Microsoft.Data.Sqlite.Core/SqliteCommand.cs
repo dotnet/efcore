@@ -327,7 +327,7 @@ namespace Microsoft.Data.Sqlite
                     var unboundParams = new List<string>();
                     for (var i = 1; i <= expectedParams; i++)
                     {
-                        var name = sqlite3_bind_parameter_name(stmt, i);
+                        var name = sqlite3_bind_parameter_name(stmt, i).utf8_to_string();
 
                         if (_parameters.IsValueCreated
                             && !_parameters.Value.Cast<SqliteParameter>().Any(p => p.ParameterName == name))
@@ -500,7 +500,7 @@ namespace Microsoft.Data.Sqlite
                 SqliteException.ThrowExceptionForRC(rc, _connection.Handle);
 
                 // Statement was empty, white space, or a comment
-                if (stmt.ptr == IntPtr.Zero)
+                if (stmt.IsInvalid)
                 {
                     if (!string.IsNullOrEmpty(tail))
                     {

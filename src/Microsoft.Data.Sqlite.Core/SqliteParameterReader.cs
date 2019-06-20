@@ -32,10 +32,10 @@ namespace Microsoft.Data.Sqlite
             => sqlite3_value_int64(_values[ordinal]);
 
         protected override string GetStringCore(int ordinal)
-            => sqlite3_value_text(_values[ordinal]);
+            => sqlite3_value_text(_values[ordinal]).utf8_to_string();
 
         protected override byte[] GetBlobCore(int ordinal)
-            => sqlite3_value_blob(_values[ordinal]);
+            => sqlite3_value_blob(_values[ordinal]).ToArray();
 
         protected override int GetSqliteType(int ordinal)
             => sqlite3_value_type(_values[ordinal]);
