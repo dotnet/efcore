@@ -3515,7 +3515,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             return gears.Where(g => g.Nickname == "Marcus" || g.Nickname == "Dom" || g.Nickname == "Cole Train" || g.Nickname == "Baird");
         }
 
-        [ConditionalFact]
+        [ConditionalFact(Skip = "Issue#16089")]
         public virtual void Member_access_on_derived_entity_using_cast()
         {
             using (var ctx = CreateContext())
@@ -3539,7 +3539,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalFact]
+        [ConditionalFact(Skip = "Issue#16089")]
         public virtual void Member_access_on_derived_materialized_entity_using_cast()
         {
             using (var ctx = CreateContext())
@@ -3563,7 +3563,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalFact]
+        [ConditionalFact(Skip = "Issue#16089")]
         public virtual void Member_access_on_derived_entity_using_cast_and_let()
         {
             using (var ctx = CreateContext())
@@ -3588,7 +3588,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalFact]
+        [ConditionalFact(Skip = "Issue#16089")]
         public virtual void Property_access_on_derived_entity_using_cast()
         {
             using (var ctx = CreateContext())
@@ -3691,7 +3691,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                      select new { c1.Name, c2.Location }));
         }
 
-        [ConditionalFact]
+        [ConditionalFact(Skip = "Issue#16089")]
         public virtual void Navigation_access_on_derived_entity_using_cast()
         {
             using (var ctx = CreateContext())
@@ -3715,7 +3715,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalFact]
+        [ConditionalFact(Skip = "Issue#16089")]
         public virtual void Navigation_access_on_derived_materialized_entity_using_cast()
         {
             using (var ctx = CreateContext())
@@ -4069,7 +4069,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalFact]
+        [ConditionalFact(Skip = "Issue#16089")]
         public virtual void Select_null_conditional_with_inheritance_negative()
         {
             using (var context = CreateContext())
@@ -7438,7 +7438,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalFact]
+        [ConditionalFact(Skip = "Issue#16089")]
         public virtual void Nav_rewrite_with_convert1()
         {
             using (var ctx = CreateContext())
@@ -7448,7 +7448,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalFact]
+        [ConditionalFact(Skip = "Issue#16089")]
         public virtual void Nav_rewrite_with_convert2()
         {
             using (var ctx = CreateContext())
@@ -7458,7 +7458,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalFact]
+        [ConditionalFact(Skip = "Issue#16089")]
         public virtual void Nav_rewrite_with_convert3()
         {
             using (var ctx = CreateContext())

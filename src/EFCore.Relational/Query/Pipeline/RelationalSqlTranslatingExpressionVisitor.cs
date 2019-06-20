@@ -77,12 +77,10 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
 
         protected override Expression VisitMember(MemberExpression memberExpression)
         {
-            if (memberExpression.Expression is EntityShaperExpression
-                || (memberExpression.Expression is UnaryExpression innerUnaryExpression
-                    && innerUnaryExpression.NodeType == ExpressionType.Convert
-                    && innerUnaryExpression.Operand is EntityShaperExpression))
+            var boundProperty = BindProperty(memberExpression.Expression, memberExpression.Member.GetSimpleMemberName());
+            if (boundProperty != null)
             {
-                return BindProperty(memberExpression.Expression, memberExpression.Member.GetSimpleMemberName());
+                return boundProperty;
             }
 
             var innerExpression = Visit(memberExpression.Expression);
@@ -94,35 +92,20 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
 
         private SqlExpression BindProperty(Expression source, string propertyName)
         {
-            Type convertedType = null;
             if (source is UnaryExpression unaryExpression
-                && unaryExpression.NodeType == ExpressionType.Convert)
+                && unaryExpression.NodeType == ExpressionType.Convert
+                && unaryExpression.Type == typeof(object))
             {
                 source = unaryExpression.Operand;
-                if (unaryExpression.Type != typeof(object))
-                {
-                    convertedType = unaryExpression.Type;
-                }
             }
 
             if (source is EntityShaperExpression entityShaper)
             {
                 var entityType = entityShaper.EntityType;
-                if (convertedType != null)
-                {
-                    entityType = entityType.RootType().GetDerivedTypesInclusive()
-                        .FirstOrDefault(et => et.ClrType == convertedType);
-
-                    if (entityType == null)
-                    {
-                        return null;
-                    }
-                }
-
                 return BindProperty(entityShaper, entityType.FindProperty(propertyName));
             }
 
-            throw new InvalidOperationException();
+            return null;
         }
 
         private SqlExpression BindProperty(EntityShaperExpression entityShaper, IProperty property)
