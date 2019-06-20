@@ -93,6 +93,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         // Skip for SQLite. Issue #14935. Cannot eval 'Sum()'
         public override Task Sum_with_division_on_decimal_no_significant_digits(bool isAsync) => null;
 
+        // Sqlite does not support LIMIT on set operation operands, nor subqueries, so this is untranslatable.
+        public override Task Union_Take_Union_Take(bool isAsync) => Task.CompletedTask;
+
         // Skip for SQLite. Issue #14935. Cannot eval 'where (Convert([o].OrderDate, Nullable`1) == Convert(DateTimeOffset.Now, Nullable`1))'
         public override Task Where_datetimeoffset_now_component(bool isAsync) => null;
 

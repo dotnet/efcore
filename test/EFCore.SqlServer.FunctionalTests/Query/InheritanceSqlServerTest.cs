@@ -18,7 +18,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             : base(fixture)
         {
             Fixture.TestSqlLoggerFactory.Clear();
-            //Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
+            Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
         }
 
         [ConditionalFact]
@@ -428,6 +428,60 @@ WHERE ([a].[Discriminator] = N'Kiwi') AND ([a].[Species] LIKE N'%owenii')");
 END
 FROM [Animal] AS [a]
 WHERE [a].[Discriminator] = N'Kiwi'");
+        }
+
+        public override void Union_siblings_with_duplicate_property_in_subquery()
+        {
+            base.Union_siblings_with_duplicate_property_in_subquery();
+
+            AssertSql(
+                @"SELECT [t].[Id], [t].[Discriminator], [t].[CaffeineGrams], [t].[CokeCO2], [t].[SugarGrams], [t].[Carbination], [t].[SugarGrams0], [t].[CaffeineGrams0], [t].[HasMilk]
+FROM (
+    SELECT [d].[Id], [d].[Discriminator], [d].[CaffeineGrams], [d].[CokeCO2], [d].[SugarGrams], NULL AS [CaffeineGrams0], NULL AS [HasMilk], NULL AS [Carbination], NULL AS [SugarGrams0]
+    FROM [Drink] AS [d]
+    WHERE [d].[Discriminator] = N'Coke'
+    UNION
+    SELECT [d0].[Id], [d0].[Discriminator], NULL AS [CaffeineGrams], NULL AS [CokeCO2], NULL AS [SugarGrams], [d0].[CaffeineGrams] AS [CaffeineGrams0], [d0].[HasMilk], NULL AS [Carbination], NULL AS [SugarGrams0]
+    FROM [Drink] AS [d0]
+    WHERE [d0].[Discriminator] = N'Tea'
+) AS [t]
+WHERE [t].[Id] > 0");
+        }
+
+        public override void OfType_Union_subquery()
+        {
+            base.OfType_Union_subquery();
+
+            AssertSql(
+                @"SELECT [t].[Species], [t].[CountryId], [t].[Discriminator], [t].[Name], [t].[EagleId], [t].[IsFlightless], [t].[FoundOn]
+FROM (
+    SELECT [a].[Species], [a].[CountryId], [a].[Discriminator], [a].[Name], [a].[EagleId], [a].[IsFlightless], [a].[FoundOn]
+    FROM [Animal] AS [a]
+    WHERE [a].[Discriminator] IN (N'Eagle', N'Kiwi') AND ([a].[Discriminator] = N'Kiwi')
+    UNION
+    SELECT [a0].[Species], [a0].[CountryId], [a0].[Discriminator], [a0].[Name], [a0].[EagleId], [a0].[IsFlightless], [a0].[FoundOn]
+    FROM [Animal] AS [a0]
+    WHERE [a0].[Discriminator] IN (N'Eagle', N'Kiwi') AND ([a0].[Discriminator] = N'Kiwi')
+) AS [t]
+WHERE ([t].[FoundOn] = CAST(0 AS tinyint)) AND [t].[FoundOn] IS NOT NULL");
+        }
+
+        public override void Union_entity_equality()
+        {
+            base.Union_entity_equality();
+
+            AssertSql(
+                @"SELECT [t].[Species], [t].[CountryId], [t].[Discriminator], [t].[Name], [t].[EagleId], [t].[IsFlightless], [t].[Group], [t].[FoundOn]
+FROM (
+    SELECT [a].[Species], [a].[CountryId], [a].[Discriminator], [a].[Name], [a].[EagleId], [a].[IsFlightless], [a].[FoundOn], NULL AS [Group]
+    FROM [Animal] AS [a]
+    WHERE [a].[Discriminator] = N'Kiwi'
+    UNION
+    SELECT [a0].[Species], [a0].[CountryId], [a0].[Discriminator], [a0].[Name], [a0].[EagleId], [a0].[IsFlightless], NULL AS [FoundOn], [a0].[Group]
+    FROM [Animal] AS [a0]
+    WHERE [a0].[Discriminator] = N'Eagle'
+) AS [t]
+WHERE CAST(0 AS bit) = CAST(1 AS bit)");
         }
 
         protected override void UseTransaction(DatabaseFacade facade, IDbContextTransaction transaction)

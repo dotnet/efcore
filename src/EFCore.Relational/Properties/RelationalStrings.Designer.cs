@@ -586,6 +586,12 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         public static string PendingAmbientTransaction
             => GetString("PendingAmbientTransaction");
 
+        /// <summary>
+        ///     Set operations (Union, Concat, Intersect, Except) are only supported over entity types within the same type hierarchy.
+        /// </summary>
+        public static string SetOperationNotWithinEntityTypeHierarchy
+            => GetString("SetOperationNotWithinEntityTypeHierarchy");
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);

@@ -5471,6 +5471,60 @@ LEFT JOIN [Children] AS [c] ON [p].[ChildId] = [c].[Id]");
 
         #endregion
 
+        #region Bug12549
+
+        [ConditionalFact]
+        public virtual void Union_and_insert_12549()
+        {
+            using (CreateDatabase12549())
+            {
+                using (var context = new MyContext12549(_options))
+                {
+                    var id1 = 1;
+                    var id2 = 2;
+
+                    var ids1 = context.Set<Table1_12549>()
+                        .Where(x => x.Id == id1)
+                        .Select(x => x.Id);
+
+                    var ids2 = context.Set<Table2_12549>()
+                        .Where(x => x.Id == id2)
+                        .Select(x => x.Id);
+
+                    var results = ids1.Union(ids2).ToList();
+
+                    context.AddRange(new Table1_12549(), new Table2_12549(), new Table1_12549(), new Table2_12549());
+                    context.SaveChanges();
+                }
+            }
+        }
+
+        private SqlServerTestStore CreateDatabase12549()
+            => CreateTestStore(() => new MyContext12549(_options), context => {});
+
+        public class MyContext12549 : DbContext
+        {
+            public DbSet<Table1_12549> Table1 { get; set; }
+            public DbSet<Table2_12549> Table2 { get; set; }
+
+            public MyContext12549(DbContextOptions options)
+                : base(options)
+            {
+            }
+        }
+
+        public class Table1_12549
+        {
+            public int Id { get; set; }
+        }
+
+        public class Table2_12549
+        {
+            public int Id { get; set; }
+        }
+
+        #endregion
+
         private DbContextOptions _options;
 
         private SqlServerTestStore CreateTestStore<TContext>(
