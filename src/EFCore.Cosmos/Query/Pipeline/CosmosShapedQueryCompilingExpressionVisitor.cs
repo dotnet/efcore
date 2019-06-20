@@ -49,13 +49,15 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Pipeline
             var shaperBody = InjectEntityMaterializer(shapedQueryExpression.ShaperExpression);
             var selectExpression = (SelectExpression)shapedQueryExpression.QueryExpression;
             selectExpression.ApplyProjection();
+            var jObjectParameter = Expression.Parameter(typeof(JObject), "jObject");
 
-            shaperBody = new CosmosProjectionBindingRemovingExpressionVisitor(selectExpression).Visit(shaperBody);
+            shaperBody = new CosmosProjectionBindingRemovingExpressionVisitor(selectExpression, jObjectParameter)
+                .Visit(shaperBody);
 
             var shaperLambda = Expression.Lambda(
                 shaperBody,
                 QueryCompilationContext.QueryContextParameter,
-                CosmosProjectionBindingRemovingExpressionVisitor.jObjectParameter);
+                jObjectParameter);
 
             return Expression.New(
                 (Async
@@ -72,9 +74,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Pipeline
 
         private class CosmosProjectionBindingRemovingExpressionVisitor : ExpressionVisitor
         {
-            public static readonly ParameterExpression jObjectParameter
-                = Expression.Parameter(typeof(JObject), "jObject");
             private SelectExpression _selectExpression;
+            private readonly ParameterExpression _jObjectParameter;
             private static readonly MethodInfo _getItemMethodInfo
                 = typeof(JObject).GetTypeInfo().GetRuntimeProperties()
                     .Single(pi => pi.Name == "Item" && pi.GetIndexParameters()[0].ParameterType == typeof(string))
@@ -89,9 +90,11 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Pipeline
             private readonly IDictionary<ParameterExpression, Expression> _materializationContextBindings
                 = new Dictionary<ParameterExpression, Expression>();
 
-            public CosmosProjectionBindingRemovingExpressionVisitor(SelectExpression selectExpression)
+            public CosmosProjectionBindingRemovingExpressionVisitor(
+                SelectExpression selectExpression, ParameterExpression jObjectParameter)
             {
                 _selectExpression = selectExpression;
+                _jObjectParameter = jObjectParameter;
             }
 
             protected override Expression VisitBinary(BinaryExpression binaryExpression)
@@ -106,7 +109,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Pipeline
                     var projection = _selectExpression.Projection[projectionIndex];
 
                     _materializationContextBindings[parameterExpression] = Expression.Convert(
-                        CreateReadJTokenExpression(jObjectParameter, projection.Alias),
+                        CreateReadJTokenExpression(_jObjectParameter, projection.Alias),
                         typeof(JObject));
 
                     var updatedExpression = Expression.New(newExpression.Constructor,
@@ -141,7 +144,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Pipeline
                         var projection = _selectExpression.Projection[projectionIndex];
 
                         innerExpression = Expression.Convert(
-                            CreateReadJTokenExpression(jObjectParameter, projection.Alias),
+                            CreateReadJTokenExpression(_jObjectParameter, projection.Alias),
                             typeof(JObject));
                     }
                     else
@@ -171,7 +174,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Pipeline
                     var projection = _selectExpression.Projection[projectionIndex];
 
                     return CreateGetStoreValueExpression(
-                        jObjectParameter,
+                        _jObjectParameter,
                         projection.Alias,
                         ((SqlExpression)projection.Expression).TypeMapping,
                         projectionBindingExpression.Type);
@@ -435,8 +438,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Pipeline
                     {
                         if (_enumerator == null)
                         {
-                             var selectExpression = (SelectExpression)new InExpressionValuesExpandingExpressionVisitor(
-                                _sqlExpressionFactory, _cosmosQueryContext.ParameterValues).Visit(_selectExpression);
+                            var selectExpression = (SelectExpression)new InExpressionValuesExpandingExpressionVisitor(
+                               _sqlExpressionFactory, _cosmosQueryContext.ParameterValues).Visit(_selectExpression);
 
                             _enumerator = _cosmosQueryContext.CosmosClient
                                 .ExecuteSqlQueryAsync(

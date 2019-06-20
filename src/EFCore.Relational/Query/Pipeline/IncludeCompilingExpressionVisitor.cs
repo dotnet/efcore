@@ -22,10 +22,17 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
     {
         private class IncludeCompilingExpressionVisitor : ExpressionVisitor
         {
+            private readonly ParameterExpression _dbDataReaderParameter;
+            private readonly ParameterExpression _resultCoordinatorParameter;
             private readonly bool _tracking;
 
-            public IncludeCompilingExpressionVisitor(bool tracking)
+            public IncludeCompilingExpressionVisitor(
+                ParameterExpression dbDataReaderParameter,
+                ParameterExpression resultCoordinatorParameter,
+                bool tracking)
             {
+                _dbDataReaderParameter = dbDataReaderParameter;
+                _resultCoordinatorParameter = resultCoordinatorParameter;
                 _tracking = tracking;
             }
 
@@ -173,24 +180,24 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
                         return Expression.Call(
                             _includeCollectionMethodInfo.MakeGenericMethod(entityClrType, relatedEntityClrType),
                             QueryCompilationContext.QueryContextParameter,
-                            RelationalProjectionBindingRemovingExpressionVisitor.DataReaderParameter,
+                            _dbDataReaderParameter,
                             // We don't need to visit entityExpression since it is supposed to be a parameterExpression only
                             includeExpression.EntityExpression,
                             Expression.Constant(
                                 Expression.Lambda(
                                     collectionShaper.OuterKeySelector,
                                     QueryCompilationContext.QueryContextParameter,
-                                    RelationalProjectionBindingRemovingExpressionVisitor.DataReaderParameter).Compile()),
+                                    _dbDataReaderParameter).Compile()),
                             Expression.Constant(
                                 Expression.Lambda(
                                     collectionShaper.InnerKeySelector,
                                     QueryCompilationContext.QueryContextParameter,
-                                    RelationalProjectionBindingRemovingExpressionVisitor.DataReaderParameter).Compile()),
+                                    _dbDataReaderParameter).Compile()),
                             Expression.Constant(
                                 Expression.Lambda(
                                     innerShaper,
                                     QueryCompilationContext.QueryContextParameter,
-                                    RelationalProjectionBindingRemovingExpressionVisitor.DataReaderParameter,
+                                    _dbDataReaderParameter,
                                     _resultCoordinatorParameter).Compile()),
                             Expression.Constant(includeExpression.Navigation),
                             Expression.Constant(inverseNavigation, typeof(INavigation)),
@@ -207,14 +214,14 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
                         return Expression.Call(
                             _includeReferenceMethodInfo.MakeGenericMethod(entityClrType, relatedEntityClrType),
                             QueryCompilationContext.QueryContextParameter,
-                            RelationalProjectionBindingRemovingExpressionVisitor.DataReaderParameter,
+                            _dbDataReaderParameter,
                             // We don't need to visit entityExpression since it is supposed to be a parameterExpression only
                             includeExpression.EntityExpression,
                             Expression.Constant(
                                 Expression.Lambda(
                                     Visit(includeExpression.NavigationExpression),
                                     QueryCompilationContext.QueryContextParameter,
-                                    RelationalProjectionBindingRemovingExpressionVisitor.DataReaderParameter,
+                                    _dbDataReaderParameter,
                                     _resultCoordinatorParameter).Compile()),
                             Expression.Constant(includeExpression.Navigation),
                             Expression.Constant(inverseNavigation, typeof(INavigation)),
