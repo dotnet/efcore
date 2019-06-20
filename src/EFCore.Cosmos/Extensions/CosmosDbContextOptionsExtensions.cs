@@ -15,36 +15,36 @@ namespace Microsoft.EntityFrameworkCore
     {
         public static DbContextOptionsBuilder<TContext> UseCosmos<TContext>(
             [NotNull] this DbContextOptionsBuilder<TContext> optionsBuilder,
-            [NotNull] string serviceEndPoint,
-            [NotNull] string authKeyOrResourceToken,
+            [NotNull] string accountEndpoint,
+            [NotNull] string accountKey,
             [NotNull] string databaseName,
             [CanBeNull] Action<CosmosDbContextOptionsBuilder> cosmosOptionsAction = null)
             where TContext : DbContext
             => (DbContextOptionsBuilder<TContext>)UseCosmos(
                 (DbContextOptionsBuilder)optionsBuilder,
-                serviceEndPoint,
-                authKeyOrResourceToken,
+                accountEndpoint,
+                accountKey,
                 databaseName,
                 cosmosOptionsAction);
 
         public static DbContextOptionsBuilder UseCosmos(
             [NotNull] this DbContextOptionsBuilder optionsBuilder,
-            [NotNull] string serviceEndPoint,
-            [NotNull] string authKeyOrResourceToken,
+            [NotNull] string accountEndpoint,
+            [NotNull] string accountKey,
             [NotNull] string databaseName,
             [CanBeNull] Action<CosmosDbContextOptionsBuilder> cosmosOptionsAction = null)
         {
             Check.NotNull(optionsBuilder, nameof(optionsBuilder));
-            Check.NotNull(serviceEndPoint, nameof(serviceEndPoint));
-            Check.NotEmpty(authKeyOrResourceToken, nameof(authKeyOrResourceToken));
+            Check.NotNull(accountEndpoint, nameof(accountEndpoint));
+            Check.NotEmpty(accountKey, nameof(accountKey));
             Check.NotEmpty(databaseName, nameof(databaseName));
 
             var extension = optionsBuilder.Options.FindExtension<CosmosOptionsExtension>()
                             ?? new CosmosOptionsExtension();
 
             extension = extension
-                .WithServiceEndPoint(serviceEndPoint)
-                .WithAuthKeyOrResourceToken(authKeyOrResourceToken)
+                .WithAccountEndpoint(accountEndpoint)
+                .WithAccountKey(accountKey)
                 .WithDatabaseName(databaseName);
 
             ((IDbContextOptionsBuilderInfrastructure)optionsBuilder).AddOrUpdateExtension(extension);

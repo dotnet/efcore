@@ -302,7 +302,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
                 var partitionKeyProperty = entry.EntityType.FindProperty(partitionKeyPropertyName);
                 partitionKey = entry.GetCurrentValue(partitionKeyProperty);
 
-                var converter = partitionKeyProperty.FindMapping().Converter;
+                var converter = partitionKeyProperty.GetTypeMapping().Converter;
                 if (converter != null)
                 {
                     partitionKey = converter.ConvertToProvider(partitionKey);

@@ -209,7 +209,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Pipeline
                     return Expression.Default(property.ClrType);
                 }
 
-                return CreateGetStoreValueExpression(jObjectExpression, storeName, property.FindMapping(), property.ClrType);
+                return CreateGetStoreValueExpression(jObjectExpression, storeName, property.GetTypeMapping(), property.ClrType);
             }
 
             public static Expression CreateGetStoreValueExpression(

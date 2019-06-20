@@ -29,7 +29,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public string ServiceEndPoint { get; private set; }
+        public string AccountEndpoint { get; private set; }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -37,7 +37,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public string AuthKeyOrResourceToken { get; private set; }
+        public string AccountKey { get; private set; }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -58,8 +58,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.Internal
             var cosmosOptions = options.FindExtension<CosmosOptionsExtension>();
             if (cosmosOptions != null)
             {
-                ServiceEndPoint = cosmosOptions.ServiceEndPoint;
-                AuthKeyOrResourceToken = cosmosOptions.AuthKeyOrResourceToken;
+                AccountEndpoint = cosmosOptions.AccountEndpoint;
+                AccountKey = cosmosOptions.AccountKey;
                 Region = cosmosOptions.Region;
             }
         }
@@ -72,12 +72,12 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.Internal
         /// </summary>
         public virtual void Validate(IDbContextOptions options)
         {
-            var inMemoryOptions = options.FindExtension<CosmosOptionsExtension>();
+            var cosmosOptions = options.FindExtension<CosmosOptionsExtension>();
 
-            if (inMemoryOptions != null
-                && (ServiceEndPoint != inMemoryOptions.ServiceEndPoint
-                    || AuthKeyOrResourceToken != inMemoryOptions.AuthKeyOrResourceToken
-                    || Region != inMemoryOptions.Region))
+            if (cosmosOptions != null
+                && (AccountEndpoint != cosmosOptions.AccountEndpoint
+                    || AccountKey != cosmosOptions.AccountKey
+                    || Region != cosmosOptions.Region))
             {
                 throw new InvalidOperationException(
                     CoreStrings.SingletonOptionChanged(

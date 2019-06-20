@@ -4,7 +4,6 @@
 using System;
 using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Pipeline
@@ -15,7 +14,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Pipeline
         private readonly RootReferenceExpression _outerExpression;
 
         public KeyAccessExpression(IProperty property, RootReferenceExpression outerExpression)
-            : base(property.ClrType, property.FindMapping())
+            : base(property.ClrType, property.GetTypeMapping())
         {
             Name = property.GetCosmosPropertyName();
             _property = property;

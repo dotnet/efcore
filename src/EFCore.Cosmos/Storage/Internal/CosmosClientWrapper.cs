@@ -139,7 +139,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
             CancellationToken cancellationToken = default)
         {
             var response = await Client.GetDatabase(_databaseId).CreateContainerIfNotExistsAsync(
-                new CosmosContainerSettings(parameters.ContainerId, "/" + parameters.PartitionKey), cancellationToken: cancellationToken);
+                new ContainerProperties(parameters.ContainerId, "/" + parameters.PartitionKey), cancellationToken: cancellationToken);
 
             return response.StatusCode == HttpStatusCode.Created;
         }
@@ -178,7 +178,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
 
                 var container = Client.GetDatabase(_databaseId).GetContainer(parameters.ContainerId);
                 var partitionKey = CreatePartitionKey(parameters.PartitionKey);
-                using (var response = await container.CreateItemStreamAsync(partitionKey, stream, null, cancellationToken))
+                using (var response = await container.CreateItemStreamAsync(stream, partitionKey, null, cancellationToken))
                 {
                     return response.StatusCode == HttpStatusCode.Created;
                 }
@@ -222,7 +222,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
                 var container = Client.GetDatabase(_databaseId).GetContainer(parameters.ContainerId);
                 var partitionKey = CreatePartitionKey(parameters.PartitionKey);
                 using (var response = await container.ReplaceItemStreamAsync(
-                    partitionKey, parameters.ItemId, stream, null, cancellationToken))
+                     stream, parameters.ItemId, partitionKey, null, cancellationToken))
                 {
                     return response.StatusCode == HttpStatusCode.OK;
                 }
@@ -256,7 +256,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
         {
             var items = Client.GetDatabase(_databaseId).GetContainer(parameters.ContainerId);
             var partitionKey = CreatePartitionKey(parameters.PartitionKey);
-            using (var response = await items.DeleteItemStreamAsync(partitionKey, parameters.DocumentId, null, cancellationToken))
+            using (var response = await items.DeleteItemStreamAsync(parameters.DocumentId, partitionKey, cancellationToken: cancellationToken))
             {
                 return response.StatusCode == HttpStatusCode.NoContent;
             }
@@ -290,13 +290,13 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
             CosmosSqlQuery query)
         {
             var container = Client.GetDatabase(_databaseId).GetContainer(containerId);
-            var queryDefinition = new CosmosSqlQueryDefinition(query.Query);
+            var queryDefinition = new QueryDefinition(query.Query);
             foreach (var parameter in query.Parameters)
             {
                 queryDefinition.UseParameter(parameter.Name, parameter.Value);
             }
 
-            return container.CreateItemQueryStream(queryDefinition, maxConcurrency: 1);
+            return container.GetItemQueryStreamIterator(queryDefinition);
         }
 
         private class DocumentEnumerable : IEnumerable<JObject>
@@ -356,7 +356,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
                             return false;
                         }
 
-                        _responseStream = _query.FetchNextSetAsync().GetAwaiter().GetResult().Content;
+                        _responseStream = _query.ReadNextAsync().GetAwaiter().GetResult().Content;
                         _reader = new StreamReader(_responseStream);
                         _jsonReader = new JsonTextReader(_reader);
 
@@ -471,7 +471,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
                             return false;
                         }
 
-                        _responseStream = (await _query.FetchNextSetAsync(_cancellationToken)).Content;
+                        _responseStream = (await _query.ReadNextAsync(_cancellationToken)).Content;
                         _reader = new StreamReader(_responseStream);
                         _jsonReader = new JsonTextReader(_reader);
 

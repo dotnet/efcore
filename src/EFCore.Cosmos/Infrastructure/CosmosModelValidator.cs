@@ -119,17 +119,17 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Infrastructure
                                 partitionKey.Name, firstEntityType.DisplayName(), partitionKey.GetCosmosPropertyName(),
                                 nextPartitionKeyProperty.Name, entityType.DisplayName(), nextPartitionKeyProperty.GetCosmosPropertyName()));
                     }
-                    else if ((partitionKey.FindMapping().Converter?.ProviderClrType ?? partitionKey.ClrType)
-                      != (nextPartitionKeyProperty.FindMapping().Converter?.ProviderClrType ?? nextPartitionKeyProperty.ClrType))
+                    else if ((partitionKey.GetTypeMapping().Converter?.ProviderClrType ?? partitionKey.ClrType)
+                      != (nextPartitionKeyProperty.GetTypeMapping().Converter?.ProviderClrType ?? nextPartitionKeyProperty.ClrType))
                     {
                         throw new InvalidOperationException(
                             CosmosStrings.PartitionKeyStoreTypeMismatch(
                                 partitionKey.Name,
                                 firstEntityType.DisplayName(),
-                                (partitionKey.FindMapping().Converter?.ProviderClrType ?? partitionKey.ClrType).ShortDisplayName(),
+                                (partitionKey.GetTypeMapping().Converter?.ProviderClrType ?? partitionKey.ClrType).ShortDisplayName(),
                                 nextPartitionKeyProperty.Name,
                                 entityType.DisplayName(),
-                                (nextPartitionKeyProperty.FindMapping().Converter?.ProviderClrType ?? nextPartitionKeyProperty.ClrType)
+                                (nextPartitionKeyProperty.GetTypeMapping().Converter?.ProviderClrType ?? nextPartitionKeyProperty.ClrType)
                                     .ShortDisplayName()));
                     }
                 }

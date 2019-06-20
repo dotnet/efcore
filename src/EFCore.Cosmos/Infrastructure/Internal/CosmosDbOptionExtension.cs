@@ -15,8 +15,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.Internal
 {
     public class CosmosOptionsExtension : IDbContextOptionsExtension
     {
-        private string _serviceEndPoint;
-        private string _authKeyOrResourceToken;
+        private string _accountEndpoint;
+        private string _accountKey;
         private string _region;
         private string _databaseName;
         private Func<ExecutionStrategyDependencies, IExecutionStrategy> _executionStrategyFactory;
@@ -28,8 +28,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.Internal
 
         protected CosmosOptionsExtension(CosmosOptionsExtension copyFrom)
         {
-            _serviceEndPoint = copyFrom._serviceEndPoint;
-            _authKeyOrResourceToken = copyFrom._authKeyOrResourceToken;
+            _accountEndpoint = copyFrom._accountEndpoint;
+            _accountKey = copyFrom._accountKey;
             _databaseName = copyFrom._databaseName;
             _executionStrategyFactory = copyFrom._executionStrategyFactory;
             _region = copyFrom._region;
@@ -38,24 +38,24 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.Internal
         public virtual DbContextOptionsExtensionInfo Info
             => _info ??= new ExtensionInfo(this);
 
-        public virtual string ServiceEndPoint => _serviceEndPoint;
+        public virtual string AccountEndpoint => _accountEndpoint;
 
-        public virtual CosmosOptionsExtension WithServiceEndPoint(string serviceEndPoint)
+        public virtual CosmosOptionsExtension WithAccountEndpoint(string accountEndpoint)
         {
             var clone = Clone();
 
-            clone._serviceEndPoint = serviceEndPoint;
+            clone._accountEndpoint = accountEndpoint;
 
             return clone;
         }
 
-        public virtual string AuthKeyOrResourceToken => _authKeyOrResourceToken;
+        public virtual string AccountKey => _accountKey;
 
-        public virtual CosmosOptionsExtension WithAuthKeyOrResourceToken(string authKeyOrResourceToken)
+        public virtual CosmosOptionsExtension WithAccountKey(string accountKey)
         {
             var clone = Clone();
 
-            clone._authKeyOrResourceToken = authKeyOrResourceToken;
+            clone._accountKey = accountKey;
 
             return clone;
         }
@@ -132,8 +132,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.Internal
             {
                 if (_serviceProviderHash == null)
                 {
-                    var hashCode = Extension._serviceEndPoint.GetHashCode();
-                    hashCode = (hashCode * 397) ^ Extension._authKeyOrResourceToken.GetHashCode();
+                    var hashCode = Extension._accountEndpoint.GetHashCode();
+                    hashCode = (hashCode * 397) ^ Extension._accountKey.GetHashCode();
                     hashCode = (hashCode * 397) ^ (Extension._region?.GetHashCode() ?? 0);
 
                     _serviceProviderHash = hashCode;
@@ -146,8 +146,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.Internal
             {
                 Check.NotNull(debugInfo, nameof(debugInfo));
 
-                debugInfo["Cosmos:" + nameof(ServiceEndPoint)] = Extension._serviceEndPoint.GetHashCode().ToString(CultureInfo.InvariantCulture);
-                debugInfo["Cosmos:" + nameof(AuthKeyOrResourceToken)] = Extension._authKeyOrResourceToken.GetHashCode().ToString(CultureInfo.InvariantCulture);
+                debugInfo["Cosmos:" + nameof(AccountEndpoint)] = Extension._accountEndpoint.GetHashCode().ToString(CultureInfo.InvariantCulture);
+                debugInfo["Cosmos:" + nameof(AccountKey)] = Extension._accountKey.GetHashCode().ToString(CultureInfo.InvariantCulture);
                 debugInfo["Cosmos:" + nameof(CosmosDbContextOptionsBuilder.Region)] = (Extension._region?.GetHashCode() ?? 0).ToString(CultureInfo.InvariantCulture);
             }
 
@@ -159,7 +159,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.Internal
                     {
                         var builder = new StringBuilder();
 
-                        builder.Append("ServiceEndPoint=").Append(Extension._serviceEndPoint).Append(' ');
+                        builder.Append("ServiceEndPoint=").Append(Extension._accountEndpoint).Append(' ');
 
                         builder.Append("Database=").Append(Extension._databaseName).Append(' ');
 

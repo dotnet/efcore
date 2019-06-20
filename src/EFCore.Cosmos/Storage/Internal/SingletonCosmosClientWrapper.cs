@@ -28,11 +28,15 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
     {
         private static readonly string _userAgent = " Microsoft.EntityFrameworkCore.Cosmos/" + ProductInfo.GetVersion();
         private readonly CosmosClientOptions _options;
+        private readonly string _endpoint;
+        private readonly string _key;
         private CosmosClient _client;
 
         public SingletonCosmosClientWrapper([NotNull] ICosmosSingletonOptions options)
         {
-            var configuration = new CosmosClientOptions(options.ServiceEndPoint, options.AuthKeyOrResourceToken)
+            _endpoint = options.AccountEndpoint;
+            _key = options.AccountKey;
+            var configuration = new CosmosClientOptions
             {
                 ApplicationName = _userAgent,
                 ConnectionMode = ConnectionMode.Direct
@@ -47,7 +51,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
         }
 
         // This has to be lazy in case the service is created and thrown away without disposing
-        public CosmosClient Client => _client ??= new CosmosClient(_options);
+        public CosmosClient Client => _client ??= new CosmosClient(_endpoint, _key, _options);
 
         public void Dispose()
         {
