@@ -391,7 +391,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalFact]
+        [ConditionalFact(Skip = "Issue#14935")]
         public virtual void Discriminator_with_cast_in_shadow_property()
         {
             using (var context = CreateContext())
