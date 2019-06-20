@@ -17,13 +17,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             var entityType = modelBuilder
                 .Entity<Customer>();
 
-            Assert.Equal(nameof(Customer), entityType.Metadata.GetCosmosContainerName());
+            Assert.Equal(nameof(DbContext), entityType.Metadata.GetCosmosContainerName());
 
             entityType.ForCosmosToContainer("Customizer");
             Assert.Equal("Customizer", entityType.Metadata.GetCosmosContainerName());
 
             entityType.ForCosmosToContainer(null);
-            Assert.Equal(nameof(Customer), entityType.Metadata.GetCosmosContainerName());
+            Assert.Equal(nameof(DbContext), entityType.Metadata.GetCosmosContainerName());
 
             modelBuilder.ForCosmosHasDefaultContainerName("Unicorn");
             Assert.Equal("Unicorn", entityType.Metadata.GetCosmosContainerName());
@@ -63,8 +63,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 .Entity<Customer>();
 
             var entityType = modelBuilder.Model.FindEntityType(typeof(Customer));
+            modelBuilder.ForCosmosHasDefaultContainerName(null);
 
-            Assert.Equal("Customer", entityType.GetCosmosContainerName());
+            Assert.Equal(nameof(Customer), entityType.GetCosmosContainerName());
             Assert.Null(modelBuilder.Model.GetCosmosDefaultContainerName());
 
             modelBuilder.ForCosmosHasDefaultContainerName("db0");

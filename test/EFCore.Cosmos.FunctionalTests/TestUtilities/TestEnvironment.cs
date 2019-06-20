@@ -24,6 +24,6 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.TestUtilities
 
         public static string DefaultConnection => Config["DefaultConnection"] ?? "https://localhost:8081";
 
-        public static string AuthToken => Config["AuthToken"];
+        public static string AuthToken => Config["AuthToken"] ?? "";
     }
 }

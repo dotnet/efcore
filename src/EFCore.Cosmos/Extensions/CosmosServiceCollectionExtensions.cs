@@ -32,7 +32,6 @@ namespace Microsoft.Extensions.DependencyInjection
                 .TryAdd<IDatabase, CosmosDatabaseWrapper>()
                 .TryAdd<IExecutionStrategyFactory, CosmosExecutionStrategyFactory>()
                 .TryAdd<IDbContextTransactionManager, CosmosTransactionManager>()
-                .TryAdd<IModelCustomizer, CosmosModelCustomizer>()
                 .TryAdd<IModelValidator, CosmosModelValidator>()
                 .TryAdd<IProviderConventionSetBuilder, CosmosConventionSetBuilder>()
                 .TryAdd<IDatabaseCreator, CosmosDatabaseCreator>()

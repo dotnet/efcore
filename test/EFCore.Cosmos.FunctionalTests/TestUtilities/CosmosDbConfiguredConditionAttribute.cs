@@ -2,6 +2,8 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Linq;
+using System.Net.Http;
 using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.TestUtilities
@@ -36,9 +38,36 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.TestUtilities
 
                 return true;
             }
-            catch (Exception)
+            catch (AggregateException aggregate)
             {
-                return false;
+                if (aggregate.Flatten().InnerExceptions.Any(e => IsNotConfigured(e)))
+                {
+                    return false;
+                }
+
+                throw;
+            }
+            catch (Exception e)
+            {
+                if (IsNotConfigured(e))
+                {
+                    return false;
+                }
+
+                throw;
+            }
+        }
+
+        private static bool IsNotConfigured(Exception firstException)
+        {
+            switch (firstException)
+            {
+                case HttpRequestException re:
+                    return true;
+                case Exception e:
+                    return e.Message.StartsWith("The input authorization token can't serve the request. Please check that the expected payload is built as per the protocol, and check the key being used.");
+                default:
+                    return false;
             }
         }
     }
