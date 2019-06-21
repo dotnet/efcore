@@ -42,7 +42,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// </summary>
         /// <param name="diagnostics"> The diagnostics logger to use. </param>
         /// <param name="command"> The database command object. </param>
-        /// <param name="context"> The <see cref="DbContext" /> currently being used, ot null if not known. </param>
+        /// <param name="context"> The <see cref="DbContext" /> currently being used, to null if not known. </param>
         /// <param name="commandId"> The correlation ID associated with the given <see cref="DbCommand" />. </param>
         /// <param name="connectionId"> The correlation ID associated with the <see cref="DbConnection" /> being used. </param>
         /// <param name="startTime"> The time that execution began. </param>
@@ -91,7 +91,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// </summary>
         /// <param name="diagnostics"> The diagnostics logger to use. </param>
         /// <param name="command"> The database command object. </param>
-        /// <param name="context"> The <see cref="DbContext" /> currently being used, ot null if not known. </param>
+        /// <param name="context"> The <see cref="DbContext" /> currently being used, to null if not known. </param>
         /// <param name="commandId"> The correlation ID associated with the given <see cref="DbCommand" />. </param>
         /// <param name="connectionId"> The correlation ID associated with the <see cref="DbConnection" /> being used. </param>
         /// <param name="startTime"> The time that execution began. </param>
@@ -140,7 +140,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// </summary>
         /// <param name="diagnostics"> The diagnostics logger to use. </param>
         /// <param name="command"> The database command object. </param>
-        /// <param name="context"> The <see cref="DbContext" /> currently being used, ot null if not known. </param>
+        /// <param name="context"> The <see cref="DbContext" /> currently being used, to null if not known. </param>
         /// <param name="commandId"> The correlation ID associated with the given <see cref="DbCommand" />. </param>
         /// <param name="connectionId"> The correlation ID associated with the <see cref="DbConnection" /> being used. </param>
         /// <param name="startTime"> The time that execution began. </param>
@@ -189,7 +189,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// </summary>
         /// <param name="diagnostics"> The diagnostics logger to use. </param>
         /// <param name="command"> The database command object. </param>
-        /// <param name="context"> The <see cref="DbContext" /> currently being used, ot null if not known. </param>
+        /// <param name="context"> The <see cref="DbContext" /> currently being used, to null if not known. </param>
         /// <param name="commandId"> The correlation ID associated with the given <see cref="DbCommand" />. </param>
         /// <param name="connectionId"> The correlation ID associated with the <see cref="DbConnection" /> being used. </param>
         /// <param name="startTime"> The time that execution began. </param>
@@ -240,7 +240,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// </summary>
         /// <param name="diagnostics"> The diagnostics logger to use. </param>
         /// <param name="command"> The database command object. </param>
-        /// <param name="context"> The <see cref="DbContext" /> currently being used, ot null if not known. </param>
+        /// <param name="context"> The <see cref="DbContext" /> currently being used, to null if not known. </param>
         /// <param name="commandId"> The correlation ID associated with the given <see cref="DbCommand" />. </param>
         /// <param name="connectionId"> The correlation ID associated with the <see cref="DbConnection" /> being used. </param>
         /// <param name="startTime"> The time that execution began. </param>
@@ -291,7 +291,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// </summary>
         /// <param name="diagnostics"> The diagnostics logger to use. </param>
         /// <param name="command"> The database command object. </param>
-        /// <param name="context"> The <see cref="DbContext" /> currently being used, ot null if not known. </param>
+        /// <param name="context"> The <see cref="DbContext" /> currently being used, to null if not known. </param>
         /// <param name="commandId"> The correlation ID associated with the given <see cref="DbCommand" />. </param>
         /// <param name="connectionId"> The correlation ID associated with the <see cref="DbConnection" /> being used. </param>
         /// <param name="startTime"> The time that execution began. </param>
@@ -413,7 +413,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// </summary>
         /// <param name="diagnostics"> The diagnostics logger to use. </param>
         /// <param name="command"> The database command object. </param>
-        /// <param name="context"> The <see cref="DbContext" /> currently being used, ot null if not known. </param>
+        /// <param name="context"> The <see cref="DbContext" /> currently being used, to null if not known. </param>
         /// <param name="commandId"> The correlation ID associated with the given <see cref="DbCommand" />. </param>
         /// <param name="connectionId"> The correlation ID associated with the <see cref="DbConnection" /> being used. </param>
         /// <param name="methodResult"> The return value from the underlying method execution. </param>
@@ -468,7 +468,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// </summary>
         /// <param name="diagnostics"> The diagnostics logger to use. </param>
         /// <param name="command"> The database command object. </param>
-        /// <param name="context"> The <see cref="DbContext" /> currently being used, ot null if not known. </param>
+        /// <param name="context"> The <see cref="DbContext" /> currently being used, to null if not known. </param>
         /// <param name="commandId"> The correlation ID associated with the given <see cref="DbCommand" />. </param>
         /// <param name="connectionId"> The correlation ID associated with the <see cref="DbConnection" /> being used. </param>
         /// <param name="methodResult"> The return value from the underlying method execution. </param>
@@ -523,7 +523,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// </summary>
         /// <param name="diagnostics"> The diagnostics logger to use. </param>
         /// <param name="command"> The database command object. </param>
-        /// <param name="context"> The <see cref="DbContext" /> currently being used, ot null if not known. </param>
+        /// <param name="context"> The <see cref="DbContext" /> currently being used, to null if not known. </param>
         /// <param name="commandId"> The correlation ID associated with the given <see cref="DbCommand" />. </param>
         /// <param name="connectionId"> The correlation ID associated with the <see cref="DbConnection" /> being used. </param>
         /// <param name="methodResult"> The return value from the underlying method execution. </param>
@@ -578,7 +578,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// </summary>
         /// <param name="diagnostics"> The diagnostics logger to use. </param>
         /// <param name="command"> The database command object. </param>
-        /// <param name="context"> The <see cref="DbContext" /> currently being used, ot null if not known. </param>
+        /// <param name="context"> The <see cref="DbContext" /> currently being used, to null if not known. </param>
         /// <param name="commandId"> The correlation ID associated with the given <see cref="DbCommand" />. </param>
         /// <param name="connectionId"> The correlation ID associated with the <see cref="DbConnection" /> being used. </param>
         /// <param name="methodResult"> The return value from the underlying method execution. </param>
@@ -635,7 +635,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// </summary>
         /// <param name="diagnostics"> The diagnostics logger to use. </param>
         /// <param name="command"> The database command object. </param>
-        /// <param name="context"> The <see cref="DbContext" /> currently being used, ot null if not known. </param>
+        /// <param name="context"> The <see cref="DbContext" /> currently being used, to null if not known. </param>
         /// <param name="commandId"> The correlation ID associated with the given <see cref="DbCommand" />. </param>
         /// <param name="connectionId"> The correlation ID associated with the <see cref="DbConnection" /> being used. </param>
         /// <param name="methodResult"> The return value from the underlying method execution. </param>
@@ -692,7 +692,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// </summary>
         /// <param name="diagnostics"> The diagnostics logger to use. </param>
         /// <param name="command"> The database command object. </param>
-        /// <param name="context"> The <see cref="DbContext" /> currently being used, ot null if not known. </param>
+        /// <param name="context"> The <see cref="DbContext" /> currently being used, to null if not known. </param>
         /// <param name="commandId"> The correlation ID associated with the given <see cref="DbCommand" />. </param>
         /// <param name="connectionId"> The correlation ID associated with the <see cref="DbConnection" /> being used. </param>
         /// <param name="methodResult"> The return value from the underlying method execution. </param>
@@ -821,7 +821,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// </summary>
         /// <param name="diagnostics"> The diagnostics logger to use. </param>
         /// <param name="command"> The database command object. </param>
-        /// <param name="context"> The <see cref="DbContext" /> currently being used, ot null if not known. </param>
+        /// <param name="context"> The <see cref="DbContext" /> currently being used, to null if not known. </param>
         /// <param name="executeMethod"> Represents the method that will be called to execute the command. </param>
         /// <param name="commandId"> The correlation ID associated with the given <see cref="DbCommand" />. </param>
         /// <param name="connectionId"> The correlation ID associated with the <see cref="DbConnection" /> being used. </param>

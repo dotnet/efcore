@@ -19,7 +19,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="eventDefinition"> The event definition. </param>
         /// <param name="messageGenerator"> A delegate that generates a log message for this event. </param>
         /// <param name="command"> The <see cref="DbCommand" /> that was executing when it failed. </param>
-        /// <param name="context"> The <see cref="DbContext" /> currently being used, ot null if not known. </param>
+        /// <param name="context"> The <see cref="DbContext" /> currently being used, to null if not known. </param>
         /// <param name="executeMethod"> The <see cref="DbCommand" /> method that was used to execute the command. </param>
         /// <param name="commandId"> A correlation ID that identifies the <see cref="DbCommand" /> instance being used. </param>
         /// <param name="connectionId"> A correlation ID that identifies the <see cref="DbConnection" /> instance being used. </param>

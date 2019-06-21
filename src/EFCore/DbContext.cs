@@ -118,7 +118,7 @@ namespace Microsoft.EntityFrameworkCore
             {
                 CheckDisposed();
 
-                return _database ?? (_database = new DatabaseFacade(this));
+                return _database ??= new DatabaseFacade(this);
             }
         }
 
@@ -126,8 +126,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     Provides access to information and operations for entity instances this context is tracking.
         /// </summary>
         public virtual ChangeTracker ChangeTracker
-            => _changeTracker
-               ?? (_changeTracker = InternalServiceProvider.GetRequiredService<IChangeTrackerFactory>().Create());
+            => _changeTracker ??= InternalServiceProvider.GetRequiredService<IChangeTrackerFactory>().Create();
 
         /// <summary>
         ///     The metadata about the shape of entities, the relationships between them, and how they map to the database.
@@ -336,7 +335,7 @@ namespace Microsoft.EntityFrameworkCore
             {
                 CheckDisposed();
 
-                return _dbContextDependencies ?? (_dbContextDependencies = InternalServiceProvider.GetRequiredService<IDbContextDependencies>());
+                return _dbContextDependencies ??= InternalServiceProvider.GetRequiredService<IDbContextDependencies>();
             }
         }
 

@@ -40,7 +40,6 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             var connection = facade.GetService<IRelationalConnection>();
             var sqlBuilder = facade.GetService<IRawSqlCommandBuilder>();
             var loggerFactory = facade.GetService<ILoggerFactory>();
-            var commandLogger = facade.GetService<IDiagnosticsLogger<DbLoggerCategory.Database.Command>>();
 
             if (!creator.Exists())
             {
