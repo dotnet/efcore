@@ -826,7 +826,6 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="commandId"> The correlation ID associated with the given <see cref="DbCommand" />. </param>
         /// <param name="connectionId"> The correlation ID associated with the <see cref="DbConnection" /> being used. </param>
         /// <param name="exception"> The exception that caused this failure. </param>
-        /// <param name="async"> Indicates whether or not this is an async command. </param>
         /// <param name="startTime"> The time that execution began. </param>
         /// <param name="duration"> The amount of time that passed until the exception was raised. </param>
         public static void CommandError(
@@ -837,7 +836,6 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             Guid commandId,
             Guid connectionId,
             [NotNull] Exception exception,
-            bool async,
             DateTimeOffset startTime,
             TimeSpan duration)
         {
@@ -857,24 +855,137 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                     command.CommandText.TrimEnd());
             }
 
-            if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
+            var diagnosticSourceEnabled = diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name);
+            var interceptor = (diagnostics.Interceptors as IRelationalInterceptors)?.CommandInterceptor;
+
+            if (interceptor != null
+                || diagnosticSourceEnabled)
+            {
+                var eventData = BroadcastCommandError(
+                    diagnostics,
+                    command,
+                    context,
+                    executeMethod,
+                    commandId,
+                    connectionId,
+                    exception,
+                    false,
+                    startTime,
+                    duration,
+                    definition,
+                    diagnosticSourceEnabled);
+
+                interceptor?.CommandFailed(command, eventData);
+            }
+        }
+
+        /// <summary>
+        ///     Logs for the <see cref="RelationalEventId.CommandError" /> event.
+        /// </summary>
+        /// <param name="diagnostics"> The diagnostics logger to use. </param>
+        /// <param name="command"> The database command object. </param>
+        /// <param name="context"> The <see cref="DbContext" /> currently being used, to null if not known. </param>
+        /// <param name="executeMethod"> Represents the method that will be called to execute the command. </param>
+        /// <param name="commandId"> The correlation ID associated with the given <see cref="DbCommand" />. </param>
+        /// <param name="connectionId"> The correlation ID associated with the <see cref="DbConnection" /> being used. </param>
+        /// <param name="exception"> The exception that caused this failure. </param>
+        /// <param name="startTime"> The time that execution began. </param>
+        /// <param name="duration"> The amount of time that passed until the exception was raised. </param>
+        /// <param name="cancellationToken"> The cancellation token. </param>
+        /// <returns> A <see cref="Task"/> representing the async operation. </returns>
+        public static Task CommandErrorAsync(
+            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Command> diagnostics,
+            [NotNull] DbCommand command,
+            [CanBeNull] DbContext context,
+            DbCommandMethod executeMethod,
+            Guid commandId,
+            Guid connectionId,
+            [NotNull] Exception exception,
+            DateTimeOffset startTime,
+            TimeSpan duration,
+            CancellationToken cancellationToken = default)
+        {
+            var definition = RelationalResources.LogCommandFailed(diagnostics);
+
+            var warningBehavior = definition.GetLogBehavior(diagnostics);
+            if (warningBehavior != WarningBehavior.Ignore)
+            {
+                definition.Log(
+                    diagnostics,
+                    warningBehavior,
+                    string.Format(CultureInfo.InvariantCulture, "{0:N0}", duration.TotalMilliseconds),
+                    command.Parameters.FormatParameters(ShouldLogParameterValues(diagnostics, command)),
+                    command.CommandType,
+                    command.CommandTimeout,
+                    Environment.NewLine,
+                    command.CommandText.TrimEnd());
+            }
+
+            var diagnosticSourceEnabled = diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name);
+            var interceptor = (diagnostics.Interceptors as IRelationalInterceptors)?.CommandInterceptor;
+
+            if (interceptor != null
+                || diagnosticSourceEnabled)
+            {
+                var eventData = BroadcastCommandError(
+                    diagnostics,
+                    command,
+                    context,
+                    executeMethod,
+                    commandId,
+                    connectionId,
+                    exception,
+                    true,
+                    startTime,
+                    duration,
+                    definition,
+                    diagnosticSourceEnabled);
+
+                if (interceptor != null)
+                {
+                    return interceptor.CommandFailedAsync(command, eventData, cancellationToken);
+                }
+            }
+
+            return Task.CompletedTask;
+        }
+
+        private static CommandErrorEventData BroadcastCommandError(
+            IDiagnosticsLogger<DbLoggerCategory.Database.Command> diagnostics,
+            DbCommand command,
+            DbContext context,
+            DbCommandMethod executeMethod,
+            Guid commandId,
+            Guid connectionId,
+            Exception exception,
+            bool async,
+            DateTimeOffset startTime,
+            TimeSpan duration,
+            EventDefinition<string, string, CommandType, int, string, string> definition,
+            bool diagnosticSourceEnabled)
+        {
+            var eventData = new CommandErrorEventData(
+                definition,
+                CommandError,
+                command,
+                context,
+                executeMethod,
+                commandId,
+                connectionId,
+                exception,
+                async,
+                ShouldLogParameterValues(diagnostics, command),
+                startTime,
+                duration);
+
+            if (diagnosticSourceEnabled)
             {
                 diagnostics.DiagnosticSource.Write(
                     definition.EventId.Name,
-                    new CommandErrorEventData(
-                        definition,
-                        CommandError,
-                        command,
-                        context,
-                        executeMethod,
-                        commandId,
-                        connectionId,
-                        exception,
-                        async,
-                        ShouldLogParameterValues(diagnostics, command),
-                        startTime,
-                        duration));
+                    eventData);
             }
+
+            return eventData;
         }
 
         private static string CommandError(EventDefinitionBase definition, EventData payload)
