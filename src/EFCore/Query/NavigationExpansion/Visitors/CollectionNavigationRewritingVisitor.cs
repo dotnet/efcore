@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -56,10 +57,15 @@ namespace Microsoft.EntityFrameworkCore.Query.NavigationExpansion.Visitors
                     : methodCallExpression;
             }
 
+            var methodCallerType = !methodCallExpression.Method.IsStatic
+                ? methodCallExpression.Method.DeclaringType.IsGenericType
+                    ? methodCallExpression.Method.DeclaringType.GetGenericTypeDefinition()
+                    : methodCallExpression.Method.DeclaringType
+                : null;
+
             // collection.Exists(predicate) -> Enumerable.Any(collection, predicate)
             if (methodCallExpression.Method.Name == nameof(List<int>.Exists)
-                && methodCallExpression.Method.DeclaringType.IsGenericType
-                && methodCallExpression.Method.DeclaringType.GetGenericTypeDefinition() == typeof(List<>))
+                & methodCallerType == typeof(List<>))
             {
                 var newCaller = RemoveMaterializeCollection(Visit(methodCallExpression.Object));
                 var newPredicate = Visit(methodCallExpression.Arguments[0]);
@@ -93,13 +99,26 @@ namespace Microsoft.EntityFrameworkCore.Query.NavigationExpansion.Visitors
                     lambda);
             }
 
-            var newObject = RemoveMaterializeCollection(Visit(methodCallExpression.Object));
-            var newArguments = new List<Expression>();
+            // for instance methods, make sure that the method caller is compatible with IQueryable
+            // otherwise, if we strip MaterializeCollectionNavigation we might no longer be able to construct the expression due to type mismatch
+            var newObject = Visit(methodCallExpression.Object);
+            if (methodCallerType != null && methodCallerType.IsQueryableType())
+            {
+                newObject = RemoveMaterializeCollection(newObject);
+            }
 
+            var newArguments = new List<Expression>();
             var argumentsChanged = false;
+
             foreach (var argument in methodCallExpression.Arguments)
             {
-                var newArgument = RemoveMaterializeCollection(Visit(argument));
+                var newArgument = Visit(argument);
+                if (methodCallExpression.Method.DeclaringType == typeof(Queryable)
+                    || methodCallExpression.Method.DeclaringType == typeof(Enumerable))
+                {
+                    newArgument = RemoveMaterializeCollection(newArgument);
+                }
+
                 newArguments.Add(newArgument);
                 if (newArgument != argument)
                 {
@@ -210,15 +229,29 @@ namespace Microsoft.EntityFrameworkCore.Query.NavigationExpansion.Visitors
 
         protected override Expression VisitMember(MemberExpression memberExpression)
         {
-            var newExpression = RemoveMaterializeCollection(Visit(memberExpression.Expression));
+            var callerType = memberExpression.Expression != null
+                ? memberExpression.Expression.Type.IsGenericType
+                    ? memberExpression.Expression.Type.GetGenericTypeDefinition()
+                    : memberExpression.Expression.Type
+                : null;
+
+            var newExpression = Visit(memberExpression.Expression);
             if (newExpression != memberExpression.Expression)
             {
                 if (memberExpression.Member.Name == nameof(List<int>.Count))
                 {
+                    newExpression = RemoveMaterializeCollection(newExpression);
                     var countMethod = LinqMethodHelpers.QueryableCountMethodInfo.MakeGenericMethod(newExpression.Type.GetSequenceType());
                     var result = Expression.Call(instance: null, countMethod, newExpression);
 
                     return result;
+                }
+                else
+                {
+                    if (callerType != null && callerType.IsQueryableType())
+                    {
+                        newExpression = RemoveMaterializeCollection(newExpression);
+                    }
                 }
 
                 return memberExpression.Update(newExpression);
