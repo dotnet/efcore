@@ -369,6 +369,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             StateManager.CascadeChanges(force: true);
         }
 
+        /// <inheritdoc />
         void IResettableService.ResetState()
         {
             _queryTrackingBehavior = _defaultQueryTrackingBehavior;

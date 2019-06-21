@@ -32,9 +32,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations
         /// </summary>
         public virtual Annotatable OldTable { get; [param: NotNull] set; } = new Annotatable();
 
-        /// <summary>
-        ///     The <see cref="OldTable" /> exposed to examine annotations.
-        /// </summary>
+        /// <inheritdoc />
         IMutableAnnotatable IAlterMigrationOperation.OldAnnotations => OldTable;
     }
 }

@@ -589,7 +589,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             var dbFuncBuilder = modelBuilder.HasDbFunction(MethodBmi);
             var dbFunc = dbFuncBuilder.Metadata;
 
-            dbFuncBuilder.HasParameter("c").HasNullabilityPropagation(true);
+            dbFuncBuilder.HasParameter("c").HasNullPropagation(true);
 
             Assert.Equal(2, dbFunc.Parameters.Count);
 
