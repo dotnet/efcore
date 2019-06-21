@@ -110,7 +110,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
                     commandId,
                     connection.ConnectionId,
                     exception,
-                    false,
                     startTime,
                     stopwatch.Elapsed);
 
@@ -186,16 +185,19 @@ namespace Microsoft.EntityFrameworkCore.Storage
             }
             catch (Exception exception)
             {
-                logger?.CommandError(
-                    command,
-                    context,
-                    DbCommandMethod.ExecuteNonQuery,
-                    commandId,
-                    connection.ConnectionId,
-                    exception,
-                    true,
-                    startTime,
-                    stopwatch.Elapsed);
+                if (logger != null)
+                {
+                    await logger.CommandErrorAsync(
+                        command,
+                        context,
+                        DbCommandMethod.ExecuteNonQuery,
+                        commandId,
+                        connection.ConnectionId,
+                        exception,
+                        startTime,
+                        stopwatch.Elapsed,
+                        cancellationToken);
+                }
 
                 throw;
             }
@@ -250,7 +252,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
                     commandId,
                     connection.ConnectionId,
                     exception,
-                    false,
                     startTime,
                     stopwatch.Elapsed);
 
@@ -317,16 +318,19 @@ namespace Microsoft.EntityFrameworkCore.Storage
             }
             catch (Exception exception)
             {
-                logger?.CommandError(
-                    command,
-                    context,
-                    DbCommandMethod.ExecuteScalar,
-                    commandId,
-                    connection.ConnectionId,
-                    exception,
-                    true,
-                    startTime,
-                    stopwatch.Elapsed);
+                if (logger != null)
+                {
+                    await logger.CommandErrorAsync(
+                        command,
+                        context,
+                        DbCommandMethod.ExecuteScalar,
+                        commandId,
+                        connection.ConnectionId,
+                        exception,
+                        startTime,
+                        stopwatch.Elapsed,
+                        cancellationToken);
+                }
 
                 throw;
             }
@@ -396,7 +400,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
                     commandId,
                     connection.ConnectionId,
                     exception,
-                    false,
                     startTime,
                     stopwatch.Elapsed);
 
@@ -476,16 +479,19 @@ namespace Microsoft.EntityFrameworkCore.Storage
             }
             catch (Exception exception)
             {
-                logger?.CommandError(
-                    command,
-                    context,
-                    DbCommandMethod.ExecuteReader,
-                    commandId,
-                    connection.ConnectionId,
-                    exception,
-                    true,
-                    startTime,
-                    stopwatch.Elapsed);
+                if (logger != null)
+                {
+                    await logger.CommandErrorAsync(
+                        command,
+                        context,
+                        DbCommandMethod.ExecuteReader,
+                        commandId,
+                        connection.ConnectionId,
+                        exception,
+                        startTime,
+                        stopwatch.Elapsed,
+                        cancellationToken);
+                }
 
                 throw;
             }

@@ -1,9 +1,13 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System.Collections.Generic;
 using System.Data.Common;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Diagnostics
 {
@@ -15,6 +19,40 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
     /// </summary>
     public abstract class DbCommandInterceptor : IDbCommandInterceptor
     {
+        /// <summary>
+        ///     <para>
+        ///         Chains the given <see cref="IDbCommandInterceptor" /> instances into a chain that will
+        ///         call each in order.
+        ///     </para>
+        ///     <para>
+        ///         If only a single interceptor is supplied, then it is simply returned.
+        ///     </para>
+        /// </summary>
+        /// <param name="interceptors"> The interceptors to chain. </param>
+        /// <returns> An interceptor that calls each of the given interceptors in order. </returns>
+        public static IDbCommandInterceptor CreateChain([NotNull] IEnumerable<IDbCommandInterceptor> interceptors)
+            => CreateChain(Check.NotNull(interceptors, nameof(interceptors)).ToArray());
+
+        /// <summary>
+        ///     <para>
+        ///         Chains the given <see cref="IDbCommandInterceptor" /> instances into a chain that will
+        ///         call each in order.
+        ///     </para>
+        ///     <para>
+        ///         If only a single interceptor is supplied, then it is simply returned.
+        ///     </para>
+        /// </summary>
+        /// <param name="interceptors"> The interceptors to chain. </param>
+        /// <returns> An interceptor that calls each of the given interceptors in order. </returns>
+        public static IDbCommandInterceptor CreateChain([NotNull] params IDbCommandInterceptor[] interceptors)
+        {
+            Check.NotNull(interceptors, nameof(interceptors));
+
+            return interceptors.Length == 1
+                ? interceptors[0]
+                : new CompositeDbCommandInterceptor(interceptors);
+        }
+
         /// <summary>
         ///     Called just before EF intends to call <see cref="DbCommand.ExecuteReader()" />.
         /// </summary>
@@ -261,7 +299,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// </param>
         /// <param name="cancellationToken"> The cancellation token. </param>
         /// <returns>
-        ///     A <see cref="Task" /> proving the result that EF will use.
+        ///     A <see cref="Task" /> providing the result that EF will use.
         ///     A normal implementation of this method for any interceptor that is not attempting to change the result
         ///     is to return the <paramref name="result" /> value passed in, often using <see cref="Task.FromResult{TResult}" />
         /// </returns>
@@ -289,7 +327,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// </param>
         /// <param name="cancellationToken"> The cancellation token. </param>
         /// <returns>
-        ///     A <see cref="Task" /> proving the result that EF will use.
+        ///     A <see cref="Task" /> providing the result that EF will use.
         ///     A normal implementation of this method for any interceptor that is not attempting to change the result
         ///     is to return the <paramref name="result" /> value passed in, often using <see cref="Task.FromResult{TResult}" />
         /// </returns>
@@ -317,7 +355,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// </param>
         /// <param name="cancellationToken"> The cancellation token. </param>
         /// <returns>
-        ///     A <see cref="Task" /> proving the result that EF will use.
+        ///     A <see cref="Task" /> providing the result that EF will use.
         ///     A normal implementation of this method for any interceptor that is not attempting to change the result
         ///     is to return the <paramref name="result" /> value passed in, often using <see cref="Task.FromResult{TResult}" />
         /// </returns>
@@ -327,5 +365,29 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             int result,
             CancellationToken cancellationToken = default)
             => Task.FromResult(result);
+
+        /// <summary>
+        ///     Called when execution of a command has failed with an exception. />.
+        /// </summary>
+        /// <param name="command"> The command. </param>
+        /// <param name="eventData"> Contextual information about the command and execution. </param>
+        public virtual void CommandFailed(
+            DbCommand command,
+            CommandErrorEventData eventData)
+        {
+        }
+
+        /// <summary>
+        ///     Called when execution of a command has failed with an exception. />.
+        /// </summary>
+        /// <param name="command"> The command. </param>
+        /// <param name="eventData"> Contextual information about the command and execution. </param>
+        /// <param name="cancellationToken"> The cancellation token. </param>
+        /// <returns> A <see cref="Task"/> representing the asynchronous operation. </returns>
+        public virtual Task CommandFailedAsync(
+            DbCommand command,
+            CommandErrorEventData eventData,
+            CancellationToken cancellationToken = default)
+            => Task.CompletedTask;
     }
 }

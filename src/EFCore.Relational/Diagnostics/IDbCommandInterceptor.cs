@@ -271,7 +271,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// </param>
         /// <param name="cancellationToken"> The cancellation token. </param>
         /// <returns>
-        ///     A <see cref="Task"/> proving the result that EF will use.
+        ///     A <see cref="Task"/> providing the result that EF will use.
         ///     A normal implementation of this method for any interceptor that is not attempting to change the result
         ///     is to return the <paramref name="result" /> value passed in, often using <see cref="Task.FromResult{TResult}" />
         /// </returns>
@@ -298,7 +298,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// </param>
         /// <param name="cancellationToken"> The cancellation token. </param>
         /// <returns>
-        ///     A <see cref="Task"/> proving the result that EF will use.
+        ///     A <see cref="Task"/> providing the result that EF will use.
         ///     A normal implementation of this method for any interceptor that is not attempting to change the result
         ///     is to return the <paramref name="result" /> value passed in, often using <see cref="Task.FromResult{TResult}" />
         /// </returns>
@@ -325,7 +325,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// </param>
         /// <param name="cancellationToken"> The cancellation token. </param>
         /// <returns>
-        ///     A <see cref="Task"/> proving the result that EF will use.
+        ///     A <see cref="Task"/> providing the result that EF will use.
         ///     A normal implementation of this method for any interceptor that is not attempting to change the result
         ///     is to return the <paramref name="result" /> value passed in, often using <see cref="Task.FromResult{TResult}" />
         /// </returns>
@@ -333,6 +333,27 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             [NotNull] DbCommand command,
             [NotNull] CommandExecutedEventData eventData,
             int result,
+            CancellationToken cancellationToken = default);
+
+        /// <summary>
+        ///     Called when execution of a command has failed with an exception. />.
+        /// </summary>
+        /// <param name="command"> The command. </param>
+        /// <param name="eventData"> Contextual information about the command and execution. </param>
+        void CommandFailed(
+            [NotNull] DbCommand command,
+            [NotNull] CommandErrorEventData eventData);
+
+        /// <summary>
+        ///     Called when execution of a command has failed with an exception. />.
+        /// </summary>
+        /// <param name="command"> The command. </param>
+        /// <param name="eventData"> Contextual information about the command and execution. </param>
+        /// <param name="cancellationToken"> The cancellation token. </param>
+        /// <returns> A <see cref="Task"/> representing the asynchronous operation. </returns>
+        Task CommandFailedAsync(
+            [NotNull] DbCommand command,
+            [NotNull] CommandErrorEventData eventData,
             CancellationToken cancellationToken = default);
     }
 }

@@ -11,9 +11,13 @@ using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Diagnostics
 {
+    /// <summary>
+    ///     An <see cref="IDbCommandInterceptor" /> that chains multiple <see cref="IDbCommandInterceptor" />
+    ///     together, calling one after the other in a chain.
+    /// </summary>
     public class CompositeDbCommandInterceptor : IDbCommandInterceptor
     {
-        private readonly List<IDbCommandInterceptor> _interceptors;
+        private readonly IDbCommandInterceptor[] _interceptors;
 
         /// <summary>
         ///     <para>
@@ -28,8 +32,10 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// </summary>
         /// <param name="interceptors"> The interceptors from which to create composite chain. </param>
         public CompositeDbCommandInterceptor([NotNull] params IDbCommandInterceptor[] interceptors)
-            : this((IReadOnlyList<IDbCommandInterceptor>)interceptors)
         {
+            Check.NotNull(interceptors, nameof(interceptors));
+
+            _interceptors = interceptors;
         }
 
         /// <summary>
@@ -45,10 +51,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// </summary>
         /// <param name="interceptors"> The interceptors from which to create composite chain. </param>
         public CompositeDbCommandInterceptor([NotNull] IEnumerable<IDbCommandInterceptor> interceptors)
+            : this(Check.NotNull(interceptors, nameof(interceptors)).ToArray())
         {
-            Check.NotNull(interceptors, nameof(interceptors));
-
-            _interceptors = interceptors.ToList();
         }
 
         /// <summary>
@@ -64,7 +68,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             CommandEventData eventData,
             InterceptionResult<DbDataReader>? result)
         {
-            for (var i = 0; i < _interceptors.Count; i++)
+            for (var i = 0; i < _interceptors.Length; i++)
             {
                 result = _interceptors[i].ReaderExecuting(command, eventData, result);
             }
@@ -85,7 +89,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             CommandEventData eventData,
             InterceptionResult<object>? result)
         {
-            for (var i = 0; i < _interceptors.Count; i++)
+            for (var i = 0; i < _interceptors.Length; i++)
             {
                 result = _interceptors[i].ScalarExecuting(command, eventData, result);
             }
@@ -106,7 +110,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             CommandEventData eventData,
             InterceptionResult<int>? result)
         {
-            for (var i = 0; i < _interceptors.Count; i++)
+            for (var i = 0; i < _interceptors.Length; i++)
             {
                 result = _interceptors[i].NonQueryExecuting(command, eventData, result);
             }
@@ -129,7 +133,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             InterceptionResult<DbDataReader>? result,
             CancellationToken cancellationToken = default)
         {
-            for (var i = 0; i < _interceptors.Count; i++)
+            for (var i = 0; i < _interceptors.Length; i++)
             {
                 result = await _interceptors[i].ReaderExecutingAsync(command, eventData, result, cancellationToken);
             }
@@ -152,7 +156,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             InterceptionResult<object>? result,
             CancellationToken cancellationToken = default)
         {
-            for (var i = 0; i < _interceptors.Count; i++)
+            for (var i = 0; i < _interceptors.Length; i++)
             {
                 result = await _interceptors[i].ScalarExecutingAsync(command, eventData, result, cancellationToken);
             }
@@ -175,7 +179,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             InterceptionResult<int>? result,
             CancellationToken cancellationToken = default)
         {
-            for (var i = 0; i < _interceptors.Count; i++)
+            for (var i = 0; i < _interceptors.Length; i++)
             {
                 result = await _interceptors[i].NonQueryExecutingAsync(command, eventData, result, cancellationToken);
             }
@@ -196,7 +200,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             CommandExecutedEventData eventData,
             DbDataReader result)
         {
-            for (var i = 0; i < _interceptors.Count; i++)
+            for (var i = 0; i < _interceptors.Length; i++)
             {
                 result = _interceptors[i].ReaderExecuted(command, eventData, result);
             }
@@ -217,7 +221,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             CommandExecutedEventData eventData,
             object result)
         {
-            for (var i = 0; i < _interceptors.Count; i++)
+            for (var i = 0; i < _interceptors.Length; i++)
             {
                 result = _interceptors[i].ScalarExecuted(command, eventData, result);
             }
@@ -238,7 +242,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             CommandExecutedEventData eventData,
             int result)
         {
-            for (var i = 0; i < _interceptors.Count; i++)
+            for (var i = 0; i < _interceptors.Length; i++)
             {
                 result = _interceptors[i].NonQueryExecuted(command, eventData, result);
             }
@@ -261,7 +265,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             DbDataReader result,
             CancellationToken cancellationToken = default)
         {
-            for (var i = 0; i < _interceptors.Count; i++)
+            for (var i = 0; i < _interceptors.Length; i++)
             {
                 result = await _interceptors[i].ReaderExecutedAsync(command, eventData, result, cancellationToken);
             }
@@ -284,7 +288,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             object result,
             CancellationToken cancellationToken = default)
         {
-            for (var i = 0; i < _interceptors.Count; i++)
+            for (var i = 0; i < _interceptors.Length; i++)
             {
                 result = await _interceptors[i].ScalarExecutedAsync(command, eventData, result, cancellationToken);
             }
@@ -307,12 +311,40 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             int result,
             CancellationToken cancellationToken = default)
         {
-            for (var i = 0; i < _interceptors.Count; i++)
+            for (var i = 0; i < _interceptors.Length; i++)
             {
                 result = await _interceptors[i].NonQueryExecutedAsync(command, eventData, result, cancellationToken);
             }
 
             return result;
+        }
+
+        /// <summary>
+        ///     Called when execution of a command has failed with an exception. />.
+        /// </summary>
+        /// <param name="command"> The command. </param>
+        /// <param name="eventData"> Contextual information about the command and execution. </param>
+        public virtual void CommandFailed(DbCommand command, CommandErrorEventData eventData)
+        {
+            for (var i = 0; i < _interceptors.Length; i++)
+            {
+                _interceptors[i].CommandFailed(command, eventData);
+            }
+        }
+
+        /// <summary>
+        ///     Called when execution of a command has failed with an exception. />.
+        /// </summary>
+        /// <param name="command"> The command. </param>
+        /// <param name="eventData"> Contextual information about the command and execution. </param>
+        /// <param name="cancellationToken"> The cancellation token. </param>
+        /// <returns> A <see cref="Task"/> representing the asynchronous operation. </returns>
+        public virtual async Task CommandFailedAsync(DbCommand command, CommandErrorEventData eventData, CancellationToken cancellationToken = default)
+        {
+            for (var i = 0; i < _interceptors.Length; i++)
+            {
+                await _interceptors[i].CommandFailedAsync(command, eventData, cancellationToken);
+            }
         }
     }
 }
