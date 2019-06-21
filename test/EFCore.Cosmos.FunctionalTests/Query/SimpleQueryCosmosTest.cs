@@ -2015,13 +2015,13 @@ FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
 
-        [ConditionalTheory(Skip = "Issue#16152")]
+        [ConditionalTheory]
         public override async Task Projection_null_coalesce_operator(bool isAsync)
         {
             await base.Projection_null_coalesce_operator(isAsync);
 
             AssertSql(
-                @"SELECT c
+                @"SELECT c[""CustomerID""], c[""CompanyName""], ((c[""Region""] != null) ? c[""Region""] : ""ZZ"") AS Region
 FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
@@ -2033,7 +2033,7 @@ WHERE (c[""Discriminator""] = ""Customer"")");
             AssertSql(
                 @"SELECT c
 FROM root c
-WHERE ((c[""Discriminator""] = ""Customer"") AND ((c[""CompanyName""] ?? c[""ContactName""]) = ""The Big Cheese""))");
+WHERE ((c[""Discriminator""] = ""Customer"") AND (((c[""CompanyName""] != null) ? c[""CompanyName""] : c[""ContactName""]) = ""The Big Cheese""))");
         }
 
         [ConditionalTheory(Skip = "Issue #14935")]
@@ -3994,6 +3994,12 @@ WHERE (c[""Discriminator""] = ""Customer"")");
         public override Task Where_string_concat_method_comparison(bool isAsync)
         {
             return base.Where_string_concat_method_comparison(isAsync);
+        }
+
+        [ConditionalTheory(Skip = "Issue #14935")]
+        public override Task Inner_parameter_in_nested_lambdas_gets_preserved(bool isAsync)
+        {
+            return base.Inner_parameter_in_nested_lambdas_gets_preserved(isAsync);
         }
 
         private void AssertSql(params string[] expected)

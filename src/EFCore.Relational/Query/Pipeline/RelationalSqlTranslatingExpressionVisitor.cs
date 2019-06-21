@@ -42,20 +42,25 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
 
         public SqlExpression Translate(Expression expression)
         {
-            var translation = (SqlExpression)Visit(expression);
+            var result = Visit(expression);
 
-            if (translation is SqlUnaryExpression sqlUnaryExpression
-                && sqlUnaryExpression.OperatorType == ExpressionType.Convert
-                && sqlUnaryExpression.Type == typeof(object))
+            if (result is SqlExpression translation)
             {
-                translation = sqlUnaryExpression.Operand;
+                if (translation is SqlUnaryExpression sqlUnaryExpression
+                    && sqlUnaryExpression.OperatorType == ExpressionType.Convert
+                    && sqlUnaryExpression.Type == typeof(object))
+                {
+                    translation = sqlUnaryExpression.Operand;
+                }
+
+                translation = _sqlExpressionFactory.ApplyDefaultTypeMapping(translation);
+
+                _sqlVerifyingExpressionVisitor.Visit(translation);
+
+                return translation;
             }
 
-            translation = _sqlExpressionFactory.ApplyDefaultTypeMapping(translation);
-
-            _sqlVerifyingExpressionVisitor.Visit(translation);
-
-            return translation;
+            return null;
         }
 
         private class SqlTypeMappingVerifyingExpressionVisitor : ExpressionVisitor
@@ -253,6 +258,9 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
         protected override Expression VisitNewArray(NewArrayExpression node) => null;
 
         protected override Expression VisitListInit(ListInitExpression node) => null;
+
+        protected override Expression VisitInvocation(InvocationExpression node) => null;
+
         protected override Expression VisitConstant(ConstantExpression constantExpression)
             => new SqlConstantExpression(constantExpression, null);
 

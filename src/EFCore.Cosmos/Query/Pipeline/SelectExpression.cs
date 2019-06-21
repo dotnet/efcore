@@ -114,8 +114,6 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Pipeline
         public void ApplyDistinct()
         {
             IsDistinct = true;
-
-            ClearOrdering();
         }
 
         public void ClearOrdering()
