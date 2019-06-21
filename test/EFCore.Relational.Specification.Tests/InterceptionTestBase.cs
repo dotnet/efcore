@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Data.Common;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Diagnostics;
@@ -14,6 +15,7 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore
@@ -30,15 +32,21 @@ namespace Microsoft.EntityFrameworkCore
         protected InterceptionFixtureBase Fixture { get; }
 
         [ConditionalTheory]
-        [InlineData(false, false)]
-        [InlineData(true, false)]
-        [InlineData(false, true)]
-        [InlineData(true, true)]
-        public virtual async Task<string> Intercept_query_passively(bool async, bool inject)
+        [InlineData(false, false, false)]
+        [InlineData(true, false, false)]
+        [InlineData(false, true, false)]
+        [InlineData(true, true, false)]
+        [InlineData(false, false, true)]
+        [InlineData(true, false, true)]
+        [InlineData(false, true, true)]
+        [InlineData(true, true, true)]
+        public virtual async Task<string> Intercept_query_passively(bool async, bool inject, bool enableLogging)
         {
             var (context, interceptor) = CreateContext<PassiveReaderCommandInterceptor>(inject);
             using (context)
             {
+                var logCounter = new DatabaseLogCounter(context, enableLogging);
+
                 List<Singularity> results;
                 if (async)
                 {
@@ -51,6 +59,7 @@ namespace Microsoft.EntityFrameworkCore
                     Assert.True(interceptor.SyncCalled);
                 }
 
+                logCounter.Assert(2);
                 Assert.Equal(2, results.Count);
                 Assert.Equal(77, results[0].Id);
                 Assert.Equal(88, results[1].Id);
@@ -75,39 +84,97 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [ConditionalTheory]
-        [InlineData(false, false)]
-        [InlineData(true, false)]
-        [InlineData(false, true)]
-        [InlineData(true, true)]
-        public virtual async Task Intercept_scalar_passively(bool async, bool inject)
+        [InlineData(false, LogLevel.Debug, false, false)]
+        [InlineData(true, LogLevel.Debug, false, false)]
+        [InlineData(false, LogLevel.Information, false, false)]
+        [InlineData(true, LogLevel.Information, false, false)]
+        [InlineData(false, LogLevel.Warning, false, false)]
+        [InlineData(true, LogLevel.Warning, false, false)]
+        [InlineData(false, LogLevel.Debug, true, false)]
+        [InlineData(true, LogLevel.Debug, true, false)]
+        [InlineData(false, LogLevel.Information, true, false)]
+        [InlineData(true, LogLevel.Information, true, false)]
+        [InlineData(false, LogLevel.Warning, true, false)]
+        [InlineData(true, LogLevel.Warning, true, false)]
+        [InlineData(false, LogLevel.Debug, false, true)]
+        [InlineData(true, LogLevel.Debug, false, true)]
+        [InlineData(false, LogLevel.Information, false, true)]
+        [InlineData(true, LogLevel.Information, false, true)]
+        [InlineData(false, LogLevel.Warning, false, true)]
+        [InlineData(true, LogLevel.Warning, false, true)]
+        public virtual async Task<List<string>> Use_Database_Log_for_query(
+            bool async, LogLevel level, bool setInConstructor, bool setInOnConfiguring)
+        {
+            using (var context = CreateContext(null))
+            {
+                var log = new List<string>();
+
+                DbContext actualContext;
+                if (setInConstructor || setInOnConfiguring)
+                {
+                    actualContext = new AcrossTheUniverseContext(
+                        (DbContextOptions)context.GetService<IDbContextOptions>(),
+                        log.Add,
+                        level,
+                        setInConstructor,
+                        setInOnConfiguring);
+                }
+                else
+                {
+                    actualContext = context;
+                    actualContext.Database.Log(log.Add, level);
+                }
+
+                _ = async
+                    ? await actualContext.Set<Singularity>().ToListAsync()
+                    : actualContext.Set<Singularity>().ToList();
+
+                Assert.Equal(
+                    level switch { LogLevel.Debug => 2, LogLevel.Information => 1, _ => 0 },
+                    log.Count);
+
+                actualContext.Dispose();
+
+                return log;
+            }
+        }
+
+        [ConditionalTheory]
+        [InlineData(false, false, false)]
+        [InlineData(true, false, false)]
+        [InlineData(false, true, false)]
+        [InlineData(true, true, false)]
+        [InlineData(false, false, true)]
+        [InlineData(true, false, true)]
+        [InlineData(false, true, true)]
+        [InlineData(true, true, true)]
+        public virtual async Task Intercept_scalar_passively(bool async, bool inject, bool enableLogging)
         {
             var (context, interceptor) = CreateContext<PassiveScalarCommandInterceptor>(inject);
             using (context)
             {
+                var logCounter = new DatabaseLogCounter(context, enableLogging);
+
                 var sql = "SELECT 1";
 
                 var command = context.GetService<IRelationalCommandBuilderFactory>().Create().Append(sql).Build();
                 var connection = context.GetService<IRelationalConnection>();
                 var logger = context.GetService<IDiagnosticsLogger<DbLoggerCategory.Database.Command>>();
 
+                var parameterObject = new RelationalCommandParameterObject(connection, null, context, logger);
+
                 if (async)
                 {
-                    Assert.Equal(
-                        1, Convert.ToInt32(
-                            await command.ExecuteScalarAsync(
-                                new RelationalCommandParameterObject(
-                                    connection, null, context, logger))));
+                    Assert.Equal(1, Convert.ToInt32(await command.ExecuteScalarAsync(parameterObject)));
                     Assert.True(interceptor.AsyncCalled);
                 }
                 else
                 {
-                    Assert.Equal(
-                        1, Convert.ToInt32(
-                            command.ExecuteScalar(
-                                new RelationalCommandParameterObject(connection, null, context, logger))));
+                    Assert.Equal(1, Convert.ToInt32(command.ExecuteScalar(parameterObject)));
                     Assert.True(interceptor.SyncCalled);
                 }
 
+                logCounter.Assert(2);
                 Assert.NotEqual(interceptor.AsyncCalled, interceptor.SyncCalled);
                 Assert.True(interceptor.ExecutingCalled);
                 Assert.True(interceptor.ExecutedCalled);
@@ -126,15 +193,71 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [ConditionalTheory]
-        [InlineData(false, false)]
-        [InlineData(true, false)]
-        [InlineData(false, true)]
-        [InlineData(true, true)]
-        public virtual async Task Intercept_non_query_passively(bool async, bool inject)
+        [InlineData(false, LogLevel.Debug)]
+        [InlineData(true, LogLevel.Debug)]
+        [InlineData(false, LogLevel.Information)]
+        [InlineData(true, LogLevel.Information)]
+        [InlineData(false, LogLevel.Warning)]
+        [InlineData(true, LogLevel.Warning)]
+        public virtual async Task Use_Database_Log_for_scalar(bool async, LogLevel level)
+        {
+            using (var context = CreateContext(null))
+            {
+                var sql = "SELECT 1";
+
+                var command = context.GetService<IRelationalCommandBuilderFactory>().Create().Append(sql).Build();
+                var connection = context.GetService<IRelationalConnection>();
+                var logger = context.GetService<IDiagnosticsLogger<DbLoggerCategory.Database.Command>>();
+
+                var log = new List<string>();
+                context.Database.Log(log.Add, level);
+
+                var commandParameterObject = new RelationalCommandParameterObject(connection, null, context, logger);
+
+                _ = async
+                    ? await command.ExecuteScalarAsync(commandParameterObject)
+                    : command.ExecuteScalar(commandParameterObject);
+
+                Assert.Equal(
+                    level switch { LogLevel.Debug => 2, LogLevel.Information => 1, _ => 0 },
+                    log.Count);
+
+                var position = 0;
+
+                if (level != LogLevel.Warning)
+                {
+                    AssertLog(
+                        @"Executing DbCommand [Parameters=[], CommandType='Text', CommandTimeout='30']
+SELECT 1",
+                        log[position++]);
+                }
+
+                if (level == LogLevel.Debug)
+                {
+                    AssertLog(
+                        @"Executed DbCommand (2ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+SELECT 1",
+                        log[position]);
+                }
+            }
+        }
+
+        [ConditionalTheory]
+        [InlineData(false, false, false)]
+        [InlineData(true, false, false)]
+        [InlineData(false, true, false)]
+        [InlineData(true, true, false)]
+        [InlineData(false, false, true)]
+        [InlineData(true, false, true)]
+        [InlineData(false, true, true)]
+        [InlineData(true, true, true)]
+        public virtual async Task Intercept_non_query_passively(bool async, bool inject, bool enableLogging)
         {
             var (context, interceptor) = CreateContext<PassiveNonQueryCommandInterceptor>(inject);
             using (context)
             {
+                var logCounter = new DatabaseLogCounter(context, enableLogging);
+
                 using (context.Database.BeginTransaction())
                 {
                     var nonQuery = "DELETE FROM Singularity WHERE Id = 77";
@@ -150,6 +273,7 @@ namespace Microsoft.EntityFrameworkCore
                         Assert.True(interceptor.SyncCalled);
                     }
 
+                    logCounter.Assert(2);
                     Assert.NotEqual(interceptor.AsyncCalled, interceptor.SyncCalled);
                     Assert.True(interceptor.ExecutingCalled);
                     Assert.True(interceptor.ExecutedCalled);
@@ -169,15 +293,67 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [ConditionalTheory]
-        [InlineData(false, false)]
-        [InlineData(true, false)]
-        [InlineData(false, true)]
-        [InlineData(true, true)]
-        public virtual async Task<string> Intercept_query_to_suppress_execution(bool async, bool inject)
+        [InlineData(false, LogLevel.Debug)]
+        [InlineData(true, LogLevel.Debug)]
+        [InlineData(false, LogLevel.Information)]
+        [InlineData(true, LogLevel.Information)]
+        [InlineData(false, LogLevel.Warning)]
+        [InlineData(true, LogLevel.Warning)]
+        public virtual async Task Use_Database_Log_for_non_query(bool async, LogLevel level)
+        {
+            using (var context = CreateContext(null))
+            {
+                using (context.Database.BeginTransaction())
+                {
+                    var nonQuery = "DELETE FROM Singularity WHERE Id = 77";
+
+                    var log = new List<string>();
+                    context.Database.Log(log.Add, level);
+
+                    _ = async
+                        ? await context.Database.ExecuteSqlRawAsync(nonQuery)
+                        : context.Database.ExecuteSqlRaw(nonQuery);
+
+                    Assert.Equal(
+                        level switch { LogLevel.Debug => 2, LogLevel.Information => 1, _ => 0 },
+                        log.Count);
+
+                    var position = 0;
+
+                    if (level != LogLevel.Warning)
+                    {
+                        AssertLog(
+                            @"Executing DbCommand [Parameters=[], CommandType='Text', CommandTimeout='30']
+DELETE FROM Singularity WHERE Id = 77",
+                            log[position++]);
+                    }
+
+                    if (level == LogLevel.Debug)
+                    {
+                        AssertLog(
+                            @"Executed DbCommand (2ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+DELETE FROM Singularity WHERE Id = 77",
+                            log[position]);
+                    }
+                }
+            }
+        }
+
+        [ConditionalTheory]
+        [InlineData(false, false, false)]
+        [InlineData(true, false, false)]
+        [InlineData(false, true, false)]
+        [InlineData(true, true, false)]
+        [InlineData(false, false, true)]
+        [InlineData(true, false, true)]
+        [InlineData(false, true, true)]
+        [InlineData(true, true, true)]
+        public virtual async Task<string> Intercept_query_to_suppress_execution(bool async, bool inject, bool enableLogging)
         {
             var (context, interceptor) = CreateContext<SuppressingReaderCommandInterceptor>(inject);
             using (context)
             {
+                var logCounter = new DatabaseLogCounter(context, enableLogging);
                 List<Singularity> results;
 
                 if (async)
@@ -191,6 +367,7 @@ namespace Microsoft.EntityFrameworkCore
                     Assert.True(interceptor.SyncCalled);
                 }
 
+                logCounter.Assert(2);
                 Assert.Equal(3, results.Count);
                 Assert.Equal(977, results[0].Id);
                 Assert.Equal(988, results[1].Id);
@@ -238,28 +415,34 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [ConditionalTheory]
-        [InlineData(false, false)]
-        [InlineData(true, false)]
-        [InlineData(false, true)]
-        [InlineData(true, true)]
-        public virtual async Task Intercept_scalar_to_suppress_execution(bool async, bool inject)
+        [InlineData(false, false, false)]
+        [InlineData(true, false, false)]
+        [InlineData(false, true, false)]
+        [InlineData(true, true, false)]
+        [InlineData(false, false, true)]
+        [InlineData(true, false, true)]
+        [InlineData(false, true, true)]
+        [InlineData(true, true, true)]
+        public virtual async Task Intercept_scalar_to_suppress_execution(bool async, bool inject, bool enableLogging)
         {
             var (context, interceptor) = CreateContext<SuppressingScalarCommandInterceptor>(inject);
             using (context)
             {
+                var logCounter = new DatabaseLogCounter(context, enableLogging);
+
                 var sql = "SELECT 1";
 
                 var command = context.GetService<IRelationalCommandBuilderFactory>().Create().Append(sql).Build();
                 var connection = context.GetService<IRelationalConnection>();
                 var logger = context.GetService<IDiagnosticsLogger<DbLoggerCategory.Database.Command>>();
 
+                var commandParameterObject = new RelationalCommandParameterObject(
+                    connection, null, context, logger);
                 if (async)
                 {
                     Assert.Equal(
                         SuppressingScalarCommandInterceptor.InterceptedResult,
-                        await command.ExecuteScalarAsync(
-                            new RelationalCommandParameterObject(
-                                connection, null, context, logger)));
+                        await command.ExecuteScalarAsync(commandParameterObject));
 
                     Assert.True(interceptor.AsyncCalled);
                 }
@@ -267,13 +450,12 @@ namespace Microsoft.EntityFrameworkCore
                 {
                     Assert.Equal(
                         SuppressingScalarCommandInterceptor.InterceptedResult,
-                        command.ExecuteScalar(
-                            new RelationalCommandParameterObject(
-                                connection, null, context, logger)));
+                        command.ExecuteScalar(commandParameterObject));
 
                     Assert.True(interceptor.SyncCalled);
                 }
 
+                logCounter.Assert(2);
                 Assert.NotEqual(interceptor.AsyncCalled, interceptor.SyncCalled);
                 Assert.True(interceptor.ExecutingCalled);
                 Assert.True(interceptor.ExecutedCalled);
@@ -316,17 +498,23 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [ConditionalTheory]
-        [InlineData(false, false)]
-        [InlineData(true, false)]
-        [InlineData(false, true)]
-        [InlineData(true, true)]
-        public virtual async Task Intercept_non_query_to_suppress_execution(bool async, bool inject)
+        [InlineData(false, false, false)]
+        [InlineData(true, false, false)]
+        [InlineData(false, true, false)]
+        [InlineData(true, true, false)]
+        [InlineData(false, false, true)]
+        [InlineData(true, false, true)]
+        [InlineData(false, true, true)]
+        [InlineData(true, true, true)]
+        public virtual async Task Intercept_non_query_to_suppress_execution(bool async, bool inject, bool enableLogging)
         {
             var (context, interceptor) = CreateContext<SuppressingNonQueryCommandInterceptor>(inject);
             using (context)
             {
                 using (context.Database.BeginTransaction())
                 {
+                    var logCounter = new DatabaseLogCounter(context, enableLogging);
+
                     var nonQuery = "DELETE FROM Singularity WHERE Id = 77";
 
                     if (async)
@@ -340,6 +528,7 @@ namespace Microsoft.EntityFrameworkCore
                         Assert.True(interceptor.SyncCalled);
                     }
 
+                    logCounter.Assert(2);
                     Assert.NotEqual(interceptor.AsyncCalled, interceptor.SyncCalled);
                     Assert.True(interceptor.ExecutingCalled);
                     Assert.True(interceptor.ExecutedCalled);
@@ -380,15 +569,21 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [ConditionalTheory]
-        [InlineData(false, false)]
-        [InlineData(true, false)]
-        [InlineData(false, true)]
-        [InlineData(true, true)]
-        public virtual async Task<string> Intercept_query_to_mutate_command(bool async, bool inject)
+        [InlineData(false, false, false)]
+        [InlineData(true, false, false)]
+        [InlineData(false, true, false)]
+        [InlineData(true, true, false)]
+        [InlineData(false, false, true)]
+        [InlineData(true, false, true)]
+        [InlineData(false, true, true)]
+        [InlineData(true, true, true)]
+        public virtual async Task<string> Intercept_query_to_mutate_command(bool async, bool inject, bool enableLogging)
         {
             var (context, interceptor) = CreateContext<MutatingReaderCommandInterceptor>(inject);
             using (context)
             {
+                var logCounter = new DatabaseLogCounter(context, enableLogging);
+
                 List<Singularity> results;
 
                 if (async)
@@ -402,6 +597,7 @@ namespace Microsoft.EntityFrameworkCore
                     Assert.True(interceptor.SyncCalled);
                 }
 
+                logCounter.Assert(2);
                 Assert.Equal(2, results.Count);
                 Assert.Equal(77, results[0].Id);
                 Assert.Equal(88, results[1].Id);
@@ -450,37 +646,41 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [ConditionalTheory]
-        [InlineData(false, false)]
-        [InlineData(true, false)]
-        [InlineData(false, true)]
-        [InlineData(true, true)]
-        public virtual async Task Intercept_scalar_to_mutate_command(bool async, bool inject)
+        [InlineData(false, false, false)]
+        [InlineData(true, false, false)]
+        [InlineData(false, true, false)]
+        [InlineData(true, true, false)]
+        [InlineData(false, false, true)]
+        [InlineData(true, false, true)]
+        [InlineData(false, true, true)]
+        [InlineData(true, true, true)]
+        public virtual async Task Intercept_scalar_to_mutate_command(bool async, bool inject, bool enableLogging)
         {
             var (context, interceptor) = CreateContext<MutatingScalarCommandInterceptor>(inject);
             using (context)
             {
+                var logCounter = new DatabaseLogCounter(context, enableLogging);
+
                 var sql = "SELECT 1";
 
                 var command = context.GetService<IRelationalCommandBuilderFactory>().Create().Append(sql).Build();
                 var connection = context.GetService<IRelationalConnection>();
                 var logger = context.GetService<IDiagnosticsLogger<DbLoggerCategory.Database.Command>>();
 
+                var commandParameterObject = new RelationalCommandParameterObject(connection, null, context, logger);
+
                 if (async)
                 {
-                    Assert.Equal(2, Convert.ToInt32(await command.ExecuteScalarAsync(
-                        new RelationalCommandParameterObject(connection, null, context, logger))));
+                    Assert.Equal(2, Convert.ToInt32(await command.ExecuteScalarAsync(commandParameterObject)));
                     Assert.True(interceptor.AsyncCalled);
                 }
                 else
                 {
-                    Assert.Equal(
-                        2, Convert.ToInt32(
-                            command.ExecuteScalar(
-                                new RelationalCommandParameterObject(
-                                    connection, null, context, logger))));
+                    Assert.Equal(2, Convert.ToInt32(command.ExecuteScalar(commandParameterObject)));
                     Assert.True(interceptor.SyncCalled);
                 }
 
+                logCounter.Assert(2);
                 Assert.NotEqual(interceptor.AsyncCalled, interceptor.SyncCalled);
                 Assert.True(interceptor.ExecutingCalled);
                 Assert.True(interceptor.ExecutedCalled);
@@ -522,15 +722,21 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [ConditionalTheory]
-        [InlineData(false, false)]
-        [InlineData(true, false)]
-        [InlineData(false, true)]
-        [InlineData(true, true)]
-        public virtual async Task Intercept_non_query_to_mutate_command(bool async, bool inject)
+        [InlineData(false, false, false)]
+        [InlineData(true, false, false)]
+        [InlineData(false, true, false)]
+        [InlineData(true, true, false)]
+        [InlineData(false, false, true)]
+        [InlineData(true, false, true)]
+        [InlineData(false, true, true)]
+        [InlineData(true, true, true)]
+        public virtual async Task Intercept_non_query_to_mutate_command(bool async, bool inject, bool enableLogging)
         {
             var (context, interceptor) = CreateContext<MutatingNonQueryCommandInterceptor>(inject);
             using (context)
             {
+                var logCounter = new DatabaseLogCounter(context, enableLogging);
+
                 using (context.Database.BeginTransaction())
                 {
                     var nonQuery = "DELETE FROM Singularity WHERE Id = 77";
@@ -546,6 +752,7 @@ namespace Microsoft.EntityFrameworkCore
                         Assert.True(interceptor.SyncCalled);
                     }
 
+                    logCounter.Assert(2);
                     Assert.NotEqual(interceptor.AsyncCalled, interceptor.SyncCalled);
                     Assert.True(interceptor.ExecutingCalled);
                     Assert.True(interceptor.ExecutedCalled);
@@ -588,15 +795,21 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [ConditionalTheory]
-        [InlineData(false, false)]
-        [InlineData(true, false)]
-        [InlineData(false, true)]
-        [InlineData(true, true)]
-        public virtual async Task<string> Intercept_query_to_replace_execution(bool async, bool inject)
+        [InlineData(false, false, false)]
+        [InlineData(true, false, false)]
+        [InlineData(false, true, false)]
+        [InlineData(true, true, false)]
+        [InlineData(false, false, true)]
+        [InlineData(true, false, true)]
+        [InlineData(false, true, true)]
+        [InlineData(true, true, true)]
+        public virtual async Task<string> Intercept_query_to_replace_execution(bool async, bool inject, bool enableLogging)
         {
             var (context, interceptor) = CreateContext<QueryReplacingReaderCommandInterceptor>(inject);
             using (context)
             {
+                var logCounter = new DatabaseLogCounter(context, enableLogging);
+
                 List<Singularity> results;
 
                 if (async)
@@ -610,6 +823,7 @@ namespace Microsoft.EntityFrameworkCore
                     Assert.True(interceptor.SyncCalled);
                 }
 
+                logCounter.Assert(2);
                 Assert.Equal(2, results.Count);
                 Assert.Equal(77, results[0].Id);
                 Assert.Equal(88, results[1].Id);
@@ -665,36 +879,41 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [ConditionalTheory]
-        [InlineData(false, false)]
-        [InlineData(true, false)]
-        [InlineData(false, true)]
-        [InlineData(true, true)]
-        public virtual async Task Intercept_scalar_to_replace_execution(bool async, bool inject)
+        [InlineData(false, false, false)]
+        [InlineData(true, false, false)]
+        [InlineData(false, true, false)]
+        [InlineData(true, true, false)]
+        [InlineData(false, false, true)]
+        [InlineData(true, false, true)]
+        [InlineData(false, true, true)]
+        [InlineData(true, true, true)]
+        public virtual async Task Intercept_scalar_to_replace_execution(bool async, bool inject, bool enableLogging)
         {
             var (context, interceptor) = CreateContext<QueryReplacingScalarCommandInterceptor>(inject);
             using (context)
             {
+                var logCounter = new DatabaseLogCounter(context, enableLogging);
+
                 var sql = "SELECT 1";
 
                 var command = context.GetService<IRelationalCommandBuilderFactory>().Create().Append(sql).Build();
                 var connection = context.GetService<IRelationalConnection>();
                 var logger = context.GetService<IDiagnosticsLogger<DbLoggerCategory.Database.Command>>();
 
+                var commandParameterObject = new RelationalCommandParameterObject(connection, null, context, logger);
+
                 if (async)
                 {
-                    Assert.Equal(2, Convert.ToInt32(await command.ExecuteScalarAsync(
-                        new RelationalCommandParameterObject(connection, null, context, logger))));
+                    Assert.Equal(2, Convert.ToInt32(await command.ExecuteScalarAsync(commandParameterObject)));
                     Assert.True(interceptor.AsyncCalled);
                 }
                 else
                 {
-                    Assert.Equal(
-                        2, Convert.ToInt32(
-                            command.ExecuteScalar(
-                                new RelationalCommandParameterObject(connection, null, context, logger))));
+                    Assert.Equal(2, Convert.ToInt32(command.ExecuteScalar(commandParameterObject)));
                     Assert.True(interceptor.SyncCalled);
                 }
 
+                logCounter.Assert(2);
                 Assert.NotEqual(interceptor.AsyncCalled, interceptor.SyncCalled);
                 Assert.True(interceptor.ExecutingCalled);
                 Assert.True(interceptor.ExecutedCalled);
@@ -744,15 +963,21 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [ConditionalTheory]
-        [InlineData(false, false)]
-        [InlineData(true, false)]
-        [InlineData(false, true)]
-        [InlineData(true, true)]
-        public virtual async Task Intercept_non_query_to_replace_execution(bool async, bool inject)
+        [InlineData(false, false, false)]
+        [InlineData(true, false, false)]
+        [InlineData(false, true, false)]
+        [InlineData(true, true, false)]
+        [InlineData(false, false, true)]
+        [InlineData(true, false, true)]
+        [InlineData(false, true, true)]
+        [InlineData(true, true, true)]
+        public virtual async Task Intercept_non_query_to_replace_execution(bool async, bool inject, bool enableLogging)
         {
             var (context, interceptor) = CreateContext<QueryReplacingNonQueryCommandInterceptor>(inject);
             using (context)
             {
+                var logCounter = new DatabaseLogCounter(context, enableLogging);
+
                 using (context.Database.BeginTransaction())
                 {
                     var nonQuery = "DELETE FROM Singularity WHERE Id = 78";
@@ -768,6 +993,7 @@ namespace Microsoft.EntityFrameworkCore
                         Assert.True(interceptor.SyncCalled);
                     }
 
+                    logCounter.Assert(2);
                     Assert.NotEqual(interceptor.AsyncCalled, interceptor.SyncCalled);
                     Assert.True(interceptor.ExecutingCalled);
                     Assert.True(interceptor.ExecutedCalled);
@@ -819,15 +1045,21 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [ConditionalTheory]
-        [InlineData(false, false)]
-        [InlineData(true, false)]
-        [InlineData(false, true)]
-        [InlineData(true, true)]
-        public virtual async Task<string> Intercept_query_to_replace_result(bool async, bool inject)
+        [InlineData(false, false, false)]
+        [InlineData(true, false, false)]
+        [InlineData(false, true, false)]
+        [InlineData(true, true, false)]
+        [InlineData(false, false, true)]
+        [InlineData(true, false, true)]
+        [InlineData(false, true, true)]
+        [InlineData(true, true, true)]
+        public virtual async Task<string> Intercept_query_to_replace_result(bool async, bool inject, bool enableLogging)
         {
             var (context, interceptor) = CreateContext<ResultReplacingReaderCommandInterceptor>(inject);
             using (context)
             {
+                var logCounter = new DatabaseLogCounter(context, enableLogging);
+
                 List<Singularity> results;
 
                 if (async)
@@ -841,6 +1073,7 @@ namespace Microsoft.EntityFrameworkCore
                     Assert.True(interceptor.SyncCalled);
                 }
 
+                logCounter.Assert(2);
                 Assert.Equal(5, results.Count);
                 Assert.Equal(77, results[0].Id);
                 Assert.Equal(88, results[1].Id);
@@ -945,27 +1178,34 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [ConditionalTheory]
-        [InlineData(false, false)]
-        [InlineData(true, false)]
-        [InlineData(false, true)]
-        [InlineData(true, true)]
-        public virtual async Task Intercept_scalar_to_replace_result(bool async, bool inject)
+        [InlineData(false, false, false)]
+        [InlineData(true, false, false)]
+        [InlineData(false, true, false)]
+        [InlineData(true, true, false)]
+        [InlineData(false, false, true)]
+        [InlineData(true, false, true)]
+        [InlineData(false, true, true)]
+        [InlineData(true, true, true)]
+        public virtual async Task Intercept_scalar_to_replace_result(bool async, bool inject, bool enableLogging)
         {
             var (context, interceptor) = CreateContext<ResultReplacingScalarCommandInterceptor>(inject);
             using (context)
             {
+                var logCounter = new DatabaseLogCounter(context, enableLogging);
+
                 var sql = "SELECT 1";
 
                 var command = context.GetService<IRelationalCommandBuilderFactory>().Create().Append(sql).Build();
                 var connection = context.GetService<IRelationalConnection>();
                 var logger = context.GetService<IDiagnosticsLogger<DbLoggerCategory.Database.Command>>();
 
+                var commandParameterObject = new RelationalCommandParameterObject(connection, null, context, logger);
+
                 if (async)
                 {
                     Assert.Equal(
                         ResultReplacingScalarCommandInterceptor.InterceptedResult,
-                        await command.ExecuteScalarAsync(
-                            new RelationalCommandParameterObject(connection, null, context, logger)));
+                        await command.ExecuteScalarAsync(commandParameterObject));
 
                     Assert.True(interceptor.AsyncCalled);
                 }
@@ -973,12 +1213,12 @@ namespace Microsoft.EntityFrameworkCore
                 {
                     Assert.Equal(
                         ResultReplacingScalarCommandInterceptor.InterceptedResult,
-                        command.ExecuteScalar(
-                            new RelationalCommandParameterObject(connection, null, context, logger)));
+                        command.ExecuteScalar(commandParameterObject));
 
                     Assert.True(interceptor.SyncCalled);
                 }
 
+                logCounter.Assert(2);
                 Assert.NotEqual(interceptor.AsyncCalled, interceptor.SyncCalled);
                 Assert.True(interceptor.ExecutingCalled);
                 Assert.True(interceptor.ExecutedCalled);
@@ -1020,15 +1260,21 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [ConditionalTheory]
-        [InlineData(false, false)]
-        [InlineData(true, false)]
-        [InlineData(false, true)]
-        [InlineData(true, true)]
-        public virtual async Task Intercept_non_query_to_replaceresult(bool async, bool inject)
+        [InlineData(false, false, false)]
+        [InlineData(true, false, false)]
+        [InlineData(false, true, false)]
+        [InlineData(true, true, false)]
+        [InlineData(false, false, true)]
+        [InlineData(true, false, true)]
+        [InlineData(false, true, true)]
+        [InlineData(true, true, true)]
+        public virtual async Task Intercept_non_query_to_replaceresult(bool async, bool inject, bool enableLogging)
         {
             var (context, interceptor) = CreateContext<ResultReplacingNonQueryCommandInterceptor>(inject);
             using (context)
             {
+                var logCounter = new DatabaseLogCounter(context, enableLogging);
+
                 using (context.Database.BeginTransaction())
                 {
                     var nonQuery = "DELETE FROM Singularity WHERE Id = 78";
@@ -1044,6 +1290,7 @@ namespace Microsoft.EntityFrameworkCore
                         Assert.True(interceptor.SyncCalled);
                     }
 
+                    logCounter.Assert(2);
                     Assert.NotEqual(interceptor.AsyncCalled, interceptor.SyncCalled);
                     Assert.True(interceptor.ExecutingCalled);
                     Assert.True(interceptor.ExecutedCalled);
@@ -1113,11 +1360,11 @@ namespace Microsoft.EntityFrameworkCore
                 var connection = context.GetService<IRelationalConnection>();
                 var logger = context.GetService<IDiagnosticsLogger<DbLoggerCategory.Database.Command>>();
 
+                var commandParameterObject = new RelationalCommandParameterObject(connection, null, context, logger);
+
                 var exception = async
-                    ? await Assert.ThrowsAsync<Exception>(() => command.ExecuteScalarAsync(
-                        new RelationalCommandParameterObject(connection, null, context, logger)))
-                    : Assert.Throws<Exception>(() => command.ExecuteScalar(
-                        new RelationalCommandParameterObject(connection, null, context, logger)));
+                    ? await Assert.ThrowsAsync<Exception>(() => command.ExecuteScalarAsync(commandParameterObject))
+                    : Assert.Throws<Exception>(() => command.ExecuteScalar(commandParameterObject));
 
                 Assert.Equal("Bang!", exception.Message);
             }
@@ -1200,9 +1447,11 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [ConditionalTheory]
-        [InlineData(false)]
-        [InlineData(true)]
-        public virtual async Task Intercept_query_with_one_app_and_one_injected_interceptor(bool async)
+        [InlineData(false, false)]
+        [InlineData(true, false)]
+        [InlineData(false, true)]
+        [InlineData(true, true)]
+        public virtual async Task Intercept_query_with_one_app_and_one_injected_interceptor(bool async, bool enableLogging)
         {
             var appInterceptor = new ResultReplacingReaderCommandInterceptor();
             using (var context = CreateContext(appInterceptor, typeof(MutatingReaderCommandInterceptor)))
@@ -1211,7 +1460,8 @@ namespace Microsoft.EntityFrameworkCore
                     context,
                     appInterceptor,
                     (MutatingReaderCommandInterceptor)context.GetService<IEnumerable<IDbCommandInterceptor>>().Single(),
-                    async);
+                    async,
+                     enableLogging);
             }
         }
 
@@ -1219,8 +1469,11 @@ namespace Microsoft.EntityFrameworkCore
             UniverseContext context,
             ResultReplacingReaderCommandInterceptor interceptor1,
             MutatingReaderCommandInterceptor interceptor2,
-            bool async)
+            bool async,
+            bool enableLogging)
         {
+            var logCounter = new DatabaseLogCounter(context, enableLogging);
+
             List<Singularity> results;
 
             if (async)
@@ -1238,6 +1491,7 @@ namespace Microsoft.EntityFrameworkCore
 
             AssertCompositeResults(results);
 
+            logCounter.Assert(2);
             Assert.NotEqual(interceptor1.AsyncCalled, interceptor1.SyncCalled);
             Assert.NotEqual(interceptor2.AsyncCalled, interceptor2.SyncCalled);
             Assert.True(interceptor1.ExecutingCalled);
@@ -1267,13 +1521,13 @@ namespace Microsoft.EntityFrameworkCore
             var connection = context.GetService<IRelationalConnection>();
             var logger = context.GetService<IDiagnosticsLogger<DbLoggerCategory.Database.Command>>();
 
+            var commandParameterObject = new RelationalCommandParameterObject(connection, null, context, logger);
+
             Assert.Equal(
                 ResultReplacingScalarCommandInterceptor.InterceptedResult,
                 async
-                    ? await command.ExecuteScalarAsync(
-                        new RelationalCommandParameterObject(connection, null, context, logger))
-                    : command.ExecuteScalar(
-                        new RelationalCommandParameterObject(connection, null, context, logger)));
+                    ? await command.ExecuteScalarAsync(commandParameterObject)
+                    : command.ExecuteScalar(commandParameterObject));
         }
 
         [ConditionalTheory]
@@ -1304,9 +1558,11 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [ConditionalTheory]
-        [InlineData(false)]
-        [InlineData(true)]
-        public virtual async Task Intercept_query_with_two_injected_interceptors(bool async)
+        [InlineData(false, false)]
+        [InlineData(true, false)]
+        [InlineData(false, true)]
+        [InlineData(true, true)]
+        public virtual async Task Intercept_query_with_two_injected_interceptors(bool async, bool enableLogging)
         {
             using (var context = CreateContext(
                 null,
@@ -1319,7 +1575,8 @@ namespace Microsoft.EntityFrameworkCore
                     context,
                     injectedInterceptors.OfType<ResultReplacingReaderCommandInterceptor>().Single(),
                     injectedInterceptors.OfType<MutatingReaderCommandInterceptor>().Single(),
-                    async);
+                    async,
+                    enableLogging);
             }
         }
 
@@ -1357,7 +1614,7 @@ namespace Microsoft.EntityFrameworkCore
         public virtual async Task Intercept_query_with_explicitly_composed_app_interceptor(bool async)
         {
             using (var context = CreateContext(
-                new CompositeDbCommandInterceptor(
+                DbCommandInterceptor.CreateChain(
                     new MutatingReaderCommandInterceptor(), new ResultReplacingReaderCommandInterceptor())))
             {
                 var results = async
@@ -1389,7 +1646,7 @@ namespace Microsoft.EntityFrameworkCore
         public virtual async Task Intercept_scalar_with_explicitly_composed_app_interceptor(bool async)
         {
             using (var context = CreateContext(
-                new CompositeDbCommandInterceptor(
+                DbCommandInterceptor.CreateChain(
                     new MutatingScalarCommandInterceptor(), new ResultReplacingScalarCommandInterceptor())))
             {
                 await TestCompositeScalarInterceptors(context, async);
@@ -1402,7 +1659,7 @@ namespace Microsoft.EntityFrameworkCore
         public virtual async Task Intercept_non_query_with_explicitly_composed_app_interceptor(bool async)
         {
             using (var context = CreateContext(
-                new CompositeDbCommandInterceptor(
+                    DbCommandInterceptor.CreateChain(
                     new MutatingNonQueryCommandInterceptor(), new ResultReplacingNonQueryCommandInterceptor())))
             {
                 await TestCompositeNonQueryInterceptors(context, async);
@@ -1664,6 +1921,29 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
+        protected class DatabaseLogCounter
+        {
+            private readonly bool _enabled;
+            private int _hitCount;
+
+            public DatabaseLogCounter(DbContext context, bool enabled)
+            {
+                _enabled = enabled;
+                if (enabled)
+                {
+                    context.Database.Log(
+                        m =>
+                        {
+                            Xunit.Assert.NotNull(m);
+                            _hitCount++;
+                        });
+                }
+            }
+
+            public void Assert(int expected)
+                => Xunit.Assert.Equal(_enabled ? expected : 0, _hitCount);
+        }
+
         protected class Singularity
         {
             [DatabaseGenerated(DatabaseGeneratedOption.None)]
@@ -1678,6 +1958,41 @@ namespace Microsoft.EntityFrameworkCore
             public int Id { get; set; }
 
             public string Type { get; set; }
+        }
+
+        public class AcrossTheUniverseContext : UniverseContext
+        {
+            private readonly Action<string> _logAction;
+            private readonly LogLevel _logLevel;
+            private readonly bool _setLogInOnConfiguring;
+
+            public AcrossTheUniverseContext(
+                DbContextOptions options,
+                Action<string> logAction,
+                LogLevel logLevel,
+                bool setLogInConstructor,
+                bool setLogInOnConfiguring)
+                : base(options)
+            {
+                _logAction = logAction;
+                _logLevel = logLevel;
+                _setLogInOnConfiguring = setLogInOnConfiguring;
+
+                if (setLogInConstructor)
+                {
+                    // ReSharper disable once VirtualMemberCallInConstructor
+                    Database.Log(logAction, logLevel);
+                }
+            }
+
+            protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+            {
+                if (_setLogInOnConfiguring)
+                {
+                    Database.Log(_logAction, _logLevel);
+                }
+                base.OnConfiguring(optionsBuilder);
+            }
         }
 
         public class UniverseContext : PoolableDbContext
@@ -1716,9 +2031,16 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         protected void AssertSql(string expected, string actual)
-            => Assert.Equal(
-                expected,
-                actual.Replace("\r", string.Empty).Replace("\n", " "));
+            => Assert.Equal(Normalize(expected), Normalize(actual));
+
+        protected void AssertLog(string expected, string actual)
+            => Assert.Equal(StripTime(expected), StripTime(actual));
+
+        private static string StripTime(string message)
+            => Regex.Replace(Normalize(message), @" \(\d*ms\) ", @" (Xms) ");
+
+        private static string Normalize(string s)
+            => s.Replace("\r", string.Empty).Replace("\n", " ");
 
         protected (DbContext, TInterceptor) CreateContext<TInterceptor>(bool inject)
             where TInterceptor : class, IDbCommandInterceptor, new()

@@ -1,6 +1,10 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
+using JetBrains.Annotations;
+using Microsoft.Extensions.Logging;
+
 namespace Microsoft.EntityFrameworkCore.Internal
 {
     /// <summary>
@@ -9,8 +13,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    // This is used by Relational, but is still internal since it's only for an optimization; no provider needs access.
-    public interface IDatabaseFacadeDependenciesAccessor
+    public readonly struct DatabaseFacadeConfiguration
     {
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -18,7 +21,15 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        IDatabaseFacadeDependencies Dependencies { get; }
+        public DatabaseFacadeConfiguration(
+            [NotNull] DbContext context,
+            LogLevel logLevel,
+            [CanBeNull] Action<string> logAction)
+        {
+            Context = context;
+            LogLevel = logLevel;
+            LogAction = logAction;
+        }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -26,6 +37,22 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        DatabaseFacadeConfiguration Configuration { get; }
+        public DbContext Context { get; }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public LogLevel LogLevel { get; }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public Action<string> LogAction { get; }
     }
 }

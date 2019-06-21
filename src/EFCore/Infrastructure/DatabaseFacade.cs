@@ -11,6 +11,7 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
+using Microsoft.Extensions.Logging;
 
 namespace Microsoft.EntityFrameworkCore.Infrastructure
 {
@@ -22,6 +23,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
     public class DatabaseFacade : IInfrastructure<IServiceProvider>, IDatabaseFacadeDependenciesAccessor
     {
         private readonly DbContext _context;
+        private Action<string> _logAction;
+        private LogLevel _logLevel;
         private IDatabaseFacadeDependencies _dependencies;
 
         /// <summary>
@@ -236,6 +239,27 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
         /// <summary>
         ///     <para>
+        ///         Configures Entity Framework to write database log messages (for example, generated SQL) to
+        ///         the given delegate.
+        ///     </para>
+        ///     <para>
+        ///         Note that the values set here are read once when the <see cref="DbContext" /> is being
+        ///         initialized. Changing the values while the <see cref="DbContext" /> is being used will have
+        ///         no effect.
+        ///     </para>
+        /// </summary>
+        /// <param name="action"> The delegate to which log messages will be written. </param>
+        /// <param name="level"> The log level to filter by. Only events at or more severe than this level will be logged. </param>
+        public virtual void Log([NotNull] Action<string> action, LogLevel level = LogLevel.Debug)
+        {
+            Check.NotNull(action, nameof(action));
+
+            _logAction = action;
+            _logLevel = level;
+        }
+
+        /// <summary>
+        ///     <para>
         ///         Gets the scoped <see cref="IServiceProvider" /> being used to resolve services.
         ///     </para>
         ///     <para>
@@ -260,8 +284,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        DbContext IDatabaseFacadeDependenciesAccessor.Context
-            => _context;
+        DatabaseFacadeConfiguration IDatabaseFacadeDependenciesAccessor.Configuration
+            => new DatabaseFacadeConfiguration(_context, _logLevel, _logAction);
 
         #region Hidden System.Object members
 

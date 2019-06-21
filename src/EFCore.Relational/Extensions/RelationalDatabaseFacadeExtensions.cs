@@ -222,7 +222,7 @@ namespace Microsoft.EntityFrameworkCore
                         new RelationalCommandParameterObject(
                             GetFacadeDependencies(databaseFacade).RelationalConnection,
                             rawSqlCommand.ParameterValues,
-                            ((IDatabaseFacadeDependenciesAccessor)databaseFacade).Context,
+                            ((IDatabaseFacadeDependenciesAccessor)databaseFacade).Configuration.Context,
                             logger));
             }
         }
@@ -388,7 +388,7 @@ namespace Microsoft.EntityFrameworkCore
                         new RelationalCommandParameterObject(
                             facadeDependencies.RelationalConnection,
                             rawSqlCommand.ParameterValues,
-                            ((IDatabaseFacadeDependenciesAccessor)databaseFacade).Context,
+                            ((IDatabaseFacadeDependenciesAccessor)databaseFacade).Configuration.Context,
                             logger),
                         cancellationToken);
             }
@@ -504,7 +504,7 @@ namespace Microsoft.EntityFrameworkCore
                         new RelationalCommandParameterObject(
                             facadeDependencies.RelationalConnection,
                             rawSqlCommand.ParameterValues,
-                            ((IDatabaseFacadeDependenciesAccessor)databaseFacade).Context,
+                            ((IDatabaseFacadeDependenciesAccessor)databaseFacade).Configuration.Context,
                             logger));
             }
         }
@@ -656,7 +656,7 @@ namespace Microsoft.EntityFrameworkCore
                         new RelationalCommandParameterObject(
                             facadeDependencies.RelationalConnection,
                             rawSqlCommand.ParameterValues,
-                            ((IDatabaseFacadeDependenciesAccessor)databaseFacade).Context,
+                            ((IDatabaseFacadeDependenciesAccessor)databaseFacade).Configuration.Context,
                             logger),
                         cancellationToken);
             }

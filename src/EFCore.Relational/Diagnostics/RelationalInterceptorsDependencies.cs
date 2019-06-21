@@ -47,11 +47,16 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     </para>
         /// </summary>
         /// <param name="commandInterceptors"> Command interceptors registered in D.I.  </param>
-        public RelationalInterceptorsDependencies([NotNull] IEnumerable<IDbCommandInterceptor> commandInterceptors)
+        /// <param name="databaseInterceptingLoggerFactory"> A factory for creating an intercepting logger. </param>
+        public RelationalInterceptorsDependencies(
+            [NotNull] IEnumerable<IDbCommandInterceptor> commandInterceptors,
+            [NotNull] IRelationalDatabaseInterceptingLoggerFactory databaseInterceptingLoggerFactory)
         {
             Check.NotNull(commandInterceptors, nameof(commandInterceptors));
+            Check.NotNull(databaseInterceptingLoggerFactory, nameof(databaseInterceptingLoggerFactory));
 
             CommandInterceptors = commandInterceptors;
+            DatabaseInterceptingLoggerFactory = databaseInterceptingLoggerFactory;
         }
 
         /// <summary>
@@ -60,11 +65,24 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         public IEnumerable<IDbCommandInterceptor> CommandInterceptors { get; }
 
         /// <summary>
+        ///     A factory for creating an intercepting logger.
+        /// </summary>
+        public IRelationalDatabaseInterceptingLoggerFactory DatabaseInterceptingLoggerFactory { get; }
+
+        /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
         /// </summary>
         /// <param name="commandInterceptors"> A replacement for the current dependency of this type. </param>
         /// <returns> A new parameter object with the given service replaced. </returns>
         public RelationalInterceptorsDependencies With([NotNull] IEnumerable<IDbCommandInterceptor> commandInterceptors)
-            => new RelationalInterceptorsDependencies(commandInterceptors);
+            => new RelationalInterceptorsDependencies(commandInterceptors, DatabaseInterceptingLoggerFactory);
+
+        /// <summary>
+        ///     Clones this dependency parameter object with one service replaced.
+        /// </summary>
+        /// <param name="databaseInterceptingLoggerFactory"> A replacement for the current dependency of this type. </param>
+        /// <returns> A new parameter object with the given service replaced. </returns>
+        public RelationalInterceptorsDependencies With([NotNull] IRelationalDatabaseInterceptingLoggerFactory databaseInterceptingLoggerFactory)
+            => new RelationalInterceptorsDependencies(CommandInterceptors, databaseInterceptingLoggerFactory);
     }
 }

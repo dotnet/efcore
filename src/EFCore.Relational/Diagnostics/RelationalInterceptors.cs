@@ -4,6 +4,7 @@
 using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -63,27 +64,21 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 if (!_initialized)
                 {
                     var injectedInterceptors = RelationalDependencies.CommandInterceptors.ToList();
-                    var injectedCount = injectedInterceptors.Count;
-                    var appInterceptor = FindAppInterceptor();
 
-                    if (injectedCount == 0)
+                    if (TryFindAppInterceptor(out var appInterceptor))
                     {
-                        _interceptor = appInterceptor;
+                        injectedInterceptors.Add(appInterceptor);
                     }
-                    else
+
+                    if (TryFindDatabaseLog(out var databaseLogConfig))
                     {
-                        if (appInterceptor == null)
-                        {
-                            _interceptor = injectedCount == 1
-                                ? injectedInterceptors[0]
-                                : new CompositeDbCommandInterceptor(injectedInterceptors);
-                        }
-                        else
-                        {
-                            injectedInterceptors.Add(appInterceptor);
-                            _interceptor = new CompositeDbCommandInterceptor(injectedInterceptors);
-                        }
+                        injectedInterceptors.Add(
+                            RelationalDependencies.DatabaseInterceptingLoggerFactory.Create(
+                                databaseLogConfig.LogAction,
+                                databaseLogConfig.LogLevel));
                     }
+
+                    _interceptor = DbCommandInterceptor.CreateChain(injectedInterceptors);
 
                     _initialized = true;
                 }
@@ -98,13 +93,28 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     This means those loggers can't do interception, but that's okay because nothing
         ///     else is ready for them to do interception anyway.
         /// </summary>
-        private IDbCommandInterceptor FindAppInterceptor()
-            => Dependencies
+        private  bool TryFindAppInterceptor(out IDbCommandInterceptor interceptor)
+        {
+            interceptor = Dependencies
                 .ServiceProvider
                 .GetService<IDbContextOptions>()
                 .Extensions
                 .OfType<RelationalOptionsExtension>()
                 .FirstOrDefault()
                 ?.CommandInterceptor;
+
+            return interceptor != null;
+        }
+
+        private bool TryFindDatabaseLog(out DatabaseFacadeConfiguration configuration)
+        {
+            configuration = ((IDatabaseFacadeDependenciesAccessor)Dependencies
+                .ServiceProvider
+                .GetService<ICurrentDbContext>()
+                .Context
+                .Database).Configuration;
+
+            return configuration.LogAction != null;
+        }
     }
 }
