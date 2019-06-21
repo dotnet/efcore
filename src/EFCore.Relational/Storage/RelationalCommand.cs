@@ -26,7 +26,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
     {
         /// <summary>
         ///     <para>
-        ///         Constructs a new <see cref="RelationalCommand"/>.
+        ///         Constructs a new <see cref="RelationalCommand" />.
         ///     </para>
         ///     <para>
         ///         This type is typically used by database providers (and other extensions). It is generally
@@ -68,223 +68,331 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <summary>
         ///     Executes the command with no results.
         /// </summary>
-        /// <param name="connection"> The connection to execute against. </param>
-        /// <param name="parameterValues"> The values for the parameters. </param>
-        /// <param name="logger"> The command logger. </param>
+        /// <param name="parameterObject"> Parameters for this method. </param>
         /// <returns> The number of rows affected. </returns>
-        public virtual int ExecuteNonQuery(
-            IRelationalConnection connection,
-            IReadOnlyDictionary<string, object> parameterValues,
-            IDiagnosticsLogger<DbLoggerCategory.Database.Command> logger)
-            => (int)Execute(
-                Check.NotNull(connection, nameof(connection)),
-                DbCommandMethod.ExecuteNonQuery,
-                parameterValues,
-                logger);
+        public virtual int ExecuteNonQuery(RelationalCommandParameterObject parameterObject)
+        {
+            var (connection, context, logger) = (parameterObject.Connection, parameterObject.Context, parameterObject.Logger);
+
+            var command = CreateCommand(connection, parameterObject.ParameterValues);
+
+            connection.Open();
+
+            var commandId = Guid.NewGuid();
+            var startTime = DateTimeOffset.UtcNow;
+            var stopwatch = Stopwatch.StartNew();
+            try
+            {
+                var nonQueryResult = (logger?.CommandNonQueryExecuting(
+                                          command,
+                                          context,
+                                          commandId,
+                                          connection.ConnectionId,
+                                          startTime: startTime)
+                                      ?? new InterceptionResult<int>(command.ExecuteNonQuery())).Result;
+
+                return logger?.CommandNonQueryExecuted(
+                           command,
+                           context,
+                           commandId,
+                           connection.ConnectionId,
+                           nonQueryResult,
+                           startTime,
+                           stopwatch.Elapsed)
+                       ?? nonQueryResult;
+            }
+            catch (Exception exception)
+            {
+                logger?.CommandError(
+                    command,
+                    context,
+                    DbCommandMethod.ExecuteNonQuery,
+                    commandId,
+                    connection.ConnectionId,
+                    exception,
+                    false,
+                    startTime,
+                    stopwatch.Elapsed);
+
+                throw;
+            }
+            finally
+            {
+                CleanupCommand(command, connection);
+            }
+        }
+
+        private static void CleanupCommand(
+            DbCommand dbCommand,
+            IRelationalConnection connection)
+        {
+            dbCommand.Parameters.Clear();
+            dbCommand.Dispose();
+            connection.Close();
+        }
 
         /// <summary>
         ///     Asynchronously executes the command with no results.
         /// </summary>
-        /// <param name="connection"> The connection to execute against. </param>
-        /// <param name="parameterValues"> The values for the parameters. </param>
-        /// <param name="logger"> The command logger. </param>
+        /// <param name="parameterObject"> Parameters for this method. </param>
         /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
         /// <returns>
         ///     A task that represents the asynchronous operation. The task result contains the number of rows affected.
         /// </returns>
-        public virtual Task<int> ExecuteNonQueryAsync(
-            IRelationalConnection connection,
-            IReadOnlyDictionary<string, object> parameterValues,
-            IDiagnosticsLogger<DbLoggerCategory.Database.Command> logger,
+        public virtual async Task<int> ExecuteNonQueryAsync(
+            RelationalCommandParameterObject parameterObject,
             CancellationToken cancellationToken = default)
-            => ExecuteAsync(
-                Check.NotNull(connection, nameof(connection)),
-                DbCommandMethod.ExecuteNonQuery,
-                parameterValues,
-                logger,
-                cancellationToken).Cast<object, int>();
-
-        /// <summary>
-        ///     Executes the command with a single scalar result.
-        /// </summary>
-        /// <param name="connection"> The connection to execute against. </param>
-        /// <param name="parameterValues"> The values for the parameters. </param>
-        /// <param name="logger"> The command logger. </param>
-        /// <returns> The result of the command. </returns>
-        public virtual object ExecuteScalar(
-            IRelationalConnection connection,
-            IReadOnlyDictionary<string, object> parameterValues,
-            IDiagnosticsLogger<DbLoggerCategory.Database.Command> logger)
-            => Execute(
-                Check.NotNull(connection, nameof(connection)),
-                DbCommandMethod.ExecuteScalar,
-                parameterValues,
-                logger);
-
-        /// <summary>
-        ///     Asynchronously executes the command with a single scalar result.
-        /// </summary>
-        /// <param name="connection"> The connection to execute against. </param>
-        /// <param name="parameterValues"> The values for the parameters. </param>
-        /// <param name="logger"> The command logger. </param>
-        /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
-        /// <returns>
-        ///     A task that represents the asynchronous operation. The task result contains the result of the command.
-        /// </returns>
-        public virtual Task<object> ExecuteScalarAsync(
-            IRelationalConnection connection,
-            IReadOnlyDictionary<string, object> parameterValues,
-            IDiagnosticsLogger<DbLoggerCategory.Database.Command> logger,
-            CancellationToken cancellationToken = default)
-            => ExecuteAsync(
-                Check.NotNull(connection, nameof(connection)),
-                DbCommandMethod.ExecuteScalar,
-                parameterValues,
-                logger,
-                cancellationToken);
-
-        /// <summary>
-        ///     Executes the command with a <see cref="RelationalDataReader" /> result.
-        /// </summary>
-        /// <param name="connection"> The connection to execute against. </param>
-        /// <param name="parameterValues"> The values for the parameters. </param>
-        /// <param name="logger"> The command logger. </param>
-        /// <returns> The result of the command. </returns>
-        public virtual RelationalDataReader ExecuteReader(
-            IRelationalConnection connection,
-            IReadOnlyDictionary<string, object> parameterValues,
-            IDiagnosticsLogger<DbLoggerCategory.Database.Command> logger)
-            => (RelationalDataReader)Execute(
-                Check.NotNull(connection, nameof(connection)),
-                DbCommandMethod.ExecuteReader,
-                parameterValues,
-                logger);
-
-        /// <summary>
-        ///     Asynchronously executes the command with a <see cref="RelationalDataReader" /> result.
-        /// </summary>
-        /// <param name="connection"> The connection to execute against. </param>
-        /// <param name="parameterValues"> The values for the parameters. </param>
-        /// <param name="logger"> The command logger. </param>
-        /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
-        /// <returns>
-        ///     A task that represents the asynchronous operation. The task result contains the result of the command.
-        /// </returns>
-        public virtual Task<RelationalDataReader> ExecuteReaderAsync(
-            IRelationalConnection connection,
-            IReadOnlyDictionary<string, object> parameterValues,
-            IDiagnosticsLogger<DbLoggerCategory.Database.Command> logger,
-            CancellationToken cancellationToken = default)
-            => ExecuteAsync(
-                Check.NotNull(connection, nameof(connection)),
-                DbCommandMethod.ExecuteReader,
-                parameterValues,
-                logger,
-                cancellationToken).Cast<object, RelationalDataReader>();
-
-        /// <summary>
-        ///    The method called by other methods on this type to execute synchronously.
-        /// </summary>
-        /// <param name="connection"> The connection to use. </param>
-        /// <param name="executeMethod"> The method type. </param>
-        /// <param name="parameterValues"> The parameter values. </param>
-        /// <param name="logger"> The command logger. </param>
-        /// <returns> The result of the execution. </returns>
-        protected virtual object Execute(
-            [NotNull] IRelationalConnection connection,
-            DbCommandMethod executeMethod,
-            [CanBeNull] IReadOnlyDictionary<string, object> parameterValues,
-            [CanBeNull] IDiagnosticsLogger<DbLoggerCategory.Database.Command> logger)
         {
-            Check.NotNull(connection, nameof(connection));
+            var (connection, context, logger) = (parameterObject.Connection, parameterObject.Context, parameterObject.Logger);
 
-            var dbCommand = CreateCommand(connection, parameterValues);
+            var command = CreateCommand(connection, parameterObject.ParameterValues);
 
-            connection.Open();
+            await connection.OpenAsync(cancellationToken);
 
             var commandId = Guid.NewGuid();
 
             var startTime = DateTimeOffset.UtcNow;
             var stopwatch = Stopwatch.StartNew();
-
-            object result;
-            var readerOpen = false;
             try
             {
-                switch (executeMethod)
+                var interceptionResult = logger == null
+                    ? null
+                    : await logger.CommandNonQueryExecutingAsync(
+                        command,
+                        context,
+                        commandId,
+                        connection.ConnectionId,
+                        startTime,
+                        cancellationToken);
+
+                var result = interceptionResult.HasValue
+                    ? interceptionResult.Value.Result
+                    : await command.ExecuteNonQueryAsync(cancellationToken);
+
+                if (logger != null)
                 {
-                    case DbCommandMethod.ExecuteNonQuery:
-                        var nonQueryResult = (logger?.CommandNonQueryExecuting(
-                                      dbCommand,
-                                      commandId,
-                                      connection.ConnectionId,
-                                      startTime: startTime)
-                                  ?? new InterceptionResult<int>(dbCommand.ExecuteNonQuery())).Result;
-
-                        result = logger?.CommandNonQueryExecuted(
-                                     dbCommand,
-                                     commandId,
-                                     connection.ConnectionId,
-                                     nonQueryResult,
-                                     startTime,
-                                     stopwatch.Elapsed)
-                                 ?? nonQueryResult;
-
-                        break;
-                    case DbCommandMethod.ExecuteScalar:
-                        var scalarResult = (logger?.CommandScalarExecuting(
-                                      dbCommand,
-                                      commandId,
-                                      connection.ConnectionId,
-                                      startTime: startTime)
-                                  ?? new InterceptionResult<object>(dbCommand.ExecuteScalar())).Result;
-
-                        result = logger?.CommandScalarExecuted(
-                                     dbCommand,
-                                     commandId,
-                                     connection.ConnectionId,
-                                     scalarResult,
-                                     startTime,
-                                     stopwatch.Elapsed)
-                                 ?? scalarResult;
-                        break;
-                    case DbCommandMethod.ExecuteReader:
-                        var reader = (logger?.CommandReaderExecuting(
-                                          dbCommand,
-                                          commandId,
-                                          connection.ConnectionId,
-                                          startTime: startTime)
-                                      ?? new InterceptionResult<DbDataReader>(dbCommand.ExecuteReader())).Result;
-
-                        if (logger != null)
-                        {
-                            reader = logger?.CommandReaderExecuted(
-                                dbCommand,
-                                commandId,
-                                connection.ConnectionId,
-                                reader,
-                                startTime,
-                                stopwatch.Elapsed);
-                        }
-
-                        result = new RelationalDataReader(
-                            connection,
-                            dbCommand,
-                            reader,
-                            commandId,
-                            logger);
-
-                        readerOpen = true;
-                        break;
-                    default:
-                        throw new NotSupportedException();
+                    result = await logger.CommandNonQueryExecutedAsync(
+                        command,
+                        context,
+                        commandId,
+                        connection.ConnectionId,
+                        result,
+                        startTime,
+                        stopwatch.Elapsed,
+                        cancellationToken);
                 }
+
+                return result;
             }
             catch (Exception exception)
             {
                 logger?.CommandError(
-                    dbCommand,
-                    executeMethod,
+                    command,
+                    context,
+                    DbCommandMethod.ExecuteNonQuery,
+                    commandId,
+                    connection.ConnectionId,
+                    exception,
+                    true,
+                    startTime,
+                    stopwatch.Elapsed);
+
+                throw;
+            }
+            finally
+            {
+                CleanupCommand(command, connection);
+            }
+        }
+
+        /// <summary>
+        ///     Executes the command with a single scalar result.
+        /// </summary>
+        /// <param name="parameterObject"> Parameters for this method. </param>
+        /// <returns> The result of the command. </returns>
+        public virtual object ExecuteScalar(RelationalCommandParameterObject parameterObject)
+        {
+            var (connection, context, logger) = (parameterObject.Connection, parameterObject.Context, parameterObject.Logger);
+
+            var command = CreateCommand(connection, parameterObject.ParameterValues);
+
+            connection.Open();
+
+            var commandId = Guid.NewGuid();
+            var startTime = DateTimeOffset.UtcNow;
+            var stopwatch = Stopwatch.StartNew();
+            try
+            {
+                var result = (logger?.CommandScalarExecuting(
+                                  command,
+                                  context,
+                                  commandId,
+                                  connection.ConnectionId,
+                                  startTime)
+                              ?? new InterceptionResult<object>(command.ExecuteScalar())).Result;
+
+                return logger?.CommandScalarExecuted(
+                           command,
+                           context,
+                           commandId,
+                           connection.ConnectionId,
+                           result,
+                           startTime,
+                           stopwatch.Elapsed)
+                       ?? result;
+            }
+            catch (Exception exception)
+            {
+                logger?.CommandError(
+                    command,
+                    context,
+                    DbCommandMethod.ExecuteScalar,
+                    commandId,
+                    connection.ConnectionId,
+                    exception,
+                    false,
+                    startTime,
+                    stopwatch.Elapsed);
+
+                throw;
+            }
+            finally
+            {
+                CleanupCommand(command, connection);
+            }
+        }
+
+        /// <summary>
+        ///     Asynchronously executes the command with a single scalar result.
+        /// </summary>
+        /// <param name="parameterObject"> Parameters for this method. </param>
+        /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
+        /// <returns>
+        ///     A task that represents the asynchronous operation. The task result contains the result of the command.
+        /// </returns>
+        public virtual async Task<object> ExecuteScalarAsync(
+            RelationalCommandParameterObject parameterObject,
+            CancellationToken cancellationToken = default)
+        {
+            var (connection, context, logger) = (parameterObject.Connection, parameterObject.Context, parameterObject.Logger);
+
+            var command = CreateCommand(connection, parameterObject.ParameterValues);
+
+            await connection.OpenAsync(cancellationToken);
+
+            var commandId = Guid.NewGuid();
+            var startTime = DateTimeOffset.UtcNow;
+            var stopwatch = Stopwatch.StartNew();
+
+            try
+            {
+                var interceptionResult = logger == null
+                    ? null
+                    : await logger.CommandScalarExecutingAsync(
+                        command,
+                        context,
+                        commandId,
+                        connection.ConnectionId,
+                        startTime,
+                        cancellationToken);
+
+                var result = interceptionResult.HasValue
+                    ? interceptionResult.Value.Result
+                    : await command.ExecuteScalarAsync(cancellationToken);
+
+                if (logger != null)
+                {
+                    result = await logger.CommandScalarExecutedAsync(
+                        command,
+                        context,
+                        commandId,
+                        connection.ConnectionId,
+                        result,
+                        startTime,
+                        stopwatch.Elapsed,
+                        cancellationToken);
+                }
+
+                return result;
+            }
+            catch (Exception exception)
+            {
+                logger?.CommandError(
+                    command,
+                    context,
+                    DbCommandMethod.ExecuteScalar,
+                    commandId,
+                    connection.ConnectionId,
+                    exception,
+                    true,
+                    startTime,
+                    stopwatch.Elapsed);
+
+                throw;
+            }
+            finally
+            {
+                CleanupCommand(command, connection);
+            }
+        }
+
+        /// <summary>
+        ///     Executes the command with a <see cref="RelationalDataReader" /> result.
+        /// </summary>
+        /// <param name="parameterObject"> Parameters for this method. </param>
+        /// <returns> The result of the command. </returns>
+        public virtual RelationalDataReader ExecuteReader(RelationalCommandParameterObject parameterObject)
+        {
+            var (connection, context, logger) = (parameterObject.Connection, parameterObject.Context, parameterObject.Logger);
+
+            var command = CreateCommand(connection, parameterObject.ParameterValues);
+
+            connection.Open();
+
+            var commandId = Guid.NewGuid();
+            var startTime = DateTimeOffset.UtcNow;
+            var stopwatch = Stopwatch.StartNew();
+
+            var readerOpen = false;
+            try
+            {
+                var reader = (logger?.CommandReaderExecuting(
+                                  command,
+                                  context,
+                                  commandId,
+                                  connection.ConnectionId,
+                                  startTime)
+                              ?? new InterceptionResult<DbDataReader>(command.ExecuteReader())).Result;
+
+                if (logger != null)
+                {
+                    reader = logger.CommandReaderExecuted(
+                        command,
+                        context,
+                        commandId,
+                        connection.ConnectionId,
+                        reader,
+                        startTime,
+                        stopwatch.Elapsed);
+                }
+
+                var result = new RelationalDataReader(
+                    connection,
+                    command,
+                    reader,
+                    commandId,
+                    logger);
+
+                readerOpen = true;
+
+                return result;
+            }
+            catch (Exception exception)
+            {
+                logger?.CommandError(
+                    command,
+                    context,
+                    DbCommandMethod.ExecuteReader,
                     commandId,
                     connection.ConnectionId,
                     exception,
@@ -298,149 +406,80 @@ namespace Microsoft.EntityFrameworkCore.Storage
             {
                 if (!readerOpen)
                 {
-                    dbCommand.Parameters.Clear();
-                    dbCommand.Dispose();
-                    connection.Close();
+                    CleanupCommand(command, connection);
                 }
             }
-
-            return result;
         }
 
         /// <summary>
-        ///    The method called by other methods on this type to execute synchronously.
+        ///     Asynchronously executes the command with a <see cref="RelationalDataReader" /> result.
         /// </summary>
-        /// <param name="connection"> The connection to use. </param>
-        /// <param name="executeMethod"> The method type. </param>
-        /// <param name="parameterValues"> The parameter values. </param>
-        /// <param name="logger"> The command logger. </param>
-        /// <param name="cancellationToken"> The cancellation token. </param>
-        /// <returns> The result of the execution. </returns>
-        protected virtual async Task<object> ExecuteAsync(
-            [NotNull] IRelationalConnection connection,
-            DbCommandMethod executeMethod,
-            [CanBeNull] IReadOnlyDictionary<string, object> parameterValues,
-            [CanBeNull] IDiagnosticsLogger<DbLoggerCategory.Database.Command> logger,
+        /// <param name="parameterObject"> Parameters for this method. </param>
+        /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
+        /// <returns>
+        ///     A task that represents the asynchronous operation. The task result contains the result of the command.
+        /// </returns>
+        public virtual async Task<RelationalDataReader> ExecuteReaderAsync(
+            RelationalCommandParameterObject parameterObject,
             CancellationToken cancellationToken = default)
         {
-            Check.NotNull(connection, nameof(connection));
+            var (connection, context, logger) = (parameterObject.Connection, parameterObject.Context, parameterObject.Logger);
 
-            var dbCommand = CreateCommand(connection, parameterValues);
+            var command = CreateCommand(connection, parameterObject.ParameterValues);
 
             await connection.OpenAsync(cancellationToken);
 
             var commandId = Guid.NewGuid();
-
             var startTime = DateTimeOffset.UtcNow;
             var stopwatch = Stopwatch.StartNew();
 
-            object result;
             var readerOpen = false;
             try
             {
-                switch (executeMethod)
+                var interceptionResult = logger == null
+                    ? null
+                    : await logger.CommandReaderExecutingAsync(
+                        command,
+                        context,
+                        commandId,
+                        connection.ConnectionId,
+                        startTime,
+                        cancellationToken);
+
+                var reader = interceptionResult.HasValue
+                    ? interceptionResult.Value.Result
+                    : await command.ExecuteReaderAsync(cancellationToken);
+
+                if (logger != null)
                 {
-                    case DbCommandMethod.ExecuteNonQuery:
-                        var nonQueryResult = logger == null
-                            ? null
-                            : await logger.CommandNonQueryExecutingAsync(
-                                dbCommand,
-                                commandId,
-                                connection.ConnectionId,
-                                startTime: startTime,
-                                cancellationToken);
-
-                        var nonQueryValue = nonQueryResult.HasValue
-                            ? nonQueryResult.Value.Result
-                            : await dbCommand.ExecuteNonQueryAsync(cancellationToken);
-
-                        if (logger != null)
-                        {
-                            nonQueryValue = await logger.CommandNonQueryExecutedAsync(
-                                dbCommand,
-                                commandId,
-                                connection.ConnectionId,
-                                nonQueryValue,
-                                startTime,
-                                stopwatch.Elapsed,
-                                cancellationToken);
-                        }
-
-                        result = nonQueryValue;
-                        break;
-                    case DbCommandMethod.ExecuteScalar:
-                        var scalarResult = logger == null
-                            ? null
-                            : await logger.CommandScalarExecutingAsync(
-                                dbCommand,
-                                commandId,
-                                connection.ConnectionId,
-                                startTime: startTime,
-                                cancellationToken);
-
-                        var scalarValue = scalarResult.HasValue
-                            ? scalarResult.Value.Result
-                            : await dbCommand.ExecuteScalarAsync(cancellationToken);
-
-                        if (logger != null)
-                        {
-                            scalarValue = await logger.CommandScalarExecutedAsync(
-                                dbCommand,
-                                commandId,
-                                connection.ConnectionId,
-                                scalarValue,
-                                startTime,
-                                stopwatch.Elapsed,
-                                cancellationToken);
-                        }
-
-                        result = scalarValue;
-                        break;
-                    case DbCommandMethod.ExecuteReader:
-                        var readerResult = logger == null
-                            ? null
-                            : await logger.CommandReaderExecutingAsync(
-                                dbCommand,
-                                commandId,
-                                connection.ConnectionId,
-                                startTime: startTime,
-                                cancellationToken);
-
-                        var reader = readerResult.HasValue
-                            ? readerResult.Value.Result
-                            : await dbCommand.ExecuteReaderAsync(cancellationToken);
-
-                        if (logger != null)
-                        {
-                            reader = await logger.CommandReaderExecutedAsync(
-                                dbCommand,
-                                commandId,
-                                connection.ConnectionId,
-                                reader,
-                                startTime,
-                                stopwatch.Elapsed,
-                                cancellationToken);
-                        }
-
-                        readerOpen = true;
-
-                        result = new RelationalDataReader(
-                            connection,
-                            dbCommand,
-                            reader,
-                            commandId,
-                            logger);
-
-                        break;
-                    default:
-                        throw new NotSupportedException();
+                    reader = await logger.CommandReaderExecutedAsync(
+                        command,
+                        context,
+                        commandId,
+                        connection.ConnectionId,
+                        reader,
+                        startTime,
+                        stopwatch.Elapsed,
+                        cancellationToken);
                 }
+
+                var result = new RelationalDataReader(
+                    connection,
+                    command,
+                    reader,
+                    commandId,
+                    logger);
+
+                readerOpen = true;
+
+                return result;
             }
             catch (Exception exception)
             {
                 logger?.CommandError(
-                    dbCommand,
-                    executeMethod,
+                    command,
+                    context,
+                    DbCommandMethod.ExecuteReader,
                     commandId,
                     connection.ConnectionId,
                     exception,
@@ -454,19 +493,15 @@ namespace Microsoft.EntityFrameworkCore.Storage
             {
                 if (!readerOpen)
                 {
-                    dbCommand.Parameters.Clear();
-                    dbCommand.Dispose();
-                    connection.Close();
+                    CleanupCommand(command, connection);
                 }
             }
-
-            return result;
         }
 
         /// <summary>
         ///     <para>
-        ///         Template method called by <see cref="Execute"/> amd <see cref="ExecuteAsync"/> to
-        ///         create a <see cref="DbCommand"/> for the given <see cref="DbConnection"/> and configure
+        ///         Template method called by the execute methods to
+        ///         create a <see cref="DbCommand" /> for the given <see cref="DbConnection" /> and configure
         ///         timeouts and transactions.
         ///     </para>
         ///     <para>
@@ -479,8 +514,10 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <returns> The created command. </returns>
         protected virtual DbCommand CreateCommand(
             [NotNull] IRelationalConnection connection,
-            [NotNull] IReadOnlyDictionary<string, object> parameterValues)
+            [CanBeNull] IReadOnlyDictionary<string, object> parameterValues)
         {
+            Check.NotNull(connection, nameof(connection));
+
             var command = connection.DbConnection.CreateCommand();
 
             command.CommandText = CommandText;
@@ -495,7 +532,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 command.CommandTimeout = (int)connection.CommandTimeout;
             }
 
-            if (Parameters.Count > 0)
+            if (Parameters != null
+                && Parameters.Count > 0)
             {
                 if (parameterValues == null)
                 {
@@ -504,9 +542,9 @@ namespace Microsoft.EntityFrameworkCore.Storage
                             Parameters[0].InvariantName));
                 }
 
-                foreach (var parameter in Parameters)
+                for (var i = 0; i < Parameters.Count; i++)
                 {
-                    parameter.AddDbParameter(command, parameterValues);
+                    Parameters[i].AddDbParameter(command, parameterValues);
                 }
             }
 

@@ -588,6 +588,7 @@ namespace Microsoft.EntityFrameworkCore.Update
                         new RelationalValueBufferFactoryDependencies(
                             typeMappingSource,
                             new CoreSingletonOptions())),
+                    new CurrentDbContext(new FakeDbContext()),
                     logger);
             }
 
@@ -611,6 +612,10 @@ namespace Microsoft.EntityFrameworkCore.Update
 
             public RawSqlCommand CreateStoreCommandBase()
                 => CreateStoreCommand();
+        }
+
+        private class FakeDbContext : DbContext
+        {
         }
 
         private const string ConnectionString = "Fake Connection String";

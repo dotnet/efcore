@@ -25,8 +25,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 
             var commandList = new List<MigrationCommand>
             {
-                new MigrationCommand(CreateRelationalCommand(), logger),
-                new MigrationCommand(CreateRelationalCommand(), logger)
+                new MigrationCommand(CreateRelationalCommand(), null, logger),
+                new MigrationCommand(CreateRelationalCommand(), null, logger)
             };
 
             var migrationCommandExecutor = new MigrationCommandExecutor();
@@ -67,8 +67,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 
             var commandList = new List<MigrationCommand>
             {
-                new MigrationCommand(CreateRelationalCommand(), logger, transactionSuppressed: true),
-                new MigrationCommand(CreateRelationalCommand(), logger, transactionSuppressed: true)
+                new MigrationCommand(CreateRelationalCommand(), null, logger, transactionSuppressed: true),
+                new MigrationCommand(CreateRelationalCommand(), null, logger, transactionSuppressed: true)
             };
 
             var migrationCommandExecutor = new MigrationCommandExecutor();
@@ -103,8 +103,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 
             var commandList = new List<MigrationCommand>
             {
-                new MigrationCommand(CreateRelationalCommand(), logger),
-                new MigrationCommand(CreateRelationalCommand(), logger, transactionSuppressed: true)
+                new MigrationCommand(CreateRelationalCommand(), null, logger),
+                new MigrationCommand(CreateRelationalCommand(), null, logger, transactionSuppressed: true)
             };
 
             var migrationCommandExecutor = new MigrationCommandExecutor();
@@ -144,8 +144,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 
             var commandList = new List<MigrationCommand>
             {
-                new MigrationCommand(CreateRelationalCommand(), logger, transactionSuppressed: true),
-                new MigrationCommand(CreateRelationalCommand(), logger)
+                new MigrationCommand(CreateRelationalCommand(), null, logger, transactionSuppressed: true),
+                new MigrationCommand(CreateRelationalCommand(), null, logger)
             };
 
             var migrationCommandExecutor = new MigrationCommandExecutor();
@@ -185,9 +185,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 
             var commandList = new List<MigrationCommand>
             {
-                new MigrationCommand(CreateRelationalCommand(commandText: "First"), logger),
-                new MigrationCommand(CreateRelationalCommand(commandText: "Second"), logger, transactionSuppressed: true),
-                new MigrationCommand(CreateRelationalCommand(commandText: "Third"), logger)
+                new MigrationCommand(CreateRelationalCommand(commandText: "First"), null, logger),
+                new MigrationCommand(CreateRelationalCommand(commandText: "Second"), null, logger, transactionSuppressed: true),
+                new MigrationCommand(CreateRelationalCommand(commandText: "Third"), null, logger)
             };
 
             var migrationCommandExecutor = new MigrationCommandExecutor();
@@ -260,7 +260,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 
             var commandList = new List<MigrationCommand>
             {
-                new MigrationCommand(CreateRelationalCommand(), logger)
+                new MigrationCommand(CreateRelationalCommand(), null, logger)
             };
 
             var migrationCommandExecutor = new MigrationCommandExecutor();

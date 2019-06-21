@@ -3,6 +3,7 @@
 
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
@@ -51,12 +52,14 @@ namespace Microsoft.EntityFrameworkCore.Update
         /// <param name="commandBuilderFactory"> The command builder factory. </param>
         /// <param name="sqlGenerationHelper"> The sql generator. </param>
         /// <param name="updateSqlGenerator"> The update generator. </param>
+        /// <param name="currentDbContext"> Contains the <see cref="DbContext"/> currently in use. </param>
         /// <param name="logger"> A logger. </param>
         public ModificationCommandBatchFactoryDependencies(
             [NotNull] IRelationalCommandBuilderFactory commandBuilderFactory,
             [NotNull] ISqlGenerationHelper sqlGenerationHelper,
             [NotNull] IUpdateSqlGenerator updateSqlGenerator,
             [NotNull] IRelationalValueBufferFactoryFactory valueBufferFactoryFactory,
+            [NotNull] ICurrentDbContext currentDbContext,
             [NotNull] IDiagnosticsLogger<DbLoggerCategory.Database.Command> logger)
         {
             Check.NotNull(commandBuilderFactory, nameof(commandBuilderFactory));
@@ -69,6 +72,7 @@ namespace Microsoft.EntityFrameworkCore.Update
             SqlGenerationHelper = sqlGenerationHelper;
             UpdateSqlGenerator = updateSqlGenerator;
             ValueBufferFactoryFactory = valueBufferFactoryFactory;
+            CurrentDbContext = currentDbContext;
             Logger = logger;
         }
 
@@ -98,6 +102,11 @@ namespace Microsoft.EntityFrameworkCore.Update
         public IRelationalValueBufferFactoryFactory ValueBufferFactoryFactory { get; }
 
         /// <summary>
+        ///    Contains the <see cref="DbContext"/> currently in use.
+        /// </summary>
+        public ICurrentDbContext CurrentDbContext { get; }
+
+        /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
         /// </summary>
         /// <param name="logger"> A replacement for the current dependency of this type. </param>
@@ -108,6 +117,7 @@ namespace Microsoft.EntityFrameworkCore.Update
                 SqlGenerationHelper,
                 UpdateSqlGenerator,
                 ValueBufferFactoryFactory,
+                CurrentDbContext,
                 logger);
 
         /// <summary>
@@ -121,6 +131,7 @@ namespace Microsoft.EntityFrameworkCore.Update
                 SqlGenerationHelper,
                 UpdateSqlGenerator,
                 valueBufferFactoryFactory,
+                CurrentDbContext,
                 Logger);
 
         /// <summary>
@@ -134,6 +145,7 @@ namespace Microsoft.EntityFrameworkCore.Update
                 SqlGenerationHelper,
                 UpdateSqlGenerator,
                 ValueBufferFactoryFactory,
+                CurrentDbContext,
                 Logger);
 
         /// <summary>
@@ -147,6 +159,7 @@ namespace Microsoft.EntityFrameworkCore.Update
                 sqlGenerationHelper,
                 UpdateSqlGenerator,
                 ValueBufferFactoryFactory,
+                CurrentDbContext,
                 Logger);
 
         /// <summary>
@@ -160,6 +173,21 @@ namespace Microsoft.EntityFrameworkCore.Update
                 SqlGenerationHelper,
                 updateSqlGenerator,
                 ValueBufferFactoryFactory,
+                CurrentDbContext,
+                Logger);
+
+        /// <summary>
+        ///     Clones this dependency parameter object with one service replaced.
+        /// </summary>
+        /// <param name="currentDbContext"> A replacement for the current dependency of this type. </param>
+        /// <returns> A new parameter object with the given service replaced. </returns>
+        public ModificationCommandBatchFactoryDependencies With([NotNull] ICurrentDbContext currentDbContext)
+            => new ModificationCommandBatchFactoryDependencies(
+                CommandBuilderFactory,
+                SqlGenerationHelper,
+                UpdateSqlGenerator,
+                ValueBufferFactoryFactory,
+                currentDbContext,
                 Logger);
     }
 }

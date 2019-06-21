@@ -208,21 +208,22 @@ namespace Microsoft.EntityFrameworkCore
             Check.NotNull(sql, nameof(sql));
             Check.NotNull(parameters, nameof(parameters));
 
-            var concurrencyDetector = databaseFacade.GetService<IConcurrencyDetector>();
-            var logger = databaseFacade.GetService<IDiagnosticsLogger<DbLoggerCategory.Database.Command>>();
+            var concurrencyDetector = GetFacadeDependencies(databaseFacade).ConcurrencyDetector;
+            var logger = GetFacadeDependencies(databaseFacade).CommandLogger;
 
             using (concurrencyDetector.EnterCriticalSection())
             {
-                var rawSqlCommand = databaseFacade
-                    .GetRelationalService<IRawSqlCommandBuilder>()
+                var rawSqlCommand = GetFacadeDependencies(databaseFacade).RawSqlCommandBuilder
                     .Build(sql.Format, parameters);
 
                 return rawSqlCommand
                     .RelationalCommand
                     .ExecuteNonQuery(
-                        databaseFacade.GetRelationalService<IRelationalConnection>(),
-                        rawSqlCommand.ParameterValues,
-                        logger);
+                        new RelationalCommandParameterObject(
+                            GetFacadeDependencies(databaseFacade).RelationalConnection,
+                            rawSqlCommand.ParameterValues,
+                            ((IDatabaseFacadeDependenciesAccessor)databaseFacade).Context,
+                            logger));
             }
         }
 
@@ -372,21 +373,23 @@ namespace Microsoft.EntityFrameworkCore
             Check.NotNull(sql, nameof(sql));
             Check.NotNull(parameters, nameof(parameters));
 
-            var concurrencyDetector = databaseFacade.GetService<IConcurrencyDetector>();
-            var logger = databaseFacade.GetService<IDiagnosticsLogger<DbLoggerCategory.Database.Command>>();
+            var facadeDependencies = GetFacadeDependencies(databaseFacade);
+            var concurrencyDetector = facadeDependencies.ConcurrencyDetector;
+            var logger = facadeDependencies.CommandLogger;
 
             using (await concurrencyDetector.EnterCriticalSectionAsync(cancellationToken))
             {
-                var rawSqlCommand = databaseFacade
-                    .GetRelationalService<IRawSqlCommandBuilder>()
+                var rawSqlCommand = GetFacadeDependencies(databaseFacade).RawSqlCommandBuilder
                     .Build(sql.Format, parameters);
 
                 return await rawSqlCommand
                     .RelationalCommand
                     .ExecuteNonQueryAsync(
-                        databaseFacade.GetRelationalService<IRelationalConnection>(),
-                        rawSqlCommand.ParameterValues,
-                        logger,
+                        new RelationalCommandParameterObject(
+                            facadeDependencies.RelationalConnection,
+                            rawSqlCommand.ParameterValues,
+                            ((IDatabaseFacadeDependenciesAccessor)databaseFacade).Context,
+                            logger),
                         cancellationToken);
             }
         }
@@ -486,21 +489,23 @@ namespace Microsoft.EntityFrameworkCore
             Check.NotNull(sql, nameof(sql));
             Check.NotNull(parameters, nameof(parameters));
 
-            var concurrencyDetector = databaseFacade.GetService<IConcurrencyDetector>();
-            var logger = databaseFacade.GetService<IDiagnosticsLogger<DbLoggerCategory.Database.Command>>();
+            var facadeDependencies = GetFacadeDependencies(databaseFacade);
+            var concurrencyDetector = facadeDependencies.ConcurrencyDetector;
+            var logger = facadeDependencies.CommandLogger;
 
             using (concurrencyDetector.EnterCriticalSection())
             {
-                var rawSqlCommand = databaseFacade
-                    .GetRelationalService<IRawSqlCommandBuilder>()
+                var rawSqlCommand = GetFacadeDependencies(databaseFacade).RawSqlCommandBuilder
                     .Build(sql, parameters);
 
                 return rawSqlCommand
                     .RelationalCommand
                     .ExecuteNonQuery(
-                        databaseFacade.GetRelationalService<IRelationalConnection>(),
-                        rawSqlCommand.ParameterValues,
-                        logger);
+                        new RelationalCommandParameterObject(
+                            facadeDependencies.RelationalConnection,
+                            rawSqlCommand.ParameterValues,
+                            ((IDatabaseFacadeDependenciesAccessor)databaseFacade).Context,
+                            logger));
             }
         }
 
@@ -636,21 +641,23 @@ namespace Microsoft.EntityFrameworkCore
             Check.NotNull(sql, nameof(sql));
             Check.NotNull(parameters, nameof(parameters));
 
-            var concurrencyDetector = databaseFacade.GetService<IConcurrencyDetector>();
-            var logger = databaseFacade.GetService<IDiagnosticsLogger<DbLoggerCategory.Database.Command>>();
+            var facadeDependencies = GetFacadeDependencies(databaseFacade);
+            var concurrencyDetector = facadeDependencies.ConcurrencyDetector;
+            var logger = facadeDependencies.CommandLogger;
 
             using (await concurrencyDetector.EnterCriticalSectionAsync(cancellationToken))
             {
-                var rawSqlCommand = databaseFacade
-                    .GetRelationalService<IRawSqlCommandBuilder>()
+                var rawSqlCommand = GetFacadeDependencies(databaseFacade).RawSqlCommandBuilder
                     .Build(sql, parameters);
 
                 return await rawSqlCommand
                     .RelationalCommand
                     .ExecuteNonQueryAsync(
-                        databaseFacade.GetRelationalService<IRelationalConnection>(),
-                        rawSqlCommand.ParameterValues,
-                        logger,
+                        new RelationalCommandParameterObject(
+                            facadeDependencies.RelationalConnection,
+                            rawSqlCommand.ParameterValues,
+                            ((IDatabaseFacadeDependenciesAccessor)databaseFacade).Context,
+                            logger),
                         cancellationToken);
             }
         }
@@ -661,7 +668,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="databaseFacade"> The <see cref="DatabaseFacade" /> for the context. </param>
         /// <returns> The <see cref="DbConnection" /> </returns>
         public static DbConnection GetDbConnection([NotNull] this DatabaseFacade databaseFacade)
-            => databaseFacade.GetRelationalService<IRelationalConnection>().DbConnection;
+            => GetFacadeDependencies(databaseFacade).RelationalConnection.DbConnection;
 
         /// <summary>
         ///     Opens the underlying <see cref="DbConnection" />.
@@ -670,7 +677,7 @@ namespace Microsoft.EntityFrameworkCore
         public static void OpenConnection([NotNull] this DatabaseFacade databaseFacade)
             => databaseFacade.CreateExecutionStrategy().Execute(
                 databaseFacade, database
-                    => database.GetRelationalService<IRelationalConnection>().Open());
+                    => GetFacadeDependencies(database).RelationalConnection.Open());
 
         /// <summary>
         ///     Opens the underlying <see cref="DbConnection" />.
@@ -685,14 +692,14 @@ namespace Microsoft.EntityFrameworkCore
             CancellationToken cancellationToken = default)
             => databaseFacade.CreateExecutionStrategy().ExecuteAsync(
                 databaseFacade, (database, ct) =>
-                    database.GetRelationalService<IRelationalConnection>().OpenAsync(cancellationToken), cancellationToken);
+                    GetFacadeDependencies(database).RelationalConnection.OpenAsync(cancellationToken), cancellationToken);
 
         /// <summary>
         ///     Closes the underlying <see cref="DbConnection" />.
         /// </summary>
         /// <param name="databaseFacade"> The <see cref="DatabaseFacade" /> for the context. </param>
         public static void CloseConnection([NotNull] this DatabaseFacade databaseFacade)
-            => databaseFacade.GetRelationalService<IRelationalConnection>().Close();
+            => GetFacadeDependencies(databaseFacade).RelationalConnection.Close();
 
         /// <summary>
         ///     Starts a new transaction with a given <see cref="IsolationLevel" />.
@@ -766,7 +773,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="databaseFacade"> The <see cref="DatabaseFacade" /> for the context. </param>
         /// <param name="timeout"> The timeout to use, in seconds. </param>
         public static void SetCommandTimeout([NotNull] this DatabaseFacade databaseFacade, int? timeout)
-            => databaseFacade.GetRelationalService<IRelationalConnection>().CommandTimeout = timeout;
+            => GetFacadeDependencies(databaseFacade).RelationalConnection.CommandTimeout = timeout;
 
         /// <summary>
         ///     <para>
@@ -806,7 +813,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="databaseFacade"> The <see cref="DatabaseFacade" /> for the context. </param>
         /// <returns> The timeout, in seconds, or null if no timeout has been set. </returns>
         public static int? GetCommandTimeout([NotNull] this DatabaseFacade databaseFacade)
-            => databaseFacade.GetRelationalService<IRelationalConnection>().CommandTimeout;
+            => GetFacadeDependencies(databaseFacade).RelationalConnection.CommandTimeout;
 
         /// <summary>
         ///     Generates a script to create all tables for the current model.
@@ -816,6 +823,18 @@ namespace Microsoft.EntityFrameworkCore
         /// </returns>
         public static string GenerateCreateScript([NotNull] this DatabaseFacade databaseFacade)
             => databaseFacade.GetRelationalService<IRelationalDatabaseCreator>().GenerateCreateScript();
+
+        private static IRelationalDatabaseFacadeDependencies GetFacadeDependencies(DatabaseFacade databaseFacade)
+        {
+            var dependencies = ((IDatabaseFacadeDependenciesAccessor)databaseFacade).Dependencies;
+
+            if (dependencies is IRelationalDatabaseFacadeDependencies relationalDependencies)
+            {
+                return relationalDependencies;
+            }
+
+            throw new InvalidOperationException(RelationalStrings.RelationalNotInUse);
+        }
 
         private static TService GetRelationalService<TService>(this IInfrastructure<IServiceProvider> databaseFacade)
         {
@@ -831,6 +850,6 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         private static IDbContextTransactionManager GetTransactionManager([NotNull] this DatabaseFacade databaseFacade)
-            => Check.NotNull(databaseFacade, nameof(databaseFacade)).GetService<IDbContextTransactionManager>();
+            => ((IDatabaseFacadeDependenciesAccessor)Check.NotNull(databaseFacade, nameof(databaseFacade))).Dependencies.TransactionManager;
     }
 }

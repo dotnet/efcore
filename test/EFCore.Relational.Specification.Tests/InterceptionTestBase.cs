@@ -60,6 +60,7 @@ namespace Microsoft.EntityFrameworkCore
                 Assert.NotEqual(interceptor.AsyncCalled, interceptor.SyncCalled);
                 Assert.True(interceptor.ExecutingCalled);
                 Assert.True(interceptor.ExecutedCalled);
+                Assert.Same(context, interceptor.Context);
             }
 
             return interceptor.CommandText;
@@ -91,18 +92,26 @@ namespace Microsoft.EntityFrameworkCore
 
                 if (async)
                 {
-                    Assert.Equal(1, Convert.ToInt32(await command.ExecuteScalarAsync(connection, null, logger)));
+                    Assert.Equal(
+                        1, Convert.ToInt32(
+                            await command.ExecuteScalarAsync(
+                                new RelationalCommandParameterObject(
+                                    connection, null, context, logger))));
                     Assert.True(interceptor.AsyncCalled);
                 }
                 else
                 {
-                    Assert.Equal(1, Convert.ToInt32(command.ExecuteScalar(connection, null, logger)));
+                    Assert.Equal(
+                        1, Convert.ToInt32(
+                            command.ExecuteScalar(
+                                new RelationalCommandParameterObject(connection, null, context, logger))));
                     Assert.True(interceptor.SyncCalled);
                 }
 
                 Assert.NotEqual(interceptor.AsyncCalled, interceptor.SyncCalled);
                 Assert.True(interceptor.ExecutingCalled);
                 Assert.True(interceptor.ExecutedCalled);
+                Assert.Same(context, interceptor.Context);
 
                 AssertSql(sql, interceptor.CommandText);
             }
@@ -144,6 +153,7 @@ namespace Microsoft.EntityFrameworkCore
                     Assert.NotEqual(interceptor.AsyncCalled, interceptor.SyncCalled);
                     Assert.True(interceptor.ExecutingCalled);
                     Assert.True(interceptor.ExecutedCalled);
+                    Assert.Same(context, interceptor.Context);
 
                     AssertSql(nonQuery, interceptor.CommandText);
                 }
@@ -192,6 +202,7 @@ namespace Microsoft.EntityFrameworkCore
                 Assert.NotEqual(interceptor.AsyncCalled, interceptor.SyncCalled);
                 Assert.True(interceptor.ExecutingCalled);
                 Assert.True(interceptor.ExecutedCalled);
+                Assert.Same(context, interceptor.Context);
             }
 
             return interceptor.CommandText;
@@ -246,7 +257,9 @@ namespace Microsoft.EntityFrameworkCore
                 {
                     Assert.Equal(
                         SuppressingScalarCommandInterceptor.InterceptedResult,
-                        await command.ExecuteScalarAsync(connection, null, logger));
+                        await command.ExecuteScalarAsync(
+                            new RelationalCommandParameterObject(
+                                connection, null, context, logger)));
 
                     Assert.True(interceptor.AsyncCalled);
                 }
@@ -254,7 +267,9 @@ namespace Microsoft.EntityFrameworkCore
                 {
                     Assert.Equal(
                         SuppressingScalarCommandInterceptor.InterceptedResult,
-                        command.ExecuteScalar(connection, null, logger));
+                        command.ExecuteScalar(
+                            new RelationalCommandParameterObject(
+                                connection, null, context, logger)));
 
                     Assert.True(interceptor.SyncCalled);
                 }
@@ -262,6 +277,7 @@ namespace Microsoft.EntityFrameworkCore
                 Assert.NotEqual(interceptor.AsyncCalled, interceptor.SyncCalled);
                 Assert.True(interceptor.ExecutingCalled);
                 Assert.True(interceptor.ExecutedCalled);
+                Assert.Same(context, interceptor.Context);
 
                 AssertSql(sql, interceptor.CommandText);
             }
@@ -327,6 +343,7 @@ namespace Microsoft.EntityFrameworkCore
                     Assert.NotEqual(interceptor.AsyncCalled, interceptor.SyncCalled);
                     Assert.True(interceptor.ExecutingCalled);
                     Assert.True(interceptor.ExecutedCalled);
+                    Assert.Same(context, interceptor.Context);
 
                     AssertSql(nonQuery, interceptor.CommandText);
                 }
@@ -394,6 +411,7 @@ namespace Microsoft.EntityFrameworkCore
                 Assert.NotEqual(interceptor.AsyncCalled, interceptor.SyncCalled);
                 Assert.True(interceptor.ExecutingCalled);
                 Assert.True(interceptor.ExecutedCalled);
+                Assert.Same(context, interceptor.Context);
             }
 
             return interceptor.CommandText;
@@ -449,18 +467,24 @@ namespace Microsoft.EntityFrameworkCore
 
                 if (async)
                 {
-                    Assert.Equal(2, Convert.ToInt32(await command.ExecuteScalarAsync(connection, null, logger)));
+                    Assert.Equal(2, Convert.ToInt32(await command.ExecuteScalarAsync(
+                        new RelationalCommandParameterObject(connection, null, context, logger))));
                     Assert.True(interceptor.AsyncCalled);
                 }
                 else
                 {
-                    Assert.Equal(2, Convert.ToInt32(command.ExecuteScalar(connection, null, logger)));
+                    Assert.Equal(
+                        2, Convert.ToInt32(
+                            command.ExecuteScalar(
+                                new RelationalCommandParameterObject(
+                                    connection, null, context, logger))));
                     Assert.True(interceptor.SyncCalled);
                 }
 
                 Assert.NotEqual(interceptor.AsyncCalled, interceptor.SyncCalled);
                 Assert.True(interceptor.ExecutingCalled);
                 Assert.True(interceptor.ExecutedCalled);
+                Assert.Same(context, interceptor.Context);
 
                 AssertSql(MutatingScalarCommandInterceptor.MutatedSql, interceptor.CommandText);
             }
@@ -525,6 +549,7 @@ namespace Microsoft.EntityFrameworkCore
                     Assert.NotEqual(interceptor.AsyncCalled, interceptor.SyncCalled);
                     Assert.True(interceptor.ExecutingCalled);
                     Assert.True(interceptor.ExecutedCalled);
+                    Assert.Same(context, interceptor.Context);
 
                     AssertSql(MutatingNonQueryCommandInterceptor.MutatedSql, interceptor.CommandText);
                 }
@@ -594,6 +619,7 @@ namespace Microsoft.EntityFrameworkCore
                 Assert.NotEqual(interceptor.AsyncCalled, interceptor.SyncCalled);
                 Assert.True(interceptor.ExecutingCalled);
                 Assert.True(interceptor.ExecutedCalled);
+                Assert.Same(context, interceptor.Context);
             }
 
             return interceptor.CommandText;
@@ -656,18 +682,23 @@ namespace Microsoft.EntityFrameworkCore
 
                 if (async)
                 {
-                    Assert.Equal(2, Convert.ToInt32(await command.ExecuteScalarAsync(connection, null, logger)));
+                    Assert.Equal(2, Convert.ToInt32(await command.ExecuteScalarAsync(
+                        new RelationalCommandParameterObject(connection, null, context, logger))));
                     Assert.True(interceptor.AsyncCalled);
                 }
                 else
                 {
-                    Assert.Equal(2, Convert.ToInt32(command.ExecuteScalar(connection, null, logger)));
+                    Assert.Equal(
+                        2, Convert.ToInt32(
+                            command.ExecuteScalar(
+                                new RelationalCommandParameterObject(connection, null, context, logger))));
                     Assert.True(interceptor.SyncCalled);
                 }
 
                 Assert.NotEqual(interceptor.AsyncCalled, interceptor.SyncCalled);
                 Assert.True(interceptor.ExecutingCalled);
                 Assert.True(interceptor.ExecutedCalled);
+                Assert.Same(context, interceptor.Context);
 
                 AssertSql(sql, interceptor.CommandText);
             }
@@ -740,6 +771,7 @@ namespace Microsoft.EntityFrameworkCore
                     Assert.NotEqual(interceptor.AsyncCalled, interceptor.SyncCalled);
                     Assert.True(interceptor.ExecutingCalled);
                     Assert.True(interceptor.ExecutedCalled);
+                    Assert.Same(context, interceptor.Context);
 
                     AssertSql(nonQuery, interceptor.CommandText);
                 }
@@ -824,6 +856,7 @@ namespace Microsoft.EntityFrameworkCore
                 Assert.NotEqual(interceptor.AsyncCalled, interceptor.SyncCalled);
                 Assert.True(interceptor.ExecutingCalled);
                 Assert.True(interceptor.ExecutedCalled);
+                Assert.Same(context, interceptor.Context);
             }
 
             return interceptor.CommandText;
@@ -931,7 +964,8 @@ namespace Microsoft.EntityFrameworkCore
                 {
                     Assert.Equal(
                         ResultReplacingScalarCommandInterceptor.InterceptedResult,
-                        await command.ExecuteScalarAsync(connection, null, logger));
+                        await command.ExecuteScalarAsync(
+                            new RelationalCommandParameterObject(connection, null, context, logger)));
 
                     Assert.True(interceptor.AsyncCalled);
                 }
@@ -939,7 +973,8 @@ namespace Microsoft.EntityFrameworkCore
                 {
                     Assert.Equal(
                         ResultReplacingScalarCommandInterceptor.InterceptedResult,
-                        command.ExecuteScalar(connection, null, logger));
+                        command.ExecuteScalar(
+                            new RelationalCommandParameterObject(connection, null, context, logger)));
 
                     Assert.True(interceptor.SyncCalled);
                 }
@@ -947,6 +982,7 @@ namespace Microsoft.EntityFrameworkCore
                 Assert.NotEqual(interceptor.AsyncCalled, interceptor.SyncCalled);
                 Assert.True(interceptor.ExecutingCalled);
                 Assert.True(interceptor.ExecutedCalled);
+                Assert.Same(context, interceptor.Context);
 
                 AssertSql(sql, interceptor.CommandText);
             }
@@ -1011,6 +1047,7 @@ namespace Microsoft.EntityFrameworkCore
                     Assert.NotEqual(interceptor.AsyncCalled, interceptor.SyncCalled);
                     Assert.True(interceptor.ExecutingCalled);
                     Assert.True(interceptor.ExecutedCalled);
+                    Assert.Same(context, interceptor.Context);
 
                     AssertSql(nonQuery, interceptor.CommandText);
                 }
@@ -1077,8 +1114,10 @@ namespace Microsoft.EntityFrameworkCore
                 var logger = context.GetService<IDiagnosticsLogger<DbLoggerCategory.Database.Command>>();
 
                 var exception = async
-                    ? await Assert.ThrowsAsync<Exception>(() => command.ExecuteScalarAsync(connection, null, logger))
-                    : Assert.Throws<Exception>(() => command.ExecuteScalar(connection, null, logger));
+                    ? await Assert.ThrowsAsync<Exception>(() => command.ExecuteScalarAsync(
+                        new RelationalCommandParameterObject(connection, null, context, logger)))
+                    : Assert.Throws<Exception>(() => command.ExecuteScalar(
+                        new RelationalCommandParameterObject(connection, null, context, logger)));
 
                 Assert.Equal("Bang!", exception.Message);
             }
@@ -1205,6 +1244,8 @@ namespace Microsoft.EntityFrameworkCore
             Assert.True(interceptor2.ExecutingCalled);
             Assert.True(interceptor1.ExecutedCalled);
             Assert.True(interceptor2.ExecutedCalled);
+            Assert.Same(context, interceptor1.Context);
+            Assert.Same(context, interceptor2.Context);
         }
 
         [ConditionalTheory]
@@ -1229,8 +1270,10 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Equal(
                 ResultReplacingScalarCommandInterceptor.InterceptedResult,
                 async
-                    ? await command.ExecuteScalarAsync(connection, null, logger)
-                    : command.ExecuteScalar(connection, null, logger));
+                    ? await command.ExecuteScalarAsync(
+                        new RelationalCommandParameterObject(connection, null, context, logger))
+                    : command.ExecuteScalar(
+                        new RelationalCommandParameterObject(connection, null, context, logger)));
         }
 
         [ConditionalTheory]
@@ -1436,6 +1479,7 @@ namespace Microsoft.EntityFrameworkCore
                 _commandMethod = commandMethod;
             }
 
+            public DbContext Context { get; set; }
             public string CommandText { get; set; }
             public Guid CommandId { get; set; }
             public Guid ConnectionId { get; set; }
@@ -1596,10 +1640,12 @@ namespace Microsoft.EntityFrameworkCore
 
             protected virtual void AssertExecuting(DbCommand command, CommandEventData eventData)
             {
+                Assert.NotNull(eventData.Context);
                 Assert.NotEqual(default, eventData.CommandId);
                 Assert.NotEqual(default, eventData.ConnectionId);
                 Assert.Equal(_commandMethod, eventData.ExecuteMethod);
 
+                Context = eventData.Context;
                 CommandText = command.CommandText;
                 CommandId = eventData.CommandId;
                 ConnectionId = eventData.ConnectionId;
@@ -1608,6 +1654,7 @@ namespace Microsoft.EntityFrameworkCore
 
             protected virtual void AssertExecuted(DbCommand command, CommandExecutedEventData eventData)
             {
+                Assert.Same(Context, eventData.Context);
                 Assert.Equal(CommandText, command.CommandText);
                 Assert.Equal(CommandId, eventData.CommandId);
                 Assert.Equal(ConnectionId, eventData.ConnectionId);

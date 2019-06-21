@@ -93,9 +93,11 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
 
                             _dataReader
                                 = relationalCommand.ExecuteReader(
-                                    _relationalQueryContext.Connection,
-                                    _relationalQueryContext.ParameterValues,
-                                    _relationalQueryContext.CommandLogger);
+                                    new RelationalCommandParameterObject(
+                                        _relationalQueryContext.Connection,
+                                        _relationalQueryContext.ParameterValues,
+                                        _relationalQueryContext.Context,
+                                        _relationalQueryContext.CommandLogger));
 
                             if (selectExpression.IsNonComposedFromSql())
                             {

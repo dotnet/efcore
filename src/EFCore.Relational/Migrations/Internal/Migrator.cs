@@ -9,6 +9,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -40,6 +41,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         private readonly IMigrationCommandExecutor _migrationCommandExecutor;
         private readonly IRelationalConnection _connection;
         private readonly ISqlGenerationHelper _sqlGenerationHelper;
+        private readonly ICurrentDbContext _currentDbContext;
         private readonly IDiagnosticsLogger<DbLoggerCategory.Migrations> _logger;
         private readonly IDiagnosticsLogger<DbLoggerCategory.Database.Command> _commandLogger;
         private readonly string _activeProvider;
@@ -59,6 +61,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             [NotNull] IMigrationCommandExecutor migrationCommandExecutor,
             [NotNull] IRelationalConnection connection,
             [NotNull] ISqlGenerationHelper sqlGenerationHelper,
+            [NotNull] ICurrentDbContext currentDbContext,
             [NotNull] IDiagnosticsLogger<DbLoggerCategory.Migrations> logger,
             [NotNull] IDiagnosticsLogger<DbLoggerCategory.Database.Command> commandLogger,
             [NotNull] IDatabaseProvider databaseProvider)
@@ -71,6 +74,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             Check.NotNull(migrationCommandExecutor, nameof(migrationCommandExecutor));
             Check.NotNull(connection, nameof(connection));
             Check.NotNull(sqlGenerationHelper, nameof(sqlGenerationHelper));
+            Check.NotNull(currentDbContext, nameof(currentDbContext));
             Check.NotNull(logger, nameof(logger));
             Check.NotNull(commandLogger, nameof(commandLogger));
             Check.NotNull(databaseProvider, nameof(databaseProvider));
@@ -83,6 +87,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             _migrationCommandExecutor = migrationCommandExecutor;
             _connection = connection;
             _sqlGenerationHelper = sqlGenerationHelper;
+            _currentDbContext = currentDbContext;
             _logger = logger;
             _commandLogger = commandLogger;
             _activeProvider = databaseProvider.Name;
@@ -108,7 +113,12 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 var command = _rawSqlCommandBuilder.Build(
                     _historyRepository.GetCreateScript());
 
-                command.ExecuteNonQuery(_connection, null, _commandLogger);
+                command.ExecuteNonQuery(
+                    new RelationalCommandParameterObject(
+                        _connection,
+                        null,
+                        _currentDbContext.Context,
+                        _commandLogger));
             }
 
             var commandLists = GetMigrationCommandLists(_historyRepository.GetAppliedMigrations(), targetMigration);
@@ -140,7 +150,13 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 var command = _rawSqlCommandBuilder.Build(
                     _historyRepository.GetCreateScript());
 
-                await command.ExecuteNonQueryAsync(_connection, null, _commandLogger, cancellationToken: cancellationToken);
+                await command.ExecuteNonQueryAsync(
+                    new RelationalCommandParameterObject(
+                        _connection,
+                        null,
+                        _currentDbContext.Context,
+                        _commandLogger),
+                    cancellationToken);
             }
 
             var commandLists = GetMigrationCommandLists(
@@ -382,7 +398,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 
             return _migrationsSqlGenerator
                 .Generate(migration.UpOperations, migration.TargetModel)
-                .Concat(new[] { new MigrationCommand(insertCommand, _commandLogger) })
+                .Concat(new[] { new MigrationCommand(insertCommand, _currentDbContext.Context, _commandLogger) })
                 .ToList();
         }
 
@@ -403,7 +419,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 
             return _migrationsSqlGenerator
                 .Generate(migration.DownOperations, previousMigration?.TargetModel)
-                .Concat(new[] { new MigrationCommand(deleteCommand, _commandLogger) })
+                .Concat(new[] { new MigrationCommand(deleteCommand, _currentDbContext.Context, _commandLogger) })
                 .ToList();
         }
     }
