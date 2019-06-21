@@ -37,7 +37,7 @@ namespace Microsoft.Extensions.DependencyInjection
             Check.NotNull(serviceCollection, nameof(serviceCollection));
 
             new EntityFrameworkServicesBuilder(serviceCollection)
-                .TryAdd<IConventionSetCustomizer, ProxiesConventionSetCustomizer>()
+                .TryAdd<IConventionSetPlugin, ProxiesConventionSetPlugin>()
                 .TryAddProviderSpecificServices(
                     b => b.TryAddSingleton<IProxyFactory, ProxyFactory>());
 

@@ -20,13 +20,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure
     ///     </para>
     ///     <para>
     ///         The service lifetime is <see cref="ServiceLifetime" /> and multiple registrations
-    ///         are allowed. This means that each <see cref="IConventionSetCustomizer" /> instance will use its own
+    ///         are allowed. This means that each <see cref="IConventionSetPlugin" /> instance will use its own
     ///         set of instances of this service.
     ///         The implementations may depend on other services registered with any lifetime.
     ///         The implementations do not need to be thread-safe.
     ///     </para>
     /// </summary>
-    public interface IConventionSetCustomizer
+    public interface IConventionSetPlugin
     {
         /// <summary>
         ///     Called to customize or otherwise modify the given convention set.

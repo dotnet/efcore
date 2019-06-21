@@ -101,8 +101,8 @@ namespace Microsoft.EntityFrameworkCore.Proxies.Internal
                     using (var scope = internalServiceProvider.CreateScope())
                     {
                         if (scope.ServiceProvider
-                                .GetService<IEnumerable<IConventionSetCustomizer>>()
-                                ?.Any(s => s is ProxiesConventionSetCustomizer) == false)
+                                .GetService<IEnumerable<IConventionSetPlugin>>()
+                                ?.Any(s => s is ProxiesConventionSetPlugin) == false)
                         {
                             throw new InvalidOperationException(ProxiesStrings.ProxyServicesMissing);
                         }

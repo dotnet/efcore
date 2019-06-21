@@ -889,7 +889,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             return new ModelBuilder(
                 new RuntimeConventionSetBuilder(
                         new InMemoryConventionSetBuilder(dependencies),
-                        Enumerable.Empty<IConventionSetCustomizer>())
+                        Enumerable.Empty<IConventionSetPlugin>())
                     .CreateConventionSet());
         }
 
