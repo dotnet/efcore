@@ -1,10 +1,7 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.Text;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -40,21 +37,27 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             _parameter = (DbFunctionParameter)parameter;
         }
 
+        /// <summary>
+        ///     The function parameter metadata that is being built.
+        /// </summary>
         public virtual IMutableDbFunctionParameter Metadata => _parameter;
 
         /// <inheritdoc />
         IConventionDbFunctionParameter IConventionDbFunctionParameterBuilder.Metadata => _parameter;
 
         /// <summary>
-        ///     Specify if this parameter supports Nullability Propagation
+        ///     Configures whether or not the function should propagate null values through to the function result.
         /// </summary>
-        public virtual DbFunctionParameterBuilder HasNullabilityPropagation(bool supportsNullabilityPropagation)
+        /// <param name="supportsNullPropagation"> True to enable null-propagation; false to disable it. </param>
+        /// <returns> The same builder instance so that further configuration calls can be chained. </returns>
+        public virtual DbFunctionParameterBuilder HasNullPropagation(bool supportsNullPropagation = true)
         {
-            _parameter.SupportsNullPropagation = supportsNullabilityPropagation;
+            _parameter.SupportsNullPropagation = supportsNullPropagation;
 
             return this;
         }
 
+        /// <inheritdoc />
         IConventionDbFunctionParameterBuilder IConventionDbFunctionParameterBuilder.HasNullPropagation(
             bool supportsNullPropagation, bool fromDataAnnotation)
         {
@@ -67,12 +70,18 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             return null;
         }
 
+        /// <inheritdoc />
         bool IConventionDbFunctionParameterBuilder.CanSetSupportsNullPropagation(bool supportsNullPropagation, bool fromDataAnnotation)
         {
             return Overrides(fromDataAnnotation, _parameter.GetSupportsNullPropagationConfigurationSource())
                || _parameter.SupportsNullPropagation == supportsNullPropagation;
         }
 
+        /// <summary>
+        ///     Sets the store type of the function parameter in the database.
+        /// </summary>
+        /// <param name="storeType"> The store type of the function parameter in the database. </param>
+        /// <returns> The same builder instance so that further configuration calls can be chained. </returns>
         public virtual DbFunctionParameterBuilder HasStoreType([CanBeNull] string storeType)
         {
             _parameter.StoreType = storeType;
@@ -80,6 +89,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             return this;
         }
 
+        /// <inheritdoc />
         IConventionDbFunctionParameterBuilder IConventionDbFunctionParameterBuilder.HasStoreType(string storeType, bool fromDataAnnotation)
         {
             if (((IConventionDbFunctionParameterBuilder)this).CanSetStoreType(storeType, fromDataAnnotation))
@@ -91,12 +101,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             return null;
         }
 
+        /// <inheritdoc />
         bool IConventionDbFunctionParameterBuilder.CanSetStoreType(string storeType, bool fromDataAnnotation)
         {
             return Overrides(fromDataAnnotation, _parameter.GetStoreTypeConfigurationSource())
                || _parameter.StoreType == storeType;
         }
 
+        /// <inheritdoc />
         IConventionDbFunctionParameterBuilder IConventionDbFunctionParameterBuilder.HasTypeMapping(
             RelationalTypeMapping typeMapping, bool fromDataAnnotation)
         {
@@ -109,6 +121,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             return null;
         }
 
+        /// <inheritdoc />
         bool IConventionDbFunctionParameterBuilder.CanSetTypeMapping(RelationalTypeMapping typeMapping, bool fromDataAnnotation)
         {
             return Overrides(fromDataAnnotation, _parameter.GetTypeMappingConfigurationSource())

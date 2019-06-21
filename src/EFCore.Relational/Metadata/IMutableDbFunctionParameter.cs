@@ -8,16 +8,28 @@ using Microsoft.EntityFrameworkCore.Storage;
 namespace Microsoft.EntityFrameworkCore.Metadata
 {
     /// <summary>
-    ///     Represents a db function parametere in an <see cref="IDbFunction" />.
+    ///     Represents a mutable database function parameter in an <see cref="IMutableDbFunction" />.
     /// </summary>
     public interface IMutableDbFunctionParameter : IDbFunctionParameter
     {
+        /// <summary>
+        ///     The <see cref="IMutableDbFunction" /> to which this parameter belongs.
+        /// </summary>
         new IMutableDbFunction Parent { get; }
 
+        /// <summary>
+        ///     If true, then a null in this parameter will be propagated to the result.
+        /// </summary>
         new bool SupportsNullPropagation { get; set; }
 
+        /// <summary>
+        ///     The store (database) type of this parameter.
+        /// </summary>
         new string StoreType { get; [param: CanBeNull] set; }
 
+        /// <summary>
+        ///     The <see cref="RelationalTypeMapping" /> for this parameter.
+        /// </summary>
         new RelationalTypeMapping TypeMapping { get; [param: CanBeNull] set; }
     }
 }

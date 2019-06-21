@@ -39,6 +39,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// </summary>
         protected virtual DbContextOptionsBuilder OptionsBuilder { get; }
 
+        /// <inheritdoc />
         DbContextOptionsBuilder IRelationalDbContextOptionsBuilderInfrastructure.OptionsBuilder => OptionsBuilder;
 
         /// <summary>

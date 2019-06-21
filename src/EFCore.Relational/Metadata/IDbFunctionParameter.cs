@@ -7,20 +7,38 @@ using Microsoft.EntityFrameworkCore.Storage;
 namespace Microsoft.EntityFrameworkCore.Metadata
 {
     /// <summary>
-    ///     Represents a db function parameter in an <see cref="IDbFunction" />.
+    ///     Represents a database function parameter in an <see cref="IDbFunction" />.
     /// </summary>
     public interface IDbFunctionParameter
     {
+        /// <summary>
+        ///     The <see cref="IDbFunction" /> to which this parameter belongs.
+        /// </summary>
         IDbFunction Parent { get; }
 
+        /// <summary>
+        ///     The parameter name.
+        /// </summary>
         string Name { get; }
 
+        /// <summary>
+        ///     The parameter type.
+        /// </summary>
         Type ClrType { get; }
 
+        /// <summary>
+        ///     If true, then a null in this parameter will be propagated to the result.
+        /// </summary>
         bool SupportsNullPropagation { get; }
 
+        /// <summary>
+        ///     The store (database) type of this parameter.
+        /// </summary>
         string StoreType { get; }
 
+        /// <summary>
+        ///     The <see cref="RelationalTypeMapping" /> for this parameter.
+        /// </summary>
         RelationalTypeMapping TypeMapping { get; }
     }
 }

@@ -363,12 +363,15 @@ namespace Microsoft.EntityFrameworkCore.Storage
                     type, storeTypeName, storeTypeBaseName, keyOrIndex, unicode, size, rowVersion, fixedLength, precision, scale), null);
         }
 
+        /// <inheritdoc />
         RelationalTypeMapping IRelationalTypeMappingSource.FindMapping(IProperty property)
             => (RelationalTypeMapping)FindMapping(property);
 
+        /// <inheritdoc />
         RelationalTypeMapping IRelationalTypeMappingSource.FindMapping(Type type)
             => (RelationalTypeMapping)FindMapping(type);
 
+        /// <inheritdoc />
         RelationalTypeMapping IRelationalTypeMappingSource.FindMapping(MemberInfo member)
             => (RelationalTypeMapping)FindMapping(member);
 

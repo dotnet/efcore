@@ -11,18 +11,61 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     /// </summary>
     public interface IConventionDbFunctionParameterBuilder
     {
+        /// <summary>
+        ///     The function parameter metadata that is being built.
+        /// </summary>
         IConventionDbFunctionParameter Metadata { get; }
 
+        /// <summary>
+        ///     Configures whether or not the function should propagation null values through to the function result.
+        /// </summary>
+        /// <param name="supportsNullPropagation"> True to enable null-propagation; false to disable it. </param>
+        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <returns> The same builder instance if the configuration was applied; null otherwise. </returns>
         IConventionDbFunctionParameterBuilder HasNullPropagation(bool supportsNullPropagation, bool fromDataAnnotation = false);
 
+        /// <summary>
+        ///     Returns a value indicating whether the null-propagation can be changed for this property
+        ///     from the current configuration source.
+        /// </summary>
+        /// <param name="supportsNullPropagation"> True to enable null-propagation; false to disable it. </param>
+        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <returns> True if the null-propagation can be changed for this property. </returns>
         bool CanSetSupportsNullPropagation(bool supportsNullPropagation, bool fromDataAnnotation = false);
 
+        /// <summary>
+        ///     Sets the store type of the function parameter in the database.
+        /// </summary>
+        /// <param name="storeType"> The store type of the function parameter in the database. </param>
+        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <returns> The same builder instance if the configuration was applied; null otherwise. </returns>
         IConventionDbFunctionParameterBuilder HasStoreType([CanBeNull] string storeType, bool fromDataAnnotation = false);
 
+        /// <summary>
+        ///     Returns a value indicating whether the store type can be set for this property
+        ///     from the current configuration source.
+        /// </summary>
+        /// <param name="storeType"> The store type of the function parameter in the database. </param>
+        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <returns> True if the store type can be set for this property. </returns>
         bool CanSetStoreType([CanBeNull] string storeType, bool fromDataAnnotation = false);
 
-        IConventionDbFunctionParameterBuilder HasTypeMapping([CanBeNull] RelationalTypeMapping typeMapping, bool fromDataAnnotation = false);
+        /// <summary>
+        ///     Sets the <see cref="RelationalTypeMapping" /> of the function parameter.
+        /// </summary>
+        /// <param name="typeMapping"> The type mapping to use for the function parameter. </param>
+        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <returns> The same builder instance if the configuration was applied; null otherwise. </returns>
+        IConventionDbFunctionParameterBuilder HasTypeMapping(
+            [CanBeNull] RelationalTypeMapping typeMapping, bool fromDataAnnotation = false);
 
+        /// <summary>
+        ///     Returns a value indicating whether <see cref="RelationalTypeMapping" /> can be set for this property
+        ///     from the current configuration source.
+        /// </summary>
+        /// <param name="typeMapping"> The type mapping to use for the function parameter. </param>
+        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <returns> True if the type mapping can be set for this property. </returns>
         bool CanSetTypeMapping([CanBeNull] RelationalTypeMapping typeMapping, bool fromDataAnnotation = false);
     }
 }

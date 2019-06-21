@@ -7,10 +7,19 @@ using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Microsoft.EntityFrameworkCore.Metadata
 {
+    /// <summary>
+    ///     Represents a by-convention database function parameter in an <see cref="IConventionDbFunction" />.
+    /// </summary>
     public interface IConventionDbFunctionParameter : IDbFunctionParameter
     {
+        /// <summary>
+        ///     The <see cref="IConventionDbFunction" /> to which this parameter belongs.
+        /// </summary>
         new IConventionDbFunction Parent { get; }
 
+        /// <summary>
+        ///     The <see cref="IConventionDbFunctionParameterBuilder"/> for building a by-convention function parameter.
+        /// </summary>
         IConventionDbFunctionParameterBuilder Builder { get; }
 
         /// <summary>

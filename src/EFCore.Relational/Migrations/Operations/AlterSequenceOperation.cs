@@ -26,9 +26,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations
         /// </summary>
         public virtual SequenceOperation OldSequence { get; [param: NotNull] set; } = new SequenceOperation();
 
-        /// <summary>
-        ///     The <see cref="OldSequence" /> exposed to examine annotations.
-        /// </summary>
+        /// <inheritdoc />
         IMutableAnnotatable IAlterMigrationOperation.OldAnnotations => OldSequence;
     }
 }

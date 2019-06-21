@@ -187,6 +187,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             return null;
         }
 
+        /// <summary>
+        ///    Creates a <see cref="DbFunctionParameterBuilder"/> for a parameter with the given name.
+        /// </summary>
+        /// <param name="name"> The parameter name. </param>
+        /// <returns> The builder to use for further parameter configuration. </returns>
         public virtual DbFunctionParameterBuilder HasParameter([NotNull] string name)
         {
             return new DbFunctionParameterBuilder((DbFunctionParameter)FindParameter(name));

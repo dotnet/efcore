@@ -31,9 +31,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations
         /// </summary>
         public virtual ColumnOperation OldColumn { get; [param: NotNull] set; } = new ColumnOperation();
 
-        /// <summary>
-        ///     The <see cref="OldColumn" /> exposed to examine annotations.
-        /// </summary>
+        /// <inheritdoc />
         IMutableAnnotatable IAlterMigrationOperation.OldAnnotations => OldColumn;
     }
 }
