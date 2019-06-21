@@ -204,7 +204,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             return new ModelBuilder(
                 new RuntimeConventionSetBuilder(
                         new ProviderConventionSetBuilder(dependencies),
-                        Enumerable.Empty<IConventionSetCustomizer>())
+                        Enumerable.Empty<IConventionSetPlugin>())
                     .CreateConventionSet());
         }
 

@@ -25,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore.Proxies.Internal
     ///         The implementations do not need to be thread-safe.
     ///     </para>
     /// </summary>
-    public class ProxiesConventionSetCustomizer : IConventionSetCustomizer
+    public class ProxiesConventionSetPlugin : IConventionSetPlugin
     {
         private readonly IDbContextOptions _options;
         private readonly IProxyFactory _proxyFactory;
@@ -38,7 +38,7 @@ namespace Microsoft.EntityFrameworkCore.Proxies.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public ProxiesConventionSetCustomizer(
+        public ProxiesConventionSetPlugin(
             [NotNull] IProxyFactory proxyFactory,
             [NotNull] IDbContextOptions options,
             [NotNull] LazyLoaderParameterBindingFactoryDependencies lazyLoaderParameterBindingFactoryDependencies,

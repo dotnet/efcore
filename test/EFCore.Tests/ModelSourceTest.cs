@@ -80,7 +80,7 @@ namespace Microsoft.EntityFrameworkCore
                     InMemoryTestHelpers.Instance.CreateContext(),
                     new RuntimeConventionSetBuilder(new ProviderConventionSetBuilder(
                         InMemoryTestHelpers.Instance.CreateContextServices().GetRequiredService<ProviderConventionSetBuilderDependencies>()
-                            .With(setFinder)), new List<IConventionSetCustomizer>()));
+                            .With(setFinder)), new List<IConventionSetPlugin>()));
 
             Assert.Equal(
                 new[] { typeof(SetA).DisplayName(), typeof(SetB).DisplayName() },
