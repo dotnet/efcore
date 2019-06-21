@@ -37,13 +37,18 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Pipeline
 
         public SqlExpression Translate(Expression expression)
         {
-            var translation = (SqlExpression)Visit(expression);
+            var result = Visit(expression);
 
-            translation = _sqlExpressionFactory.ApplyDefaultTypeMapping(translation);
+            if (result is SqlExpression translation)
+            {
+                translation = _sqlExpressionFactory.ApplyDefaultTypeMapping(translation);
 
-            _sqlVerifyingExpressionVisitor.Visit(translation);
+                _sqlVerifyingExpressionVisitor.Visit(translation);
 
-            return translation;
+                return translation;
+            }
+
+            return null;
         }
 
         private class SqlTypeMappingVerifyingExpressionVisitor : ExpressionVisitor
@@ -176,6 +181,14 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Pipeline
 
         protected override Expression VisitBinary(BinaryExpression binaryExpression)
         {
+            if (binaryExpression.NodeType == ExpressionType.Coalesce)
+            {
+                return Visit(Expression.Condition(
+                    Expression.NotEqual(binaryExpression.Left, Expression.Constant(null, binaryExpression.Left.Type)),
+                    binaryExpression.Left,
+                    binaryExpression.Right));
+            }
+
             var left = TryRemoveImplicitConvert(binaryExpression.Left);
             var right = TryRemoveImplicitConvert(binaryExpression.Right);
 
@@ -263,6 +276,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Pipeline
         protected override Expression VisitNewArray(NewArrayExpression node) => null;
 
         protected override Expression VisitListInit(ListInitExpression node) => null;
+
+        protected override Expression VisitInvocation(InvocationExpression node) => null;
 
         protected override Expression VisitConstant(ConstantExpression constantExpression)
             => new SqlConstantExpression(constantExpression, null);
