@@ -6,6 +6,7 @@ using System.Diagnostics;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Design.Internal;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -56,7 +57,6 @@ namespace Microsoft.EntityFrameworkCore.Design
                 .AddSingleton<ProviderCodeGeneratorDependencies>()
                 .AddSingleton<TypeMappingSourceDependencies>()
                 .AddSingleton<RelationalTypeMappingSourceDependencies>()
-                .AddSingleton<InterceptorsDependencies>()
                 .AddSingleton<ValueConverterSelectorDependencies>()
                 .AddSingleton<ICandidateNamingService, CandidateNamingService>()
                 .AddSingleton<ICSharpDbContextGenerator, CSharpDbContextGenerator>()

@@ -47,6 +47,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             AmbientTransactionWarning,
             AmbientTransactionEnlisted,
             ExplicitTransactionEnlisted,
+            TransactionStarting,
+            TransactionCommitting,
+            TransactionRollingBack,
 
             // DataReader events
             DataReaderDisposing = CoreEventId.RelationalBaseId + 300,
@@ -197,10 +200,23 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///         This event is in the <see cref="DbLoggerCategory.Database.Transaction" /> category.
         ///     </para>
         ///     <para>
-        ///         This event uses the <see cref="TransactionEventData" /> payload when used with a <see cref="DiagnosticSource" />.
+        ///         This event uses the <see cref="TransactionEndEventData" /> payload when used with a <see cref="DiagnosticSource" />.
         ///     </para>
         /// </summary>
         public static readonly EventId TransactionStarted = MakeTransactionId(Id.TransactionStarted);
+
+        /// <summary>
+        ///     <para>
+        ///         A database transaction is starting.
+        ///     </para>
+        ///     <para>
+        ///         This event is in the <see cref="DbLoggerCategory.Database.Transaction" /> category.
+        ///     </para>
+        ///     <para>
+        ///         This event uses the <see cref="TransactionStartingEventData" /> payload when used with a <see cref="DiagnosticSource" />.
+        ///     </para>
+        /// </summary>
+        public static readonly EventId TransactionStarting = MakeTransactionId(Id.TransactionStarting);
 
         /// <summary>
         ///     <para>
@@ -217,6 +233,19 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
 
         /// <summary>
         ///     <para>
+        ///         A database transaction is being committed.
+        ///     </para>
+        ///     <para>
+        ///         This event is in the <see cref="DbLoggerCategory.Database.Transaction" /> category.
+        ///     </para>
+        ///     <para>
+        ///         This event uses the <see cref="TransactionEventData" /> payload when used with a <see cref="DiagnosticSource" />.
+        ///     </para>
+        /// </summary>
+        public static readonly EventId TransactionCommitting = MakeTransactionId(Id.TransactionCommitting);
+
+        /// <summary>
+        ///     <para>
         ///         A database transaction has been committed.
         ///     </para>
         ///     <para>
@@ -227,6 +256,19 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     </para>
         /// </summary>
         public static readonly EventId TransactionCommitted = MakeTransactionId(Id.TransactionCommitted);
+
+        /// <summary>
+        ///     <para>
+        ///         A database transaction is being rolled back.
+        ///     </para>
+        ///     <para>
+        ///         This event is in the <see cref="DbLoggerCategory.Database.Transaction" /> category.
+        ///     </para>
+        ///     <para>
+        ///         This event uses the <see cref="TransactionEventData" /> payload when used with a <see cref="DiagnosticSource" />.
+        ///     </para>
+        /// </summary>
+        public static readonly EventId TransactionRollingBack = MakeTransactionId(Id.TransactionRollingBack);
 
         /// <summary>
         ///     <para>

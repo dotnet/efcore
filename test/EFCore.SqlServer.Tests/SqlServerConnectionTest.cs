@@ -75,10 +75,9 @@ namespace Microsoft.EntityFrameworkCore
 
         public static RelationalConnectionDependencies CreateDependencies(DbContextOptions options = null)
         {
-            options = options
-                      ?? new DbContextOptionsBuilder()
-                          .UseSqlServer(@"Server=(localdb)\MSSQLLocalDB;Database=SqlServerConnectionTest")
-                          .Options;
+            options ??= new DbContextOptionsBuilder()
+                .UseSqlServer(@"Server=(localdb)\MSSQLLocalDB;Database=SqlServerConnectionTest")
+                .Options;
 
             return new RelationalConnectionDependencies(
                 options,
@@ -93,7 +92,12 @@ namespace Microsoft.EntityFrameworkCore
                     new DiagnosticListener("FakeDiagnosticListener"),
                     new SqlServerLoggingDefinitions()),
                 new NamedConnectionStringResolver(options),
-                new RelationalTransactionFactory(new RelationalTransactionFactoryDependencies()));
+                new RelationalTransactionFactory(new RelationalTransactionFactoryDependencies()),
+                new CurrentDbContext(new FakeDbContext()));
+        }
+
+        private class FakeDbContext : DbContext
+        {
         }
     }
 }

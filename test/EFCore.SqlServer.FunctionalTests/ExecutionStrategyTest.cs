@@ -366,7 +366,14 @@ namespace Microsoft.EntityFrameworkCore
 
                 if (openConnection)
                 {
-                    context.Database.CloseConnection();
+                    if (async)
+                    {
+                        context.Database.CloseConnection();
+                    }
+                    else
+                    {
+                        await context.Database.CloseConnectionAsync();
+                    }
                 }
 
                 Assert.Equal(ConnectionState.Closed, context.Database.GetDbConnection().State);
@@ -465,7 +472,14 @@ namespace Microsoft.EntityFrameworkCore
 
                 Assert.Equal(2, connection.OpenCount);
 
-                context.Database.CloseConnection();
+                if (async)
+                {
+                    context.Database.CloseConnection();
+                }
+                else
+                {
+                    await context.Database.CloseConnectionAsync();
+                }
 
                 Assert.Equal(ConnectionState.Closed, context.Database.GetDbConnection().State);
             }

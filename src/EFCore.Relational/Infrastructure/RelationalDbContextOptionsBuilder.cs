@@ -109,20 +109,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 e => (TExtension)e.WithExecutionStrategyFactory(Check.NotNull(getExecutionStrategy, nameof(getExecutionStrategy))));
 
         /// <summary>
-        ///     <para>
-        ///         Configures the context to use the given <see cref="IDbCommandInterceptor" />.
-        ///     </para>
-        ///     <para>
-        ///         Note that only a single <see cref="IDbCommandInterceptor" /> can be registered.
-        ///         Use <see cref="CompositeDbCommandInterceptor"/> to combine multiple interceptors into one.
-        ///     </para>
-        /// </summary>
-        /// <param name="interceptor"> The interceptor to use. </param>
-        public virtual TBuilder CommandInterceptor(
-            [NotNull] IDbCommandInterceptor interceptor)
-            => WithOption(e => (TExtension)e.WithCommandInterceptor(Check.NotNull(interceptor, nameof(interceptor))));
-
-        /// <summary>
         ///     Sets an option by cloning the extension used to store the settings. This ensures the builder
         ///     does not modify options that are already in use elsewhere.
         /// </summary>

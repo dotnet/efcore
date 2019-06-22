@@ -684,9 +684,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="databaseFacade"> The <see cref="DatabaseFacade" /> for the context. </param>
         /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
-        /// <returns>
-        ///     A task that represents the asynchronous operation.
-        /// </returns>
+        /// <returns> A task that represents the asynchronous operation. </returns>
         public static Task OpenConnectionAsync(
             [NotNull] this DatabaseFacade databaseFacade,
             CancellationToken cancellationToken = default)
@@ -700,6 +698,15 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="databaseFacade"> The <see cref="DatabaseFacade" /> for the context. </param>
         public static void CloseConnection([NotNull] this DatabaseFacade databaseFacade)
             => GetFacadeDependencies(databaseFacade).RelationalConnection.Close();
+
+        /// <summary>
+        ///     Closes the underlying <see cref="DbConnection" />.
+        /// </summary>
+        /// <param name="databaseFacade"> The <see cref="DatabaseFacade" /> for the context. </param>
+        /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
+        /// <returns> A task that represents the asynchronous operation. </returns>
+        public static Task CloseConnectionAsync([NotNull] this DatabaseFacade databaseFacade, CancellationToken cancellationToken = default)
+            => GetFacadeDependencies(databaseFacade).RelationalConnection.CloseAsync(cancellationToken);
 
         /// <summary>
         ///     Starts a new transaction with a given <see cref="IsolationLevel" />.
@@ -759,6 +766,28 @@ namespace Microsoft.EntityFrameworkCore
             }
 
             return relationalTransactionManager.UseTransaction(transaction);
+        }
+
+        /// <summary>
+        ///     Sets the <see cref="DbTransaction" /> to be used by database operations on the <see cref="DbContext" />.
+        /// </summary>
+        /// <param name="databaseFacade"> The <see cref="DatabaseFacade" /> for the context. </param>
+        /// <param name="transaction"> The <see cref="DbTransaction" /> to use. </param>
+        /// <param name="cancellationToken">A token to observe while waiting for the task to complete.</param>
+        /// <returns> A <see cref="Task"/> containing the <see cref="IDbContextTransaction" /> for the given transaction. </returns>
+        public static Task<IDbContextTransaction> UseTransactionAsync(
+            [NotNull] this DatabaseFacade databaseFacade,
+            [CanBeNull] DbTransaction transaction,
+            CancellationToken cancellationToken = default)
+        {
+            var transactionManager = GetTransactionManager(databaseFacade);
+
+            if (!(transactionManager is IRelationalTransactionManager relationalTransactionManager))
+            {
+                throw new InvalidOperationException(RelationalStrings.RelationalNotInUse);
+            }
+
+            return relationalTransactionManager.UseTransactionAsync(transaction, cancellationToken);
         }
 
         /// <summary>

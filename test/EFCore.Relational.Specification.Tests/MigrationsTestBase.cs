@@ -333,7 +333,7 @@ namespace Microsoft.EntityFrameworkCore
                 }
                 finally
                 {
-                    db.Database.CloseConnection();
+                    await db.Database.CloseConnectionAsync();
                 }
             }
         }

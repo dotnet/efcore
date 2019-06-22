@@ -41,14 +41,13 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         private int? _maxPoolSize;
         private bool _serviceProviderCachingEnabled = true;
         private DbContextOptionsExtensionInfo _info;
+        private IEnumerable<IInterceptor> _interceptors;
 
         private WarningsConfiguration _warningsConfiguration
             = new WarningsConfiguration()
                 .TryWithExplicit(CoreEventId.ManyServiceProvidersCreatedWarning, WarningBehavior.Throw)
                 .TryWithExplicit(CoreEventId.LazyLoadOnDisposedContextWarning, WarningBehavior.Throw)
-                .TryWithExplicit(CoreEventId.DetachedLazyLoadingWarning, WarningBehavior.Throw)
-                // This is relational client eval warning. Yes, this is ugly and error-prone, but it will be removed before 3.0 ships
-                .TryWithExplicit(CoreEventId.RelationalBaseId + 500, WarningBehavior.Throw);
+                .TryWithExplicit(CoreEventId.DetachedLazyLoadingWarning, WarningBehavior.Throw);
 
         /// <summary>
         ///     Creates a new set of options with everything set to default values.
@@ -74,6 +73,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             _queryTrackingBehavior = copyFrom.QueryTrackingBehavior;
             _maxPoolSize = copyFrom.MaxPoolSize;
             _serviceProviderCachingEnabled = copyFrom.ServiceProviderCachingEnabled;
+            _interceptors = copyFrom.Interceptors?.ToList();
 
             if (copyFrom._replacedServices != null)
             {
@@ -280,6 +280,25 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         }
 
         /// <summary>
+        ///     Creates a new instance with all options the same as for this instance, but with the given option changed.
+        ///     It is unusual to call this method directly. Instead use <see cref="DbContextOptionsBuilder" />.
+        /// </summary>
+        /// <param name="interceptors"> The option to change. </param>
+        /// <returns> A new instance with the option changed. </returns>
+        public virtual CoreOptionsExtension WithInterceptors([NotNull] IEnumerable<IInterceptor> interceptors)
+        {
+            Check.NotNull(interceptors, nameof(interceptors));
+
+            var clone = Clone();
+
+            clone._interceptors = _interceptors == null
+                ? interceptors
+                : _interceptors.Concat(interceptors);
+
+            return clone;
+        }
+
+        /// <summary>
         ///     The option set from the <see cref="DbContextOptionsBuilder.EnableSensitiveDataLogging" /> method.
         /// </summary>
         public virtual bool IsSensitiveDataLoggingEnabled => _sensitiveDataLoggingEnabled;
@@ -341,6 +360,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     method.
         /// </summary>
         public virtual int? MaxPoolSize => _maxPoolSize;
+
+        public virtual IEnumerable<IInterceptor> Interceptors => _interceptors;
 
         /// <summary>
         ///     Adds the services required to make the selected options work. This is used when there

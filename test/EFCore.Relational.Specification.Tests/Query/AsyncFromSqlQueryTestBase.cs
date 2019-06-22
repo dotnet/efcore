@@ -383,7 +383,7 @@ FROM [Customers]"))
                 Assert.Empty(query);
                 Assert.Equal(ConnectionState.Open, connection.State);
 
-                context.Database.CloseConnection();
+                await context.Database.CloseConnectionAsync();
 
                 Assert.Equal(ConnectionState.Closed, connection.State);
             }

@@ -37,6 +37,11 @@ namespace Microsoft.EntityFrameworkCore.Storage
         DbConnection DbConnection { get; }
 
         /// <summary>
+        ///     The <see cref="DbContext"/> currently in use, or null if not known.
+        /// </summary>
+        DbContext Context { get; }
+
+        /// <summary>
         ///     Gets the connection identifier.
         /// </summary>
         Guid ConnectionId { get; }
@@ -71,6 +76,18 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         /// <returns> True if the underlying connection was actually closed; false otherwise. </returns>
         bool Close();
+
+        /// <summary>
+        ///     Closes the connection to the database.
+        /// </summary>
+        /// <param name="cancellationToken">
+        ///     A <see cref="CancellationToken" /> to observe while waiting for the task to complete.
+        /// </param>
+        /// <returns>
+        ///     A task that represents the asynchronous operation, with a value of true if the connection
+        ///     was actually closed.
+        /// </returns>
+        Task<bool> CloseAsync(CancellationToken cancellationToken = default);
 
         /// <summary>
         ///     Gets a value indicating whether the multiple active result sets feature is enabled.

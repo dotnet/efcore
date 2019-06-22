@@ -5,7 +5,6 @@ using System.Data.Common;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Infrastructure;
 
 namespace Microsoft.EntityFrameworkCore.Diagnostics
 {
@@ -21,19 +20,16 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
     ///         Consider inheriting from <see cref="DbCommandInterceptor" /> if not implementing all methods.
     ///     </para>
     ///     <para>
-    ///         Use <see cref="RelationalDbContextOptionsBuilder{TBuilder,TExtension}.CommandInterceptor" /> to register
-    ///         an application interceptor.
-    ///     </para>
-    ///     <para>
-    ///         Multiple interceptors can be composed using the <see cref="CompositeDbCommandInterceptor" />.
+    ///         Use <see cref="DbContextOptionsBuilder.AddInterceptors(Microsoft.EntityFrameworkCore.Diagnostics.IInterceptor[])" />
+    ///         to register application interceptors.
     ///     </para>
     ///     <para>
     ///         Extensions can also register interceptors in the internal service provider.
     ///         If both injected and application interceptors are found, then the injected interceptors are run in the
-    ///         order that they are resolved from the service provider, and then the application interceptor is run last.
+    ///         order that they are resolved from the service provider, and then the application interceptors are run last.
     ///     </para>
     /// </summary>
-    public interface IDbCommandInterceptor
+    public interface IDbCommandInterceptor : IInterceptor
     {
         /// <summary>
         ///     Called just before EF intends to call <see cref="DbCommand.ExecuteReader()" />.
@@ -355,5 +351,27 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             [NotNull] DbCommand command,
             [NotNull] CommandErrorEventData eventData,
             CancellationToken cancellationToken = default);
+
+        /// <summary>
+        ///     Called when execution of a <see cref="DbDataReader"/> is about to be disposed. />.
+        /// </summary>
+        /// <param name="command"> The command. </param>
+        /// <param name="eventData"> Contextual information about the command and reader. </param>
+        /// <param name="result">
+        ///     The current result, or null if no result yet exists.
+        ///     This value will be non-null if some previous interceptor suppressed execution by returning a result from
+        ///     its implementation of this method.
+        ///     This value is typically used as the return value for the implementation of this method.
+        /// </param>
+        /// <returns>
+        ///     If null, then EF will dispose the reader as normal.
+        ///     If non-null, then disposing the reader is suppressed.
+        ///     A normal implementation of this method for any interceptor that is not attempting to change the result
+        ///     is to return the <paramref name="result" /> value passed in.
+        /// </returns>
+        InterceptionResult? DataReaderDisposing(
+            [NotNull] DbCommand command,
+            [NotNull] DataReaderDisposingEventData eventData,
+            InterceptionResult? result);
     }
 }

@@ -9,6 +9,7 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
@@ -287,8 +288,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 .AddDependencyScoped<CompiledQueryCacheKeyGeneratorDependencies>()
                 .AddDependencyScoped<QueryContextDependencies>()
                 .AddDependencyScoped<ValueGeneratorSelectorDependencies>()
-                .AddDependencyScoped<DatabaseDependencies>()
-                .AddDependencyScoped<InterceptorsDependencies>();
+                .AddDependencyScoped<DatabaseDependencies>();
 
             ServiceCollectionMap.TryAddSingleton<IRegisteredServices>(
                 new RegisteredServices(ServiceCollectionMap.ServiceCollection.Select(s => s.ServiceType)));

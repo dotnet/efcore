@@ -70,16 +70,26 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [ConditionalFact]
-        public void Can_close_the_underlying_connection()
+        [ConditionalTheory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public async Task Can_close_the_underlying_connection(bool async)
         {
             var dbConnection = new FakeDbConnection("A=B");
             var context = RelationalTestHelpers.Instance.CreateContext();
 
             ((FakeRelationalConnection)context.GetService<IRelationalConnection>()).UseConnection(dbConnection);
 
-            context.Database.OpenConnection();
-            context.Database.CloseConnection();
+            if (async)
+            {
+                await context.Database.OpenConnectionAsync();
+                await context.Database.CloseConnectionAsync();
+            }
+            else
+            {
+                context.Database.OpenConnection();
+                context.Database.CloseConnection();
+            }
 
             Assert.Equal(1, dbConnection.CloseCount);
         }
