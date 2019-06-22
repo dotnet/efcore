@@ -8,7 +8,9 @@ using System.Linq.Expressions;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
+using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -247,7 +249,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Pipeline
                                     typeof(object),
                                     primaryKey.Properties
                                         .Select(p => _entityMaterializerSource.CreateReadValueExpression(
-                                            entityShaperExpression.ValueBufferExpression,
+                                            valueBuffer,
                                             typeof(object),
                                             p.GetIndex(),
                                             p))),
@@ -264,7 +266,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Pipeline
                             Expression.Convert(
                                 Expression.MakeMemberAccess(entry, _entityMemberInfo),
                                 entityType.ClrType),
-                            MaterializeEntity(entityType, valueBuffer))));
+                            MaterializeEntity(entityShaperExpression))));
                 }
                 else
                 {
@@ -290,14 +292,16 @@ namespace Microsoft.EntityFrameworkCore.Query.Pipeline
                                             Expression.Constant(null)))
                                         .Aggregate((a, b) => Expression.AndAlso(a, b))),
                             Expression.Constant(null, entityType.ClrType),
-                            MaterializeEntity(entityType, valueBuffer)));
+                            MaterializeEntity(entityShaperExpression)));
                 }
 
                 return Expression.Block(variables, expressions);
             }
 
-            private Expression MaterializeEntity(IEntityType entityType, Expression valueBuffer)
+            private Expression MaterializeEntity(EntityShaperExpression entityShaperExpression)
             {
+                var entityType = entityShaperExpression.EntityType;
+                var valueBuffer = entityShaperExpression.ValueBufferExpression;
                 var expressions = new List<Expression>();
                 var variables = new List<ParameterExpression>();
                 var returnType = entityType.ClrType;
@@ -365,7 +369,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Pipeline
 
                     materializationExpression = Expression.Block(
                         Expression.Throw(
-                            Expression.Constant(new InvalidOperationException(/*RelationalStrings.UnableToDiscriminate(entityType.DisplayName())*/))),
+                            Expression.Call(
+                                _createUnableToDiscriminateException,
+                                Expression.Constant(entityType),
+                                Expression.Convert(discriminatorValueVariable, typeof(object)))),
                         Expression.Constant(null, returnType));
 
                     foreach (var concreteEntityType in concreteEntityTypes)
@@ -443,6 +450,14 @@ namespace Microsoft.EntityFrameworkCore.Query.Pipeline
                     variables,
                     expressions);
             }
+
+            private static readonly MethodInfo _createUnableToDiscriminateException
+                = typeof(EntityMaterializerInjectingExpressionVisitor).GetTypeInfo()
+                    .GetDeclaredMethod(nameof(CreateUnableToDiscriminateException));
+
+            [UsedImplicitly]
+            private static Exception CreateUnableToDiscriminateException(IEntityType entityType, object discriminator)
+                => new InvalidOperationException(CoreStrings.UnableToDiscriminate(entityType.DisplayName(), discriminator?.ToString()));
         }
     }
 }

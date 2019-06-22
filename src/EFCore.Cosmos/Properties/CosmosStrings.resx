@@ -147,7 +147,4 @@
   <data name="PartitionKeyStoreTypeMismatch" xml:space="preserve">
     <value>The type of the partition key property '{property1}' on '{entityType1}' is '{propertyType1}', but the type of the partition key property '{property2}' on '{entityType2}' is '{propertyType2}'. All partition key properties need to have matching types.</value>
   </data>
-  <data name="UnableToDiscriminate" xml:space="preserve">
-    <value>No matching discriminator values where found for this instance of '{entityType}'.</value>
-  </data>
 </root>

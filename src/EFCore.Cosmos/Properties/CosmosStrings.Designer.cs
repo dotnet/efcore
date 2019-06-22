@@ -96,14 +96,6 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
                 GetString("PartitionKeyStoreTypeMismatch", nameof(property1), nameof(entityType1), nameof(propertyType1), nameof(property2), nameof(entityType2), nameof(propertyType2)),
                 property1, entityType1, propertyType1, property2, entityType2, propertyType2);
 
-        /// <summary>
-        ///     No matching discriminator values where found for this instance of '{entityType}'.
-        /// </summary>
-        public static string UnableToDiscriminate([CanBeNull] object entityType)
-            => string.Format(
-                GetString("UnableToDiscriminate", nameof(entityType)),
-                entityType);
-
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);
