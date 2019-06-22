@@ -307,7 +307,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
 
         [UsedImplicitly]
         private static Exception CreateUnableToDiscriminateException(IEntityType entityType)
-            => new InvalidOperationException(CosmosStrings.UnableToDiscriminate(entityType.DisplayName()));
+            => new InvalidOperationException();
 
         private class EntityInfo
         {

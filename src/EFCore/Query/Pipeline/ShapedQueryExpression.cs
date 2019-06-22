@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -19,13 +19,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Pipeline
 
         public Expression QueryExpression { get; set; }
         public ResultType ResultType { get; set; }
-
         public Expression ShaperExpression { get; set; }
-
         public override Type Type => typeof(IQueryable<>).MakeGenericType(ShaperExpression.Type);
-
         public override ExpressionType NodeType => ExpressionType.Extension;
-
         public override bool CanReduce => false;
 
         protected override Expression VisitChildren(ExpressionVisitor visitor)

@@ -507,7 +507,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                         eb.OwnsMany(
                             p => p.Orders, ob =>
                             {
-                                ob.HasKey(o => o.Id);
                                 ob.HasData(
                                     new
                                     {

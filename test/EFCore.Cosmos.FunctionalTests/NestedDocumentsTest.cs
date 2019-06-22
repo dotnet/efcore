@@ -79,7 +79,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
             }
         }
 
-        [ConditionalFact]
+        // #12086
+        //[ConditionalFact]
         public virtual void Can_add_collection_dependent_to_owner()
         {
             using (CreateTestStore())

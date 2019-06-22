@@ -151,14 +151,6 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => GetString("InvalidMaxBatchSize");
 
         /// <summary>
-        ///     Unable to materialize entity of type '{entityType}'. No discriminators were matched.
-        /// </summary>
-        public static string UnableToDiscriminate([CanBeNull] object entityType)
-            => string.Format(
-                GetString("UnableToDiscriminate", nameof(entityType)),
-                entityType);
-
-        /// <summary>
         ///     The Include operation is not supported when calling a stored procedure.
         /// </summary>
         public static string StoredProcedureIncludeNotSupported

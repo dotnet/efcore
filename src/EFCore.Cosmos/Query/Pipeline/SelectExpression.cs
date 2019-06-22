@@ -19,14 +19,6 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Pipeline
         private List<ProjectionExpression> _projection = new List<ProjectionExpression>();
         private readonly List<OrderingExpression> _orderings = new List<OrderingExpression>();
 
-        public string ContainerName { get; }
-        public IReadOnlyList<ProjectionExpression> Projection => _projection;
-        public RootReferenceExpression FromExpression { get; }
-        public IReadOnlyList<OrderingExpression> Orderings => _orderings;
-        public SqlExpression Predicate { get; private set; }
-        public SqlExpression Limit { get; private set; }
-        public SqlExpression Offset { get; private set; }
-        public bool IsDistinct { get; private set; }
         public SelectExpression(IEntityType entityType)
         {
             ContainerName = entityType.GetCosmosContainerName();
@@ -41,6 +33,15 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Pipeline
             FromExpression = fromExpression;
             _orderings = orderings;
         }
+
+        public string ContainerName { get; }
+        public IReadOnlyList<ProjectionExpression> Projection => _projection;
+        public RootReferenceExpression FromExpression { get; }
+        public IReadOnlyList<OrderingExpression> Orderings => _orderings;
+        public SqlExpression Predicate { get; private set; }
+        public SqlExpression Limit { get; private set; }
+        public SqlExpression Offset { get; private set; }
+        public bool IsDistinct { get; private set; }
 
         public Expression GetMappedProjection(ProjectionMember projectionMember)
         {
