@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Data.Common;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -12,6 +13,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         public RelationalTransaction Create(
             IRelationalConnection connection,
             DbTransaction transaction,
+            Guid transactionId,
             IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> logger,
             bool transactionOwned)
             => new TestRelationalTransaction(connection, transaction, logger, transactionOwned);
@@ -26,7 +28,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             DbTransaction transaction,
             IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> logger,
             bool transactionOwned)
-            : base(connection, transaction, logger, transactionOwned)
+            : base(connection, transaction, new Guid(), logger, transactionOwned)
         {
             _testConnection = (TestSqlServerConnection)connection;
         }

@@ -3,6 +3,7 @@
 
 using System.Diagnostics;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Scaffolding;
@@ -31,7 +32,6 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                 .AddSingleton(typeof(IDiagnosticsLogger<>), typeof(DiagnosticsLogger<>))
                 .AddSingleton<IValueConverterSelector, ValueConverterSelector>()
                 .AddSingleton<IInterceptors, Interceptors>()
-                .AddSingleton<InterceptorsDependencies>()
                 .AddLogging();
             new SqliteDesignTimeServices().ConfigureDesignTimeServices(services);
 

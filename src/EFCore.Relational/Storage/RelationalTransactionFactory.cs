@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Data.Common;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
@@ -45,6 +46,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         /// <param name="connection"> The connection to the database. </param>
         /// <param name="transaction"> The underlying <see cref="DbTransaction" />. </param>
+        /// <param name="transactionId"> The unique correlation ID for this transaction. </param>
         /// <param name="logger"> The logger to write to. </param>
         /// <param name="transactionOwned">
         ///     A value indicating whether the transaction is owned by this class (i.e. if it can be disposed when this class is disposed).
@@ -53,8 +55,9 @@ namespace Microsoft.EntityFrameworkCore.Storage
         public virtual RelationalTransaction Create(
             IRelationalConnection connection,
             DbTransaction transaction,
+            Guid transactionId,
             IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> logger,
             bool transactionOwned)
-            => new RelationalTransaction(connection, transaction, logger, transactionOwned);
+            => new RelationalTransaction(connection, transaction, transactionId, logger, transactionOwned);
     }
 }

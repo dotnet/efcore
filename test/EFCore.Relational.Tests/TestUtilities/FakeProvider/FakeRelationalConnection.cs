@@ -33,7 +33,12 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities.FakeProvider
                         new DiagnosticListener("FakeDiagnosticListener"),
                         new TestRelationalLoggingDefinitions()),
                     new NamedConnectionStringResolver(options ?? CreateOptions()),
-                    new RelationalTransactionFactory(new RelationalTransactionFactoryDependencies())))
+                    new RelationalTransactionFactory(new RelationalTransactionFactoryDependencies()),
+                    new CurrentDbContext(new FakeDbContext())))
+        {
+        }
+
+        private class FakeDbContext : DbContext
         {
         }
 

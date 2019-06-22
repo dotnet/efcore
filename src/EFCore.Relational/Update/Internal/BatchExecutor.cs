@@ -165,7 +165,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
                 }
                 else
                 {
-                    connection.Close();
+                    await connection.CloseAsync(cancellationToken);
                 }
             }
 

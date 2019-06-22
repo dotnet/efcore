@@ -3,6 +3,8 @@
 
 using System;
 using System.Diagnostics;
+using System.Threading;
+using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
@@ -29,6 +31,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             var transaction = new RelationalTransaction(
                 connection,
                 dbTransaction,
+                new Guid(),
                 new DiagnosticsLogger<DbLoggerCategory.Database.Transaction>(
                     loggerFactory,
                     new LoggingOptions(),
@@ -54,20 +57,11 @@ namespace Microsoft.EntityFrameworkCore.Storage
         {
             public Guid TransactionId { get; } = Guid.NewGuid();
 
-            public void Commit()
-            {
-                throw new NotImplementedException();
-            }
-
-            public void Dispose()
-            {
-                throw new NotImplementedException();
-            }
-
-            public void Rollback()
-            {
-                throw new NotImplementedException();
-            }
+            public void Commit() => throw new NotImplementedException();
+            public void Dispose() => throw new NotImplementedException();
+            public void Rollback() => throw new NotImplementedException();
+            public Task CommitAsync(CancellationToken cancellationToken = default) => throw new NotImplementedException();
+            public Task RollbackAsync(CancellationToken cancellationToken = default) => throw new NotImplementedException();
         }
 
         private const string ConnectionString = "Fake Connection String";

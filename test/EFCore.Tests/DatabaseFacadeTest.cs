@@ -179,6 +179,8 @@ namespace Microsoft.EntityFrameworkCore
             public Guid TransactionId { get; }
             public void Commit() => throw new NotImplementedException();
             public void Rollback() => throw new NotImplementedException();
+            public Task CommitAsync(CancellationToken cancellationToken = default) => throw new NotImplementedException();
+            public Task RollbackAsync(CancellationToken cancellationToken = default) => throw new NotImplementedException();
         }
 
         [ConditionalFact]

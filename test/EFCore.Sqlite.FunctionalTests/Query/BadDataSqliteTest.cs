@@ -374,6 +374,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             public string ConnectionString { get; }
             public DbConnection DbConnection { get; }
+            public DbContext Context => null;
             public Guid ConnectionId { get; }
             public int? CommandTimeout { get; set; }
             public bool Open(bool errorsExpected = false) => true;
@@ -382,6 +383,9 @@ namespace Microsoft.EntityFrameworkCore.Query
                 throw new NotImplementedException();
 
             public bool Close() => true;
+
+            public Task<bool> CloseAsync(CancellationToken cancellationToken = default) => Task.FromResult<bool>(true);
+
             public bool IsMultipleActiveResultSetsEnabled { get; }
             public IDbContextTransaction BeginTransaction(System.Data.IsolationLevel isolationLevel) => throw new NotImplementedException();
 
@@ -389,6 +393,9 @@ namespace Microsoft.EntityFrameworkCore.Query
                 System.Data.IsolationLevel isolationLevel, CancellationToken cancellationToken = default) => throw new NotImplementedException();
 
             public IDbContextTransaction UseTransaction(DbTransaction transaction) => throw new NotImplementedException();
+
+            public Task<IDbContextTransaction> UseTransactionAsync(
+                DbTransaction transaction, CancellationToken cancellationToken = default) => throw new NotImplementedException();
 
             public void Dispose()
             {

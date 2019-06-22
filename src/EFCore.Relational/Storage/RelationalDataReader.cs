@@ -102,11 +102,12 @@ namespace Microsoft.EntityFrameworkCore.Storage
         {
             if (!_disposed)
             {
+                InterceptionResult? interceptionResult = null;
                 try
                 {
                     _reader.Close(); // can throw
 
-                    _logger?.DataReaderDisposing(
+                    interceptionResult = _logger?.DataReaderDisposing(
                         _connection,
                         _command,
                         _reader,
@@ -120,10 +121,13 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 {
                     _disposed = true;
 
-                    _reader.Dispose();
-                    _command.Parameters.Clear();
-                    _command.Dispose();
-                    _connection.Close();
+                    if (interceptionResult == null)
+                    {
+                        _reader.Dispose();
+                        _command.Parameters.Clear();
+                        _command.Dispose();
+                        _connection.Close();
+                    }
                 }
             }
         }

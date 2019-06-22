@@ -4,7 +4,6 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations.Schema;
 using System.Data.Common;
 using System.Linq;
 using System.Threading;
@@ -12,22 +11,16 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
-using Microsoft.EntityFrameworkCore.TestUtilities;
-using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore
 {
-    public abstract class InterceptionTestBase<TBuilder, TExtension>
-        where TBuilder : RelationalDbContextOptionsBuilder<TBuilder, TExtension>
-        where TExtension : RelationalOptionsExtension, new()
+    public abstract class CommandInterceptionTestBase : InterceptionTestBase
     {
-        protected InterceptionTestBase(InterceptionFixtureBase fixture)
+        protected CommandInterceptionTestBase(InterceptionFixtureBase fixture)
+            : base(fixture)
         {
-            Fixture = fixture;
         }
-
-        protected InterceptionFixtureBase Fixture { get; }
 
         [ConditionalTheory]
         [InlineData(false, false)]
@@ -1139,13 +1132,10 @@ namespace Microsoft.EntityFrameworkCore
         public virtual async Task Intercept_query_with_one_app_and_one_injected_interceptor(bool async)
         {
             var appInterceptor = new ResultReplacingReaderCommandInterceptor();
-            using (var context = CreateContext(appInterceptor, typeof(MutatingReaderCommandInterceptor)))
+            var injectedInterceptor = new MutatingReaderCommandInterceptor();
+            using (var context = CreateContext(appInterceptor, injectedInterceptor))
             {
-                await TestCompoisteQueryInterceptors(
-                    context,
-                    appInterceptor,
-                    (MutatingReaderCommandInterceptor)context.GetService<IEnumerable<IDbCommandInterceptor>>().Single(),
-                    async);
+                await TestCompoisteQueryInterceptors(context, appInterceptor, injectedInterceptor, async);
             }
         }
 
@@ -1172,7 +1162,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateContext(
                 new ResultReplacingScalarCommandInterceptor(),
-                typeof(MutatingScalarCommandInterceptor)))
+                new MutatingScalarCommandInterceptor()))
             {
                 await TestCompositeScalarInterceptors(context, async);
             }
@@ -1200,7 +1190,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateContext(
                 new ResultReplacingNonQueryCommandInterceptor(),
-                typeof(MutatingNonQueryCommandInterceptor)))
+                new MutatingNonQueryCommandInterceptor()))
             {
                 await TestCompositeNonQueryInterceptors(context, async);
             }
@@ -1225,18 +1215,12 @@ namespace Microsoft.EntityFrameworkCore
         [InlineData(true)]
         public virtual async Task Intercept_query_with_two_injected_interceptors(bool async)
         {
-            using (var context = CreateContext(
-                null,
-                typeof(MutatingReaderCommandInterceptor),
-                typeof(ResultReplacingReaderCommandInterceptor)))
-            {
-                var injectedInterceptors = context.GetService<IEnumerable<IDbCommandInterceptor>>().ToList();
+            var injectedInterceptor1 = new MutatingReaderCommandInterceptor();
+            var injectedInterceptor2 = new ResultReplacingReaderCommandInterceptor();
 
-                await TestCompoisteQueryInterceptors(
-                    context,
-                    injectedInterceptors.OfType<ResultReplacingReaderCommandInterceptor>().Single(),
-                    injectedInterceptors.OfType<MutatingReaderCommandInterceptor>().Single(),
-                    async);
+            using (var context = CreateContext(null,injectedInterceptor1, injectedInterceptor2))
+            {
+                await TestCompoisteQueryInterceptors(context, injectedInterceptor2, injectedInterceptor1, async);
             }
         }
 
@@ -1247,8 +1231,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateContext(
                 null,
-                typeof(MutatingScalarCommandInterceptor),
-                typeof(ResultReplacingScalarCommandInterceptor)))
+                new MutatingScalarCommandInterceptor(), new ResultReplacingScalarCommandInterceptor()))
             {
                 await TestCompositeScalarInterceptors(context, async);
             }
@@ -1261,8 +1244,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateContext(
                 null,
-                typeof(MutatingNonQueryCommandInterceptor),
-                typeof(ResultReplacingNonQueryCommandInterceptor)))
+                new MutatingNonQueryCommandInterceptor(), new ResultReplacingNonQueryCommandInterceptor()))
             {
                 await TestCompositeNonQueryInterceptors(context, async);
             }
@@ -1274,8 +1256,10 @@ namespace Microsoft.EntityFrameworkCore
         public virtual async Task Intercept_query_with_explicitly_composed_app_interceptor(bool async)
         {
             using (var context = CreateContext(
-                DbCommandInterceptor.CreateChain(
-                    new MutatingReaderCommandInterceptor(), new ResultReplacingReaderCommandInterceptor())))
+                new IInterceptor[]
+                {
+                    new MutatingReaderCommandInterceptor(), new ResultReplacingReaderCommandInterceptor()
+                }))
             {
                 var results = async
                     ? await context.Set<Singularity>().ToListAsync()
@@ -1306,8 +1290,10 @@ namespace Microsoft.EntityFrameworkCore
         public virtual async Task Intercept_scalar_with_explicitly_composed_app_interceptor(bool async)
         {
             using (var context = CreateContext(
-                DbCommandInterceptor.CreateChain(
-                    new MutatingScalarCommandInterceptor(), new ResultReplacingScalarCommandInterceptor())))
+                new IInterceptor[]
+                {
+                    new MutatingScalarCommandInterceptor(), new ResultReplacingScalarCommandInterceptor()
+                }))
             {
                 await TestCompositeScalarInterceptors(context, async);
             }
@@ -1319,8 +1305,10 @@ namespace Microsoft.EntityFrameworkCore
         public virtual async Task Intercept_non_query_with_explicitly_composed_app_interceptor(bool async)
         {
             using (var context = CreateContext(
-                DbCommandInterceptor.CreateChain(
-                    new MutatingNonQueryCommandInterceptor(), new ResultReplacingNonQueryCommandInterceptor())))
+                new IInterceptor[]
+                {
+                    new MutatingNonQueryCommandInterceptor(), new ResultReplacingNonQueryCommandInterceptor()
+                }))
             {
                 await TestCompositeNonQueryInterceptors(context, async);
             }
@@ -1600,6 +1588,20 @@ namespace Microsoft.EntityFrameworkCore
                 return Task.CompletedTask;
             }
 
+            public InterceptionResult? DataReaderDisposing(
+                DbCommand command,
+                DataReaderDisposingEventData eventData,
+                InterceptionResult? result)
+            {
+                Assert.NotNull(eventData.DataReader);
+                Assert.Same(Context, eventData.Context);
+                Assert.Equal(CommandText, command.CommandText);
+                Assert.Equal(CommandId, eventData.CommandId);
+                Assert.Equal(ConnectionId, eventData.ConnectionId);
+
+                return result;
+            }
+
             protected virtual void AssertExecuting(DbCommand command, CommandEventData eventData)
             {
                 Assert.NotNull(eventData.Context);
@@ -1637,112 +1639,6 @@ namespace Microsoft.EntityFrameworkCore
                 Exception = eventData.Exception;
                 FailedCalled = true;
             }
-        }
-
-        protected class Singularity
-        {
-            [DatabaseGenerated(DatabaseGeneratedOption.None)]
-            public int Id { get; set; }
-
-            public string Type { get; set; }
-        }
-
-        protected class Brane
-        {
-            [DatabaseGenerated(DatabaseGeneratedOption.None)]
-            public int Id { get; set; }
-
-            public string Type { get; set; }
-        }
-
-        public class UniverseContext : PoolableDbContext
-        {
-            public UniverseContext(DbContextOptions options)
-                : base(options)
-            {
-            }
-
-            protected override void OnModelCreating(ModelBuilder modelBuilder)
-            {
-                modelBuilder
-                    .Entity<Singularity>()
-                    .HasData(
-                        new Singularity
-                        {
-                            Id = 77, Type = "Black Hole"
-                        },
-                        new Singularity
-                        {
-                            Id = 88, Type = "Bing Bang"
-                        });
-
-                modelBuilder
-                    .Entity<Brane>()
-                    .HasData(
-                        new Brane
-                        {
-                            Id = 77, Type = "Black Hole?"
-                        },
-                        new Brane
-                        {
-                            Id = 88, Type = "Bing Bang?"
-                        });
-            }
-        }
-
-        protected void AssertSql(string expected, string actual)
-            => Assert.Equal(
-                expected,
-                actual.Replace("\r", string.Empty).Replace("\n", " "));
-
-        protected (DbContext, TInterceptor) CreateContext<TInterceptor>(bool inject)
-            where TInterceptor : class, IDbCommandInterceptor, new()
-        {
-            var interceptor = inject ? null : new TInterceptor();
-
-            var context = inject
-                ? CreateContext(null, typeof(TInterceptor))
-                : CreateContext(interceptor);
-
-            if (inject)
-            {
-                interceptor = (TInterceptor)context.GetService<IEnumerable<IDbCommandInterceptor>>().Single();
-            }
-
-            return (context, interceptor);
-        }
-
-        public UniverseContext CreateContext(
-            IDbCommandInterceptor appInterceptor,
-            params Type[] injectedInterceptorTypes)
-            => new UniverseContext(
-                Fixture.AddRelationalOptions(
-                    b =>
-                    {
-                        if (appInterceptor != null)
-                        {
-                            b.CommandInterceptor(appInterceptor);
-                        }
-                    },
-                    injectedInterceptorTypes));
-
-        public abstract class InterceptionFixtureBase : SharedStoreFixtureBase<UniverseContext>
-        {
-            protected virtual IServiceCollection InjectInterceptors(
-                IServiceCollection serviceCollection,
-                Type[] injectedInterceptorTypes)
-            {
-                foreach (var interceptorType in injectedInterceptorTypes)
-                {
-                    serviceCollection.AddScoped(typeof(IDbCommandInterceptor), interceptorType);
-                }
-
-                return serviceCollection;
-            }
-
-            public abstract DbContextOptions AddRelationalOptions(
-                Action<RelationalDbContextOptionsBuilder<TBuilder, TExtension>> relationalBuilder,
-                Type[] injectedInterceptorTypes);
         }
     }
 }

@@ -21,6 +21,7 @@ using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Update;
 using Microsoft.Extensions.Logging;
+using IsolationLevel = System.Data.IsolationLevel;
 
 namespace Microsoft.EntityFrameworkCore.Diagnostics
 {
@@ -60,7 +61,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             LogCommandExecuting(diagnostics, command, definition);
 
             var diagnosticSourceEnabled = diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name);
-            var interceptor = (diagnostics.Interceptors as IRelationalInterceptors)?.CommandInterceptor;
+            var interceptor = diagnostics.Interceptors?.Resolve<IDbCommandInterceptor>();
 
             if (interceptor != null
                 || diagnosticSourceEnabled)
@@ -109,7 +110,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             LogCommandExecuting(diagnostics, command, definition);
 
             var diagnosticSourceEnabled = diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name);
-            var interceptor = (diagnostics.Interceptors as IRelationalInterceptors)?.CommandInterceptor;
+            var interceptor = diagnostics.Interceptors?.Resolve<IDbCommandInterceptor>();
 
             if (interceptor != null
                 || diagnosticSourceEnabled)
@@ -158,7 +159,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             LogCommandExecuting(diagnostics, command, definition);
 
             var diagnosticSourceEnabled = diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name);
-            var interceptor = (diagnostics.Interceptors as IRelationalInterceptors)?.CommandInterceptor;
+            var interceptor = diagnostics.Interceptors?.Resolve<IDbCommandInterceptor>();
 
             if (interceptor != null
                 || diagnosticSourceEnabled)
@@ -209,7 +210,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             LogCommandExecuting(diagnostics, command, definition);
 
             var diagnosticSourceEnabled = diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name);
-            var interceptor = (diagnostics.Interceptors as IRelationalInterceptors)?.CommandInterceptor;
+            var interceptor = diagnostics.Interceptors?.Resolve<IDbCommandInterceptor>();
 
             if (interceptor != null
                 || diagnosticSourceEnabled)
@@ -260,7 +261,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             LogCommandExecuting(diagnostics, command, definition);
 
             var diagnosticSourceEnabled = diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name);
-            var interceptor = (diagnostics.Interceptors as IRelationalInterceptors)?.CommandInterceptor;
+            var interceptor = diagnostics.Interceptors?.Resolve<IDbCommandInterceptor>();
 
             if (interceptor != null
                 || diagnosticSourceEnabled)
@@ -311,7 +312,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             LogCommandExecuting(diagnostics, command, definition);
 
             var diagnosticSourceEnabled = diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name);
-            var interceptor = (diagnostics.Interceptors as IRelationalInterceptors)?.CommandInterceptor;
+            var interceptor = diagnostics.Interceptors?.Resolve<IDbCommandInterceptor>();
 
             if (interceptor != null
                 || diagnosticSourceEnabled)
@@ -435,7 +436,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             LogCommandExecuted(diagnostics, command, duration, definition);
 
             var diagnosticSourceEnabled = diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name);
-            var interceptor = (diagnostics.Interceptors as IRelationalInterceptors)?.CommandInterceptor;
+            var interceptor = diagnostics.Interceptors?.Resolve<IDbCommandInterceptor>();
 
             if (interceptor != null
                 || diagnosticSourceEnabled)
@@ -490,7 +491,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             LogCommandExecuted(diagnostics, command, duration, definition);
 
             var diagnosticSourceEnabled = diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name);
-            var interceptor = (diagnostics.Interceptors as IRelationalInterceptors)?.CommandInterceptor;
+            var interceptor = diagnostics.Interceptors?.Resolve<IDbCommandInterceptor>();
 
             if (interceptor != null
                 || diagnosticSourceEnabled)
@@ -545,7 +546,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             LogCommandExecuted(diagnostics, command, duration, definition);
 
             var diagnosticSourceEnabled = diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name);
-            var interceptor = (diagnostics.Interceptors as IRelationalInterceptors)?.CommandInterceptor;
+            var interceptor = diagnostics.Interceptors?.Resolve<IDbCommandInterceptor>();
 
             if (interceptor != null
                 || diagnosticSourceEnabled)
@@ -602,7 +603,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             LogCommandExecuted(diagnostics, command, duration, definition);
 
             var diagnosticSourceEnabled = diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name);
-            var interceptor = (diagnostics.Interceptors as IRelationalInterceptors)?.CommandInterceptor;
+            var interceptor = diagnostics.Interceptors?.Resolve<IDbCommandInterceptor>();
 
             if (interceptor != null
                 || diagnosticSourceEnabled)
@@ -659,7 +660,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             LogCommandExecuted(diagnostics, command, duration, definition);
 
             var diagnosticSourceEnabled = diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name);
-            var interceptor = (diagnostics.Interceptors as IRelationalInterceptors)?.CommandInterceptor;
+            var interceptor = diagnostics.Interceptors?.Resolve<IDbCommandInterceptor>();
 
             if (interceptor != null
                 || diagnosticSourceEnabled)
@@ -716,7 +717,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             LogCommandExecuted(diagnostics, command, duration, definition);
 
             var diagnosticSourceEnabled = diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name);
-            var interceptor = (diagnostics.Interceptors as IRelationalInterceptors)?.CommandInterceptor;
+            var interceptor = diagnostics.Interceptors?.Resolve<IDbCommandInterceptor>();
 
             if (interceptor != null
                 || diagnosticSourceEnabled)
@@ -841,22 +842,10 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         {
             var definition = RelationalResources.LogCommandFailed(diagnostics);
 
-            var warningBehavior = definition.GetLogBehavior(diagnostics);
-            if (warningBehavior != WarningBehavior.Ignore)
-            {
-                definition.Log(
-                    diagnostics,
-                    warningBehavior,
-                    string.Format(CultureInfo.InvariantCulture, "{0:N0}", duration.TotalMilliseconds),
-                    command.Parameters.FormatParameters(ShouldLogParameterValues(diagnostics, command)),
-                    command.CommandType,
-                    command.CommandTimeout,
-                    Environment.NewLine,
-                    command.CommandText.TrimEnd());
-            }
+            LogCommandError(diagnostics, command, duration, definition);
 
             var diagnosticSourceEnabled = diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name);
-            var interceptor = (diagnostics.Interceptors as IRelationalInterceptors)?.CommandInterceptor;
+            var interceptor = diagnostics.Interceptors?.Resolve<IDbCommandInterceptor>();
 
             if (interceptor != null
                 || diagnosticSourceEnabled)
@@ -876,6 +865,27 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                     diagnosticSourceEnabled);
 
                 interceptor?.CommandFailed(command, eventData);
+            }
+        }
+
+        private static void LogCommandError(
+            IDiagnosticsLogger<DbLoggerCategory.Database.Command> diagnostics,
+            DbCommand command,
+            TimeSpan duration,
+            EventDefinition<string, string, CommandType, int, string, string> definition)
+        {
+            var warningBehavior = definition.GetLogBehavior(diagnostics);
+            if (warningBehavior != WarningBehavior.Ignore)
+            {
+                definition.Log(
+                    diagnostics,
+                    warningBehavior,
+                    string.Format(CultureInfo.InvariantCulture, "{0:N0}", duration.TotalMilliseconds),
+                    command.Parameters.FormatParameters(ShouldLogParameterValues(diagnostics, command)),
+                    command.CommandType,
+                    command.CommandTimeout,
+                    Environment.NewLine,
+                    command.CommandText.TrimEnd());
             }
         }
 
@@ -907,22 +917,10 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         {
             var definition = RelationalResources.LogCommandFailed(diagnostics);
 
-            var warningBehavior = definition.GetLogBehavior(diagnostics);
-            if (warningBehavior != WarningBehavior.Ignore)
-            {
-                definition.Log(
-                    diagnostics,
-                    warningBehavior,
-                    string.Format(CultureInfo.InvariantCulture, "{0:N0}", duration.TotalMilliseconds),
-                    command.Parameters.FormatParameters(ShouldLogParameterValues(diagnostics, command)),
-                    command.CommandType,
-                    command.CommandTimeout,
-                    Environment.NewLine,
-                    command.CommandText.TrimEnd());
-            }
+            LogCommandError(diagnostics, command, duration, definition);
 
             var diagnosticSourceEnabled = diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name);
-            var interceptor = (diagnostics.Interceptors as IRelationalInterceptors)?.CommandInterceptor;
+            var interceptor = diagnostics.Interceptors?.Resolve<IDbCommandInterceptor>();
 
             if (interceptor != null
                 || diagnosticSourceEnabled)
@@ -1007,15 +1005,85 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="diagnostics"> The diagnostics logger to use. </param>
         /// <param name="connection"> The connection. </param>
         /// <param name="startTime"> The time that the operation was started. </param>
-        /// <param name="async"> Indicates whether or not this is an async operation. </param>
-        public static void ConnectionOpening(
+        /// <returns> The result of execution, which may have been modified by an interceptor. </returns>
+        public static InterceptionResult?  ConnectionOpening(
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Connection> diagnostics,
             [NotNull] IRelationalConnection connection,
-            DateTimeOffset startTime,
-            bool async)
+            DateTimeOffset startTime)
         {
             var definition = RelationalResources.LogOpeningConnection(diagnostics);
 
+            LogConnectionOpening(diagnostics, connection, definition);
+
+            var diagnosticSourceEnabled = diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name);
+            var interceptor = diagnostics.Interceptors?.Resolve<IDbConnectionInterceptor>();
+
+            if (interceptor != null
+                || diagnosticSourceEnabled)
+            {
+                var eventData = BroadcastConnectionOpening(
+                    diagnostics,
+                    connection,
+                    startTime,
+                    definition,
+                    false,
+                    diagnosticSourceEnabled);
+
+                if (interceptor != null)
+                {
+                    return interceptor.ConnectionOpening(connection.DbConnection, eventData, null);
+                }
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        ///     Logs for the <see cref="RelationalEventId.ConnectionOpening" /> event.
+        /// </summary>
+        /// <param name="diagnostics"> The diagnostics logger to use. </param>
+        /// <param name="connection"> The connection. </param>
+        /// <param name="startTime"> The time that the operation was started. </param>
+        /// <param name="cancellationToken"> The cancellation token. </param>
+        /// <returns> A <see cref="Task"/> representing the async operation. </returns>
+        public static Task<InterceptionResult?> ConnectionOpeningAsync(
+            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Connection> diagnostics,
+            [NotNull] IRelationalConnection connection,
+            DateTimeOffset startTime,
+            CancellationToken cancellationToken)
+        {
+            var definition = RelationalResources.LogOpeningConnection(diagnostics);
+
+            LogConnectionOpening(diagnostics, connection, definition);
+
+            var diagnosticSourceEnabled = diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name);
+            var interceptor = diagnostics.Interceptors?.Resolve<IDbConnectionInterceptor>();
+
+            if (interceptor != null
+                || diagnosticSourceEnabled)
+            {
+                var eventData = BroadcastConnectionOpening(
+                    diagnostics,
+                    connection,
+                    startTime,
+                    definition,
+                    true,
+                    diagnosticSourceEnabled);
+
+                if (interceptor != null)
+                {
+                    return interceptor.ConnectionOpeningAsync(connection.DbConnection, eventData, null, cancellationToken);
+                }
+            }
+
+            return Task.FromResult<InterceptionResult?>(null);
+        }
+
+        private static void LogConnectionOpening(
+            IDiagnosticsLogger<DbLoggerCategory.Database.Connection> diagnostics,
+            IRelationalConnection connection,
+            EventDefinition<string, string> definition)
+        {
             var warningBehavior = definition.GetLogBehavior(diagnostics);
             if (warningBehavior != WarningBehavior.Ignore)
             {
@@ -1024,19 +1092,32 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                     warningBehavior,
                     connection.DbConnection.Database, connection.DbConnection.DataSource);
             }
+        }
 
-            if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
+
+        private static ConnectionEventData BroadcastConnectionOpening(
+            IDiagnosticsLogger<DbLoggerCategory.Database.Connection> diagnostics,
+            IRelationalConnection connection,
+            DateTimeOffset startTime,
+            EventDefinition<string, string> definition,
+            bool async,
+            bool diagnosticSourceEnabled)
+        {
+            var eventData = new ConnectionEventData(
+                definition,
+                ConnectionOpening,
+                connection.DbConnection,
+                connection.Context,
+                connection.ConnectionId,
+                async,
+                startTime);
+
+            if (diagnosticSourceEnabled)
             {
-                diagnostics.DiagnosticSource.Write(
-                    definition.EventId.Name,
-                    new ConnectionEventData(
-                        definition,
-                        ConnectionOpening,
-                        connection.DbConnection,
-                        connection.ConnectionId,
-                        async,
-                        startTime));
+                diagnostics.DiagnosticSource.Write(definition.EventId.Name, eventData);
             }
+
+            return eventData;
         }
 
         private static string ConnectionOpening(EventDefinitionBase definition, EventData payload)
@@ -1055,16 +1136,111 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="connection"> The connection. </param>
         /// <param name="startTime"> The time that the operation was started. </param>
         /// <param name="duration"> The amount of time before the connection was opened. </param>
-        /// <param name="async"> Indicates whether or not this is an async operation. </param>
         public static void ConnectionOpened(
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Connection> diagnostics,
             [NotNull] IRelationalConnection connection,
             DateTimeOffset startTime,
-            TimeSpan duration,
-            bool async)
+            TimeSpan duration)
         {
             var definition = RelationalResources.LogOpenedConnection(diagnostics);
 
+            LogConnectionOpened(diagnostics, connection, definition);
+
+            var diagnosticSourceEnabled = diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name);
+            var interceptor = diagnostics.Interceptors?.Resolve<IDbConnectionInterceptor>();
+
+            if (interceptor != null
+                || diagnosticSourceEnabled)
+            {
+                var eventData = BroadcastConnectionOpened(
+                    diagnostics,
+                    connection,
+                    false,
+                    startTime,
+                    duration,
+                    definition,
+                    diagnosticSourceEnabled);
+
+                interceptor?.ConnectionOpened(connection.DbConnection, eventData);
+            }
+        }
+
+        /// <summary>
+        ///     Logs for the <see cref="RelationalEventId.ConnectionOpened" /> event.
+        /// </summary>
+        /// <param name="diagnostics"> The diagnostics logger to use. </param>
+        /// <param name="connection"> The connection. </param>
+        /// <param name="startTime"> The time that the operation was started. </param>
+        /// <param name="duration"> The amount of time before the connection was opened. </param>
+        /// <param name="cancellationToken"> The cancellation token. </param>
+        /// <returns> A <see cref="Task"/> representing the async operation. </returns>
+        public static Task ConnectionOpenedAsync(
+            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Connection> diagnostics,
+            [NotNull] IRelationalConnection connection,
+            DateTimeOffset startTime,
+            TimeSpan duration,
+            CancellationToken cancellationToken = default)
+        {
+            var definition = RelationalResources.LogOpenedConnection(diagnostics);
+
+            LogConnectionOpened(diagnostics, connection, definition);
+
+            var diagnosticSourceEnabled = diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name);
+            var interceptor = diagnostics.Interceptors?.Resolve<IDbConnectionInterceptor>();
+
+            if (interceptor != null
+                || diagnosticSourceEnabled)
+            {
+                var eventData = BroadcastConnectionOpened(
+                    diagnostics,
+                    connection,
+                    true,
+                    startTime,
+                    duration,
+                    definition,
+                    diagnosticSourceEnabled);
+
+                if (interceptor != null)
+                {
+                    return interceptor.ConnectionOpenedAsync(connection.DbConnection, eventData, cancellationToken);
+                }
+            }
+
+            return Task.CompletedTask;
+        }
+
+        private static ConnectionEndEventData BroadcastConnectionOpened(
+            IDiagnosticsLogger<DbLoggerCategory.Database.Connection> diagnostics,
+            IRelationalConnection connection,
+            bool async,
+            DateTimeOffset startTime,
+            TimeSpan duration,
+            EventDefinition<string, string> definition,
+            bool diagnosticSourceEnabled)
+        {
+            var eventData = new ConnectionEndEventData(
+                definition,
+                ConnectionOpened,
+                connection.DbConnection,
+                connection.Context,
+                connection.ConnectionId,
+                async,
+                startTime,
+                duration);
+
+            if (diagnosticSourceEnabled)
+            {
+                diagnostics.DiagnosticSource.Write(definition.EventId.Name, eventData);
+            }
+
+            return eventData;
+        }
+
+        private static void LogConnectionOpened(
+            IDiagnosticsLogger<DbLoggerCategory.Database.Connection> diagnostics,
+            IRelationalConnection connection,
+            EventDefinition<string, string> definition)
+        {
             var warningBehavior = definition.GetLogBehavior(diagnostics);
             if (warningBehavior != WarningBehavior.Ignore)
             {
@@ -1072,20 +1248,6 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                     diagnostics,
                     warningBehavior,
                     connection.DbConnection.Database, connection.DbConnection.DataSource);
-            }
-
-            if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
-            {
-                diagnostics.DiagnosticSource.Write(
-                    definition.EventId.Name,
-                    new ConnectionEndEventData(
-                        definition,
-                        ConnectionOpened,
-                        connection.DbConnection,
-                        connection.ConnectionId,
-                        async,
-                        startTime,
-                        duration));
             }
         }
 
@@ -1104,15 +1266,107 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="diagnostics"> The diagnostics logger to use. </param>
         /// <param name="connection"> The connection. </param>
         /// <param name="startTime"> The time that the operation was started. </param>
-        /// <param name="async"> Indicates whether or not this is an async operation. </param>
-        public static void ConnectionClosing(
+        /// <returns> The result of execution, which may have been modified by an interceptor. </returns>
+        public static InterceptionResult? ConnectionClosing(
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Connection> diagnostics,
             [NotNull] IRelationalConnection connection,
-            DateTimeOffset startTime,
-            bool async)
+            DateTimeOffset startTime)
         {
             var definition = RelationalResources.LogClosingConnection(diagnostics);
 
+            LogConnectionClosing(diagnostics, connection, definition);
+
+            var diagnosticSourceEnabled = diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name);
+            var interceptor = diagnostics.Interceptors?.Resolve<IDbConnectionInterceptor>();
+
+            if (interceptor != null
+                || diagnosticSourceEnabled)
+            {
+                var eventData = BroadcastConnectionClosing(
+                    diagnostics,
+                    connection,
+                    startTime,
+                    false,
+                    definition,
+                    diagnosticSourceEnabled);
+
+                return interceptor?.ConnectionClosing(connection.DbConnection, eventData, null);
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        ///     Logs for the <see cref="RelationalEventId.ConnectionClosing" /> event.
+        /// </summary>
+        /// <param name="diagnostics"> The diagnostics logger to use. </param>
+        /// <param name="connection"> The connection. </param>
+        /// <param name="startTime"> The time that the operation was started. </param>
+        /// <param name="cancellationToken"> The cancellation token. </param>
+        /// <returns> A <see cref="Task"/> representing the async operation. </returns>
+        public static Task<InterceptionResult?> ConnectionClosingAsync(
+            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Connection> diagnostics,
+            [NotNull] IRelationalConnection connection,
+            DateTimeOffset startTime,
+            CancellationToken cancellationToken = default)
+        {
+            var definition = RelationalResources.LogClosingConnection(diagnostics);
+
+            LogConnectionClosing(diagnostics, connection, definition);
+
+            var diagnosticSourceEnabled = diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name);
+            var interceptor = diagnostics.Interceptors?.Resolve<IDbConnectionInterceptor>();
+
+            if (interceptor != null
+                || diagnosticSourceEnabled)
+            {
+                var eventData = BroadcastConnectionClosing(
+                    diagnostics,
+                    connection,
+                    startTime,
+                    true,
+                    definition,
+                    diagnosticSourceEnabled);
+
+                if (interceptor != null)
+                {
+                    return interceptor.ConnectionClosingAsync(connection.DbConnection, eventData, null, cancellationToken);
+                }
+            }
+
+            return Task.FromResult<InterceptionResult?>(null);
+        }
+
+        private static ConnectionEventData BroadcastConnectionClosing(
+            IDiagnosticsLogger<DbLoggerCategory.Database.Connection> diagnostics,
+            IRelationalConnection connection,
+            DateTimeOffset startTime,
+            bool async,
+            EventDefinition<string, string> definition,
+            bool diagnosticSourceEnabled)
+        {
+            var eventData = new ConnectionEventData(
+                definition,
+                ConnectionClosing,
+                connection.DbConnection,
+                connection.Context,
+                connection.ConnectionId,
+                async,
+                startTime);
+
+            if (diagnosticSourceEnabled)
+            {
+                diagnostics.DiagnosticSource.Write(definition.EventId.Name, eventData);
+            }
+
+            return eventData;
+        }
+
+        private static void LogConnectionClosing(
+            IDiagnosticsLogger<DbLoggerCategory.Database.Connection> diagnostics,
+            IRelationalConnection connection,
+            EventDefinition<string, string> definition)
+        {
             var warningBehavior = definition.GetLogBehavior(diagnostics);
             if (warningBehavior != WarningBehavior.Ignore)
             {
@@ -1120,19 +1374,6 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                     diagnostics,
                     warningBehavior,
                     connection.DbConnection.Database, connection.DbConnection.DataSource);
-            }
-
-            if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
-            {
-                diagnostics.DiagnosticSource.Write(
-                    definition.EventId.Name,
-                    new ConnectionEventData(
-                        definition,
-                        ConnectionClosing,
-                        connection.DbConnection,
-                        connection.ConnectionId,
-                        false,
-                        startTime));
             }
         }
 
@@ -1152,16 +1393,114 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="connection"> The connection. </param>
         /// <param name="startTime"> The time that the operation was started. </param>
         /// <param name="duration"> The amount of time before the connection was closed. </param>
-        /// <param name="async"> Indicates whether or not this is an async operation. </param>
         public static void ConnectionClosed(
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Connection> diagnostics,
             [NotNull] IRelationalConnection connection,
             DateTimeOffset startTime,
-            TimeSpan duration,
-            bool async)
+            TimeSpan duration)
         {
             var definition = RelationalResources.LogClosedConnection(diagnostics);
 
+            LogConnectionClosed(diagnostics, connection, definition);
+
+            var diagnosticSourceEnabled = diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name);
+            var interceptor = diagnostics.Interceptors?.Resolve<IDbConnectionInterceptor>();
+
+            if (interceptor != null
+                || diagnosticSourceEnabled)
+            {
+                var eventData = BroadcastCollectionClosed(
+                    diagnostics,
+                    connection,
+                    startTime,
+                    duration,
+                    false,
+                    definition,
+                    diagnosticSourceEnabled);
+
+                if (interceptor != null)
+                {
+                    interceptor.ConnectionClosed(connection.DbConnection, eventData);
+                }
+            }
+        }
+
+        /// <summary>
+        ///     Logs for the <see cref="RelationalEventId.ConnectionClosed" /> event.
+        /// </summary>
+        /// <param name="diagnostics"> The diagnostics logger to use. </param>
+        /// <param name="connection"> The connection. </param>
+        /// <param name="startTime"> The time that the operation was started. </param>
+        /// <param name="duration"> The amount of time before the connection was closed. </param>
+        /// <param name="cancellationToken"> The cancellation token. </param>
+        /// <returns> A <see cref="Task"/> representing the async operation. </returns>
+        public static Task ConnectionClosedAsync(
+            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Connection> diagnostics,
+            [NotNull] IRelationalConnection connection,
+            DateTimeOffset startTime,
+            TimeSpan duration,
+            CancellationToken cancellationToken = default)
+        {
+            var definition = RelationalResources.LogClosedConnection(diagnostics);
+
+            LogConnectionClosed(diagnostics, connection, definition);
+
+            var diagnosticSourceEnabled = diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name);
+            var interceptor = diagnostics.Interceptors?.Resolve<IDbConnectionInterceptor>();
+
+            if (interceptor != null
+                || diagnosticSourceEnabled)
+            {
+                var eventData = BroadcastCollectionClosed(
+                    diagnostics,
+                    connection,
+                    startTime,
+                    duration,
+                    true,
+                    definition,
+                    diagnosticSourceEnabled);
+
+                if (interceptor != null)
+                {
+                    return interceptor.ConnectionClosedAsync(connection.DbConnection, eventData, cancellationToken);
+                }
+            }
+
+            return Task.CompletedTask;
+        }
+
+        private static ConnectionEndEventData BroadcastCollectionClosed(
+            IDiagnosticsLogger<DbLoggerCategory.Database.Connection> diagnostics,
+            IRelationalConnection connection,
+            DateTimeOffset startTime,
+            TimeSpan duration,
+            bool async,
+            EventDefinition<string, string> definition,
+            bool diagnosticSourceEnabled)
+        {
+            var eventData = new ConnectionEndEventData(
+                definition,
+                ConnectionClosed,
+                connection.DbConnection,
+                connection.Context,
+                connection.ConnectionId,
+                async,
+                startTime,
+                duration);
+
+            if (diagnosticSourceEnabled)
+            {
+                diagnostics.DiagnosticSource.Write(definition.EventId.Name, eventData);
+            }
+
+            return eventData;
+        }
+
+        private static void LogConnectionClosed(
+            IDiagnosticsLogger<DbLoggerCategory.Database.Connection> diagnostics,
+            IRelationalConnection connection,
+            EventDefinition<string, string> definition)
+        {
             var warningBehavior = definition.GetLogBehavior(diagnostics);
             if (warningBehavior != WarningBehavior.Ignore)
             {
@@ -1169,20 +1508,6 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                     diagnostics,
                     warningBehavior,
                     connection.DbConnection.Database, connection.DbConnection.DataSource);
-            }
-
-            if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
-            {
-                diagnostics.DiagnosticSource.Write(
-                    definition.EventId.Name,
-                    new ConnectionEndEventData(
-                        definition,
-                        ConnectionClosed,
-                        connection.DbConnection,
-                        connection.ConnectionId,
-                        false,
-                        startTime,
-                        duration));
             }
         }
 
@@ -1203,7 +1528,6 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="exception"> The exception representing the error. </param>
         /// <param name="startTime"> The time that the operation was started. </param>
         /// <param name="duration"> The elapsed time before the operation failed. </param>
-        /// <param name="async"> Indicates whether or not this is an async operation. </param>
         /// <param name="logErrorAsDebug"> A flag indicating the exception is being handled and so it should be logged at Debug level. </param>
         public static void ConnectionError(
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Connection> diagnostics,
@@ -1211,13 +1535,122 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             [NotNull] Exception exception,
             DateTimeOffset startTime,
             TimeSpan duration,
-            bool async,
             bool logErrorAsDebug)
         {
             var definition = logErrorAsDebug
                 ? RelationalResources.LogConnectionErrorAsDebug(diagnostics)
                 : RelationalResources.LogConnectionError(diagnostics);
 
+            LogConnectionError(diagnostics, connection, definition);
+
+            var diagnosticSourceEnabled = diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name);
+            var interceptor = diagnostics.Interceptors?.Resolve<IDbConnectionInterceptor>();
+
+            if (interceptor != null
+                || diagnosticSourceEnabled)
+            {
+                var eventData = BroadcastConnectionError(
+                    diagnostics,
+                    connection,
+                    exception,
+                    startTime,
+                    duration,
+                    false,
+                    definition,
+                    diagnosticSourceEnabled);
+
+                if (interceptor != null)
+                {
+                    interceptor.ConnectionFailed(connection.DbConnection, eventData);
+                }
+            }
+        }
+
+        /// <summary>
+        ///     Logs for the <see cref="RelationalEventId.ConnectionError" /> event.
+        /// </summary>
+        /// <param name="diagnostics"> The diagnostics logger to use. </param>
+        /// <param name="connection"> The connection. </param>
+        /// <param name="exception"> The exception representing the error. </param>
+        /// <param name="startTime"> The time that the operation was started. </param>
+        /// <param name="duration"> The elapsed time before the operation failed. </param>
+        /// <param name="logErrorAsDebug"> A flag indicating the exception is being handled and so it should be logged at Debug level. </param>
+        /// <param name="cancellationToken"> The cancellation token. </param>
+        /// <returns> A <see cref="Task"/> representing the async operation. </returns>
+        public static Task ConnectionErrorAsync(
+            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Connection> diagnostics,
+            [NotNull] IRelationalConnection connection,
+            [NotNull] Exception exception,
+            DateTimeOffset startTime,
+            TimeSpan duration,
+            bool logErrorAsDebug,
+            CancellationToken cancellationToken = default)
+        {
+            var definition = logErrorAsDebug
+                ? RelationalResources.LogConnectionErrorAsDebug(diagnostics)
+                : RelationalResources.LogConnectionError(diagnostics);
+
+            LogConnectionError(diagnostics, connection, definition);
+
+            var diagnosticSourceEnabled = diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name);
+            var interceptor = diagnostics.Interceptors?.Resolve<IDbConnectionInterceptor>();
+
+            if (interceptor != null
+                || diagnosticSourceEnabled)
+            {
+                var eventData = BroadcastConnectionError(
+                    diagnostics,
+                    connection,
+                    exception,
+                    startTime,
+                    duration,
+                    true,
+                    definition,
+                    diagnosticSourceEnabled);
+
+                if (interceptor != null)
+                {
+                    return interceptor.ConnectionFailedAsync(connection.DbConnection, eventData, cancellationToken);
+                }
+            }
+
+            return Task.CompletedTask;
+        }
+
+        private static ConnectionErrorEventData BroadcastConnectionError(
+            IDiagnosticsLogger<DbLoggerCategory.Database.Connection> diagnostics,
+            IRelationalConnection connection,
+            Exception exception,
+            DateTimeOffset startTime,
+            TimeSpan duration,
+            bool async,
+            EventDefinition<string, string> definition,
+            bool diagnosticSourceEnabled)
+        {
+            var eventData = new ConnectionErrorEventData(
+                definition,
+                ConnectionError,
+                connection.DbConnection,
+                connection.Context,
+                connection.ConnectionId,
+                exception,
+                async,
+                startTime,
+                duration);
+
+            if (diagnosticSourceEnabled)
+            {
+                diagnostics.DiagnosticSource.Write(definition.EventId.Name, eventData);
+            }
+
+            return eventData;
+        }
+
+        private static void LogConnectionError(
+            IDiagnosticsLogger<DbLoggerCategory.Database.Connection> diagnostics,
+            IRelationalConnection connection,
+            EventDefinition<string, string> definition)
+        {
             var warningBehavior = definition.GetLogBehavior(diagnostics);
             if (warningBehavior != WarningBehavior.Ignore)
             {
@@ -1225,21 +1658,6 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                     diagnostics,
                     warningBehavior,
                     connection.DbConnection.Database, connection.DbConnection.DataSource);
-            }
-
-            if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
-            {
-                diagnostics.DiagnosticSource.Write(
-                    definition.EventId.Name,
-                    new ConnectionErrorEventData(
-                        definition,
-                        ConnectionError,
-                        connection.DbConnection,
-                        connection.ConnectionId,
-                        exception,
-                        async,
-                        startTime,
-                        duration));
             }
         }
 
@@ -1253,6 +1671,146 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         }
 
         /// <summary>
+        ///     Logs for the <see cref="RelationalEventId.TransactionStarting" /> event.
+        /// </summary>
+        /// <param name="diagnostics"> The diagnostics logger to use. </param>
+        /// <param name="connection"> The connection. </param>
+        /// <param name="isolationLevel"> The transaction isolation level. </param>
+        /// <param name="transactionId"> The correlation ID associated with the <see cref="DbTransaction" />. </param>
+        /// <param name="startTime"> The time that the operation was started. </param>
+        /// <returns> The result of execution, which may have been modified by an interceptor. </returns>
+        public static InterceptionResult<DbTransaction>? TransactionStarting(
+            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> diagnostics,
+            [NotNull] IRelationalConnection connection,
+            IsolationLevel isolationLevel,
+            Guid transactionId,
+            DateTimeOffset startTime)
+        {
+            var definition = RelationalResources.LogBeginningTransaction(diagnostics);
+
+            LogTransactionStarting(diagnostics, isolationLevel, definition);
+
+            var diagnosticSourceEnabled = diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name);
+            var interceptor = diagnostics.Interceptors?.Resolve<IDbTransactionInterceptor>();
+
+            if (interceptor != null
+                || diagnosticSourceEnabled)
+            {
+                var eventData = BroadcastTransactionStarting(
+                    diagnostics,
+                    connection,
+                    isolationLevel,
+                    transactionId,
+                    false,
+                    startTime,
+                    definition,
+                    diagnosticSourceEnabled);
+
+                if (interceptor != null)
+                {
+                    return interceptor.TransactionStarting(connection.DbConnection, eventData, null);
+                }
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        ///     Logs for the <see cref="RelationalEventId.TransactionStarting" /> event.
+        /// </summary>
+        /// <param name="diagnostics"> The diagnostics logger to use. </param>
+        /// <param name="connection"> The connection. </param>
+        /// <param name="isolationLevel"> The transaction isolation level. </param>
+        /// <param name="transactionId"> The correlation ID associated with the <see cref="DbTransaction" />. </param>
+        /// <param name="startTime"> The time that the operation was started. </param>
+        /// <param name="cancellationToken"> The cancellation token. </param>
+        /// <returns> The result of execution, which may have been modified by an interceptor. </returns>
+        public static Task<InterceptionResult<DbTransaction>?> TransactionStartingAsync(
+            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> diagnostics,
+            [NotNull] IRelationalConnection connection,
+            IsolationLevel isolationLevel,
+            Guid transactionId,
+            DateTimeOffset startTime,
+            CancellationToken cancellationToken = default)
+        {
+            var definition = RelationalResources.LogBeginningTransaction(diagnostics);
+
+            LogTransactionStarting(diagnostics, isolationLevel, definition);
+
+            var diagnosticSourceEnabled = diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name);
+            var interceptor = diagnostics.Interceptors?.Resolve<IDbTransactionInterceptor>();
+
+            if (interceptor != null
+                || diagnosticSourceEnabled)
+            {
+                var eventData = BroadcastTransactionStarting(
+                    diagnostics,
+                    connection,
+                    isolationLevel,
+                    transactionId,
+                    true,
+                    startTime,
+                    definition,
+                    diagnosticSourceEnabled);
+
+                return interceptor?.TransactionStartingAsync(connection.DbConnection, eventData, null, cancellationToken);
+            }
+
+            return Task.FromResult<InterceptionResult<DbTransaction>?>(null);
+        }
+
+        private static TransactionStartingEventData BroadcastTransactionStarting(
+            IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> diagnostics,
+            IRelationalConnection connection,
+            IsolationLevel isolationLevel,
+            Guid transactionId,
+            bool async,
+            DateTimeOffset startTime,
+            EventDefinition<string> definition,
+            bool diagnosticSourceEnabled)
+        {
+            var eventData = new TransactionStartingEventData(
+                definition,
+                TransactionStarting,
+                connection.Context,
+                isolationLevel,
+                transactionId,
+                connection.ConnectionId,
+                async,
+                startTime);
+
+            if (diagnosticSourceEnabled)
+            {
+                diagnostics.DiagnosticSource.Write(definition.EventId.Name, eventData);
+            }
+
+            return eventData;
+        }
+
+        private static void LogTransactionStarting(
+            IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> diagnostics,
+            System.Data.IsolationLevel isolationLevel,
+            EventDefinition<string> definition)
+        {
+            var warningBehavior = definition.GetLogBehavior(diagnostics);
+            if (warningBehavior != WarningBehavior.Ignore)
+            {
+                definition.Log(
+                    diagnostics,
+                    warningBehavior,
+                    isolationLevel.ToString("G"));
+            }
+        }
+
+        private static string TransactionStarting(EventDefinitionBase definition, EventData payload)
+        {
+            var d = (EventDefinition<string>)definition;
+            var p = (TransactionStartingEventData)payload;
+            return d.GenerateMessage(
+                p.IsolationLevel.ToString("G"));
+        }
+
+        /// <summary>
         ///     Logs for the <see cref="RelationalEventId.TransactionStarted" /> event.
         /// </summary>
         /// <param name="diagnostics"> The diagnostics logger to use. </param>
@@ -1260,15 +1818,125 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="transaction"> The transaction. </param>
         /// <param name="transactionId"> The correlation ID associated with the <see cref="DbTransaction" />. </param>
         /// <param name="startTime"> The time that the operation was started. </param>
-        public static void TransactionStarted(
+        /// <param name="duration"> The amount of time before the connection was opened. </param>
+        /// <returns> The result of execution, which may have been modified by an interceptor. </returns>
+        public static DbTransaction TransactionStarted(
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> diagnostics,
             [NotNull] IRelationalConnection connection,
             [NotNull] DbTransaction transaction,
             Guid transactionId,
-            DateTimeOffset startTime)
+            DateTimeOffset startTime,
+            TimeSpan duration)
         {
-            var definition = RelationalResources.LogBeginningTransaction(diagnostics);
+            var definition = RelationalResources.LogBeganTransaction(diagnostics);
 
+            LogTransactionStarted(diagnostics, transaction, definition);
+
+            var diagnosticSourceEnabled = diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name);
+            var interceptor = diagnostics.Interceptors?.Resolve<IDbTransactionInterceptor>();
+
+            if (interceptor != null
+                || diagnosticSourceEnabled)
+            {
+                var eventData = BroadcastTransactionStarted(
+                    diagnostics,
+                    connection,
+                    transaction,
+                    transactionId,
+                    false,
+                    startTime,
+                    duration,
+                    definition,
+                    diagnosticSourceEnabled);
+
+                return interceptor?.TransactionStarted(connection.DbConnection, eventData, transaction);
+            }
+
+            return transaction;
+        }
+
+        /// <summary>
+        ///     Logs for the <see cref="RelationalEventId.TransactionStarted" /> event.
+        /// </summary>
+        /// <param name="diagnostics"> The diagnostics logger to use. </param>
+        /// <param name="connection"> The connection. </param>
+        /// <param name="transaction"> The transaction. </param>
+        /// <param name="transactionId"> The correlation ID associated with the <see cref="DbTransaction" />. </param>
+        /// <param name="startTime"> The time that the operation was started. </param>
+        /// <param name="duration"> The amount of time before the connection was opened. </param>
+        /// <param name="cancellationToken"> The cancellation token. </param>
+        /// <returns> The result of execution, which may have been modified by an interceptor. </returns>
+        public static Task<DbTransaction> TransactionStartedAsync(
+            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> diagnostics,
+            [NotNull] IRelationalConnection connection,
+            [NotNull] DbTransaction transaction,
+            Guid transactionId,
+            DateTimeOffset startTime,
+            TimeSpan duration,
+            CancellationToken cancellationToken = default)
+        {
+            var definition = RelationalResources.LogBeganTransaction(diagnostics);
+
+            LogTransactionStarted(diagnostics, transaction, definition);
+
+            var diagnosticSourceEnabled = diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name);
+            var interceptor = diagnostics.Interceptors?.Resolve<IDbTransactionInterceptor>();
+
+            if (interceptor != null
+                || diagnosticSourceEnabled)
+            {
+                var eventData = BroadcastTransactionStarted(
+                    diagnostics,
+                    connection,
+                    transaction,
+                    transactionId,
+                    true,
+                    startTime,
+                    duration,
+                    definition,
+                    diagnosticSourceEnabled);
+
+                return interceptor?.TransactionStartedAsync(connection.DbConnection, eventData, transaction, cancellationToken);
+            }
+
+            return Task.FromResult(transaction);
+        }
+
+        private static TransactionEndEventData BroadcastTransactionStarted(
+            IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> diagnostics,
+            IRelationalConnection connection,
+            DbTransaction transaction,
+            Guid transactionId,
+            bool async,
+            DateTimeOffset startTime,
+            TimeSpan duration,
+            EventDefinition<string> definition,
+            bool diagnosticSourceEnabled)
+        {
+            var eventData = new TransactionEndEventData(
+                definition,
+                TransactionStarted,
+                transaction,
+                connection.Context,
+                transactionId,
+                connection.ConnectionId,
+                async,
+                startTime,
+                duration);
+
+            if (diagnosticSourceEnabled)
+            {
+                diagnostics.DiagnosticSource.Write(definition.EventId.Name, eventData);
+            }
+
+            return eventData;
+        }
+
+        private static void LogTransactionStarted(
+            IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> diagnostics,
+            DbTransaction transaction,
+            EventDefinition<string> definition)
+        {
             var warningBehavior = definition.GetLogBehavior(diagnostics);
             if (warningBehavior != WarningBehavior.Ignore)
             {
@@ -1277,27 +1945,13 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                     warningBehavior,
                     transaction.IsolationLevel.ToString("G"));
             }
-
-            if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
-            {
-                diagnostics.DiagnosticSource.Write(
-                    definition.EventId.Name,
-                    new TransactionEventData(
-                        definition,
-                        TransactionStarted,
-                        transaction,
-                        transactionId,
-                        connection.ConnectionId,
-                        startTime));
-            }
         }
 
         private static string TransactionStarted(EventDefinitionBase definition, EventData payload)
         {
             var d = (EventDefinition<string>)definition;
-            var p = (TransactionEventData)payload;
-            return d.GenerateMessage(
-                p.Transaction.IsolationLevel.ToString("G"));
+            var p = (TransactionEndEventData)payload;
+            return d.GenerateMessage(p.Transaction.IsolationLevel.ToString("G"));
         }
 
         /// <summary>
@@ -1308,7 +1962,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="transaction"> The transaction. </param>
         /// <param name="transactionId"> The correlation ID associated with the <see cref="DbTransaction" />. </param>
         /// <param name="startTime"> The time that the operation was started. </param>
-        public static void TransactionUsed(
+        /// <returns> The result of execution, which may have been modified by an interceptor. </returns>
+        public static DbTransaction TransactionUsed(
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> diagnostics,
             [NotNull] IRelationalConnection connection,
             [NotNull] DbTransaction transaction,
@@ -1317,6 +1972,107 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         {
             var definition = RelationalResources.LogUsingTransaction(diagnostics);
 
+            LogTransactionUsed(diagnostics, transaction, definition);
+
+            var diagnosticSourceEnabled = diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name);
+            var interceptor = diagnostics.Interceptors?.Resolve<IDbTransactionInterceptor>();
+
+            if (interceptor != null
+                || diagnosticSourceEnabled)
+            {
+                var eventData = BroadcasstTransactionUsed(
+                    diagnostics,
+                    connection,
+                    transaction,
+                    transactionId,
+                    false,
+                    startTime,
+                    definition,
+                    diagnosticSourceEnabled);
+
+                return interceptor?.TransactionUsed(connection.DbConnection, eventData, transaction);
+            }
+
+            return transaction;
+        }
+
+        /// <summary>
+        ///     Logs for the <see cref="RelationalEventId.TransactionUsed" /> event.
+        /// </summary>
+        /// <param name="diagnostics"> The diagnostics logger to use. </param>
+        /// <param name="connection"> The connection. </param>
+        /// <param name="transaction"> The transaction. </param>
+        /// <param name="transactionId"> The correlation ID associated with the <see cref="DbTransaction" />. </param>
+        /// <param name="startTime"> The time that the operation was started. </param>
+        /// <param name="cancellationToken"> The cancellation token. </param>
+        /// <returns> The result of execution, which may have been modified by an interceptor. </returns>
+        public static Task<DbTransaction> TransactionUsedAsync(
+            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> diagnostics,
+            [NotNull] IRelationalConnection connection,
+            [NotNull] DbTransaction transaction,
+            Guid transactionId,
+            DateTimeOffset startTime,
+            CancellationToken cancellationToken = default)
+        {
+            var definition = RelationalResources.LogUsingTransaction(diagnostics);
+
+            LogTransactionUsed(diagnostics, transaction, definition);
+
+            var diagnosticSourceEnabled = diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name);
+            var interceptor = diagnostics.Interceptors?.Resolve<IDbTransactionInterceptor>();
+
+            if (interceptor != null
+                || diagnosticSourceEnabled)
+            {
+                var eventData = BroadcasstTransactionUsed(
+                    diagnostics,
+                    connection,
+                    transaction,
+                    transactionId,
+                    true,
+                    startTime,
+                    definition,
+                    diagnosticSourceEnabled);
+
+                return interceptor?.TransactionUsedAsync(connection.DbConnection, eventData, transaction, cancellationToken);
+            }
+
+            return Task.FromResult(transaction);
+        }
+
+        private static TransactionEventData BroadcasstTransactionUsed(
+            IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> diagnostics,
+            IRelationalConnection connection,
+            DbTransaction transaction,
+            Guid transactionId,
+            bool async,
+            DateTimeOffset startTime,
+            EventDefinition<string> definition,
+            bool diagnosticSourceEnabled)
+        {
+            var eventData = new TransactionEventData(
+                definition,
+                TransactionUsed,
+                transaction,
+                connection.Context,
+                transactionId,
+                connection.ConnectionId,
+                async,
+                startTime);
+
+            if (diagnosticSourceEnabled)
+            {
+                diagnostics.DiagnosticSource.Write(definition.EventId.Name, eventData);
+            }
+
+            return eventData;
+        }
+
+        private static void LogTransactionUsed(
+            IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> diagnostics,
+            DbTransaction transaction,
+            EventDefinition<string> definition)
+        {
             var warningBehavior = definition.GetLogBehavior(diagnostics);
             if (warningBehavior != WarningBehavior.Ignore)
             {
@@ -1324,19 +2080,6 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                     diagnostics,
                     warningBehavior,
                     transaction.IsolationLevel.ToString("G"));
-            }
-
-            if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
-            {
-                diagnostics.DiagnosticSource.Write(
-                    definition.EventId.Name,
-                    new TransactionEventData(
-                        definition,
-                        TransactionUsed,
-                        transaction,
-                        transactionId,
-                        connection.ConnectionId,
-                        startTime));
             }
         }
 
@@ -1346,6 +2089,131 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             var p = (TransactionEventData)payload;
             return d.GenerateMessage(
                 p.Transaction.IsolationLevel.ToString("G"));
+        }
+
+        /// <summary>
+        ///     Logs for the <see cref="RelationalEventId.TransactionCommitting" /> event.
+        /// </summary>
+        /// <param name="diagnostics"> The diagnostics logger to use. </param>
+        /// <param name="connection"> The connection. </param>
+        /// <param name="transaction"> The transaction. </param>
+        /// <param name="transactionId"> The correlation ID associated with the <see cref="DbTransaction" />. </param>
+        /// <param name="startTime"> The time that the operation was started. </param>
+        /// <returns> The result of execution, which may have been modified by an interceptor. </returns>
+        public static InterceptionResult? TransactionCommitting(
+            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> diagnostics,
+            [NotNull] IRelationalConnection connection,
+            [NotNull] DbTransaction transaction,
+            Guid transactionId,
+            DateTimeOffset startTime)
+        {
+            var definition = RelationalResources.LogCommittingTransaction(diagnostics);
+
+            LogTransactionCommitting(diagnostics, definition);
+
+            var diagnosticSourceEnabled = diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name);
+            var interceptor = diagnostics.Interceptors?.Resolve<IDbTransactionInterceptor>();
+
+            if (interceptor != null
+                || diagnosticSourceEnabled)
+            {
+                var eventData = BroadcastTransactionCommitting(
+                    diagnostics,
+                    connection,
+                    transaction,
+                    transactionId,
+                    startTime,
+                    definition,
+                    false,
+                    diagnosticSourceEnabled);
+
+                return interceptor?.TransactionCommitting(transaction, eventData, null);
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        ///     Logs for the <see cref="RelationalEventId.TransactionCommitting" /> event.
+        /// </summary>
+        /// <param name="diagnostics"> The diagnostics logger to use. </param>
+        /// <param name="connection"> The connection. </param>
+        /// <param name="transaction"> The transaction. </param>
+        /// <param name="transactionId"> The correlation ID associated with the <see cref="DbTransaction" />. </param>
+        /// <param name="startTime"> The time that the operation was started. </param>
+        /// <param name="cancellationToken"> The cancellation token. </param>
+        /// <returns> A <see cref="Task"/> representing the async operation. </returns>
+        public static Task<InterceptionResult?> TransactionCommittingAsync(
+            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> diagnostics,
+            [NotNull] IRelationalConnection connection,
+            [NotNull] DbTransaction transaction,
+            Guid transactionId,
+            DateTimeOffset startTime,
+            CancellationToken cancellationToken = default)
+        {
+            var definition = RelationalResources.LogCommittingTransaction(diagnostics);
+
+            LogTransactionCommitting(diagnostics, definition);
+
+            var diagnosticSourceEnabled = diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name);
+            var interceptor = diagnostics.Interceptors?.Resolve<IDbTransactionInterceptor>();
+
+            if (interceptor != null
+                || diagnosticSourceEnabled)
+            {
+                var eventData = BroadcastTransactionCommitting(
+                    diagnostics,
+                    connection,
+                    transaction,
+                    transactionId,
+                    startTime,
+                    definition,
+                    true,
+                    diagnosticSourceEnabled);
+
+                return interceptor?.TransactionCommittingAsync(transaction, eventData, null, cancellationToken);
+            }
+
+            return Task.FromResult<InterceptionResult?>(null);
+        }
+
+        private static TransactionEventData BroadcastTransactionCommitting(
+            IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> diagnostics,
+            IRelationalConnection connection,
+            DbTransaction transaction,
+            Guid transactionId,
+            DateTimeOffset startTime,
+            EventDefinition definition,
+            bool async,
+            bool diagnosticSourceEnabled)
+        {
+            var eventData = new TransactionEventData(
+                definition,
+                (d, p) => ((EventDefinition)d).GenerateMessage(),
+                transaction,
+                connection.Context,
+                transactionId,
+                connection.ConnectionId,
+                async,
+                startTime);
+
+            if (diagnosticSourceEnabled)
+            {
+                diagnostics.DiagnosticSource.Write(definition.EventId.Name, eventData);
+            }
+
+            return eventData;
+        }
+
+        private static void LogTransactionCommitting(
+            IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> diagnostics,
+            EventDefinition definition)
+        {
+            var warningBehavior = definition.GetLogBehavior(diagnostics);
+            if (warningBehavior != WarningBehavior.Ignore)
+            {
+                definition.Log(diagnostics, warningBehavior);
+            }
         }
 
         /// <summary>
@@ -1365,26 +2233,116 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             DateTimeOffset startTime,
             TimeSpan duration)
         {
-            var definition = RelationalResources.LogCommittingTransaction(diagnostics);
+            var definition = RelationalResources.LogCommittedTransaction(diagnostics);
 
+            LogTransactionCommitted(diagnostics, definition);
+
+            var diagnosticSourceEnabled = diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name);
+            var interceptor = diagnostics.Interceptors?.Resolve<IDbTransactionInterceptor>();
+
+            if (interceptor != null
+                || diagnosticSourceEnabled)
+            {
+                var eventData = BroadcastTransactionCommitted(
+                    diagnostics,
+                    connection,
+                    transaction,
+                    transactionId,
+                    startTime,
+                    duration,
+                    definition,
+                    false,
+                    diagnosticSourceEnabled);
+
+                interceptor?.TransactionCommitted(transaction, eventData);
+            }
+        }
+
+        /// <summary>
+        ///     Logs for the <see cref="RelationalEventId.TransactionCommitted" /> event.
+        /// </summary>
+        /// <param name="diagnostics"> The diagnostics logger to use. </param>
+        /// <param name="connection"> The connection. </param>
+        /// <param name="transaction"> The transaction. </param>
+        /// <param name="transactionId"> The correlation ID associated with the <see cref="DbTransaction" />. </param>
+        /// <param name="startTime"> The time that the operation was started. </param>
+        /// <param name="duration"> The elapsed time from when the operation was started. </param>
+        /// <param name="cancellationToken"> The cancellation token. </param>
+        /// <returns> A <see cref="Task"/> representing the async operation. </returns>
+        public static Task TransactionCommittedAsync(
+            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> diagnostics,
+            [NotNull] IRelationalConnection connection,
+            [NotNull] DbTransaction transaction,
+            Guid transactionId,
+            DateTimeOffset startTime,
+            TimeSpan duration,
+            CancellationToken cancellationToken = default)
+        {
+            var definition = RelationalResources.LogCommittedTransaction(diagnostics);
+
+            LogTransactionCommitted(diagnostics, definition);
+
+            var diagnosticSourceEnabled = diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name);
+            var interceptor = diagnostics.Interceptors?.Resolve<IDbTransactionInterceptor>();
+
+            if (interceptor != null
+                || diagnosticSourceEnabled)
+            {
+                var eventData = BroadcastTransactionCommitted(
+                    diagnostics,
+                    connection,
+                    transaction,
+                    transactionId,
+                    startTime,
+                    duration,
+                    definition,
+                    true,
+                    diagnosticSourceEnabled);
+
+                return interceptor?.TransactionCommittedAsync(transaction, eventData, cancellationToken);
+            }
+
+            return Task.CompletedTask;
+        }
+
+        private static TransactionEndEventData BroadcastTransactionCommitted(
+            IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> diagnostics,
+            IRelationalConnection connection,
+            DbTransaction transaction,
+            Guid transactionId,
+            DateTimeOffset startTime,
+            TimeSpan duration,
+            EventDefinition definition,
+            bool async,
+            bool diagnosticSourceEnabled)
+        {
+            var eventData = new TransactionEndEventData(
+                definition,
+                (d, p) => ((EventDefinition)d).GenerateMessage(),
+                transaction,
+                connection.Context,
+                transactionId,
+                connection.ConnectionId,
+                async,
+                startTime,
+                duration);
+
+            if (diagnosticSourceEnabled)
+            {
+                diagnostics.DiagnosticSource.Write(definition.EventId.Name, eventData);
+            }
+
+            return eventData;
+        }
+
+        private static void LogTransactionCommitted(
+            IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> diagnostics,
+            EventDefinition definition)
+        {
             var warningBehavior = definition.GetLogBehavior(diagnostics);
             if (warningBehavior != WarningBehavior.Ignore)
             {
                 definition.Log(diagnostics, warningBehavior);
-            }
-
-            if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
-            {
-                diagnostics.DiagnosticSource.Write(
-                    definition.EventId.Name,
-                    new TransactionEndEventData(
-                        definition,
-                        (d, p) => ((EventDefinition)d).GenerateMessage(),
-                        transaction,
-                        transactionId,
-                        connection.ConnectionId,
-                        startTime,
-                        duration));
             }
         }
 
@@ -1405,26 +2363,241 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             DateTimeOffset startTime,
             TimeSpan duration)
         {
-            var definition = RelationalResources.LogRollingbackTransaction(diagnostics);
+            var definition = RelationalResources.LogRolledBackTransaction(diagnostics);
 
+            LogTransactionRolledBack(diagnostics, definition);
+
+            var diagnosticSourceEnabled = diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name);
+            var interceptor = diagnostics.Interceptors?.Resolve<IDbTransactionInterceptor>();
+
+            if (interceptor != null
+                || diagnosticSourceEnabled)
+            {
+                var eventData = BroadcastTransactionRolledBack(
+                    diagnostics,
+                    connection,
+                    transaction,
+                    transactionId,
+                    startTime,
+                    duration,
+                    definition,
+                    false,
+                    diagnosticSourceEnabled);
+
+                interceptor?.TransactionRolledBack(transaction, eventData);
+            }
+        }
+
+        /// <summary>
+        ///     Logs for the <see cref="RelationalEventId.TransactionRolledBack" /> event.
+        /// </summary>
+        /// <param name="diagnostics"> The diagnostics logger to use. </param>
+        /// <param name="connection"> The connection. </param>
+        /// <param name="transaction"> The transaction. </param>
+        /// <param name="transactionId"> The correlation ID associated with the <see cref="DbTransaction" />. </param>
+        /// <param name="startTime"> The time that the operation was started. </param>
+        /// <param name="duration"> The elapsed time from when the operation was started. </param>
+        /// <param name="cancellationToken"> The cancellation token. </param>
+        /// <returns> A <see cref="Task"/> representing the async operation. </returns>
+        public static Task TransactionRolledBackAsync(
+            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> diagnostics,
+            [NotNull] IRelationalConnection connection,
+            [NotNull] DbTransaction transaction,
+            Guid transactionId,
+            DateTimeOffset startTime,
+            TimeSpan duration,
+            CancellationToken cancellationToken = default)
+        {
+            var definition = RelationalResources.LogRolledBackTransaction(diagnostics);
+
+            LogTransactionRolledBack(diagnostics, definition);
+
+            var diagnosticSourceEnabled = diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name);
+            var interceptor = diagnostics.Interceptors?.Resolve<IDbTransactionInterceptor>();
+
+            if (interceptor != null
+                || diagnosticSourceEnabled)
+            {
+                var eventData = BroadcastTransactionRolledBack(
+                    diagnostics,
+                    connection,
+                    transaction,
+                    transactionId,
+                    startTime,
+                    duration,
+                    definition,
+                    true,
+                    diagnosticSourceEnabled);
+
+                return interceptor?.TransactionRolledBackAsync(transaction, eventData, cancellationToken);
+            }
+
+            return Task.CompletedTask;
+        }
+
+        private static TransactionEndEventData BroadcastTransactionRolledBack(
+            IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> diagnostics,
+            IRelationalConnection connection,
+            DbTransaction transaction,
+            Guid transactionId,
+            DateTimeOffset startTime,
+            TimeSpan duration,
+            EventDefinition definition,
+            bool async,
+            bool diagnosticSourceEnabled)
+        {
+            var eventData = new TransactionEndEventData(
+                definition,
+                (d, p) => ((EventDefinition)d).GenerateMessage(),
+                transaction,
+                connection.Context,
+                transactionId,
+                connection.ConnectionId,
+                @async,
+                startTime,
+                duration);
+
+            if (diagnosticSourceEnabled)
+            {
+                diagnostics.DiagnosticSource.Write(definition.EventId.Name, eventData);
+            }
+
+            return eventData;
+        }
+
+        private static void LogTransactionRolledBack(
+            IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> diagnostics,
+            EventDefinition definition)
+        {
             var warningBehavior = definition.GetLogBehavior(diagnostics);
             if (warningBehavior != WarningBehavior.Ignore)
             {
                 definition.Log(diagnostics, warningBehavior);
             }
+        }
 
-            if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
+        /// <summary>
+        ///     Logs for the <see cref="RelationalEventId.TransactionRollingBack" /> event.
+        /// </summary>
+        /// <param name="diagnostics"> The diagnostics logger to use. </param>
+        /// <param name="connection"> The connection. </param>
+        /// <param name="transaction"> The transaction. </param>
+        /// <param name="transactionId"> The correlation ID associated with the <see cref="DbTransaction" />. </param>
+        /// <param name="startTime"> The time that the operation was started. </param>
+        /// <returns> The result of execution, which may have been modified by an interceptor. </returns>
+        public static InterceptionResult? TransactionRollingBack(
+            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> diagnostics,
+            [NotNull] IRelationalConnection connection,
+            [NotNull] DbTransaction transaction,
+            Guid transactionId,
+            DateTimeOffset startTime)
+        {
+            var definition = RelationalResources.LogRollingBackTransaction(diagnostics);
+
+            LogTransactionRollingBack(diagnostics, definition);
+
+            var diagnosticSourceEnabled = diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name);
+            var interceptor = diagnostics.Interceptors?.Resolve<IDbTransactionInterceptor>();
+
+            if (interceptor != null
+                || diagnosticSourceEnabled)
             {
-                diagnostics.DiagnosticSource.Write(
-                    definition.EventId.Name,
-                    new TransactionEndEventData(
-                        definition,
-                        (d, p) => ((EventDefinition)d).GenerateMessage(),
-                        transaction,
-                        transactionId,
-                        connection.ConnectionId,
-                        startTime,
-                        duration));
+                var eventData = BroadcastTransactionRollingBack(
+                    diagnostics,
+                    connection,
+                    transaction,
+                    transactionId,
+                    startTime,
+                    definition,
+                    false,
+                    diagnosticSourceEnabled);
+
+                return interceptor?.TransactionRollingBack(transaction, eventData, null);
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        ///     Logs for the <see cref="RelationalEventId.TransactionRollingBack" /> event.
+        /// </summary>
+        /// <param name="diagnostics"> The diagnostics logger to use. </param>
+        /// <param name="connection"> The connection. </param>
+        /// <param name="transaction"> The transaction. </param>
+        /// <param name="transactionId"> The correlation ID associated with the <see cref="DbTransaction" />. </param>
+        /// <param name="startTime"> The time that the operation was started. </param>
+        /// <param name="cancellationToken"> The cancellation token. </param>
+        /// <returns> A <see cref="Task"/> representing the async operation. </returns>
+        public static Task<InterceptionResult?> TransactionRollingBackAsync(
+            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> diagnostics,
+            [NotNull] IRelationalConnection connection,
+            [NotNull] DbTransaction transaction,
+            Guid transactionId,
+            DateTimeOffset startTime,
+            CancellationToken cancellationToken = default)
+        {
+            var definition = RelationalResources.LogRollingBackTransaction(diagnostics);
+
+            LogTransactionRollingBack(diagnostics, definition);
+
+            var diagnosticSourceEnabled = diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name);
+            var interceptor = diagnostics.Interceptors?.Resolve<IDbTransactionInterceptor>();
+
+            if (interceptor != null
+                || diagnosticSourceEnabled)
+            {
+                var eventData = BroadcastTransactionRollingBack(
+                    diagnostics,
+                    connection,
+                    transaction,
+                    transactionId,
+                    startTime,
+                    definition,
+                    true,
+                    diagnosticSourceEnabled);
+
+                return interceptor?.TransactionRollingBackAsync(transaction, eventData, null, cancellationToken);
+            }
+
+            return Task.FromResult<InterceptionResult?>(null);
+        }
+
+        private static TransactionEventData BroadcastTransactionRollingBack(
+            IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> diagnostics,
+            IRelationalConnection connection,
+            DbTransaction transaction,
+            Guid transactionId,
+            DateTimeOffset startTime,
+            EventDefinition definition,
+            bool async,
+            bool diagnosticSourceEnabled)
+        {
+            var eventData = new TransactionEventData(
+                definition,
+                (d, p) => ((EventDefinition)d).GenerateMessage(),
+                transaction,
+                connection.Context,
+                transactionId,
+                connection.ConnectionId,
+                @async,
+                startTime);
+
+            if (diagnosticSourceEnabled)
+            {
+                diagnostics.DiagnosticSource.Write(definition.EventId.Name, eventData);
+            }
+
+            return eventData;
+        }
+
+        private static void LogTransactionRollingBack(
+            IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> diagnostics,
+            EventDefinition definition)
+        {
+            var warningBehavior = definition.GetLogBehavior(diagnostics);
+            if (warningBehavior != WarningBehavior.Ignore)
+            {
+                definition.Log(diagnostics, warningBehavior);
             }
         }
 
@@ -1459,8 +2632,10 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                         definition,
                         (d, p) => ((EventDefinition)d).GenerateMessage(),
                         transaction,
+                        connection.Context,
                         transactionId,
                         connection.ConnectionId,
+                        false,
                         startTime));
             }
         }
@@ -1488,26 +2663,127 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         {
             var definition = RelationalResources.LogTransactionError(diagnostics);
 
+            LogTransactionErrror(diagnostics, exception, definition);
+
+            var diagnosticSourceEnabled = diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name);
+            var interceptor = diagnostics.Interceptors?.Resolve<IDbTransactionInterceptor>();
+
+            if (interceptor != null
+                || diagnosticSourceEnabled)
+            {
+                var eventData = BroadcastTransactionError(
+                    diagnostics,
+                    connection,
+                    transaction,
+                    transactionId,
+                    action,
+                    exception,
+                    startTime,
+                    duration,
+                    definition,
+                    false,
+                    diagnosticSourceEnabled);
+
+                interceptor?.TransactionFailed(transaction, eventData);
+            }
+        }
+
+        /// <summary>
+        ///     Logs for the <see cref="RelationalEventId.TransactionError" /> event.
+        /// </summary>
+        /// <param name="diagnostics"> The diagnostics logger to use. </param>
+        /// <param name="connection"> The connection. </param>
+        /// <param name="transaction"> The transaction. </param>
+        /// <param name="transactionId"> The correlation ID associated with the <see cref="DbTransaction" />. </param>
+        /// <param name="action"> The action being taken. </param>
+        /// <param name="exception"> The exception that represents the error. </param>
+        /// <param name="startTime"> The time that the operation was started. </param>
+        /// <param name="duration"> The elapsed time from when the operation was started. </param>
+        /// <param name="cancellationToken"> The cancellation token. </param>
+        /// <returns> A <see cref="Task"/> representing the async operation. </returns>
+        public static Task TransactionErrorAsync(
+            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> diagnostics,
+            [NotNull] IRelationalConnection connection,
+            [NotNull] DbTransaction transaction,
+            Guid transactionId,
+            [NotNull] string action,
+            [NotNull] Exception exception,
+            DateTimeOffset startTime,
+            TimeSpan duration,
+            CancellationToken cancellationToken = default)
+        {
+            var definition = RelationalResources.LogTransactionError(diagnostics);
+
+            LogTransactionErrror(diagnostics, exception, definition);
+
+            var diagnosticSourceEnabled = diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name);
+            var interceptor = diagnostics.Interceptors?.Resolve<IDbTransactionInterceptor>();
+
+            if (interceptor != null
+                || diagnosticSourceEnabled)
+            {
+                var eventData = BroadcastTransactionError(
+                    diagnostics,
+                    connection,
+                    transaction,
+                    transactionId,
+                    action,
+                    exception,
+                    startTime,
+                    duration,
+                    definition,
+                    true,
+                    diagnosticSourceEnabled);
+
+                return interceptor?.TransactionFailedAsync(transaction, eventData, cancellationToken);
+            }
+
+            return Task.CompletedTask;
+        }
+
+        private static TransactionErrorEventData BroadcastTransactionError(
+            IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> diagnostics,
+            IRelationalConnection connection,
+            DbTransaction transaction,
+            Guid transactionId,
+            string action,
+            Exception exception,
+            DateTimeOffset startTime,
+            TimeSpan duration,
+            EventDefinition definition,
+            bool async,
+            bool diagnosticSourceEnabled)
+        {
+            var eventData = new TransactionErrorEventData(
+                definition,
+                (d, p) => ((EventDefinition)d).GenerateMessage(),
+                transaction,
+                connection.Context,
+                transactionId,
+                connection.ConnectionId,
+                async,
+                action,
+                exception,
+                startTime,
+                duration);
+
+            if (diagnosticSourceEnabled)
+            {
+                diagnostics.DiagnosticSource.Write(definition.EventId.Name, eventData);
+            }
+
+            return eventData;
+        }
+
+        private static void LogTransactionErrror(
+            IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> diagnostics,
+            Exception exception,
+            EventDefinition definition)
+        {
             var warningBehavior = definition.GetLogBehavior(diagnostics);
             if (warningBehavior != WarningBehavior.Ignore)
             {
                 definition.Log(diagnostics, warningBehavior, exception);
-            }
-
-            if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
-            {
-                diagnostics.DiagnosticSource.Write(
-                    definition.EventId.Name,
-                    new TransactionErrorEventData(
-                        definition,
-                        (d, p) => ((EventDefinition)d).GenerateMessage(),
-                        transaction,
-                        connection.ConnectionId,
-                        transactionId,
-                        action,
-                        exception,
-                        startTime,
-                        duration));
             }
         }
 
@@ -1538,6 +2814,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                         definition,
                         (d, p) => ((EventDefinition)d).GenerateMessage(),
                         connection.DbConnection,
+                        connection.Context,
                         connection.ConnectionId,
                         false,
                         startTime));
@@ -1640,7 +2917,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="readCount"> The number of records that were read. </param>
         /// <param name="startTime"> The time that the operation was started. </param>
         /// <param name="duration"> The elapsed time from when the operation was started. </param>
-        public static void DataReaderDisposing(
+        /// <returns> The result of execution, which may have been modified by an interceptor. </returns>
+        public static InterceptionResult? DataReaderDisposing(
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Command> diagnostics,
             [NotNull] IRelationalConnection connection,
             [NotNull] DbCommand command,
@@ -1659,22 +2937,36 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 definition.Log(diagnostics, warningBehavior);
             }
 
-            if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
+            var diagnosticSourceEnabled = diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name);
+            var interceptor = diagnostics.Interceptors?.Resolve<IDbCommandInterceptor>();
+
+            if (interceptor != null
+                || diagnosticSourceEnabled)
             {
-                diagnostics.DiagnosticSource.Write(
-                    definition.EventId.Name,
-                    new DataReaderDisposingEventData(
-                        definition,
-                        (d, p) => ((EventDefinition)d).GenerateMessage(),
-                        command,
-                        dataReader,
-                        commandId,
-                        connection.ConnectionId,
-                        recordsAffected,
-                        readCount,
-                        startTime,
-                        duration));
+                var eventData = new DataReaderDisposingEventData(
+                    definition,
+                    (d, p) => ((EventDefinition)d).GenerateMessage(),
+                    command,
+                    dataReader,
+                    connection.Context,
+                    commandId,
+                    connection.ConnectionId,
+                    recordsAffected,
+                    readCount,
+                    startTime,
+                    duration);
+
+                if (diagnosticSourceEnabled)
+                {
+                    diagnostics.DiagnosticSource.Write(
+                        definition.EventId.Name,
+                        eventData);
+                }
+
+                return interceptor?.DataReaderDisposing(command, eventData, null);
             }
+
+            return null;
         }
 
         /// <summary>

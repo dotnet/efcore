@@ -1,13 +1,9 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System.Collections.Generic;
 using System.Data.Common;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Diagnostics
 {
@@ -19,40 +15,6 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
     /// </summary>
     public abstract class DbCommandInterceptor : IDbCommandInterceptor
     {
-        /// <summary>
-        ///     <para>
-        ///         Chains the given <see cref="IDbCommandInterceptor" /> instances into a chain that will
-        ///         call each in order.
-        ///     </para>
-        ///     <para>
-        ///         If only a single interceptor is supplied, then it is simply returned.
-        ///     </para>
-        /// </summary>
-        /// <param name="interceptors"> The interceptors to chain. </param>
-        /// <returns> An interceptor that calls each of the given interceptors in order. </returns>
-        public static IDbCommandInterceptor CreateChain([NotNull] IEnumerable<IDbCommandInterceptor> interceptors)
-            => CreateChain(Check.NotNull(interceptors, nameof(interceptors)).ToArray());
-
-        /// <summary>
-        ///     <para>
-        ///         Chains the given <see cref="IDbCommandInterceptor" /> instances into a chain that will
-        ///         call each in order.
-        ///     </para>
-        ///     <para>
-        ///         If only a single interceptor is supplied, then it is simply returned.
-        ///     </para>
-        /// </summary>
-        /// <param name="interceptors"> The interceptors to chain. </param>
-        /// <returns> An interceptor that calls each of the given interceptors in order. </returns>
-        public static IDbCommandInterceptor CreateChain([NotNull] params IDbCommandInterceptor[] interceptors)
-        {
-            Check.NotNull(interceptors, nameof(interceptors));
-
-            return interceptors.Length == 1
-                ? interceptors[0]
-                : new CompositeDbCommandInterceptor(interceptors);
-        }
-
         /// <summary>
         ///     Called just before EF intends to call <see cref="DbCommand.ExecuteReader()" />.
         /// </summary>
@@ -389,5 +351,28 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             CommandErrorEventData eventData,
             CancellationToken cancellationToken = default)
             => Task.CompletedTask;
+
+        /// <summary>
+        ///     Called when execution of a <see cref="DbDataReader"/> is about to be disposed. />.
+        /// </summary>
+        /// <param name="command"> The command. </param>
+        /// <param name="eventData"> Contextual information about the command and reader. </param>
+        /// <param name="result">
+        ///     The current result, or null if no result yet exists.
+        ///     This value will be non-null if some previous interceptor suppressed execution by returning a result from
+        ///     its implementation of this method.
+        ///     This value is typically used as the return value for the implementation of this method.
+        /// </param>
+        /// <returns>
+        ///     If null, then EF will dispose the reader as normal.
+        ///     If non-null, then disposing the reader is suppressed.
+        ///     A normal implementation of this method for any interceptor that is not attempting to change the result
+        ///     is to return the <paramref name="result" /> value passed in.
+        /// </returns>
+        public virtual InterceptionResult? DataReaderDisposing(
+            DbCommand command,
+            DataReaderDisposingEventData eventData,
+            InterceptionResult? result)
+            => result;
     }
 }

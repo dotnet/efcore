@@ -239,7 +239,7 @@ SELECT 1 ELSE SELECT 0");
                             {
                                 await _connection.OpenAsync(ct, errorsExpected: true);
 
-                                _connection.Close();
+                                await _connection.CloseAsync();
                             }
 
                             return true;

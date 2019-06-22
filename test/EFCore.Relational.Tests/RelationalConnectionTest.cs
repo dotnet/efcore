@@ -482,7 +482,7 @@ namespace Microsoft.EntityFrameworkCore
 
                 Assert.Equal(1, dbConnection.OpenCount);
 
-                connection.Close();
+                await connection.CloseAsync();
 
                 Assert.Equal(1, dbConnection.OpenCount);
                 Assert.Equal(1, dbConnection.CloseCount);
@@ -494,7 +494,7 @@ namespace Microsoft.EntityFrameworkCore
                 Assert.Equal(1, dbConnection.OpenCount);
                 Assert.Equal(1, dbConnection.CloseCount);
 
-                connection.Close();
+                await connection.CloseAsync();
 
                 Assert.Equal(1, dbConnection.OpenCount);
                 Assert.Equal(1, dbConnection.CloseCount);
@@ -506,7 +506,7 @@ namespace Microsoft.EntityFrameworkCore
                 Assert.Equal(2, dbConnection.OpenCount);
                 Assert.Equal(1, dbConnection.CloseCount);
 
-                connection.Close();
+                await connection.CloseAsync();
 
                 Assert.Equal(2, dbConnection.OpenCount);
                 Assert.Equal(2, dbConnection.CloseCount);
@@ -520,7 +520,7 @@ namespace Microsoft.EntityFrameworkCore
 
                 dbConnection.SetState(ConnectionState.Closed);
 
-                connection.Close();
+                await connection.CloseAsync();
 
                 Assert.Equal(2, dbConnection.OpenCount);
                 Assert.Equal(2, dbConnection.CloseCount);
@@ -539,7 +539,7 @@ namespace Microsoft.EntityFrameworkCore
 
                 dbConnection.SetState(ConnectionState.Closed);
 
-                connection.Close();
+                await connection.CloseAsync();
 
                 Assert.Equal(4, dbConnection.OpenCount);
                 Assert.Equal(2, dbConnection.CloseCount);

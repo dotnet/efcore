@@ -19,30 +19,22 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// </summary>
         /// <param name="eventDefinition"> The event definition. </param>
         /// <param name="messageGenerator"> A delegate that generates a log message for this event. </param>
-        /// <param name="connection">
-        ///     The <see cref="DbConnection" />.
-        /// </param>
-        /// <param name="connectionId">
-        ///     A correlation ID that identifies the <see cref="DbConnection" /> instance being used.
-        /// </param>
-        /// <param name="async">
-        ///     Indicates whether or not the operation is happening asynchronously.
-        /// </param>
-        /// <param name="startTime">
-        ///     The start time of this event.
-        /// </param>
-        /// <param name="duration">
-        ///     The duration this event.
-        /// </param>
+        /// <param name="connection"> The <see cref="DbConnection" />. </param>
+        /// <param name="context"> The <see cref="DbContext" /> currently being used, to null if not known. </param>
+        /// <param name="connectionId"> A correlation ID that identifies the <see cref="DbConnection" /> instance being used. </param>
+        /// <param name="async"> Indicates whether or not the operation is happening asynchronously. </param>
+        /// <param name="startTime"> The start time of this event. </param>
+        /// <param name="duration"> The duration this event. </param>
         public ConnectionEndEventData(
             [NotNull] EventDefinitionBase eventDefinition,
             [NotNull] Func<EventDefinitionBase, EventData, string> messageGenerator,
             [NotNull] DbConnection connection,
+            [CanBeNull] DbContext context,
             Guid connectionId,
             bool async,
             DateTimeOffset startTime,
             TimeSpan duration)
-            : base(eventDefinition, messageGenerator, connection, connectionId, async, startTime)
+            : base(eventDefinition, messageGenerator, connection, context, connectionId, async, startTime)
             => Duration = duration;
 
         /// <summary>
