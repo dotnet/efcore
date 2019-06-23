@@ -57,4 +57,12 @@
     -->
     <MicrosoftNETCoreAppRuntimeVersion>$(MicrosoftNETCoreAppRuntimewinx64PackageVersion)</MicrosoftNETCoreAppRuntimeVersion>
   </PropertyGroup>
+  <!-- Restore feeds -->
+  <PropertyGroup Label="Restore feeds">
+    <RestoreSources Condition=" '$(DotNetBuildOffline)' != 'true' ">
+      $(RestoreSources);
+      https://dotnetfeed.blob.core.windows.net/dotnet-core/index.json;
+      https://dotnetfeed.blob.core.windows.net/aspnet-extensions/index.json;
+    </RestoreSources>
+  </PropertyGroup>
 </Project>
