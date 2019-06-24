@@ -4770,7 +4770,7 @@ FROM [Prices] AS [p]");
 
         #region Bug12170
 
-        [ConditionalFact]
+        [ConditionalFact(Skip = "issue #16321")]
         public virtual void Weak_entities_with_query_filter_subquery_flattening()
         {
             using (CreateDatabase12170())

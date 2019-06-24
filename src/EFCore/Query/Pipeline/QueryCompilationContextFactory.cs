@@ -4,6 +4,7 @@
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Query.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Query.Pipeline
 {
@@ -17,6 +18,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Pipeline
         private readonly ICurrentDbContext _currentDbContext;
         private readonly IDbContextOptions _contextOptions;
         private readonly IDiagnosticsLogger<DbLoggerCategory.Query> _logger;
+        private readonly IEvaluatableExpressionFilter _evaluatableExpressionFilter;
 
         public QueryCompilationContextFactory(
             IModel model,
@@ -26,7 +28,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Pipeline
             IShapedQueryCompilingExpressionVisitorFactory shapedQueryCompilingExpressionVisitorFactory,
             ICurrentDbContext currentDbContext,
             IDbContextOptions contextOptions,
-            IDiagnosticsLogger<DbLoggerCategory.Query> logger)
+            IDiagnosticsLogger<DbLoggerCategory.Query> logger,
+            IEvaluatableExpressionFilter evaluatableExpressionFilter)
         {
             _model = model;
             _queryOptimizerFactory = queryOptimizerFactory;
@@ -36,6 +39,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Pipeline
             _currentDbContext = currentDbContext;
             _contextOptions = contextOptions;
             _logger = logger;
+            _evaluatableExpressionFilter = evaluatableExpressionFilter;
         }
 
         public QueryCompilationContext Create(bool async)
@@ -49,6 +53,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Pipeline
                 _currentDbContext,
                 _contextOptions,
                 _logger,
+                _evaluatableExpressionFilter,
                 async);
 
             return queryCompilationContext;

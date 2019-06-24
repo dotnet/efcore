@@ -9,11 +9,21 @@ using System.Linq.Expressions;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Query.Pipeline;
 
 namespace Microsoft.EntityFrameworkCore.Query.NavigationExpansion.Visitors
 {
     public class NavigationExpansionReducingVisitor : ExpressionVisitor
     {
+        private readonly NavigationExpandingVisitor _navigationExpandingVisitor;
+        private readonly QueryCompilationContext _queryCompilationContext;
+
+        public NavigationExpansionReducingVisitor(NavigationExpandingVisitor navigationExpandingVisitor, QueryCompilationContext queryCompilationContext)
+        {
+            _navigationExpandingVisitor = navigationExpandingVisitor;
+            _queryCompilationContext = queryCompilationContext;
+        }
+
         protected override Expression VisitExtension(Expression extensionExpression)
         {
             if (extensionExpression is NavigationBindingExpression navigationBindingExpression)
@@ -48,7 +58,7 @@ namespace Microsoft.EntityFrameworkCore.Query.NavigationExpansion.Visitors
                 foreach (var pendingOrdering in state.PendingOrderings)
                 {
                     var remappedKeySelectorBody = new ExpressionReplacingVisitor(pendingOrdering.keySelector.Parameters[0], state.CurrentParameter).Visit(pendingOrdering.keySelector.Body);
-                    var newSelectorBody = new NavigationPropertyUnbindingVisitor(state.CurrentParameter).Visit(remappedKeySelectorBody);
+                    var newSelectorBody = new NavigationPropertyUnbindingVisitor(state.CurrentParameter, _navigationExpandingVisitor, _queryCompilationContext).Visit(remappedKeySelectorBody);
                     var newSelector = Expression.Lambda(newSelectorBody, state.CurrentParameter);
                     var orderingMethod = pendingOrdering.method.MakeGenericMethod(state.CurrentParameter.Type, newSelectorBody.Type);
                     result = Expression.Call(orderingMethod, result, newSelector);
@@ -56,7 +66,7 @@ namespace Microsoft.EntityFrameworkCore.Query.NavigationExpansion.Visitors
 
                 if (state.ApplyPendingSelector)
                 {
-                    var pendingSelector = (LambdaExpression)new NavigationPropertyUnbindingVisitor(state.CurrentParameter).Visit(state.PendingSelector);
+                    var pendingSelector = (LambdaExpression)new NavigationPropertyUnbindingVisitor(state.CurrentParameter, _navigationExpandingVisitor, _queryCompilationContext).Visit(state.PendingSelector);
                     var pendingSelectorBodyType = pendingSelector.Type.GetGenericArguments()[1];
 
                     var pendingSelectMathod = result.Type.IsGenericType && (result.Type.GetGenericTypeDefinition() == typeof(IEnumerable<>) || result.Type.GetGenericTypeDefinition() == typeof(IOrderedEnumerable<>))
@@ -122,7 +132,7 @@ namespace Microsoft.EntityFrameworkCore.Query.NavigationExpansion.Visitors
             var includeFinder = new PendingIncludeFindingVisitor();
             includeFinder.Visit(navigationExpansionExpression.State.PendingSelector.Body);
 
-            var includeRewriter = new PendingSelectorIncludeRewriter();
+            var includeRewriter = new PendingSelectorIncludeRewriter(_navigationExpandingVisitor, _queryCompilationContext);
             var rewrittenBody = includeRewriter.Visit(navigationExpansionExpression.State.PendingSelector.Body);
 
             if (navigationExpansionExpression.State.PendingSelector.Body != rewrittenBody)
@@ -143,7 +153,9 @@ namespace Microsoft.EntityFrameworkCore.Query.NavigationExpansion.Visitors
                         pendingIncludeNode.Key,
                         navigationExpansionExpression.State,
                         new List<INavigation>(),
-                        include: true);
+                        include: true,
+                        _navigationExpandingVisitor,
+                        _queryCompilationContext);
                 }
 
                 var pendingSelector = navigationExpansionExpression.State.PendingSelector;

@@ -56,7 +56,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalFact(Skip = "Issue#15264")]
+        [ConditionalFact(Skip = "Issue#16323")]
         public virtual void QueryType_with_nav_defining_query()
         {
             using (var context = CreateContext())
@@ -70,7 +70,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalTheory(Skip = "Issue#15264")]
+        [ConditionalTheory(Skip = "Issue#16323")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task QueryType_with_defining_query(bool isAsync)
         {
@@ -90,7 +90,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     .Select(cv => cv.Orders.Where(cc => true).ToList()));
         }
 
-        [ConditionalTheory(Skip = "Issue#15264")]
+        [ConditionalTheory(Skip = "Issue#15711")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task QueryType_with_mixed_tracking(bool isAsync)
         {
@@ -107,7 +107,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 e => e.c.CustomerID);
         }
 
-        [ConditionalTheory(Skip = "Issue#15264")]
+        [ConditionalTheory(Skip = "Issue#16323")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task QueryType_with_included_nav(bool isAsync)
         {
@@ -122,7 +122,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 });
         }
 
-        [ConditionalTheory(Skip = "Issue#15264")]
+        [ConditionalTheory(Skip = "Issue#16323")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task QueryType_with_included_navs_multi_level(bool isAsync)
         {
@@ -138,7 +138,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 });
         }
 
-        [ConditionalTheory(Skip = "Issue#15264")]
+        [ConditionalTheory(Skip = "Issue#16323")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task QueryType_select_where_navigation(bool isAsync)
         {
@@ -149,7 +149,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                        select ov);
         }
 
-        [ConditionalTheory(Skip = "Issue#15264")]
+        [ConditionalTheory(Skip = "Issue#16323")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task QueryType_select_where_navigation_multi_level(bool isAsync)
         {

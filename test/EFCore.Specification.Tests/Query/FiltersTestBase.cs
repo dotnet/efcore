@@ -5,7 +5,6 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.TestModels.Northwind;
-using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
 using Xunit;
 
 // ReSharper disable StaticMemberInGenericType
@@ -29,38 +28,37 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         protected TFixture Fixture { get; }
 
-        [ConditionalFact(Skip = "issue #15264")]
+        [ConditionalFact]
         public virtual void Count_query()
         {
             Assert.Equal(7, _context.Customers.Count());
         }
 
-        [ConditionalFact(Skip = "issue #15264")]
+        [ConditionalFact]
         public virtual void Materialized_query()
         {
             Assert.Equal(7, _context.Customers.ToList().Count);
         }
 
-        [ConditionalFact(Skip = "issue #15264")]
+        [ConditionalFact]
         public virtual void Find()
         {
             Assert.Null(_context.Find<Customer>("ALFKI"));
         }
 
-        // also issue #15264
         [ConditionalFact(Skip = "Issue #14935. Cannot eval 'where ClientMethod([p])'")] 
         public virtual void Client_eval()
         {
             Assert.Equal(69, _context.Products.ToList().Count);
         }
 
-        [ConditionalFact(Skip = "issue #15264")]
+        [ConditionalFact]
         public virtual async Task Materialized_query_async()
         {
             Assert.Equal(7, (await _context.Customers.ToListAsync()).Count);
         }
 
-        [ConditionalFact(Skip = "issue #15264")]
+        [ConditionalFact]
         public virtual void Materialized_query_parameter()
         {
             _context.TenantPrefix = "F";
@@ -68,7 +66,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             Assert.Equal(8, _context.Customers.ToList().Count);
         }
 
-        [ConditionalFact(Skip = "issue #15264")]
+        [ConditionalFact]
         public virtual void Materialized_query_parameter_new_context()
         {
             Assert.Equal(7, _context.Customers.ToList().Count);
@@ -81,13 +79,13 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalFact(Skip = "issue #15264")]
+        [ConditionalFact]
         public virtual void Projection_query()
         {
             Assert.Equal(7, _context.Customers.Select(c => c.CustomerID).ToList().Count);
         }
 
-        [ConditionalFact(Skip = "issue #15264")]
+        [ConditionalFact]
         public virtual void Projection_query_parameter()
         {
             _context.TenantPrefix = "F";
@@ -95,7 +93,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             Assert.Equal(8, _context.Customers.Select(c => c.CustomerID).ToList().Count);
         }
 
-        [ConditionalFact(Skip = "issue #15264")]
+        [ConditionalFact]
         public virtual void Include_query()
         {
             var results = _context.Customers.Include(c => c.Orders).ToList();
@@ -103,7 +101,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             Assert.Equal(7, results.Count);
         }
 
-        [ConditionalFact(Skip = "issue #15264")]
+        [ConditionalFact]
         public virtual void Include_query_opt_out()
         {
             var results = _context.Customers.Include(c => c.Orders).IgnoreQueryFilters().ToList();
@@ -111,16 +109,24 @@ namespace Microsoft.EntityFrameworkCore.Query
             Assert.Equal(91, results.Count);
         }
 
-        [ConditionalFact(Skip = "issue #15264")]
+        [ConditionalFact]
         public virtual void Included_many_to_one_query()
         {
             var results = _context.Orders.Include(o => o.Customer).ToList();
 
-            Assert.Equal(830, results.Count);
+            Assert.Equal(80, results.Count);
             Assert.True(results.All(o => o.Customer == null || o.CustomerID.StartsWith("B")));
         }
 
-        // also issue #15264
+        [ConditionalFact]
+        public virtual void Project_reference_that_itself_has_query_filter_with_another_reference()
+        {
+            var results = _context.OrderDetails.Select(od => od.Order).ToList();
+
+            Assert.Equal(5, results.Count);
+            Assert.True(results.All(o => o.Customer == null || o.CustomerID.StartsWith("B")));
+        }
+
         [ConditionalFact(Skip = "Issue #14935. Cannot eval 'where ClientMethod([p])'")]
         public virtual void Included_one_to_many_query_with_client_eval()
         {
@@ -133,7 +139,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                          || p.OrderDetails.All(od => od.Quantity > 50)));
         }
 
-        [ConditionalFact(Skip = "issue #15264")]
+        [ConditionalFact(Skip = "issue #16293")]
         public virtual void Navs_query()
         {
             var results
@@ -146,7 +152,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             Assert.Equal(5, results.Count);
         }
 
-        [ConditionalFact(Skip = "issue #15264")]
+        [ConditionalFact(Skip = "issue #14551")]
         public virtual void Compiled_query()
         {
             var query = EF.CompileQuery(

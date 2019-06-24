@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -14,12 +15,14 @@ namespace Microsoft.EntityFrameworkCore.Query.NavigationExpansion.Visitors
 {
     public partial class NavigationExpandingVisitor : ExpressionVisitor
     {
-        private readonly IModel _model;
+        private readonly QueryCompilationContext _queryCompilationContext;
 
-        public NavigationExpandingVisitor(IModel model)
+        public NavigationExpandingVisitor(QueryCompilationContext queryCompilationContext)
         {
-            _model = model;
+            _queryCompilationContext = queryCompilationContext;
         }
+
+        public virtual List<IEntityType> AppliedQueryFilters { get; } = new List<IEntityType>();
 
         protected override Expression VisitExtension(Expression extensionExpression)
         {
@@ -46,6 +49,14 @@ namespace Microsoft.EntityFrameworkCore.Query.NavigationExpansion.Visitors
             if (extensionExpression is NavigationExpansionExpression navigationExpansionExpression)
             {
                 return navigationExpansionExpression;
+            }
+
+            if (extensionExpression is MaterializeCollectionNavigationExpression materializeCollectionNavigationExpression)
+            {
+                var newOperand = VisitSourceExpression(materializeCollectionNavigationExpression.Operand);
+                newOperand.State.MaterializeCollectionNavigation = materializeCollectionNavigationExpression.Navigation;
+
+                return new NavigationExpansionExpression(newOperand.Operand, newOperand.State, materializeCollectionNavigationExpression.Type);
             }
 
             return base.VisitExtension(extensionExpression);
@@ -165,7 +176,7 @@ namespace Microsoft.EntityFrameworkCore.Query.NavigationExpansion.Visitors
                         materializeCollectionNavigation: null);
 
                     var rewrittenNavigationExpansionExpression = new NavigationExpansionExpression(navigationExpansionExpression.Operand, rewrittenState, combinedKeySelectorBody.Type);
-                    var inner = new NavigationExpansionReducingVisitor().Visit(rewrittenNavigationExpansionExpression);
+                    var inner = new NavigationExpansionReducingVisitor(this, _queryCompilationContext).Visit(rewrittenNavigationExpansionExpression);
 
                     var predicate = Expression.Lambda(
                         Expression.Equal(outerKeyAccess, inner),
@@ -179,7 +190,7 @@ namespace Microsoft.EntityFrameworkCore.Query.NavigationExpansion.Visitors
 
                     var entityType = lastNavigation.ForeignKey.DeclaringEntityType;
 
-                    return NavigationExpansionHelpers.CreateNavigationExpansionRoot(rewritten, entityType, materializeCollectionNavigation: null);
+                    return NavigationExpansionHelpers.CreateNavigationExpansionRoot(rewritten, entityType, materializeCollectionNavigation: null, this, _queryCompilationContext);
                 }
                 else
                 {
@@ -246,7 +257,7 @@ namespace Microsoft.EntityFrameworkCore.Query.NavigationExpansion.Visitors
                 if (binaryExpression.Left is MemberExpression leftMember
                     && leftMember.Type.TryGetSequenceType() is Type leftSequenceType
                     && leftSequenceType != null
-                    && _model.FindEntityType(leftMember.Expression.Type) is IEntityType leftParentEntityType)
+                    && _queryCompilationContext.Model.FindEntityType(leftMember.Expression.Type) is IEntityType leftParentEntityType)
                 {
                     leftNavigation = leftParentEntityType.FindNavigation(leftMember.Member.Name);
                     if (leftNavigation != null)
@@ -258,7 +269,7 @@ namespace Microsoft.EntityFrameworkCore.Query.NavigationExpansion.Visitors
                 if (binaryExpression.Right is MemberExpression rightMember
                     && rightMember.Type.TryGetSequenceType() is Type rightSequenceType
                     && rightSequenceType != null
-                    && _model.FindEntityType(rightMember.Expression.Type) is IEntityType rightParentEntityType)
+                    && _queryCompilationContext.Model.FindEntityType(rightMember.Expression.Type) is IEntityType rightParentEntityType)
                 {
                     rightNavigation = rightParentEntityType.FindNavigation(rightMember.Member.Name);
                     if (rightNavigation != null)

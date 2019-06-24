@@ -4,11 +4,21 @@
 using System.Linq;
 using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Query.Pipeline;
 
 namespace Microsoft.EntityFrameworkCore.Query.NavigationExpansion.Visitors
 {
     public class PendingSelectorIncludeRewriter : ExpressionVisitor
     {
+        private readonly NavigationExpandingVisitor _navigationExpandingVisitor;
+        private readonly QueryCompilationContext _queryCompilationContext;
+
+        public PendingSelectorIncludeRewriter(NavigationExpandingVisitor navigationExpandingVisitor, QueryCompilationContext queryCompilationContext)
+        {
+            _navigationExpandingVisitor = navigationExpandingVisitor;
+            _queryCompilationContext = queryCompilationContext;
+        }
+
         protected override Expression VisitMember(MemberExpression memberExpression) => memberExpression;
         protected override Expression VisitInvocation(InvocationExpression invocationExpression) => invocationExpression;
         protected override Expression VisitLambda<T>(Expression<T> lambdaExpression) => lambdaExpression;
@@ -88,7 +98,7 @@ namespace Microsoft.EntityFrameworkCore.Query.NavigationExpansion.Visitors
 
         private IncludeExpression CreateIncludeCollectionCall(Expression caller, NavigationTreeNode node, ParameterExpression rootParameter, SourceMapping sourceMapping)
         {
-            var included = CollectionNavigationRewritingVisitor.CreateCollectionNavigationExpression(node, rootParameter, sourceMapping);
+            var included = CollectionNavigationRewritingVisitor.CreateCollectionNavigationExpression(node, rootParameter, sourceMapping, _navigationExpandingVisitor, _queryCompilationContext);
 
             return new IncludeExpression(caller, included, node.Navigation);
         }

@@ -19,13 +19,13 @@ namespace Microsoft.EntityFrameworkCore.Query.Pipeline
 
         public Expression Visit(Expression query)
         {
+            query = new QueryMetadataExtractingExpressionVisitor(_queryCompilationContext).Visit(query);
             query = new AllAnyToContainsRewritingExpressionVisitor().Visit(query);
             query = new GroupJoinFlatteningExpressionVisitor().Visit(query);
             query = new NullCheckRemovingExpressionVisitor().Visit(query);
             query = new EntityEqualityRewritingExpressionVisitor(_queryCompilationContext).Rewrite(query);
-            query = new NavigationExpander(_queryCompilationContext.Model).ExpandNavigations(query);
+            query = new NavigationExpander(_queryCompilationContext).ExpandNavigations(query);
             query = new EnumerableToQueryableReMappingExpressionVisitor().Visit(query);
-            query = new QueryMetadataExtractingExpressionVisitor(_queryCompilationContext).Visit(query);
             query = new NullCheckRemovingExpressionVisitor().Visit(query);
             query = new FunctionPreprocessingVisitor().Visit(query);
             new EnumerableVerifyingExpressionVisitor().Visit(query);

@@ -132,6 +132,56 @@ namespace Microsoft.EntityFrameworkCore.Query.NavigationExpansion
             return result;
         }
 
+        private static void PrependFromMappings(NavigationTreeNode navigationTreeNode, List<List<string>> fromMappingsToPrepend)
+        {
+            var newFromMappings = new List<List<string>>();
+            foreach (var parentFromMapping in fromMappingsToPrepend)
+            {
+                foreach (var fromMapping in navigationTreeNode.FromMappings)
+                {
+                    var newMapping = parentFromMapping.ToList();
+                    newMapping.AddRange(fromMapping);
+                    newFromMappings.Add(newMapping);
+                }
+            }
+
+            navigationTreeNode.FromMappings = newFromMappings;
+            foreach (var child in navigationTreeNode.Children)
+            {
+                PrependFromMappings(child, fromMappingsToPrepend);
+            }
+        }
+
+        public void AddChild([NotNull] NavigationTreeNode childNode, bool propagateFromMappings = true)
+        {
+            Check.NotNull(childNode, nameof(childNode));
+
+            // when adding the first child - propagate FromMappings from the parent
+            if (propagateFromMappings)
+            {
+                PrependFromMappings(childNode, FromMappings);
+            }
+
+            var existingChild = Children.Where(c => c.Navigation == childNode.Navigation).SingleOrDefault();
+            if (existingChild != null)
+            {
+                // if the child exisits, copy ToMappings, add new unique FromMappings and try adding it's children
+                // however for those children we don't need to re-propagate the mappings, since they are already in place
+                var newMappings = childNode.FromMappings.Where(m => !existingChild.FromMappings.Any(em => em.SequenceEqual(m)));
+                existingChild.ToMapping = childNode.ToMapping;
+                existingChild.FromMappings.AddRange(newMappings);
+                foreach (var grandChild in existingChild.Children)
+                {
+                    existingChild.AddChild(grandChild, propagateFromMappings: false);
+                }
+            }
+            else
+            {
+                Children.Add(childNode);
+                childNode.Parent = this;
+            }
+        }
+
         public List<NavigationTreeNode> Flatten()
         {
             var result = new List<NavigationTreeNode>();
@@ -149,6 +199,13 @@ namespace Microsoft.EntityFrameworkCore.Query.NavigationExpansion
         public void MakeOptional()
         {
             Optional = true;
+        }
+
+        // TODO: hack - refactor this so that it's not needed
+        internal void SetNavigation(INavigation navigation)
+        {
+            Navigation = navigation;
+            PrependFromMappings(this, new List<List<string>> { new List<string> { navigation.Name } });
         }
     }
 }

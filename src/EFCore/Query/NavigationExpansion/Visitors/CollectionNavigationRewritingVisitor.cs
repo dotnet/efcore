@@ -9,6 +9,7 @@ using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Query.Internal;
+using Microsoft.EntityFrameworkCore.Query.Pipeline;
 
 namespace Microsoft.EntityFrameworkCore.Query.NavigationExpansion.Visitors
 {
@@ -19,10 +20,17 @@ namespace Microsoft.EntityFrameworkCore.Query.NavigationExpansion.Visitors
     public class CollectionNavigationRewritingVisitor : ExpressionVisitor
     {
         private readonly ParameterExpression _sourceParameter;
+        private readonly NavigationExpandingVisitor _navigationExpandingVisitor;
+        private readonly QueryCompilationContext _queryCompilationContext;
 
-        public CollectionNavigationRewritingVisitor(ParameterExpression sourceParameter)
+        public CollectionNavigationRewritingVisitor(
+            ParameterExpression sourceParameter,
+            NavigationExpandingVisitor navigationExpandingVisitor,
+            QueryCompilationContext queryCompilationContext)
         {
             _sourceParameter = sourceParameter;
+            _navigationExpandingVisitor = navigationExpandingVisitor;
+            _queryCompilationContext = queryCompilationContext;
         }
 
         protected override Expression VisitLambda<T>(Expression<T> lambdaExpression)
@@ -61,7 +69,7 @@ namespace Microsoft.EntityFrameworkCore.Query.NavigationExpansion.Visitors
                 && methodCallExpression.Method.DeclaringType.IsGenericType
                 && methodCallExpression.Method.DeclaringType.GetGenericTypeDefinition() == typeof(List<>))
             {
-                var newCaller = RemoveMaterializeCollection(Visit(methodCallExpression.Object));
+                var newCaller = NavigationExpansionHelpers.RemoveMaterializeCollection(Visit(methodCallExpression.Object));
                 var newPredicate = Visit(methodCallExpression.Arguments[0]);
 
                 return Expression.Call(
@@ -79,7 +87,7 @@ namespace Microsoft.EntityFrameworkCore.Query.NavigationExpansion.Visitors
                 && navigationBindingCaller.NavigationTreeNode.Navigation != null
                 && navigationBindingCaller.NavigationTreeNode.Navigation.IsCollection())
             {
-                var newCaller = RemoveMaterializeCollection(Visit(methodCallExpression.Object));
+                var newCaller = NavigationExpansionHelpers.RemoveMaterializeCollection(Visit(methodCallExpression.Object));
                 var newArgument = Visit(methodCallExpression.Arguments[0]);
 
                 var lambdaParameter = Expression.Parameter(newCaller.Type.GetSequenceType(), newCaller.Type.GetSequenceType().GenerateParameterName());
@@ -93,13 +101,13 @@ namespace Microsoft.EntityFrameworkCore.Query.NavigationExpansion.Visitors
                     lambda);
             }
 
-            var newObject = RemoveMaterializeCollection(Visit(methodCallExpression.Object));
+            var newObject = NavigationExpansionHelpers.RemoveMaterializeCollection(Visit(methodCallExpression.Object));
             var newArguments = new List<Expression>();
 
             var argumentsChanged = false;
             foreach (var argument in methodCallExpression.Arguments)
             {
-                var newArgument = RemoveMaterializeCollection(Visit(argument));
+                var newArgument = NavigationExpansionHelpers.RemoveMaterializeCollection(Visit(argument));
                 newArguments.Add(newArgument);
                 if (newArgument != argument)
                 {
@@ -112,36 +120,12 @@ namespace Microsoft.EntityFrameworkCore.Query.NavigationExpansion.Visitors
                 : methodCallExpression;
         }
 
-        private Expression RemoveMaterializeCollection(Expression expression)
-        {
-            if (expression is NavigationExpansionExpression navigationExpansionExpression
-                && navigationExpansionExpression.State.MaterializeCollectionNavigation != null)
-            {
-                navigationExpansionExpression.State.MaterializeCollectionNavigation = null;
-
-                return new NavigationExpansionExpression(
-                    navigationExpansionExpression.Operand,
-                    navigationExpansionExpression.State,
-                    navigationExpansionExpression.Operand.Type);
-            }
-
-            if (expression is NavigationExpansionRootExpression navigationExpansionRootExpression
-                && navigationExpansionRootExpression.NavigationExpansion.State.MaterializeCollectionNavigation != null)
-            {
-                navigationExpansionRootExpression.NavigationExpansion.State.MaterializeCollectionNavigation = null;
-
-                var rewritten = new NavigationExpansionExpression(
-                    navigationExpansionRootExpression.NavigationExpansion.Operand,
-                    navigationExpansionRootExpression.NavigationExpansion.State,
-                    navigationExpansionRootExpression.NavigationExpansion.Operand.Type);
-
-                return new NavigationExpansionRootExpression(rewritten, navigationExpansionRootExpression.Mapping);
-            }
-
-            return expression;
-        }
-
-        public static Expression CreateCollectionNavigationExpression(NavigationTreeNode navigationTreeNode, ParameterExpression rootParameter, SourceMapping sourceMapping)
+        public static NavigationExpansionExpression CreateCollectionNavigationExpression(
+            NavigationTreeNode navigationTreeNode,
+            ParameterExpression rootParameter,
+            SourceMapping sourceMapping,
+            NavigationExpandingVisitor navigationExpandingVisitor,
+            QueryCompilationContext queryCompilationContext)
         {
             var collectionEntityType = navigationTreeNode.Navigation.ForeignKey.DeclaringEntityType;
             var entityQueryable = (Expression)NullAsyncQueryProvider.Instance.CreateEntityQueryableExpression(collectionEntityType.ClrType);
@@ -176,7 +160,7 @@ namespace Microsoft.EntityFrameworkCore.Query.NavigationExpansion.Visitors
                 entityQueryable,
                 predicate);
 
-            var result = NavigationExpansionHelpers.CreateNavigationExpansionRoot(operand, collectionEntityType, navigationTreeNode.Navigation);
+            var result = NavigationExpansionHelpers.CreateNavigationExpansionRoot(operand, collectionEntityType, navigationTreeNode.Navigation, navigationExpandingVisitor, queryCompilationContext);
 
             // this is needed for cases like: root.Include(r => r.Collection).ThenInclude(c => c.Reference).Select(r => r.Collection)
             // result should be elements of the collection navigation with their 'Reference' included
@@ -196,8 +180,8 @@ namespace Microsoft.EntityFrameworkCore.Query.NavigationExpansion.Visitors
                     && lastNavigation.IsCollection())
                 {
                     return lastNavigation.ForeignKey.IsOwnership
-                        ? NavigationExpansionHelpers.CreateNavigationExpansionRoot(navigationBindingExpression, lastNavigation.GetTargetType(), lastNavigation)
-                        : CreateCollectionNavigationExpression(navigationBindingExpression.NavigationTreeNode, navigationBindingExpression.RootParameter, navigationBindingExpression.SourceMapping);
+                        ? NavigationExpansionHelpers.CreateNavigationExpansionRoot(navigationBindingExpression, lastNavigation.GetTargetType(), lastNavigation, _navigationExpandingVisitor, _queryCompilationContext)
+                        : CreateCollectionNavigationExpression(navigationBindingExpression.NavigationTreeNode, navigationBindingExpression.RootParameter, navigationBindingExpression.SourceMapping, _navigationExpandingVisitor, _queryCompilationContext);
                 }
                 else
                 {
@@ -210,7 +194,7 @@ namespace Microsoft.EntityFrameworkCore.Query.NavigationExpansion.Visitors
 
         protected override Expression VisitMember(MemberExpression memberExpression)
         {
-            var newExpression = RemoveMaterializeCollection(Visit(memberExpression.Expression));
+            var newExpression = NavigationExpansionHelpers.RemoveMaterializeCollection(Visit(memberExpression.Expression));
             if (newExpression != memberExpression.Expression)
             {
                 if (memberExpression.Member.Name == nameof(List<int>.Count))

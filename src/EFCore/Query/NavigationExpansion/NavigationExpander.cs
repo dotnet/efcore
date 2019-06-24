@@ -3,27 +3,28 @@
 
 using System.Linq.Expressions;
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Query.NavigationExpansion.Visitors;
+using Microsoft.EntityFrameworkCore.Query.Pipeline;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Query.NavigationExpansion
 {
     public class NavigationExpander
     {
-        private IModel _model;
+        private readonly QueryCompilationContext _queryCompilationContext;
 
-        public NavigationExpander([NotNull] IModel model)
+        public NavigationExpander([NotNull] QueryCompilationContext queryCompilationContext)
         {
-            Check.NotNull(model, nameof(model));
+            Check.NotNull(queryCompilationContext, nameof(queryCompilationContext));
 
-            _model = model;
+            _queryCompilationContext = queryCompilationContext;
         }
 
         public virtual Expression ExpandNavigations(Expression expression)
         {
-            var newExpression = new NavigationExpandingVisitor(_model).Visit(expression);
-            newExpression = new NavigationExpansionReducingVisitor().Visit(newExpression);
+            var navigationExpandingVisitor = new NavigationExpandingVisitor(_queryCompilationContext);
+            var newExpression = navigationExpandingVisitor.Visit(expression);
+            newExpression = new NavigationExpansionReducingVisitor(navigationExpandingVisitor, _queryCompilationContext).Visit(newExpression);
 
             return newExpression;
         }
