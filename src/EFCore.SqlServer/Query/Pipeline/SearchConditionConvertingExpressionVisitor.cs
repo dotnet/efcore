@@ -1,6 +1,7 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore.Relational.Query.Pipeline;
@@ -202,7 +203,6 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Pipeline
                     || sqlBinaryExpression.OperatorType == ExpressionType.LessThan
                     || sqlBinaryExpression.OperatorType == ExpressionType.LessThanOrEqual;
 
-
             return ApplyConversion(sqlBinaryExpression, condition);
         }
 
@@ -223,10 +223,14 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Pipeline
                     resultCondition = false;
                     break;
 
-                default:
+                case ExpressionType.Equal:
+                case ExpressionType.NotEqual:
                     _isSearchCondition = false;
                     resultCondition = true;
                     break;
+
+                default:
+                    throw new InvalidOperationException("Unknown operator type encountered in SqlUnaryExpression.");
             }
 
             var operand = (SqlExpression)Visit(sqlUnaryExpression.Operand);
@@ -325,9 +329,11 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Pipeline
 
         protected override Expression VisitSubSelect(SubSelectExpression subSelectExpression)
         {
+            var parentSearchCondition = _isSearchCondition;
             var subquery = (SelectExpression)Visit(subSelectExpression.Subquery);
+            _isSearchCondition = parentSearchCondition;
 
-            return subSelectExpression.Update(subquery);
+            return ApplyConversion(subSelectExpression.Update(subquery), condition: false);
         }
     }
 }
