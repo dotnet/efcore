@@ -166,9 +166,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Pipeline
 
             private readonly IEntityMaterializerSource _entityMaterializerSource;
             private readonly bool _trackQueryResults;
-
-            private readonly List<ParameterExpression> _variables = new List<ParameterExpression>();
-            private readonly List<Expression> _expressions = new List<Expression>();
             private int _currentEntityIndex;
 
             public EntityMaterializerInjectingExpressionVisitor(
@@ -180,9 +177,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Pipeline
 
             public Expression Inject(Expression expression)
             {
-                _expressions.Add(Visit(expression));
-
-                return Expression.Block(_variables, _expressions);
+                return Visit(expression);
             }
 
             protected override Expression VisitExtension(Expression extensionExpression)

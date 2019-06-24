@@ -63,7 +63,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             return Task.WhenAll(tasks);
         }
 
-        [ConditionalFact]
+        [ConditionalFact(Skip = "Issue#16218")]
         public Task Race_when_context_disposed_before_query_termination()
         {
             DbSet<Customer> task;
@@ -184,6 +184,18 @@ namespace Microsoft.EntityFrameworkCore.Query
                     }
                 }
             }
+        }
+
+        [ConditionalFact(Skip = "Issue#16218")]
+        public override Task Select_bitwise_and_with_logical_and()
+        {
+            return base.Select_bitwise_and_with_logical_and();
+        }
+
+        [ConditionalFact(Skip = "Issue#16218")]
+        public override Task Mixed_sync_async_in_query_cache()
+        {
+            return base.Mixed_sync_async_in_query_cache();
         }
     }
 }

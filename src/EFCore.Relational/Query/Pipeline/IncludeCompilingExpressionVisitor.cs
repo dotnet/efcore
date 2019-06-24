@@ -4,7 +4,9 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Data.Common;
+using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -20,13 +22,13 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
 {
     public partial class RelationalShapedQueryCompilingExpressionVisitor
     {
-        private class IncludeCompilingExpressionVisitor : ExpressionVisitor
+        private class CustomShaperCompilingExpressionVisitor : ExpressionVisitor
         {
             private readonly ParameterExpression _dbDataReaderParameter;
             private readonly ParameterExpression _resultCoordinatorParameter;
             private readonly bool _tracking;
 
-            public IncludeCompilingExpressionVisitor(
+            public CustomShaperCompilingExpressionVisitor(
                 ParameterExpression dbDataReaderParameter,
                 ParameterExpression resultCoordinatorParameter,
                 bool tracking)
@@ -37,82 +39,97 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
             }
 
             private static readonly MethodInfo _includeReferenceMethodInfo
-                = typeof(IncludeCompilingExpressionVisitor).GetTypeInfo()
+                = typeof(CustomShaperCompilingExpressionVisitor).GetTypeInfo()
                     .GetDeclaredMethod(nameof(IncludeReference));
 
-            private static void IncludeReference<TEntity, TIncludedEntity>(
+            private static void IncludeReference<TEntity, TIncludingEntity, TIncludedEntity>(
                 QueryContext queryContext,
-                DbDataReader dbDataReader,
                 TEntity entity,
-                Func<QueryContext, DbDataReader, ResultCoordinator, TIncludedEntity> innerShaper,
+                TIncludedEntity relatedEntity,
                 INavigation navigation,
                 INavigation inverseNavigation,
-                Action<TEntity, TIncludedEntity> fixup,
-                bool trackingQuery,
-                ResultCoordinator resultCoordinator)
+                Action<TIncludingEntity, TIncludedEntity> fixup,
+                bool trackingQuery)
+                where TIncludingEntity : TEntity
             {
-                var relatedEntity = innerShaper(queryContext, dbDataReader, resultCoordinator);
-
-                if (trackingQuery)
+                if (entity is TIncludingEntity includingEntity)
                 {
-                    // For non-null relatedEntity StateManager will set the flag
-                    if (ReferenceEquals(relatedEntity, null))
+                    if (trackingQuery)
                     {
-                        queryContext.StateManager.TryGetEntry(entity).SetIsLoaded(navigation);
-                    }
-                }
-                else
-                {
-                    SetIsLoadedNoTracking(entity, navigation);
-                    if (!ReferenceEquals(relatedEntity, null))
-                    {
-                        fixup(entity, relatedEntity);
-                        if (inverseNavigation != null && !inverseNavigation.IsCollection())
+                        // For non-null relatedEntity StateManager will set the flag
+                        if (relatedEntity == null)
                         {
-                            SetIsLoadedNoTracking(relatedEntity, inverseNavigation);
+                            queryContext.StateManager.TryGetEntry(includingEntity).SetIsLoaded(navigation);
+                        }
+                    }
+                    else
+                    {
+                        SetIsLoadedNoTracking(includingEntity, navigation);
+                        if (relatedEntity is object)
+                        {
+                            fixup(includingEntity, relatedEntity);
+                            if (inverseNavigation != null && !inverseNavigation.IsCollection())
+                            {
+                                SetIsLoadedNoTracking(relatedEntity, inverseNavigation);
+                            }
                         }
                     }
                 }
             }
 
-            private static readonly MethodInfo _includeCollectionMethodInfo
-                = typeof(IncludeCompilingExpressionVisitor).GetTypeInfo()
-                    .GetDeclaredMethod(nameof(IncludeCollection));
+            private static readonly MethodInfo _populateCollectionMethodInfo
+                = typeof(CustomShaperCompilingExpressionVisitor).GetTypeInfo()
+                    .GetDeclaredMethod(nameof(PopulateCollection));
 
-            private static void IncludeCollection<TEntity, TIncludedEntity>(
+            private static void PopulateCollection<TIncludingEntity, TIncludedEntity>(
+                int collectionId,
                 QueryContext queryContext,
                 DbDataReader dbDataReader,
-                TEntity entity,
-                Func<QueryContext, DbDataReader, object[]> outerKeySelector,
-                Func<QueryContext, DbDataReader, object[]> innerKeySelector,
-                Func<QueryContext, DbDataReader, ResultCoordinator, TIncludedEntity> innerShaper,
-                INavigation navigation,
+                Func<QueryContext, DbDataReader, object[]> outerIdentifier,
+                Func<QueryContext, DbDataReader, object[]> selfIdentifier,
+                Func<QueryContext, DbDataReader, TIncludedEntity, ResultCoordinator, TIncludedEntity> innerShaper,
                 INavigation inverseNavigation,
-                Action<TEntity, TIncludedEntity> fixup,
+                Action<TIncludingEntity, TIncludedEntity> fixup,
                 bool trackingQuery,
                 ResultCoordinator resultCoordinator)
             {
-                if (entity is null)
+                var collectionMaterializationContext = resultCoordinator.Collections[collectionId];
+
+                var parent = collectionMaterializationContext.Parent;
+                if (collectionMaterializationContext.Collection is null)
                 {
+                    // Nothing to include since parent was not materialized
                     return;
                 }
 
-                if (trackingQuery)
+                var entity = (TIncludingEntity)parent;
+
+                var outerKey = outerIdentifier(queryContext, dbDataReader);
+                if (!StructuralComparisons.StructuralEqualityComparer.Equals(
+                        outerKey, collectionMaterializationContext.OuterIdentifier))
                 {
-                    queryContext.StateManager.TryGetEntry(entity).SetIsLoaded(navigation);
+                    resultCoordinator.HasNext = true;
+
+                    return;
+                }
+
+                var innerKey = selfIdentifier(queryContext, dbDataReader);
+                TIncludedEntity current;
+                if (StructuralComparisons.StructuralEqualityComparer.Equals(
+                        innerKey, collectionMaterializationContext.SelfIdentifier))
+                {
+                    current = (TIncludedEntity)collectionMaterializationContext.Current;
                 }
                 else
                 {
-                    SetIsLoadedNoTracking(entity, navigation);
+                    current = default;
+                    collectionMaterializationContext.SelfIdentifier = innerKey;
                 }
 
-                var innerKey = innerKeySelector(queryContext, dbDataReader);
-                var outerKey = outerKeySelector(queryContext, dbDataReader);
-                var relatedEntity = innerShaper(queryContext, dbDataReader, resultCoordinator);
-
-                if (ReferenceEquals(relatedEntity, null))
+                var relatedEntity = innerShaper(queryContext, dbDataReader, current, resultCoordinator);
+                collectionMaterializationContext.UpdateCurrent(relatedEntity);
+                if (relatedEntity is null)
                 {
-                    navigation.GetCollectionAccessor().GetOrCreate(entity);
                     return;
                 }
 
@@ -125,37 +142,52 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
                     }
                 }
 
-                var hasNext = resultCoordinator.HasNext ?? dbDataReader.Read();
-                while (hasNext)
+                resultCoordinator.ResultReady = false;
+            }
+
+            private static readonly MethodInfo _initializeCollectionIncludeMethodInfo
+                = typeof(CustomShaperCompilingExpressionVisitor).GetTypeInfo()
+                    .GetDeclaredMethod(nameof(InitializeCollectionInclude));
+
+            private static void InitializeCollectionInclude<TEntity, TIncludingEntity>(
+                int collectionId,
+                QueryContext queryContext,
+                DbDataReader dbDataReader,
+                ResultCoordinator resultCoordinator,
+                TEntity entity,
+                Func<QueryContext, DbDataReader, object[]> outerIdentifier,
+                INavigation navigation,
+                IClrCollectionAccessor clrCollectionAccessor,
+                bool trackingQuery)
+                where TIncludingEntity : TEntity
+            {
+                object collection = null;
+                if (entity is TIncludingEntity)
                 {
-                    resultCoordinator.HasNext = null;
-                    var currentOuterKey = outerKeySelector(queryContext, dbDataReader);
-                    if (!StructuralComparisons.StructuralEqualityComparer.Equals(outerKey, currentOuterKey))
+                    // Include case
+                    if (trackingQuery)
                     {
-                        resultCoordinator.HasNext = true;
-                        break;
+                        queryContext.StateManager.TryGetEntry(entity).SetIsLoaded(navigation);
+                    }
+                    else
+                    {
+                        SetIsLoadedNoTracking(entity, navigation);
                     }
 
-                    var currentInnerKey = innerKeySelector(queryContext, dbDataReader);
-                    if (StructuralComparisons.StructuralEqualityComparer.Equals(innerKey, currentInnerKey))
-                    {
-                        continue;
-                    }
-
-                    relatedEntity = innerShaper(queryContext, dbDataReader, resultCoordinator);
-                    if (!trackingQuery)
-                    {
-                        fixup(entity, relatedEntity);
-                        if (inverseNavigation != null && !inverseNavigation.IsCollection())
-                        {
-                            SetIsLoadedNoTracking(relatedEntity, inverseNavigation);
-                        }
-                    }
-
-                    hasNext = resultCoordinator.HasNext ?? dbDataReader.Read();
+                    collection = clrCollectionAccessor.GetOrCreate(entity);
                 }
 
-                resultCoordinator.HasNext = hasNext;
+                var outerKey = outerIdentifier(queryContext, dbDataReader);
+
+                var collectionMaterializationContext = new CollectionMaterializationContext(entity, collection, outerKey);
+                if (resultCoordinator.Collections.Count == collectionId)
+                {
+                    resultCoordinator.Collections.Add(collectionMaterializationContext);
+                }
+                else
+                {
+                    resultCoordinator.Collections[collectionId] = collectionMaterializationContext;
+                }
             }
 
             private static void SetIsLoadedNoTracking(object entity, INavigation navigation)
@@ -170,72 +202,86 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
             {
                 if (extensionExpression is IncludeExpression includeExpression)
                 {
-                    Expression result;
+                    Debug.Assert(!includeExpression.Navigation.IsCollection(),
+                        "Only reference include should be present in tree");
                     var entityClrType = includeExpression.EntityExpression.Type;
+                    var includingClrType = includeExpression.Navigation.DeclaringEntityType.ClrType;
                     var inverseNavigation = includeExpression.Navigation.FindInverse();
-                    if (includeExpression.Navigation.IsCollection())
+                    var relatedEntityClrType = includeExpression.Navigation.GetTargetType().ClrType;
+                    if (includingClrType.IsAssignableFrom(entityClrType))
                     {
-                        var relatedEntityClrType = includeExpression.NavigationExpression.Type.TryGetSequenceType();
-                        var collectionShaper = (RelationalCollectionShaperExpression)includeExpression.NavigationExpression;
-                        var innerShaper = Visit(collectionShaper.InnerShaper);
-
-                        result = Expression.Call(
-                            _includeCollectionMethodInfo.MakeGenericMethod(entityClrType, relatedEntityClrType),
-                            QueryCompilationContext.QueryContextParameter,
-                            _dbDataReaderParameter,
-                            // We don't need to visit entityExpression since it is supposed to be a parameterExpression only
-                            includeExpression.EntityExpression,
-                            Expression.Constant(
-                                Expression.Lambda(
-                                    collectionShaper.OuterKeySelector,
-                                    QueryCompilationContext.QueryContextParameter,
-                                    _dbDataReaderParameter).Compile()),
-                            Expression.Constant(
-                                Expression.Lambda(
-                                    collectionShaper.InnerKeySelector,
-                                    QueryCompilationContext.QueryContextParameter,
-                                    _dbDataReaderParameter).Compile()),
-                            Expression.Constant(
-                                Expression.Lambda(
-                                    innerShaper,
-                                    QueryCompilationContext.QueryContextParameter,
-                                    _dbDataReaderParameter,
-                                    _resultCoordinatorParameter).Compile()),
-                            Expression.Constant(includeExpression.Navigation),
-                            Expression.Constant(inverseNavigation, typeof(INavigation)),
-                            Expression.Constant(
-                                GenerateFixup(entityClrType, relatedEntityClrType, includeExpression.Navigation, inverseNavigation).Compile()),
-                            Expression.Constant(_tracking),
-                            _resultCoordinatorParameter);
-                    }
-                    else
-                    {
-                        var relatedEntityClrType = includeExpression.NavigationExpression.Type;
-                        result =  Expression.Call(
-                            _includeReferenceMethodInfo.MakeGenericMethod(entityClrType, relatedEntityClrType),
-                            QueryCompilationContext.QueryContextParameter,
-                            _dbDataReaderParameter,
-                            // We don't need to visit entityExpression since it is supposed to be a parameterExpression only
-                            includeExpression.EntityExpression,
-                            Expression.Constant(
-                                Expression.Lambda(
-                                    Visit(includeExpression.NavigationExpression),
-                                    QueryCompilationContext.QueryContextParameter,
-                                    _dbDataReaderParameter,
-                                    _resultCoordinatorParameter).Compile()),
-                            Expression.Constant(includeExpression.Navigation),
-                            Expression.Constant(inverseNavigation, typeof(INavigation)),
-                            Expression.Constant(
-                                GenerateFixup(entityClrType, relatedEntityClrType, includeExpression.Navigation, inverseNavigation).Compile()),
-                            Expression.Constant(_tracking),
-                            _resultCoordinatorParameter);
+                        includingClrType = entityClrType;
                     }
 
-                    return entityClrType != includeExpression.Navigation.DeclaringEntityType.ClrType
-                        ? Expression.IfThen(
-                            Expression.TypeIs(includeExpression.EntityExpression, includeExpression.Navigation.DeclaringEntityType.ClrType),
-                            result)
-                        : result;
+                    return Expression.Call(
+                        _includeReferenceMethodInfo.MakeGenericMethod(entityClrType, includingClrType, relatedEntityClrType),
+                        QueryCompilationContext.QueryContextParameter,
+                        // We don't need to visit entityExpression since it is supposed to be a parameterExpression only
+                        includeExpression.EntityExpression,
+                        includeExpression.NavigationExpression,
+                        Expression.Constant(includeExpression.Navigation),
+                        Expression.Constant(inverseNavigation, typeof(INavigation)),
+                        Expression.Constant(
+                            GenerateFixup(includingClrType, relatedEntityClrType, includeExpression.Navigation, inverseNavigation).Compile()),
+                        Expression.Constant(_tracking));
+                }
+
+                if (extensionExpression is CollectionInitializingExperssion collectionInitializingExperssion)
+                {
+                    var entityClrType = collectionInitializingExperssion.Parent.Type;
+                    var includingClrType = collectionInitializingExperssion.Navigation.DeclaringEntityType.ClrType;
+                    if (includingClrType.IsAssignableFrom(entityClrType))
+                    {
+                        includingClrType = entityClrType;
+                    }
+
+                    return Expression.Call(
+                        _initializeCollectionIncludeMethodInfo.MakeGenericMethod(entityClrType, includingClrType),
+                        Expression.Constant(collectionInitializingExperssion.CollectionId),
+                        QueryCompilationContext.QueryContextParameter,
+                        _dbDataReaderParameter,
+                        _resultCoordinatorParameter,
+                        collectionInitializingExperssion.Parent,
+                        Expression.Constant(
+                            Expression.Lambda(
+                                collectionInitializingExperssion.OuterIdentifier,
+                                QueryCompilationContext.QueryContextParameter,
+                                _dbDataReaderParameter).Compile()),
+                        Expression.Constant(collectionInitializingExperssion.Navigation),
+                        Expression.Constant(collectionInitializingExperssion.Navigation.GetCollectionAccessor()),
+                        Expression.Constant(_tracking));
+                }
+
+                if (extensionExpression is CollectionPopulatingExpression collectionPopulatingExpression)
+                {
+                    var collectionShaper = collectionPopulatingExpression.Parent;
+                    var entityClrType = collectionShaper.Navigation.DeclaringEntityType.ClrType;
+                    var relatedEntityClrType = collectionShaper.Navigation.GetTargetType().ClrType;
+                    var inverseNavigation = collectionShaper.Navigation.FindInverse();
+                    var innerShaper = Visit(collectionShaper.InnerShaper);
+                    innerShaper = Expression.Constant(((LambdaExpression)innerShaper).Compile());
+
+                    return Expression.Call(
+                        _populateCollectionMethodInfo.MakeGenericMethod(entityClrType, relatedEntityClrType),
+                        Expression.Constant(collectionShaper.CollectionId),
+                        QueryCompilationContext.QueryContextParameter,
+                        _dbDataReaderParameter,
+                        Expression.Constant(
+                            Expression.Lambda(
+                                collectionShaper.OuterIdentifier,
+                                QueryCompilationContext.QueryContextParameter,
+                                _dbDataReaderParameter).Compile()),
+                        Expression.Constant(
+                            Expression.Lambda(
+                                collectionShaper.SelfIdentifier,
+                                QueryCompilationContext.QueryContextParameter,
+                                _dbDataReaderParameter).Compile()),
+                        innerShaper,
+                        Expression.Constant(inverseNavigation, typeof(INavigation)),
+                        Expression.Constant(
+                            GenerateFixup(entityClrType, relatedEntityClrType, collectionShaper.Navigation, inverseNavigation).Compile()),
+                        Expression.Constant(_tracking),
+                        _resultCoordinatorParameter);
                 }
 
                 return base.VisitExtension(extensionExpression);

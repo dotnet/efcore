@@ -2,20 +2,16 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Query.Pipeline;
-using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
 {
@@ -30,8 +26,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
         private readonly List<OrderingExpression> _orderings = new List<OrderingExpression>();
 
         private readonly List<SqlExpression> _identifyingProjection = new List<SqlExpression>();
-        private readonly List<(List<SqlExpression> outerKey, List<SqlExpression> innerKey, SelectExpression innerSelectExpression)> _pendingCollectionJoins
-            = new List<(List<SqlExpression> outerKey, List<SqlExpression> innerKey, SelectExpression innerSelectExpression)>();
+        private readonly List<SelectExpression> _pendingCollectionJoins = new List<SelectExpression>();
 
         public IReadOnlyList<ProjectionExpression> Projection => _projection;
         public IReadOnlyList<TableExpressionBase> Tables => _tables;
@@ -643,10 +638,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
         public CollectionShaperExpression AddCollectionProjection(ShapedQueryExpression shapedQueryExpression, INavigation navigation)
         {
             var innerSelectExpression = (SelectExpression)shapedQueryExpression.QueryExpression;
-            _pendingCollectionJoins.Add(
-                (GetIdentifyingProjection(),
-                innerSelectExpression.GetIdentifyingProjection(),
-                innerSelectExpression));
+            _pendingCollectionJoins.Add(innerSelectExpression);
 
             return new CollectionShaperExpression(
                 new ProjectionBindingExpression(this, _pendingCollectionJoins.Count - 1, typeof(object)),
@@ -654,37 +646,33 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
                 navigation);
         }
 
-        public RelationalCollectionShaperExpression ApplyCollectionJoin(int collectionId, Expression shaperExpression, INavigation navigation)
+        public RelationalCollectionShaperExpression ApplyCollectionJoin(
+            int collectionIndex, int collectionId, Expression shaperExpression, INavigation navigation)
         {
-            var snapshot = _pendingCollectionJoins[collectionId];
-            var outerKey = ConvertKeyExpressions(snapshot.outerKey);
-            var innerSelectExpression = snapshot.innerSelectExpression;
+            var innerSelectExpression = _pendingCollectionJoins[collectionIndex];
+            var outerIdentifier = GetUniqueIdentifier();
             innerSelectExpression.ApplyProjection();
-            var innerKey = innerSelectExpression.ConvertKeyExpressions(snapshot.innerKey);
-            var boolTypeMapping = innerSelectExpression.Predicate.TypeMapping;
-            foreach (var orderingKey in snapshot.outerKey)
+            var selfIdentifier = innerSelectExpression.GetUniqueIdentifier();
+            foreach (var orderingKey in _identifyingProjection)
             {
                 AppendOrdering(new OrderingExpression(orderingKey, ascending: true));
             }
 
-            if (collectionId > 0)
-            {
-                foreach (var orderingKey in _pendingCollectionJoins[collectionId - 1].innerKey)
-                {
-                    AppendOrdering(new OrderingExpression(orderingKey, ascending: true));
-                }
+            //_identifyingProjection.AddRange(innerSelectExpression._identifyingProjection);
 
-                outerKey = ConvertKeyExpressions(snapshot.outerKey.Concat(_pendingCollectionJoins[collectionId - 1].innerKey).ToList());
-            }
-
-            var (outer, inner) = TryExtractJoinKey(innerSelectExpression);
-            if (outer != null)
+            var joinPredicate = ExtractJoinKey(innerSelectExpression);
+            if (joinPredicate != null)
             {
                 if (IsDistinct
                    || Limit != null
                    || Offset != null)
                 {
-                    outer = new SqlRemappingVisitor(PushdownIntoSubquery()).Remap(outer);
+                    var remappingVisitor = new SqlRemappingVisitor(PushdownIntoSubquery());
+                    joinPredicate = remappingVisitor.Remap(joinPredicate);
+                    for (var i = collectionIndex + 1; i < _pendingCollectionJoins.Count; i++)
+                    {
+                        _pendingCollectionJoins[i] = remappingVisitor.Remap(_pendingCollectionJoins[i]);
+                    }
                 }
 
                 if (innerSelectExpression.Offset != null
@@ -693,12 +681,11 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
                     || innerSelectExpression.Predicate != null
                     || innerSelectExpression.Tables.Count > 1)
                 {
-                    inner = new SqlRemappingVisitor(innerSelectExpression.PushdownIntoSubquery())
-                        .Remap(inner);
+                    joinPredicate = new SqlRemappingVisitor(innerSelectExpression.PushdownIntoSubquery())
+                        .Remap(joinPredicate);
                 }
 
-                var leftJoinExpression = new LeftJoinExpression(innerSelectExpression.Tables.Single(),
-                    new SqlBinaryExpression(ExpressionType.Equal, outer, inner, typeof(bool), boolTypeMapping));
+                var leftJoinExpression = new LeftJoinExpression(innerSelectExpression.Tables.Single(), joinPredicate);
                 _tables.Add(leftJoinExpression);
                 var indexOffset = _projection.Count;
                 foreach (var projection in innerSelectExpression.Projection)
@@ -713,24 +700,24 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
 
                 var shaperRemapper = new ShaperRemappingExpressionVisitor(this, innerSelectExpression, indexOffset);
                 var innerShaper = shaperRemapper.Visit(shaperExpression);
-                innerKey = shaperRemapper.Visit(innerKey);
+                selfIdentifier = shaperRemapper.Visit(selfIdentifier);
 
                 return new RelationalCollectionShaperExpression(
                     collectionId,
-                    outerKey,
-                    innerKey,
+                    null,
+                    outerIdentifier,
+                    selfIdentifier,
                     innerShaper,
                     navigation);
-
             }
 
             throw new NotImplementedException();
         }
 
-        private Expression ConvertKeyExpressions(List<SqlExpression> keyExpressions)
+        private Expression GetUniqueIdentifier()
         {
             var updatedExpressions = new List<Expression>();
-            foreach (var keyExpression in keyExpressions)
+            foreach (var keyExpression in _identifyingProjection)
             {
                 var index = AddToProjection(keyExpression);
                 var projectionBindingExpression = new ProjectionBindingExpression(this, index, keyExpression.Type);
@@ -744,11 +731,6 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
             return NewArrayInit(
                 typeof(object),
                 updatedExpressions);
-        }
-
-        private List<SqlExpression> GetIdentifyingProjection()
-        {
-            return _identifyingProjection.ToList();
         }
 
         private class ShaperRemappingExpressionVisitor : ExpressionVisitor
@@ -801,49 +783,84 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
             }
         }
 
-        private (SqlExpression outer, SqlExpression inner) TryExtractJoinKey(SelectExpression inner)
+        private SqlExpression ExtractJoinKey(SelectExpression selectExpression)
         {
-            if (inner.Predicate is SqlBinaryExpression sqlBinaryExpression)
+            if (selectExpression.Predicate != null)
             {
-                // TODO: Handle composite key case
-                var keyComparison = ValidateKeyComparison(inner, sqlBinaryExpression);
-                if (keyComparison.outer != null)
+                var joinPredicate = ExtractJoinKey(selectExpression, selectExpression.Predicate, out var predicate);
+                selectExpression.Predicate = predicate;
+
+                return joinPredicate;
+            }
+
+            return null;
+        }
+
+        private SqlExpression ExtractJoinKey(SelectExpression selectExpression, SqlExpression predicate, out SqlExpression updatedPredicate)
+        {
+            if (predicate is SqlBinaryExpression sqlBinaryExpression)
+            {
+                var joinPredicate = ValidateKeyComparison(selectExpression, sqlBinaryExpression);
+                if (joinPredicate != null)
                 {
-                    inner.Predicate = null;
-                    return keyComparison;
+                    updatedPredicate = null;
+
+                    return joinPredicate;
+                }
+
+                if (sqlBinaryExpression.OperatorType == ExpressionType.AndAlso)
+                {
+                    static SqlExpression combineNonNullExpressions(SqlExpression left, SqlExpression right)
+                    {
+                        return left != null
+                            ? right != null
+                                ? new SqlBinaryExpression(ExpressionType.AndAlso, left, right, left.Type, left.TypeMapping)
+                                : left
+                            : right;
+                    }
+
+                    var leftJoinKey = ExtractJoinKey(selectExpression, sqlBinaryExpression.Left, out var leftPredicate);
+                    var rightJoinKey = ExtractJoinKey(selectExpression, sqlBinaryExpression.Right, out var rightPredicate);
+
+                    updatedPredicate = combineNonNullExpressions(leftPredicate, rightPredicate);
+
+                    return combineNonNullExpressions(leftJoinKey, rightJoinKey);
                 }
             }
 
-            return (null, null);
+            updatedPredicate = predicate;
+            return null;
         }
 
-        private (SqlExpression outer, SqlExpression inner) ValidateKeyComparison(SelectExpression inner, SqlBinaryExpression sqlBinaryExpression)
+        private SqlBinaryExpression ValidateKeyComparison(SelectExpression inner, SqlBinaryExpression sqlBinaryExpression)
         {
             if (sqlBinaryExpression.OperatorType == ExpressionType.Equal)
             {
                 if (sqlBinaryExpression.Left is ColumnExpression leftColumn
                     && sqlBinaryExpression.Right is ColumnExpression rightColumn)
                 {
-                    if (ContainsTableReference(this, leftColumn.Table)
-                        && ContainsTableReference(inner, rightColumn.Table))
+                    if (ContainsTableReference(leftColumn.Table)
+                        && inner.ContainsTableReference(rightColumn.Table))
                     {
-                        return (leftColumn, rightColumn);
+                        return sqlBinaryExpression;
                     }
 
-                    if (ContainsTableReference(this, rightColumn.Table)
-                        && ContainsTableReference(inner, leftColumn.Table))
+                    if (ContainsTableReference(rightColumn.Table)
+                        && inner.ContainsTableReference(leftColumn.Table))
                     {
-                        return (rightColumn, leftColumn);
+                        return sqlBinaryExpression.Update(
+                            sqlBinaryExpression.Right,
+                            sqlBinaryExpression.Left);
                     }
                 }
             }
 
-            return (null, null);
+            return null;
         }
 
-        private static bool ContainsTableReference(SelectExpression selectExpression, TableExpressionBase table)
+        private bool ContainsTableReference(TableExpressionBase table)
         {
-            return selectExpression.Tables.Any(te => ReferenceEquals(te is JoinExpressionBase jeb ? jeb.Table : te, table));
+            return _tables.Any(te => ReferenceEquals(te is JoinExpressionBase jeb ? jeb.Table : te, table));
         }
 
         public void AddInnerJoin(SelectExpression innerSelectExpression, SqlExpression joinPredicate, Type transparentIdentifierType)
@@ -980,6 +997,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
             }
 
             public SqlExpression Remap(SqlExpression sqlExpression) => (SqlExpression)Visit(sqlExpression);
+            public SelectExpression Remap(SelectExpression sqlExpression) => (SelectExpression)Visit(sqlExpression);
 
             public override Expression Visit(Expression expression)
             {

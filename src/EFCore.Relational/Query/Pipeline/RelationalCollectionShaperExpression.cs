@@ -1,47 +1,88 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
+using System.Collections.Generic;
 using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Query.Expressions.Internal;
+using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Query.Pipeline;
 
 namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
 {
-    public class RelationalCollectionShaperExpression : CollectionShaperExpression
+    public class RelationalCollectionShaperExpression : Expression, IPrintable
     {
         public RelationalCollectionShaperExpression(
-            int collectionIndex,
-            Expression outerKeySelector,
-            Expression innerKeySelector,
+            int collectionId,
+            Expression parentIdentifier,
+            Expression outerIdentifier,
+            Expression selfIdentifier,
             Expression innerShaper,
             INavigation navigation)
-            : base(null, innerShaper, navigation)
         {
-            CollectionIndex = collectionIndex;
-            OuterKeySelector = outerKeySelector;
-            InnerKeySelector = innerKeySelector;
+            CollectionId = collectionId;
+            ParentIdentifier = parentIdentifier;
+            OuterIdentifier = outerIdentifier;
+            SelfIdentifier = selfIdentifier;
+            InnerShaper = innerShaper;
+            Navigation = navigation;
         }
 
-        public int CollectionIndex { get; }
-        public Expression OuterKeySelector { get; }
-        public Expression InnerKeySelector { get; }
+        public int CollectionId { get; }
+        public Expression ParentIdentifier { get; }
+        public Expression OuterIdentifier { get; }
+        public Expression SelfIdentifier { get; }
+        public Expression InnerShaper { get; }
+        public INavigation Navigation { get; }
+
+        public override Type Type => typeof(IEnumerable<>).MakeGenericType(InnerShaper.Type);
+        public override ExpressionType NodeType => ExpressionType.Extension;
 
         protected override Expression VisitChildren(ExpressionVisitor visitor)
         {
             // Projection is always null so we do not need to visit it.
-            var outerKeySelector = visitor.Visit(OuterKeySelector);
-            var innerKeySelector = visitor.Visit(InnerKeySelector);
+            var parentIdentifier = visitor.Visit(ParentIdentifier);
+            var outerIdentifier = visitor.Visit(OuterIdentifier);
+            var selfIdentifier = visitor.Visit(SelfIdentifier);
             var innerShaper = visitor.Visit(InnerShaper);
 
-            return Update(outerKeySelector, innerKeySelector, innerShaper);
+            return Update(parentIdentifier, outerIdentifier, selfIdentifier, innerShaper);
         }
 
         public RelationalCollectionShaperExpression Update(
-            Expression outerKeySelector, Expression innerKeySelector, Expression innerShaper)
+            Expression parentIdentifier, Expression outerIdentifier, Expression selfIdentifier, Expression innerShaper)
         {
-            return outerKeySelector != OuterKeySelector || innerKeySelector != InnerKeySelector || innerShaper != InnerShaper
-                ? new RelationalCollectionShaperExpression(CollectionIndex, outerKeySelector, innerKeySelector, innerShaper, Navigation)
+            return parentIdentifier != ParentIdentifier
+                || outerIdentifier != OuterIdentifier
+                || selfIdentifier != SelfIdentifier
+                || innerShaper != InnerShaper
+                ? new RelationalCollectionShaperExpression(
+                    CollectionId, parentIdentifier, outerIdentifier, selfIdentifier, innerShaper, Navigation)
                 : this;
+        }
+
+        public void Print(ExpressionPrinter expressionPrinter)
+        {
+            expressionPrinter.StringBuilder.AppendLine("RelationalCollectionShaper:");
+            using (expressionPrinter.StringBuilder.Indent())
+            {
+                expressionPrinter.StringBuilder.AppendLine($"CollectionId: {CollectionId}");
+                expressionPrinter.StringBuilder.Append("ParentIdentifier:");
+                expressionPrinter.Visit(ParentIdentifier);
+                expressionPrinter.StringBuilder.AppendLine();
+                expressionPrinter.StringBuilder.Append("OuterIdentifier:");
+                expressionPrinter.Visit(OuterIdentifier);
+                expressionPrinter.StringBuilder.AppendLine();
+                expressionPrinter.StringBuilder.Append("SelfIdentifier:");
+                expressionPrinter.Visit(SelfIdentifier);
+                expressionPrinter.StringBuilder.AppendLine();
+                expressionPrinter.StringBuilder.Append("InnerShaper:");
+                expressionPrinter.Visit(InnerShaper);
+                expressionPrinter.StringBuilder.AppendLine();
+                expressionPrinter.StringBuilder.AppendLine($"Navigation: {Navigation.Name}");
+
+            }
         }
     }
 }
