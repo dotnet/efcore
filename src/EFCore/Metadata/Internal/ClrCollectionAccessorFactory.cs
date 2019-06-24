@@ -48,7 +48,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual IClrCollectionAccessor Create([NotNull] INavigation navigation)
+        public virtual IClrCollectionAccessor Create(
+            [NotNull] INavigation navigation,
+            bool forConstruction = false,
+            bool forSet = false)
         {
             // ReSharper disable once SuspiciousTypeConversion.Global
             if (navigation is IClrCollectionAccessor accessor)
@@ -82,7 +85,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var boundMethod = _genericCreate.MakeGenericMethod(
                 property.DeclaringType, propertyType, elementType);
 
-            var memberInfo = navigation.GetMemberInfo(forConstruction: false, forSet: false);
+            var memberInfo = navigation.GetMemberInfo(forConstruction, forSet);
 
             return (IClrCollectionAccessor)boundMethod.Invoke(
                 null, new object[]

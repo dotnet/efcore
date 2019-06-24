@@ -528,7 +528,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     builder.AppendLine().Append(indent).Append("  Properties: ");
                     foreach (var property in properties)
                     {
-                        builder.AppendLine().Append(property.ToDebugString(false, indent: indent + "    "));
+                        builder.AppendLine().Append(property.ToDebugString(singleLine: false, indent: indent + "    "));
                     }
                 }
 
@@ -538,7 +538,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     builder.AppendLine().Append(indent).Append("  Navigations: ");
                     foreach (var navigation in navigations)
                     {
-                        builder.AppendLine().Append(navigation.ToDebugString(false, indent + "    "));
+                        builder.AppendLine().Append(navigation.ToDebugString(singleLine: false, indent: indent + "    "));
                     }
                 }
 
@@ -548,7 +548,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     builder.AppendLine().Append(indent).Append("  Service properties: ");
                     foreach (var serviceProperty in serviceProperties)
                     {
-                        builder.AppendLine().Append(serviceProperty.ToDebugString(false, indent + "    "));
+                        builder.AppendLine().Append(serviceProperty.ToDebugString(singleLine: false, indent: indent + "    "));
                     }
                 }
 
@@ -558,7 +558,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     builder.AppendLine().Append(indent).Append("  Keys: ");
                     foreach (var key in keys)
                     {
-                        builder.AppendLine().Append(key.ToDebugString(false, indent + "    "));
+                        builder.AppendLine().Append(key.ToDebugString(singleLine: false, indent: indent + "    "));
                     }
                 }
 
@@ -568,11 +568,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     builder.AppendLine().Append(indent).Append("  Foreign keys: ");
                     foreach (var fk in fks)
                     {
-                        builder.AppendLine().Append(fk.ToDebugString(false, indent + "    "));
+                        builder.AppendLine().Append(fk.ToDebugString(singleLine: false, indent: indent + "    "));
                     }
                 }
 
-                builder.Append(entityType.AnnotationsToDebugString(indent + "  "));
+                builder.Append(entityType.AnnotationsToDebugString(indent: indent + "  "));
             }
 
             return builder.ToString();

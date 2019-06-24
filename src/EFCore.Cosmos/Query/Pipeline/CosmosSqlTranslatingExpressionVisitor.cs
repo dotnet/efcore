@@ -93,10 +93,11 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Pipeline
             throw new InvalidOperationException();
         }
 
-        private SqlExpression BindProperty(EntityShaperExpression entityShaper, IProperty property)
+        private SqlExpression BindProperty(EntityShaperExpression entityShaperExpression, IProperty property)
         {
-            return ((SelectExpression)entityShaper.ValueBufferExpression.QueryExpression)
-                .BindProperty(entityShaper.ValueBufferExpression, property);
+            var projectionBindingExpression = (ProjectionBindingExpression)entityShaperExpression.ValueBufferExpression;
+            return ((SelectExpression)projectionBindingExpression.QueryExpression)
+                .BindProperty(projectionBindingExpression, property);
         }
 
         protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)

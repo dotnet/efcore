@@ -455,7 +455,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Pipeline
             {
                 if (extensionExpression is EntityShaperExpression entityShaper)
                 {
-                    return new EntityShaperExpression(entityShaper.EntityType, entityShaper.ValueBufferExpression, true);
+                    return entityShaper.MarkAsNullable();
                 }
 
                 return base.VisitExtension(extensionExpression);

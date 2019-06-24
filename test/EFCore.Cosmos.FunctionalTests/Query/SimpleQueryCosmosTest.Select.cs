@@ -495,6 +495,15 @@ WHERE ((c[""Discriminator""] = ""Order"") AND (c[""CustomerID""] = ""ALFKI""))
 ORDER BY c[""OrderID""]");
         }
 
+        [ConditionalTheory(Skip = "Issue #14935")]
+        public override async Task Project_single_element_from_collection_with_OrderBy_Distinct_and_FirstOrDefault_followed_by_projecting_length(
+            bool isAsync)
+        {
+            await base.Project_single_element_from_collection_with_OrderBy_Distinct_and_FirstOrDefault_followed_by_projecting_length(isAsync);
+
+            AssertSql("");
+        }
+
         public override async Task Select_conditional_with_null_comparison_in_test(bool isAsync)
         {
             await base.Select_conditional_with_null_comparison_in_test(isAsync);

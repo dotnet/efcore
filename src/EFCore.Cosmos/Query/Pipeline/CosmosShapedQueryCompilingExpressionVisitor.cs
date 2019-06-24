@@ -4,12 +4,14 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Cosmos.Metadata.Conventions;
+using Microsoft.EntityFrameworkCore.Cosmos.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -47,13 +49,12 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Pipeline
 
         protected override Expression VisitShapedQueryExpression(ShapedQueryExpression shapedQueryExpression)
         {
-            var shaperBody = InjectEntityMaterializer(shapedQueryExpression.ShaperExpression);
             var selectExpression = (SelectExpression)shapedQueryExpression.QueryExpression;
             selectExpression.ApplyProjection();
-            var jObjectParameter = Expression.Parameter(typeof(JObject), "jObject");
 
-            shaperBody = new CosmosProjectionBindingRemovingExpressionVisitor(selectExpression, jObjectParameter)
-                .Visit(shaperBody);
+            var jObjectParameter = Expression.Parameter(typeof(JObject), "jObject");
+            var shaperBody = new CosmosProjectionBindingRemovingExpressionVisitor(selectExpression, jObjectParameter, this)
+                .Visit(shapedQueryExpression.ShaperExpression);
 
             var shaperLambda = Expression.Lambda(
                 shaperBody,
@@ -75,8 +76,6 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Pipeline
 
         private class CosmosProjectionBindingRemovingExpressionVisitor : ExpressionVisitor
         {
-            private SelectExpression _selectExpression;
-            private readonly ParameterExpression _jObjectParameter;
             private static readonly MethodInfo _getItemMethodInfo
                 = typeof(JObject).GetTypeInfo().GetRuntimeProperties()
                     .Single(pi => pi.Name == "Item" && pi.GetIndexParameters()[0].ParameterType == typeof(string))
@@ -88,14 +87,24 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Pipeline
                 = typeof(CosmosProjectionBindingRemovingExpressionVisitor).GetTypeInfo().GetRuntimeMethods()
                     .Single(mi => mi.Name == nameof(IsNull));
 
+            private readonly SelectExpression _selectExpression;
+            private ParameterExpression _jObjectParameter;
+            private readonly CosmosShapedQueryCompilingExpressionVisitor _shapedQueryCompilingExpressionVisitor;
+
+            private readonly IDictionary<ProjectionBindingExpression, Expression> _valueBufferBindings
+                = new Dictionary<ProjectionBindingExpression, Expression>();
             private readonly IDictionary<ParameterExpression, Expression> _materializationContextBindings
                 = new Dictionary<ParameterExpression, Expression>();
+            private int _currentEntityIndex;
 
             public CosmosProjectionBindingRemovingExpressionVisitor(
-                SelectExpression selectExpression, ParameterExpression jObjectParameter)
+                SelectExpression selectExpression,
+                ParameterExpression jObjectParameter,
+                CosmosShapedQueryCompilingExpressionVisitor shapedQueryCompilingExpressionVisitor)
             {
                 _selectExpression = selectExpression;
                 _jObjectParameter = jObjectParameter;
+                _shapedQueryCompilingExpressionVisitor = shapedQueryCompilingExpressionVisitor;
             }
 
             protected override Expression VisitBinary(BinaryExpression binaryExpression)
@@ -105,13 +114,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Pipeline
                     && parameterExpression.Type == typeof(MaterializationContext))
                 {
                     var newExpression = (NewExpression)binaryExpression.Right;
-                    var projectionBindingExpression = (ProjectionBindingExpression)newExpression.Arguments[0];
-                    var projectionIndex = (int)GetProjectionIndex(projectionBindingExpression);
-                    var projection = _selectExpression.Projection[projectionIndex];
 
-                    _materializationContextBindings[parameterExpression] = Expression.Convert(
-                        CreateReadJTokenExpression(_jObjectParameter, projection.Alias),
-                        typeof(JObject));
+                    _materializationContextBindings[parameterExpression] = _jObjectParameter;
 
                     var updatedExpression = Expression.New(newExpression.Constructor,
                         Expression.Constant(ValueBuffer.Empty),
@@ -127,7 +131,6 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Pipeline
                 {
                     return memberExpression.Assign(Visit(binaryExpression.Right));
                 }
-
 
                 return base.VisitBinary(binaryExpression);
             }
@@ -181,7 +184,98 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Pipeline
                         projectionBindingExpression.Type);
                 }
 
+                if (extensionExpression is EntityShaperExpression shaperExpression)
+                {
+                    _currentEntityIndex++;
+
+                    var jObjectVariable = Expression.Variable(typeof(JObject),
+                        "jObject" + _currentEntityIndex);
+                    var variables = new List<ParameterExpression> { jObjectVariable };
+
+                    var expressions = new List<Expression>();
+
+                    if (shaperExpression.ParentNavigation == null)
+                    {
+                        var projectionIndex = (int)GetProjectionIndex((ProjectionBindingExpression)shaperExpression.ValueBufferExpression);
+                        var projection = _selectExpression.Projection[projectionIndex];
+
+                        expressions.Add(
+                            Expression.Assign(
+                                jObjectVariable,
+                                Expression.TypeAs(
+                                    CreateReadJTokenExpression(_jObjectParameter, projection.Alias),
+                                    typeof(JObject))));
+
+                        shaperExpression = shaperExpression.Update(
+                            shaperExpression.ValueBufferExpression,
+                            GetNestedShapers(shaperExpression.EntityType, shaperExpression.ValueBufferExpression));
+                    }
+                    else
+                    {
+                        var methodCallExpression = (MethodCallExpression)shaperExpression.ValueBufferExpression;
+                        Debug.Assert(methodCallExpression.Method.IsGenericMethod
+                            && methodCallExpression.Method.GetGenericMethodDefinition() == EntityMaterializerSource.TryReadValueMethod);
+
+                        var navigation = (INavigation)((ConstantExpression)methodCallExpression.Arguments[2]).Value;
+
+                        expressions.Add(
+                            Expression.Assign(
+                                jObjectVariable,
+                                Expression.TypeAs(
+                                    CreateReadJTokenExpression(_jObjectParameter, navigation.GetTargetType().GetCosmosContainingPropertyName()),
+                                    typeof(JObject))));
+                    }
+
+                    var parentJObject = _jObjectParameter;
+                    _jObjectParameter = jObjectVariable;
+                    expressions.Add(Expression.Condition(
+                        Expression.Equal(jObjectVariable, Expression.Constant(null, jObjectVariable.Type)),
+                        Expression.Constant(null, shaperExpression.Type),
+                        Visit(_shapedQueryCompilingExpressionVisitor.InjectEntityMaterializer(shaperExpression))));
+                    _jObjectParameter = parentJObject;
+
+                    return Expression.Block(
+                        shaperExpression.Type,
+                        variables,
+                        expressions);
+                }
+
+                if (extensionExpression is CollectionShaperExpression collectionShaperExpression)
+                {
+                    throw new NotImplementedException();
+                }
+
                 return base.VisitExtension(extensionExpression);
+            }
+
+            private List<EntityShaperExpression> GetNestedShapers(IEntityType entityType, Expression valueBufferExpression)
+            {
+                var nestedEntities = new List<EntityShaperExpression>();
+                foreach (var ownedNavigation in entityType.GetNavigations().Concat(entityType.GetDerivedNavigations()))
+                {
+                    var fk = ownedNavigation.ForeignKey;
+                    if (!fk.IsOwnership
+                        || ownedNavigation.IsDependentToPrincipal()
+                        || fk.DeclaringEntityType.IsDocumentRoot())
+                    {
+                        continue;
+                    }
+
+                    var targetType = ownedNavigation.GetTargetType();
+
+                    var nestedValueBufferExpression = _shapedQueryCompilingExpressionVisitor.CreateReadValueExpression(
+                                valueBufferExpression,
+                                valueBufferExpression.Type,
+                                ownedNavigation.GetIndex(),
+                                ownedNavigation);
+
+                    var nestedShaper = new EntityShaperExpression(
+                        targetType, nestedValueBufferExpression, nullable: true, ownedNavigation,
+                        GetNestedShapers(targetType, nestedValueBufferExpression));
+                    nestedEntities.Add(nestedShaper);
+                }
+
+                return nestedEntities.Count == 0 ? null : nestedEntities;
             }
 
             private object GetProjectionIndex(ProjectionBindingExpression projectionBindingExpression)
@@ -216,7 +310,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Pipeline
                 return CreateGetStoreValueExpression(jObjectExpression, storeName, property.GetTypeMapping(), property.ClrType);
             }
 
-            public static Expression CreateGetStoreValueExpression(
+            private static Expression CreateGetStoreValueExpression(
                 Expression jObjectExpression,
                 string storeName,
                 CoreTypeMapping typeMapping,

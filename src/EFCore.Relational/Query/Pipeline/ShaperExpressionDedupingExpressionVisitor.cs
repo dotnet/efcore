@@ -96,7 +96,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
         {
             if (extensionExpression is EntityShaperExpression entityShaperExpression)
             {
-                var key = GenerateKey(entityShaperExpression.ValueBufferExpression);
+                var key = GenerateKey((ProjectionBindingExpression)entityShaperExpression.ValueBufferExpression);
                 if (!_mapping.TryGetValue(key, out var variable))
                 {
                     variable = Expression.Parameter(entityShaperExpression.EntityType.ClrType);

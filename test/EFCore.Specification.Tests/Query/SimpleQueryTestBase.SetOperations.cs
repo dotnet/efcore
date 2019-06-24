@@ -3,7 +3,6 @@
 
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 using Xunit;
 
@@ -13,7 +12,6 @@ namespace Microsoft.EntityFrameworkCore.Query
 {
     public abstract partial class SimpleQueryTestBase<TFixture>
     {
-
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Union(bool isAsync)

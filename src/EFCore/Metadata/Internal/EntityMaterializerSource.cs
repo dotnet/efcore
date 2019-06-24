@@ -42,13 +42,13 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual Expression CreateReadValueExpression(
-            Expression valueBuffer,
+            Expression valueBufferExpression,
             Type type,
             int index,
             IPropertyBase property)
             => Expression.Call(
                 TryReadValueMethod.MakeGenericMethod(type),
-                valueBuffer,
+                valueBufferExpression,
                 Expression.Constant(index),
                 Expression.Constant(property, typeof(IPropertyBase)));
 
@@ -76,7 +76,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         public virtual Expression CreateMaterializeExpression(
             IEntityType entityType,
             string entityInstanceName,
-            Expression materializationExpression,
+            Expression materializationContextExpression,
             int[] indexMap = null)
         {
             if (!entityType.HasClrType())
@@ -103,20 +103,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 constructorBinding = new DirectConstructorBinding(constructorInfo, Array.Empty<ParameterBinding>());
             }
 
-            // This is to avoid breaks because this method used to expect ValueBuffer but now expects MaterializationContext
-            var valueBufferExpression = materializationExpression;
-            if (valueBufferExpression.Type == typeof(MaterializationContext))
-            {
-                valueBufferExpression = Expression.Call(materializationExpression, MaterializationContext.GetValueBufferMethod);
-            }
-            else
-            {
-                materializationExpression = Expression.New(MaterializationContext.ObsoleteConstructor, materializationExpression);
-            }
-
             var bindingInfo = new ParameterBindingInfo(
                 entityType,
-                materializationExpression,
+                materializationContextExpression,
                 indexMap);
 
             var properties = new HashSet<IPropertyBase>(
@@ -151,6 +140,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 };
 
             var indexerPropertyInfo = entityType.FindIndexerProperty();
+
+            var valueBufferExpression = Expression.Call(materializationContextExpression, MaterializationContext.GetValueBufferMethod);
 
             foreach (var property in properties)
             {

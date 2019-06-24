@@ -463,8 +463,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
                                  throw new Exception("Non-entity shaper expression while handling set operation over siblings.");
                              }
 
-                             shaperExpression = new EntityShaperExpression(
-                                 commonParentEntityType, entityShaperExpression.ValueBufferExpression, entityShaperExpression.Nullable);
+                             shaperExpression = entityShaperExpression.WithEntityType(commonParentEntityType);
                          }
 
                          continue;
@@ -757,7 +756,8 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
 
                 if (extensionExpression is EntityShaperExpression entityShaper)
                 {
-                    var oldIndexMap = (IDictionary<IProperty, int>)GetProjectionIndex(entityShaper.ValueBufferExpression);
+                    var oldIndexMap = (IDictionary<IProperty, int>)GetProjectionIndex(
+                        (ProjectionBindingExpression)entityShaper.ValueBufferExpression);
                     var indexMap = new Dictionary<IProperty, int>();
                     foreach (var keyValuePair in oldIndexMap)
                     {
@@ -767,7 +767,9 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
                     return new EntityShaperExpression(
                         entityShaper.EntityType,
                         new ProjectionBindingExpression(_queryExpression, indexMap),
-                        nullable: true);
+                        nullable: true,
+                        entityShaper.ParentNavigation,
+                        entityShaper.NestedEntities);
                 }
 
                 return base.VisitExtension(extensionExpression);

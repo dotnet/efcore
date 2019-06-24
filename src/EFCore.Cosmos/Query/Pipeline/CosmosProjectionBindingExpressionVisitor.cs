@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.Query;
+using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Query.Pipeline;
 using Microsoft.EntityFrameworkCore.Storage;
 
@@ -135,25 +136,28 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Pipeline
         {
             if (extensionExpression is EntityShaperExpression entityShaperExpression)
             {
-                VerifySelectExpression(entityShaperExpression.ValueBufferExpression);
+                var projectionBindingExpression = (ProjectionBindingExpression)entityShaperExpression.ValueBufferExpression;
+                VerifySelectExpression(projectionBindingExpression);
 
                 if (_clientEval)
                 {
                     var entityProjection = (EntityProjectionExpression)_selectExpression.GetMappedProjection(
-                        entityShaperExpression.ValueBufferExpression.ProjectionMember);
+                        projectionBindingExpression.ProjectionMember);
 
                     return entityShaperExpression.Update(
                         new ProjectionBindingExpression(
-                            _selectExpression, _selectExpression.AddToProjection(entityProjection), typeof(ValueBuffer)));
+                            _selectExpression, _selectExpression.AddToProjection(entityProjection), typeof(ValueBuffer)),
+                        entityShaperExpression.NestedEntities);
                 }
                 else
                 {
                     _projectionMapping[_projectionMembers.Peek()]
                         = _selectExpression.GetMappedProjection(
-                            entityShaperExpression.ValueBufferExpression.ProjectionMember);
+                            projectionBindingExpression.ProjectionMember);
 
                     return entityShaperExpression.Update(
-                        new ProjectionBindingExpression(_selectExpression, _projectionMembers.Peek(), typeof(ValueBuffer)));
+                        new ProjectionBindingExpression(_selectExpression, _projectionMembers.Peek(), typeof(ValueBuffer)),
+                        entityShaperExpression.NestedEntities);
                 }
             }
 
@@ -162,7 +166,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Pipeline
             //    return _clientEval ? base.VisitExtension(includeExpression) : null;
             //}
 
-            throw new InvalidOperationException();
+            throw new InvalidOperationException(new ExpressionPrinter().Print(extensionExpression));
         }
 
         protected override Expression VisitNew(NewExpression newExpression)

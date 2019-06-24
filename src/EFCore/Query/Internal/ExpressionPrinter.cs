@@ -120,21 +120,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             }
         }
 
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        protected virtual void Append([NotNull] string message) => _stringBuilder.Append(message);
+        private void Append([NotNull] string message) => _stringBuilder.Append(message);
 
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        protected virtual void AppendLine([NotNull] string message = "")
+        private void Append([NotNull] int value) => _stringBuilder.Append(value);
+
+        private void AppendLine([NotNull] string message = "")
         {
             if (RemoveFormatting)
             {
@@ -375,6 +365,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 if (!_parametersInScope.ContainsKey(variable))
                 {
                     _parametersInScope.Add(variable, variable.Name);
+                    Append(variable.Type.ShortDisplayName());
+                    Append(" ");
+                    VisitParameter(variable);
+                    AppendLine(";");
                 }
             }
 
@@ -385,14 +379,14 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             foreach (var expression in expressions)
             {
                 Visit(expression);
-                AppendLine();
+                AppendLine(";");
             }
 
             if (blockExpression.Result != null)
             {
                 Append("return ");
                 Visit(blockExpression.Result);
-                AppendLine();
+                AppendLine(";");
             }
 
             _stringBuilder.DecrementIndent();
@@ -850,20 +844,26 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                         _namelessParameters.Add(parameterExpression);
                     }
 
-                    _stringBuilder.Append("namelessParameter{" + _namelessParameters.IndexOf(parameterExpression) + "}");
+                    Append("namelessParameter{");
+                    Append(_namelessParameters.IndexOf(parameterExpression));
+                    Append("}");
                 }
                 else if (parameterName.Contains("."))
                 {
-                    _stringBuilder.Append("[" + parameterName + "]");
+                    Append("[");
+                    Append(parameterName);
+                    Append("]");
                 }
                 else
                 {
-                    _stringBuilder.Append(parameterName);
+                    Append(parameterName);
                 }
             }
             else
             {
-                _stringBuilder.Append("Unhandled parameter: " + parameterExpression);
+                Append("(Unhandled parameter: ");
+                Append(parameterExpression.Name);
+                Append(")");
             }
 
             return parameterExpression;

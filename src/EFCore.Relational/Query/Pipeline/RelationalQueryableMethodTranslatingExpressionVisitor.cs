@@ -497,8 +497,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
                 var baseType = entityType.GetAllBaseTypes().SingleOrDefault(et => et.ClrType == resultType);
                 if (baseType != null)
                 {
-                    source.ShaperExpression = new EntityShaperExpression(
-                        baseType, entityShaperExpression.ValueBufferExpression, entityShaperExpression.Nullable);
+                    source.ShaperExpression = entityShaperExpression.WithEntityType(baseType);
 
                     return source;
                 }
@@ -508,8 +507,9 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
                 {
                     var selectExpression = (SelectExpression)source.QueryExpression;
                     var concreteEntityTypes = derivedType.GetConcreteDerivedTypesInclusive().ToList();
+                    var projectionBindingExpression = (ProjectionBindingExpression)entityShaperExpression.ValueBufferExpression;
                     var discriminatorColumn = selectExpression
-                        .BindProperty(entityShaperExpression.ValueBufferExpression, entityType.GetDiscriminatorProperty());
+                        .BindProperty(projectionBindingExpression, entityType.GetDiscriminatorProperty());
 
                     var predicate = concreteEntityTypes.Count == 1
                         ? _sqlExpressionFactory.Equal(discriminatorColumn,
@@ -520,7 +520,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
 
                     selectExpression.ApplyPredicate(predicate);
 
-                    var projectionMember = entityShaperExpression.ValueBufferExpression.ProjectionMember;
+                    var projectionMember = projectionBindingExpression.ProjectionMember;
 
                     Debug.Assert(new ProjectionMember().Equals(projectionMember),
                         "Invalid ProjectionMember when processing OfType");
@@ -533,8 +533,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
                             { projectionMember, entityProjection.UpdateEntityType(derivedType)}
                         });
 
-                    source.ShaperExpression = new EntityShaperExpression(
-                        derivedType, entityShaperExpression.ValueBufferExpression, entityShaperExpression.Nullable);
+                    source.ShaperExpression = entityShaperExpression.WithEntityType(derivedType);
 
                     return source;
                 }

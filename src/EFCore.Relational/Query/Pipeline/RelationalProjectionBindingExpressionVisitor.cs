@@ -143,24 +143,26 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
         {
             if (extensionExpression is EntityShaperExpression entityShaperExpression)
             {
-                VerifySelectExpression(entityShaperExpression.ValueBufferExpression);
+                var projectionBindingExpression = (ProjectionBindingExpression)entityShaperExpression.ValueBufferExpression;
+                VerifySelectExpression(projectionBindingExpression);
 
                 if (_clientEval)
                 {
                     var entityProjection = (EntityProjectionExpression)_selectExpression.GetMappedProjection(
-                        entityShaperExpression.ValueBufferExpression.ProjectionMember);
+                        projectionBindingExpression.ProjectionMember);
 
                     return entityShaperExpression.Update(
-                        new ProjectionBindingExpression(_selectExpression, _selectExpression.AddToProjection(entityProjection)));
+                        new ProjectionBindingExpression(_selectExpression, _selectExpression.AddToProjection(entityProjection)),
+                        entityShaperExpression.NestedEntities);
                 }
                 else
                 {
                     _projectionMapping[_projectionMembers.Peek()]
-                        = _selectExpression.GetMappedProjection(
-                            entityShaperExpression.ValueBufferExpression.ProjectionMember);
+                        = _selectExpression.GetMappedProjection(projectionBindingExpression.ProjectionMember);
 
                     return entityShaperExpression.Update(
-                        new ProjectionBindingExpression(_selectExpression, _projectionMembers.Peek(), typeof(ValueBuffer)));
+                        new ProjectionBindingExpression(_selectExpression, _projectionMembers.Peek(), typeof(ValueBuffer)),
+                        entityShaperExpression.NestedEntities);
                 }
             }
 

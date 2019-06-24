@@ -67,13 +67,13 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Pipeline
                     && source is EntityShaperExpression entityShaperExpression
                     && entityShaperExpression.EntityType.GetProperties().Count() == newArrayExpression.Expressions.Count)
                 {
-                    VerifyQueryExpression(entityShaperExpression.ValueBufferExpression);
+                    var projectionBindingExpression = (ProjectionBindingExpression)entityShaperExpression.ValueBufferExpression;
+                    VerifyQueryExpression(projectionBindingExpression);
 
                     _projectionMapping[_projectionMembers.Peek()]
-                       = _queryExpression.GetMappedProjection(
-                           entityShaperExpression.ValueBufferExpression.ProjectionMember);
+                       = _queryExpression.GetMappedProjection(projectionBindingExpression.ProjectionMember);
 
-                    return new EntityValuesExpression(entityShaperExpression.EntityType, entityShaperExpression.ValueBufferExpression);
+                    return new EntityValuesExpression(entityShaperExpression.EntityType, projectionBindingExpression);
                 }
 
                 var translation = _expressionTranslatingExpressionVisitor.Translate(_queryExpression, expression);
@@ -90,14 +90,15 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Pipeline
         {
             if (extensionExpression is EntityShaperExpression entityShaperExpression)
             {
-                VerifyQueryExpression(entityShaperExpression.ValueBufferExpression);
+                var projectionBindingExpression = (ProjectionBindingExpression)entityShaperExpression.ValueBufferExpression;
+                VerifyQueryExpression(projectionBindingExpression);
 
                 _projectionMapping[_projectionMembers.Peek()]
-                    = _queryExpression.GetMappedProjection(
-                        entityShaperExpression.ValueBufferExpression.ProjectionMember);
+                    = _queryExpression.GetMappedProjection(projectionBindingExpression.ProjectionMember);
 
                 return entityShaperExpression.Update(
-                    new ProjectionBindingExpression(_queryExpression, _projectionMembers.Peek(), typeof(ValueBuffer)));
+                    new ProjectionBindingExpression(_queryExpression, _projectionMembers.Peek(), typeof(ValueBuffer)),
+                    entityShaperExpression.NestedEntities);
             }
 
             throw new InvalidOperationException();
