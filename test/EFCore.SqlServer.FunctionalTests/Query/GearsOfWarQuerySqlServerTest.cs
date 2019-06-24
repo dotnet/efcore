@@ -8565,6 +8565,20 @@ ORDER BY (
                 @"");
         }
 
+        public override async Task Bool_projection_from_subquery_treated_appropriately_in_where(bool isAsync)
+        {
+            await base.Bool_projection_from_subquery_treated_appropriately_in_where(isAsync);
+
+            AssertSql(
+                @"SELECT [c].[Name], [c].[Location], [c].[Nation]
+FROM [Cities] AS [c]
+WHERE (
+    SELECT TOP(1) [g].[HasSoulPatch]
+    FROM [Gears] AS [g]
+    WHERE [g].[Discriminator] IN (N'Gear', N'Officer')
+    ORDER BY [g].[Nickname], [g].[SquadId]) = CAST(1 AS bit)");
+        }
+
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 

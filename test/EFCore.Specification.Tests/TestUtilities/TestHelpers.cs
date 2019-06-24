@@ -300,8 +300,8 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                 }
             }
 
-            elementSorter = elementSorter ?? (e => e);
-            elementAsserter = elementAsserter ?? Assert.Equal;
+            elementSorter ??= (e => e);
+            elementAsserter ??= Assert.Equal;
             if (!verifyOrdered)
             {
                 expected = expected.OrderBy(elementSorter).ToList();
@@ -340,7 +340,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                 }
             }
 
-            elementAsserter = elementAsserter ?? Assert.Equal;
+            elementAsserter ??= Assert.Equal;
             if (!verifyOrdered)
             {
                 expected = expected.OrderBy(elementSorter).ToList();
@@ -380,7 +380,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                 }
             }
 
-            elementAsserter = elementAsserter ?? Assert.Equal;
+            elementAsserter ??= Assert.Equal;
             if (!verifyOrdered)
             {
                 expected = expected.OrderBy(elementSorter).ToList();

@@ -7504,6 +7504,15 @@ namespace Microsoft.EntityFrameworkCore.Query
                 gs => gs.Select(g => new { Gear = g }).Take(25).Select(e => e.Gear.Weapons.OrderBy(w => w.Id).FirstOrDefault()));
         }
 
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Bool_projection_from_subquery_treated_appropriately_in_where(bool isAsync)
+        {
+            return AssertQuery<City, Gear>(
+                isAsync,
+                (cs, gs) => cs.Where(c => gs.OrderBy(g => g.Nickname).ThenBy(g => g.SquadId).FirstOrDefault().HasSoulPatch));
+        }
+
         protected GearsOfWarContext CreateContext() => Fixture.CreateContext();
 
         protected virtual void ClearLog()
