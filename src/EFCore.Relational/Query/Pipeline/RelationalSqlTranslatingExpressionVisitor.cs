@@ -10,6 +10,7 @@ using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Query.Expressions.Internal;
+using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Query.NavigationExpansion;
 using Microsoft.EntityFrameworkCore.Query.Pipeline;
 using Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions;
@@ -82,10 +83,12 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
 
         protected override Expression VisitMember(MemberExpression memberExpression)
         {
-            var boundProperty = BindProperty(memberExpression.Expression, memberExpression.Member.GetSimpleMemberName());
-            if (boundProperty != null)
+            if (memberExpression.Expression is EntityShaperExpression
+                || (memberExpression.Expression is UnaryExpression innerUnaryExpression
+                    && innerUnaryExpression.NodeType == ExpressionType.Convert
+                    && innerUnaryExpression.Operand is EntityShaperExpression))
             {
-                return boundProperty;
+                return BindProperty(memberExpression.Expression, memberExpression.Member.GetSimpleMemberName());
             }
 
             var innerExpression = Visit(memberExpression.Expression);
@@ -97,20 +100,35 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
 
         private SqlExpression BindProperty(Expression source, string propertyName)
         {
+            Type convertedType = null;
             if (source is UnaryExpression unaryExpression
-                && unaryExpression.NodeType == ExpressionType.Convert
-                && unaryExpression.Type == typeof(object))
+                && unaryExpression.NodeType == ExpressionType.Convert)
             {
                 source = unaryExpression.Operand;
+                if (unaryExpression.Type != typeof(object))
+                {
+                    convertedType = unaryExpression.Type;
+                }
             }
 
             if (source is EntityShaperExpression entityShaper)
             {
                 var entityType = entityShaper.EntityType;
+                if (convertedType != null)
+                {
+                    entityType = entityType.RootType().GetDerivedTypesInclusive()
+                        .FirstOrDefault(et => et.ClrType == convertedType);
+
+                    if (entityType == null)
+                    {
+                        return null;
+                    }
+                }
+
                 return BindProperty(entityShaper, entityType.FindProperty(propertyName));
             }
 
-            return null;
+            throw new InvalidOperationException();
         }
 
         private SqlExpression BindProperty(EntityShaperExpression entityShaper, IProperty property)
@@ -230,8 +248,52 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
             return expression;
         }
 
+
+        private Expression ConvertAnonymousObjectEqualityComparison(BinaryExpression binaryExpression)
+        {
+            Expression removeObjectConvert(Expression expression)
+            {
+                if (expression is UnaryExpression unaryExpression
+                    && expression.Type == typeof(object)
+                    && expression.NodeType == ExpressionType.Convert)
+                {
+                    return unaryExpression.Operand;
+                }
+
+                return expression;
+            }
+
+            var leftExpressions = ((NewArrayExpression)((NewExpression)binaryExpression.Left).Arguments[0]).Expressions;
+            var rightExpressions = ((NewArrayExpression)((NewExpression)binaryExpression.Right).Arguments[0]).Expressions;
+
+            return leftExpressions.Zip(
+                rightExpressions,
+                (l, r) =>
+                {
+                    l = removeObjectConvert(l);
+                    r = removeObjectConvert(r);
+                    if (l.Type.IsNullableType())
+                    {
+                        r = r.Type.IsNullableType() ? r : Expression.Convert(r, l.Type);
+                    }
+                    else if (r.Type.IsNullableType())
+                    {
+                        l = l.Type.IsNullableType() ? l : Expression.Convert(l, r.Type);
+                    }
+
+                    return Expression.Equal(l, r);
+                })
+                .Aggregate((a, b) => Expression.AndAlso(a, b));
+        }
+
         protected override Expression VisitBinary(BinaryExpression binaryExpression)
         {
+            if (binaryExpression.Left.Type == typeof(AnonymousObject)
+                && binaryExpression.NodeType == ExpressionType.Equal)
+            {
+                return Visit(ConvertAnonymousObjectEqualityComparison(binaryExpression));
+            }
+
             var left = TryRemoveImplicitConvert(binaryExpression.Left);
             var right = TryRemoveImplicitConvert(binaryExpression.Right);
 

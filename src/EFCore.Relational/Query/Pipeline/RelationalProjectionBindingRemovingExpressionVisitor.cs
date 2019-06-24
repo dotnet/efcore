@@ -106,16 +106,6 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
                         projectionBindingExpression.Type);
                 }
 
-                if (extensionExpression is RelationalCollectionShaperExpression relationalCollectionShaperExpression)
-                {
-                    return new RelationalCollectionShaperExpression(
-                        relationalCollectionShaperExpression.CollectionIndex,
-                        Visit(relationalCollectionShaperExpression.OuterKeySelector),
-                        Visit(relationalCollectionShaperExpression.InnerKeySelector),
-                        Visit(relationalCollectionShaperExpression.InnerShaper),
-                        relationalCollectionShaperExpression.Navigation);
-                }
-
                 return base.VisitExtension(extensionExpression);
             }
 

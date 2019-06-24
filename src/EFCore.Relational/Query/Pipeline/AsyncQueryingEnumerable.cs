@@ -20,7 +20,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
         {
             private readonly RelationalQueryContext _relationalQueryContext;
             private readonly SelectExpression _selectExpression;
-            private readonly Func<QueryContext, DbDataReader, int[], ResultCoordinator, T> _shaper;
+            private readonly Func<QueryContext, DbDataReader, T, int[], ResultCoordinator, T> _shaper;
             private readonly IQuerySqlGeneratorFactory _querySqlGeneratorFactory;
             private readonly Type _contextType;
             private readonly IDiagnosticsLogger<DbLoggerCategory.Query> _logger;
@@ -33,7 +33,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
                 ISqlExpressionFactory sqlExpressionFactory,
                 IParameterNameGeneratorFactory parameterNameGeneratorFactory,
                 SelectExpression selectExpression,
-                Func<QueryContext, DbDataReader, int[], ResultCoordinator, T> shaper,
+                Func<QueryContext, DbDataReader, T, int[], ResultCoordinator, T> shaper,
                 Type contextType,
                 IDiagnosticsLogger<DbLoggerCategory.Query> logger)
             {
@@ -57,7 +57,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
                 private ResultCoordinator _resultCoordinator;
                 private readonly RelationalQueryContext _relationalQueryContext;
                 private readonly SelectExpression _selectExpression;
-                private readonly Func<QueryContext, DbDataReader, int[], ResultCoordinator, T> _shaper;
+                private readonly Func<QueryContext, DbDataReader, T, int[], ResultCoordinator, T> _shaper;
                 private readonly IQuerySqlGeneratorFactory _querySqlGeneratorFactory;
                 private readonly Type _contextType;
                 private readonly IDiagnosticsLogger<DbLoggerCategory.Query> _logger;
@@ -136,13 +136,29 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
                             _resultCoordinator = new ResultCoordinator();
                         }
 
-                        var hasNext = _resultCoordinator.HasNext ?? await _dataReader.ReadAsync(_cancellationToken);
-                        _resultCoordinator.HasNext = null;
+                        var hasNext = _resultCoordinator.HasNext ?? await _dataReader.ReadAsync();
+                        Current = default;
 
-                        Current
-                            = hasNext
-                                ? _shaper(_relationalQueryContext, _dataReader.DbDataReader, _indexMap, _resultCoordinator)
-                                : default;
+                        if (hasNext)
+                        {
+                            while (true)
+                            {
+                                _resultCoordinator.ResultReady = true;
+                                _resultCoordinator.HasNext = null;
+                                Current = _shaper(_relationalQueryContext, _dataReader.DbDataReader, Current, _indexMap, _resultCoordinator);
+                                if (_resultCoordinator.ResultReady)
+                                {
+                                    break;
+                                }
+
+                                if (!await _dataReader.ReadAsync())
+                                {
+                                    _resultCoordinator.HasNext = false;
+
+                                    break;
+                                }
+                            }
+                        }
 
                         return hasNext;
                     }

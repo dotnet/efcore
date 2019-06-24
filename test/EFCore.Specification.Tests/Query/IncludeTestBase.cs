@@ -1570,7 +1570,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalTheory(Skip = "Issue#15871")]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Include_duplicate_collection(bool useString)
@@ -1639,7 +1639,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalTheory(Skip = "Issue#15871")]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Include_duplicate_collection_result_operator(bool useString)
@@ -2122,7 +2122,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalTheory(Skip = "Issue#15871")]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Include_multiple_references_and_collection_multi_level(bool useString)
@@ -2849,7 +2849,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalTheory(Skip = "Issue#15871")]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Include_multiple_references_then_include_collection_multi_level(bool useString)

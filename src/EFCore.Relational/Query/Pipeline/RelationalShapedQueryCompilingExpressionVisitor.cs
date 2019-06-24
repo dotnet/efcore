@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using System.Data.Common;
 using System.Linq;
 using System.Linq.Expressions;
@@ -42,30 +43,33 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
 
         protected override Expression VisitShapedQueryExpression(ShapedQueryExpression shapedQueryExpression)
         {
-            var shaperBody = InjectEntityMaterializer(shapedQueryExpression.ShaperExpression);
-
             var selectExpression = (SelectExpression)shapedQueryExpression.QueryExpression;
 
             var dataReaderParameter = Expression.Parameter(typeof(DbDataReader), "dataReader");
-            var indexMapParameter = Expression.Parameter(typeof(int[]), "indexMap");
             var resultCoordinatorParameter = Expression.Parameter(typeof(ResultCoordinator), "resultCoordinator");
+            var indexMapParameter = Expression.Parameter(typeof(int[]), "indexMap");
 
-            shaperBody = new RelationalProjectionBindingRemovingExpressionVisitor(selectExpression, dataReaderParameter)
-                .Visit(shaperBody);
-            shaperBody = new IncludeCompilingExpressionVisitor(dataReaderParameter, resultCoordinatorParameter, TrackQueryResults)
-                .Visit(shaperBody);
+            var shaper = new ShaperExpressionProcessingExpressionVisitor(
+                selectExpression,
+                dataReaderParameter,
+                resultCoordinatorParameter,
+                indexMapParameter)
+                .Inject(shapedQueryExpression.ShaperExpression);
+
+            shaper = InjectEntityMaterializer(shaper);
+
+            shaper = new RelationalProjectionBindingRemovingExpressionVisitor(selectExpression, dataReaderParameter)
+                .Visit(shaper);
+            shaper = new CustomShaperCompilingExpressionVisitor(
+                dataReaderParameter, resultCoordinatorParameter, TrackQueryResults)
+                .Visit(shaper);
 
             if (selectExpression.IsNonComposedFromSql())
             {
-                shaperBody = new IndexMapInjectingExpressionVisitor(indexMapParameter).Visit(shaperBody);
+                shaper = new IndexMapInjectingExpressionVisitor(indexMapParameter).Visit(shaper);
             }
 
-            var shaperLambda = Expression.Lambda(
-                shaperBody,
-                QueryCompilationContext.QueryContextParameter,
-                dataReaderParameter,
-                indexMapParameter,
-                resultCoordinatorParameter);
+            var shaperLambda = (LambdaExpression)shaper;
 
             return Expression.New(
                 (Async
@@ -110,8 +114,32 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
 
         private class ResultCoordinator
         {
+            public bool ResultReady { get; set; }
             public bool? HasNext { get; set; }
-            public object[] KeyValues { get; set; }
+            public IList<CollectionMaterializationContext> Collections { get; } = new List<CollectionMaterializationContext>();
+            public object[] OuterKeyValues { get; set; }
+            public object[] InnerKeyValues { get; set; }
+        }
+
+        private class CollectionMaterializationContext
+        {
+            public CollectionMaterializationContext(object parent, object collection, object[] outerIdentifier)
+            {
+                Parent = parent;
+                Collection = collection;
+                OuterIdentifier = outerIdentifier;
+            }
+
+            public object Parent { get; }
+            public object Collection { get; }
+            public object Current { get; private set; }
+            public object[] OuterIdentifier { get; }
+            public object[] SelfIdentifier { get; set; }
+
+            public void UpdateCurrent(object current)
+            {
+                Current = current;
+            }
         }
     }
 }

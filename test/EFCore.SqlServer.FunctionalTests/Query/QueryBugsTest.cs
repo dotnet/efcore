@@ -357,7 +357,7 @@ INSERT [dbo].[Postcodes] ([PostcodeID], [PostcodeValue], [TownName]) VALUES (5, 
 
         #region Bugs925_926
 
-        [ConditionalFact(Skip = "issue #15611")]
+        [ConditionalFact]
         public void Include_on_entity_with_composite_key_One_To_Many_bugs_925_926()
         {
             using (CreateDatabase925())
@@ -372,22 +372,15 @@ INSERT [dbo].[Postcodes] ([PostcodeID], [PostcodeValue], [TownName]) VALUES (5, 
                     Assert.Equal(3, result[1].Orders.Count);
 
                     AssertSql(
-                        @"SELECT [c].[FirstName], [c].[LastName]
+                        @"SELECT [c].[FirstName], [c].[LastName], [o].[Id], [o].[CustomerFirstName], [o].[CustomerLastName], [o].[Name]
 FROM [Customer] AS [c]
-ORDER BY [c].[FirstName], [c].[LastName]",
-                        //
-                        @"SELECT [c.Orders].[Id], [c.Orders].[CustomerFirstName], [c.Orders].[CustomerLastName], [c.Orders].[Name]
-FROM [Order] AS [c.Orders]
-INNER JOIN (
-    SELECT [c0].[FirstName], [c0].[LastName]
-    FROM [Customer] AS [c0]
-) AS [t] ON ([c.Orders].[CustomerFirstName] = [t].[FirstName]) AND ([c.Orders].[CustomerLastName] = [t].[LastName])
-ORDER BY [t].[FirstName], [t].[LastName]");
+LEFT JOIN [Order] AS [o] ON (([c].[FirstName] = [o].[CustomerFirstName]) AND [o].[CustomerFirstName] IS NOT NULL) AND (([c].[LastName] = [o].[CustomerLastName]) AND [o].[CustomerLastName] IS NOT NULL)
+ORDER BY [c].[FirstName], [c].[LastName]");
                 }
             }
         }
 
-        [ConditionalFact(Skip = "QueryIssue")]
+        [ConditionalFact]
         public void Include_on_entity_with_composite_key_Many_To_One_bugs_925_926()
         {
             using (CreateDatabase925())
@@ -404,12 +397,10 @@ ORDER BY [t].[FirstName], [t].[LastName]");
                     Assert.NotNull(result[3].Customer);
                     Assert.NotNull(result[4].Customer);
 
-                    var expectedSql =
-                        @"SELECT [o].[Id], [o].[CustomerFirstName], [o].[CustomerLastName], [o].[Name], [o.Customer].[FirstName], [o.Customer].[LastName]
+                    AssertSql(
+                        @"SELECT [o].[Id], [o].[CustomerFirstName], [o].[CustomerLastName], [o].[Name], [c].[FirstName], [c].[LastName]
 FROM [Order] AS [o]
-LEFT JOIN [Customer] AS [o.Customer] ON ([o].[CustomerFirstName] = [o.Customer].[FirstName]) AND ([o].[CustomerLastName] = [o.Customer].[LastName])";
-
-                    AssertSql(expectedSql);
+LEFT JOIN [Customer] AS [c] ON (([o].[CustomerFirstName] = [c].[FirstName]) AND [o].[CustomerFirstName] IS NOT NULL) AND (([o].[CustomerLastName] = [c].[LastName]) AND [o].[CustomerLastName] IS NOT NULL)");
                 }
             }
         }
@@ -5500,7 +5491,7 @@ LEFT JOIN [Children] AS [c] ON [p].[ChildId] = [c].[Id]");
         }
 
         private SqlServerTestStore CreateDatabase12549()
-            => CreateTestStore(() => new MyContext12549(_options), context => {});
+            => CreateTestStore(() => new MyContext12549(_options), context => { });
 
         public class MyContext12549 : DbContext
         {
@@ -5508,7 +5499,7 @@ LEFT JOIN [Children] AS [c] ON [p].[ChildId] = [c].[Id]");
             public DbSet<Table2_12549> Table2 { get; set; }
 
             public MyContext12549(DbContextOptions options)
-                : base(options)
+                    : base(options)
             {
             }
         }
@@ -5521,6 +5512,107 @@ LEFT JOIN [Children] AS [c] ON [p].[ChildId] = [c].[Id]");
         public class Table2_12549
         {
             public int Id { get; set; }
+        }
+
+        #endregion
+
+        #region Bug16233
+
+        [ConditionalFact]
+        public virtual void Derived_reference_is_skipped_when_base_type()
+        {
+            using (CreateDatabase16233())
+            {
+                using (var context = new MyContext16233(_options))
+                {
+                    var result = context.Bases.Include(p => ((DerivedType16233)p).Reference).OrderBy(b => b.Id).ToList();
+
+                    Assert.Equal(3, result.Count);
+                    Assert.NotNull(Assert.IsType<DerivedType16233>(result[1]).Reference);
+                    Assert.Null(Assert.IsType<DerivedType16233>(result[2]).Reference);
+                    Assert.True(context.Entry(Assert.IsType<DerivedType16233>(result[2])).Reference("Reference").IsLoaded);
+
+                    AssertSql(
+                        @"SELECT [b].[Id], [b].[Discriminator], [r].[Id], [r].[DerivedTypeId]
+FROM [Bases] AS [b]
+LEFT JOIN [Reference16233] AS [r] ON [b].[Id] = [r].[DerivedTypeId]
+WHERE [b].[Discriminator] IN (N'BaseType16233', N'DerivedType16233')
+ORDER BY [b].[Id]");
+                }
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Derived_reference_is_skipped_when_base_type_no_tracking()
+        {
+            using (CreateDatabase16233())
+            {
+                using (var context = new MyContext16233(_options))
+                {
+                    var result = context.Bases.AsNoTracking().Include(p => ((DerivedType16233)p).Reference).OrderBy(b => b.Id).ToList();
+
+                    Assert.Equal(3, result.Count);
+                    Assert.NotNull(Assert.IsType<DerivedType16233>(result[1]).Reference);
+                    Assert.NotNull(Assert.IsType<DerivedType16233>(result[1]).Reference.DerivedType);
+                    Assert.Null(Assert.IsType<DerivedType16233>(result[2]).Reference);
+
+                    AssertSql(
+                        @"SELECT [b].[Id], [b].[Discriminator], [r].[Id], [r].[DerivedTypeId]
+FROM [Bases] AS [b]
+LEFT JOIN [Reference16233] AS [r] ON [b].[Id] = [r].[DerivedTypeId]
+WHERE [b].[Discriminator] IN (N'BaseType16233', N'DerivedType16233')
+ORDER BY [b].[Id]");
+                }
+            }
+        }
+
+        private SqlServerTestStore CreateDatabase16233()
+        {
+            return CreateTestStore(
+                () => new MyContext16233(_options),
+                context =>
+                {
+                    context.AddRange(
+                        new BaseType16233(),
+                        new DerivedType16233
+                        {
+                            Reference = new Reference16233()
+                        },
+                        new DerivedType16233());
+
+                    context.SaveChanges();
+
+                    ClearLog();
+                });
+        }
+
+
+        public class MyContext16233 : DbContext
+        {
+            public virtual DbSet<BaseType16233> Bases { get; set; }
+            public virtual DbSet<DerivedType16233> Derived { get; set; }
+
+            public MyContext16233(DbContextOptions options)
+                : base(options)
+            {
+            }
+        }
+
+        public class BaseType16233
+        {
+            public int Id { get; set; }
+        }
+
+        public class DerivedType16233 : BaseType16233
+        {
+            public Reference16233 Reference { get; set; }
+        }
+
+        public class Reference16233
+        {
+            public int Id { get; set; }
+            public int DerivedTypeId { get; set; }
+            public DerivedType16233 DerivedType { get; set; }
         }
 
         #endregion

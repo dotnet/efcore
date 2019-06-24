@@ -36,28 +36,26 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
             query = new SqlExpressionOptimizingVisitor(SqlExpressionFactory, UseRelationalNulls).Visit(query);
             query = new NullComparisonTransformingExpressionVisitor().Visit(query);
 
-            if (query is ShapedQueryExpression shapedQueryExpression)
-            {
-                shapedQueryExpression.ShaperExpression
-                    = new ShaperExpressionProcessingExpressionVisitor((SelectExpression)shapedQueryExpression.QueryExpression)
-                        .Inject(shapedQueryExpression.ShaperExpression);
-            }
-
             return query;
         }
     }
 
     public class CollectionJoinApplyingExpressionVisitor : ExpressionVisitor
     {
+        private int _collectionId;
+
         protected override Expression VisitExtension(Expression extensionExpression)
         {
             if (extensionExpression is CollectionShaperExpression collectionShaperExpression)
             {
+                var collectionId = _collectionId++;
+
                 var innerShaper = Visit(collectionShaperExpression.InnerShaper);
 
                 var selectExpression = (SelectExpression)collectionShaperExpression.Projection.QueryExpression;
                 return selectExpression.ApplyCollectionJoin(
                     collectionShaperExpression.Projection.Index.Value,
+                    collectionId,
                     innerShaper,
                     collectionShaperExpression.Navigation);
             }
