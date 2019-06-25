@@ -427,11 +427,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                 .Message);
         }
 
-        public override void KeylessEntity_by_database_view()
-        {
-            // Not present on SQLite
-        }
-
         public override async Task Take_Skip(bool isAsync)
         {
             await base.Take_Skip(isAsync);
