@@ -4,6 +4,8 @@
 using System;
 using System.Collections.Generic;
 using System.Data.Common;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
@@ -298,5 +300,103 @@ sqlite_sequence
 
             return builder.ToString();
         }
+
+        public override void Can_diff_against_2_2_model()
+        {
+            using (var context = new ModelSnapshot22.BloggingContext())
+            {
+                var snapshot = new BloggingContextModelSnapshot22();
+                var sourceModel = snapshot.Model;
+                var targetModel = context.Model;
+
+                var modelDiffer = context.GetService<IMigrationsModelDiffer>();
+                var operations = modelDiffer.GetDifferences(sourceModel, targetModel);
+
+                Assert.Equal(0, operations.Count);
+            }
+        }
+
+        public class BloggingContextModelSnapshot22 : ModelSnapshot
+        {
+            protected override void BuildModel(ModelBuilder modelBuilder)
+            {
+#pragma warning disable 612, 618
+                modelBuilder
+                    .HasAnnotation("ProductVersion", "2.2.4-servicing-10062");
+
+                modelBuilder.Entity(
+                    "ModelSnapshot22.Blog", b =>
+                    {
+                        b.Property<int>("Id")
+                            .ValueGeneratedOnAdd();
+
+                        b.Property<string>("Name");
+
+                        b.HasKey("Id");
+
+                        b.ToTable("Blogs");
+                    });
+
+                modelBuilder.Entity(
+                    "ModelSnapshot22.Post", b =>
+                    {
+                        b.Property<int>("Id")
+                            .ValueGeneratedOnAdd();
+
+                        b.Property<int?>("BlogId");
+
+                        b.Property<string>("Content");
+
+                        b.Property<DateTime>("EditDate");
+
+                        b.Property<string>("Title");
+
+                        b.HasKey("Id");
+
+                        b.HasIndex("BlogId");
+
+                        b.ToTable("Post");
+                    });
+
+                modelBuilder.Entity(
+                    "ModelSnapshot22.Post", b =>
+                    {
+                        b.HasOne("ModelSnapshot22.Blog", "Blog")
+                            .WithMany("Posts")
+                            .HasForeignKey("BlogId");
+                    });
+#pragma warning restore 612, 618
+            }
+        }
     }
 }
+
+namespace ModelSnapshot22
+{
+    public class Blog
+    {
+        public int Id { get; set; }
+        public string Name { get; set; }
+
+        public ICollection<Post> Posts { get; set; }
+    }
+
+    public class Post
+    {
+        public int Id { get; set; }
+        public string Title { get; set; }
+        public string Content { get; set; }
+        public DateTime EditDate { get; set; }
+
+        public Blog Blog { get; set; }
+    }
+
+    public class BloggingContext : DbContext
+    {
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+            => optionsBuilder.UseSqlite("DataSource=Test.db");
+
+        public DbSet<Blog> Blogs { get; set; }
+    }
+}
+

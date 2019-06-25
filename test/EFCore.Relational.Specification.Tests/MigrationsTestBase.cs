@@ -354,6 +354,9 @@ namespace Microsoft.EntityFrameworkCore
             return executor.ExecuteNonQueryAsync(commandList, connection);
         }
 
+        [ConditionalFact]
+        public abstract void Can_diff_against_2_2_model();
+
         protected virtual void BuildFirstMigration(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
