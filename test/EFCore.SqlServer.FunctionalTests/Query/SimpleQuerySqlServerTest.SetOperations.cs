@@ -264,6 +264,44 @@ WHERE ([t0].[Foo] = N'Berlin') AND [t0].[Foo] IS NOT NULL
 ORDER BY [t0].[Foo]");
         }
 
+        public override async Task Union_Include(bool isAsync)
+        {
+            await base.Union_Include(isAsync);
+
+            AssertSql(
+                @"SELECT [t].[CustomerID], [t].[Address], [t].[City], [t].[CompanyName], [t].[ContactName], [t].[ContactTitle], [t].[Country], [t].[Fax], [t].[Phone], [t].[PostalCode], [t].[Region], [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM (
+    SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+    FROM [Customers] AS [c]
+    WHERE ([c].[City] = N'Berlin') AND [c].[City] IS NOT NULL
+    UNION
+    SELECT [c0].[CustomerID], [c0].[Address], [c0].[City], [c0].[CompanyName], [c0].[ContactName], [c0].[ContactTitle], [c0].[Country], [c0].[Fax], [c0].[Phone], [c0].[PostalCode], [c0].[Region]
+    FROM [Customers] AS [c0]
+    WHERE ([c0].[City] = N'London') AND [c0].[City] IS NOT NULL
+) AS [t]
+LEFT JOIN [Orders] AS [o] ON [t].[CustomerID] = [o].[CustomerID]
+ORDER BY [t].[CustomerID], [o].[OrderID]");
+        }
+
+        public override async Task Include_Union(bool isAsync)
+        {
+            await base.Include_Union(isAsync);
+
+            AssertSql(
+                @"SELECT [t].[CustomerID], [t].[Address], [t].[City], [t].[CompanyName], [t].[ContactName], [t].[ContactTitle], [t].[Country], [t].[Fax], [t].[Phone], [t].[PostalCode], [t].[Region], [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM (
+    SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+    FROM [Customers] AS [c]
+    WHERE ([c].[City] = N'Berlin') AND [c].[City] IS NOT NULL
+    UNION
+    SELECT [c0].[CustomerID], [c0].[Address], [c0].[City], [c0].[CompanyName], [c0].[ContactName], [c0].[ContactTitle], [c0].[Country], [c0].[Fax], [c0].[Phone], [c0].[PostalCode], [c0].[Region]
+    FROM [Customers] AS [c0]
+    WHERE ([c0].[City] = N'London') AND [c0].[City] IS NOT NULL
+) AS [t]
+LEFT JOIN [Orders] AS [o] ON [t].[CustomerID] = [o].[CustomerID]
+ORDER BY [t].[CustomerID], [o].[OrderID]");
+        }
+
         public override async Task Select_Except_reference_projection(bool isAsync)
         {
             await base.Select_Except_reference_projection(isAsync);

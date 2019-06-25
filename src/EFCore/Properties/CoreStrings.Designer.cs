@@ -2148,6 +2148,12 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 GetString("UnableToDiscriminate", nameof(entityType), nameof(discriminator)),
                 entityType, discriminator);
 
+        /// <summary>
+        ///     When performing a set operation, both operands must have the same Include operations.
+        /// </summary>
+        public static string SetOperationWithDifferentIncludesInOperands
+            => GetString("SetOperationWithDifferentIncludesInOperands");
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);

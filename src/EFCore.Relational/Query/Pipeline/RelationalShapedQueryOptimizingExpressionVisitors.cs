@@ -51,7 +51,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
                 var collectionId = _collectionId++;
                 var selectExpression = (SelectExpression)collectionShaperExpression.Projection.QueryExpression;
                 // Do pushdown beforehand so it updates all pending collections first
-                if (selectExpression.IsDistinct || selectExpression.Limit != null || selectExpression.Offset != null)
+                if (selectExpression.IsDistinct || selectExpression.Limit != null || selectExpression.Offset != null || selectExpression.IsSetOperation)
                 {
                     selectExpression.PushdownIntoSubquery();
                 }
