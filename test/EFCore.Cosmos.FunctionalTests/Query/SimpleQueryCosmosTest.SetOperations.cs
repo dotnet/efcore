@@ -33,7 +33,11 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query
         public override Task Union_with_anonymous_type_projection(bool isAsync) => Task.CompletedTask;
         public override Task Select_Union_unrelated(bool isAsync) => Task.CompletedTask;
         public override Task Select_Union_different_fields_in_anonymous_with_subquery(bool isAsync) => Task.CompletedTask;
+        public override Task Union_Include(bool isAsync) => Task.CompletedTask;
+        public override Task Include_Union(bool isAsync) => Task.CompletedTask;
         public override Task Select_Except_reference_projection(bool isAsync) => Task.CompletedTask;
+        public override void Include_Union_only_on_one_side_throws() {}
+        public override void Include_Union_different_includes_throws() {}
         public override Task SubSelect_Union(bool isAsync) => Task.CompletedTask;
         public override Task Client_eval_Union_FirstOrDefault(bool isAsync) => Task.CompletedTask;
     }

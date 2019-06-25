@@ -10,7 +10,15 @@ namespace Microsoft.EntityFrameworkCore.Query.NavigationExpansion.Visitors
 
     public class PendingIncludeFindingVisitor : ExpressionVisitor
     {
-        public virtual Dictionary<NavigationTreeNode, SourceMapping> PendingIncludes { get; } = new Dictionary<NavigationTreeNode, SourceMapping>();
+        private bool _skipCollectionNavigations;
+
+        public PendingIncludeFindingVisitor(bool skipCollectionNavigations = true)
+        {
+            _skipCollectionNavigations = skipCollectionNavigations;
+        }
+
+        public virtual List<(NavigationTreeNode NavTreeNode, SourceMapping SourceMapping)> PendingIncludes { get; } =
+            new List<(NavigationTreeNode, SourceMapping)>();
 
         protected override Expression VisitMember(MemberExpression memberExpression)
         {
@@ -81,14 +89,16 @@ namespace Microsoft.EntityFrameworkCore.Query.NavigationExpansion.Visitors
 
         private void FindPendingReferenceIncludes(NavigationTreeNode node, SourceMapping sourceMapping)
         {
-            if (node.Navigation != null && node.Navigation.IsCollection())
+            if (_skipCollectionNavigations && node.Navigation != null && node.Navigation.IsCollection())
             {
                 return;
             }
 
-            if (node.Included == NavigationTreeNodeIncludeMode.ReferencePending && node.ExpansionMode != NavigationTreeNodeExpansionMode.ReferenceComplete)
+            if (node.ExpansionMode != NavigationTreeNodeExpansionMode.ReferenceComplete
+                && (node.Included == NavigationTreeNodeIncludeMode.ReferencePending
+                    || !_skipCollectionNavigations && node.Included == NavigationTreeNodeIncludeMode.Collection))
             {
-                PendingIncludes[node] = sourceMapping;
+                PendingIncludes.Add((node, sourceMapping));
             }
 
             foreach (var child in node.Children)

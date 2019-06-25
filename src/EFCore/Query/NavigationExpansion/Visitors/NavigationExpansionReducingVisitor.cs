@@ -120,8 +120,8 @@ namespace Microsoft.EntityFrameworkCore.Query.NavigationExpansion.Visitors
                     result = NavigationExpansionHelpers.AddNavigationJoin(
                         result.source,
                         result.parameter,
-                        pendingIncludeNode.Value,
-                        pendingIncludeNode.Key,
+                        pendingIncludeNode.SourceMapping,
+                        pendingIncludeNode.NavTreeNode,
                         navigationExpansionExpression.State,
                         new List<INavigation>(),
                         include: true);
