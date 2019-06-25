@@ -19,7 +19,6 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             BuildReference.ByName("System.Collections"),
             BuildReference.ByName("System.ComponentModel.Annotations"),
             BuildReference.ByName("System.Data.Common"),
-            BuildReference.ByName("Microsoft.Data.SqlClient"),
             BuildReference.ByName("System.Linq.Expressions"),
             BuildReference.ByName("System.Runtime"),
             BuildReference.ByName("System.Runtime.Extensions"),
