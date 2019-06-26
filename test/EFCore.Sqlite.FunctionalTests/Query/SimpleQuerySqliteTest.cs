@@ -204,7 +204,7 @@ LIMIT -1 OFFSET @__p_1");
 
 SELECT ""c"".""CustomerID"", ""c"".""Address"", ""c"".""City"", ""c"".""CompanyName"", ""c"".""ContactName"", ""c"".""ContactTitle"", ""c"".""Country"", ""c"".""Fax"", ""c"".""Phone"", ""c"".""PostalCode"", ""c"".""Region""
 FROM ""Customers"" AS ""c""
-WHERE ((rtrim(rtrim(strftime('%Y-%m-%d %H:%M:%f', 'now', 'localtime'), '0'), '.') <> @__myDatetime_0) OR (rtrim(rtrim(strftime('%Y-%m-%d %H:%M:%f', 'now', 'localtime'), '0'), '.') IS NULL OR @__myDatetime_0 IS NULL)) AND (rtrim(rtrim(strftime('%Y-%m-%d %H:%M:%f', 'now', 'localtime'), '0'), '.') IS NOT NULL OR @__myDatetime_0 IS NOT NULL)");
+WHERE (rtrim(rtrim(strftime('%Y-%m-%d %H:%M:%f', 'now', 'localtime'), '0'), '.') <> @__myDatetime_0) OR @__myDatetime_0 IS NULL");
         }
 
         public override async Task Where_datetime_utcnow(bool isAsync)
@@ -216,7 +216,7 @@ WHERE ((rtrim(rtrim(strftime('%Y-%m-%d %H:%M:%f', 'now', 'localtime'), '0'), '.'
 
 SELECT ""c"".""CustomerID"", ""c"".""Address"", ""c"".""City"", ""c"".""CompanyName"", ""c"".""ContactName"", ""c"".""ContactTitle"", ""c"".""Country"", ""c"".""Fax"", ""c"".""Phone"", ""c"".""PostalCode"", ""c"".""Region""
 FROM ""Customers"" AS ""c""
-WHERE ((rtrim(rtrim(strftime('%Y-%m-%d %H:%M:%f', 'now'), '0'), '.') <> @__myDatetime_0) OR (rtrim(rtrim(strftime('%Y-%m-%d %H:%M:%f', 'now'), '0'), '.') IS NULL OR @__myDatetime_0 IS NULL)) AND (rtrim(rtrim(strftime('%Y-%m-%d %H:%M:%f', 'now'), '0'), '.') IS NOT NULL OR @__myDatetime_0 IS NOT NULL)");
+WHERE (rtrim(rtrim(strftime('%Y-%m-%d %H:%M:%f', 'now'), '0'), '.') <> @__myDatetime_0) OR @__myDatetime_0 IS NULL");
         }
 
         public override async Task Where_datetime_today(bool isAsync)
@@ -226,7 +226,7 @@ WHERE ((rtrim(rtrim(strftime('%Y-%m-%d %H:%M:%f', 'now'), '0'), '.') <> @__myDat
             AssertSql(
                 @"SELECT ""e"".""EmployeeID"", ""e"".""City"", ""e"".""Country"", ""e"".""FirstName"", ""e"".""ReportsTo"", ""e"".""Title""
 FROM ""Employees"" AS ""e""
-WHERE ((rtrim(rtrim(strftime('%Y-%m-%d %H:%M:%f', 'now', 'localtime', 'start of day'), '0'), '.') = rtrim(rtrim(strftime('%Y-%m-%d %H:%M:%f', 'now', 'localtime', 'start of day'), '0'), '.')) AND (rtrim(rtrim(strftime('%Y-%m-%d %H:%M:%f', 'now', 'localtime', 'start of day'), '0'), '.') IS NOT NULL AND rtrim(rtrim(strftime('%Y-%m-%d %H:%M:%f', 'now', 'localtime', 'start of day'), '0'), '.') IS NOT NULL)) OR (rtrim(rtrim(strftime('%Y-%m-%d %H:%M:%f', 'now', 'localtime', 'start of day'), '0'), '.') IS NULL AND rtrim(rtrim(strftime('%Y-%m-%d %H:%M:%f', 'now', 'localtime', 'start of day'), '0'), '.') IS NULL)");
+WHERE rtrim(rtrim(strftime('%Y-%m-%d %H:%M:%f', 'now', 'localtime', 'start of day'), '0'), '.') = rtrim(rtrim(strftime('%Y-%m-%d %H:%M:%f', 'now', 'localtime', 'start of day'), '0'), '.')");
         }
 
         public override async Task Where_datetime_date_component(bool isAsync)
@@ -631,7 +631,7 @@ WHERE (""o"".""OrderID"" = 11077) AND (max(""o"".""OrderID"", ""o"".""ProductID"
             AssertSql(
                 @"SELECT ""c"".""CustomerID"", ""c"".""Address"", ""c"".""City"", ""c"".""CompanyName"", ""c"".""ContactName"", ""c"".""ContactTitle"", ""c"".""Country"", ""c"".""Fax"", ""c"".""Phone"", ""c"".""PostalCode"", ""c"".""Region""
 FROM ""Customers"" AS ""c""
-WHERE (lower(""c"".""CustomerID"") = 'alfki') AND lower(""c"".""CustomerID"") IS NOT NULL");
+WHERE lower(""c"".""CustomerID"") = 'alfki'");
         }
 
         public override async Task Where_string_to_upper(bool isAsync)
@@ -641,7 +641,7 @@ WHERE (lower(""c"".""CustomerID"") = 'alfki') AND lower(""c"".""CustomerID"") IS
             AssertSql(
                 @"SELECT ""c"".""CustomerID"", ""c"".""Address"", ""c"".""City"", ""c"".""CompanyName"", ""c"".""ContactName"", ""c"".""ContactTitle"", ""c"".""Country"", ""c"".""Fax"", ""c"".""Phone"", ""c"".""PostalCode"", ""c"".""Region""
 FROM ""Customers"" AS ""c""
-WHERE (upper(""c"".""CustomerID"") = 'ALFKI') AND upper(""c"".""CustomerID"") IS NOT NULL");
+WHERE upper(""c"".""CustomerID"") = 'ALFKI'");
         }
 
         public override async Task TrimStart_without_arguments_in_predicate(bool isAsync)

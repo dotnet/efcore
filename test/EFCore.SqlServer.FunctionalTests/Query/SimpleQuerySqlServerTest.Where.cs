@@ -812,7 +812,7 @@ WHERE (SUBSTRING([c].[City], 1 + 1, 2) = N'ea') AND SUBSTRING([c].[City], 1 + 1,
             AssertSql(
                 @"SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
 FROM [Employees] AS [e]
-WHERE ((CONVERT(date, GETDATE()) = CONVERT(date, GETDATE())) AND (CONVERT(date, GETDATE()) IS NOT NULL AND CONVERT(date, GETDATE()) IS NOT NULL)) OR (CONVERT(date, GETDATE()) IS NULL AND CONVERT(date, GETDATE()) IS NULL)");
+WHERE CONVERT(date, GETDATE()) = CONVERT(date, GETDATE())");
         }
 
         public override async Task Where_datetime_date_component(bool isAsync)

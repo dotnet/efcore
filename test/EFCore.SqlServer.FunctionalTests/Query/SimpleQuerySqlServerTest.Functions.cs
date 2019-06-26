@@ -843,7 +843,7 @@ WHERE NEWID() <> '00000000-0000-0000-0000-000000000000'");
             AssertSql(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE (UPPER([c].[CustomerID]) = N'ALFKI') AND UPPER([c].[CustomerID]) IS NOT NULL");
+WHERE UPPER([c].[CustomerID]) = N'ALFKI'");
         }
 
         public override async Task Where_string_to_lower(bool isAsync)
@@ -853,7 +853,7 @@ WHERE (UPPER([c].[CustomerID]) = N'ALFKI') AND UPPER([c].[CustomerID]) IS NOT NU
             AssertSql(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE (LOWER([c].[CustomerID]) = N'alfki') AND LOWER([c].[CustomerID]) IS NOT NULL");
+WHERE LOWER([c].[CustomerID]) = N'alfki'");
         }
 
         public override async Task Where_functions_nested(bool isAsync)
@@ -863,7 +863,7 @@ WHERE (LOWER([c].[CustomerID]) = N'alfki') AND LOWER([c].[CustomerID]) IS NOT NU
             AssertSql(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE (POWER(CAST(CAST(LEN([c].[CustomerID]) AS int) AS float), 2.0E0) = 25.0E0) AND POWER(CAST(CAST(LEN([c].[CustomerID]) AS int) AS float), 2.0E0) IS NOT NULL");
+WHERE POWER(CAST(CAST(LEN([c].[CustomerID]) AS int) AS float), 2.0E0) = 25.0E0");
         }
 
         public override async Task Convert_ToByte(bool isAsync)
