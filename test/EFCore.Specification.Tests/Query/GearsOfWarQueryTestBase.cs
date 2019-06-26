@@ -7182,6 +7182,29 @@ namespace Microsoft.EntityFrameworkCore.Query
                 new List<IExpectedInclude> { new ExpectedInclude<Gear>(e => e.Weapons, "Weapons") });
         }
 
+        [ConditionalFact]
+        public virtual void Include_with_client_method_and_member_access_still_applies_includes()
+        {
+            using (var ctx = CreateContext())
+            {
+                var query = ctx.Gears
+                    .Include(g => g.Tag)
+                    .Select(g => new { g.Nickname, Client(g).FullName });
+
+                var result = query.ToList();
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Include_with_projection_of_unmapped_property_still_gets_applied()
+        {
+            using (var ctx = CreateContext())
+            {
+                var query = ctx.Gears.Include(g => g.Weapons).Select(g => g.IsMarcus);
+                var result = query.ToList();
+            }
+        }
+
         [ConditionalFact(Skip = "Issue#16231")]
         public virtual Task Multiple_includes_with_client_method_around_qsre_and_also_projecting_included_collection()
         {

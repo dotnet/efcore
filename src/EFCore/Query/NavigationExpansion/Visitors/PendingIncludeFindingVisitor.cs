@@ -12,7 +12,19 @@ namespace Microsoft.EntityFrameworkCore.Query.NavigationExpansion.Visitors
     {
         public virtual Dictionary<NavigationTreeNode, SourceMapping> PendingIncludes { get; } = new Dictionary<NavigationTreeNode, SourceMapping>();
 
-        protected override Expression VisitMember(MemberExpression memberExpression) => memberExpression;
+        protected override Expression VisitMember(MemberExpression memberExpression)
+        {
+            if (memberExpression.Expression is NavigationBindingExpression navigationBindingExpression
+                && navigationBindingExpression.EntityType.FindProperty(memberExpression.Member) != null)
+            {
+                return memberExpression;
+            }
+
+            Visit(memberExpression.Expression);
+
+            return memberExpression;
+        }
+
         protected override Expression VisitInvocation(InvocationExpression invocationExpression) => invocationExpression;
         protected override Expression VisitLambda<T>(Expression<T> lambdaExpression) => lambdaExpression;
         protected override Expression VisitTypeBinary(TypeBinaryExpression typeBinaryExpression) => typeBinaryExpression;

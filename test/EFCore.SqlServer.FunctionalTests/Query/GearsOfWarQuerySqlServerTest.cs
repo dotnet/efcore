@@ -7691,6 +7691,29 @@ WHERE [g].[Discriminator] IN (N'Gear', N'Officer') AND ([g].[Discriminator] = N'
 ORDER BY [g].[Nickname], [g].[SquadId], [w].[Id]");
         }
 
+        public override void Include_with_client_method_and_member_access_still_applies_includes()
+        {
+            base.Include_with_client_method_and_member_access_still_applies_includes();
+
+            AssertSql(
+                @"SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOrBirthName], [g].[Discriminator], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank], [t].[Id], [t].[GearNickName], [t].[GearSquadId], [t].[Note]
+FROM [Gears] AS [g]
+LEFT JOIN [Tags] AS [t] ON (([g].[Nickname] = [t].[GearNickName]) AND [t].[GearNickName] IS NOT NULL) AND (([g].[SquadId] = [t].[GearSquadId]) AND [t].[GearSquadId] IS NOT NULL)
+WHERE [g].[Discriminator] IN (N'Gear', N'Officer')");
+        }
+
+        public override void Include_with_projection_of_unmapped_property_still_gets_applied()
+        {
+            base.Include_with_projection_of_unmapped_property_still_gets_applied();
+
+            AssertSql(
+                @"SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOrBirthName], [g].[Discriminator], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank], [w].[Id], [w].[AmmunitionType], [w].[IsAutomatic], [w].[Name], [w].[OwnerFullName], [w].[SynergyWithId]
+FROM [Gears] AS [g]
+LEFT JOIN [Weapons] AS [w] ON [g].[FullName] = [w].[OwnerFullName]
+WHERE [g].[Discriminator] IN (N'Gear', N'Officer')
+ORDER BY [g].[Nickname], [g].[SquadId], [w].[Id]");
+        }
+
         public override async Task Multiple_includes_with_client_method_around_qsre_and_also_projecting_included_collection()
         {
             await base.Multiple_includes_with_client_method_around_qsre_and_also_projecting_included_collection();
