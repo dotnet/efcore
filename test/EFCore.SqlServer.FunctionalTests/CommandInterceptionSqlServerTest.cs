@@ -10,10 +10,9 @@ using Xunit;
 
 namespace Microsoft.EntityFrameworkCore
 {
-    public class CommandInterceptionSqlServerTest
-        : CommandInterceptionTestBase, IClassFixture<CommandInterceptionSqlServerTest.InterceptionSqlServerFixture>
+    public abstract class CommandInterceptionSqlServerTestBase : CommandInterceptionTestBase
     {
-        public CommandInterceptionSqlServerTest(InterceptionSqlServerFixture fixture)
+        protected CommandInterceptionSqlServerTestBase(InterceptionSqlServerFixtureBase fixture)
             : base(fixture)
         {
         }
@@ -45,16 +44,43 @@ namespace Microsoft.EntityFrameworkCore
             return null;
         }
 
-        public class InterceptionSqlServerFixture : InterceptionFixtureBase
+        public abstract class InterceptionSqlServerFixtureBase : InterceptionFixtureBase
         {
             protected override string StoreName => "CommandInterception";
-
             protected override ITestStoreFactory TestStoreFactory => SqlServerTestStoreFactory.Instance;
 
             protected override IServiceCollection InjectInterceptors(
                 IServiceCollection serviceCollection,
                 IEnumerable<IInterceptor> injectedInterceptors)
                 => base.InjectInterceptors(serviceCollection.AddEntityFrameworkSqlServer(), injectedInterceptors);
+        }
+
+        public class CommandInterceptionSqlServerTest
+            : CommandInterceptionSqlServerTestBase, IClassFixture<CommandInterceptionSqlServerTest.InterceptionSqlServerFixture>
+        {
+            public CommandInterceptionSqlServerTest(InterceptionSqlServerFixture fixture)
+                : base(fixture)
+            {
+            }
+
+            public class InterceptionSqlServerFixture : InterceptionSqlServerFixtureBase
+            {
+                protected override bool ShouldSubscribeToDiagnosticListener => false;
+            }
+        }
+
+        public class CommandInterceptionWithDiagnosticsSqlServerTest
+            : CommandInterceptionSqlServerTestBase, IClassFixture<CommandInterceptionWithDiagnosticsSqlServerTest.InterceptionSqlServerFixture>
+        {
+            public CommandInterceptionWithDiagnosticsSqlServerTest(InterceptionSqlServerFixture fixture)
+                : base(fixture)
+            {
+            }
+
+            public class InterceptionSqlServerFixture : InterceptionSqlServerFixtureBase
+            {
+                protected override bool ShouldSubscribeToDiagnosticListener => true;
+            }
         }
     }
 }

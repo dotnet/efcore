@@ -10,10 +10,9 @@ using Xunit;
 
 namespace Microsoft.EntityFrameworkCore
 {
-    public class CommandInterceptionSqliteTest
-        : CommandInterceptionTestBase, IClassFixture<CommandInterceptionSqliteTest.InterceptionSqliteFixture>
+    public abstract class CommandInterceptionSqliteTestBase : CommandInterceptionTestBase
     {
-        public CommandInterceptionSqliteTest(InterceptionSqliteFixture fixture)
+        protected CommandInterceptionSqliteTestBase(InterceptionSqliteFixtureBase fixture)
             : base(fixture)
         {
         }
@@ -45,16 +44,43 @@ namespace Microsoft.EntityFrameworkCore
             return null;
         }
 
-        public class InterceptionSqliteFixture : InterceptionFixtureBase
+        public abstract class InterceptionSqliteFixtureBase : InterceptionFixtureBase
         {
             protected override string StoreName => "CommandInterception";
-
             protected override ITestStoreFactory TestStoreFactory => SqliteTestStoreFactory.Instance;
 
             protected override IServiceCollection InjectInterceptors(
                 IServiceCollection serviceCollection,
                 IEnumerable<IInterceptor> injectedInterceptors)
                 => base.InjectInterceptors(serviceCollection.AddEntityFrameworkSqlite(), injectedInterceptors);
+        }
+
+        public class CommandInterceptionSqliteTest
+            : CommandInterceptionSqliteTestBase, IClassFixture<CommandInterceptionSqliteTest.InterceptionSqliteFixture>
+        {
+            public CommandInterceptionSqliteTest(InterceptionSqliteFixture fixture)
+                : base(fixture)
+            {
+            }
+
+            public class InterceptionSqliteFixture : InterceptionSqliteFixtureBase
+            {
+                protected override bool ShouldSubscribeToDiagnosticListener => false;
+            }
+        }
+
+        public class CommandInterceptionWithDiagnosticsSqliteTest
+            : CommandInterceptionSqliteTestBase, IClassFixture<CommandInterceptionWithDiagnosticsSqliteTest.InterceptionSqliteFixture>
+        {
+            public CommandInterceptionWithDiagnosticsSqliteTest(InterceptionSqliteFixture fixture)
+                : base(fixture)
+            {
+            }
+
+            public class InterceptionSqliteFixture : InterceptionSqliteFixtureBase
+            {
+                protected override bool ShouldSubscribeToDiagnosticListener => true;
+            }
         }
     }
 }

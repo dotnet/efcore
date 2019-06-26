@@ -9,10 +9,9 @@ using Xunit;
 
 namespace Microsoft.EntityFrameworkCore
 {
-    public class ConnectionInterceptionSqliteTest
-        : ConnectionInterceptionTestBase, IClassFixture<ConnectionInterceptionSqliteTest.InterceptionSqliteFixture>
+    public abstract class ConnectionInterceptionSqliteTestBase : ConnectionInterceptionTestBase
     {
-        public ConnectionInterceptionSqliteTest(InterceptionSqliteFixture fixture)
+        protected ConnectionInterceptionSqliteTestBase(InterceptionSqliteFixtureBase fixture)
             : base(fixture)
         {
         }
@@ -20,16 +19,43 @@ namespace Microsoft.EntityFrameworkCore
         protected override BadUniverseContext CreateBadUniverse(DbContextOptionsBuilder optionsBuilder)
             => new BadUniverseContext(optionsBuilder.UseSqlite("Data Source=file:data.db?mode=invalidmode").Options);
 
-        public class InterceptionSqliteFixture : InterceptionFixtureBase
+        public abstract class InterceptionSqliteFixtureBase : InterceptionFixtureBase
         {
             protected override string StoreName => "ConnectionInterception";
-
             protected override ITestStoreFactory TestStoreFactory => SqliteTestStoreFactory.Instance;
 
             protected override IServiceCollection InjectInterceptors(
                 IServiceCollection serviceCollection,
                 IEnumerable<IInterceptor> injectedInterceptors)
                 => base.InjectInterceptors(serviceCollection.AddEntityFrameworkSqlite(), injectedInterceptors);
+        }
+
+        public class ConnectionInterceptionSqliteTest
+            : ConnectionInterceptionSqliteTestBase, IClassFixture<ConnectionInterceptionSqliteTest.InterceptionSqliteFixture>
+        {
+            public ConnectionInterceptionSqliteTest(InterceptionSqliteFixture fixture)
+                : base(fixture)
+            {
+            }
+
+            public class InterceptionSqliteFixture : InterceptionSqliteFixtureBase
+            {
+                protected override bool ShouldSubscribeToDiagnosticListener => false;
+            }
+        }
+
+        public class ConnectionInterceptionWithDiagnosticsSqliteTest
+            : ConnectionInterceptionSqliteTestBase, IClassFixture<ConnectionInterceptionWithDiagnosticsSqliteTest.InterceptionSqliteFixture>
+        {
+            public ConnectionInterceptionWithDiagnosticsSqliteTest(InterceptionSqliteFixture fixture)
+                : base(fixture)
+            {
+            }
+
+            public class InterceptionSqliteFixture : InterceptionSqliteFixtureBase
+            {
+                protected override bool ShouldSubscribeToDiagnosticListener => true;
+            }
         }
     }
 }

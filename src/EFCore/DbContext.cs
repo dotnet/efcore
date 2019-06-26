@@ -66,6 +66,9 @@ namespace Microsoft.EntityFrameworkCore
         private bool _initializing;
         private bool _disposed;
 
+        private readonly Guid _contextId = Guid.NewGuid();
+        private int _lease;
+
         /// <summary>
         ///     <para>
         ///         Initializes a new instance of the <see cref="DbContext" /> class. The
@@ -138,6 +141,18 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         /// <summary>
+        ///     <para>
+        ///         A unique identifier for the context instance and pool lease, if any.
+        ///     </para>
+        ///     <para>
+        ///         This identifier is primarily intended as a correlation ID for logging and debugging such
+        ///         that it is easy to identify that multiple events are using the same or different context instances.
+        ///     </para>
+        /// </summary>
+        public virtual DbContextId ContextId
+            => new DbContextId(_contextId, _lease);
+
+        /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
         ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
@@ -207,7 +222,8 @@ namespace Microsoft.EntityFrameworkCore
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [EntityFrameworkInternal]
-        IDiagnosticsLogger<DbLoggerCategory.Infrastructure> IDbContextDependencies.InfrastructureLogger => DbContextDependencies.InfrastructureLogger;
+        IDiagnosticsLogger<DbLoggerCategory.Infrastructure> IDbContextDependencies.InfrastructureLogger
+            => DbContextDependencies.InfrastructureLogger;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -478,7 +494,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             if (ChangeTracker.AutoDetectChangesEnabled)
             {
-                 entry.DetectChanges();
+                entry.DetectChanges();
             }
         }
 
@@ -584,6 +600,7 @@ namespace Microsoft.EntityFrameworkCore
         void IDbContextPoolable.SetPool(IDbContextPool contextPool)
         {
             _dbContextPool = contextPool;
+            _lease = 1;
         }
 
         /// <summary>
@@ -610,6 +627,7 @@ namespace Microsoft.EntityFrameworkCore
         void IDbContextPoolable.Resurrect(DbContextPoolConfigurationSnapshot configurationSnapshot)
         {
             _disposed = false;
+            ++_lease;
 
             if (configurationSnapshot.AutoDetectChangesEnabled != null)
             {
@@ -904,7 +922,7 @@ namespace Microsoft.EntityFrameworkCore
         ///         to anything other than the CLR default for the property type.
         ///     </para>
         ///     <para>
-        ///         For entity types without generated keys, the state set is always <see cref="EntityState.Unchanged"/>.
+        ///         For entity types without generated keys, the state set is always <see cref="EntityState.Unchanged" />.
         ///     </para>
         ///     <para>
         ///         Use <see cref="EntityEntry.State" /> to set the state of only a single entity.
@@ -947,7 +965,7 @@ namespace Microsoft.EntityFrameworkCore
         ///         to anything other than the CLR default for the property type.
         ///     </para>
         ///     <para>
-        ///         For entity types without generated keys, the state set is always <see cref="EntityState.Modified"/>.
+        ///         For entity types without generated keys, the state set is always <see cref="EntityState.Modified" />.
         ///     </para>
         ///     <para>
         ///         Use <see cref="EntityEntry.State" /> to set the state of only a single entity.
@@ -1108,7 +1126,7 @@ namespace Microsoft.EntityFrameworkCore
         ///         to anything other than the CLR default for the property type.
         ///     </para>
         ///     <para>
-        ///         For entity types without generated keys, the state set is always <see cref="EntityState.Unchanged"/>.
+        ///         For entity types without generated keys, the state set is always <see cref="EntityState.Unchanged" />.
         ///     </para>
         ///     <para>
         ///         Use <see cref="EntityEntry.State" /> to set the state of only a single entity.
@@ -1149,7 +1167,7 @@ namespace Microsoft.EntityFrameworkCore
         ///         to anything other than the CLR default for the property type.
         ///     </para>
         ///     <para>
-        ///         For entity types without generated keys, the state set is always <see cref="EntityState.Modified"/>.
+        ///         For entity types without generated keys, the state set is always <see cref="EntityState.Modified" />.
         ///     </para>
         ///     <para>
         ///         Use <see cref="EntityEntry.State" /> to set the state of only a single entity.
@@ -1280,7 +1298,7 @@ namespace Microsoft.EntityFrameworkCore
         ///         to anything other than the CLR default for the property type.
         ///     </para>
         ///     <para>
-        ///         For entity types without generated keys, the state set is always <see cref="EntityState.Unchanged"/>.
+        ///         For entity types without generated keys, the state set is always <see cref="EntityState.Unchanged" />.
         ///     </para>
         ///     <para>
         ///         Use <see cref="EntityEntry.State" /> to set the state of only a single entity.
@@ -1317,7 +1335,7 @@ namespace Microsoft.EntityFrameworkCore
         ///         to anything other than the CLR default for the property type.
         ///     </para>
         ///     <para>
-        ///         For entity types without generated keys, the state set is always <see cref="EntityState.Modified"/>.
+        ///         For entity types without generated keys, the state set is always <see cref="EntityState.Modified" />.
         ///     </para>
         ///     <para>
         ///         Use <see cref="EntityEntry.State" /> to set the state of only a single entity.
@@ -1435,7 +1453,7 @@ namespace Microsoft.EntityFrameworkCore
         ///         to anything other than the CLR default for the property type.
         ///     </para>
         ///     <para>
-        ///         For entity types without generated keys, the state set is always <see cref="EntityState.Unchanged"/>.
+        ///         For entity types without generated keys, the state set is always <see cref="EntityState.Unchanged" />.
         ///     </para>
         ///     <para>
         ///         Use <see cref="EntityEntry.State" /> to set the state of only a single entity.
@@ -1472,7 +1490,7 @@ namespace Microsoft.EntityFrameworkCore
         ///         to anything other than the CLR default for the property type.
         ///     </para>
         ///     <para>
-        ///         For entity types without generated keys, the state set is always <see cref="EntityState.Modified"/>.
+        ///         For entity types without generated keys, the state set is always <see cref="EntityState.Modified" />.
         ///     </para>
         ///     <para>
         ///         Use <see cref="EntityEntry.State" /> to set the state of only a single entity.
@@ -1574,7 +1592,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="keyValues">The values of the primary key for the entity to be found.</param>
         /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
         /// <returns>The entity found, or null.</returns>
-        public virtual ValueTask<object> FindAsync([NotNull] Type entityType, [CanBeNull] object[] keyValues, CancellationToken cancellationToken)
+        public virtual ValueTask<object> FindAsync(
+            [NotNull] Type entityType, [CanBeNull] object[] keyValues, CancellationToken cancellationToken)
         {
             CheckDisposed();
 
