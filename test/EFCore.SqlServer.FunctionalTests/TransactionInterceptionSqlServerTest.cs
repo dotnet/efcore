@@ -9,24 +9,50 @@ using Xunit;
 
 namespace Microsoft.EntityFrameworkCore
 {
-    public class TransactionInterceptionSqlServerTest
-        : TransactionInterceptionTestBase, IClassFixture<TransactionInterceptionSqlServerTest.InterceptionSqlServerFixture>
+    public abstract class TransactionInterceptionSqlServerTestBase : TransactionInterceptionTestBase
     {
-        public TransactionInterceptionSqlServerTest(InterceptionSqlServerFixture fixture)
+        protected TransactionInterceptionSqlServerTestBase(InterceptionSqlServerFixtureBase fixture)
             : base(fixture)
         {
         }
 
-        public class InterceptionSqlServerFixture : InterceptionFixtureBase
+        public abstract class InterceptionSqlServerFixtureBase : InterceptionFixtureBase
         {
             protected override string StoreName => "TransactionInterception";
-
             protected override ITestStoreFactory TestStoreFactory => SqlServerTestStoreFactory.Instance;
 
             protected override IServiceCollection InjectInterceptors(
                 IServiceCollection serviceCollection,
                 IEnumerable<IInterceptor> injectedInterceptors)
                 => base.InjectInterceptors(serviceCollection.AddEntityFrameworkSqlServer(), injectedInterceptors);
+        }
+
+        public class TransactionInterceptionSqlServerTest
+            : TransactionInterceptionSqlServerTestBase, IClassFixture<TransactionInterceptionSqlServerTest.InterceptionSqlServerFixture>
+        {
+            public TransactionInterceptionSqlServerTest(InterceptionSqlServerFixture fixture)
+                : base(fixture)
+            {
+            }
+
+            public class InterceptionSqlServerFixture : InterceptionSqlServerFixtureBase
+            {
+                protected override bool ShouldSubscribeToDiagnosticListener => false;
+            }
+        }
+
+        public class TransactionInterceptionWithDiagnosticsSqlServerTest
+            : TransactionInterceptionSqlServerTestBase, IClassFixture<TransactionInterceptionWithDiagnosticsSqlServerTest.InterceptionSqlServerFixture>
+        {
+            public TransactionInterceptionWithDiagnosticsSqlServerTest(InterceptionSqlServerFixture fixture)
+                : base(fixture)
+            {
+            }
+
+            public class InterceptionSqlServerFixture : InterceptionSqlServerFixtureBase
+            {
+                protected override bool ShouldSubscribeToDiagnosticListener => true;
+            }
         }
     }
 }

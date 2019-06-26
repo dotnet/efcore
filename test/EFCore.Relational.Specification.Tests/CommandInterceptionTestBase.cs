@@ -32,17 +32,22 @@ namespace Microsoft.EntityFrameworkCore
             var (context, interceptor) = CreateContext<PassiveReaderCommandInterceptor>(inject);
             using (context)
             {
-                var results = async
-                    ? await context.Set<Singularity>().ToListAsync()
-                    : context.Set<Singularity>().ToList();
+                using (var listener = Fixture.SubscribeToDiagnosticListener(context.ContextId))
+                {
+                    var results = async
+                        ? await context.Set<Singularity>().ToListAsync()
+                        : context.Set<Singularity>().ToList();
 
-                Assert.Equal(2, results.Count);
-                Assert.Equal(77, results[0].Id);
-                Assert.Equal(88, results[1].Id);
-                Assert.Equal("Black Hole", results[0].Type);
-                Assert.Equal("Bing Bang", results[1].Type);
+                    Assert.Equal(2, results.Count);
+                    Assert.Equal(77, results[0].Id);
+                    Assert.Equal(88, results[1].Id);
+                    Assert.Equal("Black Hole", results[0].Type);
+                    Assert.Equal("Bing Bang", results[1].Type);
 
-                AssertNormalOutcome(context, interceptor, async);
+                    AssertNormalOutcome(context, interceptor, async);
+
+                    AssertExecutedEvents(listener);
+                }
             }
 
             return interceptor.CommandText;
@@ -74,15 +79,20 @@ namespace Microsoft.EntityFrameworkCore
 
                 var commandParameterObject = new RelationalCommandParameterObject(connection, null, context, logger);
 
-                var result = async
-                    ? await command.ExecuteScalarAsync(commandParameterObject)
-                    : command.ExecuteScalar(commandParameterObject);
+                using (var listener = Fixture.SubscribeToDiagnosticListener(context.ContextId))
+                {
+                    var result = async
+                        ? await command.ExecuteScalarAsync(commandParameterObject)
+                        : command.ExecuteScalar(commandParameterObject);
 
-                Assert.Equal(1, Convert.ToInt32(result));
+                    Assert.Equal(1, Convert.ToInt32(result));
 
-                AssertNormalOutcome(context, interceptor, async);
+                    AssertNormalOutcome(context, interceptor, async);
 
-                AssertSql(sql, interceptor.CommandText);
+                    AssertSql(sql, interceptor.CommandText);
+
+                    AssertExecutedEvents(listener);
+                }
             }
         }
 
@@ -108,15 +118,20 @@ namespace Microsoft.EntityFrameworkCore
                 {
                     const string nonQuery = "DELETE FROM Singularity WHERE Id = 77";
 
-                    var result = async
-                        ? await context.Database.ExecuteSqlRawAsync(nonQuery)
-                        : context.Database.ExecuteSqlRaw(nonQuery);
+                    using (var listener = Fixture.SubscribeToDiagnosticListener(context.ContextId))
+                    {
+                        var result = async
+                            ? await context.Database.ExecuteSqlRawAsync(nonQuery)
+                            : context.Database.ExecuteSqlRaw(nonQuery);
 
-                    Assert.Equal(1, result);
+                        Assert.Equal(1, result);
 
-                    AssertNormalOutcome(context, interceptor, async);
+                        AssertNormalOutcome(context, interceptor, async);
 
-                    AssertSql(nonQuery, interceptor.CommandText);
+                        AssertSql(nonQuery, interceptor.CommandText);
+
+                        AssertExecutedEvents(listener);
+                    }
                 }
             }
         }
@@ -139,19 +154,24 @@ namespace Microsoft.EntityFrameworkCore
             var (context, interceptor) = CreateContext<SuppressingReaderCommandInterceptor>(inject);
             using (context)
             {
-                var results = async
-                    ? await context.Set<Singularity>().ToListAsync()
-                    : context.Set<Singularity>().ToList();
+                using (var listener = Fixture.SubscribeToDiagnosticListener(context.ContextId))
+                {
+                    var results = async
+                        ? await context.Set<Singularity>().ToListAsync()
+                        : context.Set<Singularity>().ToList();
 
-                Assert.Equal(3, results.Count);
-                Assert.Equal(977, results[0].Id);
-                Assert.Equal(988, results[1].Id);
-                Assert.Equal(999, results[2].Id);
-                Assert.Equal("<977>", results[0].Type);
-                Assert.Equal("<988>", results[1].Type);
-                Assert.Equal("<999>", results[2].Type);
+                    Assert.Equal(3, results.Count);
+                    Assert.Equal(977, results[0].Id);
+                    Assert.Equal(988, results[1].Id);
+                    Assert.Equal(999, results[2].Id);
+                    Assert.Equal("<977>", results[0].Type);
+                    Assert.Equal("<988>", results[1].Type);
+                    Assert.Equal("<999>", results[2].Type);
 
-                AssertNormalOutcome(context, interceptor, async);
+                    AssertNormalOutcome(context, interceptor, async);
+
+                    AssertExecutedEvents(listener);
+                }
             }
 
             return interceptor.CommandText;
@@ -204,15 +224,20 @@ namespace Microsoft.EntityFrameworkCore
 
                 var commandParameterObject = new RelationalCommandParameterObject(connection, null, context, logger);
 
-                var result = async
-                    ? await command.ExecuteScalarAsync(commandParameterObject)
-                    : command.ExecuteScalar(commandParameterObject);
+                using (var listener = Fixture.SubscribeToDiagnosticListener(context.ContextId))
+                {
+                    var result = async
+                        ? await command.ExecuteScalarAsync(commandParameterObject)
+                        : command.ExecuteScalar(commandParameterObject);
 
-                Assert.Equal(SuppressingScalarCommandInterceptor.InterceptedResult, result);
+                    Assert.Equal(SuppressingScalarCommandInterceptor.InterceptedResult, result);
 
-                AssertNormalOutcome(context, interceptor, async);
+                    AssertNormalOutcome(context, interceptor, async);
 
-                AssertSql(sql, interceptor.CommandText);
+                    AssertSql(sql, interceptor.CommandText);
+
+                    AssertExecutedEvents(listener);
+                }
             }
         }
 
@@ -262,15 +287,20 @@ namespace Microsoft.EntityFrameworkCore
                 {
                     const string nonQuery = "DELETE FROM Singularity WHERE Id = 77";
 
-                    var result = async
-                        ? await context.Database.ExecuteSqlRawAsync(nonQuery)
-                        : context.Database.ExecuteSqlRaw(nonQuery);
+                    using (var listener = Fixture.SubscribeToDiagnosticListener(context.ContextId))
+                    {
+                        var result = async
+                            ? await context.Database.ExecuteSqlRawAsync(nonQuery)
+                            : context.Database.ExecuteSqlRaw(nonQuery);
 
-                    Assert.Equal(2, result);
+                        Assert.Equal(2, result);
 
-                    AssertNormalOutcome(context, interceptor, async);
+                        AssertNormalOutcome(context, interceptor, async);
 
-                    AssertSql(nonQuery, interceptor.CommandText);
+                        AssertSql(nonQuery, interceptor.CommandText);
+
+                        AssertExecutedEvents(listener);
+                    }
                 }
             }
         }
@@ -314,17 +344,22 @@ namespace Microsoft.EntityFrameworkCore
             var (context, interceptor) = CreateContext<MutatingReaderCommandInterceptor>(inject);
             using (context)
             {
-                var results = async
-                    ? await context.Set<Singularity>().ToListAsync()
-                    : context.Set<Singularity>().ToList();
+                using (var listener = Fixture.SubscribeToDiagnosticListener(context.ContextId))
+                {
+                    var results = async
+                        ? await context.Set<Singularity>().ToListAsync()
+                        : context.Set<Singularity>().ToList();
 
-                Assert.Equal(2, results.Count);
-                Assert.Equal(77, results[0].Id);
-                Assert.Equal(88, results[1].Id);
-                Assert.Equal("Black Hole?", results[0].Type);
-                Assert.Equal("Bing Bang?", results[1].Type);
+                    Assert.Equal(2, results.Count);
+                    Assert.Equal(77, results[0].Id);
+                    Assert.Equal(88, results[1].Id);
+                    Assert.Equal("Black Hole?", results[0].Type);
+                    Assert.Equal("Bing Bang?", results[1].Type);
 
-                AssertNormalOutcome(context, interceptor, async);
+                    AssertNormalOutcome(context, interceptor, async);
+
+                    AssertExecutedEvents(listener);
+                }
             }
 
             return interceptor.CommandText;
@@ -380,15 +415,20 @@ namespace Microsoft.EntityFrameworkCore
 
                 var commandParameterObject = new RelationalCommandParameterObject(connection, null, context, logger);
 
-                var result = async
-                    ? await command.ExecuteScalarAsync(commandParameterObject)
-                    : command.ExecuteScalar(commandParameterObject);
+                using (var listener = Fixture.SubscribeToDiagnosticListener(context.ContextId))
+                {
+                    var result = async
+                        ? await command.ExecuteScalarAsync(commandParameterObject)
+                        : command.ExecuteScalar(commandParameterObject);
 
-                Assert.Equal(2, Convert.ToInt32(result));
+                    Assert.Equal(2, Convert.ToInt32(result));
 
-                AssertNormalOutcome(context, interceptor, async);
+                    AssertNormalOutcome(context, interceptor, async);
 
-                AssertSql(MutatingScalarCommandInterceptor.MutatedSql, interceptor.CommandText);
+                    AssertSql(MutatingScalarCommandInterceptor.MutatedSql, interceptor.CommandText);
+
+                    AssertExecutedEvents(listener);
+                }
             }
         }
 
@@ -437,15 +477,20 @@ namespace Microsoft.EntityFrameworkCore
                 {
                     const string nonQuery = "DELETE FROM Singularity WHERE Id = 77";
 
-                    var result = async
-                        ? await context.Database.ExecuteSqlRawAsync(nonQuery)
-                        : context.Database.ExecuteSqlRaw(nonQuery);
+                    using (var listener = Fixture.SubscribeToDiagnosticListener(context.ContextId))
+                    {
+                        var result = async
+                            ? await context.Database.ExecuteSqlRawAsync(nonQuery)
+                            : context.Database.ExecuteSqlRaw(nonQuery);
 
-                    Assert.Equal(0, result);
+                        Assert.Equal(0, result);
 
-                    AssertNormalOutcome(context, interceptor, async);
+                        AssertNormalOutcome(context, interceptor, async);
 
-                    AssertSql(MutatingNonQueryCommandInterceptor.MutatedSql, interceptor.CommandText);
+                        AssertSql(MutatingNonQueryCommandInterceptor.MutatedSql, interceptor.CommandText);
+
+                        AssertExecutedEvents(listener);
+                    }
                 }
             }
         }
@@ -491,17 +536,22 @@ namespace Microsoft.EntityFrameworkCore
             var (context, interceptor) = CreateContext<QueryReplacingReaderCommandInterceptor>(inject);
             using (context)
             {
-                var results = async
-                    ? await context.Set<Singularity>().ToListAsync()
-                    : context.Set<Singularity>().ToList();
+                using (var listener = Fixture.SubscribeToDiagnosticListener(context.ContextId))
+                {
+                    var results = async
+                        ? await context.Set<Singularity>().ToListAsync()
+                        : context.Set<Singularity>().ToList();
 
-                Assert.Equal(2, results.Count);
-                Assert.Equal(77, results[0].Id);
-                Assert.Equal(88, results[1].Id);
-                Assert.Equal("Black Hole?", results[0].Type);
-                Assert.Equal("Bing Bang?", results[1].Type);
+                    Assert.Equal(2, results.Count);
+                    Assert.Equal(77, results[0].Id);
+                    Assert.Equal(88, results[1].Id);
+                    Assert.Equal("Black Hole?", results[0].Type);
+                    Assert.Equal("Bing Bang?", results[1].Type);
 
-                AssertNormalOutcome(context, interceptor, async);
+                    AssertNormalOutcome(context, interceptor, async);
+
+                    AssertExecutedEvents(listener);
+                }
             }
 
             return interceptor.CommandText;
@@ -564,15 +614,20 @@ namespace Microsoft.EntityFrameworkCore
 
                 var commandParameterObject = new RelationalCommandParameterObject(connection, null, context, logger);
 
-                var result = async
-                    ? await command.ExecuteScalarAsync(commandParameterObject)
-                    : command.ExecuteScalar(commandParameterObject);
+                using (var listener = Fixture.SubscribeToDiagnosticListener(context.ContextId))
+                {
+                    var result = async
+                        ? await command.ExecuteScalarAsync(commandParameterObject)
+                        : command.ExecuteScalar(commandParameterObject);
 
-                Assert.Equal(2, Convert.ToInt32(result));
+                    Assert.Equal(2, Convert.ToInt32(result));
 
-                AssertNormalOutcome(context, interceptor, async);
+                    AssertNormalOutcome(context, interceptor, async);
 
-                AssertSql(sql, interceptor.CommandText);
+                    AssertSql(sql, interceptor.CommandText);
+
+                    AssertExecutedEvents(listener);
+                }
             }
         }
 
@@ -629,15 +684,20 @@ namespace Microsoft.EntityFrameworkCore
                 {
                     const string nonQuery = "DELETE FROM Singularity WHERE Id = 78";
 
-                    var result = async
-                        ? await context.Database.ExecuteSqlRawAsync(nonQuery)
-                        : context.Database.ExecuteSqlRaw(nonQuery);
+                    using (var listener = Fixture.SubscribeToDiagnosticListener(context.ContextId))
+                    {
+                        var result = async
+                            ? await context.Database.ExecuteSqlRawAsync(nonQuery)
+                            : context.Database.ExecuteSqlRaw(nonQuery);
 
-                    Assert.Equal(1, result);
+                        Assert.Equal(1, result);
 
-                    AssertNormalOutcome(context, interceptor, async);
+                        AssertNormalOutcome(context, interceptor, async);
 
-                    AssertSql(nonQuery, interceptor.CommandText);
+                        AssertSql(nonQuery, interceptor.CommandText);
+
+                        AssertExecutedEvents(listener);
+                    }
                 }
             }
         }
@@ -692,23 +752,28 @@ namespace Microsoft.EntityFrameworkCore
             var (context, interceptor) = CreateContext<ResultReplacingReaderCommandInterceptor>(inject);
             using (context)
             {
-                var results = async
-                    ? await context.Set<Singularity>().ToListAsync()
-                    : context.Set<Singularity>().ToList();
+                using (var listener = Fixture.SubscribeToDiagnosticListener(context.ContextId))
+                {
+                    var results = async
+                        ? await context.Set<Singularity>().ToListAsync()
+                        : context.Set<Singularity>().ToList();
 
-                Assert.Equal(5, results.Count);
-                Assert.Equal(77, results[0].Id);
-                Assert.Equal(88, results[1].Id);
-                Assert.Equal(977, results[2].Id);
-                Assert.Equal(988, results[3].Id);
-                Assert.Equal(999, results[4].Id);
-                Assert.Equal("Black Hole", results[0].Type);
-                Assert.Equal("Bing Bang", results[1].Type);
-                Assert.Equal("<977>", results[2].Type);
-                Assert.Equal("<988>", results[3].Type);
-                Assert.Equal("<999>", results[4].Type);
+                    Assert.Equal(5, results.Count);
+                    Assert.Equal(77, results[0].Id);
+                    Assert.Equal(88, results[1].Id);
+                    Assert.Equal(977, results[2].Id);
+                    Assert.Equal(988, results[3].Id);
+                    Assert.Equal(999, results[4].Id);
+                    Assert.Equal("Black Hole", results[0].Type);
+                    Assert.Equal("Bing Bang", results[1].Type);
+                    Assert.Equal("<977>", results[2].Type);
+                    Assert.Equal("<988>", results[3].Type);
+                    Assert.Equal("<999>", results[4].Type);
 
-                AssertNormalOutcome(context, interceptor, async);
+                    AssertNormalOutcome(context, interceptor, async);
+
+                    AssertExecutedEvents(listener);
+                }
             }
 
             return interceptor.CommandText;
@@ -814,15 +879,20 @@ namespace Microsoft.EntityFrameworkCore
 
                 var commandParameterObject = new RelationalCommandParameterObject(connection, null, context, logger);
 
-                var result = async
-                    ? await command.ExecuteScalarAsync(commandParameterObject)
-                    : command.ExecuteScalar(commandParameterObject);
+                using (var listener = Fixture.SubscribeToDiagnosticListener(context.ContextId))
+                {
+                    var result = async
+                        ? await command.ExecuteScalarAsync(commandParameterObject)
+                        : command.ExecuteScalar(commandParameterObject);
 
-                Assert.Equal(ResultReplacingScalarCommandInterceptor.InterceptedResult, result);
+                    Assert.Equal(ResultReplacingScalarCommandInterceptor.InterceptedResult, result);
 
-                AssertNormalOutcome(context, interceptor, async);
+                    AssertNormalOutcome(context, interceptor, async);
 
-                AssertSql(sql, interceptor.CommandText);
+                    AssertSql(sql, interceptor.CommandText);
+
+                    AssertExecutedEvents(listener);
+                }
             }
         }
 
@@ -862,7 +932,7 @@ namespace Microsoft.EntityFrameworkCore
         [InlineData(true, false)]
         [InlineData(false, true)]
         [InlineData(true, true)]
-        public virtual async Task Intercept_non_query_to_replaceresult(bool async, bool inject)
+        public virtual async Task Intercept_non_query_to_replace_result(bool async, bool inject)
         {
             var (context, interceptor) = CreateContext<ResultReplacingNonQueryCommandInterceptor>(inject);
             using (context)
@@ -871,15 +941,20 @@ namespace Microsoft.EntityFrameworkCore
                 {
                     const string nonQuery = "DELETE FROM Singularity WHERE Id = 78";
 
-                    var result = async
-                        ? await context.Database.ExecuteSqlRawAsync(nonQuery)
-                        : context.Database.ExecuteSqlRaw(nonQuery);
+                    using (var listener = Fixture.SubscribeToDiagnosticListener(context.ContextId))
+                    {
+                        var result = async
+                            ? await context.Database.ExecuteSqlRawAsync(nonQuery)
+                            : context.Database.ExecuteSqlRaw(nonQuery);
 
-                    Assert.Equal(7, result);
+                        Assert.Equal(7, result);
 
-                    AssertNormalOutcome(context, interceptor, async);
+                        AssertNormalOutcome(context, interceptor, async);
 
-                    AssertSql(nonQuery, interceptor.CommandText);
+                        AssertSql(nonQuery, interceptor.CommandText);
+
+                        AssertExecutedEvents(listener);
+                    }
                 }
             }
         }
@@ -1396,6 +1471,11 @@ namespace Microsoft.EntityFrameworkCore
             Assert.True(interceptor.FailedCalled);
             Assert.Same(context, interceptor.Context);
         }
+
+        private static void AssertExecutedEvents(ITestDiagnosticListener listener)
+            => listener.AssertEventsInOrder(
+                RelationalEventId.CommandExecuting.Name,
+                RelationalEventId.CommandExecuted.Name);
 
         protected abstract class CommandInterceptorBase : IDbCommandInterceptor
         {

@@ -944,7 +944,7 @@ namespace Microsoft.EntityFrameworkCore
             await Assert.ThrowsAsync<ObjectDisposedException>(() => context.FindAsync(typeof(Random), 77).AsTask());
 
             var methodCount = typeof(DbContext).GetMethods(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly).Count();
-            var expectedMethodCount = 42;
+            var expectedMethodCount = 43;
             Assert.True(
                 methodCount == expectedMethodCount,
                 userMessage: $"Expected {expectedMethodCount} methods on DbContext but found {methodCount}. " +
@@ -957,6 +957,7 @@ namespace Microsoft.EntityFrameworkCore
             var expectedProperties = new List<string>
             {
                 nameof(DbContext.ChangeTracker),
+                nameof(DbContext.ContextId), // By-design, does not throw for disposed context
                 nameof(DbContext.Database),
                 nameof(DbContext.Model)
             };
