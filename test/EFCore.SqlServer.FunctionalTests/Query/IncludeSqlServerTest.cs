@@ -30,7 +30,7 @@ LEFT JOIN (
     FROM [Order Details] AS [o]
     INNER JOIN [Orders] AS [o0] ON [o].[OrderID] = [o0].[OrderID]
 ) AS [t] ON [p].[ProductID] = [t].[ProductID]
-ORDER BY [p].[ProductID]");
+ORDER BY [p].[ProductID], [t].[OrderID], [t].[ProductID], [t].[OrderID0]");
         }
 
         public override void Include_reference(bool useString)
@@ -65,7 +65,7 @@ END");
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Customers] AS [c]
 LEFT JOIN [Orders] AS [o] ON [c].[CustomerID] = [o].[CustomerID]
-ORDER BY [c].[CustomerID]");
+ORDER BY [c].[CustomerID], [o].[OrderID]");
         }
 
         public override void Include_collection_with_last(bool useString)
@@ -77,10 +77,10 @@ ORDER BY [c].[CustomerID]");
 FROM (
     SELECT TOP(1) [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
     FROM [Customers] AS [c]
-    ORDER BY [c].[CompanyName] DESC, [c].[CustomerID]
+    ORDER BY [c].[CompanyName] DESC
 ) AS [t]
 LEFT JOIN [Orders] AS [o] ON [t].[CustomerID] = [o].[CustomerID]
-ORDER BY [t].[CompanyName] DESC, [t].[CustomerID]");
+ORDER BY [t].[CompanyName] DESC, [t].[CustomerID], [o].[OrderID]");
         }
 
         public override void Include_collection_with_last_no_orderby(bool useString)
@@ -115,11 +115,11 @@ SELECT [t].[CustomerID], [t].[Address], [t].[City], [t].[CompanyName], [t].[Cont
 FROM (
     SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
     FROM [Customers] AS [c]
-    ORDER BY [c].[CustomerID]
+    ORDER BY (SELECT 1)
     OFFSET @__p_0 ROWS
 ) AS [t]
 LEFT JOIN [Orders] AS [o] ON [t].[CustomerID] = [o].[CustomerID]
-ORDER BY [t].[CustomerID]");
+ORDER BY [t].[CustomerID], [o].[OrderID]");
             }
         }
 
@@ -136,10 +136,9 @@ SELECT [t].[CustomerID], [t].[Address], [t].[City], [t].[CompanyName], [t].[Cont
 FROM (
     SELECT TOP(@__p_0) [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
     FROM [Customers] AS [c]
-    ORDER BY [c].[CustomerID]
 ) AS [t]
 LEFT JOIN [Orders] AS [o] ON [t].[CustomerID] = [o].[CustomerID]
-ORDER BY [t].[CustomerID]");
+ORDER BY [t].[CustomerID], [o].[OrderID]");
             }
         }
 
@@ -157,11 +156,11 @@ SELECT [t].[CustomerID], [t].[Address], [t].[City], [t].[CompanyName], [t].[Cont
 FROM (
     SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
     FROM [Customers] AS [c]
-    ORDER BY [c].[CustomerID]
+    ORDER BY (SELECT 1)
     OFFSET @__p_0 ROWS FETCH NEXT @__p_1 ROWS ONLY
 ) AS [t]
 LEFT JOIN [Orders] AS [o] ON [t].[CustomerID] = [o].[CustomerID]
-ORDER BY [t].[CustomerID]");
+ORDER BY [t].[CustomerID], [o].[OrderID]");
             }
         }
 
@@ -174,7 +173,7 @@ ORDER BY [t].[CustomerID]");
 FROM [Orders] AS [o]
 LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]
 LEFT JOIN [Order Details] AS [o0] ON [o].[OrderID] = [o0].[OrderID]
-ORDER BY [o].[OrderID]");
+ORDER BY [o].[OrderID], [o0].[OrderID], [o0].[ProductID]");
         }
 
         public override void Include_references_multi_level(bool useString)
@@ -222,7 +221,7 @@ FROM [Order Details] AS [o]
 INNER JOIN [Orders] AS [o0] ON [o].[OrderID] = [o0].[OrderID]
 LEFT JOIN [Customers] AS [c] ON [o0].[CustomerID] = [c].[CustomerID]
 LEFT JOIN [Orders] AS [o1] ON [c].[CustomerID] = [o1].[CustomerID]
-ORDER BY [o].[OrderID], [o].[ProductID], [o0].[OrderID]");
+ORDER BY [o].[OrderID], [o].[ProductID], [o0].[OrderID], [o1].[OrderID]");
         }
 
         public override void Include_multi_level_reference_and_collection_predicate(bool useString)
@@ -236,10 +235,9 @@ FROM (
     FROM [Orders] AS [o]
     LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]
     WHERE [o].[OrderID] = 10248
-    ORDER BY [o].[OrderID]
 ) AS [t]
 LEFT JOIN [Orders] AS [o0] ON [t].[CustomerID0] = [o0].[CustomerID]
-ORDER BY [t].[OrderID]");
+ORDER BY [t].[OrderID], [o0].[OrderID]");
         }
 
         public override void Include_multi_level_collection_and_then_include_reference_predicate(bool useString)
@@ -252,14 +250,13 @@ FROM (
     SELECT TOP(2) [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
     FROM [Orders] AS [o]
     WHERE [o].[OrderID] = 10248
-    ORDER BY [o].[OrderID]
 ) AS [t]
 LEFT JOIN (
     SELECT [o0].[OrderID], [o0].[ProductID], [o0].[Discount], [o0].[Quantity], [o0].[UnitPrice], [p].[ProductID] AS [ProductID0], [p].[Discontinued], [p].[ProductName], [p].[SupplierID], [p].[UnitPrice] AS [UnitPrice0], [p].[UnitsInStock]
     FROM [Order Details] AS [o0]
     INNER JOIN [Products] AS [p] ON [o0].[ProductID] = [p].[ProductID]
 ) AS [t0] ON [t].[OrderID] = [t0].[OrderID]
-ORDER BY [t].[OrderID]");
+ORDER BY [t].[OrderID], [t0].[OrderID], [t0].[ProductID], [t0].[ProductID0]");
         }
 
         public override void Include_collection_alias_generation(bool useString)
@@ -270,7 +267,7 @@ ORDER BY [t].[OrderID]");
                 @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate], [o0].[OrderID], [o0].[ProductID], [o0].[Discount], [o0].[Quantity], [o0].[UnitPrice]
 FROM [Orders] AS [o]
 LEFT JOIN [Order Details] AS [o0] ON [o].[OrderID] = [o0].[OrderID]
-ORDER BY [o].[OrderID]");
+ORDER BY [o].[OrderID], [o0].[OrderID], [o0].[ProductID]");
         }
 
         public override void Include_collection_order_by_collection_column(bool useString)
@@ -291,10 +288,10 @@ FROM (
         SELECT TOP(1) [o].[OrderDate]
         FROM [Orders] AS [o]
         WHERE ([c].[CustomerID] = [o].[CustomerID]) AND [o].[CustomerID] IS NOT NULL
-        ORDER BY [o].[OrderDate] DESC) DESC, [c].[CustomerID]
+        ORDER BY [o].[OrderDate] DESC) DESC
 ) AS [t]
 LEFT JOIN [Orders] AS [o0] ON [t].[CustomerID] = [o0].[CustomerID]
-ORDER BY [t].[c] DESC, [t].[CustomerID]");
+ORDER BY [t].[c] DESC, [t].[CustomerID], [o0].[OrderID]");
         }
 
         public override void Include_collection_order_by_key(bool useString)
@@ -305,7 +302,7 @@ ORDER BY [t].[c] DESC, [t].[CustomerID]");
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Customers] AS [c]
 LEFT JOIN [Orders] AS [o] ON [c].[CustomerID] = [o].[CustomerID]
-ORDER BY [c].[CustomerID]");
+ORDER BY [c].[CustomerID], [o].[OrderID]");
         }
 
         public override void Include_collection_order_by_non_key(bool useString)
@@ -316,7 +313,7 @@ ORDER BY [c].[CustomerID]");
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Customers] AS [c]
 LEFT JOIN [Orders] AS [o] ON [c].[CustomerID] = [o].[CustomerID]
-ORDER BY [c].[City], [c].[CustomerID]");
+ORDER BY [c].[City], [c].[CustomerID], [o].[OrderID]");
         }
 
         public override void Include_collection_order_by_non_key_with_take(bool useString)
@@ -330,10 +327,10 @@ SELECT [t].[CustomerID], [t].[Address], [t].[City], [t].[CompanyName], [t].[Cont
 FROM (
     SELECT TOP(@__p_0) [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
     FROM [Customers] AS [c]
-    ORDER BY [c].[ContactTitle], [c].[CustomerID]
+    ORDER BY [c].[ContactTitle]
 ) AS [t]
 LEFT JOIN [Orders] AS [o] ON [t].[CustomerID] = [o].[CustomerID]
-ORDER BY [t].[ContactTitle], [t].[CustomerID]");
+ORDER BY [t].[ContactTitle], [t].[CustomerID], [o].[OrderID]");
         }
 
         public override void Include_collection_order_by_non_key_with_skip(bool useString)
@@ -349,11 +346,11 @@ SELECT [t].[CustomerID], [t].[Address], [t].[City], [t].[CompanyName], [t].[Cont
 FROM (
     SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
     FROM [Customers] AS [c]
-    ORDER BY [c].[ContactTitle], [c].[CustomerID]
+    ORDER BY [c].[ContactTitle]
     OFFSET @__p_0 ROWS
 ) AS [t]
 LEFT JOIN [Orders] AS [o] ON [t].[CustomerID] = [o].[CustomerID]
-ORDER BY [t].[ContactTitle], [t].[CustomerID]");
+ORDER BY [t].[ContactTitle], [t].[CustomerID], [o].[OrderID]");
             }
         }
 
@@ -366,10 +363,10 @@ ORDER BY [t].[ContactTitle], [t].[CustomerID]");
 FROM (
     SELECT TOP(1) [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
     FROM [Customers] AS [c]
-    ORDER BY [c].[CompanyName] DESC, [c].[CustomerID]
+    ORDER BY [c].[CompanyName] DESC
 ) AS [t]
 LEFT JOIN [Orders] AS [o] ON [t].[CustomerID] = [o].[CustomerID]
-ORDER BY [t].[CompanyName] DESC, [t].[CustomerID]");
+ORDER BY [t].[CompanyName] DESC, [t].[CustomerID], [o].[OrderID]");
         }
 
         public override void Include_collection_order_by_subquery(bool useString)
@@ -390,10 +387,10 @@ FROM (
         SELECT TOP(1) [o].[OrderDate]
         FROM [Orders] AS [o]
         WHERE ([c].[CustomerID] = [o].[CustomerID]) AND [o].[CustomerID] IS NOT NULL
-        ORDER BY [o].[EmployeeID]), [c].[CustomerID]
+        ORDER BY [o].[EmployeeID])
 ) AS [t]
 LEFT JOIN [Orders] AS [o0] ON [t].[CustomerID] = [o0].[CustomerID]
-ORDER BY [t].[c], [t].[CustomerID]");
+ORDER BY [t].[c], [t].[CustomerID], [o0].[OrderID]");
         }
 
         public override void Include_collection_as_no_tracking(bool useString)
@@ -404,7 +401,7 @@ ORDER BY [t].[c], [t].[CustomerID]");
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Customers] AS [c]
 LEFT JOIN [Orders] AS [o] ON [c].[CustomerID] = [o].[CustomerID]
-ORDER BY [c].[CustomerID]");
+ORDER BY [c].[CustomerID], [o].[OrderID]");
         }
 
         public override void Include_collection_principal_already_tracked(bool useString)
@@ -421,10 +418,9 @@ FROM (
     SELECT TOP(2) [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
     FROM [Customers] AS [c]
     WHERE [c].[CustomerID] = N'ALFKI'
-    ORDER BY [c].[CustomerID]
 ) AS [t]
 LEFT JOIN [Orders] AS [o] ON [t].[CustomerID] = [o].[CustomerID]
-ORDER BY [t].[CustomerID]");
+ORDER BY [t].[CustomerID], [o].[OrderID]");
         }
 
         public override void Include_collection_principal_already_tracked_as_no_tracking(bool useString)
@@ -441,10 +437,9 @@ FROM (
     SELECT TOP(2) [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
     FROM [Customers] AS [c]
     WHERE [c].[CustomerID] = N'ALFKI'
-    ORDER BY [c].[CustomerID]
 ) AS [t]
 LEFT JOIN [Orders] AS [o] ON [t].[CustomerID] = [o].[CustomerID]
-ORDER BY [t].[CustomerID]");
+ORDER BY [t].[CustomerID], [o].[OrderID]");
         }
 
         public override void Include_collection_with_filter(bool useString)
@@ -456,7 +451,7 @@ ORDER BY [t].[CustomerID]");
 FROM [Customers] AS [c]
 LEFT JOIN [Orders] AS [o] ON [c].[CustomerID] = [o].[CustomerID]
 WHERE [c].[CustomerID] = N'ALFKI'
-ORDER BY [c].[CustomerID]");
+ORDER BY [c].[CustomerID], [o].[OrderID]");
         }
 
         public override void Include_collection_with_filter_reordered(bool useString)
@@ -468,7 +463,7 @@ ORDER BY [c].[CustomerID]");
 FROM [Customers] AS [c]
 LEFT JOIN [Orders] AS [o] ON [c].[CustomerID] = [o].[CustomerID]
 WHERE [c].[CustomerID] = N'ALFKI'
-ORDER BY [c].[CustomerID]");
+ORDER BY [c].[CustomerID], [o].[OrderID]");
         }
 
         public override void Include_collection_then_include_collection(bool useString)
@@ -483,7 +478,7 @@ LEFT JOIN (
     FROM [Orders] AS [o]
     LEFT JOIN [Order Details] AS [o0] ON [o].[OrderID] = [o0].[OrderID]
 ) AS [t] ON [c].[CustomerID] = [t].[CustomerID]
-ORDER BY [c].[CustomerID]");
+ORDER BY [c].[CustomerID], [t].[OrderID], [t].[OrderID0], [t].[ProductID]");
         }
 
         public override void Include_collection_then_include_collection_then_include_reference(bool useString)
@@ -491,7 +486,7 @@ ORDER BY [c].[CustomerID]");
             base.Include_collection_then_include_collection_then_include_reference(useString);
 
             AssertSql(
-    @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [t0].[OrderID], [t0].[CustomerID], [t0].[EmployeeID], [t0].[OrderDate], [t0].[OrderID0], [t0].[ProductID], [t0].[Discount], [t0].[Quantity], [t0].[UnitPrice], [t0].[ProductID0], [t0].[Discontinued], [t0].[ProductName], [t0].[SupplierID], [t0].[UnitPrice0], [t0].[UnitsInStock]
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [t0].[OrderID], [t0].[CustomerID], [t0].[EmployeeID], [t0].[OrderDate], [t0].[OrderID0], [t0].[ProductID], [t0].[Discount], [t0].[Quantity], [t0].[UnitPrice], [t0].[ProductID0], [t0].[Discontinued], [t0].[ProductName], [t0].[SupplierID], [t0].[UnitPrice0], [t0].[UnitsInStock]
 FROM [Customers] AS [c]
 LEFT JOIN (
     SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate], [t].[OrderID] AS [OrderID0], [t].[ProductID], [t].[Discount], [t].[Quantity], [t].[UnitPrice], [t].[ProductID0], [t].[Discontinued], [t].[ProductName], [t].[SupplierID], [t].[UnitPrice0], [t].[UnitsInStock]
@@ -502,7 +497,7 @@ LEFT JOIN (
         INNER JOIN [Products] AS [p] ON [o0].[ProductID] = [p].[ProductID]
     ) AS [t] ON [o].[OrderID] = [t].[OrderID]
 ) AS [t0] ON [c].[CustomerID] = [t0].[CustomerID]
-ORDER BY [c].[CustomerID]");
+ORDER BY [c].[CustomerID], [t0].[OrderID], [t0].[OrderID0], [t0].[ProductID], [t0].[ProductID0]");
         }
 
         public override void Include_collection_when_projection(bool useString)
@@ -524,7 +519,7 @@ FROM [Customers] AS [c]
 INNER JOIN [Orders] AS [o] ON [c].[CustomerID] = [o].[CustomerID]
 LEFT JOIN [Orders] AS [o0] ON [c].[CustomerID] = [o0].[CustomerID]
 WHERE [c].[CustomerID] = N'ALFKI'
-ORDER BY [c].[CustomerID], [o].[OrderID]");
+ORDER BY [c].[CustomerID], [o].[OrderID], [o0].[OrderID]");
         }
 
         public override void Include_collection_on_additional_from_clause_with_filter(bool useString)
@@ -540,7 +535,7 @@ CROSS JOIN (
     WHERE [c].[CustomerID] = N'ALFKI'
 ) AS [t]
 LEFT JOIN [Orders] AS [o] ON [t].[CustomerID] = [o].[CustomerID]
-ORDER BY [c0].[CustomerID], [t].[CustomerID]");
+ORDER BY [c0].[CustomerID], [t].[CustomerID], [o].[OrderID]");
         }
 
         public override void Include_collection_on_additional_from_clause(bool useString)
@@ -558,7 +553,7 @@ FROM (
 ) AS [t]
 CROSS JOIN [Customers] AS [c]
 LEFT JOIN [Orders] AS [o] ON [c].[CustomerID] = [o].[CustomerID]
-ORDER BY [t].[CustomerID], [c].[CustomerID]");
+ORDER BY [t].[CustomerID], [c].[CustomerID], [o].[OrderID]");
         }
 
         public override void Include_duplicate_collection(bool useString)
@@ -568,7 +563,7 @@ ORDER BY [t].[CustomerID], [c].[CustomerID]");
             if (SupportsOffset)
             {
                 AssertSql(
-    @"@__p_0='2'
+                    @"@__p_0='2'
 
 SELECT [t].[CustomerID], [t].[Address], [t].[City], [t].[CompanyName], [t].[ContactName], [t].[ContactTitle], [t].[Country], [t].[Fax], [t].[Phone], [t].[PostalCode], [t].[Region], [t0].[CustomerID], [t0].[Address], [t0].[City], [t0].[CompanyName], [t0].[ContactName], [t0].[ContactTitle], [t0].[Country], [t0].[Fax], [t0].[Phone], [t0].[PostalCode], [t0].[Region], [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate], [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate]
 FROM (
@@ -584,7 +579,7 @@ CROSS JOIN (
 ) AS [t0]
 LEFT JOIN [Orders] AS [o] ON [t].[CustomerID] = [o].[CustomerID]
 LEFT JOIN [Orders] AS [o0] ON [t0].[CustomerID] = [o0].[CustomerID]
-ORDER BY [t].[CustomerID], [t0].[CustomerID]");
+ORDER BY [t].[CustomerID], [t0].[CustomerID], [o].[OrderID], [o0].[OrderID]");
             }
         }
 
@@ -612,11 +607,11 @@ FROM (
         ORDER BY [c0].[CustomerID]
         OFFSET 2 ROWS FETCH NEXT 2 ROWS ONLY
     ) AS [t0]
-    ORDER BY [t].[CustomerID], [t0].[CustomerID]
+    ORDER BY [t].[CustomerID]
 ) AS [t1]
 LEFT JOIN [Orders] AS [o] ON [t1].[CustomerID] = [o].[CustomerID]
 LEFT JOIN [Orders] AS [o0] ON [t1].[CustomerID0] = [o0].[CustomerID]
-ORDER BY [t1].[CustomerID], [t1].[CustomerID0]");
+ORDER BY [t1].[CustomerID], [t1].[CustomerID0], [o].[OrderID], [o0].[OrderID]");
             }
         }
 
@@ -630,7 +625,7 @@ FROM [Customers] AS [c]
 INNER JOIN [Orders] AS [o] ON [c].[CustomerID] = [o].[CustomerID]
 LEFT JOIN [Orders] AS [o0] ON [c].[CustomerID] = [o0].[CustomerID]
 WHERE [c].[CustomerID] = N'ALFKI'
-ORDER BY [c].[City], [c].[CustomerID], [o].[OrderID]");
+ORDER BY [c].[City], [c].[CustomerID], [o].[OrderID], [o0].[OrderID]");
         }
 
         public override void Include_collection_when_groupby(bool useString)
@@ -749,10 +744,10 @@ FROM (
         ORDER BY [c0].[CustomerID]
         OFFSET 2 ROWS FETCH NEXT 2 ROWS ONLY
     ) AS [t0]
-    ORDER BY [t].[CustomerID], [t0].[CustomerID]
+    ORDER BY [t].[CustomerID]
 ) AS [t1]
 LEFT JOIN [Orders] AS [o] ON [t1].[CustomerID] = [o].[CustomerID]
-ORDER BY [t1].[CustomerID], [t1].[CustomerID0]");
+ORDER BY [t1].[CustomerID], [t1].[CustomerID0], [o].[OrderID]");
             }
         }
 
@@ -901,10 +896,9 @@ FROM (
     SELECT TOP(2) [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
     FROM [Customers] AS [c]
     WHERE [c].[CustomerID] = N'ALFKI'
-    ORDER BY [c].[CustomerID]
 ) AS [t]
 LEFT JOIN [Orders] AS [o] ON [t].[CustomerID] = [o].[CustomerID]
-ORDER BY [t].[CustomerID]");
+ORDER BY [t].[CustomerID], [o].[OrderID]");
         }
 
         public override void Include_collection_dependent_already_tracked(bool useString)
@@ -921,10 +915,9 @@ FROM (
     SELECT TOP(2) [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
     FROM [Customers] AS [c]
     WHERE [c].[CustomerID] = N'ALFKI'
-    ORDER BY [c].[CustomerID]
 ) AS [t]
 LEFT JOIN [Orders] AS [o] ON [t].[CustomerID] = [o].[CustomerID]
-ORDER BY [t].[CustomerID]");
+ORDER BY [t].[CustomerID], [o].[OrderID]");
         }
 
         public override void Include_reference_dependent_already_tracked(bool useString)
@@ -965,7 +958,7 @@ FROM (
     ORDER BY [c].[CustomerID]
 ) AS [t]
 LEFT JOIN [Orders] AS [o] ON [t].[CustomerID] = [o].[CustomerID]
-ORDER BY [t].[CustomerID]");
+ORDER BY [t].[CustomerID], [o].[OrderID]");
         }
 
         public override void Include_with_complex_projection(bool useString)
@@ -1006,10 +999,10 @@ SELECT [t].[CustomerID], [t].[Address], [t].[City], [t].[CompanyName], [t].[Cont
 FROM (
     SELECT TOP(@__p_0) [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
     FROM [Customers] AS [c]
-    ORDER BY [c].[City] DESC, [c].[CustomerID]
+    ORDER BY [c].[City] DESC
 ) AS [t]
 LEFT JOIN [Orders] AS [o] ON [t].[CustomerID] = [o].[CustomerID]
-ORDER BY [t].[City] DESC, [t].[CustomerID]");
+ORDER BY [t].[City] DESC, [t].[CustomerID], [o].[OrderID]");
         }
 
         public override void Include_with_skip(bool useString)
@@ -1025,11 +1018,11 @@ SELECT [t].[CustomerID], [t].[Address], [t].[City], [t].[CompanyName], [t].[Cont
 FROM (
     SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
     FROM [Customers] AS [c]
-    ORDER BY [c].[ContactName], [c].[CustomerID]
+    ORDER BY [c].[ContactName]
     OFFSET @__p_0 ROWS
 ) AS [t]
 LEFT JOIN [Orders] AS [o] ON [t].[CustomerID] = [o].[CustomerID]
-ORDER BY [t].[ContactName], [t].[CustomerID]");
+ORDER BY [t].[ContactName], [t].[CustomerID], [o].[OrderID]");
             }
         }
 
@@ -1051,14 +1044,14 @@ FROM (
         SELECT TOP(1) [o].[OrderDate]
         FROM [Orders] AS [o]
         WHERE ([c].[CustomerID] = [o].[CustomerID]) AND [o].[CustomerID] IS NOT NULL
-        ORDER BY [o].[OrderDate] DESC) DESC, [c].[CustomerID]
+        ORDER BY [o].[OrderDate] DESC) DESC
 ) AS [t]
 LEFT JOIN (
     SELECT [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate], [o1].[OrderID] AS [OrderID0], [o1].[ProductID], [o1].[Discount], [o1].[Quantity], [o1].[UnitPrice]
     FROM [Orders] AS [o0]
     LEFT JOIN [Order Details] AS [o1] ON [o0].[OrderID] = [o1].[OrderID]
 ) AS [t0] ON [t].[CustomerID] = [t0].[CustomerID]
-ORDER BY [t].[c] DESC, [t].[CustomerID]");
+ORDER BY [t].[c] DESC, [t].[CustomerID], [t0].[OrderID], [t0].[OrderID0], [t0].[ProductID]");
         }
 
         public override void Include_collection_with_conditional_order_by(bool useString)
@@ -1072,7 +1065,7 @@ LEFT JOIN [Orders] AS [o] ON [c].[CustomerID] = [o].[CustomerID]
 ORDER BY CASE
     WHEN [c].[CustomerID] LIKE N'S%' THEN 1
     ELSE 2
-END, [c].[CustomerID]");
+END, [c].[CustomerID], [o].[OrderID]");
         }
 
         public override void Include_reference_distinct_is_server_evaluated(bool useString)
@@ -1101,7 +1094,7 @@ FROM (
     WHERE [c].[CustomerID] LIKE N'A%'
 ) AS [t]
 LEFT JOIN [Orders] AS [o] ON [t].[CustomerID] = [o].[CustomerID]
-ORDER BY [t].[CustomerID]");
+ORDER BY [t].[CustomerID], [o].[OrderID]");
         }
 
         public override void Include_collection_OrderBy_object(bool useString)
@@ -1113,7 +1106,7 @@ ORDER BY [t].[CustomerID]");
 FROM [Orders] AS [o]
 LEFT JOIN [Order Details] AS [o0] ON [o].[OrderID] = [o0].[OrderID]
 WHERE [o].[OrderID] < 10250
-ORDER BY [o].[OrderID]");
+ORDER BY [o].[OrderID], [o0].[OrderID], [o0].[ProductID]");
         }
 
         public override void Include_collection_OrderBy_empty_list_contains(bool useString)
@@ -1188,11 +1181,11 @@ FROM (
     ORDER BY CASE
         WHEN [c].[CustomerID] IN (N'ALFKI') THEN CAST(1 AS bit)
         ELSE CAST(0 AS bit)
-    END, [c].[CustomerID]
+    END
     OFFSET @__p_1 ROWS
 ) AS [t]
 LEFT JOIN [Orders] AS [o] ON [t].[CustomerID] = [o].[CustomerID]
-ORDER BY [t].[c], [t].[CustomerID]");
+ORDER BY [t].[c], [t].[CustomerID], [o].[OrderID]");
         }
 
         public override void Include_collection_OrderBy_list_does_not_contains(bool useString)
@@ -1213,11 +1206,11 @@ FROM (
     ORDER BY CASE
         WHEN [c].[CustomerID] NOT IN (N'ALFKI') THEN CAST(1 AS bit)
         ELSE CAST(0 AS bit)
-    END, [c].[CustomerID]
+    END
     OFFSET @__p_1 ROWS
 ) AS [t]
 LEFT JOIN [Orders] AS [o] ON [t].[CustomerID] = [o].[CustomerID]
-ORDER BY [t].[c], [t].[CustomerID]");
+ORDER BY [t].[c], [t].[CustomerID], [o].[OrderID]");
         }
 
         private void AssertSql(params string[] expected)

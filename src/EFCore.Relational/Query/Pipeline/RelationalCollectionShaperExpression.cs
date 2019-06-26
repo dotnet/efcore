@@ -41,7 +41,6 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
 
         protected override Expression VisitChildren(ExpressionVisitor visitor)
         {
-            // Projection is always null so we do not need to visit it.
             var parentIdentifier = visitor.Visit(ParentIdentifier);
             var outerIdentifier = visitor.Visit(OuterIdentifier);
             var selfIdentifier = visitor.Visit(SelfIdentifier);

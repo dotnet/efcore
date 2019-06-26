@@ -85,6 +85,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
                 int collectionId,
                 QueryContext queryContext,
                 DbDataReader dbDataReader,
+                Func<QueryContext, DbDataReader, object[]> parentIdentifier,
                 Func<QueryContext, DbDataReader, object[]> outerIdentifier,
                 Func<QueryContext, DbDataReader, object[]> selfIdentifier,
                 Func<QueryContext, DbDataReader, TIncludedEntity, ResultCoordinator, TIncludedEntity> innerShaper,
@@ -104,30 +105,34 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
 
                 var entity = (TIncludingEntity)parent;
 
-                var outerKey = outerIdentifier(queryContext, dbDataReader);
                 if (!StructuralComparisons.StructuralEqualityComparer.Equals(
-                        outerKey, collectionMaterializationContext.OuterIdentifier))
+                    outerIdentifier(queryContext, dbDataReader), collectionMaterializationContext.OuterIdentifier))
                 {
-                    resultCoordinator.HasNext = true;
+                    if (StructuralComparisons.StructuralEqualityComparer.Equals(
+                        parentIdentifier(queryContext, dbDataReader), collectionMaterializationContext.ParentIdentifier))
+                    {
+                        resultCoordinator.ResultReady = false;
+                    }
+                    else
+                    {
+                        resultCoordinator.HasNext = true;
+                    }
 
                     return;
                 }
 
                 var innerKey = selfIdentifier(queryContext, dbDataReader);
-                TIncludedEntity current;
                 if (StructuralComparisons.StructuralEqualityComparer.Equals(
                         innerKey, collectionMaterializationContext.SelfIdentifier))
                 {
-                    current = (TIncludedEntity)collectionMaterializationContext.Current;
-                }
-                else
-                {
-                    current = default;
-                    collectionMaterializationContext.SelfIdentifier = innerKey;
+                    // We don't need to materialize this entity but we may need to populate inner collections if any.
+                    innerShaper(queryContext, dbDataReader, (TIncludedEntity)collectionMaterializationContext.Current, resultCoordinator);
+
+                    return;
                 }
 
-                var relatedEntity = innerShaper(queryContext, dbDataReader, current, resultCoordinator);
-                collectionMaterializationContext.UpdateCurrent(relatedEntity);
+                var relatedEntity = innerShaper(queryContext, dbDataReader, default, resultCoordinator);
+                collectionMaterializationContext.UpdateCurrent(relatedEntity, innerKey);
                 if (relatedEntity is null)
                 {
                     return;
@@ -155,6 +160,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
                 DbDataReader dbDataReader,
                 ResultCoordinator resultCoordinator,
                 TEntity entity,
+                Func<QueryContext, DbDataReader, object[]> parentIdenfier,
                 Func<QueryContext, DbDataReader, object[]> outerIdentifier,
                 INavigation navigation,
                 IClrCollectionAccessor clrCollectionAccessor,
@@ -177,17 +183,12 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
                     collection = clrCollectionAccessor.GetOrCreate(entity);
                 }
 
+                var parentKey = parentIdenfier(queryContext, dbDataReader);
                 var outerKey = outerIdentifier(queryContext, dbDataReader);
 
-                var collectionMaterializationContext = new CollectionMaterializationContext(entity, collection, outerKey);
-                if (resultCoordinator.Collections.Count == collectionId)
-                {
-                    resultCoordinator.Collections.Add(collectionMaterializationContext);
-                }
-                else
-                {
-                    resultCoordinator.Collections[collectionId] = collectionMaterializationContext;
-                }
+                var collectionMaterializationContext = new CollectionMaterializationContext(entity, collection, parentKey, outerKey);
+
+                resultCoordinator.SetCollectionMaterializationContext(collectionId, collectionMaterializationContext);
             }
 
             private static void SetIsLoadedNoTracking(object entity, INavigation navigation)
@@ -244,6 +245,11 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
                         collectionInitializingExperssion.Parent,
                         Expression.Constant(
                             Expression.Lambda(
+                                collectionInitializingExperssion.ParentIdentifier,
+                                QueryCompilationContext.QueryContextParameter,
+                                _dbDataReaderParameter).Compile()),
+                        Expression.Constant(
+                            Expression.Lambda(
                                 collectionInitializingExperssion.OuterIdentifier,
                                 QueryCompilationContext.QueryContextParameter,
                                 _dbDataReaderParameter).Compile()),
@@ -266,6 +272,11 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
                         Expression.Constant(collectionShaper.CollectionId),
                         QueryCompilationContext.QueryContextParameter,
                         _dbDataReaderParameter,
+                        Expression.Constant(
+                            Expression.Lambda(
+                                collectionShaper.ParentIdentifier,
+                                QueryCompilationContext.QueryContextParameter,
+                                _dbDataReaderParameter).Compile()),
                         Expression.Constant(
                             Expression.Lambda(
                                 collectionShaper.OuterIdentifier,

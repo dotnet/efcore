@@ -375,7 +375,7 @@ INSERT [dbo].[Postcodes] ([PostcodeID], [PostcodeValue], [TownName]) VALUES (5, 
                         @"SELECT [c].[FirstName], [c].[LastName], [o].[Id], [o].[CustomerFirstName], [o].[CustomerLastName], [o].[Name]
 FROM [Customer] AS [c]
 LEFT JOIN [Order] AS [o] ON (([c].[FirstName] = [o].[CustomerFirstName]) AND [o].[CustomerFirstName] IS NOT NULL) AND (([c].[LastName] = [o].[CustomerLastName]) AND [o].[CustomerLastName] IS NOT NULL)
-ORDER BY [c].[FirstName], [c].[LastName]");
+ORDER BY [c].[FirstName], [c].[LastName], [o].[Id]");
                 }
             }
         }

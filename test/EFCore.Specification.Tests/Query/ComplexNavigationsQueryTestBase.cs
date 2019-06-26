@@ -6263,5 +6263,20 @@ namespace Microsoft.EntityFrameworkCore.Query
                     () => Maybe(l1s.OneToMany_Optional1.OrderBy(l2 => MaybeScalar<int>(l2, () => l2.Id)).FirstOrDefault().OneToMany_Optional2.OrderBy(l3 => l3.Id).FirstOrDefault(),
                         () => l1s.OneToMany_Optional1.OrderBy(l2 => MaybeScalar<int>(l2, () => l2.Id)).FirstOrDefault().OneToMany_Optional2.OrderBy(l3 => l3.Id).FirstOrDefault().Name))));
         }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Include_multiple_collections_on_same_level(bool isAsync)
+        {
+            return AssertIncludeQuery<Level1>(
+                isAsync,
+                l1s => l1s.Include(l1 => l1.OneToMany_Optional1).Include(l1 => l1.OneToMany_Required1),
+                new List<IExpectedInclude>
+                {
+                    new ExpectedInclude<Level1>(l1 => l1.OneToMany_Optional1, "OneToMany_Optional1"),
+                    new ExpectedInclude<Level1>(l1 => l1.OneToMany_Required1, "OneToMany_Required1")
+                },
+                assertOrder: true);
+        }
     }
 }

@@ -134,6 +134,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
                     _expressions.Add(new CollectionInitializingExperssion(
                         relationalCollectionShaperExpression.CollectionId,
                         entity,
+                        relationalCollectionShaperExpression.ParentIdentifier,
                         relationalCollectionShaperExpression.OuterIdentifier,
                         includeExpression.Navigation));
 
@@ -168,10 +169,12 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
 
     public class CollectionInitializingExperssion : Expression, IPrintable
     {
-        public CollectionInitializingExperssion(int collectionId, Expression parent, Expression outerIdentifier, INavigation navigation)
+        public CollectionInitializingExperssion(
+            int collectionId, Expression parent, Expression parentIdentifier, Expression outerIdentifier, INavigation navigation)
         {
             CollectionId = collectionId;
             Parent = parent;
+            ParentIdentifier = parentIdentifier;
             OuterIdentifier = outerIdentifier;
             Navigation = navigation;
         }
@@ -179,10 +182,11 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
         protected override Expression VisitChildren(ExpressionVisitor visitor)
         {
             var parent = visitor.Visit(Parent);
+            var parentIdentifier = visitor.Visit(ParentIdentifier);
             var outerIdentifier = visitor.Visit(OuterIdentifier);
 
-            return parent != Parent || outerIdentifier != OuterIdentifier
-                ? new CollectionInitializingExperssion(CollectionId, parent, outerIdentifier, Navigation)
+            return parent != Parent || parentIdentifier != ParentIdentifier || outerIdentifier != OuterIdentifier
+                ? new CollectionInitializingExperssion(CollectionId, parent, parentIdentifier, outerIdentifier, Navigation)
                 : this;
         }
 
@@ -196,6 +200,9 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
                 expressionPrinter.StringBuilder.Append("Parent:");
                 expressionPrinter.Visit(Parent);
                 expressionPrinter.StringBuilder.AppendLine();
+                expressionPrinter.StringBuilder.Append("ParentIdentifier:");
+                expressionPrinter.Visit(ParentIdentifier);
+                expressionPrinter.StringBuilder.AppendLine();
                 expressionPrinter.StringBuilder.Append("OuterIdentifier:");
                 expressionPrinter.Visit(OuterIdentifier);
                 expressionPrinter.StringBuilder.AppendLine();
@@ -208,6 +215,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
 
         public int CollectionId { get; }
         public Expression Parent { get; }
+        public Expression ParentIdentifier { get; }
         public Expression OuterIdentifier { get; }
         public INavigation Navigation { get; }
     }

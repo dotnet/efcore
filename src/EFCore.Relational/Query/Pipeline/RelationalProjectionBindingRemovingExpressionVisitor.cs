@@ -138,7 +138,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
                     = Expression.Call(
                         getMethod.DeclaringType != typeof(DbDataReader)
                             ? Expression.Convert(dbDataReader, getMethod.DeclaringType)
-                            : (Expression)dbDataReader,
+                            : dbDataReader,
                         getMethod,
                         indexExpression);
 

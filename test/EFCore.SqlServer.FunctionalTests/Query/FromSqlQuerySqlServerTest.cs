@@ -361,7 +361,7 @@ FROM (
     SELECT * FROM ""Customers""
 ) AS [c]
 LEFT JOIN [Orders] AS [o] ON [c].[CustomerID] = [o].[CustomerID]
-ORDER BY [c].[CustomerID]");
+ORDER BY [c].[CustomerID], [o].[OrderID]");
         }
 
         public override void FromSqlRaw_queryable_simple_composed_include()
@@ -375,7 +375,7 @@ FROM (
 ) AS [c]
 LEFT JOIN [Orders] AS [o] ON [c].[CustomerID] = [o].[CustomerID]
 WHERE ([c].[City] = N'London') AND [c].[City] IS NOT NULL
-ORDER BY [c].[CustomerID]");
+ORDER BY [c].[CustomerID], [o].[OrderID]");
         }
 
         public override void FromSqlRaw_annotations_do_not_affect_successive_calls()
@@ -455,7 +455,7 @@ CROSS JOIN (
     SELECT * FROM ""Customers"" WHERE ""CustomerID"" = 'AROUT'
 ) AS [c0]
 LEFT JOIN [Orders] AS [o] ON [c0].[CustomerID] = [o].[CustomerID]
-ORDER BY [c].[CustomerID], [c0].[CustomerID]");
+ORDER BY [c].[CustomerID], [c0].[CustomerID], [o].[OrderID]");
         }
 
         public override void FromSqlRaw_with_join_and_include()
@@ -471,7 +471,7 @@ INNER JOIN (
     SELECT * FROM ""Orders"" WHERE ""OrderID"" <> 1
 ) AS [o] ON [c].[CustomerID] = [o].[CustomerID]
 LEFT JOIN [Order Details] AS [o0] ON [o].[OrderID] = [o0].[OrderID]
-ORDER BY [c].[CustomerID], [o].[OrderID]");
+ORDER BY [c].[CustomerID], [o].[OrderID], [o0].[OrderID], [o0].[ProductID]");
         }
 
         public override void FromSqlInterpolated_with_inlined_db_parameter()

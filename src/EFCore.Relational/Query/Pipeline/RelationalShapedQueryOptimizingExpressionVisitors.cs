@@ -49,10 +49,15 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
             if (extensionExpression is CollectionShaperExpression collectionShaperExpression)
             {
                 var collectionId = _collectionId++;
+                var selectExpression = (SelectExpression)collectionShaperExpression.Projection.QueryExpression;
+                // Do pushdown beforehand so it updates all pending collections first
+                if (selectExpression.IsDistinct || selectExpression.Limit != null || selectExpression.Offset != null)
+                {
+                    selectExpression.PushdownIntoSubquery();
+                }
 
                 var innerShaper = Visit(collectionShaperExpression.InnerShaper);
 
-                var selectExpression = (SelectExpression)collectionShaperExpression.Projection.QueryExpression;
                 return selectExpression.ApplyCollectionJoin(
                     collectionShaperExpression.Projection.Index.Value,
                     collectionId,

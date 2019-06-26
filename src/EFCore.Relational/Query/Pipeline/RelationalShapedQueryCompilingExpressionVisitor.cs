@@ -117,28 +117,41 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
             public bool ResultReady { get; set; }
             public bool? HasNext { get; set; }
             public IList<CollectionMaterializationContext> Collections { get; } = new List<CollectionMaterializationContext>();
-            public object[] OuterKeyValues { get; set; }
-            public object[] InnerKeyValues { get; set; }
+
+            public void SetCollectionMaterializationContext(
+                int collectionId, CollectionMaterializationContext collectionMaterializationContext)
+            {
+                while (Collections.Count <= collectionId)
+                {
+                    Collections.Add(null);
+                }
+
+                Collections[collectionId] = collectionMaterializationContext;
+            }
+
         }
 
         private class CollectionMaterializationContext
         {
-            public CollectionMaterializationContext(object parent, object collection, object[] outerIdentifier)
+            public CollectionMaterializationContext(object parent, object collection, object[] parentIdentifier, object[] outerIdentifier)
             {
                 Parent = parent;
                 Collection = collection;
+                ParentIdentifier = parentIdentifier;
                 OuterIdentifier = outerIdentifier;
             }
 
             public object Parent { get; }
             public object Collection { get; }
             public object Current { get; private set; }
+            public object[] ParentIdentifier { get; }
             public object[] OuterIdentifier { get; }
-            public object[] SelfIdentifier { get; set; }
+            public object[] SelfIdentifier { get; private set; }
 
-            public void UpdateCurrent(object current)
+            public void UpdateCurrent(object current, object[] selfIdentifier)
             {
                 Current = current;
+                SelfIdentifier = selfIdentifier;
             }
         }
     }

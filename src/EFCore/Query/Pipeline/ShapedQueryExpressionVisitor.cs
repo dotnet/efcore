@@ -141,6 +141,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Pipeline
                 {
                     throw new InvalidOperationException();
                 }
+
                 return result;
             }
         }
