@@ -1153,7 +1153,7 @@ WHERE [c].[CustomerID] = N'ALFKI'");
             AssertSql(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE (CAST(LEN([c].[CustomerID]) AS int) = 5) AND CAST(LEN([c].[CustomerID]) AS int) IS NOT NULL");
+WHERE CAST(LEN([c].[CustomerID]) AS int) = 5");
         }
 
         public override async Task Queryable_simple(bool isAsync)

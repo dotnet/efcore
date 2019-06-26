@@ -171,6 +171,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Pipeline
 
         private SqlFunctionExpression VisitSqlFunctionExpression(SqlFunctionExpression sqlFunctionExpression)
         {
+            _isNullable = false;
             var newInstance = (SqlExpression)Visit(sqlFunctionExpression.Instance);
             var isNullable = _isNullable;
             var newArguments = new SqlExpression[sqlFunctionExpression.Arguments.Count];
