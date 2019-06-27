@@ -39,7 +39,6 @@ namespace Microsoft.Extensions.DependencyInjection
                 .TryAdd<ITypeMappingSource, CosmosTypeMappingSource>()
 
                 // New Query pipeline
-                .TryAdd<IEntityQueryableTranslatorFactory, CosmosEntityQueryableTranslatorFactory>()
                 .TryAdd<IQueryableMethodTranslatingExpressionVisitorFactory, CosmosQueryableMethodTranslatingExpressionVisitorFactory>()
                 .TryAdd<IShapedQueryCompilingExpressionVisitorFactory, CosmosShapedQueryCompilingExpressionVisitorFactory>()
 

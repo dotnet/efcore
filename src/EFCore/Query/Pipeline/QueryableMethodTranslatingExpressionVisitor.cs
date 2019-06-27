@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -14,15 +13,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Pipeline
 {
     public abstract class QueryableMethodTranslatingExpressionVisitor : ExpressionVisitor
     {
-        protected override Expression VisitExtension(Expression extensionExpression)
-        {
-            if (extensionExpression is ShapedQueryExpression)
-            {
-                return extensionExpression;
-            }
-
-            return base.VisitExtension(extensionExpression);
-        }
+        protected override Expression VisitConstant(ConstantExpression constantExpression)
+            => constantExpression.IsEntityQueryable()
+                ? CreateShapedQueryExpression(((IQueryable)constantExpression.Value).ElementType)
+                : base.VisitConstant(constantExpression);
 
         protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
         {
@@ -565,6 +559,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Pipeline
             return Expression.Field(targetExpression, fieldInfo);
         }
 
+        protected abstract ShapedQueryExpression CreateShapedQueryExpression(Type elementType);
         protected abstract ShapedQueryExpression TranslateAll(ShapedQueryExpression source, LambdaExpression predicate);
         protected abstract ShapedQueryExpression TranslateAny(ShapedQueryExpression source, LambdaExpression predicate);
         protected abstract ShapedQueryExpression TranslateAverage(ShapedQueryExpression source, LambdaExpression selector, Type resultType);
@@ -602,7 +597,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Pipeline
         protected abstract ShapedQueryExpression TranslateUnion(ShapedQueryExpression source1, ShapedQueryExpression source2);
         protected abstract ShapedQueryExpression TranslateWhere(ShapedQueryExpression source, LambdaExpression predicate);
         public abstract ShapedQueryExpression TranslateSubquery(Expression expression);
-
     }
 
     public readonly struct TransparentIdentifier<TOuter, TInner>

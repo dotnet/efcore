@@ -11,7 +11,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Pipeline
     {
         private readonly IModel _model;
         private readonly IQueryOptimizerFactory _queryOptimizerFactory;
-        private readonly IEntityQueryableTranslatorFactory _entityQueryableTranslatorFactory;
         private readonly IQueryableMethodTranslatingExpressionVisitorFactory _queryableMethodTranslatingExpressionVisitorFactory;
         private readonly IShapedQueryOptimizerFactory _shapedQueryOptimizerFactory;
         private readonly IShapedQueryCompilingExpressionVisitorFactory _shapedQueryCompilingExpressionVisitorFactory;
@@ -22,7 +21,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Pipeline
         public QueryCompilationContextFactory(
             IModel model,
             IQueryOptimizerFactory queryOptimizerFactory,
-            IEntityQueryableTranslatorFactory entityQueryableTranslatorFactory,
             IQueryableMethodTranslatingExpressionVisitorFactory queryableMethodTranslatingExpressionVisitorFactory,
             IShapedQueryOptimizerFactory shapedQueryOptimizerFactory,
             IShapedQueryCompilingExpressionVisitorFactory shapedQueryCompilingExpressionVisitorFactory,
@@ -32,7 +30,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Pipeline
         {
             _model = model;
             _queryOptimizerFactory = queryOptimizerFactory;
-            _entityQueryableTranslatorFactory = entityQueryableTranslatorFactory;
             _queryableMethodTranslatingExpressionVisitorFactory = queryableMethodTranslatingExpressionVisitorFactory;
             _shapedQueryOptimizerFactory = shapedQueryOptimizerFactory;
             _shapedQueryCompilingExpressionVisitorFactory = shapedQueryCompilingExpressionVisitorFactory;
@@ -46,7 +43,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Pipeline
             var queryCompilationContext = new QueryCompilationContext(
                 _model,
                 _queryOptimizerFactory,
-                _entityQueryableTranslatorFactory,
                 _queryableMethodTranslatingExpressionVisitorFactory,
                 _shapedQueryOptimizerFactory,
                 _shapedQueryCompilingExpressionVisitorFactory,

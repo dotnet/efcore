@@ -10,7 +10,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Pipeline
     {
         public QueryableMethodTranslatingExpressionVisitor Create(IModel model)
         {
-            return new InMemoryQueryableMethodTranslatingExpressionVisitor();
+            return new InMemoryQueryableMethodTranslatingExpressionVisitor(model);
         }
     }
 }

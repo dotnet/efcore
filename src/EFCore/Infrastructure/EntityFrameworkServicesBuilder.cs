@@ -136,7 +136,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 // New Query related services
                 { typeof(IQueryCompilationContextFactory), new ServiceCharacteristics(ServiceLifetime.Scoped) },
                 { typeof(IQueryOptimizerFactory), new ServiceCharacteristics(ServiceLifetime.Scoped) },
-                { typeof(IEntityQueryableTranslatorFactory), new ServiceCharacteristics(ServiceLifetime.Scoped) },
                 { typeof(IQueryableMethodTranslatingExpressionVisitorFactory), new ServiceCharacteristics(ServiceLifetime.Scoped) },
                 { typeof(IShapedQueryOptimizerFactory), new ServiceCharacteristics(ServiceLifetime.Scoped) },
                 { typeof(IShapedQueryCompilingExpressionVisitorFactory), new ServiceCharacteristics(ServiceLifetime.Scoped) },

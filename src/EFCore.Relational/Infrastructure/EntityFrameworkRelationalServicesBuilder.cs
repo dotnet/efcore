@@ -168,7 +168,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             TryAdd<IQueryableMethodTranslatingExpressionVisitorFactory, RelationalQueryableMethodTranslatingExpressionVisitorFactory>();
             TryAdd<IMethodCallTranslatorProvider, RelationalMethodCallTranslatorProvider>();
             TryAdd<IMemberTranslatorProvider, RelationalMemberTranslatorProvider>();
-            TryAdd<IEntityQueryableTranslatorFactory, RelationalEntityQueryableTranslatorFactory>();
             TryAdd<IShapedQueryOptimizerFactory, RelationalShapedQueryOptimizerFactory>();
             TryAdd<IRelationalSqlTranslatingExpressionVisitorFactory, RelationalSqlTranslatingExpressionVisitorFactory>();
             TryAdd<ISqlExpressionFactory, SqlExpressionFactory>();
