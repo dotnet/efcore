@@ -745,7 +745,7 @@ namespace Microsoft.EntityFrameworkCore
                 async (c, s, ct) =>
                 {
                     Check.NotNull(beginTransaction, nameof(beginTransaction));
-                    using (var transaction = await beginTransaction(c, cancellationToken))
+                    await using (var transaction = await beginTransaction(c, cancellationToken))
                     {
                         s.CommitFailed = false;
                         s.Result = await s.Operation(s.State, ct);

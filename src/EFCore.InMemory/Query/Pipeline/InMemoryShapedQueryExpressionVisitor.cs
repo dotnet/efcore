@@ -11,6 +11,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.InMemory.Query.Internal;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Query.Internal;
@@ -255,10 +256,10 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Pipeline
 
                 public ValueTask DisposeAsync()
                 {
-                    _enumerator?.Dispose();
+                    var enumerator = _enumerator;
                     _enumerator = null;
 
-                    return default;
+                    return enumerator.DisposeAsyncIfAvailable();
                 }
             }
         }

@@ -100,7 +100,7 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
             // gets a chance to use the new new value, so use a while here to do it all again.
             while (newValue.Low >= newValue.High)
             {
-                using (await _asyncLock.LockAsync())
+                using (await _asyncLock.LockAsync(cancellationToken))
                 {
                     // Once inside the lock check to see if another thread already got a new block, in which
                     // case just get a value out of the new block instead of requesting one.

@@ -161,7 +161,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
             {
                 if (startedTransaction != null)
                 {
-                    startedTransaction.Dispose();
+                    await startedTransaction.DisposeAsync();
                 }
                 else
                 {

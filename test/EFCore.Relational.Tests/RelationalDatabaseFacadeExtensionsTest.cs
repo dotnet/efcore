@@ -153,6 +153,8 @@ namespace Microsoft.EntityFrameworkCore
             {
             }
 
+            public ValueTask ResetStateAsync() => default;
+
             public IDbContextTransaction BeginTransaction()
             {
                 BeginCount++;

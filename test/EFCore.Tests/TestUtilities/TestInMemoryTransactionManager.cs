@@ -76,6 +76,13 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
                 return Task.CompletedTask;
             }
+
+            public ValueTask DisposeAsync()
+            {
+                Dispose();
+
+                return default;
+            }
         }
     }
 }

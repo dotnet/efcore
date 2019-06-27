@@ -24,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
     ///         The implementation does not need to be thread-safe.
     ///     </para>
     /// </summary>
-    public interface IRelationalConnection : IRelationalTransactionManager, IDisposable
+    public interface IRelationalConnection : IRelationalTransactionManager, IDisposable, IAsyncDisposable
     {
         /// <summary>
         ///     Gets the connection string for the database.

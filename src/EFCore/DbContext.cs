@@ -47,6 +47,7 @@ namespace Microsoft.EntityFrameworkCore
     /// </remarks>
     public class DbContext :
         IDisposable,
+        IAsyncDisposable,
         IInfrastructure<IServiceProvider>,
         IDbContextDependencies,
         IDbSetCache,
@@ -644,6 +645,32 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         void IDbContextPoolable.ResetState()
         {
+            foreach (var service in GetResettableServices())
+            {
+                service.ResetState();
+            }
+
+            _disposed = true;
+        }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        async ValueTask IDbContextPoolable.ResetStateAsync()
+        {
+            foreach (var service in GetResettableServices())
+            {
+                await service.ResetStateAsync();
+            }
+
+            _disposed = true;
+        }
+
+        private IEnumerable<IResettableService> GetResettableServices()
+        {
             var resettableServices
                 = _contextServices?.InternalServiceProvider?
                     .GetService<IEnumerable<IResettableService>>()?.ToList();
@@ -652,7 +679,7 @@ namespace Microsoft.EntityFrameworkCore
             {
                 foreach (var service in resettableServices)
                 {
-                    service.ResetState();
+                    yield return service;
                 }
             }
 
@@ -662,18 +689,24 @@ namespace Microsoft.EntityFrameworkCore
                 {
                     if (set is IResettableService resettable)
                     {
-                        resettable.ResetState();
+                        yield return resettable;
                     }
                 }
             }
-
-            _disposed = true;
         }
 
         /// <summary>
         ///     Releases the allocated resources for this context.
         /// </summary>
         public virtual void Dispose()
+        {
+            if (DisposeSync())
+            {
+                _serviceScope?.Dispose();
+            }
+        }
+
+        private bool DisposeSync()
         {
             if (_dbContextPool == null
                 && !_disposed)
@@ -684,12 +717,21 @@ namespace Microsoft.EntityFrameworkCore
 
                 _dbContextDependencies?.StateManager.Unsubscribe();
 
-                _serviceScope?.Dispose();
                 _dbContextDependencies = null;
                 _changeTracker = null;
                 _database = null;
+
+                return true;
             }
+
+            return false;
         }
+
+        /// <summary>
+        ///     Releases the allocated resources for this context.
+        /// </summary>
+        public virtual ValueTask DisposeAsync()
+            => DisposeSync() ? _serviceScope.DisposeAsyncIfAvailable() : default;
 
         /// <summary>
         ///     Gets an <see cref="EntityEntry{TEntity}" /> for the given entity. The entry provides

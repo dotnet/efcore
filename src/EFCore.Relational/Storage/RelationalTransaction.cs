@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Storage
@@ -217,7 +218,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 throw;
             }
 
-            ClearTransaction();
+            await ClearTransactionAsync(cancellationToken);
         }
 
         /// <summary>
@@ -267,7 +268,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 throw;
             }
 
-            ClearTransaction();
+            await ClearTransactionAsync(cancellationToken);
         }
 
         /// <summary>
@@ -295,6 +296,30 @@ namespace Microsoft.EntityFrameworkCore.Storage
         }
 
         /// <summary>
+        ///     Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+        /// </summary>
+        public virtual async ValueTask DisposeAsync()
+        {
+            if (!_disposed)
+            {
+                _disposed = true;
+
+                if (_transactionOwned)
+                {
+                    await _dbTransaction.DisposeAsyncIfAvailable();
+
+                    Logger.TransactionDisposed(
+                        Connection,
+                        _dbTransaction,
+                        TransactionId,
+                        DateTimeOffset.UtcNow);
+                }
+
+                await ClearTransactionAsync();
+            }
+        }
+
+        /// <summary>
         ///     Remove the underlying transaction from the connection
         /// </summary>
         protected virtual void ClearTransaction()
@@ -308,6 +333,23 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 _connectionClosed = true;
 
                 Connection.Close();
+            }
+        }
+
+        /// <summary>
+        ///     Remove the underlying transaction from the connection
+        /// </summary>
+        protected virtual async Task ClearTransactionAsync(CancellationToken cancellationToken = default)
+        {
+            Debug.Assert(Connection.CurrentTransaction == null || Connection.CurrentTransaction == this);
+
+            await Connection.UseTransactionAsync(null, cancellationToken);
+
+            if (!_connectionClosed)
+            {
+                _connectionClosed = true;
+
+                await Connection.CloseAsync(cancellationToken);
             }
         }
 

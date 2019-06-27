@@ -8,6 +8,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Storage
@@ -21,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
     ///         not used in application code.
     ///     </para>
     /// </summary>
-    public class RelationalDataReader : IDisposable
+    public class RelationalDataReader : IDisposable, IAsyncDisposable
     {
         private readonly IRelationalConnection _connection;
         private readonly DbCommand _command;
@@ -127,6 +128,43 @@ namespace Microsoft.EntityFrameworkCore.Storage
                         _command.Parameters.Clear();
                         _command.Dispose();
                         _connection.Close();
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        ///     Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+        /// </summary>
+        public virtual async ValueTask DisposeAsync()
+        {
+            if (!_disposed)
+            {
+                InterceptionResult? interceptionResult = null;
+                try
+                {
+                    _reader.Close(); // can throw
+
+                    interceptionResult = _logger?.DataReaderDisposing(
+                        _connection,
+                        _command,
+                        _reader,
+                        _commandId,
+                        _reader.RecordsAffected,
+                        _readCount,
+                        _startTime,
+                        _stopwatch.Elapsed); // can throw
+                }
+                finally
+                {
+                    _disposed = true;
+
+                    if (interceptionResult == null)
+                    {
+                        await _reader.DisposeAsyncIfAvailable();
+                        _command.Parameters.Clear();
+                        await _command.DisposeAsyncIfAvailable();
+                        await _connection.CloseAsync();
                     }
                 }
             }

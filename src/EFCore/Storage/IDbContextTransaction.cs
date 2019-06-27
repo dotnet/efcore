@@ -17,7 +17,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
     ///         to be directly constructed in your application code.
     ///     </para>
     /// </summary>
-    public interface IDbContextTransaction : IDisposable
+    public interface IDbContextTransaction : IDisposable, IAsyncDisposable
     {
         /// <summary>
         ///     Gets the transaction identifier.

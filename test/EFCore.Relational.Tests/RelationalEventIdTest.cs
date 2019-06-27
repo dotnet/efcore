@@ -169,10 +169,14 @@ namespace Microsoft.EntityFrameworkCore
                 throw new NotImplementedException();
 
             public void ResetState() => throw new NotImplementedException();
+            public ValueTask ResetStateAsync() => throw new NotImplementedException();
+
             public void RollbackTransaction() => throw new NotImplementedException();
             public IDbContextTransaction UseTransaction(DbTransaction transaction) => throw new NotImplementedException();
             public Task<IDbContextTransaction> UseTransactionAsync(
                 DbTransaction transaction, CancellationToken cancellationToken = default) => throw new NotImplementedException();
+
+            public ValueTask DisposeAsync() => throw new NotImplementedException();
         }
 
         private class FakeDbConnection : DbConnection

@@ -272,7 +272,7 @@ namespace Microsoft.EntityFrameworkCore.Update
 
             try
             {
-                using (var dataReader = await storeCommand.RelationalCommand.ExecuteReaderAsync(
+                await using (var dataReader = await storeCommand.RelationalCommand.ExecuteReaderAsync(
                     new RelationalCommandParameterObject(
                         connection,
                         storeCommand.ParameterValues,

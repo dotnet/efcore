@@ -8,6 +8,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -172,8 +173,13 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
 
                 public ValueTask DisposeAsync()
                 {
-                    _dataReader?.Dispose();
-                    _dataReader = null;
+                    if (_dataReader != null)
+                    {
+                        var dataReader = _dataReader;
+                        _dataReader = null;
+
+                        return dataReader.DisposeAsync();
+                    }
 
                     return default;
                 }

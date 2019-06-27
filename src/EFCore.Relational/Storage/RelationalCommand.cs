@@ -9,6 +9,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Storage
@@ -122,12 +123,22 @@ namespace Microsoft.EntityFrameworkCore.Storage
         }
 
         private static void CleanupCommand(
-            DbCommand dbCommand,
+            DbCommand command,
             IRelationalConnection connection)
         {
-            dbCommand.Parameters.Clear();
-            dbCommand.Dispose();
+            command.Parameters.Clear();
+            command.Dispose();
             connection.Close();
+        }
+
+        private static async Task CleanupCommandAsync(
+            DbCommand command,
+            IRelationalConnection connection,
+            CancellationToken cancellationToken = default)
+        {
+            command.Parameters.Clear();
+            await command.DisposeAsyncIfAvailable();
+            await connection.CloseAsync(cancellationToken);
         }
 
         /// <summary>
@@ -203,7 +214,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             }
             finally
             {
-                CleanupCommand(command, connection);
+                await CleanupCommandAsync(command, connection, cancellationToken);
             }
         }
 
@@ -336,7 +347,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             }
             finally
             {
-                CleanupCommand(command, connection);
+                await CleanupCommandAsync(command, connection, cancellationToken);
             }
         }
 
@@ -499,7 +510,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             {
                 if (!readerOpen)
                 {
-                    CleanupCommand(command, connection);
+                    await CleanupCommandAsync(command, connection, cancellationToken);
                 }
             }
         }
