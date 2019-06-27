@@ -15,6 +15,7 @@ using Microsoft.Azure.Cosmos;
 using Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.Internal;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
@@ -507,23 +508,21 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
 
                     _jsonReader.Close();
                     _jsonReader = null;
-                    _reader.Dispose();
+                    await _reader.DisposeAsyncIfAvailable();
                     _reader = null;
-                    _responseStream.Dispose();
+                    await _responseStream.DisposeAsync();
                     _responseStream = null;
                     return await MoveNextAsync();
                 }
 
-                public ValueTask DisposeAsync()
+                public async ValueTask DisposeAsync()
                 {
                     _jsonReader?.Close();
                     _jsonReader = null;
-                    _reader?.Dispose();
+                    await _reader.DisposeAsyncIfAvailable();
                     _reader = null;
-                    _responseStream?.Dispose();
+                    await _responseStream.DisposeAsync();
                     _responseStream = null;
-
-                    return default;
                 }
             }
         }

@@ -34,6 +34,8 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         {
         }
 
+        public ValueTask ResetStateAsync() => default;
+
         public void Unsubscribe()
         {
         }

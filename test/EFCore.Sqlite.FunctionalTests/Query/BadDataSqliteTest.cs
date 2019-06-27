@@ -354,6 +354,8 @@ namespace Microsoft.EntityFrameworkCore.Query
             {
             }
 
+            public ValueTask ResetStateAsync() => default;
+
             public IDbContextTransaction BeginTransaction() => throw new NotImplementedException();
 
             public Task<IDbContextTransaction> BeginTransactionAsync(CancellationToken cancellationToken = default) =>
@@ -400,6 +402,8 @@ namespace Microsoft.EntityFrameworkCore.Query
             public void Dispose()
             {
             }
+
+            public ValueTask DisposeAsync() => default;
         }
 
         public class BadDataSqliteFixture : NorthwindQuerySqliteFixture<NoopModelCustomizer>

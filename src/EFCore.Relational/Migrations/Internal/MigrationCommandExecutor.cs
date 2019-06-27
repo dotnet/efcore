@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Transactions;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
@@ -96,7 +97,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             Check.NotNull(migrationCommands, nameof(migrationCommands));
             Check.NotNull(connection, nameof(connection));
 
-            using (new TransactionScope(TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled))
+            var transactionScope = new TransactionScope(TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled);
+            try
             {
                 await connection.OpenAsync(cancellationToken);
 
@@ -118,7 +120,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                                 && command.TransactionSuppressed)
                             {
                                 transaction.Commit();
-                                transaction.Dispose();
+                                await transaction.DisposeAsync();
                                 transaction = null;
                             }
 
@@ -129,13 +131,20 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     }
                     finally
                     {
-                        transaction?.Dispose();
+                        if (transaction != null)
+                        {
+                            await transaction.DisposeAsync();
+                        }
                     }
                 }
                 finally
                 {
                     await connection.CloseAsync(cancellationToken);
                 }
+            }
+            finally
+            {
+                await transactionScope.DisposeAsyncIfAvailable();
             }
         }
     }

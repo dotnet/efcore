@@ -344,6 +344,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             public void ResetState()
             {
             }
+
+            public ValueTask ResetStateAsync() => default;
         }
 
         private static DbContext CreateContext(IServiceProvider serviceProvider)

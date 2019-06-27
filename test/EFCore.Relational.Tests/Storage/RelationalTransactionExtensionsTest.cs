@@ -62,6 +62,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             public void Rollback() => throw new NotImplementedException();
             public Task CommitAsync(CancellationToken cancellationToken = default) => throw new NotImplementedException();
             public Task RollbackAsync(CancellationToken cancellationToken = default) => throw new NotImplementedException();
+            public ValueTask DisposeAsync() => throw new NotImplementedException();
         }
 
         private const string ConnectionString = "Fake Connection String";

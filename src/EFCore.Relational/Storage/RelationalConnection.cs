@@ -11,6 +11,7 @@ using System.Transactions;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -422,6 +423,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             var wasOpened = false;
             if (DbConnection.State != ConnectionState.Open)
             {
+                CurrentTransaction?.Dispose();
                 ClearTransactions(clearAmbient: false);
                 OpenDbConnection(errorsExpected);
                 wasOpened = true;
@@ -455,6 +457,11 @@ namespace Microsoft.EntityFrameworkCore.Storage
             var wasOpened = false;
             if (DbConnection.State != ConnectionState.Open)
             {
+                if (CurrentTransaction != null)
+                {
+                    await CurrentTransaction.DisposeAsync();
+                }
+
                 ClearTransactions(clearAmbient: false);
                 await OpenDbConnectionAsync(errorsExpected, cancellationToken);
                 wasOpened = true;
@@ -469,7 +476,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
         private void ClearTransactions(bool clearAmbient)
         {
-            CurrentTransaction?.Dispose();
             CurrentTransaction = null;
             EnlistedTransaction = null;
             if (clearAmbient
@@ -611,6 +617,9 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
             if (ShouldClose())
             {
+                CurrentTransaction?.Dispose();
+                ClearTransactions(clearAmbient: false);
+
                 if (DbConnection.State != ConnectionState.Closed)
                 {
                     var startTime = DateTimeOffset.UtcNow;
@@ -659,6 +668,12 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
             if (ShouldClose())
             {
+                if (CurrentTransaction != null)
+                {
+                    await CurrentTransaction.DisposeAsync();
+                }
+                ClearTransactions(clearAmbient: false);
+
                 if (DbConnection.State != ConnectionState.Closed)
                 {
                     var startTime = DateTimeOffset.UtcNow;
@@ -705,19 +720,10 @@ namespace Microsoft.EntityFrameworkCore.Storage
         }
 
         private bool ShouldClose()
-        {
-            if ((_openedCount == 0
-                 || _openedCount > 0
-                 && --_openedCount == 0)
-                && _openedInternally)
-            {
-                ClearTransactions(clearAmbient: false);
-
-                return true;
-            }
-
-            return false;
-        }
+            => (_openedCount == 0
+                || _openedCount > 0
+                && --_openedCount == 0)
+               && _openedInternally;
 
         /// <summary>
         ///     Gets a value indicating whether the multiple active result sets feature is enabled.
@@ -725,6 +731,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
         public virtual bool IsMultipleActiveResultSetsEnabled => false;
 
         void IResettableService.ResetState() => Dispose();
+
+        ValueTask IResettableService.ResetStateAsync() => DisposeAsync();
 
         /// <summary>
         ///     Gets a semaphore used to serialize access to this connection.
@@ -741,12 +749,33 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         public virtual void Dispose()
         {
+            CurrentTransaction?.Dispose();
             ClearTransactions(clearAmbient: true);
 
             if (_connectionOwned
                 && _connection != null)
             {
                 DbConnection.Dispose();
+                _connection = null;
+                _openedCount = 0;
+            }
+        }
+
+        /// <summary>
+        ///     Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+        /// </summary>
+        public virtual async ValueTask DisposeAsync()
+        {
+            if (CurrentTransaction != null)
+            {
+                await CurrentTransaction.DisposeAsync();
+            }
+            ClearTransactions(clearAmbient: true);
+
+            if (_connectionOwned
+                && _connection != null)
+            {
+                await DbConnection.DisposeAsyncIfAvailable();
                 _connection = null;
                 _openedCount = 0;
             }

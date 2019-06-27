@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
@@ -377,6 +378,13 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             LazyLoadingEnabled = true;
             CascadeDeleteTiming = CascadeTiming.Immediate;
             DeleteOrphansTiming = CascadeTiming.Immediate;
+        }
+
+        ValueTask IResettableService.ResetStateAsync()
+        {
+            ((IResettableService)this).ResetState();
+
+            return default;
         }
 
         #region Hidden System.Object members

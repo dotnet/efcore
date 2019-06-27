@@ -916,11 +916,21 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [ConditionalFact]
-        public async Task It_throws_object_disposed_exception()
+        [ConditionalTheory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public async Task It_throws_object_disposed_exception(bool async)
         {
             var context = new DbContext(new DbContextOptions<DbContext>());
-            context.Dispose();
+
+            if (async)
+            {
+                await context.DisposeAsync();
+            }
+            else
+            {
+                context.Dispose();
+            }
 
             // methods (tests all paths)
             Assert.Throws<ObjectDisposedException>(() => context.Add(new object()));
@@ -934,7 +944,7 @@ namespace Microsoft.EntityFrameworkCore
             await Assert.ThrowsAsync<ObjectDisposedException>(() => context.FindAsync(typeof(Random), 77).AsTask());
 
             var methodCount = typeof(DbContext).GetMethods(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly).Count();
-            var expectedMethodCount = 41;
+            var expectedMethodCount = 42;
             Assert.True(
                 methodCount == expectedMethodCount,
                 userMessage: $"Expected {expectedMethodCount} methods on DbContext but found {methodCount}. " +
