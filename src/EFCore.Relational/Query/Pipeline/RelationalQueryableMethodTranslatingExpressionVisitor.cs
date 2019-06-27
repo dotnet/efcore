@@ -28,6 +28,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
             IModel model,
             IRelationalSqlTranslatingExpressionVisitorFactory relationalSqlTranslatingExpressionVisitorFactory,
             ISqlExpressionFactory sqlExpressionFactory)
+            : base(subquery: false)
         {
             _sqlTranslator = relationalSqlTranslatingExpressionVisitorFactory.Create(model, this);
             _projectionBindingExpressionVisitor = new RelationalProjectionBindingExpressionVisitor(this, _sqlTranslator);
@@ -39,6 +40,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
             IModel model,
             RelationalSqlTranslatingExpressionVisitor sqlTranslator,
             ISqlExpressionFactory sqlExpressionFactory)
+            : base(subquery: true)
         {
             _model = model;
             _sqlTranslator = sqlTranslator;

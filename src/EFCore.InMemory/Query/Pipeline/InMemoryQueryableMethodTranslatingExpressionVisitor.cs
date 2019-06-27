@@ -18,6 +18,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Pipeline
         private readonly IModel _model;
 
         public InMemoryQueryableMethodTranslatingExpressionVisitor(IModel model)
+            : base(subquery: false)
         {
             _expressionTranslator = new InMemoryExpressionTranslatingExpressionVisitor();
             _projectionBindingExpressionVisitor = new InMemoryProjectionBindingExpressionVisitor(_expressionTranslator);

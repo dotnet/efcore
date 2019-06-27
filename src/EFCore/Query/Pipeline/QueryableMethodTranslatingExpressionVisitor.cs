@@ -13,6 +13,13 @@ namespace Microsoft.EntityFrameworkCore.Query.Pipeline
 {
     public abstract class QueryableMethodTranslatingExpressionVisitor : ExpressionVisitor
     {
+        private readonly bool _subquery;
+
+        protected QueryableMethodTranslatingExpressionVisitor(bool subquery)
+        {
+            _subquery = subquery;
+        }
+
         protected override Expression VisitConstant(ConstantExpression constantExpression)
             => constantExpression.IsEntityQueryable()
                 ? CreateShapedQueryExpression(((IQueryable)constantExpression.Value).ElementType)
@@ -424,8 +431,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Pipeline
                             break;
                     }
                 }
-
-                throw new NotImplementedException("Unhandled method: " + methodCallExpression.Method.Name);
             }
 
             // TODO: Skip ToOrderedQueryable method. See Issue#15591
@@ -435,7 +440,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Pipeline
                 return Visit(methodCallExpression.Arguments[0]);
             }
 
-            return base.VisitMethodCall(methodCallExpression);
+            return _subquery
+                ? (Expression)null
+                : throw new NotImplementedException("Unhandled method: " + methodCallExpression.Method.Name);
         }
 
         protected Type CreateTransparentIdentifierType(Type outerType, Type innerType)

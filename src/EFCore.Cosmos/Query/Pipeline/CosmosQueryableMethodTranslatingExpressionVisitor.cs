@@ -23,6 +23,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Pipeline
             ISqlExpressionFactory sqlExpressionFactory,
             IMemberTranslatorProvider memberTranslatorProvider,
             IMethodCallTranslatorProvider methodCallTranslatorProvider)
+            : base(subquery: false)
         {
             _model = model;
             _sqlExpressionFactory = sqlExpressionFactory;
