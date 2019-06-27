@@ -94,9 +94,6 @@ jobs:
         - job: macOS
           pool:
             vmImage: macOS-10.13
-          variables:
-            - ${{ if and(eq(variables['System.TeamProject'], 'public'), eq(variables['system.pullrequest.isfork'], false), notin(variables['Build.Reason'], 'IndividualCI', 'BatchedCI', 'PullRequest')) }}:
-              - _CosmosToken: $(ef-nightly-cosmos-key)
           steps:
             - bash: brew install libspatialite
               displayName: Install SpatiaLite
@@ -104,13 +101,15 @@ jobs:
             - script: eng/common/cibuild.sh --configuration $(_BuildConfig) --binaryLog --prepareMachine
               env:
                 Test__Cosmos__Sql__DefaultConnection: $(_CosmosConnectionUrl)
-                Test__Cosmos__Sql__AuthToken: $(_CosmosToken)
               name: Build
               continueOnError: true
 
         - job: Linux
           pool:
             vmImage: ubuntu-16.04
+          variables:
+            - ${{ if and(eq(variables['System.TeamProject'], 'public'), eq(variables['system.pullrequest.isfork'], false), notin(variables['Build.Reason'], 'IndividualCI', 'BatchedCI')) }}:
+              - _CosmosToken: $(ef-nightly-cosmos-key)
           steps:
             - bash: sudo apt-get install -y libsqlite3-mod-spatialite
               displayName: Install SpatiaLite
@@ -118,4 +117,5 @@ jobs:
             - script: eng/common/cibuild.sh --configuration $(_BuildConfig) --prepareMachine
               env:
                 Test__Cosmos__Sql__DefaultConnection: $(_CosmosConnectionUrl)
+                Test__Cosmos__Sql__AuthToken: $(_CosmosToken)
               name: Build
