@@ -30,6 +30,7 @@ jobs:
       helixRepo: aspnet/EntityFrameworkCore
       jobs:
         - job: Windows
+          timeoutInMinutes: 120
           pool:
             ${{ if eq(variables['System.TeamProject'], 'public') }}:
               name: NetCorePublic-Pool
@@ -45,6 +46,8 @@ jobs:
               - _PublishBlobFeedUrl: https://dotnetfeed.blob.core.windows.net/aspnet-entityframeworkcore/index.json
               - _DotNetPublishToBlobFeed: true
               - _InternalBuildArgs: /p:DotNetSignType=$(_SignType) /p:TeamName=$(_TeamName) /p:DotNetPublishBlobFeedKey=$(dotnetfeed-storage-access-key-1) /p:DotNetPublishBlobFeedUrl=$(_PublishBlobFeedUrl) /p:DotNetPublishToBlobFeed=$(_DotNetPublishToBlobFeed) /p:DotNetPublishUsingPipelines=$(_PublishUsingPipelines) /p:DotNetArtifactsCategory=$(_DotNetArtifactsCategory) /p:OfficialBuildId=$(BUILD.BUILDNUMBER)
+            - ${{ if and(eq(variables['System.TeamProject'], 'public'), eq(variables['system.pullrequest.isfork'], false), notin(variables['Build.Reason'], 'IndividualCI', 'BatchedCI')) }}:
+              - _CosmosToken: $(ef-nightly-cosmos-key)
           steps:
             - task: NuGetCommand@2
               displayName: 'Clear NuGet caches'
@@ -81,6 +84,7 @@ jobs:
             - script: eng\common\cibuild.cmd -configuration $(_BuildConfig) -prepareMachine $(_InternalBuildArgs)
               env:
                 Test__Cosmos__Sql__DefaultConnection: $(_CosmosConnectionUrl)
+                Test__Cosmos__Sql__AuthToken: $(_CosmosToken)
               name: Build
             - task: PublishBuildArtifacts@1
               displayName: Upload artifacts
@@ -105,12 +109,8 @@ jobs:
               continueOnError: true
 
         - job: Linux
-          timeoutInMinutes: 120
           pool:
             vmImage: ubuntu-16.04
-          variables:
-            - ${{ if and(eq(variables['System.TeamProject'], 'public'), eq(variables['system.pullrequest.isfork'], false), notin(variables['Build.Reason'], 'IndividualCI', 'BatchedCI')) }}:
-              - _CosmosToken: $(ef-nightly-cosmos-key)
           steps:
             - bash: sudo apt-get install -y libsqlite3-mod-spatialite
               displayName: Install SpatiaLite
@@ -118,5 +118,4 @@ jobs:
             - script: eng/common/cibuild.sh --configuration $(_BuildConfig) --prepareMachine
               env:
                 Test__Cosmos__Sql__DefaultConnection: $(_CosmosConnectionUrl)
-                Test__Cosmos__Sql__AuthToken: $(_CosmosToken)
               name: Build
