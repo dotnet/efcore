@@ -5,6 +5,7 @@ using System;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Query.Pipeline;
 using Microsoft.EntityFrameworkCore.Storage;
 
@@ -14,16 +15,34 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Pipeline
     {
         private readonly InMemoryExpressionTranslatingExpressionVisitor _expressionTranslator;
         private readonly InMemoryProjectionBindingExpressionVisitor _projectionBindingExpressionVisitor;
+        private readonly IModel _model;
 
-        public InMemoryQueryableMethodTranslatingExpressionVisitor()
+        public InMemoryQueryableMethodTranslatingExpressionVisitor(IModel model)
         {
             _expressionTranslator = new InMemoryExpressionTranslatingExpressionVisitor();
             _projectionBindingExpressionVisitor = new InMemoryProjectionBindingExpressionVisitor(_expressionTranslator);
+            _model = model;
         }
 
         public override ShapedQueryExpression TranslateSubquery(Expression expression)
         {
             throw new NotImplementedException();
+        }
+
+        protected override ShapedQueryExpression CreateShapedQueryExpression(Type elementType)
+        {
+            var entityType = _model.FindEntityType(elementType);
+            var queryExpression = new InMemoryQueryExpression(entityType);
+
+            return new ShapedQueryExpression(
+                queryExpression,
+                new EntityShaperExpression(
+                    entityType,
+                    new ProjectionBindingExpression(
+                        queryExpression,
+                        new ProjectionMember(),
+                        typeof(ValueBuffer)),
+                    false));
         }
 
         protected override ShapedQueryExpression TranslateAll(ShapedQueryExpression source, LambdaExpression predicate)

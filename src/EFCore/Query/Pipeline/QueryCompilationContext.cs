@@ -15,7 +15,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Pipeline
         public static readonly ParameterExpression QueryContextParameter = Expression.Parameter(typeof(QueryContext), "queryContext");
 
         private readonly IQueryOptimizerFactory _queryOptimizerFactory;
-        private readonly IEntityQueryableTranslatorFactory _entityQueryableTranslatorFactory;
         private readonly IQueryableMethodTranslatingExpressionVisitorFactory _queryableMethodTranslatingExpressionVisitorFactory;
         private readonly IShapedQueryOptimizerFactory _shapedQueryOptimizerFactory;
         private readonly IShapedQueryCompilingExpressionVisitorFactory _shapedQueryCompilingExpressionVisitorFactory;
@@ -23,7 +22,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Pipeline
         public QueryCompilationContext(
             IModel model,
             IQueryOptimizerFactory queryOptimizerFactory,
-            IEntityQueryableTranslatorFactory entityQuerableTranslatorFactory,
             IQueryableMethodTranslatingExpressionVisitorFactory queryableMethodTranslatingExpressionVisitorFactory,
             IShapedQueryOptimizerFactory shapedQueryOptimizerFactory,
             IShapedQueryCompilingExpressionVisitorFactory shapedQueryCompilingExpressionVisitorFactory,
@@ -40,7 +38,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Pipeline
             Logger = logger;
 
             _queryOptimizerFactory = queryOptimizerFactory;
-            _entityQueryableTranslatorFactory = entityQuerableTranslatorFactory;
             _queryableMethodTranslatingExpressionVisitorFactory = queryableMethodTranslatingExpressionVisitorFactory;
             _shapedQueryOptimizerFactory = shapedQueryOptimizerFactory;
             _shapedQueryCompilingExpressionVisitorFactory = shapedQueryCompilingExpressionVisitorFactory;
@@ -58,7 +55,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Pipeline
         {
             query = _queryOptimizerFactory.Create(this).Visit(query);
             // Convert EntityQueryable to ShapedQueryExpression
-            query = _entityQueryableTranslatorFactory.Create(this).Visit(query);
             query = _queryableMethodTranslatingExpressionVisitorFactory.Create(Model).Visit(query);
             query = _shapedQueryOptimizerFactory.Create(this).Visit(query);
 

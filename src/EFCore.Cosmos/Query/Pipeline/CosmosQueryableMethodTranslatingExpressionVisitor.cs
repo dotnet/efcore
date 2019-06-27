@@ -7,11 +7,13 @@ using System.Linq;
 using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Query.Pipeline;
+using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Pipeline
 {
     public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethodTranslatingExpressionVisitor
     {
+        private readonly IModel _model;
         private readonly ISqlExpressionFactory _sqlExpressionFactory;
         private readonly CosmosSqlTranslatingExpressionVisitor _sqlTranslator;
         private readonly CosmosProjectionBindingExpressionVisitor _projectionBindingExpressionVisitor;
@@ -22,6 +24,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Pipeline
             IMemberTranslatorProvider memberTranslatorProvider,
             IMethodCallTranslatorProvider methodCallTranslatorProvider)
         {
+            _model = model;
             _sqlExpressionFactory = sqlExpressionFactory;
             _sqlTranslator = new CosmosSqlTranslatingExpressionVisitor(
                 model,
@@ -34,6 +37,22 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Pipeline
         public override ShapedQueryExpression TranslateSubquery(Expression expression)
         {
             throw new NotImplementedException();
+        }
+
+        protected override ShapedQueryExpression CreateShapedQueryExpression(Type elementType)
+        {
+            var entityType = _model.FindEntityType(elementType);
+            var selectExpression = _sqlExpressionFactory.Select(entityType);
+
+            return new ShapedQueryExpression(
+                selectExpression,
+                new EntityShaperExpression(
+                entityType,
+                new ProjectionBindingExpression(
+                    selectExpression,
+                    new ProjectionMember(),
+                    typeof(ValueBuffer)),
+                false));
         }
 
         protected override ShapedQueryExpression TranslateAll(ShapedQueryExpression source, LambdaExpression predicate)
