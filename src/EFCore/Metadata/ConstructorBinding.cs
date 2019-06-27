@@ -3,47 +3,53 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Metadata
 {
     /// <summary>
-    ///     Defines how to create an entity instance through the binding of EF model properties to, for
-    ///     example, constructor parameters or parameters of a factory method.
+    ///     Defines the binding of parameters to a CLR <see cref="ConstructorInfo" /> for an entity type.
     /// </summary>
-    public abstract class ConstructorBinding
+    public class ConstructorBinding : InstantiationBinding
     {
         /// <summary>
         ///     Creates a new <see cref="ConstructorBinding" /> instance.
         /// </summary>
-        /// <param name="parameterBindings"> The parameter bindings to use. </param>
-        protected ConstructorBinding(
+        /// <param name="constructor"> The constructor to use. </param>
+        /// <param name="parameterBindings"> The parameters to bind. </param>
+        public ConstructorBinding(
+            [NotNull] ConstructorInfo constructor,
             [NotNull] IReadOnlyList<ParameterBinding> parameterBindings)
+            : base(parameterBindings)
         {
-            Check.NotNull(parameterBindings, nameof(parameterBindings));
+            Check.NotNull(constructor, nameof(constructor));
 
-            ParameterBindings = parameterBindings;
+            Constructor = constructor;
         }
 
         /// <summary>
-        ///     Creates an expression tree that represents creating an entity instance from the given binding
-        ///     information. For example, this might be a <see cref="NewExpression" /> to call a constructor,
-        ///     or a <see cref="MethodCallExpression" /> to call a factory method.
+        ///     The bound <see cref="ConstructorInfo" />.
+        /// </summary>
+        public virtual ConstructorInfo Constructor { get; }
+
+        /// <summary>
+        ///     Creates a <see cref="NewExpression" /> that represents creating an entity instance using the given
+        ///     constructor.
         /// </summary>
         /// <param name="bindingInfo"> Information needed to create the expression. </param>
         /// <returns> The expression tree. </returns>
-        public abstract Expression CreateConstructorExpression(ParameterBindingInfo bindingInfo);
-
-        /// <summary>
-        ///     The collection of <see cref="ParameterBinding" /> instances used.
-        /// </summary>
-        public virtual IReadOnlyList<ParameterBinding> ParameterBindings { get; }
+        public override Expression CreateConstructorExpression(ParameterBindingInfo bindingInfo)
+            => Expression.New(
+                Constructor,
+                ParameterBindings.Select(b => b.BindToParameter(bindingInfo)));
 
         /// <summary>
         ///     The type that will be created from the expression tree created for this binding.
         /// </summary>
-        public abstract Type RuntimeType { get; }
+        public override Type RuntimeType => Constructor.DeclaringType;
     }
 }

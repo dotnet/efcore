@@ -92,17 +92,17 @@ namespace Microsoft.EntityFrameworkCore.Proxies.Internal
                                     nameof(IProxyLazyLoader.LazyLoader)));
                         }
 
-                        var binding = (ConstructorBinding)entityType[CoreAnnotationNames.ConstructorBinding];
+                        var binding = (InstantiationBinding)entityType[CoreAnnotationNames.ConstructorBinding];
                         if (binding == null)
                         {
                             _directBindingConvention.ProcessModelFinalized(modelBuilder, context);
                         }
 
-                        binding = (ConstructorBinding)entityType[CoreAnnotationNames.ConstructorBinding];
+                        binding = (InstantiationBinding)entityType[CoreAnnotationNames.ConstructorBinding];
 
                         entityType.SetAnnotation(
                             CoreAnnotationNames.ConstructorBinding,
-                            new FactoryMethodConstructorBinding(
+                            new FactoryMethodBinding(
                                 _proxyFactory,
                                 _createLazyLoadingProxyMethod,
                                 new List<ParameterBinding>

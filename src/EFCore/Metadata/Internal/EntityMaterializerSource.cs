@@ -89,7 +89,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 throw new InvalidOperationException(CoreStrings.CannotMaterializeAbstractType(entityType));
             }
 
-            var constructorBinding = (ConstructorBinding)entityType[CoreAnnotationNames.ConstructorBinding];
+            var constructorBinding = (InstantiationBinding)entityType[CoreAnnotationNames.ConstructorBinding];
 
             if (constructorBinding == null)
             {
@@ -100,7 +100,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     throw new InvalidOperationException(CoreStrings.NoParameterlessConstructor(entityType.DisplayName()));
                 }
 
-                constructorBinding = new DirectConstructorBinding(constructorInfo, Array.Empty<ParameterBinding>());
+                constructorBinding = new ConstructorBinding(constructorInfo, Array.Empty<ParameterBinding>());
             }
 
             var bindingInfo = new ParameterBindingInfo(

@@ -52,7 +52,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 {
                     var maxServiceParams = 0;
                     var minPropertyParams = int.MaxValue;
-                    var foundBindings = new List<ConstructorBinding>();
+                    var foundBindings = new List<InstantiationBinding>();
                     var bindingFailures = new List<IEnumerable<ParameterInfo>>();
 
                     foreach (var constructor in entityType.ClrType.GetTypeInfo()
@@ -131,7 +131,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             }
         }
 
-        private static string FormatConstructorString(IEntityType entityType, ConstructorBinding binding)
+        private static string FormatConstructorString(IEntityType entityType, InstantiationBinding binding)
             => entityType.ClrType.ShortDisplayName() +
                "(" + string.Join(", ", binding.ParameterBindings.Select(b => b.ParameterType.ShortDisplayName())) + ")";
     }

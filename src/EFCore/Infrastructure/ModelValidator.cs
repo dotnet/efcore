@@ -742,7 +742,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                         .Concat(entityType.GetDeclaredNavigations())
                         .Where(p => !p.IsShadowProperty()));
 
-                var constructorBinding = (ConstructorBinding)entityType[CoreAnnotationNames.ConstructorBinding];
+                var constructorBinding = (InstantiationBinding)entityType[CoreAnnotationNames.ConstructorBinding];
 
                 if (constructorBinding != null)
                 {

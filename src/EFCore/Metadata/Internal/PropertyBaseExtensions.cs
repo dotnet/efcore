@@ -385,7 +385,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
         private static string GetNoFieldErrorMessage(IPropertyBase propertyBase)
         {
-            var constructorBinding = (ConstructorBinding)propertyBase.DeclaringType[CoreAnnotationNames.ConstructorBinding];
+            var constructorBinding = (InstantiationBinding)propertyBase.DeclaringType[CoreAnnotationNames.ConstructorBinding];
 
             return constructorBinding?.ParameterBindings
                        .OfType<ServiceParameterBinding>()

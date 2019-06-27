@@ -50,8 +50,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public virtual bool TryBindConstructor(
             IConventionEntityType entityType,
             ConstructorInfo constructor,
-            out ConstructorBinding binding,
-            out IEnumerable<ParameterInfo> failedBindings)
+            out InstantiationBinding binding,
+            out IEnumerable<ParameterInfo> unboundParameters)
         {
             IEnumerable<(ParameterInfo Parameter, ParameterBinding Binding)> bindings
                 = constructor.GetParameters().Select(
@@ -61,14 +61,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             if (bindings.Any(b => b.Binding == null))
             {
-                failedBindings = bindings.Where(b => b.Binding == null).Select(b => b.Parameter);
+                unboundParameters = bindings.Where(b => b.Binding == null).Select(b => b.Parameter);
                 binding = null;
 
                 return false;
             }
 
-            failedBindings = null;
-            binding = new DirectConstructorBinding(constructor, bindings.Select(b => b.Binding).ToList());
+            unboundParameters = null;
+            binding = new ConstructorBinding(constructor, bindings.Select(b => b.Binding).ToList());
 
             return true;
         }

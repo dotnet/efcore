@@ -747,7 +747,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             public NoField NoField { get; set; }
         }
 
-        private DirectConstructorBinding GetBinding<TEntity>()
+        private ConstructorBinding GetBinding<TEntity>()
         {
             var entityType = ((IMutableModel)new Model()).AddEntityType(typeof(TEntity));
             entityType.AddProperty(nameof(Blog.Id), typeof(int));
@@ -768,7 +768,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             var convention = new ConstructorBindingConvention(CreateDependencies());
             convention.ProcessModelFinalized(model.Builder, context);
 
-            return (DirectConstructorBinding)entityType[CoreAnnotationNames.ConstructorBinding];
+            return (ConstructorBinding)entityType[CoreAnnotationNames.ConstructorBinding];
         }
 
         private ProviderConventionSetBuilderDependencies CreateDependencies()

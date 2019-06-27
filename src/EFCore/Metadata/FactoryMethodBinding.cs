@@ -14,18 +14,18 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     /// <summary>
     ///     Defines the binding of parameters to a factory method.
     /// </summary>
-    public class FactoryMethodConstructorBinding : ConstructorBinding
+    public class FactoryMethodBinding : InstantiationBinding
     {
         private readonly object _factoryInstance;
         private readonly MethodInfo _factoryMethod;
 
         /// <summary>
-        ///     Creates a new <see cref="FactoryMethodConstructorBinding" /> instance for a static factory method.
+        ///     Creates a new <see cref="FactoryMethodBinding" /> instance for a static factory method.
         /// </summary>
         /// <param name="factoryMethod"> The factory method to bind to. </param>
         /// <param name="parameterBindings"> The parameters to use. </param>
         /// <param name="runtimeType"> The CLR type of the instance created by the factory method. </param>
-        public FactoryMethodConstructorBinding(
+        public FactoryMethodBinding(
             [NotNull] MethodInfo factoryMethod,
             [NotNull] IReadOnlyList<ParameterBinding> parameterBindings,
             [NotNull] Type runtimeType)
@@ -39,13 +39,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         }
 
         /// <summary>
-        ///     Creates a new <see cref="FactoryMethodConstructorBinding" /> instance for a static factory method.
+        ///     Creates a new <see cref="FactoryMethodBinding" /> instance for a static factory method.
         /// </summary>
         /// <param name="factoryInstance"> The object on which the factory method should be called. </param>
         /// <param name="factoryMethod"> The factory method to bind to. </param>
         /// <param name="parameterBindings"> The parameters to use. </param>
         /// <param name="runtimeType"> The CLR type of the instance created by the factory method. </param>
-        public FactoryMethodConstructorBinding(
+        public FactoryMethodBinding(
             [NotNull] object factoryInstance,
             [NotNull] MethodInfo factoryMethod,
             [NotNull] IReadOnlyList<ParameterBinding> parameterBindings,

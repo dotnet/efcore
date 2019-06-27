@@ -30,7 +30,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var entityType = CreateEntityType();
 
             entityType[CoreAnnotationNames.ConstructorBinding]
-                = new DirectConstructorBinding(
+                = new ConstructorBinding(
                     typeof(SomeEntity).GetTypeInfo().DeclaredConstructors.Single(c => c.GetParameters().Length == 2),
                     new List<ParameterBinding>
                     {
@@ -66,7 +66,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var entityType = CreateEntityType();
 
             entityType[CoreAnnotationNames.ConstructorBinding]
-                = new FactoryMethodConstructorBinding(
+                = new FactoryMethodBinding(
                     typeof(SomeEntity).GetTypeInfo().GetDeclaredMethod(nameof(SomeEntity.Factory)),
                     new List<ParameterBinding>
                     {
@@ -102,7 +102,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var entityType = CreateEntityType();
 
             entityType[CoreAnnotationNames.ConstructorBinding]
-                = new FactoryMethodConstructorBinding(
+                = new FactoryMethodBinding(
                     typeof(SomeEntity).GetTypeInfo().GetDeclaredMethod(nameof(SomeEntity.GeneralFactory)),
                     new List<ParameterBinding>
                     {
@@ -142,7 +142,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var entityType = CreateEntityType();
 
             entityType[CoreAnnotationNames.ConstructorBinding]
-                = new FactoryMethodConstructorBinding(
+                = new FactoryMethodBinding(
                     TestProxyFactory.Instance,
                     typeof(TestProxyFactory).GetTypeInfo().GetDeclaredMethod(nameof(TestProxyFactory.Create)),
                     new List<ParameterBinding>
