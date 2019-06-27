@@ -9,16 +9,12 @@ using Microsoft.EntityFrameworkCore.TestUtilities;
 
 namespace Microsoft.EntityFrameworkCore.Cosmos
 {
-    public class CustomConvertersCosmosTest : CustomConvertersTestBase<CustomConvertersCosmosTest.CustomConvertersCosmosFixture>
+    // TODO: Issue #12086
+    internal class CustomConvertersCosmosTest : CustomConvertersTestBase<CustomConvertersCosmosTest.CustomConvertersCosmosFixture>
     {
         public CustomConvertersCosmosTest(CustomConvertersCosmosFixture fixture)
             : base(fixture)
         {
-        }
-
-        public override void Can_query_using_any_nullable_data_type_as_literal()
-        {
-            // TODO: Requires ReLinq to be removed
         }
 
         public override void Can_perform_query_with_max_length()

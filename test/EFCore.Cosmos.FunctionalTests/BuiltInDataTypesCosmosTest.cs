@@ -9,7 +9,8 @@ using Microsoft.EntityFrameworkCore.TestUtilities;
 
 namespace Microsoft.EntityFrameworkCore.Cosmos
 {
-    public class BuiltInDataTypesCosmosTest : BuiltInDataTypesTestBase<BuiltInDataTypesCosmosTest.BuiltInDataTypesCosmosFixture>
+    // TODO: Issue #12086
+    internal class BuiltInDataTypesCosmosTest : BuiltInDataTypesTestBase<BuiltInDataTypesCosmosTest.BuiltInDataTypesCosmosFixture>
     {
         public BuiltInDataTypesCosmosTest(BuiltInDataTypesCosmosFixture fixture)
             : base(fixture)

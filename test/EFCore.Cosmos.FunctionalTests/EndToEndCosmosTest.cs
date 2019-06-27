@@ -141,7 +141,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
             }
         }
 
-        [ConditionalFact]
+        [ConditionalFact(Skip = "Issue #16146")]
         public async Task Can_add_update_delete_detached_entity_end_to_end_async()
         {
             using (var testDatabase = CosmosTestStore.CreateInitialized(DatabaseName))
@@ -427,7 +427,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
             }
         }
 
-        [ConditionalFact]
+        [ConditionalFact(Skip = "Issue #16146")]
         public async Task Can_add_update_delete_end_to_end_with_conflicting_id()
         {
             using (var testDatabase = CosmosTestStore.CreateInitialized(DatabaseName))
