@@ -94,13 +94,32 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
                             Expression.Constant(parameterExpression.Name));
                     }
 
-                    if (expression is MethodCallExpression methodCallExpression
-                        && methodCallExpression.Method.Name == "MaterializeCollectionNavigation")
+                    if (expression is MethodCallExpression methodCallExpression)
                     {
-                        var result = _queryableMethodTranslatingExpressionVisitor.TranslateSubquery(methodCallExpression.Arguments[0]);
-                        var navigation = (INavigation)((ConstantExpression)methodCallExpression.Arguments[1]).Value;
+                        if (methodCallExpression.Method.Name == "MaterializeCollectionNavigation")
+                        {
+                            var result = _queryableMethodTranslatingExpressionVisitor.TranslateSubquery(methodCallExpression.Arguments[0]);
+                            var navigation = (INavigation)((ConstantExpression)methodCallExpression.Arguments[1]).Value;
 
-                        return _selectExpression.AddCollectionProjection(result, navigation);
+                            return _selectExpression.AddCollectionProjection(result, navigation);
+                        }
+
+                        if (methodCallExpression.Method.Name == "ToList")
+                        {
+                            var result = _queryableMethodTranslatingExpressionVisitor.TranslateSubquery(methodCallExpression.Arguments[0]);
+
+                            return _selectExpression.AddCollectionProjection(result, null);
+                        }
+
+                        var subquery = _queryableMethodTranslatingExpressionVisitor.TranslateSubquery(methodCallExpression);
+
+                        if (subquery != null)
+                        {
+                            if (subquery.ResultType == ResultType.Enumerable)
+                            {
+                                return _selectExpression.AddCollectionProjection(subquery, null);
+                            }
+                        }
                     }
 
                     var translation = _sqlTranslator.Translate(expression);

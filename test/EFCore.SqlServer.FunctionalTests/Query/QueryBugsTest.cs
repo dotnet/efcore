@@ -3318,7 +3318,7 @@ LEFT JOIN [Configuration9468] AS [t.Configuration] ON [t].[ConfigurationId] = [t
 
         #region Bug10635
 
-        [ConditionalFact(Skip = "issue #15611")]
+        [ConditionalFact(Skip = "issue #14935")]
         public void Include_with_order_by_on_interface_key()
         {
             using (CreateDatabase10635())
@@ -3360,7 +3360,7 @@ ORDER BY [t].[Id]");
             }
         }
 
-        [ConditionalFact(Skip = "issue #15043")]
+        [ConditionalFact(Skip = "issue #14935")]
         public void Correlated_collection_with_order_by_on_interface_key()
         {
             using (CreateDatabase10635())
