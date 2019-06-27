@@ -704,8 +704,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
                 selfIdentifier = shaperRemapper.Visit(selfIdentifier);
 
                 return new RelationalCollectionShaperExpression(
-                    collectionId, parentIdentifier, outerIdentifier, selfIdentifier, innerShaper,
-                    navigation);
+                    collectionId, parentIdentifier, outerIdentifier, selfIdentifier, innerShaper, navigation);
             }
 
             throw new NotImplementedException();
@@ -717,7 +716,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
             foreach (var keyExpression in identifyingProjection)
             {
                 var index = AddToProjection(keyExpression);
-                var projectionBindingExpression = new ProjectionBindingExpression(this, index, keyExpression.Type);
+                var projectionBindingExpression = new ProjectionBindingExpression(this, index, keyExpression.Type.MakeNullable());
 
                 updatedExpressions.Add(
                     projectionBindingExpression.Type.IsValueType
@@ -842,12 +841,14 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
                     if (ContainsTableReference(leftColumn.Table)
                         && inner.ContainsTableReference(rightColumn.Table))
                     {
+                        inner.AddToProjection(rightColumn);
                         return sqlBinaryExpression;
                     }
 
                     if (ContainsTableReference(rightColumn.Table)
                         && inner.ContainsTableReference(leftColumn.Table))
                     {
+                        inner.AddToProjection(leftColumn);
                         return sqlBinaryExpression.Update(
                             sqlBinaryExpression.Right,
                             sqlBinaryExpression.Left);

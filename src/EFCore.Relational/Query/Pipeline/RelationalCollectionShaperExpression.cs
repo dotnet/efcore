@@ -7,7 +7,6 @@ using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Query.Expressions.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
-using Microsoft.EntityFrameworkCore.Query.Pipeline;
 
 namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
 {
@@ -36,7 +35,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
         public Expression InnerShaper { get; }
         public INavigation Navigation { get; }
 
-        public override Type Type => typeof(IEnumerable<>).MakeGenericType(InnerShaper.Type);
+        public override Type Type => Navigation?.ClrType ?? typeof(List<>).MakeGenericType(InnerShaper.Type);
         public override ExpressionType NodeType => ExpressionType.Extension;
 
         protected override Expression VisitChildren(ExpressionVisitor visitor)
@@ -79,7 +78,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
                 expressionPrinter.StringBuilder.Append("InnerShaper:");
                 expressionPrinter.Visit(InnerShaper);
                 expressionPrinter.StringBuilder.AppendLine();
-                expressionPrinter.StringBuilder.AppendLine($"Navigation: {Navigation.Name}");
+                expressionPrinter.StringBuilder.AppendLine($"Navigation: {Navigation?.Name}");
 
             }
         }

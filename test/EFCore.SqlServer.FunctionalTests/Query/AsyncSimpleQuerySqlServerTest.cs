@@ -28,7 +28,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             //Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
         }
 
-        [ConditionalFact]
+        [ConditionalFact(Skip = "Issue#16311")]
         public Task Query_compiler_concurrency()
         {
             const int threadCount = 50;

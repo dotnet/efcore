@@ -176,24 +176,28 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
                 return BindProperty(source, propertyName);
             }
 
-            if (methodCallExpression.Method.DeclaringType == typeof(Queryable))
+            var subqueryTranslation = _queryableMethodTranslatingExpressionVisitor.TranslateSubquery(methodCallExpression);
+            if (subqueryTranslation != null)
             {
-                var translation = _queryableMethodTranslatingExpressionVisitor.TranslateSubquery(methodCallExpression);
+                if (subqueryTranslation.ResultType == ResultType.Enumerable)
+                {
+                    return null;
+                }
 
-                var subquery = (SelectExpression)translation.QueryExpression;
+                var subquery = (SelectExpression)subqueryTranslation.QueryExpression;
                 subquery.ApplyProjection();
 
-                if (methodCallExpression.Method.Name == nameof(Queryable.Any)
+                if (subquery.Projection.Count != 1)
+                {
+                    return null;
+                }
+
+                if ((methodCallExpression.Method.Name == nameof(Queryable.Any)
                     || methodCallExpression.Method.Name == nameof(Queryable.All)
                     || methodCallExpression.Method.Name == nameof(Queryable.Contains))
+                    && subquery.Tables.Count == 0)
                 {
-                    if (subquery.Tables.Count == 0
-                        && subquery.Projection.Count == 1)
-                    {
-                        return subquery.Projection[0].Expression;
-                    }
-
-                    throw new InvalidOperationException();
+                    return subquery.Projection[0].Expression;
                 }
 
                 return new SubSelectExpression(subquery);
