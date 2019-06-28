@@ -8,60 +8,33 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query
 {
     public partial class SimpleQueryCosmosTest
     {
-        [ConditionalTheory(Skip = "Issue #12086")]
-        public override Task Union(bool isAsync)
-            => base.Union(isAsync);
-
-        [ConditionalTheory(Skip = "Issue #12086")]
-        public override Task Concat(bool isAsync)
-            => base.Concat(isAsync);
-
-        [ConditionalTheory(Skip = "Issue #12086")]        
-        public override Task Intersect(bool isAsync)
-            => base.Intersect(isAsync);
-
-        [ConditionalTheory(Skip = "Issue #12086")]        
-        public override Task Except(bool isAsync)
-            => base.Except(isAsync);
-
-        [ConditionalTheory(Skip = "Issue #12086")]        
-        public override Task Union_OrderBy_Skip_Take(bool isAsync)
-            => base.Union_OrderBy_Skip_Take(isAsync);
-
-        [ConditionalTheory(Skip = "Issue #12086")]        
-        public override Task Union_Where(bool isAsync)
-            => base.Union_Where(isAsync);
-
-        [ConditionalTheory(Skip = "Issue #12086")]        
-        public override Task Union_Skip_Take_OrderBy_ThenBy_Where(bool isAsync)
-            => base.Union_Skip_Take_OrderBy_ThenBy_Where(isAsync);
-
-        [ConditionalTheory(Skip = "Issue #12086")]        
-        public override Task Union_Union(bool isAsync)
-            => base.Union_Union(isAsync);
-
-        [ConditionalTheory(Skip = "Issue #12086")]        
-        public override Task Union_Intersect(bool isAsync)
-            => base.Union_Intersect(isAsync);
-
-        [ConditionalTheory(Skip = "Issue #12086")]        
-        public override Task Union_Take_Union_Take(bool isAsync)
-            => base.Union_Take_Union_Take(isAsync);
-
-        [ConditionalTheory(Skip = "Issue #12086")]        
-        public override Task Select_Union(bool isAsync)
-            => base.Select_Union(isAsync);
-
-        [ConditionalTheory(Skip = "Issue #12086")]        
-        public override Task Union_Select(bool isAsync)
-            => base.Union_Select(isAsync);
-
-        [ConditionalTheory(Skip = "Issue #12086")]        
-        public override Task Select_Union_unrelated(bool isAsync)
-            => base.Select_Union_unrelated(isAsync);
-
-        [ConditionalTheory(Skip = "Issue #12086")]        
-        public override Task Select_Union_different_fields_in_anonymous_with_subquery(bool isAsync)
-            => base.Select_Union_different_fields_in_anonymous_with_subquery(isAsync);
+        // Set operations aren't supported on Cosmos
+        public override Task Concat(bool isAsync) => Task.CompletedTask;
+        public override Task Concat_nested(bool isAsync) => Task.CompletedTask;
+        public override Task Concat_non_entity(bool isAsync) => Task.CompletedTask;
+        public override Task Except(bool isAsync) => Task.CompletedTask;
+        public override Task Except_simple_followed_by_projecting_constant(bool isAsync) => Task.CompletedTask;
+        public override Task Except_nested(bool isAsync) => Task.CompletedTask;
+        public override Task Except_non_entity(bool isAsync) => Task.CompletedTask;
+        public override Task Intersect(bool isAsync) => Task.CompletedTask;
+        public override Task Intersect_nested(bool isAsync) => Task.CompletedTask;
+        public override Task Intersect_non_entity(bool isAsync) => Task.CompletedTask;
+        public override Task Union(bool isAsync) => Task.CompletedTask;
+        public override Task Union_nested(bool isAsync) => Task.CompletedTask;
+        public override void Union_non_entity(bool isAsync) {}
+        public override Task Union_OrderBy_Skip_Take(bool isAsync) => Task.CompletedTask;
+        public override Task Union_Where(bool isAsync) => Task.CompletedTask;
+        public override Task Union_Skip_Take_OrderBy_ThenBy_Where(bool isAsync) => Task.CompletedTask;
+        public override Task Union_Union(bool isAsync) => Task.CompletedTask;
+        public override Task Union_Intersect(bool isAsync) => Task.CompletedTask;
+        public override Task Union_Take_Union_Take(bool isAsync) => Task.CompletedTask;
+        public override Task Select_Union(bool isAsync) => Task.CompletedTask;
+        public override Task Union_Select(bool isAsync) => Task.CompletedTask;
+        public override Task Union_with_anonymous_type_projection(bool isAsync) => Task.CompletedTask;
+        public override Task Select_Union_unrelated(bool isAsync) => Task.CompletedTask;
+        public override Task Select_Union_different_fields_in_anonymous_with_subquery(bool isAsync) => Task.CompletedTask;
+        public override Task Select_Except_reference_projection(bool isAsync) => Task.CompletedTask;
+        public override Task SubSelect_Union(bool isAsync) => Task.CompletedTask;
+        public override Task Client_eval_Union_FirstOrDefault(bool isAsync) => Task.CompletedTask;
     }
 }

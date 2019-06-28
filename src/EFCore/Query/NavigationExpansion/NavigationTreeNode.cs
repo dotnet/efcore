@@ -132,17 +132,14 @@ namespace Microsoft.EntityFrameworkCore.Query.NavigationExpansion
             return result;
         }
 
-        public List<NavigationTreeNode> Flatten()
+        public IEnumerable<NavigationTreeNode> Flatten()
         {
-            var result = new List<NavigationTreeNode>();
-            result.Add(this);
+            yield return this;
 
-            foreach (var child in Children)
+            foreach (var child in Children.SelectMany(c => c.Flatten()))
             {
-                result.AddRange(child.Flatten());
+                yield return child;
             }
-
-            return result;
         }
 
         // TODO: just make property settable?

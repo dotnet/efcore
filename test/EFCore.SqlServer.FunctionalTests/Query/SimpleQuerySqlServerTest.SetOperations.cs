@@ -71,14 +71,17 @@ WHERE CHARINDEX(N'Thomas', [c0].[ContactName]) > 0");        }
             AssertSql(
                 @"@__p_0='1'
 
-SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
-FROM [Customers] AS [c]
-WHERE ([c].[City] = N'Berlin') AND [c].[City] IS NOT NULL
-UNION
-SELECT [c0].[CustomerID], [c0].[Address], [c0].[City], [c0].[CompanyName], [c0].[ContactName], [c0].[ContactTitle], [c0].[Country], [c0].[Fax], [c0].[Phone], [c0].[PostalCode], [c0].[Region]
-FROM [Customers] AS [c0]
-WHERE ([c0].[City] = N'London') AND [c0].[City] IS NOT NULL
-ORDER BY [ContactName]
+SELECT [t].[CustomerID], [t].[Address], [t].[City], [t].[CompanyName], [t].[ContactName], [t].[ContactTitle], [t].[Country], [t].[Fax], [t].[Phone], [t].[PostalCode], [t].[Region]
+FROM (
+    SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+    FROM [Customers] AS [c]
+    WHERE ([c].[City] = N'Berlin') AND [c].[City] IS NOT NULL
+    UNION
+    SELECT [c0].[CustomerID], [c0].[Address], [c0].[City], [c0].[CompanyName], [c0].[ContactName], [c0].[ContactTitle], [c0].[Country], [c0].[Fax], [c0].[Phone], [c0].[PostalCode], [c0].[Region]
+    FROM [Customers] AS [c0]
+    WHERE ([c0].[City] = N'London') AND [c0].[City] IS NOT NULL
+) AS [t]
+ORDER BY [t].[ContactName]
 OFFSET @__p_0 ROWS FETCH NEXT @__p_0 ROWS ONLY");
         }
 
@@ -107,20 +110,23 @@ WHERE CHARINDEX(N'Thomas', [t].[ContactName]) > 0");
             AssertSql(
                 @"@__p_0='0'
 
-SELECT [t].[CustomerID], [t].[Address], [t].[City], [t].[CompanyName], [t].[ContactName], [t].[ContactTitle], [t].[Country], [t].[Fax], [t].[Phone], [t].[PostalCode], [t].[Region]
+SELECT [t0].[CustomerID], [t0].[Address], [t0].[City], [t0].[CompanyName], [t0].[ContactName], [t0].[ContactTitle], [t0].[Country], [t0].[Fax], [t0].[Phone], [t0].[PostalCode], [t0].[Region]
 FROM (
-    SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
-    FROM [Customers] AS [c]
-    WHERE ([c].[City] = N'Berlin') AND [c].[City] IS NOT NULL
-    UNION
-    SELECT [c0].[CustomerID], [c0].[Address], [c0].[City], [c0].[CompanyName], [c0].[ContactName], [c0].[ContactTitle], [c0].[Country], [c0].[Fax], [c0].[Phone], [c0].[PostalCode], [c0].[Region]
-    FROM [Customers] AS [c0]
-    WHERE ([c0].[City] = N'London') AND [c0].[City] IS NOT NULL
-    ORDER BY [Region], [City]
+    SELECT [t].[CustomerID], [t].[Address], [t].[City], [t].[CompanyName], [t].[ContactName], [t].[ContactTitle], [t].[Country], [t].[Fax], [t].[Phone], [t].[PostalCode], [t].[Region]
+    FROM (
+        SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+        FROM [Customers] AS [c]
+        WHERE ([c].[City] = N'Berlin') AND [c].[City] IS NOT NULL
+        UNION
+        SELECT [c0].[CustomerID], [c0].[Address], [c0].[City], [c0].[CompanyName], [c0].[ContactName], [c0].[ContactTitle], [c0].[Country], [c0].[Fax], [c0].[Phone], [c0].[PostalCode], [c0].[Region]
+        FROM [Customers] AS [c0]
+        WHERE ([c0].[City] = N'London') AND [c0].[City] IS NOT NULL
+    ) AS [t]
+    ORDER BY [t].[Region], [t].[City]
     OFFSET @__p_0 ROWS
-) AS [t]
-WHERE CHARINDEX(N'Thomas', [t].[ContactName]) > 0
-ORDER BY [t].[Region], [t].[City]");
+) AS [t0]
+WHERE CHARINDEX(N'Thomas', [t0].[ContactName]) > 0
+ORDER BY [t0].[Region], [t0].[City]");
         }
 
         public override async Task Union_Union(bool isAsync)
@@ -200,6 +206,20 @@ FROM (
 WHERE CHARINDEX(N'Hanover', [t].[Address]) > 0");
         }
 
+        public override async Task Union_with_anonymous_type_projection(bool isAsync)
+        {
+            await base.Union_with_anonymous_type_projection(isAsync);
+
+            AssertSql(
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE [c].[CompanyName] IS NOT NULL AND ([c].[CompanyName] LIKE N'A%')
+UNION
+SELECT [c0].[CustomerID], [c0].[Address], [c0].[City], [c0].[CompanyName], [c0].[ContactName], [c0].[ContactTitle], [c0].[Country], [c0].[Fax], [c0].[Phone], [c0].[PostalCode], [c0].[Region]
+FROM [Customers] AS [c0]
+WHERE [c0].[CompanyName] IS NOT NULL AND ([c0].[CompanyName] LIKE N'B%')");
+        }
+
         public override async Task Select_Union_unrelated(bool isAsync)
         {
             await base.Select_Union_unrelated(isAsync);
@@ -225,20 +245,56 @@ ORDER BY [t].[ContactName]");
                 @"@__p_0='1'
 @__p_1='10'
 
-SELECT [t].[Foo], [t].[CustomerID], [t].[Address], [t].[City], [t].[CompanyName], [t].[ContactName], [t].[ContactTitle], [t].[Country], [t].[Fax], [t].[Phone], [t].[PostalCode], [t].[Region]
+SELECT [t0].[Foo], [t0].[CustomerID], [t0].[Address], [t0].[City], [t0].[CompanyName], [t0].[ContactName], [t0].[ContactTitle], [t0].[Country], [t0].[Fax], [t0].[Phone], [t0].[PostalCode], [t0].[Region]
 FROM (
-    SELECT [c].[City] AS [Foo], [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
-    FROM [Customers] AS [c]
-    WHERE ([c].[City] = N'Berlin') AND [c].[City] IS NOT NULL
-    UNION
-    SELECT [c0].[Region] AS [Foo], [c0].[CustomerID], [c0].[Address], [c0].[City], [c0].[CompanyName], [c0].[ContactName], [c0].[ContactTitle], [c0].[Country], [c0].[Fax], [c0].[Phone], [c0].[PostalCode], [c0].[Region]
-    FROM [Customers] AS [c0]
-    WHERE ([c0].[City] = N'London') AND [c0].[City] IS NOT NULL
-    ORDER BY [Foo]
+    SELECT [t].[Foo], [t].[CustomerID], [t].[Address], [t].[City], [t].[CompanyName], [t].[ContactName], [t].[ContactTitle], [t].[Country], [t].[Fax], [t].[Phone], [t].[PostalCode], [t].[Region]
+    FROM (
+        SELECT [c].[City] AS [Foo], [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+        FROM [Customers] AS [c]
+        WHERE ([c].[City] = N'Berlin') AND [c].[City] IS NOT NULL
+        UNION
+        SELECT [c0].[Region] AS [Foo], [c0].[CustomerID], [c0].[Address], [c0].[City], [c0].[CompanyName], [c0].[ContactName], [c0].[ContactTitle], [c0].[Country], [c0].[Fax], [c0].[Phone], [c0].[PostalCode], [c0].[Region]
+        FROM [Customers] AS [c0]
+        WHERE ([c0].[City] = N'London') AND [c0].[City] IS NOT NULL
+    ) AS [t]
+    ORDER BY [t].[Foo]
     OFFSET @__p_0 ROWS FETCH NEXT @__p_1 ROWS ONLY
-) AS [t]
-WHERE ([t].[Foo] = N'Berlin') AND [t].[Foo] IS NOT NULL
-ORDER BY [t].[Foo]");
+) AS [t0]
+WHERE ([t0].[Foo] = N'Berlin') AND [t0].[Foo] IS NOT NULL
+ORDER BY [t0].[Foo]");
+        }
+
+        public override async Task Select_Except_reference_projection(bool isAsync)
+        {
+            await base.Select_Except_reference_projection(isAsync);
+
+            AssertSql(
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Orders] AS [o]
+LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]
+EXCEPT
+SELECT [c0].[CustomerID], [c0].[Address], [c0].[City], [c0].[CompanyName], [c0].[ContactName], [c0].[ContactTitle], [c0].[Country], [c0].[Fax], [c0].[Phone], [c0].[PostalCode], [c0].[Region]
+FROM [Orders] AS [o0]
+LEFT JOIN [Customers] AS [c0] ON [o0].[CustomerID] = [c0].[CustomerID]
+WHERE ([o0].[CustomerID] = N'ALFKI') AND [o0].[CustomerID] IS NOT NULL");
+        }
+
+        public override async Task SubSelect_Union(bool isAsync)
+        {
+            await base.SubSelect_Union(isAsync);
+
+            AssertSql(
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], (
+    SELECT COUNT(*)
+    FROM [Orders] AS [o]
+    WHERE ([c].[CustomerID] = [o].[CustomerID]) AND [o].[CustomerID] IS NOT NULL) AS [Orders]
+FROM [Customers] AS [c]
+UNION
+SELECT [c0].[CustomerID], [c0].[Address], [c0].[City], [c0].[CompanyName], [c0].[ContactName], [c0].[ContactTitle], [c0].[Country], [c0].[Fax], [c0].[Phone], [c0].[PostalCode], [c0].[Region], (
+    SELECT COUNT(*)
+    FROM [Orders] AS [o0]
+    WHERE ([c0].[CustomerID] = [o0].[CustomerID]) AND [o0].[CustomerID] IS NOT NULL) AS [Orders]
+FROM [Customers] AS [c0]");
         }
     }
 }

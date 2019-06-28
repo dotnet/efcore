@@ -478,7 +478,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
         }
 
-        [ConditionalFact]
+        [ConditionalFact(Skip = "#16298")]
         public virtual void Union_siblings_with_duplicate_property_in_subquery()
         {
             // Coke and Tea both have CaffeineGrams, which both need to be projected out on each side and so
@@ -498,7 +498,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalFact]
+        [ConditionalFact(Skip = "#16298")]
         public virtual void OfType_Union_subquery()
         {
             using (var context = CreateContext())
@@ -525,7 +525,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalFact]
+        [ConditionalFact(Skip = "#16298")]
         public virtual void Union_entity_equality()
         {
             using (var context = CreateContext())

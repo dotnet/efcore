@@ -7,6 +7,7 @@ using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
 {
@@ -27,6 +28,10 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
         private ColumnExpression(string name, TableExpressionBase table, Type type, RelationalTypeMapping typeMapping, bool nullable)
             : base(type, typeMapping)
         {
+            Check.NotEmpty(name, nameof(name));
+            Check.NotNull(table, nameof(table));
+            Check.NotEmpty(table.Alias, $"{nameof(table)}.{nameof(table.Alias)}");
+
             Name = name;
             Table = table;
             Nullable = nullable;
@@ -71,7 +76,6 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
 
         public override int GetHashCode() => HashCode.Combine(base.GetHashCode(), Name, Table, Nullable);
 
-        private string DebuggerDisplay()
-            => Table.Alias == null ? Name : $"{Table.Alias}.{Name}";
+        private string DebuggerDisplay() => $"{Table.Alias}.{Name}";
     }
 }
