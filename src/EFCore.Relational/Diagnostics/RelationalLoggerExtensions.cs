@@ -78,10 +78,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                     definition,
                     diagnosticSourceEnabled);
 
-                if (interceptor != null)
-                {
-                    return interceptor.ReaderExecuting(command, eventData, null);
-                }
+                return interceptor?.ReaderExecuting(command, eventData, null);
             }
 
             return null;
@@ -127,10 +124,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                     definition,
                     diagnosticSourceEnabled);
 
-                if (interceptor != null)
-                {
-                    return interceptor.ScalarExecuting(command, eventData, null);
-                }
+                return interceptor?.ScalarExecuting(command, eventData, null);
             }
 
             return null;
@@ -176,10 +170,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                     definition,
                     diagnosticSourceEnabled);
 
-                if (interceptor != null)
-                {
-                    return interceptor.NonQueryExecuting(command, eventData, null);
-                }
+                return interceptor?.NonQueryExecuting(command, eventData, null);
             }
 
             return null;
@@ -1006,7 +997,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="connection"> The connection. </param>
         /// <param name="startTime"> The time that the operation was started. </param>
         /// <returns> The result of execution, which may have been modified by an interceptor. </returns>
-        public static InterceptionResult?  ConnectionOpening(
+        public static InterceptionResult? ConnectionOpening(
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Connection> diagnostics,
             [NotNull] IRelationalConnection connection,
             DateTimeOffset startTime)
@@ -1029,10 +1020,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                     false,
                     diagnosticSourceEnabled);
 
-                if (interceptor != null)
-                {
-                    return interceptor.ConnectionOpening(connection.DbConnection, eventData, null);
-                }
+                return interceptor?.ConnectionOpening(connection.DbConnection, eventData, null);
             }
 
             return null;
@@ -1418,10 +1406,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                     definition,
                     diagnosticSourceEnabled);
 
-                if (interceptor != null)
-                {
-                    interceptor.ConnectionClosed(connection.DbConnection, eventData);
-                }
+                interceptor?.ConnectionClosed(connection.DbConnection, eventData);
             }
         }
 
@@ -1559,10 +1544,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                     definition,
                     diagnosticSourceEnabled);
 
-                if (interceptor != null)
-                {
-                    interceptor.ConnectionFailed(connection.DbConnection, eventData);
-                }
+                interceptor?.ConnectionFailed(connection.DbConnection, eventData);
             }
         }
 
@@ -1706,10 +1688,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                     definition,
                     diagnosticSourceEnabled);
 
-                if (interceptor != null)
-                {
-                    return interceptor.TransactionStarting(connection.DbConnection, eventData, null);
-                }
+                return interceptor?.TransactionStarting(connection.DbConnection, eventData, null);
             }
 
             return null;
@@ -1753,7 +1732,10 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                     definition,
                     diagnosticSourceEnabled);
 
-                return interceptor?.TransactionStartingAsync(connection.DbConnection, eventData, null, cancellationToken);
+                if (interceptor != null)
+                {
+                    return interceptor.TransactionStartingAsync(connection.DbConnection, eventData, null, cancellationToken);
+                }
             }
 
             return Task.FromResult<InterceptionResult<DbTransaction>?>(null);
@@ -2183,7 +2165,10 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                     true,
                     diagnosticSourceEnabled);
 
-                return interceptor?.TransactionCommittingAsync(transaction, eventData, null, cancellationToken);
+                if (interceptor != null)
+                {
+                    return interceptor.TransactionCommittingAsync(transaction, eventData, null, cancellationToken);
+                }
             }
 
             return Task.FromResult<InterceptionResult?>(null);
@@ -2311,7 +2296,10 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                     true,
                     diagnosticSourceEnabled);
 
-                return interceptor?.TransactionCommittedAsync(transaction, eventData, cancellationToken);
+                if (interceptor != null)
+                {
+                    return interceptor.TransactionCommittedAsync(transaction, eventData, cancellationToken);
+                }
             }
 
             return Task.CompletedTask;
@@ -2441,7 +2429,10 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                     true,
                     diagnosticSourceEnabled);
 
-                return interceptor?.TransactionRolledBackAsync(transaction, eventData, cancellationToken);
+                if (interceptor != null)
+                {
+                    return interceptor.TransactionRolledBackAsync(transaction, eventData, cancellationToken);
+                }
             }
 
             return Task.CompletedTask;
@@ -2568,7 +2559,10 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                     true,
                     diagnosticSourceEnabled);
 
-                return interceptor?.TransactionRollingBackAsync(transaction, eventData, null, cancellationToken);
+                if (interceptor != null)
+                {
+                    return interceptor.TransactionRollingBackAsync(transaction, eventData, null, cancellationToken);
+                }
             }
 
             return Task.FromResult<InterceptionResult?>(null);
@@ -2747,7 +2741,10 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                     true,
                     diagnosticSourceEnabled);
 
-                return interceptor?.TransactionFailedAsync(transaction, eventData, cancellationToken);
+                if (interceptor != null)
+                {
+                    return interceptor.TransactionFailedAsync(transaction, eventData, cancellationToken);
+                }
             }
 
             return Task.CompletedTask;
