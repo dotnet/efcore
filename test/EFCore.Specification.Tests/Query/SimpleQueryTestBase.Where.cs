@@ -2016,5 +2016,16 @@ namespace Microsoft.EntityFrameworkCore.Query
                 ps => ps.Where(p => (double?)p.UnitPrice > 100),
                 entryCount: 2);
         }
+
+        [ConditionalTheory]  // issue #16335
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Where_is_conditional(bool isAsync)
+        {
+            var customer = new Customer();
+
+            return AssertQuery<Product>(
+                isAsync,
+                ps => ps.Where(p => p is Product ? false : true));
+        }
     }
 }

@@ -94,7 +94,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Pipeline
         {
             // This is for "x is y"
             var visitedExpression = Visit(typeBinaryExpression.Expression);
-            var visitedTypeBinary= typeBinaryExpression.Update(Unwrap(visitedExpression));
+            var visitedTypeBinary = typeBinaryExpression.Update(Unwrap(visitedExpression));
             return visitedExpression is EntityReferenceExpression entityWrapper
                 ? entityWrapper.Update(visitedTypeBinary)
                 : (Expression)visitedTypeBinary;
@@ -106,7 +106,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Pipeline
             var newIfTrue = Visit(conditionalExpression.IfTrue);
             var newIfFalse = Visit(conditionalExpression.IfFalse);
 
-            var newConditional = conditionalExpression.Update(newTest, Unwrap(newIfTrue), Unwrap(newIfFalse));
+            var newConditional = conditionalExpression.Update(Unwrap(newTest), Unwrap(newIfTrue), Unwrap(newIfFalse));
 
             // TODO: the true and false sides may refer different entity types which happen to have the same
             // CLR type (e.g. shared entities)
