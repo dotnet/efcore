@@ -192,6 +192,24 @@ WHERE ((c[""Discriminator""] = ""Order"") AND (c[""OrderID""] < 10250))");
             base.Max_no_data();
         }
 
+        [ConditionalFact(Skip = "Issue#16146")]
+        public override void Average_no_data_subquery()
+        {
+            base.Average_no_data_subquery();
+        }
+
+        [ConditionalFact(Skip = "Issue#16146")]
+        public override void Max_no_data_subquery()
+        {
+            base.Max_no_data_subquery();
+        }
+
+        [ConditionalFact(Skip = "Issue#16146")]
+        public override void Min_no_data_subquery()
+        {
+            base.Min_no_data_subquery();
+        }
+
         [ConditionalTheory(Skip = "Issue#16146")]
         public override async Task Average_with_no_arg(bool isAsync)
         {

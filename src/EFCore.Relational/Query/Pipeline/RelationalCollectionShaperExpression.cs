@@ -18,7 +18,8 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
             Expression outerIdentifier,
             Expression selfIdentifier,
             Expression innerShaper,
-            INavigation navigation)
+            INavigation navigation,
+            Type elementType)
         {
             CollectionId = collectionId;
             ParentIdentifier = parentIdentifier;
@@ -26,6 +27,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
             SelfIdentifier = selfIdentifier;
             InnerShaper = innerShaper;
             Navigation = navigation;
+            ElementType = elementType;
         }
 
         public int CollectionId { get; }
@@ -34,8 +36,9 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
         public Expression SelfIdentifier { get; }
         public Expression InnerShaper { get; }
         public INavigation Navigation { get; }
+        public Type ElementType { get; }
 
-        public override Type Type => Navigation?.ClrType ?? typeof(List<>).MakeGenericType(InnerShaper.Type);
+        public override Type Type => Navigation?.ClrType ?? typeof(List<>).MakeGenericType(ElementType);
         public override ExpressionType NodeType => ExpressionType.Extension;
 
         protected override Expression VisitChildren(ExpressionVisitor visitor)
@@ -56,7 +59,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
                 || selfIdentifier != SelfIdentifier
                 || innerShaper != InnerShaper
                 ? new RelationalCollectionShaperExpression(
-                    CollectionId, parentIdentifier, outerIdentifier, selfIdentifier, innerShaper, Navigation)
+                    CollectionId, parentIdentifier, outerIdentifier, selfIdentifier, innerShaper, Navigation, ElementType)
                 : this;
         }
 

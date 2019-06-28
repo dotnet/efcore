@@ -1310,7 +1310,7 @@ INNER JOIN [LevelTwo] AS [l1.OneToMany_Optional1] ON [l1].[Id] = [l1.OneToMany_O
 LEFT JOIN [LevelThree] AS [l1.OneToMany_Optional1.OneToOne_Optional_FK2] ON [l1.OneToMany_Optional1].[Id] = [l1.OneToMany_Optional1.OneToOne_Optional_FK2].[Level2_Optional_Id]");
         }
 
-        [ConditionalFact(Skip = "Issue#15611")]
+        [ConditionalFact]
         public void Multiple_complex_includes_from_sql()
         {
             using (var context = CreateContext())

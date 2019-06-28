@@ -324,33 +324,15 @@ ORDER BY [o].[OrderID]");
             base.Select_nested_collection_multi_level();
 
             AssertSql(
-                @"SELECT [c].[CustomerID]
+                @"SELECT [c].[CustomerID], [t].[OrderDate], [t].[OrderID], [t].[CustomerID]
 FROM [Customers] AS [c]
-WHERE [c].[CustomerID] LIKE N'A%'",
-                //
-                @"@_outer_CustomerID='ALFKI' (Size = 5)
-
-SELECT TOP(3) [o].[OrderDate] AS [Date]
-FROM [Orders] AS [o]
-WHERE (@_outer_CustomerID = [o].[CustomerID]) AND ([o].[OrderID] < 10500)",
-                //
-                @"@_outer_CustomerID='ANATR' (Size = 5)
-
-SELECT TOP(3) [o].[OrderDate] AS [Date]
-FROM [Orders] AS [o]
-WHERE (@_outer_CustomerID = [o].[CustomerID]) AND ([o].[OrderID] < 10500)",
-                //
-                @"@_outer_CustomerID='ANTON' (Size = 5)
-
-SELECT TOP(3) [o].[OrderDate] AS [Date]
-FROM [Orders] AS [o]
-WHERE (@_outer_CustomerID = [o].[CustomerID]) AND ([o].[OrderID] < 10500)",
-                //
-                @"@_outer_CustomerID='AROUT' (Size = 5)
-
-SELECT TOP(3) [o].[OrderDate] AS [Date]
-FROM [Orders] AS [o]
-WHERE (@_outer_CustomerID = [o].[CustomerID]) AND ([o].[OrderID] < 10500)");
+LEFT JOIN (
+    SELECT TOP(3) [o].[OrderDate], [o].[OrderID], [o].[CustomerID]
+    FROM [Orders] AS [o]
+    WHERE [o].[OrderID] < 10500
+) AS [t] ON [c].[CustomerID] = [t].[CustomerID]
+WHERE [c].[CustomerID] LIKE N'A%'
+ORDER BY [c].[CustomerID], [t].[OrderID]");
         }
 
         public override void Select_nested_collection_multi_level2()
@@ -627,11 +609,10 @@ WHERE [o].[OrderID] < 10300");
     FROM (
         SELECT TOP(1) [o].[CustomerID], [o].[OrderID]
         FROM [Orders] AS [o]
-        WHERE [c].[CustomerID] = [o].[CustomerID]
+        WHERE ([c].[CustomerID] = [o].[CustomerID]) AND [o].[CustomerID] IS NOT NULL
         ORDER BY [o].[OrderID]
     ) AS [t]
-    ORDER BY [t].[OrderID]
-)
+    ORDER BY [t].[OrderID])
 FROM [Customers] AS [c]");
         }
 
@@ -643,10 +624,9 @@ FROM [Customers] AS [c]");
                 @"SELECT (
     SELECT [o].[CustomerID]
     FROM [Orders] AS [o]
-    WHERE [c].[CustomerID] = [o].[CustomerID]
+    WHERE ([c].[CustomerID] = [o].[CustomerID]) AND [o].[CustomerID] IS NOT NULL
     ORDER BY [o].[OrderID]
-    OFFSET 1 ROWS FETCH NEXT 1 ROWS ONLY
-)
+    OFFSET 1 ROWS FETCH NEXT 1 ROWS ONLY)
 FROM [Customers] AS [c]");
         }
 
@@ -658,8 +638,7 @@ FROM [Customers] AS [c]");
                 @"SELECT (
     SELECT DISTINCT TOP(1) [o].[CustomerID]
     FROM [Orders] AS [o]
-    WHERE [c].[CustomerID] = [o].[CustomerID]
-)
+    WHERE ([c].[CustomerID] = [o].[CustomerID]) AND [o].[CustomerID] IS NOT NULL)
 FROM [Customers] AS [c]");
         }
 
@@ -711,11 +690,10 @@ SELECT (
     FROM (
         SELECT TOP(@__i_0) [o].[CustomerID], [o].[OrderID]
         FROM [Orders] AS [o]
-        WHERE [c].[CustomerID] = [o].[CustomerID]
+        WHERE ([c].[CustomerID] = [o].[CustomerID]) AND [o].[CustomerID] IS NOT NULL
         ORDER BY [o].[OrderID]
     ) AS [t]
-    ORDER BY [t].[OrderID]
-)
+    ORDER BY [t].[OrderID])
 FROM [Customers] AS [c]");
         }
 
@@ -756,7 +734,7 @@ FROM [Customers] AS [c]");
                 @"SELECT (
     SELECT TOP(1) [t].[CustomerID]
     FROM (
-        SELECT TOP(2) [o].[CustomerID], [o].[OrderDate]
+        SELECT TOP(2) [o].[CustomerID], [o].[OrderID], [o].[OrderDate]
         FROM [Orders] AS [o]
         WHERE ([c].[CustomerID] = [o].[CustomerID]) AND [o].[CustomerID] IS NOT NULL
         ORDER BY [o].[CustomerID], [o].[OrderDate] DESC
@@ -770,19 +748,18 @@ FROM [Customers] AS [c]");
             await base.Project_single_element_from_collection_with_OrderBy_over_navigation_Take_and_FirstOrDefault(isAsync);
 
             AssertSql(
-                @"SELECT COALESCE((
+                @"SELECT (
     SELECT TOP(1) [t].[OrderID]
     FROM (
-        SELECT TOP(1) [od].[OrderID], [od.Product].[ProductName]
-        FROM [Order Details] AS [od]
-        INNER JOIN [Products] AS [od.Product] ON [od].[ProductID] = [od.Product].[ProductID]
-        WHERE [o].[OrderID] = [od].[OrderID]
-        ORDER BY [od.Product].[ProductName]
+        SELECT TOP(1) [o].[OrderID], [o].[ProductID], [p].[ProductID] AS [ProductID0], [p].[ProductName]
+        FROM [Order Details] AS [o]
+        INNER JOIN [Products] AS [p] ON [o].[ProductID] = [p].[ProductID]
+        WHERE [o0].[OrderID] = [o].[OrderID]
+        ORDER BY [p].[ProductName]
     ) AS [t]
-    ORDER BY [t].[ProductName]
-), 0)
-FROM [Orders] AS [o]
-WHERE [o].[OrderID] < 10300");
+    ORDER BY [t].[ProductName])
+FROM [Orders] AS [o0]
+WHERE [o0].[OrderID] < 10300");
         }
 
         public override async Task Project_single_element_from_collection_with_OrderBy_over_navigation_Take_and_FirstOrDefault_2(
@@ -952,10 +929,10 @@ ORDER BY [c].[CustomerID]");
             await base.Anonymous_projection_with_repeated_property_being_ordered_2(isAsync);
 
             AssertSql(
-                @"SELECT [o.Customer].[CustomerID] AS [A], [o].[CustomerID] AS [B]
+                @"SELECT [c].[CustomerID] AS [A], [o].[CustomerID] AS [B]
 FROM [Orders] AS [o]
-LEFT JOIN [Customers] AS [o.Customer] ON [o].[CustomerID] = [o.Customer].[CustomerID]
-ORDER BY [B]");
+LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]
+ORDER BY [o].[CustomerID]");
         }
 
         public override async Task Select_GetValueOrDefault_on_DateTime(bool isAsync)

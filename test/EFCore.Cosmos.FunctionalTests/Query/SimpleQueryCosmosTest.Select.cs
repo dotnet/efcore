@@ -267,6 +267,7 @@ FROM root c
 WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""City""] = ""London""))");
         }
 
+        [ConditionalTheory(Skip = "Issue #14935")]
         public override void Select_nested_collection_multi_level()
         {
             base.Select_nested_collection_multi_level();
@@ -535,6 +536,7 @@ FROM root c
 WHERE ((c[""Discriminator""] = ""Order"") AND (c[""OrderID""] < 10300))");
         }
 
+        [ConditionalTheory(Skip = "Issue #14935")]
         public override async Task Project_single_element_from_collection_with_OrderBy_Take_and_FirstOrDefault(bool isAsync)
         {
             await AssertQuery<Customer>(
@@ -548,6 +550,7 @@ FROM root c
 WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] = ""ALFKI""))");
         }
 
+        [ConditionalTheory(Skip = "Issue #14935")]
         public override async Task Project_single_element_from_collection_with_OrderBy_Skip_and_FirstOrDefault(bool isAsync)
         {
             await AssertQuery<Customer>(
@@ -561,6 +564,7 @@ FROM root c
 WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] = ""ALFKI""))");
         }
 
+        [ConditionalTheory(Skip = "Issue #14935")]
         public override async Task Project_single_element_from_collection_with_OrderBy_Distinct_and_FirstOrDefault(bool isAsync)
         {
             await AssertQuery<Customer>(
@@ -584,6 +588,7 @@ FROM root c
 WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] = ""ALFKI""))");
         }
 
+        [ConditionalTheory(Skip = "Issue #14935")]
         public override async Task Project_single_element_from_collection_with_OrderBy_Take_and_FirstOrDefault_with_parameter(bool isAsync)
         {
             await AssertQuery<Customer>(
@@ -647,6 +652,7 @@ FROM root c
 WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] = ""ALFKI""))");
         }
 
+        [ConditionalTheory(Skip = "Issue #14935")]
         public override async Task Project_single_element_from_collection_with_OrderBy_over_navigation_Take_and_FirstOrDefault(bool isAsync)
         {
             await AssertQueryScalar<Order>(
@@ -803,6 +809,7 @@ WHERE (c[""Discriminator""] = ""Customer"")
 ORDER BY c[""CustomerID""]");
         }
 
+        [ConditionalTheory(Skip = "Issue #14935")]
         public override async Task Anonymous_projection_with_repeated_property_being_ordered_2(bool isAsync)
         {
             await base.Anonymous_projection_with_repeated_property_being_ordered_2(isAsync);

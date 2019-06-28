@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -101,14 +102,18 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
                             var result = _queryableMethodTranslatingExpressionVisitor.TranslateSubquery(methodCallExpression.Arguments[0]);
                             var navigation = (INavigation)((ConstantExpression)methodCallExpression.Arguments[1]).Value;
 
-                            return _selectExpression.AddCollectionProjection(result, navigation);
+                            return _selectExpression.AddCollectionProjection(result, navigation, null);
                         }
 
-                        if (methodCallExpression.Method.Name == "ToList")
+                        if (methodCallExpression.Method.IsGenericMethod
+                            && methodCallExpression.Method.DeclaringType == typeof(Enumerable)
+                            && methodCallExpression.Method.Name == nameof(Enumerable.ToList))
                         {
+                            var elementType = methodCallExpression.Method.GetGenericArguments()[0];
+
                             var result = _queryableMethodTranslatingExpressionVisitor.TranslateSubquery(methodCallExpression.Arguments[0]);
 
-                            return _selectExpression.AddCollectionProjection(result, null);
+                            return _selectExpression.AddCollectionProjection(result, null, elementType);
                         }
 
                         var subquery = _queryableMethodTranslatingExpressionVisitor.TranslateSubquery(methodCallExpression);
@@ -117,7 +122,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
                         {
                             if (subquery.ResultType == ResultType.Enumerable)
                             {
-                                return _selectExpression.AddCollectionProjection(subquery, null);
+                                return _selectExpression.AddCollectionProjection(subquery, null, subquery.ShaperExpression.Type);
                             }
                         }
                     }

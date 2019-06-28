@@ -79,7 +79,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalFact(Skip = "issue #15611")]
+        [ConditionalFact]
         public virtual void Tag_on_include_query()
         {
             using (var context = CreateContext())

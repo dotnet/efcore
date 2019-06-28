@@ -420,7 +420,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Pipeline
                         {
                             var accessorExpression = Expression.Constant(new ClrCollectionAccessorFactory().Create(navigation));
                             navigationExpression = Expression.Call(accessorExpression, _accessorAddRangeMethodInfo,
-                                convertedInstanceVariable, new CollectionShaperExpression(null, nestedShaper, navigation));
+                                convertedInstanceVariable, new CollectionShaperExpression(null, nestedShaper, navigation, null));
                         }
                         else
                         {

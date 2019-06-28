@@ -367,6 +367,7 @@ WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""City""] = ""London""))");
 
         private static readonly Expression<Func<Order, bool>> _filter = o => o.CustomerID == "ALFKI";
 
+        [ConditionalTheory(Skip = "Issue #14935")]
         public override async Task Where_as_queryable_expression(bool isAsync)
         {
             await AssertQuery<Customer>(
@@ -904,6 +905,7 @@ FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
 
+        [ConditionalTheory(Skip = "Issue #14935")]
         public override async Task Where_string_indexof(bool isAsync)
         {
             await base.Where_string_indexof(isAsync);
@@ -1179,6 +1181,7 @@ FROM root c
 WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""City""] = c[""City""]))");
         }
 
+        [ConditionalTheory(Skip = "Issue #14935")]
         public override async Task Where_in_optimization_multiple(bool isAsync)
         {
             await base.Where_in_optimization_multiple(isAsync);
@@ -1189,6 +1192,7 @@ FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
 
+        [ConditionalTheory(Skip = "Issue #14935")]
         public override async Task Where_not_in_optimization1(bool isAsync)
         {
             await base.Where_not_in_optimization1(isAsync);
@@ -1199,6 +1203,7 @@ FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
 
+        [ConditionalTheory(Skip = "Issue #14935")]
         public override async Task Where_not_in_optimization2(bool isAsync)
         {
             await base.Where_not_in_optimization2(isAsync);
@@ -1209,6 +1214,7 @@ FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
 
+        [ConditionalTheory(Skip = "Issue #14935")]
         public override async Task Where_not_in_optimization3(bool isAsync)
         {
             await base.Where_not_in_optimization3(isAsync);
@@ -1219,6 +1225,7 @@ FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
 
+        [ConditionalTheory(Skip = "Issue #14935")]
         public override async Task Where_not_in_optimization4(bool isAsync)
         {
             await base.Where_not_in_optimization4(isAsync);
@@ -1229,6 +1236,7 @@ FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
 
+        [ConditionalTheory(Skip = "Issue #14935")]
         public override async Task Where_select_many_and(bool isAsync)
         {
             await base.Where_select_many_and(isAsync);
@@ -1708,6 +1716,7 @@ FROM root c
 WHERE ((c[""Discriminator""] = ""Customer"") AND ((c[""City""] = null) AND (c[""Country""] = ""UK"")))");
         }
 
+        [ConditionalTheory(Skip = "Issue #14935")]
         public override async Task Where_Is_on_same_type(bool isAsync)
         {
             await base.Where_Is_on_same_type(isAsync);

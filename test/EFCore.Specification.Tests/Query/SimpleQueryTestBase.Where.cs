@@ -28,7 +28,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         private static readonly Expression<Func<Order, bool>> _filter = o => o.CustomerID == "ALFKI";
 
-        [ConditionalTheory(Skip = "TaskItem#6")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Where_as_queryable_expression(bool isAsync)
         {
@@ -856,7 +856,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 20);
         }
 
-        [ConditionalTheory(Skip = "TaskList#1")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Where_string_indexof(bool isAsync)
         {
@@ -1119,7 +1119,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 91);
         }
 
-        [ConditionalTheory(Skip = "TaskList#10")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Where_in_optimization_multiple(bool isAsync)
         {
@@ -1141,7 +1141,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 16);
         }
 
-        [ConditionalTheory(Skip = "TaskList#10")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Where_not_in_optimization1(bool isAsync)
         {
@@ -1161,7 +1161,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 90);
         }
 
-        [ConditionalTheory(Skip = "TaskList#10")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Where_not_in_optimization2(bool isAsync)
         {
@@ -1181,7 +1181,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 93);
         }
 
-        [ConditionalTheory(Skip = "TaskList#10")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Where_not_in_optimization3(bool isAsync)
         {
@@ -1202,7 +1202,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 92);
         }
 
-        [ConditionalTheory(Skip = "TaskList#10")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Where_not_in_optimization4(bool isAsync)
         {
@@ -1224,7 +1224,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 90);
         }
 
-        [ConditionalTheory(Skip = "TaskList#10")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Where_select_many_and(bool isAsync)
         {
@@ -1561,7 +1561,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 22);
         }
 
-        [ConditionalTheory(Skip = "TaskList#9")]
+        [ConditionalTheory(Skip = "Issue#14572")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Where_expression_invoke(bool isAsync)
         {
@@ -1877,7 +1877,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 cs => cs.Where(c => c.City == "London").Select(c => c.CompanyName));
         }
 
-        [ConditionalTheory(Skip = "TaskItem#5")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Where_Is_on_same_type(bool isAsync)
         {
@@ -1950,7 +1950,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 5);
         }
 
-        [ConditionalTheory(Skip = "TaskList#6")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Where_contains_on_navigation(bool isAsync)
         {
@@ -1960,7 +1960,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 830);
         }
 
-        [ConditionalTheory(Skip = "TaskList#6")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Where_subquery_FirstOrDefault_is_null(bool isAsync)
         {
@@ -1970,7 +1970,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 2);
         }
 
-        [ConditionalTheory(Skip = "TaskList#6")]
+        [ConditionalTheory(Skip = "Issue#15855")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Where_subquery_FirstOrDefault_compared_to_entity(bool isAsync)
         {

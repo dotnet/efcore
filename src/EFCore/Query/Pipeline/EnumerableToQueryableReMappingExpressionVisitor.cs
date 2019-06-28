@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
@@ -113,6 +114,12 @@ namespace Microsoft.EntityFrameworkCore.Query.Pipeline
 
         private static bool CanConvertEnumerableToQueryable(Type enumerableType, Type queryableType, Type argumentType)
         {
+            if (enumerableType == typeof(IEnumerable)
+                && queryableType == typeof(IQueryable))
+            {
+                return true;
+            }
+
             if (!enumerableType.IsGenericType
                 || !queryableType.IsGenericType
                 || argumentType.TryGetElementType(typeof(IQueryable<>)) == null
