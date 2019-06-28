@@ -4,6 +4,7 @@
 using System;
 using System.Data;
 using System.Data.Common;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Diagnostics;
@@ -17,6 +18,43 @@ namespace Microsoft.EntityFrameworkCore
         protected TransactionInterceptionTestBase(InterceptionFixtureBase fixture)
             : base(fixture)
         {
+        }
+
+        [ConditionalTheory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual async Task BeginTransaction_without_interceptor(bool async)
+        {
+            using (var context = CreateContext(Enumerable.Empty<IInterceptor>()))
+            {
+                using (var transaction = async
+                    ? await context.Database.BeginTransactionAsync()
+                    : context.Database.BeginTransaction())
+                {
+                    Assert.NotNull(transaction.GetDbTransaction());
+                }
+            }
+        }
+
+        [ConditionalTheory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual async Task UseTransaction_without_interceptor(bool async)
+        {
+            using (var context = CreateContext(Enumerable.Empty<IInterceptor>()))
+            {
+                using (var transaction = context.Database.GetDbConnection().BeginTransaction())
+                {
+                    var contextTransaction = async
+                        ? await context.Database.UseTransactionAsync(transaction)
+                        : context.Database.UseTransaction(transaction);
+
+                    {
+                        Assert.NotNull(contextTransaction.GetDbTransaction());
+                        Assert.Same(transaction, contextTransaction.GetDbTransaction());
+                    }
+                }
+            }
         }
 
         [ConditionalTheory]
