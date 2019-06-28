@@ -5617,6 +5617,122 @@ ORDER BY [b].[Id]");
 
         #endregion
 
+        #region Bug15684
+
+        [ConditionalFact]
+        public virtual void Projection_failing_with_EnumToStringConverter()
+        {
+            using (CreateDatabase15684())
+            {
+                using (var context = new MyContext15684(_options))
+                {
+                    var query = from p in context.Products
+                                join c in context.Categories on p.CategoryId equals c.Id into grouping
+                                from c in grouping.DefaultIfEmpty()
+                                select new ProductDto15684
+                                {
+                                    Id = p.Id,
+                                    Name = p.Name,
+                                    CategoryName = c == null ? "Other" : c.Name,
+                                    CategoryStatus = c == null ? CategoryStatus15684.Active : c.Status
+                                };
+                    var result = query.ToList();
+                    Assert.Equal(2, result.Count);
+                    AssertSql(@"SELECT [p].[Id], [p].[Name], CASE
+    WHEN [c].[Id] IS NULL THEN N'Other'
+    ELSE [c].[Name]
+END AS [CategoryName], CASE
+    WHEN [c].[Id] IS NULL THEN N'Active'
+    ELSE [c].[Status]
+END AS [CategoryStatus]
+FROM [Products] AS [p]
+LEFT JOIN [Categories] AS [c] ON [p].[CategoryId] = [c].[Id]");
+                }
+            }
+        }
+
+        private SqlServerTestStore CreateDatabase15684()
+            => CreateTestStore(
+                () => new MyContext15684(_options),
+                context =>
+                {
+                    context.Products.Add(new Product15684
+                    {
+                        Name = "Apple",
+                        Category = new Category15684
+                        {
+                            Name = "Fruit",
+                            Status = CategoryStatus15684.Active
+                        }
+                    });
+
+
+                    context.Products.Add(new Product15684
+                    {
+                        Name = "Bike"
+                    });
+
+                    context.SaveChanges();
+
+                    ClearLog();
+                });
+
+        public class MyContext15684 : DbContext
+        {
+            public DbSet<Category15684> Categories { get; set; }
+            public DbSet<Product15684> Products { get; set; }
+
+            public MyContext15684(DbContextOptions options) : base(options) {}
+
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
+            {
+                modelBuilder
+                    .Entity<Category15684>()
+                    .Property(e => e.Status)
+                    .HasConversion(new EnumToStringConverter<CategoryStatus15684>());
+            }
+        }
+
+        public class Product15684
+        {
+            [Key]
+            public int Id { get; set; }
+
+            [Required]
+            public string Name { get; set; }
+
+            public int? CategoryId { get; set; }
+
+            public Category15684 Category { get; set; }
+        }
+
+        public class Category15684
+        {
+            [Key]
+            public int Id { get; set; }
+
+            [Required]
+            public string Name { get; set; }
+
+            public CategoryStatus15684 Status { get; set; }
+        }
+
+        public class ProductDto15684
+        {
+            public string CategoryName { get; set; }
+            public CategoryStatus15684 CategoryStatus { get; set; }
+            public int Id { get; set; }
+            public string Name { get; set; }
+        }
+
+        public enum CategoryStatus15684
+        {
+            Active = 0,
+            Removed = 1,
+        }
+
+        #endregion Bug15684
+
         private DbContextOptions _options;
 
         private SqlServerTestStore CreateTestStore<TContext>(
