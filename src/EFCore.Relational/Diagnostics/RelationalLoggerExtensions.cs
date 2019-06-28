@@ -1849,7 +1849,10 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                     definition,
                     diagnosticSourceEnabled);
 
-                return interceptor?.TransactionStarted(connection.DbConnection, eventData, transaction);
+                if (interceptor != null)
+                {
+                    return interceptor.TransactionStarted(connection.DbConnection, eventData, transaction);
+                }
             }
 
             return transaction;
@@ -1896,7 +1899,10 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                     definition,
                     diagnosticSourceEnabled);
 
-                return interceptor?.TransactionStartedAsync(connection.DbConnection, eventData, transaction, cancellationToken);
+                if (interceptor != null)
+                {
+                    return interceptor.TransactionStartedAsync(connection.DbConnection, eventData, transaction, cancellationToken);
+                }
             }
 
             return Task.FromResult(transaction);
@@ -1990,7 +1996,10 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                     definition,
                     diagnosticSourceEnabled);
 
-                return interceptor?.TransactionUsed(connection.DbConnection, eventData, transaction);
+                if (interceptor != null)
+                {
+                    return interceptor.TransactionUsed(connection.DbConnection, eventData, transaction);
+                }
             }
 
             return transaction;
@@ -2034,7 +2043,10 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                     definition,
                     diagnosticSourceEnabled);
 
-                return interceptor?.TransactionUsedAsync(connection.DbConnection, eventData, transaction, cancellationToken);
+                if (interceptor != null)
+                {
+                    return interceptor.TransactionUsedAsync(connection.DbConnection, eventData, transaction, cancellationToken);
+                }
             }
 
             return Task.FromResult(transaction);
