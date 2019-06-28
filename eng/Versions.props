@@ -20,9 +20,9 @@
     <NetTopologySuiteCorePackageVersion>1.15.1</NetTopologySuiteCorePackageVersion>
     <NetTopologySuiteIOSpatiaLitePackageVersion>1.15.0</NetTopologySuiteIOSpatiaLitePackageVersion>
     <NetTopologySuiteIOSqlServerBytesPackageVersion>1.15.0</NetTopologySuiteIOSqlServerBytesPackageVersion>
-    <SQLitePCLRawBundleESqlite3PackageVersion>2.0.0-pre20190625090255</SQLitePCLRawBundleESqlite3PackageVersion>
-    <SQLitePCLRawBundleESqlcipherPackageVersion>2.0.0-pre20190625090255</SQLitePCLRawBundleESqlcipherPackageVersion>
-    <SQLitePCLRawCorePackageVersion>2.0.0-pre20190625090255</SQLitePCLRawCorePackageVersion>
+    <SQLitePCLRawBundleESqlite3PackageVersion>2.0.0-pre20190628101813</SQLitePCLRawBundleESqlite3PackageVersion>
+    <SQLitePCLRawBundleESqlcipherPackageVersion>2.0.0-pre20190628101813</SQLitePCLRawBundleESqlcipherPackageVersion>
+    <SQLitePCLRawCorePackageVersion>2.0.0-pre20190628101813</SQLitePCLRawCorePackageVersion>
     <StyleCopAnalyzersPackageVersion>1.1.1-beta.61</StyleCopAnalyzersPackageVersion>
     <BenchmarkDotNetPackageVersion>0.11.3</BenchmarkDotNetPackageVersion>
     <MicrosoftDataSqlClientPackageVersion>1.0.19128.1-Preview</MicrosoftDataSqlClientPackageVersion>
