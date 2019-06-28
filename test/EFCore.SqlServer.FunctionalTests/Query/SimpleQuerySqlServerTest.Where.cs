@@ -1772,5 +1772,18 @@ SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
 WHERE @__p_0 = CAST(1 AS bit)");
         }
+
+        public override async Task Where_is_conditional(bool isAsync)
+        {
+            await base.Where_is_conditional(isAsync);
+
+            AssertSql(
+                @"SELECT [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[SupplierID], [p].[UnitPrice], [p].[UnitsInStock]
+FROM [Products] AS [p]
+WHERE CASE
+    WHEN CAST(1 AS bit) = CAST(1 AS bit) THEN CAST(0 AS bit)
+    ELSE CAST(1 AS bit)
+END = CAST(1 AS bit)");
+        }
     }
 }
