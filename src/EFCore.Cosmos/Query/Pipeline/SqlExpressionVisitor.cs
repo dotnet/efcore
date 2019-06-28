@@ -63,6 +63,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Pipeline
         protected abstract Expression VisitSqlConstant(SqlConstantExpression sqlConstantExpression);
         protected abstract Expression VisitSqlBinary(SqlBinaryExpression sqlBinaryExpression);
         protected abstract Expression VisitKeyAccess(KeyAccessExpression keyAccessExpression);
+        protected abstract Expression VisitObjectAccess(ObjectAccessExpression objectAccessExpression);
         protected abstract Expression VisitRootReference(RootReferenceExpression rootReferenceExpression);
         protected abstract Expression VisitEntityProjection(EntityProjectionExpression entityProjectionExpression);
         protected abstract Expression VisitProjection(ProjectionExpression projectionExpression);

@@ -2,13 +2,12 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Reflection;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Query.Expressions.Internal;
 using Microsoft.EntityFrameworkCore.Query.Pipeline;
 
@@ -55,7 +54,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Pipeline
         {
             protected override Expression VisitExtension(Expression node)
             {
-                if (node is SqlExpression sqlExpression)
+                if (node is SqlExpression sqlExpression
+                    && !(node is ObjectAccessExpression))
                 {
                     if (sqlExpression.TypeMapping == null)
                     {
@@ -69,42 +69,73 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Pipeline
 
         protected override Expression VisitMember(MemberExpression memberExpression)
         {
-            if (memberExpression.Expression is EntityShaperExpression)
-            {
-                return BindProperty(memberExpression.Expression, memberExpression.Member.GetSimpleMemberName());
-            }
-
             var innerExpression = Visit(memberExpression.Expression);
+
+            if (TryBindProperty(innerExpression, MemberIdentity.Create(memberExpression.Member), out var result))
+            {
+                return result;
+            }
 
             return TranslationFailed(memberExpression.Expression, innerExpression)
                 ? null
                 : _memberTranslatorProvider.Translate((SqlExpression)innerExpression, memberExpression.Member, memberExpression.Type);
         }
 
-        private SqlExpression BindProperty(Expression source, string propertyName)
+        private bool TryBindProperty(Expression source, MemberIdentity member, out SqlExpression expression)
         {
-            if (source is EntityShaperExpression entityShaper)
+            if (source is EntityShaperExpression entityShaperExpression)
             {
-                var entityType = entityShaper.EntityType;
+                var projectionBindingExpression = (ProjectionBindingExpression)entityShaperExpression.ValueBufferExpression;
+                var selectExpression = ((SelectExpression)projectionBindingExpression.QueryExpression);
 
-                return BindProperty(entityShaper, entityType.FindProperty(propertyName));
+                var entityType = entityShaperExpression.EntityType;
+                var property = member.MemberInfo != null
+                    ? entityType.FindProperty(member.MemberInfo)
+                    : entityType.FindProperty(member.Name);
+                if (property != null)
+                {
+                    expression = selectExpression.BindProperty(property, projectionBindingExpression);
+                    return true;
+                }
+
+                var navigation = member.MemberInfo != null
+                    ? entityType.FindNavigation(member.MemberInfo)
+                    : entityType.FindNavigation(member.Name);
+                expression = selectExpression.BindNavigation(navigation, projectionBindingExpression);
+                return true;
+            }
+            else if (source is ObjectAccessExpression objectAccessExpression)
+            {
+                var entityType = objectAccessExpression.Navigation.GetTargetType();
+                var property = member.MemberInfo != null
+                    ? entityType.FindProperty(member.MemberInfo)
+                    : entityType.FindProperty(member.Name);
+                if (property != null)
+                {
+                    expression = new KeyAccessExpression(property, objectAccessExpression);
+                    return true;
+                }
+
+                var navigation = member.MemberInfo != null
+                    ? entityType.FindNavigation(member.MemberInfo)
+                    : entityType.FindNavigation(member.Name);
+                expression = new ObjectAccessExpression(navigation, objectAccessExpression);
+                return true;
             }
 
-            throw new InvalidOperationException();
-        }
-
-        private SqlExpression BindProperty(EntityShaperExpression entityShaperExpression, IProperty property)
-        {
-            var projectionBindingExpression = (ProjectionBindingExpression)entityShaperExpression.ValueBufferExpression;
-            return ((SelectExpression)projectionBindingExpression.QueryExpression)
-                .BindProperty(projectionBindingExpression, property);
+            expression = null;
+            return false;
         }
 
         protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
         {
             if (methodCallExpression.TryGetEFPropertyArguments(out var source, out var propertyName))
             {
-                return BindProperty(source, propertyName);
+                if (!TryBindProperty(source, MemberIdentity.Create(propertyName), out var result))
+                {
+                    throw new InvalidOperationException();
+                }
+                return result;
             }
 
             //if (methodCallExpression.Method.DeclaringType == typeof(Queryable))

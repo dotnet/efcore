@@ -14,6 +14,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Pipeline
     {
         private readonly IDictionary<IProperty, KeyAccessExpression> _propertyExpressionsCache
             = new Dictionary<IProperty, KeyAccessExpression>();
+        private readonly IDictionary<INavigation, ObjectAccessExpression> _navigationExpressionsCache
+            = new Dictionary<INavigation, ObjectAccessExpression>();
         private readonly IEntityType _entityType;
 
         public EntityProjectionExpression(IEntityType entityType, RootReferenceExpression accessExpression, string alias)
@@ -51,6 +53,23 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Pipeline
             {
                 expression = new KeyAccessExpression(property, AccessExpression);
                 _propertyExpressionsCache[property] = expression;
+            }
+
+            return expression;
+        }
+
+        public ObjectAccessExpression GetNavigation(INavigation navigation)
+        {
+            if (!_entityType.GetTypesInHierarchy().Contains(navigation.DeclaringEntityType))
+            {
+                throw new InvalidOperationException(
+                    $"Called EntityProjectionExpression.GetNavigation() with incorrect INavigation. EntityType:{_entityType.DisplayName()}, Navigation:{navigation.Name}");
+            }
+
+            if (!_navigationExpressionsCache.TryGetValue(navigation, out var expression))
+            {
+                expression = new ObjectAccessExpression(navigation, AccessExpression);
+                _navigationExpressionsCache[navigation] = expression;
             }
 
             return expression;

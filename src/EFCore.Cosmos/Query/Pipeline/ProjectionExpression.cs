@@ -42,10 +42,9 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Pipeline
         }
 
         private string GetName()
-        {
-            return (Expression as KeyAccessExpression)?.Name
+            => (Expression as KeyAccessExpression)?.Name
+                ?? (Expression as ObjectAccessExpression)?.Name
                 ?? (Expression as EntityProjectionExpression)?.Alias;
-        }
 
         public override bool Equals(object obj)
             => obj != null

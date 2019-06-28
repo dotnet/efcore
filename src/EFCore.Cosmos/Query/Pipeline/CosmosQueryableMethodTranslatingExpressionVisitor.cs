@@ -465,9 +465,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Pipeline
         }
 
         private SqlExpression TranslateExpression(Expression expression)
-        {
-            return _sqlTranslator.Translate(expression);
-        }
+            => _sqlTranslator.Translate(expression);
 
         private SqlExpression TranslateLambdaExpression(
             ShapedQueryExpression shapedQueryExpression, LambdaExpression lambdaExpression)

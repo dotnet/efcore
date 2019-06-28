@@ -234,9 +234,8 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-
         [ConditionalFact]
-        public virtual void Select_many_on_owned_collection()
+        public virtual void SelectMany_on_owned_collection()
         {
             using (var ctx = CreateContext())
             {

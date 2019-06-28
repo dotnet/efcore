@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
@@ -412,28 +411,30 @@ namespace Microsoft.EntityFrameworkCore.Query.Pipeline
                     {
                         var navigation = nestedShaper.ParentNavigation;
                         var memberInfo = navigation.GetMemberInfo(forConstruction: true, forSet: true);
+                        var convertedInstanceVariable = memberInfo.DeclaringType.IsAssignableFrom(instanceVariable.Type)
+                            ? (Expression)instanceVariable
+                            : Expression.Convert(instanceVariable, memberInfo.DeclaringType);
 
                         Expression navigationExpression;
                         if (navigation.IsCollection())
                         {
                             var accessorExpression = Expression.Constant(new ClrCollectionAccessorFactory().Create(navigation));
                             navigationExpression = Expression.Call(accessorExpression, _accessorAddRangeMethodInfo,
-                                instanceVariable, new CollectionShaperExpression(null, nestedShaper, navigation));
+                                convertedInstanceVariable, new CollectionShaperExpression(null, nestedShaper, navigation));
                         }
                         else
                         {
                             navigationExpression = Expression.Assign(Expression.MakeMemberAccess(
-                                    instanceVariable,
+                                    convertedInstanceVariable,
                                     memberInfo),
                                 nestedShaper);
                         }
 
-                        var nestedMaterializer = Expression.Condition(
+                        var nestedMaterializer = Expression.IfThen(
                             Expression.Call(_isAssignableFromMethodInfo,
                                 Expression.Constant(navigation.DeclaringEntityType),
                                 concreteEntityTypeVariable),
-                               navigationExpression,
-                               Expression.Constant(null, navigationExpression.Type));
+                               navigationExpression);
 
                         expressions.Add(nestedMaterializer);
                     }

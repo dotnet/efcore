@@ -619,9 +619,9 @@ ORDER BY [t].[Id]");
                 @"");
         }
 
-        public override void Select_many_on_owned_collection()
+        public override void SelectMany_on_owned_collection()
         {
-            base.Select_many_on_owned_collection();
+            base.SelectMany_on_owned_collection();
 
             AssertSql(
                 @"SELECT [p.Orders].[Id], [p.Orders].[ClientId]

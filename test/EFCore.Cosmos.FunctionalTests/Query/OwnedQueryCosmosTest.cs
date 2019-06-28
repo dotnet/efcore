@@ -7,11 +7,12 @@ using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Xunit;
 using Xunit.Abstractions;
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Query
 {
-    internal class OwnedQueryCosmosTest : OwnedQueryTestBase<OwnedQueryCosmosTest.OwnedQueryCosmosFixture>
+    public class OwnedQueryCosmosTest : OwnedQueryTestBase<OwnedQueryCosmosTest.OwnedQueryCosmosFixture>
     {
         public OwnedQueryCosmosTest(OwnedQueryCosmosFixture fixture, ITestOutputHelper testOutputHelper)
             : base(fixture)
@@ -29,6 +30,7 @@ FROM root c
 WHERE ((c[""Discriminator""] = ""LeafB"") OR ((c[""Discriminator""] = ""LeafA"") OR ((c[""Discriminator""] = ""Branch"") OR (c[""Discriminator""] = ""OwnedPerson""))))");
         }
 
+        [ConditionalFact(Skip = "Owned collection #12086")]
         public override void Navigation_rewrite_on_owned_reference_projecting_entity()
         {
             base.Navigation_rewrite_on_owned_reference_projecting_entity();
@@ -37,6 +39,138 @@ WHERE ((c[""Discriminator""] = ""LeafB"") OR ((c[""Discriminator""] = ""LeafA"")
                 @"SELECT c
 FROM root c
 WHERE (((c[""Discriminator""] = ""LeafB"") OR ((c[""Discriminator""] = ""LeafA"") OR ((c[""Discriminator""] = ""Branch"") OR (c[""Discriminator""] = ""OwnedPerson"")))) AND (c[""PersonAddress""][""Country""][""Name""] = ""USA""))");
+        }
+
+        [ConditionalFact(Skip = "Owned collection #12086")]
+        public override void Query_for_base_type_loads_all_owned_navs()
+        {
+            base.Query_for_base_type_loads_all_owned_navs();
+        }
+
+        [ConditionalFact(Skip = "Owned collection #12086")]
+        public override void Query_for_branch_type_loads_all_owned_navs()
+        {
+            base.Query_for_branch_type_loads_all_owned_navs();
+        }
+
+        [ConditionalFact(Skip = "Owned collection #12086")]
+        public override void Query_for_leaf_type_loads_all_owned_navs()
+        {
+            base.Query_for_leaf_type_loads_all_owned_navs();
+        }
+
+        [ConditionalFact(Skip = "LeftJoin #12086")]
+        public override void Filter_owned_entity_chained_with_regular_entity_followed_by_projecting_owned_collection()
+        {
+            base.Filter_owned_entity_chained_with_regular_entity_followed_by_projecting_owned_collection();
+        }
+
+        [ConditionalFact(Skip = "LeftJoin #12086")]
+        public override void Navigation_rewrite_on_owned_reference_followed_by_regular_entity()
+        {
+            base.Navigation_rewrite_on_owned_reference_followed_by_regular_entity();
+        }
+
+        [ConditionalFact(Skip = "LeftJoin #12086")]
+        public override void Navigation_rewrite_on_owned_reference_followed_by_regular_entity_filter()
+        {
+            base.Navigation_rewrite_on_owned_reference_followed_by_regular_entity_filter();
+        }
+
+        [ConditionalFact(Skip = "LeftJoin #12086")]
+        public override void Navigation_rewrite_on_owned_reference_followed_by_regular_entity_and_another_reference()
+        {
+            base.Navigation_rewrite_on_owned_reference_followed_by_regular_entity_and_another_reference();
+        }
+
+        [ConditionalFact(Skip = "LeftJoin #12086")]
+        public override void Navigation_rewrite_on_owned_reference_followed_by_regular_entity_and_another_reference_and_scalar()
+        {
+            base.Navigation_rewrite_on_owned_reference_followed_by_regular_entity_and_another_reference_and_scalar();
+        }
+
+        [ConditionalFact(Skip = "LeftJoin #12086")]
+        public override void Navigation_rewrite_on_owned_reference_followed_by_regular_entity_and_collection()
+        {
+            base.Navigation_rewrite_on_owned_reference_followed_by_regular_entity_and_collection();
+        }
+
+        [ConditionalFact(Skip = "LeftJoin #12086")]
+        public override void Navigation_rewrite_on_owned_reference_followed_by_regular_entity_and_collection_count()
+        {
+            base.Navigation_rewrite_on_owned_reference_followed_by_regular_entity_and_collection_count();
+        }
+
+        [ConditionalFact(Skip = "LeftJoin #12086")]
+        public override void Navigation_rewrite_on_owned_reference_followed_by_regular_entity_and_property()
+        {
+            base.Navigation_rewrite_on_owned_reference_followed_by_regular_entity_and_property();
+        }
+
+        [ConditionalFact(Skip = "LeftJoin #12086")]
+        public override void Navigation_rewrite_on_owned_reference_followed_by_regular_entity_and_another_reference_in_predicate_and_projection()
+        {
+            base.Navigation_rewrite_on_owned_reference_followed_by_regular_entity_and_another_reference_in_predicate_and_projection();
+        }
+
+        [ConditionalFact(Skip = "LeftJoin #12086")]
+        public override void Project_multiple_owned_navigations()
+        {
+            base.Project_multiple_owned_navigations();
+        }
+
+        [ConditionalFact(Skip = "LeftJoin #12086")]
+        public override void Project_multiple_owned_navigations_with_expansion_on_owned_collections()
+        {
+            base.Project_multiple_owned_navigations_with_expansion_on_owned_collections();
+        }
+
+        [ConditionalFact(Skip = "SelectMany #12086")]
+        public override void SelectMany_on_owned_collection()
+        {
+            base.SelectMany_on_owned_collection();
+        }
+
+        [ConditionalFact(Skip = "SelectMany #12086")]
+        public override void SelectMany_on_owned_reference_followed_by_regular_entity_and_collection()
+        {
+            base.SelectMany_on_owned_reference_followed_by_regular_entity_and_collection();
+        }
+
+        [ConditionalFact(Skip = "SelectMany #12086")]
+        public override void SelectMany_on_owned_reference_with_entity_in_between_ending_in_owned_collection()
+        {
+            base.SelectMany_on_owned_reference_with_entity_in_between_ending_in_owned_collection();
+        }
+
+        [ConditionalFact(Skip = "SelectMany #12086")]
+        public override void Query_with_owned_entity_equality_method()
+        {
+            base.Query_with_owned_entity_equality_method();
+        }
+
+        [ConditionalFact(Skip = "SelectMany #12086")]
+        public override void Query_with_owned_entity_equality_object_method()
+        {
+            base.Query_with_owned_entity_equality_object_method();
+        }
+
+        [ConditionalFact(Skip = "OfType #12086")]
+        public override void Query_with_OfType_eagerly_loads_correct_owned_navigations()
+        {
+            base.Query_with_OfType_eagerly_loads_correct_owned_navigations();
+        }
+
+        [ConditionalFact(Skip = "Distinct ordering #16156")]
+        public override void Query_when_subquery()
+        {
+            base.Query_when_subquery();
+        }
+
+        [ConditionalFact(Skip = "Count #16146")]
+        public override void No_ignored_include_warning_when_implicit_load()
+        {
+            base.No_ignored_include_warning_when_implicit_load();
         }
 
         private void AssertSql(params string[] expected)

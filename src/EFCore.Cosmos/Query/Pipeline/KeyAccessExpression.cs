@@ -11,9 +11,9 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Pipeline
     public class KeyAccessExpression : SqlExpression
     {
         private readonly IProperty _property;
-        private readonly RootReferenceExpression _outerExpression;
+        private readonly Expression _outerExpression;
 
-        public KeyAccessExpression(IProperty property, RootReferenceExpression outerExpression)
+        public KeyAccessExpression(IProperty property, Expression outerExpression)
             : base(property.ClrType, property.GetTypeMapping())
         {
             Name = property.GetCosmosPropertyName();
@@ -25,27 +25,20 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Pipeline
 
         protected override Expression VisitChildren(ExpressionVisitor visitor)
         {
-            var outerExpression = (RootReferenceExpression)visitor.Visit(_outerExpression);
+            var outerExpression = visitor.Visit(_outerExpression);
 
             return Update(outerExpression);
         }
 
-        public KeyAccessExpression Update(RootReferenceExpression outerExpression)
-        {
-            return outerExpression != _outerExpression
+        public KeyAccessExpression Update(Expression outerExpression)
+            => outerExpression != _outerExpression
                 ? new KeyAccessExpression(_property, outerExpression)
                 : this;
-        }
 
         public override void Print(ExpressionPrinter expressionPrinter)
-        {
-            expressionPrinter.StringBuilder.Append(ToString());
-        }
+            => expressionPrinter.StringBuilder.Append(ToString());
 
-        public override string ToString()
-        {
-            return $"{_outerExpression}[\"{Name}\"]";
-        }
+        public override string ToString() => $"{_outerExpression}[\"{Name}\"]";
 
         public override bool Equals(object obj)
             => obj != null

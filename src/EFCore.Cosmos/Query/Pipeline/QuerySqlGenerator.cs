@@ -82,6 +82,13 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Pipeline
             return keyAccessExpression;
         }
 
+        protected override Expression VisitObjectAccess(ObjectAccessExpression objectAccessExpression)
+        {
+            _sqlBuilder.Append(objectAccessExpression);
+
+            return objectAccessExpression;
+        }
+
         protected override Expression VisitProjection(ProjectionExpression projectionExpression)
         {
             Visit(projectionExpression.Expression);
