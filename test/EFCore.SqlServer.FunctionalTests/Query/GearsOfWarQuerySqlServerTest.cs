@@ -8067,6 +8067,18 @@ WHERE (
     ORDER BY [g].[Nickname], [g].[SquadId]) = CAST(1 AS bit)");
         }
 
+        public override async Task DateTimeOffset_Contains_Less_than_Greater_than(bool isAsync)
+        {
+            await base.DateTimeOffset_Contains_Less_than_Greater_than(isAsync);
+
+            AssertSql(
+                @"@__start_0='1902-01-01T10:00:00.1234567+01:30'
+@__end_1='1902-01-03T10:00:00.1234567+01:30'
+
+SELECT [m].[Id], [m].[CodeName], [m].[Rating], [m].[Timeline]
+FROM [Missions] AS [m]
+WHERE ((@__start_0 <= CAST(CONVERT(date, [m].[Timeline]) AS datetimeoffset)) AND ([m].[Timeline] < @__end_1)) AND [m].[Timeline] IN ('1902-01-02T10:00:00.1234567+01:30')");        }
+
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 
