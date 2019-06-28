@@ -47,5 +47,8 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         // Skip for SQLite. Issue #14935. Cannot eval 'where ([m].Timeline.Year == 2)'
         public override Task Where_datetimeoffset_year_component(bool isAsync) => null;
+
+        // Skip for SQLite. Issue #14935. Cannot eval 'where ([m].Timeline >= x)'
+        public override Task DateTimeOffset_Contains_Less_than_Greater_than(bool isAsync) => null;
     }
 }

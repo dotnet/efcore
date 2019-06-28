@@ -7513,6 +7513,22 @@ namespace Microsoft.EntityFrameworkCore.Query
                 (cs, gs) => cs.Where(c => gs.OrderBy(g => g.Nickname).ThenBy(g => g.SquadId).FirstOrDefault().HasSoulPatch));
         }
 
+        [ConditionalTheory]  // issue #15208
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task DateTimeOffset_Contains_Less_than_Greater_than(bool isAsync)
+        {
+            var dto = new DateTimeOffset(599898024001234567, new TimeSpan(1, 30, 0));
+            var start = dto.AddDays(-1);
+            var end = dto.AddDays(1);
+            var dates = new DateTimeOffset[] { dto };
+
+            return AssertQuery<Mission>(
+                isAsync,
+                ms => ms.Where(m => start <= m.Timeline.Date &&
+                                    m.Timeline < end &&
+                                    dates.Contains(m.Timeline)));
+        }
+
         protected GearsOfWarContext CreateContext() => Fixture.CreateContext();
 
         protected virtual void ClearLog()
