@@ -7714,39 +7714,21 @@ WHERE [g].[Discriminator] IN (N'Gear', N'Officer')
 ORDER BY [g].[Nickname], [g].[SquadId], [w].[Id]");
         }
 
-        public override async Task Multiple_includes_with_client_method_around_qsre_and_also_projecting_included_collection()
+        public override async Task Multiple_includes_with_client_method_around_entity_and_also_projecting_included_collection()
         {
-            await base.Multiple_includes_with_client_method_around_qsre_and_also_projecting_included_collection();
+            await base.Multiple_includes_with_client_method_around_entity_and_also_projecting_included_collection();
 
             AssertSql(
-                @"SELECT [s].[Id], [s].[InternalNumber], [s].[Name]
+                @"SELECT [s].[Name], [s].[Id], [s].[InternalNumber], [t].[Nickname], [t].[SquadId], [t].[AssignedCityName], [t].[CityOrBirthName], [t].[Discriminator], [t].[FullName], [t].[HasSoulPatch], [t].[LeaderNickname], [t].[LeaderSquadId], [t].[Rank], [t].[Id], [t].[AmmunitionType], [t].[IsAutomatic], [t].[Name], [t].[OwnerFullName], [t].[SynergyWithId]
 FROM [Squads] AS [s]
-WHERE [s].[Name] = N'Delta'
-ORDER BY [s].[Id]",
-                //
-                @"SELECT [s.Members].[Nickname], [s.Members].[SquadId], [s.Members].[AssignedCityName], [s.Members].[CityOrBirthName], [s.Members].[Discriminator], [s.Members].[FullName], [s.Members].[HasSoulPatch], [s.Members].[LeaderNickname], [s.Members].[LeaderSquadId], [s.Members].[Rank]
-FROM [Gears] AS [s.Members]
-INNER JOIN (
-    SELECT [s0].[Id]
-    FROM [Squads] AS [s0]
-    WHERE [s0].[Name] = N'Delta'
-) AS [t] ON [s.Members].[SquadId] = [t].[Id]
-WHERE [s.Members].[Discriminator] IN (N'Officer', N'Gear')
-ORDER BY [t].[Id], [s.Members].[FullName]",
-                //
-                @"SELECT [s.Members.Weapons].[Id], [s.Members.Weapons].[AmmunitionType], [s.Members.Weapons].[IsAutomatic], [s.Members.Weapons].[Name], [s.Members.Weapons].[OwnerFullName], [s.Members.Weapons].[SynergyWithId]
-FROM [Weapons] AS [s.Members.Weapons]
-INNER JOIN (
-    SELECT DISTINCT [s.Members0].[FullName], [t0].[Id]
-    FROM [Gears] AS [s.Members0]
-    INNER JOIN (
-        SELECT [s1].[Id]
-        FROM [Squads] AS [s1]
-        WHERE [s1].[Name] = N'Delta'
-    ) AS [t0] ON [s.Members0].[SquadId] = [t0].[Id]
-    WHERE [s.Members0].[Discriminator] IN (N'Officer', N'Gear')
-) AS [t1] ON [s.Members.Weapons].[OwnerFullName] = [t1].[FullName]
-ORDER BY [t1].[Id], [t1].[FullName]");
+LEFT JOIN (
+    SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOrBirthName], [g].[Discriminator], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank], [w].[Id], [w].[AmmunitionType], [w].[IsAutomatic], [w].[Name], [w].[OwnerFullName], [w].[SynergyWithId]
+    FROM [Gears] AS [g]
+    LEFT JOIN [Weapons] AS [w] ON [g].[FullName] = [w].[OwnerFullName]
+    WHERE [g].[Discriminator] IN (N'Gear', N'Officer')
+) AS [t] ON [s].[Id] = [t].[SquadId]
+WHERE ([s].[Name] = N'Delta') AND [s].[Name] IS NOT NULL
+ORDER BY [s].[Id], [t].[Nickname], [t].[SquadId], [t].[Id]");
         }
 
         public override async Task OrderBy_same_expression_containing_IsNull_correctly_deduplicates_the_ordering(bool isAsync)

@@ -7205,8 +7205,8 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalFact(Skip = "Issue#16231")]
-        public virtual Task Multiple_includes_with_client_method_around_qsre_and_also_projecting_included_collection()
+        [ConditionalFact]
+        public virtual Task Multiple_includes_with_client_method_around_entity_and_also_projecting_included_collection()
         {
             using (var ctx = CreateContext())
             {
