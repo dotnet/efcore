@@ -8,6 +8,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
@@ -258,9 +259,8 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
 
         public void ApplyOrdering(OrderingExpression orderingExpression)
         {
-            if (IsDistinct
-                || Limit != null
-                || Offset != null)
+            // TODO: We should not be pushing down set operations, see #16244
+            if (IsDistinct || Limit != null || Offset != null || IsSetOperation)
             {
                 orderingExpression = orderingExpression.Update(
                     new SqlRemappingVisitor(PushdownIntoSubquery())
@@ -281,7 +281,8 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
 
         public void ApplyLimit(SqlExpression sqlExpression)
         {
-            if (Limit != null)
+            // TODO: We should not be pushing down set operations, see #16244
+            if (Limit != null || IsSetOperation)
             {
                 PushdownIntoSubquery();
             }
@@ -291,8 +292,8 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
 
         public void ApplyOffset(SqlExpression sqlExpression)
         {
-            if (Limit != null
-                || Offset != null)
+            // TODO: We should not be pushing down set operations, see #16244
+            if (Limit != null || Offset != null || IsSetOperation)
             {
                 PushdownIntoSubquery();
             }
@@ -367,11 +368,14 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
             select1._projectionMapping = new Dictionary<ProjectionMember, Expression>(_projectionMapping);
             _projectionMapping.Clear();
 
+            select1._identifier.AddRange(_identifier);
+            _identifier.Clear();
+
             var select2 = otherSelectExpression;
 
             if (_projection.Any())
             {
-                throw new NotImplementedException("Set operation on SelectExpression with populated _projection");
+                throw new InvalidOperationException("Can't process set operations after client evaluation, consider moving the operation before the last Select() call (see issue #16243)");
             }
             else
             {
@@ -387,106 +391,24 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
                     kv => kv.Key,
                     (kv1, kv2) => (kv1.Key, Value1: kv1.Value, Value2: kv2.Value)))
                 {
-
                     if (joinedMapping.Value1 is EntityProjectionExpression entityProjection1
                         && joinedMapping.Value2 is EntityProjectionExpression entityProjection2)
                     {
-                        var propertyExpressions = new Dictionary<IProperty, ColumnExpression>();
-
-                        if (entityProjection1.EntityType == entityProjection2.EntityType)
-                        {
-                            foreach (var property in GetAllPropertiesInHierarchy(entityProjection1.EntityType))
-                            {
-                                propertyExpressions[property] = AddSetOperationColumnProjections(
-                                    property,
-                                    select1, entityProjection1.GetProperty(property),
-                                    select2, entityProjection2.GetProperty(property));
-                            }
-
-                            _projectionMapping[joinedMapping.Key] = new EntityProjectionExpression(entityProjection1.EntityType, propertyExpressions);
-                            continue;
-                        }
-
-                        // We're doing a set operation over two different entity types (within the same hierarchy).
-                        // Since both sides of the set operations must produce the same result shape, find the
-                        // closest common ancestor and load all the columns for that, adding null projections where
-                        // necessary. Note this means we add null projections for properties which neither sibling
-                        // actually needs, since the shaper doesn't know that only those sibling types will be coming
-                        // back.
-                        var commonParentEntityType = entityProjection1.EntityType.GetClosestCommonParent(entityProjection2.EntityType);
-
-                        if (commonParentEntityType == null)
-                        {
-                            throw new NotSupportedException(RelationalStrings.SetOperationNotWithinEntityTypeHierarchy);
-                        }
-
-                        var properties1 = GetAllPropertiesInHierarchy(entityProjection1.EntityType).ToArray();
-                        var properties2 = GetAllPropertiesInHierarchy(entityProjection2.EntityType).ToArray();
-
-                        foreach (var property in properties1.Intersect(properties2))
-                        {
-                            propertyExpressions[property] = AddSetOperationColumnProjections(
-                                property,
-                                select1, entityProjection1.GetProperty(property),
-                                select2, entityProjection2.GetProperty(property));
-                        }
-
-                        foreach (var property in properties1.Except(properties2))
-                        {
-                            propertyExpressions[property] = AddSetOperationColumnProjections(
-                                property,
-                                select1, entityProjection1.GetProperty(property),
-                                select2, null);
-                        }
-
-                        foreach (var property in properties2.Except(properties1))
-                        {
-                            propertyExpressions[property] = AddSetOperationColumnProjections(
-                                property,
-                                select1, null,
-                                select2, entityProjection2.GetProperty(property));
-                        }
-
-                        foreach (var property in GetAllPropertiesInHierarchy(commonParentEntityType)
-                            .Except(properties1).Except(properties2))
-                        {
-                            propertyExpressions[property] = AddSetOperationColumnProjections(
-                                property,
-                                select1, null,
-                                select2, null);
-                        }
-
-                        _projectionMapping[joinedMapping.Key] = new EntityProjectionExpression(commonParentEntityType, propertyExpressions);
-
-                        if (commonParentEntityType != entityProjection1.EntityType)
-                        {
-                            if (!(shaperExpression.RemoveConvert() is EntityShaperExpression entityShaperExpression))
-                            {
-                                throw new Exception("Non-entity shaper expression while handling set operation over siblings.");
-                            }
-
-                            shaperExpression = new EntityShaperExpression(
-                                commonParentEntityType, entityShaperExpression.ValueBufferExpression, entityShaperExpression.Nullable);
-                        }
-
+                        HandleEntityMapping(joinedMapping.Key, select1, entityProjection1, select2, entityProjection2);
                         continue;
                     }
 
-                    if (joinedMapping.Value1 is ColumnExpression innerColumn1
-                        && joinedMapping.Value2 is ColumnExpression innerColumn2)
+                    if (joinedMapping.Value1 is ColumnExpression && joinedMapping.Value2 is ColumnExpression
+                        || joinedMapping.Value1 is SubSelectExpression && joinedMapping.Value2 is SubSelectExpression)
                     {
-                        // The actual columns may actually be different, but we don't care as long as the type and alias
-                        // coming out of the two operands are the same
-                        var alias = joinedMapping.Key.LastMember?.Name;
-                        var index = select1.AddToProjection(innerColumn1, alias);
-                        var projectionExpression1 = select1._projection[index];
-                        select2.AddToProjection(innerColumn2, alias);
-                        var outerColumn = new ColumnExpression(projectionExpression1, select1, IsNullableProjection(projectionExpression1));
-                        _projectionMapping[joinedMapping.Key] = outerColumn;
+                        HandleColumnMapping(
+                            joinedMapping.Key,
+                            select1, (SqlExpression)joinedMapping.Value1,
+                            select2, (SqlExpression)joinedMapping.Value2);
                         continue;
                     }
 
-                    throw new NotSupportedException("Non-matching or unknown projection mapping type in set operation");
+                    throw new InvalidOperationException("Non-matching or unknown projection mapping type in set operation");
                 }
             }
 
@@ -502,34 +424,59 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
 
             return shaperExpression;
 
-            static ColumnExpression AddSetOperationColumnProjections(
+            void HandleEntityMapping(
+                ProjectionMember projectionMember,
+                SelectExpression select1, EntityProjectionExpression projection1,
+                SelectExpression select2, EntityProjectionExpression projection2)
+            {
+                 var propertyExpressions = new Dictionary<IProperty, ColumnExpression>();
+
+                 if (projection1.EntityType == projection2.EntityType)
+                 {
+                     foreach (var property in GetAllPropertiesInHierarchy(projection1.EntityType))
+                     {
+                         propertyExpressions[property] = AddSetOperationColumnProjections(
+                             property,
+                             select1, projection1.GetProperty(property),
+                             select2, projection2.GetProperty(property));
+                     }
+
+                     _projectionMapping[projectionMember] = new EntityProjectionExpression(projection1.EntityType, propertyExpressions);
+                     return;
+                 }
+
+                 throw new InvalidOperationException("Set operations over different entity types are currently unsupported (see #16298)");
+            }
+
+            ColumnExpression AddSetOperationColumnProjections(
                 IProperty property,
                 SelectExpression select1, ColumnExpression column1,
                 SelectExpression select2, ColumnExpression column2)
             {
-                var columnName = column1?.Name ?? column2?.Name ?? property.Name;
-                var baseColumnName = columnName;
-                var counter = 0;
-                while (select1._projection.Any(pe => string.Equals(pe.Alias, columnName, StringComparison.OrdinalIgnoreCase)))
+                var columnName = column1.Name;
+
+                select1._projection.Add(new ProjectionExpression(column1, columnName));
+                select2._projection.Add(new ProjectionExpression(column2, columnName));
+
+                if (select1._identifier.Contains(column1))
                 {
-                    columnName = $"{baseColumnName}{counter++}";
+                    _identifier.Add(column1);
                 }
 
-                var typeMapping = column1?.TypeMapping ?? column2?.TypeMapping ?? property.FindRelationalMapping();
+                return column1;
+            }
 
-                select1._projection.Add(new ProjectionExpression(column1 != null
-                        ? (SqlExpression)column1
-                        : new SqlConstantExpression(Constant(null), typeMapping),
-                    columnName));
-
-                select2._projection.Add(new ProjectionExpression(column2 != null
-                        ? (SqlExpression)column2
-                        : new SqlConstantExpression(Constant(null), typeMapping),
-                    columnName));
-
-                var projectionExpression = select1._projection[select1._projection.Count - 1];
-                var outerColumn = new ColumnExpression(projectionExpression, select1, IsNullableProjection(projectionExpression));
-                return outerColumn;
+            void HandleColumnMapping(
+                ProjectionMember projectionMember,
+                SelectExpression select1, SqlExpression innerColumn1,
+                SelectExpression select2, SqlExpression innerColumn2)
+            {
+                // The actual columns may actually be different, but we don't care as long as the type and alias
+                // coming out of the two operands are the same
+                var alias = projectionMember.LastMember?.Name;
+                select1.AddToProjection(innerColumn1, alias);
+                select2.AddToProjection(innerColumn2, alias);
+                _projectionMapping[projectionMember] = innerColumn1;
             }
         }
 
@@ -901,9 +848,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
 
         public void AddLeftJoin(SelectExpression innerSelectExpression, SqlExpression joinPredicate, Type transparentIdentifierType)
         {
-            if (Limit != null
-                || Offset != null
-                || IsDistinct)
+            if (Limit != null || Offset != null || IsDistinct || IsSetOperation)
             {
                 joinPredicate = new SqlRemappingVisitor(PushdownIntoSubquery())
                     .Remap(joinPredicate);
@@ -951,10 +896,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
 
         public void AddCrossJoin(SelectExpression innerSelectExpression, Type transparentIdentifierType)
         {
-            if (Limit != null
-                || Offset != null
-                || IsDistinct
-                || Predicate != null)
+            if (Limit != null || Offset != null || IsDistinct || Predicate != null || IsSetOperation)
             {
                 PushdownIntoSubquery();
             }

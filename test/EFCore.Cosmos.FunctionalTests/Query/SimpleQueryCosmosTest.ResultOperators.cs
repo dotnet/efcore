@@ -12,16 +12,6 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query
 {
     public partial class SimpleQueryCosmosTest
     {
-        public override async Task Union_with_custom_projection(bool isAsync)
-        {
-            await base.Union_with_custom_projection(isAsync);
-
-            AssertSql(
-                @"SELECT c
-FROM root c
-WHERE (c[""Discriminator""] = ""Customer"")");
-        }
-
         [ConditionalTheory(Skip = "Issue#14935")]
         public override void Select_All()
         {

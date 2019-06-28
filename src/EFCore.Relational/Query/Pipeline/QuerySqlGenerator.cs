@@ -236,13 +236,9 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
 
         protected override Expression VisitColumn(ColumnExpression columnExpression)
         {
-            if (columnExpression.Table.Alias != null)
-            {
-                _relationalCommandBuilder
-                    .Append(_sqlGenerationHelper.DelimitIdentifier(columnExpression.Table.Alias))
-                    .Append(".");
-            }
             _relationalCommandBuilder
+                .Append(_sqlGenerationHelper.DelimitIdentifier(columnExpression.Table.Alias))
+                .Append(".")
                 .Append(_sqlGenerationHelper.DelimitIdentifier(columnExpression.Name));
 
             return columnExpression;
