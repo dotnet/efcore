@@ -410,14 +410,13 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalFact(Skip = "TaskList#24")]
+        [ConditionalFact]
         public virtual void Min_no_data_subquery()
         {
             using (var context = CreateContext())
             {
-                Assert.Throws<InvalidOperationException>(
-                    () =>
-                        context.Customers.Select(c => c.Orders.Where(o => o.OrderID == -1).Min(o => o.OrderID)).ToList());
+                // Verify that it does not throw
+                context.Customers.Select(c => c.Orders.Where(o => o.OrderID == -1).Min(o => o.OrderID)).ToList();
             }
         }
 
@@ -430,14 +429,13 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalFact(Skip = "TaskList#24")]
+        [ConditionalFact]
         public virtual void Max_no_data_subquery()
         {
             using (var context = CreateContext())
             {
-                Assert.Throws<InvalidOperationException>(
-                    () =>
-                        context.Customers.Select(c => c.Orders.Where(o => o.OrderID == -1).Max(o => o.OrderID)).ToList());
+                // Verify that it does not throw
+                context.Customers.Select(c => c.Orders.Where(o => o.OrderID == -1).Max(o => o.OrderID)).ToList();
             }
         }
 
@@ -450,14 +448,13 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalFact(Skip = "TaskList#24")]
+        [ConditionalFact]
         public virtual void Average_no_data_subquery()
         {
             using (var context = CreateContext())
             {
-                Assert.Throws<InvalidOperationException>(
-                    () =>
-                        context.Customers.Select(c => c.Orders.Where(o => o.OrderID == -1).Average(o => o.OrderID)).ToList());
+                // Verify that it does not throw
+                context.Customers.Select(c => c.Orders.Where(o => o.OrderID == -1).Average(o => o.OrderID)).ToList();
             }
         }
 
@@ -939,7 +936,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 1);
         }
 
-        [ConditionalTheory(Skip = "Issue#15611")]
+        [ConditionalTheory(Skip = "Issue#16314")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Multiple_collection_navigation_with_FirstOrDefault_chained(bool isAsync)
         {

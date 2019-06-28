@@ -15,11 +15,13 @@ namespace Microsoft.EntityFrameworkCore.Query.Pipeline
         public CollectionShaperExpression(
             ProjectionBindingExpression projection,
             Expression innerShaper,
-            INavigation navigation)
+            INavigation navigation,
+            Type elementType)
         {
             Projection = projection;
             InnerShaper = innerShaper;
             Navigation = navigation;
+            ElementType = elementType;
         }
 
         protected override Expression VisitChildren(ExpressionVisitor visitor)
@@ -33,17 +35,18 @@ namespace Microsoft.EntityFrameworkCore.Query.Pipeline
         public CollectionShaperExpression Update(ProjectionBindingExpression projection, Expression innerShaper)
         {
             return projection != Projection || innerShaper != InnerShaper
-                ? new CollectionShaperExpression(projection, innerShaper, Navigation)
+                ? new CollectionShaperExpression(projection, innerShaper, Navigation, ElementType)
                 : this;
         }
 
         public override ExpressionType NodeType => ExpressionType.Extension;
 
-        public override Type Type => Navigation?.ClrType ?? typeof(List<>).MakeGenericType(InnerShaper.Type);
+        public override Type Type => Navigation?.ClrType ?? typeof(List<>).MakeGenericType(ElementType);
 
         public ProjectionBindingExpression Projection { get; }
         public Expression InnerShaper { get; }
         public INavigation Navigation { get; }
+        public Type ElementType { get; }
 
         public virtual void Print(ExpressionPrinter expressionPrinter)
         {

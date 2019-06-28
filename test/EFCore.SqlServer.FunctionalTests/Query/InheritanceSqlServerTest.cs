@@ -282,21 +282,18 @@ WHERE [p].[Genus] = 0"
             base.Can_include_prey();
 
             AssertSql(
-                @"SELECT TOP(2) [e].[Species], [e].[CountryId], [e].[Discriminator], [e].[Name], [e].[EagleId], [e].[IsFlightless], [e].[Group]
-FROM [Animal] AS [e]
-WHERE [e].[Discriminator] = N'Eagle'
-ORDER BY [e].[Species]",
-                //
-                @"SELECT [e.Prey].[Species], [e.Prey].[CountryId], [e.Prey].[Discriminator], [e.Prey].[Name], [e.Prey].[EagleId], [e.Prey].[IsFlightless], [e.Prey].[Group], [e.Prey].[FoundOn]
-FROM [Animal] AS [e.Prey]
-INNER JOIN (
-    SELECT TOP(1) [e0].[Species]
-    FROM [Animal] AS [e0]
-    WHERE [e0].[Discriminator] = N'Eagle'
-    ORDER BY [e0].[Species]
-) AS [t] ON [e.Prey].[EagleId] = [t].[Species]
-WHERE [e.Prey].[Discriminator] IN (N'Eagle', N'Kiwi')
-ORDER BY [t].[Species]");
+                @"SELECT [t].[Species], [t].[CountryId], [t].[Discriminator], [t].[Name], [t].[EagleId], [t].[IsFlightless], [t].[Group], [t0].[Species], [t0].[CountryId], [t0].[Discriminator], [t0].[Name], [t0].[EagleId], [t0].[IsFlightless], [t0].[Group], [t0].[FoundOn]
+FROM (
+    SELECT TOP(2) [a].[Species], [a].[CountryId], [a].[Discriminator], [a].[Name], [a].[EagleId], [a].[IsFlightless], [a].[Group]
+    FROM [Animal] AS [a]
+    WHERE [a].[Discriminator] = N'Eagle'
+) AS [t]
+LEFT JOIN (
+    SELECT [a0].[Species], [a0].[CountryId], [a0].[Discriminator], [a0].[Name], [a0].[EagleId], [a0].[IsFlightless], [a0].[Group], [a0].[FoundOn]
+    FROM [Animal] AS [a0]
+    WHERE [a0].[Discriminator] IN (N'Eagle', N'Kiwi')
+) AS [t0] ON [t].[Species] = [t0].[EagleId]
+ORDER BY [t].[Species], [t0].[Species]");
         }
 
         public override void Can_include_animals()
@@ -304,18 +301,14 @@ ORDER BY [t].[Species]");
             base.Can_include_animals();
 
             AssertSql(
-                @"SELECT [c].[Id], [c].[Name]
+                @"SELECT [c].[Id], [c].[Name], [t].[Species], [t].[CountryId], [t].[Discriminator], [t].[Name], [t].[EagleId], [t].[IsFlightless], [t].[Group], [t].[FoundOn]
 FROM [Country] AS [c]
-ORDER BY [c].[Name], [c].[Id]",
-                //
-                @"SELECT [c.Animals].[Species], [c.Animals].[CountryId], [c.Animals].[Discriminator], [c.Animals].[Name], [c.Animals].[EagleId], [c.Animals].[IsFlightless], [c.Animals].[Group], [c.Animals].[FoundOn]
-FROM [Animal] AS [c.Animals]
-INNER JOIN (
-    SELECT [c0].[Id], [c0].[Name]
-    FROM [Country] AS [c0]
-) AS [t] ON [c.Animals].[CountryId] = [t].[Id]
-WHERE [c.Animals].[Discriminator] IN (N'Eagle', N'Kiwi')
-ORDER BY [t].[Name], [t].[Id]");
+LEFT JOIN (
+    SELECT [a].[Species], [a].[CountryId], [a].[Discriminator], [a].[Name], [a].[EagleId], [a].[IsFlightless], [a].[Group], [a].[FoundOn]
+    FROM [Animal] AS [a]
+    WHERE [a].[Discriminator] IN (N'Eagle', N'Kiwi')
+) AS [t] ON [c].[Id] = [t].[CountryId]
+ORDER BY [c].[Name], [c].[Id], [t].[Species]");
         }
 
         public override void Can_use_of_type_kiwi_where_north_on_derived_property()

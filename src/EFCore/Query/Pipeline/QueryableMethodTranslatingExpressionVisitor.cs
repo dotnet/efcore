@@ -55,8 +55,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Pipeline
                                 : null);
 
                         case nameof(Queryable.AsQueryable):
-                            // Don't know
-                            break;
+                            return source;
 
                         case nameof(Queryable.Average):
                             shapedQueryExpression.ResultType = ResultType.Single;

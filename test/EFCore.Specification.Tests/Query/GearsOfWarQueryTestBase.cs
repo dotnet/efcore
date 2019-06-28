@@ -2554,7 +2554,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 (ts, gs) => ts.Where(t => t.Note != "K.I.A." && gs.Select(g => g.SquadId).Contains(t.Gear.SquadId)));
         }
 
-        [ConditionalTheory(Skip = "issue 15043")]
+        [ConditionalTheory(Skip = "Issue#16313")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Optional_navigation_type_compensation_works_with_skip(bool isAsync)
         {
@@ -2566,7 +2566,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 elementAsserter: CollectionAsserter<Gear>(e => e.Nickname, (e, a) => Assert.Equal(e.Nickname, a.Nickname)));
         }
 
-        [ConditionalTheory(Skip = "issue 15043")]
+        [ConditionalTheory(Skip = "Issue#16313")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Optional_navigation_type_compensation_works_with_take(bool isAsync)
         {
@@ -2578,7 +2578,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 elementAsserter: CollectionAsserter<Gear>(e => e.Nickname, (e, a) => Assert.Equal(e.Nickname, a.Nickname)));
         }
 
-        [ConditionalTheory(Skip = "Issue #15043")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Select_correlated_filtered_collection(bool isAsync)
         {
@@ -2592,7 +2592,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 elementAsserter: CollectionAsserter<Weapon>(e => e.Id, (e, a) => Assert.Equal(e.Id, a.Id)));
         }
 
-        [ConditionalTheory(Skip = "Issue #15043")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Select_correlated_filtered_collection_with_composite_key(bool isAsync)
         {
@@ -2603,7 +2603,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 elementAsserter: CollectionAsserter<Gear>(e => e.Nickname, (e, a) => Assert.Equal(e.Nickname, a.Nickname)));
         }
 
-        [ConditionalTheory(Skip = "issue #15043")]
+        [ConditionalTheory(Skip = "Issue#16314")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Select_correlated_filtered_collection_works_with_caching(bool isAsync)
         {
@@ -4038,7 +4038,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalFact(Skip = "issue #15043")]
+        [ConditionalFact]
         public virtual void Optional_navigation_with_collection_composite_key()
         {
             using (var context = CreateContext())
@@ -4083,7 +4083,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalFact(Skip = "Issue #15043")]
+        [ConditionalFact]
         public virtual void Project_collection_navigation_with_inheritance1()
         {
             using (var context = CreateContext())
@@ -4103,7 +4103,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalFact(Skip = "Issue #15043")]
+        [ConditionalFact]
         public virtual void Project_collection_navigation_with_inheritance2()
         {
             using (var context = CreateContext())
@@ -4123,7 +4123,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalFact(Skip = "Issue #15043")]
+        [ConditionalFact]
         public virtual void Project_collection_navigation_with_inheritance3()
         {
             using (var context = CreateContext())
@@ -4230,7 +4230,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 7);
         }
 
-        [ConditionalTheory(Skip = "#15611")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Include_collection_on_derived_type_using_string(bool isAsync)
         {
@@ -4429,7 +4429,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                         .Select(g => g.Rank.ToString()));
         }
 
-        [ConditionalTheory(Skip = "Issue #15043")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Correlated_collections_naked_navigation_with_ToList(bool isAsync)
         {
@@ -4457,7 +4457,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 assertOrder: true);
         }
 
-        [ConditionalTheory(Skip = "Issue #15043")]
+        [ConditionalTheory(Skip = "Issue#16318")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Correlated_collections_naked_navigation_with_ToArray(bool isAsync)
         {
@@ -4471,7 +4471,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 elementAsserter: CollectionAsserter<Weapon>(e => e.Id, (e, a) => Assert.Equal(e.Id, a.Id)));
         }
 
-        [ConditionalTheory(Skip = "Issue #15043")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Correlated_collections_basic_projection(bool isAsync)
         {
@@ -4487,7 +4487,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 elementAsserter: CollectionAsserter<Weapon>(e => e.Id, (e, a) => Assert.Equal(e.Id, a.Id)));
         }
 
-        [ConditionalTheory(Skip = "Issue #15043")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Correlated_collections_basic_projection_explicit_to_list(bool isAsync)
         {
@@ -4503,7 +4503,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 elementAsserter: CollectionAsserter<Weapon>(e => e.Id, (e, a) => Assert.Equal(e.Id, a.Id)));
         }
 
-        [ConditionalTheory(Skip = "Issue #15043")]
+        [ConditionalTheory(Skip = "Issue#16318")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Correlated_collections_basic_projection_explicit_to_array(bool isAsync)
         {
@@ -4519,7 +4519,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 elementAsserter: CollectionAsserter<Weapon>(e => e.Id, (e, a) => Assert.Equal(e.Id, a.Id)));
         }
 
-        [ConditionalTheory(Skip = "Issue #15043")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Correlated_collections_basic_projection_ordered(bool isAsync)
         {
@@ -4536,7 +4536,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 elementAsserter: CollectionAsserter<Weapon>(elementAsserter: (e, a) => Assert.Equal(e.Id, a.Id)));
         }
 
-        [ConditionalTheory(Skip = "Issue #15043")]
+        [ConditionalTheory(Skip = "Issue#16318")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Correlated_collections_basic_projection_composite_key(bool isAsync)
         {
@@ -4564,7 +4564,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 });
         }
 
-        [ConditionalTheory(Skip = "Issue #15043")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Correlated_collections_basic_projecting_single_property(bool isAsync)
         {
@@ -4580,7 +4580,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 elementAsserter: CollectionAsserter<string>(e => e));
         }
 
-        [ConditionalTheory(Skip = "Issue #15043")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Correlated_collections_basic_projecting_constant(bool isAsync)
         {
@@ -4596,7 +4596,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 elementAsserter: CollectionAsserter<string>());
         }
 
-        [ConditionalTheory(Skip = "Issue #15043")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Correlated_collections_basic_projecting_constant_bool(bool isAsync)
         {
@@ -4612,7 +4612,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 elementAsserter: CollectionAsserter<bool>());
         }
 
-        [ConditionalTheory(Skip = "Issue #15043")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Correlated_collections_projection_of_collection_thru_navigation(bool isAsync)
         {
@@ -4632,7 +4632,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     }));
         }
 
-        [ConditionalTheory(Skip = "Issue #15043")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Correlated_collections_project_anonymous_collection_result(bool isAsync)
         {
@@ -4658,7 +4658,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 });
         }
 
-        [ConditionalTheory(Skip = "Issue #15043")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Correlated_collections_nested(bool isAsync)
         {
@@ -4685,7 +4685,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 });
         }
 
-        [ConditionalTheory(Skip = "Issue #15043")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Correlated_collections_nested_mixed_streaming_with_buffer1(bool isAsync)
         {
@@ -4712,7 +4712,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 });
         }
 
-        [ConditionalTheory(Skip = "Issue 15043")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Correlated_collections_nested_mixed_streaming_with_buffer2(bool isAsync)
         {
@@ -4739,7 +4739,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 });
         }
 
-        [ConditionalTheory(Skip = "Issue #15043")]
+        [ConditionalTheory(Skip = "Issue#16226")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Correlated_collections_nested_with_custom_ordering(bool isAsync)
         {
@@ -4780,7 +4780,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 });
         }
 
-        [ConditionalTheory(Skip = "Issue #15043")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Correlated_collections_same_collection_projected_multiple_times(bool isAsync)
         {
@@ -4803,7 +4803,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 });
         }
 
-        [ConditionalTheory(Skip = "Issue #15043")]
+        [ConditionalTheory(Skip = "Issue#16318")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Correlated_collections_similar_collection_projected_multiple_times(bool isAsync)
         {
@@ -4827,7 +4827,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 });
         }
 
-        [ConditionalTheory(Skip = "Issue #15043")]
+        [ConditionalTheory(Skip = "Issue#16226")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Correlated_collections_different_collections_projected(bool isAsync)
         {
@@ -4861,7 +4861,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 });
         }
 
-        [ConditionalTheory(Skip = "Issue #15043")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Multiple_orderby_with_navigation_expansion_on_one_of_the_order_bys(bool isAsync)
         {
@@ -4875,7 +4875,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 assertOrder: true);
         }
 
-        [ConditionalTheory(Skip = "Issue #15043")]
+        [ConditionalTheory(Skip = "Issue#16226")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Multiple_orderby_with_navigation_expansion_on_one_of_the_order_bys_inside_subquery(bool isAsync)
         {
@@ -4903,7 +4903,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 });
         }
 
-        [ConditionalTheory(Skip = "Issue #15043")]
+        [ConditionalTheory(Skip = "Issue#16226")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Multiple_orderby_with_navigation_expansion_on_one_of_the_order_bys_inside_subquery_duplicated_orderings(bool isAsync)
         {
@@ -4933,7 +4933,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
 
-        [ConditionalTheory(Skip = "Issue #15043")]
+        [ConditionalTheory(Skip = "Issue#16226")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Multiple_orderby_with_navigation_expansion_on_one_of_the_order_bys_inside_subquery_complex_orderings(bool isAsync)
         {
@@ -4961,7 +4961,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 });
         }
 
-        [ConditionalTheory(Skip = "Issue #15043")]
+        [ConditionalTheory(Skip = "Issue#16226")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Correlated_collections_multiple_nested_complex_collections(bool isAsync)
         {
@@ -5030,7 +5030,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 });
         }
 
-        [ConditionalTheory(Skip = "Issue#15611")]
+        [ConditionalTheory(Skip = "Issue#16311")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Correlated_collections_inner_subquery_selector_references_outer_qsre(bool isAsync)
         {
@@ -5056,7 +5056,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 });
         }
 
-        [ConditionalTheory(Skip = "Issue#15611")]
+        [ConditionalTheory(Skip = "Issue#16311")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Correlated_collections_inner_subquery_predicate_references_outer_qsre(bool isAsync)
         {
@@ -5082,7 +5082,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 });
         }
 
-        [ConditionalTheory(Skip = "Issue #15043")]
+        [ConditionalTheory(Skip = "Issue#16311")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Correlated_collections_nested_inner_subquery_references_outer_qsre_one_level_up(bool isAsync)
         {
@@ -5121,7 +5121,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 });
         }
 
-        [ConditionalTheory(Skip = "Issue#15611")]
+        [ConditionalTheory(Skip = "Issue#16311")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Correlated_collections_nested_inner_subquery_references_outer_qsre_two_levels_up(bool isAsync)
         {
@@ -5160,7 +5160,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 });
         }
 
-        [ConditionalTheory(Skip = "Issue#15611")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Correlated_collections_on_select_many(bool isAsync)
         {
@@ -5194,7 +5194,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 });
         }
 
-        [ConditionalTheory(Skip = "Issue#15611")]
+        [ConditionalTheory(Skip = "Issue#16313")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Correlated_collections_with_Skip(bool isAsync)
         {
@@ -5206,7 +5206,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     CollectionAsserter<Gear>(elementAsserter: (ee, aa) => Assert.Equal(ee.Nickname, aa.Nickname))(e, a));
         }
 
-        [ConditionalTheory(Skip = "Issue#15611")]
+        [ConditionalTheory(Skip = "Issue#16313")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Correlated_collections_with_Take(bool isAsync)
         {
@@ -5218,7 +5218,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     CollectionAsserter<Gear>(elementAsserter: (ee, aa) => Assert.Equal(ee.Nickname, aa.Nickname))(e, a));
         }
 
-        [ConditionalTheory(Skip = "Issue#15611")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Correlated_collections_with_Distinct(bool isAsync)
         {
@@ -5241,7 +5241,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 elementAsserter: (e, a) => CollectionAsserter<Gear>(elementAsserter: (ee, aa) => Assert.Equal(ee.Nickname, aa.Nickname)));
         }
 
-        [ConditionalTheory(Skip = "Issue #15043")]
+        [ConditionalTheory(Skip = "Issue#16088")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Correlated_collections_on_left_join_with_predicate(bool isAsync)
         {
@@ -5275,7 +5275,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 });
         }
 
-        [ConditionalTheory(Skip = "Issue #15043")]
+        [ConditionalTheory(Skip = "Issue#16088")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Correlated_collections_on_left_join_with_null_value(bool isAsync)
         {
@@ -5297,7 +5297,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 elementAsserter: (e, a) => CollectionAsserter<string>(ee => ee));
         }
 
-        [ConditionalTheory(Skip = "Issue #15043")]
+        [ConditionalTheory(Skip = "Issue#16088")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Correlated_collections_left_join_with_self_reference(bool isAsync)
         {
@@ -5329,7 +5329,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 });
         }
 
-        [ConditionalTheory(Skip = "Issue #15043")]
+        [ConditionalTheory(Skip = "Issue#16088")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Correlated_collections_deeply_nested_left_join(bool isAsync)
         {
@@ -5362,7 +5362,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                             eee => eee.Id, (eee, aaa) => Assert.Equal(eee.Id, aaa.Id))));
         }
 
-        [ConditionalTheory(Skip = "Issue #15043")]
+        [ConditionalTheory(Skip = "Issue#16226")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Correlated_collections_from_left_join_with_additional_elements_projected_of_that_join(bool isAsync)
         {
@@ -5394,7 +5394,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 });
         }
 
-        [ConditionalTheory(Skip = "Issue #15043")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Correlated_collections_complex_scenario1(bool isAsync)
         {
@@ -5432,7 +5432,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 });
         }
 
-        [ConditionalTheory(Skip = "Issue #15043")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Correlated_collections_complex_scenario2(bool isAsync)
         {
@@ -5481,7 +5481,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 });
         }
 
-        [ConditionalTheory(Skip = "Issue #15043")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Correlated_collections_with_funky_orderby_complex_scenario1(bool isAsync)
         {
@@ -5520,7 +5520,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 });
         }
 
-        [ConditionalTheory(Skip = "Issue #15043")]
+        [ConditionalTheory(Skip = "Issue#16226")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Correlated_collections_with_funky_orderby_complex_scenario2(bool isAsync)
         {
@@ -5573,7 +5573,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 });
         }
 
-        [ConditionalFact(Skip = "Issue #15043")]
+        [ConditionalFact(Skip = "Issue#16330")]
         public virtual void Correlated_collection_with_top_level_FirstOrDefault()
         {
             using (var ctx = CreateContext())
@@ -5602,7 +5602,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 gs => gs.Select(g => g.Weapons));
         }
 
-        [ConditionalFact(Skip = "Issue #15043")]
+        [ConditionalFact(Skip = "Issue#16330")]
         public virtual void Correlated_collection_with_top_level_Last_with_orderby_on_outer()
         {
             using (var ctx = CreateContext())
@@ -5623,7 +5623,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalFact(Skip = "Issue #15043")]
+        [ConditionalFact(Skip = "Issue#16330")]
         public virtual void Correlated_collection_with_top_level_Last_with_order_by_on_inner()
         {
             using (var ctx = CreateContext())
@@ -5866,7 +5866,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 lls => lls.Where(ll => ll is LocustCommander ? ((LocustCommander)ll).HighCommand.IsOperational : false));
         }
 
-        [ConditionalTheory(Skip = "issue #15043")]
+        [ConditionalTheory(Skip = "Issue#16311")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Outer_parameter_in_join_key(bool isAsync)
         {
@@ -5885,7 +5885,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 elementAsserter: (e, a) => CollectionAsserter<string>(elementSorter: ee => ee)(e.Collection, a.Collection));
         }
 
-        [ConditionalTheory(Skip = "issue #15043")]
+        [ConditionalTheory(Skip = "Issue#16311")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Outer_parameter_in_join_key_inner_and_outer(bool isAsync)
         {
@@ -5904,7 +5904,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 elementAsserter: (e, a) => CollectionAsserter<string>(elementSorter: ee => ee)(e.Collection, a.Collection));
         }
 
-        [ConditionalTheory(Skip = "issue #15043")]
+        [ConditionalTheory(Skip = "Issue#15711")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Outer_parameter_in_group_join_key(bool isAsync)
         {
@@ -5923,7 +5923,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 elementAsserter: (e, a) => CollectionAsserter<string>(elementSorter: ee => ee)(e.Collection, a.Collection));
         }
 
-        [ConditionalTheory(Skip = "Issue#15611")]
+        [ConditionalTheory(Skip = "Issue#16311")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Outer_parameter_in_group_join_with_DefaultIfEmpty(bool isAsync)
         {
@@ -6293,7 +6293,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalFact(Skip = "issue #15043")]
+        [ConditionalFact(Skip = "Issue#16330")]
         public virtual void Streaming_correlated_collection_issue_11403()
         {
             Weapon[] expected;
@@ -6463,7 +6463,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalTheory(Skip = "Issue #15043")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Correlated_collection_order_by_constant(bool isAsync)
         {
@@ -6624,7 +6624,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 assertOrder: true);
         }
 
-        [ConditionalTheory(Skip = "Issue: #15611")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Include_collection_with_complex_OrderBy3(bool isAsync)
         {
@@ -6640,7 +6640,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 assertOrder: true);
         }
 
-        [ConditionalTheory(Skip = "Issue #15043")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Correlated_collection_with_complex_OrderBy(bool isAsync)
         {
@@ -6653,7 +6653,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 elementAsserter: CollectionAsserter<Gear>(ee => ee.FullName, (ee, aa) => Assert.Equal(ee.FullName, aa.FullName)));
         }
 
-        [ConditionalTheory(Skip = "Issue #15043")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Correlated_collection_with_very_complex_order_by(bool isAsync)
         {
@@ -6826,7 +6826,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 assertOrder: true);
         }
 
-        [ConditionalTheory(Skip = "Issue #15043")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Cast_subquery_to_base_type_using_typed_ToList(bool isAsync)
         {
@@ -6849,7 +6849,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 elementAsserter: CollectionAsserter<Gear>(e => e.Nickname, (e, a) => Assert.Equal(e.Nickname, a.Nickname)));
         }
 
-        [ConditionalTheory(Skip = "Issue #15043")]
+        [ConditionalTheory(Skip = "Issue#16318")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Cast_ordered_subquery_to_base_type_using_typed_ToArray(bool isAsync)
         {
@@ -6872,7 +6872,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 elementAsserter: CollectionAsserter<Gear>(e => e.Nickname, (e, a) => Assert.Equal(e.Nickname, a.Nickname)));
         }
 
-        [ConditionalTheory(Skip = "Issue #15043")]
+        [ConditionalTheory(Skip = "Issue#15713")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Correlated_collection_with_complex_order_by_funcletized_to_constant_bool(bool isAsync)
         {
@@ -7466,7 +7466,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalTheory(Skip = "Issue #15043")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Where_contains_on_navigation_with_composite_keys(bool isAsync)
         {

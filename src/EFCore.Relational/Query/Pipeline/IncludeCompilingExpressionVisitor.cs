@@ -81,7 +81,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
                 = typeof(CustomShaperCompilingExpressionVisitor).GetTypeInfo()
                     .GetDeclaredMethod(nameof(PopulateCollection));
 
-            private static void PopulateCollection<TCollection, TIncludedEntity>(
+            private static void PopulateCollection<TCollection, TElement, TRelatedEntity>(
                 int collectionId,
                 QueryContext queryContext,
                 DbDataReader dbDataReader,
@@ -89,8 +89,9 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
                 Func<QueryContext, DbDataReader, object[]> parentIdentifier,
                 Func<QueryContext, DbDataReader, object[]> outerIdentifier,
                 Func<QueryContext, DbDataReader, object[]> selfIdentifier,
-                Func<QueryContext, DbDataReader, TIncludedEntity, ResultCoordinator, TIncludedEntity> innerShaper)
-                where TCollection : class, ICollection<TIncludedEntity>
+                Func<QueryContext, DbDataReader, TRelatedEntity, ResultCoordinator, TRelatedEntity> innerShaper)
+                where TRelatedEntity : TElement
+                where TCollection : class, ICollection<TElement>
             {
                 var collectionMaterializationContext = resultCoordinator.Collections[collectionId];
 
@@ -127,7 +128,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
                         innerKey, collectionMaterializationContext.SelfIdentifier))
                 {
                     // We don't need to materialize this entity but we may need to populate inner collections if any.
-                    innerShaper(queryContext, dbDataReader, (TIncludedEntity)collectionMaterializationContext.Current, resultCoordinator);
+                    innerShaper(queryContext, dbDataReader, (TRelatedEntity)collectionMaterializationContext.Current, resultCoordinator);
 
                     return;
                 }
@@ -410,9 +411,10 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
                     }
 
                     var collectionType = collectionPopulatingExpression.Type;
+                    var elementType = collectionType.TryGetSequenceType();
 
                     return Expression.Call(
-                        _populateCollectionMethodInfo.MakeGenericMethod(collectionType, relatedEntityClrType),
+                        _populateCollectionMethodInfo.MakeGenericMethod(collectionType, elementType, relatedEntityClrType),
                         Expression.Constant(collectionShaper.CollectionId),
                         QueryCompilationContext.QueryContextParameter,
                         _dbDataReaderParameter,

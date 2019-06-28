@@ -62,7 +62,8 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
                     collectionShaperExpression.Projection.Index.Value,
                     collectionId,
                     innerShaper,
-                    collectionShaperExpression.Navigation);
+                    collectionShaperExpression.Navigation,
+                    collectionShaperExpression.ElementType);
             }
 
             if (extensionExpression is ShapedQueryExpression shapedQueryExpression)

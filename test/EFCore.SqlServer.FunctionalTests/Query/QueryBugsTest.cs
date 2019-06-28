@@ -47,7 +47,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         #region Bug6901
 
-        [ConditionalFact(Skip = "QueryIssue")]
+        [ConditionalFact]
         public void Left_outer_join_bug_6091()
         {
             using (var testStore = SqlServerTestStore.CreateInitialized("QueryBugsTest"))
@@ -134,7 +134,7 @@ INSERT [dbo].[Postcodes] ([PostcodeID], [PostcodeValue], [TownName]) VALUES (5, 
 
         #region Bug5481
 
-        [ConditionalFact(Skip = "QueryIssue")]
+        [ConditionalFact]
         public async Task Multiple_optional_navs_should_not_deadlock_bug_5481()
         {
             using (var testStore = SqlServerTestStore.CreateInitialized("QueryBugsTest"))
@@ -238,7 +238,7 @@ INSERT [dbo].[Postcodes] ([PostcodeID], [PostcodeValue], [TownName]) VALUES (5, 
 
         #endregion
 
-        [ConditionalFact(Skip = "QueryIssue")]
+        [ConditionalFact(Skip = "Issue#15751")]
         public void Query_when_null_key_in_database_should_throw()
         {
             using (var testStore = SqlServerTestStore.CreateInitialized("QueryBugsTest"))
@@ -652,7 +652,7 @@ LEFT JOIN [Customer] AS [c] ON (([o].[CustomerFirstName] = [c].[FirstName]) AND 
 
         #region Bug963
 
-        [ConditionalFact(Skip = "QueryIssue")]
+        [ConditionalFact]
         public void Include_on_optional_navigation_One_To_Many_963()
         {
             using (CreateDatabase963())
@@ -664,7 +664,7 @@ LEFT JOIN [Customer] AS [c] ON (([o].[CustomerFirstName] = [c].[FirstName]) AND 
             }
         }
 
-        [ConditionalFact(Skip = "QueryIssue")]
+        [ConditionalFact]
         public void Include_on_optional_navigation_Many_To_One_963()
         {
             using (CreateDatabase963())
@@ -676,7 +676,7 @@ LEFT JOIN [Customer] AS [c] ON (([o].[CustomerFirstName] = [c].[FirstName]) AND 
             }
         }
 
-        [ConditionalFact(Skip = "QueryIssue")]
+        [ConditionalFact]
         public void Include_on_optional_navigation_One_To_One_principal_963()
         {
             using (CreateDatabase963())
@@ -688,7 +688,7 @@ LEFT JOIN [Customer] AS [c] ON (([o].[CustomerFirstName] = [c].[FirstName]) AND 
             }
         }
 
-        [ConditionalFact(Skip = "QueryIssue")]
+        [ConditionalFact]
         public void Include_on_optional_navigation_One_To_One_dependent_963()
         {
             using (CreateDatabase963())
@@ -867,7 +867,7 @@ Queen of the Andals and the Rhoynar and the First Men, Khaleesi of the Great Gra
 
         #region Bug3758
 
-        [ConditionalFact(Skip = "QueryIssue")]
+        [ConditionalFact]
         public void Customer_collections_materialize_properly_3758()
         {
             using (CreateDatabase3758())
@@ -1082,7 +1082,7 @@ Queen of the Andals and the Rhoynar and the First Men, Khaleesi of the Great Gra
 
         #region Bug3409
 
-        [ConditionalFact(Skip = "QueryIssue")]
+        [ConditionalFact]
         public void ThenInclude_with_interface_navigations_3409()
         {
             using (CreateDatabase3409())
@@ -1242,7 +1242,7 @@ Queen of the Andals and the Rhoynar and the First Men, Khaleesi of the Great Gra
 
         #region Bug3101
 
-        [ConditionalFact(Skip = "QueryIssue")]
+        [ConditionalFact(Skip = "Issue#16229")]
         public virtual void Repro3101_simple_coalesce1()
         {
             using (CreateDatabase3101())
@@ -1262,7 +1262,7 @@ Queen of the Andals and the Rhoynar and the First Men, Khaleesi of the Great Gra
             }
         }
 
-        [ConditionalFact(Skip = "QueryIssue")]
+        [ConditionalFact(Skip = "Issue#16229")]
         public virtual void Repro3101_simple_coalesce2()
         {
             using (CreateDatabase3101())
@@ -1282,7 +1282,7 @@ Queen of the Andals and the Rhoynar and the First Men, Khaleesi of the Great Gra
             }
         }
 
-        [ConditionalFact(Skip = "QueryIssue")]
+        [ConditionalFact(Skip = "Issue#16229")]
         public virtual void Repro3101_simple_coalesce3()
         {
             using (CreateDatabase3101())
@@ -1302,7 +1302,7 @@ Queen of the Andals and the Rhoynar and the First Men, Khaleesi of the Great Gra
             }
         }
 
-        [ConditionalFact(Skip = "QueryIssue")]
+        [ConditionalFact(Skip = "Issue#16229")]
         public virtual void Repro3101_complex_coalesce1()
         {
             using (CreateDatabase3101())
@@ -1326,7 +1326,7 @@ Queen of the Andals and the Rhoynar and the First Men, Khaleesi of the Great Gra
             }
         }
 
-        [ConditionalFact(Skip = "QueryIssue")]
+        [ConditionalFact(Skip = "Issue#16229")]
         public virtual void Repro3101_complex_coalesce2()
         {
             using (CreateDatabase3101())
@@ -1350,7 +1350,7 @@ Queen of the Andals and the Rhoynar and the First Men, Khaleesi of the Great Gra
             }
         }
 
-        [ConditionalFact(Skip = "QueryIssue")]
+        [ConditionalFact(Skip = "Issue#16229")]
         public virtual void Repro3101_nested_coalesce1()
         {
             using (CreateDatabase3101())
@@ -1375,7 +1375,7 @@ Queen of the Andals and the Rhoynar and the First Men, Khaleesi of the Great Gra
             }
         }
 
-        [ConditionalFact(Skip = "QueryIssue")]
+        [ConditionalFact(Skip = "Issue#16229")]
         public virtual void Repro3101_nested_coalesce2()
         {
             using (CreateDatabase3101())
@@ -1401,7 +1401,7 @@ Queen of the Andals and the Rhoynar and the First Men, Khaleesi of the Great Gra
             }
         }
 
-        [ConditionalFact(Skip = "QueryIssue")]
+        [ConditionalFact(Skip = "Issue#16229")]
         public virtual void Repro3101_conditional()
         {
             using (CreateDatabase3101())
@@ -1424,7 +1424,7 @@ Queen of the Andals and the Rhoynar and the First Men, Khaleesi of the Great Gra
             }
         }
 
-        [ConditionalFact(Skip = "QueryIssue")]
+        [ConditionalFact]
         public virtual void Repro3101_coalesce_tracking()
         {
             using (CreateDatabase3101())
@@ -1552,7 +1552,7 @@ Queen of the Andals and the Rhoynar and the First Men, Khaleesi of the Great Gra
 
         #region Bug6986
 
-        [ConditionalFact(Skip = "QueryIssue")]
+        [ConditionalFact]
         public virtual void Repro6986_can_query_base_type_when_derived_types_contain_shadow_properties()
         {
             using (CreateDatabase6986())
@@ -1568,7 +1568,7 @@ Queen of the Andals and the Rhoynar and the First Men, Khaleesi of the Great Gra
             }
         }
 
-        [ConditionalFact(Skip = "QueryIssue")]
+        [ConditionalFact]
         public virtual void Repro6986_can_include_dependent_to_principal_navigation_of_derived_type_with_shadow_fk()
         {
             using (CreateDatabase6986())
@@ -1583,7 +1583,7 @@ Queen of the Andals and the Rhoynar and the First Men, Khaleesi of the Great Gra
             }
         }
 
-        [ConditionalFact(Skip = "QueryIssue")]
+        [ConditionalFact]
         public virtual void Repro6986_can_project_shadow_property_using_ef_property()
         {
             using (CreateDatabase6986())
@@ -1696,7 +1696,7 @@ Queen of the Andals and the Rhoynar and the First Men, Khaleesi of the Great Gra
 
         #region Bug5456
 
-        [ConditionalFact(Skip = "QueryIssue")]
+        [ConditionalFact]
         public virtual void Repro5456_include_group_join_is_per_query_context()
         {
             using (CreateDatabase5456())
@@ -1714,7 +1714,7 @@ Queen of the Andals and the Rhoynar and the First Men, Khaleesi of the Great Gra
             }
         }
 
-        [ConditionalFact(Skip = "QueryIssue")]
+        [ConditionalFact]
         public virtual async Task Repro5456_include_group_join_is_per_query_context_async()
         {
             using (CreateDatabase5456())
@@ -1734,7 +1734,7 @@ Queen of the Andals and the Rhoynar and the First Men, Khaleesi of the Great Gra
             }
         }
 
-        [ConditionalFact(Skip = "issue #15611")]
+        [ConditionalFact]
         public virtual void Repro5456_multiple_include_group_join_is_per_query_context()
         {
             using (CreateDatabase5456())
@@ -1752,7 +1752,7 @@ Queen of the Andals and the Rhoynar and the First Men, Khaleesi of the Great Gra
             }
         }
 
-        [ConditionalFact(Skip = "issue #15611")]
+        [ConditionalFact]
         public virtual async Task Repro5456_multiple_include_group_join_is_per_query_context_async()
         {
             using (CreateDatabase5456())
@@ -1773,7 +1773,7 @@ Queen of the Andals and the Rhoynar and the First Men, Khaleesi of the Great Gra
             }
         }
 
-        [ConditionalFact(Skip = "QueryIssue")]
+        [ConditionalFact]
         public virtual void Repro5456_multi_level_include_group_join_is_per_query_context()
         {
             using (CreateDatabase5456())
@@ -1791,7 +1791,7 @@ Queen of the Andals and the Rhoynar and the First Men, Khaleesi of the Great Gra
             }
         }
 
-        [ConditionalFact(Skip = "QueryIssue")]
+        [ConditionalFact]
         public virtual async Task Repro5456_multi_level_include_group_join_is_per_query_context_async()
         {
             using (CreateDatabase5456())
@@ -1886,7 +1886,7 @@ Queen of the Andals and the Rhoynar and the First Men, Khaleesi of the Great Gra
 
         #region Bug7359
 
-        [ConditionalFact(Skip = "QueryIssue")]
+        [ConditionalFact]
         public virtual void Discriminator_type_is_handled_correctly_in_materialization_bug_7359()
         {
             using (CreateDatabase7359())
@@ -1900,7 +1900,7 @@ Queen of the Andals and the Rhoynar and the First Men, Khaleesi of the Great Gra
             }
         }
 
-        [ConditionalFact(Skip = "QueryIssue")]
+        [ConditionalFact]
         public virtual void Discriminator_type_is_handled_correctly_with_is_operator_bug_7359()
         {
             using (CreateDatabase7359())
@@ -1961,7 +1961,7 @@ Queen of the Andals and the Rhoynar and the First Men, Khaleesi of the Great Gra
 
         #region Bug7312
 
-        [ConditionalFact(Skip = "QueryIssue")]
+        [ConditionalFact]
         public virtual void Reference_include_on_derived_type_with_sibling_works_bug_7312()
         {
             using (CreateDatabase7312())
@@ -2035,7 +2035,7 @@ Queen of the Andals and the Rhoynar and the First Men, Khaleesi of the Great Gra
 
         #region Bug8282
 
-        [ConditionalFact(Skip = "QueryIssue")]
+        [ConditionalFact]
         public virtual void Entity_passed_to_DTO_constructor_works()
         {
             using (CreateDatabase8282())
@@ -2321,7 +2321,7 @@ WHERE ([e].[Id] = @__id_0) AND @__id_0 IS NOT NULL");
             }
         }
 
-        [ConditionalFact(Skip = "QueryIssue")]
+        [ConditionalFact]
         public virtual void Variable_from_multi_level_nested_closure_is_parametrized()
         {
             using (CreateDatabase8909())
@@ -2347,22 +2347,22 @@ WHERE ([e].[Id] = @__id_0) AND @__id_0 IS NOT NULL");
                     AssertSql(
                         @"@__id_0='1'
 
-SELECT [c].[Id], [c].[Name]
-FROM [Entities] AS [c]
-WHERE [c].[Id] IN (
-    SELECT [c0].[Id]
-    FROM [Entities] AS [c0]
-    WHERE [c0].[Id] = @__id_0
+SELECT [e].[Id], [e].[Name]
+FROM [Entities] AS [e]
+WHERE [e].[Id] IN (
+    SELECT [e0].[Id]
+    FROM [Entities] AS [e0]
+    WHERE ([e0].[Id] = @__id_0) AND @__id_0 IS NOT NULL
 )",
                         //
                         @"@__id_0='2'
 
-SELECT [c].[Id], [c].[Name]
-FROM [Entities] AS [c]
-WHERE [c].[Id] IN (
-    SELECT [c0].[Id]
-    FROM [Entities] AS [c0]
-    WHERE [c0].[Id] = @__id_0
+SELECT [e].[Id], [e].[Name]
+FROM [Entities] AS [e]
+WHERE [e].[Id] IN (
+    SELECT [e0].[Id]
+    FROM [Entities] AS [e0]
+    WHERE ([e0].[Id] = @__id_0) AND @__id_0 IS NOT NULL
 )");
                 }
             }
@@ -2719,7 +2719,7 @@ WHERE [w].[Val] = 1");
 
         #region Bug9277
 
-        [ConditionalFact(Skip = "QueryIssue")]
+        [ConditionalFact]
         public virtual void From_sql_gets_value_of_out_parameter_in_stored_procedure()
         {
             using (CreateDatabase9277())
@@ -2815,7 +2815,7 @@ BEGIN
 
         #region Bug9038
 
-        [ConditionalFact(Skip = "issue #15611")]
+        [ConditionalFact]
         public virtual async Task Include_collection_optional_reference_collection_9038()
         {
             using (CreateDatabase9038())
@@ -2834,7 +2834,7 @@ BEGIN
             }
         }
 
-        [ConditionalFact(Skip = "issue #15611")]
+        [ConditionalFact]
         public async Task Include_optional_reference_collection_another_collection()
         {
             using (CreateDatabase9038())
@@ -2977,7 +2977,7 @@ BEGIN
 
         #region Bug9735
 
-        [ConditionalFact(Skip = "issue #15611")]
+        [ConditionalFact]
         // TODO: Convert to test in IncludeTestBase once issue #9742 is fixed
         public virtual void Repro9735()
         {
@@ -2997,37 +2997,28 @@ BEGIN
                     AssertSql(
                         @"@__p_0='2'
 
-SELECT TOP(@__p_0) [b].[Id], [b].[AddressId], [b].[CustomerDetailsId], [b].[Name]
-FROM [Customers] AS [b]
-LEFT JOIN [CustomerDetails9735] AS [b.CustomerDetails] ON [b].[CustomerDetailsId] = [b.CustomerDetails].[Id]
-ORDER BY CASE
-    WHEN [b].[AddressId] > 0
-    THEN CAST(1 AS bit) ELSE CAST(0 AS bit)
-END, CASE
-    WHEN [b].[CustomerDetailsId] IS NOT NULL
-    THEN [b.CustomerDetails].[Name] ELSE N''
-END, [b].[Id]",
-                        //
-                        @"@__p_0='2'
-
-SELECT [b.Orders].[Id], [b.Orders].[CustomerId], [b.Orders].[Name]
-FROM [Order9735] AS [b.Orders]
-INNER JOIN (
-    SELECT DISTINCT [t].*
-    FROM (
-        SELECT TOP(@__p_0) [b0].[Id], CASE
-            WHEN [b0].[AddressId] > 0
-            THEN CAST(1 AS bit) ELSE CAST(0 AS bit)
-        END AS [c], CASE
-            WHEN [b0].[CustomerDetailsId] IS NOT NULL
-            THEN [b.CustomerDetails0].[Name] ELSE N''
-        END AS [c0]
-        FROM [Customers] AS [b0]
-        LEFT JOIN [CustomerDetails9735] AS [b.CustomerDetails0] ON [b0].[CustomerDetailsId] = [b.CustomerDetails0].[Id]
-        ORDER BY [c], [c0], [b0].[Id]
-    ) AS [t]
-) AS [t0] ON [b.Orders].[CustomerId] = [t0].[Id]
-ORDER BY [t0].[c], [t0].[c0], [t0].[Id]");
+SELECT [t].[Id], [t].[AddressId], [t].[CustomerDetailsId], [t].[Name], [t].[Id0], [o].[Id], [o].[CustomerId], [o].[Name]
+FROM (
+    SELECT TOP(@__p_0) [c].[Id], [c].[AddressId], [c].[CustomerDetailsId], [c].[Name], [a].[Id] AS [Id0], CASE
+        WHEN [a].[Id] > 0 THEN CAST(1 AS bit)
+        ELSE CAST(0 AS bit)
+    END AS [c], CASE
+        WHEN [c0].[Id] IS NOT NULL THEN [c0].[Name]
+        ELSE N''
+    END AS [c0]
+    FROM [Customers] AS [c]
+    INNER JOIN [Address9735] AS [a] ON [c].[AddressId] = [a].[Id]
+    LEFT JOIN [CustomerDetails9735] AS [c0] ON [c].[CustomerDetailsId] = [c0].[Id]
+    ORDER BY CASE
+        WHEN [a].[Id] > 0 THEN CAST(1 AS bit)
+        ELSE CAST(0 AS bit)
+    END, CASE
+        WHEN [c0].[Id] IS NOT NULL THEN [c0].[Name]
+        ELSE N''
+    END
+) AS [t]
+LEFT JOIN [Order9735] AS [o] ON [t].[Id] = [o].[CustomerId]
+ORDER BY [t].[c], [t].[c0], [t].[Id], [t].[Id0], [o].[Id]");
                 }
             }
         }
@@ -3233,7 +3224,7 @@ ORDER BY [t0].[c], [t0].[c0], [t0].[Id]");
 
         #region Bug9468
 
-        [ConditionalFact(Skip = "QueryIssue")]
+        [ConditionalFact]
         public virtual void Conditional_expression_with_conditions_does_not_collapse_if_nullable_bool()
         {
             using (CreateDatabase9468())
@@ -3252,14 +3243,14 @@ ORDER BY [t0].[c], [t0].[c0], [t0].[Id]");
 
                     AssertSql(
                         @"SELECT CASE
-    WHEN [t.Configuration].[Id] IS NOT NULL
-    THEN CASE
-        WHEN [t.Configuration].[Processed] = CAST(0 AS bit)
-        THEN CAST(1 AS bit) ELSE CAST(0 AS bit)
-    END ELSE NULL
+    WHEN [c].[Id] IS NOT NULL THEN CASE
+        WHEN [c].[Processed] <> CAST(1 AS bit) THEN CAST(1 AS bit)
+        ELSE CAST(0 AS bit)
+    END
+    ELSE NULL
 END AS [Processing]
-FROM [Carts] AS [t]
-LEFT JOIN [Configuration9468] AS [t.Configuration] ON [t].[ConfigurationId] = [t.Configuration].[Id]");
+FROM [Carts] AS [c0]
+LEFT JOIN [Configuration9468] AS [c] ON [c0].[ConfigurationId] = [c].[Id]");
                 }
             }
         }
@@ -3674,7 +3665,7 @@ WHERE [e].[SomeValue] = @__ef_filter__Tenant_0");
 
         #region Bug11104
 
-        [ConditionalFact(Skip = "QueryIssue")]
+        [ConditionalFact]
         public virtual void QueryBuffer_requirement_is_computed_when_querying_base_type_while_derived_type_has_shadow_prop()
         {
             using (CreateDatabase11104())
@@ -3689,7 +3680,7 @@ WHERE [e].[SomeValue] = @__ef_filter__Tenant_0");
                     AssertSql(
                         @"SELECT [b].[Id], [b].[IsTwo], [b].[MoreStuffId]
 FROM [Bases] AS [b]
-WHERE [b].[IsTwo] IN (CAST(1 AS bit), CAST(0 AS bit))");
+WHERE [b].[IsTwo] IN (CAST(0 AS bit), CAST(1 AS bit))");
                 }
             }
         }
@@ -4538,7 +4529,7 @@ FROM [Prices] AS [p]");
             }
         }
 
-        [ConditionalFact(Skip = "QueryIssue")]
+        [ConditionalFact]
         public virtual void Correlated_collection_with_OfType_base()
         {
             using (CreateDatabase12582())
@@ -4614,7 +4605,7 @@ FROM [Prices] AS [p]");
 
         #region Bug12748
 
-        [ConditionalFact(Skip = "QueryIssue")]
+        [ConditionalFact(Skip = "Issue#16318")]
         public virtual void Correlated_collection_correctly_associates_entities_with_byte_array_keys()
         {
             using (CreateDatabase12748())
@@ -4847,7 +4838,7 @@ FROM [Prices] AS [p]");
 
         #region Bug11944
 
-        [ConditionalFact(Skip = "QueryIssue")]
+        [ConditionalFact]
         public virtual void Include_collection_works_when_defined_on_intermediate_type()
         {
             using (CreateDatabase11944())
@@ -4863,7 +4854,7 @@ FROM [Prices] AS [p]");
             }
         }
 
-        [ConditionalFact(Skip = "QueryIssue")]
+        [ConditionalFact]
         public virtual void Correlated_collection_works_when_defined_on_intermediate_type()
         {
             using (CreateDatabase11944())
@@ -5080,7 +5071,7 @@ END IN ('0a47bcb7-a1cb-4345-8944-c58f82d6aac7', '5f221fb9-66f4-442a-92c9-d97ed59
 
         #region Bug13157
 
-        [ConditionalFact(Skip = "issue #15043")]
+        [ConditionalFact(Skip = "Issue#16321")]
         public virtual void Correlated_subquery_with_owned_navigation_being_compared_to_null_works()
         {
             using (CreateDatabase13157())

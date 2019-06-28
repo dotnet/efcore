@@ -1001,6 +1001,7 @@ FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
 
+        [ConditionalTheory(Skip = "Issue #14935")]
         public override async Task Where_select_many_or(bool isAsync)
         {
             await base.Where_select_many_or(isAsync);
@@ -1011,6 +1012,7 @@ FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
 
+        [ConditionalTheory(Skip = "Issue #14935")]
         public override async Task Where_select_many_or2(bool isAsync)
         {
             await base.Where_select_many_or2(isAsync);
@@ -1021,6 +1023,7 @@ FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
 
+        [ConditionalTheory(Skip = "Issue #14935")]
         public override async Task Where_select_many_or3(bool isAsync)
         {
             await base.Where_select_many_or3(isAsync);
@@ -1031,6 +1034,7 @@ FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
 
+        [ConditionalTheory(Skip = "Issue #14935")]
         public override async Task Where_select_many_or4(bool isAsync)
         {
             await base.Where_select_many_or4(isAsync);
@@ -1041,6 +1045,7 @@ FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
 
+        [ConditionalTheory(Skip = "Issue #14935")]
         public override async Task Where_select_many_or_with_parameter(bool isAsync)
         {
             await base.Where_select_many_or_with_parameter(isAsync);
@@ -2886,6 +2891,7 @@ FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
 
+        [ConditionalTheory(Skip = "Issue #14935")]
         public override async Task Anonymous_subquery_orderby(bool isAsync)
         {
             await AssertQuery<Customer>(
@@ -2999,6 +3005,7 @@ FROM root c
 WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] = ""ALFKI""))");
         }
 
+        [ConditionalTheory(Skip = "Issue #14935")]
         public override async Task Include_with_orderby_skip_preserves_ordering(bool isAsync)
         {
             await base.Include_with_orderby_skip_preserves_ordering(isAsync);
