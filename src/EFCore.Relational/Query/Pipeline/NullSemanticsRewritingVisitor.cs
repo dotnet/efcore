@@ -89,9 +89,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Pipeline
 
         private SqlUnaryExpression VisitSqlUnaryExpression(SqlUnaryExpression sqlUnaryExpression)
         {
+            _isNullable = false;
             var newOperand = (SqlExpression)Visit(sqlUnaryExpression.Operand);
 
-            // IsNull/IsNotNull 
+            // IsNull/IsNotNull
             if (sqlUnaryExpression.OperatorType == ExpressionType.Equal
                 || sqlUnaryExpression.OperatorType == ExpressionType.NotEqual)
             {
@@ -103,6 +104,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Pipeline
 
         private LikeExpression VisitLikeExpression(LikeExpression likeExpression)
         {
+            _isNullable = false;
             var newMatch = (SqlExpression)Visit(likeExpression.Match);
             var isNullable = _isNullable;
             var newPattern = (SqlExpression)Visit(likeExpression.Pattern);
@@ -149,6 +151,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Pipeline
 
         private CaseExpression VisitCaseExpression(CaseExpression caseExpression)
         {
+            _isNullable = false;
             // if there is no 'else' there is a possibility of null, when none of the conditions are met
             // otherwise the result is nullable if any of the WhenClause results OR ElseResult is nullable
             var isNullable = caseExpression.ElseResult == null;
@@ -188,9 +191,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Pipeline
 
         private SqlBinaryExpression VisitSqlBinaryExpression(SqlBinaryExpression sqlBinaryExpression)
         {
+            _isNullable = false;
             var newLeft = (SqlExpression)Visit(sqlBinaryExpression.Left);
             var leftNullable = _isNullable;
 
+            _isNullable = false;
             var newRight = (SqlExpression)Visit(sqlBinaryExpression.Right);
             var rightNullable = _isNullable;
 
