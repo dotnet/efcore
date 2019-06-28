@@ -1083,19 +1083,26 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
                 return false;
             }
 
+            if (SetOperationType != selectExpression.SetOperationType)
+            {
+                return false;
+            }
+
             if (_projectionMapping.Count != selectExpression._projectionMapping.Count)
             {
-                foreach (var projectionMapping in _projectionMapping)
-                {
-                    if (!selectExpression._projectionMapping.TryGetValue(projectionMapping.Key, out var projection))
-                    {
-                        return false;
-                    }
+                return false;
+            }
 
-                    if (!projectionMapping.Value.Equals(projection))
-                    {
-                        return false;
-                    }
+            foreach (var projectionMapping in _projectionMapping)
+            {
+                if (!selectExpression._projectionMapping.TryGetValue(projectionMapping.Key, out var projection))
+                {
+                    return false;
+                }
+
+                if (!projectionMapping.Value.Equals(projection))
+                {
+                    return false;
                 }
             }
 
@@ -1167,6 +1174,9 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
         {
             var hash = new HashCode();
             hash.Add(base.GetHashCode());
+
+            hash.Add(SetOperationType);
+
             foreach (var projectionMapping in _projectionMapping)
             {
                 hash.Add(projectionMapping.Key);
@@ -1206,47 +1216,59 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
             }
 
             expressionPrinter.StringBuilder.AppendLine();
-            if (Alias != null)
-            {
-                expressionPrinter.StringBuilder.AppendLine("(");
-                expressionPrinter.StringBuilder.IncrementIndent();
-            }
 
-            expressionPrinter.StringBuilder.Append("SELECT ");
-
-            if (IsDistinct)
+            if (IsSetOperation)
             {
-                expressionPrinter.StringBuilder.Append("DISTINCT ");
-            }
-
-            if (Limit != null
-                && Offset == null)
-            {
-                expressionPrinter.StringBuilder.Append("TOP(");
-                expressionPrinter.Visit(Limit);
-                expressionPrinter.StringBuilder.Append(") ");
-            }
-
-            if (Projection.Any())
-            {
-                expressionPrinter.VisitList(Projection);
+                expressionPrinter.Visit(Tables[0]);
+                expressionPrinter.StringBuilder
+                    .AppendLine()
+                    .AppendLine(SetOperationType.ToString().ToUpperInvariant());
+                expressionPrinter.Visit(Tables[1]);
             }
             else
             {
-                expressionPrinter.StringBuilder.Append("1");
-            }
+                if (Alias != null)
+                {
+                    expressionPrinter.StringBuilder.AppendLine("(");
+                    expressionPrinter.StringBuilder.IncrementIndent();
+                }
 
-            if (Tables.Any())
-            {
-                expressionPrinter.StringBuilder.AppendLine().Append("FROM ");
+                expressionPrinter.StringBuilder.Append("SELECT ");
 
-                expressionPrinter.VisitList(Tables, p => p.StringBuilder.AppendLine());
-            }
+                if (IsDistinct)
+                {
+                    expressionPrinter.StringBuilder.Append("DISTINCT ");
+                }
 
-            if (Predicate != null)
-            {
-                expressionPrinter.StringBuilder.AppendLine().Append("WHERE ");
-                expressionPrinter.Visit(Predicate);
+                if (Limit != null
+                    && Offset == null)
+                {
+                    expressionPrinter.StringBuilder.Append("TOP(");
+                    expressionPrinter.Visit(Limit);
+                    expressionPrinter.StringBuilder.Append(") ");
+                }
+
+                if (Projection.Any())
+                {
+                    expressionPrinter.VisitList(Projection);
+                }
+                else
+                {
+                    expressionPrinter.StringBuilder.Append("1");
+                }
+
+                if (Tables.Any())
+                {
+                    expressionPrinter.StringBuilder.AppendLine().Append("FROM ");
+
+                    expressionPrinter.VisitList(Tables, p => p.StringBuilder.AppendLine());
+                }
+
+                if (Predicate != null)
+                {
+                    expressionPrinter.StringBuilder.AppendLine().Append("WHERE ");
+                    expressionPrinter.Visit(Predicate);
+                }
             }
 
             if (Orderings.Any())
