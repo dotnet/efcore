@@ -45,9 +45,9 @@ LEFT JOIN (
 WHERE [b].[Discriminator] IN (N'BaseReferenceOnBase', N'DerivedReferenceOnBase')");
         }
 
-        public override void Include_self_reference_with_inheritence()
+        public override void Include_self_reference_with_inheritance()
         {
-            base.Include_self_reference_with_inheritence();
+            base.Include_self_reference_with_inheritance();
 
             AssertSql(
                 @"SELECT [b].[Id], [b].[Discriminator], [b].[Name], [b].[BaseId], [t].[Id], [t].[Discriminator], [t].[Name], [t].[BaseId]
@@ -60,9 +60,9 @@ LEFT JOIN (
 WHERE [b].[Discriminator] IN (N'BaseInheritanceRelationshipEntity', N'DerivedInheritanceRelationshipEntity')");
         }
 
-        public override void Include_self_reference_with_inheritence_reverse()
+        public override void Include_self_reference_with_inheritance_reverse()
         {
-            base.Include_self_reference_with_inheritence_reverse();
+            base.Include_self_reference_with_inheritance_reverse();
 
             AssertSql(
                 @"SELECT [b].[Id], [b].[Discriminator], [b].[Name], [b].[BaseId], [t].[Id], [t].[Discriminator], [t].[Name], [t].[BaseId]
