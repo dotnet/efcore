@@ -197,18 +197,18 @@ namespace Microsoft.EntityFrameworkCore.Storage
         }
 
         [ConditionalFact]
-        public void Execute_Action_doesnt_retry_if_succesful()
+        public void Execute_Action_doesnt_retry_if_successful()
         {
-            Execute_doesnt_retry_if_succesful((e, f) => e.Execute(() => f()));
+            Execute_doesnt_retry_if_successful((e, f) => e.Execute(() => f()));
         }
 
         [ConditionalFact]
-        public void Execute_Func_doesnt_retry_if_succesful()
+        public void Execute_Func_doesnt_retry_if_successful()
         {
-            Execute_doesnt_retry_if_succesful((e, f) => e.Execute(f));
+            Execute_doesnt_retry_if_successful((e, f) => e.Execute(f));
         }
 
-        private void Execute_doesnt_retry_if_succesful(Action<ExecutionStrategy, Func<int>> execute)
+        private void Execute_doesnt_retry_if_successful(Action<ExecutionStrategy, Func<int>> execute)
         {
             var executionCount = 0;
             execute(CreateFailOnRetryStrategy(), () => executionCount++);
@@ -246,18 +246,18 @@ namespace Microsoft.EntityFrameworkCore.Storage
         }
 
         [ConditionalFact]
-        public void Execute_Action_retries_until_succesful()
+        public void Execute_Action_retries_until_successful()
         {
-            Execute_retries_until_succesful((e, f) => e.Execute(() => f()));
+            Execute_retries_until_successful((e, f) => e.Execute(() => f()));
         }
 
         [ConditionalFact]
-        public void Execute_Func_retries_until_succesful()
+        public void Execute_Func_retries_until_successful()
         {
-            Execute_retries_until_succesful((e, f) => e.Execute(f));
+            Execute_retries_until_successful((e, f) => e.Execute(f));
         }
 
-        private void Execute_retries_until_succesful(Action<ExecutionStrategy, Func<int>> execute)
+        private void Execute_retries_until_successful(Action<ExecutionStrategy, Func<int>> execute)
         {
             var executionStrategyMock = new TestExecutionStrategy(
                 Context,
@@ -478,18 +478,18 @@ namespace Microsoft.EntityFrameworkCore.Storage
         }
 
         [ConditionalFact]
-        public Task ExecuteAsync_Action_doesnt_retry_if_succesful()
+        public Task ExecuteAsync_Action_doesnt_retry_if_successful()
         {
-            return ExecuteAsync_doesnt_retry_if_succesful((e, f) => e.ExecuteAsync(ct => (Task)f(ct), CancellationToken.None));
+            return ExecuteAsync_doesnt_retry_if_successful((e, f) => e.ExecuteAsync(ct => (Task)f(ct), CancellationToken.None));
         }
 
         [ConditionalFact]
-        public Task ExecuteAsync_Func_doesnt_retry_if_succesful()
+        public Task ExecuteAsync_Func_doesnt_retry_if_successful()
         {
-            return ExecuteAsync_doesnt_retry_if_succesful((e, f) => e.ExecuteAsync(f, CancellationToken.None));
+            return ExecuteAsync_doesnt_retry_if_successful((e, f) => e.ExecuteAsync(f, CancellationToken.None));
         }
 
-        private async Task ExecuteAsync_doesnt_retry_if_succesful(
+        private async Task ExecuteAsync_doesnt_retry_if_successful(
             Func<ExecutionStrategy, Func<CancellationToken, Task<int>>, Task> executeAsync)
         {
             var executionCount = 0;
@@ -529,18 +529,18 @@ namespace Microsoft.EntityFrameworkCore.Storage
         }
 
         [ConditionalFact]
-        public Task ExecuteAsync_Action_retries_until_succesful()
+        public Task ExecuteAsync_Action_retries_until_successful()
         {
-            return ExecuteAsync_retries_until_succesful((e, f) => e.ExecuteAsync(ct => (Task)f(ct), CancellationToken.None));
+            return ExecuteAsync_retries_until_successful((e, f) => e.ExecuteAsync(ct => (Task)f(ct), CancellationToken.None));
         }
 
         [ConditionalFact]
-        public Task ExecuteAsync_Func_retries_until_succesful()
+        public Task ExecuteAsync_Func_retries_until_successful()
         {
-            return ExecuteAsync_retries_until_succesful((e, f) => e.ExecuteAsync(f, CancellationToken.None));
+            return ExecuteAsync_retries_until_successful((e, f) => e.ExecuteAsync(f, CancellationToken.None));
         }
 
-        private async Task ExecuteAsync_retries_until_succesful(
+        private async Task ExecuteAsync_retries_until_successful(
             Func<ExecutionStrategy, Func<CancellationToken, Task<int>>, Task> executeAsync)
         {
             var executionStrategyMock = new TestExecutionStrategy(
