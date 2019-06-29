@@ -7310,7 +7310,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task Filter_with_compex_predicate_containing_subquery(bool isAsync)
+        public virtual Task Filter_with_complex_predicate_containing_subquery(bool isAsync)
         {
             return AssertQuery<Gear>(
                 isAsync,
