@@ -221,7 +221,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
                 DbDataReader dbDataReader,
                 ResultCoordinator resultCoordinator,
                 TParent entity,
-                Func<QueryContext, DbDataReader, object[]> parentIdenfier,
+                Func<QueryContext, DbDataReader, object[]> parentIdentifier,
                 Func<QueryContext, DbDataReader, object[]> outerIdentifier,
                 INavigation navigation,
                 IClrCollectionAccessor clrCollectionAccessor,
@@ -243,7 +243,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
                     collection = clrCollectionAccessor.GetOrCreate(entity);
                 }
 
-                var parentKey = parentIdenfier(queryContext, dbDataReader);
+                var parentKey = parentIdentifier(queryContext, dbDataReader);
                 var outerKey = outerIdentifier(queryContext, dbDataReader);
 
                 var collectionMaterializationContext = new CollectionMaterializationContext(entity, collection, parentKey, outerKey);
@@ -260,14 +260,14 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
                 QueryContext queryContext,
                 DbDataReader dbDataReader,
                 ResultCoordinator resultCoordinator,
-                Func<QueryContext, DbDataReader, object[]> parentIdenfier,
+                Func<QueryContext, DbDataReader, object[]> parentIdentifier,
                 Func<QueryContext, DbDataReader, object[]> outerIdentifier,
                 IClrCollectionAccessor clrCollectionAccessor)
                 where TCollection :class, IEnumerable<TElement>
             {
                 var collection = clrCollectionAccessor?.Create() ?? new List<TElement>();
 
-                var parentKey = parentIdenfier(queryContext, dbDataReader);
+                var parentKey = parentIdentifier(queryContext, dbDataReader);
                 var outerKey = outerIdentifier(queryContext, dbDataReader);
 
                 var collectionMaterializationContext = new CollectionMaterializationContext(null, collection, parentKey, outerKey);
