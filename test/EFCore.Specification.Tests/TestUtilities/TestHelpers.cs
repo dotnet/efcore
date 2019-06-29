@@ -293,7 +293,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                     if (elementAsserter != null)
                     {
                         throw new InvalidOperationException(
-                            "Elemenent asserter will not be used because results are not properly ordered - either remove asserter from the AssertQuery, add element sorter or set assertOrder to 'true'.");
+                            "Element asserter will not be used because results are not properly ordered - either remove asserter from the AssertQuery, add element sorter or set assertOrder to 'true'.");
                     }
 
                     return AssertResults(expected, actual, assertOrder: false);
@@ -333,7 +333,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                     if (elementAsserter != null)
                     {
                         throw new InvalidOperationException(
-                            "Elemenent asserter will not be used because results are not properly ordered - either remove asserter from the AssertQuery, add element sorter or set assertOrder to 'true'.");
+                            "Element asserter will not be used because results are not properly ordered - either remove asserter from the AssertQuery, add element sorter or set assertOrder to 'true'.");
                     }
 
                     return AssertResults(expected, actual, assertOrder: false);
@@ -373,7 +373,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                     if (elementAsserter != null)
                     {
                         throw new InvalidOperationException(
-                            "Elemenent asserter will not be used because results are not properly ordered - either remove asserter from the AssertQuery, add element sorter or set assertOrder to 'true'.");
+                            "Element asserter will not be used because results are not properly ordered - either remove asserter from the AssertQuery, add element sorter or set assertOrder to 'true'.");
                     }
 
                     return AssertResults(expected, actual, assertOrder: false);
