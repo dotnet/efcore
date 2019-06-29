@@ -27,7 +27,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
 {
     /// <summary>
     ///     <para>
-    ///         This class contains static methods used by EF Core internals and relationl database providers to
+    ///         This class contains static methods used by EF Core internals and relational database providers to
     ///         write information to an <see cref="ILogger" /> and a <see cref="DiagnosticListener" /> for
     ///         well-known events.
     ///     </para>
