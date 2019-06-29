@@ -1176,7 +1176,7 @@ END");
 
         // Concurrency
         [ConditionalFact]
-        public void Resolve_concurreny()
+        public void Resolve_concurrency()
         {
             using (var testStore = SqlServerTestStore.CreateInitialized(DatabaseName))
             {
