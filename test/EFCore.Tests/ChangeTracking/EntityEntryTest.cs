@@ -643,7 +643,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         }
 
         [ConditionalFact]
-        public void Throws_when_accessing_refernce_as_collection()
+        public void Throws_when_accessing_reference_as_collection()
         {
             using (var context = new FreezerContext())
             {
