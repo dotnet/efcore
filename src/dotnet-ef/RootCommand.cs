@@ -62,16 +62,16 @@ namespace Microsoft.EntityFrameworkCore.Tools
                 return ShowHelp(_help.HasValue(), commands);
             }
 
-            var (projectFile, starupProjectFile) = ResolveProjects(
+            var (projectFile, startupProjectFile) = ResolveProjects(
                 _project.Value(),
                 _startupProject.Value());
 
             Reporter.WriteVerbose(Resources.UsingProject(projectFile));
-            Reporter.WriteVerbose(Resources.UsingStartupProject(starupProjectFile));
+            Reporter.WriteVerbose(Resources.UsingStartupProject(startupProjectFile));
 
             var project = Project.FromFile(projectFile, _msbuildprojectextensionspath.Value());
             var startupProject = Project.FromFile(
-                starupProjectFile,
+                startupProjectFile,
                 _msbuildprojectextensionspath.Value(),
                 _framework.Value(),
                 _configuration.Value(),
