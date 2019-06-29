@@ -488,7 +488,7 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [ConditionalFact]
-        public virtual void StringLength_with_value_takes_presedence_over_MaxLength()
+        public virtual void StringLength_with_value_takes_precedence_over_MaxLength()
         {
             var modelBuilder = CreateModelBuilder();
 
