@@ -1414,9 +1414,9 @@ FROM root c
 WHERE ((c[""Discriminator""] = ""Product"") AND (c[""Discontinued""] = ((c[""ProductID""] > 50) != @__prm_0)))");
         }
 
-        public override async Task Where_de_morgan_or_optimizated(bool isAsync)
+        public override async Task Where_de_morgan_or_optimized(bool isAsync)
         {
-            await base.Where_de_morgan_or_optimizated(isAsync);
+            await base.Where_de_morgan_or_optimized(isAsync);
 
             AssertSql(
                 @"SELECT c
@@ -1424,9 +1424,9 @@ FROM root c
 WHERE ((c[""Discriminator""] = ""Product"") AND NOT((c[""Discontinued""] OR (c[""ProductID""] < 20))))");
         }
 
-        public override async Task Where_de_morgan_and_optimizated(bool isAsync)
+        public override async Task Where_de_morgan_and_optimized(bool isAsync)
         {
-            await base.Where_de_morgan_and_optimizated(isAsync);
+            await base.Where_de_morgan_and_optimized(isAsync);
 
             AssertSql(
                 @"SELECT c

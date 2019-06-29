@@ -1276,9 +1276,9 @@ WHERE [p].[Discontinued] = CASE
 END");
         }
 
-        public override async Task Where_de_morgan_or_optimizated(bool isAsync)
+        public override async Task Where_de_morgan_or_optimized(bool isAsync)
         {
-            await base.Where_de_morgan_or_optimizated(isAsync);
+            await base.Where_de_morgan_or_optimized(isAsync);
 
             AssertSql(
                 @"SELECT [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[SupplierID], [p].[UnitPrice], [p].[UnitsInStock]
@@ -1286,9 +1286,9 @@ FROM [Products] AS [p]
 WHERE ([p].[Discontinued] <> CAST(1 AS bit)) AND ([p].[ProductID] >= 20)");
         }
 
-        public override async Task Where_de_morgan_and_optimizated(bool isAsync)
+        public override async Task Where_de_morgan_and_optimized(bool isAsync)
         {
-            await base.Where_de_morgan_and_optimizated(isAsync);
+            await base.Where_de_morgan_and_optimized(isAsync);
 
             AssertSql(
                 @"SELECT [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[SupplierID], [p].[UnitPrice], [p].[UnitsInStock]

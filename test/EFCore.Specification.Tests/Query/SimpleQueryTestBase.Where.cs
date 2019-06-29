@@ -1437,7 +1437,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task Where_de_morgan_or_optimizated(bool isAsync)
+        public virtual Task Where_de_morgan_or_optimized(bool isAsync)
         {
             return AssertQuery<Product>(
                 isAsync,
@@ -1446,7 +1446,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task Where_de_morgan_and_optimizated(bool isAsync)
+        public virtual Task Where_de_morgan_and_optimized(bool isAsync)
         {
             return AssertQuery<Product>(
                 isAsync,
