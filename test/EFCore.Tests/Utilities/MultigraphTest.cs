@@ -114,7 +114,7 @@ namespace Microsoft.EntityFrameworkCore.Utilities
         }
 
         [ConditionalFact]
-        public void AddVertices_add_verticies()
+        public void AddVertices_add_vertices()
         {
             var vertexOne = new Vertex
             {
@@ -173,7 +173,7 @@ namespace Microsoft.EntityFrameworkCore.Utilities
         }
 
         [ConditionalFact]
-        public void AddEdge_throws_on_verticies_not_in_the_graph()
+        public void AddEdge_throws_on_vertices_not_in_the_graph()
         {
             var vertexOne = new Vertex
             {
@@ -237,7 +237,7 @@ namespace Microsoft.EntityFrameworkCore.Utilities
         }
 
         [ConditionalFact]
-        public void AddEdges_throws_on_verticies_not_in_the_graph()
+        public void AddEdges_throws_on_vertices_not_in_the_graph()
         {
             var vertexOne = new Vertex
             {
@@ -308,7 +308,7 @@ namespace Microsoft.EntityFrameworkCore.Utilities
         }
 
         [ConditionalFact]
-        public void TopologicalSort_on_graph_with_no_edges_returns_all_verticies()
+        public void TopologicalSort_on_graph_with_no_edges_returns_all_vertices()
         {
             var vertexOne = new Vertex
             {
@@ -332,7 +332,7 @@ namespace Microsoft.EntityFrameworkCore.Utilities
         }
 
         [ConditionalFact]
-        public void TopologicalSort_on_simple_graph_returns_all_verticies_in_order()
+        public void TopologicalSort_on_simple_graph_returns_all_vertices_in_order()
         {
             var vertexOne = new Vertex
             {
@@ -370,7 +370,7 @@ namespace Microsoft.EntityFrameworkCore.Utilities
         }
 
         [ConditionalFact]
-        public void TopologicalSort_on_tree_graph_returns_all_verticies_in_order()
+        public void TopologicalSort_on_tree_graph_returns_all_vertices_in_order()
         {
             var vertexOne = new Vertex
             {
