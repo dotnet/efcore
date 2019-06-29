@@ -5789,7 +5789,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task Let_subquery_with_multiple_occurences(bool isAsync)
+        public virtual Task Let_subquery_with_multiple_occurrences(bool isAsync)
         {
             return AssertQuery<Order>(
                 isAsync,

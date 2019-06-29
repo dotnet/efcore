@@ -4701,9 +4701,9 @@ LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]
 WHERE [o].[OrderID] < 10300");
         }
 
-        public override async Task Let_subquery_with_multiple_occurences(bool isAsync)
+        public override async Task Let_subquery_with_multiple_occurrences(bool isAsync)
         {
-            await base.Let_subquery_with_multiple_occurences(isAsync);
+            await base.Let_subquery_with_multiple_occurrences(isAsync);
 
             AssertSql(
                 @"SELECT (
