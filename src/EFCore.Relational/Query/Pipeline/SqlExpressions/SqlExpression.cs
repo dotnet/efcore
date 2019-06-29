@@ -21,7 +21,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
         public RelationalTypeMapping TypeMapping { get; }
 
         protected override Expression VisitChildren(ExpressionVisitor visitor)
-            => throw new InvalidOperationException("VisitChildren must be overriden in class deriving from SqlExpression");
+            => throw new InvalidOperationException("VisitChildren must be overridden in class deriving from SqlExpression");
 
         public override ExpressionType NodeType => ExpressionType.Extension;
         public abstract void Print(ExpressionPrinter expressionPrinter);

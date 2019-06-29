@@ -691,7 +691,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             }
 
             [ConditionalFact]
-            public virtual void Access_mode_can_be_overriden_at_entity_and_property_levels()
+            public virtual void Access_mode_can_be_overridden_at_entity_and_property_levels()
             {
                 var modelBuilder = CreateModelBuilder();
                 var model = modelBuilder.Model;

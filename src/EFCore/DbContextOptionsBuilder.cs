@@ -317,7 +317,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     </para>
         ///     <para>
         ///         Calling this method multiple times will result in all interceptors in every call being added to the context.
-        ///         Interceptors added in a previous call are not overriden by interceptors added in a later call.
+        ///         Interceptors added in a previous call are not overridden by interceptors added in a later call.
         ///     </para>
         /// </summary>
         /// <param name="interceptors"> The interceptors to add. </param>
@@ -341,7 +341,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     </para>
         ///     <para>
         ///         Calling this method multiple times will result in all interceptors in every call being added to the context.
-        ///         Interceptors added in a previous call are not overriden by interceptors added in a later call.
+        ///         Interceptors added in a previous call are not overridden by interceptors added in a later call.
         ///     </para>
         /// </summary>
         /// <param name="interceptors"> The interceptors to add. </param>

@@ -281,13 +281,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
         private class ConcreteEntity2 : ConcreteEntity1
         {
-            // ReSharper disable once RedundantOverridenMember
+            // ReSharper disable once RedundantOverriddenMember
             public override int VirtualPrivateProperty_Override => base.VirtualPrivateProperty_Override;
         }
 
         private class ConcreteEntity1 : BaseEntity
         {
-            // ReSharper disable once RedundantOverridenMember
+            // ReSharper disable once RedundantOverriddenMember
             public override int VirtualPrivateProperty_Override => base.VirtualPrivateProperty_Override;
         }
 
