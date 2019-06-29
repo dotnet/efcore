@@ -118,8 +118,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
                     var secondPersonEntry = context.Entry(people[1]);
                     var json = secondPersonEntry.Property<JObject>("__jObject").CurrentValue;
 
-                    var adresses = (JArray)json["Stored Addresses"];
-                    var jsonAddress = (JObject)adresses[0];
+                    var addresses = (JArray)json["Stored Addresses"];
+                    var jsonAddress = (JObject)addresses[0];
                     Assert.Equal("Second", jsonAddress[nameof(Address.Street)]);
                     jsonAddress["unmappedId"] = 2;
 
