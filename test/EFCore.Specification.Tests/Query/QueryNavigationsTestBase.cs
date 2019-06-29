@@ -126,10 +126,10 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 89);
         }
 
-        private static readonly Random _randomGenrator = new Random();
+        private static readonly Random _randomGenerator = new Random();
         private static T ClientProjection<T>(T t, object _) => t;
         private static bool ClientPredicate<T>(T t, object _) => true;
-        private static int ClientOrderBy<T>(T t, object _) => _randomGenrator.Next(0, 20);
+        private static int ClientOrderBy<T>(T t, object _) => _randomGenerator.Next(0, 20);
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
