@@ -268,7 +268,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         }
 
         [ConditionalFact]
-        public void Can_get_and_set_current_value_attched()
+        public void Can_get_and_set_current_value_attached()
         {
             using (var context = new FreezerContext())
             {
@@ -308,7 +308,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         }
 
         [ConditionalFact]
-        public void Can_get_and_set_current_value_generic_attched()
+        public void Can_get_and_set_current_value_generic_attached()
         {
             using (var context = new FreezerContext())
             {
