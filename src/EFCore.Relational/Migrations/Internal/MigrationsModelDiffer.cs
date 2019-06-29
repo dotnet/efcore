@@ -574,7 +574,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             [NotNull] TableMapping source,
             [NotNull] TableMapping target)
         {
-            // Validation should ensure that all the relevant annotations for the colocated entity types are the same
+            // Validation should ensure that all the relevant annotations for the collocated entity types are the same
             var sourceMigrationsAnnotations = MigrationsAnnotations.For(source.EntityTypes[0]).ToList();
             var targetMigrationsAnnotations = MigrationsAnnotations.For(target.EntityTypes[0]).ToList();
             if (HasDifferences(sourceMigrationsAnnotations, targetMigrationsAnnotations))
