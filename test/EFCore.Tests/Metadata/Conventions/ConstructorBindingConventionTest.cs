@@ -399,7 +399,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         }
 
         [ConditionalFact]
-        public void Resolvess_properties_with_different_kinds_of_name()
+        public void Resolves_properties_with_different_kinds_of_name()
         {
             var constructorBinding = GetBinding<BlogSpanner>();
 
