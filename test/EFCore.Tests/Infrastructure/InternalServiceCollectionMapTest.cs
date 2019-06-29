@@ -10,7 +10,7 @@ using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Infrastructure
 {
-    public class InternalSeviceCollectionMapTest
+    public class InternalServiceCollectionMapTest
     {
         [ConditionalFact]
         public void Can_patch_transient_service_with_concrete_implementation()
