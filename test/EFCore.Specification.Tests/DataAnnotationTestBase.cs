@@ -284,7 +284,7 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [ConditionalFact]
-        public virtual void NotMapped_on_base_class_property_and_overriden_property_ignores_them()
+        public virtual void NotMapped_on_base_class_property_and_overridden_property_ignores_them()
         {
             var modelBuilder = CreateModelBuilder();
 
@@ -342,7 +342,7 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [ConditionalFact]
-        public virtual void NotMapped_on_overriden_mapped_base_class_property_throws()
+        public virtual void NotMapped_on_overridden_mapped_base_class_property_throws()
         {
             var modelBuilder = CreateModelBuilder();
 
@@ -417,7 +417,7 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [ConditionalFact]
-        public virtual void NotMapped_on_unmapped_base_class_property_and_overriden_property_ignores_it()
+        public virtual void NotMapped_on_unmapped_base_class_property_and_overridden_property_ignores_it()
         {
             var modelBuilder = CreateModelBuilder();
             modelBuilder.Ignore<AbstractBaseEntity2>();
@@ -751,7 +751,7 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [ConditionalFact]
-        public virtual ModelBuilder Key_specified_on_multiple_properties_can_be_overriden()
+        public virtual ModelBuilder Key_specified_on_multiple_properties_can_be_overridden()
         {
             var modelBuilder = CreateModelBuilder();
 
@@ -999,7 +999,7 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [ConditionalFact]
-        public virtual void Required_and_ForeignKey_to_Required_and_ForeignKey_can_be_overriden()
+        public virtual void Required_and_ForeignKey_to_Required_and_ForeignKey_can_be_overridden()
         {
             var modelBuilder = CreateModelBuilder();
 
