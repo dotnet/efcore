@@ -162,7 +162,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                     FakeTypeMapping.CreateParameters(
                         clrType,
                         size: 33,
-                        unicide: false,
+                        unicode: false,
                         fixedLength: true,
                         storeTypePostfix: StoreTypePostfix.Size)
                 },
@@ -225,7 +225,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             public static object CreateParameters(
                 Type clrType,
                 int? size = null,
-                bool unicide = false,
+                bool unicode = false,
                 bool fixedLength = false,
                 StoreTypePostfix storeTypePostfix = StoreTypePostfix.PrecisionAndScale)
             {
@@ -239,7 +239,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                     storeTypePostfix,
                     System.Data.DbType.VarNumeric,
                     size: size,
-                    unicode: unicide,
+                    unicode: unicode,
                     fixedLength: fixedLength);
             }
 
