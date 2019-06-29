@@ -53,7 +53,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
             public ToastedBun ToastedBun { get; set; }
 
-            public Moostard Moostard { get; set; }
+            public Mustard Mustard { get; set; }
         }
 
         private class Tomato
@@ -74,7 +74,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public Whoopper Whoopper { get; set; }
         }
 
-        private class Moostard
+        private class Mustard
         {
             public int Id1 { get; set; }
             public int Id2 { get; set; }

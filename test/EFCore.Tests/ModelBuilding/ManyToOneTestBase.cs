@@ -1286,7 +1286,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                             c.BurgerId2
                         });
                 modelBuilder.Ignore<ToastedBun>();
-                modelBuilder.Ignore<Moostard>();
+                modelBuilder.Ignore<Mustard>();
 
                 var dependentType = model.FindEntityType(typeof(Tomato));
                 var principalType = model.FindEntityType(typeof(Whoopper));
@@ -1340,7 +1340,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                     });
                 modelBuilder.Entity<Tomato>();
                 modelBuilder.Ignore<ToastedBun>();
-                modelBuilder.Ignore<Moostard>();
+                modelBuilder.Ignore<Mustard>();
 
                 var dependentType = model.FindEntityType(typeof(Tomato));
                 var principalType = model.FindEntityType(typeof(Whoopper));
@@ -1400,7 +1400,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                         }));
                 modelBuilder.Entity<Tomato>();
                 modelBuilder.Ignore<ToastedBun>();
-                modelBuilder.Ignore<Moostard>();
+                modelBuilder.Ignore<Mustard>();
 
                 var dependentType = model.FindEntityType(typeof(Tomato));
                 var principalType = model.FindEntityType(typeof(Whoopper));
@@ -1476,7 +1476,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                         }));
                 modelBuilder.Entity<Tomato>();
                 modelBuilder.Ignore<ToastedBun>();
-                modelBuilder.Ignore<Moostard>();
+                modelBuilder.Ignore<Mustard>();
 
                 var dependentType = model.FindEntityType(typeof(Tomato));
                 var principalType = model.FindEntityType(typeof(Whoopper));
@@ -1551,7 +1551,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                     });
                 modelBuilder.Entity<Tomato>();
                 modelBuilder.Ignore<ToastedBun>();
-                modelBuilder.Ignore<Moostard>();
+                modelBuilder.Ignore<Mustard>();
 
                 var dependentType = model.FindEntityType(typeof(Tomato));
                 var principalType = model.FindEntityType(typeof(Whoopper));
@@ -1602,7 +1602,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                     });
                 modelBuilder.Entity<Tomato>();
                 modelBuilder.Ignore<ToastedBun>();
-                modelBuilder.Ignore<Moostard>();
+                modelBuilder.Ignore<Mustard>();
 
                 var dependentType = model.FindEntityType(typeof(Tomato));
                 var principalType = model.FindEntityType(typeof(Whoopper));
@@ -1654,7 +1654,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 modelBuilder.Entity<Whoopper>().HasMany(w => w.Tomatoes).WithOne(t => t.Whoopper);
                 modelBuilder.Entity<Tomato>();
                 modelBuilder.Ignore<ToastedBun>();
-                modelBuilder.Ignore<Moostard>();
+                modelBuilder.Ignore<Mustard>();
 
                 var dependentType = model.FindEntityType(typeof(Tomato));
                 var principalType = model.FindEntityType(typeof(Whoopper));
@@ -1717,7 +1717,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                             e.BurgerId2
                         });
                 modelBuilder.Ignore<Tomato>();
-                modelBuilder.Ignore<Moostard>();
+                modelBuilder.Ignore<Mustard>();
 
                 var dependentType = model.FindEntityType(typeof(ToastedBun));
                 var principalType = model.FindEntityType(typeof(Whoopper));
@@ -1783,7 +1783,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                             e.BurgerId2
                         });
                 modelBuilder.Ignore<Tomato>();
-                modelBuilder.Ignore<Moostard>();
+                modelBuilder.Ignore<Mustard>();
 
                 var dependentType = model.FindEntityType(typeof(ToastedBun));
                 var principalType = model.FindEntityType(typeof(Whoopper));
