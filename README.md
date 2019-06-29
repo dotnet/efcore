@@ -32,7 +32,7 @@ InMemory (for testing) | `Microsoft.EntityFrameworkCore.InMemory`  | [![NuGet](h
 
 ## Project Wiki
 
-More details about our project, like our release [roadmap](https://docs.microsoft.com/ef/core/what-is-new/roadmap), or [how to get and build our code](https://github.com/aspnet/EntityFrameworkCore/wiki/getting-and-building-the-code), are located in our our [project wiki](https://github.com/aspnet/EntityFrameworkCore/wiki/).
+More details about our project, like our release [roadmap](https://docs.microsoft.com/ef/core/what-is-new/roadmap), or [how to get and build our code](https://github.com/aspnet/EntityFrameworkCore/wiki/getting-and-building-the-code), are located in our [project wiki](https://github.com/aspnet/EntityFrameworkCore/wiki/).
 
 ## Building from source
 
