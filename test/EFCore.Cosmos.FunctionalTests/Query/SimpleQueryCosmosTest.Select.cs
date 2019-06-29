@@ -10,9 +10,9 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query
 {
     public partial class SimpleQueryCosmosTest
     {
-        public override async Task Projection_when_arithmetic_expression_precendence(bool isAsync)
+        public override async Task Projection_when_arithmetic_expression_precedence(bool isAsync)
         {
-            await base.Projection_when_arithmetic_expression_precendence(isAsync);
+            await base.Projection_when_arithmetic_expression_precedence(isAsync);
 
             AssertSql(
                 @"SELECT (c[""OrderID""] / (c[""OrderID""] / 2)) AS A, ((c[""OrderID""] / c[""OrderID""]) / 2) AS B

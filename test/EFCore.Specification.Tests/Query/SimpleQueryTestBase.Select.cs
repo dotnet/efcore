@@ -33,7 +33,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task Projection_when_arithmetic_expression_precendence(bool isAsync)
+        public virtual Task Projection_when_arithmetic_expression_precedence(bool isAsync)
         {
             return AssertQuery<Order>(
                 isAsync,

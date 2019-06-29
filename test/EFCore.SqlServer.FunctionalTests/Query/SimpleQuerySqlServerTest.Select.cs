@@ -7,9 +7,9 @@ namespace Microsoft.EntityFrameworkCore.Query
 {
     public partial class SimpleQuerySqlServerTest
     {
-        public override async Task Projection_when_arithmetic_expression_precendence(bool isAsync)
+        public override async Task Projection_when_arithmetic_expression_precedence(bool isAsync)
         {
-            await base.Projection_when_arithmetic_expression_precendence(isAsync);
+            await base.Projection_when_arithmetic_expression_precedence(isAsync);
 
             AssertSql(
                 @"SELECT [o].[OrderID] / ([o].[OrderID] / 2) AS [A], ([o].[OrderID] / [o].[OrderID]) / 2 AS [B]
