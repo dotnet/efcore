@@ -452,7 +452,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="_">The DbFunctions instance.</param>
         /// <param name="startTimeSpan">Starting timespan for the calculation.</param>
         /// <param name="endTimeSpan">Ending timespan for the calculation.</param>
-        /// <returns>Number of minute boundaries crossed between the timepsans.</returns>
+        /// <returns>Number of minute boundaries crossed between the timespans.</returns>
         public static int DateDiffMinute(
             [CanBeNull] this DbFunctions _,
             TimeSpan startTimeSpan,
