@@ -121,7 +121,7 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [ConditionalFact]
-        public async Task Only_one_part_of_a_composite_key_needs_to_vary_for_uniquness()
+        public async Task Only_one_part_of_a_composite_key_needs_to_vary_for_uniqueness()
         {
             var serviceProvider = new ServiceCollection()
                 .AddEntityFrameworkInMemoryDatabase()
