@@ -1102,7 +1102,7 @@
     <value>The key {key} cannot be added to keyless type '{entityType}'.</value>
   </data>
   <data name="LogRedundantForeignKey" xml:space="preserve">
-    <value>The foreign key {redundantForeignKey} on entity type '{entityType} targets itself, it should be removed since it serves no purpuse.</value>
+    <value>The foreign key {redundantForeignKey} on entity type '{entityType} targets itself, it should be removed since it serves no purpose.</value>
     <comment>Warning CoreEventId.RedundantForeignKeyWarning string string</comment>
   </data>
   <data name="ConflictingForeignKeyAttributes" xml:space="preserve">
