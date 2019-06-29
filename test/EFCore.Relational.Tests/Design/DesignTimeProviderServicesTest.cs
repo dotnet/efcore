@@ -13,7 +13,7 @@ namespace Microsoft.EntityFrameworkCore.Design
         protected abstract Type GetDesignTimeServicesType();
 
         [ConditionalFact]
-        public void Ensure_assmebly_identity_matches()
+        public void Ensure_assembly_identity_matches()
         {
             var runtimeAssembly = GetRuntimeAssembly();
             var dtAttribute = runtimeAssembly.GetCustomAttribute<DesignTimeProviderServicesAttribute>();
