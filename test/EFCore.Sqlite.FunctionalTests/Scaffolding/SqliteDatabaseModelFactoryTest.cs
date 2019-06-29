@@ -464,7 +464,7 @@ CREATE TABLE CompositePrimaryKey (
         }
 
         [ConditionalFact]
-        public void Create_primary_key_when_integer_primary_key_alised_to_rowid()
+        public void Create_primary_key_when_integer_primary_key_aliased_to_rowid()
         {
             Test(
                 @"
