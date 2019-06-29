@@ -351,7 +351,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         }
 
         [ConditionalFact]
-        public void Can_symetrical_except_with()
+        public void Can_symmetrical_except_with()
         {
             var hashSet = new ObservableHashSet<string>
             {
