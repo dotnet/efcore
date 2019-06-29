@@ -150,7 +150,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         }
 
         [ConditionalFact]
-        public void AddColumnOperation_ComutedExpression()
+        public void AddColumnOperation_ComputedExpression()
         {
             Test(
                 new AddColumnOperation
