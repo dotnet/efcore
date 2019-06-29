@@ -59,7 +59,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Pipeline
             }
 
             // NULL IS NULL -> true
-            // non_nullablee_constant IS NULL -> false
+            // non_nullable_constant IS NULL -> false
             if (sqlUnaryExpression.OperatorType == ExpressionType.Equal
                 && sqlUnaryExpression.Operand is SqlConstantExpression innerConstantNull1)
             {
@@ -67,7 +67,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Pipeline
             }
 
             // NULL IS NOT NULL -> false
-            // non_nullablee_constant IS NOT NULL -> true
+            // non_nullable_constant IS NOT NULL -> true
             if (sqlUnaryExpression.OperatorType == ExpressionType.NotEqual
                 && sqlUnaryExpression.Operand is SqlConstantExpression innerConstantNull2)
             {
