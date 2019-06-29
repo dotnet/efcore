@@ -726,7 +726,7 @@ function GetStartupProject($name, $fallbackProject)
     {
         Write-Warning 'No startup project set.'
     }
-    
+
     Write-Warning "Using project '$($fallbackProject.ProjectName)' as the startup project."
 
     return $fallbackProject
@@ -1066,7 +1066,7 @@ function GetPlatformTarget($project)
         return $platformTarget
     }
 
-    $platformTarget = GetMSBuildProperty $project 'PlatfromTarget'
+    $platformTarget = GetMSBuildProperty $project 'PlatformTarget'
     if ($platformTarget)
     {
         return $platformTarget
