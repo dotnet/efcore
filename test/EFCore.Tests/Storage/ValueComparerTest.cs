@@ -544,7 +544,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         }
 
         [ConditionalFact]
-        public void Structural_objects_get_deep_key_comperer_by_default()
+        public void Structural_objects_get_deep_key_comparer_by_default()
         {
             var comparer = new ValueComparer<byte[]>(false);
             var keyComparer = new ValueComparer<byte[]>(true);
