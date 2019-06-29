@@ -56,18 +56,18 @@ namespace Microsoft.EntityFrameworkCore.Storage
                         .AddInMemoryCollection(
                             new Dictionary<string, string>
                             {
-                                { "MyConnectuonString", "Conn1" },
+                                { "MyConnectionString", "Conn1" },
                                 { "ConnectionStrings:DefaultConnection", "Conn2" },
-                                { "ConnectionStrings:MyConnectuonString", "Conn3" }
+                                { "ConnectionStrings:MyConnectionString", "Conn3" }
                             })
                         .Build()));
 
-            Assert.Equal("Conn1", resolver.ResolveConnectionString("name=MyConnectuonString"));
+            Assert.Equal("Conn1", resolver.ResolveConnectionString("name=MyConnectionString"));
             Assert.Equal("Conn2", resolver.ResolveConnectionString("name=ConnectionStrings:DefaultConnection"));
             Assert.Equal("Conn2", resolver.ResolveConnectionString("name=DefaultConnection"));
-            Assert.Equal("Conn3", resolver.ResolveConnectionString("name=ConnectionStrings:MyConnectuonString"));
+            Assert.Equal("Conn3", resolver.ResolveConnectionString("name=ConnectionStrings:MyConnectionString"));
 
-            Assert.Equal("Conn1", resolver.ResolveConnectionString("  NamE = MyConnectuonString   "));
+            Assert.Equal("Conn1", resolver.ResolveConnectionString("  NamE = MyConnectionString   "));
         }
 
         [ConditionalFact]

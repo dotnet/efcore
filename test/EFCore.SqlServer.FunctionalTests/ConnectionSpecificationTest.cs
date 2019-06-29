@@ -263,7 +263,7 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [ConditionalTheory]
-        [InlineData("MyConnectuonString", "name=MyConnectuonString")]
+        [InlineData("MyConnectionString", "name=MyConnectionString")]
         [InlineData("ConnectionStrings:DefaultConnection", "name=ConnectionStrings:DefaultConnection")]
         [InlineData("ConnectionStrings:DefaultConnection", " NamE   =   ConnectionStrings:DefaultConnection  ")]
         public void Can_use_AddDbContext_and_get_connection_string_from_config(string key, string connectionString)
