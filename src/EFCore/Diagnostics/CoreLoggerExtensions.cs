@@ -1569,7 +1569,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="navigation"> The navigation property. </param>
         /// <param name="targetType"> The target type. </param>
         /// <param name="inverseNavigation"> The inverse navigation property. </param>
-        /// <param name="ownershipNavigation"> The ownership navigationb property. </param>
+        /// <param name="ownershipNavigation"> The ownership navigation property. </param>
         public static void NonOwnershipInverseNavigationWarning(
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Model> diagnostics,
             [NotNull] IEntityType declaringType,
