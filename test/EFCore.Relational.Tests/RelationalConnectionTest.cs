@@ -31,12 +31,12 @@ namespace Microsoft.EntityFrameworkCore
         [ConditionalFact]
         public void Throws_with_add_when_no_EF_services_use_Database()
         {
-            var appServiceProivder = new ServiceCollection()
+            var appServiceProvider = new ServiceCollection()
                 .AddDbContext<ConstructorTestContext1A>(
                     (p, b) => b.UseInternalServiceProvider(p))
                 .BuildServiceProvider();
 
-            using (var serviceScope = appServiceProivder
+            using (var serviceScope = appServiceProvider
                 .GetRequiredService<IServiceScopeFactory>()
                 .CreateScope())
             {
@@ -72,12 +72,12 @@ namespace Microsoft.EntityFrameworkCore
             var serviceCollection = new ServiceCollection();
             new EntityFrameworkServicesBuilder(serviceCollection).TryAddCoreServices();
 
-            var appServiceProivder = serviceCollection
+            var appServiceProvider = serviceCollection
                 .AddDbContext<ConstructorTestContext1A>(
                     (p, b) => b.UseInternalServiceProvider(p))
                 .BuildServiceProvider();
 
-            using (var serviceScope = appServiceProivder
+            using (var serviceScope = appServiceProvider
                 .GetRequiredService<IServiceScopeFactory>()
                 .CreateScope())
             {
