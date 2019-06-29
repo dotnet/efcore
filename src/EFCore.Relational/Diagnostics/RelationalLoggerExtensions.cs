@@ -2669,7 +2669,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         {
             var definition = RelationalResources.LogTransactionError(diagnostics);
 
-            LogTransactionErrror(diagnostics, exception, definition);
+            LogTransactionError(diagnostics, exception, definition);
 
             var diagnosticSourceEnabled = diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name);
             var interceptor = diagnostics.Interceptors?.Resolve<IDbTransactionInterceptor>();
@@ -2720,7 +2720,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         {
             var definition = RelationalResources.LogTransactionError(diagnostics);
 
-            LogTransactionErrror(diagnostics, exception, definition);
+            LogTransactionError(diagnostics, exception, definition);
 
             var diagnosticSourceEnabled = diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name);
             var interceptor = diagnostics.Interceptors?.Resolve<IDbTransactionInterceptor>();
@@ -2784,7 +2784,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             return eventData;
         }
 
-        private static void LogTransactionErrror(
+        private static void LogTransactionError(
             IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> diagnostics,
             Exception exception,
             EventDefinition definition)
