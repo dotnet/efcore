@@ -463,7 +463,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 dependenciesType);
 
         /// <summary>
-        ///     The type '{givenType}' cannot be used a a value generator because it does not inherit from '{expectedType}'.
+        ///     The type '{givenType}' cannot be used as a value generator because it does not inherit from '{expectedType}'.
         /// </summary>
         public static string BadValueGeneratorType([CanBeNull] object givenType, [CanBeNull] object expectedType)
             => string.Format(
