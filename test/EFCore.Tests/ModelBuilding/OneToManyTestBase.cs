@@ -2295,7 +2295,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             }
 
             [ConditionalFact]
-            public virtual void Non_nullable_FK_can_be_made_optional_separetely()
+            public virtual void Non_nullable_FK_can_be_made_optional_separately()
             {
                 var modelBuilder = HobNobBuilder();
 

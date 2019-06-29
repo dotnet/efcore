@@ -1720,7 +1720,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             }
 
             [ConditionalFact]
-            public virtual void Principal_and_dependent_can_be_flipped_twice_separetely()
+            public virtual void Principal_and_dependent_can_be_flipped_twice_separately()
             {
                 var modelBuilder = CreateModelBuilder();
                 var model = modelBuilder.Model;
@@ -1775,7 +1775,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             }
 
             [ConditionalFact]
-            public virtual void Principal_and_dependent_can_be_flipped_twice_in_reverse_order_separetely()
+            public virtual void Principal_and_dependent_can_be_flipped_twice_in_reverse_order_separately()
             {
                 var modelBuilder = CreateModelBuilder();
                 var model = modelBuilder.Model;
@@ -3047,7 +3047,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             }
 
             [ConditionalFact]
-            public virtual void Overrides_PK_if_specified_FK_types_do_not_match_separetely()
+            public virtual void Overrides_PK_if_specified_FK_types_do_not_match_separately()
             {
                 var modelBuilder = CreateModelBuilder();
                 var model = modelBuilder.Model;
@@ -3088,7 +3088,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             }
 
             [ConditionalFact]
-            public virtual void Overrides_FK_if_specified_PK_types_do_not_match_separetely()
+            public virtual void Overrides_FK_if_specified_PK_types_do_not_match_separately()
             {
                 var modelBuilder = CreateModelBuilder();
                 var model = modelBuilder.Model;
@@ -3131,7 +3131,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             }
 
             [ConditionalFact]
-            public virtual void Overrides_PK_if_specified_FK_count_does_not_match_separetely()
+            public virtual void Overrides_PK_if_specified_FK_count_does_not_match_separately()
             {
                 var modelBuilder = CreateModelBuilder();
                 var model = modelBuilder.Model;
@@ -3172,7 +3172,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             }
 
             [ConditionalFact]
-            public virtual void Overrides_FK_if_specified_PK_count_does_not_match_separetely()
+            public virtual void Overrides_FK_if_specified_PK_count_does_not_match_separately()
             {
                 var modelBuilder = CreateModelBuilder();
                 var model = modelBuilder.Model;
@@ -3636,7 +3636,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             }
 
             [ConditionalFact]
-            public virtual void Non_nullable_FK_can_be_made_optional_separetely()
+            public virtual void Non_nullable_FK_can_be_made_optional_separately()
             {
                 var modelBuilder = HobNobBuilder();
 
