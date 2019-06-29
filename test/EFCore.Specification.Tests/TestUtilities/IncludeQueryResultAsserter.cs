@@ -145,8 +145,8 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
         protected void ProcessIncludes<TEntity>(TEntity expected, TEntity actual, IEnumerable<IExpectedInclude> expectedIncludes)
         {
-            var curentPath = string.Join(".", _path);
-            foreach (var expectedInclude in expectedIncludes.OfType<ExpectedInclude<TEntity>>().Where(i => i.NavigationPath == curentPath))
+            var currentPath = string.Join(".", _path);
+            foreach (var expectedInclude in expectedIncludes.OfType<ExpectedInclude<TEntity>>().Where(i => i.NavigationPath == currentPath))
             {
                 var expectedIncludedNavigation = expectedInclude.Include(expected);
                 var actualIncludedNavigation = expectedInclude.Include(actual);
