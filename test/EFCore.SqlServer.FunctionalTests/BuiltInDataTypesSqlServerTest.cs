@@ -1711,7 +1711,7 @@ WHERE (DATEDIFF(NANOSECOND, [m].[TimeSpanAsTime], @__timeSpan_1) = 0) AND DATEDI
             Assert.Equal(82.2m, entity.DecimalAsSmallmoney);
             Assert.Equal(83.3, entity.DoubleAsFloat);
             Assert.Equal(84.4f, entity.FloatAsReal);
-            Assert.Equal(85.5, entity.DoubkleAsDoublePrecision);
+            Assert.Equal(85.5, entity.DoubleAsDoublePrecision);
             Assert.Equal(new DateTime(2015, 1, 2), entity.DateTimeAsDate);
             Assert.Equal(new DateTimeOffset(new DateTime(2016, 1, 2, 11, 11, 12), TimeSpan.Zero), entity.DateTimeOffsetAsDatetimeoffset);
             Assert.Equal(new DateTime(2017, 1, 2, 12, 11, 12), entity.DateTimeAsDatetime2);
@@ -1768,7 +1768,7 @@ WHERE (DATEDIFF(NANOSECOND, [m].[TimeSpanAsTime], @__timeSpan_1) = 0) AND DATEDI
                 DecimalAsSmallmoney = 82.2m,
                 DoubleAsFloat = 83.3,
                 FloatAsReal = 84.4f,
-                DoubkleAsDoublePrecision = 85.5,
+                DoubleAsDoublePrecision = 85.5,
                 DateTimeAsDate = new DateTime(2015, 1, 2, 10, 11, 12),
                 DateTimeOffsetAsDatetimeoffset = new DateTimeOffset(new DateTime(2016, 1, 2, 11, 11, 12), TimeSpan.Zero),
                 DateTimeAsDatetime2 = new DateTime(2017, 1, 2, 12, 11, 12),
@@ -1899,7 +1899,7 @@ WHERE (DATEDIFF(NANOSECOND, [m].[TimeSpanAsTime], @__timeSpan_1) = 0) AND DATEDI
             Assert.Null(entity.DecimalAsSmallmoney);
             Assert.Null(entity.DoubleAsFloat);
             Assert.Null(entity.FloatAsReal);
-            Assert.Null(entity.DoubkleAsDoublePrecision);
+            Assert.Null(entity.DoubleAsDoublePrecision);
             Assert.Null(entity.DateTimeAsDate);
             Assert.Null(entity.DateTimeOffsetAsDatetimeoffset);
             Assert.Null(entity.DateTimeAsDatetime2);
@@ -2790,7 +2790,7 @@ MappedNullableDataTypesWithIdentity.DecimalAsDec ---> [nullable decimal] [Precis
 MappedNullableDataTypesWithIdentity.DecimalAsMoney ---> [nullable money] [Precision = 19 Scale = 4]
 MappedNullableDataTypesWithIdentity.DecimalAsNumeric ---> [nullable numeric] [Precision = 18 Scale = 0]
 MappedNullableDataTypesWithIdentity.DecimalAsSmallmoney ---> [nullable smallmoney] [Precision = 10 Scale = 4]
-MappedNullableDataTypesWithIdentity.DoubkleAsDoublePrecision ---> [nullable float] [Precision = 53]
+MappedNullableDataTypesWithIdentity.DoubleAsDoublePrecision ---> [nullable float] [Precision = 53]
 MappedNullableDataTypesWithIdentity.DoubleAsFloat ---> [nullable float] [Precision = 53]
 MappedNullableDataTypesWithIdentity.EnumAsNvarchar20 ---> [nullable nvarchar] [MaxLength = 20]
 MappedNullableDataTypesWithIdentity.EnumAsVarcharMax ---> [nullable varchar] [MaxLength = -1]
@@ -3877,7 +3877,7 @@ UnicodeDataTypes.StringUnicode ---> [nullable nvarchar] [MaxLength = -1]
             public float? FloatAsReal { get; set; }
 
             [Column(TypeName = "double precision")]
-            public double? DoubkleAsDoublePrecision { get; set; }
+            public double? DoubleAsDoublePrecision { get; set; }
 
             [Column(TypeName = "date")]
             public DateTime? DateTimeAsDate { get; set; }
