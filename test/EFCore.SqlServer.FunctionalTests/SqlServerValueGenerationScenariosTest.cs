@@ -256,13 +256,13 @@ namespace Microsoft.EntityFrameworkCore
                 base.OnModelCreating(modelBuilder);
 
                 modelBuilder
-                    .HasSequence("MyStrinySequence")
+                    .HasSequence("MyStringSequence")
                     .StartsAt(77);
 
                 modelBuilder
                     .Entity<BlogWithStringKey>()
                     .Property(e => e.Id)
-                    .HasDefaultValueSql("'i' + CAST((NEXT VALUE FOR MyStrinySequence) AS VARCHAR(20))");
+                    .HasDefaultValueSql("'i' + CAST((NEXT VALUE FOR MyStringSequence) AS VARCHAR(20))");
             }
         }
 
