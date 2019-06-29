@@ -456,7 +456,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         [ConditionalFact]
         public void Binds_to_partial_set_of_parameters_that_resolve()
         {
-            var constructorBinding = GetBinding<BlogWierdScience>();
+            var constructorBinding = GetBinding<BlogWeirdScience>();
 
             Assert.NotNull(constructorBinding);
 
@@ -473,9 +473,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             Assert.Equal("m_follows", bindings[1].ConsumedProperties.First().Name);
         }
 
-        private class BlogWierdScience : Blog
+        private class BlogWeirdScience : Blog
         {
-            public BlogWierdScience(string content, int follows)
+            public BlogWeirdScience(string content, int follows)
             {
             }
         }
