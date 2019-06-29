@@ -22,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Pipeline
                 "datetimeoffset"
             };
 
-        private static readonly HashSet<ExpressionType> _arithmaticOperatorTypes
+        private static readonly HashSet<ExpressionType> _arithmeticOperatorTypes
             = new HashSet<ExpressionType>
             {
                 ExpressionType.Add,
@@ -52,7 +52,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Pipeline
             }
 
             return visitedExpression is SqlBinaryExpression sqlBinary
-                && _arithmaticOperatorTypes.Contains(sqlBinary.OperatorType)
+                && _arithmeticOperatorTypes.Contains(sqlBinary.OperatorType)
                 && (_dateTimeDataTypes.Contains(GetProviderType(sqlBinary.Left))
                     || _dateTimeDataTypes.Contains(GetProviderType(sqlBinary.Right)))
                 ? null
