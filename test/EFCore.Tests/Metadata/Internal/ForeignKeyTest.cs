@@ -82,7 +82,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         }
 
         [ConditionalFact]
-        public void Constructor_throws_when_principal_and_depedent_property_count_do_not_match()
+        public void Constructor_throws_when_principal_and_dependent_property_count_do_not_match()
         {
             var model = CreateModel();
             var dependentEntityType = model.AddEntityType("D");
@@ -103,7 +103,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         }
 
         [ConditionalFact]
-        public void Constructor_throws_when_principal_and_depedent_property_types_do_not_match()
+        public void Constructor_throws_when_principal_and_dependent_property_types_do_not_match()
         {
             var dependentEntityType = CreateModel().AddEntityType("D");
             var principalEntityType = CreateModel().AddEntityType("P");
