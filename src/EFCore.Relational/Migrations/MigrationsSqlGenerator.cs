@@ -1423,7 +1423,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             Check.NotNull(operation, nameof(operation));
             Check.NotNull(builder, nameof(builder));
 
-            CreateTablePrimaryKeyContstraint(operation, model, builder);
+            CreateTablePrimaryKeyConstraint(operation, model, builder);
             CreateTableUniqueConstraints(operation, model, builder);
             CreateTableCheckConstraints(operation, model, builder);
             CreateTableForeignKeys(operation, model, builder);
@@ -1505,7 +1505,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <param name="operation"> The operation. </param>
         /// <param name="model"> The target model which may be <c>null</c> if the operations exist without a model. </param>
         /// <param name="builder"> The command builder to use to add the SQL fragment. </param>
-        protected virtual void CreateTablePrimaryKeyContstraint(
+        protected virtual void CreateTablePrimaryKeyConstraint(
             [NotNull] CreateTableOperation operation,
             [CanBeNull] IModel model,
             [NotNull] MigrationCommandListBuilder builder)
