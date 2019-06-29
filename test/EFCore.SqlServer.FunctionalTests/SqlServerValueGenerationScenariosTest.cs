@@ -1206,7 +1206,7 @@ END");
                         }
                         catch (DbUpdateConcurrencyException)
                         {
-                            // Update origianal values (and optionally any current values)
+                            // Update original values (and optionally any current values)
                             // Would normally do this with just one method call
                             context.Entry(blog).Property(e => e.Id).OriginalValue = updatedBlog.Id;
                             context.Entry(blog).Property(e => e.Name).OriginalValue = updatedBlog.Name;
