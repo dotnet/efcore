@@ -3674,7 +3674,7 @@ WHERE (c[""Discriminator""] = ""Order"")");
         }
 
         [ConditionalTheory(Skip = "Issue #14935")]
-        public override async Task Let_subquery_with_multiple_occurences(bool isAsync)
+        public override async Task Let_subquery_with_multiple_occurrences(bool isAsync)
         {
             await AssertQuery<Order>(
                 isAsync,
