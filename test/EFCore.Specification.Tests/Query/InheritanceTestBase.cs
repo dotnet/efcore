@@ -397,17 +397,17 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             using (var context = CreateContext())
             {
-                var preditors
+                var predators
                     = context.Set<Animal>()
                         .Where(b => "Kiwi" == EF.Property<string>(b, "Discriminator"))
                         .Select(
                             k => new
                             {
-                                Preditor = EF.Property<string>((Bird)k, "EagleId")
+                                Predator = EF.Property<string>((Bird)k, "EagleId")
                             })
                         .ToArray();
 
-                Assert.Equal(1, preditors.Length);
+                Assert.Equal(1, predators.Length);
             }
         }
 
