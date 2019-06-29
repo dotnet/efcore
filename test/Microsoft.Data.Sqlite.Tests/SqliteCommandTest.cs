@@ -548,9 +548,9 @@ namespace Microsoft.Data.Sqlite
                 {
                     otherConnection.Open();
 
-                    using (var transction = otherConnection.BeginTransaction())
+                    using (var transaction = otherConnection.BeginTransaction())
                     {
-                        command.Transaction = transction;
+                        command.Transaction = transaction;
 
                         var ex = Assert.Throws<InvalidOperationException>(() => command.ExecuteReader());
 
