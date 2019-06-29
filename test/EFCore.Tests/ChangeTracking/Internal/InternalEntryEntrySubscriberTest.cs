@@ -97,7 +97,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         [InlineData(ChangeTrackingStrategy.ChangedNotifications)]
         [InlineData(ChangeTrackingStrategy.ChangingAndChangedNotifications)]
         [InlineData(ChangeTrackingStrategy.ChangingAndChangedNotificationsWithOriginalValues)]
-        public void Non_notifying_collections_not_acceotable_when_noitification_tracking(
+        public void Non_notifying_collections_not_acceptable_when_noitification_tracking(
             ChangeTrackingStrategy changeTrackingStrategy)
         {
             var entry = InMemoryTestHelpers.Instance.CreateInternalEntry<FullNotificationEntity>(
