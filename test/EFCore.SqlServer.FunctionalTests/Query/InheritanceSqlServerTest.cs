@@ -32,10 +32,10 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                 Assert.Equal("SugarGrams", cokeType.FindProperty("SugarGrams").GetColumnName());
                 Assert.Equal("CaffeineGrams", cokeType.FindProperty("CaffeineGrams").GetColumnName());
-                Assert.Equal("CokeCO2", cokeType.FindProperty("Carbination").GetColumnName());
+                Assert.Equal("CokeCO2", cokeType.FindProperty("Carbonation").GetColumnName());
 
                 Assert.Equal("SugarGrams", liltType.FindProperty("SugarGrams").GetColumnName());
-                Assert.Equal("LiltCO2", liltType.FindProperty("Carbination").GetColumnName());
+                Assert.Equal("LiltCO2", liltType.FindProperty("Carbonation").GetColumnName());
 
                 Assert.Equal("CaffeineGrams", teaType.FindProperty("CaffeineGrams").GetColumnName());
                 Assert.Equal("HasMilk", teaType.FindProperty("HasMilk").GetColumnName());
@@ -428,13 +428,13 @@ WHERE [a].[Discriminator] = N'Kiwi'");
             base.Union_siblings_with_duplicate_property_in_subquery();
 
             AssertSql(
-                @"SELECT [t].[Id], [t].[Discriminator], [t].[CaffeineGrams], [t].[CokeCO2], [t].[SugarGrams], [t].[Carbination], [t].[SugarGrams0], [t].[CaffeineGrams0], [t].[HasMilk]
+                @"SELECT [t].[Id], [t].[Discriminator], [t].[CaffeineGrams], [t].[CokeCO2], [t].[SugarGrams], [t].[Carbonation], [t].[SugarGrams0], [t].[CaffeineGrams0], [t].[HasMilk]
 FROM (
-    SELECT [d].[Id], [d].[Discriminator], [d].[CaffeineGrams], [d].[CokeCO2], [d].[SugarGrams], NULL AS [CaffeineGrams0], NULL AS [HasMilk], NULL AS [Carbination], NULL AS [SugarGrams0]
+    SELECT [d].[Id], [d].[Discriminator], [d].[CaffeineGrams], [d].[CokeCO2], [d].[SugarGrams], NULL AS [CaffeineGrams0], NULL AS [HasMilk], NULL AS [Carbonation], NULL AS [SugarGrams0]
     FROM [Drink] AS [d]
     WHERE [d].[Discriminator] = N'Coke'
     UNION
-    SELECT [d0].[Id], [d0].[Discriminator], NULL AS [CaffeineGrams], NULL AS [CokeCO2], NULL AS [SugarGrams], [d0].[CaffeineGrams] AS [CaffeineGrams0], [d0].[HasMilk], NULL AS [Carbination], NULL AS [SugarGrams0]
+    SELECT [d0].[Id], [d0].[Discriminator], NULL AS [CaffeineGrams], NULL AS [CokeCO2], NULL AS [SugarGrams], [d0].[CaffeineGrams] AS [CaffeineGrams0], [d0].[HasMilk], NULL AS [Carbonation], NULL AS [SugarGrams0]
     FROM [Drink] AS [d0]
     WHERE [d0].[Discriminator] = N'Tea'
 ) AS [t]

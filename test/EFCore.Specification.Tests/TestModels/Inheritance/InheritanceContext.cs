@@ -76,13 +76,13 @@ namespace Microsoft.EntityFrameworkCore.TestModels.Inheritance
                 new Lilt
                 {
                     SugarGrams = 4,
-                    Carbination = 7
+                    Carbonation = 7
                 },
                 new Coke
                 {
                     SugarGrams = 6,
                     CaffeineGrams = 4,
-                    Carbination = 5
+                    Carbonation = 5
                 });
 
             context.SaveChanges();
