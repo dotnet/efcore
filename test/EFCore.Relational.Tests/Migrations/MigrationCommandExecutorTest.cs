@@ -18,7 +18,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
-        public async Task Executes_migtration_commands_in_same_transaction(bool async)
+        public async Task Executes_migration_commands_in_same_transaction(bool async)
         {
             var fakeConnection = CreateConnection();
             var logger = new FakeDiagnosticsLogger<DbLoggerCategory.Database.Command>();
