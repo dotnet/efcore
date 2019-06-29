@@ -117,7 +117,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         }
 
         /// <summary>
-        ///     Creates value buffer assignment expressions for the the given type information.
+        ///     Creates value buffer assignment expressions for the given type information.
         /// </summary>
         /// <param name="types"> Types and mapping for the values to be read. </param>
         /// <returns> The value buffer assignment expressions. </returns>
