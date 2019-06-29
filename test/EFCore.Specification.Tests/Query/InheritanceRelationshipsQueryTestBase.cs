@@ -102,7 +102,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Include_self_reference_with_inheritence()
+        public virtual void Include_self_reference_with_inheritance()
         {
             using (var context = CreateContext())
             {
@@ -114,7 +114,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Include_self_reference_with_inheritence_reverse()
+        public virtual void Include_self_reference_with_inheritance_reverse()
         {
             using (var context = CreateContext())
             {
