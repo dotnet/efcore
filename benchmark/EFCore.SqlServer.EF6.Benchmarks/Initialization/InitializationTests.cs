@@ -108,7 +108,7 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.Initialization
                         {
                             context.SaveChanges();
 
-                            // TODO: Don't mesure transaction rollback
+                            // TODO: Don't measure transaction rollback
                         }
                     }
                 }
