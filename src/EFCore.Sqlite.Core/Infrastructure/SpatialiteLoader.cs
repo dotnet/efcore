@@ -59,7 +59,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             var opened = false;
             if (connection.State != ConnectionState.Open)
             {
-                // NB: If closed, LoadExtension won't throw immidiately
+                // NB: If closed, LoadExtension won't throw immediately
                 connection.Open();
                 opened = true;
             }
