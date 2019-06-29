@@ -10,7 +10,7 @@ namespace Microsoft.EntityFrameworkCore
     public class SqlServerDatabaseFacadeTest
     {
         [ConditionalFact]
-        public void IsSqlServer_when_using_OnConfguring()
+        public void IsSqlServer_when_using_OnConfiguring()
         {
             using (var context = new SqlServerOnConfiguringContext())
             {
@@ -19,7 +19,7 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [ConditionalFact]
-        public void IsSqlServer_in_OnModelCreating_when_using_OnConfguring()
+        public void IsSqlServer_in_OnModelCreating_when_using_OnConfiguring()
         {
             using (var context = new SqlServerOnModelContext())
             {
@@ -29,7 +29,7 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [ConditionalFact]
-        public void IsSqlServer_in_constructor_when_using_OnConfguring()
+        public void IsSqlServer_in_constructor_when_using_OnConfiguring()
         {
             using (var context = new SqlServerConstructorContext())
             {
@@ -39,7 +39,7 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [ConditionalFact]
-        public void Cannot_use_IsSqlServer_in_OnConfguring()
+        public void Cannot_use_IsSqlServer_in_OnConfiguring()
         {
             using (var context = new SqlServerUseInOnConfiguringContext())
             {
@@ -92,7 +92,7 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [ConditionalFact]
-        public void Cannot_use_IsSqlServer_in_OnConfguring_with_constructor()
+        public void Cannot_use_IsSqlServer_in_OnConfiguring_with_constructor()
         {
             using (var context = new ProviderUseInOnConfiguringContext(
                 new DbContextOptionsBuilder()
