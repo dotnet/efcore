@@ -349,7 +349,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Precendence_of_tracking_modifiers()
+        public virtual void Precedence_of_tracking_modifiers()
         {
             using (var context = CreateContext())
             {
@@ -361,7 +361,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Precendence_of_tracking_modifiers2()
+        public virtual void Precedence_of_tracking_modifiers2()
         {
             using (var context = CreateContext())
             {
@@ -373,7 +373,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Precendence_of_tracking_modifiers3()
+        public virtual void Precedence_of_tracking_modifiers3()
         {
             using (var context = CreateContext())
             {
@@ -391,7 +391,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Precendence_of_tracking_modifiers4()
+        public virtual void Precedence_of_tracking_modifiers4()
         {
             using (var context = CreateContext())
             {
@@ -409,7 +409,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Precendence_of_tracking_modifiers5()
+        public virtual void Precedence_of_tracking_modifiers5()
         {
             using (var context = CreateContext())
             {
