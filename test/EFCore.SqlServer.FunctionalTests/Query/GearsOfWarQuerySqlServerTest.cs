@@ -906,7 +906,7 @@ WHERE [w].[IsAutomatic] = CAST(1 AS bit)");
 SELECT [w].[Id], CASE
     WHEN (([w].[AmmunitionType] = @__ammunitionType_0) AND ([w].[AmmunitionType] IS NOT NULL AND @__ammunitionType_0 IS NOT NULL)) OR ([w].[AmmunitionType] IS NULL AND @__ammunitionType_0 IS NULL) THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
-END AS [Cartidge]
+END AS [Cartridge]
 FROM [Weapons] AS [w]
 WHERE (([w].[AmmunitionType] = @__ammunitionType_0) AND ([w].[AmmunitionType] IS NOT NULL AND @__ammunitionType_0 IS NOT NULL)) OR ([w].[AmmunitionType] IS NULL AND @__ammunitionType_0 IS NULL)",
                 //
@@ -915,7 +915,7 @@ WHERE (([w].[AmmunitionType] = @__ammunitionType_0) AND ([w].[AmmunitionType] IS
 SELECT [w].[Id], CASE
     WHEN (([w].[AmmunitionType] = @__ammunitionType_0) AND ([w].[AmmunitionType] IS NOT NULL AND @__ammunitionType_0 IS NOT NULL)) OR ([w].[AmmunitionType] IS NULL AND @__ammunitionType_0 IS NULL) THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
-END AS [Cartidge]
+END AS [Cartridge]
 FROM [Weapons] AS [w]
 WHERE (([w].[AmmunitionType] = @__ammunitionType_0) AND ([w].[AmmunitionType] IS NOT NULL AND @__ammunitionType_0 IS NOT NULL)) OR ([w].[AmmunitionType] IS NULL AND @__ammunitionType_0 IS NULL)");
         }
@@ -952,7 +952,7 @@ FROM [Weapons] AS [w]");
                 @"SELECT [w].[Id], CASE
     WHEN [w].[AmmunitionType] IS NOT NULL AND (([w].[AmmunitionType] = 1) AND [w].[AmmunitionType] IS NOT NULL) THEN N'Yes'
     ELSE N'No'
-END AS [IsCartidge]
+END AS [IsCartridge]
 FROM [Weapons] AS [w]
 WHERE [w].[AmmunitionType] IS NOT NULL AND (([w].[AmmunitionType] = 1) AND [w].[AmmunitionType] IS NOT NULL)");
         }
@@ -965,7 +965,7 @@ WHERE [w].[AmmunitionType] IS NOT NULL AND (([w].[AmmunitionType] = 1) AND [w].[
                 @"SELECT [w].[Id], CASE
     WHEN (([w].[AmmunitionType] = 2) AND [w].[AmmunitionType] IS NOT NULL) AND (([w].[SynergyWithId] = 1) AND [w].[SynergyWithId] IS NOT NULL) THEN N'Yes'
     ELSE N'No'
-END AS [IsCartidge]
+END AS [IsCartridge]
 FROM [Weapons] AS [w]");
         }
 
@@ -977,7 +977,7 @@ FROM [Weapons] AS [w]");
                 @"SELECT [w].[Id], CASE
     WHEN ([w].[IsAutomatic] <> CAST(1 AS bit)) AND (([w].[SynergyWithId] = 1) AND [w].[SynergyWithId] IS NOT NULL) THEN N'Yes'
     ELSE N'No'
-END AS [IsCartidge]
+END AS [IsCartridge]
 FROM [Weapons] AS [w]");
         }
 
@@ -989,7 +989,7 @@ FROM [Weapons] AS [w]");
                 @"SELECT [w].[Id], CASE
     WHEN ([w].[IsAutomatic] <> CAST(1 AS bit)) AND (([w].[SynergyWithId] = 1) AND [w].[SynergyWithId] IS NOT NULL) THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
-END AS [IsCartidge]
+END AS [IsCartridge]
 FROM [Weapons] AS [w]");
         }
 
@@ -1004,7 +1004,7 @@ FROM [Weapons] AS [w]");
         ELSE N'Manual'
     END
     ELSE N'Auto'
-END AS [IsManualCartidge]
+END AS [IsManualCartridge]
 FROM [Weapons] AS [w]");
         }
 

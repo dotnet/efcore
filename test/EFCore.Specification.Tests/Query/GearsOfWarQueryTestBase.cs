@@ -928,7 +928,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                         w => new
                         {
                             w.Id,
-                            Cartidge = w.AmmunitionType == ammunitionType
+                            Cartridge = w.AmmunitionType == ammunitionType
                         }),
                 elementSorter: e => e.Id);
 
@@ -942,7 +942,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                         w => new
                         {
                             w.Id,
-                            Cartidge = w.AmmunitionType == ammunitionType
+                            Cartridge = w.AmmunitionType == ammunitionType
                         }),
                 elementSorter: e => e.Id);
         }
@@ -989,7 +989,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                         w => new
                         {
                             w.Id,
-                            IsCartidge = w.AmmunitionType.HasValue && w.AmmunitionType.Value == AmmunitionType.Cartridge ? "Yes" : "No"
+                            IsCartridge = w.AmmunitionType.HasValue && w.AmmunitionType.Value == AmmunitionType.Cartridge ? "Yes" : "No"
                         }),
                 elementSorter: e => e.Id);
         }
@@ -1004,7 +1004,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     w => new
                     {
                         w.Id,
-                        IsCartidge = w.AmmunitionType == AmmunitionType.Shell && w.SynergyWithId == 1 ? "Yes" : "No"
+                        IsCartridge = w.AmmunitionType == AmmunitionType.Shell && w.SynergyWithId == 1 ? "Yes" : "No"
                     }),
                 elementSorter: e => e.Id);
         }
@@ -1019,7 +1019,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     w => new
                     {
                         w.Id,
-                        IsCartidge = !w.IsAutomatic && w.SynergyWithId == 1 ? "Yes" : "No"
+                        IsCartridge = !w.IsAutomatic && w.SynergyWithId == 1 ? "Yes" : "No"
                     }),
                 elementSorter: e => e.Id);
         }
@@ -1034,7 +1034,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     w => new
                     {
                         w.Id,
-                        IsCartidge = !w.IsAutomatic && w.SynergyWithId == 1
+                        IsCartridge = !w.IsAutomatic && w.SynergyWithId == 1
                     }),
                 elementSorter: e => e.Id);
         }
@@ -1049,7 +1049,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     w => new
                     {
                         w.Id,
-                        IsManualCartidge = !w.IsAutomatic
+                        IsManualCartridge = !w.IsAutomatic
                             ? w.AmmunitionType == AmmunitionType.Cartridge ? "ManualCartridge" : "Manual"
                             : "Auto"
                     }),
