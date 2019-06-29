@@ -10,7 +10,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
     public class AggregatesTest
     {
         [ConditionalFact]
-        public void Can_add_aggreate()
+        public void Can_add_aggregate()
         {
             using (var context = new AggregateContext())
             {
@@ -45,7 +45,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         }
 
         [ConditionalFact]
-        public void Can_add_one_to_one_aggreate()
+        public void Can_add_one_to_one_aggregate()
         {
             using (var context = new AggregateContext())
             {
@@ -63,7 +63,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         }
 
         [ConditionalFact]
-        public void Can_attach_aggreate()
+        public void Can_attach_aggregate()
         {
             using (var context = new AggregateContext())
             {
@@ -127,7 +127,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         }
 
         [ConditionalFact]
-        public void Can_attach_one_to_one_aggreate()
+        public void Can_attach_one_to_one_aggregate()
         {
             using (var context = new AggregateContext())
             {
