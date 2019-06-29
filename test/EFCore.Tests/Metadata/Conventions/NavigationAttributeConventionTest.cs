@@ -707,7 +707,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         }
 
         [ConditionalFact]
-        public void ForeignKeyAttribute_throws_when_values_on_property_and_navigtaion_in_entity_type_do_not_match()
+        public void ForeignKeyAttribute_throws_when_values_on_property_and_navigation_in_entity_type_do_not_match()
         {
             var dependentEntityTypeBuilder = CreateInternalEntityTypeBuilder<FkPropertyNavigationMismatch>();
             var principalEntityTypeBuilder =
