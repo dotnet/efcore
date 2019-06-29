@@ -7825,9 +7825,9 @@ FROM [Weapons] AS [w]
 WHERE COALESCE([w].[SynergyWithId], CAST(LEN([w].[Name]) AS int) + 42) > 10");
         }
 
-        public override async Task Filter_with_compex_predicate_containing_subquery(bool isAsync)
+        public override async Task Filter_with_complex_predicate_containing_subquery(bool isAsync)
         {
-            await base.Filter_with_compex_predicate_containing_subquery(isAsync);
+            await base.Filter_with_complex_predicate_containing_subquery(isAsync);
 
             AssertSql(
                 @"SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOrBirthName], [g].[Discriminator], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank]
