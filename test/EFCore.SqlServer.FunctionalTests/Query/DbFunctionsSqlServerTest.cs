@@ -235,7 +235,7 @@ WHERE ((FREETEXT([c.Manager].[Title], N'President', LANGUAGE 1033)) AND (FREETEX
 
         [ConditionalFact]
         [SqlServerCondition(SqlServerCondition.SupportsFullTextSearch)]
-        public async Task FreeText_throws_when_using_non_column_for_propeprty_reference()
+        public async Task FreeText_throws_when_using_non_column_for_property_reference()
         {
             using (var context = CreateContext())
             {
