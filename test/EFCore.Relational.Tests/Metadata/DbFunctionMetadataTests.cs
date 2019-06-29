@@ -40,12 +40,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 nameof(StaticPublicBase),
                 nameof(StaticProtectedBase),
                 nameof(StaticPrivateBase),
-                nameof(StaticInteranlBase),
+                nameof(StaticInternalBase),
                 nameof(StaticProtectedInteralBase),
                 nameof(InstancePublicBase),
                 nameof(InstanceProtectedBase),
                 nameof(InstancePrivateBase),
-                nameof(InstanceInteranlBase),
+                nameof(InstanceInternalBase),
                 nameof(InstanceProtectedInteralBase)
             };
 
@@ -71,7 +71,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             private static int StaticPrivateBase() => throw new Exception();
 
             [DbFunction]
-            internal static int StaticInteranlBase() => throw new Exception();
+            internal static int StaticInternalBase() => throw new Exception();
 
             [DbFunction]
             protected internal static int StaticProtectedInteralBase() => throw new Exception();
@@ -86,7 +86,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             private int InstancePrivateBase() => throw new Exception();
 
             [DbFunction]
-            internal int InstanceInteranlBase() => throw new Exception();
+            internal int InstanceInternalBase() => throw new Exception();
 
             [DbFunction]
             protected internal int InstanceProtectedInteralBase() => throw new Exception();
@@ -102,12 +102,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 nameof(StaticPublicDerived),
                 nameof(StaticProtectedDerived),
                 nameof(StaticPrivateDerived),
-                nameof(StaticInteranlDerived),
+                nameof(StaticInternalDerived),
                 nameof(StaticProtectedInteralDerived),
                 nameof(InstancePublicDerived),
                 nameof(InstanceProtectedDerived),
                 nameof(InstancePrivateDerived),
-                nameof(InstanceInteranlDerived),
+                nameof(InstanceInternalDerived),
                 nameof(InstanceProtectedInteralDerived)
             };
 
@@ -138,7 +138,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             private static int StaticPrivateDerived() => throw new Exception();
 
             [DbFunction]
-            internal static int StaticInteranlDerived() => throw new Exception();
+            internal static int StaticInternalDerived() => throw new Exception();
 
             [DbFunction]
             protected internal static int StaticProtectedInteralDerived() => throw new Exception();
@@ -153,7 +153,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             private int InstancePrivateDerived() => throw new Exception();
 
             [DbFunction]
-            internal int InstanceInteranlDerived() => throw new Exception();
+            internal int InstanceInternalDerived() => throw new Exception();
 
             [DbFunction]
             protected internal int InstanceProtectedInteralDerived() => throw new Exception();
