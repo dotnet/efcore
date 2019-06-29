@@ -56,11 +56,11 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 var currentVertex = visitingQueue[currentVertexIndex];
                 currentVertexIndex++;
                 // ReSharper disable once LoopCanBeConvertedToQuery
-                foreach (var neighbour in GetOutgoingNeighbors(currentVertex))
+                foreach (var neighbor in GetOutgoingNeighbors(currentVertex))
                 {
-                    if (unreachableVertices.Remove(neighbour))
+                    if (unreachableVertices.Remove(neighbor))
                     {
-                        visitingQueue.Add(neighbour);
+                        visitingQueue.Add(neighbor);
                     }
                 }
             }
