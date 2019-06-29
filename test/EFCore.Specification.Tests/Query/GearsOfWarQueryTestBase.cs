@@ -5774,7 +5774,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task Null_semantics_on_nullable_bool_from_inner_join_subuery_is_fully_applied(bool isAsync)
+        public virtual Task Null_semantics_on_nullable_bool_from_inner_join_subquery_is_fully_applied(bool isAsync)
         {
             return AssertQuery<LocustLeader, Faction>(
                 isAsync,
@@ -5787,7 +5787,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task Null_semantics_on_nullable_bool_from_left_join_subuery_is_fully_applied(bool isAsync)
+        public virtual Task Null_semantics_on_nullable_bool_from_left_join_subquery_is_fully_applied(bool isAsync)
         {
             return AssertQuery<LocustLeader, Faction>(
                 isAsync,

@@ -6085,9 +6085,9 @@ INNER JOIN (
 ORDER BY [t].[Nickname], [t].[FullName]");
         }
 
-        public override async Task Null_semantics_on_nullable_bool_from_inner_join_subuery_is_fully_applied(bool isAsync)
+        public override async Task Null_semantics_on_nullable_bool_from_inner_join_subquery_is_fully_applied(bool isAsync)
         {
-            await base.Null_semantics_on_nullable_bool_from_inner_join_subuery_is_fully_applied(isAsync);
+            await base.Null_semantics_on_nullable_bool_from_inner_join_subquery_is_fully_applied(isAsync);
 
             AssertSql(
                 @"SELECT [t].[Id], [t].[CapitalName], [t].[Discriminator], [t].[Name], [t].[CommanderName], [t].[Eradicated]
@@ -6100,9 +6100,9 @@ INNER JOIN (
 WHERE [l].[Discriminator] IN (N'LocustLeader', N'LocustCommander') AND (([t].[Eradicated] <> CAST(1 AS bit)) OR [t].[Eradicated] IS NULL)");
         }
 
-        public override async Task Null_semantics_on_nullable_bool_from_left_join_subuery_is_fully_applied(bool isAsync)
+        public override async Task Null_semantics_on_nullable_bool_from_left_join_subquery_is_fully_applied(bool isAsync)
         {
-            await base.Null_semantics_on_nullable_bool_from_left_join_subuery_is_fully_applied(isAsync);
+            await base.Null_semantics_on_nullable_bool_from_left_join_subquery_is_fully_applied(isAsync);
 
             AssertSql(
                 @"SELECT [t].[Id], [t].[CapitalName], [t].[Discriminator], [t].[Name], [t].[CommanderName], [t].[Eradicated]
