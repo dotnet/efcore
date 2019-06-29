@@ -266,7 +266,7 @@ namespace Microsoft.EntityFrameworkCore.Utilities
         }
 
         [ConditionalFact]
-        public void AddEdge_updates_incomming_and_outgoing_neighbors()
+        public void AddEdge_updates_incoming_and_outgoing_neighbors()
         {
             var vertexOne = new Vertex
             {
