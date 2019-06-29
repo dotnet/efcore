@@ -1243,7 +1243,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
         }
 
         /// <summary>
-        ///     Property '{property}' on entity type '{entityType}' is part of a primary or alternate key but has a constant default value set. Constant default values are not useful for primary or alternate keys since these properties must always have non-null unqiue values.
+        ///     Property '{property}' on entity type '{entityType}' is part of a primary or alternate key but has a constant default value set. Constant default values are not useful for primary or alternate keys since these properties must always have non-null unique values.
         /// </summary>
         public static EventDefinition<string, string> LogKeyHasDefaultValue([NotNull] IDiagnosticsLogger logger)
         {
