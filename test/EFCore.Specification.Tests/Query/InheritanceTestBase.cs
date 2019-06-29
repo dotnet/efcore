@@ -29,11 +29,11 @@ namespace Microsoft.EntityFrameworkCore.Query
                 var coke = context.Set<Coke>().Single();
                 Assert.Equal(6, coke.SugarGrams);
                 Assert.Equal(4, coke.CaffeineGrams);
-                Assert.Equal(5, coke.Carbination);
+                Assert.Equal(5, coke.Carbonation);
 
                 var lilt = context.Set<Lilt>().Single();
                 Assert.Equal(4, lilt.SugarGrams);
-                Assert.Equal(7, lilt.Carbination);
+                Assert.Equal(7, lilt.Carbonation);
 
                 var tea = context.Set<Tea>().Single();
                 Assert.True(tea.HasMilk);
@@ -52,11 +52,11 @@ namespace Microsoft.EntityFrameworkCore.Query
                 var coke = drinks.OfType<Coke>().Single();
                 Assert.Equal(6, coke.SugarGrams);
                 Assert.Equal(4, coke.CaffeineGrams);
-                Assert.Equal(5, coke.Carbination);
+                Assert.Equal(5, coke.Carbonation);
 
                 var lilt = drinks.OfType<Lilt>().Single();
                 Assert.Equal(4, lilt.SugarGrams);
-                Assert.Equal(7, lilt.Carbination);
+                Assert.Equal(7, lilt.Carbonation);
 
                 var tea = drinks.OfType<Tea>().Single();
                 Assert.True(tea.HasMilk);
