@@ -279,7 +279,7 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [ConditionalFact]
-        public void Can_create_new_connection_from_exsting_DbConnection()
+        public void Can_create_new_connection_from_existing_DbConnection()
         {
             var dbConnection = new FakeDbConnection("Database=FrodoLives");
 
