@@ -538,7 +538,7 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [ConditionalFact]
-        public virtual void Detatching_entity_resets_lazy_loader_so_it_can_be_reattached()
+        public virtual void Detaching_entity_resets_lazy_loader_so_it_can_be_reattached()
         {
             LazyPropertyPost post;
             using (var context = CreateContext())
@@ -620,7 +620,7 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [ConditionalFact]
-        public virtual void Detatching_entity_resets_lazy_loader_field_so_it_can_be_reattached()
+        public virtual void Detaching_entity_resets_lazy_loader_field_so_it_can_be_reattached()
         {
             LazyFieldPost post;
             using (var context = CreateContext())
@@ -677,7 +677,7 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [ConditionalFact]
-        public virtual void Detatching_entity_resets_lazy_loader_delegate_so_it_can_be_reattached()
+        public virtual void Detaching_entity_resets_lazy_loader_delegate_so_it_can_be_reattached()
         {
             LazyPcsPost post;
             using (var context = CreateContext())
