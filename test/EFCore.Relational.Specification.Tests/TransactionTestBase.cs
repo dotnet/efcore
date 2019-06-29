@@ -752,7 +752,7 @@ namespace Microsoft.EntityFrameworkCore
         [ConditionalTheory]
         [InlineData(true)]
         [InlineData(false)]
-        public virtual async Task RelationalTransaction_can_be_commited(bool autoTransaction)
+        public virtual async Task RelationalTransaction_can_be_committed(bool autoTransaction)
         {
             using (var context = CreateContext())
             {
@@ -777,7 +777,7 @@ namespace Microsoft.EntityFrameworkCore
         [ConditionalTheory]
         [InlineData(true)]
         [InlineData(false)]
-        public virtual async Task RelationalTransaction_can_be_commited_from_context(bool autoTransaction)
+        public virtual async Task RelationalTransaction_can_be_committed_from_context(bool autoTransaction)
         {
             using (var context = CreateContext())
             {
