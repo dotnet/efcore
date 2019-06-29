@@ -103,6 +103,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
         protected override DbContextOptions ContextOptions { get; }
             = new DbContextOptionsBuilder()
                 .UseInternalServiceProvider(new ServiceCollection().AddEntityFrameworkSqlite().BuildServiceProvider())
-                .UseSqlite("Filename=dummmy.db").Options;
+                .UseSqlite("Filename=dummy.db").Options;
     }
 }
