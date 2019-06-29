@@ -1108,7 +1108,7 @@ CREATE TABLE DefaultRequiredLengthVarcharColumns (
                 @"
 CREATE TABLE DefaultRequiredLengthNcharColumns (
     Id int,
-    natioanlCharColumn national char(4000),
+    nationalCharColumn national char(4000),
 );",
                 Enumerable.Empty<string>(),
                 Enumerable.Empty<string>(),
@@ -1116,7 +1116,7 @@ CREATE TABLE DefaultRequiredLengthNcharColumns (
                 {
                     var columns = dbModel.Tables.Single().Columns;
 
-                    Assert.Equal("nchar(4000)", columns.Single(c => c.Name == "natioanlCharColumn").StoreType);
+                    Assert.Equal("nchar(4000)", columns.Single(c => c.Name == "nationalCharColumn").StoreType);
                 },
                 "DROP TABLE DefaultRequiredLengthNcharColumns;");
         }
