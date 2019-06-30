@@ -148,16 +148,16 @@ namespace Microsoft.EntityFrameworkCore.TestModels.GearsOfWarModel
             var jacinto = new City
             {
                 Location = "Jacinto's location",
-                Name = "Jacinto"
+                Name = "Jacinto",
+                Nation = "Tyrus"
             };
-            jacinto[City.NationPropertyName] = "Tyrus";
 
             var ephyra = new City
             {
                 Location = "Ephyra's location",
-                Name = "Ephyra"
+                Name = "Ephyra",
+                Nation = "Tyrus"
             };
-            ephyra[City.NationPropertyName] = "Tyrus";
 
             var hanover = new City
             {

@@ -1414,38 +1414,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         }
 
         [ConditionalFact]
-        public void AddIndexedProperty_adds_indexed_property()
-        {
-            var entityType = CreateModel().AddEntityType(typeof(Customer));
-
-            var property = entityType.AddIndexedProperty("A", typeof(int));
-
-            Assert.True(property.IsIndexedProperty());
-            Assert.Equal("A", property.Name);
-            Assert.Equal(typeof(int), property.ClrType);
-        }
-
-        [ConditionalFact]
-        public void AddIndexedProperty_throws_when_no_indexer()
-        {
-            var entityType = CreateModel().AddEntityType(typeof(Order));
-
-            Assert.Equal(
-                CoreStrings.NoIndexer(entityType.DisplayName()),
-                Assert.Throws<InvalidOperationException>(() => entityType.AddIndexedProperty("A", typeof(int))).Message);
-        }
-
-        [ConditionalFact]
-        public void AddIndexedProperty_throws_when_clashing_with_other_property()
-        {
-            var entityType = CreateModel().AddEntityType(typeof(Customer));
-
-            Assert.Equal(
-                CoreStrings.PropertyClashingNonIndexer("Name", entityType.DisplayName()),
-                Assert.Throws<InvalidOperationException>(() => entityType.AddIndexedProperty("Name", typeof(int))).Message);
-        }
-
-        [ConditionalFact]
         public void Cannot_remove_property_when_used_by_primary_key()
         {
             var model = CreateModel();
