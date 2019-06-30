@@ -733,6 +733,21 @@ AND (([UnitsInStock] + [UnitsOnOrder]) < [ReorderLevel])"))
             }
         }
 
+        [Fact]
+        public virtual void FromSqlRaw_with_dbParameter_without_name_prefix()
+        {
+            using (var context = CreateContext())
+            {
+                var parameter = CreateDbParameter("city", "London");
+
+                var actual = context.Customers.FromSqlRaw(NormalizeDelimetersInRawString("SELECT * FROM [Customers] WHERE [City] = @city"), parameter)
+                    .ToArray();
+
+                Assert.Equal(6, actual.Length);
+                Assert.True(actual.All(c => c.City == "London"));
+            }
+        }
+
         [ConditionalFact]
         public virtual void FromSqlRaw_with_dbParameter_mixed()
         {
@@ -904,9 +919,28 @@ AND (([UnitsInStock] + [UnitsOnOrder]) < [ReorderLevel])"))
             {
                 var parameter = CreateDbParameter("@somename", "ALFKI");
 
-                var query = context.Customers
+                var actual = context.Customers
                     .FromSqlInterpolated(NormalizeDelimetersInInterpolatedString($"SELECT * FROM [Customers] WHERE [CustomerID] = {parameter}"))
                     .ToList();
+
+                Assert.Equal(1, actual.Count);
+                Assert.True(actual.All(c => c.City == "Berlin"));
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void FromSqlInterpolated_with_inlined_db_parameter_without_name_prefix()
+        {
+            using (var context = CreateContext())
+            {
+                var parameter = CreateDbParameter("somename", "ALFKI");
+
+                var actual = context.Customers
+                    .FromSqlInterpolated(NormalizeDelimetersInInterpolatedString($"SELECT * FROM [Customers] WHERE [CustomerID] = {parameter}"))
+                    .ToList();
+
+                Assert.Equal(1, actual.Count);
+                Assert.True(actual.All(c => c.City == "Berlin"));
             }
         }
 
