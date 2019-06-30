@@ -524,7 +524,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ConcurrencyModel
                 },
                 new TestDriver
                 {
-                    Name = "Marc Gené",
+                    Name = "Marc GenÃ©",
                     TeamId = Team.Ferrari,
                     CarNumber = null,
                     Championships = 0,
@@ -548,7 +548,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ConcurrencyModel
                 },
                 new Driver
                 {
-                    Name = "Nico Hülkenberg",
+                    Name = "Nico HÃ¼lkenberg",
                     TeamId = Team.Williams,
                     CarNumber = 10,
                     Championships = 0,
@@ -608,7 +608,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ConcurrencyModel
                 },
                 new TestDriver
                 {
-                    Name = "Jérôme d'Ambrosio",
+                    Name = "JÃ©rÃ´me d'Ambrosio",
                     TeamId = Team.Renault,
                     CarNumber = null,
                     Championships = 0,
@@ -668,7 +668,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ConcurrencyModel
                 },
                 new Driver
                 {
-                    Name = "Sébastien Buemi",
+                    Name = "SÃ©bastien Buemi",
                     TeamId = Team.ToroRosso,
                     CarNumber = 16,
                     Championships = 0,

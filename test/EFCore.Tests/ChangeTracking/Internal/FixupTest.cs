@@ -2414,7 +2414,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             }
         }
 
-        [ConditionalFact(Skip = "issue #15318")] // Issue #6067
+        [ConditionalFact(Skip = "issue #15318 - using InMemory Include query")] // Issue #6067
         public void Collection_nav_props_remain_fixed_up_after_manual_fixup_and_DetectChanges()
         {
             using (var context = new FixupContext())
@@ -2855,7 +2855,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             public ICollection<SpecialOffer> SpecialOffers => _specialOffers;
 
             public void AddSpecialOffer(SpecialOffer specialOffer)
-                => (_specialOffers ?? (_specialOffers = new List<SpecialOffer>())).Add(specialOffer);
+                => (_specialOffers ??= new List<SpecialOffer>()).Add(specialOffer);
         }
 
         private class SpecialOffer
@@ -2988,7 +2988,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             asserts();
         }
 
-        [ConditionalFact(Skip = "issue #15318")] // Issue #4853
+        [ConditionalFact]
         public void Collection_nav_props_remain_fixed_up_after_DetectChanges()
         {
             using (var db = new Context4853())
@@ -3014,7 +3014,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             using (var db = new Context4853())
             {
-                var assembly = db.Classes.Include(c => c.Assembly).ToList().First().Assembly;
+                var testClass = db.Classes.ToList().First();
+                db.Entry(testClass).Reference(e => e.Assembly).Load();
+                var assembly = testClass.Assembly;
 
                 Assert.Equal(2, assembly.Classes.Count);
 

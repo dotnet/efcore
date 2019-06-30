@@ -185,7 +185,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [ConditionalFact(Skip = "issue #15318")]
+        [ConditionalFact]
         public virtual void Can_change_dependent_instance_non_derived()
         {
             using (CreateTestStore(

@@ -1170,7 +1170,6 @@ namespace Microsoft.EntityFrameworkCore
                 });
         }
 
-        [ConditionalTheory (Skip = "Issue #15318")]
         [InlineData((int)ChangeMechanism.Principal, false, CascadeTiming.OnSaveChanges)]
         [InlineData((int)ChangeMechanism.Principal, true, CascadeTiming.OnSaveChanges)]
         [InlineData((int)ChangeMechanism.Dependent, false, CascadeTiming.OnSaveChanges)]
@@ -3735,7 +3734,6 @@ namespace Microsoft.EntityFrameworkCore
                 });
         }
 
-        [ConditionalTheory(Skip = "Issue #15318")]
         [InlineData((int)ChangeMechanism.Principal, false, CascadeTiming.OnSaveChanges)]
         [InlineData((int)ChangeMechanism.Principal, true, CascadeTiming.OnSaveChanges)]
         [InlineData((int)ChangeMechanism.Dependent, false, CascadeTiming.OnSaveChanges)]
@@ -5968,9 +5966,7 @@ namespace Microsoft.EntityFrameworkCore
                     context.ChangeTracker.CascadeDeleteTiming = cascadeDeleteTiming ?? CascadeTiming.Never;
                     context.ChangeTracker.DeleteOrphansTiming = deleteOrphansTiming ?? CascadeTiming.Never;
 
-                    // Issue #15318 Change this back to a single query with Includes:
-                    // var root = context.Set<Root>().Include(e => e.RequiredChildren).Single(IsTheRoot);
-                    var root = context.Set<Root>().Single(IsTheRoot);
+                    var root = context.Set<Root>().Include(e => e.RequiredChildren).Single(IsTheRoot);
                     context.Set<Required1>().Load();
 
                     var removed = root.RequiredChildren.Single(e => e.Id == removedId);
@@ -6225,9 +6221,7 @@ namespace Microsoft.EntityFrameworkCore
                     context.ChangeTracker.CascadeDeleteTiming = cascadeDeleteTiming ?? CascadeTiming.Never;
                     context.ChangeTracker.DeleteOrphansTiming = deleteOrphansTiming ?? CascadeTiming.Never;
 
-                    // Issue #15318 Change this back to a single query with Includes:
-                    // var root = context.Set<Root>().Include(e => e.RequiredChildrenAk).Single(IsTheRoot);
-                    var root = context.Set<Root>().Single(IsTheRoot);
+                    var root = context.Set<Root>().Include(e => e.RequiredChildrenAk).Single(IsTheRoot);
                     context.Set<RequiredAk1>().Load();
 
                     var removed = root.RequiredChildrenAk.Single(e => e.Id == removedId);
@@ -6483,9 +6477,7 @@ namespace Microsoft.EntityFrameworkCore
                     context.ChangeTracker.CascadeDeleteTiming = cascadeDeleteTiming ?? CascadeTiming.Never;
                     context.ChangeTracker.DeleteOrphansTiming = deleteOrphansTiming ?? CascadeTiming.Never;
 
-                    // Issue #15318 Change this back to a single query with Includes:
-                    // var root = context.Set<Root>().Include(e => e.OptionalChildren).Single(IsTheRoot);
-                    var root = context.Set<Root>().Single(IsTheRoot);
+                    var root = context.Set<Root>().Include(e => e.OptionalChildren).Single(IsTheRoot);
                     context.Entry(root).Collection(e => e.OptionalChildren).Load();
 
                     var removed = root.OptionalChildren.First(e => e.Id == removedId);
@@ -6660,9 +6652,7 @@ namespace Microsoft.EntityFrameworkCore
                     context.ChangeTracker.CascadeDeleteTiming = cascadeDeleteTiming ?? CascadeTiming.Never;
                     context.ChangeTracker.DeleteOrphansTiming = deleteOrphansTiming ?? CascadeTiming.Never;
 
-                    // Issue #15318 Change this back to a single query with Includes:
-                    // var root = context.Set<Root>().Include(e => e.OptionalChildrenAk).Single(IsTheRoot);
-                    var root = context.Set<Root>().Single(IsTheRoot);
+                    var root = context.Set<Root>().Include(e => e.OptionalChildrenAk).Single(IsTheRoot);
                     context.Entry(root).Collection(e => e.OptionalChildrenAk).Load();
 
                     var removed = root.OptionalChildrenAk.First(e => e.Id == removedId);

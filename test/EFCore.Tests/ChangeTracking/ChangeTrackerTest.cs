@@ -24,8 +24,7 @@ using Xunit;
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore.ChangeTracking
 {
-    // issue #15318
-    internal class ChangeTrackerTest
+    public class ChangeTrackerTest
     {
         [ConditionalFact]
         public void DetectChanges_is_logged()

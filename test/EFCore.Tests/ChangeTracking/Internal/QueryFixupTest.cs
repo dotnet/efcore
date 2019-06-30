@@ -10,8 +10,7 @@ using Xunit;
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 {
-    //issue #15318
-    internal class QueryFixupTest
+    public class QueryFixupTest
     {
         [ConditionalFact(Skip = "TaskList#19")]
         public void Query_dependent_include_principal()
