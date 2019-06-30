@@ -412,6 +412,15 @@ WHERE (([c].[ContactName] = [c].[CompanyName]) AND ([c].[ContactName] IS NOT NUL
 SELECT * FROM ""Customers"" WHERE ""City"" = @city");
         }
 
+        public override void FromSqlRaw_with_dbParameter_without_name_prefix()
+        {
+            base.FromSqlRaw_with_dbParameter_without_name_prefix();
+            AssertSql(
+                @"city='London' (Nullable = false) (Size = 6)
+
+SELECT * FROM ""Customers"" WHERE ""City"" = @city");
+        }
+
         public override void FromSqlRaw_with_dbParameter_mixed()
         {
             base.FromSqlRaw_with_dbParameter_mixed();
@@ -480,6 +489,16 @@ ORDER BY [c].[CustomerID], [o].[OrderID], [o0].[OrderID], [o0].[ProductID]");
 
             AssertSql(
                 @"@somename='ALFKI' (Nullable = false) (Size = 5)
+
+SELECT * FROM ""Customers"" WHERE ""CustomerID"" = @somename");
+        }
+
+        public override void FromSqlInterpolated_with_inlined_db_parameter_without_name_prefix()
+        {
+            base.FromSqlInterpolated_with_inlined_db_parameter_without_name_prefix();
+
+            AssertSql(
+    @"somename='ALFKI' (Nullable = false) (Size = 5)
 
 SELECT * FROM ""Customers"" WHERE ""CustomerID"" = @somename");
         }
