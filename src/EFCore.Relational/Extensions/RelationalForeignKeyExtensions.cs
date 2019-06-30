@@ -41,7 +41,7 @@ namespace Microsoft.EntityFrameworkCore
                 .AppendJoin(foreignKey.Properties.Select(p => p.GetColumnName()), "_")
                 .ToString();
 
-            return IdentifierHelpers.Truncate(baseName, foreignKey.DeclaringEntityType.Model.GetMaxIdentifierLength());
+            return Uniquifier.Truncate(baseName, foreignKey.DeclaringEntityType.Model.GetMaxIdentifierLength());
         }
 
         /// <summary>

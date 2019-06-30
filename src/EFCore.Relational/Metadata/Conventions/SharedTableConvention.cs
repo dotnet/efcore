@@ -93,7 +93,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                     {
                         if (entityType[RelationalAnnotationNames.TableName] == null)
                         {
-                            var uniqueName = IdentifierHelpers.Uniquify(
+                            var uniqueName = Uniquifier.Uniquify(
                                 tableName.TableName, tables, n => (tableName.Schema, n), maxLength);
                             if (entityType.Builder.ToTable(uniqueName) != null)
                             {
@@ -110,7 +110,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                             var otherEntityType = entityTypes.First();
                             if (otherEntityType[RelationalAnnotationNames.TableName] == null)
                             {
-                                var uniqueName = IdentifierHelpers.Uniquify(
+                                var uniqueName = Uniquifier.Uniquify(
                                     tableName.TableName, tables, n => (tableName.Schema, n), maxLength);
                                 if (otherEntityType.Builder.ToTable(uniqueName) != null)
                                 {
@@ -213,7 +213,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                     }
                 }
 
-                columnName = IdentifierHelpers.Uniquify(columnName, properties, maxLength);
+                columnName = Uniquifier.Uniquify(columnName, properties, maxLength);
                 property.Builder.HasColumnName(columnName);
                 properties[columnName] = property;
                 return columnName;
@@ -260,7 +260,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         {
             if (key.Builder.CanSetName(null))
             {
-                keyName = IdentifierHelpers.Uniquify(keyName, keys, maxLength);
+                keyName = Uniquifier.Uniquify(keyName, keys, maxLength);
                 key.Builder.HasName(keyName);
                 return keyName;
             }
@@ -316,7 +316,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         {
             if (index.Builder.CanSetName(null))
             {
-                indexName = IdentifierHelpers.Uniquify(indexName, indexes, maxLength);
+                indexName = Uniquifier.Uniquify(indexName, indexes, maxLength);
                 index.Builder.HasName(indexName);
                 return indexName;
             }
@@ -375,7 +375,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         {
             if (foreignKey.Builder.CanSetConstraintName(null))
             {
-                foreignKeyName = IdentifierHelpers.Uniquify(foreignKeyName, foreignKeys, maxLength);
+                foreignKeyName = Uniquifier.Uniquify(foreignKeyName, foreignKeys, maxLength);
                 foreignKey.Builder.HasConstraintName(foreignKeyName);
                 return foreignKeyName;
             }

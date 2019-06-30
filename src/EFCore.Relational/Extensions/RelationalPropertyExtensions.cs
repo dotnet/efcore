@@ -85,7 +85,7 @@ namespace Microsoft.EntityFrameworkCore
                 baseName = builder.ToString();
             }
 
-            return IdentifierHelpers.Truncate(baseName, property.DeclaringEntityType.Model.GetMaxIdentifierLength());
+            return Uniquifier.Truncate(baseName, property.DeclaringEntityType.Model.GetMaxIdentifierLength());
         }
 
         /// <summary>

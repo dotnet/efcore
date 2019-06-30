@@ -36,5 +36,21 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             [NotNull] ConstructorInfo constructor,
             [CanBeNull] out InstantiationBinding binding,
             [CanBeNull] out IEnumerable<ParameterInfo> unboundParameters);
+
+        /// <summary>
+        ///     Attempts to create a <see cref="InstantiationBinding" /> for the given <see cref="IEntityType" /> and
+        ///     <see cref="ConstructorInfo" />
+        /// </summary>
+        /// <param name="entityType"> The entity type. </param>
+        /// <param name="constructor"> The constructor to use. </param>
+        /// <param name="binding"> The binding, or <c>null</c> if <c>null</c> could be created. </param>
+        /// <param name="unboundParameters"> The parameters that could not be bound. </param>
+        /// <returns> <c>true</c> if a binding was created; <c>false</c> otherwise. </returns>
+        [ContractAnnotation("=>true, binding:notnull, failedBindings:null; =>false, binding:null, failedBindings:notnull")]
+        bool TryBindConstructor(
+            [NotNull] IMutableEntityType entityType,
+            [NotNull] ConstructorInfo constructor,
+            [CanBeNull] out InstantiationBinding binding,
+            [CanBeNull] out IEnumerable<ParameterInfo> unboundParameters);
     }
 }

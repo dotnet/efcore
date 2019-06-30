@@ -11,7 +11,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
     /// <summary>
     ///     Provides methods for manipulating string identifiers.
     /// </summary>
-    public static class IdentifierHelpers
+    public static class Uniquifier
     {
         /// <summary>
         ///     Creates a unique identifier by appending a number to the given string.

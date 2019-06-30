@@ -41,7 +41,7 @@ namespace Microsoft.EntityFrameworkCore
                 return ownership.PrincipalEntityType.GetTableName();
             }
 
-            return IdentifierHelpers.Truncate(
+            return Uniquifier.Truncate(
                 entityType.HasDefiningNavigation()
                     ? $"{entityType.DefiningEntityType.GetTableName()}_{entityType.DefiningNavigationName}"
                     : entityType.ShortName(),
