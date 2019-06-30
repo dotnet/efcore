@@ -12,9 +12,6 @@ namespace Microsoft.EntityFrameworkCore
     {
         protected override ICollection<Type> IgnoredTestBases { get; } = new HashSet<Type>
         {
-            typeof(LoadTestBase<>),                        // issue #15318
-            typeof(GraphUpdatesTestBase<>),                // issue #15318
-            typeof(ProxyGraphUpdatesTestBase<>),           // issue #15318
             typeof(ComplexNavigationsWeakQueryTestBase<>), // issue #15285
             typeof(FiltersInheritanceTestBase<>),          // issue #15264
             typeof(FiltersTestBase<>),                     // issue #15264

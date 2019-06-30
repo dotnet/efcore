@@ -117,7 +117,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateContext())
             {
-                AssertGraph(context.Set<PostAuto>().Include(e => e.Blog).AsTracking(tracking).ToList());
+                AssertGraph(context.Set<PostAuto>().Include(e => e.Blog).AsTracking(tracking).ToList(), tracking);
             }
         }
 
@@ -180,7 +180,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateContext())
             {
-                AssertGraph(context.Set<PostHiding>().Include(e => e.Blog).AsTracking(tracking).ToList());
+                AssertGraph(context.Set<PostHiding>().Include(e => e.Blog).AsTracking(tracking).ToList(), tracking);
             }
         }
 
@@ -243,7 +243,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateContext())
             {
-                AssertGraph(context.Set<PostFull>().Include(e => e.Blog).AsTracking(tracking).ToList());
+                AssertGraph(context.Set<PostFull>().Include(e => e.Blog).AsTracking(tracking).ToList(), tracking);
             }
         }
 
@@ -306,7 +306,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateContext())
             {
-                AssertGraph(context.Set<PostFullExplicit>().Include(e => e.Blog).AsTracking(tracking).ToList());
+                AssertGraph(context.Set<PostFullExplicit>().Include(e => e.Blog).AsTracking(tracking).ToList(), tracking);
             }
         }
 
@@ -369,7 +369,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateContext())
             {
-                AssertGraph(context.Set<PostReadOnly>().Include(e => e.Blog).AsTracking(tracking).ToList());
+                AssertGraph(context.Set<PostReadOnly>().Include(e => e.Blog).AsTracking(tracking).ToList(), tracking);
             }
         }
 
@@ -432,7 +432,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateContext())
             {
-                AssertGraph(context.Set<PostReadOnlyExplicit>().Include(e => e.Blog).AsTracking(tracking).ToList());
+                AssertGraph(context.Set<PostReadOnlyExplicit>().Include(e => e.Blog).AsTracking(tracking).ToList(), tracking);
             }
         }
 
@@ -507,7 +507,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateContext())
             {
-                AssertGraph(context.Set<PostWriteOnly>().Include("Blog").AsTracking(tracking).ToList());
+                AssertGraph(context.Set<PostWriteOnly>().Include("Blog").AsTracking(tracking).ToList(), tracking);
             }
         }
 
@@ -570,7 +570,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateContext())
             {
-                AssertGraph(context.Set<PostWriteOnlyExplicit>().Include("Blog").AsTracking(tracking).ToList());
+                AssertGraph(context.Set<PostWriteOnlyExplicit>().Include("Blog").AsTracking(tracking).ToList(), tracking);
             }
         }
 
@@ -633,7 +633,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateContext())
             {
-                AssertGraph(context.Set<PostFields>().Include(e => e.Blog).AsTracking(tracking).ToList());
+                AssertGraph(context.Set<PostFields>().Include(e => e.Blog).AsTracking(tracking).ToList(), tracking);
             }
         }
 
@@ -696,7 +696,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateContext())
             {
-                AssertGraph(context.Set<PostNavFields>().Include("_blog").AsTracking(tracking).ToList());
+                AssertGraph(context.Set<PostNavFields>().Include("_blog").AsTracking(tracking).ToList(), tracking);
             }
         }
 
@@ -758,7 +758,7 @@ namespace Microsoft.EntityFrameworkCore
                     context.Entry(post).Reference(navigation).Load();
                 }
 
-                AssertGraph(posts);
+                AssertGraph(posts, true);
             }
         }
 
@@ -888,32 +888,44 @@ namespace Microsoft.EntityFrameworkCore
             AssertPost(blog2.AccessPosts.Single(e => e.AccessId == 21), 21, blog2, updated);
         }
 
-        private static void AssertPost(IPostAccessor post, int postId, IBlogAccessor blog1, string updated = "")
+        private static void AssertPost(IPostAccessor post, int postId, IBlogAccessor blog, string updated = "")
         {
             Assert.Equal("Post" + postId + updated, post.AccessTitle);
-            //issue #15318
-            //Assert.Same(blog1, post.AccessBlog);
-            Assert.Equal(blog1.AccessId, post.AccessBlogId);
+            Assert.Same(blog, post.AccessBlog);
+            Assert.Equal(blog.AccessId, post.AccessBlogId);
         }
 
-        protected void AssertGraph(IEnumerable<IPostAccessor> posts)
+        protected void AssertGraph(IEnumerable<IPostAccessor> posts, bool tracking)
         {
             Assert.Equal(4, posts.Count());
 
-            var blog1 = posts.Select(e => e.AccessBlog).First(e => e.AccessId == 10);
-            Assert.Equal("Blog10", blog1.AccessTitle);
-            //issue #15318
-            //Assert.Equal(2, blog1.AccessPosts.Count());
+            AssertBlogs(posts, tracking, 10, 11, "Blog10");
+            AssertBlogs(posts, tracking, 20, 21, "Blog20");
+        }
 
-            var blog2 = posts.Select(e => e.AccessBlog).First(e => e.AccessId == 20);
-            Assert.Equal("Blog20", blog2.AccessTitle);
-            //issue #15318
-            //Assert.Equal(2, blog1.AccessPosts.Count());
+        private static void AssertBlogs(IEnumerable<IPostAccessor> posts, bool tracking, int post1Id, int post2Id, string blogName)
+        {
+            var blog1a = posts.Single(e => e.AccessId == post1Id).AccessBlog;
+            var blog1b = posts.Single(e => e.AccessId == post2Id).AccessBlog;
 
-            AssertPost(posts.Single(e => e.AccessId == 10), 10, blog1);
-            AssertPost(posts.Single(e => e.AccessId == 11), 11, blog1);
-            AssertPost(posts.Single(e => e.AccessId == 20), 20, blog2);
-            AssertPost(posts.Single(e => e.AccessId == 21), 21, blog2);
+            if (tracking)
+            {
+                Assert.Same(blog1a, blog1b);
+                Assert.Equal(blogName, blog1a.AccessTitle);
+                Assert.Equal(2, blog1a.AccessPosts.Count());
+            }
+            else
+            {
+                // Because no identity resolution for no-tracking
+                Assert.NotSame(blog1a, blog1b);
+                Assert.Equal(blogName, blog1a.AccessTitle);
+                Assert.Equal(blogName, blog1b.AccessTitle);
+                Assert.Equal(1, blog1a.AccessPosts.Count());
+                Assert.Equal(1, blog1b.AccessPosts.Count());
+            }
+
+            AssertPost(posts.Single(e => e.AccessId == post1Id), post1Id, blog1a);
+            AssertPost(posts.Single(e => e.AccessId == post2Id), post2Id, blog1b);
         }
 
         protected class BlogAuto : IBlogAccessor

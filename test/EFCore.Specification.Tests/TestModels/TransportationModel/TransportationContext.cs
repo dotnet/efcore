@@ -4,6 +4,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.TestUtilities;
+using Xunit;
 
 #pragma warning disable RCS1202 // Avoid NullReferenceException.
 
@@ -79,8 +80,8 @@ namespace Microsoft.EntityFrameworkCore.TestModels.TransportationModel
                 .Include(v => ((PoweredVehicle)v).Engine)
                 .ThenInclude(e => (e as CombustionEngine).FuelTank)
                 .OrderBy(v => v.Name).ToList();
-            //issue #15318
-            //Assert.Equal(expected, actual);
+
+            Assert.Equal(expected, actual);
         }
 
         protected IEnumerable<Vehicle> CreateVehicles()
