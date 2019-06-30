@@ -290,8 +290,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual IClrPropertyGetter Getter =>
             NonCapturingLazyInitializer.EnsureInitialized(
-                ref _getter, this,
-                p => p.IsIndexedProperty() ? new IndexedPropertyGetterFactory().Create(p) : new ClrPropertyGetterFactory().Create(p));
+                ref _getter, this,p => new ClrPropertyGetterFactory().Create(p));
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -301,8 +300,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual IClrPropertySetter Setter =>
             NonCapturingLazyInitializer.EnsureInitialized(
-                ref _setter, this,
-                p => p.IsIndexedProperty() ? new IndexedPropertySetterFactory().Create(p) : new ClrPropertySetterFactory().Create(p));
+                ref _setter, this,p => new ClrPropertySetterFactory().Create(p));
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

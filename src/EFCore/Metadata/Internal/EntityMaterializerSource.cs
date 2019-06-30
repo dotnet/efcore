@@ -139,8 +139,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                         constructorExpression)
                 };
 
-            var indexerPropertyInfo = entityType.FindIndexerProperty();
-
             var valueBufferExpression = Expression.Call(materializationContextExpression, MaterializationContext.GetValueBufferMethod);
 
             foreach (var property in properties)
@@ -157,20 +155,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                             property);
 
                 blockExpressions.Add(
-                    property.IsIndexedProperty()
-                        ? Expression.Assign(
-                            Expression.MakeIndex(
-                                instanceVariable,
-                                indexerPropertyInfo,
-                                new[]
-                                {
-                                    Expression.Constant(property.Name)
-                                }),
-                            readValueExpression)
-                        : Expression.MakeMemberAccess(
-                            instanceVariable,
-                            memberInfo).Assign(
-                            readValueExpression));
+                    Expression.MakeMemberAccess(
+                        instanceVariable,
+                        memberInfo).Assign(
+                        readValueExpression));
             }
 
             blockExpressions.Add(instanceVariable);

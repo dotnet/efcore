@@ -464,18 +464,6 @@ namespace Microsoft.EntityFrameworkCore
             => entityType.AddProperty(name, propertyType, null);
 
         /// <summary>
-        ///     Adds a property based on an indexer to this entity type.
-        /// </summary>
-        /// <param name="entityType"> The entity type to add the property to. </param>
-        /// <param name="name"> The name of the property to add. </param>
-        /// <param name="propertyType"> The type of value the property will hold. </param>
-        /// <returns> The newly created property. </returns>
-        public static IMutableProperty AddIndexedProperty(
-            [NotNull] this IMutableEntityType entityType, [NotNull] string name, [NotNull] Type propertyType)
-            => Check.NotNull(entityType, nameof(entityType))
-                .AddProperty(name, propertyType, entityType.GetIndexerProperty());
-
-        /// <summary>
         ///     Gets the index defined on the given property. Returns null if no index is defined.
         /// </summary>
         /// <param name="entityType"> The entity type to find the index on. </param>
