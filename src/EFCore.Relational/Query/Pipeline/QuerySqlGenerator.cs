@@ -167,6 +167,20 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
                 Visit(selectExpression.Predicate);
             }
 
+            if (selectExpression.GroupBy.Count > 0)
+            {
+                _relationalCommandBuilder.AppendLine().Append("GROUP BY ");
+
+                GenerateList(selectExpression.GroupBy, e => Visit(e));
+            }
+
+            if (selectExpression.HavingExpression != null)
+            {
+                _relationalCommandBuilder.AppendLine().Append("HAVING ");
+
+                Visit(selectExpression.HavingExpression);
+            }
+
             GenerateOrderings(selectExpression);
             GenerateLimitOffset(selectExpression);
         }

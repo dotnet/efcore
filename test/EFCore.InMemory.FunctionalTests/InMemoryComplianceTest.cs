@@ -24,6 +24,7 @@ namespace Microsoft.EntityFrameworkCore
             typeof(OwnedQueryTestBase<>),                  // issue #15285
             // Query pipeline
             typeof(SimpleQueryTestBase<>),
+            typeof(GroupByQueryTestBase<>),
             typeof(ConcurrencyDetectorTestBase<>),
             typeof(AsNoTrackingTestBase<>),
             typeof(AsTrackingTestBase<>),

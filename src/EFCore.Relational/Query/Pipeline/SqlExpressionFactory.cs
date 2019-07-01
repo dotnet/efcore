@@ -505,6 +505,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
                 alias: null,
                 new List<ProjectionExpression>(),
                 new List<TableExpressionBase>(),
+                new List<SqlExpression>(),
                 new List<OrderingExpression>());
 
             if (projection != null)
