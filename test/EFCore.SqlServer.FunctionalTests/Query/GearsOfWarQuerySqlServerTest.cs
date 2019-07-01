@@ -7343,19 +7343,11 @@ ORDER BY [t].[Name], [c.StationedGears].[Nickname] DESC");
             await base.Correlated_collection_with_complex_order_by_funcletized_to_constant_bool(isAsync);
 
             AssertSql(
-                @"SELECT [g].[Nickname], [g].[FullName]
+                @"SELECT [g].[Nickname], [g].[SquadId], [w].[Name], [w].[Id], [w].[OwnerFullName]
 FROM [Gears] AS [g]
-WHERE [g].[Discriminator] IN (N'Officer', N'Gear')
-ORDER BY [g].[Nickname], [g].[SquadId], [g].[FullName]",
-                //
-                @"SELECT [t].[c], [t].[Nickname], [t].[SquadId], [t].[FullName], [g.Weapons].[Name], [g.Weapons].[OwnerFullName]
-FROM [Weapons] AS [g.Weapons]
-INNER JOIN (
-    SELECT CAST(0 AS bit) AS [c], [g0].[Nickname], [g0].[SquadId], [g0].[FullName]
-    FROM [Gears] AS [g0]
-    WHERE [g0].[Discriminator] IN (N'Officer', N'Gear')
-) AS [t] ON [g.Weapons].[OwnerFullName] = [t].[FullName]
-ORDER BY [t].[c] DESC, [t].[Nickname], [t].[SquadId], [t].[FullName]");
+LEFT JOIN [Weapons] AS [w] ON [g].[FullName] = [w].[OwnerFullName]
+WHERE [g].[Discriminator] IN (N'Gear', N'Officer')
+ORDER BY [g].[Nickname], [g].[SquadId], [w].[Id]");
         }
 
         public override async Task Double_order_by_on_nullable_bool_coming_from_optional_navigation(bool isAsync)

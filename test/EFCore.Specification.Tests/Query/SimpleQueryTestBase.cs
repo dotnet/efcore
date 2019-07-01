@@ -5735,7 +5735,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     .Take(5));
         }
 
-        [ConditionalTheory(Skip = "Issue#15713")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task OrderBy_empty_list_contains(bool isAsync)
         {
@@ -5747,7 +5747,19 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 91);
         }
 
-        [ConditionalTheory(Skip = "Issue#15713")]
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task OrderBy_contains_and_count(bool isAsync)
+        {
+            var list = new List<string>();
+
+            return AssertQuery<Customer>(
+                isAsync,
+                cs => cs.OrderBy(c => (list.Contains(c.CustomerID) ? 1 : 0) + cs.Count()).Select(c => c),
+                entryCount: 91);
+        }
+
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task OrderBy_empty_list_does_not_contains(bool isAsync)
         {

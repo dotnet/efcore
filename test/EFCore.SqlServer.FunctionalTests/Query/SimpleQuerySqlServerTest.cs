@@ -4681,6 +4681,24 @@ FROM (
 FROM [Customers] AS [c]");
         }
 
+        public override async Task OrderBy_contains_and_count(bool isAsync)
+        {
+            await base.OrderBy_contains_and_count(isAsync);
+
+            AssertSql(
+                @"SELECT COUNT(*)
+FROM [Customers] AS [c]",
+                //
+                @"@__Count_1='91'
+
+SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+ORDER BY CASE
+    WHEN CAST(1 AS bit) = CAST(0 AS bit) THEN 1
+    ELSE 0
+END + @__Count_1");
+        }
+
         public override async Task OrderBy_empty_list_does_not_contains(bool isAsync)
         {
             await base.OrderBy_empty_list_does_not_contains(isAsync);
