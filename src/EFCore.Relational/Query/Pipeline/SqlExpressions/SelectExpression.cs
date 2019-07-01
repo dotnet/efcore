@@ -3,12 +3,9 @@
 
 using System;
 using System.Collections.Generic;
-using System.Data.SqlTypes;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -34,10 +31,16 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
         public IReadOnlyList<ProjectionExpression> Projection => _projection;
         public IReadOnlyList<TableExpressionBase> Tables => _tables;
         public IReadOnlyList<OrderingExpression> Orderings => _orderings;
+        public ISet<string> Tags { get; private set; } = new HashSet<string>();
         public SqlExpression Predicate { get; private set; }
         public SqlExpression Limit { get; private set; }
         public SqlExpression Offset { get; private set; }
         public bool IsDistinct { get; private set; }
+
+        public void ApplyTags(ISet<string> tags)
+        {
+            Tags = tags;
+        }
 
         /// <summary>
         /// Marks this <see cref="SelectExpression"/> as representing an SQL set operation, such as a UNION.

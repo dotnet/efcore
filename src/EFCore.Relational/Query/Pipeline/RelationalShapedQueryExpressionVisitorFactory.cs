@@ -30,14 +30,11 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
         public ShapedQueryCompilingExpressionVisitor Create(QueryCompilationContext queryCompilationContext)
         {
             return new RelationalShapedQueryCompilingExpressionVisitor(
+                queryCompilationContext,
                 _entityMaterializerSource,
                 _querySqlGeneratorFactory,
                 _sqlExpressionFactory,
-                _parameterNameGeneratorFactory,
-                queryCompilationContext.ContextType,
-                queryCompilationContext.Logger,
-                queryCompilationContext.TrackQueryResults,
-                queryCompilationContext.Async);
+                _parameterNameGeneratorFactory);
         }
     }
 }

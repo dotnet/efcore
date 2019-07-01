@@ -25,13 +25,10 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Pipeline
         public ShapedQueryCompilingExpressionVisitor Create(QueryCompilationContext queryCompilationContext)
         {
             return new CosmosShapedQueryCompilingExpressionVisitor(
+                queryCompilationContext,
                 _entityMaterializerSource,
                 _sqlExpressionFactory,
-                _querySqlGeneratorFactory,
-                queryCompilationContext.ContextType,
-                queryCompilationContext.Logger,
-                queryCompilationContext.TrackQueryResults,
-                queryCompilationContext.Async);
+                _querySqlGeneratorFactory);
         }
     }
 }

@@ -48,7 +48,6 @@ namespace Microsoft.EntityFrameworkCore.Query.NavigationExpansion
                     new List<(MethodInfo method, LambdaExpression keySelector)>(),
                     pendingIncludeChain: null,
                     pendingCardinalityReducingOperator: null,
-                    pendingTags: new List<string>(),
                     customRootMappings: new List<List<string>>(),
                     materializeCollectionNavigation),
                 materializeCollectionNavigation?.ClrType ?? operand.Type);

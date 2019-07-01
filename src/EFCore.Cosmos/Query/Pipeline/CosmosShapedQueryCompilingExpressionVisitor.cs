@@ -32,19 +32,16 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Pipeline
         private readonly IDiagnosticsLogger<DbLoggerCategory.Query> _logger;
 
         public CosmosShapedQueryCompilingExpressionVisitor(
+            QueryCompilationContext queryCompilationContext,
             IEntityMaterializerSource entityMaterializerSource,
             ISqlExpressionFactory sqlExpressionFactory,
-            IQuerySqlGeneratorFactory querySqlGeneratorFactory,
-            Type contextType,
-            IDiagnosticsLogger<DbLoggerCategory.Query> logger,
-            bool trackQueryResults,
-            bool async)
-            : base(entityMaterializerSource, trackQueryResults, async)
+            IQuerySqlGeneratorFactory querySqlGeneratorFactory)
+            : base(queryCompilationContext, entityMaterializerSource)
         {
             _sqlExpressionFactory = sqlExpressionFactory;
             _querySqlGeneratorFactory = querySqlGeneratorFactory;
-            _contextType = contextType;
-            _logger = logger;
+            _contextType = queryCompilationContext.ContextType;
+            _logger = queryCompilationContext.Logger;
         }
 
         protected override Expression VisitShapedQueryExpression(ShapedQueryExpression shapedQueryExpression)
