@@ -5428,7 +5428,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                       select c.CustomerID);
         }
 
-        [ConditionalTheory]
+        [ConditionalTheory(Skip = "Issue#16365")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Comparing_navigations_using_Equals(bool isAsync)
         {

@@ -167,23 +167,10 @@ namespace Microsoft.EntityFrameworkCore.Query.NavigationExpansion.Visitors
             return new NavigationExpansionExpression(result, state, result.Type);
         }
 
-        private void AdjustCurrentParameterName(
-            NavigationExpansionExpressionState state,
-            string newParameterName)
-        {
-            if (state.CurrentParameter.Name == null && newParameterName != null)
-            {
-                var newParameter = Expression.Parameter(state.CurrentParameter.Type, newParameterName);
-                state.PendingSelector = (LambdaExpression)new ExpressionReplacingVisitor(state.CurrentParameter, newParameter).Visit(state.PendingSelector);
-                state.CurrentParameter = newParameter;
-            }
-        }
-
         private Expression ProcessWhere(MethodCallExpression methodCallExpression)
         {
             var source = VisitSourceExpression(methodCallExpression.Arguments[0]);
             var predicate = methodCallExpression.Arguments[1].UnwrapLambdaFromQuote();
-            AdjustCurrentParameterName(source.State, predicate.Parameters[0].Name);
 
             var appliedNavigationsResult = FindAndApplyNavigations(source.Operand, predicate, source.State);
             var newPredicateBody = new NavigationPropertyUnbindingVisitor(appliedNavigationsResult.state.CurrentParameter).Visit(appliedNavigationsResult.lambdaBody);
@@ -203,7 +190,6 @@ namespace Microsoft.EntityFrameworkCore.Query.NavigationExpansion.Visitors
         {
             var source = VisitSourceExpression(methodCallExpression.Arguments[0]);
             var selector = methodCallExpression.Arguments[1].UnwrapLambdaFromQuote();
-            AdjustCurrentParameterName(source.State, selector.Parameters[0].Name);
 
             return ProcessSelectCore(source.Operand, source.State, selector, methodCallExpression.Type);
         }
@@ -242,7 +228,6 @@ namespace Microsoft.EntityFrameworkCore.Query.NavigationExpansion.Visitors
         {
             var source = VisitSourceExpression(methodCallExpression.Arguments[0]);
             var keySelector = methodCallExpression.Arguments[1].UnwrapLambdaFromQuote();
-            AdjustCurrentParameterName(source.State, keySelector.Parameters[0].Name);
 
             var appliedNavigationsResult = FindAndApplyNavigations(source.Operand, keySelector, source.State);
             var pendingOrdering = (method: methodCallExpression.Method.GetGenericMethodDefinition(), keySelector: Expression.Lambda(appliedNavigationsResult.lambdaBody, appliedNavigationsResult.state.CurrentParameter));
@@ -260,7 +245,6 @@ namespace Microsoft.EntityFrameworkCore.Query.NavigationExpansion.Visitors
         {
             var source = VisitSourceExpression(methodCallExpression.Arguments[0]);
             var keySelector = methodCallExpression.Arguments[1].UnwrapLambdaFromQuote();
-            AdjustCurrentParameterName(source.State, keySelector.Parameters[0].Name);
 
             var appliedNavigationsResult = FindAndApplyNavigations(source.Operand, keySelector, source.State);
 
@@ -277,7 +261,6 @@ namespace Microsoft.EntityFrameworkCore.Query.NavigationExpansion.Visitors
         {
             var outerSourceNee = VisitSourceExpression(methodCallExpression.Arguments[0]);
             var collectionSelector = methodCallExpression.Arguments[1].UnwrapLambdaFromQuote();
-            AdjustCurrentParameterName(outerSourceNee.State, collectionSelector.Parameters[0].Name);
 
             var applyNavigationsResult = FindAndApplyNavigations(outerSourceNee.Operand, collectionSelector, outerSourceNee.State);
             var applyOrderingsResult = ApplyPendingOrderings(applyNavigationsResult.source, applyNavigationsResult.state);
@@ -515,9 +498,6 @@ namespace Microsoft.EntityFrameworkCore.Query.NavigationExpansion.Visitors
             var innerKeySelector = methodCallExpression.Arguments[3].UnwrapLambdaFromQuote();
             var resultSelector = methodCallExpression.Arguments[4].UnwrapLambdaFromQuote();
 
-            AdjustCurrentParameterName(outerSource.State, outerKeySelector.Parameters[0].Name);
-            AdjustCurrentParameterName(innerSource.State, innerKeySelector.Parameters[0].Name);
-
             var outerApplyNavigationsResult = FindAndApplyNavigations(outerSource.Operand, outerKeySelector, outerSource.State);
             var innerApplyNavigationsResult = FindAndApplyNavigations(innerSource.Operand, innerKeySelector, innerSource.State);
 
@@ -563,9 +543,6 @@ namespace Microsoft.EntityFrameworkCore.Query.NavigationExpansion.Visitors
             var outerKeySelector = methodCallExpression.Arguments[2].UnwrapLambdaFromQuote();
             var innerKeySelector = methodCallExpression.Arguments[3].UnwrapLambdaFromQuote();
             var resultSelector = methodCallExpression.Arguments[4].UnwrapLambdaFromQuote();
-
-            AdjustCurrentParameterName(outerSource.State, outerKeySelector.Parameters[0].Name);
-            AdjustCurrentParameterName(innerSource.State, innerKeySelector.Parameters[0].Name);
 
             var outerApplyNavigationsResult = FindAndApplyNavigations(outerSource.Operand, outerKeySelector, outerSource.State);
             var innerApplyNavigationsResult = FindAndApplyNavigations(innerSource.Operand, innerKeySelector, innerSource.State);
@@ -672,7 +649,6 @@ namespace Microsoft.EntityFrameworkCore.Query.NavigationExpansion.Visitors
             var source = VisitSourceExpression(methodCallExpression.Arguments[0]);
             source = RemoveIncludesFromSource(source);
             var predicate = methodCallExpression.Arguments[1].UnwrapLambdaFromQuote();
-            AdjustCurrentParameterName(source.State, predicate.Parameters[0].Name);
 
             var applyNavigationsResult = FindAndApplyNavigations(source.Operand, predicate, source.State);
             var newPredicateBody = new NavigationPropertyUnbindingVisitor(applyNavigationsResult.state.CurrentParameter).Visit(applyNavigationsResult.lambdaBody);
@@ -747,7 +723,6 @@ namespace Microsoft.EntityFrameworkCore.Query.NavigationExpansion.Visitors
             if (methodCallExpression.Arguments.Count == 2)
             {
                 var selector = methodCallExpression.Arguments[1].UnwrapLambdaFromQuote();
-                AdjustCurrentParameterName(source.State, selector.Parameters[0].Name);
                 var applyNavigationsResult = FindAndApplyNavigations(source.Operand, selector, source.State);
                 var newSelectorBody = new NavigationPropertyUnbindingVisitor(applyNavigationsResult.state.CurrentParameter).Visit(applyNavigationsResult.lambdaBody);
                 var newSelector = Expression.Lambda(newSelectorBody, applyNavigationsResult.state.CurrentParameter);
@@ -1083,10 +1058,7 @@ namespace Microsoft.EntityFrameworkCore.Query.NavigationExpansion.Visitors
             methodCallExpression = TryConvertToLambdaInclude(methodCallExpression);
 
             var source = VisitSourceExpression(methodCallExpression.Arguments[0]);
-
             var includeLambda = methodCallExpression.Arguments[1].UnwrapLambdaFromQuote();
-            AdjustCurrentParameterName(source.State, includeLambda.Parameters[0].Name);
-
             var applyOrderingsResult = ApplyPendingOrderings(source.Operand, source.State);
 
             // just bind to mark all the necessary navigation for include in the future
