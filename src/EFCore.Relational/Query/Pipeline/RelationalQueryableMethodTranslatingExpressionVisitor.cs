@@ -151,34 +151,12 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
             var selectExpression = (SelectExpression)source.QueryExpression;
             selectExpression.PrepareForAggregate();
 
-            if (selector != null)
-            {
-                source = TranslateSelect(source, selector);
-            }
+            var newSelector = selector == null
+                || selector.Body == selector.Parameters[0]
+                ? selectExpression.GetMappedProjection(new ProjectionMember())
+                : ReplacingExpressionVisitor.Replace(selector.Parameters.Single(), source.ShaperExpression, selector.Body);
 
-            var projection = (SqlExpression)selectExpression.GetMappedProjection(new ProjectionMember());
-
-            var inputType = projection.Type.UnwrapNullableType();
-            if (inputType == typeof(int)
-                || inputType == typeof(long))
-            {
-                projection = _sqlExpressionFactory.ApplyDefaultTypeMapping(
-                    _sqlExpressionFactory.Convert(projection, typeof(double)));
-            }
-
-            if (inputType == typeof(float))
-            {
-                projection = _sqlExpressionFactory.Convert(
-                        _sqlExpressionFactory.Function(
-                            "AVG", new[] { projection }, typeof(double), null),
-                        projection.Type,
-                        projection.TypeMapping);
-            }
-            else
-            {
-                projection = _sqlExpressionFactory.Function(
-                    "AVG", new[] { projection }, projection.Type, projection.TypeMapping);
-            }
+            var projection = _sqlTranslator.TranslateAverage(newSelector);
 
             return AggregateResultShaper(source, projection, throwOnNullResult: true, resultType);
         }
@@ -237,8 +215,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
                 source = TranslateWhere(source, predicate);
             }
 
-            var translation = _sqlExpressionFactory.ApplyDefaultTypeMapping(
-                _sqlExpressionFactory.Function("COUNT", new[] { _sqlExpressionFactory.Fragment("*") }, typeof(int)));
+            var translation = _sqlTranslator.TranslateCount();
 
             var projectionMapping = new Dictionary<ProjectionMember, Expression>
             {
@@ -480,8 +457,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
                 source = TranslateWhere(source, predicate);
             }
 
-            var translation = _sqlExpressionFactory.ApplyDefaultTypeMapping(
-                _sqlExpressionFactory.Function("COUNT", new[] { _sqlExpressionFactory.Fragment("*") }, typeof(long)));
+            var translation = _sqlTranslator.TranslateLongCount();
             var projectionMapping = new Dictionary<ProjectionMember, Expression>
             {
                 { new ProjectionMember(), translation }
@@ -499,14 +475,12 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
             var selectExpression = (SelectExpression)source.QueryExpression;
             selectExpression.PrepareForAggregate();
 
-            if (selector != null)
-            {
-                source = TranslateSelect(source, selector);
-            }
+            var newSelector = selector == null
+                || selector.Body == selector.Parameters[0]
+                ? selectExpression.GetMappedProjection(new ProjectionMember())
+                : ReplacingExpressionVisitor.Replace(selector.Parameters.Single(), source.ShaperExpression, selector.Body);
 
-            var projection = (SqlExpression)selectExpression.GetMappedProjection(new ProjectionMember());
-
-            projection = _sqlExpressionFactory.Function("MAX", new[] { projection }, resultType, projection.TypeMapping);
+            var projection = _sqlTranslator.TranslateMax(newSelector);
 
             return AggregateResultShaper(source, projection, throwOnNullResult: true, resultType);
         }
@@ -516,14 +490,12 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
             var selectExpression = (SelectExpression)source.QueryExpression;
             selectExpression.PrepareForAggregate();
 
-            if (selector != null)
-            {
-                source = TranslateSelect(source, selector);
-            }
+            var newSelector = selector == null
+                 || selector.Body == selector.Parameters[0]
+                 ? selectExpression.GetMappedProjection(new ProjectionMember())
+                 : ReplacingExpressionVisitor.Replace(selector.Parameters.Single(), source.ShaperExpression, selector.Body);
 
-            var projection = (SqlExpression)selectExpression.GetMappedProjection(new ProjectionMember());
-
-            projection = _sqlExpressionFactory.Function("MIN", new[] { projection }, resultType, projection.TypeMapping);
+            var projection = _sqlTranslator.TranslateMin(newSelector);
 
             return AggregateResultShaper(source, projection, throwOnNullResult: true, resultType);
         }
@@ -737,27 +709,12 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
         {
             var selectExpression = (SelectExpression)source.QueryExpression;
             selectExpression.PrepareForAggregate();
+            var newSelector = selector == null
+                || selector.Body == selector.Parameters[0]
+                ? selectExpression.GetMappedProjection(new ProjectionMember())
+                : ReplacingExpressionVisitor.Replace(selector.Parameters.Single(), source.ShaperExpression, selector.Body);
 
-            if (selector != null)
-            {
-                source = TranslateSelect(source, selector);
-            }
-
-            var serverOutputType = resultType.UnwrapNullableType();
-            var projection = (SqlExpression)selectExpression.GetMappedProjection(new ProjectionMember());
-
-            if (serverOutputType == typeof(float))
-            {
-                projection = _sqlExpressionFactory.Convert(
-                        _sqlExpressionFactory.Function("SUM", new[] { projection }, typeof(double)),
-                        serverOutputType,
-                        projection.TypeMapping);
-            }
-            else
-            {
-                projection = _sqlExpressionFactory.Function(
-                    "SUM", new[] { projection }, serverOutputType, projection.TypeMapping);
-            }
+            var projection = _sqlTranslator.TranslateSum(newSelector);
 
             return AggregateResultShaper(source, projection, throwOnNullResult: false, resultType);
         }

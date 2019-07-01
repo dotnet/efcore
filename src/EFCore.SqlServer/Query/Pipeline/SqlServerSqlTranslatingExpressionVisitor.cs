@@ -31,6 +31,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Pipeline
                 ExpressionType.Divide,
                 ExpressionType.Modulo,
             };
+        // TODO: Possibly make this protected in base
+        private readonly ISqlExpressionFactory _sqlExpressionFactory;
 
         public SqlServerSqlTranslatingExpressionVisitor(
             IModel model,
@@ -40,6 +42,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Pipeline
             IMethodCallTranslatorProvider methodCallTranslatorProvider)
             : base(model, queryableMethodTranslatingExpressionVisitor, sqlExpressionFactory, memberTranslatorProvider, methodCallTranslatorProvider)
         {
+            _sqlExpressionFactory = sqlExpressionFactory;
         }
 
         protected override Expression VisitBinary(BinaryExpression binaryExpression)
@@ -57,6 +60,13 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Pipeline
                     || _dateTimeDataTypes.Contains(GetProviderType(sqlBinary.Right)))
                 ? null
                 : visitedExpression;
+        }
+
+        public override SqlExpression TranslateLongCount(Expression expression = null)
+        {
+            // TODO: Translate Count with predicate for GroupBy
+            return _sqlExpressionFactory.ApplyDefaultTypeMapping(
+                _sqlExpressionFactory.Function("COUNT_BIG", new[] { _sqlExpressionFactory.Fragment("*") }, typeof(long)));
         }
 
         private static string GetProviderType(SqlExpression expression)

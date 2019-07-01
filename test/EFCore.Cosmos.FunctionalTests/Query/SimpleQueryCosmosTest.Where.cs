@@ -1864,5 +1864,11 @@ SELECT c
 FROM root c
 WHERE ((c[""Discriminator""] = ""Order"") AND @__p_0)");
         }
+
+        [ConditionalTheory(Skip = "Issue#16391")]
+        public override Task Where_is_conditional(bool isAsync)
+        {
+            return base.Where_is_conditional(isAsync);
+        }
     }
 }
