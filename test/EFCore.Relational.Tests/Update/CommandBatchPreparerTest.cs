@@ -35,9 +35,7 @@ namespace Microsoft.EntityFrameworkCore.Update
 
             entry.SetEntityState(EntityState.Added);
 
-            var modelData = new UpdateAdapter(
-                stateManager,
-                stateManager.Context.GetDependencies().ChangeDetector);
+            var modelData = new UpdateAdapter(stateManager);
 
             var commandBatches = CreateCommandBatchPreparer().BatchCommands(new[] { entry }, modelData).ToArray();
             Assert.Equal(1, commandBatches.Length);
@@ -82,9 +80,7 @@ namespace Microsoft.EntityFrameworkCore.Update
 
             entry.SetEntityState(EntityState.Modified);
 
-            var modelData = new UpdateAdapter(
-                stateManager,
-                stateManager.Context.GetDependencies().ChangeDetector);
+            var modelData = new UpdateAdapter(stateManager);
 
             var commandBatches = CreateCommandBatchPreparer().BatchCommands(new[] { entry }, modelData).ToArray();
             Assert.Equal(1, commandBatches.Length);
@@ -129,9 +125,7 @@ namespace Microsoft.EntityFrameworkCore.Update
 
             entry.SetEntityState(EntityState.Deleted);
 
-            var modelData = new UpdateAdapter(
-                stateManager,
-                stateManager.Context.GetDependencies().ChangeDetector);
+            var modelData = new UpdateAdapter(stateManager);
 
             var commandBatches = CreateCommandBatchPreparer().BatchCommands(new[] { entry }, modelData).ToArray();
             Assert.Equal(1, commandBatches.Length);
@@ -166,9 +160,7 @@ namespace Microsoft.EntityFrameworkCore.Update
                 });
             entry.SetEntityState(EntityState.Added);
 
-            var modelData = new UpdateAdapter(
-                stateManager,
-                stateManager.Context.GetDependencies().ChangeDetector);
+            var modelData = new UpdateAdapter(stateManager);
 
             var relatedEntry = stateManager.GetOrCreateEntry(
                 new RelatedFakeEntity
@@ -198,9 +190,7 @@ namespace Microsoft.EntityFrameworkCore.Update
                 });
             entry.SetEntityState(EntityState.Added);
 
-            var modelData = new UpdateAdapter(
-                stateManager,
-                stateManager.Context.GetDependencies().ChangeDetector);
+            var modelData = new UpdateAdapter(stateManager);
 
             var relatedEntry = stateManager.GetOrCreateEntry(
                 new RelatedFakeEntity
@@ -237,9 +227,7 @@ namespace Microsoft.EntityFrameworkCore.Update
                 });
             secondEntry.SetEntityState(EntityState.Added);
 
-            var modelData = new UpdateAdapter(
-                stateManager,
-                stateManager.Context.GetDependencies().ChangeDetector);
+            var modelData = new UpdateAdapter(stateManager);
 
             var commandBatches = CreateCommandBatchPreparer().BatchCommands(new[] { secondEntry, firstEntry }, modelData).ToArray();
 
@@ -279,9 +267,7 @@ namespace Microsoft.EntityFrameworkCore.Update
             relatedEntry.SetEntityState(EntityState.Modified);
             relatedEntry.SetOriginalValue(relatedEntry.EntityType.FindProperty("RelatedId"), 42);
 
-            var modelData = new UpdateAdapter(
-                stateManager,
-                stateManager.Context.GetDependencies().ChangeDetector);
+            var modelData = new UpdateAdapter(stateManager);
 
             var commandBatches = CreateCommandBatchPreparer().BatchCommands(new[] { relatedEntry, previousParent, newParent }, modelData).ToArray();
 
@@ -320,9 +306,7 @@ namespace Microsoft.EntityFrameworkCore.Update
                 });
             newChild.SetEntityState(EntityState.Added);
 
-            var modelData = new UpdateAdapter(
-                stateManager,
-                stateManager.Context.GetDependencies().ChangeDetector);
+            var modelData = new UpdateAdapter(stateManager);
 
             var commandBatches = CreateCommandBatchPreparer().BatchCommands(new[] { newChild, previousChild }, modelData).ToArray();
 
@@ -377,9 +361,7 @@ namespace Microsoft.EntityFrameworkCore.Update
                 });
             newChildEntity.SetEntityState(EntityState.Added);
 
-            var modelData = new UpdateAdapter(
-                stateManager,
-                stateManager.Context.GetDependencies().ChangeDetector);
+            var modelData = new UpdateAdapter(stateManager);
 
             var sortedEntities = CreateCommandBatchPreparer()
                 .BatchCommands(new[] { newEntity, newChildEntity, oldEntity, oldChildEntity }, modelData)
@@ -416,9 +398,7 @@ namespace Microsoft.EntityFrameworkCore.Update
 
             var factory = (TestModificationCommandBatchFactory)configuration.GetService<IModificationCommandBatchFactory>();
 
-            var modelData = new UpdateAdapter(
-                stateManager,
-                stateManager.Context.GetDependencies().ChangeDetector);
+            var modelData = new UpdateAdapter(stateManager);
 
             var commandBatches = CreateCommandBatchPreparer(factory).BatchCommands(new[] { relatedEntry, entry }, modelData);
 
@@ -467,9 +447,7 @@ namespace Microsoft.EntityFrameworkCore.Update
             fakeEntry2.SetEntityState(EntityState.Modified);
             fakeEntry2.SetOriginalValue(fakeEntry2.EntityType.FindProperty(nameof(FakeEntity.Value)), "Test");
 
-            var modelData = new UpdateAdapter(
-                stateManager,
-                stateManager.Context.GetDependencies().ChangeDetector);
+            var modelData = new UpdateAdapter(stateManager);
 
             var sortedEntities = CreateCommandBatchPreparer()
                 .BatchCommands(new[] { fakeEntry, fakeEntry2, relatedFakeEntry }, modelData)
@@ -525,9 +503,7 @@ namespace Microsoft.EntityFrameworkCore.Update
                 });
             relatedFakeEntry.SetEntityState(EntityState.Added);
 
-            var modelData = new UpdateAdapter(
-                stateManager,
-                stateManager.Context.GetDependencies().ChangeDetector);
+            var modelData = new UpdateAdapter(stateManager);
 
             var expectedCycle = sensitiveLogging
                 ? "FakeEntity { 'Id': 42 } [Added] <- ForeignKey { 'RelatedId': 42 } RelatedFakeEntity { 'Id': 1 } [Added] <- ForeignKey { 'RelatedId': 1 } FakeEntity { 'Id': 42 } [Added]"
@@ -575,9 +551,7 @@ namespace Microsoft.EntityFrameworkCore.Update
             fakeEntry2.SetEntityState(EntityState.Modified);
             fakeEntry2.SetOriginalValue(fakeEntry2.EntityType.FindProperty(nameof(FakeEntity.UniqueValue)), "Test");
 
-            var modelData = new UpdateAdapter(
-                stateManager,
-                stateManager.Context.GetDependencies().ChangeDetector);
+            var modelData = new UpdateAdapter(stateManager);
 
             var expectedCycle = sensitiveLogging
                 ? "FakeEntity { 'Id': 42 } [Added] <- ForeignKey { 'RelatedId': 42 } RelatedFakeEntity { 'Id': 1 } [Added] <- ForeignKey { 'RelatedId': 1 } FakeEntity { 'Id': 2 } [Modified] <- Index { 'UniqueValue': Test } FakeEntity { 'Id': 42 } [Added]"
@@ -623,9 +597,7 @@ namespace Microsoft.EntityFrameworkCore.Update
                 });
             anotherFakeEntry.SetEntityState(EntityState.Deleted);
 
-            var modelData = new UpdateAdapter(
-                stateManager,
-                stateManager.Context.GetDependencies().ChangeDetector);
+            var modelData = new UpdateAdapter(stateManager);
 
             var expectedCycle = sensitiveLogging
                 ? "FakeEntity { 'Id': 1 } [Deleted] ForeignKey { 'RelatedId': 2 } <- RelatedFakeEntity { 'Id': 2 } [Deleted] ForeignKey { 'RelatedId': 1 } <- FakeEntity { 'Id': 1 } [Deleted]"
@@ -663,9 +635,7 @@ namespace Microsoft.EntityFrameworkCore.Update
             fakeEntry2.SetEntityState(EntityState.Modified);
             fakeEntry2.SetOriginalValue(fakeEntry.EntityType.FindProperty(nameof(FakeEntity.UniqueValue)), "Test");
 
-            var modelData = new UpdateAdapter(
-                stateManager,
-                stateManager.Context.GetDependencies().ChangeDetector);
+            var modelData = new UpdateAdapter(stateManager);
 
             var batches = CreateCommandBatchPreparer(updateAdapter: modelData)
                 .BatchCommands(new[] { fakeEntry, fakeEntry2 }, modelData).ToArray();
@@ -693,9 +663,7 @@ namespace Microsoft.EntityFrameworkCore.Update
             var secondEntry = stateManager.GetOrCreateEntry(second);
             secondEntry.SetEntityState(EntityState.Added);
 
-            var modelData = new UpdateAdapter(
-                stateManager,
-                stateManager.Context.GetDependencies().ChangeDetector);
+            var modelData = new UpdateAdapter(stateManager);
 
             var commandBatches = CreateCommandBatchPreparer(updateAdapter: modelData)
                 .BatchCommands(new[] { firstEntry, secondEntry }, modelData)
@@ -753,9 +721,7 @@ namespace Microsoft.EntityFrameworkCore.Update
 
             entry.SetEntityState(EntityState.Modified);
 
-            var modelData = new UpdateAdapter(
-                stateManager,
-                stateManager.Context.GetDependencies().ChangeDetector);
+            var modelData = new UpdateAdapter(stateManager);
 
             var commandBatches = CreateCommandBatchPreparer(updateAdapter: modelData)
                 .BatchCommands(new[] { entry }, modelData)
@@ -819,9 +785,7 @@ namespace Microsoft.EntityFrameworkCore.Update
             var secondEntry = stateManager.GetOrCreateEntry(second);
             secondEntry.SetEntityState(EntityState.Deleted);
 
-            var modelData = new UpdateAdapter(
-                stateManager,
-                stateManager.Context.GetDependencies().ChangeDetector);
+            var modelData = new UpdateAdapter(stateManager);
 
             var commandBatches = CreateCommandBatchPreparer(updateAdapter: modelData)
                 .BatchCommands(new[] { firstEntry, secondEntry }, modelData).ToArray();
@@ -876,9 +840,7 @@ namespace Microsoft.EntityFrameworkCore.Update
             var secondEntry = stateManager.GetOrCreateEntry(second);
             secondEntry.SetEntityState(EntityState.Deleted);
 
-            var modelData = new UpdateAdapter(
-                stateManager,
-                stateManager.Context.GetDependencies().ChangeDetector);
+            var modelData = new UpdateAdapter(stateManager);
 
             if (sensitiveLogging)
             {
@@ -937,9 +899,7 @@ namespace Microsoft.EntityFrameworkCore.Update
                 new EntityEntry<RelatedFakeEntity>(secondEntry).Property(e => e.RelatedId).OriginalValue = 2;
             }
 
-            var modelData = new UpdateAdapter(
-                stateManager,
-                stateManager.Context.GetDependencies().ChangeDetector);
+            var modelData = new UpdateAdapter(stateManager);
 
             if (useCurrentValues)
             {
@@ -1013,9 +973,7 @@ namespace Microsoft.EntityFrameworkCore.Update
             var secondEntry = stateManager.GetOrCreateEntry(second);
             secondEntry.SetEntityState(state);
 
-            var modelData = new UpdateAdapter(
-                stateManager,
-                stateManager.Context.GetDependencies().ChangeDetector);
+            var modelData = new UpdateAdapter(stateManager);
 
             if (sensitiveLogging)
             {
@@ -1059,9 +1017,7 @@ namespace Microsoft.EntityFrameworkCore.Update
             var secondEntry = stateManager.GetOrCreateEntry(second);
             secondEntry.SetEntityState(state);
 
-            var modelData = new UpdateAdapter(
-                stateManager,
-                stateManager.Context.GetDependencies().ChangeDetector);
+            var modelData = new UpdateAdapter(stateManager);
 
             var batches = CreateCommandBatchPreparer(updateAdapter: modelData, sensitiveLogging: false)
                             .BatchCommands(new[] { firstEntry, secondEntry }, modelData).ToArray();
@@ -1094,9 +1050,7 @@ namespace Microsoft.EntityFrameworkCore.Update
             var secondEntry = stateManager.GetOrCreateEntry(second);
             secondEntry.SetEntityState(state);
 
-            var modelData = new UpdateAdapter(
-                stateManager,
-                stateManager.Context.GetDependencies().ChangeDetector);
+            var modelData = new UpdateAdapter(stateManager);
 
             if (sensitiveLogging)
             {

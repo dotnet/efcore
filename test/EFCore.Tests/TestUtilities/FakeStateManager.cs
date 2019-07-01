@@ -91,6 +91,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
         public IList<IUpdateEntry> GetEntriesToSave() => Enumerable.Empty<IUpdateEntry>().ToList();
         public virtual void AcceptAllChanges() => throw new NotImplementedException();
+        public StateManagerDependencies Dependencies { get; }
         public InternalEntityEntry GetOrCreateEntry(object entity) => throw new NotImplementedException();
         public InternalEntityEntry GetOrCreateEntry(object entity, IEntityType entityType) => throw new NotImplementedException();
 
