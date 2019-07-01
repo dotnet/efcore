@@ -82,7 +82,6 @@ namespace Microsoft.EntityFrameworkCore.Query.NavigationExpansion
                     newPendingOrderings,
                     newPendingIncludeChain,
                     State.PendingCardinalityReducingOperator,
-                    State.PendingTags,
                     State.CustomRootMappings,
                     State.MaterializeCollectionNavigation);
             }

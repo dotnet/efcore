@@ -26,14 +26,12 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Pipeline
         private readonly IDiagnosticsLogger<DbLoggerCategory.Query> _logger;
 
         public InMemoryShapedQueryCompilingExpressionVisitor(
-            IEntityMaterializerSource entityMaterializerSource,
-            Type contextType,
-            IDiagnosticsLogger<DbLoggerCategory.Query> logger,
-            bool trackQueryResults, bool async)
-            : base(entityMaterializerSource, trackQueryResults, async)
+            QueryCompilationContext queryCompilationContext,
+            IEntityMaterializerSource entityMaterializerSource)
+            : base(queryCompilationContext, entityMaterializerSource)
         {
-            _contextType = contextType;
-            _logger = logger;
+            _contextType = queryCompilationContext.ContextType;
+            _logger = queryCompilationContext.Logger;
         }
 
         protected override Expression VisitExtension(Expression extensionExpression)

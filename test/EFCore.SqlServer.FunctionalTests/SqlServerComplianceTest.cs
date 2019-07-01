@@ -24,7 +24,6 @@ namespace Microsoft.EntityFrameworkCore
             typeof(InheritanceRelationshipsQueryTestBase<>),
             typeof(QueryNavigationsTestBase<>),
             typeof(ConcurrencyDetectorRelationalTestBase<>),
-            typeof(QueryTaggingTestBase<>),
             typeof(GearsOfWarFromSqlQueryTestBase<>),
             typeof(QueryNoClientEvalTestBase<>),
             typeof(WarningsTestBase<>),

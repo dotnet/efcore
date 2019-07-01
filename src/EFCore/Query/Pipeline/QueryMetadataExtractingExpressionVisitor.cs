@@ -20,6 +20,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Pipeline
             if (method.DeclaringType == typeof(EntityFrameworkQueryableExtensions)
                 && method.IsGenericMethod)
             {
+                // We visit innerQueryable first so that we can get information in the same order operators are applied.
                 var genericMethodDefinition = method.GetGenericMethodDefinition();
                 if (genericMethodDefinition == EntityFrameworkQueryableExtensions.AsTrackingMethodInfo
                     || genericMethodDefinition == EntityFrameworkQueryableExtensions.AsNoTrackingMethodInfo)
@@ -27,6 +28,14 @@ namespace Microsoft.EntityFrameworkCore.Query.Pipeline
                     var innerQueryable = Visit(methodCallExpression.Arguments[0]);
                     _queryCompilationContext.TrackQueryResults
                         = genericMethodDefinition == EntityFrameworkQueryableExtensions.AsTrackingMethodInfo;
+
+                    return innerQueryable;
+                }
+
+                if (genericMethodDefinition == EntityFrameworkQueryableExtensions.TagWithMethodInfo)
+                {
+                    var innerQueryable = Visit(methodCallExpression.Arguments[0]);
+                    _queryCompilationContext.AddTag((string)((ConstantExpression)methodCallExpression.Arguments[1]).Value);
 
                     return innerQueryable;
                 }

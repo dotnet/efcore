@@ -36,7 +36,6 @@ namespace Microsoft.EntityFrameworkCore.Query.NavigationExpansion.Visitors
 
                 if (!state.ApplyPendingSelector
                     && state.PendingOrderings.Count == 0
-                    && state.PendingTags.Count == 0
                     && state.PendingCardinalityReducingOperator == null
                     && state.MaterializeCollectionNavigation == null)
                 {
@@ -65,15 +64,6 @@ namespace Microsoft.EntityFrameworkCore.Query.NavigationExpansion.Visitors
 
                     result = Expression.Call(pendingSelectMathod, result, pendingSelector);
                     parameter = Expression.Parameter(result.Type.GetSequenceType());
-                }
-
-                if (state.PendingTags.Count > 0)
-                {
-                    var withTagMethodInfo = EntityFrameworkQueryableExtensions.TagWithMethodInfo.MakeGenericMethod(parameter.Type);
-                    foreach (var pendingTag in state.PendingTags)
-                    {
-                        result = Expression.Call(withTagMethodInfo, result, Expression.Constant(pendingTag));
-                    }
                 }
 
                 if (state.PendingCardinalityReducingOperator != null)
@@ -152,7 +142,6 @@ namespace Microsoft.EntityFrameworkCore.Query.NavigationExpansion.Visitors
                     navigationExpansionExpression.State.PendingOrderings,
                     navigationExpansionExpression.State.PendingIncludeChain,
                     navigationExpansionExpression.State.PendingCardinalityReducingOperator,
-                    navigationExpansionExpression.State.PendingTags,
                     navigationExpansionExpression.State.CustomRootMappings,
                     navigationExpansionExpression.State.MaterializeCollectionNavigation);
 

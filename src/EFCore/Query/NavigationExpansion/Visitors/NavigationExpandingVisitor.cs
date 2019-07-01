@@ -74,7 +74,6 @@ namespace Microsoft.EntityFrameworkCore.Query.NavigationExpansion.Visitors
                     navigationExpansionExpression.State.PendingIncludeChain,
                     // we need to remap cardinality reducing operator since it's source type has now changed
                     navigationExpansionExpression.State.PendingCardinalityReducingOperator.GetGenericMethodDefinition().MakeGenericMethod(newPendingSelector.Type),
-                    navigationExpansionExpression.State.PendingTags,
                     navigationExpansionExpression.State.CustomRootMappings,
                     navigationExpansionExpression.State.MaterializeCollectionNavigation);
 
@@ -160,7 +159,6 @@ namespace Microsoft.EntityFrameworkCore.Query.NavigationExpansion.Visitors
                         navigationExpansionExpression.State.PendingIncludeChain,
                         // we need to remap cardinality reducing operator since it's source type has now changed
                         navigationExpansionExpression.State.PendingCardinalityReducingOperator.GetGenericMethodDefinition().MakeGenericMethod(combinedKeySelectorBody.Type),
-                        navigationExpansionExpression.State.PendingTags,
                         navigationExpansionExpression.State.CustomRootMappings,
                         materializeCollectionNavigation: null);
 
@@ -200,7 +198,6 @@ namespace Microsoft.EntityFrameworkCore.Query.NavigationExpansion.Visitors
                 navigationExpansionExpression.State.PendingIncludeChain,
                 // we need to remap cardinality reducing operator since it's source type has now changed
                 navigationExpansionExpression.State.PendingCardinalityReducingOperator.GetGenericMethodDefinition().MakeGenericMethod(boundSelectorBody.Type),
-                navigationExpansionExpression.State.PendingTags,
                 navigationExpansionExpression.State.CustomRootMappings,
                 navigationExpansionExpression.State.MaterializeCollectionNavigation);
 
@@ -364,7 +361,6 @@ namespace Microsoft.EntityFrameworkCore.Query.NavigationExpansion.Visitors
                 navigationExpansionExpression.State.PendingIncludeChain,
                 // we need to remap cardinality reducing operator since it's source type has now changed
                 navigationExpansionExpression.State.PendingCardinalityReducingOperator?.GetGenericMethodDefinition().MakeGenericMethod(navigationKeyAccessExpression.Type),
-                navigationExpansionExpression.State.PendingTags,
                 navigationExpansionExpression.State.CustomRootMappings,
                 navigationExpansionExpression.State.MaterializeCollectionNavigation);
 

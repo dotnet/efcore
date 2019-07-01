@@ -19,11 +19,8 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Pipeline
         public ShapedQueryCompilingExpressionVisitor Create(QueryCompilationContext queryCompilationContext)
         {
             return new InMemoryShapedQueryCompilingExpressionVisitor(
-                _entityMaterializerSource,
-                queryCompilationContext.ContextType,
-                queryCompilationContext.Logger,
-                queryCompilationContext.TrackQueryResults,
-                queryCompilationContext.Async);
+                queryCompilationContext,
+                _entityMaterializerSource);
         }
     }
 

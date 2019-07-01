@@ -34,14 +34,16 @@ namespace Microsoft.EntityFrameworkCore.Query.Pipeline
         private readonly Expression _cancellationTokenParameter;
         private readonly EntityMaterializerInjectingExpressionVisitor _entityMaterializerInjectingExpressionVisitor;
 
-        public ShapedQueryCompilingExpressionVisitor(IEntityMaterializerSource entityMaterializerSource, bool trackQueryResults, bool async)
+        public ShapedQueryCompilingExpressionVisitor(
+            QueryCompilationContext queryCompilationContext,
+            IEntityMaterializerSource entityMaterializerSource)
         {
             _entityMaterializerSource = entityMaterializerSource;
-            TrackQueryResults = trackQueryResults;
+            TrackQueryResults = queryCompilationContext.TrackQueryResults;
             _entityMaterializerInjectingExpressionVisitor =
-                new EntityMaterializerInjectingExpressionVisitor(entityMaterializerSource, trackQueryResults);
-            Async = async;
-            if (async)
+                new EntityMaterializerInjectingExpressionVisitor(entityMaterializerSource, TrackQueryResults);
+            Async = queryCompilationContext.Async;
+            if (Async)
             {
                 _cancellationTokenParameter = Expression.MakeMemberAccess(
                     QueryCompilationContext.QueryContextParameter,
