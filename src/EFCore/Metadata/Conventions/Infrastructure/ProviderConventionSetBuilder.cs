@@ -104,6 +104,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure
             var databaseGeneratedAttributeConvention = new DatabaseGeneratedAttributeConvention(Dependencies);
             var requiredPropertyAttributeConvention = new RequiredPropertyAttributeConvention(Dependencies);
             var nonNullableReferencePropertyConvention = new NonNullableReferencePropertyConvention(Dependencies);
+            var nonNullableNavigationConvention = new NonNullableNavigationConvention(Dependencies);
             var maxLengthAttributeConvention = new MaxLengthAttributeConvention(Dependencies);
             var stringLengthAttributeConvention = new StringLengthAttributeConvention(Dependencies);
             var timestampAttributeConvention = new TimestampAttributeConvention(Dependencies);
@@ -171,11 +172,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure
             conventionSet.ModelFinalizedConventions.Add(foreignKeyIndexConvention);
             conventionSet.ModelFinalizedConventions.Add(foreignKeyPropertyDiscoveryConvention);
             conventionSet.ModelFinalizedConventions.Add(servicePropertyDiscoveryConvention);
+            conventionSet.ModelFinalizedConventions.Add(nonNullableReferencePropertyConvention);
+            conventionSet.ModelFinalizedConventions.Add(nonNullableNavigationConvention);
             conventionSet.ModelFinalizedConventions.Add(new ValidatingConvention(Dependencies));
+            // Don't add any more conventions to ModelFinalizedConventions after ValidatingConvention
 
             conventionSet.NavigationAddedConventions.Add(backingFieldConvention);
             conventionSet.NavigationAddedConventions.Add(new RequiredNavigationAttributeConvention(Dependencies));
-            conventionSet.NavigationAddedConventions.Add(new NonNullableNavigationConvention(Dependencies));
+            conventionSet.NavigationAddedConventions.Add(nonNullableNavigationConvention);
             conventionSet.NavigationAddedConventions.Add(inversePropertyAttributeConvention);
             conventionSet.NavigationAddedConventions.Add(foreignKeyPropertyDiscoveryConvention);
             conventionSet.NavigationAddedConventions.Add(relationshipDiscoveryConvention);
