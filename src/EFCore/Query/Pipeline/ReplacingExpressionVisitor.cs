@@ -52,6 +52,12 @@ namespace Microsoft.EntityFrameworkCore.Query.Pipeline
         {
             var innerExpression = Visit(memberExpression.Expression);
 
+            if (innerExpression is GroupByShaperExpression groupByShaperExpression
+                && memberExpression.Member.Name == nameof(IGrouping<int, int>.Key))
+            {
+                return groupByShaperExpression.KeySelector;
+            }
+
             if (innerExpression is NewExpression newExpression)
             {
                 var index = newExpression.Members.IndexOf(memberExpression.Member);
