@@ -712,11 +712,15 @@ ORDER BY [t].[CustomerID]");
 @__p_1='2'
 
 SELECT [o].[CustomerID]
-FROM [Order Details] AS [o0]
-INNER JOIN [Orders] AS [o] ON [o0].[OrderID] = [o].[OrderID]
-WHERE [o0].[Quantity] = CAST(10 AS smallint)
-ORDER BY [o0].[OrderID], [o0].[ProductID]
-OFFSET @__p_0 ROWS FETCH NEXT @__p_1 ROWS ONLY");
+FROM (
+    SELECT [o0].[OrderID], [o0].[ProductID], [o0].[Discount], [o0].[Quantity], [o0].[UnitPrice]
+    FROM [Order Details] AS [o0]
+    WHERE [o0].[Quantity] = CAST(10 AS smallint)
+    ORDER BY [o0].[OrderID], [o0].[ProductID]
+    OFFSET @__p_0 ROWS FETCH NEXT @__p_1 ROWS ONLY
+) AS [t]
+INNER JOIN [Orders] AS [o] ON [t].[OrderID] = [o].[OrderID]
+ORDER BY [t].[OrderID], [t].[ProductID]");
             }
         }
 

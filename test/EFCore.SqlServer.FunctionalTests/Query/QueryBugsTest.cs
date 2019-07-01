@@ -3746,7 +3746,7 @@ WHERE [b].[IsTwo] IN (CAST(0 AS bit), CAST(1 AS bit))");
 
         #region Bug11818_11831
 
-        [ConditionalFact(Skip = "issue #15249")]
+        [ConditionalFact]
         public virtual void GroupJoin_Anonymous_projection_GroupBy_Aggregate_join_elimination()
         {
             using (CreateDatabase11818())
@@ -3772,19 +3772,15 @@ WHERE [b].[IsTwo] IN (CAST(0 AS bit), CAST(1 AS bit))");
                         .ToList();
 
                     AssertSql(
-                @"SELECT [t].[Name] AS [Key], COUNT(*) + 5 AS [cnt]
-FROM [Table] AS [e]
-LEFT JOIN (
-    SELECT [a].*
-    FROM [Table] AS [a]
-    WHERE [a].[Name] IS NOT NULL
-) AS [t] ON [e].[Id] = [t].[Id]
+                        @"SELECT [t].[Name] AS [Key], COUNT(*) + 5 AS [cnt]
+FROM [Table] AS [t0]
+LEFT JOIN [Table] AS [t] ON [t0].[Id] = [t].[Id]
 GROUP BY [t].[Name]");
                 }
             }
         }
 
-        [ConditionalFact(Skip = "issue #15249")]
+        [ConditionalFact]
         public virtual void GroupJoin_Anonymous_projection_GroupBy_Aggregate_join_elimination_2()
         {
             using (CreateDatabase11818())
@@ -3817,20 +3813,12 @@ GROUP BY [t].[Name]");
                             })
                         .ToList();
 
-                    AssertSql(
+            AssertSql(
                 @"SELECT [t].[Name] AS [MyKey], COUNT(*) + 5 AS [cnt]
-FROM [Table] AS [e]
-LEFT JOIN (
-    SELECT [a].*
-    FROM [Table] AS [a]
-    WHERE [a].[Name] IS NOT NULL
-) AS [t] ON [e].[Id] = [t].[Id]
-LEFT JOIN (
-    SELECT [m].*
-    FROM [Table] AS [m]
-    WHERE [m].[MaumarEntity11818_Name] IS NOT NULL
-) AS [t0] ON [e].[Id] = [t0].[Id]
-GROUP BY [t].[Name], [t0].[MaumarEntity11818_Name]");
+FROM [Table] AS [t0]
+LEFT JOIN [Table] AS [t] ON [t0].[Id] = [t].[Id]
+LEFT JOIN [Table] AS [t1] ON [t0].[Id] = [t1].[Id]
+GROUP BY [t].[Name], [t1].[MaumarEntity11818_Name]");
                 }
             }
         }

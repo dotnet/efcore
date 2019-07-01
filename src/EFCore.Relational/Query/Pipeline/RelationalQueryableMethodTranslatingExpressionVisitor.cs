@@ -266,7 +266,105 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
             return source;
         }
 
-        protected override ShapedQueryExpression TranslateGroupBy(ShapedQueryExpression source, LambdaExpression keySelector, LambdaExpression elementSelector, LambdaExpression resultSelector) => throw new NotImplementedException();
+        protected override ShapedQueryExpression TranslateGroupBy(
+            ShapedQueryExpression source,
+            LambdaExpression keySelector,
+            LambdaExpression elementSelector,
+            LambdaExpression resultSelector)
+        {
+            var selectExpression = (SelectExpression)source.QueryExpression;
+            selectExpression.PrepareForAggregate();
+
+            var remappedKeySelector = RemapLambdaBody(source.ShaperExpression, keySelector);
+
+            var translatedKey = TranslateGroupingKey(remappedKeySelector)
+                ?? (remappedKeySelector is ConstantExpression ? remappedKeySelector : null);
+            if (translatedKey != null)
+            {
+                if (elementSelector != null)
+                {
+                    source = TranslateSelect(source, elementSelector);
+                }
+
+                var sqlKeySelector = translatedKey is ConstantExpression
+                    ? _sqlExpressionFactory.ApplyDefaultTypeMapping(_sqlExpressionFactory.Constant(1))
+                    : translatedKey;
+
+                var appliedKeySelector = selectExpression.ApplyGrouping(sqlKeySelector);
+                translatedKey = translatedKey is ConstantExpression ? translatedKey : appliedKeySelector;
+
+                source.ShaperExpression = new GroupByShaperExpression(translatedKey, source.ShaperExpression);
+
+                if (resultSelector == null)
+                {
+                    return source;
+                }
+
+                var keyAccessExpression = Expression.MakeMemberAccess(
+                    source.ShaperExpression,
+                    source.ShaperExpression.Type.GetTypeInfo().GetMember(nameof(IGrouping<int, int>.Key))[0]);
+
+                var newResultSelectorBody = ReplacingExpressionVisitor.Replace(
+                    resultSelector.Parameters[0], keyAccessExpression,
+                    resultSelector.Parameters[1], source.ShaperExpression,
+                    resultSelector.Body);
+
+                source.ShaperExpression = _projectionBindingExpressionVisitor.Translate(selectExpression, newResultSelectorBody);
+
+                return source;
+            }
+
+            throw new InvalidOperationException();
+        }
+
+        private Expression TranslateGroupingKey(Expression expression)
+        {
+            if (expression is NewExpression newExpression)
+            {
+                if (newExpression.Arguments.Count == 0)
+                {
+                    return newExpression;
+                }
+
+                var newArguments = new Expression[newExpression.Arguments.Count];
+                for (var i = 0; i < newArguments.Length; i++)
+                {
+                    newArguments[i] = TranslateGroupingKey(newExpression.Arguments[i]);
+                    if (newArguments[i] == null)
+                    {
+                        return null;
+                    }
+                }
+
+                return newExpression.Update(newArguments);
+            }
+
+            if (expression is MemberInitExpression memberInitExpression)
+            {
+                var updatedNewExpression = (NewExpression)TranslateGroupingKey(memberInitExpression.NewExpression);
+                if (updatedNewExpression == null)
+                {
+                    return null;
+                }
+
+                var newBindings = new MemberAssignment[memberInitExpression.Bindings.Count];
+                for (var i = 0; i < newBindings.Length; i++)
+                {
+                    var memberAssignment = (MemberAssignment)memberInitExpression.Bindings[i];
+                    var visitedExpression = TranslateGroupingKey(memberAssignment.Expression);
+                    if (visitedExpression == null)
+                    {
+                        return null;
+                    }
+
+                    newBindings[i] = memberAssignment.Update(visitedExpression);
+                }
+
+                return memberInitExpression.Update(updatedNewExpression, newBindings);
+            }
+
+            return _sqlTranslator.Translate(expression);
+        }
 
         protected override ShapedQueryExpression TranslateGroupJoin(ShapedQueryExpression outer, ShapedQueryExpression inner, LambdaExpression outerKeySelector, LambdaExpression innerKeySelector, LambdaExpression resultSelector)
         {
@@ -589,9 +687,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
             }
 
             var newSelectorBody = ReplacingExpressionVisitor.Replace(selector.Parameters.Single(), source.ShaperExpression, selector.Body);
-
-            source.ShaperExpression = _projectionBindingExpressionVisitor
-                .Translate(selectExpression, newSelectorBody);
+            source.ShaperExpression = _projectionBindingExpressionVisitor.Translate(selectExpression, newSelectorBody);
 
             return source;
         }
@@ -599,7 +695,8 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
         private static readonly MethodInfo _defaultIfEmptyWithoutArgMethodInfo = typeof(Enumerable).GetTypeInfo()
             .GetDeclaredMethods(nameof(Enumerable.DefaultIfEmpty)).Single(mi => mi.GetParameters().Length == 1);
 
-        protected override ShapedQueryExpression TranslateSelectMany(ShapedQueryExpression source, LambdaExpression collectionSelector, LambdaExpression resultSelector)
+        protected override ShapedQueryExpression TranslateSelectMany(
+            ShapedQueryExpression source, LambdaExpression collectionSelector, LambdaExpression resultSelector)
         {
             var collectionSelectorBody = collectionSelector.Body;
             //var defaultIfEmpty = false;
