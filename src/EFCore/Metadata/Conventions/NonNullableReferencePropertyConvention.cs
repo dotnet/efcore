@@ -29,7 +29,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             // If the model is spread across multiple assemblies, it may contain different NullableAttribute types as
             // the compiler synthesizes them for each assembly.
             if (propertyBuilder.Metadata.GetIdentifyingMemberInfo() is MemberInfo memberInfo
-                && IsNonNullable(memberInfo))
+                && IsNonNullable(propertyBuilder.ModelBuilder, memberInfo))
             {
                 propertyBuilder.IsRequired(true);
             }
