@@ -1598,7 +1598,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 return;
             }
 
-            _targetUpdateAdapter = UpdateAdapterFactory.Create(target);
+            _targetUpdateAdapter = UpdateAdapterFactory.CreateStandalone(target);
 
             foreach (var targetEntityType in target.GetEntityTypes())
             {
@@ -1616,7 +1616,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 return;
             }
 
-            _sourceUpdateAdapter = UpdateAdapterFactory.Create(source);
+            _sourceUpdateAdapter = UpdateAdapterFactory.CreateStandalone(source);
 
             foreach (var sourceEntityType in source.GetEntityTypes())
             {

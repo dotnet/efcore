@@ -4,6 +4,7 @@
 using System.Collections.Generic;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 
 namespace Microsoft.EntityFrameworkCore.Update.Internal
@@ -25,12 +26,10 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public UpdateAdapter(
-            [NotNull] IStateManager stateManager,
-            [NotNull] IChangeDetector changeDetector)
+        public UpdateAdapter([NotNull] IStateManager stateManager)
         {
             _stateManager = stateManager;
-            _changeDetector = changeDetector;
+            _changeDetector = _stateManager.Context.GetDependencies().ChangeDetector;
         }
 
         /// <summary>

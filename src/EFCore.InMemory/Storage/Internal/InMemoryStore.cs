@@ -89,7 +89,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
                     // ReSharper disable once AssignmentIsFullyDiscarded
                     _tables = CreateTables();
 
-                    var updateAdapter = updateAdapterFactory.Create();
+                    var updateAdapter = updateAdapterFactory.CreateStandalone();
                     var entries = new List<IUpdateEntry>();
                     foreach (var entityType in updateAdapter.Model.GetEntityTypes())
                     {
