@@ -18,7 +18,6 @@ namespace Microsoft.EntityFrameworkCore.Query.NavigationExpansion
             List<(MethodInfo method, LambdaExpression keySelector)> pendingOrderings,
             NavigationBindingExpression pendingIncludeChain,
             MethodInfo pendingCardinalityReducingOperator,
-            List<string> pendingTags,
             List<List<string>> customRootMappings,
             INavigation materializeCollectionNavigation)
         {
@@ -29,7 +28,6 @@ namespace Microsoft.EntityFrameworkCore.Query.NavigationExpansion
             PendingOrderings = pendingOrderings;
             PendingIncludeChain = pendingIncludeChain;
             PendingCardinalityReducingOperator = pendingCardinalityReducingOperator;
-            PendingTags = pendingTags;
             CustomRootMappings = customRootMappings;
             MaterializeCollectionNavigation = materializeCollectionNavigation;
         }
@@ -41,7 +39,6 @@ namespace Microsoft.EntityFrameworkCore.Query.NavigationExpansion
         public virtual List<(MethodInfo method, LambdaExpression keySelector)> PendingOrderings { get; set; }
         public virtual NavigationBindingExpression PendingIncludeChain { get; set; }
         public virtual MethodInfo PendingCardinalityReducingOperator { get; set; }
-        public virtual List<string> PendingTags { get; set; }
         public virtual List<List<string>> CustomRootMappings { get; set; }
         public virtual INavigation MaterializeCollectionNavigation { get; set; }
     }

@@ -97,9 +97,6 @@ namespace Microsoft.EntityFrameworkCore.Query.NavigationExpansion.Visitors
                 case "ThenInclude":
                     return ProcessInclude(methodCallExpression);
 
-                case nameof(EntityFrameworkQueryableExtensions.TagWith):
-                    return ProcessWithTag(methodCallExpression);
-
                 default:
                     return ProcessUnknownMethod(methodCallExpression);
             }
@@ -164,7 +161,6 @@ namespace Microsoft.EntityFrameworkCore.Query.NavigationExpansion.Visitors
                 new List<(MethodInfo method, LambdaExpression keySelector)>(),
                 pendingIncludeChain: null,
                 pendingCardinalityReducingOperator: null,
-                pendingTags: new List<string>(),
                 new List<List<string>> { customRootMapping },
                 materializeCollectionNavigation: null);
 
@@ -411,11 +407,8 @@ namespace Microsoft.EntityFrameworkCore.Query.NavigationExpansion.Visitors
                 pendingOrderings: new List<(MethodInfo method, LambdaExpression keySelector)>(),
                 pendingIncludeChain: null,
                 pendingCardinalityReducingOperator: null,
-                pendingTags: collectionSelectorState.PendingTags.ToList(),
                 customRootMappings: customRootMappingMapping.Values.ToList(),
                 materializeCollectionNavigation: null);
-
-            collectionSelectorState.PendingTags.Clear();
 
             return groupingState;
         }
@@ -634,7 +627,6 @@ namespace Microsoft.EntityFrameworkCore.Query.NavigationExpansion.Visitors
                 outerApplyOrderingsResult.state.PendingOrderings,
                 outerApplyOrderingsResult.state.PendingIncludeChain,
                 outerApplyOrderingsResult.state.PendingCardinalityReducingOperator,
-                outerApplyOrderingsResult.state.PendingTags,
                 outerApplyOrderingsResult.state.CustomRootMappings.Concat(new[] { groupingMapping }).ToList(),
                 materializeCollectionNavigation: null);
 
@@ -918,7 +910,6 @@ namespace Microsoft.EntityFrameworkCore.Query.NavigationExpansion.Visitors
                     new List<(MethodInfo method, LambdaExpression keySelector)>(),
                     pendingIncludeChain: null,
                     pendingCardinalityReducingOperator: null,
-                    pendingTags: new List<string>(),
                     new List<List<string>> { customRootMapping },
                     materializeCollectionNavigation: null);
 
@@ -1252,15 +1243,6 @@ namespace Microsoft.EntityFrameworkCore.Query.NavigationExpansion.Visitors
             return new NavigationExpansionExpression(methodCallExpression, source.State, methodCallExpression.Type);
         }
 
-        private Expression ProcessWithTag(MethodCallExpression methodCallExpression)
-        {
-            var source = VisitSourceExpression(methodCallExpression.Arguments[0]);
-            var tag = (string)((ConstantExpression)methodCallExpression.Arguments[1]).Value;
-            source.State.PendingTags.Add(tag);
-
-            return source;
-        }
-
         protected override Expression VisitConstant(ConstantExpression constantExpression)
         {
             if (constantExpression.Value != null
@@ -1353,7 +1335,6 @@ namespace Microsoft.EntityFrameworkCore.Query.NavigationExpansion.Visitors
                 state.PendingOrderings,
                 state.PendingIncludeChain,
                 state.PendingCardinalityReducingOperator,
-                state.PendingTags,
                 state.CustomRootMappings,
                 state.MaterializeCollectionNavigation);
 
@@ -1431,7 +1412,6 @@ namespace Microsoft.EntityFrameworkCore.Query.NavigationExpansion.Visitors
                 new List<(MethodInfo method, LambdaExpression keySelector)>(),
                 pendingIncludeChain: null,
                 pendingCardinalityReducingOperator: null,
-                outerState.PendingTags.Concat(innerState.PendingTags).ToList(),
                 outerState.CustomRootMappings.Concat(innerState.CustomRootMappings).ToList(),
                 materializeCollectionNavigation: null);
 

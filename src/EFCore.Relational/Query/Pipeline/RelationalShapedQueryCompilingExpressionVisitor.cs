@@ -22,28 +22,28 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
         private readonly IParameterNameGeneratorFactory _parameterNameGeneratorFactory;
         private readonly Type _contextType;
         private readonly IDiagnosticsLogger<DbLoggerCategory.Query> _logger;
+        private readonly ISet<string> _tags;
 
         public RelationalShapedQueryCompilingExpressionVisitor(
+            QueryCompilationContext queryCompilationContext,
             IEntityMaterializerSource entityMaterializerSource,
             IQuerySqlGeneratorFactory querySqlGeneratorFactory,
             ISqlExpressionFactory sqlExpressionFactory,
-            IParameterNameGeneratorFactory parameterNameGeneratorFactory,
-            Type contextType,
-            IDiagnosticsLogger<DbLoggerCategory.Query> logger,
-            bool trackQueryResults,
-            bool async)
-            : base(entityMaterializerSource, trackQueryResults, async)
+            IParameterNameGeneratorFactory parameterNameGeneratorFactory)
+            : base(queryCompilationContext, entityMaterializerSource)
         {
             _querySqlGeneratorFactory = querySqlGeneratorFactory;
             _sqlExpressionFactory = sqlExpressionFactory;
             _parameterNameGeneratorFactory = parameterNameGeneratorFactory;
-            _contextType = contextType;
-            _logger = logger;
+            _contextType = queryCompilationContext.ContextType;
+            _logger = queryCompilationContext.Logger;
+            _tags = queryCompilationContext.Tags;
         }
 
         protected override Expression VisitShapedQueryExpression(ShapedQueryExpression shapedQueryExpression)
         {
             var selectExpression = (SelectExpression)shapedQueryExpression.QueryExpression;
+            selectExpression.ApplyTags(_tags);
 
             var dataReaderParameter = Expression.Parameter(typeof(DbDataReader), "dataReader");
             var resultCoordinatorParameter = Expression.Parameter(typeof(ResultCoordinator), "resultCoordinator");

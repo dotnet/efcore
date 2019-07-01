@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions;
@@ -55,13 +56,45 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
             }
             else
             {
+                GenerateTagsHeaderComment(selectExpression);
+
                 VisitSelect(selectExpression);
             }
 
             return _relationalCommandBuilder.Build();
         }
 
+        /// <summary>
+        ///     The default alias separator.
+        /// </summary>
+        protected virtual string AliasSeparator { get; } = " AS ";
+
+        /// <summary>
+        ///     The default single line comment prefix.
+        /// </summary>
+        protected virtual string SingleLineCommentToken { get; } = "--";
+
         protected virtual IRelationalCommandBuilder Sql => _relationalCommandBuilder;
+
+        protected virtual void GenerateTagsHeaderComment(SelectExpression selectExpression)
+        {
+            if (selectExpression.Tags.Count > 0)
+            {
+                foreach (var tag in selectExpression.Tags)
+                {
+                    using (var reader = new StringReader(tag))
+                    {
+                        string line;
+                        while ((line = reader.ReadLine()) != null)
+                        {
+                            _relationalCommandBuilder.Append(SingleLineCommentToken).Append(" ").AppendLine(line);
+                        }
+                    }
+
+                    _relationalCommandBuilder.AppendLine();
+                }
+            }
+        }
 
         protected override Expression VisitSqlFragment(SqlFragmentExpression sqlFragmentExpression)
         {
@@ -94,7 +127,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
                 subQueryIndent.Dispose();
 
                 _relationalCommandBuilder.AppendLine()
-                    .Append(") AS " + _sqlGenerationHelper.DelimitIdentifier(selectExpression.Alias));
+                    .Append(")" + AliasSeparator + _sqlGenerationHelper.DelimitIdentifier(selectExpression.Alias));
             }
 
             return selectExpression;
@@ -193,7 +226,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
                 && !(projectionExpression.Expression is ColumnExpression column
                      && string.Equals(column.Name, projectionExpression.Alias)))
             {
-                _relationalCommandBuilder.Append(" AS " + _sqlGenerationHelper.DelimitIdentifier(projectionExpression.Alias));
+                _relationalCommandBuilder.Append(AliasSeparator + _sqlGenerationHelper.DelimitIdentifier(projectionExpression.Alias));
             }
 
             return projectionExpression;
@@ -248,7 +281,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
         {
             _relationalCommandBuilder
                 .Append(_sqlGenerationHelper.DelimitIdentifier(tableExpression.Table, tableExpression.Schema))
-                .Append(" AS ")
+                .Append(AliasSeparator)
                 .Append(_sqlGenerationHelper.DelimitIdentifier(tableExpression.Alias));
 
             return tableExpression;
@@ -297,7 +330,8 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
                 GenerateFromSql(fromSqlExpression);
             }
 
-            _relationalCommandBuilder.Append(") AS ")
+            _relationalCommandBuilder.Append(")")
+                .Append(AliasSeparator)
                 .Append(_sqlGenerationHelper.DelimitIdentifier(fromSqlExpression.Alias));
 
             return fromSqlExpression;

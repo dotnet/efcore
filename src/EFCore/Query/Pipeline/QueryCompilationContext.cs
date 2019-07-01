@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
@@ -48,8 +49,14 @@ namespace Microsoft.EntityFrameworkCore.Query.Pipeline
         public IModel Model { get; }
         public IDbContextOptions ContextOptions { get; }
         public bool TrackQueryResults { get; internal set; }
+        public ISet<string> Tags { get; } = new HashSet<string>();
         public virtual IDiagnosticsLogger<DbLoggerCategory.Query> Logger { get; }
         public virtual Type ContextType { get; }
+
+        public virtual void AddTag(string tag)
+        {
+            Tags.Add(tag);
+        }
 
         public virtual Func<QueryContext, TResult> CreateQueryExecutor<TResult>(Expression query)
         {
