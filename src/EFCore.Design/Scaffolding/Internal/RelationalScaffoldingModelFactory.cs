@@ -327,6 +327,11 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
             builder.ToTable(table.Name, table.Schema);
 
+            if (table.Comment != null)
+            {
+                builder.HasComment(table.Comment);
+            }
+
             VisitColumns(builder, table.Columns);
 
             if (table.PrimaryKey != null)
@@ -456,6 +461,11 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             if (column.ComputedColumnSql != null)
             {
                 property.HasComputedColumnSql(column.ComputedColumnSql);
+            }
+
+            if (column.Comment != null)
+            {
+                property.HasComment(column.Comment);
             }
 
             if (!(column.Table.PrimaryKey?.Columns.Contains(column) ?? false))

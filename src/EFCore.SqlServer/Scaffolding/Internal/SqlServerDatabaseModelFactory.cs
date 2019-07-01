@@ -444,7 +444,8 @@ WHERE " + schemaFilter("OBJECT_SCHEMA_NAME([s].[object_id])");
                 var commandText = @"
 SELECT
     SCHEMA_NAME([t].[schema_id]) AS [schema],
-    [t].[name]";
+    [t].[name],
+    CAST([e].[value] AS nvarchar(MAX)) AS [comment]";
 
                 if (supportsMemoryOptimizedTable)
                 {
@@ -453,7 +454,8 @@ SELECT
                 }
 
                 commandText += @"
-FROM [sys].[tables] AS [t]";
+FROM [sys].[tables] AS [t]
+LEFT JOIN [sys].[extended_properties] AS [e] ON [e].[major_id] = [t].[object_id] AND [e].[minor_id] = 0 AND [e].[class] = 1 AND [e].[name] = 'MS_Description'";
 
                 var filter = @"[t].[is_ms_shipped] = 0
 AND NOT EXISTS (SELECT *
@@ -484,7 +486,8 @@ WHERE " + filter;
 UNION
 SELECT
     SCHEMA_NAME([v].[schema_id]) AS [schema],
-    [v].[name]";
+    [v].[name],
+    CAST([e].[value] AS nvarchar(MAX)) AS [comment]";
 
                 if (supportsMemoryOptimizedTable)
                 {
@@ -493,8 +496,8 @@ SELECT
                 }
 
                 viewCommandText += @"
-FROM [sys].[views] AS [v]";
-
+FROM [sys].[views] AS [v]
+LEFT JOIN [sys].[extended_properties] AS [e] ON [e].[major_id] = [v].[object_id] AND [e].[minor_id] = 0 AND [e].[class] = 1 AND [e].[name] = 'MS_Description'";
 
                 var viewFilter = @"[v].[is_ms_shipped] = 0
 AND [v].[is_date_correlation_view] = 0 ";
@@ -516,13 +519,15 @@ WHERE " + viewFilter;
                     {
                         var schema = reader.GetValueOrDefault<string>("schema");
                         var name = reader.GetValueOrDefault<string>("name");
+                        var comment = reader.GetValueOrDefault<string>("comment");
 
                         _logger.TableFound(DisplayName(schema, name));
 
                         var table = new DatabaseTable
                         {
                             Schema = schema,
-                            Name = name
+                            Name = name,
+                            Comment = comment,
                         };
 
                         if (supportsMemoryOptimizedTable)
@@ -569,7 +574,8 @@ SELECT
     [c].[is_nullable],
     [c].[is_identity],
     [dc].[definition] AS [default_sql],
-    [cc].[definition] AS [computed_sql]
+    [cc].[definition] AS [computed_sql],
+    CAST([e].[value] AS nvarchar(MAX)) AS [comment] 
 FROM
 (
     SELECT[v].[name], [v].[object_id], [v].[schema_id]
@@ -588,6 +594,7 @@ UNION ALL
 ) o
 JOIN [sys].[columns] AS [c] ON [o].[object_id] = [c].[object_id]
 JOIN [sys].[types] AS [tp] ON [c].[user_type_id] = [tp].[user_type_id]
+LEFT JOIN [sys].[extended_properties] AS [e] ON [e].[major_id] = [o].[object_id] AND [e].[minor_id] = [c].[column_id] AND [e].[class] = 1 AND [e].[name] = 'MS_Description'
 LEFT JOIN [sys].[computed_columns] AS [cc] ON [c].[object_id] = [cc].[object_id] AND [c].[column_id] = [cc].[column_id]
 LEFT JOIN [sys].[default_constraints] AS [dc] ON [c].[object_id] = [dc].[parent_object_id] AND [c].[column_id] = [dc].[parent_column_id]";
 
@@ -628,6 +635,7 @@ ORDER BY [table_schema], [table_name], [c].[column_id]";
                             var isIdentity = dataRecord.GetValueOrDefault<bool>("is_identity");
                             var defaultValue = dataRecord.GetValueOrDefault<string>("default_sql");
                             var computedValue = dataRecord.GetValueOrDefault<string>("computed_sql");
+                            var comment = dataRecord.GetValueOrDefault<string>("comment");
 
                             _logger.ColumnFound(
                                 DisplayName(tableSchema, tableName),
@@ -667,6 +675,7 @@ ORDER BY [table_schema], [table_name], [c].[column_id]";
                                 IsNullable = nullable,
                                 DefaultValueSql = defaultValue,
                                 ComputedColumnSql = computedValue,
+                                Comment = comment,
                                 ValueGenerated = isIdentity
                                     ? ValueGenerated.OnAdd
                                     : storeType == "rowversion"

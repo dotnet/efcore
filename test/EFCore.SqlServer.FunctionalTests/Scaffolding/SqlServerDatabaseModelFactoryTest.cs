@@ -637,7 +637,16 @@ CREATE TABLE [Blogs] (
 CREATE TABLE [dbo].[Blogs] (
     Id int,
     Name nvarchar(100) NOT NULL,
-);",
+);
+EXECUTE sys.sp_addextendedproperty @name = N'MS_Description', @value = N'Blog table comment.
+On multiple lines.',
+    @level0type = N'SCHEMA', @level0name = 'dbo', 
+	@level1type = N'TABLE', @level1name = 'Blogs';
+EXECUTE sys.sp_addextendedproperty @name = N'MS_Description', @value = N'Blog.Id column comment.',
+    @level0type = N'SCHEMA', @level0name = 'dbo', 
+	@level1type = N'TABLE', @level1name = 'Blogs',
+	@level2type = N'COLUMN', @level2name = 'Id';
+",
                 Enumerable.Empty<string>(),
                 Enumerable.Empty<string>(),
                 dbModel =>
@@ -650,10 +659,14 @@ CREATE TABLE [dbo].[Blogs] (
                         {
                             Assert.Equal("dbo", c.Table.Schema);
                             Assert.Equal("Blogs", c.Table.Name);
+                            Assert.Equal(@"Blog table comment.
+On multiple lines.", c.Table.Comment);
                         });
 
                     Assert.Single(table.Columns.Where(c => c.Name == "Id"));
                     Assert.Single(table.Columns.Where(c => c.Name == "Name"));
+                    Assert.Single(table.Columns.Where(c => c.Comment == "Blog.Id column comment."));
+                    Assert.Equal(1, table.Columns.Where(c => c.Comment != null).Count());
                 },
                 "DROP TABLE [dbo].[Blogs]");
         }
