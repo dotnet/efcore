@@ -95,16 +95,16 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
                             Expression.Constant(parameterExpression.Name));
                     }
 
+                    if (expression is MaterializeCollectionNavigationExpression materializeCollectionNavigationExpression)
+                    {
+                        return _selectExpression.AddCollectionProjection(
+                            _queryableMethodTranslatingExpressionVisitor.TranslateSubquery(
+                                materializeCollectionNavigationExpression.Subquery),
+                            materializeCollectionNavigationExpression.Navigation, null);
+                    }
+
                     if (expression is MethodCallExpression methodCallExpression)
                     {
-                        if (methodCallExpression.Method.Name == "MaterializeCollectionNavigation")
-                        {
-                            var result = _queryableMethodTranslatingExpressionVisitor.TranslateSubquery(methodCallExpression.Arguments[0]);
-                            var navigation = (INavigation)((ConstantExpression)methodCallExpression.Arguments[1]).Value;
-
-                            return _selectExpression.AddCollectionProjection(result, navigation, null);
-                        }
-
                         if (methodCallExpression.Method.IsGenericMethod
                             && methodCallExpression.Method.DeclaringType == typeof(Enumerable)
                             && methodCallExpression.Method.Name == nameof(Enumerable.ToList))

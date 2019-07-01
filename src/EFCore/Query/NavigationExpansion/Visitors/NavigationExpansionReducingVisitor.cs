@@ -83,16 +83,7 @@ namespace Microsoft.EntityFrameworkCore.Query.NavigationExpansion.Visitors
 
                 if (state.MaterializeCollectionNavigation != null)
                 {
-                    var entityType = state.MaterializeCollectionNavigation.ClrType.IsGenericType
-                        ? state.MaterializeCollectionNavigation.ClrType.GetGenericArguments()[0]
-                        : state.MaterializeCollectionNavigation.GetTargetType().ClrType;
-
-                    result = Expression.Call(
-                        NavigationExpansionHelpers.MaterializeCollectionNavigationMethodInfo.MakeGenericMethod(
-                            state.MaterializeCollectionNavigation.ClrType,
-                            entityType),
-                        result,
-                        Expression.Constant(state.MaterializeCollectionNavigation));
+                    result = new MaterializeCollectionNavigationExpression(result, state.MaterializeCollectionNavigation);
                 }
 
                 if (navigationExpansionExpression.Type != result.Type && navigationExpansionExpression.Type.IsGenericType)

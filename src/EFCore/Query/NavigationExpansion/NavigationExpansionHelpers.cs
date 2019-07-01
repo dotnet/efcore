@@ -8,7 +8,6 @@ using System.Linq.Expressions;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Query.Expressions.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 
@@ -276,19 +275,5 @@ namespace Microsoft.EntityFrameworkCore.Query.NavigationExpansion
                             Expression.Constant(null),
                             keyCount)))
                 : (Expression)Expression.Constant(null);
-
-        public static readonly MethodInfo MaterializeCollectionNavigationMethodInfo
-            = typeof(NavigationExpansionHelpers).GetTypeInfo()
-                .GetDeclaredMethod(nameof(MaterializeCollectionNavigation));
-
-        public static TResult MaterializeCollectionNavigation<TResult, TEntity>(
-            IEnumerable<object> elements,
-            INavigation navigation)
-            where TResult : IEnumerable<TEntity>
-        {
-            var collection = navigation.GetCollectionAccessor().Create(elements);
-
-            return (TResult)collection;
-        }
     }
 }
