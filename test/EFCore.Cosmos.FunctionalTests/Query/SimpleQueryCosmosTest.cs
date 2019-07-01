@@ -3642,6 +3642,7 @@ FROM root c
 WHERE ((c[""Discriminator""] = ""Order"") AND ((c[""OrderID""] > 690) AND (c[""OrderID""] < 710)))");
         }
 
+        [ConditionalTheory(Skip = "Should work, requires testing etc.")]
         public override async Task OrderBy_empty_list_contains(bool isAsync)
         {
             await base.OrderBy_empty_list_contains(isAsync);
@@ -3652,6 +3653,7 @@ FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
 
+        [ConditionalTheory(Skip = "Should work, requires testing etc.")]
         public override async Task OrderBy_empty_list_does_not_contains(bool isAsync)
         {
             await base.OrderBy_empty_list_does_not_contains(isAsync);
