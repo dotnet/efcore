@@ -40,8 +40,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             Check.NotNull(relationshipBuilder, nameof(relationshipBuilder));
             Check.NotNull(navigation, nameof(navigation));
 
-            if (!IsNonNullable(navigation)
-                || navigation.IsCollection())
+            var modelBuilder = relationshipBuilder.ModelBuilder;
+
+            if (!IsNonNullable(modelBuilder, navigation) || navigation.IsCollection())
             {
                 return;
             }
@@ -51,7 +52,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 var inverse = navigation.FindInverse();
                 if (inverse != null)
                 {
-                    if (IsNonNullable(inverse))
+                    if (IsNonNullable(modelBuilder, inverse))
                     {
                         Dependencies.Logger.NonNullableReferenceOnBothNavigations(navigation, inverse);
                         return;
@@ -82,9 +83,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             context.StopProcessingIfChanged(relationshipBuilder.Metadata.DependentToPrincipal);
         }
 
-        private bool IsNonNullable(IConventionNavigation navigation)
+        private bool IsNonNullable(IConventionModelBuilder modelBuilder, IConventionNavigation navigation)
             => navigation.DeclaringEntityType.HasClrType()
                && navigation.DeclaringEntityType.GetRuntimeProperties().Find(navigation.Name) is PropertyInfo propertyInfo
-               && IsNonNullable(propertyInfo);
+               && IsNonNullable(modelBuilder, propertyInfo);
     }
 }
