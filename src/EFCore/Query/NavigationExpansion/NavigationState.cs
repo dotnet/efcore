@@ -3,26 +3,31 @@
 
 namespace Microsoft.EntityFrameworkCore.Query.NavigationExpansion
 {
-    public enum NavigationTreeNodeIncludeMode
+    public enum NavigationState
     {
         /// <summary>
-        ///     Navigation doesn't need to be included
+        ///     Navigation doesn't need to be processed
         /// </summary>
         NotNeeded,
 
         /// <summary>
-        ///     Navigation needs to be included, but hasn't been included yet
+        ///     Reference navigation needs to be processed, but hasn't been processed yet
         /// </summary>
         ReferencePending,
 
         /// <summary>
-        ///     Navigation has already been included
+        ///     Reference navigation has already been processed
         /// </summary>
         ReferenceComplete,
 
         /// <summary>
-        ///     Collection navigation needs to be included
+        ///     Collection navigation needs to be processed, but hasn't been processed yet
         /// </summary>
-        Collection,
+        CollectionPending,
+
+        /// <summary>
+        ///     Collection navigation has already been processed
+        /// </summary>
+        CollectionComplete,
     };
 }

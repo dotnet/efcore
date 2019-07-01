@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore.Query.NavigationExpansion;
@@ -71,8 +70,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
         }
 
         private LambdaExpression ConvertToLambda(Expression result, ParameterExpression resultParameter)
-        {
-            return _indexMapParameter != null
+            => _indexMapParameter != null
                 ? Expression.Lambda(
                     result,
                     QueryCompilationContext.QueryContextParameter,
@@ -86,7 +84,6 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
                     _dataReaderParameter,
                     resultParameter,
                     _resultCoordinatorParameter);
-        }
 
         protected override Expression VisitExtension(Expression extensionExpression)
         {
@@ -186,10 +183,8 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
         }
 
         private Expression GenerateKey(ProjectionBindingExpression projectionBindingExpression)
-        {
-            return projectionBindingExpression.ProjectionMember != null
+            => projectionBindingExpression.ProjectionMember != null
                 ? _selectExpression.GetMappedProjection(projectionBindingExpression.ProjectionMember)
                 : projectionBindingExpression;
-        }
     }
 }

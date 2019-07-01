@@ -18,6 +18,7 @@ using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Query.Internal;
+using Microsoft.EntityFrameworkCore.Query.NavigationExpansion;
 using Microsoft.EntityFrameworkCore.Query.Pipeline;
 using Microsoft.EntityFrameworkCore.Storage;
 using Newtonsoft.Json.Linq;
@@ -169,77 +170,80 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Pipeline
 
             protected override Expression VisitExtension(Expression extensionExpression)
             {
-                if (extensionExpression is ProjectionBindingExpression projectionBindingExpression)
+                switch (extensionExpression)
                 {
-                    var projectionIndex = (int)GetProjectionIndex(projectionBindingExpression);
-                    var projection = _selectExpression.Projection[projectionIndex];
+                    case ProjectionBindingExpression projectionBindingExpression:
+                        {
+                            var projectionIndex = (int)GetProjectionIndex(projectionBindingExpression);
+                            var projection = _selectExpression.Projection[projectionIndex];
 
-                    return CreateGetStoreValueExpression(
-                        _jObjectParameter,
-                        projection.Alias,
-                        ((SqlExpression)projection.Expression).TypeMapping,
-                        projectionBindingExpression.Type);
-                }
+                            return CreateGetStoreValueExpression(
+                                _jObjectParameter,
+                                projection.Alias,
+                                ((SqlExpression)projection.Expression).TypeMapping,
+                                projectionBindingExpression.Type);
+                        }
 
-                if (extensionExpression is EntityShaperExpression shaperExpression)
-                {
-                    _currentEntityIndex++;
+                    case EntityShaperExpression shaperExpression:
+                        {
+                            _currentEntityIndex++;
 
-                    var jObjectVariable = Expression.Variable(typeof(JObject),
-                        "jObject" + _currentEntityIndex);
-                    var variables = new List<ParameterExpression> { jObjectVariable };
+                            var jObjectVariable = Expression.Variable(typeof(JObject),
+                                "jObject" + _currentEntityIndex);
+                            var variables = new List<ParameterExpression> { jObjectVariable };
 
-                    var expressions = new List<Expression>();
+                            var expressions = new List<Expression>();
 
-                    if (shaperExpression.ParentNavigation == null)
-                    {
-                        var projectionIndex = (int)GetProjectionIndex((ProjectionBindingExpression)shaperExpression.ValueBufferExpression);
-                        var projection = _selectExpression.Projection[projectionIndex];
+                            if (shaperExpression.ParentNavigation == null)
+                            {
+                                var projectionIndex = (int)GetProjectionIndex((ProjectionBindingExpression)shaperExpression.ValueBufferExpression);
+                                var projection = _selectExpression.Projection[projectionIndex];
 
-                        expressions.Add(
-                            Expression.Assign(
-                                jObjectVariable,
-                                Expression.TypeAs(
-                                    CreateReadJTokenExpression(_jObjectParameter, projection.Alias),
-                                    typeof(JObject))));
+                                expressions.Add(
+                                    Expression.Assign(
+                                        jObjectVariable,
+                                        Expression.TypeAs(
+                                            CreateReadJTokenExpression(_jObjectParameter, projection.Alias),
+                                            typeof(JObject))));
 
-                        shaperExpression = shaperExpression.Update(
-                            shaperExpression.ValueBufferExpression,
-                            GetNestedShapers(shaperExpression.EntityType, shaperExpression.ValueBufferExpression));
-                    }
-                    else
-                    {
-                        var methodCallExpression = (MethodCallExpression)shaperExpression.ValueBufferExpression;
-                        Debug.Assert(methodCallExpression.Method.IsGenericMethod
-                            && methodCallExpression.Method.GetGenericMethodDefinition() == EntityMaterializerSource.TryReadValueMethod);
+                                shaperExpression = shaperExpression.Update(
+                                    shaperExpression.ValueBufferExpression,
+                                    GetNestedShapers(shaperExpression.EntityType, shaperExpression.ValueBufferExpression));
+                            }
+                            else
+                            {
+                                var methodCallExpression = (MethodCallExpression)shaperExpression.ValueBufferExpression;
+                                Debug.Assert(methodCallExpression.Method.IsGenericMethod
+                                    && methodCallExpression.Method.GetGenericMethodDefinition() == EntityMaterializerSource.TryReadValueMethod);
 
-                        var navigation = (INavigation)((ConstantExpression)methodCallExpression.Arguments[2]).Value;
+                                var navigation = (INavigation)((ConstantExpression)methodCallExpression.Arguments[2]).Value;
 
-                        expressions.Add(
-                            Expression.Assign(
-                                jObjectVariable,
-                                Expression.TypeAs(
-                                    CreateReadJTokenExpression(_jObjectParameter, navigation.GetTargetType().GetCosmosContainingPropertyName()),
-                                    typeof(JObject))));
-                    }
+                                expressions.Add(
+                                    Expression.Assign(
+                                        jObjectVariable,
+                                        Expression.TypeAs(
+                                            CreateReadJTokenExpression(_jObjectParameter, navigation.GetTargetType().GetCosmosContainingPropertyName()),
+                                            typeof(JObject))));
+                            }
 
-                    var parentJObject = _jObjectParameter;
-                    _jObjectParameter = jObjectVariable;
-                    expressions.Add(Expression.Condition(
-                        Expression.Equal(jObjectVariable, Expression.Constant(null, jObjectVariable.Type)),
-                        Expression.Constant(null, shaperExpression.Type),
-                        Visit(_shapedQueryCompilingExpressionVisitor.InjectEntityMaterializer(shaperExpression))));
-                    _jObjectParameter = parentJObject;
+                            var parentJObject = _jObjectParameter;
+                            _jObjectParameter = jObjectVariable;
+                            expressions.Add(Expression.Condition(
+                                Expression.Equal(jObjectVariable, Expression.Constant(null, jObjectVariable.Type)),
+                                Expression.Constant(null, shaperExpression.Type),
+                                Visit(_shapedQueryCompilingExpressionVisitor.InjectEntityMaterializer(shaperExpression))));
+                            _jObjectParameter = parentJObject;
 
-                    return Expression.Block(
-                        shaperExpression.Type,
-                        variables,
-                        expressions);
-                }
+                            return Expression.Block(
+                                shaperExpression.Type,
+                                variables,
+                                expressions);
+                        }
 
-                if (extensionExpression is CollectionShaperExpression collectionShaperExpression)
-                {
-                    throw new NotImplementedException();
+                    case CollectionShaperExpression collectionShaperExpression:
+                        throw new NotImplementedException();
+                    case IncludeExpression includeExpression:
+                        return includeExpression;
                 }
 
                 return base.VisitExtension(extensionExpression);

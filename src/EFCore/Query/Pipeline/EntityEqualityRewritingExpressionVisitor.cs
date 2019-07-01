@@ -17,10 +17,10 @@ using Microsoft.EntityFrameworkCore.Query.NavigationExpansion;
 namespace Microsoft.EntityFrameworkCore.Query.Pipeline
 {
     /// <summary>
-    /// Rewrites comparisons of entities (as opposed to comparisons of their properties) into comparison of their keys.
+    ///     Rewrites comparisons of entities (as opposed to comparisons of their properties) into comparison of their keys.
     /// </summary>
     /// <remarks>
-    /// For example, an expression such as cs.Where(c => c == something) would be rewritten to cs.Where(c => c.Id == something.Id).
+    ///     For example, an expression such as cs.Where(c => c == something) would be rewritten to cs.Where(c => c.Id == something.Id).
     /// </remarks>
     public class EntityEqualityRewritingExpressionVisitor : ExpressionVisitor
     {

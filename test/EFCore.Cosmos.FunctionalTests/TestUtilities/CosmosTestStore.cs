@@ -34,7 +34,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.TestUtilities
 
         private CosmosTestStore(
             string name, bool shared = true, string dataFilePath = null, Action<CosmosDbContextOptionsBuilder> extensionConfiguration = null)
-            : base(name + _runId.ToString(), shared)
+            : base(CreateName(name), shared)
         {
             ConnectionUri = TestEnvironment.DefaultConnection;
             AuthToken = TestEnvironment.AuthToken;
@@ -49,6 +49,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.TestUtilities
                     dataFilePath);
             }
         }
+
+        private static string CreateName(string name) => name == "Northwind" ? name : (name + _runId.ToString());
 
         public string ConnectionUri { get; }
         public string AuthToken { get; }

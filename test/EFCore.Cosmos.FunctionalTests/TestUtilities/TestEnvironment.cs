@@ -16,8 +16,12 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.TestUtilities
             .Build()
             .GetSection("Test:Cosmos");
 
-        public static string DefaultConnection { get; } = Config["DefaultConnection"] ?? "https://localhost:8081";
+        public static string DefaultConnection { get; } = string.IsNullOrEmpty(Config["DefaultConnection"])
+            ? "https://localhost:8081"
+            : Config["DefaultConnection"];
 
-        public static string AuthToken { get; } = Config["AuthToken"] ?? "";
+        public static string AuthToken { get; } = string.IsNullOrEmpty(Config["AuthToken"])
+            ? "C2y6yDjf5/R+ob0N8A7Cgv30VRDJIWEHLM+4QDU5DE2nQ9nDuVTqobD4b8mGGyPMbIZnqyMsEcaGQy67XIw/Jw=="
+            : Config["AuthToken"];
     }
 }
