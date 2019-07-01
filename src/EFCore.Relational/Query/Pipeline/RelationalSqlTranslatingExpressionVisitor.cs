@@ -41,7 +41,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
             _sqlVerifyingExpressionVisitor = new SqlTypeMappingVerifyingExpressionVisitor();
         }
 
-        public SqlExpression Translate(Expression expression)
+        public virtual SqlExpression Translate(Expression expression)
         {
             var result = Visit(expression);
 
@@ -62,6 +62,83 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
             }
 
             return null;
+        }
+
+        public virtual SqlExpression TranslateAverage(Expression expression)
+        {
+            if (!(expression is SqlExpression sqlExpression))
+            {
+                sqlExpression = Translate(expression);
+            }
+
+            var inputType = sqlExpression.Type.UnwrapNullableType();
+            if (inputType == typeof(int)
+                || inputType == typeof(long))
+            {
+                sqlExpression = _sqlExpressionFactory.ApplyDefaultTypeMapping(
+                    _sqlExpressionFactory.Convert(sqlExpression, typeof(double)));
+            }
+
+            return inputType == typeof(float)
+                ? _sqlExpressionFactory.Convert(
+                        _sqlExpressionFactory.Function(
+                            "AVG", new[] { sqlExpression }, typeof(double), null),
+                        sqlExpression.Type,
+                        sqlExpression.TypeMapping)
+                : (SqlExpression)_sqlExpressionFactory.Function(
+                    "AVG", new[] { sqlExpression }, sqlExpression.Type, sqlExpression.TypeMapping);
+        }
+
+        public virtual SqlExpression TranslateCount(Expression expression = null)
+        {
+            // TODO: Translate Count with predicate for GroupBy
+            return _sqlExpressionFactory.ApplyDefaultTypeMapping(
+                _sqlExpressionFactory.Function("COUNT", new[] { _sqlExpressionFactory.Fragment("*") }, typeof(int)));
+        }
+
+        public virtual SqlExpression TranslateLongCount(Expression expression = null)
+        {
+            // TODO: Translate Count with predicate for GroupBy
+            return _sqlExpressionFactory.ApplyDefaultTypeMapping(
+                _sqlExpressionFactory.Function("COUNT", new[] { _sqlExpressionFactory.Fragment("*") }, typeof(long)));
+        }
+
+        public virtual SqlExpression TranslateMax(Expression expression)
+        {
+            if (!(expression is SqlExpression sqlExpression))
+            {
+                sqlExpression = Translate(expression);
+            }
+
+            return _sqlExpressionFactory.Function("MAX", new[] { sqlExpression }, sqlExpression.Type, sqlExpression.TypeMapping);
+        }
+
+        public virtual SqlExpression TranslateMin(Expression expression)
+        {
+            if (!(expression is SqlExpression sqlExpression))
+            {
+                sqlExpression = Translate(expression);
+            }
+
+            return _sqlExpressionFactory.Function("MIN", new[] { sqlExpression }, sqlExpression.Type, sqlExpression.TypeMapping);
+        }
+
+        public virtual SqlExpression TranslateSum(Expression expression)
+        {
+            if (!(expression is SqlExpression sqlExpression))
+            {
+                sqlExpression = Translate(expression);
+            }
+
+            var inputType = sqlExpression.Type.UnwrapNullableType();
+
+            return inputType == typeof(float)
+                ? _sqlExpressionFactory.Convert(
+                        _sqlExpressionFactory.Function("SUM", new[] { sqlExpression }, typeof(double)),
+                        inputType,
+                        sqlExpression.TypeMapping)
+                : (SqlExpression)_sqlExpressionFactory.Function(
+                    "SUM", new[] { sqlExpression }, inputType, sqlExpression.TypeMapping);
         }
 
         private class SqlTypeMappingVerifyingExpressionVisitor : ExpressionVisitor
