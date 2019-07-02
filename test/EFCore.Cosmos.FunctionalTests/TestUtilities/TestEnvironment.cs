@@ -8,22 +8,16 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.TestUtilities
 {
     public static class TestEnvironment
     {
-        public static IConfiguration Config { get; }
+        public static IConfiguration Config { get; } = new ConfigurationBuilder()
+            .SetBasePath(Directory.GetCurrentDirectory())
+            .AddJsonFile("config.json", optional: true)
+            .AddJsonFile("config.test.json", optional: true)
+            .AddEnvironmentVariables()
+            .Build()
+            .GetSection("Test:Cosmos");
 
-        static TestEnvironment()
-        {
-            var configBuilder = new ConfigurationBuilder()
-                .SetBasePath(Directory.GetCurrentDirectory())
-                .AddJsonFile("config.json", optional: true)
-                .AddJsonFile("config.test.json", optional: true)
-                .AddEnvironmentVariables();
+        public static string DefaultConnection { get; } = Config["DefaultConnection"] ?? "https://localhost:8081";
 
-            Config = configBuilder.Build()
-                .GetSection("Test:Cosmos:Sql");
-        }
-
-        public static string DefaultConnection => Config["DefaultConnection"] ?? "https://localhost:8081";
-
-        public static string AuthToken => Config["AuthToken"] ?? "";
+        public static string AuthToken { get; } = Config["AuthToken"] ?? "";
     }
 }

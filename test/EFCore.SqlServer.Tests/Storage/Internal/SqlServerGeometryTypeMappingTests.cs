@@ -9,7 +9,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
 {
     public class SqlServerGeometryTypeMappingTests
     {
-        [Fact]
+        [ConditionalFact]
         public void GenerateSqlLiteral_works()
         {
             Assert.Equal("geometry::Parse('POINT (1 2)')", Literal(new Point(1, 2), "geometry"));

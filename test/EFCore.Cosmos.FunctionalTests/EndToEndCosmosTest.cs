@@ -24,9 +24,9 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
         }
 
         [ConditionalFact(Skip = "Issue#16146")]
-        public void Can_add_update_delete_end_to_end()
+        public async Task Can_add_update_delete_end_to_end()
         {
-            using (var testDatabase = CosmosTestStore.CreateInitialized(DatabaseName))
+            await using (var testDatabase = CosmosTestStore.CreateInitialized(DatabaseName))
             {
                 var options = Fixture.CreateOptions(testDatabase);
 
@@ -75,7 +75,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
         [ConditionalFact(Skip = "Issue#16146")]
         public async Task Can_add_update_delete_end_to_end_async()
         {
-            using (var testDatabase = CosmosTestStore.CreateInitialized(DatabaseName))
+            await using (var testDatabase = CosmosTestStore.CreateInitialized(DatabaseName))
             {
                 var options = Fixture.CreateOptions(testDatabase);
 
@@ -144,7 +144,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
         [ConditionalFact(Skip = "Issue #16146")]
         public async Task Can_add_update_delete_detached_entity_end_to_end_async()
         {
-            using (var testDatabase = CosmosTestStore.CreateInitialized(DatabaseName))
+            await using (var testDatabase = CosmosTestStore.CreateInitialized(DatabaseName))
             {
                 var options = Fixture.CreateOptions(testDatabase);
 
@@ -211,9 +211,9 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
         }
 
         [ConditionalFact(Skip = "Issue#16146")]
-        public void Can_add_update_delete_end_to_end_with_partition_key()
+        public async Task Can_add_update_delete_end_to_end_with_partition_key()
         {
-            using (var testDatabase = CosmosTestStore.CreateInitialized(DatabaseName))
+            await using (var testDatabase = CosmosTestStore.CreateInitialized(DatabaseName))
             {
                 var options = Fixture.CreateOptions(testDatabase);
 
@@ -275,9 +275,9 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
         }
 
         [ConditionalFact]
-        public void Can_update_unmapped_properties()
+        public async Task Can_update_unmapped_properties()
         {
-            using (var testDatabase = CosmosTestStore.CreateInitialized(DatabaseName))
+            await using (var testDatabase = CosmosTestStore.CreateInitialized(DatabaseName))
             {
                 var options = Fixture.CreateOptions(testDatabase);
 
@@ -340,9 +340,9 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
         }
 
         [ConditionalFact(Skip = "Issue#16146")]
-        public void Can_use_non_persisted_properties()
+        public async Task Can_use_non_persisted_properties()
         {
-            using (var testDatabase = CosmosTestStore.CreateInitialized(DatabaseName))
+            await using (var testDatabase = CosmosTestStore.CreateInitialized(DatabaseName))
             {
                 var options = Fixture.CreateOptions(testDatabase);
 
@@ -388,7 +388,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
         [ConditionalFact]
         public async Task Using_a_conflicting_incompatible_id_throws()
         {
-            using (var testDatabase = CosmosTestStore.CreateInitialized(DatabaseName))
+            await using (var testDatabase = CosmosTestStore.CreateInitialized(DatabaseName))
             {
                 var options = Fixture.CreateOptions(testDatabase);
 
@@ -430,7 +430,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
         [ConditionalFact(Skip = "Issue #16146")]
         public async Task Can_add_update_delete_end_to_end_with_conflicting_id()
         {
-            using (var testDatabase = CosmosTestStore.CreateInitialized(DatabaseName))
+            await using (var testDatabase = CosmosTestStore.CreateInitialized(DatabaseName))
             {
                 var options = Fixture.CreateOptions(testDatabase);
 

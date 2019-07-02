@@ -733,7 +733,7 @@ AND (([UnitsInStock] + [UnitsOnOrder]) < [ReorderLevel])"))
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void FromSqlRaw_with_dbParameter_without_name_prefix()
         {
             using (var context = CreateContext())
