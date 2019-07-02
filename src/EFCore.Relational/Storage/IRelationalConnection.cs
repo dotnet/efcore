@@ -80,14 +80,11 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <summary>
         ///     Closes the connection to the database.
         /// </summary>
-        /// <param name="cancellationToken">
-        ///     A <see cref="CancellationToken" /> to observe while waiting for the task to complete.
-        /// </param>
         /// <returns>
         ///     A task that represents the asynchronous operation, with a value of true if the connection
         ///     was actually closed.
         /// </returns>
-        Task<bool> CloseAsync(CancellationToken cancellationToken = default);
+        Task<bool> CloseAsync();
 
         /// <summary>
         ///     Gets a value indicating whether the multiple active result sets feature is enabled.

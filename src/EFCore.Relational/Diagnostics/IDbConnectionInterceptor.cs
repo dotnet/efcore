@@ -131,7 +131,6 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     its implementation of this method.
         ///     This value is typically used as the return value for the implementation of this method.
         /// </param>
-        /// <param name="cancellationToken"> The cancellation token. </param>
         /// <returns>
         ///     If the <see cref="Task" /> result is null, then EF will close the connection as normal.
         ///     If the <see cref="Task" /> result is non-null value, then connection closing is suppressed.
@@ -141,8 +140,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         Task<InterceptionResult?> ConnectionClosingAsync(
             [NotNull] DbConnection connection,
             [NotNull] ConnectionEventData eventData,
-            InterceptionResult? result,
-            CancellationToken cancellationToken = default);
+            InterceptionResult? result);
 
         /// <summary>
         ///     Called just after EF has called <see cref="DbConnection.Close()" /> in an async context.
@@ -158,12 +156,10 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// </summary>
         /// <param name="connection"> The connection. </param>
         /// <param name="eventData"> Contextual information about the connection. </param>
-        /// <param name="cancellationToken"> The cancellation token. </param>
         /// <returns> A <see cref="Task"/> representing the asynchronous operation. </returns>
         Task ConnectionClosedAsync(
             [NotNull] DbConnection connection,
-            [NotNull] ConnectionEndEventData eventData,
-            CancellationToken cancellationToken = default);
+            [NotNull] ConnectionEndEventData eventData);
 
         /// <summary>
         ///     Called when closing of a connection has failed with an exception. />.

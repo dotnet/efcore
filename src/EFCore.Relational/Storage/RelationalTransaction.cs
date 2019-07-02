@@ -349,7 +349,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             {
                 _connectionClosed = true;
 
-                await Connection.CloseAsync(cancellationToken);
+                await Connection.CloseAsync();
             }
         }
 
