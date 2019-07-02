@@ -1290,13 +1290,11 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="diagnostics"> The diagnostics logger to use. </param>
         /// <param name="connection"> The connection. </param>
         /// <param name="startTime"> The time that the operation was started. </param>
-        /// <param name="cancellationToken"> The cancellation token. </param>
         /// <returns> A <see cref="Task"/> representing the async operation. </returns>
         public static Task<InterceptionResult?> ConnectionClosingAsync(
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Connection> diagnostics,
             [NotNull] IRelationalConnection connection,
-            DateTimeOffset startTime,
-            CancellationToken cancellationToken = default)
+            DateTimeOffset startTime)
         {
             var definition = RelationalResources.LogClosingConnection(diagnostics);
 
@@ -1318,7 +1316,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
 
                 if (interceptor != null)
                 {
-                    return interceptor.ConnectionClosingAsync(connection.DbConnection, eventData, null, cancellationToken);
+                    return interceptor.ConnectionClosingAsync(connection.DbConnection, eventData, null);
                 }
             }
 
@@ -1417,14 +1415,12 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="connection"> The connection. </param>
         /// <param name="startTime"> The time that the operation was started. </param>
         /// <param name="duration"> The amount of time before the connection was closed. </param>
-        /// <param name="cancellationToken"> The cancellation token. </param>
         /// <returns> A <see cref="Task"/> representing the async operation. </returns>
         public static Task ConnectionClosedAsync(
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Connection> diagnostics,
             [NotNull] IRelationalConnection connection,
             DateTimeOffset startTime,
-            TimeSpan duration,
-            CancellationToken cancellationToken = default)
+            TimeSpan duration)
         {
             var definition = RelationalResources.LogClosedConnection(diagnostics);
 
@@ -1447,7 +1443,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
 
                 if (interceptor != null)
                 {
-                    return interceptor.ConnectionClosedAsync(connection.DbConnection, eventData, cancellationToken);
+                    return interceptor.ConnectionClosedAsync(connection.DbConnection, eventData);
                 }
             }
 

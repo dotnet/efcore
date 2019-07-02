@@ -178,6 +178,19 @@ namespace Microsoft.EntityFrameworkCore
         [ConditionalFact]
         public virtual void Async_methods_should_have_overload_with_cancellation_token_and_end_with_async_suffix()
         {
+            var withoutCancellationToken = new HashSet<string>
+            {
+                "RelationalDatabaseFacadeExtensions.CloseConnectionAsync",
+                "IRelationalConnection.CloseAsync",
+                "RelationalConnection.CloseAsync",
+                "DbConnectionInterceptor.ConnectionClosingAsync",
+                "DbConnectionInterceptor.ConnectionClosedAsync",
+                "IDbConnectionInterceptor.ConnectionClosingAsync",
+                "IDbConnectionInterceptor.ConnectionClosedAsync",
+                "RelationalLoggerExtensions.ConnectionClosingAsync",
+                "RelationalLoggerExtensions.ConnectionClosedAsync"
+            };
+
             var asyncMethods
                 = (from type in GetAllTypes(TargetAssembly.GetTypes())
                    where type.GetTypeInfo().IsVisible
@@ -194,7 +207,8 @@ namespace Microsoft.EntityFrameworkCore
 
             var asyncMethodsWithoutToken
                 = (from method in asyncMethods
-                   where method.GetParameters().All(pi => pi.ParameterType != typeof(CancellationToken))
+                   where !withoutCancellationToken.Contains(method.DeclaringType.Name + "." + method.Name)
+                       && method.GetParameters().All(pi => pi.ParameterType != typeof(CancellationToken))
                    select method).ToList();
 
             var missingOverloads

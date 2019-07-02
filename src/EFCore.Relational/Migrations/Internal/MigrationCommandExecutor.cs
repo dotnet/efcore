@@ -139,7 +139,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 }
                 finally
                 {
-                    await connection.CloseAsync(cancellationToken);
+                    await connection.CloseAsync();
                 }
             }
             finally
