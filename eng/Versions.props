@@ -5,8 +5,7 @@
     <IncludeSourceRevisionInInformationalVersion>False</IncludeSourceRevisionInInformationalVersion>
   </PropertyGroup>
   <PropertyGroup Label="Arcade settings">
-    <!-- Opt-in to using the version of the Roslyn compiler bundled with Arcade. -->
-    <UsingToolMicrosoftNetCompilers>true</UsingToolMicrosoftNetCompilers>
+    <!-- Opt-in to using the ref assembly version bundled with Arcade. -->
     <UsingToolNetFrameworkReferenceAssemblies>True</UsingToolNetFrameworkReferenceAssemblies>
     <UsingToolXliff>False</UsingToolXliff>
   </PropertyGroup>
@@ -50,6 +49,9 @@
     <MicrosoftNETCoreAppRuntimewinx64PackageVersion>3.0.0-preview7-27901-06</MicrosoftNETCoreAppRuntimewinx64PackageVersion>
     <NETStandardLibraryRefPackageVersion>2.1.0-preview7-27901-06</NETStandardLibraryRefPackageVersion>
   </PropertyGroup>
+  <PropertyGroup Label="Dependencies from dotnet/roslyn">
+    <MicrosoftNetCompilersToolsetVersion>3.3.0-beta1-19351-01</MicrosoftNetCompilersToolsetVersion>
+  </PropertyGroup>
   <PropertyGroup Label="Dependency version settings">
     <!--
       Win-x64 is used here because we have picked an arbitrary runtime identifier to flow the version of the latest NETCore.App runtime.
@@ -63,6 +65,10 @@
       $(RestoreSources);
       https://dotnetfeed.blob.core.windows.net/dotnet-core/index.json;
       https://dotnetfeed.blob.core.windows.net/aspnet-extensions/index.json;
+    </RestoreSources>
+    <RestoreSources Condition="'$(DotNetBuildOffline)' != 'true' AND $(MicrosoftNetCompilersToolsetVersion.Contains('-')) ">
+      $(RestoreSources);
+      https://dotnet.myget.org/F/roslyn/api/v3/index.json;
     </RestoreSources>
   </PropertyGroup>
 </Project>

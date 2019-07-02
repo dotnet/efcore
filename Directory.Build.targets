@@ -16,6 +16,12 @@
     <KnownFrameworkReference Update="NETStandard.Library">
       <TargetingPackVersion Condition="'%(TargetFramework)' == 'netstandard2.1'">$(NETStandardLibraryRefPackageVersion)</TargetingPackVersion>
     </KnownFrameworkReference>
+
+    <!-- Track compiler separately from Arcade.-->
+    <PackageReference Include="Microsoft.Net.Compilers.Toolset"
+        Version="$(MicrosoftNetCompilersToolsetVersion)"
+        PrivateAssets="all"
+        IsImplicitlyDefined="true" />
   </ItemGroup>
 
 </Project>
