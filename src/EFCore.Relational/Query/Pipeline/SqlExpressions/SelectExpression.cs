@@ -1075,9 +1075,9 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
                 var orderings = new List<OrderingExpression>();
                 foreach (var ordering in _orderings)
                 {
-                    var newOrdering = (OrderingExpression)visitor.Visit(ordering);
-                    changed |= newOrdering != ordering;
-                    orderings.Add(newOrdering);
+                    var orderingExpression = (SqlExpression)visitor.Visit(ordering.Expression);
+                    changed |= orderingExpression != ordering.Expression;
+                    orderings.Add(ordering.Update(orderingExpression));
                 }
 
                 var offset = (SqlExpression)visitor.Visit(Offset);

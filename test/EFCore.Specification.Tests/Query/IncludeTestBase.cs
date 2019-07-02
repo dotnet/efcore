@@ -3933,7 +3933,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalTheory]
+        [ConditionalTheory(Skip = "Issue#15713")]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Include_collection_OrderBy_empty_list_contains(bool useString)
@@ -3968,7 +3968,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalTheory]
+        [ConditionalTheory(Skip = "Issue#15713")]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Include_collection_OrderBy_empty_list_does_not_contains(bool useString)

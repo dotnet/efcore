@@ -1116,19 +1116,24 @@ ORDER BY [o].[OrderID], [o0].[OrderID], [o0].[ProductID]");
             AssertSql(
                 @"@__p_1='1'
 
-SELECT [t].[CustomerID], [t].[Address], [t].[City], [t].[CompanyName], [t].[ContactName], [t].[ContactTitle], [t].[Country], [t].[Fax], [t].[Phone], [t].[PostalCode], [t].[Region], [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
-FROM (
-    SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], CASE
-        WHEN CAST(1 AS bit) = CAST(0 AS bit) THEN CAST(1 AS bit)
-        ELSE CAST(0 AS bit)
-    END AS [c]
-    FROM [Customers] AS [c]
-    WHERE [c].[CustomerID] LIKE N'A%'
-    ORDER BY (SELECT 1)
+SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] LIKE N'A%'
+ORDER BY (SELECT 1), [c].[CustomerID]
+OFFSET @__p_1 ROWS",
+                //
+                @"@__p_1='1'
+
+SELECT [c.Orders].[OrderID], [c.Orders].[CustomerID], [c.Orders].[EmployeeID], [c.Orders].[OrderDate]
+FROM [Orders] AS [c.Orders]
+INNER JOIN (
+    SELECT [c0].[CustomerID], CAST(0 AS bit) AS [c]
+    FROM [Customers] AS [c0]
+    WHERE [c0].[CustomerID] LIKE N'A%'
+    ORDER BY [c], [c0].[CustomerID]
     OFFSET @__p_1 ROWS
-) AS [t]
-LEFT JOIN [Orders] AS [o] ON [t].[CustomerID] = [o].[CustomerID]
-ORDER BY [t].[c], [t].[CustomerID], [o].[OrderID]");
+) AS [t] ON [c.Orders].[CustomerID] = [t].[CustomerID]
+ORDER BY [t].[c], [t].[CustomerID]");
         }
 
         public override void Include_collection_OrderBy_empty_list_does_not_contains(bool useString)
@@ -1138,19 +1143,24 @@ ORDER BY [t].[c], [t].[CustomerID], [o].[OrderID]");
             AssertSql(
                 @"@__p_1='1'
 
-SELECT [t].[CustomerID], [t].[Address], [t].[City], [t].[CompanyName], [t].[ContactName], [t].[ContactTitle], [t].[Country], [t].[Fax], [t].[Phone], [t].[PostalCode], [t].[Region], [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
-FROM (
-    SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], CASE
-        WHEN CAST(1 AS bit) = CAST(1 AS bit) THEN CAST(1 AS bit)
-        ELSE CAST(0 AS bit)
-    END AS [c]
-    FROM [Customers] AS [c]
-    WHERE [c].[CustomerID] LIKE N'A%'
-    ORDER BY (SELECT 1)
+SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] LIKE N'A%'
+ORDER BY (SELECT 1), [c].[CustomerID]
+OFFSET @__p_1 ROWS",
+                //
+                @"@__p_1='1'
+
+SELECT [c.Orders].[OrderID], [c.Orders].[CustomerID], [c.Orders].[EmployeeID], [c.Orders].[OrderDate]
+FROM [Orders] AS [c.Orders]
+INNER JOIN (
+    SELECT [c0].[CustomerID], CAST(1 AS bit) AS [c]
+    FROM [Customers] AS [c0]
+    WHERE [c0].[CustomerID] LIKE N'A%'
+    ORDER BY [c], [c0].[CustomerID]
     OFFSET @__p_1 ROWS
-) AS [t]
-LEFT JOIN [Orders] AS [o] ON [t].[CustomerID] = [o].[CustomerID]
-ORDER BY [t].[c], [t].[CustomerID], [o].[OrderID]");
+) AS [t] ON [c.Orders].[CustomerID] = [t].[CustomerID]
+ORDER BY [t].[c], [t].[CustomerID]");
         }
 
         public override void Include_collection_OrderBy_list_contains(bool useString)
