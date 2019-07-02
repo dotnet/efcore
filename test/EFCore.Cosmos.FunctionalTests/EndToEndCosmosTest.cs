@@ -23,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
             Fixture = fixture;
         }
 
-        [ConditionalFact]
+        [ConditionalFact(Skip = "Issue#16146")]
         public void Can_add_update_delete_end_to_end()
         {
             using (var testDatabase = CosmosTestStore.CreateInitialized(DatabaseName))
@@ -72,7 +72,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
             }
         }
 
-        [ConditionalFact]
+        [ConditionalFact(Skip = "Issue#16146")]
         public async Task Can_add_update_delete_end_to_end_async()
         {
             using (var testDatabase = CosmosTestStore.CreateInitialized(DatabaseName))
@@ -210,7 +210,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
             }
         }
 
-        [ConditionalFact]
+        [ConditionalFact(Skip = "Issue#16146")]
         public void Can_add_update_delete_end_to_end_with_partition_key()
         {
             using (var testDatabase = CosmosTestStore.CreateInitialized(DatabaseName))
@@ -339,7 +339,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
             }
         }
 
-        [ConditionalFact]
+        [ConditionalFact(Skip = "Issue#16146")]
         public void Can_use_non_persisted_properties()
         {
             using (var testDatabase = CosmosTestStore.CreateInitialized(DatabaseName))
