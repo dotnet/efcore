@@ -655,14 +655,11 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <summary>
         ///     Closes the connection to the database.
         /// </summary>
-        /// <param name="cancellationToken">
-        ///     A <see cref="CancellationToken" /> to observe while waiting for the task to complete.
-        /// </param>
         /// <returns>
         ///     A task that represents the asynchronous operation, with a value of true if the connection
         ///     was actually closed.
         /// </returns>
-        public virtual async Task<bool> CloseAsync(CancellationToken cancellationToken = default)
+        public virtual async Task<bool> CloseAsync()
         {
             var wasClosed = false;
 
@@ -681,8 +678,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
                     var interceptionResult = await Dependencies.ConnectionLogger.ConnectionClosingAsync(
                         this,
-                        startTime,
-                        cancellationToken);
+                        startTime);
 
                     try
                     {
@@ -696,8 +692,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                         await Dependencies.ConnectionLogger.ConnectionClosedAsync(
                             this,
                             startTime,
-                            stopwatch.Elapsed,
-                            cancellationToken);
+                            stopwatch.Elapsed);
                     }
                     catch (Exception e)
                     {
@@ -706,8 +701,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                             e,
                             startTime,
                             stopwatch.Elapsed,
-                            false,
-                            cancellationToken);
+                            false);
 
                         throw;
                     }

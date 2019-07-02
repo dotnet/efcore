@@ -346,8 +346,7 @@ namespace Microsoft.EntityFrameworkCore
             public virtual Task<InterceptionResult?> ConnectionClosingAsync(
                 DbConnection connection,
                 ConnectionEventData eventData,
-                InterceptionResult? result,
-                CancellationToken cancellationToken = default)
+                InterceptionResult? result)
             {
                 Assert.True(eventData.IsAsync);
                 AsyncCalled = true;
@@ -367,8 +366,7 @@ namespace Microsoft.EntityFrameworkCore
 
             public virtual Task ConnectionClosedAsync(
                 DbConnection connection,
-                ConnectionEndEventData eventData,
-                CancellationToken cancellationToken = default)
+                ConnectionEndEventData eventData)
             {
                 Assert.True(eventData.IsAsync);
                 AsyncCalled = true;

@@ -100,12 +100,11 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
             public async Task<InterceptionResult?> ConnectionClosingAsync(
                 DbConnection connection,
                 ConnectionEventData eventData,
-                InterceptionResult? result,
-                CancellationToken cancellationToken = default)
+                InterceptionResult? result)
             {
                 for (var i = 0; i < _interceptors.Length; i++)
                 {
-                    result = await _interceptors[i].ConnectionClosingAsync(connection, eventData, result, cancellationToken);
+                    result = await _interceptors[i].ConnectionClosingAsync(connection, eventData, result);
                 }
 
                 return result;
@@ -123,12 +122,11 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
 
             public async Task ConnectionClosedAsync(
                 DbConnection connection,
-                ConnectionEndEventData eventData,
-                CancellationToken cancellationToken = default)
+                ConnectionEndEventData eventData)
             {
                 for (var i = 0; i < _interceptors.Length; i++)
                 {
-                    await _interceptors[i].ConnectionClosedAsync(connection, eventData, cancellationToken);
+                    await _interceptors[i].ConnectionClosedAsync(connection, eventData);
                 }
             }
 

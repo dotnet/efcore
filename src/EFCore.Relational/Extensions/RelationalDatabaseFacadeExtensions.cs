@@ -703,10 +703,9 @@ namespace Microsoft.EntityFrameworkCore
         ///     Closes the underlying <see cref="DbConnection" />.
         /// </summary>
         /// <param name="databaseFacade"> The <see cref="DatabaseFacade" /> for the context. </param>
-        /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         /// <returns> A task that represents the asynchronous operation. </returns>
-        public static Task CloseConnectionAsync([NotNull] this DatabaseFacade databaseFacade, CancellationToken cancellationToken = default)
-            => GetFacadeDependencies(databaseFacade).RelationalConnection.CloseAsync(cancellationToken);
+        public static Task CloseConnectionAsync([NotNull] this DatabaseFacade databaseFacade)
+            => GetFacadeDependencies(databaseFacade).RelationalConnection.CloseAsync();
 
         /// <summary>
         ///     Starts a new transaction with a given <see cref="IsolationLevel" />.

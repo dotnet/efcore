@@ -370,8 +370,6 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
 
             public IDbContextTransaction CurrentTransaction => throw new NotImplementedException();
-            public Transaction EnlistedTransaction { get; }
-            public void EnlistTransaction(Transaction transaction) => throw new NotImplementedException();
             public SemaphoreSlim Semaphore { get; }
 
             public string ConnectionString { get; }
@@ -386,7 +384,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             public bool Close() => true;
 
-            public Task<bool> CloseAsync(CancellationToken cancellationToken = default) => Task.FromResult<bool>(true);
+            public Task<bool> CloseAsync() => Task.FromResult<bool>(true);
 
             public bool IsMultipleActiveResultSetsEnabled { get; }
             public IDbContextTransaction BeginTransaction(System.Data.IsolationLevel isolationLevel) => throw new NotImplementedException();

@@ -133,12 +133,11 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
         private static async Task CleanupCommandAsync(
             DbCommand command,
-            IRelationalConnection connection,
-            CancellationToken cancellationToken = default)
+            IRelationalConnection connection)
         {
             command.Parameters.Clear();
             await command.DisposeAsyncIfAvailable();
-            await connection.CloseAsync(cancellationToken);
+            await connection.CloseAsync();
         }
 
         /// <summary>
@@ -214,7 +213,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             }
             finally
             {
-                await CleanupCommandAsync(command, connection, cancellationToken);
+                await CleanupCommandAsync(command, connection);
             }
         }
 
@@ -347,7 +346,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             }
             finally
             {
-                await CleanupCommandAsync(command, connection, cancellationToken);
+                await CleanupCommandAsync(command, connection);
             }
         }
 
@@ -510,7 +509,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             {
                 if (!readerOpen)
                 {
-                    await CleanupCommandAsync(command, connection, cancellationToken);
+                    await CleanupCommandAsync(command, connection);
                 }
             }
         }
