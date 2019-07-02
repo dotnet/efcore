@@ -368,7 +368,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Pipeline
                 if (concreteEntityType.GetDiscriminatorProperty() != null)
                 {
                     var discriminatorColumn = ((EntityProjectionExpression)selectExpression.GetMappedProjection(new ProjectionMember()))
-                    .GetProperty(concreteEntityType.GetDiscriminatorProperty());
+                    .BindProperty(concreteEntityType.GetDiscriminatorProperty());
 
                     selectExpression.ApplyPredicate(
                         Equal(discriminatorColumn, Constant(concreteEntityType.GetDiscriminatorValue())));
@@ -377,7 +377,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Pipeline
             else
             {
                 var discriminatorColumn = ((EntityProjectionExpression)selectExpression.GetMappedProjection(new ProjectionMember()))
-                    .GetProperty(concreteEntityTypes[0].GetDiscriminatorProperty());
+                    .BindProperty(concreteEntityTypes[0].GetDiscriminatorProperty());
 
                 selectExpression.ApplyPredicate(
                     In(discriminatorColumn, Constant(concreteEntityTypes.Select(et => et.GetDiscriminatorValue()).ToList()), negated: false));

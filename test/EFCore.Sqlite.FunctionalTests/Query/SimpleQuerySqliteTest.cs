@@ -977,6 +977,81 @@ FROM ""Products"" AS ""p""
 WHERE CAST(""p"".""UnitPrice"" AS REAL) > 100.0");
         }
 
+        public override async Task Select_distinct_long_count(bool isAsync)
+        {
+            await base.Select_distinct_long_count(isAsync);
+
+            AssertSql(
+                @"SELECT COUNT(*)
+FROM (
+    SELECT DISTINCT ""c"".""CustomerID"", ""c"".""Address"", ""c"".""City"", ""c"".""CompanyName"", ""c"".""ContactName"", ""c"".""ContactTitle"", ""c"".""Country"", ""c"".""Fax"", ""c"".""Phone"", ""c"".""PostalCode"", ""c"".""Region""
+    FROM ""Customers"" AS ""c""
+) AS ""t""");
+        }
+
+        public override async Task Select_orderBy_skip_long_count(bool isAsync)
+        {
+            await base.Select_orderBy_skip_long_count(isAsync);
+
+            AssertSql(
+                @"@__p_0='7' (DbType = String)
+
+SELECT COUNT(*)
+FROM (
+    SELECT ""c"".""CustomerID"", ""c"".""Address"", ""c"".""City"", ""c"".""CompanyName"", ""c"".""ContactName"", ""c"".""ContactTitle"", ""c"".""Country"", ""c"".""Fax"", ""c"".""Phone"", ""c"".""PostalCode"", ""c"".""Region""
+    FROM ""Customers"" AS ""c""
+    ORDER BY ""c"".""Country""
+    LIMIT -1 OFFSET @__p_0
+) AS ""t""");
+        }
+
+        public override async Task Select_orderBy_take_long_count(bool isAsync)
+        {
+            await base.Select_orderBy_take_long_count(isAsync);
+
+            AssertSql(
+                @"@__p_0='7' (DbType = String)
+
+SELECT COUNT(*)
+FROM (
+    SELECT ""c"".""CustomerID"", ""c"".""Address"", ""c"".""City"", ""c"".""CompanyName"", ""c"".""ContactName"", ""c"".""ContactTitle"", ""c"".""Country"", ""c"".""Fax"", ""c"".""Phone"", ""c"".""PostalCode"", ""c"".""Region""
+    FROM ""Customers"" AS ""c""
+    ORDER BY ""c"".""Country""
+    LIMIT @__p_0
+) AS ""t""");
+        }
+
+        public override async Task Select_skip_long_count(bool isAsync)
+        {
+            await base.Select_skip_long_count(isAsync);
+
+            AssertSql(
+                @"@__p_0='7' (DbType = String)
+
+SELECT COUNT(*)
+FROM (
+    SELECT ""c"".""CustomerID"", ""c"".""Address"", ""c"".""City"", ""c"".""CompanyName"", ""c"".""ContactName"", ""c"".""ContactTitle"", ""c"".""Country"", ""c"".""Fax"", ""c"".""Phone"", ""c"".""PostalCode"", ""c"".""Region""
+    FROM ""Customers"" AS ""c""
+    ORDER BY (SELECT 1)
+    LIMIT -1 OFFSET @__p_0
+) AS ""t""");
+        }
+
+        public override async Task Select_take_long_count(bool isAsync)
+        {
+            await base.Select_take_long_count(isAsync);
+
+            AssertSql(
+                @"@__p_0='7' (DbType = String)
+
+SELECT COUNT(*)
+FROM (
+    SELECT ""c"".""CustomerID"", ""c"".""Address"", ""c"".""City"", ""c"".""CompanyName"", ""c"".""ContactName"", ""c"".""ContactTitle"", ""c"".""Country"", ""c"".""Fax"", ""c"".""Phone"", ""c"".""PostalCode"", ""c"".""Region""
+    FROM ""Customers"" AS ""c""
+    LIMIT @__p_0
+) AS ""t""");
+        }
+
         [ConditionalTheory(Skip = "SQLite bug")]
         public override Task Project_single_element_from_collection_with_multiple_OrderBys_Take_and_FirstOrDefault_2(bool isAsync)
             => base.Project_single_element_from_collection_with_multiple_OrderBys_Take_and_FirstOrDefault_2(isAsync);
