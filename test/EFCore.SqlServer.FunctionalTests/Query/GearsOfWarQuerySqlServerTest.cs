@@ -3837,76 +3837,6 @@ WHERE ([f].[Discriminator] = N'LocustHorde') AND ([f].[Discriminator] = N'Locust
 ORDER BY [f].[Name]");
         }
 
-        public override async Task Can_query_on_indexed_properties(bool isAsync)
-        {
-            await base.Can_query_on_indexed_properties(isAsync);
-
-            AssertSql(
-                @"SELECT [c].[Name], [c].[Location], [c].[Nation]
-FROM [Cities] AS [c]
-WHERE [c].[Nation] = N'Tyrus'");
-        }
-
-        public override async Task Can_query_on_indexed_properties_when_property_name_from_closure(bool isAsync)
-        {
-            await base.Can_query_on_indexed_properties_when_property_name_from_closure(isAsync);
-
-            AssertSql(
-                @"SELECT [c].[Name], [c].[Location], [c].[Nation]
-FROM [Cities] AS [c]
-WHERE [c].[Nation] = N'Tyrus'");
-        }
-
-        public override async Task Can_query_projection_on_indexed_properties(bool isAsync)
-        {
-            await base.Can_query_projection_on_indexed_properties(isAsync);
-
-            AssertSql(
-                @"SELECT [c].[Nation]
-FROM [Cities] AS [c]
-WHERE [c].[Nation] = N'Tyrus'");
-        }
-
-        public override async Task Can_order_by_indexed_property_on_query(bool isAsync)
-        {
-            await base.Can_order_by_indexed_property_on_query(isAsync);
-
-            AssertSql(
-                @"SELECT [c].[Name], [c].[Location], [c].[Nation]
-FROM [Cities] AS [c]
-ORDER BY [c].[Nation], [c].[Name]");
-        }
-
-        public override async Task Can_group_by_indexed_property_on_query(bool isAsync)
-        {
-            await base.Can_group_by_indexed_property_on_query(isAsync);
-
-            AssertSql(
-                @"SELECT COUNT(*)
-FROM [Cities] AS [c]
-GROUP BY [c].[Nation]");
-        }
-
-        public override async Task Can_group_by_converted_indexed_property_on_query(bool isAsync)
-        {
-            await base.Can_group_by_converted_indexed_property_on_query(isAsync);
-
-            AssertSql(
-                @"SELECT COUNT(*)
-FROM [Cities] AS [c]
-GROUP BY [c].[Nation]");
-        }
-
-        public override async Task Can_join_on_indexed_property_on_query(bool isAsync)
-        {
-            await base.Can_join_on_indexed_property_on_query(isAsync);
-
-            AssertSql(
-                @"SELECT [c1].[Name], [c2].[Location]
-FROM [Cities] AS [c1]
-INNER JOIN [Cities] AS [c2] ON [c1].[Nation] = [c2].[Nation]");
-        }
-
         public override void Navigation_access_on_derived_entity_using_cast()
         {
             base.Navigation_access_on_derived_entity_using_cast();
@@ -7413,19 +7343,11 @@ ORDER BY [t].[Name], [c.StationedGears].[Nickname] DESC");
             await base.Correlated_collection_with_complex_order_by_funcletized_to_constant_bool(isAsync);
 
             AssertSql(
-                @"SELECT [g].[Nickname], [g].[FullName]
+                @"SELECT [g].[Nickname], [g].[SquadId], [w].[Name], [w].[Id], [w].[OwnerFullName]
 FROM [Gears] AS [g]
-WHERE [g].[Discriminator] IN (N'Officer', N'Gear')
-ORDER BY [g].[Nickname], [g].[SquadId], [g].[FullName]",
-                //
-                @"SELECT [t].[c], [t].[Nickname], [t].[SquadId], [t].[FullName], [g.Weapons].[Name], [g.Weapons].[OwnerFullName]
-FROM [Weapons] AS [g.Weapons]
-INNER JOIN (
-    SELECT CAST(0 AS bit) AS [c], [g0].[Nickname], [g0].[SquadId], [g0].[FullName]
-    FROM [Gears] AS [g0]
-    WHERE [g0].[Discriminator] IN (N'Officer', N'Gear')
-) AS [t] ON [g.Weapons].[OwnerFullName] = [t].[FullName]
-ORDER BY [t].[c] DESC, [t].[Nickname], [t].[SquadId], [t].[FullName]");
+LEFT JOIN [Weapons] AS [w] ON [g].[FullName] = [w].[OwnerFullName]
+WHERE [g].[Discriminator] IN (N'Gear', N'Officer')
+ORDER BY [g].[Nickname], [g].[SquadId], [w].[Id]");
         }
 
         public override async Task Double_order_by_on_nullable_bool_coming_from_optional_navigation(bool isAsync)

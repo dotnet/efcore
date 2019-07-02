@@ -842,10 +842,12 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
             return null;
         }
 
+        // We treat a set operation as a transparent wrapper over its left operand (the ColumnExpression projection mappings
+        // found on a set operation SelectExpression are actually those of its left operand).
         private bool ContainsTableReference(TableExpressionBase table)
-        {
-            return _tables.Any(te => ReferenceEquals(te is JoinExpressionBase jeb ? jeb.Table : te, table));
-        }
+            => IsSetOperation
+                ? ((SelectExpression)Tables[0]).ContainsTableReference(table)
+                : Tables.Any(te => ReferenceEquals(te is JoinExpressionBase jeb ? jeb.Table : te, table));
 
         public void AddInnerJoin(SelectExpression innerSelectExpression, SqlExpression joinPredicate, Type transparentIdentifierType)
         {
@@ -1073,9 +1075,9 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
                 var orderings = new List<OrderingExpression>();
                 foreach (var ordering in _orderings)
                 {
-                    var orderingExpression = (SqlExpression)visitor.Visit(ordering.Expression);
-                    changed |= orderingExpression != ordering.Expression;
-                    orderings.Add(ordering.Update(orderingExpression));
+                    var newOrdering = (OrderingExpression)visitor.Visit(ordering);
+                    changed |= newOrdering != ordering;
+                    orderings.Add(newOrdering);
                 }
 
                 var offset = (SqlExpression)visitor.Visit(Offset);

@@ -134,26 +134,6 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     continue;
                 }
 
-                if (propertyBase.IsIndexedProperty())
-                {
-                    var indexerAccessExpression = (Expression)Expression.MakeIndex(
-                        entityVariable,
-                        propertyBase.PropertyInfo,
-                        new List<Expression>
-                        {
-                            Expression.Constant(propertyBase.Name)
-                        });
-                    if (propertyBase.PropertyInfo.PropertyType != propertyBase.ClrType)
-                    {
-                        indexerAccessExpression =
-                            Expression.Convert(indexerAccessExpression, propertyBase.ClrType);
-                    }
-
-                    arguments[i] =
-                        CreateSnapshotValueExpression(indexerAccessExpression, propertyBase);
-                    continue;
-                }
-
                 var memberAccess = (Expression)Expression.MakeMemberAccess(
                     entityVariable,
                     propertyBase.GetMemberInfo(forConstruction: false, forSet: false));

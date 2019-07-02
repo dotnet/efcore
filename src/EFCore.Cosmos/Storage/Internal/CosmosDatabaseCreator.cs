@@ -41,7 +41,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
 
             if (created)
             {
-                var updateAdapter = _updateAdapterFactory.Create();
+                var updateAdapter = _updateAdapterFactory.CreateStandalone();
                 foreach (var entityType in _model.GetEntityTypes())
                 {
                     foreach (var targetSeed in entityType.GetSeedData())
@@ -70,7 +70,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
 
             if (created)
             {
-                var updateAdapter = _updateAdapterFactory.Create();
+                var updateAdapter = _updateAdapterFactory.CreateStandalone();
                 foreach (var entityType in _model.GetEntityTypes())
                 {
                     foreach (var targetSeed in entityType.GetSeedData())
