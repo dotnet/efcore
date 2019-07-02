@@ -90,8 +90,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Pipeline
 
         protected override Expression VisitUnary(UnaryExpression unaryExpression)
         {
-            var visitedExpression = (SqlExpression)base.VisitUnary(unaryExpression);
-
+            var visitedExpression = base.VisitUnary(unaryExpression);
             if (visitedExpression == null)
             {
                 return null;

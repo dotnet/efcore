@@ -208,14 +208,6 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Pipeline
             }
         }
 
-        public SqlExpression BindProperty(IProperty property, ProjectionBindingExpression projectionBindingExpression)
-            => ((EntityProjectionExpression)_projectionMapping[projectionBindingExpression.ProjectionMember])
-                .GetProperty(property);
-
-        public SqlExpression BindNavigation(INavigation navigation, ProjectionBindingExpression projectionBindingExpression)
-            => ((EntityProjectionExpression)_projectionMapping[projectionBindingExpression.ProjectionMember])
-                .GetNavigation(navigation);
-
         public override Type Type => typeof(JObject);
         public override ExpressionType NodeType => ExpressionType.Extension;
 
