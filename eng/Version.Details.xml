@@ -41,10 +41,6 @@
       <Uri>https://github.com/aspnet/Extensions</Uri>
       <Sha>b5e1724093107d2133b3dab14197b8ff5dbff8ef</Sha>
     </Dependency>
-    <Dependency Name="Microsoft.NETCore.Compilers" Version="3.1.1-beta4-19281-06">
-      <Uri>https://github.com/dotnet/roslyn</Uri>
-      <Sha>58a4b1e79aea28115e66b06f850c83a3f1fcb6d3</Sha>
-    </Dependency>
     <Dependency Name="Microsoft.NETCore.Platforms" Version="3.0.0-preview7.19329.3" CoherentParentDependency="Microsoft.NETCore.App.Runtime.win-x64">
       <Uri>https://github.com/dotnet/corefx</Uri>
       <Sha>9e3278936912fc413891926f3789689cb05fd3c3</Sha>
@@ -78,6 +74,10 @@
     <Dependency Name="Microsoft.DotNet.Arcade.Sdk" Version="1.0.0-beta.19323.4">
       <Uri>https://github.com/dotnet/arcade</Uri>
       <Sha>9946534da4f73e6242ca105f6798ab58119c9ab0</Sha>
+    </Dependency>
+    <Dependency Name="Microsoft.Net.Compilers.Toolset" Version="3.3.0-beta1-19351-01">
+      <Uri>https://github.com/dotnet/roslyn</Uri>
+      <Sha>c91adff42c488aef2c2c532a7b053fb55e0c16ea</Sha>
     </Dependency>
   </ToolsetDependencies>
 </Dependencies>
