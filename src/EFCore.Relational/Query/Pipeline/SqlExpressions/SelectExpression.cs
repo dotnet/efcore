@@ -22,6 +22,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
             = new Dictionary<EntityProjectionExpression, IDictionary<IProperty, int>>();
 
         private readonly List<TableExpressionBase> _tables = new List<TableExpressionBase>();
+        private readonly List<SqlExpression> _groupBy = new List<SqlExpression>();
         private readonly List<OrderingExpression> _orderings = new List<OrderingExpression>();
 
         private readonly List<SqlExpression> _identifier = new List<SqlExpression>();
@@ -30,9 +31,11 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
 
         public IReadOnlyList<ProjectionExpression> Projection => _projection;
         public IReadOnlyList<TableExpressionBase> Tables => _tables;
+        public IReadOnlyList<SqlExpression> GroupBy => _groupBy;
         public IReadOnlyList<OrderingExpression> Orderings => _orderings;
         public ISet<string> Tags { get; private set; } = new HashSet<string>();
         public SqlExpression Predicate { get; private set; }
+        public SqlExpression HavingExpression { get; private set; }
         public SqlExpression Limit { get; private set; }
         public SqlExpression Offset { get; private set; }
         public bool IsDistinct { get; private set; }
@@ -57,11 +60,13 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
             string alias,
             List<ProjectionExpression> projections,
             List<TableExpressionBase> tables,
+            List<SqlExpression> groupBy,
             List<OrderingExpression> orderings)
             : base(alias)
         {
             _projection = projections;
             _tables = tables;
+            _groupBy = groupBy;
             _orderings = orderings;
         }
 
@@ -87,7 +92,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
             }
         }
 
-        public SelectExpression(IEntityType entityType, string sql, Expression arguments)
+        internal SelectExpression(IEntityType entityType, string sql, Expression arguments)
             : base(null)
         {
             var fromSqlExpression = new FromSqlExpression(
@@ -115,6 +120,8 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
                 && Offset == null
                 && !IsDistinct
                 && Predicate == null
+                && GroupBy.Count == 0
+                && HavingExpression == null
                 && Orderings.Count == 0
                 && Tables.Count == 1
                 && Tables[0] is FromSqlExpression fromSql
@@ -223,7 +230,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
 
         public void PrepareForAggregate()
         {
-            if (IsDistinct || Limit != null || Offset != null || IsSetOperation)
+            if (IsDistinct || Limit != null || Offset != null || IsSetOperation || GroupBy.Count > 0)
             {
                 PushdownIntoSubquery();
             }
@@ -243,22 +250,88 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
                 expression = new SqlRemappingVisitor(mappings).Remap(expression);
             }
 
-            if (Predicate == null)
+            if (_groupBy.Count > 0)
             {
-                Predicate = expression;
+                if (HavingExpression == null)
+                {
+                    HavingExpression = expression;
+                }
+                else
+                {
+                    HavingExpression = new SqlBinaryExpression(
+                        ExpressionType.AndAlso,
+                        HavingExpression,
+                        expression,
+                        typeof(bool),
+                        expression.TypeMapping);
+                }
             }
             else
             {
-                Predicate = new SqlBinaryExpression(
-                    ExpressionType.AndAlso,
-                    Predicate,
-                    expression,
-                    typeof(bool),
-                    expression.TypeMapping);
+                if (Predicate == null)
+                {
+                    Predicate = expression;
+                }
+                else
+                {
+                    Predicate = new SqlBinaryExpression(
+                        ExpressionType.AndAlso,
+                        Predicate,
+                        expression,
+                        typeof(bool),
+                        expression.TypeMapping);
+                }
             }
         }
 
         public override ExpressionType NodeType => ExpressionType.Extension;
+
+        public Expression ApplyGrouping(Expression keySelector)
+        {
+            ClearOrdering();
+
+            if (keySelector is SqlConstantExpression
+                || keySelector is SqlParameterExpression)
+            {
+                PushdownIntoSubquery();
+                var subquery = (SelectExpression)_tables[0];
+                var projectionIndex = subquery.AddToProjection((SqlExpression)keySelector, nameof(IGrouping<int, int>.Key));
+
+                keySelector = new ColumnExpression(subquery.Projection[projectionIndex], subquery, false);
+            }
+
+            AppendGroupBy(keySelector);
+
+            return keySelector;
+        }
+
+        private void AppendGroupBy(Expression keySelector)
+        {
+            switch (keySelector)
+            {
+                case SqlExpression sqlExpression:
+                    _groupBy.Add(sqlExpression);
+                    break;
+
+                case NewExpression newExpression:
+                    foreach (var argument in newExpression.Arguments)
+                    {
+                        AppendGroupBy(argument);
+                    }
+                    break;
+
+                case MemberInitExpression memberInitExpression:
+                    AppendGroupBy(memberInitExpression.NewExpression);
+                    foreach (var argument in memberInitExpression.Bindings)
+                    {
+                        AppendGroupBy(((MemberAssignment)argument).Expression);
+                    }
+                    break;
+
+                default:
+                    throw new InvalidOperationException("Invalid keySelector for Group By");
+            }
+        }
 
 
         public void ApplyOrdering(OrderingExpression orderingExpression)
@@ -342,7 +415,6 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
             _orderings.Clear();
         }
 
-
         /// <summary>
         ///     Applies a set operation (e.g. Union, Intersect) on this query, pushing it down and <paramref name="otherSelectExpression"/>
         ///     down to be the set operands.
@@ -360,10 +432,12 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
             Expression shaperExpression)
         {
             // TODO: throw if there are pending collection joins
-            var select1 = new SelectExpression(null, new List<ProjectionExpression>(), _tables.ToList(), _orderings.ToList())
+            // TODO: What happens when applying set operations on 2 queries with one of them being grouping
+            var select1 = new SelectExpression(null, new List<ProjectionExpression>(), _tables.ToList(), _groupBy.ToList(), _orderings.ToList())
             {
                 IsDistinct = IsDistinct,
                 Predicate = Predicate,
+                HavingExpression = HavingExpression,
                 Offset = Offset,
                 Limit = Limit,
                 SetOperationType = SetOperationType
@@ -420,6 +494,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
             Limit = null;
             IsDistinct = false;
             Predicate = null;
+            HavingExpression = null;
             _orderings.Clear();
             _tables.Clear();
             _tables.Add(select1);
@@ -433,23 +508,23 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
                 SelectExpression select1, EntityProjectionExpression projection1,
                 SelectExpression select2, EntityProjectionExpression projection2)
             {
-                 var propertyExpressions = new Dictionary<IProperty, ColumnExpression>();
+                var propertyExpressions = new Dictionary<IProperty, ColumnExpression>();
 
-                 if (projection1.EntityType == projection2.EntityType)
-                 {
-                     foreach (var property in GetAllPropertiesInHierarchy(projection1.EntityType))
-                     {
-                         propertyExpressions[property] = AddSetOperationColumnProjections(
-                             property,
-                             select1, projection1.GetProperty(property),
-                             select2, projection2.GetProperty(property));
-                     }
+                if (projection1.EntityType == projection2.EntityType)
+                {
+                    foreach (var property in GetAllPropertiesInHierarchy(projection1.EntityType))
+                    {
+                        propertyExpressions[property] = AddSetOperationColumnProjections(
+                            property,
+                            select1, projection1.GetProperty(property),
+                            select2, projection2.GetProperty(property));
+                    }
 
-                     _projectionMapping[projectionMember] = new EntityProjectionExpression(projection1.EntityType, propertyExpressions);
-                     return;
-                 }
+                    _projectionMapping[projectionMember] = new EntityProjectionExpression(projection1.EntityType, propertyExpressions);
+                    return;
+                }
 
-                 throw new InvalidOperationException("Set operations over different entity types are currently unsupported (see #16298)");
+                throw new InvalidOperationException("Set operations over different entity types are currently unsupported (see #16298)");
             }
 
             ColumnExpression AddSetOperationColumnProjections(
@@ -486,10 +561,11 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
 
         public IDictionary<SqlExpression, ColumnExpression> PushdownIntoSubquery()
         {
-            var subquery = new SelectExpression("t", new List<ProjectionExpression>(), _tables.ToList(), _orderings.ToList())
+            var subquery = new SelectExpression("t", new List<ProjectionExpression>(), _tables.ToList(), _groupBy.ToList(), _orderings.ToList())
             {
                 IsDistinct = IsDistinct,
                 Predicate = Predicate,
+                HavingExpression = HavingExpression,
                 Offset = Offset,
                 Limit = Limit,
                 SetOperationType = SetOperationType
@@ -554,7 +630,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
                 {
                     _identifier.Add(outerColumn);
                 }
-                else if (!IsDistinct)
+                else if (!IsDistinct && GroupBy.Count == 0)
                 {
                     var index = subquery.AddToProjection(identifier);
                     var projectionExpression = subquery._projection[index];
@@ -572,7 +648,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
                 {
                     _childIdentifiers.Add(outerColumn);
                 }
-                else if (!IsDistinct)
+                else if (!IsDistinct && GroupBy.Count == 0)
                 {
                     var index = subquery.AddToProjection(identifier);
                     var projectionExpression = subquery._projection[index];
@@ -602,9 +678,11 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
             Limit = null;
             IsDistinct = false;
             Predicate = null;
+            HavingExpression = null;
             SetOperationType = SetOperationType.None;
             _tables.Clear();
             _tables.Add(subquery);
+            _groupBy.Clear();
 
             return projectionMap;
         }
@@ -652,7 +730,8 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
                     || innerSelectExpression.Limit != null
                     || innerSelectExpression.IsDistinct
                     || innerSelectExpression.Predicate != null
-                    || innerSelectExpression.Tables.Count > 1)
+                    || innerSelectExpression.Tables.Count > 1
+                    || innerSelectExpression.GroupBy.Count > 1)
                 {
                     var orderings = innerSelectExpression.Orderings.ToList();
                     var sqlRemappingVisitor = new SqlRemappingVisitor(innerSelectExpression.PushdownIntoSubquery());
@@ -851,6 +930,12 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
 
         public void AddInnerJoin(SelectExpression innerSelectExpression, SqlExpression joinPredicate, Type transparentIdentifierType)
         {
+            if (Limit != null || Offset != null || IsDistinct || IsSetOperation || GroupBy.Count > 1)
+            {
+                joinPredicate = new SqlRemappingVisitor(PushdownIntoSubquery())
+                    .Remap(joinPredicate);
+            }
+
             // TODO: write a test which has distinct on outer so that we can verify pushdown
             if (innerSelectExpression.Orderings.Any()
                 || innerSelectExpression.Limit != null
@@ -858,7 +943,8 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
                 || innerSelectExpression.IsDistinct
                 // TODO: Predicate can be lifted in inner join
                 || innerSelectExpression.Predicate != null
-                || innerSelectExpression.Tables.Count > 1)
+                || innerSelectExpression.Tables.Count > 1
+                || innerSelectExpression.GroupBy.Count > 1)
             {
                 joinPredicate = new SqlRemappingVisitor(innerSelectExpression.PushdownIntoSubquery())
                     .Remap(joinPredicate);
@@ -886,7 +972,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
 
         public void AddLeftJoin(SelectExpression innerSelectExpression, SqlExpression joinPredicate, Type transparentIdentifierType)
         {
-            if (Limit != null || Offset != null || IsDistinct || IsSetOperation)
+            if (Limit != null || Offset != null || IsDistinct || IsSetOperation || GroupBy.Count > 1)
             {
                 joinPredicate = new SqlRemappingVisitor(PushdownIntoSubquery())
                     .Remap(joinPredicate);
@@ -897,7 +983,8 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
                 || innerSelectExpression.Offset != null
                 || innerSelectExpression.IsDistinct
                 || innerSelectExpression.Predicate != null
-                || innerSelectExpression.Tables.Count > 1)
+                || innerSelectExpression.Tables.Count > 1
+                || innerSelectExpression.GroupBy.Count > 1)
             {
                 joinPredicate = new SqlRemappingVisitor(innerSelectExpression.PushdownIntoSubquery())
                     .Remap(joinPredicate);
@@ -934,7 +1021,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
 
         public void AddCrossJoin(SelectExpression innerSelectExpression, Type transparentIdentifierType)
         {
-            if (Limit != null || Offset != null || IsDistinct || Predicate != null || IsSetOperation)
+            if (Limit != null || Offset != null || IsDistinct || Predicate != null || IsSetOperation || GroupBy.Count > 1)
             {
                 PushdownIntoSubquery();
             }
@@ -943,7 +1030,9 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
                 || innerSelectExpression.Limit != null
                 || innerSelectExpression.Offset != null
                 || innerSelectExpression.IsDistinct
-                || innerSelectExpression.Predicate != null)
+                || innerSelectExpression.Predicate != null
+                || innerSelectExpression.Tables.Count > 1
+                || innerSelectExpression.GroupBy.Count > 1)
             {
                 innerSelectExpression.PushdownIntoSubquery();
             }
@@ -1023,6 +1112,12 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
 
                 Predicate = (SqlExpression)visitor.Visit(Predicate);
 
+                var groupBy = _groupBy.ToList();
+                _groupBy.Clear();
+                _groupBy.AddRange(GroupBy.Select(e => (SqlExpression)visitor.Visit(e)));
+
+                HavingExpression = (SqlExpression)visitor.Visit(HavingExpression);
+
                 var orderings = _orderings.ToList();
                 _orderings.Clear();
                 _orderings.AddRange(orderings.Select(e => e.Update((SqlExpression)visitor.Visit(e.Expression))));
@@ -1072,6 +1167,17 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
                 var predicate = (SqlExpression)visitor.Visit(Predicate);
                 changed |= predicate != Predicate;
 
+                var groupBy = new List<SqlExpression>();
+                foreach (var groupingKey in _groupBy)
+                {
+                    var newGroupingKey = (SqlExpression)visitor.Visit(groupingKey);
+                    changed |= newGroupingKey != groupingKey;
+                    groupBy.Add(newGroupingKey);
+                }
+
+                var havingExpression = (SqlExpression)visitor.Visit(HavingExpression);
+                changed |= havingExpression != HavingExpression;
+
                 var orderings = new List<OrderingExpression>();
                 foreach (var ordering in _orderings)
                 {
@@ -1088,10 +1194,11 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
 
                 if (changed)
                 {
-                    var newSelectExpression = new SelectExpression(Alias, projections, tables, orderings)
+                    var newSelectExpression = new SelectExpression(Alias, projections, tables, groupBy, orderings)
                     {
                         _projectionMapping = projectionMapping,
                         Predicate = predicate,
+                        HavingExpression = havingExpression,
                         Offset = offset,
                         Limit = limit,
                         IsDistinct = IsDistinct,
@@ -1160,6 +1267,17 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
                 return false;
             }
 
+            if (!_groupBy.SequenceEqual(selectExpression._groupBy))
+            {
+                return false;
+            }
+
+            if (!(HavingExpression == null && selectExpression.HavingExpression == null
+                || HavingExpression != null && Predicate.Equals(selectExpression.HavingExpression)))
+            {
+                return false;
+            }
+
             if (!_orderings.SequenceEqual(selectExpression._orderings))
             {
                 return false;
@@ -1185,6 +1303,8 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
             List<ProjectionExpression> projections,
             List<TableExpressionBase> tables,
             SqlExpression predicate,
+            List<SqlExpression> groupBy,
+            SqlExpression havingExpression,
             List<OrderingExpression> orderings,
             SqlExpression limit,
             SqlExpression offset,
@@ -1197,10 +1317,11 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
                 projectionMapping[kvp.Key] = kvp.Value;
             }
 
-            return new SelectExpression(alias, projections, tables, orderings)
+            return new SelectExpression(alias, projections, tables, groupBy, orderings)
             {
                 _projectionMapping = projectionMapping,
                 Predicate = predicate,
+                HavingExpression = havingExpression,
                 Offset = offset,
                 Limit = limit,
                 IsDistinct = distinct,
@@ -1227,6 +1348,13 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
             }
 
             hash.Add(Predicate);
+
+            foreach (var groupingKey in _groupBy)
+            {
+                hash.Add(groupingKey);
+            }
+
+            hash.Add(HavingExpression);
 
             foreach (var ordering in _orderings)
             {
@@ -1307,16 +1435,24 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
                     expressionPrinter.StringBuilder.AppendLine().Append("WHERE ");
                     expressionPrinter.Visit(Predicate);
                 }
+
+                if (GroupBy.Any())
+                {
+                    expressionPrinter.StringBuilder.AppendLine().Append("GROUP BY ");
+                    expressionPrinter.VisitList(GroupBy);
+                }
+
+                if (HavingExpression != null)
+                {
+                    expressionPrinter.StringBuilder.AppendLine().Append("HAVING ");
+                    expressionPrinter.Visit(HavingExpression);
+                }
             }
 
             if (Orderings.Any())
             {
-                var orderings = Orderings.ToList();
-                if (orderings.Count > 0)
-                {
-                    expressionPrinter.StringBuilder.AppendLine().Append("ORDER BY ");
-                    expressionPrinter.VisitList(orderings);
-                }
+                expressionPrinter.StringBuilder.AppendLine().Append("ORDER BY ");
+                expressionPrinter.VisitList(Orderings);
             }
             else if (Offset != null)
             {

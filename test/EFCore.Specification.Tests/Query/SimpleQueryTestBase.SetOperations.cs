@@ -119,7 +119,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     .Union(cs.Where(e => e.City == "London")),
                 entryCount: 25);
 
-        [ConditionalTheory]
+        [ConditionalTheory(Skip = "Issue#16365")]
         [MemberData(nameof(IsAsyncData))]
         public virtual void Union_non_entity(bool isAsync)
             => AssertQuery<Customer>(isAsync, cs => cs

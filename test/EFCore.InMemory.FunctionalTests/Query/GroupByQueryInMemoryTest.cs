@@ -8,7 +8,7 @@ using Xunit.Abstractions;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    public class GroupByQueryInMemoryTest : GroupByQueryTestBase<NorthwindQueryInMemoryFixture<NoopModelCustomizer>>
+    internal class GroupByQueryInMemoryTest : GroupByQueryTestBase<NorthwindQueryInMemoryFixture<NoopModelCustomizer>>
     {
         public GroupByQueryInMemoryTest(
             NorthwindQueryInMemoryFixture<NoopModelCustomizer> fixture,

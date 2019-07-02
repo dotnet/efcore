@@ -146,6 +146,19 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Pipeline
             var predicate = (SqlExpression)Visit(selectExpression.Predicate);
             changed |= predicate != selectExpression.Predicate;
 
+            var groupBy = new List<SqlExpression>();
+            _isSearchCondition = false;
+            foreach (var groupingKey in selectExpression.GroupBy)
+            {
+                var newGroupingKey = (SqlExpression)Visit(groupingKey);
+                changed |= newGroupingKey != groupingKey;
+                groupBy.Add(newGroupingKey);
+            }
+
+            _isSearchCondition = true;
+            var havingExpression = (SqlExpression)Visit(selectExpression.HavingExpression);
+            changed |= havingExpression != selectExpression.HavingExpression;
+
             var orderings = new List<OrderingExpression>();
             _isSearchCondition = false;
             foreach (var ordering in selectExpression.Orderings)
@@ -166,7 +179,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Pipeline
             if (changed)
             {
                 return selectExpression.Update(
-                    projections, tables, predicate, orderings, limit, offset, selectExpression.IsDistinct, selectExpression.Alias);
+                    projections, tables, predicate, groupBy, havingExpression, orderings, limit, offset, selectExpression.IsDistinct, selectExpression.Alias);
             }
 
             return selectExpression;

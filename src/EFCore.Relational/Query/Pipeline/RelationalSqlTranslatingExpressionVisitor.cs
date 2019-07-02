@@ -41,7 +41,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
             _sqlVerifyingExpressionVisitor = new SqlTypeMappingVerifyingExpressionVisitor();
         }
 
-        public SqlExpression Translate(Expression expression)
+        public virtual SqlExpression Translate(Expression expression)
         {
             var result = Visit(expression);
 
@@ -56,12 +56,96 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
 
                 translation = _sqlExpressionFactory.ApplyDefaultTypeMapping(translation);
 
+                if (translation is SqlConstantExpression
+                    && translation.TypeMapping == null)
+                {
+                    // Non-mappable constant
+                    return null;
+                }
+
                 _sqlVerifyingExpressionVisitor.Visit(translation);
 
                 return translation;
             }
 
             return null;
+        }
+
+        public virtual SqlExpression TranslateAverage(Expression expression)
+        {
+            if (!(expression is SqlExpression sqlExpression))
+            {
+                sqlExpression = Translate(expression);
+            }
+
+            var inputType = sqlExpression.Type.UnwrapNullableType();
+            if (inputType == typeof(int)
+                || inputType == typeof(long))
+            {
+                sqlExpression = _sqlExpressionFactory.ApplyDefaultTypeMapping(
+                    _sqlExpressionFactory.Convert(sqlExpression, typeof(double)));
+            }
+
+            return inputType == typeof(float)
+                ? _sqlExpressionFactory.Convert(
+                        _sqlExpressionFactory.Function(
+                            "AVG", new[] { sqlExpression }, typeof(double), null),
+                        sqlExpression.Type,
+                        sqlExpression.TypeMapping)
+                : (SqlExpression)_sqlExpressionFactory.Function(
+                    "AVG", new[] { sqlExpression }, sqlExpression.Type, sqlExpression.TypeMapping);
+        }
+
+        public virtual SqlExpression TranslateCount(Expression expression = null)
+        {
+            // TODO: Translate Count with predicate for GroupBy
+            return _sqlExpressionFactory.ApplyDefaultTypeMapping(
+                _sqlExpressionFactory.Function("COUNT", new[] { _sqlExpressionFactory.Fragment("*") }, typeof(int)));
+        }
+
+        public virtual SqlExpression TranslateLongCount(Expression expression = null)
+        {
+            // TODO: Translate Count with predicate for GroupBy
+            return _sqlExpressionFactory.ApplyDefaultTypeMapping(
+                _sqlExpressionFactory.Function("COUNT", new[] { _sqlExpressionFactory.Fragment("*") }, typeof(long)));
+        }
+
+        public virtual SqlExpression TranslateMax(Expression expression)
+        {
+            if (!(expression is SqlExpression sqlExpression))
+            {
+                sqlExpression = Translate(expression);
+            }
+
+            return _sqlExpressionFactory.Function("MAX", new[] { sqlExpression }, sqlExpression.Type, sqlExpression.TypeMapping);
+        }
+
+        public virtual SqlExpression TranslateMin(Expression expression)
+        {
+            if (!(expression is SqlExpression sqlExpression))
+            {
+                sqlExpression = Translate(expression);
+            }
+
+            return _sqlExpressionFactory.Function("MIN", new[] { sqlExpression }, sqlExpression.Type, sqlExpression.TypeMapping);
+        }
+
+        public virtual SqlExpression TranslateSum(Expression expression)
+        {
+            if (!(expression is SqlExpression sqlExpression))
+            {
+                sqlExpression = Translate(expression);
+            }
+
+            var inputType = sqlExpression.Type.UnwrapNullableType();
+
+            return inputType == typeof(float)
+                ? _sqlExpressionFactory.Convert(
+                        _sqlExpressionFactory.Function("SUM", new[] { sqlExpression }, typeof(double)),
+                        inputType,
+                        sqlExpression.TypeMapping)
+                : (SqlExpression)_sqlExpressionFactory.Function(
+                    "SUM", new[] { sqlExpression }, inputType, sqlExpression.TypeMapping);
         }
 
         private class SqlTypeMappingVerifyingExpressionVisitor : ExpressionVisitor
@@ -169,13 +253,66 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
             return null;
         }
 
+        private Expression GetSelector(MethodCallExpression methodCallExpression, GroupByShaperExpression groupByShaperExpression)
+        {
+            if (methodCallExpression.Arguments.Count == 1)
+            {
+                return groupByShaperExpression.ElementSelector;
+            }
+
+            if (methodCallExpression.Arguments.Count == 2)
+            {
+                var selectorLambda = methodCallExpression.Arguments[1].UnwrapLambdaFromQuote();
+                return ReplacingExpressionVisitor.Replace(
+                    selectorLambda.Parameters[0],
+                    groupByShaperExpression.ElementSelector,
+                    selectorLambda.Body);
+            }
+
+            throw new InvalidOperationException();
+        }
+
         protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
         {
+            // EF.Property case
             if (methodCallExpression.TryGetEFPropertyArguments(out var source, out var propertyName))
             {
                 return BindProperty(source, propertyName);
             }
 
+            // GroupBy Aggregate case
+            if (methodCallExpression.Object == null
+                && methodCallExpression.Method.DeclaringType == typeof(Enumerable)
+                && methodCallExpression.Arguments.Count > 0
+                && methodCallExpression.Arguments[0] is GroupByShaperExpression groupByShaperExpression)
+            {
+                switch (methodCallExpression.Method.Name)
+                {
+                    case nameof(Enumerable.Average):
+                        return TranslateAverage(GetSelector(methodCallExpression, groupByShaperExpression));
+
+                    case nameof(Enumerable.Count):
+                        return TranslateCount();
+
+                    case nameof(Enumerable.LongCount):
+                        return TranslateLongCount();
+
+                    case nameof(Enumerable.Max):
+                        return TranslateMax(GetSelector(methodCallExpression, groupByShaperExpression));
+
+                    case nameof(Enumerable.Min):
+                        return TranslateMin(GetSelector(methodCallExpression, groupByShaperExpression));
+
+                    case nameof(Enumerable.Sum):
+                        return TranslateSum(GetSelector(methodCallExpression, groupByShaperExpression));
+
+                    default:
+                        throw new InvalidOperationException("Unknown aggregate operator encountered.");
+                }
+
+            }
+
+            // Subquery case
             var subqueryTranslation = _queryableMethodTranslatingExpressionVisitor.TranslateSubquery(methodCallExpression);
             if (subqueryTranslation != null)
             {
@@ -203,6 +340,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
                 return new SubSelectExpression(subquery);
             }
 
+            // MethodCall translators
             var @object = Visit(methodCallExpression.Object);
             if (TranslationFailed(methodCallExpression.Object, @object))
             {
@@ -336,29 +474,25 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
 
         protected override Expression VisitExtension(Expression extensionExpression)
         {
-            if (extensionExpression is EntityShaperExpression)
+            switch (extensionExpression)
             {
-                return extensionExpression;
+                case EntityShaperExpression _:
+                case SqlExpression _:
+                    return extensionExpression;
+
+                case NullConditionalExpression nullConditionalExpression:
+                    return Visit(nullConditionalExpression.AccessOperation);
+
+                case CorrelationPredicateExpression correlationPredicateExpression:
+                    return Visit(correlationPredicateExpression.EqualExpression);
+
+                case ProjectionBindingExpression projectionBindingExpression:
+                    var selectExpression = (SelectExpression)projectionBindingExpression.QueryExpression;
+                    return selectExpression.GetMappedProjection(projectionBindingExpression.ProjectionMember);
+
+                default:
+                    return null;
             }
-
-            if (extensionExpression is ProjectionBindingExpression projectionBindingExpression)
-            {
-                var selectExpression = (SelectExpression)projectionBindingExpression.QueryExpression;
-
-                return selectExpression.GetMappedProjection(projectionBindingExpression.ProjectionMember);
-            }
-
-            if (extensionExpression is NullConditionalExpression nullConditionalExpression)
-            {
-                return Visit(nullConditionalExpression.AccessOperation);
-            }
-
-            if (extensionExpression is CorrelationPredicateExpression correlationPredicateExpression)
-            {
-                return Visit(correlationPredicateExpression.EqualExpression);
-            }
-
-            return base.VisitExtension(extensionExpression);
         }
 
         protected override Expression VisitConditional(ConditionalExpression conditionalExpression)
