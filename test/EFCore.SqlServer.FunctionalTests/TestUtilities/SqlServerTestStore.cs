@@ -394,13 +394,13 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         {
             if (connection.State != ConnectionState.Closed)
             {
-                connection.Close();
+                await connection.CloseAsync();
             }
 
             await connection.OpenAsync();
             try
             {
-                using (var transaction = useTransaction ? connection.BeginTransaction() : null)
+                using (var transaction = useTransaction ? await connection.BeginTransactionAsync() : null)
                 {
                     T result;
                     using (var command = CreateCommand(connection, sql, parameters))
@@ -408,7 +408,10 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                         result = await executeAsync(command);
                     }
 
-                    transaction?.Commit();
+                    if (transaction != null)
+                    {
+                        await transaction.CommitAsync();
+                    }
 
                     return result;
                 }
@@ -417,7 +420,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             {
                 if (connection.State != ConnectionState.Closed)
                 {
-                    connection.Close();
+                    await connection.CloseAsync();
                 }
             }
         }
