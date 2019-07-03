@@ -286,30 +286,16 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
                 && methodCallExpression.Arguments.Count > 0
                 && methodCallExpression.Arguments[0] is GroupByShaperExpression groupByShaperExpression)
             {
-                switch (methodCallExpression.Method.Name)
+                return methodCallExpression.Method.Name switch
                 {
-                    case nameof(Enumerable.Average):
-                        return TranslateAverage(GetSelector(methodCallExpression, groupByShaperExpression));
-
-                    case nameof(Enumerable.Count):
-                        return TranslateCount();
-
-                    case nameof(Enumerable.LongCount):
-                        return TranslateLongCount();
-
-                    case nameof(Enumerable.Max):
-                        return TranslateMax(GetSelector(methodCallExpression, groupByShaperExpression));
-
-                    case nameof(Enumerable.Min):
-                        return TranslateMin(GetSelector(methodCallExpression, groupByShaperExpression));
-
-                    case nameof(Enumerable.Sum):
-                        return TranslateSum(GetSelector(methodCallExpression, groupByShaperExpression));
-
-                    default:
-                        throw new InvalidOperationException("Unknown aggregate operator encountered.");
-                }
-
+                    nameof(Enumerable.Average)   => TranslateAverage(GetSelector(methodCallExpression, groupByShaperExpression)),
+                    nameof(Enumerable.Count)     => TranslateCount(),
+                    nameof(Enumerable.LongCount) => TranslateLongCount(),
+                    nameof(Enumerable.Max)       => TranslateMax(GetSelector(methodCallExpression, groupByShaperExpression)),
+                    nameof(Enumerable.Min)       => TranslateMin(GetSelector(methodCallExpression, groupByShaperExpression)),
+                    nameof(Enumerable.Sum)       => TranslateSum(GetSelector(methodCallExpression, groupByShaperExpression)),
+                    _                            => throw new InvalidOperationException("Unknown aggregate operator encountered.")
+                };
             }
 
             // Subquery case
@@ -473,27 +459,15 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
             => new SqlParameterExpression(parameterExpression, null);
 
         protected override Expression VisitExtension(Expression extensionExpression)
-        {
-            switch (extensionExpression)
+            => extensionExpression switch
             {
-                case EntityShaperExpression _:
-                case SqlExpression _:
-                    return extensionExpression;
-
-                case NullConditionalExpression nullConditionalExpression:
-                    return Visit(nullConditionalExpression.AccessOperation);
-
-                case CorrelationPredicateExpression correlationPredicateExpression:
-                    return Visit(correlationPredicateExpression.EqualExpression);
-
-                case ProjectionBindingExpression projectionBindingExpression:
-                    var selectExpression = (SelectExpression)projectionBindingExpression.QueryExpression;
-                    return selectExpression.GetMappedProjection(projectionBindingExpression.ProjectionMember);
-
-                default:
-                    return null;
-            }
-        }
+                EntityShaperExpression e         => e,
+                SqlExpression e                  => e,
+                NullConditionalExpression e      => Visit(e.AccessOperation),
+                CorrelationPredicateExpression e => Visit(e.EqualExpression),
+                ProjectionBindingExpression e    => ((SelectExpression)e.QueryExpression).GetMappedProjection(e.ProjectionMember),
+                _ => null
+            };
 
         protected override Expression VisitConditional(ConditionalExpression conditionalExpression)
         {

@@ -252,35 +252,25 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
 
             if (_groupBy.Count > 0)
             {
-                if (HavingExpression == null)
-                {
-                    HavingExpression = expression;
-                }
-                else
-                {
-                    HavingExpression = new SqlBinaryExpression(
+                HavingExpression = HavingExpression == null
+                    ? expression
+                    : new SqlBinaryExpression(
                         ExpressionType.AndAlso,
                         HavingExpression,
                         expression,
                         typeof(bool),
                         expression.TypeMapping);
-                }
             }
             else
             {
-                if (Predicate == null)
-                {
-                    Predicate = expression;
-                }
-                else
-                {
-                    Predicate = new SqlBinaryExpression(
+                Predicate = Predicate == null
+                    ? expression
+                    : new SqlBinaryExpression(
                         ExpressionType.AndAlso,
                         Predicate,
                         expression,
                         typeof(bool),
                         expression.TypeMapping);
-                }
             }
         }
 
