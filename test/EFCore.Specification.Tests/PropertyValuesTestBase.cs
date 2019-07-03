@@ -1264,9 +1264,18 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateContext())
             {
+                var office = new Office { Number = "35"};
+                var mailRoom = new MailRoom { id = 36 };
                 var building = Building.Create(Guid.NewGuid(), "Bag End", 77);
+
+                building.Offices.Add(office);
+                building.PrincipalMailRoom = mailRoom;
+                office.Building = building;
+                mailRoom.Building = building;
+
                 var entry = context.Entry(building);
 
+                context.Attach(building);
                 entry.State = state;
 
                 if (async)
@@ -1282,7 +1291,21 @@ namespace Microsoft.EntityFrameworkCore
                 Assert.Equal("Bag End", entry.Property(e => e.Name).CurrentValue);
                 Assert.Equal("Bag End", building.Name);
 
-                Assert.Equal(state == EntityState.Added ? EntityState.Added : EntityState.Detached, entry.State);
+                if (state == EntityState.Added)
+                {
+                    Assert.Equal(EntityState.Added, entry.State);
+                    Assert.Same(mailRoom, building.PrincipalMailRoom);
+                    Assert.Contains(office, building.Offices);
+                }
+                else
+                {
+                    Assert.Equal(EntityState.Detached, entry.State);
+                    Assert.Null(mailRoom.Building);
+                    Assert.Same(state == EntityState.Deleted ? building : null, office.Building);
+                }
+
+                Assert.Same(mailRoom, building.PrincipalMailRoom);
+                Assert.Contains(office, building.Offices);
             }
         }
 

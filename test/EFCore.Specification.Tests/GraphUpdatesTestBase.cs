@@ -695,6 +695,263 @@ namespace Microsoft.EntityFrameworkCore
                 });
         }
 
+        [ConditionalFact]
+        public virtual void Resetting_a_deleted_reference_fixes_up_again()
+        {
+            ExecuteWithStrategyInTransaction(
+                context =>
+                {
+                    var bloog = context.Set<Bloog>().Include(e => e.Poosts).Single();
+                    var poost1 = bloog.Poosts.First();
+                    var poost2 = bloog.Poosts.Skip(1).First();
+
+                    Assert.Equal(2, bloog.Poosts.Count());
+                    Assert.Same(bloog, poost1.Bloog);
+                    Assert.Same(bloog, poost2.Bloog);
+
+                    context.Remove(bloog);
+
+                    Assert.Equal(2, bloog.Poosts.Count());
+
+                    if (Fixture.ForceClientNoAction)
+                    {
+                        Assert.Same(bloog, poost1.Bloog);
+                        Assert.Same(bloog, poost2.Bloog);
+                    }
+                    else
+                    {
+                        Assert.Null(poost1.Bloog);
+                        Assert.Null(poost2.Bloog);
+                    }
+
+                    poost1.Bloog = bloog;
+
+                    Assert.Equal(2, bloog.Poosts.Count());
+
+                    if (Fixture.ForceClientNoAction)
+                    {
+                        Assert.Same(bloog, poost1.Bloog);
+                        Assert.Same(bloog, poost2.Bloog);
+                    }
+                    else
+                    {
+                        Assert.Same(bloog, poost1.Bloog);
+                        Assert.Null(poost2.Bloog);
+                    }
+
+                    poost1.Bloog = null;
+
+                    Assert.Equal(2, bloog.Poosts.Count());
+
+                    if (Fixture.ForceClientNoAction)
+                    {
+                        Assert.Null(poost1.Bloog);
+                        Assert.Same(bloog, poost2.Bloog);
+                    }
+                    else
+                    {
+                        Assert.Null(poost1.Bloog);
+                        Assert.Null(poost2.Bloog);
+                    }
+
+                    if (!Fixture.ForceClientNoAction)
+                    {
+                        context.SaveChanges();
+
+                        Assert.Equal(2, bloog.Poosts.Count());
+                        Assert.Null(poost1.Bloog);
+                        Assert.Null(poost2.Bloog);
+                    }
+                });
+        }
+
+        [ConditionalFact]
+        public virtual void Detaching_principal_entity_will_remove_references_to_it()
+        {
+            ExecuteWithStrategyInTransaction(
+                context =>
+                {
+                    var root = LoadOptionalGraph(context);
+                    LoadRequiredGraph(context);
+                    LoadOptionalAkGraph(context);
+                    LoadRequiredAkGraph(context);
+                    LoadRequiredCompositeGraph(context);
+                    LoadRequiredNonPkGraph(context);
+                    LoadOptionalOneToManyGraph(context);
+                    LoadRequiredNonPkAkGraph(context);
+
+                    Assert.Same(root, root.OptionalSingle.Root);
+                    Assert.Same(root, root.RequiredSingle.Root);
+                    Assert.Same(root, root.OptionalSingleAk.Root);
+                    Assert.Same(root, root.OptionalSingleDerived.DerivedRoot);
+                    Assert.Same(root, root.RequiredSingleAk.Root);
+                    Assert.Same(root, root.OptionalSingleAkDerived.DerivedRoot);
+                    Assert.Same(root, root.OptionalSingleMoreDerived.MoreDerivedRoot);
+                    Assert.Same(root, root.RequiredNonPkSingle.Root);
+                    Assert.Same(root, root.OptionalSingleAkMoreDerived.MoreDerivedRoot);
+                    Assert.Same(root, root.RequiredNonPkSingleAk.Root);
+                    Assert.Same(root, root.RequiredNonPkSingleDerived.DerivedRoot);
+                    Assert.Same(root, root.RequiredNonPkSingleAkDerived.DerivedRoot);
+                    Assert.Same(root, root.RequiredNonPkSingleMoreDerived.MoreDerivedRoot);
+                    Assert.Same(root, root.RequiredNonPkSingleAkMoreDerived.MoreDerivedRoot);
+
+                    Assert.True(root.OptionalChildren.All(e => e.Parent == root));
+                    Assert.True(root.RequiredChildren.All(e => e.Parent == root));
+                    Assert.True(root.OptionalChildrenAk.All(e => e.Parent == root));
+                    Assert.True(root.RequiredChildrenAk.All(e => e.Parent == root));
+                    Assert.True(root.RequiredCompositeChildren.All(e => e.Parent == root));
+
+                    context.Entry(root).State = EntityState.Detached;
+
+                    Assert.Null(root.OptionalSingle.Root);
+                    Assert.Null(root.RequiredSingle.Root);
+                    Assert.Null(root.OptionalSingleAk.Root);
+                    Assert.Null(root.OptionalSingleDerived.DerivedRoot);
+                    Assert.Null(root.RequiredSingleAk.Root);
+                    Assert.Null(root.OptionalSingleAkDerived.DerivedRoot);
+                    Assert.Null(root.OptionalSingleMoreDerived.MoreDerivedRoot);
+                    Assert.Null(root.RequiredNonPkSingle.Root);
+                    Assert.Null(root.OptionalSingleAkMoreDerived.MoreDerivedRoot);
+                    Assert.Null(root.RequiredNonPkSingleAk.Root);
+                    Assert.Null(root.RequiredNonPkSingleDerived.DerivedRoot);
+                    Assert.Null(root.RequiredNonPkSingleAkDerived.DerivedRoot);
+                    Assert.Null(root.RequiredNonPkSingleMoreDerived.MoreDerivedRoot);
+                    Assert.Null(root.RequiredNonPkSingleAkMoreDerived.MoreDerivedRoot);
+
+                    Assert.True(root.OptionalChildren.All(e => e.Parent == null));
+                    Assert.True(root.RequiredChildren.All(e => e.Parent == null));
+                    Assert.True(root.OptionalChildrenAk.All(e => e.Parent == null));
+                    Assert.True(root.RequiredChildrenAk.All(e => e.Parent == null));
+                    Assert.True(root.RequiredCompositeChildren.All(e => e.Parent == null));
+                });
+        }
+
+        [ConditionalFact]
+        public virtual void Detaching_dependent_entity_will_remove_references_to_it()
+        {
+            ExecuteWithStrategyInTransaction(
+                context =>
+                {
+                    var root = LoadOptionalGraph(context);
+                    LoadRequiredGraph(context);
+                    LoadOptionalAkGraph(context);
+                    LoadRequiredAkGraph(context);
+                    LoadRequiredCompositeGraph(context);
+                    LoadRequiredNonPkGraph(context);
+                    LoadOptionalOneToManyGraph(context);
+                    LoadRequiredNonPkAkGraph(context);
+
+                    var optionalSingle = root.OptionalSingle;
+                    var requiredSingle = root.RequiredSingle;
+                    var optionalSingleAk = root.OptionalSingleAk;
+                    var optionalSingleDerived = root.OptionalSingleDerived;
+                    var requiredSingleAk = root.RequiredSingleAk;
+                    var optionalSingleAkDerived = root.OptionalSingleAkDerived;
+                    var optionalSingleMoreDerived = root.OptionalSingleMoreDerived;
+                    var requiredNonPkSingle = root.RequiredNonPkSingle;
+                    var optionalSingleAkMoreDerived = root.OptionalSingleAkMoreDerived;
+                    var requiredNonPkSingleAk = root.RequiredNonPkSingleAk;
+                    var requiredNonPkSingleDerived = root.RequiredNonPkSingleDerived;
+                    var requiredNonPkSingleAkDerived = root.RequiredNonPkSingleAkDerived;
+                    var requiredNonPkSingleMoreDerived = root.RequiredNonPkSingleMoreDerived;
+                    var requiredNonPkSingleAkMoreDerived = root.RequiredNonPkSingleAkMoreDerived;
+
+                    var optionalChildren = root.OptionalChildren;
+                    var requiredChildren = root.RequiredChildren;
+                    var optionalChildrenAk = root.OptionalChildrenAk;
+                    var requiredChildrenAk = root.RequiredChildrenAk;
+                    var requiredCompositeChildren = root.RequiredCompositeChildren;
+                    var optionalChild = optionalChildren.First();
+                    var requiredChild = requiredChildren.First();
+                    var optionalChildAk = optionalChildrenAk.First();
+                    var requieredChildAk = requiredChildrenAk.First();
+                    var requiredCompositeChild = requiredCompositeChildren.First();
+
+                    Assert.Same(root, optionalSingle.Root);
+                    Assert.Same(root, requiredSingle.Root);
+                    Assert.Same(root, optionalSingleAk.Root);
+                    Assert.Same(root, optionalSingleDerived.DerivedRoot);
+                    Assert.Same(root, requiredSingleAk.Root);
+                    Assert.Same(root, optionalSingleAkDerived.DerivedRoot);
+                    Assert.Same(root, optionalSingleMoreDerived.MoreDerivedRoot);
+                    Assert.Same(root, requiredNonPkSingle.Root);
+                    Assert.Same(root, optionalSingleAkMoreDerived.MoreDerivedRoot);
+                    Assert.Same(root, requiredNonPkSingleAk.Root);
+                    Assert.Same(root, requiredNonPkSingleDerived.DerivedRoot);
+                    Assert.Same(root, requiredNonPkSingleAkDerived.DerivedRoot);
+                    Assert.Same(root, requiredNonPkSingleMoreDerived.MoreDerivedRoot);
+                    Assert.Same(root, requiredNonPkSingleAkMoreDerived.MoreDerivedRoot);
+
+                    Assert.True(optionalChildren.All(e => e.Parent == root));
+                    Assert.True(requiredChildren.All(e => e.Parent == root));
+                    Assert.True(optionalChildrenAk.All(e => e.Parent == root));
+                    Assert.True(requiredChildrenAk.All(e => e.Parent == root));
+                    Assert.True(requiredCompositeChildren.All(e => e.Parent == root));
+
+                    context.Entry(optionalSingle).State = EntityState.Detached;
+                    context.Entry(requiredSingle).State = EntityState.Detached;
+                    context.Entry(optionalSingleAk).State = EntityState.Detached;
+                    context.Entry(optionalSingleDerived).State = EntityState.Detached;
+                    context.Entry(requiredSingleAk).State = EntityState.Detached;
+                    context.Entry(optionalSingleAkDerived).State = EntityState.Detached;
+                    context.Entry(optionalSingleMoreDerived).State = EntityState.Detached;
+                    context.Entry(requiredNonPkSingle).State = EntityState.Detached;
+                    context.Entry(optionalSingleAkMoreDerived).State = EntityState.Detached;
+                    context.Entry(requiredNonPkSingleAk).State = EntityState.Detached;
+                    context.Entry(requiredNonPkSingleDerived).State = EntityState.Detached;
+                    context.Entry(requiredNonPkSingleAkDerived).State = EntityState.Detached;
+                    context.Entry(requiredNonPkSingleMoreDerived).State = EntityState.Detached;
+                    context.Entry(requiredNonPkSingleAkMoreDerived).State = EntityState.Detached;
+                    context.Entry(optionalChild).State = EntityState.Detached;
+                    context.Entry(requiredChild).State = EntityState.Detached;
+                    context.Entry(optionalChildAk).State = EntityState.Detached;
+                    context.Entry(requieredChildAk).State = EntityState.Detached;
+                    context.Entry(requiredCompositeChild).State = EntityState.Detached;
+
+                    Assert.Same(root, optionalSingle.Root);
+                    Assert.Same(root, requiredSingle.Root);
+                    Assert.Same(root, optionalSingleAk.Root);
+                    Assert.Same(root, optionalSingleDerived.DerivedRoot);
+                    Assert.Same(root, requiredSingleAk.Root);
+                    Assert.Same(root, optionalSingleAkDerived.DerivedRoot);
+                    Assert.Same(root, optionalSingleMoreDerived.MoreDerivedRoot);
+                    Assert.Same(root, requiredNonPkSingle.Root);
+                    Assert.Same(root, optionalSingleAkMoreDerived.MoreDerivedRoot);
+                    Assert.Same(root, requiredNonPkSingleAk.Root);
+                    Assert.Same(root, requiredNonPkSingleDerived.DerivedRoot);
+                    Assert.Same(root, requiredNonPkSingleAkDerived.DerivedRoot);
+                    Assert.Same(root, requiredNonPkSingleMoreDerived.MoreDerivedRoot);
+                    Assert.Same(root, requiredNonPkSingleAkMoreDerived.MoreDerivedRoot);
+
+                    Assert.True(optionalChildren.All(e => e.Parent == root));
+                    Assert.True(requiredChildren.All(e => e.Parent == root));
+                    Assert.True(optionalChildrenAk.All(e => e.Parent == root));
+                    Assert.True(requiredChildrenAk.All(e => e.Parent == root));
+                    Assert.True(requiredCompositeChildren.All(e => e.Parent == root));
+
+                    Assert.Null(root.OptionalSingle);
+                    Assert.Null(root.RequiredSingle);
+                    Assert.Null(root.OptionalSingleAk);
+                    Assert.Null(root.OptionalSingleDerived);
+                    Assert.Null(root.RequiredSingleAk);
+                    Assert.Null(root.OptionalSingleAkDerived);
+                    Assert.Null(root.OptionalSingleMoreDerived);
+                    Assert.Null(root.RequiredNonPkSingle);
+                    Assert.Null(root.OptionalSingleAkMoreDerived);
+                    Assert.Null(root.RequiredNonPkSingleAk);
+                    Assert.Null(root.RequiredNonPkSingleDerived);
+                    Assert.Null(root.RequiredNonPkSingleAkDerived);
+                    Assert.Null(root.RequiredNonPkSingleMoreDerived);
+                    Assert.Null(root.RequiredNonPkSingleAkMoreDerived);
+
+                    Assert.DoesNotContain(optionalChild, root.OptionalChildren);
+                    Assert.DoesNotContain(requiredChild, root.RequiredChildren);
+                    Assert.DoesNotContain(optionalChildAk, root.OptionalChildrenAk);
+                    Assert.DoesNotContain(requieredChildAk, root.RequiredChildrenAk);
+                    Assert.DoesNotContain(requiredCompositeChild, root.RequiredCompositeChildren);
+                });
+        }
+
         [ConditionalTheory]
         [InlineData((int)ChangeMechanism.Principal, CascadeTiming.OnSaveChanges)]
         [InlineData((int)ChangeMechanism.Dependent, CascadeTiming.OnSaveChanges)]

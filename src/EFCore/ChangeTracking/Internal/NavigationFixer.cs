@@ -513,8 +513,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 {
                     InitialFixup(entry, null, fromQuery: false);
                 }
-                else if (entry.EntityState == EntityState.Detached
-                         && oldState == EntityState.Deleted)
+                else if (entry.EntityState == EntityState.Detached)
                 {
                     DeleteFixup(entry);
                 }
