@@ -12,7 +12,6 @@ namespace Microsoft.EntityFrameworkCore
     {
         protected override ICollection<Type> IgnoredTestBases { get; } = new HashSet<Type>
         {
-            typeof(AsyncFromSqlSprocQueryTestBase<>),
             typeof(FromSqlSprocQueryTestBase<>),
             typeof(SqlExecutorTestBase<>),
             typeof(UdfDbFunctionTestBase<>),
