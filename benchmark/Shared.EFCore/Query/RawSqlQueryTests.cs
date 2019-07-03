@@ -37,7 +37,11 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.Query
                 {
                     if (!string.IsNullOrEmpty(StoredProcedureCreationScript))
                     {
+#if OLD_FROM_SQL
+                        ctx.Database.ExecuteSqlCommand(StoredProcedureCreationScript);
+#else
                         ctx.Database.ExecuteSqlRaw(StoredProcedureCreationScript);
+#endif
                     }
                 });
 
@@ -58,8 +62,13 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.Query
         [Benchmark]
         public virtual async Task SelectAll()
         {
+            var sql = @"SELECT * FROM ""Products""";
             var query = _context.Products
-                .FromSqlRaw(@"SELECT * FROM ""Products""")
+#if OLD_FROM_SQL
+                .FromSql(sql)
+#else
+                .FromSqlRaw(sql)
+#endif
                 .ApplyTracking(Tracking);
 
             if (Async)
@@ -75,8 +84,13 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.Query
         [Benchmark]
         public virtual async Task SelectParameterized()
         {
+            var sql = @"SELECT * FROM ""Products"" WHERE ""CurrentPrice"" >= @p0 AND ""CurrentPrice"" <= @p1";
             var query = _context.Products
-                .FromSqlRaw(@"SELECT * FROM ""Products"" WHERE ""CurrentPrice"" >= @p0 AND ""CurrentPrice"" <= @p1", 10, 14)
+#if OLD_FROM_SQL
+                .FromSql(sql, 10, 14)
+#else
+                .FromSqlRaw(sql, 10, 14)
+#endif
                 .ApplyTracking(Tracking);
 
             if (Async)
@@ -92,8 +106,13 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.Query
         [Benchmark]
         public virtual async Task SelectComposed()
         {
+            var sql = @"SELECT * FROM ""Products""";
             var query = _context.Products
-                .FromSqlRaw(@"SELECT * FROM ""Products""")
+#if OLD_FROM_SQL
+                .FromSql(sql)
+#else
+                .FromSqlRaw(sql)
+#endif
                 .ApplyTracking(Tracking)
                 .Where(p => p.ActualStockLevel >= 2 && p.ActualStockLevel <= 6)
                 .OrderBy(p => p.Name);
@@ -111,8 +130,13 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.Query
         [Benchmark]
         public virtual async Task StoredProcedure()
         {
+            var sql = @"EXECUTE dbo.SearchProducts @p0, @p1";
             var query = _context.Products
-                .FromSqlRaw(@"EXECUTE dbo.SearchProducts @p0, @p1", 10, 14)
+#if OLD_FROM_SQL
+                .FromSql(sql, 10, 14)
+#else
+                .FromSqlRaw(sql, 10, 14)
+#endif
                 .ApplyTracking(Tracking);
 
             if (Async)

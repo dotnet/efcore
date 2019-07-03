@@ -22,16 +22,20 @@
   </ItemGroup>
 
   <ItemGroup Condition=" '$(Configuration)' == 'Release22' ">
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="2.2.1" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="2.2.4" />
   </ItemGroup>
 
   <ItemGroup Condition=" '$(Configuration)' == 'Release21' ">
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="2.1.4" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="2.1.11" />
   </ItemGroup>
 
   <ItemGroup Condition=" '$(Configuration)' == 'Release20' ">
     <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="2.0.3" />
   </ItemGroup>
+
+  <PropertyGroup Condition=" '$(Configuration)' == 'Release22' Or '$(Configuration)' == 'Release21' Or '$(Configuration)' == 'Release20' ">
+    <DefineConstants>$(DefineConstants);OLD_FROM_SQL</DefineConstants>
+  </PropertyGroup>
 
   <ItemGroup>
     <None Update="AdventureWorks2014.db">
