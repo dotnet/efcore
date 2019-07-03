@@ -2,16 +2,16 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 using Microsoft.EntityFrameworkCore.TestUtilities;
-using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
 using Xunit;
 
 // ReSharper disable InconsistentNaming
-// ReSharper disable AccessToDisposedClosure
 namespace Microsoft.EntityFrameworkCore.Query
 {
     public abstract class FromSqlSprocQueryTestBase<TFixture> : IClassFixture<TFixture>
@@ -21,15 +21,20 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         protected TFixture Fixture { get; }
 
-        [ConditionalFact]
-        public virtual void From_sql_queryable_stored_procedure()
+        [ConditionalTheory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual async Task From_sql_queryable_stored_procedure(bool async)
         {
             using (var context = CreateContext())
             {
-                var actual = context
+                var query = context
                     .Set<MostExpensiveProduct>()
-                    .FromSqlRaw(TenMostExpensiveProductsSproc, GetTenMostExpensiveProductsParameters())
-                    .ToArray();
+                    .FromSqlRaw(TenMostExpensiveProductsSproc, GetTenMostExpensiveProductsParameters());
+
+                var actual = async
+                    ? await query.ToArrayAsync()
+                    : query.ToArray();
 
                 Assert.Equal(10, actual.Length);
 
@@ -41,28 +46,35 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalFact]
-        public virtual void From_sql_queryable_stored_procedure_projection()
+        [ConditionalTheory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual async Task From_sql_queryable_stored_procedure_projection(bool async)
         {
             using (var context = CreateContext())
             {
-                var actual = context
+                var query = context
                     .Set<MostExpensiveProduct>()
                     .FromSqlRaw(TenMostExpensiveProductsSproc, GetTenMostExpensiveProductsParameters())
-                    .Select(mep => mep.TenMostExpensiveProducts)
-                    .ToArray();
+                    .Select(mep => mep.TenMostExpensiveProducts);
+
+                var actual = async
+                    ? await query.ToArrayAsync()
+                    : query.ToArray();
 
                 Assert.Equal(10, actual.Length);
                 Assert.True(actual.Any(r => r == "Côte de Blaye"));
             }
         }
 
-        [ConditionalFact(Skip = "Issue#14935")]
-        public virtual void From_sql_queryable_stored_procedure_reprojection()
+        [ConditionalTheory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual async Task<Exception> From_sql_queryable_stored_procedure_re_projection(bool async)
         {
             using (var context = CreateContext())
             {
-                var actual = context
+                var query = context
                     .Set<MostExpensiveProduct>()
                     .FromSqlRaw(TenMostExpensiveProductsSproc, GetTenMostExpensiveProductsParameters())
                     .Select(
@@ -71,23 +83,62 @@ namespace Microsoft.EntityFrameworkCore.Query
                             {
                                 TenMostExpensiveProducts = "Foo",
                                 UnitPrice = mep.UnitPrice
-                            })
-                    .ToArray();
+                            });
+                try
+                {
+                    var _ = async
+                        ? await query.ToArrayAsync()
+                        : query.ToArray();
+
+                    Assert.True(false);
+                    return null;
+                }
+                catch (Exception e)
+                {
+                    return e;
+                }
+            }
+        }
+
+        [ConditionalTheory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual async Task From_sql_queryable_stored_procedure_re_projection_on_client(bool async)
+        {
+            using (var context = CreateContext())
+            {
+                var query = context
+                    .Set<MostExpensiveProduct>()
+                    .FromSqlRaw(TenMostExpensiveProductsSproc, GetTenMostExpensiveProductsParameters());
+
+                var actual = (async ? await query.ToListAsync() : query.ToList())
+                    .Select(
+                        mep =>
+                            new MostExpensiveProduct
+                            {
+                                TenMostExpensiveProducts = "Foo",
+                                UnitPrice = mep.UnitPrice
+                            }).ToArray();
 
                 Assert.Equal(10, actual.Length);
                 Assert.True(actual.All(mep => mep.TenMostExpensiveProducts == "Foo"));
             }
         }
 
-        [ConditionalFact]
-        public virtual void From_sql_queryable_stored_procedure_with_parameter()
+        [ConditionalTheory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual async Task From_sql_queryable_stored_procedure_with_parameter(bool async)
         {
             using (var context = CreateContext())
             {
-                var actual = context
+                var query = context
                     .Set<CustomerOrderHistory>()
-                    .FromSqlRaw(CustomerOrderHistorySproc, GetCustomerOrderHistorySprocParameters())
-                    .ToArray();
+                    .FromSqlRaw(CustomerOrderHistorySproc, GetCustomerOrderHistorySprocParameters());
+
+                var actual = async
+                    ? query.ToArray()
+                    : await query.ToArrayAsync();
 
                 Assert.Equal(11, actual.Length);
 
@@ -99,14 +150,49 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalFact(Skip = "Issue #14935. Cannot eval 'where [mep].TenMostExpensiveProducts.Contains(\"C\")'")]
-        public virtual void From_sql_queryable_stored_procedure_composed()
+        [ConditionalTheory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual async Task<Exception> From_sql_queryable_stored_procedure_composed(bool async)
         {
             using (var context = CreateContext())
             {
-                var actual = context
+                try
+                {
+                    var query = context
+                        .Set<MostExpensiveProduct>()
+                        .FromSqlRaw(TenMostExpensiveProductsSproc, GetTenMostExpensiveProductsParameters())
+                        .Where(mep => mep.TenMostExpensiveProducts.Contains("C"))
+                        .OrderBy(mep => mep.UnitPrice);
+
+                    var _ = async
+                        ? await query.ToArrayAsync()
+                        : query.ToArray();
+
+                    Assert.True(false);
+                    return null;
+                }
+                catch (Exception e)
+                {
+                    return e;
+                }
+            }
+        }
+
+        [ConditionalTheory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual async Task From_sql_queryable_stored_procedure_composed_on_client(bool async)
+        {
+            using (var context = CreateContext())
+            {
+                var query = context
                     .Set<MostExpensiveProduct>()
-                    .FromSqlRaw(TenMostExpensiveProductsSproc, GetTenMostExpensiveProductsParameters())
+                    .FromSqlRaw(TenMostExpensiveProductsSproc, GetTenMostExpensiveProductsParameters());
+
+                var actual = (async
+                        ? await query.ToListAsync()
+                        : query.ToList())
                     .Where(mep => mep.TenMostExpensiveProducts.Contains("C"))
                     .OrderBy(mep => mep.UnitPrice)
                     .ToArray();
@@ -117,14 +203,49 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalFact(Skip = "Issue #14935. Cannot eval 'where [coh].ProductName.Contains(\"C\")'")]
-        public virtual void From_sql_queryable_stored_procedure_with_parameter_composed()
+        [ConditionalTheory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual async Task<Exception> From_sql_queryable_stored_procedure_with_parameter_composed(bool async)
         {
             using (var context = CreateContext())
             {
-                var actual = context
+                try
+                {
+                    var query = context
+                        .Set<CustomerOrderHistory>()
+                        .FromSqlRaw(CustomerOrderHistorySproc, GetCustomerOrderHistorySprocParameters())
+                        .Where(coh => coh.ProductName.Contains("C"))
+                        .OrderBy(coh => coh.Total);
+
+                    var _ = async
+                        ? await query.ToArrayAsync()
+                        : query.ToArray();
+
+                    Assert.True(false);
+                    return null;
+                }
+                catch (Exception e)
+                {
+                    return e;
+                }
+            }
+        }
+
+        [ConditionalTheory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual async Task From_sql_queryable_stored_procedure_with_parameter_composed_on_client(bool async)
+        {
+            using (var context = CreateContext())
+            {
+                var query = context
                     .Set<CustomerOrderHistory>()
-                    .FromSqlRaw(CustomerOrderHistorySproc, GetCustomerOrderHistorySprocParameters())
+                    .FromSqlRaw(CustomerOrderHistorySproc, GetCustomerOrderHistorySprocParameters());
+
+                var actual = (async
+                        ? await query.ToListAsync()
+                        : query.ToList())
                     .Where(coh => coh.ProductName.Contains("C"))
                     .OrderBy(coh => coh.Total)
                     .ToArray();
@@ -135,14 +256,50 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalFact(Skip = "Issue #14935. Cannot eval 'orderby [mep].UnitPrice desc'")]
-        public virtual void From_sql_queryable_stored_procedure_take()
+
+        [ConditionalTheory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual async Task<Exception> From_sql_queryable_stored_procedure_take(bool async)
         {
             using (var context = CreateContext())
             {
-                var actual = context
+                try
+                {
+                    var query = context
+                        .Set<MostExpensiveProduct>()
+                        .FromSqlRaw(TenMostExpensiveProductsSproc, GetTenMostExpensiveProductsParameters())
+                        .OrderByDescending(mep => mep.UnitPrice)
+                        .Take(2);
+
+                    var _ = async
+                        ? await query.ToArrayAsync()
+                        : query.ToArray();
+
+                    Assert.True(false);
+                    return null;
+                }
+                catch (Exception e)
+                {
+                    return e;
+                }
+            }
+        }
+
+        [ConditionalTheory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual async Task From_sql_queryable_stored_procedure_take_on_client(bool async)
+        {
+            using (var context = CreateContext())
+            {
+                var query = context
                     .Set<MostExpensiveProduct>()
-                    .FromSqlRaw(TenMostExpensiveProductsSproc, GetTenMostExpensiveProductsParameters())
+                    .FromSqlRaw(TenMostExpensiveProductsSproc, GetTenMostExpensiveProductsParameters());
+
+                var actual = (async
+                        ? await query.ToListAsync()
+                        : query.ToList())
                     .OrderByDescending(mep => mep.UnitPrice)
                     .Take(2)
                     .ToArray();
@@ -153,95 +310,254 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalFact(Skip = "Issue #14935. Cannot eval 'Min()'")]
-        public virtual void From_sql_queryable_stored_procedure_min()
+        [ConditionalTheory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual async Task<Exception> From_sql_queryable_stored_procedure_min(bool async)
         {
             using (var context = CreateContext())
             {
+                try
+                {
+                    var query = context.Set<MostExpensiveProduct>()
+                        .FromSqlRaw(TenMostExpensiveProductsSproc, GetTenMostExpensiveProductsParameters());
+
+                    var _ = async
+                        ? await query.MinAsync(mep => mep.UnitPrice)
+                        : query.Min(mep => mep.UnitPrice);
+
+                    Assert.True(false);
+                    return null;
+                }
+                catch (Exception e)
+                {
+                    return e;
+                }
+            }
+        }
+
+        [ConditionalTheory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual async Task From_sql_queryable_stored_procedure_min_on_client(bool async)
+        {
+            using (var context = CreateContext())
+            {
+                var query = context.Set<MostExpensiveProduct>()
+                    .FromSqlRaw(TenMostExpensiveProductsSproc, GetTenMostExpensiveProductsParameters());
+
                 Assert.Equal(
                     45.60m,
-                    context.Set<MostExpensiveProduct>()
-                        .FromSqlRaw(TenMostExpensiveProductsSproc, GetTenMostExpensiveProductsParameters())
-                        .Min(mep => mep.UnitPrice));
+                    (async
+                        ? await query.ToListAsync()
+                        : query.ToList())
+                    .Min(mep => mep.UnitPrice));
             }
         }
 
-        [ConditionalFact(Skip = "issue #15312")]
-        public virtual void From_sql_queryable_stored_procedure_with_include_throws()
+        [ConditionalTheory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual async Task<Exception> From_sql_queryable_stored_procedure_with_include_throws(bool async)
         {
             using (var context = CreateContext())
             {
-                Assert.Equal(
-                    RelationalStrings.StoredProcedureIncludeNotSupported,
-                    Assert.Throws<InvalidOperationException>(
-                        () => context.Set<Product>()
-                            .FromSqlRaw("SelectStoredProcedure", GetTenMostExpensiveProductsParameters())
-                            .Include(p => p.OrderDetails)
-                            .ToArray()
-                    ).Message);
+                try
+                {
+                    var query = context.Set<Product>()
+                        .FromSqlRaw("SelectStoredProcedure")
+                        .Include(p => p.OrderDetails);
+
+                    var _ = async
+                        ? await query.ToArrayAsync()
+                        : query.ToArray();
+
+                    Assert.True(false);
+                    return null;
+                }
+                catch (Exception e)
+                {
+                    return e;
+                }
             }
         }
 
-        [ConditionalFact(Skip = "Issue #14935. Cannot eval 'from MostExpensiveProduct b in value(Microsoft.EntityFrameworkCore.Query.Internal.EntityQueryable`1[Microsoft.EntityFrameworkCore.TestModels.Northwind.MostExpensiveProduct])'")]
-        public virtual void From_sql_queryable_with_multiple_stored_procedures()
+        [ConditionalTheory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual async Task<Exception> From_sql_queryable_with_multiple_stored_procedures(bool async)
         {
             using (var context = CreateContext())
             {
-                var actual
-                    = (from a in context.Set<MostExpensiveProduct>()
-                           .FromSqlRaw(TenMostExpensiveProductsSproc, GetTenMostExpensiveProductsParameters())
-                       from b in context.Set<MostExpensiveProduct>()
-                           .FromSqlRaw(TenMostExpensiveProductsSproc, GetTenMostExpensiveProductsParameters())
-                       where a.TenMostExpensiveProducts == b.TenMostExpensiveProducts
-                       select new
-                       {
-                           a,
-                           b
-                       })
-                    .ToArray();
+                var query = from a in context.Set<MostExpensiveProduct>()
+                                .FromSqlRaw(TenMostExpensiveProductsSproc, GetTenMostExpensiveProductsParameters())
+                            from b in context.Set<MostExpensiveProduct>()
+                                .FromSqlRaw(TenMostExpensiveProductsSproc, GetTenMostExpensiveProductsParameters())
+                            where a.TenMostExpensiveProducts == b.TenMostExpensiveProducts
+                            select new
+                            {
+                                a, b
+                            };
+
+                try
+                {
+                    var _ = async
+                        ? await query.ToArrayAsync()
+                        : query.ToArray();
+
+                    Assert.True(false);
+                    return null;
+                }
+                catch (Exception e)
+                {
+                    return e;
+                }
+            }
+        }
+
+        [ConditionalTheory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual async Task From_sql_queryable_with_multiple_stored_procedures_on_client(bool async)
+        {
+            using (var context = CreateContext())
+            {
+                var query1 = context.Set<MostExpensiveProduct>()
+                    .FromSqlRaw(TenMostExpensiveProductsSproc, GetTenMostExpensiveProductsParameters());
+
+                var query2 = context.Set<MostExpensiveProduct>()
+                    .FromSqlRaw(TenMostExpensiveProductsSproc, GetTenMostExpensiveProductsParameters());
+
+                var results1 = async ? await query1.ToListAsync() : query1.ToList();
+                var results2 = (async ? await query2.ToListAsync() : query2.ToList());
+
+                var actual = (from a in results1
+                              from b in results2
+                              where a.TenMostExpensiveProducts == b.TenMostExpensiveProducts
+                              select new
+                              {
+                                  a, b
+                              }).ToArray();
 
                 Assert.Equal(10, actual.Length);
             }
         }
 
-        [ConditionalFact(Skip = "Issue #14935. Cannot eval 'from Product p in value(Microsoft.EntityFrameworkCore.Query.Internal.EntityQueryable`1[Microsoft.EntityFrameworkCore.TestModels.Northwind.Product])'")]
-        public virtual void From_sql_queryable_stored_procedure_and_select()
+        [ConditionalTheory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual async Task<Exception> From_sql_queryable_stored_procedure_and_select(bool async)
         {
             using (var context = CreateContext())
             {
-                var actual
-                    = (from mep in context.Set<MostExpensiveProduct>()
-                           .FromSqlRaw(TenMostExpensiveProductsSproc, GetTenMostExpensiveProductsParameters())
-                       from p in context.Set<Product>()
-                           .FromSqlRaw(NormalizeDelimetersInRawString("SELECT * FROM [Products]"))
-                       where mep.TenMostExpensiveProducts == p.ProductName
-                       select new
-                       {
-                           mep,
-                           p
-                       })
-                    .ToArray();
+                var query = from mep in context.Set<MostExpensiveProduct>()
+                                .FromSqlRaw(TenMostExpensiveProductsSproc, GetTenMostExpensiveProductsParameters())
+                            from p in context.Set<Product>()
+                                .FromSqlRaw(NormalizeDelimetersInRawString("SELECT * FROM [Products]"))
+                            where mep.TenMostExpensiveProducts == p.ProductName
+                            select new
+                            {
+                                mep, p
+                            };
+
+                try
+                {
+                    var _ = async
+                        ? await query.ToArrayAsync()
+                        : query.ToArray();
+
+                    Assert.True(false);
+                    return null;
+                }
+                catch (Exception e)
+                {
+                    return e;
+                }
+            }
+        }
+
+
+        [ConditionalTheory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual async Task From_sql_queryable_stored_procedure_and_select_on_client(bool async)
+        {
+            using (var context = CreateContext())
+            {
+                var query1 = context.Set<MostExpensiveProduct>()
+                    .FromSqlRaw(TenMostExpensiveProductsSproc, GetTenMostExpensiveProductsParameters());
+                var query2 = context.Set<Product>()
+                    .FromSqlRaw(NormalizeDelimetersInRawString("SELECT * FROM [Products]"));
+
+                var results1 = async ? await query1.ToListAsync() : query1.ToList();
+                var results2 = async ? await query2.ToListAsync() : query2.ToList();
+
+                var actual = (from mep in results1
+                              from p in results2
+                              where mep.TenMostExpensiveProducts == p.ProductName
+                              select new
+                              {
+                                  mep, p
+                              }).ToArray();
 
                 Assert.Equal(10, actual.Length);
             }
         }
 
-        [ConditionalFact(Skip = "Issue #14935. Cannot eval 'from MostExpensiveProduct mep in value(Microsoft.EntityFrameworkCore.Query.Internal.EntityQueryable`1[Microsoft.EntityFrameworkCore.TestModels.Northwind.MostExpensiveProduct])'")]
-        public virtual void From_sql_queryable_select_and_stored_procedure()
+        [ConditionalTheory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual async Task<Exception> From_sql_queryable_select_and_stored_procedure(bool async)
         {
             using (var context = CreateContext())
             {
-                var actual
-                    = (from p in context.Set<Product>().FromSqlRaw(NormalizeDelimetersInRawString("SELECT * FROM [Products]"))
-                       from mep in context.Set<MostExpensiveProduct>()
-                           .FromSqlRaw(TenMostExpensiveProductsSproc, GetTenMostExpensiveProductsParameters())
-                       where mep.TenMostExpensiveProducts == p.ProductName
-                       select new
-                       {
-                           mep,
-                           p
-                       })
-                    .ToArray();
+                var query = from p in context.Set<Product>().FromSqlRaw(NormalizeDelimetersInRawString("SELECT * FROM [Products]"))
+                            from mep in context.Set<MostExpensiveProduct>()
+                                .FromSqlRaw(TenMostExpensiveProductsSproc, GetTenMostExpensiveProductsParameters())
+                            where mep.TenMostExpensiveProducts == p.ProductName
+                            select new
+                            {
+                                mep, p
+                            };
+
+                try
+                {
+                    var _ = async
+                        ? await query.ToArrayAsync()
+                        : query.ToArray();
+
+                    Assert.True(false);
+                    return null;
+                }
+                catch (Exception e)
+                {
+                    return e;
+                }
+            }
+        }
+
+        [ConditionalTheory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual async Task From_sql_queryable_select_and_stored_procedure_on_client(bool async)
+        {
+            using (var context = CreateContext())
+            {
+                var query1 = context.Set<Product>()
+                    .FromSqlRaw(NormalizeDelimetersInRawString("SELECT * FROM [Products]"));
+                var query2 = context.Set<MostExpensiveProduct>()
+                    .FromSqlRaw(TenMostExpensiveProductsSproc, GetTenMostExpensiveProductsParameters());
+
+                var results1 = async ? await query1.ToListAsync() : query1.ToList();
+                var results2 = async ? await query2.ToListAsync() : query2.ToList();
+
+                var actual = (from p in results1
+                              from mep in results2
+                              where mep.TenMostExpensiveProducts == p.ProductName
+                              select new
+                              {
+                                  mep, p
+                              }).ToArray();
 
                 Assert.Equal(10, actual.Length);
             }
@@ -250,25 +566,16 @@ namespace Microsoft.EntityFrameworkCore.Query
         private string NormalizeDelimetersInRawString(string sql)
             => Fixture.TestStore.NormalizeDelimetersInRawString(sql);
 
-        private FormattableString NormalizeDelimetersInInterpolatedString(FormattableString sql)
-            => Fixture.TestStore.NormalizeDelimetersInInterpolatedString(sql);
-
-        protected NorthwindContext CreateContext()
-        {
-            var context = Fixture.CreateContext();
-
-            context.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
-
-            return context;
-        }
-
         protected virtual object[] GetTenMostExpensiveProductsParameters()
             => Array.Empty<object>();
 
         protected virtual object[] GetCustomerOrderHistorySprocParameters()
             => new[] { "ALFKI" };
 
+        protected NorthwindContext CreateContext() => Fixture.CreateContext();
+
         protected abstract string TenMostExpensiveProductsSproc { get; }
+
         protected abstract string CustomerOrderHistorySproc { get; }
     }
 }

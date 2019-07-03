@@ -151,12 +151,6 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => GetString("InvalidMaxBatchSize");
 
         /// <summary>
-        ///     The Include operation is not supported when calling a stored procedure.
-        /// </summary>
-        public static string StoredProcedureIncludeNotSupported
-            => GetString("StoredProcedureIncludeNotSupported");
-
-        /// <summary>
         ///     The required column '{column}' was not present in the results of a 'FromSql' operation.
         /// </summary>
         public static string FromSqlMissingColumn([CanBeNull] object column)
