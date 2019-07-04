@@ -16,7 +16,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
         {
             private readonly ISqlExpressionFactory _sqlExpressionFactory;
             private IReadOnlyDictionary<string, object> _parametersValues;
-            private ConstantExpressionIdentifyingExpressionVisitor _constantIdentifyingVisitor;
+            private ConstantExpressionIdentifier _constantExpressionIdentifier;
             private bool _innerExpressionChangedToConstant;
 
             public InExpressionValuesExpandingExpressionVisitor(
@@ -24,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
             {
                 _sqlExpressionFactory = sqlExpressionFactory;
                 _parametersValues = parametersValues;
-                _constantIdentifyingVisitor = new ConstantExpressionIdentifyingExpressionVisitor();
+                _constantExpressionIdentifier = new ConstantExpressionIdentifier();
             }
 
             public override Expression Visit(Expression expression)
@@ -115,9 +115,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
                     // invalid in SqlServer. If so, rewrite the entire ordering to a single constant expression which
                     // QuerySqlGenerator will recognize and render as (SELECT 1).
                     _innerExpressionChangedToConstant = false;
-                    _constantIdentifyingVisitor.Reset();
-                    _constantIdentifyingVisitor.Visit(orderingExpression);
-                    return _constantIdentifyingVisitor.WasConstant
+                    return _constantExpressionIdentifier.IsExpressionConstant(orderingExpression)
                         ? new OrderingExpression(
                             new SqlConstantExpression(Expression.Constant(1), _sqlExpressionFactory.FindMapping(typeof(int))),
                             true)
@@ -129,16 +127,18 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
         }
 
         /// <summary>
-        /// Searches an expression tree for the first occurrence of a node meeting the given criteria, and returns that node.
+        /// Visits an expression tree returns identifies whether it contains any non-constant nodes, e.g. columns.
         /// </summary>
-        private class ConstantExpressionIdentifyingExpressionVisitor : ExpressionVisitor
+        private class ConstantExpressionIdentifier : ExpressionVisitor
         {
-            public bool WasConstant { get; private set; }
+            private bool _wasConstant;
 
-            /// <summary>
-            /// Resets the visitor, making it ready to run again.
-            /// </summary>
-            public void Reset() => WasConstant = true;
+            public bool IsExpressionConstant(Expression node)
+            {
+                _wasConstant = true;
+                Visit(node);
+                return _wasConstant;
+            }
 
             public override Expression Visit(Expression node)
             {
@@ -147,9 +147,8 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
                 switch (node)
                 {
                     case ColumnExpression _:
-                    case SqlParameterExpression _:
                     case SqlFragmentExpression _:  // May or may not be constant, but better to error than to give wrong results
-                        WasConstant = false;
+                        _wasConstant = false;
                         break;
                 }
 
