@@ -6,12 +6,12 @@ using System;
 
 namespace Microsoft.EntityFrameworkCore.Benchmarks.Models.Orders
 {
-    public class OrdersContext : OrdersContextBase
+    public class OrdersSqliteContext : OrdersContextBase
     {
         private readonly string _connectionString;
         private readonly bool _disableBatching;
 
-        public OrdersContext(string connectionString, IServiceProvider serviceProvider = null, bool disableBatching = false)
+        public OrdersSqliteContext(string connectionString, IServiceProvider serviceProvider = null, bool disableBatching = false)
             : base(serviceProvider)
         {
             _connectionString = connectionString;

@@ -13,7 +13,7 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.UpdatePipeline
         {
             public override OrdersFixtureBase CreateFixture()
             {
-                return new OrdersFixture("Perf_UpdatePipeline_Simple");
+                return new OrdersSqliteFixture("Perf_UpdatePipeline_Simple");
             }
         }
 
@@ -21,7 +21,7 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.UpdatePipeline
         {
             public override OrdersFixtureBase CreateFixture()
             {
-                return new OrdersFixture("Perf_UpdatePipeline_Simple");
+                return new OrdersSqliteFixture("Perf_UpdatePipeline_Simple");
             }
         }
 
@@ -29,7 +29,7 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.UpdatePipeline
         {
             public override OrdersFixtureBase CreateFixture()
             {
-                return new OrdersFixture("Perf_UpdatePipeline_Simple");
+                return new OrdersSqliteFixture("Perf_UpdatePipeline_Simple");
             }
         }
 
@@ -37,7 +37,7 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.UpdatePipeline
         {
             public override OrdersFixtureBase CreateFixture()
             {
-                return new OrdersFixture("Perf_UpdatePipeline_Simple");
+                return new OrdersSqliteFixture("Perf_UpdatePipeline_Simple");
             }
         }
     }

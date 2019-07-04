@@ -131,7 +131,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EFCore.SqlServer.Benchmarks
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EFCore.Sqlite.Benchmarks", "benchmark\EFCore.Sqlite.Benchmarks\EFCore.Sqlite.Benchmarks.csproj", "{5A44F67E-517F-458D-B9C7-12A4DBBAD64A}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EFCore.Benchmarks.SqlServer.EF6", "benchmark\EFCore.SqlServer.EF6.Benchmarks\EFCore.Benchmarks.SqlServer.EF6.csproj", "{678AB38D-B27C-4690-A3F9-2D2488391658}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EF6.SqlServer.Benchmarks", "benchmark\EF6.SqlServer.Benchmarks\EF6.SqlServer.Benchmarks.csproj", "{678AB38D-B27C-4690-A3F9-2D2488391658}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EFCore.Benchmarks", "benchmark\EFCore.Benchmarks\EFCore.Benchmarks.csproj", "{2642F4F0-69BE-4C43-94B7-B298FEC87D89}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EF.Benchmarks.Shared", "benchmark\EF.Benchmarks.Shared\EF.Benchmarks.Shared.csproj", "{BFC26566-4C6D-4904-A559-8FFE09369901}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -355,6 +359,14 @@ Global
 		{678AB38D-B27C-4690-A3F9-2D2488391658}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{678AB38D-B27C-4690-A3F9-2D2488391658}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{678AB38D-B27C-4690-A3F9-2D2488391658}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2642F4F0-69BE-4C43-94B7-B298FEC87D89}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2642F4F0-69BE-4C43-94B7-B298FEC87D89}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2642F4F0-69BE-4C43-94B7-B298FEC87D89}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2642F4F0-69BE-4C43-94B7-B298FEC87D89}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BFC26566-4C6D-4904-A559-8FFE09369901}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BFC26566-4C6D-4904-A559-8FFE09369901}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BFC26566-4C6D-4904-A559-8FFE09369901}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BFC26566-4C6D-4904-A559-8FFE09369901}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -414,6 +426,8 @@ Global
 		{24D7B6D5-A22A-4734-BB55-F464C112F891} = {293B4F79-3CB9-402A-A74C-B8108C41A7CF}
 		{5A44F67E-517F-458D-B9C7-12A4DBBAD64A} = {293B4F79-3CB9-402A-A74C-B8108C41A7CF}
 		{678AB38D-B27C-4690-A3F9-2D2488391658} = {293B4F79-3CB9-402A-A74C-B8108C41A7CF}
+		{2642F4F0-69BE-4C43-94B7-B298FEC87D89} = {293B4F79-3CB9-402A-A74C-B8108C41A7CF}
+		{BFC26566-4C6D-4904-A559-8FFE09369901} = {293B4F79-3CB9-402A-A74C-B8108C41A7CF}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {285A5EB4-BCF4-40EB-B9E1-DF6DBCB5E705}

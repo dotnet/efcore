@@ -19,7 +19,7 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.Models.Orders
         public OrdersFixture(string databaseName, int productCount, int customerCount,
             int ordersPerCustomer, int linesPerOrder, Action<DbContext> seedAction = null)
         {
-            _connectionString = $"{BenchmarkEnvironment.Instance.BenchmarkDatabase}Database={databaseName};";
+            _connectionString = SqlServerBenchmarkEnvironment.CreateConnectionString(databaseName);
             _productCount = productCount;
             _customerCount = customerCount;
             _ordersPerCustomer = ordersPerCustomer;

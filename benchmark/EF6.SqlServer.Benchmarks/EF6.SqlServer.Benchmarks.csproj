@@ -18,7 +18,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Include="..\Shared\**\*.cs" Link="%(RecursiveDir)%(FileName)%(Extension)" />
+    <ProjectReference Include="..\EF.Benchmarks.Shared\EF.Benchmarks.Shared.csproj" />
   </ItemGroup>
 
 </Project>

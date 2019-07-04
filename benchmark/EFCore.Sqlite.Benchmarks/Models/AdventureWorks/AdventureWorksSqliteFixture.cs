@@ -6,10 +6,10 @@ using System.IO;
 
 namespace Microsoft.EntityFrameworkCore.Benchmarks.Models.AdventureWorks
 {
-    public static class AdventureWorksFixture
+    public static class AdventureWorksSqliteFixture
     {
         private static readonly string _baseDirectory
-            = Path.GetDirectoryName(new Uri(typeof(AdventureWorksFixture).Assembly.CodeBase).LocalPath);
+            = Path.GetDirectoryName(new Uri(typeof(AdventureWorksSqliteFixture).Assembly.CodeBase).LocalPath);
 
         private static readonly string _connectionString
             = $"Data Source={Path.Combine(_baseDirectory, "AdventureWorks2014.db")}";
@@ -17,7 +17,7 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.Models.AdventureWorks
         // This method is called from timed code, be careful when changing it
         public static AdventureWorksContextBase CreateContext()
         {
-            return new AdventureWorksContext(_connectionString);
+            return new AdventureWorksSqliteContext(_connectionString);
         }
     }
 }

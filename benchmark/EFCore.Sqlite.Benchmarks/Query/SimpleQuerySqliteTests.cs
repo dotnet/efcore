@@ -9,7 +9,7 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.Query
     {
         protected override OrdersFixtureBase CreateFixture()
         {
-            return new OrdersFixture("Perf_Query_Simple");
+            return new OrdersSqliteFixture("Perf_Query_Simple");
         }
     }
 }

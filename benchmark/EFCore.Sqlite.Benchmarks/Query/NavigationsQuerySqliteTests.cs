@@ -9,7 +9,7 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.Query
     {
         protected override AdventureWorksContextBase CreateContext()
         {
-            return AdventureWorksFixture.CreateContext();
+            return AdventureWorksSqliteFixture.CreateContext();
         }
     }
 }

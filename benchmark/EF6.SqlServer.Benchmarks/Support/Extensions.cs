@@ -10,6 +10,7 @@ using System.Reflection;
 
 // ReSharper disable PossibleNullReferenceException
 
+// ReSharper disable once CheckNamespace
 namespace Microsoft.EntityFrameworkCore.Benchmarks
 {
     public static class Extensions
