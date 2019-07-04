@@ -5,18 +5,18 @@ using System;
 
 namespace Microsoft.EntityFrameworkCore.Benchmarks.Models.Orders
 {
-    public class OrdersFixture : OrdersFixtureBase
+    public class OrdersSqlServerFixture : OrdersFixtureBase
     {
         private readonly string _connectionString;
 
-        public OrdersFixture(string databaseName)
+        public OrdersSqlServerFixture(string databaseName)
         {
-            _connectionString = $@"{BenchmarkEnvironment.Instance.BenchmarkDatabase}Database={databaseName};";
+            _connectionString = SqlServerBenchmarkEnvironment.CreateConnectionString(databaseName);
         }
 
         public override OrdersContextBase CreateContext(IServiceProvider serviceProvider = null, bool disableBatching = false)
         {
-            return new OrdersContext(_connectionString, serviceProvider, disableBatching);
+            return new OrdersSqlServerContext(_connectionString, serviceProvider, disableBatching);
         }
     }
 }

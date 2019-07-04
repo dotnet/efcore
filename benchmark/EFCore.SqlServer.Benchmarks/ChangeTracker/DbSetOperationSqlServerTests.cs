@@ -13,7 +13,7 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.ChangeTracker
         {
             public override OrdersFixtureBase CreateFixture()
             {
-                return new OrdersFixture("Perf_ChangeTracker_DbSetOperation");
+                return new OrdersSqlServerFixture("Perf_ChangeTracker_DbSetOperation");
             }
         }
 
@@ -21,7 +21,7 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.ChangeTracker
         {
             public override OrdersFixtureBase CreateFixture()
             {
-                return new OrdersFixture("Perf_ChangeTracker_DbSetOperation");
+                return new OrdersSqlServerFixture("Perf_ChangeTracker_DbSetOperation");
             }
         }
     }

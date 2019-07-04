@@ -3,14 +3,14 @@
 
 namespace Microsoft.EntityFrameworkCore.Benchmarks.Models.AdventureWorks
 {
-    public static class AdventureWorksFixture
+    public static class AdventureWorksSqlServerFixture
     {
-        public static string ConnectionString { get; } = $"{BenchmarkEnvironment.Instance.BenchmarkDatabase}Database=AdventureWorks2014;";
+        private static readonly string _connectionString = SqlServerBenchmarkEnvironment.CreateConnectionString("AdventureWorks2014");
 
         // This method is called from timed code, be careful when changing it
-        public static AdventureWorksContext CreateContext()
+        public static AdventureWorksContextBase CreateContext()
         {
-            return new AdventureWorksContext(ConnectionString);
+            return new AdventureWorksSqlServerContext(_connectionString);
         }
     }
 }

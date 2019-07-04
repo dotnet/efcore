@@ -4,18 +4,18 @@
 
 namespace Microsoft.EntityFrameworkCore.Benchmarks.Models.AdventureWorks
 {
-    public class AdventureWorksContext : AdventureWorksContextBase
+    public class AdventureWorksSqliteContext : AdventureWorksContextBase
     {
         private readonly string _connectionString;
 
-        public AdventureWorksContext(string connectionString)
+        public AdventureWorksSqliteContext(string connectionString)
         {
             _connectionString = connectionString;
         }
 
         protected override void ConfigureProvider(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseSqlServer(_connectionString);
+            optionsBuilder.UseSqlite(_connectionString);
         }
     }
 }

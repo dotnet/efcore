@@ -18,7 +18,7 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.Query
 
         protected override OrdersFixtureBase CreateFixture()
         {
-            return new OrdersFixture("Perf_Query_RawSql");
+            return new OrdersSqlServerFixture("Perf_Query_RawSql");
         }
     }
 }
