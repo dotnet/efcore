@@ -244,4 +244,10 @@
   <data name="DuplicateKeyMismatchedClustering" xml:space="preserve">
     <value>The keys {key1} on '{entityType1}' and {key2} on '{entityType2}' are both mapped to '{table}.{keyName}' but with different clustering.</value>
   </data>
+  <data name="IsDateFunctionOnClient" xml:space="preserve">
+    <value>The 'IsDate' method is not supported because the query has switched to client-evaluation. Inspect the log to determine which query expressions are triggering client-evaluation.</value>
+  </data>
+  <data name="InvalidColumnNameForIsDate" xml:space="preserve">
+    <value>The expression passed to the 'propertyReference' parameter of the 'IsDate' method is not a valid reference to a property.</value>
+  </data>
 </root>

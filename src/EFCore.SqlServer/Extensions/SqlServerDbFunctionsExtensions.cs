@@ -879,5 +879,17 @@ namespace Microsoft.EntityFrameworkCore
             => (startTimeSpan.HasValue && endTimeSpan.HasValue)
                 ? (int?)DateDiffNanosecond(_, startTimeSpan.Value, endTimeSpan.Value)
                 : null;
+
+        /// <summary>
+        ///     Validate if a date is valid..
+        ///     Corresponds to the SQL Server's ISDATE('date').
+        /// </summary>
+        /// <param name="_">The DbFunctions instance.</param>
+        /// <param name="expression">Expression to validate</param>
+        /// <returns>true to valid and false not valid.</returns>
+        public static bool IsDate(
+            [CanBeNull] this DbFunctions _,
+            string expression)
+            => throw new InvalidOperationException(SqlServerStrings.IsDateFunctionOnClient);
     }
 }

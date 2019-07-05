@@ -7,7 +7,6 @@ using System.Threading.Tasks;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore.SqlServer.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
-using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -554,6 +553,45 @@ WHERE DATEDIFF(MICROSECOND, GETDATE(), DATEADD(second, CAST(1.0E0 AS int), GETDA
 FROM [Orders] AS [o]
 WHERE DATEDIFF(NANOSECOND, GETDATE(), DATEADD(second, CAST(1.0E0 AS int), GETDATE())) = 0");
             }
+        }
+
+        [ConditionalFact]
+        public virtual void IsDate_not_valid()
+        {
+            using (var context = CreateContext())
+            {
+                var count = context.Orders.Count(c => !EF.Functions.IsDate(c.CustomerID));
+
+                Assert.Equal(830, count);
+
+                AssertSql(
+                    @"SELECT COUNT(*)
+FROM [Orders] AS [o]
+WHERE ISDATE([o].[CustomerID]) <> CAST(1 AS bit)");
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void IsDate_valid()
+        {
+            using (var context = CreateContext())
+            {
+                var count = context.Orders.Count(c => EF.Functions.IsDate(c.CustomerID));
+
+                Assert.Equal(0, count);
+
+                AssertSql(
+                    @"SELECT COUNT(*)
+FROM [Orders] AS [o]
+WHERE ISDATE([o].[CustomerID]) = CAST(1 AS bit)");
+            }
+        }
+
+        [ConditionalFact]
+        public void IsDate_should_throw_on_client_eval()
+        {
+            var exIsDate = Assert.Throws<InvalidOperationException>(() => EF.Functions.IsDate("#ISDATE#"));
+            Assert.Equal(SqlServerStrings.IsDateFunctionOnClient, exIsDate.Message);
         }
 
         private void AssertSql(params string[] expected)

@@ -183,6 +183,18 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
 
             return value;
         }
+
+        /// <summary>
+        ///     The 'IsDate' method is not supported because the query has switched to client-evaluation. Inspect the log to determine which query expressions are triggering client-evaluation.
+        /// </summary>
+        public static string IsDateFunctionOnClient
+            => GetString("IsDateFunctionOnClient");
+
+        /// <summary>
+        ///     The expression passed to the 'propertyReference' parameter of the 'IsDate' method is not a valid reference to a property.
+        /// </summary>
+        public static string InvalidColumnNameForIsDate
+            => GetString("InvalidColumnNameForIsDate");
     }
 }
 
