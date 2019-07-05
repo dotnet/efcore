@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.TestUtilities;
 using Microsoft.EntityFrameworkCore.Diagnostics;
@@ -27,9 +28,9 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
 
         // #13579
         // [ConditionalFact]
-        public virtual void Can_update_dependents()
+        public virtual async Task Can_update_dependents()
         {
-            using (CreateTestStore())
+            await using (var testDatabase = CreateTestStore())
             {
                 Operator firstOperator;
                 Engine firstEngine;
@@ -57,9 +58,9 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
 
         // #13579
         // [ConditionalFact]
-        public virtual void Can_update_owner_with_dependents()
+        public virtual async Task Can_update_owner_with_dependents()
         {
-            using (CreateTestStore())
+            await using (var testDatabase = CreateTestStore())
             {
                 Operator firstOperator;
                 using (var context = CreateContext())
@@ -81,9 +82,9 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
 
         // #12086
         //[ConditionalFact]
-        public virtual void Can_add_collection_dependent_to_owner()
+        public virtual async Task Can_add_collection_dependent_to_owner()
         {
-            using (CreateTestStore())
+            await using (var testDatabase = CreateTestStore())
             {
                 Address existingAddress1Person2;
                 Address existingAddress1Person3;
@@ -178,9 +179,9 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
 
         // #13559
         //[ConditionalFact]
-        public virtual void Can_update_just_dependents()
+        public virtual async Task Can_update_just_dependents()
         {
-            using (CreateTestStore())
+            await using (var testDatabase = CreateTestStore())
             {
                 Operator firstOperator;
                 Engine firstEngine;
@@ -203,9 +204,9 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
         }
 
         [ConditionalFact]
-        public virtual void Inserting_dependent_without_principal_throws()
+        public virtual async Task Inserting_dependent_without_principal_throws()
         {
-            using (CreateTestStore())
+            await using (var testDatabase = CreateTestStore())
             {
                 using (var context = CreateContext())
                 {
@@ -226,9 +227,9 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
         }
 
         [ConditionalFact]
-        public virtual void Can_change_nested_instance_non_derived()
+        public virtual async Task Can_change_nested_instance_non_derived()
         {
-            using (CreateTestStore())
+            await using (var testDatabase = CreateTestStore())
             {
                 using (var context = CreateContext())
                 {
@@ -259,9 +260,9 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
         }
 
         [ConditionalFact]
-        public virtual void Can_change_principal_instance_non_derived()
+        public virtual async Task Can_change_principal_instance_non_derived()
         {
-            using (CreateTestStore())
+            await using (var testDatabase = CreateTestStore())
             {
                 using (var context = CreateContext())
                 {

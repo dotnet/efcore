@@ -16,37 +16,38 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Pipeline
             = new Dictionary<IProperty, KeyAccessExpression>();
         private readonly IDictionary<INavigation, ObjectAccessExpression> _navigationExpressionsCache
             = new Dictionary<INavigation, ObjectAccessExpression>();
-        private readonly IEntityType _entityType;
 
         public EntityProjectionExpression(IEntityType entityType, RootReferenceExpression accessExpression, string alias)
         {
-            _entityType = entityType;
+            EntityType = entityType;
             AccessExpression = accessExpression;
             Alias = alias;
         }
 
         public override ExpressionType NodeType => ExpressionType.Extension;
-        public override Type Type => _entityType.ClrType;
+        public override Type Type => EntityType.ClrType;
 
         public string Alias { get; }
 
         public RootReferenceExpression AccessExpression { get; }
+
+        public IEntityType EntityType { get; }
 
         protected override Expression VisitChildren(ExpressionVisitor visitor)
         {
             var accessExpression = (RootReferenceExpression)visitor.Visit(AccessExpression);
 
             return accessExpression != AccessExpression
-                ? new EntityProjectionExpression(_entityType, accessExpression, Alias)
+                ? new EntityProjectionExpression(EntityType, accessExpression, Alias)
                 : this;
         }
 
-        public KeyAccessExpression GetProperty(IProperty property)
+        public KeyAccessExpression BindProperty(IProperty property)
         {
-            if (!_entityType.GetTypesInHierarchy().Contains(property.DeclaringEntityType))
+            if (!EntityType.GetTypesInHierarchy().Contains(property.DeclaringEntityType))
             {
                 throw new InvalidOperationException(
-                    $"Called EntityProjectionExpression.GetProperty() with incorrect IProperty. EntityType:{_entityType.DisplayName()}, Property:{property.Name}");
+                    $"Called EntityProjectionExpression.GetProperty() with incorrect IProperty. EntityType:{EntityType.DisplayName()}, Property:{property.Name}");
             }
 
             if (!_propertyExpressionsCache.TryGetValue(property, out var expression))
@@ -58,12 +59,12 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Pipeline
             return expression;
         }
 
-        public ObjectAccessExpression GetNavigation(INavigation navigation)
+        public ObjectAccessExpression BindNavigation(INavigation navigation)
         {
-            if (!_entityType.GetTypesInHierarchy().Contains(navigation.DeclaringEntityType))
+            if (!EntityType.GetTypesInHierarchy().Contains(navigation.DeclaringEntityType))
             {
                 throw new InvalidOperationException(
-                    $"Called EntityProjectionExpression.GetNavigation() with incorrect INavigation. EntityType:{_entityType.DisplayName()}, Navigation:{navigation.Name}");
+                    $"Called EntityProjectionExpression.GetNavigation() with incorrect INavigation. EntityType:{EntityType.DisplayName()}, Navigation:{navigation.Name}");
             }
 
             if (!_navigationExpressionsCache.TryGetValue(navigation, out var expression))

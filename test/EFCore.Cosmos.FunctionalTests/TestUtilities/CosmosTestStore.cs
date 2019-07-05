@@ -142,15 +142,23 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.TestUtilities
             context.Database.EnsureCreated();
         }
 
+        public override async Task CleanAsync(DbContext context)
+        {
+            await context.Database.EnsureDeletedAsync();
+            await context.Database.EnsureCreatedAsync();
+        }
+
         public override void Dispose()
+            => throw new InvalidOperationException("Calling Dispose can cause deadlocks. Use DisposeAsync instead.");
+
+        public override async Task DisposeAsync()
         {
             if (_dataFilePath == null)
             {
-                _storeContext.Database.EnsureDeleted();
+                await _storeContext.Database.EnsureDeletedAsync();
             }
 
             _storeContext.Dispose();
-            base.Dispose();
         }
 
         private class TestStoreContext : DbContext

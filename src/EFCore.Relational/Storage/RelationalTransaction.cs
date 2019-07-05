@@ -192,7 +192,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
                 if (interceptionResult == null)
                 {
-                    _dbTransaction.Commit();
+                    await _dbTransaction.CommitAsync(cancellationToken);
                 }
 
                 await Logger.TransactionCommittedAsync(
@@ -242,7 +242,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
                 if (interceptionResult == null)
                 {
-                    _dbTransaction.Rollback(); // Use RollbackAsync when available
+                    await _dbTransaction.RollbackAsync(cancellationToken);
                 }
 
                 await Logger.TransactionRolledBackAsync(

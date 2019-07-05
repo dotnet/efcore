@@ -65,7 +65,6 @@ namespace Microsoft.EntityFrameworkCore
             public DefaultOptionsPooledContext(DbContextOptions options)
                 : base(options)
             {
-                //ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
             }
         }
 
@@ -191,29 +190,116 @@ namespace Microsoft.EntityFrameworkCore
             var serviceProvider = BuildServiceProvider<DbContext>();
 
             var serviceScope1 = serviceProvider.CreateScope();
-
             var context1 = serviceScope1.ServiceProvider.GetService<DbContext>();
 
             var serviceScope2 = serviceProvider.CreateScope();
-
             var context2 = serviceScope2.ServiceProvider.GetService<DbContext>();
 
             Assert.NotSame(context1, context2);
 
+            var id1 = context1.ContextId;
+            var id2 = context2.ContextId;
+
+            Assert.NotEqual(default, id1.InstanceId);
+            Assert.NotEqual(id1, id2);
+            Assert.NotEqual(id1.InstanceId, id2.InstanceId);
+            Assert.Equal(1, id1.Lease);
+            Assert.Equal(1, id2.Lease);
+
             serviceScope1.Dispose();
             serviceScope2.Dispose();
 
-            var serviceScope3 = serviceProvider.CreateScope();
+            var id1d = context1.ContextId;
+            var id2d = context2.ContextId;
 
+            Assert.Equal(id1, id1d);
+            Assert.Equal(id1.InstanceId, id1d.InstanceId);
+            Assert.Equal(1, id1d.Lease);
+            Assert.Equal(1, id2d.Lease);
+
+            var serviceScope3 = serviceProvider.CreateScope();
             var context3 = serviceScope3.ServiceProvider.GetService<DbContext>();
 
+            var id1r = context3.ContextId;
+
             Assert.Same(context1, context3);
+            Assert.Equal(id1.InstanceId, id1r.InstanceId);
+            Assert.NotEqual(default, id1r.InstanceId);
+            Assert.NotEqual(id1, id1r);
+            Assert.Equal(2, id1r.Lease);
 
             var serviceScope4 = serviceProvider.CreateScope();
-
             var context4 = serviceScope4.ServiceProvider.GetService<DbContext>();
 
+            var id2r = context4.ContextId;
+
             Assert.Same(context2, context4);
+            Assert.Equal(id2.InstanceId, id2r.InstanceId);
+            Assert.NotEqual(default, id2r.InstanceId);
+            Assert.NotEqual(id2, id2r);
+            Assert.Equal(2, id2r.Lease);
+        }
+
+        [ConditionalFact]
+        public void ContextIds_make_sense_when_not_pooling()
+        {
+            var serviceProvider = new ServiceCollection()
+                .AddDbContext<DbContext>(
+                    ob
+                        => ob.UseSqlServer(SqlServerNorthwindTestStoreFactory.NorthwindConnectionString)
+                            .EnableServiceProviderCaching(false))
+                .BuildServiceProvider();
+
+            var serviceScope1 = serviceProvider.CreateScope();
+            var context1 = serviceScope1.ServiceProvider.GetService<DbContext>();
+
+            var serviceScope2 = serviceProvider.CreateScope();
+            var context2 = serviceScope2.ServiceProvider.GetService<DbContext>();
+
+            Assert.NotSame(context1, context2);
+
+            var id1 = context1.ContextId;
+            var id2 = context2.ContextId;
+
+            Assert.NotEqual(default, id1.InstanceId);
+            Assert.NotEqual(default, id2.InstanceId);
+
+            Assert.NotEqual(id1, id2);
+            Assert.Equal(0, id1.Lease);
+            Assert.Equal(0, id2.Lease);
+
+            serviceScope1.Dispose();
+            serviceScope2.Dispose();
+
+            var id1d = context1.ContextId;
+            var id2d = context2.ContextId;
+
+            Assert.Equal(id1.InstanceId, id1d.InstanceId);
+            Assert.Equal(id2.InstanceId, id2d.InstanceId);
+            Assert.Equal(0, id1d.Lease);
+            Assert.Equal(0, id2d.Lease);
+
+            var serviceScope3 = serviceProvider.CreateScope();
+            var context3 = serviceScope3.ServiceProvider.GetService<DbContext>();
+
+            var id1r = context3.ContextId;
+
+            Assert.NotSame(context1, context3);
+            Assert.NotEqual(default, id1r.InstanceId);
+            Assert.NotEqual(id1.InstanceId, id1r.InstanceId);
+            Assert.NotEqual(id1, id1r);
+            Assert.Equal(0, id1r.Lease);
+
+            var serviceScope4 = serviceProvider.CreateScope();
+            var context4 = serviceScope4.ServiceProvider.GetService<DbContext>();
+
+            var id2r = context4.ContextId;
+
+            Assert.NotSame(context2, context4);
+            Assert.NotEqual(default, id2r.InstanceId);
+            Assert.NotEqual(id2.InstanceId, id2r.InstanceId);
+            Assert.NotEqual(id2, id2r);
+            Assert.Equal(0, id2r.Lease);
         }
 
         [ConditionalTheory]

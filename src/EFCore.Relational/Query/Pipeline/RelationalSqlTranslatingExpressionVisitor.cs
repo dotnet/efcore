@@ -167,15 +167,15 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
 
         protected override Expression VisitMember(MemberExpression memberExpression)
         {
-            if (memberExpression.Expression is EntityShaperExpression
-                || (memberExpression.Expression is UnaryExpression innerUnaryExpression
-                    && innerUnaryExpression.NodeType == ExpressionType.Convert
-                    && innerUnaryExpression.Operand is EntityShaperExpression))
-            {
-                return BindProperty(memberExpression.Expression, memberExpression.Member.GetSimpleMemberName());
-            }
-
             var innerExpression = Visit(memberExpression.Expression);
+
+            if (innerExpression is EntityProjectionExpression
+                || (innerExpression is UnaryExpression innerUnaryExpression
+                    && innerUnaryExpression.NodeType == ExpressionType.Convert
+                    && innerUnaryExpression.Operand is EntityProjectionExpression))
+            {
+                return BindProperty(innerExpression, memberExpression.Member.GetSimpleMemberName());
+            }
 
             return TranslationFailed(memberExpression.Expression, innerExpression)
                 ? null
@@ -195,9 +195,9 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
                 }
             }
 
-            if (source is EntityShaperExpression entityShaper)
+            if (source is EntityProjectionExpression entityProjection)
             {
-                var entityType = entityShaper.EntityType;
+                var entityType = entityProjection.EntityType;
                 if (convertedType != null)
                 {
                     entityType = entityType.RootType().GetDerivedTypesInclusive()
@@ -209,25 +209,23 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
                     }
                 }
 
-                return BindProperty(entityShaper, entityType.FindProperty(propertyName));
+                return BindProperty(entityProjection, entityType.FindProperty(propertyName));
             }
 
             throw new InvalidOperationException();
         }
 
-        private SqlExpression BindProperty(EntityShaperExpression entityShaperExpression, IProperty property)
+        private SqlExpression BindProperty(EntityProjectionExpression entityProjectionExpression, IProperty property)
         {
-            var projectionBindingExpression = (ProjectionBindingExpression)entityShaperExpression.ValueBufferExpression;
-            return ((SelectExpression)projectionBindingExpression.QueryExpression)
-                .BindProperty(projectionBindingExpression, property);
+            return entityProjectionExpression.BindProperty(property);
         }
 
         protected override Expression VisitTypeBinary(TypeBinaryExpression typeBinaryExpression)
         {
             if (typeBinaryExpression.NodeType == ExpressionType.TypeIs
-                && typeBinaryExpression.Expression is EntityShaperExpression entityShaperExpression)
+                && Visit(typeBinaryExpression.Expression) is EntityProjectionExpression entityProjectionExpression)
             {
-                var entityType = entityShaperExpression.EntityType;
+                var entityType = entityProjectionExpression.EntityType;
                 if (entityType.GetAllBaseTypesInclusive().Any(et => et.ClrType == typeBinaryExpression.TypeOperand))
                 {
                     return _sqlExpressionFactory.Constant(true);
@@ -237,7 +235,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
                 if (derivedType != null)
                 {
                     var concreteEntityTypes = derivedType.GetConcreteDerivedTypesInclusive().ToList();
-                    var discriminatorColumn = BindProperty(entityShaperExpression, entityType.GetDiscriminatorProperty());
+                    var discriminatorColumn = BindProperty(entityProjectionExpression, entityType.GetDiscriminatorProperty());
 
                     return concreteEntityTypes.Count == 1
                         ? _sqlExpressionFactory.Equal(discriminatorColumn,
@@ -277,7 +275,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
             // EF.Property case
             if (methodCallExpression.TryGetEFPropertyArguments(out var source, out var propertyName))
             {
-                return BindProperty(source, propertyName);
+                return BindProperty(Visit(source), propertyName);
             }
 
             // GroupBy Aggregate case
@@ -286,30 +284,16 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
                 && methodCallExpression.Arguments.Count > 0
                 && methodCallExpression.Arguments[0] is GroupByShaperExpression groupByShaperExpression)
             {
-                switch (methodCallExpression.Method.Name)
+                return methodCallExpression.Method.Name switch
                 {
-                    case nameof(Enumerable.Average):
-                        return TranslateAverage(GetSelector(methodCallExpression, groupByShaperExpression));
-
-                    case nameof(Enumerable.Count):
-                        return TranslateCount();
-
-                    case nameof(Enumerable.LongCount):
-                        return TranslateLongCount();
-
-                    case nameof(Enumerable.Max):
-                        return TranslateMax(GetSelector(methodCallExpression, groupByShaperExpression));
-
-                    case nameof(Enumerable.Min):
-                        return TranslateMin(GetSelector(methodCallExpression, groupByShaperExpression));
-
-                    case nameof(Enumerable.Sum):
-                        return TranslateSum(GetSelector(methodCallExpression, groupByShaperExpression));
-
-                    default:
-                        throw new InvalidOperationException("Unknown aggregate operator encountered.");
-                }
-
+                    nameof(Enumerable.Average)   => TranslateAverage(GetSelector(methodCallExpression, groupByShaperExpression)),
+                    nameof(Enumerable.Count)     => TranslateCount(),
+                    nameof(Enumerable.LongCount) => TranslateLongCount(),
+                    nameof(Enumerable.Max)       => TranslateMax(GetSelector(methodCallExpression, groupByShaperExpression)),
+                    nameof(Enumerable.Min)       => TranslateMin(GetSelector(methodCallExpression, groupByShaperExpression)),
+                    nameof(Enumerable.Sum)       => TranslateSum(GetSelector(methodCallExpression, groupByShaperExpression)),
+                    _                            => throw new InvalidOperationException("Unknown aggregate operator encountered.")
+                };
             }
 
             // Subquery case
@@ -476,12 +460,15 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
         {
             switch (extensionExpression)
             {
-                case EntityShaperExpression _:
+                case EntityProjectionExpression _:
                 case SqlExpression _:
                     return extensionExpression;
 
                 case NullConditionalExpression nullConditionalExpression:
                     return Visit(nullConditionalExpression.AccessOperation);
+
+                case EntityShaperExpression entityShaperExpression:
+                    return Visit(entityShaperExpression.ValueBufferExpression);
 
                 case CorrelationPredicateExpression correlationPredicateExpression:
                     return Visit(correlationPredicateExpression.EqualExpression);
@@ -520,16 +507,19 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
         {
             var operand = Visit(unaryExpression.Operand);
 
+            if (operand is EntityProjectionExpression)
+            {
+                return unaryExpression.Update(operand);
+            }
+
             if (TranslationFailed(unaryExpression.Operand, operand))
             {
                 return null;
             }
 
             var sqlOperand = (SqlExpression)operand;
-
             switch (unaryExpression.NodeType)
             {
-
                 case ExpressionType.Not:
                     return _sqlExpressionFactory.Not(sqlOperand);
 

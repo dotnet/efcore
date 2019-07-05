@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.TestModels.Northwind;
@@ -45,6 +46,8 @@ namespace Microsoft.EntityFrameworkCore.Query
             => new TModelCustomizer().Customize(modelBuilder, context);
 
         protected override void Seed(NorthwindContext context) => NorthwindData.Seed(context);
+
+        protected override Task SeedAsync(NorthwindContext context) => NorthwindData.SeedAsync(context);
 
         public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
             => base.AddOptions(builder).ConfigureWarnings(

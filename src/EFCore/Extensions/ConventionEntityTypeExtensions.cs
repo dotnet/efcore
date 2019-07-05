@@ -478,20 +478,6 @@ namespace Microsoft.EntityFrameworkCore
             bool setTypeConfigurationSource = true, bool fromDataAnnotation = false)
             => entityType.AddProperty(name, propertyType, null, setTypeConfigurationSource, fromDataAnnotation);
 
-        /// <summary>
-        ///     Adds a property based on an indexer to this entity type.
-        /// </summary>
-        /// <param name="entityType"> The entity type to add the property to. </param>
-        /// <param name="name"> The name of the property to add. </param>
-        /// <param name="propertyType"> The type of value the property will hold. </param>
-        /// <param name="setTypeConfigurationSource"> Indicates whether the type configuration source should be set. </param>
-        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        /// <returns> The newly created property. </returns>
-        public static IConventionProperty AddIndexedProperty(
-            [NotNull] this IConventionEntityType entityType, [NotNull] string name, [NotNull] Type propertyType,
-            bool setTypeConfigurationSource = true, bool fromDataAnnotation = false)
-            => Check.NotNull(entityType, nameof(entityType))
-                .AddProperty(name, propertyType, entityType.GetIndexerProperty(), setTypeConfigurationSource, fromDataAnnotation);
 
         /// <summary>
         ///     Gets the index defined on the given property. Returns null if no index is defined.

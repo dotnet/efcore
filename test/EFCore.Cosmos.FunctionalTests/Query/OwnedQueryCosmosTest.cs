@@ -21,7 +21,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query
             //TestLoggerFactory.TestOutputHelper = testOutputHelper;
         }
 
-        [ConditionalFact(Skip = "#16392")]
+        [ConditionalFact(Skip = "Issue#16392")]
         public override void Navigation_rewrite_on_owned_collection()
         {
             base.Navigation_rewrite_on_owned_collection();
@@ -31,13 +31,13 @@ FROM root c
 WHERE ((c[""Discriminator""] = ""LeafB"") OR ((c[""Discriminator""] = ""LeafA"") OR ((c[""Discriminator""] = ""Branch"") OR (c[""Discriminator""] = ""OwnedPerson""))))");
         }
 
-        [ConditionalFact(Skip = "#16392")]
+        [ConditionalFact(Skip = "Issue#16392")]
         public override void Navigation_rewrite_on_owned_collection_with_composition()
         {
             base.Navigation_rewrite_on_owned_collection_with_composition();
         }
 
-        [ConditionalFact(Skip = "#16392")]
+        [ConditionalFact(Skip = "Issue#16392")]
         public override void Navigation_rewrite_on_owned_collection_with_composition_complex()
         {
             base.Navigation_rewrite_on_owned_collection_with_composition_complex();

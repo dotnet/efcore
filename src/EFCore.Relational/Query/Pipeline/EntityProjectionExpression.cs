@@ -91,7 +91,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
         public override ExpressionType NodeType => ExpressionType.Extension;
         public override Type Type => EntityType.ClrType;
 
-        public ColumnExpression GetProperty(IProperty property)
+        public ColumnExpression BindProperty(IProperty property)
         {
             if (!EntityType.GetTypesInHierarchy().Contains(property.DeclaringEntityType))
             {

@@ -22,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore
 {
     // Tests are split into classes to enable parallel execution
     // Some combinations are skipped to reduce run time
-    [SqlServerCondition(SqlServerCondition.IsNotTeamCity)]
+    [SqlServerCondition(SqlServerCondition.IsNotCI)]
     public class SqlServerDatabaseCreatorExistsTest : SqlServerDatabaseCreatorTest
     {
         [ConditionalTheory]
@@ -120,7 +120,7 @@ namespace Microsoft.EntityFrameworkCore
         }
     }
 
-    [SqlServerCondition(SqlServerCondition.IsNotTeamCity)]
+    [SqlServerCondition(SqlServerCondition.IsNotCI)]
     public class SqlServerDatabaseCreatorEnsureDeletedTest : SqlServerDatabaseCreatorTest
     {
         [ConditionalTheory]
@@ -226,7 +226,7 @@ namespace Microsoft.EntityFrameworkCore
         }
     }
 
-    [SqlServerCondition(SqlServerCondition.IsNotTeamCity)]
+    [SqlServerCondition(SqlServerCondition.IsNotCI)]
     public class SqlServerDatabaseCreatorEnsureCreatedTest : SqlServerDatabaseCreatorTest
     {
         [ConditionalTheory]
@@ -393,7 +393,7 @@ namespace Microsoft.EntityFrameworkCore
         }
     }
 
-    [SqlServerCondition(SqlServerCondition.IsNotTeamCity)]
+    [SqlServerCondition(SqlServerCondition.IsNotCI)]
     public class SqlServerDatabaseCreatorHasTablesTest : SqlServerDatabaseCreatorTest
     {
         [ConditionalTheory]
@@ -454,7 +454,7 @@ namespace Microsoft.EntityFrameworkCore
         }
     }
 
-    [SqlServerCondition(SqlServerCondition.IsNotTeamCity)]
+    [SqlServerCondition(SqlServerCondition.IsNotCI)]
     public class SqlServerDatabaseCreatorDeleteTest : SqlServerDatabaseCreatorTest
     {
         [ConditionalTheory]
@@ -520,7 +520,7 @@ namespace Microsoft.EntityFrameworkCore
         }
     }
 
-    [SqlServerCondition(SqlServerCondition.IsNotTeamCity)]
+    [SqlServerCondition(SqlServerCondition.IsNotCI)]
     public class SqlServerDatabaseCreatorCreateTablesTest : SqlServerDatabaseCreatorTest
     {
         [ConditionalTheory]
@@ -632,7 +632,7 @@ namespace Microsoft.EntityFrameworkCore
         private static readonly string _eol = Environment.NewLine;
     }
 
-    [SqlServerCondition(SqlServerCondition.IsNotTeamCity)]
+    [SqlServerCondition(SqlServerCondition.IsNotCI)]
     public class SqlServerDatabaseCreatorCreateTest : SqlServerDatabaseCreatorTest
     {
         [ConditionalTheory]
@@ -698,7 +698,7 @@ namespace Microsoft.EntityFrameworkCore
     }
 
 #pragma warning disable RCS1102 // Make class static.
-    [SqlServerCondition(SqlServerCondition.IsNotSqlAzure | SqlServerCondition.IsNotTeamCity)]
+    [SqlServerCondition(SqlServerCondition.IsNotSqlAzure | SqlServerCondition.IsNotCI)]
     public class SqlServerDatabaseCreatorTest
     {
         public static IDisposable CreateTransactionScope(bool useTransaction)

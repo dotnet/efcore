@@ -15,7 +15,8 @@ namespace Microsoft.EntityFrameworkCore
         {
             base.Property_entry_original_value_is_set();
 
-            AssertContainsSql(
+            // Issue #15285
+            /*AssertContainsSql(
                 @"SELECT ""e"".""Id"", ""e"".""EngineSupplierId"", ""e"".""Name"", ""t"".""Id"", ""t"".""StorageLocation_Latitude"", ""t"".""StorageLocation_Longitude""
 FROM ""Engines"" AS ""e""
 LEFT JOIN (
@@ -35,7 +36,7 @@ LIMIT 1",
 
 UPDATE ""Engines"" SET ""Name"" = @p0
 WHERE ""Id"" = @p1 AND ""EngineSupplierId"" = @p2 AND ""Name"" = @p3 AND ""StorageLocation_Latitude"" = @p4 AND ""StorageLocation_Longitude"" = @p5;
-SELECT changes();");
+SELECT changes();");*/
         }
 
         private void AssertContainsSql(params string[] expected)

@@ -87,7 +87,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
             {
                 foreach (var property in entityType.FindPrimaryKey().Properties)
                 {
-                    _identifier.Add(entityProjection.GetProperty(property));
+                    _identifier.Add(entityProjection.BindProperty(property));
                 }
             }
         }
@@ -109,7 +109,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
             {
                 foreach (var property in entityType.FindPrimaryKey().Properties)
                 {
-                    _identifier.Add(entityProjection.GetProperty(property));
+                    _identifier.Add(entityProjection.BindProperty(property));
                 }
             }
         }
@@ -128,12 +128,6 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
                 && Projection.All(pe => pe.Expression is ColumnExpression column ? ReferenceEquals(column.Table, fromSql) : false);
         }
 
-        public SqlExpression BindProperty(ProjectionBindingExpression projectionBindingExpression, IProperty property)
-        {
-            return ((EntityProjectionExpression)_projectionMapping[projectionBindingExpression.ProjectionMember])
-                .GetProperty(property);
-        }
-
         public void ApplyProjection()
         {
             if (Projection.Any())
@@ -150,7 +144,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
 
                     foreach (var property in GetAllPropertiesInHierarchy(entityProjection.EntityType))
                     {
-                        map[property] = AddToProjection(entityProjection.GetProperty(property));
+                        map[property] = AddToProjection(entityProjection.BindProperty(property));
                     }
                     result[keyValuePair.Key] = Constant(map);
                 }
@@ -219,7 +213,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
                 dictionary = new Dictionary<IProperty, int>();
                 foreach (var property in GetAllPropertiesInHierarchy(entityProjection.EntityType))
                 {
-                    dictionary[property] = AddToProjection(entityProjection.GetProperty(property));
+                    dictionary[property] = AddToProjection(entityProjection.BindProperty(property));
                 }
 
                 _entityProjectionCache[entityProjection] = dictionary;
@@ -252,35 +246,25 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
 
             if (_groupBy.Count > 0)
             {
-                if (HavingExpression == null)
-                {
-                    HavingExpression = expression;
-                }
-                else
-                {
-                    HavingExpression = new SqlBinaryExpression(
+                HavingExpression = HavingExpression == null
+                    ? expression
+                    : new SqlBinaryExpression(
                         ExpressionType.AndAlso,
                         HavingExpression,
                         expression,
                         typeof(bool),
                         expression.TypeMapping);
-                }
             }
             else
             {
-                if (Predicate == null)
-                {
-                    Predicate = expression;
-                }
-                else
-                {
-                    Predicate = new SqlBinaryExpression(
+                Predicate = Predicate == null
+                    ? expression
+                    : new SqlBinaryExpression(
                         ExpressionType.AndAlso,
                         Predicate,
                         expression,
                         typeof(bool),
                         expression.TypeMapping);
-                }
             }
         }
 
@@ -516,8 +500,8 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
                     {
                         propertyExpressions[property] = AddSetOperationColumnProjections(
                             property,
-                            select1, projection1.GetProperty(property),
-                            select2, projection2.GetProperty(property));
+                            select1, projection1.BindProperty(property),
+                            select2, projection2.BindProperty(property));
                     }
 
                     _projectionMapping[projectionMember] = new EntityProjectionExpression(projection1.EntityType, propertyExpressions);
@@ -599,7 +583,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
                         var propertyExpressions = new Dictionary<IProperty, ColumnExpression>();
                         foreach (var property in GetAllPropertiesInHierarchy(entityProjection.EntityType))
                         {
-                            var innerColumn = entityProjection.GetProperty(property);
+                            var innerColumn = entityProjection.BindProperty(property);
                             var index = subquery.AddToProjection(innerColumn);
                             var projectionExpression = subquery._projection[index];
                             var outerColumn = new ColumnExpression(projectionExpression, subquery, IsNullableProjection(projectionExpression));
@@ -921,10 +905,12 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
             return null;
         }
 
+        // We treat a set operation as a transparent wrapper over its left operand (the ColumnExpression projection mappings
+        // found on a set operation SelectExpression are actually those of its left operand).
         private bool ContainsTableReference(TableExpressionBase table)
-        {
-            return _tables.Any(te => ReferenceEquals(te is JoinExpressionBase jeb ? jeb.Table : te, table));
-        }
+            => IsSetOperation
+                ? ((SelectExpression)Tables[0]).ContainsTableReference(table)
+                : Tables.Any(te => ReferenceEquals(te is JoinExpressionBase jeb ? jeb.Table : te, table));
 
         public void AddInnerJoin(SelectExpression innerSelectExpression, SqlExpression joinPredicate, Type transparentIdentifierType)
         {

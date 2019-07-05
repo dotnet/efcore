@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading;
+using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
@@ -137,6 +138,20 @@ namespace Microsoft.EntityFrameworkCore.TestModels.Northwind
 
         public static void Seed(NorthwindContext context)
         {
+            AddEntities(context);
+
+            context.SaveChanges();
+        }
+
+        public static Task SeedAsync(NorthwindContext context)
+        {
+            AddEntities(context);
+
+            return context.SaveChangesAsync();
+        }
+
+        private static void AddEntities(NorthwindContext context)
+        {
             context.Set<Customer>().AddRange(CreateCustomers());
 
             var titleProperty = context.Model.FindEntityType(typeof(Employee)).FindProperty("Title");
@@ -149,8 +164,6 @@ namespace Microsoft.EntityFrameworkCore.TestModels.Northwind
             context.Set<Order>().AddRange(CreateOrders());
             context.Set<Product>().AddRange(CreateProducts());
             context.Set<OrderDetail>().AddRange(CreateOrderDetails());
-
-            context.SaveChanges();
         }
 
         private class AsyncEnumerable<T> : IAsyncQueryProvider, IOrderedQueryable<T>

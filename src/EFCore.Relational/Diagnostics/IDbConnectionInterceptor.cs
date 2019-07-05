@@ -99,7 +99,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             CancellationToken cancellationToken = default);
 
         /// <summary>
-        ///     Called just before EF intends to call <see cref="DbConnection.Close()" />.
+        ///     Called just before EF intends to call <see cref="DbConnection.CloseAsync()" />.
         /// </summary>
         /// <param name="connection"> The connection. </param>
         /// <param name="eventData"> Contextual information about the connection. </param>
@@ -152,7 +152,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             [NotNull] ConnectionEndEventData eventData);
 
         /// <summary>
-        ///     Called just after EF has called <see cref="DbConnection.Close()" />.
+        ///     Called just after EF has called <see cref="DbConnection.CloseAsync()" />.
         /// </summary>
         /// <param name="connection"> The connection. </param>
         /// <param name="eventData"> Contextual information about the connection. </param>

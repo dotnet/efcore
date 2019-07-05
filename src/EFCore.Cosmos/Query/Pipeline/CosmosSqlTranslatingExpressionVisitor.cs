@@ -83,25 +83,22 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Pipeline
 
         private bool TryBindProperty(Expression source, MemberIdentity member, out SqlExpression expression)
         {
-            if (source is EntityShaperExpression entityShaperExpression)
+            if (source is EntityProjectionExpression entityProjectionExpression)
             {
-                var projectionBindingExpression = (ProjectionBindingExpression)entityShaperExpression.ValueBufferExpression;
-                var selectExpression = ((SelectExpression)projectionBindingExpression.QueryExpression);
-
-                var entityType = entityShaperExpression.EntityType;
+                var entityType = entityProjectionExpression.EntityType;
                 var property = member.MemberInfo != null
                     ? entityType.FindProperty(member.MemberInfo)
                     : entityType.FindProperty(member.Name);
                 if (property != null)
                 {
-                    expression = selectExpression.BindProperty(property, projectionBindingExpression);
+                    expression = entityProjectionExpression.BindProperty(property);
                     return true;
                 }
 
                 var navigation = member.MemberInfo != null
                     ? entityType.FindNavigation(member.MemberInfo)
                     : entityType.FindNavigation(member.Name);
-                expression = selectExpression.BindNavigation(navigation, projectionBindingExpression);
+                expression = entityProjectionExpression.BindNavigation(navigation);
                 return true;
             }
             else if (source is ObjectAccessExpression objectAccessExpression)
@@ -131,7 +128,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Pipeline
         {
             if (methodCallExpression.TryGetEFPropertyArguments(out var source, out var propertyName))
             {
-                if (!TryBindProperty(source, MemberIdentity.Create(propertyName), out var result))
+                if (!TryBindProperty(Visit(source), MemberIdentity.Create(propertyName), out var result))
                 {
                     throw new InvalidOperationException();
                 }
@@ -260,6 +257,11 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Pipeline
         {
             var operand = Visit(unaryExpression.Operand);
 
+            if (operand is EntityProjectionExpression)
+            {
+                return unaryExpression.Update(operand);
+            }
+
             if (TranslationFailed(unaryExpression.Operand, operand))
             {
                 return null;
@@ -319,24 +321,25 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Pipeline
 
         protected override Expression VisitExtension(Expression extensionExpression)
         {
-            if (extensionExpression is EntityShaperExpression)
+            switch (extensionExpression)
             {
-                return extensionExpression;
+                case EntityProjectionExpression _:
+                case SqlExpression _:
+                    return extensionExpression;
+
+                case EntityShaperExpression entityShaperExpression:
+                    return Visit(entityShaperExpression.ValueBufferExpression);
+
+                case ProjectionBindingExpression projectionBindingExpression:
+                    var selectExpression = (SelectExpression)projectionBindingExpression.QueryExpression;
+                    return selectExpression.GetMappedProjection(projectionBindingExpression.ProjectionMember);
+
+                case NullConditionalExpression nullConditionalExpression:
+                    return Visit(nullConditionalExpression.AccessOperation);
+
+                default:
+                    return null;
             }
-
-            if (extensionExpression is ProjectionBindingExpression projectionBindingExpression)
-            {
-                var selectExpression = (SelectExpression)projectionBindingExpression.QueryExpression;
-
-                return selectExpression.GetMappedProjection(projectionBindingExpression.ProjectionMember);
-            }
-
-            if (extensionExpression is NullConditionalExpression nullConditionalExpression)
-            {
-                return Visit(nullConditionalExpression.AccessOperation);
-            }
-
-            return base.VisitExtension(extensionExpression);
         }
 
         [DebuggerStepThrough]

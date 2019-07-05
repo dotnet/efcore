@@ -54,6 +54,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
                 if (selectExpression.IsDistinct
                     || selectExpression.Limit != null
                     || selectExpression.Offset != null
+                    || selectExpression.IsSetOperation
                     || selectExpression.GroupBy.Count > 1)
                 {
                     selectExpression.PushdownIntoSubquery();

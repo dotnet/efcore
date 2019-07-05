@@ -38,24 +38,6 @@ namespace Microsoft.EntityFrameworkCore
             => Check.NotNull(property, nameof(property)).GetIdentifyingMemberInfo() == null;
 
         /// <summary>
-        ///     Gets a value indicating whether this is an indexed property. An indexed property is one that does not have a
-        ///     corresponding property in the entity class, rather the entity class has an indexer which takes the name
-        ///     of the property as argument and returns an object.
-        /// </summary>
-        /// <param name="property"> The property to check. </param>
-        /// <returns>
-        ///     <c>True</c> if the property is an indexed property, otherwise <c>false</c>.
-        /// </returns>
-        public static bool IsIndexedProperty([NotNull] this IPropertyBase property)
-        {
-            Check.NotNull(property, nameof(property));
-
-            var propertyInfo = property.PropertyInfo;
-            return propertyInfo != null
-                   && propertyInfo.IsEFIndexerProperty();
-        }
-
-        /// <summary>
         ///     <para>
         ///         Gets the <see cref="PropertyAccessMode" /> being used for this property.
         ///         <c>null</c> indicates that the default property access mode is being used.

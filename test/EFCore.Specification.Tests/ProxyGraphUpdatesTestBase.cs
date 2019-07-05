@@ -618,8 +618,7 @@ namespace Microsoft.EntityFrameworkCore
 
         [ConditionalTheory]
         [InlineData((int)ChangeMechanism.Dependent)]
-        // #11553
-        //[InlineData((int)ChangeMechanism.Principal)]
+        [InlineData((int)ChangeMechanism.Principal)]
         [InlineData((int)ChangeMechanism.Fk)]
         [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent))]
         [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Fk))]

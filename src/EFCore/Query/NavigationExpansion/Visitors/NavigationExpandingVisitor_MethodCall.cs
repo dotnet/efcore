@@ -7,6 +7,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Xml;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -35,71 +36,85 @@ namespace Microsoft.EntityFrameworkCore.Query.NavigationExpansion.Visitors
                     : methodCallExpression.Update(methodCallExpression.Object, new[] { newSource, methodCallExpression.Arguments[1] });
             }
 
-            switch (methodCallExpression.Method.Name)
+            if (methodCallExpression.Method.DeclaringType == typeof(Queryable)
+                || methodCallExpression.Method.DeclaringType == typeof(QueryableExtensions)
+                || methodCallExpression.Method.DeclaringType == typeof(Enumerable)
+                || methodCallExpression.Method.DeclaringType == typeof(EntityFrameworkQueryableExtensions))
             {
-                case nameof(Queryable.Where):
-                    return ProcessWhere(methodCallExpression);
+                switch (methodCallExpression.Method.Name)
+                {
+                    case nameof(Queryable.Where):
+                        return ProcessWhere(methodCallExpression);
 
-                case nameof(Queryable.Select):
-                    return ProcessSelect(methodCallExpression);
+                    case nameof(Queryable.Select):
+                        return ProcessSelect(methodCallExpression);
 
-                case nameof(Queryable.OrderBy):
-                case nameof(Queryable.OrderByDescending):
-                    return ProcessOrderBy(methodCallExpression);
+                    case nameof(Queryable.OrderBy):
+                    case nameof(Queryable.OrderByDescending):
+                        return ProcessOrderBy(methodCallExpression);
 
-                case nameof(Queryable.ThenBy):
-                case nameof(Queryable.ThenByDescending):
-                    return ProcessThenByBy(methodCallExpression);
+                    case nameof(Queryable.ThenBy):
+                    case nameof(Queryable.ThenByDescending):
+                        return ProcessThenByBy(methodCallExpression);
 
-                case nameof(Queryable.Join):
-                    return ProcessJoin(methodCallExpression);
+                    case nameof(Queryable.Join):
+                        return ProcessJoin(methodCallExpression);
 
-                case nameof(Queryable.GroupJoin):
-                    return ProcessGroupJoin(methodCallExpression);
+                    case nameof(Queryable.GroupJoin):
+                        return ProcessGroupJoin(methodCallExpression);
 
-                case nameof(Queryable.SelectMany):
-                    return ProcessSelectMany(methodCallExpression);
+                    case nameof(Queryable.SelectMany):
+                        return ProcessSelectMany(methodCallExpression);
 
-                case nameof(Queryable.All):
-                    return ProcessAll(methodCallExpression);
+                    case nameof(Queryable.All):
+                        return ProcessAll(methodCallExpression);
 
-                case nameof(Queryable.Any):
-                case nameof(Queryable.Count):
-                case nameof(Queryable.LongCount):
-                    return ProcessAnyCountLongCount(methodCallExpression);
+                    case nameof(Queryable.Any):
+                    case nameof(Queryable.Count):
+                    case nameof(Queryable.LongCount):
+                        return ProcessAnyCountLongCount(methodCallExpression);
 
-                case nameof(Queryable.Average):
-                case nameof(Queryable.Sum):
-                case nameof(Queryable.Min):
-                case nameof(Queryable.Max):
-                    return ProcessAverageSumMinMax(methodCallExpression);
+                    case nameof(Queryable.Average):
+                    case nameof(Queryable.Sum):
+                    case nameof(Queryable.Min):
+                    case nameof(Queryable.Max):
+                        return ProcessAverageSumMinMax(methodCallExpression);
 
-                case nameof(Queryable.Distinct):
-                    return ProcessDistinct(methodCallExpression);
+                    case nameof(Queryable.Distinct):
+                        return ProcessDistinct(methodCallExpression);
 
-                case nameof(Queryable.DefaultIfEmpty):
-                    return ProcessDefaultIfEmpty(methodCallExpression);
+                    case nameof(Queryable.DefaultIfEmpty):
+                        return ProcessDefaultIfEmpty(methodCallExpression);
 
-                case nameof(Queryable.First):
-                case nameof(Queryable.FirstOrDefault):
-                case nameof(Queryable.Single):
-                case nameof(Queryable.SingleOrDefault):
-                    return ProcessCardinalityReducingOperation(methodCallExpression);
+                    case nameof(Queryable.First):
+                    case nameof(Queryable.FirstOrDefault):
+                    case nameof(Queryable.Single):
+                    case nameof(Queryable.SingleOrDefault):
+                        return ProcessCardinalityReducingOperation(methodCallExpression);
 
-                case nameof(Queryable.OfType):
-                    return ProcessOfType(methodCallExpression);
+                    case nameof(Queryable.OfType):
+                        return ProcessOfType(methodCallExpression);
 
-                case nameof(Queryable.Skip):
-                case nameof(Queryable.Take):
-                    return ProcessSkipTake(methodCallExpression);
+                    case nameof(Queryable.Skip):
+                    case nameof(Queryable.Take):
+                        return ProcessSkipTake(methodCallExpression);
 
-                case "Include":
-                case "ThenInclude":
-                    return ProcessInclude(methodCallExpression);
+                    case nameof(Queryable.Union):
+                    case nameof(Queryable.Concat):
+                    case nameof(Queryable.Intersect):
+                    case nameof(Queryable.Except):
+                        return ProcessSetOperation(methodCallExpression);
 
-                default:
-                    return ProcessUnknownMethod(methodCallExpression);
+                    case "Include":
+                    case "ThenInclude":
+                        return ProcessInclude(methodCallExpression);
+
+                    default:
+                        return ProcessUnknownMethod(methodCallExpression);
+                }
             }
+
+            return ProcessUnknownMethod(methodCallExpression);
         }
 
         private Expression ProcessUnknownMethod(MethodCallExpression methodCallExpression)
@@ -818,6 +833,51 @@ namespace Microsoft.EntityFrameworkCore.Query.NavigationExpansion.Visitors
             var rewritten = methodCallExpression.Update(methodCallExpression.Object, new[] { preProcessResult.source, newArgument });
 
             return new NavigationExpansionExpression(rewritten, preProcessResult.state, methodCallExpression.Type);
+        }
+
+        private Expression ProcessSetOperation(MethodCallExpression methodCallExpression)
+        {
+            // TODO: We shouldn't terminate if both sides are identical, #16246
+
+            var source1 = VisitSourceExpression(methodCallExpression.Arguments[0]);
+            var preProcessResult1 = PreProcessTerminatingOperation(source1);
+
+            var source2 = VisitSourceExpression(methodCallExpression.Arguments[1]);
+            var preProcessResult2 = PreProcessTerminatingOperation(source2);
+
+            // Extract the includes from each side and compare to make sure they're identical.
+            // We don't allow set operations over operands with different includes.
+            var pendingIncludeFindingVisitor = new PendingIncludeFindingVisitor(skipCollectionNavigations: false);
+            pendingIncludeFindingVisitor.Visit(preProcessResult1.state.PendingSelector.Body);
+            var pendingIncludes1 = pendingIncludeFindingVisitor.PendingIncludes;
+
+            pendingIncludeFindingVisitor = new PendingIncludeFindingVisitor(skipCollectionNavigations: false);
+            pendingIncludeFindingVisitor.Visit(preProcessResult2.state.PendingSelector.Body);
+            var pendingIncludes2 = pendingIncludeFindingVisitor.PendingIncludes;
+
+            if (pendingIncludes1.Count != pendingIncludes2.Count)
+            {
+                throw new NotSupportedException(CoreStrings.SetOperationWithDifferentIncludesInOperands);
+            }
+
+            foreach (var (i1, i2) in pendingIncludes1.Zip(pendingIncludes2, (i1, i2) => (i1, i2)))
+            {
+                if (i1.SourceMapping.RootEntityType != i2.SourceMapping.RootEntityType
+                    || i1.NavTreeNode.Navigation != i2.NavTreeNode.Navigation)
+                {
+                    throw new NotSupportedException(CoreStrings.SetOperationWithDifferentIncludesInOperands);
+                }
+            }
+
+            // If the siblings are different types, one is derived from the other the set operation returns the less derived type.
+            // Find that.
+            var clrType1 = preProcessResult1.state.CurrentParameter.Type;
+            var clrType2 = preProcessResult2.state.CurrentParameter.Type;
+            var parentState = clrType1.IsAssignableFrom(clrType2) ? preProcessResult1.state : preProcessResult2.state;
+
+            var rewritten = methodCallExpression.Update(null, new[] { preProcessResult1.source, preProcessResult2.source });
+
+            return new NavigationExpansionExpression(rewritten, parentState, methodCallExpression.Type);
         }
 
         private (Expression source, NavigationExpansionExpressionState state) PreProcessTerminatingOperation(NavigationExpansionExpression source)

@@ -252,6 +252,26 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
+        public virtual Task Union_Include(bool isAsync)
+            => AssertQuery<Customer>(isAsync, cs => cs
+                .Where(c => c.City == "Berlin")
+                .Union(cs.Where(c => c.City == "London"))
+                .Include(c => c.Orders),
+                entryCount: 59);
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Include_Union(bool isAsync)
+            => AssertQuery<Customer>(isAsync, cs => cs
+                .Where(c => c.City == "Berlin")
+                .Include(c => c.Orders)
+                .Union(cs
+                    .Where(c => c.City == "London")
+                    .Include(c => c.Orders)),
+                entryCount: 59);
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task Select_Except_reference_projection(bool isAsync)
             => AssertQuery<Order>(isAsync, od => od
                 .Select(o => o.Customer)
@@ -259,6 +279,45 @@ namespace Microsoft.EntityFrameworkCore.Query
                         .Where(o => o.CustomerID == "ALFKI")
                         .Select(o => o.Customer)),
                 entryCount: 88);
+
+        [ConditionalFact]
+        public virtual void Include_Union_only_on_one_side_throws()
+        {
+            using (var ctx = CreateContext())
+            {
+                Assert.Throws<NotSupportedException>(() =>
+                    ctx.Customers
+                        .Where(c => c.City == "Berlin")
+                        .Include(c => c.Orders)
+                        .Union(ctx.Customers.Where(c => c.City == "London"))
+                        .ToList());
+
+                Assert.Throws<NotSupportedException>(() =>
+                    ctx.Customers
+                        .Where(c => c.City == "Berlin")
+                        .Union(ctx.Customers
+                            .Where(c => c.City == "London")
+                            .Include(c => c.Orders))
+                        .ToList());
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Include_Union_different_includes_throws()
+        {
+            using (var ctx = CreateContext())
+            {
+                Assert.Throws<NotSupportedException>(() =>
+                    ctx.Customers
+                        .Where(c => c.City == "Berlin")
+                        .Include(c => c.Orders)
+                        .Union(ctx.Customers
+                            .Where(c => c.City == "London")
+                            .Include(c => c.Orders)
+                            .ThenInclude(o => o.OrderDetails))
+                        .ToList());
+            }
+        }
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]

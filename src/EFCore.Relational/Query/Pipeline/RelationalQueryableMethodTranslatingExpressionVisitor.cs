@@ -622,8 +622,9 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
                     var selectExpression = (SelectExpression)source.QueryExpression;
                     var concreteEntityTypes = derivedType.GetConcreteDerivedTypesInclusive().ToList();
                     var projectionBindingExpression = (ProjectionBindingExpression)entityShaperExpression.ValueBufferExpression;
-                    var discriminatorColumn = selectExpression
-                        .BindProperty(projectionBindingExpression, entityType.GetDiscriminatorProperty());
+                    var entityProjectionExpression = (EntityProjectionExpression)selectExpression.GetMappedProjection(
+                        projectionBindingExpression.ProjectionMember);
+                    var discriminatorColumn = entityProjectionExpression.BindProperty(entityType.GetDiscriminatorProperty());
 
                     var predicate = concreteEntityTypes.Count == 1
                         ? _sqlExpressionFactory.Equal(discriminatorColumn,

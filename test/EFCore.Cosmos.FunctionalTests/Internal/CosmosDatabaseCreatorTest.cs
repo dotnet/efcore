@@ -1,23 +1,28 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Cosmos.TestUtilities;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
-using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
 {
     public class CosmosDatabaseCreatorTest
     {
+        public static IEnumerable<object[]> IsAsyncData = new[]
+        {
+            new object[] { true },
+            //new object[] { false }
+        };
+
         [ConditionalTheory]
-        [InlineData(true)]
-        [InlineData(false)]
+        [MemberData(nameof(IsAsyncData))]
         public async Task EnsureCreated_returns_true_when_database_does_not_exist(bool async)
         {
-            using (var testDatabase = CosmosTestStore.Create("NonExisting"))
+            await using (var testDatabase = CosmosTestStore.Create("NonExisting"))
             {
                 using (var context = new BloggingContext(testDatabase))
                 {
@@ -29,11 +34,10 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
         }
 
         [ConditionalTheory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public async Task EnsureCreated_returns_true_when_database_exists_but_collections_does_not(bool async)
+        [MemberData(nameof(IsAsyncData))]
+        public async Task EnsureCreated_returns_true_when_database_exists_but_collections_do_not(bool async)
         {
-            using (var testDatabase = CosmosTestStore.CreateInitialized("EnsureCreatedTest"))
+            await using (var testDatabase = CosmosTestStore.Create("EnsureCreatedTest"))
             {
                 using (var context = new BloggingContext(testDatabase))
                 {
@@ -45,11 +49,10 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
         }
 
         [ConditionalTheory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public async Task EnsureCreated_returns_false_when_database_and_collections_exists(bool async)
+        [MemberData(nameof(IsAsyncData))]
+        public async Task EnsureCreated_returns_false_when_database_and_collections_exist(bool async)
         {
-            using (var testDatabase = CosmosTestStore.Create("EnsureCreatedReady"))
+            await using (var testDatabase = CosmosTestStore.Create("EnsureCreatedReady"))
             {
                 testDatabase.Initialize(null, () => new BloggingContext(testDatabase), null);
 
@@ -63,11 +66,10 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
         }
 
         [ConditionalTheory]
-        [InlineData(true)]
-        [InlineData(false)]
+        [MemberData(nameof(IsAsyncData))]
         public async Task EnsureDeleted_returns_true_when_database_exists(bool async)
         {
-            using (var testDatabase = CosmosTestStore.CreateInitialized("EnsureDeleteBlogging"))
+            await using (var testDatabase = CosmosTestStore.CreateInitialized("EnsureDeleteBlogging"))
             {
                 using (var context = new BloggingContext(testDatabase))
                 {
@@ -79,11 +81,10 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
         }
 
         [ConditionalTheory]
-        [InlineData(true)]
-        [InlineData(false)]
+        [MemberData(nameof(IsAsyncData))]
         public async Task EnsureDeleted_returns_false_when_database_does_not_exist(bool async)
         {
-            using (var testDatabase = CosmosTestStore.Create("EnsureDeleteBlogging"))
+            await using (var testDatabase = CosmosTestStore.Create("EnsureDeleteBlogging"))
             {
                 using (var context = new BloggingContext(testDatabase))
                 {
