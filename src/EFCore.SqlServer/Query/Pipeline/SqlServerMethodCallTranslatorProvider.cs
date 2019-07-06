@@ -22,8 +22,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Pipeline
                 new SqlServerIsDateFunctionTranslator(sqlExpressionFactory),
                 new SqlServerMathTranslator(sqlExpressionFactory),
                 new SqlServerNewGuidTranslator(sqlExpressionFactory),
+                new SqlServerObjectToStringTranslator(sqlExpressionFactory),
                 new SqlServerStringMethodTranslator(sqlExpressionFactory),
-                new SqlServerObjectToStringTranslator(sqlExpressionFactory),               
             });
         }
     }
