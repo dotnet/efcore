@@ -383,6 +383,38 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                     () => GetBinding<BlogConflict>()).Message);
         }
 
+        [ConditionalFact]
+        public void Does_not_throw_if_explicit_binding_has_been_set()
+        {
+            var constructorBinding = GetBinding<BlogConflict>(
+                e => e[CoreAnnotationNames.ConstructorBinding] = new ConstructorBinding(
+                    typeof(BlogConflict).GetConstructor(
+                        new[]
+                        {
+                            typeof(string),
+                            typeof(int)
+                        }),
+                    new[]
+                    {
+                        new PropertyParameterBinding(e.FindProperty(nameof(Blog.Title))),
+                        new PropertyParameterBinding(e.FindProperty(nameof(Blog.Id)))
+                    }));
+
+            Assert.NotNull(constructorBinding);
+
+            var parameters = constructorBinding.Constructor.GetParameters();
+            var bindings = constructorBinding.ParameterBindings;
+
+            Assert.Equal(2, parameters.Length);
+            Assert.Equal(2, bindings.Count);
+
+            Assert.Equal("title", parameters[0].Name);
+            Assert.Equal("id", parameters[1].Name);
+
+            Assert.Equal("Title", bindings[0].ConsumedProperties.First().Name);
+            Assert.Equal("Id", bindings[1].ConsumedProperties.First().Name);
+        }
+
         private class BlogConflict : Blog
         {
             public BlogConflict(string title, int id)
@@ -747,7 +779,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             public NoField NoField { get; set; }
         }
 
-        private ConstructorBinding GetBinding<TEntity>()
+        private ConstructorBinding GetBinding<TEntity>(Action<IMutableEntityType> setBinding = null)
         {
             var entityType = ((IMutableModel)new Model()).AddEntityType(typeof(TEntity));
             entityType.AddProperty(nameof(Blog.Id), typeof(int));
@@ -761,6 +793,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             entityType.AddProperty("m_fooBaar4", typeof(string));
             entityType.AddProperty("_FooBaar5", typeof(string));
             entityType.AddProperty("m_FooBaar6", typeof(string));
+
+            setBinding?.Invoke(entityType);
 
             var model = (Model)entityType.Model;
             var context = new ConventionContext<IConventionModelBuilder>(model.ConventionDispatcher);
