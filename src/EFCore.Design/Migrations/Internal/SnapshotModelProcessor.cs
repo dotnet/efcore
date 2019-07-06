@@ -56,29 +56,29 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             }
 
             var version = model.GetProductVersion();
-            if (version == null)
+            if (version != null)
             {
-                return model;
-            }
+                ProcessElement(model, version);
 
-            ProcessElement(model, version);
-
-            foreach (var entityType in model.GetEntityTypes())
-            {
-                ProcessElement(entityType, version);
-                ProcessCollection(entityType.GetProperties(), version);
-                ProcessCollection(entityType.GetKeys(), version);
-                ProcessCollection(entityType.GetIndexes(), version);
-
-                foreach (var element in entityType.GetForeignKeys())
+                foreach (var entityType in model.GetEntityTypes())
                 {
-                    ProcessElement(element, version);
-                    ProcessElement(element.DependentToPrincipal, version);
-                    ProcessElement(element.PrincipalToDependent, version);
+                    ProcessElement(entityType, version);
+                    ProcessCollection(entityType.GetProperties(), version);
+                    ProcessCollection(entityType.GetKeys(), version);
+                    ProcessCollection(entityType.GetIndexes(), version);
+
+                    foreach (var element in entityType.GetForeignKeys())
+                    {
+                        ProcessElement(element, version);
+                        ProcessElement(element.DependentToPrincipal, version);
+                        ProcessElement(element.PrincipalToDependent, version);
+                    }
                 }
             }
 
-            return model;
+            return (model is IMutableModel mutableModel)
+                ? mutableModel.FinalizeModel()
+                : model;
         }
 
         private void ProcessCollection(IEnumerable<IAnnotatable> metadata, string version)

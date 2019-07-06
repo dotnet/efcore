@@ -76,7 +76,13 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
             var resultingFiles = new ScaffoldedModel();
 
-            var generatedCode = CSharpDbContextGenerator.WriteCode(model, options.ContextNamespace ?? options.ModelNamespace, options.ContextName, options.ConnectionString, options.UseDataAnnotations, options.SuppressConnectionStringWarning);
+            var generatedCode = CSharpDbContextGenerator.WriteCode(
+                model,
+                options.ContextNamespace ?? options.ModelNamespace,
+                options.ContextName,
+                options.ConnectionString,
+                options.UseDataAnnotations,
+                options.SuppressConnectionStringWarning);
 
             // output DbContext .cs file
             var dbContextFileName = options.ContextName + FileExtension;

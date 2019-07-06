@@ -143,64 +143,68 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 RelationalAnnotationNames.MaxIdentifierLength
             };
 
+            var columnMapping =
+                $@"{_nl}.{nameof(RelationalPropertyBuilderExtensions.HasColumnType)}(""default_int_mapping"")";
+
             // Add a line here if the code generator is supposed to handle this annotation
             // Note that other tests should be added to check code is generated correctly
             var forProperty = new Dictionary<string, (object, string)>
             {
                 {
                     CoreAnnotationNames.MaxLength,
-                    (256, _nl + "." + nameof(PropertyBuilder.HasMaxLength) + "(256)")
+                    (256, $@"{columnMapping}{_nl}.{nameof(PropertyBuilder.HasMaxLength)}(256)")
                 },
                 {
                     CoreAnnotationNames.Unicode,
-                    (false, _nl + "." + nameof(PropertyBuilder.IsUnicode) + "(false)")
+                    (false, $@"{columnMapping}{_nl}.{nameof(PropertyBuilder.IsUnicode)}(false)")
                 },
                 {
                     CoreAnnotationNames.ValueConverter,
-                    (new ValueConverter<int, long>(v => v, v => (int)v), "")
+                    (new ValueConverter<int, long>(v => v, v => (int)v),
+                        $@"{_nl}.{nameof(RelationalPropertyBuilderExtensions.HasColumnType)}(""default_long_mapping"")")
                 },
                 {
                     CoreAnnotationNames.ProviderClrType,
-                    (typeof(long), "")
+                    (typeof(long), $@"{_nl}.{nameof(RelationalPropertyBuilderExtensions.HasColumnType)}(""default_long_mapping"")")
                 },
                 {
                     RelationalAnnotationNames.ColumnName,
-                    ("MyColumn", _nl + "." + nameof(RelationalPropertyBuilderExtensions.HasColumnName) + @"(""MyColumn"")")
+                    ("MyColumn", $@"{_nl}.{nameof(RelationalPropertyBuilderExtensions.HasColumnName)}(""MyColumn""){columnMapping}")
                 },
                 {
                     RelationalAnnotationNames.ColumnType,
-                    ("int", _nl + "." + nameof(RelationalPropertyBuilderExtensions.HasColumnType) + @"(""int"")")
+                    ("int", $@"{_nl}.{nameof(RelationalPropertyBuilderExtensions.HasColumnType)}(""int"")")
                 },
                 {
                     RelationalAnnotationNames.DefaultValueSql,
-                    ("some SQL", _nl + "." + nameof(RelationalPropertyBuilderExtensions.HasDefaultValueSql) + @"(""some SQL"")")
+                    ("some SQL", $@"{columnMapping}{_nl}.{nameof(RelationalPropertyBuilderExtensions.HasDefaultValueSql)}(""some SQL"")")
                 },
                 {
                     RelationalAnnotationNames.ComputedColumnSql,
-                    ("some SQL", _nl + "." + nameof(RelationalPropertyBuilderExtensions.HasComputedColumnSql) + @"(""some SQL"")")
+                    ("some SQL", $@"{columnMapping}{_nl}.{nameof(RelationalPropertyBuilderExtensions.HasComputedColumnSql)}(""some SQL"")")
                 },
                 {
                     RelationalAnnotationNames.DefaultValue,
-                    ("1", _nl + "." + nameof(RelationalPropertyBuilderExtensions.HasDefaultValue) + @"(""1"")")
+                    ("1", $@"{columnMapping}{_nl}.{nameof(RelationalPropertyBuilderExtensions.HasDefaultValue)}(""1"")")
                 },
                 {
                     CoreAnnotationNames.TypeMapping,
-                    (new LongTypeMapping("bigint"), "")
+                    (new LongTypeMapping("bigint"), $@"{_nl}.{nameof(RelationalPropertyBuilderExtensions.HasColumnType)}(""bigint"")")
                 },
                 {
                     RelationalAnnotationNames.IsFixedLength,
-                    (true, _nl + "." + nameof(RelationalPropertyBuilderExtensions.IsFixedLength) + "(true)")
+                    (true, $@"{columnMapping}{_nl}.{nameof(RelationalPropertyBuilderExtensions.IsFixedLength)}(true)")
                 },
                 {
                     RelationalAnnotationNames.Comment,
-                    ("My Comment", _nl + "." + nameof(RelationalPropertyBuilderExtensions.HasComment) + @"(""My Comment"")")
+                    ("My Comment", $@"{columnMapping}{_nl}.{nameof(RelationalPropertyBuilderExtensions.HasComment)}(""My Comment"")")
                 }
             };
 
             MissingAnnotationCheck(
                 b => b.Entity<WithAnnotations>().Property(e => e.Id).Metadata,
                 notForProperty, forProperty,
-                "",
+                $"{columnMapping}",
                 (g, m, b) => g.TestGeneratePropertyAnnotations((IProperty)m, b));
         }
 
@@ -333,42 +337,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
 
             Assert.Equal((int)RawEnum.A, snapshotModel.FindEntityType(typeof(WithAnnotations)).GetDiscriminatorValue());
             Assert.Equal((int)RawEnum.B, snapshotModel.FindEntityType(typeof(Derived)).GetDiscriminatorValue());
-        }
-
-        [ConditionalFact]
-        public void Value_converters_with_mapping_hints_are_scaffolded_correctly()
-        {
-            var commonPrefix
-                = _nl + "." + nameof(PropertyBuilder.HasConversion) + "(new " + nameof(ValueConverter)
-                  + "<long, long>(v => default(long), v => default(long)";
-
-            AssertConverter(
-                new ValueConverter<int, long>(v => v, v => (int)v), "");
-
-            AssertConverter(
-                new ValueConverter<int, long>(v => v, v => (int)v, new ConverterMappingHints(size: 10)),
-                commonPrefix + ", new ConverterMappingHints(size: 10)))");
-
-            AssertConverter(
-                new ValueConverter<int, long>(v => v, v => (int)v, new ConverterMappingHints(precision: 10)),
-                commonPrefix + ", new ConverterMappingHints(precision: 10)))");
-
-            AssertConverter(
-                new ValueConverter<int, long>(v => v, v => (int)v, new ConverterMappingHints(scale: 10)),
-                commonPrefix + ", new ConverterMappingHints(scale: 10)))");
-
-            AssertConverter(
-                new ValueConverter<int, long>(v => v, v => (int)v, new ConverterMappingHints(unicode: true)),
-                commonPrefix + ", new ConverterMappingHints(unicode: true)))");
-
-            AssertConverter(
-                new ValueConverter<int, long>(v => v, v => (int)v, new RelationalConverterMappingHints(fixedLength: false)),
-                commonPrefix + ", new ConverterMappingHints(fixedLength: false)))");
-
-            AssertConverter(
-                new ValueConverter<int, long>(
-                    v => v, v => (int)v, new RelationalConverterMappingHints(fixedLength: false, size: 77, scale: -1)),
-                commonPrefix + ", new ConverterMappingHints(size: 77, scale: -1, fixedLength: false)))");
         }
 
         private static void AssertConverter(ValueConverter valueConverter, string expected)
@@ -617,10 +585,10 @@ namespace MyNamespace
             modelBuilder.Entity(""Cheese"", b =>
                 {
                     b.Property<string>(""Ham"")
-                        .HasConversion(new ValueConverter<string, string>(v => default(string), v => default(string), new ConverterMappingHints(size: 10)));
+                        .HasColumnType(""just_string(10)"");
 
                     b.Property<string>(""Pickle"")
-                        .HasConversion(new ValueConverter<string, string>(v => default(string), v => default(string), new ConverterMappingHints(size: 10)));
+                        .HasColumnType(""just_string(10)"");
 
                     b.HasKey(""Ham"");
 
@@ -630,9 +598,11 @@ namespace MyNamespace
             modelBuilder.Entity(""Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+EntityWithConstructorBinding"", b =>
                 {
                     b.Property<int>(""Id"")
-                        .ValueGeneratedOnAdd();
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType(""default_int_mapping"");
 
-                    b.Property<Guid>(""PropertyWithValueGenerator"");
+                    b.Property<Guid>(""PropertyWithValueGenerator"")
+                        .HasColumnType(""default_guid_mapping"");
 
                     b.HasKey(""Id"");
 
