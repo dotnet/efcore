@@ -147,6 +147,15 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                         fixedLength))
             {
             }
+
+            protected override string ProcessStoreType(
+                RelationalTypeMappingParameters parameters,
+                string storeType,
+                string storeTypeNameBase)
+                => storeTypeNameBase == "some_string"
+                   && parameters.Size != null
+                    ? $"({parameters.Size})some_string"
+                    : storeType;
         }
 
         protected override RelationalTypeMapping FindMapping(in RelationalTypeMappingInfo mappingInfo)

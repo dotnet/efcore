@@ -110,7 +110,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         {
             var mapping = GetNamedMapping(typeof(string), "some_string(666)");
 
-            Assert.Equal("some_string(666)", mapping.StoreType);
+            Assert.Equal("(666)some_string", mapping.StoreType);
             Assert.Equal(666, mapping.Size);
         }
 

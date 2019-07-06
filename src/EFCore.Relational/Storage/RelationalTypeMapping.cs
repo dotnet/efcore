@@ -243,34 +243,58 @@ namespace Microsoft.EntityFrameworkCore.Storage
         {
             Parameters = parameters;
 
-            var size = parameters.Size;
             var storeType = parameters.StoreType;
 
             if (storeType != null)
             {
-                StoreTypeNameBase = GetBaseName(storeType);
-                if (size != null && parameters.StoreTypePostfix == StoreTypePostfix.Size)
-                {
-                    storeType = StoreTypeNameBase + "(" + size + ")";
-                }
-                else if (parameters.StoreTypePostfix == StoreTypePostfix.PrecisionAndScale
-                         || parameters.StoreTypePostfix == StoreTypePostfix.Precision)
-                {
-                    var precision = parameters.Precision;
-                    if (precision != null)
-                    {
-                        var scale = parameters.Scale;
-                        storeType = StoreTypeNameBase
-                                    + "("
-                                    + (scale == null || parameters.StoreTypePostfix == StoreTypePostfix.Precision
-                                        ? precision.ToString()
-                                        : precision + "," + scale)
-                                    + ")";
-                    }
-                }
+                var storeTypeNameBase = GetBaseName(storeType);
+                StoreTypeNameBase = storeTypeNameBase;
+
+                storeType = ProcessStoreType(parameters, storeType, storeTypeNameBase);
             }
 
             StoreType = storeType;
+        }
+
+        /// <summary>
+        ///    Processes the store type name to add appropriate postfix/prefix text as needed.
+        /// </summary>
+        /// <param name="parameters"> The parameters for this mapping. </param>
+        /// <param name="storeType"> The specified store type name. </param>
+        /// <param name="storeTypeNameBase"> The calculated based name</param>
+        /// <returns> The store type name to use. </returns>
+        protected virtual string ProcessStoreType(
+            RelationalTypeMappingParameters parameters,
+            [NotNull] string storeType,
+            [NotNull] string storeTypeNameBase)
+        {
+            Check.NotNull(storeType, nameof(storeType));
+            Check.NotNull(storeTypeNameBase, nameof(storeTypeNameBase));
+
+            var size = parameters.Size;
+
+            if (size != null
+                && parameters.StoreTypePostfix == StoreTypePostfix.Size)
+            {
+                storeType = storeTypeNameBase + "(" + size + ")";
+            }
+            else if (parameters.StoreTypePostfix == StoreTypePostfix.PrecisionAndScale
+                     || parameters.StoreTypePostfix == StoreTypePostfix.Precision)
+            {
+                var precision = parameters.Precision;
+                if (precision != null)
+                {
+                    var scale = parameters.Scale;
+                    storeType = storeTypeNameBase
+                                + "("
+                                + (scale == null || parameters.StoreTypePostfix == StoreTypePostfix.Precision
+                                    ? precision.ToString()
+                                    : precision + "," + scale)
+                                + ")";
+                }
+            }
+
+            return storeType;
         }
 
         private static string GetBaseName(string storeType)
@@ -349,37 +373,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="mappingInfo"> The mapping info containing the facets to use. </param>
         /// <returns> The cloned mapping, or the original mapping if no clone was needed. </returns>
         public virtual RelationalTypeMapping Clone(in RelationalTypeMappingInfo mappingInfo)
-        {
-            if ((mappingInfo.Scale != null
-                 && mappingInfo.Scale != Parameters.Scale
-                 && StoreTypePostfix == StoreTypePostfix.PrecisionAndScale)
-                || (mappingInfo.Precision != null
-                    && mappingInfo.Precision != Parameters.Precision
-                    && (StoreTypePostfix == StoreTypePostfix.PrecisionAndScale
-                        || StoreTypePostfix == StoreTypePostfix.Precision)))
-            {
-                var storeTypeChanged = mappingInfo.StoreTypeNameBase != null
-                                        && !string.Equals(mappingInfo.StoreTypeNameBase, StoreTypeNameBase, StringComparison.OrdinalIgnoreCase);
-
-                return storeTypeChanged
-                    ? Clone(Parameters.WithTypeMappingInfo(mappingInfo))
-                    : Clone(
-                        mappingInfo.Precision ?? Parameters.Precision,
-                        mappingInfo.Scale ?? Parameters.Scale);
-            }
-
-            var storeTypeOrSizeChanged = (mappingInfo.Size != null
-                                            && mappingInfo.Size != Size
-                                            && StoreTypePostfix == StoreTypePostfix.Size)
-                                            || (mappingInfo.StoreTypeName != null
-                                                && !string.Equals(mappingInfo.StoreTypeName, StoreType, StringComparison.OrdinalIgnoreCase));
-
-            return storeTypeOrSizeChanged
-                ? Clone(
-                    mappingInfo.StoreTypeName ?? StoreType,
-                    mappingInfo.Size ?? Size)
-                : this;
-        }
+            => Clone(Parameters.WithTypeMappingInfo(mappingInfo));
 
         /// <summary>
         ///     Gets the name of the database type.
