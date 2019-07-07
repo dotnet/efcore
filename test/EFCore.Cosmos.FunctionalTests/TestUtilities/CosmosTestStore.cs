@@ -19,6 +19,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.TestUtilities
         private readonly TestStoreContext _storeContext;
         private readonly string _dataFilePath;
         private readonly Action<CosmosDbContextOptionsBuilder> _configureCosmos;
+        private static readonly Guid _runId = Guid.NewGuid();
 
         public static CosmosTestStore Create(string name, Action<CosmosDbContextOptionsBuilder> extensionConfiguration = null)
             => new CosmosTestStore(name, shared: false, extensionConfiguration: extensionConfiguration);
@@ -33,7 +34,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.TestUtilities
 
         private CosmosTestStore(
             string name, bool shared = true, string dataFilePath = null, Action<CosmosDbContextOptionsBuilder> extensionConfiguration = null)
-            : base(name, shared)
+            : base(name + _runId.ToString(), shared)
         {
             ConnectionUri = TestEnvironment.DefaultConnection;
             AuthToken = TestEnvironment.AuthToken;
