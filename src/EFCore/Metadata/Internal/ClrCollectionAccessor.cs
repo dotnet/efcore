@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
@@ -18,6 +19,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
     public class ClrICollectionAccessor<TEntity, TCollection, TElement> : IClrCollectionAccessor
         where TEntity : class
         where TCollection : class, IEnumerable<TElement>
+        where TElement : class
     {
         private readonly string _propertyName;
         private readonly Func<TEntity, TCollection> _getCollection;
@@ -64,7 +66,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var collection = GetOrCreateCollection(instance);
             var element = (TElement)value;
 
-            if (!collection.Contains(element))
+            if (!Contains(collection, value))
             {
                 collection.Add(element);
 
@@ -86,7 +88,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             foreach (TElement value in values)
             {
-                if (!collection.Contains(value))
+                if (!Contains(collection, value))
                 {
                     collection.Add(value);
                 }
@@ -186,11 +188,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual bool Contains(object instance, object value)
-        {
-            var collection = GetCollection((TEntity)instance);
-
-            return (collection?.Contains((TElement)value) == true);
-        }
+            => Contains(GetCollection((TEntity)instance), value);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -199,6 +197,68 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual bool Remove(object instance, object value)
-            => GetCollection((TEntity)instance)?.Remove((TElement)value) ?? false;
+        {
+            var collection = GetCollection((TEntity)instance);
+
+            switch (collection)
+            {
+                case List<TElement> list:
+                    for (var i = 0; i < list.Count; i++)
+                    {
+                        if (ReferenceEquals(list[i], value))
+                        {
+                            list.RemoveAt(i);
+                            return true;
+                        }
+                    }
+                    return false;
+                case Collection<TElement> concreteCollection:
+                    for (var i = 0; i < concreteCollection.Count; i++)
+                    {
+                        if (ReferenceEquals(concreteCollection[i], value))
+                        {
+                            concreteCollection.RemoveAt(i);
+                            return true;
+                        }
+                    }
+                    return false;
+                case SortedSet<TElement> sortedSet:
+                    return sortedSet.TryGetValue((TElement)value, out var found)
+                           && ReferenceEquals(found, value)
+                           && sortedSet.Remove(found);
+                default:
+                    return collection?.Remove((TElement)value) ?? false;
+            }
+        }
+
+        private static bool Contains(ICollection<TElement> collection, object value)
+        {
+            switch (collection)
+            {
+                case List<TElement> list:
+                    foreach (var element in list)
+                    {
+                        if (ReferenceEquals(element, value))
+                        {
+                            return true;
+                        }
+                    }
+                    return false;
+                case Collection<TElement> concreteCollection:
+                    for (var i = 0; i < concreteCollection.Count; i++)
+                    {
+                        if (ReferenceEquals(concreteCollection[i], value))
+                        {
+                            return true;
+                        }
+                    }
+                    return false;
+                case SortedSet<TElement> sortedSet:
+                    return sortedSet.TryGetValue((TElement)value, out var found)
+                           && ReferenceEquals(found, value);
+                default:
+                    return collection?.Contains((TElement)value) == true;
+            }
+        }
     }
 }
