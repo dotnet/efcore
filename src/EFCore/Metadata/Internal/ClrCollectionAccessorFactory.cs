@@ -98,6 +98,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         private static IClrCollectionAccessor CreateGeneric<TEntity, TCollection, TElement>(INavigation navigation, MemberInfo memberInfo)
             where TEntity : class
             where TCollection : class, IEnumerable<TElement>
+            where TElement : class
         {
             var entityParameter = Expression.Parameter(typeof(TEntity), "entity");
             var valueParameter = Expression.Parameter(typeof(TCollection), "collection");
