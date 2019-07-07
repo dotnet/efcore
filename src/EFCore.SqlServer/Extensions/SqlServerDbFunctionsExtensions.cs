@@ -889,7 +889,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>true to valid and false not valid.</returns>
         public static bool IsDate(
             [CanBeNull] this DbFunctions _,
-            string expression)
+            [NotNull] string expression)
             => throw new InvalidOperationException(SqlServerStrings.IsDateFunctionOnClient);
     }
 }

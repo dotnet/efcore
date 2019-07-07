@@ -572,7 +572,7 @@ WHERE ISDATE([o].[CustomerID]) <> CAST(1 AS bit)");
         }
 
         [ConditionalFact]
-        public virtual void IsDate_valid()
+        public virtual void IsDate()
         {
             using (var context = CreateContext())
             {
