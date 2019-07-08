@@ -438,7 +438,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 .Append(".")
                 .Append(nameof(RelationalPropertyBuilderExtensions.HasColumnType))
                 .Append("(")
-                .Append(Code.UnknownLiteral(property.GetColumnType()))
+                .Append(Code.Literal(property.GetColumnType()))
                 .Append(")");
 
             GenerateFluentApiForAnnotation(
