@@ -85,6 +85,15 @@ jobs:
                 Test__Cosmos__DefaultConnection: $(_CosmosConnectionUrl)
               name: Build
             - task: PublishBuildArtifacts@1
+              displayName: Upload TestResults
+              condition: always()
+              continueOnError: true
+              inputs:
+                pathtoPublish: artifacts/TestResults/$(_BuildConfig)/
+                artifactName: $(Agent.Os)_$(Agent.JobName) TestResults
+                artifactType: Container
+                parallel: true
+            - task: PublishBuildArtifacts@1
               displayName: Upload artifacts
               condition: and(succeeded(), eq(variables['system.pullrequest.isfork'], false))
               inputs:
@@ -105,6 +114,15 @@ jobs:
                 Test__Cosmos__DefaultConnection: $(_CosmosConnectionUrl)
               name: Build
               continueOnError: true
+            - task: PublishBuildArtifacts@1
+              displayName: Upload TestResults
+              condition: always()
+              continueOnError: true
+              inputs:
+                pathtoPublish: artifacts/TestResults/$(_BuildConfig)/
+                artifactName: $(Agent.Os)_$(Agent.JobName) TestResults
+                artifactType: Container
+                parallel: true
 
         - job: Linux
           pool:
@@ -121,3 +139,12 @@ jobs:
                 Test__Cosmos__DefaultConnection: $(_CosmosConnectionUrl)
                 Test__Cosmos__AuthToken: $(_CosmosToken)
               name: Build
+            - task: PublishBuildArtifacts@1
+              displayName: Upload TestResults
+              condition: always()
+              continueOnError: true
+              inputs:
+                pathtoPublish: artifacts/TestResults/$(_BuildConfig)/
+                artifactName: $(Agent.Os)_$(Agent.JobName) TestResults
+                artifactType: Container
+                parallel: true
