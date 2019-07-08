@@ -588,6 +588,22 @@ WHERE ISDATE([o].[CustomerID]) = CAST(1 AS bit)");
         }
 
         [ConditionalFact]
+        public virtual void IsDate_join_fields()
+        {
+            using (var context = CreateContext())
+            {
+                var count = context.Orders.Count(c => EF.Functions.IsDate(c.CustomerID + c.OrderID));
+
+                Assert.Equal(0, count);
+
+                AssertSql(
+                    @"SELECT COUNT(*)
+FROM [Orders] AS [o]
+WHERE ISDATE([o].[CustomerID] + CAST([o].[OrderID] AS nchar(5))) = CAST(1 AS bit)");
+            }
+        }
+
+        [ConditionalFact]
         public void IsDate_should_throw_on_client_eval()
         {
             var exIsDate = Assert.Throws<InvalidOperationException>(() => EF.Functions.IsDate("#ISDATE#"));
