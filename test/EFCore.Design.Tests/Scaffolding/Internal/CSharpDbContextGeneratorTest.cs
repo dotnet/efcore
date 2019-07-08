@@ -145,6 +145,27 @@ namespace TestNamespace
                 scaffoldedModel.ContextFile.Code);
         }
 
+        [Fact]
+        public void Comments_use_fluent_api()
+        {
+            Test(
+                modelBuilder => modelBuilder.Entity(
+                    "Entity",
+                    x =>
+                    {
+                        x.Property<int>("Id");
+                        x.Property<int>("Property")
+                            .HasComment("An int property");
+                    }),
+                new ModelCodeGenerationOptions(),
+                code => Assert.Contains(
+                    ".HasColumn(\"An int property\")",
+                    code.ContextFile.Code),
+                model => Assert.Equal(
+                    "An int property",
+                    model.FindEntityType("Entity").GetProperty("Property").GetComment()));
+        }
+
         private class TestCodeGeneratorPlugin : ProviderCodeGeneratorPlugin
         {
             public override MethodCallCodeFragment GenerateProviderOptions()
