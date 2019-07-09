@@ -54,7 +54,7 @@ namespace Microsoft.EntityFrameworkCore
 
         private static bool FreeTextCore(string propertyName, string freeText, int? languageTerm)
         {
-            throw new InvalidOperationException(SqlServerStrings.FreeTextFunctionOnClient);
+            throw new InvalidOperationException(SqlServerStrings.FunctionOnClient(nameof(FreeText)));
         }
 
         /// <summary>
@@ -97,7 +97,7 @@ namespace Microsoft.EntityFrameworkCore
 
         private static bool ContainsCore(string propertyName, string searchCondition, int? languageTerm)
         {
-            throw new InvalidOperationException(SqlServerStrings.ContainsFunctionOnClient);
+            throw new InvalidOperationException(SqlServerStrings.FunctionOnClient(nameof(Contains)));
         }
 
         /// <summary>
@@ -890,6 +890,6 @@ namespace Microsoft.EntityFrameworkCore
         public static bool IsDate(
             [CanBeNull] this DbFunctions _,
             [NotNull] string expression)
-            => throw new InvalidOperationException(SqlServerStrings.IsDateFunctionOnClient);
+            => throw new InvalidOperationException(SqlServerStrings.FunctionOnClient(nameof(IsDate)));
     }
 }

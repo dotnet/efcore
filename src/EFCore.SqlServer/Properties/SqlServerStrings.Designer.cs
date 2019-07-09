@@ -124,14 +124,6 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
                 table);
 
         /// <summary>
-        ///     The 'FreeText' method is not supported because the query has switched to client-evaluation. Inspect the log to determine which query expressions are triggering client-evaluation.
-        /// </summary>
-        public static string FreeTextFunctionOnClient
-            => string.Format(
-                GetString("FunctionOnClient"),
-                nameof(SqlServerDbFunctionsExtensions.FreeText));
-
-        /// <summary>
         ///     The expression passed to the 'propertyReference' parameter of the 'FreeText' method is not a valid reference to a property. The expression should represent a reference to a full-text indexed property on the object referenced in the from clause: 'from e in context.Entities where EF.Functions.FreeText(e.SomeProperty, textToSearchFor) select e'
         /// </summary>
         public static string InvalidColumnNameForFreeText
@@ -162,20 +154,20 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
                 entityType, property);
 
         /// <summary>
-        ///     The 'Contains' method is not supported because the query has switched to client-evaluation. Inspect the log to determine which query expressions are triggering client-evaluation.
-        /// </summary>
-        public static string ContainsFunctionOnClient
-            => string.Format(
-                GetString("FunctionOnClient"),
-                nameof(SqlServerDbFunctionsExtensions.Contains));
-
-        /// <summary>
         ///     The keys {key1} on '{entityType1}' and {key2} on '{entityType2}' are both mapped to '{table}.{keyName}' but with different clustering.
         /// </summary>
         public static string DuplicateKeyMismatchedClustering([CanBeNull] object key1, [CanBeNull] object entityType1, [CanBeNull] object key2, [CanBeNull] object entityType2, [CanBeNull] object table, [CanBeNull] object keyName)
             => string.Format(
                 GetString("DuplicateKeyMismatchedClustering", nameof(key1), nameof(entityType1), nameof(key2), nameof(entityType2), nameof(table), nameof(keyName)),
                 key1, entityType1, key2, entityType2, table, keyName);
+
+        /// <summary>
+        ///     The '{methodName}' method is not supported because the query has switched to client-evaluation. Inspect the log to determine which query expressions are triggering client-evaluation.
+        /// </summary>
+        public static string FunctionOnClient([CanBeNull] object methodName)
+            => string.Format(
+                GetString("FunctionOnClient", nameof(methodName)),
+                methodName);
 
         private static string GetString(string name, params string[] formatterNames)
         {
@@ -187,14 +179,6 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
 
             return value;
         }
-
-        /// <summary>
-        ///     The 'IsDate' method is not supported because the query has switched to client-evaluation. Inspect the log to determine which query expressions are triggering client-evaluation.
-        /// </summary>
-        public static string IsDateFunctionOnClient
-            => string.Format(
-                GetString("FunctionOnClient"),
-                nameof(SqlServerDbFunctionsExtensions.IsDate));
     }
 }
 

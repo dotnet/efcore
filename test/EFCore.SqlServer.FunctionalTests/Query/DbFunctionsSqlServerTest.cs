@@ -259,9 +259,14 @@ WHERE ((FREETEXT([c.Manager].[Title], N'President', LANGUAGE 1033)) AND (FREETEX
         public void Contains_should_throw_on_client_eval()
         {
             var exNoLang = Assert.Throws<InvalidOperationException>(() => EF.Functions.Contains("teststring", "teststring"));
-            Assert.Equal(SqlServerStrings.ContainsFunctionOnClient, exNoLang.Message);
+            Assert.Equal(
+                SqlServerStrings.FunctionOnClient(nameof(SqlServerDbFunctionsExtensions.Contains)),
+                exNoLang.Message);
+
             var exLang = Assert.Throws<InvalidOperationException>(() => EF.Functions.Contains("teststring", "teststring", 1033));
-            Assert.Equal(SqlServerStrings.ContainsFunctionOnClient, exLang.Message);
+            Assert.Equal(
+                SqlServerStrings.FunctionOnClient(nameof(SqlServerDbFunctionsExtensions.Contains)),
+                exLang.Message);
         }
 
         [ConditionalFact]
@@ -607,7 +612,10 @@ WHERE ISDATE([o].[CustomerID] + CAST([o].[OrderID] AS nchar(5))) = CAST(1 AS bit
         public void IsDate_should_throw_on_client_eval()
         {
             var exIsDate = Assert.Throws<InvalidOperationException>(() => EF.Functions.IsDate("#ISDATE#"));
-            Assert.Equal(SqlServerStrings.IsDateFunctionOnClient, exIsDate.Message);
+
+            Assert.Equal(
+                SqlServerStrings.FunctionOnClient(nameof(SqlServerDbFunctionsExtensions.IsDate)),
+                exIsDate.Message);
         }
 
         private void AssertSql(params string[] expected)
