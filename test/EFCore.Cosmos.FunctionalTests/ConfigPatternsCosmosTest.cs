@@ -39,7 +39,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
                     Assert.Same(client, context.Database.GetCosmosClient());
                 }
 
-                await using (var testDatabase2 = CosmosTestStore.CreateInitialized(DatabaseName, o => o.Region(CosmosRegions.AustraliaCentral)))
+                await using (var testDatabase2 = CosmosTestStore.CreateInitialized(DatabaseName, o => o.Region(Regions.AustraliaCentral)))
                 {
                     options = CreateOptions(testDatabase2);
 
@@ -54,7 +54,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
         [ConditionalFact]
         public async Task Should_not_throw_if_specified_region_is_right()
         {
-            var regionName = CosmosRegions.AustraliaCentral;
+            var regionName = Regions.AustraliaCentral;
 
             await using (var testDatabase = CosmosTestStore.CreateInitialized(DatabaseName, o => o.Region(regionName)))
             {

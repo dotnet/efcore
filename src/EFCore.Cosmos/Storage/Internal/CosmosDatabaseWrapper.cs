@@ -293,7 +293,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
             return principal.EntityType.IsDocumentRoot() ? principal : GetRootDocument(principal);
         }
 
-        private static object GetPartitionKey(IUpdateEntry entry)
+        private static string GetPartitionKey(IUpdateEntry entry)
         {
             object partitionKey = null;
             var partitionKeyPropertyName = entry.EntityType.GetCosmosPartitionKeyPropertyName();
@@ -309,7 +309,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
                 }
             }
 
-            return partitionKey;
+            return (string)partitionKey;
         }
     }
 }

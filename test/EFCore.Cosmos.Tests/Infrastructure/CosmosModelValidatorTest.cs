@@ -27,7 +27,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Infrastructure
         {
             var modelBuilder = CreateConventionalModelBuilder();
             modelBuilder.Entity<Customer>().ForCosmosToContainer("Orders").ForCosmosHasPartitionKey(c => c.PartitionId);
-            modelBuilder.Entity<Order>().ForCosmosToContainer("Orders").ForCosmosHasPartitionKey(c => c.PartitionId);
+            modelBuilder.Entity<Order>().ForCosmosToContainer("Orders").ForCosmosHasPartitionKey(o => o.PartitionId)
+                .Property(o => o.PartitionId).HasConversion<string>();
 
             var model = modelBuilder.Model;
             Validate(model);
@@ -83,12 +84,12 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Infrastructure
         {
             var modelBuilder = CreateConventionalModelBuilder();
             modelBuilder.Entity<Customer>().ForCosmosToContainer("Orders").ForCosmosHasPartitionKey(c => c.PartitionId);
-            modelBuilder.Entity<Order>().ForCosmosToContainer("Orders").ForCosmosHasPartitionKey(c => c.PartitionId)
-                .Property(c => c.PartitionId).HasConversion<string>();
+            modelBuilder.Entity<Order>().ForCosmosToContainer("Orders").ForCosmosHasPartitionKey(o => o.PartitionId)
+                .Property(c => c.PartitionId).HasConversion<int>();
 
             var model = modelBuilder.Model;
-            VerifyError(CosmosStrings.PartitionKeyStoreTypeMismatch(
-                nameof(Customer.PartitionId), typeof(Customer).Name, "int", nameof(Order.PartitionId), typeof(Order).Name, "string"), model);
+            VerifyError(CosmosStrings.PartitionKeyNonStringStoreType(
+                nameof(Customer.PartitionId), typeof(Order).Name, "int"), model);
         }
 
         [ConditionalFact]
@@ -130,14 +131,14 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Infrastructure
         {
             public int Id { get; set; }
             public string Name { get; set; }
-            public int PartitionId { get; set; }
+            public string PartitionId { get; set; }
             public ICollection<Order> Orders { get; set; }
         }
 
         private class Order
         {
             public int Id { get; set; }
-            public int PartitionId { get; set; }
+            public string PartitionId { get; set; }
             public Customer Customer { get; set; }
         }
     }

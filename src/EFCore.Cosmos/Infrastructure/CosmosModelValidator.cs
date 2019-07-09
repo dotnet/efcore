@@ -73,22 +73,6 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Infrastructure
             [NotNull] string containerName,
             [NotNull] IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
         {
-            if (mappedTypes.Count == 1)
-            {
-                var entityType = mappedTypes[0];
-                var partitionKeyPropertyName = entityType.GetCosmosPartitionKeyPropertyName();
-                if (partitionKeyPropertyName != null)
-                {
-                    var nextPartitionKeyProperty = entityType.FindProperty(partitionKeyPropertyName);
-                    if (nextPartitionKeyProperty == null)
-                    {
-                        throw new InvalidOperationException(
-                            CosmosStrings.PartitionKeyMissingProperty(entityType.DisplayName(), partitionKeyPropertyName));
-                    }
-                }
-                return;
-            }
-
             var discriminatorValues = new Dictionary<object, IEntityType>();
             IProperty partitionKey = null;
             IEntityType firstEntityType = null;
@@ -102,6 +86,14 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Infrastructure
                     {
                         throw new InvalidOperationException(
                             CosmosStrings.PartitionKeyMissingProperty(entityType.DisplayName(), partitionKeyPropertyName));
+                    }
+
+                    var keyType = nextPartitionKeyProperty.GetTypeMapping().Converter?.ProviderClrType
+                        ?? nextPartitionKeyProperty.ClrType;
+                    if (keyType != typeof(string))
+                    {
+                        throw new InvalidOperationException(CosmosStrings.PartitionKeyNonStringStoreType(
+                            partitionKeyPropertyName, entityType.DisplayName(), keyType.ShortDisplayName()));
                     }
 
                     if (partitionKey == null)
@@ -119,23 +111,15 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Infrastructure
                                 partitionKey.Name, firstEntityType.DisplayName(), partitionKey.GetCosmosPropertyName(),
                                 nextPartitionKeyProperty.Name, entityType.DisplayName(), nextPartitionKeyProperty.GetCosmosPropertyName()));
                     }
-                    else if ((partitionKey.GetTypeMapping().Converter?.ProviderClrType ?? partitionKey.ClrType)
-                      != (nextPartitionKeyProperty.GetTypeMapping().Converter?.ProviderClrType ?? nextPartitionKeyProperty.ClrType))
-                    {
-                        throw new InvalidOperationException(
-                            CosmosStrings.PartitionKeyStoreTypeMismatch(
-                                partitionKey.Name,
-                                firstEntityType.DisplayName(),
-                                (partitionKey.GetTypeMapping().Converter?.ProviderClrType ?? partitionKey.ClrType).ShortDisplayName(),
-                                nextPartitionKeyProperty.Name,
-                                entityType.DisplayName(),
-                                (nextPartitionKeyProperty.GetTypeMapping().Converter?.ProviderClrType ?? nextPartitionKeyProperty.ClrType)
-                                    .ShortDisplayName()));
-                    }
                 }
                 else if (partitionKey != null)
                 {
                     throw new InvalidOperationException(CosmosStrings.NoPartitionKey(entityType.DisplayName(), containerName));
+                }
+
+                if (mappedTypes.Count == 1)
+                {
+                    break;
                 }
 
                 if (firstEntityType == null)

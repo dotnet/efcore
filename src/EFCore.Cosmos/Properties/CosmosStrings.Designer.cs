@@ -81,20 +81,20 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
                 entityType, property);
 
         /// <summary>
+        ///     The type of the partition key property '{property}' on '{entityType}' is '{propertyType}'. All partition key properties need to be strings or have a string converter.
+        /// </summary>
+        public static string PartitionKeyNonStringStoreType([CanBeNull] object property, [CanBeNull] object entityType, [CanBeNull] object propertyType)
+            => string.Format(
+                GetString("PartitionKeyNonStringStoreType", nameof(property), nameof(entityType), nameof(propertyType)),
+                property, entityType, propertyType);
+
+        /// <summary>
         ///     The partition key property '{property1}' on '{entityType1}' is mapped as '{storeName1}', but the partition key property '{property2}' on '{entityType2}' is mapped as '{storeName2}'. All partition key properties need to be mapped to the same store property.
         /// </summary>
         public static string PartitionKeyStoreNameMismatch([CanBeNull] object property1, [CanBeNull] object entityType1, [CanBeNull] object storeName1, [CanBeNull] object property2, [CanBeNull] object entityType2, [CanBeNull] object storeName2)
             => string.Format(
                 GetString("PartitionKeyStoreNameMismatch", nameof(property1), nameof(entityType1), nameof(storeName1), nameof(property2), nameof(entityType2), nameof(storeName2)),
                 property1, entityType1, storeName1, property2, entityType2, storeName2);
-
-        /// <summary>
-        ///     The type of the partition key property '{property1}' on '{entityType1}' is '{propertyType1}', but the type of the partition key property '{property2}' on '{entityType2}' is '{propertyType2}'. All partition key properties need to have matching types.
-        /// </summary>
-        public static string PartitionKeyStoreTypeMismatch([CanBeNull] object property1, [CanBeNull] object entityType1, [CanBeNull] object propertyType1, [CanBeNull] object property2, [CanBeNull] object entityType2, [CanBeNull] object propertyType2)
-            => string.Format(
-                GetString("PartitionKeyStoreTypeMismatch", nameof(property1), nameof(entityType1), nameof(propertyType1), nameof(property2), nameof(entityType2), nameof(propertyType2)),
-                property1, entityType1, propertyType1, property2, entityType2, propertyType2);
 
         private static string GetString(string name, params string[] formatterNames)
         {

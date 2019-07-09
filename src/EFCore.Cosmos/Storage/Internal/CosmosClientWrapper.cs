@@ -151,26 +151,26 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
         public bool CreateItem(
             string containerId,
             JToken document,
-            object partitionKey)
+            string partitionKey)
             => _executionStrategyFactory.Create().Execute(
                 (containerId, document, partitionKey), CreateItemOnce, null);
 
         private bool CreateItemOnce(
             DbContext context,
-            (string ContainerId, JToken Document, object PartitionKey) parameters)
+            (string ContainerId, JToken Document, string PartitionKey) parameters)
             => CreateItemOnceAsync(context, parameters).GetAwaiter().GetResult();
 
         public Task<bool> CreateItemAsync(
             string containerId,
             JToken document,
-            object partitionKey,
+            string partitionKey,
             CancellationToken cancellationToken = default)
             => _executionStrategyFactory.Create().ExecuteAsync(
                 (containerId, document, partitionKey), CreateItemOnceAsync, null, cancellationToken);
 
         private async Task<bool> CreateItemOnceAsync(
             DbContext _,
-            (string ContainerId, JToken Document, object PartitionKey) parameters,
+            (string ContainerId, JToken Document, string PartitionKey) parameters,
             CancellationToken cancellationToken = default)
         {
             using (var stream = new MemoryStream())
@@ -193,27 +193,27 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
             string collectionId,
             string documentId,
             JObject document,
-            object partitionKey)
+            string partitionKey)
             => _executionStrategyFactory.Create().Execute(
                 (collectionId, documentId, document, partitionKey), ReplaceItemOnce, null);
 
         private bool ReplaceItemOnce(
             DbContext context,
-            (string ContainerId, string ItemId, JObject Document, object PartitionKey) parameters)
+            (string ContainerId, string ItemId, JObject Document, string PartitionKey) parameters)
             => ReplaceItemOnceAsync(context, parameters).GetAwaiter().GetResult();
 
         public Task<bool> ReplaceItemAsync(
             string collectionId,
             string documentId,
             JObject document,
-            object partitionKey,
+            string partitionKey,
             CancellationToken cancellationToken = default)
             => _executionStrategyFactory.Create().ExecuteAsync(
                 (collectionId, documentId, document, partitionKey), ReplaceItemOnceAsync, null, cancellationToken);
 
         private async Task<bool> ReplaceItemOnceAsync(
             DbContext _,
-            (string ContainerId, string ItemId, JObject Document, object PartitionKey) parameters,
+            (string ContainerId, string ItemId, JObject Document, string PartitionKey) parameters,
             CancellationToken cancellationToken = default)
         {
             using var stream = new MemoryStream();
@@ -236,26 +236,26 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
         public bool DeleteItem(
             string containerId,
             string documentId,
-            object partitionKey)
+            string partitionKey)
             => _executionStrategyFactory.Create().Execute(
                 (containerId, documentId, partitionKey), DeleteItemOnce, null);
 
         public bool DeleteItemOnce(
             DbContext context,
-            (string ContainerId, string DocumentId, object PartitionKey) parameters)
+            (string ContainerId, string DocumentId, string PartitionKey) parameters)
             => DeleteItemOnceAsync(context, parameters).GetAwaiter().GetResult();
 
         public Task<bool> DeleteItemAsync(
             string containerId,
             string documentId,
-            object partitionKey,
+            string partitionKey,
             CancellationToken cancellationToken = default)
             => _executionStrategyFactory.Create().ExecuteAsync(
                 (containerId, documentId, partitionKey), DeleteItemOnceAsync, null, cancellationToken);
 
         public async Task<bool> DeleteItemOnceAsync(
             DbContext _,
-            (string ContainerId, string DocumentId, object PartitionKey) parameters,
+            (string ContainerId, string DocumentId, string PartitionKey) parameters,
             CancellationToken cancellationToken = default)
         {
             var items = Client.GetDatabase(_databaseId).GetContainer(parameters.ContainerId);
@@ -266,10 +266,10 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
             }
         }
 
-        private PartitionKey CreatePartitionKey(object partitionKey)
+        private PartitionKey CreatePartitionKey(string partitionKey)
             => partitionKey == null
-                                ? PartitionKey.NonePartitionKeyValue
-                                : new PartitionKey(partitionKey);
+                    ? PartitionKey.None
+                    : new PartitionKey(partitionKey);
 
         public IEnumerable<JObject> ExecuteSqlQuery(
             string containerId,
@@ -297,7 +297,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
             var queryDefinition = new QueryDefinition(query.Query);
             foreach (var parameter in query.Parameters)
             {
-                queryDefinition.UseParameter(parameter.Name, parameter.Value);
+                queryDefinition = queryDefinition.WithParameter(parameter.Name, parameter.Value);
             }
 
             return container.GetItemQueryStreamIterator(queryDefinition);

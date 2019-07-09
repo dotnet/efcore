@@ -10,7 +10,7 @@ namespace Microsoft.EntityFrameworkCore
         [ConditionalFact]
         public void Can_create_options_with_specified_region()
         {
-            var regionName = CosmosRegions.EastAsia;
+            var regionName = Regions.EastAsia;
             var options = new DbContextOptionsBuilder().UseCosmos(
                 "serviceEndPoint",
                 "authKeyOrResourceToken",
