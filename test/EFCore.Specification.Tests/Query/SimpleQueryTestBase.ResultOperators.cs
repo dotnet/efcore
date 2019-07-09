@@ -1497,7 +1497,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 1);
         }
 
-        [ConditionalFact(Skip = "#15855")]
+        [ConditionalFact]
         public virtual void Contains_over_entityType_should_rewrite_to_identity_equality()
         {
             using (var context = CreateContext())
@@ -1510,7 +1510,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalFact(Skip = "#15855")]
+        [ConditionalFact]
         public virtual void Contains_over_entityType_with_null_should_rewrite_to_identity_equality()
         {
             using (var context = CreateContext())
@@ -1519,7 +1519,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     = context.Orders.Where(o => o.CustomerID == "VINET")
                         .Contains(null);
 
-                Assert.True(query);
+                Assert.False(query);
             }
         }
 

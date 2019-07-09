@@ -10,9 +10,11 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Query.Expressions.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Query.NavigationExpansion;
+using Microsoft.EntityFrameworkCore.Query.NavigationExpansion.Visitors;
 
 namespace Microsoft.EntityFrameworkCore.Query.Pipeline
 {
@@ -24,23 +26,31 @@ namespace Microsoft.EntityFrameworkCore.Query.Pipeline
     /// </remarks>
     public class EntityEqualityRewritingExpressionVisitor : ExpressionVisitor
     {
-        protected IDiagnosticsLogger<DbLoggerCategory.Query> Logger { get; }
-        protected IModel Model { get; }
+        /// <summary>
+        ///     If the entity equality visitors introduces new runtime parameters (because it adds key access over existing parameters),
+        ///     those parameters will have this prefix.
+        /// </summary>
+        private const string RuntimeParameterPrefix = CompiledQueryCache.CompiledQueryParameterPrefix + "entity_equality_";
+
+        private readonly QueryCompilationContext _queryCompilationContext;
+        private readonly IDiagnosticsLogger<DbLoggerCategory.Query> _logger;
 
         private static readonly MethodInfo _objectEqualsMethodInfo
             = typeof(object).GetRuntimeMethod(nameof(object.Equals), new[] { typeof(object), typeof(object) });
 
         public EntityEqualityRewritingExpressionVisitor(QueryCompilationContext queryCompilationContext)
         {
-            Model = queryCompilationContext.Model;
-            Logger = queryCompilationContext.Logger;
+            _queryCompilationContext = queryCompilationContext;
+            _logger = queryCompilationContext.Logger;
         }
 
         public Expression Rewrite(Expression expression) => Unwrap(Visit(expression));
 
         protected override Expression VisitConstant(ConstantExpression constantExpression)
             => constantExpression.IsEntityQueryable()
-                ? new EntityReferenceExpression(constantExpression, Model.FindEntityType(((IQueryable)constantExpression.Value).ElementType))
+                ? new EntityReferenceExpression(
+                    constantExpression,
+                    _queryCompilationContext.Model.FindEntityType(((IQueryable)constantExpression.Value).ElementType))
                 : (Expression)constantExpression;
 
         protected override Expression VisitNew(NewExpression newExpression)
@@ -278,7 +288,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Pipeline
 
             // Wrap the source with a projection to its primary key, and the item with a primary key access expression
             var param = Expression.Parameter(entityType.ClrType, "v");
-            var keySelector = Expression.Lambda(param.CreateEFPropertyExpression(keyProperty, makeNullable: false), param);
+            var keySelector = Expression.Lambda(CreatePropertyAccessExpression(param, keyProperty), param);
             var keyProjection = Expression.Call(
                 LinqMethodHelpers.QueryableSelectMethodInfo.MakeGenericMethod(entityType.ClrType, keyProperty.ClrType),
                 Unwrap(newSource),
@@ -286,7 +296,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Pipeline
 
             var rewrittenItem = newItem.IsNullConstantExpression()
                 ? Expression.Constant(null)
-                : Unwrap(newItem).CreateEFPropertyExpression(keyProperty, makeNullable: false);
+                : CreatePropertyAccessExpression(Unwrap(newItem), keyProperty);
 
             return Expression.Call(
                 LinqMethodHelpers.QueryableContainsMethodInfo.MakeGenericMethod(keyProperty.ClrType),
@@ -333,7 +343,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Pipeline
                 var rewrittenKeySelector = Expression.Lambda(
                     ReplacingExpressionVisitor.Replace(
                         oldParam, param,
-                        body.CreateEFPropertyExpression(keyProperty, makeNullable: false)),
+                        CreatePropertyAccessExpression(body, keyProperty)),
                     param);
 
                 var orderingMethodInfo = GetOrderingMethodInfo(firstOrdering, isAscending);
@@ -499,8 +509,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Pipeline
         }
 
         /// <summary>
-        /// Replaces the lambda's single parameter with a type wrapper based on the given source, and then visits
-        /// the lambda's body.
+        ///     Replaces the lambda's single parameter with a type wrapper based on the given source, and then visits
+        ///     the lambda's body.
         /// </summary>
         protected LambdaExpression RewriteAndVisitLambda(LambdaExpression lambda, EntityReferenceExpression source)
             => Expression.Lambda(
@@ -513,8 +523,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Pipeline
                 lambda.Parameters);
 
         /// <summary>
-        /// Replaces the lambda's two parameters with type wrappers based on the given sources, and then visits
-        /// the lambda's body.
+        ///     Replaces the lambda's two parameters with type wrappers based on the given sources, and then visits
+        ///     the lambda's body.
         /// </summary>
         protected LambdaExpression RewriteAndVisitLambda(LambdaExpression lambda,
             EntityReferenceExpression source1,
@@ -529,10 +539,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Pipeline
                 lambda.Parameters);
 
         /// <summary>
-        /// Receives already-visited left and right operands of an equality expression and applies entity equality rewriting to them,
-        /// if possible.
+        ///     Receives already-visited left and right operands of an equality expression and applies entity equality rewriting to them,
+        ///     if possible.
         /// </summary>
-        /// <returns>The rewritten entity equality expression, or null if rewriting could not occur for some reason.</returns>
+        /// <returns> The rewritten entity equality expression, or null if rewriting could not occur for some reason. </returns>
         protected virtual Expression RewriteEquality(bool equality, Expression left, Expression right)
         {
             // TODO: Consider throwing if a child has no flowed entity type, but has a Type that corresponds to an entity type on the model.
@@ -597,7 +607,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Pipeline
                 // collection navigation is only null if its parent entity is null (null propagation thru navigation)
                 // it is probable that user wanted to see if the collection is (not) empty
                 // log warning suggesting to use Any() instead.
-                Logger.PossibleUnintendedCollectionNavigationNullComparisonWarning(lastNavigation);
+                _logger.PossibleUnintendedCollectionNavigationNullComparisonWarning(lastNavigation);
                 return RewriteNullEquality(equality, lastNavigation.DeclaringEntityType, UnwrapLastNavigation(nonNullExpression), null);
             }
 
@@ -609,7 +619,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Pipeline
             // (this is also why we can do it even over a subquery with a composite key)
             return Expression.MakeBinary(
                 equality ? ExpressionType.Equal : ExpressionType.NotEqual,
-                nonNullExpression.CreateEFPropertyExpression(keyProperties[0]),
+                CreatePropertyAccessExpression(nonNullExpression, keyProperties[0], makeNullable: true),
                 Expression.Constant(null));
         }
 
@@ -625,7 +635,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Pipeline
                 if (leftNavigation?.Equals(rightNavigation) == true)
                 {
                     // Log a warning that comparing 2 collections causes reference comparison
-                    Logger.PossibleUnintendedReferenceComparisonWarning(left, right);
+                    _logger.PossibleUnintendedReferenceComparisonWarning(left, right);
                     return RewriteEntityEquality(
                         equality, leftNavigation.DeclaringEntityType,
                         UnwrapLastNavigation(left), null,
@@ -688,11 +698,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Pipeline
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         // TODO: DRY with NavigationExpansionHelpers
-        protected static Expression CreateKeyAccessExpression(
+        protected Expression CreateKeyAccessExpression(
             [NotNull] Expression target,
             [NotNull] IReadOnlyList<IProperty> properties)
             => properties.Count == 1
-                ? target.CreateEFPropertyExpression(properties[0])
+                ? CreatePropertyAccessExpression(target, properties[0])
                 : Expression.New(
                     AnonymousObject.AnonymousObjectCtor,
                     Expression.NewArrayInit(
@@ -701,11 +711,54 @@ namespace Microsoft.EntityFrameworkCore.Query.Pipeline
                             .Select(
                                 p =>
                                     Expression.Convert(
-                                        target.CreateEFPropertyExpression(p),
+                                        CreatePropertyAccessExpression(target, p),
                                         typeof(object)))
                             .Cast<Expression>()
                             .ToArray()));
 
+        private Expression CreatePropertyAccessExpression(Expression target, IProperty property, bool makeNullable = false)
+        {
+            // The target is a constant - evaluate the property immediately and return the result
+            if (target is ConstantExpression constantExpression)
+            {
+                return Expression.Constant(property.GetGetter().GetClrValue(constantExpression.Value), property.ClrType);
+            }
+
+            // If the target is a query parameter, we can't simply add a property access over it, but must instead cause a new
+            // parameter to be added at runtime, with the value of the property on the base parameter.
+            if (target is ParameterExpression baseParameterExpression
+                && baseParameterExpression.Name.StartsWith(CompiledQueryCache.CompiledQueryParameterPrefix, StringComparison.Ordinal))
+            {
+                // Generate an expression to get the base parameter from the query context's parameter list, and extract the
+                // property from that
+                var lambda = Expression.Lambda(
+                    Expression.Call(
+                        _parameterValueExtractor,
+                        QueryCompilationContext.QueryContextParameter,
+                        Expression.Constant(baseParameterExpression.Name, typeof(string)),
+                        Expression.Constant(property, typeof(IProperty))),
+                    QueryCompilationContext.QueryContextParameter
+                );
+
+                var newParameterName = $"{RuntimeParameterPrefix}{baseParameterExpression.Name.Substring(CompiledQueryCache.CompiledQueryParameterPrefix.Length)}_{property.Name}";
+                _queryCompilationContext.RegisterRuntimeParameter(newParameterName, lambda);
+                return Expression.Parameter(property.ClrType, newParameterName);
+            }
+
+            return target.CreateEFPropertyExpression(property, makeNullable);
+
+        }
+
+        private static object ParameterValueExtractor(QueryContext context, string baseParameterName, IProperty property)
+        {
+            var baseParameter = context.ParameterValues[baseParameterName];
+            return baseParameter == null ? null : property.GetGetter().GetClrValue(baseParameter);
+        }
+
+        private static readonly MethodInfo _parameterValueExtractor
+                = typeof(EntityEqualityRewritingExpressionVisitor)
+                    .GetTypeInfo()
+                    .GetDeclaredMethod(nameof(ParameterValueExtractor));
 
         protected static Expression UnwrapLastNavigation(Expression expression)
             => (expression as MemberExpression)?.Expression
@@ -731,7 +784,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Pipeline
             public override ExpressionType NodeType => ExpressionType.Extension;
 
             /// <summary>
-            /// The underlying expression being wrapped.
+            ///     The underlying expression being wrapped.
             /// </summary>
             [NotNull]
             public Expression Underlying { get; }
@@ -789,9 +842,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Pipeline
             }
 
             /// <summary>
-            /// Attempts to find <paramref name="propertyName"/> as a navigation from the current node,
-            /// and if successful, returns a new <see cref="EntityReferenceExpression"/> wrapping the
-            /// given expression. Otherwise returns the given expression without wrapping it.
+            ///     Attempts to find <paramref name="propertyName"/> as a navigation from the current node,
+            ///     and if successful, returns a new <see cref="EntityReferenceExpression"/> wrapping the
+            ///     given expression. Otherwise returns the given expression without wrapping it.
             /// </summary>
             public virtual Expression TraverseProperty(string propertyName, Expression destinationExpression)
             {

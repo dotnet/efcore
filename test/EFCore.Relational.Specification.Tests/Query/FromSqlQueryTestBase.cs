@@ -989,7 +989,7 @@ AND (([UnitsInStock] + [UnitsOnOrder]) < [ReorderLevel])"))
             }
         }
 
-        [ConditionalFact(Skip = "#15855")]
+        [ConditionalFact]
         public virtual void Entity_equality_through_fromsql()
         {
             using (var context = CreateContext())
@@ -1002,7 +1002,7 @@ AND (([UnitsInStock] + [UnitsOnOrder]) < [ReorderLevel])"))
                      })
                     .ToArray();
 
-                Assert.Equal(1, actual.Length);
+                Assert.Equal(5, actual.Length);
             }
         }
 

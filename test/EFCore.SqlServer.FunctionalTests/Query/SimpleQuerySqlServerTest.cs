@@ -175,11 +175,36 @@ WHERE [c].[CustomerID] = [c].[CustomerID]");
             await base.Entity_equality_local(isAsync);
 
             AssertSql(
-                @"@__local_0_CustomerID='ANATR' (Nullable = false) (Size = 5)
+                @"@__entity_equality_local_0_CustomerID='ANATR' (Size = 5)
 
 SELECT [c].[CustomerID]
 FROM [Customers] AS [c]
-WHERE [c].[CustomerID] = @__local_0_CustomerID");
+WHERE ([c].[CustomerID] = @__entity_equality_local_0_CustomerID) AND @__entity_equality_local_0_CustomerID IS NOT NULL");
+        }
+
+        public override async Task Entity_equality_local_composite_key(bool isAsync)
+        {
+            await base.Entity_equality_local_composite_key(isAsync);
+
+            AssertSql(
+                @"@__entity_equality_local_0_OrderID='10248'
+@__entity_equality_local_0_ProductID='11'
+
+SELECT [o].[OrderID], [o].[ProductID], [o].[Discount], [o].[Quantity], [o].[UnitPrice]
+FROM [Order Details] AS [o]
+WHERE (([o].[OrderID] = @__entity_equality_local_0_OrderID) AND @__entity_equality_local_0_OrderID IS NOT NULL) AND (([o].[ProductID] = @__entity_equality_local_0_ProductID) AND @__entity_equality_local_0_ProductID IS NOT NULL)");
+        }
+
+        public override async Task Entity_equality_local_double_check(bool isAsync)
+        {
+            await base.Entity_equality_local_double_check(isAsync);
+
+            AssertSql(
+                @"@__entity_equality_local_0_CustomerID='ANATR' (Size = 5)
+
+SELECT [c].[CustomerID]
+FROM [Customers] AS [c]
+WHERE (([c].[CustomerID] = @__entity_equality_local_0_CustomerID) AND @__entity_equality_local_0_CustomerID IS NOT NULL) AND ((@__entity_equality_local_0_CustomerID = [c].[CustomerID]) AND @__entity_equality_local_0_CustomerID IS NOT NULL)");
         }
 
         public override async Task Join_with_entity_equality_local_on_both_sources(bool isAsync)
@@ -187,7 +212,16 @@ WHERE [c].[CustomerID] = @__local_0_CustomerID");
             await base.Join_with_entity_equality_local_on_both_sources(isAsync);
 
             AssertSql(
-                "");
+                @"@__entity_equality_local_0_CustomerID='ANATR' (Size = 5)
+
+SELECT [c].[CustomerID]
+FROM [Customers] AS [c]
+INNER JOIN (
+    SELECT [c0].[CustomerID], [c0].[Address], [c0].[City], [c0].[CompanyName], [c0].[ContactName], [c0].[ContactTitle], [c0].[Country], [c0].[Fax], [c0].[Phone], [c0].[PostalCode], [c0].[Region]
+    FROM [Customers] AS [c0]
+    WHERE ([c0].[CustomerID] = @__entity_equality_local_0_CustomerID) AND @__entity_equality_local_0_CustomerID IS NOT NULL
+) AS [t] ON [c].[CustomerID] = [t].[CustomerID]
+WHERE ([c].[CustomerID] = @__entity_equality_local_0_CustomerID) AND @__entity_equality_local_0_CustomerID IS NOT NULL");
         }
 
         public override async Task Entity_equality_local_inline(bool isAsync)
@@ -204,7 +238,10 @@ WHERE [c].[CustomerID] = N'ANATR'");
         {
             await base.Entity_equality_local_inline_composite_key(isAsync);
 
-            // TODO: AssertSql
+            AssertSql(
+                @"SELECT [o].[OrderID], [o].[ProductID], [o].[Discount], [o].[Quantity], [o].[UnitPrice]
+FROM [Order Details] AS [o]
+WHERE ([o].[OrderID] = 10248) AND ([o].[ProductID] = 11)");
         }
 
         public override async Task Entity_equality_null(bool isAsync)
@@ -506,13 +543,15 @@ WHERE [e20].[EmployeeID] = @_outer_ReportsTo");
             await base.Where_query_composition_entity_equality_one_element_FirstOrDefault(isAsync);
 
             AssertSql(
-                @"SELECT [e1].[EmployeeID], [e1].[City], [e1].[Country], [e1].[FirstName], [e1].[ReportsTo], [e1].[Title]
-FROM [Employees] AS [e1]
-WHERE (
-    SELECT TOP(1) [e2].[EmployeeID]
-    FROM [Employees] AS [e2]
-    WHERE [e2].[EmployeeID] = [e1].[ReportsTo]
-) = CAST(0 AS bigint)");
+                @"SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
+FROM [Employees] AS [e]
+WHERE ((
+    SELECT TOP(1) [e0].[EmployeeID]
+    FROM [Employees] AS [e0]
+    WHERE ([e0].[EmployeeID] = [e].[ReportsTo]) AND [e].[ReportsTo] IS NOT NULL) = 0) AND (
+    SELECT TOP(1) [e0].[EmployeeID]
+    FROM [Employees] AS [e0]
+    WHERE ([e0].[EmployeeID] = [e].[ReportsTo]) AND [e].[ReportsTo] IS NOT NULL) IS NOT NULL");
         }
 
         public override async Task Where_query_composition_entity_equality_no_elements_SingleOrDefault(bool isAsync)
@@ -546,13 +585,15 @@ WHERE [e20].[EmployeeID] = 42");
             await base.Where_query_composition_entity_equality_no_elements_FirstOrDefault(isAsync);
 
             AssertSql(
-                @"SELECT [e1].[EmployeeID], [e1].[City], [e1].[Country], [e1].[FirstName], [e1].[ReportsTo], [e1].[Title]
-FROM [Employees] AS [e1]
-WHERE (
-    SELECT TOP(1) [e2].[EmployeeID]
-    FROM [Employees] AS [e2]
-    WHERE [e2].[EmployeeID] = 42
-) = CAST(0 AS bigint)");
+                @"SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
+FROM [Employees] AS [e]
+WHERE ((
+    SELECT TOP(1) [e0].[EmployeeID]
+    FROM [Employees] AS [e0]
+    WHERE [e0].[EmployeeID] = 42) = 0) AND (
+    SELECT TOP(1) [e0].[EmployeeID]
+    FROM [Employees] AS [e0]
+    WHERE [e0].[EmployeeID] = 42) IS NOT NULL");
         }
 
         public override async Task Where_query_composition_entity_equality_multiple_elements_FirstOrDefault(bool isAsync)
@@ -560,13 +601,15 @@ WHERE (
             await base.Where_query_composition_entity_equality_multiple_elements_FirstOrDefault(isAsync);
 
             AssertSql(
-                @"SELECT [e1].[EmployeeID], [e1].[City], [e1].[Country], [e1].[FirstName], [e1].[ReportsTo], [e1].[Title]
-FROM [Employees] AS [e1]
-WHERE (
-    SELECT TOP(1) [e2].[EmployeeID]
-    FROM [Employees] AS [e2]
-    WHERE ([e2].[EmployeeID] <> [e1].[ReportsTo]) OR [e1].[ReportsTo] IS NULL
-) = CAST(0 AS bigint)");
+                @"SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
+FROM [Employees] AS [e]
+WHERE ((
+    SELECT TOP(1) [e0].[EmployeeID]
+    FROM [Employees] AS [e0]
+    WHERE ([e0].[EmployeeID] <> [e].[ReportsTo]) OR [e].[ReportsTo] IS NULL) = 0) AND (
+    SELECT TOP(1) [e0].[EmployeeID]
+    FROM [Employees] AS [e0]
+    WHERE ([e0].[EmployeeID] <> [e].[ReportsTo]) OR [e].[ReportsTo] IS NULL) IS NOT NULL");
         }
 
         public override async Task Where_query_composition2(bool isAsync)
@@ -4740,78 +4783,21 @@ WHERE ([c].[CustomerID] LIKE N'A%') AND (
             await base.Let_entity_equality_to_other_entity(isAsync);
 
             AssertSql(
-                @"SELECT [c].[CustomerID], CASE
-    WHEN (
-        SELECT TOP(1) [o0].[OrderID]
-        FROM [Orders] AS [o0]
-        WHERE [c].[CustomerID] = [o0].[CustomerID]
-        ORDER BY [o0].[OrderDate]
-    ) IS NOT NULL
-    THEN (
-        SELECT TOP(1) [o1].[OrderDate]
-        FROM [Orders] AS [o1]
-        WHERE [c].[CustomerID] = [o1].[CustomerID]
-        ORDER BY [o1].[OrderDate]
-    ) ELSE NULL
-END AS [A]
+                @"SELECT [c].[CustomerID], (
+    SELECT TOP(1) [o].[OrderDate]
+    FROM [Orders] AS [o]
+    WHERE ([c].[CustomerID] = [o].[CustomerID]) AND [o].[CustomerID] IS NOT NULL
+    ORDER BY [o].[OrderDate]) AS [A]
 FROM [Customers] AS [c]
-WHERE [c].[CustomerID] LIKE N'A%'",
-                //
-                @"@_outer_CustomerID='ALFKI' (Size = 5)
-
-SELECT TOP(1) [e].[OrderID], [e].[CustomerID], [e].[EmployeeID], [e].[OrderDate]
-FROM [Orders] AS [e]
-WHERE @_outer_CustomerID = [e].[CustomerID]
-ORDER BY [e].[OrderDate]",
-                //
-                @"@_outer_CustomerID1='ALFKI' (Size = 5)
-
-SELECT TOP(1) [e1].[OrderID], [e1].[CustomerID], [e1].[EmployeeID], [e1].[OrderDate]
-FROM [Orders] AS [e1]
-WHERE @_outer_CustomerID1 = [e1].[CustomerID]
-ORDER BY [e1].[OrderDate]",
-                //
-                @"@_outer_CustomerID='ANATR' (Size = 5)
-
-SELECT TOP(1) [e].[OrderID], [e].[CustomerID], [e].[EmployeeID], [e].[OrderDate]
-FROM [Orders] AS [e]
-WHERE @_outer_CustomerID = [e].[CustomerID]
-ORDER BY [e].[OrderDate]",
-                //
-                @"@_outer_CustomerID1='ANATR' (Size = 5)
-
-SELECT TOP(1) [e1].[OrderID], [e1].[CustomerID], [e1].[EmployeeID], [e1].[OrderDate]
-FROM [Orders] AS [e1]
-WHERE @_outer_CustomerID1 = [e1].[CustomerID]
-ORDER BY [e1].[OrderDate]",
-                //
-                @"@_outer_CustomerID='ANTON' (Size = 5)
-
-SELECT TOP(1) [e].[OrderID], [e].[CustomerID], [e].[EmployeeID], [e].[OrderDate]
-FROM [Orders] AS [e]
-WHERE @_outer_CustomerID = [e].[CustomerID]
-ORDER BY [e].[OrderDate]",
-                //
-                @"@_outer_CustomerID1='ANTON' (Size = 5)
-
-SELECT TOP(1) [e1].[OrderID], [e1].[CustomerID], [e1].[EmployeeID], [e1].[OrderDate]
-FROM [Orders] AS [e1]
-WHERE @_outer_CustomerID1 = [e1].[CustomerID]
-ORDER BY [e1].[OrderDate]",
-                //
-                @"@_outer_CustomerID='AROUT' (Size = 5)
-
-SELECT TOP(1) [e].[OrderID], [e].[CustomerID], [e].[EmployeeID], [e].[OrderDate]
-FROM [Orders] AS [e]
-WHERE @_outer_CustomerID = [e].[CustomerID]
-ORDER BY [e].[OrderDate]",
-                //
-                @"@_outer_CustomerID1='AROUT' (Size = 5)
-
-SELECT TOP(1) [e1].[OrderID], [e1].[CustomerID], [e1].[EmployeeID], [e1].[OrderDate]
-FROM [Orders] AS [e1]
-WHERE @_outer_CustomerID1 = [e1].[CustomerID]
-ORDER BY [e1].[OrderDate]");
+WHERE ([c].[CustomerID] LIKE N'A%') AND (((
+    SELECT TOP(1) [o0].[OrderID]
+    FROM [Orders] AS [o0]
+    WHERE ([c].[CustomerID] = [o0].[CustomerID]) AND [o0].[CustomerID] IS NOT NULL
+    ORDER BY [o0].[OrderDate]) <> 0) OR (
+    SELECT TOP(1) [o0].[OrderID]
+    FROM [Orders] AS [o0]
+    WHERE ([c].[CustomerID] = [o0].[CustomerID]) AND [o0].[CustomerID] IS NOT NULL
+    ORDER BY [o0].[OrderDate]) IS NULL)");
         }
 
 //        public override async Task SelectMany_after_client_method(bool isAsync)
