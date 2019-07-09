@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.Relational.Query.Pipeline;
 using Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions;
@@ -13,18 +12,23 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Pipeline
     {
         private readonly ISqlExpressionFactory _sqlExpressionFactory;
 
+        private static readonly MethodInfo _methodInfo = typeof(SqlServerDbFunctionsExtensions)
+            .GetRuntimeMethod(nameof(SqlServerDbFunctionsExtensions.IsDate), new[] { typeof(DbFunctions), typeof(string) });
+
         public SqlServerIsDateFunctionTranslator(ISqlExpressionFactory sqlExpressionFactory)
             => _sqlExpressionFactory = sqlExpressionFactory;
 
         public SqlExpression Translate(SqlExpression instance, MethodInfo method, IList<SqlExpression> arguments)
-            => (method.Name == nameof(SqlServerDbFunctionsExtensions.IsDate) && arguments.Count > 1)
+        {
+            return _methodInfo.Equals(method)
                 ? _sqlExpressionFactory.Function(
                     "ISDATE",
                     new[]
                     {
                         arguments[1]
                     },
-                    typeof(bool))
+                    _methodInfo.ReturnType)
                 : null;
+        }
     }
 }
