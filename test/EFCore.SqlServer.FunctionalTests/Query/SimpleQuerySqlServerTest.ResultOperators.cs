@@ -1183,15 +1183,16 @@ ORDER BY [t].[CustomerID] DESC");
 FROM [Orders] AS [o]
 WHERE [o].[OrderID] = 10248",
                 //
-                @"@__p_0_OrderID='10248'
+                @"@__entity_equality_p_0_OrderID='10248'
 
 SELECT CASE
-    WHEN @__p_0_OrderID IN (
+    WHEN @__entity_equality_p_0_OrderID IN (
         SELECT [o].[OrderID]
         FROM [Orders] AS [o]
-        WHERE [o].[CustomerID] = N'VINET'
+        WHERE ([o].[CustomerID] = N'VINET') AND [o].[CustomerID] IS NOT NULL
     )
-    THEN CAST(1 AS bit) ELSE CAST(0 AS bit)
+     THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
 END");
         }
 
@@ -1200,7 +1201,17 @@ END");
             base.Contains_over_entityType_with_null_should_rewrite_to_identity_equality();
 
             AssertSql(
-                @"TODO");
+                @"@__entity_equality_p_0_OrderID='' (Nullable = false) (DbType = Int32)
+
+SELECT CASE
+    WHEN @__entity_equality_p_0_OrderID IN (
+        SELECT [o].[OrderID]
+        FROM [Orders] AS [o]
+        WHERE ([o].[CustomerID] = N'VINET') AND [o].[CustomerID] IS NOT NULL
+    )
+     THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
+END");
         }
 
         public override void Contains_over_entityType_should_materialize_when_composite()

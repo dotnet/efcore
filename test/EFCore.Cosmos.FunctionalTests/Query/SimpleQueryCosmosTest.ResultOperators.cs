@@ -1196,9 +1196,21 @@ FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
 
+        [ConditionalTheory(Skip = "Issue#14935 (Contains not implemented)")]
         public override void Contains_over_entityType_should_rewrite_to_identity_equality()
         {
             base.Contains_over_entityType_should_rewrite_to_identity_equality();
+
+            AssertSql(
+                @"SELECT c
+FROM root c
+WHERE ((c[""Discriminator""] = ""Order"") AND (c[""OrderID""] = 10248))");
+        }
+
+        [ConditionalTheory(Skip = "Issue#14935 (Contains not implemented)")]
+        public override void Contains_over_entityType_with_null_should_rewrite_to_identity_equality()
+        {
+            base.Contains_over_entityType_with_null_should_rewrite_to_identity_equality();
 
             AssertSql(
                 @"SELECT c
