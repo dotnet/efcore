@@ -1,7 +1,10 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.Infrastructure;
@@ -994,7 +997,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             private int _id;
             private string _title;
-            private ICollection<PostFull> _posts;
+            private List<PostFull> _posts;
 
             // ReSharper disable once ConvertToAutoProperty
             [DatabaseGenerated(DatabaseGeneratedOption.None)]
@@ -1015,7 +1018,7 @@ namespace Microsoft.EntityFrameworkCore
             public IEnumerable<PostFull> Posts
             {
                 get => _posts;
-                set => _posts = (ICollection<PostFull>)value;
+                set => _posts = (List<PostFull>)value;
             }
 
             int IBlogAccessor.AccessId
@@ -1104,7 +1107,7 @@ namespace Microsoft.EntityFrameworkCore
             private int _id;
 
             private string _title;
-            private ICollection<PostNavFields> _posts;
+            private IList<PostNavFields> _posts;
 
             int IBlogAccessor.AccessId
             {
@@ -1122,7 +1125,7 @@ namespace Microsoft.EntityFrameworkCore
             IEnumerable<IPostAccessor> IBlogAccessor.AccessPosts
             {
                 get => _posts;
-                set => _posts = (ICollection<PostNavFields>)value;
+                set => _posts = (IList<PostNavFields>)value;
             }
         }
 
@@ -1167,7 +1170,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             private int _myid;
             private string _mytitle;
-            private ICollection<PostFullExplicit> _myposts;
+            private IList<PostFullExplicit> _myposts;
 
             // ReSharper disable once ConvertToAutoProperty
             [DatabaseGenerated(DatabaseGeneratedOption.None)]
@@ -1188,7 +1191,7 @@ namespace Microsoft.EntityFrameworkCore
             public IEnumerable<PostFullExplicit> Posts
             {
                 get => _myposts;
-                set => _myposts = (ICollection<PostFullExplicit>)value;
+                set => _myposts = (IList<PostFullExplicit>)value;
             }
 
             int IBlogAccessor.AccessId
@@ -1275,7 +1278,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             private int _id;
             private string _title;
-            private ICollection<PostReadOnly> _posts;
+            private ObservableCollection<PostReadOnly> _posts;
 
             // ReSharper disable once ConvertToAutoPropertyWithPrivateSetter
             [DatabaseGenerated(DatabaseGeneratedOption.None)]
@@ -1302,7 +1305,7 @@ namespace Microsoft.EntityFrameworkCore
             IEnumerable<IPostAccessor> IBlogAccessor.AccessPosts
             {
                 get => Posts;
-                set => _posts = (ICollection<PostReadOnly>)value;
+                set => _posts = (ObservableCollection<PostReadOnly>)value;
             }
         }
 
@@ -1355,7 +1358,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             private int _myid;
             private string _mytitle;
-            private ICollection<PostReadOnlyExplicit> _myposts;
+            private Collection<PostReadOnlyExplicit> _myposts;
 
             // ReSharper disable once ConvertToAutoPropertyWithPrivateSetter
             [DatabaseGenerated(DatabaseGeneratedOption.None)]
@@ -1382,7 +1385,7 @@ namespace Microsoft.EntityFrameworkCore
             IEnumerable<IPostAccessor> IBlogAccessor.AccessPosts
             {
                 get => Posts;
-                set => _myposts = (ICollection<PostReadOnlyExplicit>)value;
+                set => _myposts = (Collection<PostReadOnlyExplicit>)value;
             }
         }
 
@@ -1435,7 +1438,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             private int _id;
             private string _title;
-            private ICollection<PostWriteOnly> _posts;
+            private IEnumerable<PostWriteOnly> _posts;
 
             [DatabaseGenerated(DatabaseGeneratedOption.None)]
             public int Id
@@ -1450,7 +1453,7 @@ namespace Microsoft.EntityFrameworkCore
 
             public IEnumerable<PostWriteOnly> Posts
             {
-                set => _posts = (ICollection<PostWriteOnly>)value;
+                set => _posts = value;
             }
 
             int IBlogAccessor.AccessId
@@ -1700,27 +1703,30 @@ namespace Microsoft.EntityFrameworkCore
             IBlogAccessor AccessBlog { get; set; }
         }
 
-        protected static TBlog CreateBlogAndPosts<TBlog, TPost>()
+        protected static TBlog CreateBlogAndPosts<TBlog, TPost>(
+            ICollection<TPost> posts)
             where TBlog : IBlogAccessor, new()
             where TPost : IPostAccessor, new()
-            => new TBlog
+        {
+            posts.Add(
+                new TPost
+                {
+                    AccessId = 10, AccessTitle = "Post10"
+                });
+
+            posts.Add(
+                new TPost
+                {
+                    AccessId = 11, AccessTitle = "Post11"
+                });
+
+            return new TBlog
             {
                 AccessId = 10,
                 AccessTitle = "Blog10",
-                AccessPosts = (IEnumerable<IPostAccessor>)new List<TPost>
-                {
-                    new TPost
-                    {
-                        AccessId = 10,
-                        AccessTitle = "Post10"
-                    },
-                    new TPost
-                    {
-                        AccessId = 11,
-                        AccessTitle = "Post11"
-                    }
-                }
+                AccessPosts = (IEnumerable<IPostAccessor>)posts
             };
+        }
 
         protected static IList<TPost> CreatePostsAndBlog<TBlog, TPost>()
             where TBlog : IBlogAccessor, new()
@@ -2013,36 +2019,36 @@ namespace Microsoft.EntityFrameworkCore
 
             protected override void Seed(PoolableDbContext context)
             {
-                context.Add(CreateBlogAndPosts<BlogAuto, PostAuto>());
+                context.Add(CreateBlogAndPosts<BlogAuto, PostAuto>(new List<PostAuto>()));
                 context.AddRange(CreatePostsAndBlog<BlogAuto, PostAuto>());
 
-                context.Add(CreateBlogAndPosts<BlogHiding, PostHiding>());
+                context.Add(CreateBlogAndPosts<BlogHiding, PostHiding>(new List<PostHiding>()));
                 context.AddRange(CreatePostsAndBlog<BlogHiding, PostHiding>());
 
-                context.Add(CreateBlogAndPosts<BlogFull, PostFull>());
+                context.Add(CreateBlogAndPosts<BlogFull, PostFull>(new List<PostFull>()));
                 context.AddRange(CreatePostsAndBlog<BlogFull, PostFull>());
 
-                context.Add(CreateBlogAndPosts<BlogFullExplicit, PostFullExplicit>());
+                context.Add(CreateBlogAndPosts<BlogFullExplicit, PostFullExplicit>(new List<PostFullExplicit>()));
                 context.AddRange(CreatePostsAndBlog<BlogFullExplicit, PostFullExplicit>());
 
                 if (context.Model.GetPropertyAccessMode() != PropertyAccessMode.Property)
                 {
-                    context.Add(CreateBlogAndPosts<BlogReadOnly, PostReadOnly>());
+                    context.Add(CreateBlogAndPosts<BlogReadOnly, PostReadOnly>(new ObservableCollection<PostReadOnly>()));
                     context.AddRange(CreatePostsAndBlog<BlogReadOnly, PostReadOnly>());
 
-                    context.Add(CreateBlogAndPosts<BlogReadOnlyExplicit, PostReadOnlyExplicit>());
+                    context.Add(CreateBlogAndPosts<BlogReadOnlyExplicit, PostReadOnlyExplicit>(new Collection<PostReadOnlyExplicit>()));
                     context.AddRange(CreatePostsAndBlog<BlogReadOnlyExplicit, PostReadOnlyExplicit>());
 
-                    context.Add(CreateBlogAndPosts<BlogWriteOnly, PostWriteOnly>());
+                    context.Add(CreateBlogAndPosts<BlogWriteOnly, PostWriteOnly>(new List<PostWriteOnly>()));
                     context.AddRange(CreatePostsAndBlog<BlogWriteOnly, PostWriteOnly>());
 
-                    context.Add(CreateBlogAndPosts<BlogWriteOnlyExplicit, PostWriteOnlyExplicit>());
+                    context.Add(CreateBlogAndPosts<BlogWriteOnlyExplicit, PostWriteOnlyExplicit>(new HashSet<PostWriteOnlyExplicit>()));
                     context.AddRange(CreatePostsAndBlog<BlogWriteOnlyExplicit, PostWriteOnlyExplicit>());
 
-                    context.Add(CreateBlogAndPosts<BlogFields, PostFields>());
+                    context.Add(CreateBlogAndPosts<BlogFields, PostFields>(new List<PostFields>()));
                     context.AddRange(CreatePostsAndBlog<BlogFields, PostFields>());
 
-                    context.Add(CreateBlogAndPosts<BlogNavFields, PostNavFields>());
+                    context.Add(CreateBlogAndPosts<BlogNavFields, PostNavFields>(new List<PostNavFields>()));
                     context.AddRange(CreatePostsAndBlog<BlogNavFields, PostNavFields>());
                 }
 
