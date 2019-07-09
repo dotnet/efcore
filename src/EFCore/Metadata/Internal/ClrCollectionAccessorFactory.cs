@@ -53,14 +53,28 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             bool forConstruction = false,
             bool forSet = false)
         {
+            MemberInfo GetMostDerivedMemberInfo()
+            {
+                var propertyInfo = navigation.PropertyInfo;
+                var fieldInfo = navigation.FieldInfo;
+
+                return fieldInfo == null
+                    ? propertyInfo
+                    : propertyInfo == null
+                        ? fieldInfo
+                        : fieldInfo.FieldType.IsAssignableFrom(propertyInfo.PropertyType)
+                            ? (MemberInfo)propertyInfo
+                            : fieldInfo;
+            }
+
             // ReSharper disable once SuspiciousTypeConversion.Global
             if (navigation is IClrCollectionAccessor accessor)
             {
                 return accessor;
             }
 
-            var property = navigation.GetIdentifyingMemberInfo();
-            var propertyType = property.GetMemberType();
+            var memberInfo = GetMostDerivedMemberInfo();
+            var propertyType = memberInfo.GetMemberType();
             var elementType = propertyType.TryGetElementType(typeof(IEnumerable<>));
 
             if (elementType == null)
@@ -83,14 +97,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
 
             var boundMethod = _genericCreate.MakeGenericMethod(
-                property.DeclaringType, propertyType, elementType);
-
-            var memberInfo = navigation.GetMemberInfo(forConstruction, forSet);
+                memberInfo.DeclaringType, propertyType, elementType);
 
             return (IClrCollectionAccessor)boundMethod.Invoke(
                 null, new object[]
                 {
-                    navigation, memberInfo
+                    navigation, navigation.GetMemberInfo(forConstruction, forSet)
                 });
         }
 
