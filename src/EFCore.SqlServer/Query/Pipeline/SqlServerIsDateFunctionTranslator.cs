@@ -20,7 +20,10 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Pipeline
             => (method.Name == nameof(SqlServerDbFunctionsExtensions.IsDate) && arguments.Count > 1)
                 ? _sqlExpressionFactory.Function(
                     "ISDATE",
-                    arguments.Skip(1),
+                    new[]
+                    {
+                        arguments[1]
+                    },
                     typeof(bool))
                 : null;
     }

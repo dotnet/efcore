@@ -127,7 +127,9 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
         ///     The 'FreeText' method is not supported because the query has switched to client-evaluation. Inspect the log to determine which query expressions are triggering client-evaluation.
         /// </summary>
         public static string FreeTextFunctionOnClient
-            => GetString("FreeTextFunctionOnClient");
+            => string.Format(
+                GetString("FunctionOnClient"),
+                nameof(SqlServerDbFunctionsExtensions.FreeText));
 
         /// <summary>
         ///     The expression passed to the 'propertyReference' parameter of the 'FreeText' method is not a valid reference to a property. The expression should represent a reference to a full-text indexed property on the object referenced in the from clause: 'from e in context.Entities where EF.Functions.FreeText(e.SomeProperty, textToSearchFor) select e'
@@ -163,7 +165,9 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
         ///     The 'Contains' method is not supported because the query has switched to client-evaluation. Inspect the log to determine which query expressions are triggering client-evaluation.
         /// </summary>
         public static string ContainsFunctionOnClient
-            => GetString("ContainsFunctionOnClient");
+            => string.Format(
+                GetString("FunctionOnClient"),
+                nameof(SqlServerDbFunctionsExtensions.Contains));
 
         /// <summary>
         ///     The keys {key1} on '{entityType1}' and {key2} on '{entityType2}' are both mapped to '{table}.{keyName}' but with different clustering.
@@ -188,13 +192,9 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
         ///     The 'IsDate' method is not supported because the query has switched to client-evaluation. Inspect the log to determine which query expressions are triggering client-evaluation.
         /// </summary>
         public static string IsDateFunctionOnClient
-            => GetString("IsDateFunctionOnClient");
-
-        /// <summary>
-        ///     The expression passed to the 'propertyReference' parameter of the 'IsDate' method is not a valid reference to a property.
-        /// </summary>
-        public static string InvalidColumnNameForIsDate
-            => GetString("InvalidColumnNameForIsDate");
+            => string.Format(
+                GetString("FunctionOnClient"),
+                nameof(SqlServerDbFunctionsExtensions.IsDate));
     }
 }
 
