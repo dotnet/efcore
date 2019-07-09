@@ -4661,7 +4661,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 });
         }
 
-        [ConditionalTheory(Skip = "Issue#16226")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Correlated_collections_nested_with_custom_ordering(bool isAsync)
         {
@@ -4749,7 +4749,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 });
         }
 
-        [ConditionalTheory(Skip = "Issue#16226")]
+        [ConditionalTheory(Skip = "Issue#16318")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Correlated_collections_different_collections_projected(bool isAsync)
         {
@@ -4797,7 +4797,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 assertOrder: true);
         }
 
-        [ConditionalTheory(Skip = "Issue#16226")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Multiple_orderby_with_navigation_expansion_on_one_of_the_order_bys_inside_subquery(bool isAsync)
         {
@@ -4825,7 +4825,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 });
         }
 
-        [ConditionalTheory(Skip = "Issue#16226")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Multiple_orderby_with_navigation_expansion_on_one_of_the_order_bys_inside_subquery_duplicated_orderings(bool isAsync)
         {
@@ -4855,7 +4855,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
 
-        [ConditionalTheory(Skip = "Issue#16226")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Multiple_orderby_with_navigation_expansion_on_one_of_the_order_bys_inside_subquery_complex_orderings(bool isAsync)
         {
@@ -4883,7 +4883,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 });
         }
 
-        [ConditionalTheory(Skip = "Issue#16226")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Correlated_collections_multiple_nested_complex_collections(bool isAsync)
         {
@@ -5284,7 +5284,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                             eee => eee.Id, (eee, aaa) => Assert.Equal(eee.Id, aaa.Id))));
         }
 
-        [ConditionalTheory(Skip = "Issue#16226")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Correlated_collections_from_left_join_with_additional_elements_projected_of_that_join(bool isAsync)
         {
@@ -5442,7 +5442,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 });
         }
 
-        [ConditionalTheory(Skip = "Issue#16226")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Correlated_collections_with_funky_orderby_complex_scenario2(bool isAsync)
         {

@@ -1889,7 +1889,8 @@ FROM (
     FROM [Customers] AS [c]
     WHERE [c].[CustomerID] = N'ALFKI'
 ) AS [t]
-CROSS JOIN [Orders] AS [o]");
+CROSS JOIN [Orders] AS [o]
+ORDER BY [t].[CustomerID]");
         }
 
         public override async Task SelectMany_cartesian_product_with_ordering(bool isAsync)
