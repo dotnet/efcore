@@ -281,7 +281,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
                 var subquery = (SelectExpression)_tables[0];
                 var projectionIndex = subquery.AddToProjection((SqlExpression)keySelector, nameof(IGrouping<int, int>.Key));
 
-                keySelector = new ColumnExpression(subquery.Projection[projectionIndex], subquery, false);
+                keySelector = new ColumnExpression(subquery.Projection[projectionIndex], subquery);
             }
 
             AppendGroupBy(keySelector);
@@ -391,6 +391,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
             }
 
             IsDistinct = true;
+
             ClearOrdering();
         }
 
@@ -456,14 +457,14 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
                     if (joinedMapping.Value1 is EntityProjectionExpression entityProjection1
                         && joinedMapping.Value2 is EntityProjectionExpression entityProjection2)
                     {
-                        HandleEntityMapping(joinedMapping.Key, select1, entityProjection1, select2, entityProjection2);
+                        handleEntityMapping(joinedMapping.Key, select1, entityProjection1, select2, entityProjection2);
                         continue;
                     }
 
                     if (joinedMapping.Value1 is ColumnExpression && joinedMapping.Value2 is ColumnExpression
                         || joinedMapping.Value1 is SubSelectExpression && joinedMapping.Value2 is SubSelectExpression)
                     {
-                        HandleColumnMapping(
+                        handleColumnMapping(
                             joinedMapping.Key,
                             select1, (SqlExpression)joinedMapping.Value1,
                             select2, (SqlExpression)joinedMapping.Value2);
@@ -487,7 +488,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
 
             return shaperExpression;
 
-            void HandleEntityMapping(
+            void handleEntityMapping(
                 ProjectionMember projectionMember,
                 SelectExpression select1, EntityProjectionExpression projection1,
                 SelectExpression select2, EntityProjectionExpression projection2)
@@ -498,7 +499,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
                 {
                     foreach (var property in GetAllPropertiesInHierarchy(projection1.EntityType))
                     {
-                        propertyExpressions[property] = AddSetOperationColumnProjections(
+                        propertyExpressions[property] = addSetOperationColumnProjections(
                             property,
                             select1, projection1.BindProperty(property),
                             select2, projection2.BindProperty(property));
@@ -511,7 +512,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
                 throw new InvalidOperationException("Set operations over different entity types are currently unsupported (see #16298)");
             }
 
-            ColumnExpression AddSetOperationColumnProjections(
+            ColumnExpression addSetOperationColumnProjections(
                 IProperty property,
                 SelectExpression select1, ColumnExpression column1,
                 SelectExpression select2, ColumnExpression column2)
@@ -529,7 +530,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
                 return column1;
             }
 
-            void HandleColumnMapping(
+            void handleColumnMapping(
                 ProjectionMember projectionMember,
                 SelectExpression select1, SqlExpression innerColumn1,
                 SelectExpression select2, SqlExpression innerColumn2)
@@ -545,7 +546,8 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
 
         public IDictionary<SqlExpression, ColumnExpression> PushdownIntoSubquery()
         {
-            var subquery = new SelectExpression("t", new List<ProjectionExpression>(), _tables.ToList(), _groupBy.ToList(), _orderings.ToList())
+            var subquery = new SelectExpression(
+                "t", new List<ProjectionExpression>(), _tables.ToList(), _groupBy.ToList(), _orderings.ToList())
             {
                 IsDistinct = IsDistinct,
                 Predicate = Predicate,
@@ -555,9 +557,11 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
                 SetOperationType = SetOperationType
             };
 
-            if (subquery.Limit == null && subquery.Offset == null)
+            ColumnExpression liftProjectionFromSubquery(SqlExpression projection)
             {
-                subquery.ClearOrdering();
+                var index = subquery.AddToProjection(projection);
+                var projectionExpression = subquery._projection[index];
+                return new ColumnExpression(projectionExpression, subquery);
             }
 
             var projectionMap = new Dictionary<SqlExpression, ColumnExpression>();
@@ -567,9 +571,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
                 _projection.Clear();
                 foreach (var projection in projections)
                 {
-                    var index = subquery.AddToProjection(projection);
-                    var projectionExpression = subquery._projection[index];
-                    var outerColumn = new ColumnExpression(projectionExpression, subquery, IsNullableProjection(projectionExpression));
+                    var outerColumn = liftProjectionFromSubquery(projection);
                     AddToProjection(outerColumn);
                     projectionMap[projection] = outerColumn;
                 }
@@ -584,9 +586,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
                         foreach (var property in GetAllPropertiesInHierarchy(entityProjection.EntityType))
                         {
                             var innerColumn = entityProjection.BindProperty(property);
-                            var index = subquery.AddToProjection(innerColumn);
-                            var projectionExpression = subquery._projection[index];
-                            var outerColumn = new ColumnExpression(projectionExpression, subquery, IsNullableProjection(projectionExpression));
+                            var outerColumn = liftProjectionFromSubquery(innerColumn);
                             projectionMap[innerColumn] = outerColumn;
                             propertyExpressions[property] = outerColumn;
                         }
@@ -596,9 +596,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
                     else
                     {
                         var innerColumn = (SqlExpression)mapping.Value;
-                        var index = subquery.AddToProjection(innerColumn);
-                        var projectionExpression = subquery._projection[index];
-                        var outerColumn = new ColumnExpression(projectionExpression, subquery, IsNullableProjection(projectionExpression));
+                        var outerColumn = liftProjectionFromSubquery(innerColumn);
                         projectionMap[innerColumn] = outerColumn;
                         _projectionMapping[mapping.Key] = outerColumn;
                     }
@@ -616,9 +614,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
                 }
                 else if (!IsDistinct && GroupBy.Count == 0)
                 {
-                    var index = subquery.AddToProjection(identifier);
-                    var projectionExpression = subquery._projection[index];
-                    outerColumn = new ColumnExpression(projectionExpression, subquery, IsNullableProjection(projectionExpression));
+                    outerColumn = liftProjectionFromSubquery(identifier);
                     _identifier.Add(outerColumn);
                 }
             }
@@ -634,9 +630,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
                 }
                 else if (!IsDistinct && GroupBy.Count == 0)
                 {
-                    var index = subquery.AddToProjection(identifier);
-                    var projectionExpression = subquery._projection[index];
-                    outerColumn = new ColumnExpression(projectionExpression, subquery, IsNullableProjection(projectionExpression));
+                    outerColumn = liftProjectionFromSubquery(identifier);
                     _childIdentifiers.Add(outerColumn);
                 }
             }
@@ -646,16 +640,24 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
             _pendingCollections.AddRange(pendingCollections.Select(new SqlRemappingVisitor(projectionMap).Remap));
 
             _orderings.Clear();
-            foreach (var ordering in subquery._orderings)
+            // Only lift order by to outer if subquery does not have distinct
+            if (!subquery.IsDistinct)
             {
-                var orderingExpression = ordering.Expression;
-                if (!projectionMap.TryGetValue(orderingExpression, out var outerColumn))
+                foreach (var ordering in subquery._orderings)
                 {
-                    var index = subquery.AddToProjection(orderingExpression);
-                    var projectionExpression = subquery._projection[index];
-                    outerColumn = new ColumnExpression(projectionExpression, subquery, IsNullableProjection(projectionExpression));
+                    var orderingExpression = ordering.Expression;
+                    if (!projectionMap.TryGetValue(orderingExpression, out var outerColumn))
+                    {
+                        outerColumn = liftProjectionFromSubquery(orderingExpression);
+                    }
+
+                    _orderings.Add(ordering.Update(outerColumn));
                 }
-                _orderings.Add(new OrderingExpression(outerColumn, ordering.Ascending));
+            }
+
+            if (subquery.Offset == null && subquery.Limit == null)
+            {
+                subquery.ClearOrdering();
             }
 
             Offset = null;
@@ -669,11 +671,6 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
             _groupBy.Clear();
 
             return projectionMap;
-        }
-
-        private static bool IsNullableProjection(ProjectionExpression projection)
-        {
-            return projection.Expression is ColumnExpression column ? column.Nullable : true;
         }
 
         public CollectionShaperExpression AddCollectionProjection(
@@ -717,18 +714,18 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
                     || innerSelectExpression.Tables.Count > 1
                     || innerSelectExpression.GroupBy.Count > 1)
                 {
-                    var orderings = innerSelectExpression.Orderings.ToList();
                     var sqlRemappingVisitor = new SqlRemappingVisitor(innerSelectExpression.PushdownIntoSubquery());
                     joinPredicate = sqlRemappingVisitor.Remap(joinPredicate);
-
-                    foreach (var ordering in orderings)
-                    {
-                        AppendOrdering(ordering.Update(MakeNullable(sqlRemappingVisitor.Remap(ordering.Expression))));
-                    }
                 }
 
                 var leftJoinExpression = new LeftJoinExpression(innerSelectExpression.Tables.Single(), joinPredicate);
                 _tables.Add(leftJoinExpression);
+
+                foreach (var ordering in innerSelectExpression.Orderings)
+                {
+                    AppendOrdering(ordering.Update(MakeNullable(ordering.Expression)));
+                }
+
                 var indexOffset = _projection.Count;
                 foreach (var projection in innerSelectExpression.Projection)
                 {
