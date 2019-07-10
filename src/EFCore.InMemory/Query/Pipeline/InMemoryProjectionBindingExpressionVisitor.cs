@@ -156,8 +156,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Pipeline
                         projectionBindingExpression.ProjectionMember);
 
                     return entityShaperExpression.Update(
-                        new ProjectionBindingExpression(_queryExpression, _queryExpression.AddToProjection(entityProjection)),
-                        entityShaperExpression.NestedEntities);
+                        new ProjectionBindingExpression(_queryExpression, _queryExpression.AddToProjection(entityProjection)));
                 }
                 else
                 {
@@ -165,8 +164,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Pipeline
                         = _queryExpression.GetMappedProjection(projectionBindingExpression.ProjectionMember);
 
                     return entityShaperExpression.Update(
-                        new ProjectionBindingExpression(_queryExpression, _projectionMembers.Peek(), typeof(ValueBuffer)),
-                        entityShaperExpression.NestedEntities);
+                        new ProjectionBindingExpression(_queryExpression, _projectionMembers.Peek(), typeof(ValueBuffer)));
                 }
             }
 

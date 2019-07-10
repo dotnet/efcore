@@ -14,10 +14,6 @@ namespace Microsoft.EntityFrameworkCore.Query.NavigationExpansion.Visitors
 {
     public class NavigationExpansionReducingVisitor : ExpressionVisitor
     {
-        public NavigationExpansionReducingVisitor()
-        {
-        }
-
         protected override Expression VisitExtension(Expression extensionExpression)
         {
             switch (extensionExpression)
@@ -59,11 +55,11 @@ namespace Microsoft.EntityFrameworkCore.Query.NavigationExpansion.Visitors
                             var pendingSelector = (LambdaExpression)new NavigationPropertyUnbindingVisitor(state.CurrentParameter).Visit(state.PendingSelector);
                             var pendingSelectorBodyType = pendingSelector.Type.GetGenericArguments()[1];
 
-                            var pendingSelectMathod = result.Type.IsGenericType && (result.Type.GetGenericTypeDefinition() == typeof(IEnumerable<>) || result.Type.GetGenericTypeDefinition() == typeof(IOrderedEnumerable<>))
+                            var pendingSelectMethod = result.Type.IsGenericType && (result.Type.GetGenericTypeDefinition() == typeof(IEnumerable<>) || result.Type.GetGenericTypeDefinition() == typeof(IOrderedEnumerable<>))
                                 ? LinqMethodHelpers.EnumerableSelectMethodInfo.MakeGenericMethod(parameter.Type, pendingSelectorBodyType)
                                 : LinqMethodHelpers.QueryableSelectMethodInfo.MakeGenericMethod(parameter.Type, pendingSelectorBodyType);
 
-                            result = Expression.Call(pendingSelectMathod, result, pendingSelector);
+                            result = Expression.Call(pendingSelectMethod, result, pendingSelector);
                             parameter = Expression.Parameter(result.Type.GetSequenceType());
                         }
 

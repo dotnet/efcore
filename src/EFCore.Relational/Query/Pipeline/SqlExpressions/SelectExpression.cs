@@ -807,9 +807,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
                     return new EntityShaperExpression(
                         entityShaper.EntityType,
                         new ProjectionBindingExpression(_queryExpression, indexMap),
-                        nullable: true,
-                        entityShaper.ParentNavigation,
-                        entityShaper.NestedEntities);
+                        nullable: true);
                 }
 
                 return base.VisitExtension(extensionExpression);

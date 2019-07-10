@@ -1,6 +1,8 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
+
 namespace Microsoft.EntityFrameworkCore.Query.NavigationExpansion
 {
     public enum NavigationState
@@ -11,23 +13,18 @@ namespace Microsoft.EntityFrameworkCore.Query.NavigationExpansion
         NotNeeded,
 
         /// <summary>
-        ///     Reference navigation needs to be processed, but hasn't been processed yet
+        ///     Navigation needs to be processed, but hasn't been processed yet
         /// </summary>
-        ReferencePending,
+        Pending,
 
         /// <summary>
-        ///     Reference navigation has already been processed
+        ///     Navigation needs to be processed, but after navigation expansion
         /// </summary>
-        ReferenceComplete,
+        Delayed,
 
         /// <summary>
-        ///     Collection navigation needs to be processed, but hasn't been processed yet
+        ///     Navigation has already been processed
         /// </summary>
-        CollectionPending,
-
-        /// <summary>
-        ///     Collection navigation has already been processed
-        /// </summary>
-        CollectionComplete,
+        Complete,
     };
 }

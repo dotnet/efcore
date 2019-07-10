@@ -102,11 +102,11 @@ namespace Microsoft.EntityFrameworkCore.Query.NavigationExpansion.Visitors
 
             var boundSelectorBody = binder.Visit(remappedSelectorBody);
             if (boundSelectorBody is NavigationBindingExpression navigationBindingExpression
-                && navigationBindingExpression.NavigationTreeNode.Navigation is INavigation lastNavigation
-                && lastNavigation != null)
+                && navigationBindingExpression.NavigationTreeNode.Navigation != null)
             {
-                if (lastNavigation.IsCollection())
+                if (navigationBindingExpression.NavigationTreeNode.IsCollection)
                 {
+                    var lastNavigation = navigationBindingExpression.NavigationTreeNode.Navigation;
                     var collectionNavigationElementType = lastNavigation.ForeignKey.DeclaringEntityType.ClrType;
                     var entityQueryable = NullAsyncQueryProvider.Instance.CreateEntityQueryableExpression(collectionNavigationElementType);
                     var outerParameter = Expression.Parameter(collectionNavigationElementType, collectionNavigationElementType.GenerateParameterName());

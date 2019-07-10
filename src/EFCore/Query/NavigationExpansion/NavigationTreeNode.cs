@@ -25,18 +25,15 @@ namespace Microsoft.EntityFrameworkCore.Query.NavigationExpansion
             Parent = parent;
             Optional = optional;
             ToMapping = new List<string>();
+            IsCollection = navigation.IsCollection();
             if (include)
             {
                 ExpansionState = NavigationState.NotNeeded;
-                IncludeState = navigation.IsCollection()
-                    ? NavigationState.CollectionPending
-                    : NavigationState.ReferencePending;
+                IncludeState = NavigationState.Pending;
             }
             else
             {
-                ExpansionState = navigation.IsCollection()
-                    ? NavigationState.CollectionPending
-                    : NavigationState.ReferencePending;
+                ExpansionState = NavigationState.Pending;
                 IncludeState = NavigationState.NotNeeded;
             }
 
@@ -45,8 +42,14 @@ namespace Microsoft.EntityFrameworkCore.Query.NavigationExpansion
             // they will be expanded/translated later in the pipeline
             if (navigation.ForeignKey.IsOwnership)
             {
-                ExpansionState = NavigationState.NotNeeded;
-                IncludeState = NavigationState.NotNeeded;
+                if (include)
+                {
+                    IncludeState = NavigationState.Delayed;
+                }
+                else
+                {
+                    ExpansionState = NavigationState.Delayed;
+                }
 
                 ToMapping = parent.ToMapping.ToList();
                 ToMapping.Add(navigation.Name);
@@ -67,17 +70,17 @@ namespace Microsoft.EntityFrameworkCore.Query.NavigationExpansion
             Optional = optional;
             FromMappings.Add(fromMapping.ToList());
             ToMapping = fromMapping.ToList();
-            ExpansionState = NavigationState.ReferenceComplete;
+            ExpansionState = NavigationState.Complete;
             IncludeState = NavigationState.NotNeeded;
         }
 
         public INavigation Navigation { get; private set; }
+        public bool IsCollection { get; private set; }
         public bool Optional { get; private set; }
         public NavigationTreeNode Parent { get; private set; }
         public List<NavigationTreeNode> Children { get; private set; } = new List<NavigationTreeNode>();
         public NavigationState ExpansionState { get; set; }
         public NavigationState IncludeState { get; set; }
-
         public List<List<string>> FromMappings { get; set; } = new List<List<string>>();
         public List<string> ToMapping { get; set; }
 
@@ -102,22 +105,18 @@ namespace Microsoft.EntityFrameworkCore.Query.NavigationExpansion
             Check.NotNull(navigation, nameof(navigation));
             Check.NotNull(parent, nameof(parent));
 
-            var existingChild = parent.Children.Where(c => c.Navigation == navigation).SingleOrDefault();
+            var existingChild = parent.Children.SingleOrDefault(c => c.Navigation == navigation);
             if (existingChild != null)
             {
                 if (!navigation.ForeignKey.IsOwnership)
                 {
                     if (include && existingChild.IncludeState == NavigationState.NotNeeded)
                     {
-                        existingChild.IncludeState = navigation.IsCollection()
-                            ? NavigationState.CollectionPending
-                            : NavigationState.ReferencePending;
+                        existingChild.IncludeState = NavigationState.Pending;
                     }
                     else if (!include && existingChild.ExpansionState == NavigationState.NotNeeded)
                     {
-                        existingChild.ExpansionState = navigation.IsCollection()
-                            ? NavigationState.CollectionPending
-                            : NavigationState.ReferencePending;
+                        existingChild.ExpansionState =  NavigationState.Pending;
                     }
                 }
 

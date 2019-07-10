@@ -68,6 +68,12 @@ namespace Microsoft.EntityFrameworkCore
             base.Lazy_load_one_to_one_reference_to_principal_already_loaded(state);
         }
 
+        [ConditionalTheory(Skip = "Include Issue#15711")]
+        public override void Lazy_loading_finds_correct_entity_type_with_multiple_queries_using_Count()
+        {
+            base.Lazy_loading_finds_correct_entity_type_with_multiple_queries_using_Count();
+        }
+
         public class LoadInMemoryFixture : LoadFixtureBase
         {
             protected override ITestStoreFactory TestStoreFactory => InMemoryTestStoreFactory.Instance;

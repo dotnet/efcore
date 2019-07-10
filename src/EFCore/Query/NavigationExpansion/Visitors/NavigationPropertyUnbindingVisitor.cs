@@ -1,8 +1,10 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System.Collections.Generic;
 using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Metadata;
 
 namespace Microsoft.EntityFrameworkCore.Query.NavigationExpansion.Visitors
 {
@@ -20,7 +22,20 @@ namespace Microsoft.EntityFrameworkCore.Query.NavigationExpansion.Visitors
             if (extensionExpression is NavigationBindingExpression navigationBindingExpression
                 && navigationBindingExpression.RootParameter == _rootParameter)
             {
-                var result = navigationBindingExpression.RootParameter.BuildPropertyAccess(navigationBindingExpression.NavigationTreeNode.ToMapping);
+                var node = navigationBindingExpression.NavigationTreeNode;
+                var navigations = new List<INavigation>();
+                while (node != null)
+                {
+                    if (node.Navigation != null)
+                    {
+                        navigations.Add(node.Navigation);
+                    }
+                    node = node.Parent;
+                }
+
+                var result = navigationBindingExpression.RootParameter.BuildPropertyAccess(
+                    navigationBindingExpression.NavigationTreeNode.ToMapping,
+                    navigations.Count == navigationBindingExpression.NavigationTreeNode.ToMapping.Count ? navigations : null);
 
                 return result.Type != navigationBindingExpression.Type
                     ? Expression.Convert(result, navigationBindingExpression.Type)

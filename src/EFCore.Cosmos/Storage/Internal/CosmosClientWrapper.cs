@@ -88,7 +88,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
             object __,
             CancellationToken cancellationToken = default)
         {
-            var response = await Client.CreateDatabaseIfNotExistsAsync(_databaseId, cancellationToken: cancellationToken);
+            var response = await Client.CreateDatabaseIfNotExistsAsync(_databaseId, cancellationToken: cancellationToken)
+                .ConfigureAwait(false);
 
             return response.StatusCode == HttpStatusCode.Created;
         }
@@ -111,7 +112,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
             object __,
             CancellationToken cancellationToken = default)
         {
-            var response = await Client.GetDatabase(_databaseId).DeleteAsync(cancellationToken: cancellationToken);
+            var response = await Client.GetDatabase(_databaseId).DeleteAsync(cancellationToken: cancellationToken)
+                .ConfigureAwait(false);
 
             return response.StatusCode == HttpStatusCode.NoContent;
         }
@@ -143,7 +145,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
                 new ContainerProperties(parameters.ContainerId, "/" + parameters.PartitionKey)
                 {
                     PartitionKeyDefinitionVersion = PartitionKeyDefinitionVersion.V2
-                }, cancellationToken: cancellationToken);
+                }, cancellationToken: cancellationToken)
+                .ConfigureAwait(false);
 
             return response.StatusCode == HttpStatusCode.Created;
         }
@@ -173,8 +176,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
             (string ContainerId, JToken Document, string PartitionKey) parameters,
             CancellationToken cancellationToken = default)
         {
-            using (var stream = new MemoryStream())
-            using (var writer = new StreamWriter(stream, new UTF8Encoding(), bufferSize: 1024, leaveOpen: false))
+            await using (var stream = new MemoryStream())
+            await using (var writer = new StreamWriter(stream, new UTF8Encoding(), bufferSize: 1024, leaveOpen: false))
             using (var jsonWriter = new JsonTextWriter(writer))
             {
                 JsonSerializer.Create().Serialize(jsonWriter, parameters.Document);

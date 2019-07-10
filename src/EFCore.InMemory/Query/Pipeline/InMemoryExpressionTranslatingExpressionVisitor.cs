@@ -189,7 +189,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Pipeline
             return methodCallExpression.Update(@object, arguments);
         }
 
-        private static MemberInfo _valueBufferIsEmpty = typeof(ValueBuffer).GetMember(nameof(ValueBuffer.IsEmpty))[0];
+        private static readonly MemberInfo _valueBufferIsEmpty = typeof(ValueBuffer).GetMember(nameof(ValueBuffer.IsEmpty))[0];
 
         protected override Expression VisitTypeBinary(TypeBinaryExpression typeBinaryExpression)
         {

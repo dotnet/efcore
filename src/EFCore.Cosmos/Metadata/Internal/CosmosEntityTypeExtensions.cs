@@ -20,7 +20,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public static bool IsDocumentRoot(this IEntityType entityType)
-            => entityType.BaseType?.IsDocumentRoot() ?? !entityType.IsOwned()
-               || entityType[CosmosAnnotationNames.ContainerName] != null;
+            => entityType.BaseType?.IsDocumentRoot()
+                ?? (!entityType.IsOwned()
+                    || entityType[CosmosAnnotationNames.ContainerName] != null);
     }
 }

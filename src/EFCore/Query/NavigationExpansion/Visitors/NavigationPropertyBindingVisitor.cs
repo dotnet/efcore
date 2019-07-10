@@ -109,7 +109,7 @@ namespace Microsoft.EntityFrameworkCore.Query.NavigationExpansion.Visitors
             if (boundProperty == null
                 && newExpression is NavigationBindingExpression navigationBindingExpression
                 && navigationBindingExpression.NavigationTreeNode.Optional
-                && navigationBindingExpression.NavigationTreeNode.Navigation?.IsCollection() != true)
+                && !navigationBindingExpression.NavigationTreeNode.IsCollection)
             {
                 var nullProtection = new NullConditionalExpression(newExpression, result);
                 if (nullProtection.Type == result.Type)

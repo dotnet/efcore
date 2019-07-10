@@ -7,6 +7,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Query.Internal;
+using Microsoft.EntityFrameworkCore.Query.NavigationExpansion;
 using Microsoft.EntityFrameworkCore.Query.Pipeline;
 using Microsoft.EntityFrameworkCore.Storage;
 
@@ -34,7 +35,6 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Pipeline
             _projectionMembers.Push(new ProjectionMember());
 
             var result = Visit(expression);
-
             if (result == null)
             {
                 _clientEval = true;
@@ -146,8 +146,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Pipeline
 
                     return entityShaperExpression.Update(
                         new ProjectionBindingExpression(
-                            _selectExpression, _selectExpression.AddToProjection(entityProjection), typeof(ValueBuffer)),
-                        entityShaperExpression.NestedEntities);
+                            _selectExpression, _selectExpression.AddToProjection(entityProjection), typeof(ValueBuffer)));
                 }
                 else
                 {
@@ -156,15 +155,14 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Pipeline
                             projectionBindingExpression.ProjectionMember);
 
                     return entityShaperExpression.Update(
-                        new ProjectionBindingExpression(_selectExpression, _projectionMembers.Peek(), typeof(ValueBuffer)),
-                        entityShaperExpression.NestedEntities);
+                        new ProjectionBindingExpression(_selectExpression, _projectionMembers.Peek(), typeof(ValueBuffer)));
                 }
             }
 
-            //if (extensionExpression is IncludeExpression includeExpression)
-            //{
-            //    return _clientEval ? base.VisitExtension(includeExpression) : null;
-            //}
+            if (extensionExpression is IncludeExpression includeExpression)
+            {
+                return _clientEval ? base.VisitExtension(includeExpression) : includeExpression;
+            }
 
             throw new InvalidOperationException(new ExpressionPrinter().Print(extensionExpression));
         }

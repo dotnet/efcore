@@ -66,8 +66,8 @@ namespace Microsoft.EntityFrameworkCore.Query.NavigationExpansion
             bool include)
         {
             var joinNeeded = include
-                ? navigationTree.IncludeState == NavigationState.ReferencePending
-                : navigationTree.ExpansionState == NavigationState.ReferencePending;
+                ? navigationTree.IncludeState == NavigationState.Pending
+                : navigationTree.ExpansionState == NavigationState.Pending;
 
             if (joinNeeded)
             {
@@ -176,11 +176,11 @@ namespace Microsoft.EntityFrameworkCore.Query.NavigationExpansion
                 foreach (var mapping in state.SourceMappings)
                 {
                     var nodes = include
-                        ? mapping.NavigationTree.Flatten().Where(n => (n.IncludeState == NavigationState.ReferenceComplete
-                            || n.ExpansionState == NavigationState.ReferenceComplete
+                        ? mapping.NavigationTree.Flatten().Where(n => (n.IncludeState == NavigationState.Complete
+                            || n.ExpansionState == NavigationState.Complete
                             || n.Navigation.ForeignKey.IsOwnership)
                                 && n != navigationTree)
-                        : mapping.NavigationTree.Flatten().Where(n => (n.ExpansionState == NavigationState.ReferenceComplete
+                        : mapping.NavigationTree.Flatten().Where(n => (n.ExpansionState == NavigationState.Complete
                             || n.Navigation.ForeignKey.IsOwnership)
                                 && n != navigationTree);
 
@@ -197,13 +197,13 @@ namespace Microsoft.EntityFrameworkCore.Query.NavigationExpansion
 
                 if (include)
                 {
-                    navigationTree.IncludeState = NavigationState.ReferenceComplete;
+                    navigationTree.IncludeState = NavigationState.Complete;
                 }
                 else
                 {
-                    navigationTree.ExpansionState = NavigationState.ReferenceComplete;
-
+                    navigationTree.ExpansionState = NavigationState.Complete;
                 }
+
                 navigationPath.Add(navigation);
             }
             else
@@ -212,7 +212,7 @@ namespace Microsoft.EntityFrameworkCore.Query.NavigationExpansion
             }
 
             var result = (Source: sourceExpression, Parameter: parameterExpression);
-            foreach (var child in navigationTree.Children.Where(n => !n.Navigation.IsCollection()))
+            foreach (var child in navigationTree.Children.Where(n => !n.IsCollection))
             {
                 result = AddNavigationJoin(
                     result.Source,

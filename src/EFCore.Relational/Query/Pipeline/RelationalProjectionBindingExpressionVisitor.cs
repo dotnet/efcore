@@ -169,8 +169,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
                         projectionBindingExpression.ProjectionMember);
 
                     return entityShaperExpression.Update(
-                        new ProjectionBindingExpression(_selectExpression, _selectExpression.AddToProjection(entityProjection)),
-                        entityShaperExpression.NestedEntities);
+                        new ProjectionBindingExpression(_selectExpression, _selectExpression.AddToProjection(entityProjection)));
                 }
                 else
                 {
@@ -178,14 +177,18 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
                         = _selectExpression.GetMappedProjection(projectionBindingExpression.ProjectionMember);
 
                     return entityShaperExpression.Update(
-                        new ProjectionBindingExpression(_selectExpression, _projectionMembers.Peek(), typeof(ValueBuffer)),
-                        entityShaperExpression.NestedEntities);
+                        new ProjectionBindingExpression(_selectExpression, _projectionMembers.Peek(), typeof(ValueBuffer)));
                 }
             }
 
             if (extensionExpression is IncludeExpression includeExpression)
             {
-                return _clientEval ? base.VisitExtension(includeExpression) : null;
+                // TODO: handle owned navigations
+                return includeExpression.Navigation.ForeignKey.IsOwnership
+                        ? Visit(includeExpression.EntityExpression)
+                        : _clientEval
+                            ? base.VisitExtension(includeExpression)
+                            : null;
             }
 
             throw new InvalidOperationException();

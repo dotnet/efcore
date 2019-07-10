@@ -11,7 +11,7 @@ namespace Microsoft.EntityFrameworkCore.Query.NavigationExpansion
     {
         public static void CopyIncludeInformation(NavigationTreeNode originalNavigationTree, NavigationTreeNode newNavigationTree, SourceMapping newSourceMapping)
         {
-            foreach (var child in originalNavigationTree.Children.Where(n => n.IncludeState == NavigationState.ReferencePending || n.IncludeState == NavigationState.CollectionPending))
+            foreach (var child in originalNavigationTree.Children.Where(n => n.IncludeState == NavigationState.Pending))
             {
                 var copy = NavigationTreeNode.Create(newSourceMapping, child.Navigation, newNavigationTree, true);
                 CopyIncludeInformation(child, copy, newSourceMapping);

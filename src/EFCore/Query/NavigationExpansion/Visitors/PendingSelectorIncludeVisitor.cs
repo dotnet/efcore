@@ -74,23 +74,12 @@ namespace Microsoft.EntityFrameworkCore.Query.NavigationExpansion.Visitors
 
                     // find all nodes and children UNTIL you find a collection in that subtree
                     // collection navigations will be converted to their own NavigationExpansionExpressions and their child includes will be applied when those NavigationExpansionExpressions are processed
-                    var result = (Expression)navigationBindingExpression;
-                    foreach (var child in navigationBindingExpression.NavigationTreeNode.Children)
-                    {
-                        if (child.IncludeState != NavigationState.ReferencePending
-                               && child.IncludeState != NavigationState.CollectionPending)
-                        {
-                            continue;
-                        }
-
-                        result = ProcessIncludes(
-                                   result,
-                                   child,
-                                   navigationBindingExpression.RootParameter,
-                                   navigationBindingExpression.SourceMapping);
-                    }
-
-                    return result;
+                    return ProcessIncludes(
+                        navigationBindingExpression,
+                        navigationBindingExpression.NavigationTreeNode,
+                        navigationBindingExpression.RootParameter,
+                        navigationBindingExpression.SourceMapping,
+                        rewrite: false);
                 case CustomRootExpression _:
                 case NavigationExpansionRootExpression _:
                 case NavigationExpansionExpression _:
@@ -123,35 +112,33 @@ namespace Microsoft.EntityFrameworkCore.Query.NavigationExpansion.Visitors
             Expression caller,
             NavigationTreeNode node,
             ParameterExpression rootParameter,
-            SourceMapping sourceMapping)
+            SourceMapping sourceMapping,
+            bool rewrite)
         {
-            if (node.ExpansionState != NavigationState.ReferenceComplete
-                && node.ExpansionState != NavigationState.CollectionComplete
-                && (!_skipCollectionNavigations || node.IncludeState != NavigationState.CollectionPending))
+            if (node.ExpansionState != NavigationState.Complete
+                && node.IncludeState == NavigationState.Pending
+                && (!_skipCollectionNavigations || !node.IsCollection))
             {
                 PendingIncludes.Add((node, sourceMapping));
             }
 
-            var included = caller;
             var skipChildren = false;
-            if (node.Navigation != null)
+            if (node.IsCollection)
             {
-                if (node.Navigation.IsCollection())
-                {
-                    skipChildren = _skipCollectionNavigations;
-                }
+                skipChildren = _skipCollectionNavigations;
+            }
 
-                if (_rewriteIncludes)
+            var included = caller;
+            if (rewrite)
+            {
+                if (node.IsCollection)
                 {
-                    if (node.Navigation.IsCollection())
-                    {
-                        included = CollectionNavigationRewritingVisitor.CreateCollectionNavigationExpression(node, rootParameter, sourceMapping);
-                    }
-                    else
-                    {
-                        var entityType = node.Navigation.GetTargetType();
-                        included = new NavigationBindingExpression(rootParameter, node, entityType, sourceMapping, entityType.ClrType);
-                    }
+                    included = CollectionNavigationRewritingVisitor.CreateCollectionNavigationExpression(node, rootParameter, sourceMapping);
+                }
+                else
+                {
+                    var entityType = node.Navigation.GetTargetType();
+                    included = new NavigationBindingExpression(rootParameter, node, entityType, sourceMapping, entityType.ClrType);
                 }
             }
 
@@ -159,17 +146,17 @@ namespace Microsoft.EntityFrameworkCore.Query.NavigationExpansion.Visitors
             {
                 foreach (var child in node.Children)
                 {
-                    if (child.IncludeState != NavigationState.ReferencePending
-                        && child.IncludeState != NavigationState.CollectionPending)
+                    if (child.IncludeState != NavigationState.Pending
+                        && child.IncludeState != NavigationState.Delayed)
                     {
                         continue;
                     }
 
-                    included = ProcessIncludes(included, child, rootParameter, sourceMapping);
+                    included = ProcessIncludes(included, child, rootParameter, sourceMapping, _rewriteIncludes);
                 }
             }
 
-            return _rewriteIncludes && node.Navigation != null
+            return rewrite
                 ? new IncludeExpression(caller, included, node.Navigation)
                 : included;
         }
