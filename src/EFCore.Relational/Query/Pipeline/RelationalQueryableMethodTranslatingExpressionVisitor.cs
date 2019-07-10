@@ -723,6 +723,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
                     var transparentIdentifierType = CreateTransparentIdentifierType(
                         resultSelector.Parameters[0].Type,
                         resultSelector.Parameters[1].Type);
+
                     ((SelectExpression)source.QueryExpression).AddCrossJoin(
                         (SelectExpression)inner.QueryExpression, transparentIdentifierType);
 

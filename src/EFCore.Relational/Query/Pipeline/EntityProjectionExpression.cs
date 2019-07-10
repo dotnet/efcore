@@ -96,7 +96,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
             if (!EntityType.GetTypesInHierarchy().Contains(property.DeclaringEntityType))
             {
                 throw new InvalidOperationException(
-                    $"Called EntityProjectionExpression.GetProperty() with incorrect IProperty. EntityType:{EntityType.DisplayName()}, Property:{property.Name}");
+                    $"Called EntityProjectionExpression.BindProperty() with incorrect IProperty. EntityType:{EntityType.DisplayName()}, Property:{property.Name}");
             }
 
             if (!_propertyExpressionsCache.TryGetValue(property, out var expression))

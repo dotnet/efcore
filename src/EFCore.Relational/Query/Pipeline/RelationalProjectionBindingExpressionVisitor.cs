@@ -85,16 +85,19 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
                     {
                         case ConstantExpression _:
                             return expression;
+
                         case ParameterExpression parameterExpression:
                             return Expression.Call(
                                 _getParameterValueMethodInfo.MakeGenericMethod(parameterExpression.Type),
                                 QueryCompilationContext.QueryContextParameter,
                                 Expression.Constant(parameterExpression.Name));
+
                         case MaterializeCollectionNavigationExpression materializeCollectionNavigationExpression:
                             return _selectExpression.AddCollectionProjection(
                                 _queryableMethodTranslatingExpressionVisitor.TranslateSubquery(
                                 materializeCollectionNavigationExpression.Subquery),
                                 materializeCollectionNavigationExpression.Navigation, null);
+
                         case MethodCallExpression methodCallExpression:
                             {
                                 if (methodCallExpression.Method.IsGenericMethod

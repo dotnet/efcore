@@ -286,13 +286,13 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
             {
                 return methodCallExpression.Method.Name switch
                 {
-                    nameof(Enumerable.Average)   => TranslateAverage(GetSelector(methodCallExpression, groupByShaperExpression)),
-                    nameof(Enumerable.Count)     => TranslateCount(),
+                    nameof(Enumerable.Average) => TranslateAverage(GetSelector(methodCallExpression, groupByShaperExpression)),
+                    nameof(Enumerable.Count) => TranslateCount(),
                     nameof(Enumerable.LongCount) => TranslateLongCount(),
-                    nameof(Enumerable.Max)       => TranslateMax(GetSelector(methodCallExpression, groupByShaperExpression)),
-                    nameof(Enumerable.Min)       => TranslateMin(GetSelector(methodCallExpression, groupByShaperExpression)),
-                    nameof(Enumerable.Sum)       => TranslateSum(GetSelector(methodCallExpression, groupByShaperExpression)),
-                    _                            => throw new InvalidOperationException("Unknown aggregate operator encountered.")
+                    nameof(Enumerable.Max) => TranslateMax(GetSelector(methodCallExpression, groupByShaperExpression)),
+                    nameof(Enumerable.Min) => TranslateMin(GetSelector(methodCallExpression, groupByShaperExpression)),
+                    nameof(Enumerable.Sum) => TranslateSum(GetSelector(methodCallExpression, groupByShaperExpression)),
+                    _ => throw new InvalidOperationException("Unknown aggregate operator encountered.")
                 };
             }
 
@@ -374,7 +374,6 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
 
             return expression;
         }
-
 
         private Expression ConvertAnonymousObjectEqualityComparison(BinaryExpression binaryExpression)
         {

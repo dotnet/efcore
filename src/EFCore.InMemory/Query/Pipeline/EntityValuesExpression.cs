@@ -1,21 +1,39 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore.InMemory.Query.Pipeline
 {
     public class EntityProjectionExpression : Expression
     {
-        public EntityProjectionExpression(IEntityType entityType, int startIndex)
+        private readonly IDictionary<IProperty, Expression> _readExpressionMap;
+
+        public EntityProjectionExpression(
+            IEntityType entityType, IDictionary<IProperty, Expression> readExpressionMap)
         {
             EntityType = entityType;
-            StartIndex = startIndex;
+            _readExpressionMap = readExpressionMap;
         }
 
         public IEntityType EntityType { get; }
-        public int StartIndex { get; }
-    }
+        public override Type Type => EntityType.ClrType;
+        public override ExpressionType NodeType => ExpressionType.Extension;
 
+        public Expression BindProperty(IProperty property)
+        {
+            if (!EntityType.GetTypesInHierarchy().Contains(property.DeclaringEntityType))
+            {
+                throw new InvalidOperationException(
+                    $"Called EntityProjectionExpression.BindProperty() with incorrect IProperty. EntityType:{EntityType.DisplayName()}, Property:{property.Name}");
+            }
+
+            return _readExpressionMap[property];
+        }
+    }
 }
