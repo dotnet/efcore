@@ -336,6 +336,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                 .Select(c => ClientSideMethod(c))
                 .Union(cs));
 
-        static Customer ClientSideMethod(Customer c) => c;
+        private static Customer ClientSideMethod(Customer c) => c;
     }
 }

@@ -14,7 +14,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Pipeline
 {
     public class CosmosProjectionBindingExpressionVisitor : ExpressionVisitor
     {
-        private CosmosSqlTranslatingExpressionVisitor _sqlTranslator;
+        private readonly CosmosSqlTranslatingExpressionVisitor _sqlTranslator;
         private SelectExpression _selectExpression;
         private bool _clientEval;
         private readonly IDictionary<ProjectionMember, Expression> _projectionMapping

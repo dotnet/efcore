@@ -8,7 +8,7 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.Models.Orders
 {
     public class OrdersFixture : OrdersFixtureBase
     {
-        private static string _baseDirectory
+        private static readonly string _baseDirectory
             = Path.GetDirectoryName(new Uri(typeof(OrdersFixture).Assembly.CodeBase).LocalPath);
 
         private readonly string _connectionString;

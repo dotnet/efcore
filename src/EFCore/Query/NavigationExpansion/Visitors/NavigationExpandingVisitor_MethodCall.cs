@@ -1275,13 +1275,6 @@ namespace Microsoft.EntityFrameworkCore.Query.NavigationExpansion.Visitors
             return new NavigationExpansionExpression(newSource, newState, methodCallExpression.Type);
         }
 
-        private Expression ProcessFromSql(MethodCallExpression methodCallExpression)
-        {
-            var source = VisitSourceExpression(methodCallExpression.Arguments[0]);
-
-            return new NavigationExpansionExpression(methodCallExpression, source.State, methodCallExpression.Type);
-        }
-
         protected override Expression VisitConstant(ConstantExpression constantExpression)
         {
             if (constantExpression.Value != null

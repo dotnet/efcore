@@ -599,7 +599,7 @@ namespace Microsoft.EntityFrameworkCore.Update
             var mapping = property != null
                 ? Dependencies.TypeMappingSource.FindMapping(property)
                 : null;
-            mapping = mapping ?? Dependencies.TypeMappingSource.GetMappingForValue(value);
+            mapping ??= Dependencies.TypeMappingSource.GetMappingForValue(value);
             commandStringBuilder.Append(mapping.GenerateProviderValueSqlLiteral(value));
         }
     }

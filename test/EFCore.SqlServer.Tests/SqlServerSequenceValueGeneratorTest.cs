@@ -194,7 +194,7 @@ namespace Microsoft.EntityFrameworkCore
 
         private static ISqlServerConnection CreateConnection(IServiceProvider serviceProvider = null)
         {
-            serviceProvider = serviceProvider ?? SqlServerTestHelpers.Instance.CreateServiceProvider();
+            serviceProvider ??= SqlServerTestHelpers.Instance.CreateServiceProvider();
 
             return SqlServerTestHelpers.Instance.CreateContextServices(serviceProvider).GetRequiredService<ISqlServerConnection>();
         }

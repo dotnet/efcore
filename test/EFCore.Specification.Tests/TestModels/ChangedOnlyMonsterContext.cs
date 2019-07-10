@@ -114,7 +114,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels
 
             public void InitializeCollections()
             {
-                BadScans = BadScans ?? new ObservableCollection<IIncorrectScan>();
+                BadScans ??= new ObservableCollection<IIncorrectScan>();
             }
 
             public byte[] Code
@@ -734,8 +734,8 @@ namespace Microsoft.EntityFrameworkCore.TestModels
 
             public void InitializeCollections()
             {
-                OrderLines = OrderLines ?? new ObservableCollection<IOrderLine>();
-                Notes = Notes ?? new ObservableCollection<IOrderNote>();
+                OrderLines ??= new ObservableCollection<IOrderLine>();
+                Notes ??= new ObservableCollection<IOrderNote>();
             }
 
             public int AnOrderId
@@ -983,11 +983,11 @@ namespace Microsoft.EntityFrameworkCore.TestModels
 
             public void InitializeCollections()
             {
-                Suppliers = Suppliers ?? new ObservableCollection<ISupplier>();
+                Suppliers ??= new ObservableCollection<ISupplier>();
                 Replaces = new ObservableCollection<IDiscontinuedProduct>();
-                Reviews = Reviews ?? new ObservableCollection<IProductReview>();
-                Photos = Photos ?? new ObservableCollection<IProductPhoto>();
-                Barcodes = Barcodes ?? new ObservableCollection<IBarcode>();
+                Reviews ??= new ObservableCollection<IProductReview>();
+                Photos ??= new ObservableCollection<IProductPhoto>();
+                Barcodes ??= new ObservableCollection<IBarcode>();
             }
 
             public int ProductId
@@ -1090,7 +1090,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels
 
             public void InitializeCollections()
             {
-                Features = Features ?? new ObservableCollection<IProductWebFeature>();
+                Features ??= new ObservableCollection<IProductWebFeature>();
             }
 
             public int ProductId
@@ -1128,7 +1128,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels
 
             public void InitializeCollections()
             {
-                Features = Features ?? new ObservableCollection<IProductWebFeature>();
+                Features ??= new ObservableCollection<IProductWebFeature>();
             }
 
             public int ProductId
@@ -1371,7 +1371,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels
 
             public void InitializeCollections()
             {
-                Products = Products ?? new ObservableCollection<IProduct>();
+                Products ??= new ObservableCollection<IProduct>();
                 BackOrderLines = new ObservableCollection<IBackOrderLine>();
             }
 
@@ -1483,8 +1483,8 @@ namespace Microsoft.EntityFrameworkCore.TestModels
 
             public void InitializeCollections()
             {
-                Orders = Orders ?? new ObservableCollection<IAnOrder>();
-                Logins = Logins ?? new ObservableCollection<ILogin>();
+                Orders ??= new ObservableCollection<IAnOrder>();
+                Logins ??= new ObservableCollection<ILogin>();
             }
 
             public int CustomerId
@@ -1561,9 +1561,9 @@ namespace Microsoft.EntityFrameworkCore.TestModels
 
             public void InitializeCollections()
             {
-                SentMessages = SentMessages ?? new ObservableCollection<IMessage>();
-                ReceivedMessages = ReceivedMessages ?? new ObservableCollection<IMessage>();
-                Orders = Orders ?? new ObservableCollection<IAnOrder>();
+                SentMessages ??= new ObservableCollection<IMessage>();
+                ReceivedMessages ??= new ObservableCollection<IMessage>();
+                Orders ??= new ObservableCollection<IAnOrder>();
             }
 
             public string Username

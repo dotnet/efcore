@@ -3331,10 +3331,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             => configurationSource.Overrides(Metadata.GetPropertyAccessModeConfigurationSource())
                || Metadata.GetPropertyAccessMode() == propertyAccessMode;
 
-        private static readonly string DefaultDiscriminatorName = "Discriminator";
+        private static readonly string _defaultDiscriminatorName = "Discriminator";
 
-        // ReSharper disable once InconsistentNaming
-        private static readonly Type DefaultDiscriminatorType = typeof(string);
+        private static readonly Type _defaultDiscriminatorType = typeof(string);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -3353,8 +3352,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             var configurationSource = fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention;
             return Metadata.RootType().Builder.Property(
-                type ?? discriminatorProperty?.ClrType ?? DefaultDiscriminatorType,
-                name ?? discriminatorProperty?.Name ?? DefaultDiscriminatorName,
+                type ?? discriminatorProperty?.ClrType ?? _defaultDiscriminatorType,
+                name ?? discriminatorProperty?.Name ?? _defaultDiscriminatorName,
                 typeConfigurationSource: type != null ? configurationSource : (ConfigurationSource?)null,
                 configurationSource: configurationSource);
         }

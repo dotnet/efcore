@@ -16,10 +16,10 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
         private readonly ParameterExpression _dataReaderParameter;
         private readonly ParameterExpression _resultCoordinatorParameter;
         private readonly ParameterExpression _indexMapParameter;
-        private IDictionary<Expression, ParameterExpression> _mapping = new Dictionary<Expression, ParameterExpression>();
-        private List<ParameterExpression> _variables = new List<ParameterExpression>();
-        private List<Expression> _expressions = new List<Expression>();
-        private List<CollectionPopulatingExpression> _collectionPopulatingExpressions = new List<CollectionPopulatingExpression>();
+        private readonly IDictionary<Expression, ParameterExpression> _mapping = new Dictionary<Expression, ParameterExpression>();
+        private readonly List<ParameterExpression> _variables = new List<ParameterExpression>();
+        private readonly List<Expression> _expressions = new List<Expression>();
+        private readonly List<CollectionPopulatingExpression> _collectionPopulatingExpressions = new List<CollectionPopulatingExpression>();
 
         public ShaperExpressionProcessingExpressionVisitor(
             SelectExpression selectExpression,

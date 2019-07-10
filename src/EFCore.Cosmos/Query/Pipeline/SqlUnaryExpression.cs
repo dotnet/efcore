@@ -13,7 +13,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Pipeline
 {
     public class SqlUnaryExpression : SqlExpression
     {
-        private static ISet<ExpressionType> _allowedOperators = new HashSet<ExpressionType>
+        private static readonly ISet<ExpressionType> _allowedOperators = new HashSet<ExpressionType>
         {
             ExpressionType.Not,
             ExpressionType.Negate,

@@ -104,7 +104,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Pipeline
                 .GetDeclaredMethods(nameof(ShapedQueryCompilingExpressionVisitor.SingleOrDefaultAsync))
                 .Single(mi => mi.GetParameters().Length == 2);
 
-        private async static Task<TSource> SingleAsync<TSource>(
+        private static async Task<TSource> SingleAsync<TSource>(
             IAsyncEnumerable<TSource> asyncEnumerable,
             CancellationToken cancellationToken = default)
         {
@@ -125,7 +125,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Pipeline
             }
         }
 
-        private async static Task<TSource> SingleOrDefaultAsync<TSource>(
+        private static async Task<TSource> SingleOrDefaultAsync<TSource>(
             IAsyncEnumerable<TSource> asyncEnumerable,
             CancellationToken cancellationToken = default)
         {

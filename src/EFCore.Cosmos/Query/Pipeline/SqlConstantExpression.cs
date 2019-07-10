@@ -37,7 +37,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Pipeline
                 && !(value is string)
                 && !(value is byte[]))
             {
-                bool first = true;
+                var first = true;
                 foreach (var item in enumerable)
                 {
                     if (!first)
@@ -51,13 +51,13 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Pipeline
             }
             else
             {
-                var jToken = GenerateJToken(Value, Type, TypeMapping);
+                var jToken = GenerateJToken(Value, TypeMapping);
 
                 expressionPrinter.StringBuilder.Append(jToken == null ? "null" : jToken.ToString(Formatting.None));
             }
         }
 
-        private JToken GenerateJToken(object value, Type type, CoreTypeMapping typeMapping)
+        private JToken GenerateJToken(object value, CoreTypeMapping typeMapping)
         {
             var mappingClrType = typeMapping.ClrType.UnwrapNullableType();
             if (value?.GetType().IsInteger() == true

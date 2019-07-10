@@ -113,7 +113,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities.QueryTestGeneration
 
         private class ExpressionFinder : ExpressionVisitor
         {
-            private InjectWhereExpressionMutator _mutator;
+            private readonly InjectWhereExpressionMutator _mutator;
 
             public ExpressionFinder(InjectWhereExpressionMutator mutator)
             {
