@@ -81,7 +81,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
             return caseExpression.Update(caseExpression.Operand, whenClauses, elseResult);
         }
 
-        private SqlExpression ApplyTypeMappingOnSqlUnary(
+        protected virtual SqlExpression ApplyTypeMappingOnSqlUnary(
             SqlUnaryExpression sqlUnaryExpression, RelationalTypeMapping typeMapping)
         {
             SqlExpression operand;
@@ -116,7 +116,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
                 resultTypeMapping);
         }
 
-        private SqlExpression ApplyTypeMappingOnSqlBinary(
+        protected virtual SqlExpression ApplyTypeMappingOnSqlBinary(
             SqlBinaryExpression sqlBinaryExpression, RelationalTypeMapping typeMapping)
         {
             var left = sqlBinaryExpression.Left;
@@ -133,21 +133,17 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
                 case ExpressionType.LessThan:
                 case ExpressionType.LessThanOrEqual:
                 case ExpressionType.NotEqual:
-                    {
-                        inferredTypeMapping = ExpressionExtensions.InferTypeMapping(left, right)
-                            ?? _typeMappingSource.FindMapping(left.Type);
-                        resultType = typeof(bool);
-                        resultTypeMapping = _boolTypeMapping;
-                    }
+                    inferredTypeMapping = ExpressionExtensions.InferTypeMapping(left, right)
+                        ?? _typeMappingSource.FindMapping(left.Type);
+                    resultType = typeof(bool);
+                    resultTypeMapping = _boolTypeMapping;
                     break;
 
                 case ExpressionType.AndAlso:
                 case ExpressionType.OrElse:
-                    {
-                        inferredTypeMapping = _boolTypeMapping;
-                        resultType = typeof(bool);
-                        resultTypeMapping = _boolTypeMapping;
-                    }
+                    inferredTypeMapping = _boolTypeMapping;
+                    resultType = typeof(bool);
+                    resultTypeMapping = _boolTypeMapping;
                     break;
 
                 case ExpressionType.Add:
@@ -158,11 +154,9 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
                 case ExpressionType.Coalesce:
                 case ExpressionType.And:
                 case ExpressionType.Or:
-                    {
-                        inferredTypeMapping = typeMapping ?? ExpressionExtensions.InferTypeMapping(left, right);
-                        resultType = left.Type;
-                        resultTypeMapping = inferredTypeMapping;
-                    }
+                    inferredTypeMapping = typeMapping ?? ExpressionExtensions.InferTypeMapping(left, right);
+                    resultType = left.Type;
+                    resultTypeMapping = inferredTypeMapping;
                     break;
 
                 default:
@@ -183,9 +177,11 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
         public virtual RelationalTypeMapping FindMapping(Type type)
             => _typeMappingSource.FindMapping(type);
 
-        public SqlBinaryExpression MakeBinary(
+        public virtual SqlBinaryExpression MakeBinary(
             ExpressionType operatorType, SqlExpression left, SqlExpression right, RelationalTypeMapping typeMapping)
         {
+            ValidateBinary(operatorType, left, right, typeMapping);
+
             var returnType = left.Type;
             switch (operatorType)
             {
@@ -203,6 +199,38 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
 
             return (SqlBinaryExpression)ApplyTypeMapping(
                 new SqlBinaryExpression(operatorType, left, right, returnType, null), typeMapping);
+        }
+
+        protected virtual void ValidateBinary(
+            ExpressionType operatorType, SqlExpression left, SqlExpression right, RelationalTypeMapping typeMapping)
+        {
+            switch (operatorType)
+            {
+                    case ExpressionType.Add:
+                    case ExpressionType.Subtract:
+                    case ExpressionType.Multiply:
+                    case ExpressionType.Divide:
+                    case ExpressionType.Modulo:
+                    // case ExpressionType.Power:
+                    case ExpressionType.And:
+                    case ExpressionType.AndAlso:
+                    case ExpressionType.Or:
+                    case ExpressionType.OrElse:
+                    case ExpressionType.LessThan:
+                    case ExpressionType.LessThanOrEqual:
+                    case ExpressionType.GreaterThan:
+                    case ExpressionType.GreaterThanOrEqual:
+                    case ExpressionType.Equal:
+                    case ExpressionType.NotEqual:
+                    // case ExpressionType.ExclusiveOr:
+                    case ExpressionType.Coalesce:
+                    // case ExpressionType.ArrayIndex:
+                    // case ExpressionType.RightShift:
+                    // case ExpressionType.LeftShift:
+                        return;
+                    default:
+                        throw new InvalidOperationException("Unsupported binary operator type specified: " + operatorType);
+            }
         }
 
         public SqlBinaryExpression Equal(SqlExpression left, SqlExpression right)
@@ -253,7 +281,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
         public SqlBinaryExpression Coalesce(SqlExpression left, SqlExpression right, RelationalTypeMapping typeMapping = null)
             => MakeBinary(ExpressionType.Coalesce, left, right, typeMapping);
 
-        private SqlUnaryExpression MakeUnary(ExpressionType operatorType, SqlExpression operand, Type type, RelationalTypeMapping typeMapping = null)
+        public virtual SqlUnaryExpression MakeUnary(ExpressionType operatorType, SqlExpression operand, Type type, RelationalTypeMapping typeMapping = null)
             => (SqlUnaryExpression)ApplyTypeMapping(new SqlUnaryExpression(operatorType, operand, type, null), typeMapping);
 
         public SqlUnaryExpression IsNull(SqlExpression operand)

@@ -345,7 +345,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
             return _methodCallTranslatorProvider.Translate(_model, (SqlExpression)@object, methodCallExpression.Method, arguments);
         }
 
-        private static Expression TryRemoveImplicitConvert(Expression expression)
+        protected static Expression TryRemoveImplicitConvert(Expression expression)
         {
             if (expression is UnaryExpression unaryExpression)
             {

@@ -12,36 +12,6 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
 {
     public class SqlBinaryExpression : SqlExpression
     {
-        private static readonly ISet<ExpressionType> _allowedOperators = new HashSet<ExpressionType>
-        {
-            ExpressionType.Add,
-            ExpressionType.Subtract,
-            ExpressionType.Multiply,
-            ExpressionType.Divide,
-            ExpressionType.Modulo,
-            //ExpressionType.Power,
-            ExpressionType.And,
-            ExpressionType.AndAlso,
-            ExpressionType.Or,
-            ExpressionType.OrElse,
-            ExpressionType.LessThan,
-            ExpressionType.LessThanOrEqual,
-            ExpressionType.GreaterThan,
-            ExpressionType.GreaterThanOrEqual,
-            ExpressionType.Equal,
-            ExpressionType.NotEqual,
-            //ExpressionType.ExclusiveOr,
-            ExpressionType.Coalesce,
-            //ExpressionType.ArrayIndex,
-            //ExpressionType.RightShift,
-            //ExpressionType.LeftShift,
-        };
-
-        private static ExpressionType VerifyOperator(ExpressionType operatorType)
-            => _allowedOperators.Contains(operatorType)
-                ? operatorType
-                : throw new InvalidOperationException("Unsupported Binary operator type specified.");
-
         public SqlBinaryExpression(
             ExpressionType operatorType,
             SqlExpression left,
@@ -53,8 +23,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
             Check.NotNull(left, nameof(left));
             Check.NotNull(right, nameof(right));
 
-            OperatorType = VerifyOperator(operatorType);
-
+            OperatorType = operatorType;
             Left = left;
             Right = right;
         }
