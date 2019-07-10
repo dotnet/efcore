@@ -310,20 +310,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                 }
                 else
                 {
-                    if (referenceProperty != null)
-                    {
-                        builder = builder.HasNavigation(
+                    builder = referenceProperty != null
+                        ? builder.HasNavigation(
                             referenceProperty,
                             pointsToPrincipal,
-                            ConfigurationSource.Explicit);
-                    }
-                    else
-                    {
-                        builder = builder.HasNavigation(
+                            ConfigurationSource.Explicit)
+                        : builder.HasNavigation(
                             referenceName,
                             pointsToPrincipal,
                             ConfigurationSource.Explicit);
-                    }
                 }
 
                 return batch.Run(builder);

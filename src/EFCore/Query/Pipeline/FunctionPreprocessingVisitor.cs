@@ -14,7 +14,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Pipeline
         private static readonly MethodInfo _endsWithMethodInfo
             = typeof(string).GetRuntimeMethod(nameof(string.EndsWith), new[] { typeof(string) });
 
-        private static Expression _constantNullString = Expression.Constant(null, typeof(string));
+        private static readonly Expression _constantNullString = Expression.Constant(null, typeof(string));
 
         protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
         {

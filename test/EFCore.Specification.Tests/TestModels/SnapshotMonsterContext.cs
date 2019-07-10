@@ -54,7 +54,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels
         {
             public void InitializeCollections()
             {
-                BadScans = BadScans ?? new HashSet<IIncorrectScan>();
+                BadScans ??= new HashSet<IIncorrectScan>();
             }
 
             public byte[] Code { get; set; }
@@ -235,8 +235,8 @@ namespace Microsoft.EntityFrameworkCore.TestModels
 
             public void InitializeCollections()
             {
-                OrderLines = OrderLines ?? new HashSet<IOrderLine>();
-                Notes = Notes ?? new HashSet<IOrderNote>();
+                OrderLines ??= new HashSet<IOrderLine>();
+                Notes ??= new HashSet<IOrderNote>();
             }
 
             public int AnOrderId { get; set; }
@@ -309,11 +309,11 @@ namespace Microsoft.EntityFrameworkCore.TestModels
 
             public void InitializeCollections()
             {
-                Suppliers = Suppliers ?? new HashSet<ISupplier>();
-                Replaces = Replaces ?? new HashSet<IDiscontinuedProduct>();
-                Reviews = Reviews ?? new HashSet<IProductReview>();
-                Photos = Photos ?? new HashSet<IProductPhoto>();
-                Barcodes = Barcodes ?? new HashSet<IBarcode>();
+                Suppliers ??= new HashSet<ISupplier>();
+                Replaces ??= new HashSet<IDiscontinuedProduct>();
+                Reviews ??= new HashSet<IProductReview>();
+                Photos ??= new HashSet<IProductPhoto>();
+                Barcodes ??= new HashSet<IBarcode>();
             }
 
             public int ProductId { get; set; }
@@ -343,7 +343,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels
         {
             public void InitializeCollections()
             {
-                Features = Features ?? new HashSet<IProductWebFeature>();
+                Features ??= new HashSet<IProductWebFeature>();
             }
 
             public int ProductId { get; set; }
@@ -357,7 +357,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels
         {
             public void InitializeCollections()
             {
-                Features = Features ?? new HashSet<IProductWebFeature>();
+                Features ??= new HashSet<IProductWebFeature>();
             }
 
             public int ProductId { get; set; }
@@ -426,7 +426,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels
         {
             public void InitializeCollections()
             {
-                Products = Products ?? new HashSet<IProduct>();
+                Products ??= new HashSet<IProduct>();
                 BackOrderLines = new HashSet<IBackOrderLine>();
             }
 
@@ -470,8 +470,8 @@ namespace Microsoft.EntityFrameworkCore.TestModels
 
             public void InitializeCollections()
             {
-                Orders = Orders ?? new HashSet<IAnOrder>();
-                Logins = Logins ?? new HashSet<ILogin>();
+                Orders ??= new HashSet<IAnOrder>();
+                Logins ??= new HashSet<ILogin>();
             }
 
             public int CustomerId { get; set; }
@@ -492,9 +492,9 @@ namespace Microsoft.EntityFrameworkCore.TestModels
         {
             public void InitializeCollections()
             {
-                SentMessages = SentMessages ?? new HashSet<IMessage>();
-                ReceivedMessages = ReceivedMessages ?? new HashSet<IMessage>();
-                Orders = Orders ?? new HashSet<IAnOrder>();
+                SentMessages ??= new HashSet<IMessage>();
+                ReceivedMessages ??= new HashSet<IMessage>();
+                Orders ??= new HashSet<IAnOrder>();
             }
 
             public string Username { get; set; }

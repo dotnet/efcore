@@ -37,19 +37,12 @@ namespace Microsoft.EntityFrameworkCore.Query.Pipeline
         }
 
         protected override Expression VisitExtension(Expression extensionExpression)
-        {
-            if (extensionExpression is SqlUnaryExpression sqlUnaryExpression)
-            {
-                return VisitSqlUnaryExpression(sqlUnaryExpression);
-            }
-
-            if (extensionExpression is SqlBinaryExpression sqlBinaryExpression)
-            {
-                return VisitSqlBinaryExpression(sqlBinaryExpression);
-            }
-
-            return base.VisitExtension(extensionExpression);
-        }
+            => extensionExpression switch
+                {
+                    SqlUnaryExpression sqlUnaryExpression => VisitSqlUnaryExpression(sqlUnaryExpression),
+                    SqlBinaryExpression sqlBinaryExpression => VisitSqlBinaryExpression(sqlBinaryExpression),
+                    _ => base.VisitExtension(extensionExpression),
+                };
 
         private Expression VisitSqlUnaryExpression(SqlUnaryExpression sqlUnaryExpression)
         {
@@ -174,14 +167,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Pipeline
             if (sqlBinaryExpression.OperatorType == ExpressionType.AndAlso
                 || sqlBinaryExpression.OperatorType == ExpressionType.OrElse)
             {
-                var newLeftConstant = newLeft as SqlConstantExpression;
-                var newRightConstant = newRight as SqlConstantExpression;
-
                 // true && a -> a
                 // true || a -> true
                 // false && a -> false
                 // false || a -> a
-                if (newLeftConstant != null)
+                if (newLeft is SqlConstantExpression newLeftConstant)
                 {
                     return sqlBinaryExpression.OperatorType == ExpressionType.AndAlso
                         ? (bool)newLeftConstant.Value
@@ -191,7 +181,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Pipeline
                             ? newLeftConstant
                             : newRight;
                 }
-                else if (newRightConstant != null)
+                else if (newRight is SqlConstantExpression newRightConstant)
                 {
                     // a && true -> a
                     // a || true -> true

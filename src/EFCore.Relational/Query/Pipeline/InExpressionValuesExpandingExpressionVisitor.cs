@@ -14,7 +14,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
         private class InExpressionValuesExpandingExpressionVisitor : ExpressionVisitor
         {
             private readonly ISqlExpressionFactory _sqlExpressionFactory;
-            private IReadOnlyDictionary<string, object> _parametersValues;
+            private readonly IReadOnlyDictionary<string, object> _parametersValues;
 
             public InExpressionValuesExpandingExpressionVisitor(
                 ISqlExpressionFactory sqlExpressionFactory, IReadOnlyDictionary<string, object> parametersValues)

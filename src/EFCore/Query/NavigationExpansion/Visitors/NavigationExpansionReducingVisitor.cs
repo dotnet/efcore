@@ -158,7 +158,7 @@ namespace Microsoft.EntityFrameworkCore.Query.NavigationExpansion.Visitors
 
         private class IOrderedQueryableAdapter<TElement> : IOrderedQueryable<TElement>
         {
-            IQueryable<TElement> _source;
+            private readonly IQueryable<TElement> _source;
 
             public IOrderedQueryableAdapter(IQueryable<TElement> source)
             {
@@ -185,7 +185,7 @@ namespace Microsoft.EntityFrameworkCore.Query.NavigationExpansion.Visitors
 
         private class IOrderedEnumerableAdapter<TElement> : IOrderedEnumerable<TElement>
         {
-            IEnumerable<TElement> _source;
+            private readonly IEnumerable<TElement> _source;
 
             public IOrderedEnumerableAdapter(IEnumerable<TElement> source)
             {

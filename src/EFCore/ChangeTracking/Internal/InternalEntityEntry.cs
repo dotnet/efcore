@@ -30,7 +30,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
     public abstract partial class InternalEntityEntry : IUpdateEntry
     {
         // ReSharper disable once FieldCanBeMadeReadOnly.Local
-        private StateData _stateData;
+        private readonly StateData _stateData;
         private OriginalValues _originalValues;
         private RelationshipsSnapshot _relationshipsSnapshot;
         private SidecarValues _temporaryValues;

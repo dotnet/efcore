@@ -378,7 +378,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
 
         private Expression ConvertAnonymousObjectEqualityComparison(BinaryExpression binaryExpression)
         {
-            Expression removeObjectConvert(Expression expression)
+            static Expression removeObjectConvert(Expression expression)
             {
                 if (expression is UnaryExpression unaryExpression
                     && expression.Type == typeof(object)

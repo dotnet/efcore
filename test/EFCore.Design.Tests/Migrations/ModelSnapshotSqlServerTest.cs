@@ -2966,7 +2966,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         [ConditionalFact]
         public virtual void SeedData_annotations_are_stored_in_snapshot()
         {
-            List<IProperty> GetAllProperties(IModel model)
+            static List<IProperty> getAllProperties(IModel model)
                 => model
                     .GetEntityTypes()
                     .SelectMany(m => m.GetProperties())
@@ -3356,8 +3356,8 @@ namespace RootNamespace
 ",
                 (snapshotModel, originalModel) =>
                 {
-                    var originalProperties = GetAllProperties(originalModel);
-                    var snapshotProperties = GetAllProperties(snapshotModel);
+                    var originalProperties = getAllProperties(originalModel);
+                    var snapshotProperties = getAllProperties(snapshotModel);
 
                     Assert.Equal(originalProperties.Count,  snapshotProperties.Count);
 

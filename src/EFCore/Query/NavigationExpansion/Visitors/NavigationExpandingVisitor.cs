@@ -302,17 +302,13 @@ namespace Microsoft.EntityFrameworkCore.Query.NavigationExpansion.Visitors
                 if (leftNavigationBindingExpression != null
                     && rightConstantNull)
                 {
-                    var comparisonArgumentsResult = CreateNullComparisonArguments(leftNavigationBindingExpression, leftNavigationExpansionExpression);
-                    newLeft = comparisonArgumentsResult.navigationExpression;
-                    newRight = comparisonArgumentsResult.nullKeyExpression;
+                    (newLeft, newRight) = CreateNullComparisonArguments(leftNavigationBindingExpression, leftNavigationExpansionExpression);
                 }
 
                 if (rightNavigationBindingExpression != null
                     && leftConstantNull)
                 {
-                    var comparisonArgumentsResult = CreateNullComparisonArguments(rightNavigationBindingExpression, rightNavigationExpansionExpression);
-                    newLeft = comparisonArgumentsResult.nullKeyExpression;
-                    newRight = comparisonArgumentsResult.navigationExpression;
+                    (newRight, newLeft) = CreateNullComparisonArguments(rightNavigationBindingExpression, rightNavigationExpansionExpression);
                 }
 
                 var result = binaryExpression.NodeType == ExpressionType.Equal

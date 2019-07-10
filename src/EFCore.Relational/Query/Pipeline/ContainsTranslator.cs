@@ -11,7 +11,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
 {
     public class ContainsTranslator : IMethodCallTranslator
     {
-        private static MethodInfo _containsMethod = typeof(Enumerable).GetTypeInfo()
+        private static readonly MethodInfo _containsMethod = typeof(Enumerable).GetTypeInfo()
             .GetDeclaredMethods(nameof(Enumerable.Contains))
             .Single(mi => mi.GetParameters().Length == 2)
             .GetGenericMethodDefinition();

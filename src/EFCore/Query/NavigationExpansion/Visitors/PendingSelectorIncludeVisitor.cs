@@ -12,8 +12,8 @@ namespace Microsoft.EntityFrameworkCore.Query.NavigationExpansion.Visitors
 {
     public class PendingSelectorIncludeVisitor : ExpressionVisitor
     {
-        private bool _skipCollectionNavigations;
-        private bool _rewriteIncludes;
+        private readonly bool _skipCollectionNavigations;
+        private readonly bool _rewriteIncludes;
 
         public PendingSelectorIncludeVisitor(bool skipCollectionNavigations = true, bool rewriteIncludes = true)
         {

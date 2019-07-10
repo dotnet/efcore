@@ -1813,7 +1813,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             public string Singularize(string name)
             {
                 return name.EndsWith("s")
-                    ? name.Substring(0, name.Length - 1)
+                    ? name[0..^1]
                     : name;
             }
         }

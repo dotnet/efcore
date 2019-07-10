@@ -32,7 +32,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Pipeline
             IEnumerable<SqlExpression> modifiers = null,
             RelationalTypeMapping typeMapping = null)
         {
-            modifiers = modifiers ?? Enumerable.Empty<SqlExpression>();
+            modifiers ??= Enumerable.Empty<SqlExpression>();
 
             // If the inner call is another strftime then shortcut a double call
             if (timestring is SqlFunctionExpression rtrimFunction

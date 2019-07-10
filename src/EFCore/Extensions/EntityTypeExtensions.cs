@@ -131,12 +131,7 @@ namespace Microsoft.EntityFrameworkCore
             Check.NotNull(entityType, nameof(entityType));
             Check.NotNull(baseType, nameof(baseType));
 
-            if (entityType == baseType)
-            {
-                return false;
-            }
-
-            return baseType.IsAssignableFrom(entityType);
+            return entityType == baseType ? false : baseType.IsAssignableFrom(entityType);
         }
 
         /// <summary>

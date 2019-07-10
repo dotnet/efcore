@@ -89,8 +89,6 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Pipeline
             private ParameterExpression _jObjectParameter;
             private readonly CosmosShapedQueryCompilingExpressionVisitor _shapedQueryCompilingExpressionVisitor;
 
-            private readonly IDictionary<ProjectionBindingExpression, Expression> _valueBufferBindings
-                = new Dictionary<ProjectionBindingExpression, Expression>();
             private readonly IDictionary<ParameterExpression, Expression> _materializationContextBindings
                 = new Dictionary<ParameterExpression, Expression>();
             private int _currentEntityIndex;
@@ -575,7 +573,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Pipeline
         private class InExpressionValuesExpandingExpressionVisitor : ExpressionVisitor
         {
             private readonly ISqlExpressionFactory _sqlExpressionFactory;
-            private IReadOnlyDictionary<string, object> _parametersValues;
+            private readonly IReadOnlyDictionary<string, object> _parametersValues;
 
             public InExpressionValuesExpandingExpressionVisitor(
                 ISqlExpressionFactory sqlExpressionFactory, IReadOnlyDictionary<string, object> parametersValues)

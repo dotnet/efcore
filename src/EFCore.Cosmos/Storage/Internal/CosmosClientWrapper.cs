@@ -438,6 +438,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
             private class AsyncEnumerator : IAsyncEnumerator<JObject>
             {
                 private FeedIterator _query;
+                private ResponseMessage _responseMessage;
                 private Stream _responseStream;
                 private StreamReader _reader;
                 private JsonTextReader _jsonReader;
@@ -475,7 +476,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
                             return false;
                         }
 
-                        _responseStream = (await _query.ReadNextAsync(_cancellationToken)).Content;
+                        _responseMessage = await _query.ReadNextAsync(_cancellationToken);
+                        _responseStream = _responseMessage.Content;
                         _reader = new StreamReader(_responseStream);
                         _jsonReader = new JsonTextReader(_reader);
 
@@ -506,12 +508,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
                         }
                     }
 
-                    _jsonReader.Close();
-                    _jsonReader = null;
-                    await _reader.DisposeAsyncIfAvailable();
-                    _reader = null;
-                    await _responseStream.DisposeAsync();
-                    _responseStream = null;
+                    await DisposeAsync();
+
                     return await MoveNextAsync();
                 }
 
@@ -523,6 +521,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
                     _reader = null;
                     await _responseStream.DisposeAsync();
                     _responseStream = null;
+                    await _responseMessage.DisposeAsyncIfAvailable();
+                    _responseMessage = null;
                 }
             }
         }
