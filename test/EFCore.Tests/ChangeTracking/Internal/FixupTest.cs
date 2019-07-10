@@ -4,8 +4,11 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Xunit;
 
@@ -2748,6 +2751,64 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             public DbSet<Level1> Level1s { get; set; }
             public DbSet<Level2> Level2s { get; set; }
+        }
+
+        [ConditionalFact]
+        public void Detached_entity_is_not_replaced_by_tracked_entity()
+        {
+            using (var context = new BadBeeContext(nameof(BadBeeContext)))
+            {
+                var b1 = new EntityB
+                {
+                    EntityBId = 1
+                };
+                context.BEntities.Attach(b1);
+
+                var b2 = new EntityB
+                {
+                    EntityBId = 1
+                };
+
+                var a = new EntityA
+                {
+                    EntityAId = 1, EntityB = b2
+                };
+
+                Assert.Equal(
+                    CoreStrings.IdentityConflict(
+                        nameof(EntityB),
+                        $"{{'{nameof(EntityB.EntityBId)}'}}"),
+                    Assert.Throws<InvalidOperationException>(() => context.Add(a)).Message);
+            }
+        }
+
+        private class EntityB
+        {
+            public int EntityBId { get; set; }
+            public EntityA EntityA { get; set; }
+        }
+
+        private class EntityA
+        {
+            public int EntityAId { get; set; }
+            public int? EntityBId { get; set; }
+            public EntityB EntityB { get; set; }
+        }
+
+        private class BadBeeContext : DbContext
+        {
+            private readonly string _databaseName;
+
+            public BadBeeContext(string databaseName)
+            {
+                _databaseName = databaseName;
+            }
+
+            protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+                => optionsBuilder.UseInMemoryDatabase(_databaseName);
+
+            public DbSet<EntityA> AEntities { get; set; }
+            public DbSet<EntityB> BEntities { get; set; }
         }
 
         protected virtual void AssertAllFixedUp(DbContext context)

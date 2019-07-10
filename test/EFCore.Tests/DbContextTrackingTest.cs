@@ -1498,6 +1498,7 @@ namespace Microsoft.EntityFrameworkCore
                     Id = 1,
                     Name = "Beverages"
                 };
+
                 var product = new Product
                 {
                     Id = 1,
@@ -1505,6 +1506,7 @@ namespace Microsoft.EntityFrameworkCore
                     Name = "Marmite",
                     Category = category
                 };
+
                 category.Products = new List<Product>
                 {
                     product
@@ -1512,11 +1514,12 @@ namespace Microsoft.EntityFrameworkCore
 
                 context.Attach(product);
 
-                Assert.Equal(7, product.CategoryId);
+                Assert.Equal(1, product.CategoryId);
                 Assert.Same(product, category.Products.Single());
-                Assert.Same(category7, product.Category);
-                Assert.Same(product, category7.Products.Single());
-                Assert.Equal(EntityState.Detached, context.Entry(category).State);
+                Assert.Same(category, product.Category);
+                Assert.Empty(category7.Products);
+                Assert.Equal(EntityState.Unchanged, context.Entry(category7).State);
+                Assert.Equal(EntityState.Unchanged, context.Entry(category).State);
                 Assert.Equal(EntityState.Unchanged, context.Entry(product).State);
 
                 context.Attach(category);
@@ -1524,6 +1527,8 @@ namespace Microsoft.EntityFrameworkCore
                 Assert.Equal(1, product.CategoryId);
                 Assert.Same(product, category.Products.Single());
                 Assert.Same(category, product.Category);
+                Assert.Empty(category7.Products);
+                Assert.Equal(EntityState.Unchanged, context.Entry(category7).State);
                 Assert.Equal(EntityState.Unchanged, context.Entry(category).State);
                 Assert.Equal(EntityState.Unchanged, context.Entry(product).State);
             }
@@ -1546,6 +1551,7 @@ namespace Microsoft.EntityFrameworkCore
                     Id = 1,
                     Name = "Beverages"
                 };
+
                 var product = new Product
                 {
                     Id = 1,
@@ -1553,6 +1559,7 @@ namespace Microsoft.EntityFrameworkCore
                     Name = "Marmite",
                     Category = category
                 };
+
                 category.Products = new List<Product>();
 
                 context.Attach(category);
@@ -1560,16 +1567,18 @@ namespace Microsoft.EntityFrameworkCore
                 Assert.Equal(7, product.CategoryId);
                 Assert.Empty(category.Products);
                 Assert.Same(category, product.Category);
-                Assert.Empty(category7.Products);
+                Assert.Empty(category.Products);
+                Assert.Equal(EntityState.Unchanged, context.Entry(category7).State);
                 Assert.Equal(EntityState.Unchanged, context.Entry(category).State);
                 Assert.Equal(EntityState.Detached, context.Entry(product).State);
 
                 context.Attach(product);
 
-                Assert.Equal(7, product.CategoryId);
-                Assert.Empty(category.Products);
-                Assert.Same(category7, product.Category);
-                Assert.Same(product, category7.Products.Single());
+                Assert.Equal(1, product.CategoryId);
+                Assert.Same(product, category.Products.Single());
+                Assert.Same(category, product.Category);
+                Assert.Empty(category7.Products);
+                Assert.Equal(EntityState.Unchanged, context.Entry(category7).State);
                 Assert.Equal(EntityState.Unchanged, context.Entry(category).State);
                 Assert.Equal(EntityState.Unchanged, context.Entry(product).State);
             }
@@ -1592,6 +1601,7 @@ namespace Microsoft.EntityFrameworkCore
                     Id = 1,
                     Name = "Beverages"
                 };
+
                 var product = new Product
                 {
                     Id = 1,
@@ -1599,23 +1609,26 @@ namespace Microsoft.EntityFrameworkCore
                     Name = "Marmite",
                     Category = category
                 };
+
                 category.Products = new List<Product>();
 
                 context.Attach(product);
 
-                Assert.Equal(7, product.CategoryId);
-                Assert.Empty(category.Products);
-                Assert.Same(category7, product.Category);
-                Assert.Same(product, category7.Products.Single());
-                Assert.Equal(EntityState.Detached, context.Entry(category).State);
+                Assert.Equal(1, product.CategoryId);
+                Assert.Same(product, category.Products.Single());
+                Assert.Same(category, product.Category);
+                Assert.Empty(category7.Products);
+                Assert.Equal(EntityState.Unchanged, context.Entry(category7).State);
+                Assert.Equal(EntityState.Unchanged, context.Entry(category).State);
                 Assert.Equal(EntityState.Unchanged, context.Entry(product).State);
 
                 context.Attach(category);
 
-                Assert.Equal(7, product.CategoryId);
-                Assert.Empty(category.Products);
-                Assert.Same(category7, product.Category);
-                Assert.Same(product, category7.Products.Single());
+                Assert.Equal(1, product.CategoryId);
+                Assert.Same(product, category.Products.Single());
+                Assert.Same(category, product.Category);
+                Assert.Empty(category7.Products);
+                Assert.Equal(EntityState.Unchanged, context.Entry(category7).State);
                 Assert.Equal(EntityState.Unchanged, context.Entry(category).State);
                 Assert.Equal(EntityState.Unchanged, context.Entry(product).State);
             }
@@ -1782,6 +1795,7 @@ namespace Microsoft.EntityFrameworkCore
                     Id = 1,
                     Name = "Beverages"
                 };
+
                 var product = new Product
                 {
                     Id = 1,
@@ -1789,6 +1803,7 @@ namespace Microsoft.EntityFrameworkCore
                     Name = "Marmite",
                     Category = category
                 };
+
                 category.Products = new List<Product>
                 {
                     product
@@ -1798,8 +1813,9 @@ namespace Microsoft.EntityFrameworkCore
 
                 Assert.Equal(7, product.CategoryId);
                 Assert.Same(product, category.Products.Single());
-                Assert.Same(category7, product.Category);
-                Assert.Same(product, category7.Products.Single());
+                Assert.Same(category, product.Category);
+                Assert.Empty(category7.Products);
+                Assert.Equal(EntityState.Unchanged, context.Entry(category7).State);
                 Assert.Equal(EntityState.Detached, context.Entry(category).State);
                 Assert.Equal(EntityState.Unchanged, context.Entry(product).State);
 
@@ -1808,6 +1824,8 @@ namespace Microsoft.EntityFrameworkCore
                 Assert.Equal(1, product.CategoryId);
                 Assert.Same(product, category.Products.Single());
                 Assert.Same(category, product.Category);
+                Assert.Empty(category7.Products);
+                Assert.Equal(EntityState.Unchanged, context.Entry(category7).State);
                 Assert.Equal(EntityState.Unchanged, context.Entry(category).State);
                 Assert.Equal(EntityState.Unchanged, context.Entry(product).State);
             }
@@ -1850,10 +1868,11 @@ namespace Microsoft.EntityFrameworkCore
 
                 context.Entry(product).State = EntityState.Unchanged;
 
-                Assert.Equal(7, product.CategoryId);
-                Assert.Empty(category.Products);
-                Assert.Same(category7, product.Category);
-                Assert.Same(product, category7.Products.Single());
+                Assert.Equal(1, product.CategoryId);
+                Assert.Same(product, category.Products.Single());
+                Assert.Same(category, product.Category);
+                Assert.Empty(category7.Products);
+                Assert.Equal(EntityState.Unchanged, context.Entry(category7).State);
                 Assert.Equal(EntityState.Unchanged, context.Entry(category).State);
                 Assert.Equal(EntityState.Unchanged, context.Entry(product).State);
             }
@@ -1876,6 +1895,7 @@ namespace Microsoft.EntityFrameworkCore
                     Id = 1,
                     Name = "Beverages"
                 };
+
                 var product = new Product
                 {
                     Id = 1,
@@ -1883,23 +1903,26 @@ namespace Microsoft.EntityFrameworkCore
                     Name = "Marmite",
                     Category = category
                 };
+
                 category.Products = new List<Product>();
 
                 context.Entry(product).State = EntityState.Unchanged;
 
                 Assert.Equal(7, product.CategoryId);
                 Assert.Empty(category.Products);
-                Assert.Same(category7, product.Category);
-                Assert.Same(product, category7.Products.Single());
+                Assert.Same(category, product.Category);
+                Assert.Empty(category7.Products);
                 Assert.Equal(EntityState.Detached, context.Entry(category).State);
                 Assert.Equal(EntityState.Unchanged, context.Entry(product).State);
+                Assert.Equal(EntityState.Unchanged, context.Entry(category7).State);
 
                 context.Entry(category).State = EntityState.Unchanged;
 
-                Assert.Equal(7, product.CategoryId);
-                Assert.Empty(category.Products);
-                Assert.Same(category7, product.Category);
-                Assert.Same(product, category7.Products.Single());
+                Assert.Equal(1, product.CategoryId);
+                Assert.Same(product, category.Products.Single());
+                Assert.Same(category, product.Category);
+                Assert.Empty(category7.Products);
+                Assert.Equal(EntityState.Unchanged, context.Entry(category7).State);
                 Assert.Equal(EntityState.Unchanged, context.Entry(category).State);
                 Assert.Equal(EntityState.Unchanged, context.Entry(product).State);
             }
