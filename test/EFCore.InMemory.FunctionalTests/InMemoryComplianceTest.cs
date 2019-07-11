@@ -16,6 +16,7 @@ namespace Microsoft.EntityFrameworkCore
             typeof(OptimisticConcurrencyTestBase<>),
             typeof(StoreGeneratedTestBase<>),
             typeof(LoadTestBase<>),                        // issue #15318
+            typeof(MusicStoreTestBase<>),                  // issue #15318
             typeof(GraphUpdatesTestBase<>),                // issue #15318
             typeof(ProxyGraphUpdatesTestBase<>),           // issue #15318
             typeof(ComplexNavigationsWeakQueryTestBase<>), // issue #15285
