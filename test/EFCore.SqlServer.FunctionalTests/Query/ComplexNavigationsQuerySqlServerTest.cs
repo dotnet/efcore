@@ -4698,6 +4698,44 @@ ORDER BY [l2].[Id]");
                 @"");
         }
 
+        public override async Task Null_check_removal_applied_recursively(bool isAsync)
+        {
+            await base.Null_check_removal_applied_recursively(isAsync);
+
+            AssertSql(" ");
+        }
+
+        public override async Task Null_check_different_structure_does_not_remove_null_checks(bool isAsync)
+        {
+            await base.Null_check_different_structure_does_not_remove_null_checks(isAsync);
+
+            AssertSql(
+                @"SELECT [l].[Id], [l].[Date], [l].[Name], [l].[OneToMany_Optional_Self_Inverse1Id], [l].[OneToMany_Required_Self_Inverse1Id], [l].[OneToOne_Optional_Self1Id]
+FROM [LevelOne] AS [l]
+LEFT JOIN [LevelTwo] AS [l0] ON [l].[Id] = [l0].[Level1_Optional_Id]
+LEFT JOIN [LevelThree] AS [l1] ON [l0].[Id] = [l1].[Level2_Optional_Id]
+LEFT JOIN [LevelFour] AS [l2] ON [l1].[Id] = [l2].[Level3_Optional_Id]
+WHERE (CASE
+    WHEN [l0].[Id] IS NULL THEN NULL
+    ELSE CASE
+        WHEN [l1].[Id] IS NULL THEN NULL
+        ELSE CASE
+            WHEN [l2].[Id] IS NULL THEN NULL
+            ELSE [l2].[Name]
+        END
+    END
+END = N'L4 01') AND CASE
+    WHEN [l0].[Id] IS NULL THEN NULL
+    ELSE CASE
+        WHEN [l1].[Id] IS NULL THEN NULL
+        ELSE CASE
+            WHEN [l2].[Id] IS NULL THEN NULL
+            ELSE [l2].[Name]
+        END
+    END
+END IS NOT NULL");
+        }
+
         private void AssertSql(params string[] expected)
         {
             //Fixture.TestSqlLoggerFactory.AssertBaseline(expected);

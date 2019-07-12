@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel.DataAnnotations;
 using System.Data;
-using System.Data.Common;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -1251,7 +1250,7 @@ Queen of the Andals and the Rhoynar and the First Men, Khaleesi of the Great Gra
                 {
                     var query = from eVersion in ctx.Entities.Include(e => e.Children)
                                 join eRoot in ctx.Entities
-                                    on eVersion.RootEntityId equals (int?)eRoot.Id
+                                    on eVersion.RootEntityId equals eRoot.Id
                                     into RootEntities
                                 from eRootJoined in RootEntities.DefaultIfEmpty()
                                 select eRootJoined ?? eVersion;
@@ -1271,7 +1270,7 @@ Queen of the Andals and the Rhoynar and the First Men, Khaleesi of the Great Gra
                 {
                     var query = from eVersion in ctx.Entities
                                 join eRoot in ctx.Entities.Include(e => e.Children)
-                                    on eVersion.RootEntityId equals (int?)eRoot.Id
+                                    on eVersion.RootEntityId equals eRoot.Id
                                     into RootEntities
                                 from eRootJoined in RootEntities.DefaultIfEmpty()
                                 select eRootJoined ?? eVersion;
@@ -1291,7 +1290,7 @@ Queen of the Andals and the Rhoynar and the First Men, Khaleesi of the Great Gra
                 {
                     var query = from eVersion in ctx.Entities.Include(e => e.Children)
                                 join eRoot in ctx.Entities.Include(e => e.Children)
-                                    on eVersion.RootEntityId equals (int?)eRoot.Id
+                                    on eVersion.RootEntityId equals eRoot.Id
                                     into RootEntities
                                 from eRootJoined in RootEntities.DefaultIfEmpty()
                                 select eRootJoined ?? eVersion;
@@ -1311,7 +1310,7 @@ Queen of the Andals and the Rhoynar and the First Men, Khaleesi of the Great Gra
                 {
                     var query = from eVersion in ctx.Entities.Include(e => e.Children)
                                 join eRoot in ctx.Entities
-                                    on eVersion.RootEntityId equals (int?)eRoot.Id
+                                    on eVersion.RootEntityId equals eRoot.Id
                                     into RootEntities
                                 from eRootJoined in RootEntities.DefaultIfEmpty()
                                 select new
@@ -1335,7 +1334,7 @@ Queen of the Andals and the Rhoynar and the First Men, Khaleesi of the Great Gra
                 {
                     var query = from eVersion in ctx.Entities
                                 join eRoot in ctx.Entities.Include(e => e.Children)
-                                    on eVersion.RootEntityId equals (int?)eRoot.Id
+                                    on eVersion.RootEntityId equals eRoot.Id
                                     into RootEntities
                                 from eRootJoined in RootEntities.DefaultIfEmpty()
                                 select new
@@ -1359,7 +1358,7 @@ Queen of the Andals and the Rhoynar and the First Men, Khaleesi of the Great Gra
                 {
                     var query = from eVersion in ctx.Entities
                                 join eRoot in ctx.Entities.Include(e => e.Children)
-                                    on eVersion.RootEntityId equals (int?)eRoot.Id
+                                    on eVersion.RootEntityId equals eRoot.Id
                                     into RootEntities
                                 from eRootJoined in RootEntities.DefaultIfEmpty()
                                     // ReSharper disable once ConstantNullCoalescingCondition
@@ -1384,7 +1383,7 @@ Queen of the Andals and the Rhoynar and the First Men, Khaleesi of the Great Gra
                 {
                     var query = from eVersion in ctx.Entities.Include(e => e.Children)
                                 join eRoot in ctx.Entities
-                                    on eVersion.RootEntityId equals (int?)eRoot.Id
+                                    on eVersion.RootEntityId equals eRoot.Id
                                     into RootEntities
                                 from eRootJoined in RootEntities.DefaultIfEmpty()
                                     // ReSharper disable once ConstantNullCoalescingCondition
@@ -1410,7 +1409,7 @@ Queen of the Andals and the Rhoynar and the First Men, Khaleesi of the Great Gra
                 {
                     var query = from eVersion in ctx.Entities.Include(e => e.Children)
                                 join eRoot in ctx.Entities
-                                    on eVersion.RootEntityId equals (int?)eRoot.Id
+                                    on eVersion.RootEntityId equals eRoot.Id
                                     into RootEntities
                                 from eRootJoined in RootEntities.DefaultIfEmpty()
                                     // ReSharper disable once MergeConditionalExpression
@@ -1433,7 +1432,7 @@ Queen of the Andals and the Rhoynar and the First Men, Khaleesi of the Great Gra
                 {
                     var query = from eVersion in ctx.Entities
                                 join eRoot in ctx.Entities
-                                    on eVersion.RootEntityId equals (int?)eRoot.Id
+                                    on eVersion.RootEntityId equals eRoot.Id
                                     into RootEntities
                                 from eRootJoined in RootEntities.DefaultIfEmpty()
                                 select new
@@ -3813,8 +3812,8 @@ GROUP BY [t].[Name]");
                             })
                         .ToList();
 
-            AssertSql(
-                @"SELECT [t].[Name] AS [MyKey], COUNT(*) + 5 AS [cnt]
+                    AssertSql(
+                        @"SELECT [t].[Name] AS [MyKey], COUNT(*) + 5 AS [cnt]
 FROM [Table] AS [t0]
 LEFT JOIN [Table] AS [t] ON [t0].[Id] = [t].[Id]
 LEFT JOIN [Table] AS [t1] ON [t0].[Id] = [t1].[Id]
@@ -5661,7 +5660,7 @@ LEFT JOIN [Categories] AS [c] ON [p].[CategoryId] = [c].[Id]");
             public DbSet<Category15684> Categories { get; set; }
             public DbSet<Product15684> Products { get; set; }
 
-            public MyContext15684(DbContextOptions options) : base(options) {}
+            public MyContext15684(DbContextOptions options) : base(options) { }
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
             {
@@ -5710,7 +5709,149 @@ LEFT JOIN [Categories] AS [c] ON [p].[CategoryId] = [c].[Id]");
             Removed = 1,
         }
 
-        #endregion Bug15684
+        #endregion
+
+        #region Bug15204
+
+        private MemberInfo GetMemberInfo(Type type, string name)
+        {
+            return type.GetTypeInfo().GetProperty(name);
+        }
+
+        [ConditionalFact]
+        public virtual void Null_check_removal_applied_recursively()
+        {
+            using (CreateDatabase15204())
+            {
+                var userParam = Expression.Parameter(typeof(TBuilding15204), "s");
+                var builderProperty = Expression.MakeMemberAccess(userParam, GetMemberInfo(typeof(TBuilding15204), "Builder"));
+                var cityProperty = Expression.MakeMemberAccess(builderProperty, GetMemberInfo(typeof(TBuilder15204), "City"));
+                var nameProperty = Expression.MakeMemberAccess(cityProperty, GetMemberInfo(typeof(TCity15204), "Name"));
+
+                //{s => (IIF((IIF((s.Builder == null), null, s.Builder.City) == null), null, s.Builder.City.Name) == "Leeds")}
+                var selection = Expression.Lambda<Func<TBuilding15204, bool>>(
+                    Expression.Equal(
+                        Expression.Condition(
+                            Expression.Equal(
+                                Expression.Condition(
+                                    Expression.Equal(
+                                        builderProperty,
+                                        Expression.Constant(null, typeof(TBuilder15204))),
+                                    Expression.Constant(null, typeof(TCity15204)),
+                                    cityProperty),
+                                Expression.Constant(null, typeof(TCity15204))),
+                            Expression.Constant(null, typeof(string)),
+                            nameProperty),
+                        Expression.Constant("Leeds", typeof(string))),
+                    userParam);
+
+
+                using (var context = new MyContext15204(_options))
+                {
+                    var query = context.BuildingSet
+                        .Where(selection)
+                        .Include(a => a.Builder).ThenInclude(a => a.City)
+                        .Include(a => a.Mandator).ToList();
+
+                    Assert.True(query.Count == 1);
+                    Assert.True(query.First().Builder.City.Name == "Leeds");
+                    Assert.True(query.First().LongName == "Two L2");
+
+                    AssertSql(
+                        @"SELECT [b].[Id], [b].[BuilderId], [b].[Identity], [b].[LongName], [b].[MandatorId], [b0].[Id], [b0].[CityId], [b0].[Name], [c].[Id], [c].[Name], [m].[Id], [m].[Identity], [m].[Name]
+FROM [BuildingSet] AS [b]
+INNER JOIN [Builder] AS [b0] ON [b].[BuilderId] = [b0].[Id]
+INNER JOIN [City] AS [c] ON [b0].[CityId] = [c].[Id]
+INNER JOIN [MandatorSet] AS [m] ON [b].[MandatorId] = [m].[Id]
+WHERE ([c].[Name] = N'Leeds') AND [c].[Name] IS NOT NULL");
+                }
+            }
+        }
+
+        private SqlServerTestStore CreateDatabase15204()
+            => CreateTestStore(
+                () => new MyContext15204(_options),
+                context =>
+                {
+                    var london = new TCity15204 { Name = "London" };
+                    var sam = new TBuilder15204 { Name = "Sam", City = london };
+
+                    context.MandatorSet.Add(new TMandator15204
+                    {
+                        Identity = Guid.NewGuid(),
+                        Name = "One",
+                        Buildings = new List<TBuilding15204>
+                        {
+                            new TBuilding15204 { Identity =  Guid.NewGuid(), LongName = "One L1", Builder = sam },
+                            new TBuilding15204 { Identity =  Guid.NewGuid(), LongName = "One L2", Builder = sam }
+                        }
+                    });
+                    context.MandatorSet.Add(new TMandator15204
+                    {
+                        Identity = Guid.NewGuid(),
+                        Name = "Two",
+                        Buildings = new List<TBuilding15204>
+                    {
+                        new TBuilding15204 { Identity =  Guid.NewGuid(), LongName = "Two L1",
+                            Builder = new TBuilder15204 { Name = "John", City = london }},
+                        new TBuilding15204 { Identity =  Guid.NewGuid(), LongName = "Two L2",
+                            Builder = new TBuilder15204 { Name = "Mark", City = new TCity15204 { Name = "Leeds" }}}
+                    }
+                    });
+
+                    context.SaveChanges();
+
+                    ClearLog();
+                });
+
+        public class MyContext15204 : DbContext
+        {
+            public DbSet<TMandator15204> MandatorSet { get; set; }
+            public DbSet<TBuilding15204> BuildingSet { get; set; }
+            public DbSet<TBuilder15204> Builder { get; set; }
+            public DbSet<TCity15204> City { get; set; }
+
+            public MyContext15204(DbContextOptions options) : base(options)
+            {
+                ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
+                ChangeTracker.AutoDetectChangesEnabled = false;
+            }
+        }
+
+        public class TBuilding15204
+        {
+            public int Id { get; set; }
+            public Guid Identity { get; set; }
+            public string LongName { get; set; }
+            public int BuilderId { get; set; }
+            public TBuilder15204 Builder { get; set; }
+            public TMandator15204 Mandator { get; set; }
+            public int MandatorId { get; set; }
+        }
+
+        public class TBuilder15204
+        {
+            public int Id { get; set; }
+            public string Name { get; set; }
+            public int CityId { get; set; }
+            public TCity15204 City { get; set; }
+        }
+
+        public class TCity15204
+        {
+            public int Id { get; set; }
+            public string Name { get; set; }
+        }
+
+        public class TMandator15204
+        {
+            public int Id { get; set; }
+            public Guid Identity { get; set; }
+            public string Name { get; set; }
+            public virtual ICollection<TBuilding15204> Buildings { get; set; }
+        }
+
+        #endregion
 
         private DbContextOptions _options;
 
