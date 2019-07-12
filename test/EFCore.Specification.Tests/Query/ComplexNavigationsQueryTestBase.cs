@@ -6278,5 +6278,41 @@ namespace Microsoft.EntityFrameworkCore.Query
                 },
                 assertOrder: true);
         }
+
+        [ConditionalTheory(Skip = "Issue#16088")]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Null_check_removal_applied_recursively(bool isAsync)
+        {
+            return AssertQuery<Level1>(
+                isAsync,
+                l1s => l1s.Where(l1 =>
+                    ((((l1.OneToOne_Optional_FK1 == null
+                        ? null
+                        : l1.OneToOne_Optional_FK1.OneToOne_Optional_FK2) == null
+                            ? null
+                            : l1.OneToOne_Optional_FK1.OneToOne_Optional_FK2.OneToOne_Optional_FK3) == null
+                                ? null
+                                : l1.OneToOne_Optional_FK1.OneToOne_Optional_FK2.OneToOne_Optional_FK3) == null
+                                    ? null
+                                    : l1.OneToOne_Optional_FK1.OneToOne_Optional_FK2.OneToOne_Optional_FK3.Name) == "L4 01"));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Null_check_different_structure_does_not_remove_null_checks(bool isAsync)
+        {
+            return AssertQuery<Level1>(
+                isAsync,
+                l1s => l1s.Where(l1 =>
+                    (l1.OneToOne_Optional_FK1 == null
+                        ? null
+                        : l1.OneToOne_Optional_FK1.OneToOne_Optional_FK2 == null
+                            ? null
+                            : l1.OneToOne_Optional_FK1.OneToOne_Optional_FK2.OneToOne_Optional_FK3 == null
+                                ? null
+                                : l1.OneToOne_Optional_FK1.OneToOne_Optional_FK2.OneToOne_Optional_FK3 == null
+                                    ? null
+                                    : l1.OneToOne_Optional_FK1.OneToOne_Optional_FK2.OneToOne_Optional_FK3.Name) == "L4 01"));
+        }
     }
 }

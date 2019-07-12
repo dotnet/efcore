@@ -12,6 +12,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Pipeline
     {
         private readonly NullSafeAccessVerifyingExpressionVisitor _nullSafeAccessVerifyingExpressionVisitor
             = new NullSafeAccessVerifyingExpressionVisitor();
+        private readonly NullConditionalRemovingExpressionVisitor _nullConditionalRemovingExpressionVisitor
+            = new NullConditionalRemovingExpressionVisitor();
 
         public NullCheckRemovingExpressionVisitor()
         {
@@ -19,7 +21,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Pipeline
 
         protected override Expression VisitConditional(ConditionalExpression conditionalExpression)
         {
-            var test = conditionalExpression.Test;
+            var test = Visit(conditionalExpression.Test);
 
             if (test is BinaryExpression binaryTest
                 && (binaryTest.NodeType == ExpressionType.Equal
@@ -42,6 +44,15 @@ namespace Microsoft.EntityFrameworkCore.Query.Pipeline
                     ? conditionalExpression.IfFalse
                     : conditionalExpression.IfTrue;
 
+                // Unwrap nested nullConditional
+                if (caller is NullConditionalExpression nullConditionalCaller)
+                {
+                    accessOperation = ReplacingExpressionVisitor.Replace(
+                        _nullConditionalRemovingExpressionVisitor.Visit(nullConditionalCaller.AccessOperation),
+                        nullConditionalCaller,
+                        accessOperation);
+                }
+
                 if (_nullSafeAccessVerifyingExpressionVisitor.Verify(caller, accessOperation))
                 {
                     return new NullConditionalExpression(caller, accessOperation);
@@ -49,6 +60,19 @@ namespace Microsoft.EntityFrameworkCore.Query.Pipeline
             }
 
             return base.VisitConditional(conditionalExpression);
+        }
+
+        private class NullConditionalRemovingExpressionVisitor : ExpressionVisitor
+        {
+            public override Expression Visit(Expression expression)
+            {
+                if (expression is NullConditionalExpression nullConditionalExpression)
+                {
+                    return Visit(nullConditionalExpression.AccessOperation);
+                }
+
+                return base.Visit(expression);
+            }
         }
 
         private class NullSafeAccessVerifyingExpressionVisitor : ExpressionVisitor
