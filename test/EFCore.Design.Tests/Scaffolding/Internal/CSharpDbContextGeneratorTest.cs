@@ -159,11 +159,30 @@ namespace TestNamespace
                     }),
                 new ModelCodeGenerationOptions(),
                 code => Assert.Contains(
-                    ".HasColumn(\"An int property\")",
+                    ".HasComment(\"An int property\")",
                     code.ContextFile.Code),
                 model => Assert.Equal(
                     "An int property",
-                    model.FindEntityType("Entity").GetProperty("Property").GetComment()));
+                    model.FindEntityType("TestNamespace.Entity").GetProperty("Property").GetComment()));
+        }
+
+        [Fact]
+        public void Entity_comments_use_fluent_api()
+        {
+            Test(
+                modelBuilder => modelBuilder.Entity(
+                    "Entity",
+                    x =>
+                    {
+                        x.HasComment("An entity comment");
+                    }),
+                new ModelCodeGenerationOptions(),
+                code => Assert.Contains(
+                    ".HasComment(\"An entity comment\")",
+                    code.ContextFile.Code),
+                model => Assert.Equal(
+                    "An entity comment",
+                    model.FindEntityType("TestNamespace.Entity").GetComment()));
         }
 
         private class TestCodeGeneratorPlugin : ProviderCodeGeneratorPlugin

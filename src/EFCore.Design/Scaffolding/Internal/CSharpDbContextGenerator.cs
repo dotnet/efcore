@@ -357,6 +357,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             var annotations = entityType.GetAnnotations().ToList();
             RemoveAnnotation(ref annotations, CoreAnnotationNames.ConstructorBinding);
             RemoveAnnotation(ref annotations, RelationalAnnotationNames.TableName);
+            RemoveAnnotation(ref annotations, RelationalAnnotationNames.Comment);
             RemoveAnnotation(ref annotations, RelationalAnnotationNames.Schema);
             RemoveAnnotation(ref annotations, ScaffoldingAnnotationNames.DbSetName);
 
@@ -387,6 +388,13 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             }
 
             lines.AddRange(GenerateAnnotations(annotations.Except(annotationsToRemove)));
+
+            if (entityType.GetComment() != null)
+            {
+                lines.Add(
+                    $".{nameof(RelationalEntityTypeBuilderExtensions.HasComment)}" +
+                    $"({_code.Literal(entityType.GetComment())})");
+            }
 
             AppendMultiLineFluentApi(entityType, lines);
 

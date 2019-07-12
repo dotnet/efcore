@@ -1802,7 +1802,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         }
 
         [Fact]
-        public void Column_comments()
+        public void Column_and_table_comments()
         {
             var database = new DatabaseModel
             {
@@ -1811,6 +1811,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                     new DatabaseTable
                     {
                         Name = "Table",
+                        Comment = "A table",
                         Columns =
                         {
                             IdColumn,
@@ -1826,6 +1827,9 @@ namespace Microsoft.EntityFrameworkCore.Internal
             };
 
             var model = _factory.Create(database, useDatabaseNames: false);
+
+            var table = model.FindEntityType("Table");
+            Assert.Equal("A table", table.GetComment());
 
             var column = model.FindEntityType("Table").GetProperty("Column");
             Assert.Equal("An int column", column.GetComment());
