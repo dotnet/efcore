@@ -11,7 +11,6 @@ namespace Microsoft.EntityFrameworkCore.TestModels.MusicStore
     public class Order
     {
         [ScaffoldColumn(false)]
-        [DatabaseGenerated(DatabaseGeneratedOption.None)]
         public int OrderId { get; set; }
 
         [ScaffoldColumn(false)]

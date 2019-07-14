@@ -357,6 +357,26 @@ namespace Microsoft.EntityFrameworkCore
         [ConditionalFact]
         public abstract void Can_diff_against_2_2_model();
 
+        [ConditionalFact]
+        public abstract void Can_diff_against_3_0_ASP_NET_Identity_model();
+
+        [ConditionalFact]
+        public abstract void Can_diff_against_2_2_ASP_NET_Identity_model();
+
+        [ConditionalFact]
+        public abstract void Can_diff_against_2_1_ASP_NET_Identity_model();
+
+        protected virtual void DiffSnapshot(ModelSnapshot snapshot, DbContext context)
+        {
+            var sourceModel = snapshot.Model;
+            var targetModel = context.Model;
+
+            var modelDiffer = context.GetService<IMigrationsModelDiffer>();
+            var operations = modelDiffer.GetDifferences(sourceModel, targetModel);
+
+            Assert.Equal(0, operations.Count);
+        }
+
         protected virtual void BuildFirstMigration(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(

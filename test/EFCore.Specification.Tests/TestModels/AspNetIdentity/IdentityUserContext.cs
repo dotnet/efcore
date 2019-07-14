@@ -39,11 +39,17 @@ namespace Microsoft.EntityFrameworkCore.TestModels.AspNetIdentity
             }
         }
 
+        private class PersonalDataProtector : IPersonalDataProtector
+        {
+            public string Protect(string data) => data;
+            public string Unprotect(string data) => data;
+        }
+
         protected override void OnModelCreating(ModelBuilder builder)
         {
-            var maxKeyLength = 0;
-            var encryptPersonalData = false;
-            PersonalDataConverter converter = null;
+            const int maxKeyLength = 128;
+            const bool encryptPersonalData = true;
+            var converter = new PersonalDataConverter(new PersonalDataProtector());
 
             builder.Entity<TUser>(
                 b =>
@@ -60,7 +66,6 @@ namespace Microsoft.EntityFrameworkCore.TestModels.AspNetIdentity
 
                     if (encryptPersonalData)
                     {
-                        converter = new PersonalDataConverter(this.GetService<IPersonalDataProtector>());
                         var personalDataProps = typeof(TUser).GetProperties().Where(
                             prop => Attribute.IsDefined(prop, typeof(ProtectedPersonalDataAttribute)));
                         foreach (var p in personalDataProps)
