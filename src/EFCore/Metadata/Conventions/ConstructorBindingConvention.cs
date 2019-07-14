@@ -48,7 +48,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         {
             foreach (var entityType in modelBuilder.Metadata.GetEntityTypes())
             {
-                if (entityType.ClrType?.IsAbstract == false)
+                if (entityType.ClrType?.IsAbstract == false
+                    && entityType.Builder.CanSetAnnotation(CoreAnnotationNames.ConstructorBinding, null))
                 {
                     var maxServiceParams = 0;
                     var minPropertyParams = int.MaxValue;

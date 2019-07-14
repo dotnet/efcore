@@ -91,12 +91,12 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
         public override ExpressionType NodeType => ExpressionType.Extension;
         public override Type Type => EntityType.ClrType;
 
-        public ColumnExpression GetProperty(IProperty property)
+        public ColumnExpression BindProperty(IProperty property)
         {
             if (!EntityType.GetTypesInHierarchy().Contains(property.DeclaringEntityType))
             {
                 throw new InvalidOperationException(
-                    $"Called EntityProjectionExpression.GetProperty() with incorrect IProperty. EntityType:{EntityType.DisplayName()}, Property:{property.Name}");
+                    $"Called EntityProjectionExpression.BindProperty() with incorrect IProperty. EntityType:{EntityType.DisplayName()}, Property:{property.Name}");
             }
 
             if (!_propertyExpressionsCache.TryGetValue(property, out var expression))

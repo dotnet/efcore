@@ -11,7 +11,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Pipeline
 {
     public class SqlServerNewGuidTranslator : IMethodCallTranslator
     {
-        private static MethodInfo _methodInfo = typeof(Guid).GetRuntimeMethod(nameof(Guid.NewGuid), Array.Empty<Type>());
+        private static readonly MethodInfo _methodInfo = typeof(Guid).GetRuntimeMethod(nameof(Guid.NewGuid), Array.Empty<Type>());
         private readonly ISqlExpressionFactory _sqlExpressionFactory;
 
         public SqlServerNewGuidTranslator(ISqlExpressionFactory sqlExpressionFactory)

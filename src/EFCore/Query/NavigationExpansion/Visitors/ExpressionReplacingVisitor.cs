@@ -8,8 +8,8 @@ namespace Microsoft.EntityFrameworkCore.Query.NavigationExpansion.Visitors
 {
     public class ExpressionReplacingVisitor : ExpressionVisitor
     {
-        private Expression _searchedFor;
-        private Expression _replaceWith;
+        private readonly Expression _searchedFor;
+        private readonly Expression _replaceWith;
 
         public ExpressionReplacingVisitor(Expression searchedFor, Expression replaceWith)
         {

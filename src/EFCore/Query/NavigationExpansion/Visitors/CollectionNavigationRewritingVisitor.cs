@@ -76,8 +76,7 @@ namespace Microsoft.EntityFrameworkCore.Query.NavigationExpansion.Visitors
             if (methodCallExpression.Method.Name == nameof(List<int>.Contains)
                 && methodCallExpression.Arguments.Count == 1
                 && methodCallExpression.Object is NavigationBindingExpression navigationBindingCaller
-                && navigationBindingCaller.NavigationTreeNode.Navigation != null
-                && navigationBindingCaller.NavigationTreeNode.Navigation.IsCollection())
+                && navigationBindingCaller.NavigationTreeNode.IsCollection)
             {
                 var newCaller = RemoveMaterializeCollection(Visit(methodCallExpression.Object));
                 var newArgument = Visit(methodCallExpression.Arguments[0]);
@@ -141,17 +140,18 @@ namespace Microsoft.EntityFrameworkCore.Query.NavigationExpansion.Visitors
             return expression;
         }
 
-        public static Expression CreateCollectionNavigationExpression(NavigationTreeNode navigationTreeNode, ParameterExpression rootParameter, SourceMapping sourceMapping)
+        public static Expression CreateCollectionNavigationExpression(
+            NavigationTreeNode navigationTreeNode, ParameterExpression rootParameter, SourceMapping sourceMapping)
         {
             var collectionEntityType = navigationTreeNode.Navigation.ForeignKey.DeclaringEntityType;
             var entityQueryable = (Expression)NullAsyncQueryProvider.Instance.CreateEntityQueryableExpression(collectionEntityType.ClrType);
 
             var outerBinding = new NavigationBindingExpression(
-            rootParameter,
-            navigationTreeNode.Parent,
-            navigationTreeNode.Navigation.DeclaringEntityType,
-            sourceMapping,
-            navigationTreeNode.Navigation.DeclaringEntityType.ClrType);
+                rootParameter,
+                navigationTreeNode.Parent,
+                navigationTreeNode.Navigation.DeclaringEntityType,
+                sourceMapping,
+                navigationTreeNode.Navigation.DeclaringEntityType.ClrType);
 
             var outerKeyAccess = NavigationExpansionHelpers.CreateKeyAccessExpression(
                 outerBinding,
@@ -192,9 +192,9 @@ namespace Microsoft.EntityFrameworkCore.Query.NavigationExpansion.Visitors
             {
                 if (navigationBindingExpression.RootParameter == _sourceParameter
                     && navigationBindingExpression.NavigationTreeNode.Parent != null
-                    && navigationBindingExpression.NavigationTreeNode.Navigation is INavigation lastNavigation
-                    && lastNavigation.IsCollection())
+                    && navigationBindingExpression.NavigationTreeNode.IsCollection)
                 {
+                    var lastNavigation = navigationBindingExpression.NavigationTreeNode.Navigation;
                     return lastNavigation.ForeignKey.IsOwnership
                         ? NavigationExpansionHelpers.CreateNavigationExpansionRoot(navigationBindingExpression, lastNavigation.GetTargetType(), lastNavigation)
                         : CreateCollectionNavigationExpression(navigationBindingExpression.NavigationTreeNode, navigationBindingExpression.RootParameter, navigationBindingExpression.SourceMapping);

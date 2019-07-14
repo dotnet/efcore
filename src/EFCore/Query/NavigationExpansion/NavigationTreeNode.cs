@@ -3,6 +3,7 @@
 
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -24,19 +25,16 @@ namespace Microsoft.EntityFrameworkCore.Query.NavigationExpansion
             Parent = parent;
             Optional = optional;
             ToMapping = new List<string>();
+            IsCollection = navigation.IsCollection();
             if (include)
             {
-                ExpansionMode = NavigationTreeNodeExpansionMode.NotNeeded;
-                Included = navigation.IsCollection()
-                    ? NavigationTreeNodeIncludeMode.Collection
-                    : NavigationTreeNodeIncludeMode.ReferencePending;
+                ExpansionState = NavigationState.NotNeeded;
+                IncludeState = NavigationState.Pending;
             }
             else
             {
-                ExpansionMode = navigation.IsCollection()
-                    ? NavigationTreeNodeExpansionMode.Collection
-                    : NavigationTreeNodeExpansionMode.ReferencePending;
-                Included = NavigationTreeNodeIncludeMode.NotNeeded;
+                ExpansionState = NavigationState.Pending;
+                IncludeState = NavigationState.NotNeeded;
             }
 
             // for ownership don't mark for include or expansion
@@ -44,8 +42,14 @@ namespace Microsoft.EntityFrameworkCore.Query.NavigationExpansion
             // they will be expanded/translated later in the pipeline
             if (navigation.ForeignKey.IsOwnership)
             {
-                ExpansionMode = NavigationTreeNodeExpansionMode.NotNeeded;
-                Included = NavigationTreeNodeIncludeMode.NotNeeded;
+                if (include)
+                {
+                    IncludeState = NavigationState.Delayed;
+                }
+                else
+                {
+                    ExpansionState = NavigationState.Delayed;
+                }
 
                 ToMapping = parent.ToMapping.ToList();
                 ToMapping.Add(navigation.Name);
@@ -66,17 +70,17 @@ namespace Microsoft.EntityFrameworkCore.Query.NavigationExpansion
             Optional = optional;
             FromMappings.Add(fromMapping.ToList());
             ToMapping = fromMapping.ToList();
-            ExpansionMode = NavigationTreeNodeExpansionMode.ReferenceComplete;
-            Included = NavigationTreeNodeIncludeMode.NotNeeded;
+            ExpansionState = NavigationState.Complete;
+            IncludeState = NavigationState.NotNeeded;
         }
 
         public INavigation Navigation { get; private set; }
+        public bool IsCollection { get; private set; }
         public bool Optional { get; private set; }
         public NavigationTreeNode Parent { get; private set; }
         public List<NavigationTreeNode> Children { get; private set; } = new List<NavigationTreeNode>();
-        public NavigationTreeNodeExpansionMode ExpansionMode { get; set; }
-        public NavigationTreeNodeIncludeMode Included { get; set; }
-
+        public NavigationState ExpansionState { get; set; }
+        public NavigationState IncludeState { get; set; }
         public List<List<string>> FromMappings { get; set; } = new List<List<string>>();
         public List<string> ToMapping { get; set; }
 
@@ -101,22 +105,18 @@ namespace Microsoft.EntityFrameworkCore.Query.NavigationExpansion
             Check.NotNull(navigation, nameof(navigation));
             Check.NotNull(parent, nameof(parent));
 
-            var existingChild = parent.Children.Where(c => c.Navigation == navigation).SingleOrDefault();
+            var existingChild = parent.Children.SingleOrDefault(c => c.Navigation == navigation);
             if (existingChild != null)
             {
                 if (!navigation.ForeignKey.IsOwnership)
                 {
-                    if (include && existingChild.Included == NavigationTreeNodeIncludeMode.NotNeeded)
+                    if (include && existingChild.IncludeState == NavigationState.NotNeeded)
                     {
-                        existingChild.Included = navigation.IsCollection()
-                            ? NavigationTreeNodeIncludeMode.Collection
-                            : NavigationTreeNodeIncludeMode.ReferencePending;
+                        existingChild.IncludeState = NavigationState.Pending;
                     }
-                    else if (!include && existingChild.ExpansionMode == NavigationTreeNodeExpansionMode.NotNeeded)
+                    else if (!include && existingChild.ExpansionState == NavigationState.NotNeeded)
                     {
-                        existingChild.ExpansionMode = navigation.IsCollection()
-                            ? NavigationTreeNodeExpansionMode.Collection
-                            : NavigationTreeNodeExpansionMode.ReferencePending;
+                        existingChild.ExpansionState =  NavigationState.Pending;
                     }
                 }
 
@@ -146,6 +146,21 @@ namespace Microsoft.EntityFrameworkCore.Query.NavigationExpansion
         public void MakeOptional()
         {
             Optional = true;
+        }
+
+        public override string ToString()
+        {
+            var builder = new StringBuilder();
+            builder.Append("'");
+            builder.Append(Navigation?.Name ?? "");
+            builder.Append("' Expand: '");
+            builder.Append(ExpansionState);
+            builder.Append("' Include: '");
+            builder.Append(IncludeState);
+            builder.Append("' Children: ");
+            builder.Append(Children.Count);
+
+            return builder.ToString();
         }
     }
 }

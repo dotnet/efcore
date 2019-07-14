@@ -18,6 +18,7 @@ using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Query.Internal;
+using Microsoft.EntityFrameworkCore.Query.NavigationExpansion;
 using Microsoft.EntityFrameworkCore.Query.Pipeline;
 using Microsoft.EntityFrameworkCore.Storage;
 using Newtonsoft.Json.Linq;
@@ -83,15 +84,18 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Pipeline
             private static readonly MethodInfo _isNullMethodInfo
                 = typeof(CosmosProjectionBindingRemovingExpressionVisitor).GetTypeInfo().GetRuntimeMethods()
                     .Single(mi => mi.Name == nameof(IsNull));
+            private static readonly MethodInfo _isAssignableFromMethodInfo
+                = typeof(EntityTypeExtensions).GetMethod(nameof(EntityTypeExtensions.IsAssignableFrom), new[] { typeof(IEntityType), typeof(IEntityType) });
+            private static readonly MethodInfo _accessorAddRangeMethodInfo
+                = typeof(IClrCollectionAccessor).GetMethod(nameof(IClrCollectionAccessor.AddRange), new[] { typeof(object), typeof(IEnumerable<object>) });
 
-            private readonly SelectExpression _selectExpression;
-            private ParameterExpression _jObjectParameter;
             private readonly CosmosShapedQueryCompilingExpressionVisitor _shapedQueryCompilingExpressionVisitor;
+            private readonly SelectExpression _selectExpression;
 
-            private readonly IDictionary<ProjectionBindingExpression, Expression> _valueBufferBindings
-                = new Dictionary<ProjectionBindingExpression, Expression>();
             private readonly IDictionary<ParameterExpression, Expression> _materializationContextBindings
                 = new Dictionary<ParameterExpression, Expression>();
+            private ParameterExpression _jObjectParameter;
+            private EmbeddedNavigationInfo _currentEmbeddedNavigationInfo;
             private int _currentEntityIndex;
 
             public CosmosProjectionBindingRemovingExpressionVisitor(
@@ -169,125 +173,176 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Pipeline
 
             protected override Expression VisitExtension(Expression extensionExpression)
             {
-                if (extensionExpression is ProjectionBindingExpression projectionBindingExpression)
+                switch (extensionExpression)
                 {
-                    var projectionIndex = (int)GetProjectionIndex(projectionBindingExpression);
-                    var projection = _selectExpression.Projection[projectionIndex];
+                    case ProjectionBindingExpression projectionBindingExpression:
+                        {
+                            if (_currentEmbeddedNavigationInfo != null)
+                            {
+                                return extensionExpression;
+                            }
 
-                    return CreateGetStoreValueExpression(
-                        _jObjectParameter,
-                        projection.Alias,
-                        ((SqlExpression)projection.Expression).TypeMapping,
-                        projectionBindingExpression.Type);
-                }
+                            var projectionIndex = (int)GetProjectionIndex(projectionBindingExpression);
+                            var projection = _selectExpression.Projection[projectionIndex];
 
-                if (extensionExpression is EntityShaperExpression shaperExpression)
-                {
-                    _currentEntityIndex++;
+                            return CreateGetStoreValueExpression(
+                                _jObjectParameter,
+                                projection.Alias,
+                                ((SqlExpression)projection.Expression).TypeMapping,
+                                projectionBindingExpression.Type);
+                        }
+                    case EntityShaperExpression shaperExpression:
+                        {
+                            _currentEntityIndex++;
 
-                    var jObjectVariable = Expression.Variable(typeof(JObject),
-                        "jObject" + _currentEntityIndex);
-                    var variables = new List<ParameterExpression> { jObjectVariable };
+                            var jObjectVariable = Expression.Variable(typeof(JObject),
+                                "jObject" + _currentEntityIndex);
+                            var variables = new List<ParameterExpression> { jObjectVariable };
 
-                    var expressions = new List<Expression>();
+                            var expressions = new List<Expression>();
+                            var valueBufferExpression = shaperExpression.ValueBufferExpression;
+                            if (_currentEmbeddedNavigationInfo?.Navigation == null)
+                            {
+                                var projectionIndex = (int)GetProjectionIndex((ProjectionBindingExpression)valueBufferExpression);
+                                var projection = _selectExpression.Projection[projectionIndex];
 
-                    if (shaperExpression.ParentNavigation == null)
-                    {
-                        var projectionIndex = (int)GetProjectionIndex((ProjectionBindingExpression)shaperExpression.ValueBufferExpression);
-                        var projection = _selectExpression.Projection[projectionIndex];
+                                expressions.Add(
+                                    Expression.Assign(
+                                        jObjectVariable,
+                                        Expression.TypeAs(
+                                            CreateReadJTokenExpression(_jObjectParameter, projection.Alias),
+                                            typeof(JObject))));
+                            }
+                            else
+                            {
+                                expressions.Add(
+                                    Expression.Assign(
+                                        jObjectVariable,
+                                        Expression.TypeAs(
+                                            CreateReadJTokenExpression(
+                                                _jObjectParameter,
+                                                _currentEmbeddedNavigationInfo.Navigation.GetTargetType().GetCosmosContainingPropertyName()),
+                                            typeof(JObject))));
+                            }
 
-                        expressions.Add(
-                            Expression.Assign(
-                                jObjectVariable,
-                                Expression.TypeAs(
-                                    CreateReadJTokenExpression(_jObjectParameter, projection.Alias),
-                                    typeof(JObject))));
+                            var parentJObject = _jObjectParameter;
+                            _jObjectParameter = jObjectVariable;
 
-                        shaperExpression = shaperExpression.Update(
-                            shaperExpression.ValueBufferExpression,
-                            GetNestedShapers(shaperExpression.EntityType, shaperExpression.ValueBufferExpression));
-                    }
-                    else
-                    {
-                        var methodCallExpression = (MethodCallExpression)shaperExpression.ValueBufferExpression;
-                        Debug.Assert(methodCallExpression.Method.IsGenericMethod
-                            && methodCallExpression.Method.GetGenericMethodDefinition() == EntityMaterializerSource.TryReadValueMethod);
+                            var materializerExpression = Visit(_shapedQueryCompilingExpressionVisitor.InjectEntityMaterializer(shaperExpression));
+                            materializerExpression = InjectEmbeddedMaterializers(materializerExpression, valueBufferExpression);
 
-                        var navigation = (INavigation)((ConstantExpression)methodCallExpression.Arguments[2]).Value;
+                            _jObjectParameter = parentJObject;
 
-                        expressions.Add(
-                            Expression.Assign(
-                                jObjectVariable,
-                                Expression.TypeAs(
-                                    CreateReadJTokenExpression(_jObjectParameter, navigation.GetTargetType().GetCosmosContainingPropertyName()),
-                                    typeof(JObject))));
-                    }
+                            expressions.Add(Expression.Condition(
+                                Expression.Equal(jObjectVariable, Expression.Constant(null, jObjectVariable.Type)),
+                                Expression.Constant(null, shaperExpression.Type),
+                                materializerExpression));
 
-                    var parentJObject = _jObjectParameter;
-                    _jObjectParameter = jObjectVariable;
-                    expressions.Add(Expression.Condition(
-                        Expression.Equal(jObjectVariable, Expression.Constant(null, jObjectVariable.Type)),
-                        Expression.Constant(null, shaperExpression.Type),
-                        Visit(_shapedQueryCompilingExpressionVisitor.InjectEntityMaterializer(shaperExpression))));
-                    _jObjectParameter = parentJObject;
+                            return Expression.Block(
+                                shaperExpression.Type,
+                                variables,
+                                expressions);
+                        }
+                    case IncludeExpression includeExpression:
+                        var fk = includeExpression.Navigation.ForeignKey;
+                        if (includeExpression.Navigation.IsDependentToPrincipal()
+                            || fk.DeclaringEntityType.IsDocumentRoot())
+                        {
+                            throw new InvalidOperationException("Non-embedded IncludeExpression " + new ExpressionPrinter().Print(includeExpression));
+                        }
 
-                    return Expression.Block(
-                        shaperExpression.Type,
-                        variables,
-                        expressions);
-                }
+                        var parentNavigation = _currentEmbeddedNavigationInfo ?? new EmbeddedNavigationInfo();
+                        _currentEmbeddedNavigationInfo = new EmbeddedNavigationInfo(includeExpression.Navigation);
 
-                if (extensionExpression is CollectionShaperExpression collectionShaperExpression)
-                {
-                    throw new NotImplementedException();
+                        Visit(includeExpression.NavigationExpression);
+
+                        parentNavigation.EmbeddedNavigations.Add(_currentEmbeddedNavigationInfo);
+                        _currentEmbeddedNavigationInfo = parentNavigation;
+
+                        return Visit(includeExpression.EntityExpression);
                 }
 
                 return base.VisitExtension(extensionExpression);
             }
 
-            private List<EntityShaperExpression> GetNestedShapers(IEntityType entityType, Expression valueBufferExpression)
+            private Expression InjectEmbeddedMaterializers(Expression materializerExpression, Expression valueBufferExpression)
             {
-                var nestedEntities = new List<EntityShaperExpression>();
-                foreach (var ownedNavigation in entityType.GetNavigations().Concat(entityType.GetDerivedNavigations()))
+                if (_currentEmbeddedNavigationInfo == null
+                    || _currentEmbeddedNavigationInfo.EmbeddedNavigations.Count <= 0
+                    || !(materializerExpression is BlockExpression blockExpression))
                 {
-                    var fk = ownedNavigation.ForeignKey;
-                    if (!fk.IsOwnership
-                        || ownedNavigation.IsDependentToPrincipal()
-                        || fk.DeclaringEntityType.IsDocumentRoot())
-                    {
-                        continue;
-                    }
-
-                    var targetType = ownedNavigation.GetTargetType();
-
-                    var nestedValueBufferExpression = _shapedQueryCompilingExpressionVisitor.CreateReadValueExpression(
-                                valueBufferExpression,
-                                valueBufferExpression.Type,
-                                ownedNavigation.GetIndex(),
-                                ownedNavigation);
-
-                    var nestedShaper = new EntityShaperExpression(
-                        targetType, nestedValueBufferExpression, nullable: true, ownedNavigation,
-                        GetNestedShapers(targetType, nestedValueBufferExpression));
-                    nestedEntities.Add(nestedShaper);
+                    return materializerExpression;
                 }
 
-                return nestedEntities.Count == 0 ? null : nestedEntities;
+                var expressions = new List<Expression>(blockExpression.Expressions);
+                var instanceVariable = expressions[expressions.Count - 1];
+                expressions.RemoveAt(expressions.Count - 1);
+
+                var concreteEntityTypeVariableName = "entityType" + _currentEntityIndex;
+                var concreteEntityTypeVariable = blockExpression.Variables.Single(v => v.Name == concreteEntityTypeVariableName);
+
+                var embeddedExpressions = new List<Expression>(blockExpression.Expressions);
+                var parentEmbeddedNavigationInfo = _currentEmbeddedNavigationInfo;
+                foreach (var embeddedNavigation in parentEmbeddedNavigationInfo.EmbeddedNavigations)
+                {
+                    var navigation = embeddedNavigation.Navigation;
+                    var embeddedValueBufferExpression = _shapedQueryCompilingExpressionVisitor.CreateReadValueExpression(
+                        valueBufferExpression,
+                        valueBufferExpression.Type,
+                        navigation.GetIndex(),
+                        navigation);
+
+                    _currentEmbeddedNavigationInfo = embeddedNavigation;
+                    var embeddedShaper = Visit(
+                        new EntityShaperExpression(navigation.GetTargetType(), embeddedValueBufferExpression, nullable: true));
+
+                    var navigationMemberInfo = navigation.GetMemberInfo(forConstruction: true, forSet: true);
+                    var convertedInstanceVariable = navigationMemberInfo.DeclaringType.IsAssignableFrom(instanceVariable.Type)
+                        ? instanceVariable
+                        : Expression.Convert(instanceVariable, navigationMemberInfo.DeclaringType);
+
+                    Expression navigationExpression;
+                    if (navigation.IsCollection())
+                    {
+                        var accessorExpression = Expression.Constant(new ClrCollectionAccessorFactory().Create(navigation));
+                        navigationExpression = Expression.Call(accessorExpression, _accessorAddRangeMethodInfo,
+                            convertedInstanceVariable, new CollectionShaperExpression(null, embeddedShaper, navigation, null));
+                        throw new NotImplementedException();
+                    }
+                    else
+                    {
+                        navigationExpression = Expression.Assign(Expression.MakeMemberAccess(
+                                convertedInstanceVariable,
+                                navigationMemberInfo),
+                            embeddedShaper);
+                    }
+
+                    var embeddedMaterializer = Expression.IfThen(
+                        Expression.Call(_isAssignableFromMethodInfo,
+                            Expression.Constant(navigation.DeclaringEntityType),
+                            concreteEntityTypeVariable),
+                           navigationExpression);
+
+                    embeddedExpressions.Add(embeddedMaterializer);
+                }
+                _currentEmbeddedNavigationInfo = parentEmbeddedNavigationInfo;
+
+                expressions.Add(Expression.IfThen(
+                    Expression.NotEqual(instanceVariable, Expression.Constant(null, instanceVariable.Type)),
+                    Expression.Block(embeddedExpressions)));
+                expressions.Add(instanceVariable);
+                return blockExpression.Update(blockExpression.Variables, expressions);
             }
 
             private object GetProjectionIndex(ProjectionBindingExpression projectionBindingExpression)
-            {
-                return projectionBindingExpression.ProjectionMember != null
+                => projectionBindingExpression.ProjectionMember != null
                     ? ((ConstantExpression)_selectExpression.GetMappedProjection(projectionBindingExpression.ProjectionMember)).Value
                     : (projectionBindingExpression.Index != null
                         ? projectionBindingExpression.Index
                         : throw new InvalidOperationException());
-            }
 
             private static Expression CreateReadJTokenExpression(Expression jObjectExpression, string propertyName)
-            {
-                return Expression.Call(jObjectExpression, _getItemMethodInfo, Expression.Constant(propertyName));
-            }
+                => Expression.Call(jObjectExpression, _getItemMethodInfo, Expression.Constant(propertyName));
 
             private static Expression CreateGetValueExpression(
                 Expression jObjectExpression,
@@ -360,6 +415,21 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Pipeline
 
             private static bool IsNull(JToken token)
                 => token == null || token.Type == JTokenType.Null;
+
+            private class EmbeddedNavigationInfo
+            {
+                public EmbeddedNavigationInfo()
+                {
+                }
+
+                public EmbeddedNavigationInfo(INavigation navigation)
+                {
+                    Navigation = navigation;
+                }
+
+                public INavigation Navigation { get; }
+                public List<EmbeddedNavigationInfo> EmbeddedNavigations { get; } = new List<EmbeddedNavigationInfo>();
+            }
         }
 
         private class QueryingEnumerable<T> : IEnumerable<T>
@@ -571,7 +641,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Pipeline
         private class InExpressionValuesExpandingExpressionVisitor : ExpressionVisitor
         {
             private readonly ISqlExpressionFactory _sqlExpressionFactory;
-            private IReadOnlyDictionary<string, object> _parametersValues;
+            private readonly IReadOnlyDictionary<string, object> _parametersValues;
 
             public InExpressionValuesExpandingExpressionVisitor(
                 ISqlExpressionFactory sqlExpressionFactory, IReadOnlyDictionary<string, object> parametersValues)

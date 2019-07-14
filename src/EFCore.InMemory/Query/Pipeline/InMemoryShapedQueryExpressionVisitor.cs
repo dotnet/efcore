@@ -24,6 +24,8 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Pipeline
     {
         private readonly Type _contextType;
         private readonly IDiagnosticsLogger<DbLoggerCategory.Query> _logger;
+        private static readonly ConstructorInfo _valueBufferConstructor
+            = typeof(ValueBuffer).GetConstructors().Single(ci => ci.GetParameters().Length == 1);
 
         public InMemoryShapedQueryCompilingExpressionVisitor(
             QueryCompilationContext queryCompilationContext,
@@ -40,12 +42,11 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Pipeline
             {
                 case InMemoryQueryExpression inMemoryQueryExpression:
                     inMemoryQueryExpression.ApplyServerProjection();
-
                     return Visit(inMemoryQueryExpression.ServerQueryExpression);
 
                 case InMemoryTableExpression inMemoryTableExpression:
                     return Expression.Call(
-                        _queryMethodInfo,
+                        _tableMethodInfo,
                         QueryCompilationContext.QueryContextParameter,
                         Expression.Constant(inMemoryTableExpression.EntityType));
             }
@@ -53,21 +54,21 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Pipeline
             return base.VisitExtension(extensionExpression);
         }
 
-
         protected override Expression VisitShapedQueryExpression(ShapedQueryExpression shapedQueryExpression)
         {
             var shaperBody = InjectEntityMaterializer(shapedQueryExpression.ShaperExpression);
 
             var innerEnumerable = Visit(shapedQueryExpression.QueryExpression);
 
-            var newBody = new InMemoryProjectionBindingRemovingExpressionVisitor(
-                (InMemoryQueryExpression)shapedQueryExpression.QueryExpression)
+            var inMemoryQueryExpression = (InMemoryQueryExpression)shapedQueryExpression.QueryExpression;
+
+            var newBody = new InMemoryProjectionBindingRemovingExpressionVisitor(inMemoryQueryExpression)
                 .Visit(shaperBody);
 
             var shaperLambda = Expression.Lambda(
                 newBody,
                 QueryCompilationContext.QueryContextParameter,
-                InMemoryQueryExpression.ValueBufferParameter);
+                inMemoryQueryExpression.ValueBufferParameter);
 
             return Expression.New(
                 (Async
@@ -80,11 +81,11 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Pipeline
                 Expression.Constant(_logger));
         }
 
-        private static readonly MethodInfo _queryMethodInfo
+        private static readonly MethodInfo _tableMethodInfo
             = typeof(InMemoryShapedQueryCompilingExpressionVisitor).GetTypeInfo()
-                .GetDeclaredMethod(nameof(Query));
+                .GetDeclaredMethod(nameof(Table));
 
-        private static IEnumerable<ValueBuffer> Query(
+        private static IEnumerable<ValueBuffer> Table(
             QueryContext queryContext,
             IEntityType entityType)
         {
@@ -265,8 +266,8 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Pipeline
         private class InMemoryProjectionBindingRemovingExpressionVisitor : ExpressionVisitor
         {
             private readonly InMemoryQueryExpression _queryExpression;
-            private readonly IDictionary<ParameterExpression, int> _materializationContextBindings
-                = new Dictionary<ParameterExpression, int>();
+            private readonly IDictionary<ParameterExpression, IDictionary<IProperty, int>> _materializationContextBindings
+                = new Dictionary<ParameterExpression, IDictionary<IProperty, int>>();
 
             public InMemoryProjectionBindingRemovingExpressionVisitor(InMemoryQueryExpression queryExpression)
             {
@@ -281,10 +282,10 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Pipeline
                 {
                     var newExpression = (NewExpression)binaryExpression.Right;
 
-                    var innerExpression = Visit(newExpression.Arguments[0]);
+                    var projectionBindingExpression = (ProjectionBindingExpression)newExpression.Arguments[0];
 
-                    var entityStartIndex = ((EntityProjectionExpression)innerExpression).StartIndex;
-                    _materializationContextBindings[parameterExpression] = entityStartIndex;
+                    _materializationContextBindings[parameterExpression]
+                        = (IDictionary<IProperty, int>)GetProjectionIndex(projectionBindingExpression);
 
                     var updatedExpression = Expression.New(newExpression.Constructor,
                         Expression.Constant(ValueBuffer.Empty),
@@ -301,15 +302,13 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Pipeline
                 if (methodCallExpression.Method.IsGenericMethod
                     && methodCallExpression.Method.GetGenericMethodDefinition() == EntityMaterializerSource.TryReadValueMethod)
                 {
-                    var originalIndex = (int)((ConstantExpression)methodCallExpression.Arguments[1]).Value;
-                    var indexOffset = methodCallExpression.Arguments[0] is ProjectionBindingExpression projectionBindingExpression
-                        ? ((EntityProjectionExpression)_queryExpression.GetMappedProjection(projectionBindingExpression.ProjectionMember)).StartIndex
-                        : _materializationContextBindings[(ParameterExpression)((MethodCallExpression)methodCallExpression.Arguments[0]).Object];
+                    var property = (IProperty)((ConstantExpression)methodCallExpression.Arguments[2]).Value;
+                    var indexMap = _materializationContextBindings[(ParameterExpression)((MethodCallExpression)methodCallExpression.Arguments[0]).Object];
 
                     return Expression.Call(
                         methodCallExpression.Method,
-                        InMemoryQueryExpression.ValueBufferParameter,
-                        Expression.Constant(indexOffset + originalIndex),
+                        _queryExpression.ValueBufferParameter,
+                        Expression.Constant(indexMap[property]),
                         methodCallExpression.Arguments[2]);
                 }
 
@@ -320,10 +319,37 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Pipeline
             {
                 if (extensionExpression is ProjectionBindingExpression projectionBindingExpression)
                 {
-                    return _queryExpression.GetMappedProjection(projectionBindingExpression.ProjectionMember);
+                    var projectionIndex = (int)GetProjectionIndex(projectionBindingExpression);
+
+                    return Expression.Call(
+                        EntityMaterializerSource.TryReadValueMethod.MakeGenericMethod(projectionBindingExpression.Type),
+                        _queryExpression.ValueBufferParameter,
+                        Expression.Constant(projectionIndex),
+                        Expression.Constant(InferPropertyFromInner(_queryExpression.Projection[projectionIndex]), typeof(IPropertyBase)));
                 }
 
                 return base.VisitExtension(extensionExpression);
+            }
+
+            private IPropertyBase InferPropertyFromInner(Expression expression)
+            {
+                if (expression is MethodCallExpression methodCallExpression
+                    && methodCallExpression.Method.IsGenericMethod
+                    && methodCallExpression.Method.GetGenericMethodDefinition() == EntityMaterializerSource.TryReadValueMethod)
+                {
+                    return (IPropertyBase)((ConstantExpression)methodCallExpression.Arguments[2]).Value;
+                }
+
+                return null;
+            }
+
+            private object GetProjectionIndex(ProjectionBindingExpression projectionBindingExpression)
+            {
+                return projectionBindingExpression.ProjectionMember != null
+                    ? ((ConstantExpression)_queryExpression.GetMappedProjection(projectionBindingExpression.ProjectionMember)).Value
+                    : (projectionBindingExpression.Index != null
+                        ? (object)projectionBindingExpression.Index
+                        : projectionBindingExpression.IndexMap);
             }
         }
     }

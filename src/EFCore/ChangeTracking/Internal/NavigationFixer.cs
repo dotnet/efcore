@@ -513,8 +513,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 {
                     InitialFixup(entry, null, fromQuery: false);
                 }
-                else if (entry.EntityState == EntityState.Detached
-                         && oldState == EntityState.Deleted)
+                else if (entry.EntityState == EntityState.Detached)
                 {
                     DeleteFixup(entry);
                 }
@@ -588,11 +587,17 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     var principalEntry = stateManager.FindPrincipal(entry, foreignKey);
                     if (principalEntry != null)
                     {
-                        // Set navigation to principal based on FK properties
-                        SetNavigation(entry, foreignKey.DependentToPrincipal, principalEntry);
+                        var navigation = foreignKey.DependentToPrincipal;
+                        var existingPrincipal = navigation == null ? null : entry[navigation];
+                        if (existingPrincipal == null
+                            || existingPrincipal == principalEntry.Entity)
+                        {
+                            // Set navigation to principal based on FK properties
+                            SetNavigation(entry, navigation, principalEntry);
 
-                        // Add this entity to principal's collection, or set inverse for 1:1
-                        ToDependentFixup(entry, principalEntry, foreignKey);
+                            // Add this entity to principal's collection, or set inverse for 1:1
+                            ToDependentFixup(entry, principalEntry, foreignKey);
+                        }
                     }
                 }
             }

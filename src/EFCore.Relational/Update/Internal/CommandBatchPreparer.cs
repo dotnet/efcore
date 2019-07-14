@@ -718,8 +718,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
                         if (valueFactory.TryCreateFromOriginalValues(
                             (InternalEntityEntry)entry, out var indexValue))
                         {
-                            predecessorsMap = predecessorsMap ??
-                                              new Dictionary<IIndex, Dictionary<object[], ModificationCommand>>();
+                            predecessorsMap ??=                                               new Dictionary<IIndex, Dictionary<object[], ModificationCommand>>();
                             if (!predecessorsMap.TryGetValue(index, out var predecessorCommands))
                             {
                                 predecessorCommands =

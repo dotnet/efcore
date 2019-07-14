@@ -21,7 +21,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query
             //TestLoggerFactory.TestOutputHelper = testOutputHelper;
         }
 
-        [ConditionalFact(Skip = "#16392")]
+        [ConditionalFact(Skip = "Issue#16392")]
         public override void Navigation_rewrite_on_owned_collection()
         {
             base.Navigation_rewrite_on_owned_collection();
@@ -31,19 +31,19 @@ FROM root c
 WHERE ((c[""Discriminator""] = ""LeafB"") OR ((c[""Discriminator""] = ""LeafA"") OR ((c[""Discriminator""] = ""Branch"") OR (c[""Discriminator""] = ""OwnedPerson""))))");
         }
 
-        [ConditionalFact(Skip = "#16392")]
+        [ConditionalFact(Skip = "Issue#16392")]
         public override void Navigation_rewrite_on_owned_collection_with_composition()
         {
             base.Navigation_rewrite_on_owned_collection_with_composition();
         }
 
-        [ConditionalFact(Skip = "#16392")]
+        [ConditionalFact(Skip = "Issue#16392")]
         public override void Navigation_rewrite_on_owned_collection_with_composition_complex()
         {
             base.Navigation_rewrite_on_owned_collection_with_composition_complex();
         }
 
-        [ConditionalFact(Skip = "Owned collection #12086")]
+        [ConditionalFact(Skip = "Owned projection #12086")]
         public override void Navigation_rewrite_on_owned_reference_projecting_entity()
         {
             base.Navigation_rewrite_on_owned_reference_projecting_entity();
@@ -58,18 +58,33 @@ WHERE (((c[""Discriminator""] = ""LeafB"") OR ((c[""Discriminator""] = ""LeafA""
         public override void Query_for_base_type_loads_all_owned_navs()
         {
             base.Query_for_base_type_loads_all_owned_navs();
+
+            AssertSql(
+                @"SELECT c
+FROM root c
+WHERE (((c[""Discriminator""] = ""LeafB"") OR ((c[""Discriminator""] = ""LeafA"") OR ((c[""Discriminator""] = ""Branch"") OR (c[""Discriminator""] = ""OwnedPerson"")))) AND (c[""PersonAddress""][""Country""][""Name""] = ""USA""))");
         }
 
         [ConditionalFact(Skip = "Owned collection #12086")]
         public override void Query_for_branch_type_loads_all_owned_navs()
         {
             base.Query_for_branch_type_loads_all_owned_navs();
+
+            AssertSql(
+                @"SELECT c
+FROM root c
+WHERE (((c[""Discriminator""] = ""LeafB"") OR ((c[""Discriminator""] = ""LeafA"") OR ((c[""Discriminator""] = ""Branch"") OR (c[""Discriminator""] = ""OwnedPerson"")))) AND (c[""PersonAddress""][""Country""][""Name""] = ""USA""))");
         }
 
         [ConditionalFact(Skip = "Owned collection #12086")]
         public override void Query_for_leaf_type_loads_all_owned_navs()
         {
             base.Query_for_leaf_type_loads_all_owned_navs();
+
+            AssertSql(
+                @"SELECT c
+FROM root c
+WHERE (((c[""Discriminator""] = ""LeafB"") OR ((c[""Discriminator""] = ""LeafA"") OR ((c[""Discriminator""] = ""Branch"") OR (c[""Discriminator""] = ""OwnedPerson"")))) AND (c[""PersonAddress""][""Country""][""Name""] = ""USA""))");
         }
 
         [ConditionalFact(Skip = "LeftJoin #12086")]

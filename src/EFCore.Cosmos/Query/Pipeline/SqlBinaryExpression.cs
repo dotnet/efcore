@@ -12,7 +12,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Pipeline
 {
     public class SqlBinaryExpression : SqlExpression
     {
-        private static ISet<ExpressionType> _allowedOperators = new HashSet<ExpressionType>
+        private static readonly ISet<ExpressionType> _allowedOperators = new HashSet<ExpressionType>
         {
             ExpressionType.Add,
             ExpressionType.Subtract,

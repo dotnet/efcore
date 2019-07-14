@@ -39,7 +39,5 @@ namespace Microsoft.EntityFrameworkCore.Query.NavigationExpansion
                 ? new MaterializeCollectionNavigationExpression(subquery, Navigation)
                 : this;
         }
-
-
     }
 }

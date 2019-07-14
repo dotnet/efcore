@@ -21,6 +21,11 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Pipeline
         public IEntityType EntityType { get; }
 
         public override ExpressionType NodeType => ExpressionType.Extension;
+
+        protected override Expression VisitChildren(ExpressionVisitor visitor)
+        {
+            return this;
+        }
     }
 
 }

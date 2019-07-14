@@ -35,7 +35,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Pipeline
                 nameof(SqlServerDbFunctionsExtensions.Contains),
                 new[] { typeof(DbFunctions), typeof(string), typeof(string), typeof(int) });
 
-        private static IDictionary<MethodInfo, string> _functionMapping
+        private static readonly IDictionary<MethodInfo, string> _functionMapping
             = new Dictionary<MethodInfo, string>
             {
                 {_freeTextMethodInfo, FreeTextFunctionName },

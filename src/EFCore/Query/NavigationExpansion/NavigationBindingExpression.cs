@@ -50,16 +50,15 @@ namespace Microsoft.EntityFrameworkCore.Query.NavigationExpansion
 
         public virtual void Print(ExpressionPrinter expressionPrinter)
         {
-            expressionPrinter.StringBuilder.Append("BINDING([" + EntityType.ClrType.ShortDisplayName() + "] | from: ");
-            expressionPrinter.StringBuilder.Append(string.Join(".", NavigationTreeNode.FromMappings.First()) + " to: ");
+            expressionPrinter.StringBuilder.Append("BINDING([" + EntityType.ClrType.ShortDisplayName() + "] from: '");
+            expressionPrinter.StringBuilder.Append(string.Join(".", NavigationTreeNode.FromMappings.First()) + "' to: '");
             expressionPrinter.Visit(RootParameter);
             if (NavigationTreeNode.ToMapping.Count > 0)
             {
                 expressionPrinter.StringBuilder.Append(".");
                 expressionPrinter.StringBuilder.Append(string.Join(".", NavigationTreeNode.ToMapping));
             }
-
-            expressionPrinter.StringBuilder.Append(")");
+            expressionPrinter.StringBuilder.Append("')");
         }
     }
 }

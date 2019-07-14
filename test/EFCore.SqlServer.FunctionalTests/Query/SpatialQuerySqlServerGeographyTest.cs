@@ -237,9 +237,20 @@ FROM [PointEntity] AS [p]");
             await base.Distance_on_converted_geometry_type(isAsync);
 
             AssertSql(
-                @"@__point_0='0xE6100000010C000000000000F03F0000000000000000' (Nullable = false) (Size = 22) (DbType = Binary)
+                @"@__point_0='0xE6100000010C000000000000F03F0000000000000000' (Nullable = false) (Size = 22) (DbType = Object)
 
 SELECT [g].[Id], [g].[Location].STDistance(@__point_0) AS [Distance]
+FROM [GeoPointEntity] AS [g]");
+        }
+
+        public override async Task Distance_on_converted_geometry_type_lhs(bool isAsync)
+        {
+            await base.Distance_on_converted_geometry_type_lhs(isAsync);
+
+            AssertSql(
+                @"@__point_0='0xE6100000010C000000000000F03F0000000000000000' (Nullable = false) (Size = 22) (DbType = Object)
+
+SELECT [g].[Id], @__point_0.STDistance([g].[Location]) AS [Distance]
 FROM [GeoPointEntity] AS [g]");
         }
 
@@ -276,7 +287,7 @@ FROM [LineStringEntity] AS [l]");
 
             // issue #15994
 //            AssertSql(
-//                @"@__point_0='0xE6100000010C00000000000000000000000000000000' (Size = 22) (DbType = Binary)
+//                @"@__point_0='0xE6100000010C00000000000000000000000000000000' (Size = 22) (DbType = Object)
 
 //SELECT [e].[Id], [e].[Point].STEquals(@__point_0) AS [EqualsTopologically]
 //FROM [PointEntity] AS [e]");
@@ -344,7 +355,7 @@ FROM [PolygonEntity] AS [p]");
 
             // issue #15994
 //            AssertSql(
-//                @"@__polygon_0='0xE610000001040400000000000000000000000000000000000000000000000000...' (Size = 96) (DbType = Binary)
+//                @"@__polygon_0='0xE610000001040400000000000000000000000000000000000000000000000000...' (Size = 96) (DbType = Object)
 
 //SELECT [e].[Id], [e].[Polygon].STIntersection(@__polygon_0) AS [Intersection]
 //FROM [PolygonEntity] AS [e]");
@@ -356,7 +367,7 @@ FROM [PolygonEntity] AS [p]");
 
             // issue #15994
 //            AssertSql(
-//                @"@__lineString_0='0xE61000000114000000000000E0BF000000000000E03F000000000000E03F0000...' (Size = 38) (DbType = Binary)
+//                @"@__lineString_0='0xE61000000114000000000000E0BF000000000000E03F000000000000E03F0000...' (Size = 38) (DbType = Object)
 
 //SELECT [e].[Id], [e].[LineString].STIntersects(@__lineString_0) AS [Intersects]
 //FROM [LineStringEntity] AS [e]");
@@ -415,7 +426,7 @@ FROM [PointEntity] AS [p]");
             await base.IsWithinDistance(isAsync);
 
             AssertSql(
-                @"@__point_0='0xE6100000010C000000000000F03F0000000000000000' (Size = 22) (DbType = Binary)
+                @"@__point_0='0xE6100000010C000000000000F03F0000000000000000' (Size = 22) (DbType = Object)
 
 SELECT [p].[Id], CASE
     WHEN [p].[Point] IS NULL THEN NULL
@@ -509,7 +520,7 @@ FROM [PointEntity] AS [p]");
 
             // issue #15994
 //            AssertSql(
-//                @"@__polygon_0='0xE610000001040400000000000000000000000000000000000000000000000000...' (Size = 96) (DbType = Binary)
+//                @"@__polygon_0='0xE610000001040400000000000000000000000000000000000000000000000000...' (Size = 96) (DbType = Object)
 
 //SELECT [e].[Id], [e].[Polygon].STOverlaps(@__polygon_0) AS [Overlaps]
 //FROM [PolygonEntity] AS [e]");
@@ -566,7 +577,7 @@ FROM [LineStringEntity] AS [l]");
 
             // issue #15994
 //            AssertSql(
-//                @"@__polygon_0='0xE610000001040400000000000000000000000000000000000000000000000000...' (Size = 96) (DbType = Binary)
+//                @"@__polygon_0='0xE610000001040400000000000000000000000000000000000000000000000000...' (Size = 96) (DbType = Object)
 
 //SELECT [e].[Id], [e].[Polygon].STSymDifference(@__polygon_0) AS [SymmetricDifference]
 //FROM [PolygonEntity] AS [e]");
@@ -604,7 +615,7 @@ FROM [LineStringEntity] AS [l]");
 
             // issue #15994
 //            AssertSql(
-//                @"@__polygon_0='0xE610000001040400000000000000000000000000000000000000000000000000...' (Size = 96) (DbType = Binary)
+//                @"@__polygon_0='0xE610000001040400000000000000000000000000000000000000000000000000...' (Size = 96) (DbType = Object)
 
 //SELECT [e].[Id], [e].[Polygon].STUnion(@__polygon_0) AS [Union]
 //FROM [PolygonEntity] AS [e]");
@@ -622,7 +633,7 @@ FROM [LineStringEntity] AS [l]");
 
             // issue #15994
 //            AssertSql(
-//                @"@__polygon_0='0xE6100000010405000000000000000000F0BF000000000000F0BF000000000000...' (Size = 112) (DbType = Binary)
+//                @"@__polygon_0='0xE6100000010405000000000000000000F0BF000000000000F0BF000000000000...' (Size = 112) (DbType = Object)
 
 //SELECT [e].[Id], [e].[Point].STWithin(@__polygon_0) AS [Within]
 //FROM [PointEntity] AS [e]");

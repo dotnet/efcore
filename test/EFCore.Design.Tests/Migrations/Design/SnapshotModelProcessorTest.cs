@@ -107,7 +107,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         [ConditionalFact]
         public void Does_not_warn_for_duplicate_non_conflicting_annotations()
         {
-            var model = new Model();
+            var model = new ModelBuilder(new ConventionSet()).Model;
             model.SetProductVersion("1.1.2");
             model["Unicorn:DefaultSchema"] = "Value";
             model["Hippo:DefaultSchema"] = "Value";

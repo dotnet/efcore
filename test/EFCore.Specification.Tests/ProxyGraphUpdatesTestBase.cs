@@ -618,8 +618,7 @@ namespace Microsoft.EntityFrameworkCore
 
         [ConditionalTheory]
         [InlineData((int)ChangeMechanism.Dependent)]
-        // #11553
-        //[InlineData((int)ChangeMechanism.Principal)]
+        [InlineData((int)ChangeMechanism.Principal)]
         [InlineData((int)ChangeMechanism.Fk)]
         [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent))]
         [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Fk))]
@@ -681,8 +680,8 @@ namespace Microsoft.EntityFrameworkCore
                     Assert.Same(root, new1.Root);
                     Assert.Same(new1, new2.Back);
 
-                    Assert.Same(oldRoot, old1.Root);
-                    Assert.Same(old1, old2.Back);
+                    Assert.Null(old1.Root);
+                    Assert.Null(old2.Back);
                     Assert.Equal(old1.Id, old2.Id);
                 });
         }

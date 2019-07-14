@@ -1351,7 +1351,7 @@ WHERE (DATEDIFF(NANOSECOND, [m].[TimeSpanAsTime], @__timeSpan_1) = 0) AND DATEDI
 @p1='2017-01-02T12:11:12' (Size = 3)
 @p2='2016-01-02T11:11:12.0000000+00:00' (Size = 3)
 @p3='102.2' (Size = 3)
-@p4='101.1'
+@p4='101.1' (Size = 3)
 @p5='103.3' (Size = 3)
 @p6='85.55000305175781' (Size = 25)
 @p7='85.5' (Size = 3)
@@ -2110,7 +2110,7 @@ WHERE (DATEDIFF(NANOSECOND, [m].[TimeSpanAsTime], @__timeSpan_1) = 0) AND DATEDI
                 @"@p0='2017-01-02T12:11:12' (Size = 3)
 @p1='2016-01-02T11:11:12.0000000+00:00' (Size = 3)
 @p2='102.2' (Size = 3)
-@p3='101.1'
+@p3='101.1' (Size = 3)
 @p4='103.3' (Size = 3)
 @p5='85.55000305175781' (Size = 25)
 @p6='85.5' (Size = 3)

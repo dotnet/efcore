@@ -622,5 +622,4 @@ namespace Microsoft.EntityFrameworkCore.Query.Pipeline
         [UsedImplicitly]
         public readonly TInner Inner;
     }
-
 }

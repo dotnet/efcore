@@ -13,17 +13,17 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Pipeline
 {
     public class SelectExpression : Expression
     {
-        private const string _rootAlias = "c";
+        private const string RootAlias = "c";
 
         private IDictionary<ProjectionMember, Expression> _projectionMapping = new Dictionary<ProjectionMember, Expression>();
-        private List<ProjectionExpression> _projection = new List<ProjectionExpression>();
+        private readonly List<ProjectionExpression> _projection = new List<ProjectionExpression>();
         private readonly List<OrderingExpression> _orderings = new List<OrderingExpression>();
 
         public SelectExpression(IEntityType entityType)
         {
             ContainerName = entityType.GetCosmosContainerName();
-            FromExpression = new RootReferenceExpression(entityType, _rootAlias);
-            _projectionMapping[new ProjectionMember()] = new EntityProjectionExpression(entityType, FromExpression, _rootAlias);
+            FromExpression = new RootReferenceExpression(entityType, RootAlias);
+            _projectionMapping[new ProjectionMember()] = new EntityProjectionExpression(entityType, FromExpression, RootAlias);
         }
 
         public SelectExpression(
@@ -130,19 +130,14 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Pipeline
                 return;
             }
 
-            if (Predicate == null)
-            {
-                Predicate = expression;
-            }
-            else
-            {
-                Predicate = new SqlBinaryExpression(
+            Predicate = Predicate == null
+                ? expression
+                : new SqlBinaryExpression(
                     ExpressionType.AndAlso,
                     Predicate,
                     expression,
                     typeof(bool),
                     expression.TypeMapping);
-            }
         }
 
         public void ApplyLimit(SqlExpression sqlExpression)
@@ -207,14 +202,6 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Pipeline
                         !existingOrdering[i].Ascending));
             }
         }
-
-        public SqlExpression BindProperty(IProperty property, ProjectionBindingExpression projectionBindingExpression)
-            => ((EntityProjectionExpression)_projectionMapping[projectionBindingExpression.ProjectionMember])
-                .GetProperty(property);
-
-        public SqlExpression BindNavigation(INavigation navigation, ProjectionBindingExpression projectionBindingExpression)
-            => ((EntityProjectionExpression)_projectionMapping[projectionBindingExpression.ProjectionMember])
-                .GetNavigation(navigation);
 
         public override Type Type => typeof(JObject);
         public override ExpressionType NodeType => ExpressionType.Extension;

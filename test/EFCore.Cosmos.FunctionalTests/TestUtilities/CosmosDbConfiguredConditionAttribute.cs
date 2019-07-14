@@ -4,6 +4,7 @@
 using System;
 using System.Linq;
 using System.Net.Http;
+using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.TestUtilities
@@ -15,26 +16,22 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.TestUtilities
 
         public string SkipReason => "Unable to connect to CosmosDb Emulator. Please install/start emulator service.";
 
-        public bool IsMet
+        public async ValueTask<bool> IsMetAsync()
         {
-            get
+            if (_connectionAvailable == null)
             {
-                if (_connectionAvailable == null)
-                {
-                    _connectionAvailable = TryConnect();
-                }
-
-                return _connectionAvailable.Value;
+                _connectionAvailable = await TryConnectAsync();
             }
+
+            return _connectionAvailable.Value;
         }
 
-        private static bool TryConnect()
+        private static async Task<bool> TryConnectAsync()
         {
+            CosmosTestStore testStore = null;
             try
             {
-                using (CosmosTestStore.CreateInitialized("NonExistent"))
-                {
-                }
+                testStore = CosmosTestStore.CreateInitialized("NonExistent");
 
                 return true;
             }
@@ -55,6 +52,13 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.TestUtilities
                 }
 
                 throw;
+            }
+            finally
+            {
+                if (testStore != null)
+                {
+                    await testStore.DisposeAsync();
+                }
             }
         }
 

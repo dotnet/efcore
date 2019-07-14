@@ -11,8 +11,11 @@ using System.Runtime.Versioning;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Query.Expressions.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
+using Microsoft.EntityFrameworkCore.Query.NavigationExpansion;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 // ReSharper disable once CheckNamespace
@@ -360,11 +363,20 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public static Expression BuildPropertyAccess(this Expression root, List<string> path)
+        public static Expression BuildPropertyAccess(this Expression root, List<string> path, List<INavigation> navigations = null)
         {
             var result = root;
+            var i = (navigations?.Count ?? 0) - 1;
             foreach (var pathElement in path)
             {
+                var declaringType = navigations?[i--].DeclaringEntityType.ClrType;
+                if (declaringType != null
+                    && result.Type != declaringType
+                    && result.Type.IsAssignableFrom(declaringType)
+                    && !declaringType.IsAssignableFrom(result.Type))
+                {
+                    result = Expression.Convert(result, declaringType);
+                }
                 result = Expression.PropertyOrField(result, pathElement);
             }
 

@@ -85,16 +85,16 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 return false;
             }
 
-            var nodeState = node.NodeState;
+            var (targetState, storeGenTargetState, force) = node.NodeState;
 
-            var keyValueState = internalEntityEntry.IsKeySet;
+            var (isGenerated, isSet) = internalEntityEntry.IsKeySet;
 
             internalEntityEntry.SetEntityState(
-                keyValueState.IsSet
-                    ? (keyValueState.IsGenerated ? nodeState.StoreGenTargetState : nodeState.TargetState)
+                isSet
+                    ? (isGenerated ? storeGenTargetState : targetState)
                     : EntityState.Added, // Key can only be not-set if it is store-generated
                 acceptChanges: true,
-                forceStateWhenUnknownKey: nodeState.Force ? (EntityState?)nodeState.TargetState : null);
+                forceStateWhenUnknownKey: force ? (EntityState?)targetState : null);
 
             return true;
         }
@@ -109,16 +109,16 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 return false;
             }
 
-            var nodeState = node.NodeState;
+            var (targetState, storeGenTargetState, force) = node.NodeState;
 
-            var keyValueState = internalEntityEntry.IsKeySet;
+            var (isGenerated, isSet) = internalEntityEntry.IsKeySet;
 
             await internalEntityEntry.SetEntityStateAsync(
-                keyValueState.IsSet
-                    ? (keyValueState.IsGenerated ? nodeState.StoreGenTargetState : nodeState.TargetState)
+                isSet
+                    ? (isGenerated ? storeGenTargetState : targetState)
                     : EntityState.Added, // Key can only be not-set if it is store-generated
                 acceptChanges: true,
-                forceStateWhenUnknownKey: nodeState.Force ? (EntityState?)nodeState.TargetState : null,
+                forceStateWhenUnknownKey: force ? (EntityState?)targetState : null,
                 cancellationToken: cancellationToken);
 
             return true;

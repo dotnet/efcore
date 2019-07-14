@@ -3611,84 +3611,6 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalTheory(Skip = "Issue#15799")]
-        [MemberData(nameof(IsAsyncData))]
-        public virtual Task Can_query_on_indexed_properties(bool isAsync)
-        {
-            return AssertQuery<City>(
-                isAsync,
-                cs => from c in cs
-                      where (string)c[City.NationPropertyName] == "Tyrus"
-                      select c);
-        }
-
-        [ConditionalTheory(Skip = "Issue#15799")]
-        [MemberData(nameof(IsAsyncData))]
-        public virtual Task Can_query_on_indexed_properties_when_property_name_from_closure(bool isAsync)
-        {
-            var nationPropertyName = City.NationPropertyName;
-
-            return AssertQuery<City>(
-                isAsync,
-                cs => from c in cs
-                      where (string)c[nationPropertyName] == "Tyrus"
-                      select c);
-        }
-
-        [ConditionalTheory(Skip = "Issue#15799")]
-        [MemberData(nameof(IsAsyncData))]
-        public virtual Task Can_query_projection_on_indexed_properties(bool isAsync)
-        {
-            return AssertQuery<City>(
-                isAsync,
-                cs => from c in cs
-                      where (string)c[City.NationPropertyName] == "Tyrus"
-                      select (string)c[City.NationPropertyName]);
-        }
-
-        [ConditionalTheory(Skip = "Issue#15799")]
-        [MemberData(nameof(IsAsyncData))]
-        public virtual Task Can_order_by_indexed_property_on_query(bool isAsync)
-        {
-            return AssertQuery<City>(
-                isAsync,
-                cs => from c in cs
-                      orderby (string)c[City.NationPropertyName], c.Name
-                      select c,
-                assertOrder: true);
-        }
-
-        [ConditionalTheory(Skip = "Issue #15799")]
-        [MemberData(nameof(IsAsyncData))]
-        public virtual Task Can_group_by_indexed_property_on_query(bool isAsync)
-        {
-            return AssertQueryScalar<City>(
-                isAsync,
-                cs => cs.GroupBy(c => c[City.NationPropertyName]).Select(g => g.Count()));
-        }
-
-        [ConditionalTheory(Skip = "Issue #15799")]
-        [MemberData(nameof(IsAsyncData))]
-        public virtual Task Can_group_by_converted_indexed_property_on_query(bool isAsync)
-        {
-            return AssertQueryScalar<City>(
-                isAsync,
-                cs => cs.GroupBy(c => (string)c[City.NationPropertyName]).Select(g => g.Count()));
-        }
-
-        [ConditionalTheory(Skip = "Issue#15799")]
-        [MemberData(nameof(IsAsyncData))]
-        public virtual Task Can_join_on_indexed_property_on_query(bool isAsync)
-        {
-            return AssertQuery<City>(
-                isAsync,
-                cs =>
-                    (from c1 in cs
-                     join c2 in cs
-                         on c1[City.NationPropertyName] equals c2[City.NationPropertyName]
-                     select new { c1.Name, c2.Location }));
-        }
-
         [ConditionalFact]
         public virtual void Navigation_access_on_derived_entity_using_cast()
         {
@@ -4739,7 +4661,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 });
         }
 
-        [ConditionalTheory(Skip = "Issue#16226")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Correlated_collections_nested_with_custom_ordering(bool isAsync)
         {
@@ -4827,7 +4749,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 });
         }
 
-        [ConditionalTheory(Skip = "Issue#16226")]
+        [ConditionalTheory(Skip = "Issue#16318")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Correlated_collections_different_collections_projected(bool isAsync)
         {
@@ -4875,7 +4797,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 assertOrder: true);
         }
 
-        [ConditionalTheory(Skip = "Issue#16226")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Multiple_orderby_with_navigation_expansion_on_one_of_the_order_bys_inside_subquery(bool isAsync)
         {
@@ -4903,7 +4825,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 });
         }
 
-        [ConditionalTheory(Skip = "Issue#16226")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Multiple_orderby_with_navigation_expansion_on_one_of_the_order_bys_inside_subquery_duplicated_orderings(bool isAsync)
         {
@@ -4933,7 +4855,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
 
-        [ConditionalTheory(Skip = "Issue#16226")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Multiple_orderby_with_navigation_expansion_on_one_of_the_order_bys_inside_subquery_complex_orderings(bool isAsync)
         {
@@ -4961,7 +4883,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 });
         }
 
-        [ConditionalTheory(Skip = "Issue#16226")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Correlated_collections_multiple_nested_complex_collections(bool isAsync)
         {
@@ -5362,7 +5284,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                             eee => eee.Id, (eee, aaa) => Assert.Equal(eee.Id, aaa.Id))));
         }
 
-        [ConditionalTheory(Skip = "Issue#16226")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Correlated_collections_from_left_join_with_additional_elements_projected_of_that_join(bool isAsync)
         {
@@ -5520,7 +5442,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 });
         }
 
-        [ConditionalTheory(Skip = "Issue#16226")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Correlated_collections_with_funky_orderby_complex_scenario2(bool isAsync)
         {

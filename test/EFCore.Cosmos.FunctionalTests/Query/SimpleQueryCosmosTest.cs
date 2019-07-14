@@ -8,7 +8,6 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 using Microsoft.EntityFrameworkCore.TestUtilities;
-using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -118,11 +117,25 @@ WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] = c[""Custom
             await base.Entity_equality_local(isAsync);
 
             AssertSql(
+                @"@__entity_equality_local_0_CustomerID='ANATR'
+
+SELECT c[""CustomerID""]
+FROM root c
+WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] = @__entity_equality_local_0_CustomerID))");
+        }
+
+        [ConditionalTheory(Skip = "Issue#14935")]
+        public override async Task Entity_equality_local_composite_key(bool isAsync)
+        {
+            await base.Entity_equality_local_composite_key(isAsync);
+
+            AssertSql(
                 @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
 
+        [ConditionalTheory(Skip = "Issue#14935")]
         public override async Task Join_with_entity_equality_local_on_both_sources(bool isAsync)
         {
             await base.Join_with_entity_equality_local_on_both_sources(isAsync);
@@ -136,6 +149,17 @@ WHERE (c[""Discriminator""] = ""Customer"")");
         public override async Task Entity_equality_local_inline(bool isAsync)
         {
             await base.Entity_equality_local_inline(isAsync);
+
+            AssertSql(
+                @"SELECT c[""CustomerID""]
+FROM root c
+WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] = ""ANATR""))");
+        }
+
+        [ConditionalTheory(Skip = "Issue#14935")]
+        public override async Task Entity_equality_local_inline_composite_key(bool isAsync)
+        {
+            await base.Entity_equality_local_inline_composite_key(isAsync);
 
             AssertSql(
                 @"SELECT c
@@ -322,6 +346,7 @@ FROM root c
 WHERE (c[""Discriminator""] = ""Employee"")");
         }
 
+        [ConditionalTheory(Skip = "Issue#14935")]
         public override async Task Where_query_composition_entity_equality_one_element_FirstOrDefault(bool isAsync)
         {
             await base.Where_query_composition_entity_equality_one_element_FirstOrDefault(isAsync);
@@ -342,6 +367,7 @@ FROM root c
 WHERE (c[""Discriminator""] = ""Employee"")");
         }
 
+        [ConditionalTheory(Skip = "Issue#14935")]
         public override async Task Where_query_composition_entity_equality_no_elements_FirstOrDefault(bool isAsync)
         {
             await base.Where_query_composition_entity_equality_no_elements_FirstOrDefault(isAsync);
@@ -352,6 +378,7 @@ FROM root c
 WHERE (c[""Discriminator""] = ""Employee"")");
         }
 
+        [ConditionalTheory(Skip = "Issue#14935")]
         public override async Task Where_query_composition_entity_equality_multiple_elements_FirstOrDefault(bool isAsync)
         {
             await base.Where_query_composition_entity_equality_multiple_elements_FirstOrDefault(isAsync);
@@ -3722,6 +3749,7 @@ FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
 
+        [ConditionalTheory(Skip = "Issue#14935")]
         public override async Task Let_entity_equality_to_other_entity(bool isAsync)
         {
             await base.Let_entity_equality_to_other_entity(isAsync);

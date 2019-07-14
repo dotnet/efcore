@@ -81,60 +81,54 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
 
                 if (_clientEval)
                 {
-                    if (expression is ConstantExpression)
+                    switch (expression)
                     {
-                        return expression;
-                    }
+                        case ConstantExpression _:
+                            return expression;
 
-                    if (expression is ParameterExpression parameterExpression)
-                    {
-                        return Expression.Call(
-                            _getParameterValueMethodInfo.MakeGenericMethod(parameterExpression.Type),
-                            QueryCompilationContext.QueryContextParameter,
-                            Expression.Constant(parameterExpression.Name));
-                    }
+                        case ParameterExpression parameterExpression:
+                            return Expression.Call(
+                                _getParameterValueMethodInfo.MakeGenericMethod(parameterExpression.Type),
+                                QueryCompilationContext.QueryContextParameter,
+                                Expression.Constant(parameterExpression.Name));
 
-                    if (expression is MaterializeCollectionNavigationExpression materializeCollectionNavigationExpression)
-                    {
-                        return _selectExpression.AddCollectionProjection(
-                            _queryableMethodTranslatingExpressionVisitor.TranslateSubquery(
+                        case MaterializeCollectionNavigationExpression materializeCollectionNavigationExpression:
+                            return _selectExpression.AddCollectionProjection(
+                                _queryableMethodTranslatingExpressionVisitor.TranslateSubquery(
                                 materializeCollectionNavigationExpression.Subquery),
-                            materializeCollectionNavigationExpression.Navigation, null);
-                    }
+                                materializeCollectionNavigationExpression.Navigation, null);
 
-                    if (expression is MethodCallExpression methodCallExpression)
-                    {
-                        if (methodCallExpression.Method.IsGenericMethod
-                            && methodCallExpression.Method.DeclaringType == typeof(Enumerable)
-                            && methodCallExpression.Method.Name == nameof(Enumerable.ToList))
-                        {
-                            var elementType = methodCallExpression.Method.GetGenericArguments()[0];
-
-                            var result = _queryableMethodTranslatingExpressionVisitor.TranslateSubquery(methodCallExpression.Arguments[0]);
-
-                            return _selectExpression.AddCollectionProjection(result, null, elementType);
-                        }
-
-                        var subquery = _queryableMethodTranslatingExpressionVisitor.TranslateSubquery(methodCallExpression);
-
-                        if (subquery != null)
-                        {
-                            if (subquery.ResultType == ResultType.Enumerable)
+                        case MethodCallExpression methodCallExpression:
                             {
-                                return _selectExpression.AddCollectionProjection(subquery, null, subquery.ShaperExpression.Type);
+                                if (methodCallExpression.Method.IsGenericMethod
+                                    && methodCallExpression.Method.DeclaringType == typeof(Enumerable)
+                                    && methodCallExpression.Method.Name == nameof(Enumerable.ToList))
+                                {
+                                    var elementType = methodCallExpression.Method.GetGenericArguments()[0];
+
+                                    var result = _queryableMethodTranslatingExpressionVisitor.TranslateSubquery(methodCallExpression.Arguments[0]);
+
+                                    return _selectExpression.AddCollectionProjection(result, null, elementType);
+                                }
+
+                                var subquery = _queryableMethodTranslatingExpressionVisitor.TranslateSubquery(methodCallExpression);
+
+                                if (subquery != null)
+                                {
+                                    if (subquery.ResultType == ResultType.Enumerable)
+                                    {
+                                        return _selectExpression.AddCollectionProjection(subquery, null, subquery.ShaperExpression.Type);
+                                    }
+                                }
+
+                                break;
                             }
-                        }
                     }
 
                     var translation = _sqlTranslator.Translate(expression);
-                    if (translation == null)
-                    {
-                        return base.Visit(expression);
-                    }
-                    else
-                    {
-                        return new ProjectionBindingExpression(_selectExpression, _selectExpression.AddToProjection(translation), expression.Type);
-                    }
+                    return translation == null
+                        ? base.Visit(expression)
+                        : new ProjectionBindingExpression(_selectExpression, _selectExpression.AddToProjection(translation), expression.Type);
                 }
                 else
                 {
@@ -175,8 +169,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
                         projectionBindingExpression.ProjectionMember);
 
                     return entityShaperExpression.Update(
-                        new ProjectionBindingExpression(_selectExpression, _selectExpression.AddToProjection(entityProjection)),
-                        entityShaperExpression.NestedEntities);
+                        new ProjectionBindingExpression(_selectExpression, _selectExpression.AddToProjection(entityProjection)));
                 }
                 else
                 {
@@ -184,14 +177,18 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
                         = _selectExpression.GetMappedProjection(projectionBindingExpression.ProjectionMember);
 
                     return entityShaperExpression.Update(
-                        new ProjectionBindingExpression(_selectExpression, _projectionMembers.Peek(), typeof(ValueBuffer)),
-                        entityShaperExpression.NestedEntities);
+                        new ProjectionBindingExpression(_selectExpression, _projectionMembers.Peek(), typeof(ValueBuffer)));
                 }
             }
 
             if (extensionExpression is IncludeExpression includeExpression)
             {
-                return _clientEval ? base.VisitExtension(includeExpression) : null;
+                // TODO: handle owned navigations
+                return includeExpression.Navigation.ForeignKey.IsOwnership
+                        ? Visit(includeExpression.EntityExpression)
+                        : _clientEval
+                            ? base.VisitExtension(includeExpression)
+                            : null;
             }
 
             throw new InvalidOperationException();

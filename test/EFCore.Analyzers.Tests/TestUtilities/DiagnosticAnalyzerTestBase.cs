@@ -16,7 +16,7 @@ namespace EFCore.Analyzers.Test.TestUtilities
 {
     public abstract class DiagnosticAnalyzerTestBase
     {
-        static string[] Usings = new[] {
+        private static readonly string[] _usings = new[] {
             "System",
             "Microsoft.EntityFrameworkCore"
         };
@@ -32,7 +32,7 @@ namespace EFCore.Analyzers.Test.TestUtilities
         protected virtual async Task<(Diagnostic[], string)> GetDiagnosticsAsync(string source, params string[] extraUsings)
         {
             var sb = new StringBuilder();
-            foreach (var @using in Usings.Concat(extraUsings))
+            foreach (var @using in _usings.Concat(extraUsings))
             {
                 sb
                     .Append("using ")

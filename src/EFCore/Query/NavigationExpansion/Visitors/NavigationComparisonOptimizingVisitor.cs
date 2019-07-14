@@ -72,15 +72,15 @@ namespace Microsoft.EntityFrameworkCore.Query.NavigationExpansion.Visitors
             if (leftBinding != null
                 && rightBinding != null
                 && leftBinding.NavigationTreeNode.Navigation != rightBinding.NavigationTreeNode.Navigation
-                && (leftBinding.NavigationTreeNode.Navigation?.IsCollection() == true || rightBinding.NavigationTreeNode.Navigation?.IsCollection() == true))
+                && (leftBinding.NavigationTreeNode.IsCollection || rightBinding.NavigationTreeNode.IsCollection))
             {
-                if (leftBinding.NavigationTreeNode.Navigation.IsCollection())
+                if (leftBinding.NavigationTreeNode.IsCollection)
                 {
                     var parentTreeNode = leftBinding.NavigationTreeNode.Parent;
                     parentTreeNode.Children.Remove(leftBinding.NavigationTreeNode);
                 }
 
-                if (rightBinding.NavigationTreeNode.Navigation.IsCollection())
+                if (rightBinding.NavigationTreeNode.IsCollection)
                 {
                     var parentTreeNode = rightBinding.NavigationTreeNode.Parent;
                     parentTreeNode.Children.Remove(rightBinding.NavigationTreeNode);
@@ -93,7 +93,7 @@ namespace Microsoft.EntityFrameworkCore.Query.NavigationExpansion.Visitors
                 && leftBinding.EntityType == rightBinding.EntityType)
             {
                 if (leftBinding.NavigationTreeNode.Navigation == rightBinding.NavigationTreeNode.Navigation
-                    && leftBinding.NavigationTreeNode.Navigation?.IsCollection() == true)
+                    && leftBinding.NavigationTreeNode.IsCollection)
                 {
                     leftBinding = CreateParentBindingExpression(leftBinding);
                     rightBinding = CreateParentBindingExpression(rightBinding);
@@ -108,7 +108,7 @@ namespace Microsoft.EntityFrameworkCore.Query.NavigationExpansion.Visitors
             if (leftBinding != null
                 && rightNullConstant)
             {
-                if (leftBinding.NavigationTreeNode.Navigation?.IsCollection() == true)
+                if (leftBinding.NavigationTreeNode.IsCollection)
                 {
                     leftBinding = CreateParentBindingExpression(leftBinding);
                 }
@@ -122,7 +122,7 @@ namespace Microsoft.EntityFrameworkCore.Query.NavigationExpansion.Visitors
             if (rightBinding != null
                 && leftNullConstant)
             {
-                if (rightBinding.NavigationTreeNode.Navigation?.IsCollection() == true)
+                if (rightBinding.NavigationTreeNode.IsCollection)
                 {
                     rightBinding = CreateParentBindingExpression(rightBinding);
                 }
@@ -157,7 +157,7 @@ namespace Microsoft.EntityFrameworkCore.Query.NavigationExpansion.Visitors
 
         private NavigationBindingExpression CreateParentBindingExpression(NavigationBindingExpression navigationBindingExpression)
         {
-            // TODO: idk if thats correct
+            // TODO: verify this is correct in all cases
             var parentNavigationEntityType = navigationBindingExpression.NavigationTreeNode.Navigation.FindInverse().GetTargetType();
             var parentTreeNode = navigationBindingExpression.NavigationTreeNode.Parent;
             parentTreeNode.Children.Remove(navigationBindingExpression.NavigationTreeNode);

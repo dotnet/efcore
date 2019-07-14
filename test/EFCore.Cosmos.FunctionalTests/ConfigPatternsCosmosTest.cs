@@ -1,4 +1,5 @@
 using System;
+using System.Threading.Tasks;
 using Microsoft.Azure.Cosmos;
 using Microsoft.EntityFrameworkCore.Cosmos.TestUtilities;
 using Microsoft.EntityFrameworkCore.TestUtilities;
@@ -19,13 +20,13 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
         }
 
         [ConditionalFact]
-        public void Cosmos_client_instance_is_shared_between_contexts()
+        public async Task Cosmos_client_instance_is_shared_between_contexts()
         {
-            CosmosClient client;
-            using (var testDatabase = CosmosTestStore.CreateInitialized(DatabaseName))
+            await using (var testDatabase = CosmosTestStore.CreateInitialized(DatabaseName))
             {
                 var options = CreateOptions(testDatabase);
 
+                CosmosClient client;
                 using (var context = new CustomerContext(options))
                 {
                     client = context.Database.GetCosmosClient();
@@ -37,25 +38,25 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
                 {
                     Assert.Same(client, context.Database.GetCosmosClient());
                 }
-            }
 
-            using (var testDatabase = CosmosTestStore.CreateInitialized(DatabaseName, o => o.Region(CosmosRegions.AustraliaCentral)))
-            {
-                var options = CreateOptions(testDatabase);
-
-                using (var context = new CustomerContext(options))
+                await using (var testDatabase2 = CosmosTestStore.CreateInitialized(DatabaseName, o => o.Region(Regions.AustraliaCentral)))
                 {
-                    Assert.NotSame(client, context.Database.GetCosmosClient());
+                    options = CreateOptions(testDatabase2);
+
+                    using (var context = new CustomerContext(options))
+                    {
+                        Assert.NotSame(client, context.Database.GetCosmosClient());
+                    }
                 }
             }
         }
 
         [ConditionalFact]
-        public void Should_not_throw_if_specified_region_is_right()
+        public async Task Should_not_throw_if_specified_region_is_right()
         {
-            var regionName = CosmosRegions.AustraliaCentral;
+            var regionName = Regions.AustraliaCentral;
 
-            using (var testDatabase = CosmosTestStore.CreateInitialized(DatabaseName, o => o.Region(regionName)))
+            await using (var testDatabase = CosmosTestStore.CreateInitialized(DatabaseName, o => o.Region(regionName)))
             {
                 var options = CreateOptions(testDatabase);
 
@@ -73,13 +74,11 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
         }
 
         [ConditionalFact]
-        public void Should_throw_if_specified_region_is_wrong()
+        public async Task Should_throw_if_specified_region_is_wrong()
         {
-            var regionName = "FakeRegion";
-
-            Action a = () =>
+            var exception = await Assert.ThrowsAsync<ArgumentException>(async () =>
             {
-                using (var testDatabase = CosmosTestStore.CreateInitialized(DatabaseName, o => o.Region(regionName)))
+                await using (var testDatabase = CosmosTestStore.CreateInitialized(DatabaseName, o => o.Region("FakeRegion")))
                 {
                     var options = CreateOptions(testDatabase);
 
@@ -94,10 +93,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
                         context.SaveChanges();
                     }
                 }
-            };
-
-            var ex = Assert.Throws<ArgumentException>(a);
-            Assert.Equal("Current location is not a valid Azure region.", ex.Message);
+            });
+            Assert.Equal("Current location is not a valid Azure region.", exception.Message);
         }
 
         private DbContextOptions CreateOptions(CosmosTestStore testDatabase)

@@ -4,7 +4,7 @@
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using Microsoft.EntityFrameworkCore.Query.NavigationExpansion;
+using Microsoft.EntityFrameworkCore.Query.NavigationExpansion.Visitors;
 
 namespace Microsoft.EntityFrameworkCore.Query.Pipeline
 {
@@ -24,7 +24,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Pipeline
             query = new GroupJoinFlatteningExpressionVisitor().Visit(query);
             query = new NullCheckRemovingExpressionVisitor().Visit(query);
             query = new EntityEqualityRewritingExpressionVisitor(_queryCompilationContext).Rewrite(query);
-            query = new NavigationExpander(_queryCompilationContext.Model).ExpandNavigations(query);
+            query = new NavigationExpandingVisitor(_queryCompilationContext).Visit(query);
+            query = new NavigationExpansionReducingVisitor().Visit(query);
             query = new EnumerableToQueryableReMappingExpressionVisitor().Visit(query);
             query = new NullCheckRemovingExpressionVisitor().Visit(query);
             query = new FunctionPreprocessingVisitor().Visit(query);

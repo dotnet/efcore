@@ -3,6 +3,7 @@
 
 using System;
 using System.Runtime.InteropServices;
+using System.Threading.Tasks;
 
 namespace Microsoft.EntityFrameworkCore.TestUtilities.Xunit
 {
@@ -16,7 +17,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities.Xunit
             _excludedPlatforms = excludedPlatforms;
         }
 
-        public bool IsMet => CanRunOnThisPlatform(_excludedPlatforms);
+        public ValueTask<bool> IsMetAsync() => new ValueTask<bool>(CanRunOnThisPlatform(_excludedPlatforms));
 
         public string SkipReason { get; set; } = "Test cannot run on this platform.";
 

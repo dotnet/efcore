@@ -175,7 +175,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Pipeline
         {
             if (_evaluatableExpressions.ContainsKey(expression))
             {
-                var value = GetValue(expression, out var _);
+                var value = GetValue(expression, out _);
 
                 if (value is bool)
                 {

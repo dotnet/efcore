@@ -25,6 +25,11 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
         }
 
         public SqlExpression ApplyDefaultTypeMapping(SqlExpression sqlExpression)
+            => sqlExpression == null || sqlExpression.TypeMapping != null
+                ? sqlExpression
+                : ApplyTypeMapping(sqlExpression, _typeMappingSource.FindMapping(sqlExpression.Type));
+
+        public virtual SqlExpression ApplyTypeMapping(SqlExpression sqlExpression, RelationalTypeMapping typeMapping)
         {
             if (sqlExpression == null
                 || sqlExpression.TypeMapping != null)
@@ -32,46 +37,18 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
                 return sqlExpression;
             }
 
-            return ApplyTypeMapping(sqlExpression, _typeMappingSource.FindMapping(sqlExpression.Type));
-        }
-
-        public SqlExpression ApplyTypeMapping(SqlExpression sqlExpression, RelationalTypeMapping typeMapping)
-        {
-            if (sqlExpression == null
-                || sqlExpression.TypeMapping != null)
+            return sqlExpression switch
             {
-                return sqlExpression;
-            }
-
-            switch (sqlExpression)
-            {
-                case CaseExpression caseExpression:
-                    return ApplyTypeMappingOnCase(caseExpression, typeMapping);
-
-                case LikeExpression likeExpression:
-                    return ApplyTypeMappingOnLike(likeExpression);
-
-                case SqlBinaryExpression sqlBinaryExpression:
-                    return ApplyTypeMappingOnSqlBinary(sqlBinaryExpression, typeMapping);
-
-                case SqlUnaryExpression sqlUnaryExpression:
-                    return ApplyTypeMappingOnSqlUnary(sqlUnaryExpression, typeMapping);
-
-                case SqlConstantExpression sqlConstantExpression:
-                    return sqlConstantExpression.ApplyTypeMapping(typeMapping);
-
-                case SqlFragmentExpression sqlFragmentExpression:
-                    return sqlFragmentExpression;
-
-                case SqlFunctionExpression sqlFunctionExpression:
-                    return sqlFunctionExpression.ApplyTypeMapping(typeMapping);
-
-                case SqlParameterExpression sqlParameterExpression:
-                    return sqlParameterExpression.ApplyTypeMapping(typeMapping);
-
-                default:
-                    return sqlExpression;
-            }
+                CaseExpression e         => ApplyTypeMappingOnCase(e, typeMapping),
+                LikeExpression e         => ApplyTypeMappingOnLike(e),
+                SqlBinaryExpression e    => ApplyTypeMappingOnSqlBinary(e, typeMapping),
+                SqlUnaryExpression e     => ApplyTypeMappingOnSqlUnary(e, typeMapping),
+                SqlConstantExpression e  => e.ApplyTypeMapping(typeMapping),
+                SqlFragmentExpression e  => e,
+                SqlFunctionExpression e  => e.ApplyTypeMapping(typeMapping),
+                SqlParameterExpression e => e.ApplyTypeMapping(typeMapping),
+                _                        => sqlExpression
+            };
         }
 
         private SqlExpression ApplyTypeMappingOnLike(LikeExpression likeExpression)
@@ -201,14 +178,10 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
         }
 
         public virtual RelationalTypeMapping GetTypeMappingForValue(object value)
-        {
-            return _typeMappingSource.GetMappingForValue(value);
-        }
+            => _typeMappingSource.GetMappingForValue(value);
 
         public virtual RelationalTypeMapping FindMapping(Type type)
-        {
-            return _typeMappingSource.FindMapping(type);
-        }
+            => _typeMappingSource.FindMapping(type);
 
         public SqlBinaryExpression MakeBinary(
             ExpressionType operatorType, SqlExpression left, SqlExpression right, RelationalTypeMapping typeMapping)
@@ -233,115 +206,70 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
         }
 
         public SqlBinaryExpression Equal(SqlExpression left, SqlExpression right)
-        {
-            return MakeBinary(ExpressionType.Equal, left, right, null);
-        }
+            => MakeBinary(ExpressionType.Equal, left, right, null);
 
         public SqlBinaryExpression NotEqual(SqlExpression left, SqlExpression right)
-        {
-            return MakeBinary(ExpressionType.NotEqual, left, right, null);
-        }
+            => MakeBinary(ExpressionType.NotEqual, left, right, null);
 
         public SqlBinaryExpression GreaterThan(SqlExpression left, SqlExpression right)
-        {
-            return MakeBinary(ExpressionType.GreaterThan, left, right, null);
-        }
+            => MakeBinary(ExpressionType.GreaterThan, left, right, null);
 
         public SqlBinaryExpression GreaterThanOrEqual(SqlExpression left, SqlExpression right)
-        {
-            return MakeBinary(ExpressionType.GreaterThanOrEqual, left, right, null);
-        }
+            => MakeBinary(ExpressionType.GreaterThanOrEqual, left, right, null);
 
         public SqlBinaryExpression LessThan(SqlExpression left, SqlExpression right)
-        {
-            return MakeBinary(ExpressionType.LessThan, left, right, null);
-        }
+            => MakeBinary(ExpressionType.LessThan, left, right, null);
 
         public SqlBinaryExpression LessThanOrEqual(SqlExpression left, SqlExpression right)
-        {
-            return MakeBinary(ExpressionType.LessThanOrEqual, left, right, null);
-        }
+            => MakeBinary(ExpressionType.LessThanOrEqual, left, right, null);
 
         public SqlBinaryExpression AndAlso(SqlExpression left, SqlExpression right)
-        {
-            return MakeBinary(ExpressionType.AndAlso, left, right, null);
-        }
+            => MakeBinary(ExpressionType.AndAlso, left, right, null);
 
         public SqlBinaryExpression OrElse(SqlExpression left, SqlExpression right)
-        {
-            return MakeBinary(ExpressionType.OrElse, left, right, null);
-        }
+            => MakeBinary(ExpressionType.OrElse, left, right, null);
 
         public SqlBinaryExpression Add(SqlExpression left, SqlExpression right, RelationalTypeMapping typeMapping = null)
-        {
-            return MakeBinary(ExpressionType.Add, left, right, typeMapping);
-        }
+            => MakeBinary(ExpressionType.Add, left, right, typeMapping);
 
         public SqlBinaryExpression Subtract(SqlExpression left, SqlExpression right, RelationalTypeMapping typeMapping = null)
-        {
-            return MakeBinary(ExpressionType.Subtract, left, right, typeMapping);
-        }
+            => MakeBinary(ExpressionType.Subtract, left, right, typeMapping);
 
         public SqlBinaryExpression Multiply(SqlExpression left, SqlExpression right, RelationalTypeMapping typeMapping = null)
-        {
-            return MakeBinary(ExpressionType.Multiply, left, right, typeMapping);
-        }
+            => MakeBinary(ExpressionType.Multiply, left, right, typeMapping);
 
         public SqlBinaryExpression Divide(SqlExpression left, SqlExpression right, RelationalTypeMapping typeMapping = null)
-        {
-            return MakeBinary(ExpressionType.Divide, left, right, typeMapping);
-        }
+            => MakeBinary(ExpressionType.Divide, left, right, typeMapping);
 
         public SqlBinaryExpression Modulo(SqlExpression left, SqlExpression right, RelationalTypeMapping typeMapping = null)
-        {
-            return MakeBinary(ExpressionType.Modulo, left, right, typeMapping);
-        }
+            => MakeBinary(ExpressionType.Modulo, left, right, typeMapping);
 
         public SqlBinaryExpression And(SqlExpression left, SqlExpression right, RelationalTypeMapping typeMapping = null)
-        {
-            return MakeBinary(ExpressionType.And, left, right, typeMapping);
-        }
+            => MakeBinary(ExpressionType.And, left, right, typeMapping);
 
         public SqlBinaryExpression Or(SqlExpression left, SqlExpression right, RelationalTypeMapping typeMapping = null)
-        {
-            return MakeBinary(ExpressionType.Or, left, right, typeMapping);
-        }
+            => MakeBinary(ExpressionType.Or, left, right, typeMapping);
 
         public SqlBinaryExpression Coalesce(SqlExpression left, SqlExpression right, RelationalTypeMapping typeMapping = null)
-        {
-            return MakeBinary(ExpressionType.Coalesce, left, right, typeMapping);
-        }
+            => MakeBinary(ExpressionType.Coalesce, left, right, typeMapping);
 
-
-        private SqlUnaryExpression MakeUnary(
-            ExpressionType operatorType, SqlExpression operand, Type type, RelationalTypeMapping typeMapping = null)
-        {
-            return (SqlUnaryExpression)ApplyTypeMapping(new SqlUnaryExpression(operatorType, operand, type, null), typeMapping);
-        }
+        private SqlUnaryExpression MakeUnary(ExpressionType operatorType, SqlExpression operand, Type type, RelationalTypeMapping typeMapping = null)
+            => (SqlUnaryExpression)ApplyTypeMapping(new SqlUnaryExpression(operatorType, operand, type, null), typeMapping);
 
         public SqlUnaryExpression IsNull(SqlExpression operand)
-        {
-            return MakeUnary(ExpressionType.Equal, operand, typeof(bool));
-        }
+            => MakeUnary(ExpressionType.Equal, operand, typeof(bool));
 
         public SqlUnaryExpression IsNotNull(SqlExpression operand)
-        {
-            return MakeUnary(ExpressionType.NotEqual, operand, typeof(bool));
-        }
+            => MakeUnary(ExpressionType.NotEqual, operand, typeof(bool));
 
         public SqlUnaryExpression Convert(SqlExpression operand, Type type, RelationalTypeMapping typeMapping = null)
-        {
-            return MakeUnary(ExpressionType.Convert, operand, type, typeMapping);
-        }
+            => MakeUnary(ExpressionType.Convert, operand, type, typeMapping);
+
         public SqlUnaryExpression Not(SqlExpression operand)
-        {
-            return MakeUnary(ExpressionType.Not, operand, typeof(bool));
-        }
+            => MakeUnary(ExpressionType.Not, operand, typeof(bool));
 
         public SqlUnaryExpression Negate(SqlExpression operand)
-        {
-            return MakeUnary(ExpressionType.Negate, operand, operand.Type, operand.TypeMapping);
-        }
+            => MakeUnary(ExpressionType.Negate, operand, operand.Type, operand.TypeMapping);
 
         public CaseExpression Case(SqlExpression operand, params CaseWhenClause[] whenClauses)
         {
@@ -361,9 +289,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
                         ApplyTypeMapping(caseWhenClause.Result, resultTypeMapping)));
             }
 
-
             return new CaseExpression(operand, typeMappedWhenClauses);
-
         }
 
         public CaseExpression Case(IReadOnlyList<CaseWhenClause> whenClauses, SqlExpression elseResult)
@@ -437,29 +363,17 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
                 typeMapping);
         }
 
-        public SqlFunctionExpression Function(
-            string functionName, Type returnType, RelationalTypeMapping typeMapping = null)
-        {
-            return new SqlFunctionExpression(functionName, returnType, typeMapping);
-        }
+        public SqlFunctionExpression Function(string functionName, Type returnType, RelationalTypeMapping typeMapping = null)
+            => new SqlFunctionExpression(functionName, returnType, typeMapping);
 
-        public SqlFunctionExpression Function(
-            string schema, string functionName, Type returnType, RelationalTypeMapping typeMapping = null)
-        {
-            return new SqlFunctionExpression(schema, functionName, returnType, typeMapping);
-        }
+        public SqlFunctionExpression Function(string schema, string functionName, Type returnType, RelationalTypeMapping typeMapping = null)
+            => new SqlFunctionExpression(schema, functionName, returnType, typeMapping);
 
-        public SqlFunctionExpression Function(
-            SqlExpression instance, string functionName, Type returnType, RelationalTypeMapping typeMapping = null)
-        {
-            instance = ApplyDefaultTypeMapping(instance);
-            return new SqlFunctionExpression(instance, functionName, returnType, typeMapping);
-        }
+        public SqlFunctionExpression Function(SqlExpression instance, string functionName, Type returnType, RelationalTypeMapping typeMapping = null)
+            => new SqlFunctionExpression(ApplyDefaultTypeMapping(instance), functionName, returnType, typeMapping);
 
         public ExistsExpression Exists(SelectExpression subquery, bool negated)
-        {
-            return new ExistsExpression(subquery, negated, _boolTypeMapping);
-        }
+            => new ExistsExpression(subquery, negated, _boolTypeMapping);
 
         public InExpression In(SqlExpression item, SqlExpression values, bool negated)
         {
@@ -485,19 +399,13 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
         }
 
         public LikeExpression Like(SqlExpression match, SqlExpression pattern, SqlExpression escapeChar = null)
-        {
-            return (LikeExpression)ApplyDefaultTypeMapping(new LikeExpression(match, pattern, escapeChar, null));
-        }
+            => (LikeExpression)ApplyDefaultTypeMapping(new LikeExpression(match, pattern, escapeChar, null));
 
         public SqlFragmentExpression Fragment(string sql)
-        {
-            return new SqlFragmentExpression(sql);
-        }
+            => new SqlFragmentExpression(sql);
 
         public SqlConstantExpression Constant(object value, RelationalTypeMapping typeMapping = null)
-        {
-            return new SqlConstantExpression(Expression.Constant(value), typeMapping);
-        }
+            => new SqlConstantExpression(Expression.Constant(value), typeMapping);
 
         public SelectExpression Select(SqlExpression projection)
         {
@@ -549,7 +457,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
                 }
 
                 var discriminatorColumn = ((EntityProjectionExpression)selectExpression.GetMappedProjection(new ProjectionMember()))
-                    .GetProperty(concreteEntityType.GetDiscriminatorProperty());
+                    .BindProperty(concreteEntityType.GetDiscriminatorProperty());
 
                 selectExpression.ApplyPredicate(
                     Equal(discriminatorColumn, Constant(concreteEntityType.GetDiscriminatorValue())));
@@ -558,7 +466,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
             else
             {
                 var discriminatorColumn = ((EntityProjectionExpression)selectExpression.GetMappedProjection(new ProjectionMember()))
-                    .GetProperty(concreteEntityTypes[0].GetDiscriminatorProperty());
+                    .BindProperty(concreteEntityTypes[0].GetDiscriminatorProperty());
 
                 selectExpression.ApplyPredicate(
                     In(discriminatorColumn, Constant(concreteEntityTypes.Select(et => et.GetDiscriminatorValue()).ToList()), negated: false));

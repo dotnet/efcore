@@ -716,7 +716,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             catch (InvalidOperationException ex)
             {
                 Assert.Equal(forSet, ex.Message);
-                failMessage = failMessage ?? ex.Message;
+                failMessage ??= ex.Message;
             }
 
             try
@@ -733,7 +733,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             catch (InvalidOperationException ex)
             {
                 Assert.Equal(forGet, ex.Message);
-                failMessage = failMessage ?? ex.Message;
+                failMessage ??= ex.Message;
             }
 
             try

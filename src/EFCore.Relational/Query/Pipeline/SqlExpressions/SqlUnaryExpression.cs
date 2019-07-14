@@ -12,7 +12,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
 {
     public class SqlUnaryExpression : SqlExpression
     {
-        private static ISet<ExpressionType> _allowedOperators = new HashSet<ExpressionType>
+        private static readonly ISet<ExpressionType> _allowedOperators = new HashSet<ExpressionType>
         {
             ExpressionType.Equal,
             ExpressionType.NotEqual,

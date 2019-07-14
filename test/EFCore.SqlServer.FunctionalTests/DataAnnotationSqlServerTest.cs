@@ -146,7 +146,8 @@ namespace Microsoft.EntityFrameworkCore
         {
             base.ConcurrencyCheckAttribute_throws_if_value_in_database_changed();
 
-            Assert.Equal(
+            // Issue #15285
+            /*Assert.Equal(
                 @"SELECT TOP(1) [r].[UniqueNo], [r].[MaxLengthProperty], [r].[Name], [r].[RowVersion], [t].[UniqueNo], [t].[Details_Name], [t0].[UniqueNo], [t0].[AdditionalDetails_Name]
 FROM [Sample] AS [r]
 LEFT JOIN (
@@ -195,7 +196,7 @@ UPDATE [Sample] SET [Name] = @p0, [RowVersion] = @p1
 WHERE [UniqueNo] = @p2 AND [RowVersion] = @p3;
 SELECT @@ROWCOUNT;",
                 Sql,
-                ignoreLineEndingDifferences: true);
+                ignoreLineEndingDifferences: true);*/
         }
 
         public override void DatabaseGeneratedAttribute_autogenerates_values_when_set_to_identity()

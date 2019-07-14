@@ -127,13 +127,11 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal
 
             mapping = base.FindMapping(mappingInfo);
 
-            return mapping != null
-                ? mapping
-                : storeTypeName != null
+            return mapping ?? (storeTypeName != null
                     ? storeTypeName.Length != 0
                         ? _typeRules.Select(r => r(storeTypeName)).FirstOrDefault(r => r != null) ?? _blob
                         : _blob // This may seem odd, but it's okay because we are matching SQLite's loose typing.
-                    : null;
+                    : null);
         }
 
         private readonly Func<string, RelationalTypeMapping>[] _typeRules =

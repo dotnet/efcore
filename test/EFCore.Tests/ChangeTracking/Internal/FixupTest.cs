@@ -4,8 +4,11 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Xunit;
 
@@ -2631,6 +2634,181 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 Assert.Equal(5, context.ChangeTracker.Entries<Product>().Count());
                 Assert.Equal(5, context.ChangeTracker.Entries<SpecialOffer>().Count());
             }
+        }
+
+        [ConditionalFact]
+        public void Comparable_entities_that_comply_are_tracked_correctly()
+        {
+            using (var context = new ComparableEntitiesContext("ComparableEntities"))
+            {
+                var level2a = new Level2
+                {
+                    Name = "Foo"
+                };
+
+                var level2b = new Level2
+                {
+                    Name = "Bar"
+                };
+
+                var level1 = new Level1
+                {
+                    Children =
+                    {
+                        level2a, level2b,
+                    },
+                };
+
+                context.Add(level1);
+                context.SaveChanges();
+
+                Assert.Equal(3, context.ChangeTracker.Entries().Count());
+                Assert.Equal(EntityState.Unchanged, context.Entry(level1).State);
+                Assert.Equal(EntityState.Unchanged, context.Entry(level2a).State);
+                Assert.Equal(EntityState.Unchanged, context.Entry(level2b).State);
+
+                Assert.Equal(2, level1.Children.Count);
+                Assert.Contains(level2a, level1.Children);
+                Assert.Contains(level2b, level1.Children);
+
+                level1.Children.Clear();
+
+                Assert.Equal(3, context.ChangeTracker.Entries().Count());
+                Assert.Equal(EntityState.Unchanged, context.Entry(level1).State);
+                Assert.Equal(EntityState.Deleted, context.Entry(level2a).State);
+                Assert.Equal(EntityState.Deleted, context.Entry(level2b).State);
+
+                Assert.Equal(0, level1.Children.Count);
+
+                var level2c = new Level2
+                {
+                    Name = "Foo"
+                };
+
+                var level2d = new Level2
+                {
+                    Name = "Quz"
+                };
+
+                level1.Children.Add(level2c);
+                level1.Children.Add(level2d);
+
+                Assert.Equal(2, level1.Children.Count);
+                Assert.Contains(level2c, level1.Children);
+                Assert.Contains(level2d, level1.Children);
+
+                Assert.Equal(5, context.ChangeTracker.Entries().Count());
+                Assert.Equal(EntityState.Unchanged, context.Entry(level1).State);
+                Assert.Equal(EntityState.Deleted, context.Entry(level2a).State);
+                Assert.Equal(EntityState.Deleted, context.Entry(level2b).State);
+                Assert.Equal(EntityState.Added, context.Entry(level2c).State);
+                Assert.Equal(EntityState.Added, context.Entry(level2d).State);
+
+                context.SaveChanges();
+
+                Assert.Equal(2, level1.Children.Count);
+                Assert.Contains(level2c, level1.Children);
+                Assert.Contains(level2d, level1.Children);
+
+                Assert.Equal(3, context.ChangeTracker.Entries().Count());
+                Assert.Equal(EntityState.Unchanged, context.Entry(level1).State);
+                Assert.Equal(EntityState.Unchanged, context.Entry(level2c).State);
+                Assert.Equal(EntityState.Unchanged, context.Entry(level2d).State);
+            }
+        }
+
+        private class Level1
+        {
+            public int Id { get; set; }
+
+            [Required]
+            public ICollection<Level2> Children { get; set; } = new SortedSet<Level2>();
+        }
+
+        private class Level2 : IComparable<Level2>
+        {
+            public int Id { get; set; }
+            public string Name { get; set; }
+
+            public Level1 Level1 { get; set; }
+            public int Level1Id { get; set; }
+
+            public int CompareTo(Level2 other)
+                => StringComparer.InvariantCultureIgnoreCase.Compare(Name, other.Name);
+        }
+
+        private class ComparableEntitiesContext : DbContext
+        {
+            private readonly string _databaseName;
+
+            public ComparableEntitiesContext(string databaseName)
+            {
+                _databaseName = databaseName;
+            }
+
+            protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+                => optionsBuilder.UseInMemoryDatabase(_databaseName);
+
+            public DbSet<Level1> Level1s { get; set; }
+            public DbSet<Level2> Level2s { get; set; }
+        }
+
+        [ConditionalFact]
+        public void Detached_entity_is_not_replaced_by_tracked_entity()
+        {
+            using (var context = new BadBeeContext(nameof(BadBeeContext)))
+            {
+                var b1 = new EntityB
+                {
+                    EntityBId = 1
+                };
+                context.BEntities.Attach(b1);
+
+                var b2 = new EntityB
+                {
+                    EntityBId = 1
+                };
+
+                var a = new EntityA
+                {
+                    EntityAId = 1, EntityB = b2
+                };
+
+                Assert.Equal(
+                    CoreStrings.IdentityConflict(
+                        nameof(EntityB),
+                        $"{{'{nameof(EntityB.EntityBId)}'}}"),
+                    Assert.Throws<InvalidOperationException>(() => context.Add(a)).Message);
+            }
+        }
+
+        private class EntityB
+        {
+            public int EntityBId { get; set; }
+            public EntityA EntityA { get; set; }
+        }
+
+        private class EntityA
+        {
+            public int EntityAId { get; set; }
+            public int? EntityBId { get; set; }
+            public EntityB EntityB { get; set; }
+        }
+
+        private class BadBeeContext : DbContext
+        {
+            private readonly string _databaseName;
+
+            public BadBeeContext(string databaseName)
+            {
+                _databaseName = databaseName;
+            }
+
+            protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+                => optionsBuilder.UseInMemoryDatabase(_databaseName);
+
+            public DbSet<EntityA> AEntities { get; set; }
+            public DbSet<EntityB> BEntities { get; set; }
         }
 
         protected virtual void AssertAllFixedUp(DbContext context)

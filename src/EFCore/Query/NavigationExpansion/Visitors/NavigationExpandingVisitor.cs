@@ -5,6 +5,7 @@ using System;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Query.Internal;
@@ -14,38 +15,23 @@ namespace Microsoft.EntityFrameworkCore.Query.NavigationExpansion.Visitors
 {
     public partial class NavigationExpandingVisitor : ExpressionVisitor
     {
-        private readonly IModel _model;
+        private readonly QueryCompilationContext _queryCompilationContext;
 
-        public NavigationExpandingVisitor(IModel model)
+        public NavigationExpandingVisitor([NotNull] QueryCompilationContext queryCompilationContext)
         {
-            _model = model;
+            _queryCompilationContext = queryCompilationContext;
         }
 
         protected override Expression VisitExtension(Expression extensionExpression)
         {
-            if (extensionExpression is NavigationBindingExpression navigationBindingExpression)
+            switch (extensionExpression)
             {
-                return navigationBindingExpression;
-            }
-
-            if (extensionExpression is CustomRootExpression customRootExpression)
-            {
-                return customRootExpression;
-            }
-
-            if (extensionExpression is NavigationExpansionRootExpression navigationExpansionRootExpression)
-            {
-                return navigationExpansionRootExpression;
-            }
-
-            if (extensionExpression is IncludeExpression includeExpression)
-            {
-                return includeExpression;
-            }
-
-            if (extensionExpression is NavigationExpansionExpression navigationExpansionExpression)
-            {
-                return navigationExpansionExpression;
+                case NavigationBindingExpression _:
+                case CustomRootExpression _:
+                case NavigationExpansionRootExpression _:
+                case NavigationExpansionExpression _:
+                case IncludeExpression _:
+                    return extensionExpression;
             }
 
             return base.VisitExtension(extensionExpression);
@@ -116,11 +102,11 @@ namespace Microsoft.EntityFrameworkCore.Query.NavigationExpansion.Visitors
 
             var boundSelectorBody = binder.Visit(remappedSelectorBody);
             if (boundSelectorBody is NavigationBindingExpression navigationBindingExpression
-                && navigationBindingExpression.NavigationTreeNode.Navigation is INavigation lastNavigation
-                && lastNavigation != null)
+                && navigationBindingExpression.NavigationTreeNode.Navigation != null)
             {
-                if (lastNavigation.IsCollection())
+                if (navigationBindingExpression.NavigationTreeNode.IsCollection)
                 {
+                    var lastNavigation = navigationBindingExpression.NavigationTreeNode.Navigation;
                     var collectionNavigationElementType = lastNavigation.ForeignKey.DeclaringEntityType.ClrType;
                     var entityQueryable = NullAsyncQueryProvider.Instance.CreateEntityQueryableExpression(collectionNavigationElementType);
                     var outerParameter = Expression.Parameter(collectionNavigationElementType, collectionNavigationElementType.GenerateParameterName());
@@ -243,7 +229,7 @@ namespace Microsoft.EntityFrameworkCore.Query.NavigationExpansion.Visitors
                 if (binaryExpression.Left is MemberExpression leftMember
                     && leftMember.Type.TryGetSequenceType() is Type leftSequenceType
                     && leftSequenceType != null
-                    && _model.FindEntityType(leftMember.Expression.Type) is IEntityType leftParentEntityType)
+                    && _queryCompilationContext.Model.FindEntityType(leftMember.Expression.Type) is IEntityType leftParentEntityType)
                 {
                     leftNavigation = leftParentEntityType.FindNavigation(leftMember.Member.Name);
                     if (leftNavigation != null)
@@ -255,7 +241,7 @@ namespace Microsoft.EntityFrameworkCore.Query.NavigationExpansion.Visitors
                 if (binaryExpression.Right is MemberExpression rightMember
                     && rightMember.Type.TryGetSequenceType() is Type rightSequenceType
                     && rightSequenceType != null
-                    && _model.FindEntityType(rightMember.Expression.Type) is IEntityType rightParentEntityType)
+                    && _queryCompilationContext.Model.FindEntityType(rightMember.Expression.Type) is IEntityType rightParentEntityType)
                 {
                     rightNavigation = rightParentEntityType.FindNavigation(rightMember.Member.Name);
                     if (rightNavigation != null)
@@ -316,17 +302,13 @@ namespace Microsoft.EntityFrameworkCore.Query.NavigationExpansion.Visitors
                 if (leftNavigationBindingExpression != null
                     && rightConstantNull)
                 {
-                    var comparisonArgumentsResult = CreateNullComparisonArguments(leftNavigationBindingExpression, leftNavigationExpansionExpression);
-                    newLeft = comparisonArgumentsResult.navigationExpression;
-                    newRight = comparisonArgumentsResult.nullKeyExpression;
+                    (newLeft, newRight) = CreateNullComparisonArguments(leftNavigationBindingExpression, leftNavigationExpansionExpression);
                 }
 
                 if (rightNavigationBindingExpression != null
                     && leftConstantNull)
                 {
-                    var comparisonArgumentsResult = CreateNullComparisonArguments(rightNavigationBindingExpression, rightNavigationExpansionExpression);
-                    newLeft = comparisonArgumentsResult.nullKeyExpression;
-                    newRight = comparisonArgumentsResult.navigationExpression;
+                    (newRight, newLeft) = CreateNullComparisonArguments(rightNavigationBindingExpression, rightNavigationExpansionExpression);
                 }
 
                 var result = binaryExpression.NodeType == ExpressionType.Equal

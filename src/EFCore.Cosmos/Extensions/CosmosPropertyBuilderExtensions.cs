@@ -26,7 +26,7 @@ namespace Microsoft.EntityFrameworkCore
             [NotNull] string name)
         {
             Check.NotNull(propertyBuilder, nameof(propertyBuilder));
-            Check.NotEmpty(name, nameof(name));
+            Check.NotNull(name, nameof(name));
 
             propertyBuilder.Metadata.SetCosmosPropertyName(name);
 

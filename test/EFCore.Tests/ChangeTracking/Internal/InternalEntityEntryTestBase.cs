@@ -79,15 +79,51 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             }
         }
 
+        [ConditionalTheory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual void Changing_state_to_Unknown_causes_entity_to_stop_tracking(bool useTempValue)
+        {
+            using (var context = new TKContext())
+            {
+                var entry1 = context.Entry(new TSomeEntity()).GetInfrastructure();
+                var keyProperty = entry1.EntityType.FindProperty("Id");
+
+                if (useTempValue)
+                {
+                    entry1.SetTemporaryValue(keyProperty, -1, setModified: false);
+                }
+                else
+                {
+                    entry1[keyProperty] = -1;
+                }
+
+                entry1.SetEntityState(EntityState.Added);
+                entry1.SetEntityState(EntityState.Detached);
+
+                Assert.Equal(EntityState.Detached, entry1.EntityState);
+                Assert.DoesNotContain(entry1, context.GetService<IStateManager>().Entries);
+
+                var entry2 = context.Entry(new TSomeEntity()).GetInfrastructure();
+                entry2[keyProperty] = -1;
+
+                entry2.SetEntityState(EntityState.Added);
+                entry2.SetEntityState(EntityState.Detached);
+
+                Assert.Equal(EntityState.Detached, entry2.EntityState);
+                Assert.DoesNotContain(entry2, context.GetService<IStateManager>().Entries);
+            }
+        }
+
         [ConditionalFact]
-        public virtual void Changing_state_to_Unknown_causes_entity_to_stop_tracking()
+        public virtual void Changing_state_to_Unknown_causes_entity_with_temporary_key_to_stop_tracking()
         {
             using (var context = new TKContext())
             {
                 var entry = context.Entry(new TSomeEntity()).GetInfrastructure();
                 var keyProperty = entry.EntityType.FindProperty("Id");
 
-                entry[keyProperty] = 1;
+                entry.SetTemporaryValue(keyProperty, -1, setModified: false);
 
                 entry.SetEntityState(EntityState.Added);
                 entry.SetEntityState(EntityState.Detached);

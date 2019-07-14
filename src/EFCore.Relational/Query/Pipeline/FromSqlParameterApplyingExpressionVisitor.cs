@@ -21,7 +21,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
 
             private readonly ISqlExpressionFactory _SqlExpressionFactory;
             private readonly ParameterNameGenerator _parameterNameGenerator;
-            private IReadOnlyDictionary<string, object> _parametersValues;
+            private readonly IReadOnlyDictionary<string, object> _parametersValues;
 
             public FromSqlParameterApplyingExpressionVisitor(
                 ISqlExpressionFactory _sqlExpressionFactory,

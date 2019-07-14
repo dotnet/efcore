@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Transactions;
 using Xunit;
 
@@ -63,6 +64,12 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         public abstract DbContextOptionsBuilder AddProviderOptions(DbContextOptionsBuilder builder);
         public abstract void Clean(DbContext context);
 
+        public virtual Task CleanAsync(DbContext context)
+        {
+            Clean(context);
+            return Task.CompletedTask;
+        }
+
         protected virtual DbContext CreateDefaultContext()
             => new DbContext(AddProviderOptions(new DbContextOptionsBuilder().EnableServiceProviderCaching(false)).Options);
 
@@ -70,6 +77,12 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
         public virtual void Dispose()
         {
+        }
+
+        public virtual Task DisposeAsync()
+        {
+            Dispose();
+            return Task.CompletedTask;
         }
 
         private static readonly SemaphoreSlim _transactionSyncRoot = new SemaphoreSlim(1);

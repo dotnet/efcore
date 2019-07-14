@@ -701,7 +701,7 @@ namespace Microsoft.EntityFrameworkCore
         [InlineData("VarCHaR(333)", typeof(string), 333, false)] // case-insensitive
         [InlineData("varchar(333)", typeof(string), 333, false)]
         [InlineData("varchar(max)", typeof(string), null, false)]
-        [InlineData("VARCHAR(max)", typeof(string), null, false, "varchar(max)")]
+        [InlineData("VARCHAR(max)", typeof(string), null, false, "VARCHAR(max)")]
         public void Can_map_by_type_name(string typeName, Type clrType, int? size, bool unicode, string expectedType = null)
         {
             var mapping = CreateTypeMapper().FindMapping(typeName);

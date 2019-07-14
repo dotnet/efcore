@@ -71,7 +71,7 @@ namespace Microsoft.EntityFrameworkCore
             {
                 var changeDetector = (ChangeDetectorProxy)context.GetService<IChangeDetector>();
 
-                parent = parent ?? context.Set<Parent>().Single();
+                parent ??= context.Set<Parent>().Single();
 
                 ClearLog();
 
@@ -145,7 +145,7 @@ namespace Microsoft.EntityFrameworkCore
             {
                 var changeDetector = (ChangeDetectorProxy)context.GetService<IChangeDetector>();
 
-                child = child ?? context.Set<Child>().Single(e => e.Id == 12);
+                child ??= context.Set<Child>().Single(e => e.Id == 12);
 
                 ClearLog();
 
@@ -221,7 +221,7 @@ namespace Microsoft.EntityFrameworkCore
             {
                 var changeDetector = (ChangeDetectorProxy)context.GetService<IChangeDetector>();
 
-                single = single ?? context.Set<Single>().Single();
+                single ??= context.Set<Single>().Single();
 
                 ClearLog();
 
@@ -297,7 +297,7 @@ namespace Microsoft.EntityFrameworkCore
             {
                 var changeDetector = (ChangeDetectorProxy)context.GetService<IChangeDetector>();
 
-                parent = parent ?? context.Set<Parent>().Single();
+                parent ??= context.Set<Parent>().Single();
 
                 ClearLog();
 

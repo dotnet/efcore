@@ -268,7 +268,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
             var dbTransaction = interceptionResult.HasValue
                 ? interceptionResult.Value.Result
-                : DbConnection.BeginTransaction(isolationLevel); // Use BeginTransactionAsync when available
+                : await DbConnection.BeginTransactionAsync(isolationLevel, cancellationToken);
 
             dbTransaction = await Dependencies.TransactionLogger.TransactionStartedAsync(
                 this,
@@ -451,7 +451,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         {
             if (DbConnection.State == ConnectionState.Broken)
             {
-                DbConnection.Close();
+                await DbConnection.CloseAsync();
             }
 
             var wasOpened = false;
@@ -684,7 +684,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                     {
                         if (interceptionResult == null)
                         {
-                            DbConnection.Close(); // Since no CloseAsync yet
+                            await DbConnection.CloseAsync();
                         }
 
                         wasClosed = true;

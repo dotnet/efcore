@@ -343,7 +343,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual void SetClrType(Type clrType, ConfigurationSource configurationSource)
         {
-            clrType = clrType ?? DefaultClrType;
+            clrType ??= DefaultClrType;
             if (!SupportedTypes.Contains(clrType))
             {
                 throw new ArgumentException(RelationalStrings.BadSequenceType);
@@ -604,7 +604,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     end = value.IndexOf('\'', end + 2);
                 }
 
-                var extracted = value.Substring(position, end - position).Replace("''", "'");
+                var extracted = value[position..end].Replace("''", "'");
                 position = end + 1;
 
                 return extracted.Length == 0 ? null : extracted;

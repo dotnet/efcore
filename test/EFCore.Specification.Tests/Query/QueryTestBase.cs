@@ -1592,7 +1592,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     : ((IEnumerable<TElement>)e).ToList();
 
                 Assert.Equal(expected.Count, actual.Count);
-                elementAsserter = elementAsserter ?? Assert.Equal;
+                elementAsserter ??= Assert.Equal;
 
                 for (var i = 0; i < expected.Count; i++)
                 {

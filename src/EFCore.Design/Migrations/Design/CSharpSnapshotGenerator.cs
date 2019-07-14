@@ -165,7 +165,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 // ReSharper disable once InlineOutVariableDeclaration
                 var counter = 1;
                 if (builderName.Length > 1
-                    && int.TryParse(builderName.Substring(1, builderName.Length - 1), out counter))
+                    && int.TryParse(builderName[1..], out counter))
                 {
                     counter++;
                 }
@@ -427,74 +427,57 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
 
             var annotations = property.GetAnnotations().ToList();
 
+            GenerateFluentApiForAnnotation(
+                ref annotations,
+                RelationalAnnotationNames.ColumnName,
+                nameof(RelationalPropertyBuilderExtensions.HasColumnName),
+                stringBuilder);
+
+            stringBuilder
+                .AppendLine()
+                .Append(".")
+                .Append(nameof(RelationalPropertyBuilderExtensions.HasColumnType))
+                .Append("(")
+                .Append(Code.Literal(property.GetColumnType()))
+                .Append(")");
+
+            GenerateFluentApiForAnnotation(
+                ref annotations,
+                RelationalAnnotationNames.DefaultValueSql,
+                nameof(RelationalPropertyBuilderExtensions.HasDefaultValueSql),
+                stringBuilder);
+
+            GenerateFluentApiForAnnotation(
+                ref annotations,
+                RelationalAnnotationNames.ComputedColumnSql,
+                nameof(RelationalPropertyBuilderExtensions.HasComputedColumnSql),
+                stringBuilder);
+
+            GenerateFluentApiForAnnotation(
+                ref annotations,
+                RelationalAnnotationNames.IsFixedLength,
+                nameof(RelationalPropertyBuilderExtensions.IsFixedLength),
+                stringBuilder);
+
+            GenerateFluentApiForAnnotation(
+                ref annotations,
+                RelationalAnnotationNames.Comment,
+                nameof(RelationalPropertyBuilderExtensions.HasComment),
+                stringBuilder);
+
+            GenerateFluentApiForAnnotation(
+                ref annotations,
+                CoreAnnotationNames.MaxLength,
+                nameof(PropertyBuilder.HasMaxLength),
+                stringBuilder);
+
+            GenerateFluentApiForAnnotation(
+                ref annotations,
+                CoreAnnotationNames.Unicode,
+                nameof(PropertyBuilder.IsUnicode),
+                stringBuilder);
+
             var valueConverter = FindValueConverter(property);
-
-            if (valueConverter != null)
-            {
-                var hints = valueConverter.MappingHints;
-
-                if (hints != null)
-                {
-                    var storeType = Code.Reference(valueConverter.ProviderClrType);
-
-                    stringBuilder
-                        .AppendLine()
-                        .Append(".")
-                        .Append(nameof(PropertyBuilder.HasConversion))
-                        .Append("(new ")
-                        .Append(nameof(ValueConverter))
-                        .Append("<")
-                        .Append(storeType)
-                        .Append(", ")
-                        .Append(storeType)
-                        .Append(">(v => default(")
-                        .Append(storeType)
-                        .Append("), v => default(")
-                        .Append(storeType);
-
-                    var nonNulls = new List<string>();
-
-                    if (hints.Size != null)
-                    {
-                        nonNulls.Add("size: " + Code.Literal(hints.Size.Value));
-                    }
-
-                    if (hints.Precision != null)
-                    {
-                        nonNulls.Add("precision: " + Code.Literal(hints.Precision.Value));
-                    }
-
-                    if (hints.Scale != null)
-                    {
-                        nonNulls.Add("scale: " + Code.Literal(hints.Scale.Value));
-                    }
-
-                    if (hints.IsUnicode != null)
-                    {
-                        nonNulls.Add("unicode: " + Code.Literal(hints.IsUnicode.Value));
-                    }
-
-                    if (hints is RelationalConverterMappingHints relationalHints
-                        && relationalHints.IsFixedLength != null)
-                    {
-                        nonNulls.Add("fixedLength: " + Code.Literal(relationalHints.IsFixedLength.Value));
-                    }
-
-                    stringBuilder
-                        .Append("), new ConverterMappingHints(")
-                        .Append(string.Join(", ", nonNulls))
-                        .Append(")))");
-                }
-            }
-
-            GenerateFluentApiForAnnotation(ref annotations, RelationalAnnotationNames.ColumnName, nameof(RelationalPropertyBuilderExtensions.HasColumnName), stringBuilder);
-            GenerateFluentApiForAnnotation(ref annotations, RelationalAnnotationNames.ColumnType, nameof(RelationalPropertyBuilderExtensions.HasColumnType), stringBuilder);
-            GenerateFluentApiForAnnotation(ref annotations, RelationalAnnotationNames.DefaultValueSql, nameof(RelationalPropertyBuilderExtensions.HasDefaultValueSql), stringBuilder);
-            GenerateFluentApiForAnnotation(ref annotations, RelationalAnnotationNames.ComputedColumnSql, nameof(RelationalPropertyBuilderExtensions.HasComputedColumnSql), stringBuilder);
-            GenerateFluentApiForAnnotation(ref annotations, RelationalAnnotationNames.IsFixedLength, nameof(RelationalPropertyBuilderExtensions.IsFixedLength), stringBuilder);
-            GenerateFluentApiForAnnotation(ref annotations, RelationalAnnotationNames.Comment, nameof(RelationalPropertyBuilderExtensions.HasComment), stringBuilder);
-            GenerateFluentApiForAnnotation(ref annotations, CoreAnnotationNames.MaxLength, nameof(PropertyBuilder.HasMaxLength), stringBuilder);
-            GenerateFluentApiForAnnotation(ref annotations, CoreAnnotationNames.Unicode, nameof(PropertyBuilder.IsUnicode), stringBuilder);
 
             GenerateFluentApiForAnnotation(
                 ref annotations,
@@ -505,6 +488,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
 
             IgnoreAnnotations(
                 annotations,
+                RelationalAnnotationNames.ColumnType,
                 CoreAnnotationNames.ValueGeneratorFactory,
                 CoreAnnotationNames.PropertyAccessMode,
                 CoreAnnotationNames.ChangeTrackingStrategy,
@@ -1139,13 +1123,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 stringBuilder
                     .AppendLine()
                     .Append(".")
-                    .Append(fluentApiMethodName);
-
-                stringBuilder.Append("(");
-
-                stringBuilder.Append(Code.UnknownLiteral(annotationValue));
-
-                stringBuilder.Append(")");
+                    .Append(fluentApiMethodName)
+                    .Append("(")
+                    .Append(Code.UnknownLiteral(annotationValue))
+                    .Append(")");
 
                 annotations.Remove(annotation);
             }

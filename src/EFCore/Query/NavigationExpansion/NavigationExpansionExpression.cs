@@ -14,7 +14,7 @@ namespace Microsoft.EntityFrameworkCore.Query.NavigationExpansion
 {
     public class NavigationExpansionExpression : Expression, IPrintable
     {
-        private Type _returnType;
+        private readonly Type _returnType;
 
         public NavigationExpansionExpression(
             Expression operand,

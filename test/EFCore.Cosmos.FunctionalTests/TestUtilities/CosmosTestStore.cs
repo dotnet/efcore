@@ -19,6 +19,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.TestUtilities
         private readonly TestStoreContext _storeContext;
         private readonly string _dataFilePath;
         private readonly Action<CosmosDbContextOptionsBuilder> _configureCosmos;
+        private static readonly Guid _runId = Guid.NewGuid();
 
         public static CosmosTestStore Create(string name, Action<CosmosDbContextOptionsBuilder> extensionConfiguration = null)
             => new CosmosTestStore(name, shared: false, extensionConfiguration: extensionConfiguration);
@@ -33,7 +34,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.TestUtilities
 
         private CosmosTestStore(
             string name, bool shared = true, string dataFilePath = null, Action<CosmosDbContextOptionsBuilder> extensionConfiguration = null)
-            : base(name, shared)
+            : base(CreateName(name), shared)
         {
             ConnectionUri = TestEnvironment.DefaultConnection;
             AuthToken = TestEnvironment.AuthToken;
@@ -48,6 +49,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.TestUtilities
                     dataFilePath);
             }
         }
+
+        private static string CreateName(string name) => name == "Northwind" ? name : (name + _runId.ToString());
 
         public string ConnectionUri { get; }
         public string AuthToken { get; }
@@ -142,15 +145,23 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.TestUtilities
             context.Database.EnsureCreated();
         }
 
+        public override async Task CleanAsync(DbContext context)
+        {
+            await context.Database.EnsureDeletedAsync();
+            await context.Database.EnsureCreatedAsync();
+        }
+
         public override void Dispose()
+            => throw new InvalidOperationException("Calling Dispose can cause deadlocks. Use DisposeAsync instead.");
+
+        public override async Task DisposeAsync()
         {
             if (_dataFilePath == null)
             {
-                _storeContext.Database.EnsureDeleted();
+                await _storeContext.Database.EnsureDeletedAsync();
             }
 
             _storeContext.Dispose();
-            base.Dispose();
         }
 
         private class TestStoreContext : DbContext

@@ -16,7 +16,7 @@ namespace Microsoft.EntityFrameworkCore
 
         protected TFixture Fixture { get; }
 
-        [ConditionalFact(Skip = "issue #15285")]
+        [ConditionalFact]
         public virtual void Property_entry_original_value_is_set()
         {
             using (var c = CreateF1Context())

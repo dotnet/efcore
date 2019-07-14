@@ -413,6 +413,9 @@ namespace Microsoft.EntityFrameworkCore
                 modelBuilder.Entity<TaskChoice>();
                 modelBuilder.Entity<ParentAsAChild>();
                 modelBuilder.Entity<ChildAsAParent>();
+
+                modelBuilder.Entity<Poost>();
+                modelBuilder.Entity<Bloog>();
             }
 
             protected virtual object CreateFullGraph()
@@ -688,6 +691,18 @@ namespace Microsoft.EntityFrameworkCore
                     new ParentAsAChild
                     {
                         ChildAsAParent = new ChildAsAParent()
+                    });
+
+                var bloog = new Bloog { Id = 515 };
+
+                context.AddRange(
+                    new Poost
+                    {
+                        Id = 516, Bloog = bloog
+                    },
+                    new Poost
+                    {
+                        Id = 517, Bloog = bloog
                     });
 
                 context.SaveChanges();
@@ -2841,6 +2856,52 @@ namespace Microsoft.EntityFrameworkCore
             {
                 get => _choices;
                 set => SetWithNotify(value, ref _choices);
+            }
+        }
+
+        protected class Bloog : NotifyingEntity
+        {
+            private int _id;
+            private IEnumerable<Poost> _poosts = new ObservableHashSet<Poost>(ReferenceEqualityComparer.Instance);
+
+            [DatabaseGenerated(DatabaseGeneratedOption.None)]
+            public int Id
+            {
+                get => _id;
+                set => SetWithNotify(value, ref _id);
+            }
+
+            public IEnumerable<Poost> Poosts
+            {
+                get => _poosts;
+                set => SetWithNotify(value, ref _poosts);
+            }
+        }
+
+        protected class Poost : NotifyingEntity
+        {
+            private int _id;
+            private int? _bloogId;
+            private Bloog _bloog;
+
+            [DatabaseGenerated(DatabaseGeneratedOption.None)]
+            public int Id
+            {
+                get => _id;
+                set => SetWithNotify(value, ref _id);
+            }
+
+
+            public int? BloogId
+            {
+                get => _bloogId;
+                set => SetWithNotify(value, ref _bloogId);
+            }
+
+            public Bloog Bloog
+            {
+                get => _bloog;
+                set => SetWithNotify(value, ref _bloog);
             }
         }
 

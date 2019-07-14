@@ -20,10 +20,20 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
         {
         }
 
-        internal ColumnExpression(ProjectionExpression subqueryProjection, TableExpressionBase table, bool nullable)
-            : this(subqueryProjection.Alias, table, subqueryProjection.Type, subqueryProjection.Expression.TypeMapping, nullable)
+        internal ColumnExpression(ProjectionExpression subqueryProjection, TableExpressionBase table)
+            : this(subqueryProjection.Alias, table,
+                  subqueryProjection.Type, subqueryProjection.Expression.TypeMapping,
+                  IsNullableProjection(subqueryProjection))
         {
         }
+
+        private static bool IsNullableProjection(ProjectionExpression projectionExpression)
+            => projectionExpression.Expression switch
+                {
+                    ColumnExpression columnExpression => columnExpression.Nullable,
+                    SqlConstantExpression sqlConstantExpression => sqlConstantExpression.Value == null,
+                    _ => true,
+                };
 
         private ColumnExpression(string name, TableExpressionBase table, Type type, RelationalTypeMapping typeMapping, bool nullable)
             : base(type, typeMapping)

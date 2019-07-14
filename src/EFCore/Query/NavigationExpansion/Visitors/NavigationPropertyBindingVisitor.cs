@@ -27,22 +27,15 @@ namespace Microsoft.EntityFrameworkCore.Query.NavigationExpansion.Visitors
 
         protected override Expression VisitExtension(Expression extensionExpression)
         {
-            if (extensionExpression is NavigationBindingExpression navigationBindingExpression)
+            switch (extensionExpression)
             {
-                return navigationBindingExpression;
+                case NavigationBindingExpression _:
+                case CustomRootExpression _:
+                case NavigationExpansionRootExpression _:
+                    return extensionExpression;
+                default:
+                    return base.VisitExtension(extensionExpression);
             }
-
-            if (extensionExpression is CustomRootExpression customRootExpression)
-            {
-                return customRootExpression;
-            }
-
-            if (extensionExpression is NavigationExpansionRootExpression navigationExpansionRootExpression)
-            {
-                return navigationExpansionRootExpression;
-            }
-
-            return base.VisitExtension(extensionExpression);
         }
 
         protected override Expression VisitLambda<T>(Expression<T> lambdaExpression)
@@ -116,7 +109,7 @@ namespace Microsoft.EntityFrameworkCore.Query.NavigationExpansion.Visitors
             if (boundProperty == null
                 && newExpression is NavigationBindingExpression navigationBindingExpression
                 && navigationBindingExpression.NavigationTreeNode.Optional
-                && navigationBindingExpression.NavigationTreeNode.Navigation?.IsCollection() != true)
+                && !navigationBindingExpression.NavigationTreeNode.IsCollection)
             {
                 var nullProtection = new NullConditionalExpression(newExpression, result);
                 if (nullProtection.Type == result.Type)
@@ -152,7 +145,8 @@ namespace Microsoft.EntityFrameworkCore.Query.NavigationExpansion.Visitors
                     var navigation = navigationBindingExpression.EntityType.FindNavigation(navigationMemberName);
                     if (navigation != null)
                     {
-                        var navigationTreeNode = NavigationTreeNode.Create(navigationBindingExpression.SourceMapping, navigation, navigationBindingExpression.NavigationTreeNode, _bindInclude);
+                        var navigationTreeNode = NavigationTreeNode.Create(
+                            navigationBindingExpression.SourceMapping, navigation, navigationBindingExpression.NavigationTreeNode, _bindInclude);
 
                         return new NavigationBindingExpression(
                             navigationBindingExpression.RootParameter,
@@ -167,7 +161,8 @@ namespace Microsoft.EntityFrameworkCore.Query.NavigationExpansion.Visitors
             {
                 foreach (var sourceMapping in _sourceMappings)
                 {
-                    var candidates = sourceMapping.NavigationTree.Flatten().SelectMany(n => n.FromMappings, (n, m) => (navigationTreeNode: n, path: m)).ToList();
+                    var candidates = sourceMapping.NavigationTree.Flatten()
+                        .SelectMany(n => n.FromMappings, (n, m) => (navigationTreeNode: n, path: m)).ToList();
                     var match = TryFindMatchingNavigationTreeNode(originalExpression, candidates);
                     if (match.navigationTreeNode != null)
                     {

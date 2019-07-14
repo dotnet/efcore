@@ -116,9 +116,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
 
             clone._explicitBehaviors = new Dictionary<int, (WarningBehavior? Behavior, LogLevel? Level)>(_explicitBehaviors);
 
-            foreach (var pair in eventsAndLevels)
+            foreach (var (id, level) in eventsAndLevels)
             {
-                clone._explicitBehaviors[pair.Id.Id] = (WarningBehavior.Log, pair.Level);
+                clone._explicitBehaviors[id.Id] = (WarningBehavior.Log, level);
             }
 
             return clone;

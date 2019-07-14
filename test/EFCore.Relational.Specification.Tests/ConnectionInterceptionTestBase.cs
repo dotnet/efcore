@@ -34,29 +34,34 @@ namespace Microsoft.EntityFrameworkCore
                     connection.Close();
                 }
 
-                if (async)
+                using (var listener = Fixture.SubscribeToDiagnosticListener(context.ContextId))
                 {
-                    await context.Database.OpenConnectionAsync();
-                }
-                else
-                {
-                    context.Database.OpenConnection();
-                }
+                    if (async)
+                    {
+                        await context.Database.OpenConnectionAsync();
+                    }
+                    else
+                    {
+                        context.Database.OpenConnection();
+                    }
 
-                AssertNormalOpen(context, interceptor, async);
+                    AssertNormalOpen(context, interceptor, async);
 
-                interceptor.Reset();
+                    interceptor.Reset();
 
-                if (async)
-                {
-                    await context.Database.CloseConnectionAsync();
+                    if (async)
+                    {
+                        await context.Database.CloseConnectionAsync();
+                    }
+                    else
+                    {
+                        context.Database.CloseConnection();
+                    }
+
+                    AssertNormalClose(context, interceptor, async);
+
+                    AsertOpenCloseEvents(listener);
                 }
-                else
-                {
-                    context.Database.CloseConnection();
-                }
-
-                AssertNormalClose(context, interceptor, async);
 
                 if (startedOpen)
                 {
@@ -81,29 +86,34 @@ namespace Microsoft.EntityFrameworkCore
                     connection.Close();
                 }
 
-                if (async)
+                using (var listener = Fixture.SubscribeToDiagnosticListener(context.ContextId))
                 {
-                    await context.Database.OpenConnectionAsync();
-                }
-                else
-                {
-                    context.Database.OpenConnection();
-                }
+                    if (async)
+                    {
+                        await context.Database.OpenConnectionAsync();
+                    }
+                    else
+                    {
+                        context.Database.OpenConnection();
+                    }
 
-                AssertNormalOpen(context, interceptor, async);
+                    AssertNormalOpen(context, interceptor, async);
 
-                interceptor.Reset();
+                    interceptor.Reset();
 
-                if (async)
-                {
-                    await context.Database.CloseConnectionAsync();
+                    if (async)
+                    {
+                        await context.Database.CloseConnectionAsync();
+                    }
+                    else
+                    {
+                        context.Database.CloseConnection();
+                    }
+
+                    AssertNormalClose(context, interceptor, async);
+
+                    AsertOpenCloseEvents(listener);
                 }
-                else
-                {
-                    context.Database.CloseConnection();
-                }
-
-                AssertNormalClose(context, interceptor, async);
 
                 if (startedOpen)
                 {
@@ -139,38 +149,43 @@ namespace Microsoft.EntityFrameworkCore
                     connection.Close();
                 }
 
-                if (async)
+                using (var listener = Fixture.SubscribeToDiagnosticListener(context.ContextId))
                 {
-                    await context.Database.OpenConnectionAsync();
-                }
-                else
-                {
-                    context.Database.OpenConnection();
-                }
+                    if (async)
+                    {
+                        await context.Database.OpenConnectionAsync();
+                    }
+                    else
+                    {
+                        context.Database.OpenConnection();
+                    }
 
-                AssertNormalOpen(context, interceptor1, async);
-                AssertNormalOpen(context, interceptor2, async);
-                AssertNormalOpen(context, interceptor3, async);
-                AssertNormalOpen(context, interceptor4, async);
+                    AssertNormalOpen(context, interceptor1, async);
+                    AssertNormalOpen(context, interceptor2, async);
+                    AssertNormalOpen(context, interceptor3, async);
+                    AssertNormalOpen(context, interceptor4, async);
 
-                interceptor1.Reset();
-                interceptor2.Reset();
-                interceptor3.Reset();
-                interceptor4.Reset();
+                    interceptor1.Reset();
+                    interceptor2.Reset();
+                    interceptor3.Reset();
+                    interceptor4.Reset();
 
-                if (async)
-                {
-                    await context.Database.CloseConnectionAsync();
+                    if (async)
+                    {
+                        await context.Database.CloseConnectionAsync();
+                    }
+                    else
+                    {
+                        context.Database.CloseConnection();
+                    }
+
+                    AssertNormalClose(context, interceptor1, async);
+                    AssertNormalClose(context, interceptor2, async);
+                    AssertNormalClose(context, interceptor3, async);
+                    AssertNormalClose(context, interceptor4, async);
+
+                    AsertOpenCloseEvents(listener);
                 }
-                else
-                {
-                    context.Database.CloseConnection();
-                }
-
-                AssertNormalClose(context, interceptor1, async);
-                AssertNormalClose(context, interceptor2, async);
-                AssertNormalClose(context, interceptor3, async);
-                AssertNormalClose(context, interceptor4, async);
 
                 if (startedOpen)
                 {
@@ -262,6 +277,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             public DbContext Context { get; set; }
             public Exception Exception { get; set; }
+            public DbContextId ContextId { get; set; }
             public Guid ConnectionId { get; set; }
             public bool AsyncCalled { get; set; }
             public bool SyncCalled { get; set; }
@@ -275,6 +291,7 @@ namespace Microsoft.EntityFrameworkCore
             {
                 Context = null;
                 Exception = null;
+                ContextId = default;
                 ConnectionId = default;
                 AsyncCalled = false;
                 SyncCalled = false;
@@ -400,8 +417,10 @@ namespace Microsoft.EntityFrameworkCore
             {
                 Assert.NotNull(eventData.Context);
                 Assert.NotEqual(default, eventData.ConnectionId);
+                Assert.NotEqual(default, eventData.Context.ContextId);
 
                 Context = eventData.Context;
+                ContextId = Context.ContextId;
                 ConnectionId = eventData.ConnectionId;
                 OpeningCalled = true;
             }
@@ -410,6 +429,7 @@ namespace Microsoft.EntityFrameworkCore
             {
                 Assert.Same(Context, eventData.Context);
                 Assert.Equal(ConnectionId, eventData.ConnectionId);
+                Assert.Equal(ContextId, eventData.Context.ContextId);
 
                 OpenedCalled = true;
             }
@@ -418,8 +438,10 @@ namespace Microsoft.EntityFrameworkCore
             {
                 Assert.NotNull(eventData.Context);
                 Assert.NotEqual(default, eventData.ConnectionId);
+                Assert.NotEqual(default, eventData.Context.ContextId);
 
                 Context = eventData.Context;
+                ContextId = Context.ContextId;
                 ConnectionId = eventData.ConnectionId;
                 ClosingCalled = true;
             }
@@ -428,6 +450,7 @@ namespace Microsoft.EntityFrameworkCore
             {
                 Assert.Same(Context, eventData.Context);
                 Assert.Equal(ConnectionId, eventData.ConnectionId);
+                Assert.Equal(ContextId, eventData.Context.ContextId);
 
                 ClosedCalled = true;
             }
@@ -436,6 +459,7 @@ namespace Microsoft.EntityFrameworkCore
             {
                 Assert.Same(Context, eventData.Context);
                 Assert.Equal(ConnectionId, eventData.ConnectionId);
+                Assert.Equal(ContextId, eventData.Context.ContextId);
                 Assert.NotNull(eventData.Exception);
 
                 Exception = eventData.Exception;
@@ -481,5 +505,12 @@ namespace Microsoft.EntityFrameworkCore
             Assert.True(interceptor.FailedCalled);
             Assert.Same(context, interceptor.Context);
         }
+
+        private static void AsertOpenCloseEvents(ITestDiagnosticListener listener)
+            => listener.AssertEventsInOrder(
+                RelationalEventId.ConnectionOpening.Name,
+                RelationalEventId.ConnectionOpened.Name,
+                RelationalEventId.ConnectionClosing.Name,
+                RelationalEventId.ConnectionClosed.Name);
     }
 }

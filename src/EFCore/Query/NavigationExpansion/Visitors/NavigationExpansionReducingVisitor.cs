@@ -16,95 +16,91 @@ namespace Microsoft.EntityFrameworkCore.Query.NavigationExpansion.Visitors
     {
         protected override Expression VisitExtension(Expression extensionExpression)
         {
-            if (extensionExpression is NavigationBindingExpression navigationBindingExpression)
+            switch (extensionExpression)
             {
-                var result = navigationBindingExpression.RootParameter.BuildPropertyAccess(navigationBindingExpression.NavigationTreeNode.ToMapping);
-
-                return result;
-            }
-
-            if (extensionExpression is NavigationExpansionRootExpression navigationExpansionRootExpression)
-            {
-                return Visit(navigationExpansionRootExpression.Unwrap());
-            }
-
-            if (extensionExpression is NavigationExpansionExpression navigationExpansionExpression)
-            {
-                var includeResult = ApplyIncludes(navigationExpansionExpression);
-                var state = includeResult.state;
-                var result = Visit(includeResult.operand);
-
-                if (!state.ApplyPendingSelector
-                    && state.PendingOrderings.Count == 0
-                    && state.PendingCardinalityReducingOperator == null
-                    && state.MaterializeCollectionNavigation == null)
-                {
-                    return result;
-                }
-
-                var parameter = Expression.Parameter(result.Type.GetSequenceType());
-
-                foreach (var pendingOrdering in state.PendingOrderings)
-                {
-                    var remappedKeySelectorBody = new ExpressionReplacingVisitor(pendingOrdering.keySelector.Parameters[0], state.CurrentParameter).Visit(pendingOrdering.keySelector.Body);
-                    var newSelectorBody = new NavigationPropertyUnbindingVisitor(state.CurrentParameter).Visit(remappedKeySelectorBody);
-                    var newSelector = Expression.Lambda(newSelectorBody, state.CurrentParameter);
-                    var orderingMethod = pendingOrdering.method.MakeGenericMethod(state.CurrentParameter.Type, newSelectorBody.Type);
-                    result = Expression.Call(orderingMethod, result, newSelector);
-                }
-
-                if (state.ApplyPendingSelector)
-                {
-                    var pendingSelector = (LambdaExpression)new NavigationPropertyUnbindingVisitor(state.CurrentParameter).Visit(state.PendingSelector);
-                    var pendingSelectorBodyType = pendingSelector.Type.GetGenericArguments()[1];
-
-                    var pendingSelectMathod = result.Type.IsGenericType && (result.Type.GetGenericTypeDefinition() == typeof(IEnumerable<>) || result.Type.GetGenericTypeDefinition() == typeof(IOrderedEnumerable<>))
-                        ? LinqMethodHelpers.EnumerableSelectMethodInfo.MakeGenericMethod(parameter.Type, pendingSelectorBodyType)
-                        : LinqMethodHelpers.QueryableSelectMethodInfo.MakeGenericMethod(parameter.Type, pendingSelectorBodyType);
-
-                    result = Expression.Call(pendingSelectMathod, result, pendingSelector);
-                    parameter = Expression.Parameter(result.Type.GetSequenceType());
-                }
-
-                if (state.PendingCardinalityReducingOperator != null)
-                {
-                    result = Expression.Call(state.PendingCardinalityReducingOperator, result);
-                }
-
-                if (state.MaterializeCollectionNavigation != null)
-                {
-                    result = new MaterializeCollectionNavigationExpression(result, state.MaterializeCollectionNavigation);
-                }
-
-                if (navigationExpansionExpression.Type != result.Type && navigationExpansionExpression.Type.IsGenericType)
-                {
-                    if (navigationExpansionExpression.Type.GetGenericTypeDefinition() == typeof(IOrderedQueryable<>))
+                case NavigationBindingExpression navigationBindingExpression:
                     {
-                        var toOrderedQueryableMethodInfo = ToOrderedQueryableMethod.MakeGenericMethod(parameter.Type);
-
-                        return Expression.Call(toOrderedQueryableMethodInfo, result);
+                        return navigationBindingExpression.RootParameter.BuildPropertyAccess(navigationBindingExpression.NavigationTreeNode.ToMapping);
                     }
-                    else if (navigationExpansionExpression.Type.GetGenericTypeDefinition() == typeof(IOrderedEnumerable<>))
+
+                case NavigationExpansionRootExpression navigationExpansionRootExpression:
+                    return Visit(navigationExpansionRootExpression.Unwrap());
+                case NavigationExpansionExpression navigationExpansionExpression:
                     {
-                        var toOrderedEnumerableMethodInfo = ToOrderedEnumerableMethod.MakeGenericMethod(parameter.Type);
+                        var includeResult = ApplyIncludes(navigationExpansionExpression);
+                        var state = includeResult.State;
+                        var result = Visit(includeResult.Operand);
 
-                        return Expression.Call(toOrderedEnumerableMethodInfo, result);
+                        if (!state.ApplyPendingSelector
+                            && state.PendingOrderings.Count == 0
+                            && state.PendingCardinalityReducingOperator == null
+                            && state.MaterializeCollectionNavigation == null)
+                        {
+                            return result;
+                        }
+
+                        var parameter = Expression.Parameter(result.Type.GetSequenceType());
+
+                        foreach (var pendingOrdering in state.PendingOrderings)
+                        {
+                            var remappedKeySelectorBody = new ExpressionReplacingVisitor(pendingOrdering.keySelector.Parameters[0], state.CurrentParameter).Visit(pendingOrdering.keySelector.Body);
+                            var newSelectorBody = new NavigationPropertyUnbindingVisitor(state.CurrentParameter).Visit(remappedKeySelectorBody);
+                            var newSelector = Expression.Lambda(newSelectorBody, state.CurrentParameter);
+                            var orderingMethod = pendingOrdering.method.MakeGenericMethod(state.CurrentParameter.Type, newSelectorBody.Type);
+                            result = Expression.Call(orderingMethod, result, newSelector);
+                        }
+
+                        if (state.ApplyPendingSelector)
+                        {
+                            var pendingSelector = (LambdaExpression)new NavigationPropertyUnbindingVisitor(state.CurrentParameter).Visit(state.PendingSelector);
+                            var pendingSelectorBodyType = pendingSelector.Type.GetGenericArguments()[1];
+
+                            var pendingSelectMethod = result.Type.IsGenericType && (result.Type.GetGenericTypeDefinition() == typeof(IEnumerable<>) || result.Type.GetGenericTypeDefinition() == typeof(IOrderedEnumerable<>))
+                                ? LinqMethodHelpers.EnumerableSelectMethodInfo.MakeGenericMethod(parameter.Type, pendingSelectorBodyType)
+                                : LinqMethodHelpers.QueryableSelectMethodInfo.MakeGenericMethod(parameter.Type, pendingSelectorBodyType);
+
+                            result = Expression.Call(pendingSelectMethod, result, pendingSelector);
+                            parameter = Expression.Parameter(result.Type.GetSequenceType());
+                        }
+
+                        if (state.PendingCardinalityReducingOperator != null)
+                        {
+                            result = Expression.Call(state.PendingCardinalityReducingOperator, result);
+                        }
+
+                        if (state.MaterializeCollectionNavigation != null)
+                        {
+                            result = new MaterializeCollectionNavigationExpression(result, state.MaterializeCollectionNavigation);
+                        }
+
+                        if (navigationExpansionExpression.Type != result.Type && navigationExpansionExpression.Type.IsGenericType)
+                        {
+                            if (navigationExpansionExpression.Type.GetGenericTypeDefinition() == typeof(IOrderedQueryable<>))
+                            {
+                                var toOrderedQueryableMethodInfo = ToOrderedQueryableMethod.MakeGenericMethod(parameter.Type);
+
+                                return Expression.Call(toOrderedQueryableMethodInfo, result);
+                            }
+                            else if (navigationExpansionExpression.Type.GetGenericTypeDefinition() == typeof(IOrderedEnumerable<>))
+                            {
+                                var toOrderedEnumerableMethodInfo = ToOrderedEnumerableMethod.MakeGenericMethod(parameter.Type);
+
+                                return Expression.Call(toOrderedEnumerableMethodInfo, result);
+                            }
+                        }
+
+                        return result;
                     }
-                }
-
-                return result;
             }
 
             return base.VisitExtension(extensionExpression);
         }
 
-        private (Expression operand, NavigationExpansionExpressionState state) ApplyIncludes(NavigationExpansionExpression navigationExpansionExpression)
+        private (Expression Operand, NavigationExpansionExpressionState State) ApplyIncludes(
+            NavigationExpansionExpression navigationExpansionExpression)
         {
-            var includeFinder = new PendingIncludeFindingVisitor();
-            includeFinder.Visit(navigationExpansionExpression.State.PendingSelector.Body);
-
-            var includeRewriter = new PendingSelectorIncludeRewriter();
-            var rewrittenBody = includeRewriter.Visit(navigationExpansionExpression.State.PendingSelector.Body);
+            var includeVisitor = new PendingSelectorIncludeVisitor();
+            var rewrittenBody = includeVisitor.Visit(navigationExpansionExpression.State.PendingSelector.Body);
 
             if (navigationExpansionExpression.State.PendingSelector.Body != rewrittenBody)
             {
@@ -112,30 +108,30 @@ namespace Microsoft.EntityFrameworkCore.Query.NavigationExpansion.Visitors
                 navigationExpansionExpression.State.ApplyPendingSelector = true;
             }
 
-            if (includeFinder.PendingIncludes.Count > 0)
+            if (includeVisitor.PendingIncludes.Count > 0)
             {
-                var result = (source: navigationExpansionExpression.Operand, parameter: navigationExpansionExpression.State.CurrentParameter);
-                foreach (var pendingIncludeNode in includeFinder.PendingIncludes)
+                var result = (Source: navigationExpansionExpression.Operand, Parameter: navigationExpansionExpression.State.CurrentParameter);
+                foreach (var pendingIncludeNode in includeVisitor.PendingIncludes)
                 {
                     result = NavigationExpansionHelpers.AddNavigationJoin(
-                        result.source,
-                        result.parameter,
-                        pendingIncludeNode.Value,
-                        pendingIncludeNode.Key,
+                        result.Source,
+                        result.Parameter,
+                        pendingIncludeNode.SourceMapping,
+                        pendingIncludeNode.NavTreeNode,
                         navigationExpansionExpression.State,
                         new List<INavigation>(),
                         include: true);
                 }
 
                 var pendingSelector = navigationExpansionExpression.State.PendingSelector;
-                if (navigationExpansionExpression.State.CurrentParameter != result.parameter)
+                if (navigationExpansionExpression.State.CurrentParameter != result.Parameter)
                 {
-                    var pendingSelectorBody = new ExpressionReplacingVisitor(navigationExpansionExpression.State.CurrentParameter, result.parameter).Visit(navigationExpansionExpression.State.PendingSelector.Body);
-                    pendingSelector = Expression.Lambda(pendingSelectorBody, result.parameter);
+                    var pendingSelectorBody = new ExpressionReplacingVisitor(navigationExpansionExpression.State.CurrentParameter, result.Parameter).Visit(navigationExpansionExpression.State.PendingSelector.Body);
+                    pendingSelector = Expression.Lambda(pendingSelectorBody, result.Parameter);
                 }
 
                 var newState = new NavigationExpansionExpressionState(
-                    result.parameter,
+                    result.Parameter,
                     navigationExpansionExpression.State.SourceMappings,
                     pendingSelector,
                     applyPendingSelector: true,
@@ -145,10 +141,10 @@ namespace Microsoft.EntityFrameworkCore.Query.NavigationExpansion.Visitors
                     navigationExpansionExpression.State.CustomRootMappings,
                     navigationExpansionExpression.State.MaterializeCollectionNavigation);
 
-                return (operand: result.source, state: newState);
+                return (Operand: result.Source, newState);
             }
 
-            return (operand: navigationExpansionExpression.Operand, state: navigationExpansionExpression.State);
+            return (navigationExpansionExpression.Operand, navigationExpansionExpression.State);
         }
 
         public static MethodInfo ToOrderedQueryableMethod = typeof(NavigationExpansionReducingVisitor).GetMethod(nameof(ToOrderedQueryable));
@@ -158,7 +154,7 @@ namespace Microsoft.EntityFrameworkCore.Query.NavigationExpansion.Visitors
 
         private class IOrderedQueryableAdapter<TElement> : IOrderedQueryable<TElement>
         {
-            IQueryable<TElement> _source;
+            private readonly IQueryable<TElement> _source;
 
             public IOrderedQueryableAdapter(IQueryable<TElement> source)
             {
@@ -185,7 +181,7 @@ namespace Microsoft.EntityFrameworkCore.Query.NavigationExpansion.Visitors
 
         private class IOrderedEnumerableAdapter<TElement> : IOrderedEnumerable<TElement>
         {
-            IEnumerable<TElement> _source;
+            private readonly IEnumerable<TElement> _source;
 
             public IOrderedEnumerableAdapter(IEnumerable<TElement> source)
             {

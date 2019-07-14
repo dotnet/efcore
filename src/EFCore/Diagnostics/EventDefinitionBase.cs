@@ -46,17 +46,10 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 }
 
                 var behavior = warningsConfiguration.GetBehavior(eventId);
-                if (behavior.HasValue)
-                {
-                    _warningBehavior = behavior.Value;
-                }
-                else
-                {
-                    _warningBehavior = level == LogLevel.Warning
-                                      && warningsConfiguration.DefaultBehavior == WarningBehavior.Throw
+                _warningBehavior = behavior ?? (level == LogLevel.Warning
+                        && warningsConfiguration.DefaultBehavior == WarningBehavior.Throw
                         ? WarningBehavior.Throw
-                        : WarningBehavior.Log;
-                }
+                        : WarningBehavior.Log);
             }
             else
             {
