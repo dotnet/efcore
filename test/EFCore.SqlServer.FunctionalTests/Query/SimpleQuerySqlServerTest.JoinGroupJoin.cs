@@ -42,7 +42,7 @@ CROSS JOIN [Employees] AS [e]");
         {
             await base.Client_Join_select_many(isAsync);
 
-            AssertContainsSql(
+            AssertSql(
                 @"@__p_0='2'
 
 SELECT [t0].[EmployeeID], [t0].[City], [t0].[Country], [t0].[FirstName], [t0].[ReportsTo], [t0].[Title]
@@ -212,7 +212,7 @@ WHERE [c].[CustomerID] = N'ALFKI'");
         {
             await base.Join_client_new_expression(isAsync);
 
-            AssertContainsSql(
+            AssertSql(
                 @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]",
                 //

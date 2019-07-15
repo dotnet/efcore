@@ -1304,7 +1304,7 @@ ORDER BY COUNT(*), [o].[CustomerID]");
         {
             await base.GroupBy_Aggregate_Join(isAsync);
 
-            AssertContainsSql(
+            AssertSql(
                 @"SELECT [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate]
 FROM [Orders] AS [o0]",
                 //
@@ -1321,7 +1321,7 @@ ORDER BY [o].[CustomerID]");
             await base.Join_GroupBy_Aggregate_multijoins(isAsync);
 
             // This could be lifted. Blocked by bug #10812
-            AssertContainsSql(
+            AssertSql(
                 @"SELECT [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate]
 FROM [Orders] AS [o0]",
                 //
@@ -1370,7 +1370,7 @@ INNER JOIN [Orders] AS [o0] ON [c].[CustomerID] = [o0].[CustomerID]");
         {
             await base.Join_GroupBy_Aggregate_in_subquery(isAsync);
 
-            AssertContainsSql(
+            AssertSql(
                 @"SELECT [c0].[CustomerID], [c0].[Address], [c0].[City], [c0].[CompanyName], [c0].[ContactName], [c0].[ContactTitle], [c0].[Country], [c0].[Fax], [c0].[Phone], [c0].[PostalCode], [c0].[Region], [t0].[CustomerID], [t0].[LastOrderID]
 FROM [Customers] AS [c0]
 INNER JOIN (
@@ -2026,9 +2026,6 @@ END");
 
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
-
-        private void AssertContainsSql(params string[] expected)
-            => Fixture.TestSqlLoggerFactory.AssertBaseline(expected, assertOrder: false);
 
         protected override void ClearLog()
             => Fixture.TestSqlLoggerFactory.Clear();

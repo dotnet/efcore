@@ -6,7 +6,7 @@ using Xunit.Abstractions;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    internal class GearsOfWarFromSqlQuerySqlServerTest : GearsOfWarFromSqlQueryTestBase<GearsOfWarQuerySqlServerFixture>
+    public class GearsOfWarFromSqlQuerySqlServerTest : GearsOfWarFromSqlQueryTestBase<GearsOfWarQuerySqlServerFixture>
     {
         public GearsOfWarFromSqlQuerySqlServerTest(GearsOfWarQuerySqlServerFixture fixture, ITestOutputHelper testOutputHelper)
             : base(fixture)

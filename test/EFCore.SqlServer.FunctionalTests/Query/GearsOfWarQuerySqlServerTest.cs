@@ -2938,7 +2938,7 @@ ORDER BY [g].[Nickname], [g].[SquadId], [t].[Nickname], [t].[SquadId]");
         {
             await base.Select_correlated_filtered_collection_works_with_caching(isAsync);
 
-            AssertContainsSql(
+            AssertSql(
                 @"SELECT [t].[GearNickName]
 FROM [Tags] AS [t]
 ORDER BY [t].[Note]",
@@ -3741,7 +3741,7 @@ WHERE [g0].[Discriminator] IN (N'Officer', N'Gear') AND ((@_outer_Nickname = [g0
         {
             await base.Client_method_on_collection_navigation_in_outer_join_key(isAsync);
 
-            AssertContainsSql(
+            AssertSql(
                 @"SELECT [g].[FullName], [g].[Nickname]
 FROM [Gears] AS [g]
 WHERE [g].[Discriminator] IN (N'Officer', N'Gear')",
@@ -6302,7 +6302,7 @@ WHERE [g].[Discriminator] IN (N'Officer', N'Gear')");
         {
             await base.Join_on_entity_qsre_keys_inner_key_is_navigation_composite_key(isAsync);
 
-            AssertContainsSql(
+            AssertSql(
                 @"SELECT [t].[GearNickName], [t].[GearSquadId], [t].[Note]
 FROM (
     SELECT [tt].*
@@ -6368,7 +6368,7 @@ LEFT JOIN [Weapons] AS [w] ON [s].[Id] = (
         {
             await base.Join_with_complex_key_selector(isAsync);
 
-            AssertContainsSql(
+            AssertSql(
                 @"SELECT [ii].[Nickname], [ii].[SquadId], [ii].[AssignedCityName], [ii].[CityOrBirthName], [ii].[Discriminator], [ii].[FullName], [ii].[HasSoulPatch], [ii].[LeaderNickname], [ii].[LeaderSquadId], [ii].[Rank]
 FROM [Gears] AS [ii]
 WHERE [ii].[Discriminator] IN (N'Officer', N'Gear')",
@@ -7892,9 +7892,6 @@ WHERE ((@__start_0 <= CAST(CONVERT(date, [m].[Timeline]) AS datetimeoffset)) AND
 
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
-
-        private void AssertContainsSql(params string[] expected)
-            => Fixture.TestSqlLoggerFactory.AssertBaseline(expected, assertOrder: false);
 
         protected override void ClearLog()
             => Fixture.TestSqlLoggerFactory.Clear();
