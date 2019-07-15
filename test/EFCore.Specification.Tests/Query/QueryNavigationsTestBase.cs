@@ -230,7 +230,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 1);
         }
 
-        [ConditionalTheory]
+        [ConditionalTheory(Skip = "Issue#10001")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Take_Select_Navigation(bool isAsync)
         {
@@ -259,7 +259,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     .Select(c => c.Orders.OrderBy(o => o.OrderID).Select(o => o.CustomerID).FirstOrDefault()));
         }
 
-        [ConditionalTheory]
+        [ConditionalTheory(Skip = "Issue#10001")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Select_collection_FirstOrDefault_project_anonymous_type(bool isAsync)
         {
@@ -275,7 +275,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 assertOrder: true);
         }
 
-        [ConditionalTheory]
+        [ConditionalTheory(Skip = "Issue#10001")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Select_collection_FirstOrDefault_project_entity(bool isAsync)
         {
@@ -284,7 +284,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 cs => cs.OrderBy(c => c.CustomerID).Take(2).Select(c => c.Orders.OrderBy(o => o.OrderID).FirstOrDefault()));
         }
 
-        [ConditionalTheory]
+        [ConditionalTheory(Skip = "Issue#10001")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Skip_Select_Navigation(bool isAsync)
         {
@@ -937,7 +937,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalTheory]
+        [ConditionalTheory(Skip = "Issue#10001")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Collection_select_nav_prop_first_or_default(bool isAsync)
         {
@@ -958,7 +958,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 assertOrder: true);
         }
 
-        [ConditionalTheory]
+        [ConditionalTheory(Skip = "Issue#10001")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Collection_select_nav_prop_first_or_default_then_nav_prop(bool isAsync)
         {
@@ -1283,7 +1283,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 elementSorter: e => e.CustomerID);
         }
 
-        [ConditionalTheory]
+        [ConditionalTheory(Skip = "Issue#10001")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Project_single_entity_value_subquery_works(bool isAsync)
         {
@@ -1383,7 +1383,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     select grouping.Count());
         }
 
-        [ConditionalTheory]
+        [ConditionalTheory(Skip = "Issue#15711")]
         [InlineData(false)]
         //[InlineData(true)] issue #12449
         public virtual Task Navigation_projection_on_groupjoin_qsre(bool isAsync)
@@ -1413,7 +1413,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 1);
         }
 
-        [ConditionalTheory]
+        [ConditionalTheory(Skip = "Issue#15711")]
         [InlineData(false)]
         //[InlineData(true)] issue #12449
         public virtual Task Navigation_projection_on_groupjoin_qsre_no_outer_in_final_result(bool isAsync)
@@ -1435,7 +1435,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 });
         }
 
-        [ConditionalTheory]
+        [ConditionalTheory(Skip = "Issue#15711")]
         [InlineData(false)]
         //[InlineData(true)] issue #12449
         public virtual Task Navigation_projection_on_groupjoin_qsre_with_empty_grouping(bool isAsync)
@@ -1466,7 +1466,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 4);
         }
 
-        [ConditionalFact]
+        [ConditionalFact(Skip = "Issue#15711")]
         public virtual void Include_on_inner_projecting_groupjoin()
         {
             using (var ctx = CreateContext())
@@ -1485,7 +1485,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalFact]
+        [ConditionalFact(Skip = "Issue#15711")]
         public virtual void Include_on_inner_projecting_groupjoin_complex()
         {
             using (var ctx = CreateContext())

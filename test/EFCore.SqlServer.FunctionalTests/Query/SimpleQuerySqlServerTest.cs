@@ -76,7 +76,7 @@ INNER JOIN (
             base.Lifting_when_subquery_nested_order_by_simple();
 
             // TODO: Avoid unnecessary pushdown of subquery. See Issue#8094
-            AssertContainsSql(
+            AssertSql(
                 @"@__p_0='2'
 
 SELECT [t0].[CustomerID]
@@ -2239,7 +2239,7 @@ FROM [Customers] AS [c]");
         {
             await base.OrderBy_multiple_queries(isAsync);
 
-            AssertContainsSql(
+            AssertSql(
                 @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]",
                 //
@@ -4676,7 +4676,7 @@ OFFSET @__p_0 ROWS FETCH NEXT @__p_1 ROWS ONLY");
         {
             base.Streaming_chained_sync_query();
 
-            AssertContainsSql(
+            AssertSql(
                 @"SELECT [c].[CustomerID]
 FROM [Customers] AS [c]",
                 //
@@ -4805,7 +4805,7 @@ WHERE ([c].[CustomerID] LIKE N'A%') AND (((
 //        {
 //            await base.SelectMany_after_client_method(isAsync);
 
-//            AssertContainsSql(
+//            AssertSql(
 //                @"SELECT [c.Orders0].[CustomerID], [c.Orders0].[OrderDate]
 //FROM [Orders] AS [c.Orders0]",
 //                //
@@ -4879,9 +4879,6 @@ WHERE (
 
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
-
-        private void AssertContainsSql(params string[] expected)
-            => Fixture.TestSqlLoggerFactory.AssertBaseline(expected, assertOrder: false);
 
         protected override void ClearLog()
             => Fixture.TestSqlLoggerFactory.Clear();

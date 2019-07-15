@@ -353,9 +353,6 @@ namespace Microsoft.EntityFrameworkCore
         protected void AssertSql(params string[] expected)
             => TestSqlLoggerFactory.AssertBaseline(expected);
 
-        protected void AssertContainsSql(params string[] expected)
-            => TestSqlLoggerFactory.AssertBaseline(expected, assertOrder: false);
-
         protected virtual void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Vehicle>(

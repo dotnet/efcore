@@ -255,7 +255,7 @@ WHERE [o].[ProductID] = 1");
         {
             await base.Average_on_float_column_in_subquery(isAsync);
 
-            AssertContainsSql(
+            AssertSql(
                 @"SELECT [o].[OrderID]
 FROM [Orders] AS [o]
 WHERE [o].[OrderID] < 10300",
@@ -670,7 +670,7 @@ WHERE [c].[CustomerID] = N'ALFKI'");
         {
             await base.Multiple_collection_navigation_with_FirstOrDefault_chained(isAsync);
 
-            AssertContainsSql(
+            AssertSql(
                 @"SELECT [c].[CustomerID]
 FROM [Customers] AS [c]
 ORDER BY [c].[CustomerID]",

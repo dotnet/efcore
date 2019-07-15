@@ -22,17 +22,32 @@ namespace Microsoft.EntityFrameworkCore
         {
             base.Save_replaced_principal();
 
-            Fixture.TestSqlLoggerFactory.AssertBaseline(
-                new[]
-                {
-                    @"@p1='78'
+            AssertSql(
+                @"SELECT TOP(2) [c].[Id], [c].[Name], [c].[PrincipalId]
+FROM [Categories] AS [c]",
+                //
+                @"@__category_PrincipalId_0='778' (Nullable = true)
+
+SELECT [p].[Id], [p].[DependentId], [p].[Name], [p].[Price]
+FROM [Products] AS [p]
+WHERE (([p].[DependentId] = @__category_PrincipalId_0) AND ([p].[DependentId] IS NOT NULL AND @__category_PrincipalId_0 IS NOT NULL)) OR ([p].[DependentId] IS NULL AND @__category_PrincipalId_0 IS NULL)",
+                //
+                @"@p1='78'
 @p0='New Category' (Size = 4000)
 
 SET NOCOUNT ON;
 UPDATE [Categories] SET [Name] = @p0
 WHERE [Id] = @p1;
-SELECT @@ROWCOUNT;"
-                }, assertOrder: false);
+SELECT @@ROWCOUNT;",
+                //
+                @"SELECT TOP(2) [c].[Id], [c].[Name], [c].[PrincipalId]
+FROM [Categories] AS [c]",
+                //
+                @"@__category_PrincipalId_0='778' (Nullable = true)
+
+SELECT [p].[Id], [p].[DependentId], [p].[Name], [p].[Price]
+FROM [Products] AS [p]
+WHERE (([p].[DependentId] = @__category_PrincipalId_0) AND ([p].[DependentId] IS NOT NULL AND @__category_PrincipalId_0 IS NOT NULL)) OR ([p].[DependentId] IS NULL AND @__category_PrincipalId_0 IS NULL)");
         }
 
         public override void Identifiers_are_generated_correctly()
@@ -74,5 +89,8 @@ SELECT @@ROWCOUNT;"
                     entityType2.GetProperties().ElementAt(2).GetColumnName());
             }
         }
+
+        private void AssertSql(params string[] expected)
+            => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
     }
 }

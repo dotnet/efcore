@@ -96,7 +96,7 @@ WHERE (([v].[Discriminator] = N'PoweredVehicle') AND ([v].[FuelType] IS NOT NULL
         {
             base.Can_change_dependent_instance_non_derived();
 
-            AssertContainsSql(
+            AssertSql(
                 @"@p3='Trek Pro Fit Madone 6 Series' (Nullable = false) (Size = 450)
 @p0='LicensedOperator' (Nullable = false) (Size = 4000)
 @p1='repairman' (Size = 4000)
@@ -112,7 +112,7 @@ SELECT @@ROWCOUNT;");
         {
             base.Can_change_principal_instance_non_derived();
 
-            AssertContainsSql(
+            AssertSql(
                 @"@p1='Trek Pro Fit Madone 6 Series' (Nullable = false) (Size = 450)
 @p0='2'
 
