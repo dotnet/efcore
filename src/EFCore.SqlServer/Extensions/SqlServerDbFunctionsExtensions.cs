@@ -881,12 +881,12 @@ namespace Microsoft.EntityFrameworkCore
                 : null;
 
         /// <summary>
-        ///     Validate if a date is valid..
+        ///     Validate if the given string is a valid date.
         ///     Corresponds to the SQL Server's ISDATE('date').
         /// </summary>
         /// <param name="_">The DbFunctions instance.</param>
         /// <param name="expression">Expression to validate</param>
-        /// <returns>true to valid and false not valid.</returns>
+        /// <returns>true for valid date and false otherwise.</returns>
         public static bool IsDate(
             [CanBeNull] this DbFunctions _,
             [NotNull] string expression)

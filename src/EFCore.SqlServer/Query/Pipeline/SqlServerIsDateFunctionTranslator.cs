@@ -5,6 +5,8 @@ using System.Collections.Generic;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.Relational.Query.Pipeline;
 using Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions;
+using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
+using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Pipeline
 {
@@ -21,13 +23,15 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Pipeline
         public SqlExpression Translate(SqlExpression instance, MethodInfo method, IList<SqlExpression> arguments)
         {
             return _methodInfo.Equals(method)
-                ? _sqlExpressionFactory.Function(
-                    "ISDATE",
-                    new[]
-                    {
-                        arguments[1]
-                    },
-                    _methodInfo.ReturnType)
+                ? _sqlExpressionFactory.Convert(
+                        _sqlExpressionFactory.Function(
+                        "ISDATE",
+                        new[]
+                        {
+                            arguments[1]
+                        },
+                        _methodInfo.ReturnType),
+                  _methodInfo.ReturnType)
                 : null;
         }
     }

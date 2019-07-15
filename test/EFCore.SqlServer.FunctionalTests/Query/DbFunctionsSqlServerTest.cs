@@ -565,30 +565,39 @@ WHERE DATEDIFF(NANOSECOND, GETDATE(), DATEADD(second, CAST(1.0E0 AS int), GETDAT
         {
             using (var context = CreateContext())
             {
-                var count = context.Orders.Count(c => !EF.Functions.IsDate(c.CustomerID));
+                var actual = context
+                    .Orders
+                    .Where(c => !EF.Functions.IsDate(c.CustomerID))
+                    .Select(c => EF.Functions.IsDate(c.CustomerID))
+                    .FirstOrDefault();
 
-                Assert.Equal(830, count);
+                Assert.Equal(actual, false); 
 
                 AssertSql(
-                    @"SELECT COUNT(*)
+                    @"SELECT TOP(1) CAST(ISDATE([o].[CustomerID]) AS bit)
 FROM [Orders] AS [o]
-WHERE ISDATE([o].[CustomerID]) <> CAST(1 AS bit)");
+WHERE CAST(ISDATE([o].[CustomerID]) AS bit) <> CAST(1 AS bit)");
             }
         }
 
         [ConditionalFact]
-        public virtual void IsDate()
+        public virtual void IsDate_valid()
         {
             using (var context = CreateContext())
             {
-                var count = context.Orders.Count(c => EF.Functions.IsDate(c.CustomerID));
+                var actual = context
+                    .Orders
+                    .Where(c => EF.Functions.IsDate(c.OrderDate.Value.ToString()))
+                    .Select(c => EF.Functions.IsDate(c.OrderDate.Value.ToString()))
+                    .FirstOrDefault();
 
-                Assert.Equal(0, count);
+                Assert.Equal(actual, true);
 
                 AssertSql(
-                    @"SELECT COUNT(*)
+                    @"SELECT TOP(1) CAST(ISDATE(CONVERT(VARCHAR(100), [o].[OrderDate])) AS bit)
 FROM [Orders] AS [o]
-WHERE ISDATE([o].[CustomerID]) = CAST(1 AS bit)");
+WHERE CAST(ISDATE(CONVERT(VARCHAR(100), [o].[OrderDate])) AS bit) = CAST(1 AS bit)");
+                
             }
         }
 
@@ -604,7 +613,7 @@ WHERE ISDATE([o].[CustomerID]) = CAST(1 AS bit)");
                 AssertSql(
                     @"SELECT COUNT(*)
 FROM [Orders] AS [o]
-WHERE ISDATE([o].[CustomerID] + CAST([o].[OrderID] AS nchar(5))) = CAST(1 AS bit)");
+WHERE CAST(ISDATE([o].[CustomerID] + CAST([o].[OrderID] AS nchar(5))) AS bit) = CAST(1 AS bit)");
             }
         }
 
