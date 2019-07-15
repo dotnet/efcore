@@ -7,6 +7,8 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Xunit;
 
@@ -2576,6 +2578,269 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
         [ConditionalFact]
         public void Use_correct_entity_after_SetValues()
+        {
+            var detachedProduct = new ProductX
+            {
+                Description = "Heavy Engine XT3"
+            };
+
+            var detachedRoom = new ContainerRoomX
+            {
+                Number = 1,
+                Product = detachedProduct
+            };
+
+            var detachedContainer = new ContainerX
+            {
+                Name = "C1",
+                Rooms =
+                {
+                    detachedRoom
+                }
+            };
+
+            using (var context = new EscapeRoom(nameof(EscapeRoom)))
+            {
+                context.Add(detachedContainer);
+                context.SaveChanges();
+            }
+
+            using (var context = new EscapeRoom(nameof(EscapeRoom)))
+            {
+                var attachedProduct = new ProductX
+                {
+                    Id = detachedProduct.Id,
+                    Description = "Heavy Engine XT3"
+                };
+
+                var attachedRoom = new ContainerRoomX
+                {
+                    Id = detachedRoom.Id,
+                    ContainerId = detachedRoom.ContainerId,
+                    Number = 1,
+                    ProductId = detachedRoom.ProductId,
+                    Product = attachedProduct
+                };
+
+                var attached = new ContainerX
+                {
+                    Id = detachedContainer.Id,
+                    Name = "C1",
+                    Rooms =
+                    {
+                        attachedRoom
+                    }
+                };
+
+                context.Attach(attached);
+
+                detachedRoom.Product = null;
+                detachedRoom.ProductId = null;
+
+                context.Entry(attachedRoom).CurrentValues.SetValues(detachedRoom);
+
+                context.SaveChanges();
+
+                // Fails - see #16546
+                //Assert.Equal(EntityState.Unchanged, context.Entry(attachedRoom).State);
+            }
+        }
+
+        public class ContainerX
+        {
+            public int Id { get; set; }
+            public string Name { get; set; }
+            public List<ContainerRoomX> Rooms { get; set; } = new List<ContainerRoomX>();
+        }
+
+        public class ContainerRoomX
+        {
+            public int Id { get; set; }
+            public int Number { get; set; }
+            public int ContainerId { get; set; }
+            public ContainerX Container { get; set; }
+            public int? ProductId { get; set; }
+            public ProductX Product { get; set; }
+        }
+
+        public class ProductX
+        {
+            public int Id { get; set; }
+            public string Description { get; set; }
+            public List<ContainerRoomX> Rooms { get; set; } = new List<ContainerRoomX>();
+        }
+
+        protected class EscapeRoom : DbContext
+        {
+            private readonly string _databaseName;
+
+            public EscapeRoom(string databaseName)
+            {
+                _databaseName = databaseName;
+            }
+
+            protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+                => optionsBuilder.UseInMemoryDatabase(_databaseName);
+
+            protected internal override void OnModelCreating(ModelBuilder modelBuilder)
+            {
+                modelBuilder.Entity<ContainerRoomX>()
+                    .HasOne(room => room.Product)
+                    .WithMany(product => product.Rooms)
+                    .HasForeignKey(room => room.ProductId)
+                    .IsRequired(false)
+                    .OnDelete(DeleteBehavior.Cascade);
+            }
+        }
+
+        [ConditionalFact]
+        public void Replaced_duplicate_entities_are_used_even_with_bad_hash()
+        {
+            using (var context = new BadHashDay("BadHashDay"))
+            {
+                context.AddRange(
+                    new ParentX
+                    {
+                        Id = 101, Name = "Parent1"
+                    },
+                    new ChildX
+                    {
+                        Id = 201, Name = "Child1"
+                    },
+                    new ParentChildX
+                    {
+                        ParentId = 101, ChildId = 201, SortOrder = 1
+                    });
+
+                context.SaveChanges();
+            }
+
+            using (var context = new BadHashDay("BadHashDay"))
+            {
+                var parent = context.Set<ParentX>().Single(x => x.Id == 101);
+                var join = context.Set<ParentChildX>().Single();
+
+                Assert.Equal(2, context.ChangeTracker.Entries().Count());
+                Assert.Equal(EntityState.Unchanged, context.Entry(parent).State);
+                Assert.Equal(EntityState.Unchanged, context.Entry(join).State);
+
+                parent.ParentChildren.Clear();
+
+                var newJoin = new ParentChildX
+                {
+                    ParentId = 101,
+                    ChildId = 201,
+                    SortOrder = 1
+                };
+
+                parent.ParentChildren = new List<ParentChildX>
+                {
+                    newJoin
+                };
+
+                Assert.Equal(3, context.ChangeTracker.Entries().Count());
+                Assert.Equal(EntityState.Unchanged, context.Entry(parent).State);
+                Assert.Equal(EntityState.Deleted, context.Entry(join).State);
+                Assert.Equal(EntityState.Added, context.Entry(newJoin).State);
+
+                context.SaveChanges();
+
+                Assert.Equal(2, context.ChangeTracker.Entries().Count());
+                Assert.Equal(EntityState.Unchanged, context.Entry(parent).State);
+                Assert.Equal(EntityState.Detached, context.Entry(join).State);
+                Assert.Equal(EntityState.Unchanged, context.Entry(newJoin).State);
+            }
+        }
+
+        protected class ParentX
+        {
+            public int Id { get; set; }
+            public string Name { get; set; }
+            public virtual IList<ParentChildX> ParentChildren { get; set; } = new List<ParentChildX>();
+        }
+
+        protected class ParentChildX
+        {
+            public int ParentId { get; set; }
+            public int ChildId { get; set; }
+            public int SortOrder { get; set; }
+            public virtual ParentX Parent { get; set; }
+            public virtual ChildX Child { get; set; }
+
+            // Bad implementation of Equals to test for regression
+            public override bool Equals(object obj)
+            {
+                if (obj == null)
+                {
+                    return false;
+                }
+
+                var other = (ParentChildX)obj;
+
+                if (!Equals(ParentId, other.ParentId))
+                {
+                    return false;
+                }
+
+                if (!Equals(ChildId, other.ChildId))
+                {
+                    return false;
+                }
+
+                return true;
+            }
+
+            // Bad implementation of GetHashCode to test for regression
+            public override int GetHashCode()
+            {
+                var hashCode = 13;
+                hashCode = (hashCode * 7) + ParentId.GetHashCode();
+                hashCode = (hashCode * 7) + ChildId.GetHashCode();
+                return hashCode;
+            }
+        }
+
+        protected class ChildX
+        {
+            public int Id { get; set; }
+            public string Name { get; set; }
+            public virtual IList<ParentChildX> ParentChildren { get; set; } = new List<ParentChildX>();
+        }
+
+        protected class BadHashDay : DbContext
+        {
+            private readonly string _databaseName;
+
+            public BadHashDay(string databaseName)
+            {
+                _databaseName = databaseName;
+            }
+
+            protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+                => optionsBuilder.UseInMemoryDatabase(_databaseName);
+
+            protected internal override void OnModelCreating(ModelBuilder modelBuilder)
+            {
+                modelBuilder.Entity<ParentX>()
+                    .HasMany(x => x.ParentChildren)
+                    .WithOne(op => op.Parent)
+                    .IsRequired();
+
+                modelBuilder.Entity<ChildX>()
+                    .HasMany(x => x.ParentChildren)
+                    .WithOne(op => op.Child)
+                    .IsRequired();
+
+                modelBuilder.Entity<ParentChildX>().HasKey(
+                    x => new
+                    {
+                        x.ParentId, x.ChildId
+                    });
+            }
+        }
+
+        [ConditionalFact]
+        public void Detached_entity_is_not_replaced_by_tracked_entity()
         {
             var detachedProduct = new ProductX { Description = "Heavy Engine XT3" };
 

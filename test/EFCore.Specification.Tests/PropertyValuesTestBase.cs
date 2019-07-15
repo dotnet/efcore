@@ -1309,18 +1309,6 @@ namespace Microsoft.EntityFrameworkCore
                 Assert.Same(mailRoom, building.PrincipalMailRoom);
                 Assert.Contains(office, building.Offices);
             }
-            else
-            {
-                Assert.Equal(EntityState.Detached, entry.State);
-                Assert.Same(mailRoom, building.PrincipalMailRoom);
-                Assert.Contains(office, building.Offices);
-
-                Assert.Equal(EntityState.Detached, context.Entry(office.Building).State);
-                Assert.Same(building, office.Building);
-            }
-
-            Assert.Same(mailRoom, building.PrincipalMailRoom);
-            Assert.Contains(office, building.Offices);
         }
 
         [ConditionalFact]
