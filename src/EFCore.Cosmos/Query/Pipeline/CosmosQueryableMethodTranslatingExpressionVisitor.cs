@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Query.Pipeline;
 using Microsoft.EntityFrameworkCore.Storage;
 
@@ -461,7 +462,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Pipeline
                 return source;
             }
 
-            throw new InvalidOperationException();
+            throw new InvalidOperationException("Unable to translate Where expression: " + new ExpressionPrinter().Print(predicate));
         }
 
         private SqlExpression TranslateExpression(Expression expression)

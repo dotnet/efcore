@@ -49,7 +49,8 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
             if (extensionExpression is CollectionShaperExpression collectionShaperExpression)
             {
                 var collectionId = _collectionId++;
-                var selectExpression = (SelectExpression)collectionShaperExpression.Projection.QueryExpression;
+                var projectionBindingExpression = (ProjectionBindingExpression)collectionShaperExpression.Projection;
+                var selectExpression = (SelectExpression)projectionBindingExpression.QueryExpression;
                 // Do pushdown beforehand so it updates all pending collections first
                 if (selectExpression.IsDistinct
                     || selectExpression.Limit != null
@@ -63,7 +64,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
                 var innerShaper = Visit(collectionShaperExpression.InnerShaper);
 
                 return selectExpression.ApplyCollectionJoin(
-                    collectionShaperExpression.Projection.Index.Value,
+                    projectionBindingExpression.Index.Value,
                     collectionId,
                     innerShaper,
                     collectionShaperExpression.Navigation,

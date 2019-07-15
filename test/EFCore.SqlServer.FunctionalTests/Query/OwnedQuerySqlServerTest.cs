@@ -421,15 +421,13 @@ WHERE ([p].[Discriminator] IN (N'LeafB', N'LeafA', N'Branch', N'OwnedPerson') AN
             base.Navigation_rewrite_on_owned_reference_followed_by_regular_entity_and_another_reference();
 
             AssertSql(
-                @"SELECT [s].[Id], [s].[Name], [o].[Id], [e].[Id], [e].[Name], [e].[StarId]
+                @"SELECT [s].[Id], [s].[Name]
 FROM [OwnedPerson] AS [o]
 LEFT JOIN [OwnedPerson] AS [o0] ON [o].[Id] = [o0].[Id]
 LEFT JOIN [OwnedPerson] AS [o1] ON [o0].[Id] = [o1].[Id]
 LEFT JOIN [Planet] AS [p] ON [o1].[PersonAddress_Country_PlanetId] = [p].[Id]
 LEFT JOIN [Star] AS [s] ON [p].[StarId] = [s].[Id]
-LEFT JOIN [Element] AS [e] ON [s].[Id] = [e].[StarId]
-WHERE [o].[Discriminator] IN (N'OwnedPerson', N'Branch', N'LeafB', N'LeafA')
-ORDER BY [o].[Id], [e].[Id]");
+WHERE [o].[Discriminator] IN (N'OwnedPerson', N'Branch', N'LeafB', N'LeafA')");
         }
 
         public override void Navigation_rewrite_on_owned_reference_followed_by_regular_entity_and_another_reference_and_scalar()
@@ -452,15 +450,13 @@ WHERE [o].[Discriminator] IN (N'OwnedPerson', N'Branch', N'LeafB', N'LeafA')");
             base.Navigation_rewrite_on_owned_reference_followed_by_regular_entity_and_another_reference_in_predicate_and_projection();
 
             AssertSql(
-                @"SELECT [s].[Id], [s].[Name], [o].[Id], [e].[Id], [e].[Name], [e].[StarId]
+                @"SELECT [s].[Id], [s].[Name]
 FROM [OwnedPerson] AS [o]
 LEFT JOIN [OwnedPerson] AS [o0] ON [o].[Id] = [o0].[Id]
 LEFT JOIN [OwnedPerson] AS [o1] ON [o0].[Id] = [o1].[Id]
 LEFT JOIN [Planet] AS [p] ON [o1].[PersonAddress_Country_PlanetId] = [p].[Id]
 LEFT JOIN [Star] AS [s] ON [p].[StarId] = [s].[Id]
-LEFT JOIN [Element] AS [e] ON [s].[Id] = [e].[StarId]
-WHERE [o].[Discriminator] IN (N'OwnedPerson', N'Branch', N'LeafB', N'LeafA') AND (([s].[Name] = N'Sol') AND [s].[Name] IS NOT NULL)
-ORDER BY [o].[Id], [e].[Id]");
+WHERE [o].[Discriminator] IN (N'OwnedPerson', N'Branch', N'LeafB', N'LeafA') AND (([s].[Name] = N'Sol') AND [s].[Name] IS NOT NULL)");
 
         }
 

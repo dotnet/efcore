@@ -68,14 +68,11 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
         }
 
         public override ShapedQueryExpression TranslateSubquery(Expression expression)
-        {
-            return (ShapedQueryExpression)new RelationalQueryableMethodTranslatingExpressionVisitor(
+            => (ShapedQueryExpression)new RelationalQueryableMethodTranslatingExpressionVisitor(
                 _model,
                 _sqlTranslator,
                 _weakEntityExpandingExpressionVisitor,
                 _sqlExpressionFactory).Visit(expression);
-
-        }
 
         protected override ShapedQueryExpression CreateShapedQueryExpression(Type elementType)
         {

@@ -5,46 +5,47 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Query.Expressions.Internal;
+using Microsoft.EntityFrameworkCore.Query.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Pipeline
 {
-    public class EntityProjectionExpression : Expression
+    public class EntityProjectionExpression : Expression, IPrintable, IAccessExpression
     {
-        private readonly IDictionary<IProperty, KeyAccessExpression> _propertyExpressionsCache
-            = new Dictionary<IProperty, KeyAccessExpression>();
-        private readonly IDictionary<INavigation, ObjectAccessExpression> _navigationExpressionsCache
-            = new Dictionary<INavigation, ObjectAccessExpression>();
+        private readonly IDictionary<IProperty, SqlExpression> _propertyExpressionsCache
+            = new Dictionary<IProperty, SqlExpression>();
+        private readonly IDictionary<INavigation, Expression> _navigationExpressionsCache
+            = new Dictionary<INavigation, Expression>();
 
-        public EntityProjectionExpression(IEntityType entityType, RootReferenceExpression accessExpression, string alias)
+        public EntityProjectionExpression(IEntityType entityType, Expression accessExpression)
         {
             EntityType = entityType;
             AccessExpression = accessExpression;
-            Alias = alias;
+            Name = (accessExpression as IAccessExpression)?.Name;
         }
 
         public override ExpressionType NodeType => ExpressionType.Extension;
         public override Type Type => EntityType.ClrType;
 
-        public string Alias { get; }
-
-        public RootReferenceExpression AccessExpression { get; }
-
-        public IEntityType EntityType { get; }
+        public virtual Expression AccessExpression { get; }
+        public virtual IEntityType EntityType { get; }
+        public virtual string Name { get; }
 
         protected override Expression VisitChildren(ExpressionVisitor visitor)
         {
-            var accessExpression = (RootReferenceExpression)visitor.Visit(AccessExpression);
+            var accessExpression = visitor.Visit(AccessExpression);
 
             return accessExpression != AccessExpression
-                ? new EntityProjectionExpression(EntityType, accessExpression, Alias)
+                ? new EntityProjectionExpression(EntityType, accessExpression)
                 : this;
         }
 
-        public KeyAccessExpression BindProperty(IProperty property)
+        public SqlExpression BindProperty(IProperty property)
         {
-            if (!EntityType.GetTypesInHierarchy().Contains(property.DeclaringEntityType))
+            if (!EntityType.IsAssignableFrom(property.DeclaringEntityType)
+                && !property.DeclaringEntityType.IsAssignableFrom(EntityType))
             {
                 throw new InvalidOperationException(
                     $"Called EntityProjectionExpression.GetProperty() with incorrect IProperty. EntityType:{EntityType.DisplayName()}, Property:{property.Name}");
@@ -59,9 +60,10 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Pipeline
             return expression;
         }
 
-        public ObjectAccessExpression BindNavigation(INavigation navigation)
+        public Expression BindNavigation(INavigation navigation)
         {
-            if (!EntityType.GetTypesInHierarchy().Contains(navigation.DeclaringEntityType))
+            if (!EntityType.IsAssignableFrom(navigation.DeclaringEntityType)
+                && !navigation.DeclaringEntityType.IsAssignableFrom(EntityType))
             {
                 throw new InvalidOperationException(
                     $"Called EntityProjectionExpression.GetNavigation() with incorrect INavigation. EntityType:{EntityType.DisplayName()}, Navigation:{navigation.Name}");
@@ -69,11 +71,78 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Pipeline
 
             if (!_navigationExpressionsCache.TryGetValue(navigation, out var expression))
             {
-                expression = new ObjectAccessExpression(navigation, AccessExpression);
+                if (navigation.IsCollection())
+                {
+                    expression = new ObjectArrayProjectionExpression(navigation, AccessExpression);
+                }
+                else
+                {
+                    expression = new EntityProjectionExpression(
+                        navigation.GetTargetType(),
+                        new ObjectAccessExpression(navigation, AccessExpression));
+                }
+
                 _navigationExpressionsCache[navigation] = expression;
             }
 
             return expression;
         }
+
+        public Expression BindMember(string name, Type entityClrType, out IPropertyBase propertyBase)
+        {
+            var entityType = EntityType;
+            if (entityClrType != null
+                && !entityClrType.IsAssignableFrom(entityType.ClrType))
+            {
+                entityType = entityType.GetDerivedTypes().First(e => entityClrType.IsAssignableFrom(e.ClrType));
+            }
+
+            var property = entityType.FindProperty(name);
+            if (property != null)
+            {
+                propertyBase = property;
+                return BindProperty(property);
+            }
+
+            var navigation = entityType.FindNavigation(name);
+            propertyBase = navigation;
+            return BindNavigation(navigation);
+        }
+
+        public Expression BindMember(MemberInfo memberInfo, Type entityClrType, out IPropertyBase propertyBase)
+        {
+            var entityType = EntityType;
+            if (entityClrType != null
+                && !entityClrType.IsAssignableFrom(entityType.ClrType))
+            {
+                entityType = entityType.GetDerivedTypes().First(e => entityClrType.IsAssignableFrom(e.ClrType));
+            }
+
+            var property = entityType.FindProperty(memberInfo);
+            if (property != null)
+            {
+                propertyBase = property;
+                return BindProperty(property);
+            }
+
+            var navigation = entityType.FindNavigation(memberInfo);
+            propertyBase = navigation;
+            return BindNavigation(navigation);
+        }
+
+        public void Print(ExpressionPrinter expressionPrinter)
+            => expressionPrinter.Visit(AccessExpression);
+
+        public override bool Equals(object obj)
+            => obj != null
+               && (ReferenceEquals(this, obj)
+                   || obj is EntityProjectionExpression entityProjectionExpression
+                   && Equals(entityProjectionExpression));
+
+        private bool Equals(EntityProjectionExpression entityProjectionExpression)
+            => Equals(EntityType, entityProjectionExpression.EntityType)
+               && AccessExpression.Equals(entityProjectionExpression.AccessExpression);
+
+        public override int GetHashCode() => HashCode.Combine(EntityType, AccessExpression);
     }
 }

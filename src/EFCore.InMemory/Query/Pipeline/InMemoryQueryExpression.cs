@@ -170,14 +170,10 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Pipeline
         }
 
         private IEnumerable<IProperty> GetAllPropertiesInHierarchy(IEntityType entityType)
-        {
-            return entityType.GetTypesInHierarchy().SelectMany(e => e.GetDeclaredProperties());
-        }
+            => entityType.GetTypesInHierarchy().SelectMany(EntityTypeExtensions.GetDeclaredProperties);
 
         public Expression GetMappedProjection(ProjectionMember member)
-        {
-            return _projectionMapping[member];
-        }
+            => _projectionMapping[member];
 
         public void ApplyPendingSelector()
         {
@@ -323,14 +319,14 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Pipeline
             {
                 if (projection.Value is EntityProjectionExpression entityProjection)
                 {
-                    var readExperssionMap = new Dictionary<IProperty, Expression>();
+                    var readExpressionMap = new Dictionary<IProperty, Expression>();
                     foreach (var property in GetAllPropertiesInHierarchy(entityProjection.EntityType))
                     {
                         resultValueBufferExpressions.Add(replacingVisitor.Visit(entityProjection.BindProperty(property)));
-                        readExperssionMap[property] = CreateReadValueExpression(property.ClrType, index++, property);
+                        readExpressionMap[property] = CreateReadValueExpression(property.ClrType, index++, property);
                     }
                     projectionMapping[projection.Key.ShiftMember(outerMemberInfo)]
-                        = new EntityProjectionExpression(entityProjection.EntityType, readExperssionMap);
+                        = new EntityProjectionExpression(entityProjection.EntityType, readExpressionMap);
                 }
                 else
                 {
@@ -345,14 +341,14 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Pipeline
             {
                 if (projection.Value is EntityProjectionExpression entityProjection)
                 {
-                    var readExperssionMap = new Dictionary<IProperty, Expression>();
+                    var readExpressionMap = new Dictionary<IProperty, Expression>();
                     foreach (var property in GetAllPropertiesInHierarchy(entityProjection.EntityType))
                     {
                         resultValueBufferExpressions.Add(replacingVisitor.Visit(entityProjection.BindProperty(property)));
-                        readExperssionMap[property] = CreateReadValueExpression(property.ClrType, index++, property);
+                        readExpressionMap[property] = CreateReadValueExpression(property.ClrType, index++, property);
                     }
                     projectionMapping[projection.Key.ShiftMember(innerMemberInfo)]
-                        = new EntityProjectionExpression(entityProjection.EntityType, readExperssionMap);
+                        = new EntityProjectionExpression(entityProjection.EntityType, readExpressionMap);
                 }
                 else
                 {
@@ -454,15 +450,15 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Pipeline
             {
                 if (projection.Value is EntityProjectionExpression entityProjection)
                 {
-                    var readExperssionMap = new Dictionary<IProperty, Expression>();
+                    var readExpressionMap = new Dictionary<IProperty, Expression>();
                     foreach (var property in GetAllPropertiesInHierarchy(entityProjection.EntityType))
                     {
                         var replacedExpression = replacingVisitor.Visit(entityProjection.BindProperty(property));
                         resultValueBufferExpressions.Add(replacedExpression);
-                        readExperssionMap[property] = CreateReadValueExpression(replacedExpression.Type, index++, property);
+                        readExpressionMap[property] = CreateReadValueExpression(replacedExpression.Type, index++, property);
                     }
                     projectionMapping[projection.Key.ShiftMember(outerMemberInfo)]
-                        = new EntityProjectionExpression(entityProjection.EntityType, readExperssionMap);
+                        = new EntityProjectionExpression(entityProjection.EntityType, readExpressionMap);
                 }
                 else
                 {
@@ -480,16 +476,16 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Pipeline
             {
                 if (projection.Value is EntityProjectionExpression entityProjection)
                 {
-                    var readExperssionMap = new Dictionary<IProperty, Expression>();
+                    var readExpressionMap = new Dictionary<IProperty, Expression>();
                     foreach (var property in GetAllPropertiesInHierarchy(entityProjection.EntityType))
                     {
                         var replacedExpression = replacingVisitor.Visit(entityProjection.BindProperty(property));
                         replacedExpression = nullableReadValueExpressionVisitor.Visit(replacedExpression);
                         resultValueBufferExpressions.Add(replacedExpression);
-                        readExperssionMap[property] = CreateReadValueExpression(replacedExpression.Type, index++, property);
+                        readExpressionMap[property] = CreateReadValueExpression(replacedExpression.Type, index++, property);
                     }
                     projectionMapping[projection.Key.ShiftMember(innerMemberInfo)]
-                        = new EntityProjectionExpression(entityProjection.EntityType, readExperssionMap);
+                        = new EntityProjectionExpression(entityProjection.EntityType, readExpressionMap);
                 }
                 else
                 {
@@ -552,14 +548,14 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Pipeline
             {
                 if (projection.Value is EntityProjectionExpression entityProjection)
                 {
-                    var readExperssionMap = new Dictionary<IProperty, Expression>();
+                    var readExpressionMap = new Dictionary<IProperty, Expression>();
                     foreach (var property in GetAllPropertiesInHierarchy(entityProjection.EntityType))
                     {
                         resultValueBufferExpressions.Add(replacingVisitor.Visit(entityProjection.BindProperty(property)));
-                        readExperssionMap[property] = CreateReadValueExpression(property.ClrType, index++, property);
+                        readExpressionMap[property] = CreateReadValueExpression(property.ClrType, index++, property);
                     }
                     projectionMapping[projection.Key.ShiftMember(outerMemberInfo)]
-                        = new EntityProjectionExpression(entityProjection.EntityType, readExperssionMap);
+                        = new EntityProjectionExpression(entityProjection.EntityType, readExpressionMap);
                 }
                 else
                 {
@@ -574,14 +570,14 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Pipeline
             {
                 if (projection.Value is EntityProjectionExpression entityProjection)
                 {
-                    var readExperssionMap = new Dictionary<IProperty, Expression>();
+                    var readExpressionMap = new Dictionary<IProperty, Expression>();
                     foreach (var property in GetAllPropertiesInHierarchy(entityProjection.EntityType))
                     {
                         resultValueBufferExpressions.Add(replacingVisitor.Visit(entityProjection.BindProperty(property)));
-                        readExperssionMap[property] = CreateReadValueExpression(property.ClrType, index++, property);
+                        readExpressionMap[property] = CreateReadValueExpression(property.ClrType, index++, property);
                     }
                     projectionMapping[projection.Key.ShiftMember(innerMemberInfo)]
-                        = new EntityProjectionExpression(entityProjection.EntityType, readExperssionMap);
+                        = new EntityProjectionExpression(entityProjection.EntityType, readExpressionMap);
                 }
                 else
                 {

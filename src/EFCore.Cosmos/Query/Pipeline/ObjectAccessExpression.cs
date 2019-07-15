@@ -4,16 +4,14 @@
 using System;
 using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Query.Expressions.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Pipeline
 {
-    public class ObjectAccessExpression : SqlExpression
+    public class ObjectAccessExpression : Expression, IPrintable, IAccessExpression
     {
-        private readonly Expression _outerExpression;
-
-        public ObjectAccessExpression(INavigation navigation, Expression outerExpression)
-            : base(navigation.ClrType, null)
+        public ObjectAccessExpression(INavigation navigation, Expression accessExpression)
         {
             Name = navigation.GetTargetType().GetCosmosContainingPropertyName();
             if (Name == null)
@@ -23,28 +21,29 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Pipeline
             }
 
             Navigation = navigation;
-            _outerExpression = outerExpression;
+            AccessExpression = accessExpression;
         }
 
-        public string Name { get; }
-
-        public INavigation Navigation { get; }
+        public override Type Type => Navigation.ClrType;
+        public virtual string Name { get; }
+        public virtual INavigation Navigation { get; }
+        public virtual Expression AccessExpression { get; }
 
         protected override Expression VisitChildren(ExpressionVisitor visitor)
         {
-            var outerExpression = visitor.Visit(_outerExpression);
+            var outerExpression = visitor.Visit(AccessExpression);
 
             return Update(outerExpression);
         }
 
         public ObjectAccessExpression Update(Expression outerExpression)
-            => outerExpression != _outerExpression
+            => outerExpression != AccessExpression
                 ? new ObjectAccessExpression(Navigation, outerExpression)
                 : this;
 
-        public override void Print(ExpressionPrinter expressionPrinter) => expressionPrinter.StringBuilder.Append(ToString());
+        public virtual void Print(ExpressionPrinter expressionPrinter) => expressionPrinter.StringBuilder.Append(ToString());
 
-        public override string ToString() => $"{_outerExpression}[\"{Name}\"]";
+        public override string ToString() => $"{AccessExpression}[\"{Name}\"]";
 
         public override bool Equals(object obj)
             => obj != null
@@ -53,10 +52,9 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Pipeline
                     && Equals(objectAccessExpression));
 
         private bool Equals(ObjectAccessExpression objectAccessExpression)
-            => base.Equals(objectAccessExpression)
-            && string.Equals(Name, objectAccessExpression.Name)
-            && _outerExpression.Equals(objectAccessExpression._outerExpression);
+            => Navigation == objectAccessExpression.Navigation
+               && AccessExpression.Equals(objectAccessExpression.AccessExpression);
 
-        public override int GetHashCode() => HashCode.Combine(base.GetHashCode(), Name, _outerExpression);
+        public override int GetHashCode() => HashCode.Combine(Navigation, AccessExpression);
     }
 }

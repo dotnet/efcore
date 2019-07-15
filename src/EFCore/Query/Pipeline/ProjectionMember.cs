@@ -45,6 +45,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Pipeline
         public override int GetHashCode()
         {
             var hash = new HashCode();
+            // ReSharper disable once ForCanBeConvertedToForeach
             for (var i = 0; i < _memberChain.Count; i++)
             {
                 hash.Add(_memberChain[i]);
@@ -54,12 +55,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Pipeline
         }
 
         public override bool Equals(object obj)
-        {
-            return obj is null
-                ? false
-                : obj is ProjectionMember projectionMember
-                    && Equals(projectionMember);
-        }
+            => obj != null
+               && (obj is ProjectionMember projectionMember
+                   && Equals(projectionMember));
 
         private bool Equals(ProjectionMember other)
         {

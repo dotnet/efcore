@@ -19,48 +19,52 @@ namespace Microsoft.EntityFrameworkCore.Query.NavigationExpansion.Visitors
 
         protected override Expression VisitExtension(Expression extensionExpression)
         {
-            if (extensionExpression is NavigationBindingExpression navigationBindingExpression
-                && navigationBindingExpression.RootParameter == _rootParameter)
+            switch (extensionExpression)
             {
-                var node = navigationBindingExpression.NavigationTreeNode;
-                var navigations = new List<INavigation>();
-                while (node != null)
+                case NavigationBindingExpression navigationBindingExpression
+                    when navigationBindingExpression.RootParameter == _rootParameter:
                 {
-                    if (node.Navigation != null)
+                    var node = navigationBindingExpression.NavigationTreeNode;
+                    var navigations = new List<INavigation>();
+                    while (node != null)
                     {
-                        navigations.Add(node.Navigation);
+                        if (node.Navigation != null)
+                        {
+                            navigations.Add(node.Navigation);
+                        }
+                        node = node.Parent;
                     }
-                    node = node.Parent;
+
+                    var result = navigationBindingExpression.RootParameter.BuildPropertyAccess(
+                        navigationBindingExpression.NavigationTreeNode.ToMapping,
+                        navigations.Count == navigationBindingExpression.NavigationTreeNode.ToMapping.Count ? navigations : null);
+
+                    return result.Type != navigationBindingExpression.Type
+                        ? Expression.Convert(result, navigationBindingExpression.Type)
+                        : result;
                 }
 
-                var result = navigationBindingExpression.RootParameter.BuildPropertyAccess(
-                    navigationBindingExpression.NavigationTreeNode.ToMapping,
-                    navigations.Count == navigationBindingExpression.NavigationTreeNode.ToMapping.Count ? navigations : null);
+                case CustomRootExpression customRootExpression
+                    when customRootExpression.RootParameter == _rootParameter:
+                {
+                    var result = _rootParameter.BuildPropertyAccess(customRootExpression.Mapping);
 
-                return result.Type != navigationBindingExpression.Type
-                    ? Expression.Convert(result, navigationBindingExpression.Type)
-                    : result;
+                    return result.Type != customRootExpression.Type
+                        ? Expression.Convert(result, customRootExpression.Type)
+                        : result;
+                }
+
+                case NavigationExpansionRootExpression _:
+                case NavigationExpansionExpression _:
+                {
+                    var result = new NavigationExpansionReducingVisitor().Visit(extensionExpression);
+
+                    return Visit(result);
+                }
+
+                default:
+                    return base.VisitExtension(extensionExpression);
             }
-
-            if (extensionExpression is CustomRootExpression customRootExpression
-                && customRootExpression.RootParameter == _rootParameter)
-            {
-                var result = _rootParameter.BuildPropertyAccess(customRootExpression.Mapping);
-
-                return result.Type != customRootExpression.Type
-                    ? Expression.Convert(result, customRootExpression.Type)
-                    : result;
-            }
-
-            if (extensionExpression is NavigationExpansionRootExpression
-                || extensionExpression is NavigationExpansionExpression)
-            {
-                var result = new NavigationExpansionReducingVisitor().Visit(extensionExpression);
-
-                return Visit(result);
-            }
-
-            return base.VisitExtension(extensionExpression);
         }
     }
 }

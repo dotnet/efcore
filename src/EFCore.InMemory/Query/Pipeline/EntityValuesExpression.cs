@@ -3,10 +3,8 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore.InMemory.Query.Pipeline
 {
@@ -27,7 +25,8 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Pipeline
 
         public Expression BindProperty(IProperty property)
         {
-            if (!EntityType.GetTypesInHierarchy().Contains(property.DeclaringEntityType))
+            if (!EntityType.IsAssignableFrom(property.DeclaringEntityType)
+                && !property.DeclaringEntityType.IsAssignableFrom(EntityType))
             {
                 throw new InvalidOperationException(
                     $"Called EntityProjectionExpression.BindProperty() with incorrect IProperty. EntityType:{EntityType.DisplayName()}, Property:{property.Name}");

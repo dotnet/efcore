@@ -8,37 +8,36 @@ using Microsoft.EntityFrameworkCore.Query.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Pipeline
 {
-    public class KeyAccessExpression : SqlExpression
+    public class KeyAccessExpression : SqlExpression, IAccessExpression
     {
-        private readonly IProperty _property;
-        private readonly Expression _outerExpression;
-
-        public KeyAccessExpression(IProperty property, Expression outerExpression)
+        public KeyAccessExpression(IProperty property, Expression accessExpression)
             : base(property.ClrType, property.GetTypeMapping())
         {
             Name = property.GetCosmosPropertyName();
-            _property = property;
-            _outerExpression = outerExpression;
+            Property = property;
+            AccessExpression = accessExpression;
         }
 
-        public string Name { get; }
+        public virtual string Name { get; }
+        public new virtual IProperty Property { get; }
+        public virtual Expression AccessExpression { get; }
 
         protected override Expression VisitChildren(ExpressionVisitor visitor)
         {
-            var outerExpression = visitor.Visit(_outerExpression);
+            var outerExpression = visitor.Visit(AccessExpression);
 
             return Update(outerExpression);
         }
 
         public KeyAccessExpression Update(Expression outerExpression)
-            => outerExpression != _outerExpression
-                ? new KeyAccessExpression(_property, outerExpression)
+            => outerExpression != AccessExpression
+                ? new KeyAccessExpression(Property, outerExpression)
                 : this;
 
         public override void Print(ExpressionPrinter expressionPrinter)
             => expressionPrinter.StringBuilder.Append(ToString());
 
-        public override string ToString() => $"{_outerExpression}[\"{Name}\"]";
+        public override string ToString() => $"{AccessExpression}[\"{Name}\"]";
 
         public override bool Equals(object obj)
             => obj != null
@@ -49,8 +48,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Pipeline
         private bool Equals(KeyAccessExpression keyAccessExpression)
             => base.Equals(keyAccessExpression)
             && string.Equals(Name, keyAccessExpression.Name)
-            && _outerExpression.Equals(keyAccessExpression._outerExpression);
+            && AccessExpression.Equals(keyAccessExpression.AccessExpression);
 
-        public override int GetHashCode() => HashCode.Combine(base.GetHashCode(), Name, _outerExpression);
+        public override int GetHashCode() => HashCode.Combine(base.GetHashCode(), Name, AccessExpression);
     }
 }

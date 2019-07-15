@@ -9,7 +9,6 @@ using System.Linq.Expressions;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Query.Pipeline;
 using Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions;
@@ -119,9 +118,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
             }
 
             private static bool IsNullableProjection(ProjectionExpression projection)
-            {
-                return projection.Expression is ColumnExpression column ? column.Nullable : true;
-            }
+                => !(projection.Expression is ColumnExpression column) || column.Nullable;
 
             private static Expression CreateGetValueExpression(
                 Expression dbDataReader,

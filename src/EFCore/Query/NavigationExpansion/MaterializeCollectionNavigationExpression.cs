@@ -3,7 +3,6 @@
 
 using System;
 using System.Linq.Expressions;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Query.Expressions.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
@@ -24,20 +23,19 @@ namespace Microsoft.EntityFrameworkCore.Query.NavigationExpansion
         public override ExpressionType NodeType => ExpressionType.Extension;
         public override Type Type => Navigation.ClrType;
 
+        protected override Expression VisitChildren(ExpressionVisitor visitor)
+            => Update(visitor.Visit(Subquery));
+
+        public virtual MaterializeCollectionNavigationExpression Update(Expression subquery)
+            => subquery != Subquery
+                ? new MaterializeCollectionNavigationExpression(subquery, Navigation)
+                : this;
+
         public virtual void Print(ExpressionPrinter expressionPrinter)
         {
             expressionPrinter.StringBuilder.Append($"MaterializeCollectionNavigation({Navigation}, ");
             expressionPrinter.Visit(Subquery);
             expressionPrinter.StringBuilder.Append(")");
-        }
-
-        protected override Expression VisitChildren(ExpressionVisitor visitor)
-        {
-            var subquery = visitor.Visit(Subquery);
-
-            return subquery != Subquery
-                ? new MaterializeCollectionNavigationExpression(subquery, Navigation)
-                : this;
         }
     }
 }

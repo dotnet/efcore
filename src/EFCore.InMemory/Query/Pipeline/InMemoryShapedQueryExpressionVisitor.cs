@@ -56,7 +56,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Pipeline
 
         protected override Expression VisitShapedQueryExpression(ShapedQueryExpression shapedQueryExpression)
         {
-            var shaperBody = InjectEntityMaterializer(shapedQueryExpression.ShaperExpression);
+            var shaperBody = InjectEntityMaterializers(shapedQueryExpression.ShaperExpression);
 
             var innerEnumerable = Visit(shapedQueryExpression.QueryExpression);
 

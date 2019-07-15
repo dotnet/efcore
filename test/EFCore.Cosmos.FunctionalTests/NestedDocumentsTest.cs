@@ -177,28 +177,39 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
             }
         }
 
-        // #13559
-        //[ConditionalFact]
-        public virtual async Task Can_update_just_dependents()
+        [ConditionalFact]
+        public virtual async Task Can_query_just_nested_reference()
         {
             await using (var testDatabase = CreateTestStore())
             {
-                Operator firstOperator;
-                Engine firstEngine;
                 using (var context = CreateContext())
                 {
-                    firstOperator = context.Set<Operator>().OrderBy(o => o.VehicleName).First();
-                    firstOperator.Name += "1";
-                    firstEngine = context.Set<Engine>().OrderBy(o => o.VehicleName).First();
-                    firstEngine.Description += "1";
+                    var firstOperator = context.Set<Vehicle>().Select(v => v.Operator).OrderBy(o => o.VehicleName).AsNoTracking().First();
+
+                    Assert.Equal("Albert Williams", firstOperator.Name);
+                    Assert.Null(firstOperator.Vehicle);
+                }
+            }
+        }
+
+        // #12086
+        //[ConditionalFact]
+        public virtual async Task Can_query_just_nested_collection()
+        {
+            await using (var testDatabase = CreateTestStore())
+            {
+                using (var context = CreateContext())
+                {
+                    context.Add(new Person { Id = 3, Addresses = new[] { new Address { Street = "First", City = "City" }, new Address { Street = "Second", City = "City" } } });
 
                     context.SaveChanges();
                 }
 
                 using (var context = CreateContext())
                 {
-                    Assert.Equal(firstOperator.Name, context.Set<Operator>().OrderBy(o => o.VehicleName).First().Name);
-                    Assert.Equal(firstEngine.Description, context.Set<Engine>().OrderBy(o => o.VehicleName).First().Description);
+                    var addresses = context.Set<Person>().Select(p => p.Addresses).AsNoTracking().First();
+
+                    Assert.Equal(2, addresses.Count);
                 }
             }
         }
@@ -328,16 +339,16 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
                         .Log(CoreEventId.SensitiveDataLoggingEnabledWarning)
                         .Log(CoreEventId.PossibleUnintendedReferenceComparisonWarning));
 
-        protected virtual NestedTransportationContext CreateContext()
+        protected virtual EmbeddedTransportationContext CreateContext()
         {
             var options = AddOptions(TestStore.AddProviderOptions(new DbContextOptionsBuilder()))
                 .UseInternalServiceProvider(ServiceProvider).Options;
-            return new NestedTransportationContext(options);
+            return new EmbeddedTransportationContext(options);
         }
 
-        protected class NestedTransportationContext : TransportationContext
+        protected class EmbeddedTransportationContext : TransportationContext
         {
-            public NestedTransportationContext(DbContextOptions options) : base(options)
+            public EmbeddedTransportationContext(DbContextOptions options) : base(options)
             {
             }
 

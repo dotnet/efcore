@@ -41,30 +41,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Pipeline
         public override Type Type { get; }
         public override ExpressionType NodeType => ExpressionType.Extension;
 
-        protected override Expression VisitChildren(ExpressionVisitor visitor)
-        {
-            return this;
-        }
-
-        #region Equality & HashCode
-        public override bool Equals(object obj)
-            => obj != null
-            && (ReferenceEquals(this, obj)
-                || obj is ProjectionBindingExpression projectionBindingExpression
-                    && Equals(projectionBindingExpression));
-
-        private bool Equals(ProjectionBindingExpression projectionBindingExpression)
-            => QueryExpression.Equals(projectionBindingExpression.QueryExpression)
-            && (ProjectionMember == null
-                ? projectionBindingExpression.ProjectionMember == null
-                : ProjectionMember.Equals(projectionBindingExpression.ProjectionMember))
-            && Index == projectionBindingExpression.Index
-            // Using reference equality here since if we are this far, we don't need to compare this.
-            && IndexMap == projectionBindingExpression.IndexMap;
-
-        public override int GetHashCode() => HashCode.Combine(base.GetHashCode(), QueryExpression, ProjectionMember, Index, IndexMap);
-
-        #endregion
+        protected override Expression VisitChildren(ExpressionVisitor visitor) => this;
 
         public void Print(ExpressionPrinter expressionPrinter)
         {
@@ -88,5 +65,22 @@ namespace Microsoft.EntityFrameworkCore.Query.Pipeline
                 }
             }
         }
+
+        public override bool Equals(object obj)
+            => obj != null
+            && (ReferenceEquals(this, obj)
+                || obj is ProjectionBindingExpression projectionBindingExpression
+                    && Equals(projectionBindingExpression));
+
+        private bool Equals(ProjectionBindingExpression projectionBindingExpression)
+            => QueryExpression.Equals(projectionBindingExpression.QueryExpression)
+               && Type == projectionBindingExpression.Type
+               && (ProjectionMember?.Equals(projectionBindingExpression.ProjectionMember)
+                   ?? projectionBindingExpression.ProjectionMember == null)
+               && Index == projectionBindingExpression.Index
+               // Using reference equality here since if we are this far, we don't need to compare this.
+               && IndexMap == projectionBindingExpression.IndexMap;
+
+        public override int GetHashCode() => HashCode.Combine(QueryExpression, ProjectionMember, Index, IndexMap);
     }
 }

@@ -4,7 +4,6 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Data.Common;
 using System.Diagnostics;
 using System.Linq;
@@ -278,12 +277,12 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
             }
 
             private static void SetIsLoadedNoTracking(object entity, INavigation navigation)
-            => ((ILazyLoader)((PropertyBase)navigation
-                        .DeclaringEntityType
-                        .GetServiceProperties()
-                        .FirstOrDefault(p => p.ClrType == typeof(ILazyLoader)))
-                    ?.Getter.GetClrValue(entity))
-                ?.SetLoaded(entity, navigation.Name);
+                => ((ILazyLoader)((PropertyBase)navigation
+                            .DeclaringEntityType
+                            .GetServiceProperties()
+                            .FirstOrDefault(p => p.ClrType == typeof(ILazyLoader)))
+                        ?.Getter.GetClrValue(entity))
+                    ?.SetLoaded(entity, navigation.Name);
 
             protected override Expression VisitExtension(Expression extensionExpression)
             {

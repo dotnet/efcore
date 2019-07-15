@@ -156,12 +156,10 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// </summary>
         public virtual void BeginTrackingQuery() => StateManager.BeginTrackingQuery();
 
-        public virtual void StartTracking(
+        public virtual InternalEntityEntry StartTracking(
             IEntityType entityType,
             object entity,
             ValueBuffer valueBuffer)
-        {
-            StateManager.StartTrackingFromQuery(entityType, entity, valueBuffer, handledForeignKeys: null);
-        }
+            => StateManager.StartTrackingFromQuery(entityType, entity, valueBuffer, handledForeignKeys: null);
     }
 }

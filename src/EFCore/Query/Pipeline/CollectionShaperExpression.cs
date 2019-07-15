@@ -13,7 +13,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Pipeline
     public class CollectionShaperExpression : Expression, IPrintable
     {
         public CollectionShaperExpression(
-            ProjectionBindingExpression projection,
+            Expression projection,
             Expression innerShaper,
             INavigation navigation,
             Type elementType)
@@ -26,24 +26,21 @@ namespace Microsoft.EntityFrameworkCore.Query.Pipeline
 
         protected override Expression VisitChildren(ExpressionVisitor visitor)
         {
-            var projection = (ProjectionBindingExpression)visitor.Visit(Projection);
+            var projection = visitor.Visit(Projection);
             var innerShaper = visitor.Visit(InnerShaper);
 
             return Update(projection, innerShaper);
         }
 
-        public CollectionShaperExpression Update(ProjectionBindingExpression projection, Expression innerShaper)
-        {
-            return projection != Projection || innerShaper != InnerShaper
+        public CollectionShaperExpression Update(Expression projection, Expression innerShaper)
+            => projection != Projection || innerShaper != InnerShaper
                 ? new CollectionShaperExpression(projection, innerShaper, Navigation, ElementType)
                 : this;
-        }
 
         public override ExpressionType NodeType => ExpressionType.Extension;
-
         public override Type Type => Navigation?.ClrType ?? typeof(List<>).MakeGenericType(ElementType);
 
-        public ProjectionBindingExpression Projection { get; }
+        public Expression Projection { get; }
         public Expression InnerShaper { get; }
         public INavigation Navigation { get; }
         public Type ElementType { get; }

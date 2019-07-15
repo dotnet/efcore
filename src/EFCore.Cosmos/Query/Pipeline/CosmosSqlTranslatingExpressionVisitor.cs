@@ -9,6 +9,7 @@ using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Query.Expressions.Internal;
+using Microsoft.EntityFrameworkCore.Query.NavigationExpansion;
 using Microsoft.EntityFrameworkCore.Query.Pipeline;
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Pipeline
@@ -55,12 +56,9 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Pipeline
             protected override Expression VisitExtension(Expression node)
             {
                 if (node is SqlExpression sqlExpression
-                    && !(node is ObjectAccessExpression))
+                    && sqlExpression.TypeMapping == null)
                 {
-                    if (sqlExpression.TypeMapping == null)
-                    {
-                        throw new InvalidOperationException("Null TypeMapping in Sql Tree");
-                    }
+                    throw new InvalidOperationException("Null TypeMapping in Sql Tree");
                 }
 
                 return base.VisitExtension(node);
@@ -71,7 +69,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Pipeline
         {
             var innerExpression = Visit(memberExpression.Expression);
 
-            if (TryBindProperty(innerExpression, MemberIdentity.Create(memberExpression.Member), out var result))
+            if (TryBindMember(innerExpression, MemberIdentity.Create(memberExpression.Member), out var result))
             {
                 return result;
             }
@@ -81,43 +79,20 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Pipeline
                 : _memberTranslatorProvider.Translate((SqlExpression)innerExpression, memberExpression.Member, memberExpression.Type);
         }
 
-        private bool TryBindProperty(Expression source, MemberIdentity member, out SqlExpression expression)
+        private bool TryBindMember(Expression source, MemberIdentity member, out Expression expression)
         {
             if (source is EntityProjectionExpression entityProjectionExpression)
             {
-                var entityType = entityProjectionExpression.EntityType;
-                var property = member.MemberInfo != null
-                    ? entityType.FindProperty(member.MemberInfo)
-                    : entityType.FindProperty(member.Name);
-                if (property != null)
-                {
-                    expression = entityProjectionExpression.BindProperty(property);
-                    return true;
-                }
-
-                var navigation = member.MemberInfo != null
-                    ? entityType.FindNavigation(member.MemberInfo)
-                    : entityType.FindNavigation(member.Name);
-                expression = entityProjectionExpression.BindNavigation(navigation);
+                expression = member.MemberInfo != null
+                    ? entityProjectionExpression.BindMember(member.MemberInfo, null, out _)
+                    : entityProjectionExpression.BindMember(member.Name, null, out _);
                 return true;
             }
-            else if (source is ObjectAccessExpression objectAccessExpression)
-            {
-                var entityType = objectAccessExpression.Navigation.GetTargetType();
-                var property = member.MemberInfo != null
-                    ? entityType.FindProperty(member.MemberInfo)
-                    : entityType.FindProperty(member.Name);
-                if (property != null)
-                {
-                    expression = new KeyAccessExpression(property, objectAccessExpression);
-                    return true;
-                }
 
-                var navigation = member.MemberInfo != null
-                    ? entityType.FindNavigation(member.MemberInfo)
-                    : entityType.FindNavigation(member.Name);
-                expression = new ObjectAccessExpression(navigation, objectAccessExpression);
-                return true;
+            if (source is MemberExpression innerMemberExpression
+                && TryBindMember(innerMemberExpression, MemberIdentity.Create(innerMemberExpression.Member), out var innerResult))
+            {
+                return TryBindMember(innerResult, member, out expression);
             }
 
             expression = null;
@@ -128,10 +103,11 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Pipeline
         {
             if (methodCallExpression.TryGetEFPropertyArguments(out var source, out var propertyName))
             {
-                if (!TryBindProperty(Visit(source), MemberIdentity.Create(propertyName), out var result))
+                if (!TryBindMember(Visit(source), MemberIdentity.Create(propertyName), out var result))
                 {
-                    throw new InvalidOperationException();
+                    throw new InvalidOperationException($"Property {propertyName} not found on {source}");
                 }
+
                 return result;
             }
 
@@ -180,28 +156,27 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Pipeline
 
         private static Expression TryRemoveImplicitConvert(Expression expression)
         {
-            if (expression is UnaryExpression unaryExpression)
+            if (expression is UnaryExpression unaryExpression
+                && (unaryExpression.NodeType == ExpressionType.Convert
+                    || unaryExpression.NodeType == ExpressionType.ConvertChecked))
             {
-                if (unaryExpression.NodeType == ExpressionType.Convert
-                    || unaryExpression.NodeType == ExpressionType.ConvertChecked)
+                var innerType = unaryExpression.Operand.Type.UnwrapNullableType();
+                if (innerType.IsEnum)
                 {
-                    var innerType = unaryExpression.Operand.Type.UnwrapNullableType();
-                    if (innerType.IsEnum)
-                    {
-                        innerType = Enum.GetUnderlyingType(innerType);
-                    }
-                    var convertedType = unaryExpression.Type.UnwrapNullableType();
+                    innerType = Enum.GetUnderlyingType(innerType);
+                }
 
-                    if (innerType == convertedType
-                        || (convertedType == typeof(int)
-                            && (innerType == typeof(byte)
-                                || innerType == typeof(sbyte)
-                                || innerType == typeof(char)
-                                || innerType == typeof(short)
-                                || innerType == typeof(ushort))))
-                    {
-                        return TryRemoveImplicitConvert(unaryExpression.Operand);
-                    }
+                var convertedType = unaryExpression.Type.UnwrapNullableType();
+
+                if (innerType == convertedType
+                    || (convertedType == typeof(int)
+                        && (innerType == typeof(byte)
+                            || innerType == typeof(sbyte)
+                            || innerType == typeof(char)
+                            || innerType == typeof(short)
+                            || innerType == typeof(ushort))))
+                {
+                    return TryRemoveImplicitConvert(unaryExpression.Operand);
                 }
             }
 

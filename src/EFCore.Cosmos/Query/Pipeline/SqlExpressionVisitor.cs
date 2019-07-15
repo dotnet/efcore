@@ -20,11 +20,17 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Pipeline
                 case EntityProjectionExpression entityProjectionExpression:
                     return VisitEntityProjection(entityProjectionExpression);
 
+                case ObjectArrayProjectionExpression arrayProjectionExpression:
+                    return VisitObjectArrayProjection(arrayProjectionExpression);
+
                 case RootReferenceExpression rootReferenceExpression:
                     return VisitRootReference(rootReferenceExpression);
 
                 case KeyAccessExpression keyAccessExpression:
                     return VisitKeyAccess(keyAccessExpression);
+
+                case ObjectAccessExpression objectAccessExpression:
+                    return VisitObjectAccess(objectAccessExpression);
 
                 case SqlBinaryExpression sqlBinaryExpression:
                     return VisitSqlBinary(sqlBinaryExpression);
@@ -66,6 +72,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Pipeline
         protected abstract Expression VisitObjectAccess(ObjectAccessExpression objectAccessExpression);
         protected abstract Expression VisitRootReference(RootReferenceExpression rootReferenceExpression);
         protected abstract Expression VisitEntityProjection(EntityProjectionExpression entityProjectionExpression);
+        protected abstract Expression VisitObjectArrayProjection(ObjectArrayProjectionExpression objectArrayProjectionExpression);
         protected abstract Expression VisitProjection(ProjectionExpression projectionExpression);
         protected abstract Expression VisitSelect(SelectExpression selectExpression);
     }

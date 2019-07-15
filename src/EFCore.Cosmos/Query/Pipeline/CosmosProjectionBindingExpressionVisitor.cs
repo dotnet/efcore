@@ -5,6 +5,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
+using Microsoft.EntityFrameworkCore.Cosmos.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Query.NavigationExpansion;
@@ -59,68 +61,63 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Pipeline
                 return null;
             }
 
-            if (!(expression is NewExpression
-                  || expression is MemberInitExpression
-                  || expression is EntityShaperExpression))
+            if (expression is NewExpression
+                || expression is MemberInitExpression
+                || expression is EntityShaperExpression)
             {
-                // This skips the group parameter from GroupJoin
-                if (expression is ParameterExpression parameter
-                    && parameter.Type.IsGenericType
-                    && parameter.Type.GetGenericTypeDefinition() == typeof(IEnumerable<>))
-                {
-                    return parameter;
-                }
+                return base.Visit(expression);
+            }
 
-                if (_clientEval)
+            // This skips the group parameter from GroupJoin
+            if (expression is ParameterExpression parameter
+                && parameter.Type.IsGenericType
+                && parameter.Type.GetGenericTypeDefinition() == typeof(IEnumerable<>))
+            {
+                return parameter;
+            }
+
+            if (_clientEval)
+            {
+                switch (expression)
                 {
-                    if (expression is ConstantExpression)
-                    {
+                    case ConstantExpression _:
                         return expression;
-                    }
 
-                    if (expression is ParameterExpression parameterExpression)
-                    {
+                    case ParameterExpression parameterExpression:
                         return Expression.Call(
                             _getParameterValueMethodInfo.MakeGenericMethod(parameterExpression.Type),
                             QueryCompilationContext.QueryContextParameter,
                             Expression.Constant(parameterExpression.Name));
-                    }
 
-                    //if (expression is MethodCallExpression methodCallExpression
-                    //    && methodCallExpression.Method.Name == "MaterializeCollectionNavigation")
-                    //{
-                    //    var result = _queryableMethodTranslatingExpressionVisitor.TranslateSubquery(methodCallExpression.Arguments[0]);
-                    //    var navigation = (INavigation)((ConstantExpression)methodCallExpression.Arguments[1]).Value;
-
-                    //    return _selectExpression.AddCollectionProjection(result, navigation);
-                    //}
-
-                    var translation = _sqlTranslator.Translate(expression);
-                    if (translation == null)
-                    {
+                    case MaterializeCollectionNavigationExpression materializeCollectionNavigationExpression:
                         return base.Visit(expression);
-                    }
-                    else
-                    {
-                        return new ProjectionBindingExpression(
-                            _selectExpression, _selectExpression.AddToProjection(translation), expression.Type);
-                    }
+                    //return _selectExpression.AddCollectionProjection(
+                    //    _queryableMethodTranslatingExpressionVisitor.TranslateSubquery(
+                    //        materializeCollectionNavigationExpression.Subquery),
+                    //    materializeCollectionNavigationExpression.Navigation, null);
                 }
-                else
+
+                var translation = _sqlTranslator.Translate(expression);
+                if (translation == null)
                 {
-                    var translation = _sqlTranslator.Translate(expression);
-                    if (translation == null)
-                    {
-                        return null;
-                    }
-
-                    _projectionMapping[_projectionMembers.Peek()] = translation;
-
-                    return new ProjectionBindingExpression(_selectExpression, _projectionMembers.Peek(), expression.Type);
+                    return base.Visit(expression);
                 }
-            }
 
-            return base.Visit(expression);
+                return new ProjectionBindingExpression(
+                    _selectExpression, _selectExpression.AddToProjection(translation), expression.Type);
+            }
+            else
+            {
+                var translation = _sqlTranslator.Translate(expression);
+                if (translation == null)
+                {
+                    return null;
+                }
+
+                _projectionMapping[_projectionMembers.Peek()] = translation;
+
+                return new ProjectionBindingExpression(_selectExpression, _projectionMembers.Peek(), expression.Type);
+            }
         }
 
         private static readonly MethodInfo _getParameterValueMethodInfo
@@ -132,39 +129,123 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Pipeline
 #pragma warning restore IDE0052 // Remove unread private members
             => (T)queryContext.ParameterValues[parameterName];
 
+        protected override Expression VisitMember(MemberExpression memberExpression)
+        {
+            if (!_clientEval)
+            {
+                return null;
+            }
+
+            var innerExpression = Visit(memberExpression.Expression);
+
+            EntityShaperExpression shaperExpression;
+            switch (innerExpression)
+            {
+                case EntityShaperExpression shaper:
+                    shaperExpression = shaper;
+                    break;
+
+                case UnaryExpression unaryExpression:
+                    shaperExpression = unaryExpression.Operand as EntityShaperExpression;
+                    if (shaperExpression == null)
+                    {
+                        return memberExpression.Update(innerExpression);
+                    }
+                    break;
+
+                default:
+                    return memberExpression.Update(innerExpression);
+            }
+
+            EntityProjectionExpression innerEntityProjection;
+            switch (shaperExpression.ValueBufferExpression)
+            {
+                case ProjectionBindingExpression innerProjectionBindingExpression:
+                    innerEntityProjection = (EntityProjectionExpression)_selectExpression.Projection[
+                        innerProjectionBindingExpression.Index.Value].Expression;
+                    break;
+
+                case UnaryExpression unaryExpression:
+                    innerEntityProjection = (EntityProjectionExpression)((UnaryExpression)unaryExpression.Operand).Operand;
+                    break;
+
+                default:
+                    throw new InvalidOperationException();
+            }
+
+            var navigationProjection = innerEntityProjection.BindMember(memberExpression.Member, innerExpression.Type, out var propertyBase);
+
+            if (!(propertyBase is INavigation navigation)
+                || !navigation.IsEmbedded())
+            {
+                return memberExpression.Update(innerExpression);
+            }
+
+            switch (navigationProjection)
+            {
+                case EntityProjectionExpression entityProjection:
+                    return new EntityShaperExpression(
+                        navigation.GetTargetType(),
+                        Expression.Convert(Expression.Convert(entityProjection, typeof(object)), typeof(ValueBuffer)),
+                        nullable: true);
+
+                case ObjectArrayProjectionExpression objectArrayProjectionExpression:
+                {
+                    var innerShaperExpression = new EntityShaperExpression(
+                        navigation.GetTargetType(),
+                        Expression.Convert(
+                            Expression.Convert(objectArrayProjectionExpression.InnerProjection, typeof(object)), typeof(ValueBuffer)),
+                        nullable: true);
+
+                    return new CollectionShaperExpression(
+                        objectArrayProjectionExpression,
+                        innerShaperExpression,
+                        navigation,
+                        innerShaperExpression.EntityType.ClrType);
+                }
+
+                default:
+                    throw new InvalidOperationException();
+            }
+        }
+
         protected override Expression VisitExtension(Expression extensionExpression)
         {
-            if (extensionExpression is EntityShaperExpression entityShaperExpression)
+            switch (extensionExpression)
             {
-                var projectionBindingExpression = (ProjectionBindingExpression)entityShaperExpression.ValueBufferExpression;
-                VerifySelectExpression(projectionBindingExpression);
-
-                if (_clientEval)
+                case EntityShaperExpression entityShaperExpression:
                 {
-                    var entityProjection = (EntityProjectionExpression)_selectExpression.GetMappedProjection(
-                        projectionBindingExpression.ProjectionMember);
+                    var projectionBindingExpression = (ProjectionBindingExpression)entityShaperExpression.ValueBufferExpression;
+                    VerifySelectExpression(projectionBindingExpression);
 
-                    return entityShaperExpression.Update(
-                        new ProjectionBindingExpression(
-                            _selectExpression, _selectExpression.AddToProjection(entityProjection), typeof(ValueBuffer)));
-                }
-                else
-                {
-                    _projectionMapping[_projectionMembers.Peek()]
-                        = _selectExpression.GetMappedProjection(
+                    if (_clientEval)
+                    {
+                        var entityProjection = (EntityProjectionExpression)_selectExpression.GetMappedProjection(
                             projectionBindingExpression.ProjectionMember);
+
+                        return entityShaperExpression.Update(
+                            new ProjectionBindingExpression(
+                                _selectExpression, _selectExpression.AddToProjection(entityProjection), typeof(ValueBuffer)));
+                    }
+
+                    _projectionMapping[_projectionMembers.Peek()]
+                        = _selectExpression.GetMappedProjection(projectionBindingExpression.ProjectionMember);
 
                     return entityShaperExpression.Update(
                         new ProjectionBindingExpression(_selectExpression, _projectionMembers.Peek(), typeof(ValueBuffer)));
                 }
-            }
 
-            if (extensionExpression is IncludeExpression includeExpression)
-            {
-                return _clientEval ? base.VisitExtension(includeExpression) : includeExpression;
-            }
+                case MaterializeCollectionNavigationExpression materializeCollectionNavigationExpression:
+                    return materializeCollectionNavigationExpression.Navigation.IsEmbedded()
+                        ? base.Visit(materializeCollectionNavigationExpression.Subquery)
+                        : base.VisitExtension(materializeCollectionNavigationExpression);
 
-            throw new InvalidOperationException(new ExpressionPrinter().Print(extensionExpression));
+                case IncludeExpression includeExpression:
+                    return _clientEval ? base.VisitExtension(includeExpression) : null;
+
+                default:
+                    throw new InvalidOperationException(new ExpressionPrinter().Print(extensionExpression));
+            }
         }
 
         protected override Expression VisitNew(NewExpression newExpression)

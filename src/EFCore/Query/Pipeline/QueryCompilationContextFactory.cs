@@ -39,8 +39,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Pipeline
         }
 
         public QueryCompilationContext Create(bool async)
-        {
-            var queryCompilationContext = new QueryCompilationContext(
+            => new QueryCompilationContext(
                 _model,
                 _queryOptimizerFactory,
                 _queryableMethodTranslatingExpressionVisitorFactory,
@@ -50,8 +49,5 @@ namespace Microsoft.EntityFrameworkCore.Query.Pipeline
                 _contextOptions,
                 _logger,
                 async);
-
-            return queryCompilationContext;
-        }
     }
 }

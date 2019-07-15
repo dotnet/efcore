@@ -7,7 +7,6 @@ using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore.Internal;
-using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Query.NavigationExpansion.Visitors
@@ -144,39 +143,56 @@ namespace Microsoft.EntityFrameworkCore.Query.NavigationExpansion.Visitors
             NavigationTreeNode navigationTreeNode, ParameterExpression rootParameter, SourceMapping sourceMapping)
         {
             var collectionEntityType = navigationTreeNode.Navigation.ForeignKey.DeclaringEntityType;
-            var entityQueryable = (Expression)NullAsyncQueryProvider.Instance.CreateEntityQueryableExpression(collectionEntityType.ClrType);
 
-            var outerBinding = new NavigationBindingExpression(
-                rootParameter,
-                navigationTreeNode.Parent,
-                navigationTreeNode.Navigation.DeclaringEntityType,
-                sourceMapping,
-                navigationTreeNode.Navigation.DeclaringEntityType.ClrType);
+            Expression operand;
+            if (navigationTreeNode.IncludeState == NavigationState.Pending
+                || navigationTreeNode.ExpansionState == NavigationState.Pending)
+            {
+                var entityQueryable = (Expression)NullAsyncQueryProvider.Instance.CreateEntityQueryableExpression(collectionEntityType.ClrType);
 
-            var outerKeyAccess = NavigationExpansionHelpers.CreateKeyAccessExpression(
-                outerBinding,
-                navigationTreeNode.Navigation.ForeignKey.PrincipalKey.Properties,
-                addNullCheck: outerBinding.NavigationTreeNode.Optional);
+                var outerBinding = new NavigationBindingExpression(
+                    rootParameter,
+                    navigationTreeNode.Parent,
+                    navigationTreeNode.Navigation.DeclaringEntityType,
+                    sourceMapping,
+                    navigationTreeNode.Navigation.DeclaringEntityType.ClrType);
 
-            var collectionCurrentParameter = Expression.Parameter(collectionEntityType.ClrType, collectionEntityType.ClrType.GenerateParameterName());
+                var outerKeyAccess = NavigationExpansionHelpers.CreateKeyAccessExpression(
+                    outerBinding,
+                    navigationTreeNode.Navigation.ForeignKey.PrincipalKey.Properties,
+                    addNullCheck: outerBinding.NavigationTreeNode.Optional);
 
-            var innerKeyAccess = NavigationExpansionHelpers.CreateKeyAccessExpression(
-                collectionCurrentParameter,
-                navigationTreeNode.Navigation.ForeignKey.Properties);
+                var collectionCurrentParameter = Expression.Parameter(
+                    collectionEntityType.ClrType, collectionEntityType.ClrType.GenerateParameterName());
 
-            var predicate = Expression.Lambda(
-                CreateKeyComparisonExpressionForCollectionNavigationSubquery(
-                    outerKeyAccess,
-                    innerKeyAccess,
-                    outerBinding),
-                collectionCurrentParameter);
+                var innerKeyAccess = NavigationExpansionHelpers.CreateKeyAccessExpression(
+                    collectionCurrentParameter,
+                    navigationTreeNode.Navigation.ForeignKey.Properties);
 
-            var operand = Expression.Call(
-                LinqMethodHelpers.QueryableWhereMethodInfo.MakeGenericMethod(collectionEntityType.ClrType),
-                entityQueryable,
-                predicate);
+                var predicate = Expression.Lambda(
+                    CreateKeyComparisonExpressionForCollectionNavigationSubquery(
+                        outerKeyAccess,
+                        innerKeyAccess,
+                        outerBinding),
+                    collectionCurrentParameter);
 
-            var result = NavigationExpansionHelpers.CreateNavigationExpansionRoot(operand, collectionEntityType, navigationTreeNode.Navigation);
+                operand = Expression.Call(
+                    LinqMethodHelpers.QueryableWhereMethodInfo.MakeGenericMethod(collectionEntityType.ClrType),
+                    entityQueryable,
+                    predicate);
+            }
+            else
+            {
+                operand = new NavigationBindingExpression(
+                    rootParameter,
+                    navigationTreeNode,
+                    collectionEntityType,
+                    sourceMapping,
+                    collectionEntityType.ClrType);
+            }
+
+            var result = NavigationExpansionHelpers.CreateNavigationExpansionRoot(
+                operand, collectionEntityType, navigationTreeNode.Navigation);
 
             // this is needed for cases like: root.Include(r => r.Collection).ThenInclude(c => c.Reference).Select(r => r.Collection)
             // result should be elements of the collection navigation with their 'Reference' included

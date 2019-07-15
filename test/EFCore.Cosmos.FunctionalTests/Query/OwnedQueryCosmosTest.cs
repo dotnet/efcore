@@ -50,7 +50,6 @@ WHERE ((c[""Discriminator""] = ""LeafB"") OR ((c[""Discriminator""] = ""LeafA"")
             base.Navigation_rewrite_on_owned_collection_with_composition_complex();
         }
 
-        [ConditionalFact(Skip = "Owned projection #12086")]
         public override void Navigation_rewrite_on_owned_reference_projecting_entity()
         {
             base.Navigation_rewrite_on_owned_reference_projecting_entity();
@@ -58,10 +57,19 @@ WHERE ((c[""Discriminator""] = ""LeafB"") OR ((c[""Discriminator""] = ""LeafA"")
             AssertSql(
                 @"SELECT c
 FROM root c
-WHERE (((c[""Discriminator""] = ""LeafB"") OR ((c[""Discriminator""] = ""LeafA"") OR ((c[""Discriminator""] = ""Branch"") OR (c[""Discriminator""] = ""OwnedPerson"")))) AND (c[""PersonAddress""][""Country""][""Name""] = ""USA""))");
+WHERE (c[""Discriminator""] IN (""OwnedPerson"", ""Branch"", ""LeafB"", ""LeafA"") AND (c[""PersonAddress""][""Country""][""Name""] = ""USA""))");
         }
 
-        [ConditionalFact(Skip = "Owned collection #12086")]
+        public override void Navigation_rewrite_on_owned_reference_projecting_scalar()
+        {
+            base.Navigation_rewrite_on_owned_reference_projecting_scalar();
+
+            AssertSql(
+                @"SELECT c[""PersonAddress""][""Country""][""Name""]
+FROM root c
+WHERE (c[""Discriminator""] IN (""OwnedPerson"", ""Branch"", ""LeafB"", ""LeafA"") AND (c[""PersonAddress""][""Country""][""Name""] = ""USA""))");
+        }
+
         public override void Query_for_base_type_loads_all_owned_navs()
         {
             base.Query_for_base_type_loads_all_owned_navs();
@@ -69,10 +77,9 @@ WHERE (((c[""Discriminator""] = ""LeafB"") OR ((c[""Discriminator""] = ""LeafA""
             AssertSql(
                 @"SELECT c
 FROM root c
-WHERE (((c[""Discriminator""] = ""LeafB"") OR ((c[""Discriminator""] = ""LeafA"") OR ((c[""Discriminator""] = ""Branch"") OR (c[""Discriminator""] = ""OwnedPerson"")))) AND (c[""PersonAddress""][""Country""][""Name""] = ""USA""))");
+WHERE c[""Discriminator""] IN (""OwnedPerson"", ""Branch"", ""LeafB"", ""LeafA"")");
         }
 
-        [ConditionalFact(Skip = "Owned collection #12086")]
         public override void Query_for_branch_type_loads_all_owned_navs()
         {
             base.Query_for_branch_type_loads_all_owned_navs();
@@ -80,10 +87,9 @@ WHERE (((c[""Discriminator""] = ""LeafB"") OR ((c[""Discriminator""] = ""LeafA""
             AssertSql(
                 @"SELECT c
 FROM root c
-WHERE (((c[""Discriminator""] = ""LeafB"") OR ((c[""Discriminator""] = ""LeafA"") OR ((c[""Discriminator""] = ""Branch"") OR (c[""Discriminator""] = ""OwnedPerson"")))) AND (c[""PersonAddress""][""Country""][""Name""] = ""USA""))");
+WHERE c[""Discriminator""] IN (""Branch"", ""LeafA"")");
         }
 
-        [ConditionalFact(Skip = "Owned collection #12086")]
         public override void Query_for_leaf_type_loads_all_owned_navs()
         {
             base.Query_for_leaf_type_loads_all_owned_navs();
@@ -91,7 +97,7 @@ WHERE (((c[""Discriminator""] = ""LeafB"") OR ((c[""Discriminator""] = ""LeafA""
             AssertSql(
                 @"SELECT c
 FROM root c
-WHERE (((c[""Discriminator""] = ""LeafB"") OR ((c[""Discriminator""] = ""LeafA"") OR ((c[""Discriminator""] = ""Branch"") OR (c[""Discriminator""] = ""OwnedPerson"")))) AND (c[""PersonAddress""][""Country""][""Name""] = ""USA""))");
+WHERE (c[""Discriminator""] = ""LeafA"")");
         }
 
         [ConditionalFact(Skip = "LeftJoin #12086")]

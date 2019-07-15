@@ -9,5 +9,4 @@ namespace Microsoft.EntityFrameworkCore.Query.Pipeline
     {
         QueryableMethodTranslatingExpressionVisitor Create(IModel model);
     }
-
 }

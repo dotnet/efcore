@@ -23,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Pipeline
         {
             ContainerName = entityType.GetCosmosContainerName();
             FromExpression = new RootReferenceExpression(entityType, RootAlias);
-            _projectionMapping[new ProjectionMember()] = new EntityProjectionExpression(entityType, FromExpression, RootAlias);
+            _projectionMapping[new ProjectionMember()] = new EntityProjectionExpression(entityType, FromExpression);
         }
 
         public SelectExpression(
@@ -44,9 +44,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Pipeline
         public bool IsDistinct { get; private set; }
 
         public Expression GetMappedProjection(ProjectionMember projectionMember)
-        {
-            return _projectionMapping[projectionMember];
-        }
+            => _projectionMapping[projectionMember];
 
         public void ApplyProjection()
         {
@@ -75,15 +73,11 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Pipeline
             }
         }
 
-        public int AddToProjection(SqlExpression sqlExpression)
-        {
-            return AddToProjection(sqlExpression, null);
-        }
+        public int AddToProjection(SqlExpression sqlExpression) => AddToProjection(sqlExpression, null);
 
-        public int AddToProjection(EntityProjectionExpression entityProjection)
-        {
-            return AddToProjection(entityProjection, null);
-        }
+        public int AddToProjection(EntityProjectionExpression entityProjection) => AddToProjection(entityProjection, null);
+
+        public int AddToProjection(ObjectArrayProjectionExpression objectArrayProjection) => AddToProjection(objectArrayProjection, null);
 
         private int AddToProjection(Expression expression, string alias)
         {
@@ -94,17 +88,14 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Pipeline
             }
 
             var baseAlias = alias
-                ?? (expression as KeyAccessExpression)?.Name
-                ?? (expression as EntityProjectionExpression)?.Alias
+                ?? (expression as IAccessExpression)?.Name
                 ?? "c";
+
             var currentAlias = baseAlias;
-            if (baseAlias != null)
+            var counter = 0;
+            while (_projection.Any(pe => string.Equals(pe.Alias, currentAlias, StringComparison.OrdinalIgnoreCase)))
             {
-                var counter = 0;
-                while (_projection.Any(pe => string.Equals(pe.Alias, currentAlias, StringComparison.OrdinalIgnoreCase)))
-                {
-                    currentAlias = $"{baseAlias}{counter++}";
-                }
+                currentAlias = $"{baseAlias}{counter++}";
             }
 
             _projection.Add(new ProjectionExpression(expression, currentAlias));
@@ -190,16 +181,16 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Pipeline
                 throw new InvalidOperationException();
             }
 
-            var existingOrdering = _orderings.ToArray();
+            var existingOrderings = _orderings.ToArray();
 
             _orderings.Clear();
 
-            for (var i = 0; i < existingOrdering.Length; i++)
+            foreach (var existingOrdering in existingOrderings)
             {
                 _orderings.Add(
                     new OrderingExpression(
-                        existingOrdering[i].Expression,
-                        !existingOrdering[i].Ascending));
+                        existingOrdering.Expression,
+                        !existingOrdering.Ascending));
             }
         }
 

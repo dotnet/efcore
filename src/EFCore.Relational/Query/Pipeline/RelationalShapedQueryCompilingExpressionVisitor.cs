@@ -56,7 +56,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
                 indexMapParameter)
                 .Inject(shapedQueryExpression.ShaperExpression);
 
-            shaper = InjectEntityMaterializer(shaper);
+            shaper = InjectEntityMaterializers(shaper);
 
             shaper = new RelationalProjectionBindingRemovingExpressionVisitor(selectExpression, dataReaderParameter)
                 .Visit(shaper);

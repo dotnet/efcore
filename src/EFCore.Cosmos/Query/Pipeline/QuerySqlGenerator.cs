@@ -70,9 +70,16 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Pipeline
 
         protected override Expression VisitEntityProjection(EntityProjectionExpression entityProjectionExpression)
         {
-            _sqlBuilder.Append(entityProjectionExpression.Alias);
+            Visit(entityProjectionExpression.AccessExpression);
 
             return entityProjectionExpression;
+        }
+
+        protected override Expression VisitObjectArrayProjection(ObjectArrayProjectionExpression objectArrayProjectionExpression)
+        {
+            _sqlBuilder.Append(objectArrayProjectionExpression);
+
+            return objectArrayProjectionExpression;
         }
 
         protected override Expression VisitKeyAccess(KeyAccessExpression keyAccessExpression)
@@ -94,18 +101,12 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Pipeline
             Visit(projectionExpression.Expression);
 
             if (!string.Equals(string.Empty, projectionExpression.Alias)
-                && !string.Equals(projectionExpression.Alias, GetName(projectionExpression)))
+                && !string.Equals(projectionExpression.Alias, projectionExpression.Name))
             {
                 _sqlBuilder.Append(" AS " + projectionExpression.Alias);
             }
 
             return projectionExpression;
-        }
-
-        private string GetName(ProjectionExpression projectionExpression)
-        {
-            return (projectionExpression.Expression as KeyAccessExpression)?.Name
-                ?? (projectionExpression.Expression as EntityProjectionExpression)?.Alias;
         }
 
         protected override Expression VisitRootReference(RootReferenceExpression rootReferenceExpression)
@@ -147,7 +148,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Pipeline
             if (selectExpression.Offset != null
                 || selectExpression.Limit != null)
             {
-                _sqlBuilder.AppendLine().Append($"OFFSET ");
+                _sqlBuilder.AppendLine().Append("OFFSET ");
 
                 if (selectExpression.Offset != null)
                 {
