@@ -15,14 +15,15 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Pipeline
         {
             AddTranslators(new IMethodCallTranslator[]
             {
-                new SqlServerMathTranslator(sqlExpressionFactory),
-                new SqlServerNewGuidTranslator(sqlExpressionFactory),
-                new SqlServerStringMethodTranslator(sqlExpressionFactory),
+                new SqlServerConvertTranslator(sqlExpressionFactory),
                 new SqlServerDateTimeMethodTranslator(sqlExpressionFactory),
                 new SqlServerDateDiffFunctionsTranslator(sqlExpressionFactory),
-                new SqlServerConvertTranslator(sqlExpressionFactory),
-                new SqlServerObjectToStringTranslator(sqlExpressionFactory),
                 new SqlServerFullTextSearchFunctionsTranslator(sqlExpressionFactory),
+                new SqlServerIsDateFunctionTranslator(sqlExpressionFactory),
+                new SqlServerMathTranslator(sqlExpressionFactory),
+                new SqlServerNewGuidTranslator(sqlExpressionFactory),
+                new SqlServerObjectToStringTranslator(sqlExpressionFactory),
+                new SqlServerStringMethodTranslator(sqlExpressionFactory),
             });
         }
     }

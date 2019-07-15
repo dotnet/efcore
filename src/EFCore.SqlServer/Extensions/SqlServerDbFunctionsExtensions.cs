@@ -54,7 +54,7 @@ namespace Microsoft.EntityFrameworkCore
 
         private static bool FreeTextCore(string propertyName, string freeText, int? languageTerm)
         {
-            throw new InvalidOperationException(SqlServerStrings.FreeTextFunctionOnClient);
+            throw new InvalidOperationException(SqlServerStrings.FunctionOnClient(nameof(FreeText)));
         }
 
         /// <summary>
@@ -97,7 +97,7 @@ namespace Microsoft.EntityFrameworkCore
 
         private static bool ContainsCore(string propertyName, string searchCondition, int? languageTerm)
         {
-            throw new InvalidOperationException(SqlServerStrings.ContainsFunctionOnClient);
+            throw new InvalidOperationException(SqlServerStrings.FunctionOnClient(nameof(Contains)));
         }
 
         /// <summary>
@@ -879,5 +879,17 @@ namespace Microsoft.EntityFrameworkCore
             => (startTimeSpan.HasValue && endTimeSpan.HasValue)
                 ? (int?)DateDiffNanosecond(_, startTimeSpan.Value, endTimeSpan.Value)
                 : null;
+
+        /// <summary>
+        ///     Validate if the given string is a valid date.
+        ///     Corresponds to the SQL Server's ISDATE('date').
+        /// </summary>
+        /// <param name="_">The DbFunctions instance.</param>
+        /// <param name="expression">Expression to validate</param>
+        /// <returns>true for valid date and false otherwise.</returns>
+        public static bool IsDate(
+            [CanBeNull] this DbFunctions _,
+            [NotNull] string expression)
+            => throw new InvalidOperationException(SqlServerStrings.FunctionOnClient(nameof(IsDate)));
     }
 }

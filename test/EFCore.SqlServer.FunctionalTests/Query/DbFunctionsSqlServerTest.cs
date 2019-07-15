@@ -7,7 +7,6 @@ using System.Threading.Tasks;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore.SqlServer.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
-using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -260,9 +259,14 @@ WHERE ((FREETEXT([c.Manager].[Title], N'President', LANGUAGE 1033)) AND (FREETEX
         public void Contains_should_throw_on_client_eval()
         {
             var exNoLang = Assert.Throws<InvalidOperationException>(() => EF.Functions.Contains("teststring", "teststring"));
-            Assert.Equal(SqlServerStrings.ContainsFunctionOnClient, exNoLang.Message);
+            Assert.Equal(
+                SqlServerStrings.FunctionOnClient(nameof(SqlServerDbFunctionsExtensions.Contains)),
+                exNoLang.Message);
+
             var exLang = Assert.Throws<InvalidOperationException>(() => EF.Functions.Contains("teststring", "teststring", 1033));
-            Assert.Equal(SqlServerStrings.ContainsFunctionOnClient, exLang.Message);
+            Assert.Equal(
+                SqlServerStrings.FunctionOnClient(nameof(SqlServerDbFunctionsExtensions.Contains)),
+                exLang.Message);
         }
 
         [ConditionalFact]
@@ -554,6 +558,73 @@ WHERE DATEDIFF(MICROSECOND, GETDATE(), DATEADD(second, CAST(1.0E0 AS int), GETDA
 FROM [Orders] AS [o]
 WHERE DATEDIFF(NANOSECOND, GETDATE(), DATEADD(second, CAST(1.0E0 AS int), GETDATE())) = 0");
             }
+        }
+
+        [ConditionalFact]
+        public virtual void IsDate_not_valid()
+        {
+            using (var context = CreateContext())
+            {
+                var actual = context
+                    .Orders
+                    .Where(c => !EF.Functions.IsDate(c.CustomerID))
+                    .Select(c => EF.Functions.IsDate(c.CustomerID))
+                    .FirstOrDefault();
+
+                Assert.Equal(actual, false); 
+
+                AssertSql(
+                    @"SELECT TOP(1) CAST(ISDATE([o].[CustomerID]) AS bit)
+FROM [Orders] AS [o]
+WHERE CAST(ISDATE([o].[CustomerID]) AS bit) <> CAST(1 AS bit)");
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void IsDate_valid()
+        {
+            using (var context = CreateContext())
+            {
+                var actual = context
+                    .Orders
+                    .Where(c => EF.Functions.IsDate(c.OrderDate.Value.ToString()))
+                    .Select(c => EF.Functions.IsDate(c.OrderDate.Value.ToString()))
+                    .FirstOrDefault();
+
+                Assert.Equal(actual, true);
+
+                AssertSql(
+                    @"SELECT TOP(1) CAST(ISDATE(CONVERT(VARCHAR(100), [o].[OrderDate])) AS bit)
+FROM [Orders] AS [o]
+WHERE CAST(ISDATE(CONVERT(VARCHAR(100), [o].[OrderDate])) AS bit) = CAST(1 AS bit)");
+                
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void IsDate_join_fields()
+        {
+            using (var context = CreateContext())
+            {
+                var count = context.Orders.Count(c => EF.Functions.IsDate(c.CustomerID + c.OrderID));
+
+                Assert.Equal(0, count);
+
+                AssertSql(
+                    @"SELECT COUNT(*)
+FROM [Orders] AS [o]
+WHERE CAST(ISDATE([o].[CustomerID] + CAST([o].[OrderID] AS nchar(5))) AS bit) = CAST(1 AS bit)");
+            }
+        }
+
+        [ConditionalFact]
+        public void IsDate_should_throw_on_client_eval()
+        {
+            var exIsDate = Assert.Throws<InvalidOperationException>(() => EF.Functions.IsDate("#ISDATE#"));
+
+            Assert.Equal(
+                SqlServerStrings.FunctionOnClient(nameof(SqlServerDbFunctionsExtensions.IsDate)),
+                exIsDate.Message);
         }
 
         private void AssertSql(params string[] expected)

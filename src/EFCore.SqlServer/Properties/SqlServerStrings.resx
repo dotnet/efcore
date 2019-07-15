@@ -219,9 +219,6 @@
   <data name="InvalidTableToIncludeInScaffolding" xml:space="preserve">
     <value>The specified table '{table}' is not valid. Specify tables using the format '[schema].[table]'.</value>
   </data>
-  <data name="FreeTextFunctionOnClient" xml:space="preserve">
-    <value>The 'FreeText' method is not supported because the query has switched to client-evaluation. Inspect the log to determine which query expressions are triggering client-evaluation.</value>
-  </data>
   <data name="InvalidColumnNameForFreeText" xml:space="preserve">
     <value>The expression passed to the 'propertyReference' parameter of the 'FreeText' method is not a valid reference to a property. The expression should represent a reference to a full-text indexed property on the object referenced in the from clause: 'from e in context.Entities where EF.Functions.FreeText(e.SomeProperty, textToSearchFor) select e'</value>
   </data>
@@ -234,14 +231,14 @@
   <data name="IncludePropertyNotFound" xml:space="preserve">
     <value>Include property '{entityType}.{property}' not found</value>
   </data>
-  <data name="ContainsFunctionOnClient" xml:space="preserve">
-    <value>The 'Contains' method is not supported because the query has switched to client-evaluation. Inspect the log to determine which query expressions are triggering client-evaluation.</value>
-  </data>
   <data name="LogReflexiveConstraintIgnored" xml:space="preserve">
     <value>Skipping foreign key '{foreignKeyName}' on table '{tableName}' since all of its columns reference themselves.</value>
     <comment>Debug SqlServerEventId.ReflexiveConstraintIgnored string string</comment>
   </data>
   <data name="DuplicateKeyMismatchedClustering" xml:space="preserve">
     <value>The keys {key1} on '{entityType1}' and {key2} on '{entityType2}' are both mapped to '{table}.{keyName}' but with different clustering.</value>
+  </data>
+  <data name="FunctionOnClient" xml:space="preserve">
+    <value>The '{methodName}' method is not supported because the query has switched to client-evaluation. Inspect the log to determine which query expressions are triggering client-evaluation.</value>
   </data>
 </root>
