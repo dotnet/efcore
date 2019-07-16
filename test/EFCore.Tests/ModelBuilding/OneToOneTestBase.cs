@@ -4459,6 +4459,18 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 }
             }
 
+            [ConditionalFact]
+            public virtual void Multiple_self_referencing_navigations_throw_as_ambiguous()
+            {
+                var modelBuilder = CreateModelBuilder();
+
+                modelBuilder.Entity<User>();
+
+                Assert.Equal(
+                    CoreStrings.AmbiguousOneToOneRelationship("User.CreatedBy", "User.UpdatedBy"),
+                    Assert.Throws<InvalidOperationException>(() => modelBuilder.FinalizeModel()).Message);
+            }
+
             private static void AssertGraph(Node node1, Node node2, Node node3)
             {
                 Assert.Null(node1.PreviousNode);
