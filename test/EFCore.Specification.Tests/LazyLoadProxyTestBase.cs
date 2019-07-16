@@ -1784,7 +1784,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [ConditionalFact(Skip = "issue #15285")]
+        [ConditionalFact]
         public virtual void Lazy_loading_finds_correct_entity_type_with_already_loaded_owned_types()
         {
             using (var context = CreateContext(lazyLoadingEnabled: true))
@@ -1811,7 +1811,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [ConditionalFact(Skip = "issue #15285")]
+        [ConditionalFact]
         public virtual void Lazy_loading_finds_correct_entity_type_with_multiple_queries()
         {
             using (var context = CreateContext(lazyLoadingEnabled: true))
@@ -1826,7 +1826,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [ConditionalFact(Skip = "issue #15285")]
+        [ConditionalFact]
         public virtual void Lazy_loading_finds_correct_entity_type_with_opaque_predicate_and_multiple_queries()
         {
             using (var context = CreateContext(lazyLoadingEnabled: true))
@@ -1844,7 +1844,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [ConditionalFact]
+        [ConditionalFact(Skip = "Issue#16622")]
         public virtual void Lazy_loading_finds_correct_entity_type_with_multiple_queries_using_Count()
         {
             using (var context = CreateContext(lazyLoadingEnabled: true))
@@ -1887,7 +1887,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [ConditionalFact(Skip = "issue #15285")]
+        [ConditionalFact]
         public virtual void Lazy_loading_finds_correct_entity_type_with_alternate_model()
         {
             using (var context = CreateContext(lazyLoadingEnabled: true))

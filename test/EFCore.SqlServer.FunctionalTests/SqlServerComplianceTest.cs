@@ -15,9 +15,7 @@ namespace Microsoft.EntityFrameworkCore
             typeof(ComplexNavigationsWeakQueryTestBase<>), // issue #15285
             typeof(FiltersInheritanceTestBase<>),          // issue #15264
             typeof(FiltersTestBase<>),                     // issue #15264
-            typeof(OwnedQueryTestBase<>),                  // issue #15285
             typeof(QueryFilterFuncletizationTestBase<>),   // issue #15264
-            typeof(RelationalOwnedQueryTestBase<>),        // issue #15285
             // Query pipeline
             typeof(ConcurrencyDetectorTestBase<>),
             typeof(CompiledQueryTestBase<>),

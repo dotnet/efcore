@@ -972,30 +972,33 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
             var joinTable = new LeftJoinExpression(innerSelectExpression.Tables.Single(), joinPredicate);
             _tables.Add(joinTable);
 
-            var outerMemberInfo = transparentIdentifierType.GetTypeInfo().GetDeclaredField("Outer");
-            var projectionMapping = new Dictionary<ProjectionMember, Expression>();
-            foreach (var projection in _projectionMapping)
+            if (transparentIdentifierType != null)
             {
-                projectionMapping[projection.Key.ShiftMember(outerMemberInfo)] = projection.Value;
-            }
-
-            var innerMemberInfo = transparentIdentifierType.GetTypeInfo().GetDeclaredField("Inner");
-            foreach (var projection in innerSelectExpression._projectionMapping)
-            {
-                var projectionToAdd = projection.Value;
-                if (projectionToAdd is EntityProjectionExpression entityProjection)
+                var outerMemberInfo = transparentIdentifierType.GetTypeInfo().GetDeclaredField("Outer");
+                var projectionMapping = new Dictionary<ProjectionMember, Expression>();
+                foreach (var projection in _projectionMapping)
                 {
-                    projectionToAdd = entityProjection.MakeNullable();
-                }
-                else if (projectionToAdd is ColumnExpression column)
-                {
-                    projectionToAdd = column.MakeNullable();
+                    projectionMapping[projection.Key.ShiftMember(outerMemberInfo)] = projection.Value;
                 }
 
-                projectionMapping[projection.Key.ShiftMember(innerMemberInfo)] = projectionToAdd;
-            }
+                var innerMemberInfo = transparentIdentifierType.GetTypeInfo().GetDeclaredField("Inner");
+                foreach (var projection in innerSelectExpression._projectionMapping)
+                {
+                    var projectionToAdd = projection.Value;
+                    if (projectionToAdd is EntityProjectionExpression entityProjection)
+                    {
+                        projectionToAdd = entityProjection.MakeNullable();
+                    }
+                    else if (projectionToAdd is ColumnExpression column)
+                    {
+                        projectionToAdd = column.MakeNullable();
+                    }
 
-            _projectionMapping = projectionMapping;
+                    projectionMapping[projection.Key.ShiftMember(innerMemberInfo)] = projectionToAdd;
+                }
+
+                _projectionMapping = projectionMapping;
+            }
         }
 
         public void AddCrossJoin(SelectExpression innerSelectExpression, Type transparentIdentifierType)

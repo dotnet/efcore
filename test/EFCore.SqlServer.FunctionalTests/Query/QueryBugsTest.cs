@@ -2406,7 +2406,7 @@ WHERE [e].[Id] IN (
 
         #region Bug9202/9210
 
-        [ConditionalFact(Skip = "issue #15285")]
+        [ConditionalFact]
         public void Include_collection_for_entity_with_owned_type_works()
         {
             using (CreateDatabase9202())
@@ -2422,37 +2422,20 @@ WHERE [e].[Id] IN (
                     Assert.True(result[0].Cast.All(a => a.Details != null));
 
                     AssertSql(
-                @"SELECT [m].[Id], [m].[Title], [t].[Id], [t].[Details_Info]
+                        @"SELECT [m].[Id], [m].[Title], [m0].[Id], [m0].[Details_Info], [t].[Id], [t].[Movie9202Id], [t].[Name], [t].[Id0], [t].[Details_Info]
 FROM [Movies] AS [m]
+LEFT JOIN [Movies] AS [m0] ON [m].[Id] = [m0].[Id]
 LEFT JOIN (
-    SELECT [m.Details].*
-    FROM [Movies] AS [m.Details]
-    WHERE [m.Details].[Details_Info] IS NOT NULL
-) AS [t] ON [m].[Id] = [t].[Id]
-ORDER BY [m].[Id]",
-                //
-                @"SELECT [m.Cast].[Id], [m.Cast].[Movie9202Id], [m.Cast].[Name], [t0].[Id], [t0].[Details_Info]
-FROM [Actors] AS [m.Cast]
-LEFT JOIN (
-    SELECT [a.Details].*
-    FROM [Actors] AS [a.Details]
-    WHERE [a.Details].[Details_Info] IS NOT NULL
-) AS [t0] ON [m.Cast].[Id] = [t0].[Id]
-INNER JOIN (
-    SELECT DISTINCT [m0].[Id]
-    FROM [Movies] AS [m0]
-    LEFT JOIN (
-        SELECT [m.Details0].*
-        FROM [Movies] AS [m.Details0]
-        WHERE [m.Details0].[Details_Info] IS NOT NULL
-    ) AS [t1] ON [m0].[Id] = [t1].[Id]
-) AS [t2] ON [m.Cast].[Movie9202Id] = [t2].[Id]
-ORDER BY [t2].[Id]");
+    SELECT [a].[Id], [a].[Movie9202Id], [a].[Name], [a0].[Id] AS [Id0], [a0].[Details_Info]
+    FROM [Actors] AS [a]
+    LEFT JOIN [Actors] AS [a0] ON [a].[Id] = [a0].[Id]
+) AS [t] ON [m].[Id] = [t].[Movie9202Id]
+ORDER BY [m].[Id], [t].[Id]");
                 }
             }
         }
 
-        [ConditionalFact(Skip = "issue #15285")]
+        [ConditionalFact]
         public void Include_collection_for_entity_with_owned_type_works_string()
         {
             using (CreateDatabase9202())
@@ -2468,32 +2451,15 @@ ORDER BY [t2].[Id]");
                     Assert.True(result[0].Cast.All(a => a.Details != null));
 
                     AssertSql(
-                @"SELECT [m].[Id], [m].[Title], [t].[Id], [t].[Details_Info]
+                        @"SELECT [m].[Id], [m].[Title], [m0].[Id], [m0].[Details_Info], [t].[Id], [t].[Movie9202Id], [t].[Name], [t].[Id0], [t].[Details_Info]
 FROM [Movies] AS [m]
+LEFT JOIN [Movies] AS [m0] ON [m].[Id] = [m0].[Id]
 LEFT JOIN (
-    SELECT [m.Details].*
-    FROM [Movies] AS [m.Details]
-    WHERE [m.Details].[Details_Info] IS NOT NULL
-) AS [t] ON [m].[Id] = [t].[Id]
-ORDER BY [m].[Id]",
-                //
-                @"SELECT [m.Cast].[Id], [m.Cast].[Movie9202Id], [m.Cast].[Name], [t0].[Id], [t0].[Details_Info]
-FROM [Actors] AS [m.Cast]
-LEFT JOIN (
-    SELECT [a.Details].*
-    FROM [Actors] AS [a.Details]
-    WHERE [a.Details].[Details_Info] IS NOT NULL
-) AS [t0] ON [m.Cast].[Id] = [t0].[Id]
-INNER JOIN (
-    SELECT DISTINCT [m0].[Id]
-    FROM [Movies] AS [m0]
-    LEFT JOIN (
-        SELECT [m.Details0].*
-        FROM [Movies] AS [m.Details0]
-        WHERE [m.Details0].[Details_Info] IS NOT NULL
-    ) AS [t1] ON [m0].[Id] = [t1].[Id]
-) AS [t2] ON [m.Cast].[Movie9202Id] = [t2].[Id]
-ORDER BY [t2].[Id]");
+    SELECT [a].[Id], [a].[Movie9202Id], [a].[Name], [a0].[Id] AS [Id0], [a0].[Details_Info]
+    FROM [Actors] AS [a]
+    LEFT JOIN [Actors] AS [a0] ON [a].[Id] = [a0].[Id]
+) AS [t] ON [m].[Id] = [t].[Movie9202Id]
+ORDER BY [m].[Id], [t].[Id]");
                 }
             }
         }
@@ -3467,7 +3433,7 @@ ORDER BY [t].[Id]");
 
         #region Bug10168
 
-        [ConditionalFact(Skip = "issue #15285")]
+        [ConditionalFact(Skip = "issue #16400")]
         public void Row_number_paging_with_owned_type()
         {
             using (var context = new MyContext10168(Fixture.TestSqlLoggerFactory))

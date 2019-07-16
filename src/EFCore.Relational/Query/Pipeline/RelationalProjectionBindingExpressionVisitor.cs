@@ -160,21 +160,26 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
         {
             if (extensionExpression is EntityShaperExpression entityShaperExpression)
             {
-                var projectionBindingExpression = (ProjectionBindingExpression)entityShaperExpression.ValueBufferExpression;
-                VerifySelectExpression(projectionBindingExpression);
-
-                if (_clientEval)
+                EntityProjectionExpression entityProjectionExpression;
+                if (entityShaperExpression.ValueBufferExpression is ProjectionBindingExpression projectionBindingExpression)
                 {
-                    var entityProjection = (EntityProjectionExpression)_selectExpression.GetMappedProjection(
+                    VerifySelectExpression(projectionBindingExpression);
+                    entityProjectionExpression = (EntityProjectionExpression)_selectExpression.GetMappedProjection(
                         projectionBindingExpression.ProjectionMember);
-
-                    return entityShaperExpression.Update(
-                        new ProjectionBindingExpression(_selectExpression, _selectExpression.AddToProjection(entityProjection)));
                 }
                 else
                 {
-                    _projectionMapping[_projectionMembers.Peek()]
-                        = _selectExpression.GetMappedProjection(projectionBindingExpression.ProjectionMember);
+                    entityProjectionExpression = (EntityProjectionExpression)entityShaperExpression.ValueBufferExpression;
+                }
+
+                if (_clientEval)
+                {
+                    return entityShaperExpression.Update(
+                        new ProjectionBindingExpression(_selectExpression, _selectExpression.AddToProjection(entityProjectionExpression)));
+                }
+                else
+                {
+                    _projectionMapping[_projectionMembers.Peek()] = entityProjectionExpression;
 
                     return entityShaperExpression.Update(
                         new ProjectionBindingExpression(_selectExpression, _projectionMembers.Peek(), typeof(ValueBuffer)));
@@ -183,12 +188,9 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
 
             if (extensionExpression is IncludeExpression includeExpression)
             {
-                // TODO: handle owned navigations
-                return includeExpression.Navigation.ForeignKey.IsOwnership
-                        ? Visit(includeExpression.EntityExpression)
-                        : _clientEval
-                            ? base.VisitExtension(includeExpression)
-                            : null;
+                return _clientEval
+                    ? base.VisitExtension(includeExpression)
+                    : null;
             }
 
             throw new InvalidOperationException();
