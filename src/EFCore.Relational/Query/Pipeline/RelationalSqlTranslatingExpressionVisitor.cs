@@ -449,6 +449,8 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
 
         protected override Expression VisitInvocation(InvocationExpression node) => null;
 
+        protected override Expression VisitLambda<T>(Expression<T> node) => null;
+
         protected override Expression VisitConstant(ConstantExpression constantExpression)
             => new SqlConstantExpression(constantExpression, null);
 
