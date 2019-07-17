@@ -9,23 +9,23 @@
       <Uri>https://github.com/dotnet/core-setup</Uri>
       <Sha>7cf49f78deaae14948ce59fc6d9266365888f7b6</Sha>
     </Dependency>
-    <Dependency Name="Microsoft.Extensions.Caching.Memory" Version="3.0.0-preview8.19367.2">
+    <Dependency Name="Microsoft.Extensions.Caching.Memory" Version="3.0.0-preview8.19367.7">
       <Uri>https://github.com/aspnet/Extensions</Uri>
       <Sha>d0750280da647d412896211d54f2f9fe418ff8db</Sha>
     </Dependency>
-    <Dependency Name="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="3.0.0-preview8.19367.2">
+    <Dependency Name="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="3.0.0-preview8.19367.7">
       <Uri>https://github.com/aspnet/Extensions</Uri>
       <Sha>d0750280da647d412896211d54f2f9fe418ff8db</Sha>
     </Dependency>
-    <Dependency Name="Microsoft.Extensions.Configuration.Json" Version="3.0.0-preview8.19367.2">
+    <Dependency Name="Microsoft.Extensions.Configuration.Json" Version="3.0.0-preview8.19367.7">
       <Uri>https://github.com/aspnet/Extensions</Uri>
       <Sha>d0750280da647d412896211d54f2f9fe418ff8db</Sha>
     </Dependency>
-    <Dependency Name="Microsoft.Extensions.Configuration" Version="3.0.0-preview8.19367.2">
+    <Dependency Name="Microsoft.Extensions.Configuration" Version="3.0.0-preview8.19367.7">
       <Uri>https://github.com/aspnet/Extensions</Uri>
       <Sha>d0750280da647d412896211d54f2f9fe418ff8db</Sha>
     </Dependency>
-    <Dependency Name="Microsoft.Extensions.DependencyInjection" Version="3.0.0-preview8.19367.2">
+    <Dependency Name="Microsoft.Extensions.DependencyInjection" Version="3.0.0-preview8.19367.7">
       <Uri>https://github.com/aspnet/Extensions</Uri>
       <Sha>d0750280da647d412896211d54f2f9fe418ff8db</Sha>
     </Dependency>
@@ -33,11 +33,11 @@
       <Uri>https://github.com/dotnet/core-setup</Uri>
       <Sha>7cf49f78deaae14948ce59fc6d9266365888f7b6</Sha>
     </Dependency>
-    <Dependency Name="Microsoft.Extensions.HostFactoryResolver.Sources" Version="3.0.0-preview8.19367.2">
+    <Dependency Name="Microsoft.Extensions.HostFactoryResolver.Sources" Version="3.0.0-preview8.19367.7">
       <Uri>https://github.com/aspnet/Extensions</Uri>
       <Sha>d0750280da647d412896211d54f2f9fe418ff8db</Sha>
     </Dependency>
-    <Dependency Name="Microsoft.Extensions.Logging" Version="3.0.0-preview8.19367.2">
+    <Dependency Name="Microsoft.Extensions.Logging" Version="3.0.0-preview8.19367.7">
       <Uri>https://github.com/aspnet/Extensions</Uri>
       <Sha>d0750280da647d412896211d54f2f9fe418ff8db</Sha>
     </Dependency>
