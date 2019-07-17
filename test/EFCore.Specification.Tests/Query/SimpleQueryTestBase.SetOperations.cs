@@ -193,10 +193,12 @@ namespace Microsoft.EntityFrameworkCore.Query
             => AssertQuery<Customer>(isAsync, cs => cs
                     .Where(c => c.City == "Berlin")
                     .Union(cs.Where(c => c.City == "London"))
+                    .OrderBy(c => c.CustomerID)
                     .Take(1)
                     .Union(cs.Where(c => c.City == "Mannheim"))
-                    .Take(1),
-                entryCount: 666);
+                    .Take(1)
+                    .OrderBy(c => c.CustomerID),
+                entryCount: 1, assertOrder: true);
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
