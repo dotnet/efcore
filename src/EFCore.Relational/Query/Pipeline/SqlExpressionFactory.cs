@@ -401,8 +401,8 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
         public LikeExpression Like(SqlExpression match, SqlExpression pattern, SqlExpression escapeChar = null)
             => (LikeExpression)ApplyDefaultTypeMapping(new LikeExpression(match, pattern, escapeChar, null));
 
-        public SqlFragmentExpression Fragment(string sql)
-            => new SqlFragmentExpression(sql);
+        public SqlFragmentExpression Fragment(string sql, RelationalTypeMapping typeMapping = null)
+            => new SqlFragmentExpression(sql, typeMapping);
 
         public SqlConstantExpression Constant(object value, RelationalTypeMapping typeMapping = null)
             => new SqlConstantExpression(Expression.Constant(value), typeMapping);

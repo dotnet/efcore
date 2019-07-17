@@ -4,13 +4,14 @@
 using System;
 using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore.Query.Internal;
+using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
 {
     public class SqlFragmentExpression : SqlExpression
     {
-        internal SqlFragmentExpression(string sql)
-            : base(typeof(string), null)
+        internal SqlFragmentExpression(string sql, RelationalTypeMapping typeMapping)
+            : base(typeof(string), typeMapping)
         {
             Sql = sql;
         }

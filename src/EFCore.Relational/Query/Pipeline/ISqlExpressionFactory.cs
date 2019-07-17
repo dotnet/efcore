@@ -67,7 +67,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline
         InExpression In(SqlExpression item, SelectExpression subquery, bool negated);
         LikeExpression Like(SqlExpression match, SqlExpression pattern, SqlExpression escapeChar = null);
         SqlConstantExpression Constant(object value, RelationalTypeMapping typeMapping = null);
-        SqlFragmentExpression Fragment(string sql);
+        SqlFragmentExpression Fragment(string sql, RelationalTypeMapping typeMapping = null);
 
         SelectExpression Select(SqlExpression projection);
         SelectExpression Select(IEntityType entityType);
