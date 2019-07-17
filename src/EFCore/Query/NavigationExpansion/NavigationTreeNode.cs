@@ -108,7 +108,18 @@ namespace Microsoft.EntityFrameworkCore.Query.NavigationExpansion
             var existingChild = parent.Children.SingleOrDefault(c => c.Navigation == navigation);
             if (existingChild != null)
             {
-                if (!navigation.ForeignKey.IsOwnership)
+                if (navigation.ForeignKey.IsOwnership)
+                {
+                    if (include && existingChild.IncludeState == NavigationState.NotNeeded)
+                    {
+                        existingChild.IncludeState = NavigationState.Delayed;
+                    }
+                    else if (!include && existingChild.ExpansionState == NavigationState.NotNeeded)
+                    {
+                        existingChild.ExpansionState = NavigationState.Delayed;
+                    }
+                }
+                else
                 {
                     if (include && existingChild.IncludeState == NavigationState.NotNeeded)
                     {
@@ -116,10 +127,9 @@ namespace Microsoft.EntityFrameworkCore.Query.NavigationExpansion
                     }
                     else if (!include && existingChild.ExpansionState == NavigationState.NotNeeded)
                     {
-                        existingChild.ExpansionState =  NavigationState.Pending;
+                        existingChild.ExpansionState = NavigationState.Pending;
                     }
                 }
-
                 return existingChild;
             }
 

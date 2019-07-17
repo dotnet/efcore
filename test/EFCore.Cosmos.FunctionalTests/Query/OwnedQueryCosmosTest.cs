@@ -21,10 +21,17 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query
             //TestLoggerFactory.TestOutputHelper = testOutputHelper;
         }
 
+        [ConditionalFact(Skip = "Issue#15711")]
+        public override void Query_with_owned_entity_equality_operator()
+        {
+            base.Query_with_owned_entity_equality_operator();
+        }
+
         [ConditionalFact(Skip = "Issue#16392")]
         public override void Navigation_rewrite_on_owned_collection()
         {
             base.Navigation_rewrite_on_owned_collection();
+
             AssertSql(
                 @"SELECT c
 FROM root c
