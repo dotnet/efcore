@@ -97,7 +97,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                     TransactionId,
                     startTime);
 
-                if (interceptionResult == null)
+                if (!interceptionResult.IsSuppressed)
                 {
                     _dbTransaction.Commit();
                 }
@@ -142,7 +142,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                     TransactionId,
                     startTime);
 
-                if (interceptionResult == null)
+                if (!interceptionResult.IsSuppressed)
                 {
                     _dbTransaction.Rollback();
                 }
@@ -190,7 +190,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                     startTime,
                     cancellationToken);
 
-                if (interceptionResult == null)
+                if (!interceptionResult.IsSuppressed)
                 {
                     await _dbTransaction.CommitAsync(cancellationToken);
                 }
@@ -240,7 +240,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                     startTime,
                     cancellationToken);
 
-                if (interceptionResult == null)
+                if (!interceptionResult.IsSuppressed)
                 {
                     await _dbTransaction.RollbackAsync(cancellationToken);
                 }

@@ -37,22 +37,22 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="command"> The command. </param>
         /// <param name="eventData"> Contextual information about the command and execution. </param>
         /// <param name="result">
-        ///     The current result, or null if no result yet exists.
-        ///     This value will be non-null if some previous interceptor suppressed execution by returning a result from
-        ///     its implementation of this method.
+        ///     Represents the current result if one exists.
+        ///     This value will have <see cref="InterceptionResult{DbDataReader}.HasResult"/> set to true if some previous
+        ///     interceptor suppressed execution by calling <see cref="InterceptionResult{DbDataReader}.SuppressWithResult"/>.
         ///     This value is typically used as the return value for the implementation of this method.
         /// </param>
         /// <returns>
-        ///     If null, then EF will execute the command as normal.
-        ///     If non-null, then command execution is suppressed and the value contained in
-        ///     the <see cref="InterceptionResult{TResult}" /> we be used by EF instead.
+        ///     If <see cref="InterceptionResult{DbDataReader}.HasResult"/> is false, the EF will continue as normal.
+        ///     If <see cref="InterceptionResult{DbDataReader}.HasResult"/> is true, then EF will suppress the operation it
+        ///     was about to perform and use <see cref="InterceptionResult{DbDataReader}.Result"/> instead.
         ///     A normal implementation of this method for any interceptor that is not attempting to change the result
         ///     is to return the <paramref name="result" /> value passed in.
         /// </returns>
-        InterceptionResult<DbDataReader>? ReaderExecuting(
+        InterceptionResult<DbDataReader> ReaderExecuting(
             [NotNull] DbCommand command,
             [NotNull] CommandEventData eventData,
-            InterceptionResult<DbDataReader>? result);
+            InterceptionResult<DbDataReader> result);
 
         /// <summary>
         ///     Called just before EF intends to call <see cref="DbCommand.ExecuteScalar()" />.
@@ -60,22 +60,22 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="command"> The command. </param>
         /// <param name="eventData"> Contextual information about the command and execution. </param>
         /// <param name="result">
-        ///     The current result, or null if no result yet exists.
-        ///     This value will be non-null if some previous interceptor suppressed execution by returning a result from
-        ///     its implementation of this method.
+        ///     Represents the current result if one exists.
+        ///     This value will have <see cref="InterceptionResult{Object}.HasResult"/> set to true if some previous
+        ///     interceptor suppressed execution by calling <see cref="InterceptionResult{Object}.SuppressWithResult"/>.
         ///     This value is typically used as the return value for the implementation of this method.
         /// </param>
         /// <returns>
-        ///     If null, then EF will execute the command as normal.
-        ///     If non-null, then command execution is suppressed and the value contained in
-        ///     the <see cref="InterceptionResult{TResult}" /> we be used by EF instead.
+        ///     If <see cref="InterceptionResult{Object}.HasResult"/> is false, the EF will continue as normal.
+        ///     If <see cref="InterceptionResult{Object}.HasResult"/> is true, then EF will suppress the operation it
+        ///     was about to perform and use <see cref="InterceptionResult{Object}.Result"/> instead.
         ///     A normal implementation of this method for any interceptor that is not attempting to change the result
         ///     is to return the <paramref name="result" /> value passed in.
         /// </returns>
-        InterceptionResult<object>? ScalarExecuting(
+        InterceptionResult<object> ScalarExecuting(
             [NotNull] DbCommand command,
             [NotNull] CommandEventData eventData,
-            InterceptionResult<object>? result);
+            InterceptionResult<object> result);
 
         /// <summary>
         ///     Called just before EF intends to call <see cref="DbCommand.ExecuteNonQuery()" />.
@@ -83,22 +83,22 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="command"> The command. </param>
         /// <param name="eventData"> Contextual information about the command and execution. </param>
         /// <param name="result">
-        ///     The current result, or null if no result yet exists.
-        ///     This value will be non-null if some previous interceptor suppressed execution by returning a result from
-        ///     its implementation of this method.
+        ///     Represents the current result if one exists.
+        ///     This value will have <see cref="InterceptionResult{Int32}.HasResult"/> set to true if some previous
+        ///     interceptor suppressed execution by calling <see cref="InterceptionResult{Int32}.SuppressWithResult"/>.
         ///     This value is typically used as the return value for the implementation of this method.
         /// </param>
         /// <returns>
-        ///     If null, then EF will execute the command as normal.
-        ///     If non-null, then command execution is suppressed and the value contained in
-        ///     the <see cref="InterceptionResult{TResult}" /> we be used by EF instead.
+        ///     If <see cref="InterceptionResult{Int32}.HasResult"/> is false, the EF will continue as normal.
+        ///     If <see cref="InterceptionResult{Int32}.HasResult"/> is true, then EF will suppress the operation it
+        ///     was about to perform and use <see cref="InterceptionResult{Int32}.Result"/> instead.
         ///     A normal implementation of this method for any interceptor that is not attempting to change the result
         ///     is to return the <paramref name="result" /> value passed in.
         /// </returns>
-        InterceptionResult<int>? NonQueryExecuting(
+        InterceptionResult<int> NonQueryExecuting(
             [NotNull] DbCommand command,
             [NotNull] CommandEventData eventData,
-            InterceptionResult<int>? result);
+            InterceptionResult<int> result);
 
         /// <summary>
         ///     Called just before EF intends to call <see cref="DbCommand.ExecuteReaderAsync()" />.
@@ -106,23 +106,23 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="command"> The command. </param>
         /// <param name="eventData"> Contextual information about the command and execution. </param>
         /// <param name="result">
-        ///     The current result, or null if no result yet exists.
-        ///     This value will be non-null if some previous interceptor suppressed execution by returning a result from
-        ///     its implementation of this method.
+        ///     Represents the current result if one exists.
+        ///     This value will have <see cref="InterceptionResult{DbDataReader}.HasResult"/> set to true if some previous
+        ///     interceptor suppressed execution by calling <see cref="InterceptionResult{DbDataReader}.SuppressWithResult"/>.
         ///     This value is typically used as the return value for the implementation of this method.
         /// </param>
         /// <param name="cancellationToken"> The cancellation token. </param>
         /// <returns>
-        ///     If the <see cref="Task" /> result is null, then EF will execute the command as normal.
-        ///     If the <see cref="Task" /> result is non-null value, then command execution is suppressed and the value contained in
-        ///     the <see cref="InterceptionResult{TResult}" /> we be used by EF instead.
+        ///     If <see cref="InterceptionResult{DbDataReader}.HasResult"/> is false, the EF will continue as normal.
+        ///     If <see cref="InterceptionResult{DbDataReader}.HasResult"/> is true, then EF will suppress the operation it
+        ///     was about to perform and use <see cref="InterceptionResult{DbDataReader}.Result"/> instead.
         ///     A normal implementation of this method for any interceptor that is not attempting to change the result
         ///     is to return the <paramref name="result" /> value passed in, often using <see cref="Task.FromResult{TResult}" />
         /// </returns>
-        Task<InterceptionResult<DbDataReader>?> ReaderExecutingAsync(
+        Task<InterceptionResult<DbDataReader>> ReaderExecutingAsync(
             [NotNull] DbCommand command,
             [NotNull] CommandEventData eventData,
-            InterceptionResult<DbDataReader>? result,
+            InterceptionResult<DbDataReader> result,
             CancellationToken cancellationToken = default);
 
         /// <summary>
@@ -131,23 +131,23 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="command"> The command. </param>
         /// <param name="eventData"> Contextual information about the command and execution. </param>
         /// <param name="result">
-        ///     The current result, or null if no result yet exists.
-        ///     This value will be non-null if some previous interceptor suppressed execution by returning a result from
-        ///     its implementation of this method.
+        ///     Represents the current result if one exists.
+        ///     This value will have <see cref="InterceptionResult{Object}.HasResult"/> set to true if some previous
+        ///     interceptor suppressed execution by calling <see cref="InterceptionResult{Object}.SuppressWithResult"/>.
         ///     This value is typically used as the return value for the implementation of this method.
         /// </param>
         /// <param name="cancellationToken"> The cancellation token. </param>
         /// <returns>
-        ///     If the <see cref="Task" /> result is null, then EF will execute the command as normal.
-        ///     If the <see cref="Task" /> result is non-null value, then command execution is suppressed and the value contained in
-        ///     the <see cref="InterceptionResult{TResult}" /> we be used by EF instead.
+        ///     If <see cref="InterceptionResult{Object}.HasResult"/> is false, the EF will continue as normal.
+        ///     If <see cref="InterceptionResult{Object}.HasResult"/> is true, then EF will suppress the operation it
+        ///     was about to perform and use <see cref="InterceptionResult{Object}.Result"/> instead.
         ///     A normal implementation of this method for any interceptor that is not attempting to change the result
         ///     is to return the <paramref name="result" /> value passed in, often using <see cref="Task.FromResult{TResult}" />
         /// </returns>
-        Task<InterceptionResult<object>?> ScalarExecutingAsync(
+        Task<InterceptionResult<object>> ScalarExecutingAsync(
             [NotNull] DbCommand command,
             [NotNull] CommandEventData eventData,
-            InterceptionResult<object>? result,
+            InterceptionResult<object> result,
             CancellationToken cancellationToken = default);
 
         /// <summary>
@@ -156,23 +156,23 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="command"> The command. </param>
         /// <param name="eventData"> Contextual information about the command and execution. </param>
         /// <param name="result">
-        ///     The current result, or null if no result yet exists.
-        ///     This value will be non-null if some previous interceptor suppressed execution by returning a result from
-        ///     its implementation of this method.
+        ///     Represents the current result if one exists.
+        ///     This value will have <see cref="InterceptionResult{Int32}.HasResult"/> set to true if some previous
+        ///     interceptor suppressed execution by calling <see cref="InterceptionResult{Int32}.SuppressWithResult"/>.
         ///     This value is typically used as the return value for the implementation of this method.
         /// </param>
         /// <param name="cancellationToken"> The cancellation token. </param>
         /// <returns>
-        ///     If the <see cref="Task" /> result is null, then EF will execute the command as normal.
-        ///     If the <see cref="Task" /> result is non-null value, then command execution is suppressed and the value contained in
-        ///     the <see cref="InterceptionResult{TResult}" /> we be used by EF instead.
+        ///     If <see cref="InterceptionResult{Int32}.HasResult"/> is false, the EF will continue as normal.
+        ///     If <see cref="InterceptionResult{Int32}.HasResult"/> is true, then EF will suppress the operation it
+        ///     was about to perform and use <see cref="InterceptionResult{Int32}.Result"/> instead.
         ///     A normal implementation of this method for any interceptor that is not attempting to change the result
         ///     is to return the <paramref name="result" /> value passed in, often using <see cref="Task.FromResult{TResult}" />
         /// </returns>
-        Task<InterceptionResult<int>?> NonQueryExecutingAsync(
+        Task<InterceptionResult<int>> NonQueryExecutingAsync(
             [NotNull] DbCommand command,
             [NotNull] CommandEventData eventData,
-            InterceptionResult<int>? result,
+            InterceptionResult<int> result,
             CancellationToken cancellationToken = default);
 
         /// <summary>
@@ -358,20 +358,21 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="command"> The command. </param>
         /// <param name="eventData"> Contextual information about the command and reader. </param>
         /// <param name="result">
-        ///     The current result, or null if no result yet exists.
-        ///     This value will be non-null if some previous interceptor suppressed execution by returning a result from
-        ///     its implementation of this method.
+        ///     Represents the current result if one exists.
+        ///     This value will have <see cref="InterceptionResult.IsSuppressed"/> set to true if some previous
+        ///     interceptor suppressed execution by calling <see cref="InterceptionResult.Suppress"/>.
         ///     This value is typically used as the return value for the implementation of this method.
         /// </param>
         /// <returns>
-        ///     If null, then EF will dispose the reader as normal.
-        ///     If non-null, then disposing the reader is suppressed.
-        ///     A normal implementation of this method for any interceptor that is not attempting to change the result
-        ///     is to return the <paramref name="result" /> value passed in.
+        ///     If <see cref="InterceptionResult.IsSuppressed"/> is false, the EF will continue as normal.
+        ///     If <see cref="InterceptionResult.IsSuppressed"/> is true, then EF will suppress the operation
+        ///     it was about to perform.
+        ///     A normal implementation of this method for any interceptor that is not attempting to suppress
+        ///     the operation is to return the <paramref name="result" /> value passed in.
         /// </returns>
-        InterceptionResult? DataReaderDisposing(
+        InterceptionResult DataReaderDisposing(
             [NotNull] DbCommand command,
             [NotNull] DataReaderDisposingEventData eventData,
-            InterceptionResult? result);
+            InterceptionResult result);
     }
 }

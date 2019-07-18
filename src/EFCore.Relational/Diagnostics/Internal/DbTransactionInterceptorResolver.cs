@@ -36,10 +36,10 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
                 _interceptors = interceptors.ToArray();
             }
 
-            public InterceptionResult<DbTransaction>? TransactionStarting(
+            public InterceptionResult<DbTransaction> TransactionStarting(
                 DbConnection connection,
                 TransactionStartingEventData eventData,
-                InterceptionResult<DbTransaction>? result)
+                InterceptionResult<DbTransaction> result)
             {
                 for (var i = 0; i < _interceptors.Length; i++)
                 {
@@ -62,10 +62,10 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
                 return result;
             }
 
-            public async Task<InterceptionResult<DbTransaction>?> TransactionStartingAsync(
+            public async Task<InterceptionResult<DbTransaction>> TransactionStartingAsync(
                 DbConnection connection,
                 TransactionStartingEventData eventData,
-                InterceptionResult<DbTransaction>? result,
+                InterceptionResult<DbTransaction> result,
                 CancellationToken cancellationToken = default)
             {
                 for (var i = 0; i < _interceptors.Length; i++)
@@ -117,10 +117,10 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
                 return result;
             }
 
-            public InterceptionResult? TransactionCommitting(
+            public InterceptionResult TransactionCommitting(
                 DbTransaction transaction,
                 TransactionEventData eventData,
-                InterceptionResult? result)
+                InterceptionResult result)
             {
                 for (var i = 0; i < _interceptors.Length; i++)
                 {
@@ -140,10 +140,10 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
                 }
             }
 
-            public async Task<InterceptionResult?> TransactionCommittingAsync(
+            public async Task<InterceptionResult> TransactionCommittingAsync(
                 DbTransaction transaction,
                 TransactionEventData eventData,
-                InterceptionResult? result,
+                InterceptionResult result,
                 CancellationToken cancellationToken = default)
             {
                 for (var i = 0; i < _interceptors.Length; i++)
@@ -165,10 +165,10 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
                 }
             }
 
-            public InterceptionResult? TransactionRollingBack(
+            public InterceptionResult TransactionRollingBack(
                 DbTransaction transaction,
                 TransactionEventData eventData,
-                InterceptionResult? result)
+                InterceptionResult result)
             {
                 for (var i = 0; i < _interceptors.Length; i++)
                 {
@@ -188,10 +188,10 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
                 }
             }
 
-            public async Task<InterceptionResult?> TransactionRollingBackAsync(
+            public async Task<InterceptionResult> TransactionRollingBackAsync(
                 DbTransaction transaction,
                 TransactionEventData eventData,
-                InterceptionResult? result,
+                InterceptionResult result,
                 CancellationToken cancellationToken = default)
             {
                 for (var i = 0; i < _interceptors.Length; i++)

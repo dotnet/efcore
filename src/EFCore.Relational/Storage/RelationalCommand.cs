@@ -84,13 +84,17 @@ namespace Microsoft.EntityFrameworkCore.Storage
             var stopwatch = Stopwatch.StartNew();
             try
             {
-                var nonQueryResult = (logger?.CommandNonQueryExecuting(
-                                          command,
-                                          context,
-                                          commandId,
-                                          connection.ConnectionId,
-                                          startTime: startTime)
-                                      ?? new InterceptionResult<int>(command.ExecuteNonQuery())).Result;
+                var interceptionResult = logger?.CommandNonQueryExecuting(
+                                             command,
+                                             context,
+                                             commandId,
+                                             connection.ConnectionId,
+                                             startTime)
+                                         ?? default;
+
+                var nonQueryResult = interceptionResult.HasResult
+                    ? interceptionResult.Result
+                    : command.ExecuteNonQuery();
 
                 return logger?.CommandNonQueryExecuted(
                            command,
@@ -165,7 +169,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             try
             {
                 var interceptionResult = logger == null
-                    ? null
+                    ? default
                     : await logger.CommandNonQueryExecutingAsync(
                         command,
                         context,
@@ -174,8 +178,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
                         startTime,
                         cancellationToken);
 
-                var result = interceptionResult.HasValue
-                    ? interceptionResult.Value.Result
+                var result = interceptionResult.HasResult
+                    ? interceptionResult.Result
                     : await command.ExecuteNonQueryAsync(cancellationToken);
 
                 if (logger != null)
@@ -235,13 +239,17 @@ namespace Microsoft.EntityFrameworkCore.Storage
             var stopwatch = Stopwatch.StartNew();
             try
             {
-                var result = (logger?.CommandScalarExecuting(
-                                  command,
-                                  context,
-                                  commandId,
-                                  connection.ConnectionId,
-                                  startTime)
-                              ?? new InterceptionResult<object>(command.ExecuteScalar())).Result;
+                var interceptionResult = logger?.CommandScalarExecuting(
+                                             command,
+                                             context,
+                                             commandId,
+                                             connection.ConnectionId,
+                                             startTime)
+                                         ?? default;
+
+                var result = interceptionResult.HasResult
+                    ? interceptionResult.Result
+                    : command.ExecuteScalar();
 
                 return logger?.CommandScalarExecuted(
                            command,
@@ -298,7 +306,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             try
             {
                 var interceptionResult = logger == null
-                    ? null
+                    ? default
                     : await logger.CommandScalarExecutingAsync(
                         command,
                         context,
@@ -307,8 +315,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
                         startTime,
                         cancellationToken);
 
-                var result = interceptionResult.HasValue
-                    ? interceptionResult.Value.Result
+                var result = interceptionResult.HasResult
+                    ? interceptionResult.Result
                     : await command.ExecuteScalarAsync(cancellationToken);
 
                 if (logger != null)
@@ -370,13 +378,17 @@ namespace Microsoft.EntityFrameworkCore.Storage
             var readerOpen = false;
             try
             {
-                var reader = (logger?.CommandReaderExecuting(
-                                  command,
-                                  context,
-                                  commandId,
-                                  connection.ConnectionId,
-                                  startTime)
-                              ?? new InterceptionResult<DbDataReader>(command.ExecuteReader())).Result;
+                var interceptionResult = logger?.CommandReaderExecuting(
+                                             command,
+                                             context,
+                                             commandId,
+                                             connection.ConnectionId,
+                                             startTime)
+                                         ?? default;
+
+                var reader = interceptionResult.HasResult
+                    ? interceptionResult.Result
+                    : command.ExecuteReader();
 
                 if (logger != null)
                 {
@@ -450,7 +462,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             try
             {
                 var interceptionResult = logger == null
-                    ? null
+                    ? default
                     : await logger.CommandReaderExecutingAsync(
                         command,
                         context,
@@ -459,8 +471,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
                         startTime,
                         cancellationToken);
 
-                var reader = interceptionResult.HasValue
-                    ? interceptionResult.Value.Result
+                var reader = interceptionResult.HasResult
+                    ? interceptionResult.Result
                     : await command.ExecuteReaderAsync(cancellationToken);
 
                 if (logger != null)

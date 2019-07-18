@@ -1186,6 +1186,9 @@
   <data name="UnableToDiscriminate" xml:space="preserve">
     <value>Unable to materialize entity of type '{entityType}'. No discriminators matched '{discriminator}'.</value>
   </data>
+  <data name="NoInterceptionResult" xml:space="preserve">
+    <value>'InterceptionResult.Result' was called when 'InterceptionResult.HasResult' is false.</value>
+  </data>
   <data name="SetOperationWithDifferentIncludesInOperands" xml:space="preserve">
     <value>When performing a set operation, both operands must have the same Include operations.</value>
   </data>

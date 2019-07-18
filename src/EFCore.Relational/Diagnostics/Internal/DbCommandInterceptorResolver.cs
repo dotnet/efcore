@@ -36,10 +36,10 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
                 _interceptors = interceptors.ToArray();
             }
 
-            public InterceptionResult<DbDataReader>? ReaderExecuting(
+            public InterceptionResult<DbDataReader> ReaderExecuting(
                 DbCommand command,
                 CommandEventData eventData,
-                InterceptionResult<DbDataReader>? result)
+                InterceptionResult<DbDataReader> result)
             {
                 for (var i = 0; i < _interceptors.Length; i++)
                 {
@@ -49,10 +49,10 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
                 return result;
             }
 
-            public InterceptionResult<object>? ScalarExecuting(
+            public InterceptionResult<object> ScalarExecuting(
                 DbCommand command,
                 CommandEventData eventData,
-                InterceptionResult<object>? result)
+                InterceptionResult<object> result)
             {
                 for (var i = 0; i < _interceptors.Length; i++)
                 {
@@ -62,10 +62,10 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
                 return result;
             }
 
-            public InterceptionResult<int>? NonQueryExecuting(
+            public InterceptionResult<int> NonQueryExecuting(
                 DbCommand command,
                 CommandEventData eventData,
-                InterceptionResult<int>? result)
+                InterceptionResult<int> result)
             {
                 for (var i = 0; i < _interceptors.Length; i++)
                 {
@@ -75,10 +75,10 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
                 return result;
             }
 
-            public async Task<InterceptionResult<DbDataReader>?> ReaderExecutingAsync(
+            public async Task<InterceptionResult<DbDataReader>> ReaderExecutingAsync(
                 DbCommand command,
                 CommandEventData eventData,
-                InterceptionResult<DbDataReader>? result,
+                InterceptionResult<DbDataReader> result,
                 CancellationToken cancellationToken = default)
             {
                 for (var i = 0; i < _interceptors.Length; i++)
@@ -89,10 +89,10 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
                 return result;
             }
 
-            public async Task<InterceptionResult<object>?> ScalarExecutingAsync(
+            public async Task<InterceptionResult<object>> ScalarExecutingAsync(
                 DbCommand command,
                 CommandEventData eventData,
-                InterceptionResult<object>? result,
+                InterceptionResult<object> result,
                 CancellationToken cancellationToken = default)
             {
                 for (var i = 0; i < _interceptors.Length; i++)
@@ -103,10 +103,10 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
                 return result;
             }
 
-            public async Task<InterceptionResult<int>?> NonQueryExecutingAsync(
+            public async Task<InterceptionResult<int>> NonQueryExecutingAsync(
                 DbCommand command,
                 CommandEventData eventData,
-                InterceptionResult<int>? result,
+                InterceptionResult<int> result,
                 CancellationToken cancellationToken = default)
             {
                 for (var i = 0; i < _interceptors.Length; i++)
@@ -215,10 +215,10 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
                 }
             }
 
-            public InterceptionResult? DataReaderDisposing(
+            public InterceptionResult DataReaderDisposing(
                 DbCommand command,
                 DataReaderDisposingEventData eventData,
-                InterceptionResult? result)
+                InterceptionResult result)
             {
                 for (var i = 0; i < _interceptors.Length; i++)
                 {

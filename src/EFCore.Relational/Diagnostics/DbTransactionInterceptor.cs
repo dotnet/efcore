@@ -22,22 +22,22 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="connection"> The connection. </param>
         /// <param name="eventData"> Contextual information about connection and transaction. </param>
         /// <param name="result">
-        ///     The current result, or null if no result yet exists.
-        ///     This value will be non-null if some previous interceptor suppressed creation by returning a result from
-        ///     its implementation of this method.
+        ///     Represents the current result if one exists.
+        ///     This value will have <see cref="InterceptionResult{DbTransaction}.HasResult"/> set to true if some previous
+        ///     interceptor suppressed execution by calling <see cref="InterceptionResult{DbTransaction}.SuppressWithResult"/>.
         ///     This value is typically used as the return value for the implementation of this method.
         /// </param>
         /// <returns>
-        ///     If null, then EF will start the transaction as normal.
-        ///     If non-null, then transaction creation is suppressed and the value contained in
-        ///     the <see cref="InterceptionResult{TResult}" /> we be used by EF instead.
+        ///     If <see cref="InterceptionResult{DbTransaction}.HasResult"/> is false, the EF will continue as normal.
+        ///     If <see cref="InterceptionResult{DbTransaction}.HasResult"/> is true, then EF will suppress the operation it
+        ///     was about to perform and use <see cref="InterceptionResult{DbTransaction}.Result"/> instead.
         ///     A normal implementation of this method for any interceptor that is not attempting to change the result
-        ///     is to return the <paramref name="result" /> value passed in.
+        ///     is to return the <paramref name="result" /> value passed in, often using <see cref="Task.FromResult{TResult}" />
         /// </returns>
-        public virtual InterceptionResult<DbTransaction>? TransactionStarting(
+        public virtual InterceptionResult<DbTransaction> TransactionStarting(
             DbConnection connection,
             TransactionStartingEventData eventData,
-            InterceptionResult<DbTransaction>? result)
+            InterceptionResult<DbTransaction> result)
             => result;
 
         /// <summary>
@@ -72,21 +72,21 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="connection"> The connection. </param>
         /// <param name="eventData"> Contextual information about connection and transaction. </param>
         /// <param name="result">
-        ///     The current result, or null if no result yet exists.
-        ///     This value will be non-null if some previous interceptor suppressed creation by returning a result from
-        ///     its implementation of this method.
+        ///     Represents the current result if one exists.
+        ///     This value will have <see cref="InterceptionResult{DbTransaction}.HasResult"/> set to true if some previous
+        ///     interceptor suppressed execution by calling <see cref="InterceptionResult{DbTransaction}.SuppressWithResult"/>.
         ///     This value is typically used as the return value for the implementation of this method.
         /// </param>
         /// <param name="cancellationToken"> The cancellation token. </param>
         /// <returns>
-        ///     If the <see cref="Task" /> result is null, then EF will start the transaction as normal.
-        ///     If the <see cref="Task" /> result is non-null value, then transaction creation is suppressed and the value contained in
-        ///     the <see cref="InterceptionResult{TResult}" /> we be used by EF instead.
+        ///     If <see cref="InterceptionResult{DbTransaction}.HasResult"/> is false, the EF will continue as normal.
+        ///     If <see cref="InterceptionResult{DbTransaction}.HasResult"/> is true, then EF will suppress the operation it
+        ///     was about to perform and use <see cref="InterceptionResult{DbTransaction}.Result"/> instead.
         ///     A normal implementation of this method for any interceptor that is not attempting to change the result
         ///     is to return the <paramref name="result" /> value passed in, often using <see cref="Task.FromResult{TResult}" />
         /// </returns>
-        public virtual Task<InterceptionResult<DbTransaction>?> TransactionStartingAsync(
-            DbConnection connection, TransactionStartingEventData eventData, InterceptionResult<DbTransaction>? result,
+        public virtual Task<InterceptionResult<DbTransaction>> TransactionStartingAsync(
+            DbConnection connection, TransactionStartingEventData eventData, InterceptionResult<DbTransaction> result,
             CancellationToken cancellationToken = default)
             => Task.FromResult(result);
 
@@ -168,21 +168,22 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="transaction"> The transaction. </param>
         /// <param name="eventData"> Contextual information about connection and transaction. </param>
         /// <param name="result">
-        ///     The current result, or null if no result yet exists.
-        ///     This value will be non-null if some previous interceptor suppressed committing by returning a result from
-        ///     its implementation of this method.
+        ///     Represents the current result if one exists.
+        ///     This value will have <see cref="InterceptionResult.IsSuppressed"/> set to true if some previous
+        ///     interceptor suppressed execution by calling <see cref="InterceptionResult.Suppress"/>.
         ///     This value is typically used as the return value for the implementation of this method.
         /// </param>
         /// <returns>
-        ///     If null, then EF will committing the transaction as normal.
-        ///     If non-null, then committing the transaction is suppressed.
-        ///     A normal implementation of this method for any interceptor that is not attempting to change the result
-        ///     is to return the <paramref name="result" /> value passed in.
+        ///     If <see cref="InterceptionResult.IsSuppressed"/> is false, the EF will continue as normal.
+        ///     If <see cref="InterceptionResult.IsSuppressed"/> is true, then EF will suppress the operation
+        ///     it was about to perform.
+        ///     A normal implementation of this method for any interceptor that is not attempting to suppress
+        ///     the operation is to return the <paramref name="result" /> value passed in.
         /// </returns>
-        public virtual InterceptionResult? TransactionCommitting(
+        public virtual InterceptionResult TransactionCommitting(
             DbTransaction transaction,
             TransactionEventData eventData,
-            InterceptionResult? result)
+            InterceptionResult result)
             => result;
 
         /// <summary>
@@ -202,22 +203,23 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="transaction"> The transaction. </param>
         /// <param name="eventData"> Contextual information about connection and transaction. </param>
         /// <param name="result">
-        ///     The current result, or null if no result yet exists.
-        ///     This value will be non-null if some previous interceptor suppressed committing returning a result from
-        ///     its implementation of this method.
+        ///     Represents the current result if one exists.
+        ///     This value will have <see cref="InterceptionResult.IsSuppressed"/> set to true if some previous
+        ///     interceptor suppressed execution by calling <see cref="InterceptionResult.Suppress"/>.
         ///     This value is typically used as the return value for the implementation of this method.
         /// </param>
         /// <param name="cancellationToken"> The cancellation token. </param>
         /// <returns>
-        ///     If the <see cref="Task" /> result is null, then EF will commit the transaction as normal.
-        ///     If the <see cref="Task" /> result is non-null value, committing the transaction is suppressed.
-        ///     A normal implementation of this method for any interceptor that is not attempting to change the result
-        ///     is to return the <paramref name="result" /> value passed in, often using <see cref="Task.FromResult{TResult}" />
+        ///     If <see cref="InterceptionResult.IsSuppressed"/> is false, the EF will continue as normal.
+        ///     If <see cref="InterceptionResult.IsSuppressed"/> is true, then EF will suppress the operation
+        ///     it was about to perform.
+        ///     A normal implementation of this method for any interceptor that is not attempting to suppress
+        ///     the operation is to return the <paramref name="result" /> value passed in.
         /// </returns>
-        public virtual Task<InterceptionResult?> TransactionCommittingAsync(
+        public virtual Task<InterceptionResult> TransactionCommittingAsync(
             DbTransaction transaction,
             TransactionEventData eventData,
-            InterceptionResult? result,
+            InterceptionResult result,
             CancellationToken cancellationToken = default)
             => Task.FromResult(result);
 
@@ -240,21 +242,22 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="transaction"> The transaction. </param>
         /// <param name="eventData"> Contextual information about connection and transaction. </param>
         /// <param name="result">
-        ///     The current result, or null if no result yet exists.
-        ///     This value will be non-null if some previous interceptor suppressed rolling back by returning a result from
-        ///     its implementation of this method.
+        ///     Represents the current result if one exists.
+        ///     This value will have <see cref="InterceptionResult.IsSuppressed"/> set to true if some previous
+        ///     interceptor suppressed execution by calling <see cref="InterceptionResult.Suppress"/>.
         ///     This value is typically used as the return value for the implementation of this method.
         /// </param>
         /// <returns>
-        ///     If null, then EF will roll back the transaction as normal.
-        ///     If non-null, then rolling back the transaction is suppressed.
-        ///     A normal implementation of this method for any interceptor that is not attempting to change the result
-        ///     is to return the <paramref name="result" /> value passed in.
+        ///     If <see cref="InterceptionResult.IsSuppressed"/> is false, the EF will continue as normal.
+        ///     If <see cref="InterceptionResult.IsSuppressed"/> is true, then EF will suppress the operation
+        ///     it was about to perform.
+        ///     A normal implementation of this method for any interceptor that is not attempting to suppress
+        ///     the operation is to return the <paramref name="result" /> value passed in.
         /// </returns>
-        public virtual InterceptionResult? TransactionRollingBack(
+        public virtual InterceptionResult TransactionRollingBack(
             DbTransaction transaction,
             TransactionEventData eventData,
-            InterceptionResult? result)
+            InterceptionResult result)
             => result;
 
         /// <summary>
@@ -274,22 +277,23 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="transaction"> The transaction. </param>
         /// <param name="eventData"> Contextual information about connection and transaction. </param>
         /// <param name="result">
-        ///     The current result, or null if no result yet exists.
-        ///     This value will be non-null if some previous interceptor suppressed rolling back returning a result from
-        ///     its implementation of this method.
+        ///     Represents the current result if one exists.
+        ///     This value will have <see cref="InterceptionResult.IsSuppressed"/> set to true if some previous
+        ///     interceptor suppressed execution by calling <see cref="InterceptionResult.Suppress"/>.
         ///     This value is typically used as the return value for the implementation of this method.
         /// </param>
         /// <param name="cancellationToken"> The cancellation token. </param>
         /// <returns>
-        ///     If the <see cref="Task" /> result is null, then EF will roll back the transaction as normal.
-        ///     If the <see cref="Task" /> result is non-null value, rolling back the transaction is suppressed.
-        ///     A normal implementation of this method for any interceptor that is not attempting to change the result
-        ///     is to return the <paramref name="result" /> value passed in, often using <see cref="Task.FromResult{TResult}" />
+        ///     If <see cref="InterceptionResult.IsSuppressed"/> is false, the EF will continue as normal.
+        ///     If <see cref="InterceptionResult.IsSuppressed"/> is true, then EF will suppress the operation
+        ///     it was about to perform.
+        ///     A normal implementation of this method for any interceptor that is not attempting to suppress
+        ///     the operation is to return the <paramref name="result" /> value passed in.
         /// </returns>
-        public virtual Task<InterceptionResult?> TransactionRollingBackAsync(
+        public virtual Task<InterceptionResult> TransactionRollingBackAsync(
             DbTransaction transaction,
             TransactionEventData eventData,
-            InterceptionResult? result,
+            InterceptionResult result,
             CancellationToken cancellationToken = default)
             => Task.FromResult(result);
 
