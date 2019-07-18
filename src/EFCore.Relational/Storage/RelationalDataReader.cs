@@ -103,26 +103,29 @@ namespace Microsoft.EntityFrameworkCore.Storage
         {
             if (!_disposed)
             {
-                InterceptionResult? interceptionResult = null;
+                var interceptionResult = default(InterceptionResult);
                 try
                 {
                     _reader.Close(); // can throw
 
-                    interceptionResult = _logger?.DataReaderDisposing(
-                        _connection,
-                        _command,
-                        _reader,
-                        _commandId,
-                        _reader.RecordsAffected,
-                        _readCount,
-                        _startTime,
-                        _stopwatch.Elapsed); // can throw
+                    if (_logger != null)
+                    {
+                        interceptionResult = _logger.DataReaderDisposing(
+                            _connection,
+                            _command,
+                            _reader,
+                            _commandId,
+                            _reader.RecordsAffected,
+                            _readCount,
+                            _startTime,
+                            _stopwatch.Elapsed); // can throw
+                    }
                 }
                 finally
                 {
                     _disposed = true;
 
-                    if (interceptionResult == null)
+                    if (!interceptionResult.IsSuppressed)
                     {
                         _reader.Dispose();
                         _command.Parameters.Clear();
@@ -140,26 +143,29 @@ namespace Microsoft.EntityFrameworkCore.Storage
         {
             if (!_disposed)
             {
-                InterceptionResult? interceptionResult = null;
+                var interceptionResult = default(InterceptionResult);
                 try
                 {
                     _reader.Close(); // can throw
 
-                    interceptionResult = _logger?.DataReaderDisposing(
-                        _connection,
-                        _command,
-                        _reader,
-                        _commandId,
-                        _reader.RecordsAffected,
-                        _readCount,
-                        _startTime,
-                        _stopwatch.Elapsed); // can throw
+                    if (_logger != null)
+                    {
+                        interceptionResult = _logger.DataReaderDisposing(
+                            _connection,
+                            _command,
+                            _reader,
+                            _commandId,
+                            _reader.RecordsAffected,
+                            _readCount,
+                            _startTime,
+                            _stopwatch.Elapsed); // can throw
+                    }
                 }
                 finally
                 {
                     _disposed = true;
 
-                    if (interceptionResult == null)
+                    if (!interceptionResult.IsSuppressed)
                     {
                         await _reader.DisposeAsyncIfAvailable();
                         _command.Parameters.Clear();

@@ -36,10 +36,10 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
                 _interceptors = interceptors.ToArray();
             }
 
-            public InterceptionResult? ConnectionOpening(
+            public InterceptionResult ConnectionOpening(
                 DbConnection connection,
                 ConnectionEventData eventData,
-                InterceptionResult? result)
+                InterceptionResult result)
             {
                 for (var i = 0; i < _interceptors.Length; i++)
                 {
@@ -49,10 +49,10 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
                 return result;
             }
 
-            public async Task<InterceptionResult?> ConnectionOpeningAsync(
+            public async Task<InterceptionResult> ConnectionOpeningAsync(
                 DbConnection connection,
                 ConnectionEventData eventData,
-                InterceptionResult? result,
+                InterceptionResult result,
                 CancellationToken cancellationToken = default)
             {
                 for (var i = 0; i < _interceptors.Length; i++)
@@ -84,10 +84,10 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
                 }
             }
 
-            public InterceptionResult? ConnectionClosing(
+            public InterceptionResult ConnectionClosing(
                 DbConnection connection,
                 ConnectionEventData eventData,
-                InterceptionResult? result)
+                InterceptionResult result)
             {
                 for (var i = 0; i < _interceptors.Length; i++)
                 {
@@ -97,10 +97,10 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
                 return result;
             }
 
-            public async Task<InterceptionResult?> ConnectionClosingAsync(
+            public async Task<InterceptionResult> ConnectionClosingAsync(
                 DbConnection connection,
                 ConnectionEventData eventData,
-                InterceptionResult? result)
+                InterceptionResult result)
             {
                 for (var i = 0; i < _interceptors.Length; i++)
                 {

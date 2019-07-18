@@ -241,35 +241,35 @@ namespace Microsoft.EntityFrameworkCore
 
         protected class ConnectionOverridingInterceptor : ConnectionInterceptor
         {
-            public override InterceptionResult? ConnectionOpening(
+            public override InterceptionResult ConnectionOpening(
                 DbConnection connection,
                 ConnectionEventData eventData,
-                InterceptionResult? result)
+                InterceptionResult result)
             {
                 base.ConnectionOpening(connection, eventData, result);
 
-                if (result == null)
+                if (!result.IsSuppressed)
                 {
                     connection.Open();
                 }
 
-                return new InterceptionResult();
+                return InterceptionResult.Suppress();
             }
 
-            public override async Task<InterceptionResult?> ConnectionOpeningAsync(
+            public override async Task<InterceptionResult> ConnectionOpeningAsync(
                 DbConnection connection,
                 ConnectionEventData eventData,
-                InterceptionResult? result,
+                InterceptionResult result,
                 CancellationToken cancellationToken = default)
             {
                 await base.ConnectionOpeningAsync(connection, eventData, result, cancellationToken);
 
-                if (result == null)
+                if (!result.IsSuppressed)
                 {
                     await connection.OpenAsync(cancellationToken);
                 }
 
-                return new InterceptionResult();
+                return InterceptionResult.Suppress();
             }
         }
 
@@ -302,10 +302,10 @@ namespace Microsoft.EntityFrameworkCore
                 FailedCalled = false;
             }
 
-            public virtual InterceptionResult? ConnectionOpening(
+            public virtual InterceptionResult ConnectionOpening(
                 DbConnection connection,
                 ConnectionEventData eventData,
-                InterceptionResult? result)
+                InterceptionResult result)
             {
                 Assert.False(eventData.IsAsync);
                 SyncCalled = true;
@@ -314,10 +314,10 @@ namespace Microsoft.EntityFrameworkCore
                 return result;
             }
 
-            public virtual Task<InterceptionResult?> ConnectionOpeningAsync(
+            public virtual Task<InterceptionResult> ConnectionOpeningAsync(
                 DbConnection connection,
                 ConnectionEventData eventData,
-                InterceptionResult? result,
+                InterceptionResult result,
                 CancellationToken cancellationToken = default)
             {
                 Assert.True(eventData.IsAsync);
@@ -348,10 +348,10 @@ namespace Microsoft.EntityFrameworkCore
                 return Task.CompletedTask;
             }
 
-            public virtual InterceptionResult? ConnectionClosing(
+            public virtual InterceptionResult ConnectionClosing(
                 DbConnection connection,
                 ConnectionEventData eventData,
-                InterceptionResult? result)
+                InterceptionResult result)
             {
                 Assert.False(eventData.IsAsync);
                 SyncCalled = true;
@@ -360,10 +360,10 @@ namespace Microsoft.EntityFrameworkCore
                 return result;
             }
 
-            public virtual Task<InterceptionResult?> ConnectionClosingAsync(
+            public virtual Task<InterceptionResult> ConnectionClosingAsync(
                 DbConnection connection,
                 ConnectionEventData eventData,
-                InterceptionResult? result)
+                InterceptionResult result)
             {
                 Assert.True(eventData.IsAsync);
                 AsyncCalled = true;

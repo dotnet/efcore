@@ -224,8 +224,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 transactionId,
                 startTime);
 
-            var dbTransaction = interceptionResult.HasValue
-                ? interceptionResult.Value.Result
+            var dbTransaction = interceptionResult.HasResult
+                ? interceptionResult.Result
                 : DbConnection.BeginTransaction(isolationLevel);
 
             dbTransaction = Dependencies.TransactionLogger.TransactionStarted(
@@ -266,8 +266,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 startTime,
                 cancellationToken);
 
-            var dbTransaction = interceptionResult.HasValue
-                ? interceptionResult.Value.Result
+            var dbTransaction = interceptionResult.HasResult
+                ? interceptionResult.Result
                 : await DbConnection.BeginTransactionAsync(isolationLevel, cancellationToken);
 
             dbTransaction = await Dependencies.TransactionLogger.TransactionStartedAsync(
@@ -500,7 +500,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
             try
             {
-                if (interceptionResult == null)
+                if (!interceptionResult.IsSuppressed)
                 {
                     DbConnection.Open();
                 }
@@ -530,7 +530,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
             try
             {
-                if (interceptionResult == null)
+                if (!interceptionResult.IsSuppressed)
                 {
                     await DbConnection.OpenAsync(cancellationToken);
                 }
@@ -629,7 +629,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
                     try
                     {
-                        if (interceptionResult == null)
+                        if (!interceptionResult.IsSuppressed)
                         {
                             DbConnection.Close();
                         }
@@ -682,7 +682,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
                     try
                     {
-                        if (interceptionResult == null)
+                        if (!interceptionResult.IsSuppressed)
                         {
                             await DbConnection.CloseAsync();
                         }

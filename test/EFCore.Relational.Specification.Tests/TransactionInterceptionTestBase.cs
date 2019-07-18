@@ -140,25 +140,25 @@ namespace Microsoft.EntityFrameworkCore
 
         protected class SuppressingTransactionInterceptor : TransactionInterceptor
         {
-            public override InterceptionResult<DbTransaction>? TransactionStarting(
+            public override InterceptionResult<DbTransaction> TransactionStarting(
                 DbConnection connection,
                 TransactionStartingEventData eventData,
-                InterceptionResult<DbTransaction>? result)
+                InterceptionResult<DbTransaction> result)
             {
                 base.TransactionStarting(connection, eventData, result);
 
-                return new InterceptionResult<DbTransaction>(new FakeDbTransaction(connection, eventData.IsolationLevel));
+                return InterceptionResult<DbTransaction>.SuppressWithResult(new FakeDbTransaction(connection, eventData.IsolationLevel));
             }
 
-            public override async Task<InterceptionResult<DbTransaction>?> TransactionStartingAsync(
+            public override async Task<InterceptionResult<DbTransaction>> TransactionStartingAsync(
                 DbConnection connection,
                 TransactionStartingEventData eventData,
-                InterceptionResult<DbTransaction>? result,
+                InterceptionResult<DbTransaction> result,
                 CancellationToken cancellationToken = default)
             {
                 await base.TransactionStartingAsync(connection, eventData, result, cancellationToken);
 
-                return new InterceptionResult<DbTransaction>(new FakeDbTransaction(connection, eventData.IsolationLevel));
+                return InterceptionResult<DbTransaction>.SuppressWithResult(new FakeDbTransaction(connection, eventData.IsolationLevel));
             }
         }
 
@@ -421,46 +421,46 @@ namespace Microsoft.EntityFrameworkCore
 
         protected class CommitSuppressingTransactionInterceptor : TransactionInterceptor
         {
-            public override InterceptionResult? TransactionCommitting(
+            public override InterceptionResult TransactionCommitting(
                 DbTransaction transaction,
                 TransactionEventData eventData,
-                InterceptionResult? result)
+                InterceptionResult result)
             {
                 base.TransactionCommitting(transaction, eventData, result);
 
-                return new InterceptionResult();
+                return InterceptionResult.Suppress();
             }
 
-            public override async Task<InterceptionResult?> TransactionCommittingAsync(
+            public override async Task<InterceptionResult> TransactionCommittingAsync(
                 DbTransaction transaction,
                 TransactionEventData eventData,
-                InterceptionResult? result,
+                InterceptionResult result,
                 CancellationToken cancellationToken = default)
             {
                 await base.TransactionCommittingAsync(transaction, eventData, result, cancellationToken);
 
-                return new InterceptionResult();
+                return InterceptionResult.Suppress();
             }
 
-            public override InterceptionResult? TransactionRollingBack(
+            public override InterceptionResult TransactionRollingBack(
                 DbTransaction transaction,
                 TransactionEventData eventData,
-                InterceptionResult? result)
+                InterceptionResult result)
             {
                 base.TransactionRollingBack(transaction, eventData, result);
 
-                return new InterceptionResult();
+                return InterceptionResult.Suppress();
             }
 
-            public override async Task<InterceptionResult?> TransactionRollingBackAsync(
+            public override async Task<InterceptionResult> TransactionRollingBackAsync(
                 DbTransaction transaction,
                 TransactionEventData eventData,
-                InterceptionResult? result,
+                InterceptionResult result,
                 CancellationToken cancellationToken = default)
             {
                 await base.TransactionRollingBackAsync(transaction, eventData, result, cancellationToken);
 
-                return new InterceptionResult();
+                return InterceptionResult.Suppress();
             }
         }
 
@@ -844,10 +844,10 @@ namespace Microsoft.EntityFrameworkCore
                 UsedCalled = true;
             }
 
-            public virtual InterceptionResult<DbTransaction>? TransactionStarting(
+            public virtual InterceptionResult<DbTransaction> TransactionStarting(
                 DbConnection connection,
                 TransactionStartingEventData eventData,
-                InterceptionResult<DbTransaction>? result)
+                InterceptionResult<DbTransaction> result)
             {
                 Assert.False(eventData.IsAsync);
                 SyncCalled = true;
@@ -868,10 +868,10 @@ namespace Microsoft.EntityFrameworkCore
                 return result;
             }
 
-            public virtual Task<InterceptionResult<DbTransaction>?> TransactionStartingAsync(
+            public virtual Task<InterceptionResult<DbTransaction>> TransactionStartingAsync(
                 DbConnection connection,
                 TransactionStartingEventData eventData,
-                InterceptionResult<DbTransaction>? result,
+                InterceptionResult<DbTransaction> result,
                 CancellationToken cancellationToken = default)
             {
                 Assert.True(eventData.IsAsync);
@@ -919,10 +919,10 @@ namespace Microsoft.EntityFrameworkCore
                 return Task.FromResult(result);
             }
 
-            public virtual InterceptionResult? TransactionCommitting(
+            public virtual InterceptionResult TransactionCommitting(
                 DbTransaction transaction,
                 TransactionEventData eventData,
-                InterceptionResult? result)
+                InterceptionResult result)
             {
                 Assert.False(eventData.IsAsync);
                 SyncCalled = true;
@@ -940,10 +940,10 @@ namespace Microsoft.EntityFrameworkCore
                 AssertCommitted(eventData);
             }
 
-            public virtual Task<InterceptionResult?> TransactionCommittingAsync(
+            public virtual Task<InterceptionResult> TransactionCommittingAsync(
                 DbTransaction transaction,
                 TransactionEventData eventData,
-                InterceptionResult? result,
+                InterceptionResult result,
                 CancellationToken cancellationToken = default)
             {
                 Assert.True(eventData.IsAsync);
@@ -965,10 +965,10 @@ namespace Microsoft.EntityFrameworkCore
                 return Task.CompletedTask;
             }
 
-            public virtual InterceptionResult? TransactionRollingBack(
+            public virtual InterceptionResult TransactionRollingBack(
                 DbTransaction transaction,
                 TransactionEventData eventData,
-                InterceptionResult? result)
+                InterceptionResult result)
             {
                 Assert.False(eventData.IsAsync);
                 SyncCalled = true;
@@ -986,10 +986,10 @@ namespace Microsoft.EntityFrameworkCore
                 AssertRolledBack(eventData);
             }
 
-            public virtual Task<InterceptionResult?> TransactionRollingBackAsync(
+            public virtual Task<InterceptionResult> TransactionRollingBackAsync(
                 DbTransaction transaction,
                 TransactionEventData eventData,
-                InterceptionResult? result,
+                InterceptionResult result,
                 CancellationToken cancellationToken = default)
             {
                 Assert.True(eventData.IsAsync);

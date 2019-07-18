@@ -184,25 +184,25 @@ namespace Microsoft.EntityFrameworkCore
             {
             }
 
-            public override InterceptionResult<DbDataReader>? ReaderExecuting(
+            public override InterceptionResult<DbDataReader> ReaderExecuting(
                 DbCommand command,
                 CommandEventData eventData,
-                InterceptionResult<DbDataReader>? result)
+                InterceptionResult<DbDataReader> result)
             {
                 base.ReaderExecuting(command, eventData, result);
 
-                return new InterceptionResult<DbDataReader>(new FakeDbDataReader());
+                return InterceptionResult<DbDataReader>.SuppressWithResult(new FakeDbDataReader());
             }
 
-            public override Task<InterceptionResult<DbDataReader>?> ReaderExecutingAsync(
+            public override Task<InterceptionResult<DbDataReader>> ReaderExecutingAsync(
                 DbCommand command,
                 CommandEventData eventData,
-                InterceptionResult<DbDataReader>? result,
+                InterceptionResult<DbDataReader> result,
                 CancellationToken cancellationToken = default)
             {
                 base.ReaderExecutingAsync(command, eventData, result, cancellationToken);
 
-                return Task.FromResult<InterceptionResult<DbDataReader>?>(new InterceptionResult<DbDataReader>(new FakeDbDataReader()));
+                return Task.FromResult(InterceptionResult<DbDataReader>.SuppressWithResult(new FakeDbDataReader()));
             }
         }
 
@@ -250,26 +250,26 @@ namespace Microsoft.EntityFrameworkCore
 
             public const string InterceptedResult = "Bet you weren't expecting a string!";
 
-            public override InterceptionResult<object>? ScalarExecuting(
+            public override InterceptionResult<object> ScalarExecuting(
                 DbCommand command,
                 CommandEventData eventData,
-                InterceptionResult<object>? result)
+                InterceptionResult<object> result)
             {
                 base.ScalarExecuting(command, eventData, result);
 
-                return new InterceptionResult<object>(InterceptedResult);
+                return InterceptionResult<object>.SuppressWithResult(InterceptedResult);
             }
 
-            public override Task<InterceptionResult<object>?> ScalarExecutingAsync(
+            public override Task<InterceptionResult<object>> ScalarExecutingAsync(
                 DbCommand command,
                 CommandEventData eventData,
-                InterceptionResult<object>? result,
+                InterceptionResult<object> result,
                 CancellationToken cancellationToken = default)
             {
                 base.ScalarExecutingAsync(command, eventData, result, cancellationToken);
 
-                return Task.FromResult<InterceptionResult<object>?>(
-                    new InterceptionResult<object>(InterceptedResult));
+                return Task.FromResult(
+                    InterceptionResult<object>.SuppressWithResult(InterceptedResult));
             }
         }
 
@@ -312,25 +312,25 @@ namespace Microsoft.EntityFrameworkCore
             {
             }
 
-            public override InterceptionResult<int>? NonQueryExecuting(
+            public override InterceptionResult<int> NonQueryExecuting(
                 DbCommand command,
                 CommandEventData eventData,
-                InterceptionResult<int>? result)
+                InterceptionResult<int> result)
             {
                 base.NonQueryExecuting(command, eventData, result);
 
-                return new InterceptionResult<int>(2);
+                return InterceptionResult<int>.SuppressWithResult(2);
             }
 
-            public override Task<InterceptionResult<int>?> NonQueryExecutingAsync(
+            public override Task<InterceptionResult<int>> NonQueryExecutingAsync(
                 DbCommand command,
                 CommandEventData eventData,
-                InterceptionResult<int>? result,
+                InterceptionResult<int> result,
                 CancellationToken cancellationToken = default)
             {
                 base.NonQueryExecutingAsync(command, eventData, result, cancellationToken);
 
-                return Task.FromResult<InterceptionResult<int>?>(new InterceptionResult<int>(2));
+                return Task.FromResult(InterceptionResult<int>.SuppressWithResult(2));
             }
         }
 
@@ -372,20 +372,20 @@ namespace Microsoft.EntityFrameworkCore
             {
             }
 
-            public override InterceptionResult<DbDataReader>? ReaderExecuting(
+            public override InterceptionResult<DbDataReader> ReaderExecuting(
                 DbCommand command,
                 CommandEventData eventData,
-                InterceptionResult<DbDataReader>? result)
+                InterceptionResult<DbDataReader> result)
             {
                 MutateQuery(command);
 
                 return base.ReaderExecuting(command, eventData, result);
             }
 
-            public override Task<InterceptionResult<DbDataReader>?> ReaderExecutingAsync(
+            public override Task<InterceptionResult<DbDataReader>> ReaderExecutingAsync(
                 DbCommand command,
                 CommandEventData eventData,
-                InterceptionResult<DbDataReader>? result,
+                InterceptionResult<DbDataReader> result,
                 CancellationToken cancellationToken = default)
             {
                 MutateQuery(command);
@@ -441,20 +441,20 @@ namespace Microsoft.EntityFrameworkCore
 
             public const string MutatedSql = "SELECT 2";
 
-            public override InterceptionResult<object>? ScalarExecuting(
+            public override InterceptionResult<object> ScalarExecuting(
                 DbCommand command,
                 CommandEventData eventData,
-                InterceptionResult<object>? result)
+                InterceptionResult<object> result)
             {
                 command.CommandText = MutatedSql;
 
                 return base.ScalarExecuting(command, eventData, result);
             }
 
-            public override Task<InterceptionResult<object>?> ScalarExecutingAsync(
+            public override Task<InterceptionResult<object>> ScalarExecutingAsync(
                 DbCommand command,
                 CommandEventData eventData,
-                InterceptionResult<object>? result,
+                InterceptionResult<object> result,
                 CancellationToken cancellationToken = default)
             {
                 command.CommandText = MutatedSql;
@@ -504,20 +504,20 @@ namespace Microsoft.EntityFrameworkCore
             {
             }
 
-            public override InterceptionResult<int>? NonQueryExecuting(
+            public override InterceptionResult<int> NonQueryExecuting(
                 DbCommand command,
                 CommandEventData eventData,
-                InterceptionResult<int>? result)
+                InterceptionResult<int> result)
             {
                 command.CommandText = MutatedSql;
 
                 return base.NonQueryExecuting(command, eventData, result);
             }
 
-            public override Task<InterceptionResult<int>?> NonQueryExecutingAsync(
+            public override Task<InterceptionResult<int>> NonQueryExecutingAsync(
                 DbCommand command,
                 CommandEventData eventData,
-                InterceptionResult<int>? result,
+                InterceptionResult<int> result,
                 CancellationToken cancellationToken = default)
             {
                 command.CommandText = MutatedSql;
@@ -564,27 +564,28 @@ namespace Microsoft.EntityFrameworkCore
             {
             }
 
-            public override InterceptionResult<DbDataReader>? ReaderExecuting(
+            public override InterceptionResult<DbDataReader> ReaderExecuting(
                 DbCommand command,
                 CommandEventData eventData,
-                InterceptionResult<DbDataReader>? result)
+                InterceptionResult<DbDataReader> result)
             {
                 base.ReaderExecuting(command, eventData, result);
 
                 // Note: this DbCommand will not get disposed...can be problematic on some providers
-                return new InterceptionResult<DbDataReader>(CreateNewCommand(command).ExecuteReader());
+                return InterceptionResult<DbDataReader>.SuppressWithResult(CreateNewCommand(command).ExecuteReader());
             }
 
-            public override async Task<InterceptionResult<DbDataReader>?> ReaderExecutingAsync(
+            public override async Task<InterceptionResult<DbDataReader>> ReaderExecutingAsync(
                 DbCommand command,
                 CommandEventData eventData,
-                InterceptionResult<DbDataReader>? result,
+                InterceptionResult<DbDataReader> result,
                 CancellationToken cancellationToken = default)
             {
                 await base.ReaderExecutingAsync(command, eventData, result, cancellationToken);
 
                 // Note: this DbCommand will not get disposed...can be problematic on some providers
-                return new InterceptionResult<DbDataReader>(await CreateNewCommand(command).ExecuteReaderAsync(cancellationToken));
+                return InterceptionResult<DbDataReader>.SuppressWithResult(
+                    await CreateNewCommand(command).ExecuteReaderAsync(cancellationToken));
             }
 
             private static DbCommand CreateNewCommand(DbCommand command)
@@ -638,27 +639,27 @@ namespace Microsoft.EntityFrameworkCore
             {
             }
 
-            public override InterceptionResult<object>? ScalarExecuting(
+            public override InterceptionResult<object> ScalarExecuting(
                 DbCommand command,
                 CommandEventData eventData,
-                InterceptionResult<object>? result)
+                InterceptionResult<object> result)
             {
                 base.ScalarExecuting(command, eventData, result);
 
                 // Note: this DbCommand will not get disposed...can be problematic on some providers
-                return new InterceptionResult<object>(CreateNewCommand(command).ExecuteScalar());
+                return InterceptionResult<object>.SuppressWithResult(CreateNewCommand(command).ExecuteScalar());
             }
 
-            public override async Task<InterceptionResult<object>?> ScalarExecutingAsync(
+            public override async Task<InterceptionResult<object>> ScalarExecutingAsync(
                 DbCommand command,
                 CommandEventData eventData,
-                InterceptionResult<object>? result,
+                InterceptionResult<object> result,
                 CancellationToken cancellationToken = default)
             {
                 await base.ScalarExecutingAsync(command, eventData, result, cancellationToken);
 
                 // Note: this DbCommand will not get disposed...can be problematic on some providers
-                return new InterceptionResult<object>(await CreateNewCommand(command).ExecuteScalarAsync(cancellationToken));
+                return InterceptionResult<object>.SuppressWithResult(await CreateNewCommand(command).ExecuteScalarAsync(cancellationToken));
             }
 
             private static DbCommand CreateNewCommand(DbCommand command)
@@ -709,27 +710,27 @@ namespace Microsoft.EntityFrameworkCore
             {
             }
 
-            public override InterceptionResult<int>? NonQueryExecuting(
+            public override InterceptionResult<int> NonQueryExecuting(
                 DbCommand command,
                 CommandEventData eventData,
-                InterceptionResult<int>? result)
+                InterceptionResult<int> result)
             {
                 base.NonQueryExecuting(command, eventData, result);
 
                 // Note: this DbCommand will not get disposed...can be problematic on some providers
-                return new InterceptionResult<int>(CreateNewCommand(command).ExecuteNonQuery());
+                return InterceptionResult<int>.SuppressWithResult(CreateNewCommand(command).ExecuteNonQuery());
             }
 
-            public override async Task<InterceptionResult<int>?> NonQueryExecutingAsync(
+            public override async Task<InterceptionResult<int>> NonQueryExecutingAsync(
                 DbCommand command,
                 CommandEventData eventData,
-                InterceptionResult<int>? result,
+                InterceptionResult<int> result,
                 CancellationToken cancellationToken = default)
             {
                 await base.NonQueryExecutingAsync(command, eventData, result, cancellationToken);
 
                 // Note: this DbCommand will not get disposed...can be problematic on some providers
-                return new InterceptionResult<int>(await CreateNewCommand(command).ExecuteNonQueryAsync(cancellationToken));
+                return InterceptionResult<int>.SuppressWithResult(await CreateNewCommand(command).ExecuteNonQueryAsync(cancellationToken));
             }
 
             private DbCommand CreateNewCommand(DbCommand command)
@@ -1149,52 +1150,52 @@ namespace Microsoft.EntityFrameworkCore
 
         protected class ThrowingReaderCommandInterceptor : DbCommandInterceptor
         {
-            public override InterceptionResult<DbDataReader>? ReaderExecuting(
+            public override InterceptionResult<DbDataReader> ReaderExecuting(
                 DbCommand command,
                 CommandEventData eventData,
-                InterceptionResult<DbDataReader>? result)
+                InterceptionResult<DbDataReader> result)
             {
                 throw new Exception("Bang!");
             }
 
-            public override Task<InterceptionResult<DbDataReader>?> ReaderExecutingAsync(
+            public override Task<InterceptionResult<DbDataReader>> ReaderExecutingAsync(
                 DbCommand command,
                 CommandEventData eventData,
-                InterceptionResult<DbDataReader>? result,
+                InterceptionResult<DbDataReader> result,
                 CancellationToken cancellationToken = default)
             {
                 throw new Exception("Bang!");
             }
 
-            public override InterceptionResult<object>? ScalarExecuting(
+            public override InterceptionResult<object> ScalarExecuting(
                 DbCommand command,
                 CommandEventData eventData,
-                InterceptionResult<object>? result)
+                InterceptionResult<object> result)
             {
                 throw new Exception("Bang!");
             }
 
-            public override Task<InterceptionResult<object>?> ScalarExecutingAsync(
+            public override Task<InterceptionResult<object>> ScalarExecutingAsync(
                 DbCommand command,
                 CommandEventData eventData,
-                InterceptionResult<object>? result,
+                InterceptionResult<object> result,
                 CancellationToken cancellationToken = default)
             {
                 throw new Exception("Bang!");
             }
 
-            public override InterceptionResult<int>? NonQueryExecuting(
+            public override InterceptionResult<int> NonQueryExecuting(
                 DbCommand command,
                 CommandEventData eventData,
-                InterceptionResult<int>? result)
+                InterceptionResult<int> result)
             {
                 throw new Exception("Bang!");
             }
 
-            public override Task<InterceptionResult<int>?> NonQueryExecutingAsync(
+            public override Task<InterceptionResult<int>> NonQueryExecutingAsync(
                 DbCommand command,
                 CommandEventData eventData,
-                InterceptionResult<int>? result,
+                InterceptionResult<int> result,
                 CancellationToken cancellationToken = default)
             {
                 throw new Exception("Bang!");
@@ -1497,10 +1498,10 @@ namespace Microsoft.EntityFrameworkCore
             public bool ExecutedCalled { get; set; }
             public bool FailedCalled { get; set; }
 
-            public virtual InterceptionResult<DbDataReader>? ReaderExecuting(
+            public virtual InterceptionResult<DbDataReader> ReaderExecuting(
                 DbCommand command,
                 CommandEventData eventData,
-                InterceptionResult<DbDataReader>? result)
+                InterceptionResult<DbDataReader> result)
             {
                 Assert.False(eventData.IsAsync);
                 SyncCalled = true;
@@ -1509,10 +1510,10 @@ namespace Microsoft.EntityFrameworkCore
                 return result;
             }
 
-            public virtual InterceptionResult<object>? ScalarExecuting(
+            public virtual InterceptionResult<object> ScalarExecuting(
                 DbCommand command,
                 CommandEventData eventData,
-                InterceptionResult<object>? result)
+                InterceptionResult<object> result)
             {
                 Assert.False(eventData.IsAsync);
                 SyncCalled = true;
@@ -1521,10 +1522,10 @@ namespace Microsoft.EntityFrameworkCore
                 return result;
             }
 
-            public virtual InterceptionResult<int>? NonQueryExecuting(
+            public virtual InterceptionResult<int> NonQueryExecuting(
                 DbCommand command,
                 CommandEventData eventData,
-                InterceptionResult<int>? result)
+                InterceptionResult<int> result)
             {
                 Assert.False(eventData.IsAsync);
                 SyncCalled = true;
@@ -1533,10 +1534,10 @@ namespace Microsoft.EntityFrameworkCore
                 return result;
             }
 
-            public virtual Task<InterceptionResult<DbDataReader>?> ReaderExecutingAsync(
+            public virtual Task<InterceptionResult<DbDataReader>> ReaderExecutingAsync(
                 DbCommand command,
                 CommandEventData eventData,
-                InterceptionResult<DbDataReader>? result,
+                InterceptionResult<DbDataReader> result,
                 CancellationToken cancellationToken = default)
             {
                 Assert.True(eventData.IsAsync);
@@ -1546,10 +1547,10 @@ namespace Microsoft.EntityFrameworkCore
                 return Task.FromResult(result);
             }
 
-            public virtual Task<InterceptionResult<object>?> ScalarExecutingAsync(
+            public virtual Task<InterceptionResult<object>> ScalarExecutingAsync(
                 DbCommand command,
                 CommandEventData eventData,
-                InterceptionResult<object>? result,
+                InterceptionResult<object> result,
                 CancellationToken cancellationToken = default)
             {
                 Assert.True(eventData.IsAsync);
@@ -1559,10 +1560,10 @@ namespace Microsoft.EntityFrameworkCore
                 return Task.FromResult(result);
             }
 
-            public virtual Task<InterceptionResult<int>?> NonQueryExecutingAsync(
+            public virtual Task<InterceptionResult<int>> NonQueryExecutingAsync(
                 DbCommand command,
                 CommandEventData eventData,
-                InterceptionResult<int>? result,
+                InterceptionResult<int> result,
                 CancellationToken cancellationToken = default)
             {
                 Assert.True(eventData.IsAsync);
@@ -1668,10 +1669,10 @@ namespace Microsoft.EntityFrameworkCore
                 return Task.CompletedTask;
             }
 
-            public InterceptionResult? DataReaderDisposing(
+            public InterceptionResult DataReaderDisposing(
                 DbCommand command,
                 DataReaderDisposingEventData eventData,
-                InterceptionResult? result)
+                InterceptionResult result)
             {
                 Assert.NotNull(eventData.DataReader);
                 Assert.Same(Context, eventData.Context);
