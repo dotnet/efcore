@@ -200,7 +200,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                     throw new InvalidOperationException();
             }
 
-            var navigationProjection = innerEntityProjection.BindMember(memberExpression.Member, innerExpression.Type, out var propertyBase);
+            var navigationProjection = innerEntityProjection.BindMember(
+                memberExpression.Member, innerExpression.Type, clientEval: true, out var propertyBase);
 
             if (!(propertyBase is INavigation navigation)
                 || !navigation.IsEmbedded())

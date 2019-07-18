@@ -514,19 +514,19 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                 if (concreteEntityType.GetDiscriminatorProperty() != null)
                 {
                     var discriminatorColumn = ((EntityProjectionExpression)selectExpression.GetMappedProjection(new ProjectionMember()))
-                        .BindProperty(concreteEntityType.GetDiscriminatorProperty());
+                        .BindProperty(concreteEntityType.GetDiscriminatorProperty(), clientEval: false);
 
                     selectExpression.ApplyPredicate(
-                        Equal(discriminatorColumn, Constant(concreteEntityType.GetDiscriminatorValue())));
+                        Equal((SqlExpression)discriminatorColumn, Constant(concreteEntityType.GetDiscriminatorValue())));
                 }
             }
             else
             {
                 var discriminatorColumn = ((EntityProjectionExpression)selectExpression.GetMappedProjection(new ProjectionMember()))
-                    .BindProperty(concreteEntityTypes[0].GetDiscriminatorProperty());
+                    .BindProperty(concreteEntityTypes[0].GetDiscriminatorProperty(), clientEval: false);
 
                 selectExpression.ApplyPredicate(
-                    In(discriminatorColumn, Constant(concreteEntityTypes.Select(et => et.GetDiscriminatorValue()).ToList()), negated: false));
+                    In((SqlExpression)discriminatorColumn, Constant(concreteEntityTypes.Select(et => et.GetDiscriminatorValue()).ToList()), negated: false));
             }
         }
     }

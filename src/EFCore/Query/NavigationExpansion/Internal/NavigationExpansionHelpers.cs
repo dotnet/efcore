@@ -234,10 +234,7 @@ namespace Microsoft.EntityFrameworkCore.Query.NavigationExpansion.Internal
                     AnonymousObject.AnonymousObjectCtor,
                     Expression.NewArrayInit(
                         typeof(object),
-                        properties
-                            .Select(p => Expression.Convert(CreatePropertyExpression(target, p, addNullCheck), typeof(object)))
-                            .Cast<Expression>()
-                            .ToArray()));
+                        properties.Select(p => Expression.Convert(CreatePropertyExpression(target, p, addNullCheck), typeof(object)))));
 
         private static Expression CreatePropertyExpression(Expression target, IProperty property, bool addNullCheck)
         {

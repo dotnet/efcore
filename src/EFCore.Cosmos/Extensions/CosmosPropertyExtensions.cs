@@ -1,6 +1,7 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Cosmos.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -20,7 +21,27 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> The property name used when targeting Cosmos. </returns>
         public static string GetCosmosPropertyName([NotNull] this IProperty property) =>
             (string)property[CosmosAnnotationNames.PropertyName]
-            ?? property.Name;
+            ?? GetDefaultPropertyName(property);
+
+        private static string GetDefaultPropertyName(IProperty property)
+        {
+            var entityType = property.DeclaringEntityType;
+            var ownership = entityType.FindOwnership();
+
+            if (ownership != null
+                && !entityType.IsDocumentRoot())
+            {
+                var pk = property.FindContainingPrimaryKey();
+                if (pk != null
+                    && pk.Properties.Count == ownership.Properties.Count + (ownership.IsUnique ? 0 : 1)
+                    && ownership.Properties.All(fkProperty => pk.Properties.Contains(fkProperty)))
+                {
+                    return "";
+                }
+            }
+
+            return property.Name;
+        }
 
         /// <summary>
         ///     Sets the property name used when targeting Cosmos.

@@ -9,12 +9,14 @@ using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Metadata.Conventions.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Query.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
+using Microsoft.EntityFrameworkCore.Cosmos.ValueGeneration.Internal;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
+using Microsoft.EntityFrameworkCore.ValueGeneration;
 
 // ReSharper disable once CheckNamespace
 namespace Microsoft.Extensions.DependencyInjection
@@ -53,6 +55,7 @@ namespace Microsoft.Extensions.DependencyInjection
                 .TryAdd<IDbContextTransactionManager, CosmosTransactionManager>()
                 .TryAdd<IModelValidator, CosmosModelValidator>()
                 .TryAdd<IProviderConventionSetBuilder, CosmosConventionSetBuilder>()
+                .TryAdd<IValueGeneratorSelector, CosmosValueGeneratorSelector>()
                 .TryAdd<IDatabaseCreator, CosmosDatabaseCreator>()
                 .TryAdd<IQueryContextFactory, CosmosQueryContextFactory>()
                 .TryAdd<ITypeMappingSource, CosmosTypeMappingSource>()
