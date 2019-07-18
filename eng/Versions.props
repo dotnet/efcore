@@ -27,27 +27,27 @@
     <MicrosoftDataSqlClientPackageVersion>1.0.19189.1-Preview</MicrosoftDataSqlClientPackageVersion>
   </PropertyGroup>
   <PropertyGroup Label="Dependencies from aspnet/Extensions">
-    <MicrosoftExtensionsCachingMemoryPackageVersion>3.0.0-preview8.19367.7</MicrosoftExtensionsCachingMemoryPackageVersion>
-    <MicrosoftExtensionsConfigurationPackageVersion>3.0.0-preview8.19367.7</MicrosoftExtensionsConfigurationPackageVersion>
-    <MicrosoftExtensionsConfigurationEnvironmentVariablesPackageVersion>3.0.0-preview8.19367.7</MicrosoftExtensionsConfigurationEnvironmentVariablesPackageVersion>
-    <MicrosoftExtensionsConfigurationJsonPackageVersion>3.0.0-preview8.19367.7</MicrosoftExtensionsConfigurationJsonPackageVersion>
-    <MicrosoftExtensionsDependencyInjectionPackageVersion>3.0.0-preview8.19367.7</MicrosoftExtensionsDependencyInjectionPackageVersion>
-    <MicrosoftExtensionsHostFactoryResolverSourcesPackageVersion>3.0.0-preview8.19367.7</MicrosoftExtensionsHostFactoryResolverSourcesPackageVersion>
-    <MicrosoftExtensionsLoggingPackageVersion>3.0.0-preview8.19367.7</MicrosoftExtensionsLoggingPackageVersion>
+    <MicrosoftExtensionsCachingMemoryPackageVersion>3.0.0-preview8.19367.10</MicrosoftExtensionsCachingMemoryPackageVersion>
+    <MicrosoftExtensionsConfigurationPackageVersion>3.0.0-preview8.19367.10</MicrosoftExtensionsConfigurationPackageVersion>
+    <MicrosoftExtensionsConfigurationEnvironmentVariablesPackageVersion>3.0.0-preview8.19367.10</MicrosoftExtensionsConfigurationEnvironmentVariablesPackageVersion>
+    <MicrosoftExtensionsConfigurationJsonPackageVersion>3.0.0-preview8.19367.10</MicrosoftExtensionsConfigurationJsonPackageVersion>
+    <MicrosoftExtensionsDependencyInjectionPackageVersion>3.0.0-preview8.19367.10</MicrosoftExtensionsDependencyInjectionPackageVersion>
+    <MicrosoftExtensionsHostFactoryResolverSourcesPackageVersion>3.0.0-preview8.19367.10</MicrosoftExtensionsHostFactoryResolverSourcesPackageVersion>
+    <MicrosoftExtensionsLoggingPackageVersion>3.0.0-preview8.19367.10</MicrosoftExtensionsLoggingPackageVersion>
   </PropertyGroup>
   <PropertyGroup Label="Dependencies from dotnet/corefx">
-    <MicrosoftCSharpPackageVersion>4.6.0-preview8.19366.12</MicrosoftCSharpPackageVersion>
-    <MicrosoftNETCorePlatformsPackageVersion>3.0.0-preview8.19366.12</MicrosoftNETCorePlatformsPackageVersion>
-    <SystemCollectionsImmutablePackageVersion>1.6.0-preview8.19366.12</SystemCollectionsImmutablePackageVersion>
-    <SystemComponentModelAnnotationsPackageVersion>4.6.0-preview8.19366.12</SystemComponentModelAnnotationsPackageVersion>
-    <SystemDiagnosticsDiagnosticSourcePackageVersion>4.6.0-preview8.19366.12</SystemDiagnosticsDiagnosticSourcePackageVersion>
+    <MicrosoftCSharpPackageVersion>4.6.0-preview8.19367.3</MicrosoftCSharpPackageVersion>
+    <MicrosoftNETCorePlatformsPackageVersion>3.0.0-preview8.19367.3</MicrosoftNETCorePlatformsPackageVersion>
+    <SystemCollectionsImmutablePackageVersion>1.6.0-preview8.19367.3</SystemCollectionsImmutablePackageVersion>
+    <SystemComponentModelAnnotationsPackageVersion>4.6.0-preview8.19367.3</SystemComponentModelAnnotationsPackageVersion>
+    <SystemDiagnosticsDiagnosticSourcePackageVersion>4.6.0-preview8.19367.3</SystemDiagnosticsDiagnosticSourcePackageVersion>
   </PropertyGroup>
   <PropertyGroup Label="Dependencies from dotnet/core-setup">
-    <MicrosoftDotNetPlatformAbstractionsPackageVersion>3.0.0-preview8-27917-01</MicrosoftDotNetPlatformAbstractionsPackageVersion>
-    <MicrosoftExtensionsDependencyModelPackageVersion>3.0.0-preview8-27917-01</MicrosoftExtensionsDependencyModelPackageVersion>
-    <MicrosoftNETCoreAppRefPackageVersion>3.0.0-preview8-27917-01</MicrosoftNETCoreAppRefPackageVersion>
-    <MicrosoftNETCoreAppRuntimewinx64PackageVersion>3.0.0-preview8-27917-01</MicrosoftNETCoreAppRuntimewinx64PackageVersion>
-    <NETStandardLibraryRefPackageVersion>2.1.0-preview8-27917-01</NETStandardLibraryRefPackageVersion>
+    <MicrosoftDotNetPlatformAbstractionsPackageVersion>3.0.0-preview8-27917-12</MicrosoftDotNetPlatformAbstractionsPackageVersion>
+    <MicrosoftExtensionsDependencyModelPackageVersion>3.0.0-preview8-27917-12</MicrosoftExtensionsDependencyModelPackageVersion>
+    <MicrosoftNETCoreAppRefPackageVersion>3.0.0-preview8-27917-12</MicrosoftNETCoreAppRefPackageVersion>
+    <MicrosoftNETCoreAppRuntimewinx64PackageVersion>3.0.0-preview8-27917-12</MicrosoftNETCoreAppRuntimewinx64PackageVersion>
+    <NETStandardLibraryRefPackageVersion>2.1.0-preview8-27917-12</NETStandardLibraryRefPackageVersion>
   </PropertyGroup>
   <PropertyGroup Label="Dependencies from dotnet/roslyn">
     <MicrosoftNetCompilersToolsetVersion>3.3.0-beta2-19366-02</MicrosoftNetCompilersToolsetVersion>
