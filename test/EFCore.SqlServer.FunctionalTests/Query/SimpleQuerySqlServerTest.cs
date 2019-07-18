@@ -3350,7 +3350,7 @@ WHERE [o].[OrderDate] IS NOT NULL");
             await base.Select_expression_date_add_year(isAsync);
 
             AssertSql(
-                @"SELECT CAST(DATEADD(year, CAST(1 AS int), [o].[OrderDate]) AS datetime2) AS [OrderDate]
+                @"SELECT DATEADD(year, CAST(1 AS int), [o].[OrderDate]) AS [OrderDate]
 FROM [Orders] AS [o]
 WHERE [o].[OrderDate] IS NOT NULL");
         }
@@ -3360,7 +3360,7 @@ WHERE [o].[OrderDate] IS NOT NULL");
             await base.Select_expression_datetime_add_month(isAsync);
 
             AssertSql(
-                @"SELECT CAST(DATEADD(month, CAST(1 AS int), [o].[OrderDate]) AS datetime2) AS [OrderDate]
+                @"SELECT DATEADD(month, CAST(1 AS int), [o].[OrderDate]) AS [OrderDate]
 FROM [Orders] AS [o]
 WHERE [o].[OrderDate] IS NOT NULL");
         }
@@ -3370,7 +3370,7 @@ WHERE [o].[OrderDate] IS NOT NULL");
             await base.Select_expression_datetime_add_hour(isAsync);
 
             AssertSql(
-                @"SELECT CAST(DATEADD(hour, CAST(1.0E0 AS int), [o].[OrderDate]) AS datetime2) AS [OrderDate]
+                @"SELECT DATEADD(hour, CAST(1.0E0 AS int), [o].[OrderDate]) AS [OrderDate]
 FROM [Orders] AS [o]
 WHERE [o].[OrderDate] IS NOT NULL");
         }
@@ -3380,7 +3380,7 @@ WHERE [o].[OrderDate] IS NOT NULL");
             await base.Select_expression_datetime_add_minute(isAsync);
 
             AssertSql(
-                @"SELECT CAST(DATEADD(minute, CAST(1.0E0 AS int), [o].[OrderDate]) AS datetime2) AS [OrderDate]
+                @"SELECT DATEADD(minute, CAST(1.0E0 AS int), [o].[OrderDate]) AS [OrderDate]
 FROM [Orders] AS [o]
 WHERE [o].[OrderDate] IS NOT NULL");
         }
@@ -3390,7 +3390,7 @@ WHERE [o].[OrderDate] IS NOT NULL");
             await base.Select_expression_datetime_add_second(isAsync);
 
             AssertSql(
-                @"SELECT CAST(DATEADD(second, CAST(1.0E0 AS int), [o].[OrderDate]) AS datetime2) AS [OrderDate]
+                @"SELECT DATEADD(second, CAST(1.0E0 AS int), [o].[OrderDate]) AS [OrderDate]
 FROM [Orders] AS [o]
 WHERE [o].[OrderDate] IS NOT NULL");
         }
@@ -3422,7 +3422,7 @@ WHERE [o].[OrderDate] IS NOT NULL");
             AssertSql(
                 @"@__millisecondsPerDay_0='86400000'
 
-SELECT CAST(DATEADD(millisecond, CAST(CAST((CAST(DATEPART(millisecond, [o].[OrderDate]) AS bigint) % @__millisecondsPerDay_0) AS float) AS int), DATEADD(day, CAST(CAST((CAST(DATEPART(millisecond, [o].[OrderDate]) AS bigint) / @__millisecondsPerDay_0) AS float) AS int), [o].[OrderDate])) AS datetime2) AS [OrderDate]
+SELECT DATEADD(millisecond, CAST(CAST((CAST(DATEPART(millisecond, [o].[OrderDate]) AS bigint) % @__millisecondsPerDay_0) AS float) AS int), DATEADD(day, CAST(CAST((CAST(DATEPART(millisecond, [o].[OrderDate]) AS bigint) / @__millisecondsPerDay_0) AS float) AS int), [o].[OrderDate])) AS [OrderDate]
 FROM [Orders] AS [o]
 WHERE [o].[OrderDate] IS NOT NULL");
         }
@@ -4875,6 +4875,17 @@ WHERE (
     SELECT COUNT(*)
     FROM [Orders] AS [o]
     WHERE (([c].[CustomerID] = [o].[CustomerID]) AND [o].[CustomerID] IS NOT NULL) AND (([c].[CustomerID] = [o].[CustomerID]) AND [o].[CustomerID] IS NOT NULL)) > 0");
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public override async Task Convert_to_nullable_on_nullable_value_is_ignored(bool isAsync)
+        {
+            await base.Convert_to_nullable_on_nullable_value_is_ignored(isAsync);
+
+            AssertSql(
+                @"SELECT [o].[OrderDate]
+FROM [Orders] AS [o]");
         }
 
         private void AssertSql(params string[] expected)
