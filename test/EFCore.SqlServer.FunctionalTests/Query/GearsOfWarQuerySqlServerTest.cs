@@ -560,7 +560,7 @@ WHERE [g].[Discriminator] IN (N'Gear', N'Officer') AND ((CAST([g].[Rank] AS smal
             AssertSql(
                 @"SELECT [w].[Id], [w].[AmmunitionType], [w].[IsAutomatic], [w].[Name], [w].[OwnerFullName], [w].[SynergyWithId]
 FROM [Weapons] AS [w]
-WHERE CAST(([w].[AmmunitionType] & 1) AS int) > 0");
+WHERE ([w].[AmmunitionType] & 1) > 0");
         }
 
         public override async Task Where_bitwise_and_nullable_enum_with_null_constant(bool isAsync)
@@ -570,7 +570,7 @@ WHERE CAST(([w].[AmmunitionType] & 1) AS int) > 0");
             AssertSql(
                 @"SELECT [w].[Id], [w].[AmmunitionType], [w].[IsAutomatic], [w].[Name], [w].[OwnerFullName], [w].[SynergyWithId]
 FROM [Weapons] AS [w]
-WHERE CAST(([w].[AmmunitionType] & NULL) AS int) > 0");
+WHERE ([w].[AmmunitionType] & NULL) > 0");
         }
 
         public override async Task Where_bitwise_and_nullable_enum_with_non_nullable_parameter(bool isAsync)
@@ -582,7 +582,7 @@ WHERE CAST(([w].[AmmunitionType] & NULL) AS int) > 0");
 
 SELECT [w].[Id], [w].[AmmunitionType], [w].[IsAutomatic], [w].[Name], [w].[OwnerFullName], [w].[SynergyWithId]
 FROM [Weapons] AS [w]
-WHERE CAST(([w].[AmmunitionType] & @__ammunitionType_0) AS int) > 0");
+WHERE ([w].[AmmunitionType] & @__ammunitionType_0) > 0");
         }
 
         public override async Task Where_bitwise_and_nullable_enum_with_nullable_parameter(bool isAsync)
@@ -594,13 +594,13 @@ WHERE CAST(([w].[AmmunitionType] & @__ammunitionType_0) AS int) > 0");
 
 SELECT [w].[Id], [w].[AmmunitionType], [w].[IsAutomatic], [w].[Name], [w].[OwnerFullName], [w].[SynergyWithId]
 FROM [Weapons] AS [w]
-WHERE CAST(([w].[AmmunitionType] & @__ammunitionType_0) AS int) > 0",
+WHERE ([w].[AmmunitionType] & @__ammunitionType_0) > 0",
                 //
                 @"@__ammunitionType_0='' (DbType = Int32)
 
 SELECT [w].[Id], [w].[AmmunitionType], [w].[IsAutomatic], [w].[Name], [w].[OwnerFullName], [w].[SynergyWithId]
 FROM [Weapons] AS [w]
-WHERE CAST(([w].[AmmunitionType] & @__ammunitionType_0) AS int) > 0");
+WHERE ([w].[AmmunitionType] & @__ammunitionType_0) > 0");
         }
 
         public override async Task Where_bitwise_or_enum(bool isAsync)
@@ -2548,13 +2548,12 @@ LEFT JOIN (
     FROM [Gears] AS [g]
     WHERE [g].[Discriminator] IN (N'Gear', N'Officer')
 ) AS [t0] ON (([t].[GearNickName] = [t0].[Nickname]) AND [t].[GearNickName] IS NOT NULL) AND (([t].[GearSquadId] = [t0].[SquadId]) AND [t].[GearSquadId] IS NOT NULL)
-WHERE CAST([t0].[HasSoulPatch] AS bit) = CAST(1 AS bit)");
+WHERE [t0].[HasSoulPatch] = CAST(1 AS bit)");
         }
 
         public override async Task Optional_navigation_type_compensation_works_with_predicate_negated(bool isAsync)
         {
             await base.Optional_navigation_type_compensation_works_with_predicate_negated(isAsync);
-
 
             AssertSql(
                 @"SELECT [t].[Id], [t].[GearNickName], [t].[GearSquadId], [t].[Note]
@@ -2564,7 +2563,7 @@ LEFT JOIN (
     FROM [Gears] AS [g]
     WHERE [g].[Discriminator] IN (N'Gear', N'Officer')
 ) AS [t0] ON (([t].[GearNickName] = [t0].[Nickname]) AND [t].[GearNickName] IS NOT NULL) AND (([t].[GearSquadId] = [t0].[SquadId]) AND [t].[GearSquadId] IS NOT NULL)
-WHERE CAST([t0].[HasSoulPatch] AS bit) <> CAST(1 AS bit)");
+WHERE [t0].[HasSoulPatch] <> CAST(1 AS bit)");
         }
 
         public override async Task Optional_navigation_type_compensation_works_with_predicate_negated_complex1(bool isAsync)
@@ -2596,7 +2595,7 @@ LEFT JOIN (
     WHERE [g].[Discriminator] IN (N'Gear', N'Officer')
 ) AS [t0] ON (([t].[GearNickName] = [t0].[Nickname]) AND [t].[GearNickName] IS NOT NULL) AND (([t].[GearSquadId] = [t0].[SquadId]) AND [t].[GearSquadId] IS NOT NULL)
 WHERE CASE
-    WHEN CAST([t0].[HasSoulPatch] AS bit) = CAST(1 AS bit) THEN CAST(1 AS bit)
+    WHEN [t0].[HasSoulPatch] = CAST(1 AS bit) THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
 END = CAST(1 AS bit)");
         }
@@ -2638,7 +2637,7 @@ LEFT JOIN (
             await base.Optional_navigation_type_compensation_works_with_projection(isAsync);
 
             AssertSql(
-                @"SELECT CAST([t].[SquadId] AS int)
+                @"SELECT [t].[SquadId]
 FROM [Tags] AS [t0]
 LEFT JOIN (
     SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOrBirthName], [g].[Discriminator], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank]
@@ -2653,7 +2652,7 @@ WHERE ([t0].[Note] <> N'K.I.A.') OR [t0].[Note] IS NULL");
             await base.Optional_navigation_type_compensation_works_with_projection_into_anonymous_type(isAsync);
 
             AssertSql(
-                @"SELECT CAST([t].[SquadId] AS int) AS [SquadId]
+                @"SELECT [t].[SquadId]
 FROM [Tags] AS [t0]
 LEFT JOIN (
     SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOrBirthName], [g].[Discriminator], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank]
@@ -2668,7 +2667,7 @@ WHERE ([t0].[Note] <> N'K.I.A.') OR [t0].[Note] IS NULL");
             await base.Optional_navigation_type_compensation_works_with_DTOs(isAsync);
 
             AssertSql(
-                @"SELECT CAST([t].[SquadId] AS int) AS [Id]
+                @"SELECT [t].[SquadId] AS [Id]
 FROM [Tags] AS [t0]
 LEFT JOIN (
     SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOrBirthName], [g].[Discriminator], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank]
@@ -2683,7 +2682,7 @@ WHERE ([t0].[Note] <> N'K.I.A.') OR [t0].[Note] IS NULL");
             await base.Optional_navigation_type_compensation_works_with_list_initializers(isAsync);
 
             AssertSql(
-                @"SELECT CAST([t].[SquadId] AS int), [t].[SquadId] + 1
+                @"SELECT [t].[SquadId], [t].[SquadId] + 1
 FROM [Tags] AS [t0]
 LEFT JOIN (
     SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOrBirthName], [g].[Discriminator], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank]
@@ -2699,7 +2698,7 @@ ORDER BY [t0].[Note]");
             await base.Optional_navigation_type_compensation_works_with_array_initializers(isAsync);
 
             AssertSql(
-                @"SELECT CAST([t].[SquadId] AS int)
+                @"SELECT [t].[SquadId]
 FROM [Tags] AS [t0]
 LEFT JOIN (
     SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOrBirthName], [g].[Discriminator], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank]
@@ -2722,7 +2721,7 @@ LEFT JOIN (
     WHERE [g].[Discriminator] IN (N'Gear', N'Officer')
 ) AS [t0] ON (([t].[GearNickName] = [t0].[Nickname]) AND [t].[GearNickName] IS NOT NULL) AND (([t].[GearSquadId] = [t0].[SquadId]) AND [t].[GearSquadId] IS NOT NULL)
 WHERE ([t].[Note] <> N'K.I.A.') OR [t].[Note] IS NULL
-ORDER BY CAST([t0].[SquadId] AS int)");
+ORDER BY [t0].[SquadId]");
         }
 
         public override async Task Optional_navigation_type_compensation_works_with_groupby(bool isAsync)
@@ -2755,7 +2754,7 @@ ORDER BY [t0].[SquadId]");
             FROM [Gears] AS [g]
             WHERE [g].[Discriminator] IN (N'Gear', N'Officer')
         ) AS [t0] ON (([t].[GearNickName] = [t0].[Nickname]) AND [t].[GearNickName] IS NOT NULL) AND (([t].[GearSquadId] = [t0].[SquadId]) AND [t].[GearSquadId] IS NOT NULL)
-        WHERE (([t].[Note] <> N'K.I.A.') OR [t].[Note] IS NULL) AND (CAST([t0].[HasSoulPatch] AS bit) <> CAST(1 AS bit))) THEN CAST(1 AS bit)
+        WHERE (([t].[Note] <> N'K.I.A.') OR [t].[Note] IS NULL) AND ([t0].[HasSoulPatch] <> CAST(1 AS bit))) THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
 END");
         }
@@ -2772,7 +2771,7 @@ LEFT JOIN (
     FROM [Gears] AS [g]
     WHERE [g].[Discriminator] IN (N'Gear', N'Officer')
 ) AS [t0] ON (([t].[GearNickName] = [t0].[Nickname]) AND [t].[GearNickName] IS NOT NULL) AND (([t].[GearSquadId] = [t0].[SquadId]) AND [t].[GearSquadId] IS NOT NULL)
-WHERE (([t].[Note] <> N'K.I.A.') OR [t].[Note] IS NULL) AND (CAST([t0].[HasSoulPatch] AS bit) <> CAST(1 AS bit))");
+WHERE (([t].[Note] <> N'K.I.A.') OR [t].[Note] IS NULL) AND ([t0].[HasSoulPatch] <> CAST(1 AS bit))");
         }
 
         public override async Task Optional_navigation_type_compensation_works_with_contains(bool isAsync)
@@ -2787,7 +2786,7 @@ LEFT JOIN (
     FROM [Gears] AS [g]
     WHERE [g].[Discriminator] IN (N'Gear', N'Officer')
 ) AS [t0] ON (([t].[GearNickName] = [t0].[Nickname]) AND [t].[GearNickName] IS NOT NULL) AND (([t].[GearSquadId] = [t0].[SquadId]) AND [t].[GearSquadId] IS NOT NULL)
-WHERE (([t].[Note] <> N'K.I.A.') OR [t].[Note] IS NULL) AND CAST([t0].[SquadId] AS int) IN (
+WHERE (([t].[Note] <> N'K.I.A.') OR [t].[Note] IS NULL) AND [t0].[SquadId] IN (
     SELECT [g0].[SquadId]
     FROM [Gears] AS [g0]
     WHERE [g0].[Discriminator] IN (N'Gear', N'Officer')
@@ -3261,7 +3260,7 @@ LEFT JOIN (
     FROM [Gears] AS [g]
     WHERE [g].[Discriminator] IN (N'Gear', N'Officer')
 ) AS [t] ON [w].[OwnerFullName] = [t].[FullName]
-WHERE ([w].[Id] <> 50) AND (CAST([t].[HasSoulPatch] AS bit) <> CAST(1 AS bit))");
+WHERE ([w].[Id] <> 50) AND ([t].[HasSoulPatch] <> CAST(1 AS bit))");
         }
 
         public override async Task Distinct_with_optional_navigation_is_translated_to_sql(bool isAsync)
@@ -3876,7 +3875,7 @@ ORDER BY [f].[Name]");
             base.Navigation_access_via_EFProperty_on_derived_entity_using_cast();
 
             AssertSql(
-                @"SELECT [f].[Name], CAST([t].[ThreatLevel] AS smallint) AS [Threat]
+                @"SELECT [f].[Name], [t].[ThreatLevel] AS [Threat]
 FROM [Factions] AS [f]
 LEFT JOIN (
     SELECT [l].[Name], [l].[Discriminator], [l].[LocustHordeId], [l].[ThreatLevel], [l].[DefeatedByNickname], [l].[DefeatedBySquadId], [l].[HighCommandId]
@@ -4639,7 +4638,7 @@ ORDER BY [g].[Nickname], [g].[SquadId], [t].[Nickname], [t].[SquadId], [t].[Id],
 
             AssertSql(
                 @"SELECT CASE
-    WHEN [t].[Nickname] IS NOT NULL THEN CAST([t].[HasSoulPatch] AS bit)
+    WHEN [t].[Nickname] IS NOT NULL THEN [t].[HasSoulPatch]
     ELSE CAST(0 AS bit)
 END AS [Prop]
 FROM [Tags] AS [t0]
@@ -6163,7 +6162,7 @@ WHERE [g0].[Discriminator] IN (N'Officer', N'Gear')");
             AssertSql(
                 @"SELECT CASE
     WHEN CASE
-        WHEN CAST([t].[HasSoulPatch] AS bit) = CAST(1 AS bit) THEN CAST(1 AS bit)
+        WHEN [t].[HasSoulPatch] = CAST(1 AS bit) THEN CAST(1 AS bit)
         ELSE COALESCE([t].[HasSoulPatch], CAST(1 AS bit))
     END <> CAST(1 AS bit) THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)

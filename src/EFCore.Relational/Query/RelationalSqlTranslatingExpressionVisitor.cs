@@ -537,7 +537,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     // Object convert needs to be converted to explicit cast when mismatching types
                     if (operand.Type.IsInterface
                             && unaryExpression.Type.GetInterfaces().Any(e => e == operand.Type)
-                        || unaryExpression.Type.UnwrapNullableType() == operand.Type
+                        || unaryExpression.Type.UnwrapNullableType() == operand.Type.UnwrapNullableType()
                         || unaryExpression.Type.UnwrapNullableType() == typeof(Enum))
                     {
                         return sqlOperand;

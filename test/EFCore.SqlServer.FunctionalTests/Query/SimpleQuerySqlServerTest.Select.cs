@@ -465,7 +465,7 @@ ORDER BY [o].[OrderID]");
             await base.Select_non_matching_value_types_nullable_int_to_int_doesnt_introduce_explicit_cast(isAsync);
 
             AssertSql(
-                @"SELECT CAST([o].[EmployeeID] AS bigint)
+                @"SELECT [o].[EmployeeID]
 FROM [Orders] AS [o]
 WHERE ([o].[CustomerID] = N'ALFKI') AND [o].[CustomerID] IS NOT NULL
 ORDER BY [o].[OrderID]");
