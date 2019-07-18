@@ -121,7 +121,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         private void Append([NotNull] string message) => _stringBuilder.Append(message);
 
-        private void AppendLine([NotNull] string message = "")
+        private void AppendLine([NotNull] string message)
         {
             if (RemoveFormatting)
             {
@@ -467,7 +467,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             foreach (var parameter in lambdaExpression.Parameters)
             {
-                var parameterName = parameter.Name ?? parameter.ToString();
+                var parameterName = parameter.Name;
 
                 if (!_parametersInScope.ContainsKey(parameter))
                 {
@@ -478,7 +478,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                 if (parameter != lambdaExpression.Parameters.Last())
                 {
-                    _stringBuilder.Append(" | ");
+                    _stringBuilder.Append(", ");
                 }
             }
 

@@ -5,6 +5,7 @@ using System;
 using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -86,7 +87,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             return inputType == typeof(float)
                 ? _sqlExpressionFactory.Convert(
                         _sqlExpressionFactory.Function(
-                            "AVG", new[] { sqlExpression }, typeof(double), null),
+                            "AVG", new[] { sqlExpression }, typeof(double)),
                         sqlExpression.Type,
                         sqlExpression.TypeMapping)
                 : (SqlExpression)_sqlExpressionFactory.Function(

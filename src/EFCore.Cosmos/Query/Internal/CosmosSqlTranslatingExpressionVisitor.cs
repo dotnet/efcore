@@ -105,9 +105,9 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
             if (source is EntityProjectionExpression entityProjectionExpression)
             {
                 expression = member.MemberInfo != null
-                    ? entityProjectionExpression.BindMember(member.MemberInfo, null, out _)
-                    : entityProjectionExpression.BindMember(member.Name, null, out _);
-                return true;
+                    ? entityProjectionExpression.BindMember(member.MemberInfo, null, clientEval: false, out _)
+                    : entityProjectionExpression.BindMember(member.Name, null, clientEval: false, out _);
+                return expression != null;
             }
 
             if (source is MemberExpression innerMemberExpression
