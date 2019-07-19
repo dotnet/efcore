@@ -18,7 +18,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         {
         }
 
-        protected override void Generate(DropIndexOperation operation, IModel model, MigrationCommandListBuilder builder)
+        protected override void Generate(DropIndexOperation operation, IModel model, MigrationCommandListBuilder builder, bool terminate = true)
         {
         }
 

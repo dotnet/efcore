@@ -312,13 +312,18 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         }
 
         /// <summary>
-        ///     Builds commands for the given <see cref="CreateTableOperation" />
-        ///     by making calls on the given <see cref="MigrationCommandListBuilder" />.
+        ///     Builds commands for the given <see cref="CreateTableOperation" /> by making calls on the given
+        ///     <see cref="MigrationCommandListBuilder" />.
         /// </summary>
         /// <param name="operation"> The operation. </param>
         /// <param name="model"> The target model which may be <c>null</c> if the operations exist without a model. </param>
         /// <param name="builder"> The command builder to use to build the commands. </param>
-        protected override void Generate(CreateTableOperation operation, IModel model, MigrationCommandListBuilder builder)
+        /// <param name="terminate"> Indicates whether or not to terminate the command after generating SQL for the operation. </param>
+        protected override void Generate(
+            CreateTableOperation operation,
+            IModel model,
+            MigrationCommandListBuilder builder,
+            bool terminate = true)
         {
             Check.NotNull(operation, nameof(operation));
             Check.NotNull(builder, nameof(builder));
@@ -340,7 +345,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 }
             }
 
-            base.Generate(operation, model, builder);
+            base.Generate(operation, model, builder, terminate);
         }
 
         /// <summary>
@@ -394,7 +399,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <param name="operation"> The operation. </param>
         /// <param name="model"> The target model which may be <c>null</c> if the operations exist without a model. </param>
         /// <param name="builder"> The command builder to use to build the commands. </param>
-        protected override void Generate(AddForeignKeyOperation operation, IModel model, MigrationCommandListBuilder builder)
+        /// <param name="terminate"> Indicates whether or not to terminate the command after generating SQL for the operation. </param>
+        protected override void Generate(AddForeignKeyOperation operation, IModel model, MigrationCommandListBuilder builder, bool terminate = true)
             => throw new NotSupportedException(
                 SqliteStrings.InvalidMigrationOperation(operation.GetType().ShortDisplayName()));
 
@@ -405,7 +411,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <param name="operation"> The operation. </param>
         /// <param name="model"> The target model which may be <c>null</c> if the operations exist without a model. </param>
         /// <param name="builder"> The command builder to use to build the commands. </param>
-        protected override void Generate(AddPrimaryKeyOperation operation, IModel model, MigrationCommandListBuilder builder)
+        /// <param name="terminate"> Indicates whether or not to terminate the command after generating SQL for the operation. </param>
+        protected override void Generate(AddPrimaryKeyOperation operation, IModel model, MigrationCommandListBuilder builder, bool terminate = true)
             => throw new NotSupportedException(
                 SqliteStrings.InvalidMigrationOperation(operation.GetType().ShortDisplayName()));
 
@@ -438,7 +445,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <param name="operation"> The operation. </param>
         /// <param name="model"> The target model which may be <c>null</c> if the operations exist without a model. </param>
         /// <param name="builder"> The command builder to use to build the commands. </param>
-        protected override void Generate(DropColumnOperation operation, IModel model, MigrationCommandListBuilder builder)
+        /// <param name="terminate"> Indicates whether or not to terminate the command after generating SQL for the operation. </param>
+        protected override void Generate(DropColumnOperation operation, IModel model, MigrationCommandListBuilder builder, bool terminate = true)
             => throw new NotSupportedException(
                 SqliteStrings.InvalidMigrationOperation(operation.GetType().ShortDisplayName()));
 
@@ -449,7 +457,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <param name="operation"> The operation. </param>
         /// <param name="model"> The target model which may be <c>null</c> if the operations exist without a model. </param>
         /// <param name="builder"> The command builder to use to build the commands. </param>
-        protected override void Generate(DropForeignKeyOperation operation, IModel model, MigrationCommandListBuilder builder)
+        /// <param name="terminate"> Indicates whether or not to terminate the command after generating SQL for the operation. </param>
+        protected override void Generate(DropForeignKeyOperation operation, IModel model, MigrationCommandListBuilder builder, bool terminate = true)
             => throw new NotSupportedException(
                 SqliteStrings.InvalidMigrationOperation(operation.GetType().ShortDisplayName()));
 
@@ -460,7 +469,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <param name="operation"> The operation. </param>
         /// <param name="model"> The target model which may be <c>null</c> if the operations exist without a model. </param>
         /// <param name="builder"> The command builder to use to build the commands. </param>
-        protected override void Generate(DropPrimaryKeyOperation operation, IModel model, MigrationCommandListBuilder builder)
+        /// <param name="terminate"> Indicates whether or not to terminate the command after generating SQL for the operation. </param>
+        protected override void Generate(DropPrimaryKeyOperation operation, IModel model, MigrationCommandListBuilder builder, bool terminate = true)
             => throw new NotSupportedException(
                 SqliteStrings.InvalidMigrationOperation(operation.GetType().ShortDisplayName()));
 
