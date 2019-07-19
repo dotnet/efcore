@@ -713,7 +713,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual EntityType ResolveOtherEntityType([NotNull] EntityType entityType)
-            => (EntityType)((IForeignKey)this).ResolveOtherEntityType(entityType);
+            => (EntityType)((IForeignKey)this).GetRelatedEntityType(entityType);
 
         // Note: This is set and used only by IdentityMapFactoryFactory, which ensures thread-safety
         /// <summary>

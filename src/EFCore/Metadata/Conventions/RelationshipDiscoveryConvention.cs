@@ -406,7 +406,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         {
             var fk = existingNavigation.ForeignKey;
             return (fk.IsSelfReferencing()
-                    || fk.ResolveOtherEntityType(existingNavigation.DeclaringEntityType) == inverseEntityTypeBuilder.Metadata)
+                    || fk.GetRelatedEntityType(existingNavigation.DeclaringEntityType) == inverseEntityTypeBuilder.Metadata)
                    && fk.Builder.CanSetNavigation(inverse, !existingNavigation.IsDependentToPrincipal());
         }
 

@@ -223,10 +223,10 @@ namespace Microsoft.EntityFrameworkCore
         ///     Indicates whether the given entity type name is ignored.
         /// </summary>
         /// <param name="model"> The model to check for ignored type. </param>
-        /// <param name="name"> The name of the entity type that could be ignored. </param>
+        /// <param name="typeName"> The name of the entity type that could be ignored. </param>
         /// <returns> <c>true</c> if the given entity type name is ignored. </returns>
-        public static bool IsIgnored([NotNull] this IConventionModel model, [NotNull] string name)
-            => model.FindIgnoredConfigurationSource(name) != null;
+        public static bool IsIgnored([NotNull] this IConventionModel model, [NotNull] string typeName)
+            => model.FindIgnoredConfigurationSource(typeName) != null;
 
         /// <summary>
         ///     Indicates whether the given entity type is ignored.

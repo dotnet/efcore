@@ -18,10 +18,10 @@ namespace Microsoft.EntityFrameworkCore
         ///     Indicates whether the given member name is ignored.
         /// </summary>
         /// <param name="entityType"> The type to check the ignored member. </param>
-        /// <param name="name"> The name of the member that might be ignored. </param>
+        /// <param name="memberName"> The name of the member that might be ignored. </param>
         /// <returns> <c>true</c> if the given member name is ignored. </returns>
-        public static bool IsIgnored([NotNull] this IConventionTypeBase entityType, [NotNull] string name)
-            => entityType.FindIgnoredConfigurationSource(name) != null;
+        public static bool IsIgnored([NotNull] this IConventionTypeBase entityType, [NotNull] string memberName)
+            => entityType.FindIgnoredConfigurationSource(memberName) != null;
 
         /// <summary>
         ///     <para>

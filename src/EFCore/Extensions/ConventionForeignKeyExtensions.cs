@@ -18,9 +18,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="foreignKey"> The foreign key. </param>
         /// <param name="entityType"> One of the entity types related by the foreign key. </param>
         /// <returns> The entity type related to the given one. </returns>
-        public static IConventionEntityType ResolveOtherEntityType(
+        public static IConventionEntityType GetRelatedEntityType(
             [NotNull] this IConventionForeignKey foreignKey, [NotNull] IConventionEntityType entityType)
-            => (IConventionEntityType)((IForeignKey)foreignKey).ResolveOtherEntityType(entityType);
+            => (IConventionEntityType)((IForeignKey)foreignKey).GetRelatedEntityType(entityType);
 
         /// <summary>
         ///     Returns a navigation associated with this foreign key.

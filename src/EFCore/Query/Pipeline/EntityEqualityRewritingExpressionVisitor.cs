@@ -14,7 +14,6 @@ using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Query.Expressions.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Query.NavigationExpansion;
-using Microsoft.EntityFrameworkCore.Query.NavigationExpansion.Visitors;
 
 namespace Microsoft.EntityFrameworkCore.Query.Pipeline
 {
@@ -768,7 +767,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Pipeline
                    : null);
 
         protected static Expression Unwrap(Expression expression)
-            => expression switch {
+            => expression switch
+            {
                 EntityReferenceExpression wrapper => wrapper.Underlying,
                 LambdaExpression lambda when lambda.Body is EntityReferenceExpression wrapper =>
                     Expression.Lambda(
@@ -777,9 +777,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Pipeline
                         lambda.TailCall,
                         lambda.Parameters),
                 _ => expression
-                };
+            };
 
-        public class EntityReferenceExpression : Expression
+        protected class EntityReferenceExpression : Expression
         {
             public override ExpressionType NodeType => ExpressionType.Extension;
 
@@ -900,7 +900,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Pipeline
                 }
             }
 
-            public override string ToString() => $"{Underlying}[{(IsEntityType ? EntityType.ShortName(): "AnonymousObject")}{(SubqueryTraversed ? ", Subquery" : "")}]";
+            public override string ToString() => $"{Underlying}[{(IsEntityType ? EntityType.ShortName() : "AnonymousObject")}{(SubqueryTraversed ? ", Subquery" : "")}]";
         }
     }
 }
