@@ -5989,14 +5989,5 @@ namespace Microsoft.EntityFrameworkCore.Query
                 cs => cs.Where(c => c.Orders.Where(o => c == new Customer { CustomerID = o.CustomerID }).Count() > 0),
                 entryCount: 89);
         }
-
-        [ConditionalTheory]
-        [MemberData(nameof(IsAsyncData))]
-        public virtual Task Convert_to_nullable_on_nullable_value_is_ignored(bool isAsync)
-        {
-            return AssertQuery<Order>(
-                isAsync,
-                os => os.Select(o => new Order { OrderDate = o.OrderDate.Value }));
-        }
     }
 }
