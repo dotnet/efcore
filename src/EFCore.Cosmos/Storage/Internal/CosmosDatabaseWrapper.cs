@@ -8,11 +8,11 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
-using Microsoft.EntityFrameworkCore.Cosmos.Metadata.Conventions;
 using Microsoft.EntityFrameworkCore.Cosmos.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Update.Internal;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Update;
 using Microsoft.Extensions.DependencyInjection;
@@ -42,6 +42,12 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
         private readonly CosmosClientWrapper _cosmosClient;
         private readonly bool _sensitiveLoggingEnabled;
 
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         public CosmosDatabaseWrapper(
             DatabaseDependencies dependencies,
             CosmosClientWrapper cosmosClient,
@@ -56,6 +62,12 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
             }
         }
 
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         public override int SaveChanges(IList<IUpdateEntry> entries)
         {
             var rowsAffected = 0;
@@ -102,6 +114,12 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
             return rowsAffected;
         }
 
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         public override async Task<int> SaveChangesAsync(
             IList<IUpdateEntry> entries, CancellationToken cancellationToken = default)
         {
@@ -257,7 +275,13 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
             }
         }
 
-        public DocumentSource GetDocumentSource(IEntityType entityType)
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual DocumentSource GetDocumentSource(IEntityType entityType)
         {
             if (!_documentCollections.TryGetValue(entityType, out var documentSource))
             {

@@ -6,13 +6,19 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using Microsoft.EntityFrameworkCore.Cosmos.Metadata.Conventions;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Microsoft.EntityFrameworkCore.Query.Pipeline;
 using Newtonsoft.Json.Linq;
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
 {
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
     public static class ValueBufferFactoryFactory
     {
         private static readonly ParameterExpression _jObjectParameter = Expression.Parameter(typeof(JObject), "jObject");
@@ -30,6 +36,12 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
             = typeof(ValueBufferFactoryFactory).GetTypeInfo().GetRuntimeMethods()
                 .Single(mi => mi.Name == nameof(IsNull));
 
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         public static Expression<Func<JObject, object[]>> Create(List<IProperty> usedProperties)
             => Expression.Lambda<Func<JObject, object[]>>(
                 Expression.NewArrayInit(
@@ -72,6 +84,12 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
             return valueExpression;
         }
 
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         public static Expression CreateGetStoreValueExpression(Expression jObjectExpression, IProperty property, string storeName)
         {
             Expression valueExpression = Expression.Call(

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 using Xunit;
 
-namespace Microsoft.EntityFrameworkCore.Cosmos.Query
+namespace Microsoft.EntityFrameworkCore.Query
 {
     public partial class SimpleQueryCosmosTest
     {

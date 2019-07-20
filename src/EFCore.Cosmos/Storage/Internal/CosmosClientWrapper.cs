@@ -12,6 +12,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.Azure.Cosmos;
+using Microsoft.EntityFrameworkCore.Cosmos.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.Internal;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
@@ -39,7 +40,20 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
     /// </summary>
     public class CosmosClientWrapper
     {
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         public static readonly JsonSerializer Serializer = new JsonSerializer();
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         public static readonly string DefaultPartitionKey = "__partitionKey";
 
         private readonly SingletonCosmosClientWrapper _singletonWrapper;
@@ -53,6 +67,12 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
             Serializer.DateFormatHandling = DateFormatHandling.IsoDateFormat;
         }
 
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         public CosmosClientWrapper(
             [NotNull] SingletonCosmosClientWrapper singletonWrapper,
             [NotNull] IDbContextOptions dbContextOptions,
@@ -69,21 +89,45 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
 
         private CosmosClient Client => _singletonWrapper.Client;
 
-        public bool CreateDatabaseIfNotExists()
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual bool CreateDatabaseIfNotExists()
             => _executionStrategyFactory.Create().Execute(
                 (object)null, CreateDatabaseIfNotExistsOnce, null);
 
-        public bool CreateDatabaseIfNotExistsOnce(
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual bool CreateDatabaseIfNotExistsOnce(
             DbContext context,
             object state)
             => CreateDatabaseIfNotExistsOnceAsync(context, state).GetAwaiter().GetResult();
 
-        public Task<bool> CreateDatabaseIfNotExistsAsync(
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual Task<bool> CreateDatabaseIfNotExistsAsync(
             CancellationToken cancellationToken = default)
             => _executionStrategyFactory.Create().ExecuteAsync(
                 (object)null, CreateDatabaseIfNotExistsOnceAsync, null, cancellationToken);
 
-        public async Task<bool> CreateDatabaseIfNotExistsOnceAsync(
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual async Task<bool> CreateDatabaseIfNotExistsOnceAsync(
             DbContext _,
             object __,
             CancellationToken cancellationToken = default)
@@ -94,20 +138,44 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
             return response.StatusCode == HttpStatusCode.Created;
         }
 
-        public bool DeleteDatabase()
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual bool DeleteDatabase()
             => _executionStrategyFactory.Create().Execute((object)null, DeleteDatabaseOnce, null);
 
-        public bool DeleteDatabaseOnce(
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual bool DeleteDatabaseOnce(
             DbContext context,
             object state)
             => DeleteDatabaseOnceAsync(context, state).GetAwaiter().GetResult();
 
-        public Task<bool> DeleteDatabaseAsync(
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual Task<bool> DeleteDatabaseAsync(
             CancellationToken cancellationToken = default)
             => _executionStrategyFactory.Create().ExecuteAsync(
                 (object)null, DeleteDatabaseOnceAsync, null, cancellationToken);
 
-        public async Task<bool> DeleteDatabaseOnceAsync(
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual async Task<bool> DeleteDatabaseOnceAsync(
             DbContext _,
             object __,
             CancellationToken cancellationToken = default)
@@ -118,7 +186,13 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
             return response.StatusCode == HttpStatusCode.NoContent;
         }
 
-        public bool CreateContainerIfNotExists(
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual bool CreateContainerIfNotExists(
             string containerId,
             string partitionKey)
             => _executionStrategyFactory.Create().Execute(
@@ -129,7 +203,13 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
             (string ContainerId, string PartitionKey) parameters)
             => CreateContainerIfNotExistsOnceAsync(context, parameters).GetAwaiter().GetResult();
 
-        public Task<bool> CreateContainerIfNotExistsAsync(
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual Task<bool> CreateContainerIfNotExistsAsync(
             string containerId,
             string partitionKey,
             CancellationToken cancellationToken = default)
@@ -151,7 +231,13 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
             return response.StatusCode == HttpStatusCode.Created;
         }
 
-        public bool CreateItem(
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual bool CreateItem(
             string containerId,
             JToken document,
             string partitionKey)
@@ -163,7 +249,13 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
             (string ContainerId, JToken Document, string PartitionKey) parameters)
             => CreateItemOnceAsync(context, parameters).GetAwaiter().GetResult();
 
-        public Task<bool> CreateItemAsync(
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual Task<bool> CreateItemAsync(
             string containerId,
             JToken document,
             string partitionKey,
@@ -192,7 +284,13 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
             }
         }
 
-        public bool ReplaceItem(
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual bool ReplaceItem(
             string collectionId,
             string documentId,
             JObject document,
@@ -205,7 +303,13 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
             (string ContainerId, string ItemId, JObject Document, string PartitionKey) parameters)
             => ReplaceItemOnceAsync(context, parameters).GetAwaiter().GetResult();
 
-        public Task<bool> ReplaceItemAsync(
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual Task<bool> ReplaceItemAsync(
             string collectionId,
             string documentId,
             JObject document,
@@ -236,19 +340,37 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
             }
         }
 
-        public bool DeleteItem(
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual bool DeleteItem(
             string containerId,
             string documentId,
             string partitionKey)
             => _executionStrategyFactory.Create().Execute(
                 (containerId, documentId, partitionKey), DeleteItemOnce, null);
 
-        public bool DeleteItemOnce(
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual bool DeleteItemOnce(
             DbContext context,
             (string ContainerId, string DocumentId, string PartitionKey) parameters)
             => DeleteItemOnceAsync(context, parameters).GetAwaiter().GetResult();
 
-        public Task<bool> DeleteItemAsync(
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual Task<bool> DeleteItemAsync(
             string containerId,
             string documentId,
             string partitionKey,
@@ -256,7 +378,13 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
             => _executionStrategyFactory.Create().ExecuteAsync(
                 (containerId, documentId, partitionKey), DeleteItemOnceAsync, null, cancellationToken);
 
-        public async Task<bool> DeleteItemOnceAsync(
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual async Task<bool> DeleteItemOnceAsync(
             DbContext _,
             (string ContainerId, string DocumentId, string PartitionKey) parameters,
             CancellationToken cancellationToken = default)
@@ -274,7 +402,13 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
                     ? PartitionKey.None
                     : new PartitionKey(partitionKey);
 
-        public IEnumerable<JObject> ExecuteSqlQuery(
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual IEnumerable<JObject> ExecuteSqlQuery(
             string containerId,
             [NotNull] CosmosSqlQuery query)
         {
@@ -283,7 +417,13 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
             return new DocumentEnumerable(this, containerId, query);
         }
 
-        public IAsyncEnumerable<JObject> ExecuteSqlQueryAsync(
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual IAsyncEnumerable<JObject> ExecuteSqlQueryAsync(
             string containerId,
             [NotNull] CosmosSqlQuery query)
         {

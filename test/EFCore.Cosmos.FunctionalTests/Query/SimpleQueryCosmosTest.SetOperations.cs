@@ -4,7 +4,7 @@
 using System.Threading.Tasks;
 using Xunit;
 
-namespace Microsoft.EntityFrameworkCore.Cosmos.Query
+namespace Microsoft.EntityFrameworkCore.Query
 {
     public partial class SimpleQueryCosmosTest
     {

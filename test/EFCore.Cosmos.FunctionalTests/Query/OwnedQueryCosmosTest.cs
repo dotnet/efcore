@@ -3,14 +3,13 @@
 
 using System;
 using Microsoft.EntityFrameworkCore.Cosmos.TestUtilities;
-using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace Microsoft.EntityFrameworkCore.Cosmos.Query
+namespace Microsoft.EntityFrameworkCore.Query
 {
     public class OwnedQueryCosmosTest : OwnedQueryTestBase<OwnedQueryCosmosTest.OwnedQueryCosmosFixture>
     {

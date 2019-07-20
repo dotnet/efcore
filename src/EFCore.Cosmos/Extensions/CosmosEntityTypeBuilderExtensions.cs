@@ -31,7 +31,7 @@ namespace Microsoft.EntityFrameworkCore
             Check.NotNull(entityTypeBuilder, nameof(entityTypeBuilder));
             Check.NullButNotEmpty(name, nameof(name));
 
-            entityTypeBuilder.Metadata.SetCosmosContainerName(name);
+            entityTypeBuilder.Metadata.SetCosmosContainer(name);
 
             return entityTypeBuilder;
         }
@@ -69,7 +69,7 @@ namespace Microsoft.EntityFrameworkCore
                 return null;
             }
 
-            entityTypeBuilder.Metadata.SetCosmosContainerName(name, fromDataAnnotation);
+            entityTypeBuilder.Metadata.SetCosmosContainer(name, fromDataAnnotation);
 
             return entityTypeBuilder;
         }

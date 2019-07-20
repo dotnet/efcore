@@ -3,35 +3,65 @@
 
 using System.Collections;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
-using Microsoft.EntityFrameworkCore.Cosmos.Metadata.Conventions;
 using Microsoft.EntityFrameworkCore.Cosmos.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Microsoft.EntityFrameworkCore.Update;
 using Newtonsoft.Json.Linq;
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Update.Internal
 {
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
     public class DocumentSource
     {
         private readonly string _collectionId;
         private readonly CosmosDatabaseWrapper _database;
         private readonly IProperty _idProperty;
 
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         public DocumentSource(IEntityType entityType, CosmosDatabaseWrapper database)
         {
-            _collectionId = entityType.GetCosmosContainerName();
+            _collectionId = entityType.GetCosmosContainer();
             _database = database;
             _idProperty = entityType.FindProperty(StoreKeyConvention.IdPropertyName);
         }
 
-        public string GetCollectionId()
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual string GetCollectionId()
             => _collectionId;
 
-        public string GetId(IUpdateEntry entry)
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual string GetId(IUpdateEntry entry)
             => entry.GetCurrentValue<string>(_idProperty);
 
-        public JObject CreateDocument(IUpdateEntry entry)
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual JObject CreateDocument(IUpdateEntry entry)
         {
             var document = new JObject();
             foreach (var property in entry.EntityType.GetProperties())
@@ -80,7 +110,13 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Update.Internal
             return document;
         }
 
-        public JObject UpdateDocument(JObject document, IUpdateEntry entry)
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual JObject UpdateDocument(JObject document, IUpdateEntry entry)
         {
             var anyPropertyUpdated = false;
             foreach (var property in entry.EntityType.GetProperties())

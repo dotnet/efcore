@@ -334,7 +334,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
             {
-                modelBuilder.ForCosmosHasDefaultContainerName(nameof(CustomerContext));
+                modelBuilder.ForCosmosHasDefaultContainer(nameof(CustomerContext));
                 modelBuilder.Entity<Customer>().Property<string>("EMail").ForCosmosToProperty("e-mail");
             }
         }

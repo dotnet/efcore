@@ -18,22 +18,22 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             var entityType = modelBuilder
                 .Entity<Customer>().Metadata;
 
-            Assert.Equal(nameof(Customer), entityType.GetCosmosContainerName());
+            Assert.Equal(nameof(Customer), entityType.GetCosmosContainer());
 
-            ((IConventionEntityType)entityType).SetCosmosContainerName("Customizer");
-            Assert.Equal("Customizer", entityType.GetCosmosContainerName());
-            Assert.Equal(ConfigurationSource.Convention, ((IConventionEntityType)entityType).GetCosmosContainerNameConfigurationSource());
+            ((IConventionEntityType)entityType).SetCosmosContainer("Customizer");
+            Assert.Equal("Customizer", entityType.GetCosmosContainer());
+            Assert.Equal(ConfigurationSource.Convention, ((IConventionEntityType)entityType).GetCosmosContainerConfigurationSource());
 
-            entityType.SetCosmosContainerName("Customizer");
-            Assert.Equal("Customizer", entityType.GetCosmosContainerName());
-            Assert.Equal(ConfigurationSource.Explicit, ((IConventionEntityType)entityType).GetCosmosContainerNameConfigurationSource());
+            entityType.SetCosmosContainer("Customizer");
+            Assert.Equal("Customizer", entityType.GetCosmosContainer());
+            Assert.Equal(ConfigurationSource.Explicit, ((IConventionEntityType)entityType).GetCosmosContainerConfigurationSource());
 
-            entityType.SetCosmosContainerName(null);
-            Assert.Equal(nameof(Customer), entityType.GetCosmosContainerName());
-            Assert.Null(((IConventionEntityType)entityType).GetCosmosContainerNameConfigurationSource());
+            entityType.SetCosmosContainer(null);
+            Assert.Equal(nameof(Customer), entityType.GetCosmosContainer());
+            Assert.Null(((IConventionEntityType)entityType).GetCosmosContainerConfigurationSource());
 
-            ((IConventionModel)modelBuilder.Model).Builder.ForCosmosHasDefaultContainerName("Unicorn");
-            Assert.Equal("Unicorn", entityType.GetCosmosContainerName());
+            ((IConventionModel)modelBuilder.Model).Builder.ForCosmosHasDefaultContainer("Unicorn");
+            Assert.Equal("Unicorn", entityType.GetCosmosContainer());
         }
 
         [ConditionalFact]

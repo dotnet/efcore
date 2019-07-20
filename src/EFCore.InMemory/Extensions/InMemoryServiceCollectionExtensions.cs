@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.InMemory.Diagnostics.Internal;
@@ -29,28 +30,16 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <summary>
         ///     <para>
         ///         Adds the services required by the in-memory database provider for Entity Framework
-        ///         to an <see cref="IServiceCollection" />. You use this method when using dependency injection
-        ///         in your application, such as with ASP.NET. For more information on setting up dependency
-        ///         injection, see http://go.microsoft.com/fwlink/?LinkId=526890.
+        ///         to an <see cref="IServiceCollection" />.
         ///     </para>
         ///     <para>
-        ///         You only need to use this functionality when you want Entity Framework to resolve the services it uses
-        ///         from an external dependency injection container. If you are not using an external
-        ///         dependency injection container, Entity Framework will take care of creating the services it requires.
+        ///         Calling this method is no longer necessary when building most applications, including those that
+        ///         use dependency injection in ASP.NET or elsewhere.
+        ///         It is only needed when building the internal service provider for use with
+        ///         the <see cref="DbContextOptionsBuilder.UseInternalServiceProvider"/> method.
+        ///         This is not recommend other than for some advanced scenarios.
         ///     </para>
         /// </summary>
-        /// <example>
-        ///     <code>
-        ///         public void ConfigureServices(IServiceCollection services)
-        ///         {
-        ///             services
-        ///                 .AddEntityFrameworkInMemoryDatabase()
-        ///                 .AddDbContext&lt;MyContext&gt;((serviceProvider, options) =>
-        ///                     options.UseInMemoryDatabase("MyDatabase")
-        ///                            .UseInternalServiceProvider(serviceProvider));
-        ///         }
-        ///     </code>
-        /// </example>
         /// <param name="serviceCollection"> The <see cref="IServiceCollection" /> to add services to. </param>
         /// <returns>
         ///     The same service collection so that multiple calls can be chained.

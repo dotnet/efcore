@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
 
-namespace Microsoft.EntityFrameworkCore.Cosmos.Query
+namespace Microsoft.EntityFrameworkCore.Query
 {
     public partial class SimpleQueryCosmosTest
     {
