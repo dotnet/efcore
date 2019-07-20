@@ -43,7 +43,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <summary>
         ///     Gets the current DbContext.
         /// </summary>
-        public virtual DbContext Context => Dependencies.CurrentDbContext.Context;
+        public virtual DbContext Context => Dependencies.CurrentContext.Context;
 
         /// <summary>
         ///     Parameter object containing dependencies for this service.

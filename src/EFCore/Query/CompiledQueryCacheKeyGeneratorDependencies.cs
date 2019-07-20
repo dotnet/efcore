@@ -59,7 +59,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             Check.NotNull(currentContext, nameof(currentContext));
 
             Model = model;
-            Context = currentContext;
+            CurrentContext = currentContext;
         }
 
         /// <summary>
@@ -70,7 +70,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <summary>
         ///     The context that queries will be executed for.
         /// </summary>
-        public ICurrentDbContext Context { get; }
+        public ICurrentDbContext CurrentContext { get; }
 
         /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
@@ -78,7 +78,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <param name="model"> A replacement for the current dependency of this type. </param>
         /// <returns> A new parameter object with the given service replaced. </returns>
         public CompiledQueryCacheKeyGeneratorDependencies With([NotNull] IModel model)
-            => new CompiledQueryCacheKeyGeneratorDependencies(model, Context);
+            => new CompiledQueryCacheKeyGeneratorDependencies(model, CurrentContext);
 
         /// <summary>
         ///     Clones this dependency parameter object with one service replaced.

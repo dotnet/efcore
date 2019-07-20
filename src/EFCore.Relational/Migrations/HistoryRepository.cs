@@ -135,7 +135,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                        new RelationalCommandParameterObject(
                            Dependencies.Connection,
                            null,
-                           Dependencies.CurrentDbContext.Context,
+                           Dependencies.CurrentContext.Context,
                            Dependencies.CommandLogger)));
 
         /// <summary>
@@ -153,7 +153,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                        new RelationalCommandParameterObject(
                            Dependencies.Connection,
                            null,
-                           Dependencies.CurrentDbContext.Context,
+                           Dependencies.CurrentContext.Context,
                            Dependencies.CommandLogger),
                        cancellationToken));
 
@@ -217,7 +217,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     new RelationalCommandParameterObject(
                         Dependencies.Connection,
                         null,
-                        Dependencies.CurrentDbContext.Context,
+                        Dependencies.CurrentContext.Context,
                         Dependencies.CommandLogger)))
                 {
                     while (reader.Read())
@@ -251,7 +251,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     new RelationalCommandParameterObject(
                         Dependencies.Connection,
                         null,
-                        Dependencies.CurrentDbContext.Context,
+                        Dependencies.CurrentContext.Context,
                         Dependencies.CommandLogger),
                     cancellationToken))
                 {

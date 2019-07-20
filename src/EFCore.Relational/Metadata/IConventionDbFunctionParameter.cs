@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Microsoft.EntityFrameworkCore.Metadata
@@ -15,7 +14,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <summary>
         ///     The <see cref="IConventionDbFunction" /> to which this parameter belongs.
         /// </summary>
-        new IConventionDbFunction Parent { get; }
+        new IConventionDbFunction Function { get; }
 
         /// <summary>
         ///     The <see cref="IConventionDbFunctionParameterBuilder"/> for building a by-convention function parameter.
@@ -47,18 +46,5 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         /// <returns> The configuration source for <see cref="IDbFunctionParameter.TypeMapping" />. </returns>
         ConfigurationSource? GetTypeMappingConfigurationSource();
-
-        /// <summary>
-        ///     Sets if the parameter propagates null in the database.
-        /// </summary>
-        /// <param name="supportsNullPropagation"> The supports null propagation value. </param>
-        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        void SetSupportsNullPropagation(bool supportsNullPropagation, bool fromDataAnnotation = false);
-
-        /// <summary>
-        ///     Returns the configuration source for <see cref="IDbFunctionParameter.SupportsNullPropagation" />.
-        /// </summary>
-        /// <returns> The configuration source for <see cref="IDbFunctionParameter.SupportsNullPropagation" />. </returns>
-        ConfigurationSource? GetSupportsNullPropagationConfigurationSource();
     }
 }

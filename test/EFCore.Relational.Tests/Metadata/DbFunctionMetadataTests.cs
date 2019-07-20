@@ -582,26 +582,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         }
 
         [ConditionalFact]
-        public void DbParameters_NullabilityPropagation()
-        {
-            var modelBuilder = GetModelBuilder();
-
-            var dbFuncBuilder = modelBuilder.HasDbFunction(MethodBmi);
-            var dbFunc = dbFuncBuilder.Metadata;
-
-            dbFuncBuilder.HasParameter("c").HasNullPropagation(true);
-
-            Assert.Equal(2, dbFunc.Parameters.Count);
-
-            Assert.Equal("c", dbFunc.Parameters[0].Name);
-            Assert.Equal(typeof(string), dbFunc.Parameters[0].ClrType);
-            Assert.Equal(true, dbFunc.Parameters[0].SupportsNullPropagation);
-
-            Assert.Equal("d", dbFunc.Parameters[1].Name);
-            Assert.Equal(typeof(int), dbFunc.Parameters[1].ClrType);
-        }
-
-        [ConditionalFact]
         public void DbParameters_StoreType()
         {
             var modelBuilder = GetModelBuilder();

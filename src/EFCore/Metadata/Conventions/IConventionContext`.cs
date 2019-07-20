@@ -8,8 +8,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
     /// <summary>
     ///     Contextual information associated with each convention call.
     /// </summary>
-    /// <typeparam name="T"> The type of the metadata object. </typeparam>
-    public interface IConventionContext<in T> : IConventionContext
+    /// <typeparam name="TMetadata"> The type of the metadata object. </typeparam>
+    public interface IConventionContext<in TMetadata> : IConventionContext
     {
         /// <summary>
         ///     <para>
@@ -20,7 +20,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         ///     </para>
         /// </summary>
         /// <param name="result"> The new metadata object. </param>
-        void StopProcessing([NotNull] T result);
+        void StopProcessing([NotNull] TMetadata result);
 
         /// <summary>
         ///     <para>
@@ -32,6 +32,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         ///     </para>
         /// </summary>
         /// <param name="result"> The new metadata object. </param>
-        void StopProcessingIfChanged([NotNull] T result);
+        void StopProcessingIfChanged([NotNull] TMetadata result);
     }
 }

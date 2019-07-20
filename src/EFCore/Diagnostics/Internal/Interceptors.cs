@@ -20,7 +20,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
     {
         private readonly IServiceProvider _serviceProvider;
         private readonly IEnumerable<IInterceptor> _injectedInterceptors;
-        private readonly Dictionary<Type, IInterceptorResolver> _resolvers;
+        private readonly Dictionary<Type, IInterceptorAggregator> _aggregators;
         private CoreOptionsExtension _coreOptionsExtension;
         private List<IInterceptor> _interceptors;
 
@@ -32,11 +32,11 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
         /// </summary>
         public Interceptors([NotNull] IServiceProvider serviceProvider,
             [NotNull] IEnumerable<IInterceptor> injectedInterceptors,
-            [NotNull] IEnumerable<IInterceptorResolver> interceptorResolvers)
+            [NotNull] IEnumerable<IInterceptorAggregator> interceptorAggregators)
         {
             _serviceProvider = serviceProvider;
             _injectedInterceptors = injectedInterceptors;
-            _resolvers = interceptorResolvers.ToDictionary(i => i.InterceptorType);
+            _aggregators = interceptorAggregators.ToDictionary(i => i.InterceptorType);
         }
 
         private IReadOnlyList<IInterceptor> RegisteredInterceptors
@@ -65,9 +65,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual TInterceptor Resolve<TInterceptor>()
+        public virtual TInterceptor Aggregate<TInterceptor>()
             where TInterceptor : class, IInterceptor
-            => (TInterceptor)_resolvers[typeof(TInterceptor)].ResolveInterceptor(RegisteredInterceptors);
+            => (TInterceptor)_aggregators[typeof(TInterceptor)].AggregateInterceptors(RegisteredInterceptors);
 
         /// <summary>
         ///     We resolve this lazily because loggers are created very early in the initialization

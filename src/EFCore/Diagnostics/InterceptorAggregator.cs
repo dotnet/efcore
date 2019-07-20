@@ -10,10 +10,10 @@ using Microsoft.EntityFrameworkCore.Utilities;
 namespace Microsoft.EntityFrameworkCore.Diagnostics
 {
     /// <summary>
-    ///     Abstract base class for implementations of the <see cref="IInterceptorResolver" /> service.
+    ///     Abstract base class for implementations of the <see cref="IInterceptorAggregator" /> service.
     /// </summary>
     /// <typeparam name="TInterceptor"> The interceptor type. </typeparam>
-    public abstract class InterceptorResolver<TInterceptor> : IInterceptorResolver
+    public abstract class InterceptorAggregator<TInterceptor> : IInterceptorAggregator
         where TInterceptor : class, IInterceptor
     {
         private TInterceptor _interceptor;
@@ -32,7 +32,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// </summary>
         /// <param name="interceptors"> The interceptors to combine. </param>
         /// <returns> The combined interceptor. </returns>
-        public virtual IInterceptor ResolveInterceptor(IReadOnlyList<IInterceptor> interceptors)
+        public virtual IInterceptor AggregateInterceptors(IReadOnlyList<IInterceptor> interceptors)
         {
             Check.NotNull(interceptors, nameof(interceptors));
 

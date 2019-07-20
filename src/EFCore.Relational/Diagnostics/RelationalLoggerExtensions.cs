@@ -61,7 +61,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             LogCommandExecuting(diagnostics, command, definition);
 
             var diagnosticSourceEnabled = diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name);
-            var interceptor = diagnostics.Interceptors?.Resolve<IDbCommandInterceptor>();
+            var interceptor = diagnostics.Interceptors?.Aggregate<IDbCommandInterceptor>();
 
             if (interceptor != null
                 || diagnosticSourceEnabled)
@@ -110,7 +110,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             LogCommandExecuting(diagnostics, command, definition);
 
             var diagnosticSourceEnabled = diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name);
-            var interceptor = diagnostics.Interceptors?.Resolve<IDbCommandInterceptor>();
+            var interceptor = diagnostics.Interceptors?.Aggregate<IDbCommandInterceptor>();
 
             if (interceptor != null
                 || diagnosticSourceEnabled)
@@ -159,7 +159,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             LogCommandExecuting(diagnostics, command, definition);
 
             var diagnosticSourceEnabled = diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name);
-            var interceptor = diagnostics.Interceptors?.Resolve<IDbCommandInterceptor>();
+            var interceptor = diagnostics.Interceptors?.Aggregate<IDbCommandInterceptor>();
 
             if (interceptor != null
                 || diagnosticSourceEnabled)
@@ -210,7 +210,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             LogCommandExecuting(diagnostics, command, definition);
 
             var diagnosticSourceEnabled = diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name);
-            var interceptor = diagnostics.Interceptors?.Resolve<IDbCommandInterceptor>();
+            var interceptor = diagnostics.Interceptors?.Aggregate<IDbCommandInterceptor>();
 
             if (interceptor != null
                 || diagnosticSourceEnabled)
@@ -261,7 +261,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             LogCommandExecuting(diagnostics, command, definition);
 
             var diagnosticSourceEnabled = diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name);
-            var interceptor = diagnostics.Interceptors?.Resolve<IDbCommandInterceptor>();
+            var interceptor = diagnostics.Interceptors?.Aggregate<IDbCommandInterceptor>();
 
             if (interceptor != null
                 || diagnosticSourceEnabled)
@@ -312,7 +312,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             LogCommandExecuting(diagnostics, command, definition);
 
             var diagnosticSourceEnabled = diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name);
-            var interceptor = diagnostics.Interceptors?.Resolve<IDbCommandInterceptor>();
+            var interceptor = diagnostics.Interceptors?.Aggregate<IDbCommandInterceptor>();
 
             if (interceptor != null
                 || diagnosticSourceEnabled)
@@ -436,7 +436,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             LogCommandExecuted(diagnostics, command, duration, definition);
 
             var diagnosticSourceEnabled = diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name);
-            var interceptor = diagnostics.Interceptors?.Resolve<IDbCommandInterceptor>();
+            var interceptor = diagnostics.Interceptors?.Aggregate<IDbCommandInterceptor>();
 
             if (interceptor != null
                 || diagnosticSourceEnabled)
@@ -491,7 +491,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             LogCommandExecuted(diagnostics, command, duration, definition);
 
             var diagnosticSourceEnabled = diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name);
-            var interceptor = diagnostics.Interceptors?.Resolve<IDbCommandInterceptor>();
+            var interceptor = diagnostics.Interceptors?.Aggregate<IDbCommandInterceptor>();
 
             if (interceptor != null
                 || diagnosticSourceEnabled)
@@ -546,7 +546,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             LogCommandExecuted(diagnostics, command, duration, definition);
 
             var diagnosticSourceEnabled = diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name);
-            var interceptor = diagnostics.Interceptors?.Resolve<IDbCommandInterceptor>();
+            var interceptor = diagnostics.Interceptors?.Aggregate<IDbCommandInterceptor>();
 
             if (interceptor != null
                 || diagnosticSourceEnabled)
@@ -603,7 +603,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             LogCommandExecuted(diagnostics, command, duration, definition);
 
             var diagnosticSourceEnabled = diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name);
-            var interceptor = diagnostics.Interceptors?.Resolve<IDbCommandInterceptor>();
+            var interceptor = diagnostics.Interceptors?.Aggregate<IDbCommandInterceptor>();
 
             if (interceptor != null
                 || diagnosticSourceEnabled)
@@ -660,7 +660,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             LogCommandExecuted(diagnostics, command, duration, definition);
 
             var diagnosticSourceEnabled = diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name);
-            var interceptor = diagnostics.Interceptors?.Resolve<IDbCommandInterceptor>();
+            var interceptor = diagnostics.Interceptors?.Aggregate<IDbCommandInterceptor>();
 
             if (interceptor != null
                 || diagnosticSourceEnabled)
@@ -717,7 +717,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             LogCommandExecuted(diagnostics, command, duration, definition);
 
             var diagnosticSourceEnabled = diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name);
-            var interceptor = diagnostics.Interceptors?.Resolve<IDbCommandInterceptor>();
+            var interceptor = diagnostics.Interceptors?.Aggregate<IDbCommandInterceptor>();
 
             if (interceptor != null
                 || diagnosticSourceEnabled)
@@ -845,7 +845,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             LogCommandError(diagnostics, command, duration, definition);
 
             var diagnosticSourceEnabled = diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name);
-            var interceptor = diagnostics.Interceptors?.Resolve<IDbCommandInterceptor>();
+            var interceptor = diagnostics.Interceptors?.Aggregate<IDbCommandInterceptor>();
 
             if (interceptor != null
                 || diagnosticSourceEnabled)
@@ -920,7 +920,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             LogCommandError(diagnostics, command, duration, definition);
 
             var diagnosticSourceEnabled = diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name);
-            var interceptor = diagnostics.Interceptors?.Resolve<IDbCommandInterceptor>();
+            var interceptor = diagnostics.Interceptors?.Aggregate<IDbCommandInterceptor>();
 
             if (interceptor != null
                 || diagnosticSourceEnabled)
@@ -1016,7 +1016,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             LogConnectionOpening(diagnostics, connection, definition);
 
             var diagnosticSourceEnabled = diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name);
-            var interceptor = diagnostics.Interceptors?.Resolve<IDbConnectionInterceptor>();
+            var interceptor = diagnostics.Interceptors?.Aggregate<IDbConnectionInterceptor>();
 
             if (interceptor != null
                 || diagnosticSourceEnabled)
@@ -1057,7 +1057,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             LogConnectionOpening(diagnostics, connection, definition);
 
             var diagnosticSourceEnabled = diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name);
-            var interceptor = diagnostics.Interceptors?.Resolve<IDbConnectionInterceptor>();
+            var interceptor = diagnostics.Interceptors?.Aggregate<IDbConnectionInterceptor>();
 
             if (interceptor != null
                 || diagnosticSourceEnabled)
@@ -1147,7 +1147,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             LogConnectionOpened(diagnostics, connection, definition);
 
             var diagnosticSourceEnabled = diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name);
-            var interceptor = diagnostics.Interceptors?.Resolve<IDbConnectionInterceptor>();
+            var interceptor = diagnostics.Interceptors?.Aggregate<IDbConnectionInterceptor>();
 
             if (interceptor != null
                 || diagnosticSourceEnabled)
@@ -1186,7 +1186,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             LogConnectionOpened(diagnostics, connection, definition);
 
             var diagnosticSourceEnabled = diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name);
-            var interceptor = diagnostics.Interceptors?.Resolve<IDbConnectionInterceptor>();
+            var interceptor = diagnostics.Interceptors?.Aggregate<IDbConnectionInterceptor>();
 
             if (interceptor != null
                 || diagnosticSourceEnabled)
@@ -1277,7 +1277,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             LogConnectionClosing(diagnostics, connection, definition);
 
             var diagnosticSourceEnabled = diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name);
-            var interceptor = diagnostics.Interceptors?.Resolve<IDbConnectionInterceptor>();
+            var interceptor = diagnostics.Interceptors?.Aggregate<IDbConnectionInterceptor>();
 
             if (interceptor != null
                 || diagnosticSourceEnabled)
@@ -1316,7 +1316,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             LogConnectionClosing(diagnostics, connection, definition);
 
             var diagnosticSourceEnabled = diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name);
-            var interceptor = diagnostics.Interceptors?.Resolve<IDbConnectionInterceptor>();
+            var interceptor = diagnostics.Interceptors?.Aggregate<IDbConnectionInterceptor>();
 
             if (interceptor != null
                 || diagnosticSourceEnabled)
@@ -1405,7 +1405,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             LogConnectionClosed(diagnostics, connection, definition);
 
             var diagnosticSourceEnabled = diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name);
-            var interceptor = diagnostics.Interceptors?.Resolve<IDbConnectionInterceptor>();
+            var interceptor = diagnostics.Interceptors?.Aggregate<IDbConnectionInterceptor>();
 
             if (interceptor != null
                 || diagnosticSourceEnabled)
@@ -1442,7 +1442,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             LogConnectionClosed(diagnostics, connection, definition);
 
             var diagnosticSourceEnabled = diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name);
-            var interceptor = diagnostics.Interceptors?.Resolve<IDbConnectionInterceptor>();
+            var interceptor = diagnostics.Interceptors?.Aggregate<IDbConnectionInterceptor>();
 
             if (interceptor != null
                 || diagnosticSourceEnabled)
@@ -1540,7 +1540,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             LogConnectionError(diagnostics, connection, definition);
 
             var diagnosticSourceEnabled = diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name);
-            var interceptor = diagnostics.Interceptors?.Resolve<IDbConnectionInterceptor>();
+            var interceptor = diagnostics.Interceptors?.Aggregate<IDbConnectionInterceptor>();
 
             if (interceptor != null
                 || diagnosticSourceEnabled)
@@ -1586,7 +1586,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             LogConnectionError(diagnostics, connection, definition);
 
             var diagnosticSourceEnabled = diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name);
-            var interceptor = diagnostics.Interceptors?.Resolve<IDbConnectionInterceptor>();
+            var interceptor = diagnostics.Interceptors?.Aggregate<IDbConnectionInterceptor>();
 
             if (interceptor != null
                 || diagnosticSourceEnabled)
@@ -1684,7 +1684,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             LogTransactionStarting(diagnostics, isolationLevel, definition);
 
             var diagnosticSourceEnabled = diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name);
-            var interceptor = diagnostics.Interceptors?.Resolve<IDbTransactionInterceptor>();
+            var interceptor = diagnostics.Interceptors?.Aggregate<IDbTransactionInterceptor>();
 
             if (interceptor != null
                 || diagnosticSourceEnabled)
@@ -1731,7 +1731,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             LogTransactionStarting(diagnostics, isolationLevel, definition);
 
             var diagnosticSourceEnabled = diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name);
-            var interceptor = diagnostics.Interceptors?.Resolve<IDbTransactionInterceptor>();
+            var interceptor = diagnostics.Interceptors?.Aggregate<IDbTransactionInterceptor>();
 
             if (interceptor != null
                 || diagnosticSourceEnabled)
@@ -1829,7 +1829,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             LogTransactionStarted(diagnostics, transaction, definition);
 
             var diagnosticSourceEnabled = diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name);
-            var interceptor = diagnostics.Interceptors?.Resolve<IDbTransactionInterceptor>();
+            var interceptor = diagnostics.Interceptors?.Aggregate<IDbTransactionInterceptor>();
 
             if (interceptor != null
                 || diagnosticSourceEnabled)
@@ -1879,7 +1879,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             LogTransactionStarted(diagnostics, transaction, definition);
 
             var diagnosticSourceEnabled = diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name);
-            var interceptor = diagnostics.Interceptors?.Resolve<IDbTransactionInterceptor>();
+            var interceptor = diagnostics.Interceptors?.Aggregate<IDbTransactionInterceptor>();
 
             if (interceptor != null
                 || diagnosticSourceEnabled)
@@ -1977,7 +1977,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             LogTransactionUsed(diagnostics, transaction, definition);
 
             var diagnosticSourceEnabled = diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name);
-            var interceptor = diagnostics.Interceptors?.Resolve<IDbTransactionInterceptor>();
+            var interceptor = diagnostics.Interceptors?.Aggregate<IDbTransactionInterceptor>();
 
             if (interceptor != null
                 || diagnosticSourceEnabled)
@@ -2024,7 +2024,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             LogTransactionUsed(diagnostics, transaction, definition);
 
             var diagnosticSourceEnabled = diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name);
-            var interceptor = diagnostics.Interceptors?.Resolve<IDbTransactionInterceptor>();
+            var interceptor = diagnostics.Interceptors?.Aggregate<IDbTransactionInterceptor>();
 
             if (interceptor != null
                 || diagnosticSourceEnabled)
@@ -2120,7 +2120,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             LogTransactionCommitting(diagnostics, definition);
 
             var diagnosticSourceEnabled = diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name);
-            var interceptor = diagnostics.Interceptors?.Resolve<IDbTransactionInterceptor>();
+            var interceptor = diagnostics.Interceptors?.Aggregate<IDbTransactionInterceptor>();
 
             if (interceptor != null
                 || diagnosticSourceEnabled)
@@ -2167,7 +2167,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             LogTransactionCommitting(diagnostics, definition);
 
             var diagnosticSourceEnabled = diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name);
-            var interceptor = diagnostics.Interceptors?.Resolve<IDbTransactionInterceptor>();
+            var interceptor = diagnostics.Interceptors?.Aggregate<IDbTransactionInterceptor>();
 
             if (interceptor != null
                 || diagnosticSourceEnabled)
@@ -2252,7 +2252,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             LogTransactionCommitted(diagnostics, definition);
 
             var diagnosticSourceEnabled = diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name);
-            var interceptor = diagnostics.Interceptors?.Resolve<IDbTransactionInterceptor>();
+            var interceptor = diagnostics.Interceptors?.Aggregate<IDbTransactionInterceptor>();
 
             if (interceptor != null
                 || diagnosticSourceEnabled)
@@ -2297,7 +2297,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             LogTransactionCommitted(diagnostics, definition);
 
             var diagnosticSourceEnabled = diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name);
-            var interceptor = diagnostics.Interceptors?.Resolve<IDbTransactionInterceptor>();
+            var interceptor = diagnostics.Interceptors?.Aggregate<IDbTransactionInterceptor>();
 
             if (interceptor != null
                 || diagnosticSourceEnabled)
@@ -2385,7 +2385,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             LogTransactionRolledBack(diagnostics, definition);
 
             var diagnosticSourceEnabled = diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name);
-            var interceptor = diagnostics.Interceptors?.Resolve<IDbTransactionInterceptor>();
+            var interceptor = diagnostics.Interceptors?.Aggregate<IDbTransactionInterceptor>();
 
             if (interceptor != null
                 || diagnosticSourceEnabled)
@@ -2430,7 +2430,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             LogTransactionRolledBack(diagnostics, definition);
 
             var diagnosticSourceEnabled = diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name);
-            var interceptor = diagnostics.Interceptors?.Resolve<IDbTransactionInterceptor>();
+            var interceptor = diagnostics.Interceptors?.Aggregate<IDbTransactionInterceptor>();
 
             if (interceptor != null
                 || diagnosticSourceEnabled)
@@ -2517,7 +2517,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             LogTransactionRollingBack(diagnostics, definition);
 
             var diagnosticSourceEnabled = diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name);
-            var interceptor = diagnostics.Interceptors?.Resolve<IDbTransactionInterceptor>();
+            var interceptor = diagnostics.Interceptors?.Aggregate<IDbTransactionInterceptor>();
 
             if (interceptor != null
                 || diagnosticSourceEnabled)
@@ -2564,7 +2564,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             LogTransactionRollingBack(diagnostics, definition);
 
             var diagnosticSourceEnabled = diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name);
-            var interceptor = diagnostics.Interceptors?.Resolve<IDbTransactionInterceptor>();
+            var interceptor = diagnostics.Interceptors?.Aggregate<IDbTransactionInterceptor>();
 
             if (interceptor != null
                 || diagnosticSourceEnabled)
@@ -2692,7 +2692,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             LogTransactionError(diagnostics, exception, definition);
 
             var diagnosticSourceEnabled = diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name);
-            var interceptor = diagnostics.Interceptors?.Resolve<IDbTransactionInterceptor>();
+            var interceptor = diagnostics.Interceptors?.Aggregate<IDbTransactionInterceptor>();
 
             if (interceptor != null
                 || diagnosticSourceEnabled)
@@ -2743,7 +2743,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             LogTransactionError(diagnostics, exception, definition);
 
             var diagnosticSourceEnabled = diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name);
-            var interceptor = diagnostics.Interceptors?.Resolve<IDbTransactionInterceptor>();
+            var interceptor = diagnostics.Interceptors?.Aggregate<IDbTransactionInterceptor>();
 
             if (interceptor != null
                 || diagnosticSourceEnabled)
@@ -2967,7 +2967,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             }
 
             var diagnosticSourceEnabled = diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name);
-            var interceptor = diagnostics.Interceptors?.Resolve<IDbCommandInterceptor>();
+            var interceptor = diagnostics.Interceptors?.Aggregate<IDbCommandInterceptor>();
 
             if (interceptor != null
                 || diagnosticSourceEnabled)

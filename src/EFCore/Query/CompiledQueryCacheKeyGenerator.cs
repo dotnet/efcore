@@ -64,7 +64,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             => new CompiledQueryCacheKey(
                 Check.NotNull(query, nameof(query)),
                 Dependencies.Model,
-                Dependencies.Context.Context.ChangeTracker.QueryTrackingBehavior,
+                Dependencies.CurrentContext.Context.ChangeTracker.QueryTrackingBehavior,
                 async);
 
         /// <summary>

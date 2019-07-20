@@ -72,7 +72,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <param name="sqlGenerationHelper"> Helpers for generating update SQL. </param>
         /// <param name="conventionSetBuilder"> The convention set to use when creating the model. </param>
         /// <param name="typeMappingSource"> The type mapper. </param>
-        /// <param name="currentDbContext"> Contains the <see cref="DbContext"/> currently in use. </param>
+        /// <param name="currentContext"> Contains the <see cref="DbContext"/> currently in use. </param>
         /// <param name="modelLogger"> The logger for model building events. </param>
         /// <param name="commandLogger"> The command logger. </param>
         [EntityFrameworkInternal]
@@ -86,7 +86,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             [NotNull] ISqlGenerationHelper sqlGenerationHelper,
             [NotNull] IConventionSetBuilder conventionSetBuilder,
             [NotNull] IRelationalTypeMappingSource typeMappingSource,
-            [NotNull] ICurrentDbContext currentDbContext,
+            [NotNull] ICurrentDbContext currentContext,
             [NotNull] IDiagnosticsLogger<DbLoggerCategory.Model> modelLogger,
             [NotNull] IDiagnosticsLogger<DbLoggerCategory.Database.Command> commandLogger)
         {
@@ -99,7 +99,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             Check.NotNull(sqlGenerationHelper, nameof(sqlGenerationHelper));
             Check.NotNull(conventionSetBuilder, nameof(conventionSetBuilder));
             Check.NotNull(typeMappingSource, nameof(typeMappingSource));
-            Check.NotNull(currentDbContext, nameof(currentDbContext));
+            Check.NotNull(currentContext, nameof(currentContext));
             Check.NotNull(modelLogger, nameof(modelLogger));
             Check.NotNull(commandLogger, nameof(commandLogger));
 
@@ -112,7 +112,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             SqlGenerationHelper = sqlGenerationHelper;
             ConventionSetBuilder = conventionSetBuilder;
             TypeMappingSource = typeMappingSource;
-            CurrentDbContext = currentDbContext;
+            CurrentContext = currentContext;
             ModelLogger = modelLogger;
             CommandLogger = commandLogger;
         }
@@ -165,7 +165,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <summary>
         ///    Contains the <see cref="DbContext"/> currently in use.
         /// </summary>
-        public ICurrentDbContext CurrentDbContext { get; }
+        public ICurrentDbContext CurrentContext { get; }
 
         /// <summary>
         ///     The model logger
@@ -193,7 +193,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 SqlGenerationHelper,
                 ConventionSetBuilder,
                 TypeMappingSource,
-                CurrentDbContext,
+                CurrentContext,
                 ModelLogger,
                 CommandLogger);
 
@@ -213,7 +213,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 SqlGenerationHelper,
                 ConventionSetBuilder,
                 TypeMappingSource,
-                CurrentDbContext,
+                CurrentContext,
                 ModelLogger,
                 CommandLogger);
 
@@ -233,7 +233,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 SqlGenerationHelper,
                 ConventionSetBuilder,
                 TypeMappingSource,
-                CurrentDbContext,
+                CurrentContext,
                 ModelLogger,
                 CommandLogger);
 
@@ -253,7 +253,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 SqlGenerationHelper,
                 ConventionSetBuilder,
                 TypeMappingSource,
-                CurrentDbContext,
+                CurrentContext,
                 ModelLogger,
                 CommandLogger);
 
@@ -273,7 +273,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 SqlGenerationHelper,
                 ConventionSetBuilder,
                 TypeMappingSource,
-                CurrentDbContext,
+                CurrentContext,
                 ModelLogger,
                 CommandLogger);
 
@@ -293,7 +293,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 SqlGenerationHelper,
                 ConventionSetBuilder,
                 TypeMappingSource,
-                CurrentDbContext,
+                CurrentContext,
                 ModelLogger,
                 CommandLogger);
 
@@ -313,7 +313,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 sqlGenerationHelper,
                 ConventionSetBuilder,
                 TypeMappingSource,
-                CurrentDbContext,
+                CurrentContext,
                 ModelLogger,
                 CommandLogger);
 
@@ -333,7 +333,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 SqlGenerationHelper,
                 conventionSetBuilder,
                 TypeMappingSource,
-                CurrentDbContext,
+                CurrentContext,
                 ModelLogger,
                 CommandLogger);
 
@@ -353,16 +353,16 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 SqlGenerationHelper,
                 ConventionSetBuilder,
                 typeMappingSource,
-                CurrentDbContext,
+                CurrentContext,
                 ModelLogger,
                 CommandLogger);
 
         /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
         /// </summary>
-        /// <param name="currentDbContext"> The type mapper. </param>
+        /// <param name="currentContext"> The type mapper. </param>
         /// <returns> A new parameter object with the given service replaced. </returns>
-        public HistoryRepositoryDependencies With([NotNull] ICurrentDbContext currentDbContext)
+        public HistoryRepositoryDependencies With([NotNull] ICurrentDbContext currentContext)
             => new HistoryRepositoryDependencies(
                 DatabaseCreator,
                 RawSqlCommandBuilder,
@@ -373,7 +373,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 SqlGenerationHelper,
                 ConventionSetBuilder,
                 TypeMappingSource,
-                currentDbContext,
+                currentContext,
                 ModelLogger,
                 CommandLogger);
 
@@ -393,7 +393,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 SqlGenerationHelper,
                 ConventionSetBuilder,
                 TypeMappingSource,
-                CurrentDbContext,
+                CurrentContext,
                 modelLogger,
                 CommandLogger);
 
@@ -413,7 +413,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 SqlGenerationHelper,
                 ConventionSetBuilder,
                 TypeMappingSource,
-                CurrentDbContext,
+                CurrentContext,
                 ModelLogger,
                 commandLogger);
     }

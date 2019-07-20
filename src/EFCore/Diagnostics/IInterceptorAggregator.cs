@@ -17,11 +17,11 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
     ///         not used in application code.
     ///     </para>
     ///     <para>
-    ///         Instances should be registered on the internal service provider as multiple <see cref="IInterceptorResolver" />
+    ///         Instances should be registered on the internal service provider as multiple <see cref="IInterceptorAggregator" />
     ///         interfaces.
     ///     </para>
     /// </summary>
-    public interface IInterceptorResolver
+    public interface IInterceptorAggregator
     {
         /// <summary>
         ///     The interceptor type.
@@ -36,6 +36,6 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// </summary>
         /// <param name="interceptors"> The interceptors to combine. </param>
         /// <returns> The combined interceptor. </returns>
-        IInterceptor ResolveInterceptor([NotNull] IReadOnlyList<IInterceptor> interceptors);
+        IInterceptor AggregateInterceptors([NotNull] IReadOnlyList<IInterceptor> interceptors);
     }
 }
