@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections;
 using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -56,7 +57,27 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
             expressionPrinter.Visit(Item);
             expressionPrinter.StringBuilder.Append(Negated ? " NOT IN " : " IN ");
             expressionPrinter.StringBuilder.Append("(");
-            expressionPrinter.Visit(Values);
+
+            if (Values is SqlConstantExpression constantValuesExpression
+                && constantValuesExpression.Value is IEnumerable constantValues)
+            {
+                var first = true;
+                foreach (var item in constantValues)
+                {
+                    if (!first)
+                    {
+                        expressionPrinter.StringBuilder.Append(", ");
+                    }
+
+                    first = false;
+                    expressionPrinter.StringBuilder.Append(constantValuesExpression.TypeMapping?.GenerateSqlLiteral(item) ?? item?.ToString() ?? "NULL");
+                }
+            }
+            else
+            {
+                expressionPrinter.Visit(Values);
+            }
+
             expressionPrinter.StringBuilder.Append(")");
         }
 
