@@ -50,6 +50,7 @@ namespace TestNamespace
             Contributions = new HashSet<Contribution>();
         }
 
+        [Key]
         public int Id { get; set; }
         public int? AuthorId { get; set; }
 
