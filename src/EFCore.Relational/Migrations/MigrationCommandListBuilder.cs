@@ -54,7 +54,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 _commands.Add(
                     new MigrationCommand(
                         _commandBuilder.Build(),
-                        _dependencies.CurrentDbContext.Context,
+                        _dependencies.CurrentContext.Context,
                         _dependencies.Logger,
                         suppressTransaction));
 

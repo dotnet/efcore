@@ -62,7 +62,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="migrationCommandExecutor"> The <see cref="IMigrationCommandExecutor" /> to be used. </param>
         /// <param name="sqlGenerationHelper"> The <see cref="ISqlGenerationHelper" /> to be used. </param>
         /// <param name="executionStrategyFactory">The <see cref="IExecutionStrategyFactory" /> to be used. </param>
-        /// <param name="currentDbContext"> Contains the <see cref="DbContext"/> currently in use. </param>
+        /// <param name="currentContext"> Contains the <see cref="DbContext"/> currently in use. </param>
         /// <param name="commandLogger"> The command logger. </param>
         [EntityFrameworkInternal]
         public RelationalDatabaseCreatorDependencies(
@@ -73,7 +73,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             [NotNull] IMigrationCommandExecutor migrationCommandExecutor,
             [NotNull] ISqlGenerationHelper sqlGenerationHelper,
             [NotNull] IExecutionStrategyFactory executionStrategyFactory,
-            [NotNull] ICurrentDbContext currentDbContext,
+            [NotNull] ICurrentDbContext currentContext,
             [NotNull] IDiagnosticsLogger<DbLoggerCategory.Database.Command> commandLogger)
         {
             Check.NotNull(model, nameof(model));
@@ -83,7 +83,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Check.NotNull(migrationCommandExecutor, nameof(migrationCommandExecutor));
             Check.NotNull(sqlGenerationHelper, nameof(sqlGenerationHelper));
             Check.NotNull(executionStrategyFactory, nameof(executionStrategyFactory));
-            Check.NotNull(currentDbContext, nameof(currentDbContext));
+            Check.NotNull(currentContext, nameof(currentContext));
             Check.NotNull(commandLogger, nameof(commandLogger));
 
             Model = model;
@@ -93,7 +93,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             MigrationCommandExecutor = migrationCommandExecutor;
             SqlGenerationHelper = sqlGenerationHelper;
             ExecutionStrategyFactory = executionStrategyFactory;
-            CurrentDbContext = currentDbContext;
+            CurrentContext = currentContext;
             CommandLogger = commandLogger;
         }
 
@@ -140,7 +140,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <summary>
         ///    Contains the <see cref="DbContext"/> currently in use.
         /// </summary>
-        public ICurrentDbContext CurrentDbContext { get; }
+        public ICurrentDbContext CurrentContext { get; }
 
         /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
@@ -156,7 +156,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 MigrationCommandExecutor,
                 SqlGenerationHelper,
                 ExecutionStrategyFactory,
-                CurrentDbContext,
+                CurrentContext,
                 CommandLogger);
 
         /// <summary>
@@ -173,7 +173,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 MigrationCommandExecutor,
                 SqlGenerationHelper,
                 ExecutionStrategyFactory,
-                CurrentDbContext,
+                CurrentContext,
                 CommandLogger);
 
         /// <summary>
@@ -190,7 +190,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 MigrationCommandExecutor,
                 SqlGenerationHelper,
                 ExecutionStrategyFactory,
-                CurrentDbContext,
+                CurrentContext,
                 CommandLogger);
 
         /// <summary>
@@ -207,7 +207,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 MigrationCommandExecutor,
                 SqlGenerationHelper,
                 ExecutionStrategyFactory,
-                CurrentDbContext,
+                CurrentContext,
                 CommandLogger);
 
         /// <summary>
@@ -224,7 +224,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 migrationCommandExecutor,
                 SqlGenerationHelper,
                 ExecutionStrategyFactory,
-                CurrentDbContext,
+                CurrentContext,
                 CommandLogger);
 
         /// <summary>
@@ -241,7 +241,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 MigrationCommandExecutor,
                 sqlGenerationHelper,
                 ExecutionStrategyFactory,
-                CurrentDbContext,
+                CurrentContext,
                 CommandLogger);
 
         /// <summary>
@@ -258,15 +258,15 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 MigrationCommandExecutor,
                 SqlGenerationHelper,
                 executionStrategyFactory,
-                CurrentDbContext,
+                CurrentContext,
                 CommandLogger);
 
         /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
         /// </summary>
-        /// <param name="currentDbContext"> A replacement for the current dependency of this type. </param>
+        /// <param name="currentContext"> A replacement for the current dependency of this type. </param>
         /// <returns> A new parameter object with the given service replaced. </returns>
-        public RelationalDatabaseCreatorDependencies With([NotNull] ICurrentDbContext currentDbContext)
+        public RelationalDatabaseCreatorDependencies With([NotNull] ICurrentDbContext currentContext)
             => new RelationalDatabaseCreatorDependencies(
                 Model,
                 Connection,
@@ -275,7 +275,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 MigrationCommandExecutor,
                 SqlGenerationHelper,
                 ExecutionStrategyFactory,
-                currentDbContext,
+                currentContext,
                 CommandLogger);
 
         /// <summary>
@@ -292,7 +292,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 MigrationCommandExecutor,
                 SqlGenerationHelper,
                 ExecutionStrategyFactory,
-                CurrentDbContext,
+                CurrentContext,
                 commandLogger);
     }
 }

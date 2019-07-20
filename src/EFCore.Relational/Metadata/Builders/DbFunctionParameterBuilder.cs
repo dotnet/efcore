@@ -46,38 +46,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         IConventionDbFunctionParameter IConventionDbFunctionParameterBuilder.Metadata => _parameter;
 
         /// <summary>
-        ///     Configures whether or not the function should propagate null values through to the function result.
-        /// </summary>
-        /// <param name="supportsNullPropagation"> True to enable null-propagation; false to disable it. </param>
-        /// <returns> The same builder instance so that further configuration calls can be chained. </returns>
-        public virtual DbFunctionParameterBuilder HasNullPropagation(bool supportsNullPropagation = true)
-        {
-            _parameter.SupportsNullPropagation = supportsNullPropagation;
-
-            return this;
-        }
-
-        /// <inheritdoc />
-        IConventionDbFunctionParameterBuilder IConventionDbFunctionParameterBuilder.HasNullPropagation(
-            bool supportsNullPropagation, bool fromDataAnnotation)
-        {
-            if (((IConventionDbFunctionParameterBuilder)this).CanSetSupportsNullPropagation(supportsNullPropagation, fromDataAnnotation))
-            {
-                ((IConventionDbFunctionParameter)_parameter).SetSupportsNullPropagation(supportsNullPropagation, fromDataAnnotation);
-                return this;
-            }
-
-            return null;
-        }
-
-        /// <inheritdoc />
-        bool IConventionDbFunctionParameterBuilder.CanSetSupportsNullPropagation(bool supportsNullPropagation, bool fromDataAnnotation)
-        {
-            return Overrides(fromDataAnnotation, _parameter.GetSupportsNullPropagationConfigurationSource())
-               || _parameter.SupportsNullPropagation == supportsNullPropagation;
-        }
-
-        /// <summary>
         ///     Sets the store type of the function parameter in the database.
         /// </summary>
         /// <param name="storeType"> The store type of the function parameter in the database. </param>

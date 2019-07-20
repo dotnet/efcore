@@ -35,16 +35,16 @@ namespace Microsoft.EntityFrameworkCore.Query.Pipeline
             IQueryableMethodTranslatingExpressionVisitorFactory queryableMethodTranslatingExpressionVisitorFactory,
             IShapedQueryOptimizerFactory shapedQueryOptimizerFactory,
             IShapedQueryCompilingExpressionVisitorFactory shapedQueryCompilingExpressionVisitorFactory,
-            ICurrentDbContext currentDbContext,
+            ICurrentDbContext currentContext,
             IDbContextOptions contextOptions,
             IDiagnosticsLogger<DbLoggerCategory.Query> logger,
             bool async)
         {
             Async = async;
-            TrackQueryResults = currentDbContext.Context.ChangeTracker.QueryTrackingBehavior == QueryTrackingBehavior.TrackAll;
+            TrackQueryResults = currentContext.Context.ChangeTracker.QueryTrackingBehavior == QueryTrackingBehavior.TrackAll;
             Model = model;
             ContextOptions = contextOptions;
-            ContextType = currentDbContext.Context.GetType();
+            ContextType = currentContext.Context.GetType();
             Logger = logger;
 
             _queryOptimizerFactory = queryOptimizerFactory;

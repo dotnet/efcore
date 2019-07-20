@@ -239,7 +239,7 @@ namespace Microsoft.EntityFrameworkCore.Update
                     new RelationalCommandParameterObject(
                         connection,
                         storeCommand.ParameterValues,
-                        Dependencies.CurrentDbContext.Context,
+                        Dependencies.CurrentContext.Context,
                         Dependencies.Logger)))
                 {
                     Consume(dataReader);
@@ -276,7 +276,7 @@ namespace Microsoft.EntityFrameworkCore.Update
                     new RelationalCommandParameterObject(
                         connection,
                         storeCommand.ParameterValues,
-                        Dependencies.CurrentDbContext.Context,
+                        Dependencies.CurrentContext.Context,
                         Dependencies.Logger),
                     cancellationToken))
                 {

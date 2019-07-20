@@ -140,7 +140,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             IRelationalConnection connection)
         {
             command.Parameters.Clear();
-            await command.DisposeAsyncIfAvailable();
+            await command.DisposeAsync();
             await connection.CloseAsync();
         }
 

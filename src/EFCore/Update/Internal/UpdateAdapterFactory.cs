@@ -17,7 +17,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
     /// </summary>
     public class UpdateAdapterFactory : IUpdateAdapterFactory
     {
-        private readonly ICurrentDbContext _currentDbContext;
+        private readonly ICurrentDbContext _currentContext;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -25,9 +25,9 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public UpdateAdapterFactory([NotNull] ICurrentDbContext currentDbContext)
+        public UpdateAdapterFactory([NotNull] ICurrentDbContext currentContext)
         {
-            _currentDbContext = currentDbContext;
+            _currentContext = currentContext;
         }
 
         /// <summary>
@@ -37,7 +37,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual IUpdateAdapter Create()
-            => new UpdateAdapter(_currentDbContext.Context.GetDependencies().StateManager);
+            => new UpdateAdapter(_currentContext.Context.GetDependencies().StateManager);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -47,7 +47,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
         /// </summary>
         public virtual IUpdateAdapter CreateStandalone(IModel model = null)
         {
-            var stateManager = _currentDbContext.Context.GetDependencies().StateManager;
+            var stateManager = _currentContext.Context.GetDependencies().StateManager;
 
             return model == null
                 ? new UpdateAdapter(new StateManager(stateManager.Dependencies))

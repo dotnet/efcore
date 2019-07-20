@@ -52,7 +52,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
         {
             try
             {
-                return operation(Dependencies.CurrentDbContext.Context, state);
+                return operation(Dependencies.CurrentContext.Context, state);
             }
             catch (Exception ex) when (ExecutionStrategy.CallOnWrappedException(ex, SqlServerTransientExceptionDetector.ShouldRetryOn))
             {
@@ -74,7 +74,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
         {
             try
             {
-                return await operation(Dependencies.CurrentDbContext.Context, state, cancellationToken);
+                return await operation(Dependencies.CurrentContext.Context, state, cancellationToken);
             }
             catch (Exception ex) when (ExecutionStrategy.CallOnWrappedException(ex, SqlServerTransientExceptionDetector.ShouldRetryOn))
             {

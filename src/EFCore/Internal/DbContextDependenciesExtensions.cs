@@ -36,7 +36,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static IDbContextDependencies GetDependencies([NotNull] this ICurrentDbContext context)
-            => context.Context;
+        public static IDbContextDependencies GetDependencies([NotNull] this ICurrentDbContext currentContext)
+            => currentContext.Context;
     }
 }

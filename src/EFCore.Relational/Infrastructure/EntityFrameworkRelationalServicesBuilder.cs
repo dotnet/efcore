@@ -81,7 +81,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 { typeof(IRelationalDatabaseCreator), new ServiceCharacteristics(ServiceLifetime.Scoped) },
                 { typeof(IHistoryRepository), new ServiceCharacteristics(ServiceLifetime.Scoped) },
                 { typeof(INamedConnectionStringResolver), new ServiceCharacteristics(ServiceLifetime.Scoped) },
-                { typeof(IInterceptorResolver), new ServiceCharacteristics(ServiceLifetime.Scoped, multipleRegistrations: true) },
+                { typeof(IInterceptorAggregator), new ServiceCharacteristics(ServiceLifetime.Scoped, multipleRegistrations: true) },
                 { typeof(IInterceptor), new ServiceCharacteristics(ServiceLifetime.Scoped, multipleRegistrations: true) },
                 { typeof(IRelationalTypeMappingSourcePlugin), new ServiceCharacteristics(ServiceLifetime.Singleton, multipleRegistrations: true) },
 
@@ -158,9 +158,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             TryAdd<IRelationalTransactionFactory, RelationalTransactionFactory>();
             TryAdd<IDatabaseFacadeDependencies>(p => p.GetService<IRelationalDatabaseFacadeDependencies>());
             TryAdd<IRelationalDatabaseFacadeDependencies, RelationalDatabaseFacadeDependencies>();
-            TryAdd<IInterceptorResolver, DbConnectionInterceptorResolver>();
-            TryAdd<IInterceptorResolver, DbTransactionInterceptorResolver>();
-            TryAdd<IInterceptorResolver, DbCommandInterceptorResolver>();
+            TryAdd<IInterceptorAggregator, DbConnectionInterceptorAggregator>();
+            TryAdd<IInterceptorAggregator, DbTransactionInterceptorAggregator>();
+            TryAdd<IInterceptorAggregator, DbCommandInterceptorAggregator>();
 
             // New Query pipeline
             TryAdd<IQuerySqlGeneratorFactory, QuerySqlGeneratorFactory>();

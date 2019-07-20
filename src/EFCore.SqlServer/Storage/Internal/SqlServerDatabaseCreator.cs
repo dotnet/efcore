@@ -121,7 +121,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
                                           new RelationalCommandParameterObject(
                                               connection,
                                               null,
-                                              Dependencies.CurrentDbContext.Context,
+                                              Dependencies.CurrentContext.Context,
                                               Dependencies.CommandLogger)) != 0);
 
         /// <summary>
@@ -138,7 +138,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
                                                   new RelationalCommandParameterObject(
                                                       connection,
                                                       null,
-                                                      Dependencies.CurrentDbContext.Context,
+                                                      Dependencies.CurrentContext.Context,
                                                       Dependencies.CommandLogger),
                                                   cancellationToken: ct) != 0, cancellationToken);
 

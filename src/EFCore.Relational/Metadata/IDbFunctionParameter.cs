@@ -14,7 +14,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <summary>
         ///     The <see cref="IDbFunction" /> to which this parameter belongs.
         /// </summary>
-        IDbFunction Parent { get; }
+        IDbFunction Function { get; }
 
         /// <summary>
         ///     The parameter name.
@@ -25,11 +25,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     The parameter type.
         /// </summary>
         Type ClrType { get; }
-
-        /// <summary>
-        ///     If true, then a null in this parameter will be propagated to the result.
-        /// </summary>
-        bool SupportsNullPropagation { get; }
 
         /// <summary>
         ///     The store (database) type of this parameter.
