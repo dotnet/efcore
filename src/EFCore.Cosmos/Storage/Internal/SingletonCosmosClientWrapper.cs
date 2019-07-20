@@ -32,6 +32,12 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
         private readonly string _key;
         private CosmosClient _client;
 
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         public SingletonCosmosClientWrapper([NotNull] ICosmosSingletonOptions options)
         {
             _endpoint = options.AccountEndpoint;
@@ -50,10 +56,21 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
             _options = configuration;
         }
 
-        // This has to be lazy in case the service is created and thrown away without disposing
-        public CosmosClient Client => _client ??= new CosmosClient(_endpoint, _key, _options);
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual CosmosClient Client => _client ??= new CosmosClient(_endpoint, _key, _options);
 
-        public void Dispose()
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual void Dispose()
         {
             _client?.Dispose();
             _client = null;

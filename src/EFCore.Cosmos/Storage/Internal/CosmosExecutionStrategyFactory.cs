@@ -29,9 +29,11 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
         private readonly Func<ExecutionStrategyDependencies, IExecutionStrategy> _createExecutionStrategy;
 
         /// <summary>
-        ///     Creates a new instance of this class with the given service dependencies.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        /// <param name="dependencies"> Parameter object containing dependencies for this service. </param>
         public CosmosExecutionStrategyFactory([NotNull] ExecutionStrategyDependencies dependencies)
         {
             Check.NotNull(dependencies, nameof(dependencies));
@@ -43,19 +45,27 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
         }
 
         /// <summary>
-        ///     Parameter object containing service dependencies.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         protected virtual ExecutionStrategyDependencies Dependencies { get; }
 
         /// <summary>
-        ///     Creates or returns a cached instance of the default <see cref="IExecutionStrategy" /> for the
-        ///     current database provider.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         protected virtual IExecutionStrategy CreateDefaultStrategy([NotNull] ExecutionStrategyDependencies dependencies)
             => new CosmosExecutionStrategy(Dependencies);
 
         /// <summary>
-        ///     Creates an <see cref="IExecutionStrategy" /> for the current database provider.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual IExecutionStrategy Create() => _createExecutionStrategy(Dependencies);
     }

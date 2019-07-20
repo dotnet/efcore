@@ -13,7 +13,7 @@ using Xunit.Abstractions;
 
 #pragma warning disable RCS1202 // Avoid NullReferenceException.
 
-namespace Microsoft.EntityFrameworkCore.Cosmos.Query
+namespace Microsoft.EntityFrameworkCore.Query
 {
     public partial class SimpleQueryCosmosTest : SimpleQueryTestBase<NorthwindQueryCosmosFixture<NoopModelCustomizer>>
     {

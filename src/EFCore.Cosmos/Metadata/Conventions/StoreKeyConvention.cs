@@ -4,13 +4,12 @@
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Cosmos.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.ValueGeneration.Internal;
-using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
+using Microsoft.EntityFrameworkCore.Utilities;
 using Newtonsoft.Json.Linq;
 
-namespace Microsoft.EntityFrameworkCore.Cosmos.Metadata.Conventions
+namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 {
     /// <summary>
     ///     <para>
@@ -83,19 +82,29 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Metadata.Conventions
         /// </summary>
         /// <param name="entityTypeBuilder"> The builder for the entity type. </param>
         /// <param name="context"> Additional information associated with convention execution. </param>
-        public void ProcessEntityTypeAdded(
+        public virtual void ProcessEntityTypeAdded(
             IConventionEntityTypeBuilder entityTypeBuilder,
             IConventionContext<IConventionEntityTypeBuilder> context)
-            => Process(entityTypeBuilder);
+        {
+            Check.NotNull(entityTypeBuilder, nameof(entityTypeBuilder));
+
+            Process(entityTypeBuilder);
+        }
 
         /// <summary>
         ///     Called after the ownership value for a foreign key is changed.
         /// </summary>
         /// <param name="relationshipBuilder"> The builder for the foreign key. </param>
         /// <param name="context"> Additional information associated with convention execution. </param>
-        public void ProcessForeignKeyOwnershipChanged(
-            IConventionRelationshipBuilder relationshipBuilder, IConventionContext<IConventionRelationshipBuilder> context)
-            => Process(relationshipBuilder.Metadata.DeclaringEntityType.Builder);
+        public virtual void ProcessForeignKeyOwnershipChanged(
+            IConventionRelationshipBuilder relationshipBuilder,
+            IConventionContext<IConventionRelationshipBuilder> context)
+        {
+            Check.NotNull(relationshipBuilder, nameof(relationshipBuilder));
+            Check.NotNull(context, nameof(context));
+
+            Process(relationshipBuilder.Metadata.DeclaringEntityType.Builder);
+        }
 
         /// <summary>
         ///     Called after an annotation is changed on an entity type.
@@ -105,10 +114,17 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Metadata.Conventions
         /// <param name="annotation"> The new annotation. </param>
         /// <param name="oldAnnotation"> The old annotation.  </param>
         /// <param name="context"> Additional information associated with convention execution. </param>
-        public void ProcessEntityTypeAnnotationChanged(
-            IConventionEntityTypeBuilder entityTypeBuilder, string name, IConventionAnnotation annotation,
-            IConventionAnnotation oldAnnotation, IConventionContext<IConventionAnnotation> context)
+        public virtual void ProcessEntityTypeAnnotationChanged(
+            IConventionEntityTypeBuilder entityTypeBuilder,
+            string name,
+            IConventionAnnotation annotation,
+            IConventionAnnotation oldAnnotation,
+            IConventionContext<IConventionAnnotation> context)
         {
+            Check.NotNull(entityTypeBuilder, nameof(entityTypeBuilder));
+            Check.NotEmpty(name, nameof(name));
+            Check.NotNull(context, nameof(context));
+
             if (name == CosmosAnnotationNames.ContainerName)
             {
                 Process(entityTypeBuilder);
@@ -122,12 +138,15 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Metadata.Conventions
         /// <param name="newBaseType"> The new base entity type. </param>
         /// <param name="oldBaseType"> The old base entity type. </param>
         /// <param name="context"> Additional information associated with convention execution. </param>
-        public void ProcessEntityTypeBaseTypeChanged(
+        public virtual void ProcessEntityTypeBaseTypeChanged(
             IConventionEntityTypeBuilder entityTypeBuilder,
             IConventionEntityType newBaseType,
             IConventionEntityType oldBaseType,
             IConventionContext<IConventionEntityType> context)
         {
+            Check.NotNull(entityTypeBuilder, nameof(entityTypeBuilder));
+            Check.NotNull(context, nameof(context));
+
             if (entityTypeBuilder.Metadata.BaseType != newBaseType)
             {
                 return;

@@ -4,11 +4,10 @@
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.TestUtilities;
-using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
 
-namespace Microsoft.EntityFrameworkCore.Cosmos.Infrastructure
+namespace Microsoft.EntityFrameworkCore.Infrastructure
 {
     public class CosmosModelValidatorTest : ModelValidatorTestBase
     {

@@ -3,7 +3,6 @@
 
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Cosmos.Metadata.Internal;
-using Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Utilities;
 
@@ -20,14 +19,14 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="entityType"> The entity type to get the container name for. </param>
         /// <returns> The name of the container to which the entity type is mapped. </returns>
-        public static string GetCosmosContainerName([NotNull] this IEntityType entityType) =>
+        public static string GetCosmosContainer([NotNull] this IEntityType entityType) =>
             entityType.BaseType != null
-                ? entityType.RootType().GetCosmosContainerName()
+                ? entityType.RootType().GetCosmosContainer()
                 : (string)entityType[CosmosAnnotationNames.ContainerName]
-                  ?? GetCosmosDefaultContainerName(entityType);
+                  ?? GetCosmosDefaultContainer(entityType);
 
-        private static string GetCosmosDefaultContainerName(IEntityType entityType)
-            => entityType.Model.GetCosmosDefaultContainerName()
+        private static string GetCosmosDefaultContainer(IEntityType entityType)
+            => entityType.Model.GetCosmosDefaultContainer()
                ?? entityType.ShortName();
 
         /// <summary>
@@ -35,7 +34,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="entityType"> The entity type to set the container name for. </param>
         /// <param name="name"> The name to set. </param>
-        public static void SetCosmosContainerName([NotNull] this IMutableEntityType entityType, [CanBeNull] string name)
+        public static void SetCosmosContainer([NotNull] this IMutableEntityType entityType, [CanBeNull] string name)
             => entityType.SetOrRemoveAnnotation(
                 CosmosAnnotationNames.ContainerName,
                 Check.NullButNotEmpty(name, nameof(name)));
@@ -46,7 +45,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="entityType"> The entity type to set the container name for. </param>
         /// <param name="name"> The name to set. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        public static void SetCosmosContainerName(
+        public static void SetCosmosContainer(
             [NotNull] this IConventionEntityType entityType, [CanBeNull] string name, bool fromDataAnnotation = false)
             => entityType.SetOrRemoveAnnotation(
                 CosmosAnnotationNames.ContainerName,
@@ -58,7 +57,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="entityType"> The entity type to find configuration source for. </param>
         /// <returns> The <see cref="ConfigurationSource" /> for the container to which the entity type is mapped. </returns>
-        public static ConfigurationSource? GetCosmosContainerNameConfigurationSource([NotNull] this IConventionEntityType entityType)
+        public static ConfigurationSource? GetCosmosContainerConfigurationSource([NotNull] this IConventionEntityType entityType)
             => entityType.FindAnnotation(CosmosAnnotationNames.ContainerName)
                 ?.GetConfigurationSource();
 
@@ -145,21 +144,5 @@ namespace Microsoft.EntityFrameworkCore
         public static ConfigurationSource? GetCosmosPartitionKeyPropertyNameConfigurationSource([NotNull] this IConventionEntityType entityType)
             => entityType.FindAnnotation(CosmosAnnotationNames.PartitionKeyName)
                 ?.GetConfigurationSource();
-
-        /// <summary>
-        ///     Returns the store name of the property that is used to store the partition key.
-        /// </summary>
-        /// <param name="entityType"> The entity type to get the partition key property name for. </param>
-        /// <returns> The name of the partition key property. </returns>
-        public static string GetCosmosPartitionKeyStoreName([NotNull] this IEntityType entityType)
-        {
-            var name = entityType.GetCosmosPartitionKeyPropertyName();
-            if (name != null)
-            {
-                return entityType.FindProperty(name).GetCosmosPropertyName();
-            }
-
-            return CosmosClientWrapper.DefaultPartitionKey;
-        }
     }
 }

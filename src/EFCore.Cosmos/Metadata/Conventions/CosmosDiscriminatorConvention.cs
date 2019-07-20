@@ -3,12 +3,11 @@
 
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Internal;
-using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
+using Microsoft.EntityFrameworkCore.Utilities;
 
-namespace Microsoft.EntityFrameworkCore.Cosmos.Metadata.Conventions
+namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 {
     /// <summary>
     ///     A convention that configures the discriminator value for entity types as the entity type name.
@@ -29,10 +28,13 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Metadata.Conventions
         /// </summary>
         /// <param name="entityTypeBuilder"> The builder for the entity type. </param>
         /// <param name="context"> Additional information associated with convention execution. </param>
-        public void ProcessEntityTypeAdded(
+        public virtual void ProcessEntityTypeAdded(
             IConventionEntityTypeBuilder entityTypeBuilder,
             IConventionContext<IConventionEntityTypeBuilder> context)
         {
+            Check.NotNull(entityTypeBuilder, nameof(entityTypeBuilder));
+            Check.NotNull(context, nameof(context));
+
             var entityType = entityTypeBuilder.Metadata;
             if (entityTypeBuilder.Metadata.BaseType == null
                 && !entityTypeBuilder.Metadata.GetDerivedTypes().Any())

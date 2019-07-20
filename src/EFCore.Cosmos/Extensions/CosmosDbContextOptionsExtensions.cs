@@ -3,16 +3,28 @@
 
 using System;
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Cosmos.Infrastructure;
-using Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 // ReSharper disable once CheckNamespace
 namespace Microsoft.EntityFrameworkCore
 {
+    /// <summary>
+    ///     Cosmos-specific extension methods for <see cref="DbContextOptionsBuilder" />.
+    /// </summary>
     public static class CosmosDbContextOptionsExtensions
     {
+        /// <summary>
+        ///     Configures the context to connect to an Azure Cosmos database.
+        /// </summary>
+        /// <typeparam name="TContext"> The type of context to be configured. </typeparam>
+        /// <param name="optionsBuilder"> The builder being used to configure the context. </param>
+        /// <param name="accountEndpoint"> The account end-point to connect to. </param>
+        /// <param name="accountKey"> The account key. </param>
+        /// <param name="databaseName"> The database name. </param>
+        /// <param name="cosmosOptionsAction">An optional action to allow additional Cosmos-specific configuration.</param>
+        /// <returns> The options builder so that further configuration can be chained. </returns>
         public static DbContextOptionsBuilder<TContext> UseCosmos<TContext>(
             [NotNull] this DbContextOptionsBuilder<TContext> optionsBuilder,
             [NotNull] string accountEndpoint,
@@ -27,6 +39,15 @@ namespace Microsoft.EntityFrameworkCore
                 databaseName,
                 cosmosOptionsAction);
 
+        /// <summary>
+        ///     Configures the context to connect to a Azure Cosmos database.
+        /// </summary>
+        /// <param name="optionsBuilder"> The builder being used to configure the context. </param>
+        /// <param name="accountEndpoint"> The account end-point to connect to. </param>
+        /// <param name="accountKey"> The account key. </param>
+        /// <param name="databaseName"> The database name. </param>
+        /// <param name="cosmosOptionsAction">An optional action to allow additional Cosmos-specific configuration.</param>
+        /// <returns> The options builder so that further configuration can be chained. </returns>
         public static DbContextOptionsBuilder UseCosmos(
             [NotNull] this DbContextOptionsBuilder optionsBuilder,
             [NotNull] string accountEndpoint,

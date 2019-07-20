@@ -17,16 +17,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             var entityType = modelBuilder
                 .Entity<Customer>();
 
-            Assert.Equal(nameof(DbContext), entityType.Metadata.GetCosmosContainerName());
+            Assert.Equal(nameof(DbContext), entityType.Metadata.GetCosmosContainer());
 
             entityType.ForCosmosToContainer("Customizer");
-            Assert.Equal("Customizer", entityType.Metadata.GetCosmosContainerName());
+            Assert.Equal("Customizer", entityType.Metadata.GetCosmosContainer());
 
             entityType.ForCosmosToContainer(null);
-            Assert.Equal(nameof(DbContext), entityType.Metadata.GetCosmosContainerName());
+            Assert.Equal(nameof(DbContext), entityType.Metadata.GetCosmosContainer());
 
-            modelBuilder.ForCosmosHasDefaultContainerName("Unicorn");
-            Assert.Equal("Unicorn", entityType.Metadata.GetCosmosContainerName());
+            modelBuilder.ForCosmosHasDefaultContainer("Unicorn");
+            Assert.Equal("Unicorn", entityType.Metadata.GetCosmosContainer());
         }
 
         [ConditionalFact]
@@ -63,21 +63,21 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 .Entity<Customer>();
 
             var entityType = modelBuilder.Model.FindEntityType(typeof(Customer));
-            modelBuilder.ForCosmosHasDefaultContainerName(null);
+            modelBuilder.ForCosmosHasDefaultContainer(null);
 
-            Assert.Equal(nameof(Customer), entityType.GetCosmosContainerName());
-            Assert.Null(modelBuilder.Model.GetCosmosDefaultContainerName());
+            Assert.Equal(nameof(Customer), entityType.GetCosmosContainer());
+            Assert.Null(modelBuilder.Model.GetCosmosDefaultContainer());
 
-            modelBuilder.ForCosmosHasDefaultContainerName("db0");
+            modelBuilder.ForCosmosHasDefaultContainer("db0");
 
-            Assert.Equal("db0", entityType.GetCosmosContainerName());
-            Assert.Equal("db0", modelBuilder.Model.GetCosmosDefaultContainerName());
+            Assert.Equal("db0", entityType.GetCosmosContainer());
+            Assert.Equal("db0", modelBuilder.Model.GetCosmosDefaultContainer());
 
             modelBuilder
                 .Entity<Customer>()
                 .ForCosmosToContainer("db1");
 
-            Assert.Equal("db1", entityType.GetCosmosContainerName());
+            Assert.Equal("db1", entityType.GetCosmosContainer());
         }
 
         [ConditionalFact]

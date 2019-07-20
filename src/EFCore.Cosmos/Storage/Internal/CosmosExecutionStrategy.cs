@@ -10,15 +10,20 @@ using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
 {
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
     public class CosmosExecutionStrategy : ExecutionStrategy
     {
         /// <summary>
-        ///     Creates a new instance of <see cref="CosmosExecutionStrategy" />.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        /// <param name="context"> The context on which the operations will be invoked. </param>
-        /// <remarks>
-        ///     The default retry limit is 6, which means that the total amount of time spent before failing is about a minute.
-        /// </remarks>
         public CosmosExecutionStrategy(
             [NotNull] DbContext context)
             : this(context, DefaultMaxRetryCount)
@@ -26,9 +31,11 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
         }
 
         /// <summary>
-        ///     Creates a new instance of <see cref="CosmosExecutionStrategy" />.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        /// <param name="dependencies"> Parameter object containing service dependencies. </param>
         public CosmosExecutionStrategy(
             [NotNull] ExecutionStrategyDependencies dependencies)
             : this(dependencies, DefaultMaxRetryCount)
@@ -36,10 +43,11 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
         }
 
         /// <summary>
-        ///     Creates a new instance of <see cref="CosmosExecutionStrategy" />.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        /// <param name="context"> The context on which the operations will be invoked. </param>
-        /// <param name="maxRetryCount"> The maximum number of retry attempts. </param>
         public CosmosExecutionStrategy(
             [NotNull] DbContext context,
             int maxRetryCount)
@@ -48,10 +56,11 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
         }
 
         /// <summary>
-        ///     Creates a new instance of <see cref="CosmosExecutionStrategy" />.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        /// <param name="dependencies"> Parameter object containing service dependencies. </param>
-        /// <param name="maxRetryCount"> The maximum number of retry attempts. </param>
         public CosmosExecutionStrategy(
             [NotNull] ExecutionStrategyDependencies dependencies,
             int maxRetryCount)
@@ -60,27 +69,33 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
         }
 
         /// <summary>
-        ///     Creates a new instance of <see cref="CosmosExecutionStrategy" />.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        /// <param name="context"> The context on which the operations will be invoked. </param>
-        /// <param name="maxRetryCount"> The maximum number of retry attempts. </param>
-        /// <param name="maxRetryDelay"> The maximum delay between retries. </param>
         public CosmosExecutionStrategy([NotNull] DbContext context, int maxRetryCount, TimeSpan maxRetryDelay)
             : base(context, maxRetryCount, maxRetryDelay)
         {
         }
 
         /// <summary>
-        ///     Creates a new instance of <see cref="CosmosExecutionStrategy" />.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        /// <param name="dependencies"> Parameter object containing service dependencies. </param>
-        /// <param name="maxRetryCount"> The maximum number of retry attempts. </param>
-        /// <param name="maxRetryDelay"> The maximum delay between retries. </param>
         public CosmosExecutionStrategy([NotNull] ExecutionStrategyDependencies dependencies, int maxRetryCount, TimeSpan maxRetryDelay)
             : base(dependencies, maxRetryCount, maxRetryDelay)
         {
         }
 
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         protected override bool ShouldRetryOn(Exception exception)
         {
             if (exception is HttpException httpException)
@@ -100,6 +115,12 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
             return false;
         }
 
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         protected override TimeSpan? GetNextDelay(Exception lastException)
         {
             var baseDelay = base.GetNextDelay(lastException);
