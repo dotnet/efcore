@@ -797,7 +797,7 @@ ORDER BY [table_schema], [table_name], [c].[column_id]";
         {
             using (var command = connection.CreateCommand())
             {
-                command.CommandText = @"
+                var commandText = @"
 SELECT
     SCHEMA_NAME([t].[schema_id]) AS [table_schema],
     [t].[name] AS [table_name],
@@ -812,8 +812,30 @@ SELECT
 FROM [sys].[indexes] AS [i]
 JOIN [sys].[tables] AS [t] ON [i].[object_id] = [t].[object_id]
 JOIN [sys].[index_columns] AS [ic] ON [i].[object_id] = [ic].[object_id] AND [i].[index_id] = [ic].[index_id]
-WHERE " + tableFilter + @"
+JOIN [sys].[columns] AS [c] ON [ic].[object_id] = [c].[object_id] AND [ic].[column_id] = [c].[column_id]
+WHERE " + tableFilter;
+
+                if (SupportsTemporalTable(connection))
+                {
+                    commandText += @"
+AND CAST([i].[object_id] AS nvarchar(12)) + CAST([i].[index_id] AS nvarchar(12)) NOT IN
+(
+   SELECT CAST([i].[object_id] AS nvarchar(12)) + CAST([i].[index_id] AS nvarchar(12))
+   FROM [sys].[indexes] i
+   JOIN [sys].[tables] AS [t] ON [i].[object_id] = [t].[object_id]
+   JOIN [sys].[index_columns] AS [ic] ON [i].[object_id] = [ic].[object_id] AND [i].[index_id] = [ic].[index_id]
+   JOIN [sys].[columns] AS [c] ON [ic].[object_id] = [c].[object_id] AND [ic].[column_id] = [c].[column_id]
+   WHERE " + tableFilter;
+
+                    commandText += @"
+   AND [c].[is_hidden] = 1
+)";
+                }
+
+                commandText  += @"
 ORDER BY [table_schema], [table_name], [index_name], [ic].[key_ordinal]";
+
+                command.CommandText = commandText;
 
                 using (var reader = command.ExecuteReader())
                 {
