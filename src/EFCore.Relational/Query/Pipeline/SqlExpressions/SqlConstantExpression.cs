@@ -26,31 +26,8 @@ namespace Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions
         protected override Expression VisitChildren(ExpressionVisitor visitor) => this;
         public override void Print(ExpressionPrinter expressionPrinter) => Print(Value, expressionPrinter);
 
-        private void Print(
-            object value,
-            ExpressionPrinter expressionPrinter)
-        {
-            if (value is IEnumerable enumerable
-                && !(value is string)
-                && !(value is byte[]))
-            {
-                bool first = true;
-                foreach (var item in enumerable)
-                {
-                    if (!first)
-                    {
-                        expressionPrinter.StringBuilder.Append(", ");
-                    }
-
-                    first = false;
-                    Print(item, expressionPrinter);
-                }
-            }
-            else
-            {
-                expressionPrinter.StringBuilder.Append(TypeMapping?.GenerateSqlLiteral(value) ?? Value?.ToString() ?? "NULL");
-            }
-        }
+        private void Print(object value, ExpressionPrinter expressionPrinter)
+            => expressionPrinter.StringBuilder.Append(TypeMapping?.GenerateSqlLiteral(value) ?? Value?.ToString() ?? "NULL");
 
         public override bool Equals(object obj)
             => obj != null
