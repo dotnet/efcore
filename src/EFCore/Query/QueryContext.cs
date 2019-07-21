@@ -9,7 +9,6 @@ using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 
@@ -114,7 +113,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// </summary>
         /// <param name="name"> The name. </param>
         /// <param name="value"> The value. </param>
-        public virtual void AddParameter(string name, object value)
+        public virtual void Add(string name, object value)
         {
             Check.NotEmpty(name, nameof(name));
 
@@ -126,7 +125,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// </summary>
         /// <param name="name"> The name. </param>
         /// <param name="value"> The value. </param>
-        public virtual void SetParameter(string name, object value)
+        public virtual void Replace(string name, object value)
         {
             Check.NotEmpty(name, nameof(name));
 
@@ -140,7 +139,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <returns>
         ///     The parameter value.
         /// </returns>
-        public virtual object RemoveParameter(string name)
+        public virtual object Remove(string name)
         {
             Check.NotEmpty(name, nameof(name));
 

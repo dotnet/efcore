@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
@@ -17,7 +16,6 @@ using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Query;
-using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.EntityFrameworkCore.ValueGeneration;
 using Microsoft.Extensions.Caching.Memory;
@@ -623,6 +621,10 @@ namespace Microsoft.EntityFrameworkCore
 
         private class FakeEntityMaterializerSource : EntityMaterializerSource
         {
+            public FakeEntityMaterializerSource(EntityMaterializerSourceDependencies dependencies)
+                : base(dependencies)
+            {
+            }
         }
 
         private class FakeModelSource : IModelSource
@@ -2612,8 +2614,7 @@ namespace Microsoft.EntityFrameworkCore
 
         private class CustomInMemoryTableFactory : InMemoryTableFactory
         {
-            public CustomInMemoryTableFactory(
-                [NotNull] ILoggingOptions loggingOptions)
+            public CustomInMemoryTableFactory(ILoggingOptions loggingOptions)
                 : base(loggingOptions)
             {
             }

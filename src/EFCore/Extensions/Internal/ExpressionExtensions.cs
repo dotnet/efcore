@@ -7,15 +7,11 @@ using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using System.Runtime.Versioning;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using Microsoft.EntityFrameworkCore.Query.Expressions.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
-using Microsoft.EntityFrameworkCore.Query.NavigationExpansion;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 // ReSharper disable once CheckNamespace
@@ -39,50 +35,6 @@ namespace Microsoft.EntityFrameworkCore.Internal
         public static bool IsNullConstantExpression([NotNull] this Expression expression)
             => expression.RemoveConvert() is ConstantExpression constantExpression
                && constantExpression.Value == null;
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public static PropertyInfo GetPropertyAccess([NotNull] this LambdaExpression propertyAccessExpression)
-        {
-            Debug.Assert(propertyAccessExpression.Parameters.Count == 1);
-
-            var parameterExpression = propertyAccessExpression.Parameters.Single();
-            var propertyInfo = parameterExpression.MatchSimplePropertyAccess(propertyAccessExpression.Body);
-
-            if (propertyInfo == null)
-            {
-                throw new ArgumentException(
-                    CoreStrings.InvalidPropertyExpression(propertyAccessExpression),
-                    nameof(propertyAccessExpression));
-            }
-
-            var declaringType = propertyInfo.DeclaringType;
-            var parameterType = parameterExpression.Type;
-
-            if (declaringType != null
-                && declaringType != parameterType
-                && declaringType.GetTypeInfo().IsInterface
-                && declaringType.GetTypeInfo().IsAssignableFrom(parameterType.GetTypeInfo()))
-            {
-                var propertyGetter = propertyInfo.GetMethod;
-                var interfaceMapping = parameterType.GetTypeInfo().GetRuntimeInterfaceMap(declaringType);
-                var index = Array.FindIndex(interfaceMapping.InterfaceMethods, p => propertyGetter.Equals(p));
-                var targetMethod = interfaceMapping.TargetMethods[index];
-                foreach (var runtimeProperty in parameterType.GetRuntimeProperties())
-                {
-                    if (targetMethod.Equals(runtimeProperty.GetMethod))
-                    {
-                        return runtimeProperty;
-                    }
-                }
-            }
-
-            return propertyInfo;
-        }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -254,26 +206,6 @@ namespace Microsoft.EntityFrameworkCore.Internal
         public static bool IsEntityQueryable([NotNull] this ConstantExpression constantExpression)
             => constantExpression.Type.GetTypeInfo().IsGenericType
                && constantExpression.Type.GetGenericTypeDefinition() == typeof(EntityQueryable<>);
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public static Expression CreateAssignExpression(
-            [NotNull] this MemberExpression left,
-            [NotNull] Expression right)
-        {
-            var leftType = left.Type;
-            if (leftType != right.Type
-                && right.Type.GetTypeInfo().IsAssignableFrom(leftType.GetTypeInfo()))
-            {
-                right = Expression.Convert(right, leftType);
-            }
-
-            return left.Assign(right);
-        }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

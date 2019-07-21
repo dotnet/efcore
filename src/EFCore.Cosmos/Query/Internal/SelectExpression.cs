@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Query.Pipeline;
+using Microsoft.EntityFrameworkCore.Query;
 using Newtonsoft.Json.Linq;
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
@@ -143,7 +143,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
             {
                 result[keyValuePair.Key] = Constant(AddToProjection(
                         keyValuePair.Value,
-                        keyValuePair.Key.LastMember?.Name));
+                        keyValuePair.Key.Last?.Name));
             }
 
             _projectionMapping = result;
@@ -347,7 +347,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                 _orderings.Add(
                     new OrderingExpression(
                         existingOrdering.Expression,
-                        !existingOrdering.Ascending));
+                        !existingOrdering.IsAscending));
             }
         }
 

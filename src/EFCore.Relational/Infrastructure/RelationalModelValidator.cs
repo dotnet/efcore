@@ -74,7 +74,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             {
                 var methodInfo = dbFunction.MethodInfo;
 
-                if (string.IsNullOrEmpty(dbFunction.FunctionName))
+                if (string.IsNullOrEmpty(dbFunction.Name))
                 {
                     throw new InvalidOperationException(
                         RelationalStrings.DbFunctionNameEmpty(methodInfo.DisplayName()));

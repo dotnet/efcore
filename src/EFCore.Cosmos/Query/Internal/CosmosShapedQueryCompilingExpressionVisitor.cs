@@ -11,7 +11,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Metadata.Internal;
-using Microsoft.EntityFrameworkCore.Cosmos.Query.Internal;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
@@ -19,9 +18,6 @@ using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Query;
-using Microsoft.EntityFrameworkCore.Query.Internal;
-using Microsoft.EntityFrameworkCore.Query.NavigationExpansion;
-using Microsoft.EntityFrameworkCore.Query.Pipeline;
 using Microsoft.EntityFrameworkCore.Storage;
 using Newtonsoft.Json.Linq;
 
@@ -75,7 +71,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
             shaperBody = new JObjectInjectingExpressionVisitor()
                 .Visit(shaperBody);
             shaperBody = InjectEntityMaterializers(shaperBody);
-            shaperBody = new CosmosProjectionBindingRemovingExpressionVisitor(selectExpression, jObjectParameter, TrackQueryResults)
+            shaperBody = new CosmosProjectionBindingRemovingExpressionVisitor(selectExpression, jObjectParameter, IsTracking)
                 .Visit(shaperBody);
 
             var shaperLambda = Expression.Lambda(
@@ -84,7 +80,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                 jObjectParameter);
 
             return Expression.New(
-                (Async
+                (IsAsync
                     ? typeof(AsyncQueryingEnumerable<>)
                     : typeof(QueryingEnumerable<>)).MakeGenericType(shaperLambda.ReturnType).GetConstructors()[0],
                 Expression.Convert(QueryCompilationContext.QueryContextParameter, typeof(CosmosQueryContext)),
@@ -951,7 +947,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                         ? _sqlExpressionFactory.In(
                             (SqlExpression)Visit(inExpression.Item),
                             _sqlExpressionFactory.Constant(inValues, typeMapping),
-                            inExpression.Negated)
+                            inExpression.IsNegated)
                         : null;
 
                     var nullCheckExpression = hasNullValue

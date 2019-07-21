@@ -58,7 +58,6 @@ namespace Microsoft.EntityFrameworkCore
                    where !it.IsInterface
                    let ns = it.Namespace
                    where ns.StartsWith("Microsoft.Entity", StringComparison.Ordinal)
-                         && !ns.Contains("Query.Pipeline", StringComparison.Ordinal)
                          && !ns.EndsWith(".Internal", StringComparison.Ordinal)
                          && !it.Name.EndsWith("Dependencies", StringComparison.Ordinal)
                          && (it.GetConstructors().Length != 1
@@ -96,7 +95,6 @@ namespace Microsoft.EntityFrameworkCore
                          && !method.Name.StartsWith("remove_", StringComparison.Ordinal)
                          && (method.IsPublic || method.IsFamily || method.IsFamilyOrAssembly)
                          && method.Name != "GenerateCacheKeyCore"
-                         && !method.DeclaringType.Namespace.Contains("Query.Pipeline", StringComparison.Ordinal)
                    select type.FullName + "." + method.Name)
                 .ToList();
 

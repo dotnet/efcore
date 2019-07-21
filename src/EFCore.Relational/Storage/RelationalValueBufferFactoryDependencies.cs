@@ -51,9 +51,14 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///         injection container, then replace selected services using the 'With...' methods. Do not call
         ///         the constructor at any point in this process.
         ///     </para>
+        ///     <para>
+        ///         This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///         the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///         any release. You should only use it directly in your code with extreme caution and knowing that
+        ///         doing so can result in application failures when updating to a new Entity Framework Core release.
+        ///     </para>
         /// </summary>
-        /// <param name="typeMappingSource"> The type mapping source. </param>
-        /// <param name="coreOptions"> The core options. </param>
+        [EntityFrameworkInternal]
         public RelationalValueBufferFactoryDependencies(
             [NotNull] IRelationalTypeMappingSource typeMappingSource,
             [NotNull] ICoreSingletonOptions coreOptions)

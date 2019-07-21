@@ -48,18 +48,13 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         ///         any release. You should only use it directly in your code with extreme caution and knowing that
         ///         doing so can result in application failures when updating to a new Entity Framework Core release.
         ///     </para>
+        ///     <para>
+        ///         This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///         the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///         any release. You should only use it directly in your code with extreme caution and knowing that
+        ///         doing so can result in application failures when updating to a new Entity Framework Core release.
+        ///     </para>
         /// </summary>
-        /// <param name="currentContext"> The current DbContext. </param>
-        /// <param name="model"> The model. </param>
-        /// <param name="migrationsAssembly"> The migrations assembly. </param>
-        /// <param name="migrationsModelDiffer"> The migrations model differ. </param>
-        /// <param name="migrationsIdGenerator"> The migrations ID generator. </param>
-        /// <param name="migrationsCodeGeneratorSelector"> The migrations code generator selector. </param>
-        /// <param name="historyRepository"> The history repository. </param>
-        /// <param name="operationReporter"> The operation reporter. </param>
-        /// <param name="databaseProvider"> The database provider. </param>
-        /// <param name="snapshotModelProcessor"> The snapshot model processor. </param>
-        /// <param name="migrator"> The migrator. </param>
         [EntityFrameworkInternal]
         public MigrationsScaffolderDependencies(
             [NotNull] ICurrentDbContext currentContext,

@@ -4,7 +4,7 @@
 using System;
 using System.Collections.Generic;
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions;
+using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Microsoft.EntityFrameworkCore.Metadata
@@ -18,7 +18,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <summary>
         ///     The name of the function in the database.
         /// </summary>
-        new string FunctionName { get; [param: CanBeNull] set; }
+        new string Name { get; [param: CanBeNull] set; }
 
         /// <summary>
         ///     The schema of the function in the database.

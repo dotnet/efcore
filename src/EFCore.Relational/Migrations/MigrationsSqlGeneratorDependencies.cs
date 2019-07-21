@@ -55,12 +55,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         ///         doing so can result in application failures when updating to a new Entity Framework Core release.
         ///     </para>
         /// </summary>
-        /// <param name="commandBuilderFactory"> The command builder factory. </param>
-        /// <param name="updateSqlGenerator"> High level SQL generator. </param>
-        /// <param name="sqlGenerationHelper"> Helpers for SQL generation. </param>
-        /// <param name="typeMappingSource"> The type mapper. </param>
-        /// <param name="currentContext"> Contains the <see cref="DbContext"/> currently in use. </param>
-        /// <param name="logger"> A logger. </param>
         [EntityFrameworkInternal]
         public MigrationsSqlGeneratorDependencies(
             [NotNull] IRelationalCommandBuilderFactory commandBuilderFactory,

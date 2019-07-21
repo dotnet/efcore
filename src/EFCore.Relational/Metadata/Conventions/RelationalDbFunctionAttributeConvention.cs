@@ -96,7 +96,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             var methodInfo = dbFunctionBuilder.Metadata.MethodInfo;
             var dbFunctionAttribute = methodInfo.GetCustomAttributes<DbFunctionAttribute>().SingleOrDefault();
 
-            dbFunctionBuilder.HasName(dbFunctionAttribute?.FunctionName ?? methodInfo.Name);
+            dbFunctionBuilder.HasName(dbFunctionAttribute?.Name ?? methodInfo.Name);
             dbFunctionBuilder.HasSchema(dbFunctionAttribute?.Schema);
         }
     }

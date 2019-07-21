@@ -5,7 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
-using Microsoft.EntityFrameworkCore.Query.Internal;
+using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
@@ -19,13 +19,13 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
     public class SqlFunctionExpression : SqlExpression
     {
         public SqlFunctionExpression(
-            string functionName,
+            string name,
             IEnumerable<SqlExpression> arguments,
             Type type,
             CoreTypeMapping typeMapping)
             : base(type, typeMapping)
         {
-            FunctionName = functionName;
+            Name = name;
             Arguments = (arguments ?? Array.Empty<SqlExpression>()).ToList();
         }
 
@@ -35,7 +35,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual string FunctionName { get; }
+        public virtual string Name { get; }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -63,7 +63,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
 
             return changed
                 ? new SqlFunctionExpression(
-                    FunctionName,
+                    Name,
                     arguments,
                     Type,
                     TypeMapping)
@@ -78,7 +78,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         /// </summary>
         public virtual SqlFunctionExpression ApplyTypeMapping(CoreTypeMapping typeMapping)
             => new SqlFunctionExpression(
-                FunctionName,
+                Name,
                 Arguments,
                 Type,
                 typeMapping ?? TypeMapping);
@@ -91,7 +91,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         /// </summary>
         public virtual SqlFunctionExpression Update(IReadOnlyList<SqlExpression> arguments)
             => !arguments.SequenceEqual(Arguments)
-                ? new SqlFunctionExpression(FunctionName, arguments, Type, TypeMapping)
+                ? new SqlFunctionExpression(Name, arguments, Type, TypeMapping)
                 : this;
 
         /// <summary>
@@ -102,7 +102,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         /// </summary>
         public override void Print(ExpressionPrinter expressionPrinter)
         {
-            expressionPrinter.StringBuilder.Append(FunctionName);
+            expressionPrinter.StringBuilder.Append(Name);
             expressionPrinter.StringBuilder.Append("(");
             expressionPrinter.VisitList(Arguments);
             expressionPrinter.StringBuilder.Append(")");
@@ -122,7 +122,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
 
         private bool Equals(SqlFunctionExpression sqlFunctionExpression)
             => base.Equals(sqlFunctionExpression)
-            && string.Equals(FunctionName, sqlFunctionExpression.FunctionName)
+            && string.Equals(Name, sqlFunctionExpression.Name)
             && Arguments.SequenceEqual(sqlFunctionExpression.Arguments);
 
         /// <summary>
@@ -135,7 +135,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         {
             var hash = new HashCode();
             hash.Add(base.GetHashCode());
-            hash.Add(FunctionName);
+            hash.Add(Name);
             for (var i = 0; i < Arguments.Count; i++)
             {
                 hash.Add(Arguments[i]);

@@ -59,7 +59,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
             //            arguments.Select(e => _sqlExpressionFactory.ApplyDefaultTypeMapping(e)).ToList())
             //        ?? _sqlExpressionFactory.Function(
             //            dbFunction.Schema,
-            //            dbFunction.FunctionName,
+            //            dbFunction.Name,
             //            arguments,
             //            method.ReturnType);
             //}

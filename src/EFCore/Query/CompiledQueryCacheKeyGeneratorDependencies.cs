@@ -50,9 +50,14 @@ namespace Microsoft.EntityFrameworkCore.Query
         ///         injection container, then replace selected services using the 'With...' methods. Do not call
         ///         the constructor at any point in this process.
         ///     </para>
+        ///     <para>
+        ///         This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///         the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///         any release. You should only use it directly in your code with extreme caution and knowing that
+        ///         doing so can result in application failures when updating to a new Entity Framework Core release.
+        ///     </para>
         /// </summary>
-        /// <param name="model"> The model that queries will be written against. </param>
-        /// <param name="currentContext"> The context that queries will be executed for. </param>
+        [EntityFrameworkInternal]
         public CompiledQueryCacheKeyGeneratorDependencies([NotNull] IModel model, [NotNull] ICurrentDbContext currentContext)
         {
             Check.NotNull(model, nameof(model));

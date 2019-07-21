@@ -1028,7 +1028,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             var dbFunc = modelBuilder.Model.FindDbFunction(testMethod) as DbFunction;
 
             Assert.NotNull(dbFunc);
-            Assert.Equal("MethodA", dbFunc.FunctionName);
+            Assert.Equal("MethodA", dbFunc.Name);
             Assert.Null(dbFunc.Schema);
         }
 

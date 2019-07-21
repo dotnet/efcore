@@ -10,7 +10,7 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions;
+using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 
@@ -28,13 +28,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         private readonly string _annotationName;
         private readonly List<DbFunctionParameter> _parameters;
         private string _schema;
-        private string _functionName;
+        private string _name;
         private string _storeType;
         private RelationalTypeMapping _typeMapping;
         private Func<IReadOnlyCollection<SqlExpression>, SqlExpression> _translation;
 
         private ConfigurationSource? _schemaConfigurationSource;
-        private ConfigurationSource? _functionNameConfigurationSource;
+        private ConfigurationSource? _nameConfigurationSource;
         private ConfigurationSource? _storeTypeConfigurationSource;
         private ConfigurationSource? _typeMappingConfigurationSource;
         private ConfigurationSource? _translationConfigurationSource;
@@ -183,10 +183,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual string FunctionName
+        public virtual string Name
         {
-            get => _functionName ?? MethodInfo.Name;
-            set => SetFunctionName(value, ConfigurationSource.Explicit);
+            get => _name ?? MethodInfo.Name;
+            set => SetName(value, ConfigurationSource.Explicit);
         }
 
         /// <summary>
@@ -195,17 +195,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual void SetFunctionName([NotNull] string name, ConfigurationSource configurationSource)
+        public virtual void SetName([NotNull] string name, ConfigurationSource configurationSource)
         {
             Check.NotNull(name, nameof(name));
 
-            _functionName = name;
+            _name = name;
 
-            UpdateFunctionNameConfigurationSource(configurationSource);
+            UpdateNameConfigurationSource(configurationSource);
         }
 
-        private void UpdateFunctionNameConfigurationSource(ConfigurationSource configurationSource)
-            => _functionNameConfigurationSource = configurationSource.Max(_functionNameConfigurationSource);
+        private void UpdateNameConfigurationSource(ConfigurationSource configurationSource)
+            => _nameConfigurationSource = configurationSource.Max(_nameConfigurationSource);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -213,7 +213,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual ConfigurationSource? GetFunctionNameConfigurationSource() => _functionNameConfigurationSource;
+        public virtual ConfigurationSource? GetNameConfigurationSource() => _nameConfigurationSource;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -387,8 +387,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        void IConventionDbFunction.SetFunctionName(string name, bool fromDataAnnotation)
-            => SetFunctionName(name, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+        void IConventionDbFunction.SetName(string name, bool fromDataAnnotation)
+            => SetName(name, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

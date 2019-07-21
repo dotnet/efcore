@@ -10,7 +10,7 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions;
+using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.EntityFrameworkCore.Storage;
 
@@ -51,7 +51,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         {
             Check.NotEmpty(name, nameof(name));
 
-            _function.FunctionName = name;
+            _function.Name = name;
 
             return this;
         }
@@ -61,7 +61,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         {
             if (((IConventionDbFunctionBuilder)this).CanSetName(name, fromDataAnnotation))
             {
-                ((IConventionDbFunction)_function).SetFunctionName(name, fromDataAnnotation);
+                ((IConventionDbFunction)_function).SetName(name, fromDataAnnotation);
                 return this;
             }
 
@@ -70,8 +70,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
 
         /// <inheritdoc />
         bool IConventionDbFunctionBuilder.CanSetName(string name, bool fromDataAnnotation)
-            => Overrides(fromDataAnnotation, _function.GetFunctionNameConfigurationSource())
-               || _function.FunctionName == name;
+            => Overrides(fromDataAnnotation, _function.GetNameConfigurationSource())
+               || _function.Name == name;
 
         /// <summary>
         ///     Sets the schema of the database function.

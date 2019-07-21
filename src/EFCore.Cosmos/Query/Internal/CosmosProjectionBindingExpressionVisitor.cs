@@ -8,9 +8,6 @@ using System.Reflection;
 using Microsoft.EntityFrameworkCore.Cosmos.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Query;
-using Microsoft.EntityFrameworkCore.Query.Internal;
-using Microsoft.EntityFrameworkCore.Query.NavigationExpansion;
-using Microsoft.EntityFrameworkCore.Query.Pipeline;
 using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
@@ -312,7 +309,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                 }
                 else
                 {
-                    var projectionMember = _projectionMembers.Peek().AddMember(newExpression.Members[i]);
+                    var projectionMember = _projectionMembers.Peek().Append(newExpression.Members[i]);
                     _projectionMembers.Push(projectionMember);
                     newArguments[i] = Visit(newExpression.Arguments[i]);
                     if (newArguments[i] == null)
@@ -350,7 +347,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                 }
                 else
                 {
-                    var projectionMember = _projectionMembers.Peek().AddMember(memberAssignment.Member);
+                    var projectionMember = _projectionMembers.Peek().Append(memberAssignment.Member);
                     _projectionMembers.Push(projectionMember);
 
                     var visitedExpression = Visit(memberAssignment.Expression);
