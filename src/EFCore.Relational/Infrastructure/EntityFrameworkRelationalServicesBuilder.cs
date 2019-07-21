@@ -12,8 +12,6 @@ using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Migrations.Internal;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Query.Internal;
-using Microsoft.EntityFrameworkCore.Query.Pipeline;
-using Microsoft.EntityFrameworkCore.Relational.Query.Pipeline;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Update;
@@ -182,6 +180,10 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 .AddDependencySingleton<RelationalValueBufferFactoryDependencies>()
                 .AddDependencySingleton<RelationalTransactionFactoryDependencies>()
                 .AddDependencySingleton<RelationalCommandBuilderDependencies>()
+                .AddDependencySingleton<SqlExpressionFactoryDependencies>()
+                .AddDependencySingleton<RelationalMethodCallTranslatorProviderDependencies>()
+                .AddDependencySingleton<RelationalMemberTranslatorProviderDependencies>()
+                .AddDependencySingleton<RelationalSqlTranslatingExpressionVisitorFactoryDependencies>()
                 .AddDependencyScoped<MigrationsSqlGeneratorDependencies>()
                 .AddDependencyScoped<RelationalConventionSetBuilderDependencies>()
                 .AddDependencyScoped<ModificationCommandBatchFactoryDependencies>()

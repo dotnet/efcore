@@ -3,6 +3,8 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using JetBrains.Annotations;
@@ -23,6 +25,88 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
     /// </summary>
     public static class ExpressionExtensions
     {
+        private static readonly string _efTypeName = typeof(EF).FullName;
+
+        public static bool IsEFPropertyMethod([CanBeNull] this MethodInfo methodInfo)
+            => Equals(methodInfo, EF.PropertyMethod)
+               // fallback to string comparison because MethodInfo.Equals is not
+               // always true in .NET Native even if methods are the same
+               || methodInfo?.IsGenericMethod == true
+               && methodInfo.Name == nameof(EF.Property)
+               && methodInfo.DeclaringType?.FullName == _efTypeName;
+
+        public static bool IsEFProperty([NotNull] this MethodCallExpression methodCallExpression)
+            => IsEFPropertyMethod(methodCallExpression.Method);
+
+        public static bool TryGetEFPropertyArguments(
+            [NotNull] this MethodCallExpression methodCallExpression,
+            out Expression entityExpression,
+            out string propertyName)
+        {
+            if (IsEFProperty(methodCallExpression)
+                && methodCallExpression.Arguments[1] is ConstantExpression propertyNameExpression)
+            {
+                entityExpression = methodCallExpression.Arguments[0];
+                propertyName = (string)propertyNameExpression.Value;
+                return true;
+            }
+
+            (entityExpression, propertyName) = (null, null);
+            return false;
+        }
+
+        public static Expression CreateAssignExpression(
+            [NotNull] this MemberExpression left,
+            [NotNull] Expression right)
+        {
+            var leftType = left.Type;
+            if (leftType != right.Type
+                && right.Type.GetTypeInfo().IsAssignableFrom(leftType.GetTypeInfo()))
+            {
+                right = Expression.Convert(right, leftType);
+            }
+
+            return left.Assign(right);
+        }
+
+        public static PropertyInfo GetPropertyAccess([NotNull] this LambdaExpression propertyAccessExpression)
+        {
+            Debug.Assert(propertyAccessExpression.Parameters.Count == 1);
+
+            var parameterExpression = propertyAccessExpression.Parameters.Single();
+            var propertyInfo = parameterExpression.MatchSimplePropertyAccess(propertyAccessExpression.Body);
+
+            if (propertyInfo == null)
+            {
+                throw new ArgumentException(
+                    CoreStrings.InvalidPropertyExpression(propertyAccessExpression),
+                    nameof(propertyAccessExpression));
+            }
+
+            var declaringType = propertyInfo.DeclaringType;
+            var parameterType = parameterExpression.Type;
+
+            if (declaringType != null
+                && declaringType != parameterType
+                && declaringType.GetTypeInfo().IsInterface
+                && declaringType.GetTypeInfo().IsAssignableFrom(parameterType.GetTypeInfo()))
+            {
+                var propertyGetter = propertyInfo.GetMethod;
+                var interfaceMapping = parameterType.GetTypeInfo().GetRuntimeInterfaceMap(declaringType);
+                var index = Array.FindIndex(interfaceMapping.InterfaceMethods, p => propertyGetter.Equals(p));
+                var targetMethod = interfaceMapping.TargetMethods[index];
+                foreach (var runtimeProperty in parameterType.GetRuntimeProperties())
+                {
+                    if (targetMethod.Equals(runtimeProperty.GetMethod))
+                    {
+                        return runtimeProperty;
+                    }
+                }
+            }
+
+            return propertyInfo;
+        }
+
         /// <summary>
         ///     <para>
         ///         Returns a list of <see cref="PropertyInfo"/> extracted from the given simple

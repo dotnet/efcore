@@ -22,54 +22,6 @@ namespace Microsoft.EntityFrameworkCore.Internal
     // ReSharper disable once InconsistentNaming
     public static class EFPropertyExtensions
     {
-        private static readonly string _efTypeName = typeof(EF).FullName;
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public static bool TryGetEFPropertyArguments(
-            [NotNull] this MethodCallExpression methodCallExpression,
-            out Expression entityExpression,
-            out string propertyName)
-        {
-            if (IsEFProperty(methodCallExpression)
-                && methodCallExpression.Arguments[1] is ConstantExpression propertyNameExpression)
-            {
-                entityExpression = methodCallExpression.Arguments[0];
-                propertyName = (string)propertyNameExpression.Value;
-                return true;
-            }
-
-            (entityExpression, propertyName) = (null, null);
-            return false;
-        }
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public static bool IsEFProperty([NotNull] this MethodCallExpression methodCallExpression)
-            => IsEFPropertyMethod(methodCallExpression.Method);
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public static bool IsEFPropertyMethod([CanBeNull] this MethodInfo methodInfo)
-            => Equals(methodInfo, EF.PropertyMethod)
-               // fallback to string comparison because MethodInfo.Equals is not
-               // always true in .NET Native even if methods are the same
-               || methodInfo?.IsGenericMethod == true
-               && methodInfo.Name == nameof(EF.Property)
-               && methodInfo.DeclaringType?.FullName == _efTypeName;
-
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
         ///     the same compatibility standards as public APIs. It may be changed or removed without notice in

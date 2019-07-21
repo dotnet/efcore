@@ -5,7 +5,7 @@ using System;
 using System.Collections.Generic;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Microsoft.EntityFrameworkCore.Relational.Query.Pipeline.SqlExpressions;
+using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Microsoft.EntityFrameworkCore.Metadata
@@ -37,13 +37,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         /// <param name="name"> The name of the function in the database. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        void SetFunctionName([CanBeNull] string name, bool fromDataAnnotation = false);
+        void SetName([CanBeNull] string name, bool fromDataAnnotation = false);
 
         /// <summary>
-        ///     Returns the configuration source for <see cref="IDbFunction.FunctionName" />.
+        ///     Returns the configuration source for <see cref="IDbFunction.Name" />.
         /// </summary>
-        /// <returns> The configuration source for <see cref="IDbFunction.FunctionName" />. </returns>
-        ConfigurationSource? GetFunctionNameConfigurationSource();
+        /// <returns> The configuration source for <see cref="IDbFunction.Name" />. </returns>
+        ConfigurationSource? GetNameConfigurationSource();
 
         /// <summary>
         ///     Sets the schema of the function in the database.

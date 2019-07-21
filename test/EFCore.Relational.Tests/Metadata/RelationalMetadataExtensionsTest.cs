@@ -382,7 +382,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             var dbFunc = model.AddDbFunction(testMethod);
 
             Assert.NotNull(dbFunc);
-            Assert.NotNull(dbFunc.FunctionName);
+            Assert.NotNull(dbFunc.Name);
             Assert.Null(dbFunc.Schema);
         }
 

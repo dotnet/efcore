@@ -3,8 +3,7 @@
 
 using System;
 using System.Linq.Expressions;
-using Microsoft.EntityFrameworkCore.Query.Expressions.Internal;
-using Microsoft.EntityFrameworkCore.Query.Internal;
+using Microsoft.EntityFrameworkCore.Query;
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
 {
@@ -25,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         public OrderingExpression(SqlExpression expression, bool ascending)
         {
             Expression = expression;
-            Ascending = ascending;
+            IsAscending = ascending;
         }
 
         /// <summary>
@@ -42,7 +41,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual bool Ascending { get; }
+        public virtual bool IsAscending { get; }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -77,7 +76,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         /// </summary>
         public virtual OrderingExpression Update(SqlExpression expression)
             => expression != Expression
-                ? new OrderingExpression(expression, Ascending)
+                ? new OrderingExpression(expression, IsAscending)
                 : this;
 
         /// <summary>
@@ -90,7 +89,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         {
             expressionPrinter.Visit(Expression);
 
-            expressionPrinter.StringBuilder.Append(Ascending ? " ASC" : " DESC");
+            expressionPrinter.StringBuilder.Append(IsAscending ? " ASC" : " DESC");
         }
 
         /// <summary>
@@ -107,7 +106,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
 
         private bool Equals(OrderingExpression orderingExpression)
             => Expression.Equals(orderingExpression.Expression)
-            && Ascending == orderingExpression.Ascending;
+            && IsAscending == orderingExpression.IsAscending;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -115,6 +114,6 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public override int GetHashCode() => HashCode.Combine(Expression, Ascending);
+        public override int GetHashCode() => HashCode.Combine(Expression, IsAscending);
     }
 }

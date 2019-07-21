@@ -182,7 +182,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 throw new NotImplementedException();
             }
 
-            [DbFunction(Schema = "bar", FunctionName = "MethodFoo")]
+            [DbFunction(Schema = "bar", Name = "MethodFoo")]
             public static int MethodB(string c, int d)
             {
                 throw new NotImplementedException();
@@ -229,8 +229,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             var dbFunc1 = modelBuilder.HasDbFunction(dup1methodInfo).HasName("Dup1").Metadata;
             var dbFunc2 = modelBuilder.HasDbFunction(dup2methodInfo).HasName("Dup2").Metadata;
 
-            Assert.Equal("Dup1", dbFunc1.FunctionName);
-            Assert.Equal("Dup2", dbFunc2.FunctionName);
+            Assert.Equal("Dup1", dbFunc1.Name);
+            Assert.Equal("Dup2", dbFunc2.Name);
         }
 
         [ConditionalFact]
@@ -267,7 +267,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
             var dbFunc = modelBuilder.HasDbFunction(methodInfo).Metadata;
 
-            Assert.Equal("InstancePublicBase", dbFunc.FunctionName);
+            Assert.Equal("InstancePublicBase", dbFunc.Name);
             Assert.Equal(typeof(int), dbFunc.MethodInfo.ReturnType);
         }
 
@@ -305,7 +305,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             var dbFuncBuilder = modelBuilder.HasDbFunction(MethodAmi);
             var dbFunc = dbFuncBuilder.Metadata;
 
-            Assert.Equal("MethodA", dbFunc.FunctionName);
+            Assert.Equal("MethodA", dbFunc.Name);
             Assert.Null(dbFunc.Schema);
             Assert.Equal(typeof(int), dbFunc.MethodInfo.ReturnType);
         }
@@ -318,7 +318,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             var dbFuncBuilder = modelBuilder.HasDbFunction(() => TestMethods.MethodA(null, default));
             var dbFunc = dbFuncBuilder.Metadata;
 
-            Assert.Equal("MethodA", dbFunc.FunctionName);
+            Assert.Equal("MethodA", dbFunc.Name);
             Assert.Null(dbFunc.Schema);
             Assert.Equal(typeof(int), dbFunc.MethodInfo.ReturnType);
         }
@@ -358,7 +358,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
             var dbFunc = dbFuncBuilder.Metadata;
 
-            Assert.Equal("foo", dbFunc.FunctionName);
+            Assert.Equal("foo", dbFunc.Name);
             Assert.Equal("bar", dbFunc.Schema);
             Assert.Equal(typeof(int), dbFunc.MethodInfo.ReturnType);
         }
@@ -372,7 +372,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
             var dbFunc = modelBuilder.HasDbFunction(MethodAmi).Metadata;
 
-            Assert.Equal("foo", dbFunc.FunctionName);
+            Assert.Equal("foo", dbFunc.Name);
             Assert.Equal("bar", dbFunc.Schema);
             Assert.Equal(typeof(int), dbFunc.MethodInfo.ReturnType);
         }
@@ -385,7 +385,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             var dbFuncBuilder = modelBuilder.HasDbFunction(MethodBmi);
             var dbFunc = dbFuncBuilder.Metadata;
 
-            Assert.Equal("MethodFoo", dbFunc.FunctionName);
+            Assert.Equal("MethodFoo", dbFunc.Name);
             Assert.Equal("bar", dbFunc.Schema);
             Assert.Equal(typeof(int), dbFunc.MethodInfo.ReturnType);
         }
@@ -401,7 +401,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
             var dbFunc = dbFuncBuilder.Metadata;
 
-            Assert.Equal("foo", dbFunc.FunctionName);
+            Assert.Equal("foo", dbFunc.Name);
             Assert.Equal("bar", dbFunc.Schema);
             Assert.Equal(typeof(int), dbFunc.MethodInfo.ReturnType);
         }
@@ -415,7 +415,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
             var dbFunc = modelBuilder.HasDbFunction(MethodBmi).Metadata;
 
-            Assert.Equal("foo", dbFunc.FunctionName);
+            Assert.Equal("foo", dbFunc.Name);
             Assert.Equal("bar", dbFunc.Schema);
             Assert.Equal(typeof(int), dbFunc.MethodInfo.ReturnType);
         }

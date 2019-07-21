@@ -47,13 +47,14 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///         injection container, then replace selected services using the 'With...' methods. Do not call
         ///         the constructor at any point in this process.
         ///     </para>
+        ///     <para>
+        ///         This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///         the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///         any release. You should only use it directly in your code with extreme caution and knowing that
+        ///         doing so can result in application failures when updating to a new Entity Framework Core release.
+        ///     </para>
         /// </summary>
-        /// <param name="contextOptions"> The options for the current context instance. </param>
-        /// <param name="transactionLogger"> The logger to which transaction messages will be written. </param>
-        /// <param name="connectionLogger"> The logger to which connection messages will be written. </param>
-        /// <param name="connectionStringResolver"> A service for resolving a connection string from a name. </param>
-        /// <param name="relationalTransactionFactory"> A service for creating <see cref="RelationalTransaction" /> instances. </param>
-        /// <param name="currentContext"> Contains the <see cref="DbContext"/> instance currently in use. </param>
+        [EntityFrameworkInternal]
         public RelationalConnectionDependencies(
             [NotNull] IDbContextOptions contextOptions,
             [NotNull] IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> transactionLogger,

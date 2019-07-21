@@ -1,8 +1,8 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System.Collections;
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -37,12 +37,23 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
             var entityType = entityTypeBuilder.Metadata;
             if (entityTypeBuilder.Metadata.BaseType == null
-                && !entityTypeBuilder.Metadata.GetDerivedTypes().Any())
+                && !Any(entityTypeBuilder.Metadata.GetDerivedTypes()))
             {
                 entityTypeBuilder.HasDiscriminator(typeof(string))
                     .HasValue(entityType, entityType.ShortName());
             }
         }
+
+        private static bool Any([NotNull] IEnumerable source)
+        {
+            foreach (var _ in source)
+            {
+                return true;
+            }
+
+            return false;
+        }
+
 
         /// <summary>
         ///     Called after the base type of an entity type changes.

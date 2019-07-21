@@ -22,6 +22,9 @@ namespace Microsoft.EntityFrameworkCore
     /// </summary>
     public static class EntityTypeExtensions
     {
+        public static IEnumerable<IEntityType> GetConcreteDerivedTypesInclusive([NotNull] this IEntityType entityType)
+            => entityType.GetDerivedTypesInclusive().Where(et => !et.IsAbstract());
+
         /// <summary>
         ///     Checks if this entity type represents an abstract type.
         /// </summary>

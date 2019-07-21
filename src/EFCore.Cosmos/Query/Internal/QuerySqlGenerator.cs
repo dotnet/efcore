@@ -238,7 +238,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         {
             Visit(orderingExpression.Expression);
 
-            if (!orderingExpression.Ascending)
+            if (!orderingExpression.IsAscending)
             {
                 _sqlBuilder.Append(" DESC");
             }
@@ -396,7 +396,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         protected override Expression VisitIn(InExpression inExpression)
         {
             Visit(inExpression.Item);
-            _sqlBuilder.Append(inExpression.Negated ? " NOT IN " : " IN ");
+            _sqlBuilder.Append(inExpression.IsNegated ? " NOT IN " : " IN ");
             _sqlBuilder.Append("(");
             var valuesConstant = (SqlConstantExpression)inExpression.Values;
             var valuesList = ((IEnumerable<object>)valuesConstant.Value)
@@ -415,7 +415,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         /// </summary>
         protected override Expression VisitSqlFunction(SqlFunctionExpression sqlFunctionExpression)
         {
-            _sqlBuilder.Append(sqlFunctionExpression.FunctionName);
+            _sqlBuilder.Append(sqlFunctionExpression.Name);
             _sqlBuilder.Append("(");
             GenerateList(sqlFunctionExpression.Arguments, e => Visit(e));
             _sqlBuilder.Append(")");

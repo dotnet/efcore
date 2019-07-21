@@ -62,19 +62,13 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         ///         any release. You should only use it directly in your code with extreme caution and knowing that
         ///         doing so can result in application failures when updating to a new Entity Framework Core release.
         ///     </para>
+        ///     <para>
+        ///         This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///         the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///         any release. You should only use it directly in your code with extreme caution and knowing that
+        ///         doing so can result in application failures when updating to a new Entity Framework Core release.
+        ///     </para>
         /// </summary>
-        /// <param name="databaseCreator"> The database creator. </param>
-        /// <param name="rawSqlCommandBuilder"> A command builder for building raw SQL commands. </param>
-        /// <param name="connection"> The connection to the database. </param>
-        /// <param name="options"> Options for the current context instance. </param>
-        /// <param name="modelDiffer"> The model differ. </param>
-        /// <param name="migrationsSqlGenerator"> The SQL generator for Migrations operations. </param>
-        /// <param name="sqlGenerationHelper"> Helpers for generating update SQL. </param>
-        /// <param name="conventionSetBuilder"> The convention set to use when creating the model. </param>
-        /// <param name="typeMappingSource"> The type mapper. </param>
-        /// <param name="currentContext"> Contains the <see cref="DbContext"/> currently in use. </param>
-        /// <param name="modelLogger"> The logger for model building events. </param>
-        /// <param name="commandLogger"> The command logger. </param>
         [EntityFrameworkInternal]
         public HistoryRepositoryDependencies(
             [NotNull] IRelationalDatabaseCreator databaseCreator,

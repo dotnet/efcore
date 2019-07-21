@@ -64,16 +64,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure
         ///         any release. You should only use it directly in your code with extreme caution and knowing that
         ///         doing so can result in application failures when updating to a new Entity Framework Core release.
         ///     </para>
+        ///     <para>
+        ///         This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///         the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///         any release. You should only use it directly in your code with extreme caution and knowing that
+        ///         doing so can result in application failures when updating to a new Entity Framework Core release.
+        ///     </para>
         /// </summary>
-        /// <param name="typeMappingSource"> The type mapping source. </param>
-        /// <param name="constructorBindingFactory"> The constructor binding factory. </param>
-        /// <param name="parameterBindingFactories"> The parameter binding factories. </param>
-        /// <param name="memberClassifier"> The member classifier. </param>
-        /// <param name="logger"> The model logger. </param>
-        /// <param name="validationLogger"> The model validation logger. </param>
-        /// <param name="setFinder"> The set finder. </param>
-        /// <param name="currentContext"> The current context instance. </param>
-        /// <param name="validator"> The model validator. </param>
+        [EntityFrameworkInternal]
         public ProviderConventionSetBuilderDependencies(
             [NotNull] ITypeMappingSource typeMappingSource,
             [NotNull] IConstructorBindingFactory constructorBindingFactory,

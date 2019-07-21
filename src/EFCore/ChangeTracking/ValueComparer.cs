@@ -7,7 +7,7 @@ using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Query.Pipeline;
+using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.ChangeTracking
@@ -133,10 +133,14 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             Check.NotNull(leftExpression, nameof(leftExpression));
             Check.NotNull(rightExpression, nameof(rightExpression));
 
-            return ReplacingExpressionVisitor.Replace(
-                EqualsExpression.Parameters[0], leftExpression,
-                EqualsExpression.Parameters[1], rightExpression,
-                EqualsExpression.Body);
+            var original1 = EqualsExpression.Parameters[0];
+            var original2 = EqualsExpression.Parameters[1];
+
+            return new ReplacingExpressionVisitor(
+                new Dictionary<Expression, Expression> {
+                    { original1, leftExpression },
+                    { original2, rightExpression }
+                }).Visit(EqualsExpression.Body);
         }
 
         /// <summary>
