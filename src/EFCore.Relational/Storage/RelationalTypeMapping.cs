@@ -435,8 +435,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             parameter.Direction = ParameterDirection.Input;
             parameter.ParameterName = name;
 
-            if (Converter != null
-                && !IsLegacyEnumValue(Converter, value))
+            if (Converter != null)
             {
                 value = Converter.ConvertToProvider(value);
             }
@@ -458,23 +457,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
             return parameter;
         }
 
-        // Avoid converting value from enum to integer if it is already an integer; preserves 2.0 behavior
-        private static bool IsLegacyEnumValue(ValueConverter converter, object value)
-            => value != null
-               && IsLegacyInteger(value.GetType())
-               && converter.GetType().IsGenericType
-               && converter.GetType().GetGenericTypeDefinition() == typeof(EnumToNumberConverter<,>);
-
-        private static bool IsLegacyInteger(Type type)
-        {
-            type = type.UnwrapNullableType();
-
-            return type == typeof(int)
-                   || type == typeof(long)
-                   || type == typeof(short)
-                   || type == typeof(byte);
-        }
-
         /// <summary>
         ///     Configures type information of a <see cref="DbParameter" />.
         /// </summary>
@@ -492,14 +474,18 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </returns>
         public virtual string GenerateSqlLiteral([CanBeNull] object value)
         {
+            // Enum when compared to constant will always have constant of integral type
+            // when enum would contain convert node. We remove the convert node but we also
+            // need to convert the integral value to enum value.
+            // This allows us to use converter on enum value or print enum value directly if supported by provider
+            if (value?.GetType().IsInteger() == true
+                && ClrType.UnwrapNullableType().IsEnum)
+            {
+                value = Enum.ToObject(ClrType.UnwrapNullableType(), value);
+            }
+
             if (Converter != null)
             {
-                if (value?.GetType().IsInteger() == true
-                    && ClrType.UnwrapNullableType().IsEnum)
-                {
-                    value = Enum.ToObject(ClrType.UnwrapNullableType(), value);
-                }
-
                 value = Converter.ConvertToProvider(value);
             }
 
