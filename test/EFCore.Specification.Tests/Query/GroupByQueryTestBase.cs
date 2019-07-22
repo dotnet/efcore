@@ -275,7 +275,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                             Key = g.Key == null ? "is null" : "is not null",
                             Sum = g.Sum(o => o.OrderID)
                         }),
-                e => e.Key);
+                e => e.Sum);
         }
 
         #endregion
