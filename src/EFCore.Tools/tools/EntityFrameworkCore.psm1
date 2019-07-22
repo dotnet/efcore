@@ -656,9 +656,13 @@ function GetMigrations($context, $projectName, $startupProjectName)
     return $result | %{ $_.safeName }
 }
 
-function WarnIfEF6 ($cmdlet)
+function WarnIfEF6($cmdlet)
 {
-    if (Get-Module 'EntityFramework')
+    if (Get-Module 'EntityFramework6')
+    {
+        Write-Warning "Both Entity Framework Core and Entity Framework 6 are installed. The Entity Framework Core tools are running. Use 'EntityFramework6\$cmdlet' for Entity Framework 6."
+    }
+    elseif (Get-Module 'EntityFramework')
     {
         Write-Warning "Both Entity Framework Core and Entity Framework 6 are installed. The Entity Framework Core tools are running. Use 'EntityFramework\$cmdlet' for Entity Framework 6."
     }
@@ -796,12 +800,6 @@ function WriteErrorLine($message)
 
 function EF($project, $startupProject, $params, [switch] $skipBuild)
 {
-    if (IsXproj $startupProject)
-    {
-        throw "Startup project '$($startupProject.ProjectName)' is an ASP.NET Core or .NET Core project for Visual " +
-            'Studio 2015. This version of the Entity Framework Core Package Manager Console Tools doesn''t support ' +
-            'these types of projects.'
-    }
     if (IsDocker $startupProject)
     {
         throw "Startup project '$($startupProject.ProjectName)' is a Docker project. Select an ASP.NET Core Web " +
@@ -836,7 +834,7 @@ function EF($project, $startupProject, $params, [switch] $skipBuild)
     $startupProjectDir = GetProperty $startupProject.Properties 'FullPath'
     $outputPath = GetProperty $startupProject.ConfigurationManager.ActiveConfiguration.Properties 'OutputPath'
     $targetDir = [IO.Path]::GetFullPath([IO.Path]::Combine($startupProjectDir, $outputPath))
-    $startupTargetFileName = GetOutputFileName $startupProject
+    $startupTargetFileName = GetProperty $startupProject.Properties 'OutputFileName'
     $startupTargetPath = Join-Path $targetDir $startupTargetFileName
     $targetFrameworkMoniker = GetProperty $startupProject.Properties 'TargetFrameworkMoniker'
     $frameworkName = New-Object 'System.Runtime.Versioning.FrameworkName' $targetFrameworkMoniker
@@ -911,7 +909,7 @@ function EF($project, $startupProject, $params, [switch] $skipBuild)
     }
 
     $projectDir = GetProperty $project.Properties 'FullPath'
-    $targetFileName = GetOutputFileName $project
+    $targetFileName = GetProperty $project.Properties 'OutputFileName'
     $targetPath = Join-Path $targetDir $targetFileName
     $rootNamespace = GetProperty $project.Properties 'RootNamespace'
     $language = GetLanguage $project
@@ -995,11 +993,6 @@ function EF($project, $startupProject, $params, [switch] $skipBuild)
     }
 }
 
-function IsXproj($project)
-{
-    return $project.Kind -eq '{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}'
-}
-
 function IsDocker($project)
 {
     return $project.Kind -eq '{E53339B2-1760-4266-BCC7-CA923CBCF16C}'
@@ -1031,12 +1024,6 @@ function IsUWP($project)
 
 function GetIntermediatePath($project)
 {
-    # TODO: Remove when dotnet/roslyn-project-system#665 is fixed
-    if (IsCpsProject $project)
-    {
-        return GetCpsProperty $project 'IntermediateOutputPath'
-    }
-
     $intermediatePath = GetProperty $project.ConfigurationManager.ActiveConfiguration.Properties 'IntermediatePath'
     if ($intermediatePath)
     {
@@ -1048,7 +1035,6 @@ function GetIntermediatePath($project)
 
 function GetPlatformTarget($project)
 {
-    # TODO: Remove when dotnet/roslyn-project-system#669 is fixed
     if (IsCpsProject $project)
     {
         $platformTarget = GetCpsProperty $project 'PlatformTarget'
@@ -1066,6 +1052,7 @@ function GetPlatformTarget($project)
         return $platformTarget
     }
 
+    # NB: For classic F# projects
     $platformTarget = GetMSBuildProperty $project 'PlatformTarget'
     if ($platformTarget)
     {
@@ -1073,17 +1060,6 @@ function GetPlatformTarget($project)
     }
 
     return 'AnyCPU'
-}
-
-function GetOutputFileName($project)
-{
-    # TODO: Remove when dotnet/roslyn-project-system#667 is fixed
-    if (IsCpsProject $project)
-    {
-        return GetCpsProperty $project 'TargetFileName'
-    }
-
-    return GetProperty $project.Properties 'OutputFileName'
 }
 
 function GetLanguage($project)
