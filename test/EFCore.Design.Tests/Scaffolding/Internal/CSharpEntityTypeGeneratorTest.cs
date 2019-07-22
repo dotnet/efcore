@@ -75,5 +75,51 @@ namespace TestNamespace
                     Assert.Equal("TestNamespace.Contribution", contributionsNav.ForeignKey.DeclaringEntityType.Name);
                 });
         }
+
+        [ConditionalFact]
+        public void Composite_key()
+        {
+            Test(
+                modelBuilder => modelBuilder
+                    .Entity(
+                        "Post",
+                        x =>
+                        {
+                            x.Property<int>("Key");
+                            x.Property<int>("Serial");
+                            x.HasKey("Key", "Serial");
+                        }),
+                new ModelCodeGenerationOptions
+                {
+                    UseDataAnnotations = true
+                },
+                code =>
+                {
+                    var postFile = code.AdditionalFiles.First(f => f.Path == "Post.cs");
+                    Assert.Equal(
+                        @"using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+
+namespace TestNamespace
+{
+    public partial class Post
+    {
+        [Key]
+        public int Key { get; set; }
+        [Key]
+        public int Serial { get; set; }
+    }
+}
+",
+                        postFile.Code);
+                },
+                model =>
+                {
+                    var postType = model.FindEntityType("TestNamespace.Post");
+                    Assert.NotNull(postType.FindPrimaryKey());
+                });
+        }
     }
 }
