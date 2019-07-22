@@ -231,20 +231,8 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         private void GenerateKeyAttribute(IProperty property)
         {
             var key = property.FindContainingPrimaryKey();
-            if (key?.Properties.Count == 1)
+            if (key != null)
             {
-                if (key is IConventionKey concreteKey
-                    && key.Properties.SequenceEqual(KeyDiscoveryConvention.DiscoverKeyProperties(
-                        concreteKey.DeclaringEntityType, concreteKey.DeclaringEntityType.GetProperties())))
-                {
-                    return;
-                }
-
-                if (key.GetName() != key.GetDefaultName())
-                {
-                    return;
-                }
-
                 _sb.AppendLine(new AttributeWriter(nameof(KeyAttribute)));
             }
         }
