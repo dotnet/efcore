@@ -5796,7 +5796,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 {
                     x => x.one,
                     x => x.two
-                });
+                },
+                elementSorter: e => e.one.Id);
         }
 
         [ConditionalTheory]
@@ -5820,7 +5821,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                     x => x.one,
                     // issue #15368
                     //x => x.two,
-                });
+                },
+                elementSorter: e => e.one.Id);
         }
 
         [ConditionalFact]
