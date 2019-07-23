@@ -25,18 +25,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
     /// </summary>
     public static class ExpressionExtensions
     {
-        private static readonly string _efTypeName = typeof(EF).FullName;
-
-        public static bool IsEFPropertyMethod([CanBeNull] this MethodInfo methodInfo)
-            => Equals(methodInfo, EF.PropertyMethod)
-               // fallback to string comparison because MethodInfo.Equals is not
-               // always true in .NET Native even if methods are the same
-               || methodInfo?.IsGenericMethod == true
-               && methodInfo.Name == nameof(EF.Property)
-               && methodInfo.DeclaringType?.FullName == _efTypeName;
-
         public static bool IsEFProperty([NotNull] this MethodCallExpression methodCallExpression)
-            => IsEFPropertyMethod(methodCallExpression.Method);
+            => methodCallExpression.Method.IsEFPropertyMethod();
 
         public static bool TryGetEFPropertyArguments(
             [NotNull] this MethodCallExpression methodCallExpression,

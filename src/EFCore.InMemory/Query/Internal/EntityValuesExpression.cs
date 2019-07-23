@@ -21,7 +21,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
 
         public virtual IEntityType EntityType { get; }
         public override Type Type => EntityType.ClrType;
-        public override ExpressionType NodeType => ExpressionType.Extension;
+        public sealed override ExpressionType NodeType => ExpressionType.Extension;
 
         public virtual Expression BindProperty(IProperty property)
         {

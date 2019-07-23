@@ -51,11 +51,11 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         public virtual IndentedStringBuilder StringBuilder => _stringBuilder;
 
-        public virtual bool RemoveFormatting { get; set; }
+        private bool RemoveFormatting { get; set; }
 
-        public virtual int? CharacterLimit { get; set; }
+        private int? CharacterLimit { get; set; }
 
-        public virtual bool PrintConnections { get; set; }
+        private bool PrintConnections { get; set; }
 
         public virtual void VisitList<T>(
             IReadOnlyList<T> items,
@@ -832,7 +832,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             return extensionExpression;
         }
 
-        private void VisitArguments(IList<Expression> arguments, Action<string> appendAction, string lastSeparator = "", bool areConnected = false)
+        private void VisitArguments(IReadOnlyList<Expression> arguments, Action<string> appendAction, string lastSeparator = "", bool areConnected = false)
         {
             for (var i = 0; i < arguments.Count; i++)
             {

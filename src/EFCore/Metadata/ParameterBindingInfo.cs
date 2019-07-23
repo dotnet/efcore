@@ -14,23 +14,18 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     /// </summary>
     public readonly struct ParameterBindingInfo
     {
-        private readonly int[] _indexMap;
-
         /// <summary>
         ///     Creates a new <see cref="ParameterBindingInfo" /> to define a parameter binding.
         /// </summary>
         /// <param name="entityType"> The entity type for this binding. </param>
         /// <param name="materializationContextExpression"> The expression tree from which the parameter value will come. </param>
-        /// <param name="indexMap"> An optional index map for finding the parameter value. </param>
         public ParameterBindingInfo(
             [NotNull] IEntityType entityType,
-            [NotNull] Expression materializationContextExpression,
-            [CanBeNull] int[] indexMap)
+            [NotNull] Expression materializationContextExpression)
         {
             Check.NotNull(entityType, nameof(entityType));
             Check.NotNull(materializationContextExpression, nameof(materializationContextExpression));
 
-            _indexMap = indexMap;
             EntityType = entityType;
             MaterializationContextExpression = materializationContextExpression;
         }
@@ -50,7 +45,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         /// <param name="property"> The property. </param>
         /// <returns> The index where its value can be found. </returns>
-        public int GetValueBufferIndex([NotNull] IPropertyBase property)
-            => _indexMap?[property.GetIndex()] ?? property.GetIndex();
+        public int GetValueBufferIndex([NotNull] IPropertyBase property) => property.GetIndex();
     }
 }

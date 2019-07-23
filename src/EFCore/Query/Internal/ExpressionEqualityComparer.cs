@@ -305,7 +305,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             }
         }
 
-        private void AddListToHash<T>(ref HashCode hash, IList<T> expressions)
+        private void AddListToHash<T>(ref HashCode hash, IReadOnlyList<T> expressions)
             where T : Expression
         {
             for (var i = 0; i < expressions.Count; i++)

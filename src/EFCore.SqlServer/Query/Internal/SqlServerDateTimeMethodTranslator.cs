@@ -36,7 +36,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
             _sqlExpressionFactory = sqlExpressionFactory;
         }
 
-        public virtual SqlExpression Translate(SqlExpression instance, MethodInfo method, IList<SqlExpression> arguments)
+        public virtual SqlExpression Translate(SqlExpression instance, MethodInfo method, IReadOnlyList<SqlExpression> arguments)
         {
             if (_methodInfoDatePartMapping.TryGetValue(method, out var datePart))
             {

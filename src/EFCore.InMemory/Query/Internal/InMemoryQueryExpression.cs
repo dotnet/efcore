@@ -283,7 +283,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         public virtual Expression ServerQueryExpression { get; set; }
         public virtual ParameterExpression ValueBufferParameter { get; }
         public override Type Type => typeof(IEnumerable<ValueBuffer>);
-        public override ExpressionType NodeType => ExpressionType.Extension;
+        public sealed override ExpressionType NodeType => ExpressionType.Extension;
 
         private Expression CreateReadValueExpression(
             Type type,

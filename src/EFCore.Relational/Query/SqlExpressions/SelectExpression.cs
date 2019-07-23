@@ -261,8 +261,6 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             }
         }
 
-        public override ExpressionType NodeType => ExpressionType.Extension;
-
         public Expression ApplyGrouping(Expression keySelector)
         {
             ClearOrdering();

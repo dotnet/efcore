@@ -59,13 +59,11 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <param name="entityType"> The entity type being materialized. </param>
         /// <param name="entityInstanceName"> The name of the instance being materialized. </param>
         /// <param name="materializationExpression"> The materialization expression to build on. </param>
-        /// <param name="indexMap"> An optional index map for reading values. </param>
         /// <returns> An expression to read the value. </returns>
         Expression CreateMaterializeExpression(
             [NotNull] IEntityType entityType,
             [NotNull] string entityInstanceName,
-            [NotNull] Expression materializationExpression,
-            [CanBeNull] int[] indexMap = null);
+            [NotNull] Expression materializationExpression);
 
         /// <summary>
         ///     <para>

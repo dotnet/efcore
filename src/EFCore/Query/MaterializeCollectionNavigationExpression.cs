@@ -18,7 +18,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         public virtual Expression Subquery { get; }
         public virtual INavigation Navigation { get; }
 
-        public override ExpressionType NodeType => ExpressionType.Extension;
+        public sealed override ExpressionType NodeType => ExpressionType.Extension;
         public override Type Type => Navigation.ClrType;
 
         protected override Expression VisitChildren(ExpressionVisitor visitor)

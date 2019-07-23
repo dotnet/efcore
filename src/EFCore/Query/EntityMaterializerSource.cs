@@ -57,8 +57,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         public virtual Expression CreateMaterializeExpression(
             IEntityType entityType,
             string entityInstanceName,
-            Expression materializationContextExpression,
-            int[] indexMap = null)
+            Expression materializationContextExpression)
         {
             if (!entityType.HasClrType())
             {
@@ -86,8 +85,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             var bindingInfo = new ParameterBindingInfo(
                 entityType,
-                materializationContextExpression,
-                indexMap);
+                materializationContextExpression);
 
             var properties = new HashSet<IPropertyBase>(
                 entityType.GetServiceProperties().Cast<IPropertyBase>()
@@ -132,7 +130,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                         : CreateReadValueExpression(
                             valueBufferExpression,
                             memberInfo.GetMemberType(),
-                            indexMap?[property.GetIndex()] ?? property.GetIndex(),
+                            property.GetIndex(),
                             property);
 
                 blockExpressions.Add(

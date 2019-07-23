@@ -788,7 +788,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
         protected class EntityReferenceExpression : Expression
         {
-            public override ExpressionType NodeType => ExpressionType.Extension;
+            public sealed override ExpressionType NodeType => ExpressionType.Extension;
 
             /// <summary>
             ///     The underlying expression being wrapped.

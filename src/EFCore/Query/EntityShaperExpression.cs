@@ -43,7 +43,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 : this;
 
         public override Type Type => EntityType.ClrType;
-        public override ExpressionType NodeType => ExpressionType.Extension;
+        public sealed override ExpressionType NodeType => ExpressionType.Extension;
 
         public virtual void Print(ExpressionPrinter expressionPrinter)
         {

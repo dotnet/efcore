@@ -30,7 +30,7 @@ namespace Microsoft.EntityFrameworkCore.Query.NavigationExpansion.Internal
 
         public override bool CanReduce => true;
 
-        public override ExpressionType NodeType => ExpressionType.Extension;
+        public sealed override ExpressionType NodeType => ExpressionType.Extension;
 
         public override Expression Reduce()
             => AndAlso(

@@ -93,6 +93,7 @@ namespace Microsoft.EntityFrameworkCore
                          && !(method.IsVirtual && !method.IsFinal)
                          && !method.Name.StartsWith("add_", StringComparison.Ordinal)
                          && !method.Name.StartsWith("remove_", StringComparison.Ordinal)
+                         && !method.Name.Equals("get_NodeType", StringComparison.Ordinal)
                          && (method.IsPublic || method.IsFamily || method.IsFamilyOrAssembly)
                          && method.Name != "GenerateCacheKeyCore"
                    select type.FullName + "." + method.Name)

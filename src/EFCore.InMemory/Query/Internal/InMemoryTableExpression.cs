@@ -20,7 +20,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
 
         public virtual IEntityType EntityType { get; }
 
-        public override ExpressionType NodeType => ExpressionType.Extension;
+        public sealed override ExpressionType NodeType => ExpressionType.Extension;
 
         protected override Expression VisitChildren(ExpressionVisitor visitor)
         {

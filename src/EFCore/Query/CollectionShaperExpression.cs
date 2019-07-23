@@ -35,7 +35,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 ? new CollectionShaperExpression(projection, innerShaper, Navigation, ElementType)
                 : this;
 
-        public override ExpressionType NodeType => ExpressionType.Extension;
+        public sealed override ExpressionType NodeType => ExpressionType.Extension;
         public override Type Type => Navigation?.ClrType ?? typeof(List<>).MakeGenericType(ElementType);
 
         public virtual Expression Projection { get; }

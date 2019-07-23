@@ -30,7 +30,7 @@ namespace Microsoft.EntityFrameworkCore.Query.NavigationExpansion.Internal
         public virtual NavigationTreeNode NavigationTreeNode { get; }
         public virtual SourceMapping SourceMapping { get; }
 
-        public override ExpressionType NodeType => ExpressionType.Extension;
+        public sealed override ExpressionType NodeType => ExpressionType.Extension;
         public override bool CanReduce => false;
         public override Type Type { get; }
 

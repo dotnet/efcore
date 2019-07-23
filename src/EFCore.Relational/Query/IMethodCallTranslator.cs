@@ -9,6 +9,6 @@ namespace Microsoft.EntityFrameworkCore.Query
 {
     public interface IMethodCallTranslator
     {
-        SqlExpression Translate(SqlExpression instance, MethodInfo method, IList<SqlExpression> arguments);
+        SqlExpression Translate(SqlExpression instance, MethodInfo method, IReadOnlyList<SqlExpression> arguments);
     }
 }

@@ -21,7 +21,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         public virtual Expression NavigationExpression { get; set; }
         public virtual INavigation Navigation { get; set; }
 
-        public override ExpressionType NodeType => ExpressionType.Extension;
+        public sealed override ExpressionType NodeType => ExpressionType.Extension;
         public override bool CanReduce => false;
         public override Type Type { get; }
 

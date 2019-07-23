@@ -36,7 +36,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             _sqlExpressionFactory = sqlExpressionFactory;
         }
 
-        public virtual SqlExpression Translate(IModel model, SqlExpression instance, MethodInfo method, IList<SqlExpression> arguments)
+        public virtual SqlExpression Translate(IModel model, SqlExpression instance, MethodInfo method, IReadOnlyList<SqlExpression> arguments)
         {
             var dbFunction = model.FindDbFunction(method);
             if (dbFunction != null)

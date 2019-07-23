@@ -52,7 +52,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         public override Type Type { get; }
 
-        public override ExpressionType NodeType => ExpressionType.Extension;
+        public sealed override ExpressionType NodeType => ExpressionType.Extension;
 
         public virtual int CollectionId { get; }
         public virtual Expression Parent { get; }
