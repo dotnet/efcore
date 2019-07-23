@@ -818,9 +818,9 @@ WHERE " + tableFilter;
                 if (SupportsTemporalTable(connection))
                 {
                     commandText += @"
-AND CAST([i].[object_id] AS nvarchar(12)) + CAST([i].[index_id] AS nvarchar(12)) NOT IN
+AND CAST([i].[object_id] AS nvarchar(12)) + '#' + CAST([i].[index_id] AS nvarchar(12)) NOT IN
 (
-   SELECT CAST([i].[object_id] AS nvarchar(12)) + CAST([i].[index_id] AS nvarchar(12))
+   SELECT CAST([i].[object_id] AS nvarchar(12)) + '#' + CAST([i].[index_id] AS nvarchar(12))
    FROM [sys].[indexes] i
    JOIN [sys].[tables] AS [t] ON [i].[object_id] = [t].[object_id]
    JOIN [sys].[index_columns] AS [ic] ON [i].[object_id] = [ic].[object_id] AND [i].[index_id] = [ic].[index_id]
