@@ -928,9 +928,9 @@ FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
 
-        public override async Task Contains_with_local_int_array_closure(bool isAsync)
+        public override async Task Contains_with_local_uint_array_closure(bool isAsync)
         {
-            await base.Contains_with_local_int_array_closure(isAsync);
+            await base.Contains_with_local_uint_array_closure(isAsync);
 
             AssertSql(
                 @"SELECT c
@@ -942,9 +942,9 @@ FROM root c
 WHERE ((c[""Discriminator""] = ""Employee"") AND c[""EmployeeID""] IN (0))");
         }
 
-        public override async Task Contains_with_local_nullable_int_array_closure(bool isAsync)
+        public override async Task Contains_with_local_nullable_uint_array_closure(bool isAsync)
         {
-            await base.Contains_with_local_nullable_int_array_closure(isAsync);
+            await base.Contains_with_local_nullable_uint_array_closure(isAsync);
 
             AssertSql(
                 @"SELECT c
