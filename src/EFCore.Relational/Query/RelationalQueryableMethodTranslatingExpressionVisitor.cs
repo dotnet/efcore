@@ -503,8 +503,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         private SqlBinaryExpression CreateJoinPredicate(
-            IList<Expression> outerExpressions,
-            IList<Expression> innerExpressions)
+            IReadOnlyList<Expression> outerExpressions,
+            IReadOnlyList<Expression> innerExpressions)
         {
             SqlBinaryExpression result = null;
             for (var i = 0; i < outerExpressions.Count; i++)

@@ -29,27 +29,22 @@ namespace Microsoft.EntityFrameworkCore.Query
         private Dictionary<string, LambdaExpression> _runtimeParameters;
 
         public QueryCompilationContext(
-            IModel model,
-            IQueryOptimizerFactory queryOptimizerFactory,
-            IQueryableMethodTranslatingExpressionVisitorFactory queryableMethodTranslatingExpressionVisitorFactory,
-            IShapedQueryOptimizerFactory shapedQueryOptimizerFactory,
-            IShapedQueryCompilingExpressionVisitorFactory shapedQueryCompilingExpressionVisitorFactory,
-            ICurrentDbContext currentContext,
-            IDbContextOptions contextOptions,
-            IDiagnosticsLogger<DbLoggerCategory.Query> logger,
+            QueryCompilationContextDependencies dependencies,
             bool async)
         {
-            IsAsync = async;
-            IsTracking = currentContext.Context.ChangeTracker.QueryTrackingBehavior == QueryTrackingBehavior.TrackAll;
-            Model = model;
-            ContextOptions = contextOptions;
-            ContextType = currentContext.Context.GetType();
-            Logger = logger;
+            var context = dependencies.CurrentContext.Context;
 
-            _queryOptimizerFactory = queryOptimizerFactory;
-            _queryableMethodTranslatingExpressionVisitorFactory = queryableMethodTranslatingExpressionVisitorFactory;
-            _shapedQueryOptimizerFactory = shapedQueryOptimizerFactory;
-            _shapedQueryCompilingExpressionVisitorFactory = shapedQueryCompilingExpressionVisitorFactory;
+            IsAsync = async;
+            IsTracking = context.ChangeTracker.QueryTrackingBehavior == QueryTrackingBehavior.TrackAll;
+            Model = dependencies.Model;
+            ContextOptions = dependencies.ContextOptions;
+            ContextType = context.GetType();
+            Logger = dependencies.Logger;
+
+            _queryOptimizerFactory = dependencies.QueryOptimizerFactory;
+            _queryableMethodTranslatingExpressionVisitorFactory = dependencies.QueryableMethodTranslatingExpressionVisitorFactory;
+            _shapedQueryOptimizerFactory = dependencies.ShapedQueryOptimizerFactory;
+            _shapedQueryCompilingExpressionVisitorFactory = dependencies.ShapedQueryCompilingExpressionVisitorFactory;
         }
 
         public virtual bool IsAsync { get; }

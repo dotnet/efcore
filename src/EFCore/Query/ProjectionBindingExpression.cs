@@ -37,7 +37,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         public virtual int? Index { get; }
         public virtual IDictionary<IProperty, int> IndexMap { get; }
         public override Type Type { get; }
-        public override ExpressionType NodeType => ExpressionType.Extension;
+        public sealed override ExpressionType NodeType => ExpressionType.Extension;
 
         protected override Expression VisitChildren(ExpressionVisitor visitor) => this;
 

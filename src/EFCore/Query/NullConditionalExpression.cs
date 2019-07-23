@@ -63,7 +63,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <summary>
         ///     Gets the node type of this expression.
         /// </summary>
-        public override ExpressionType NodeType => ExpressionType.Extension;
+        public sealed override ExpressionType NodeType => ExpressionType.Extension;
 
         /// <summary>
         ///     Reduces this node to a simpler expression. If CanReduce returns true, this should
@@ -160,7 +160,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             expressionPrinter.StringBuilder.Append("?");
         }
 
-        private static void VisitArguments(ExpressionPrinter expressionPrinter, IList<Expression> arguments)
+        private static void VisitArguments(ExpressionPrinter expressionPrinter, IReadOnlyList<Expression> arguments)
         {
             for (var i = 0; i < arguments.Count; i++)
             {

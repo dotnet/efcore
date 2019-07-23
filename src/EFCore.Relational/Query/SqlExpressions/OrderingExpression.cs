@@ -17,7 +17,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         public virtual SqlExpression Expression { get; }
         public virtual bool IsAscending { get; }
 
-        public override ExpressionType NodeType => ExpressionType.Extension;
+        public sealed override ExpressionType NodeType => ExpressionType.Extension;
         public override Type Type => Expression.Type;
         protected override Expression VisitChildren(ExpressionVisitor visitor)
             => Update((SqlExpression)visitor.Visit(Expression));

@@ -27,7 +27,7 @@ namespace Microsoft.EntityFrameworkCore.Query.NavigationExpansion.Internal
         public virtual Expression Operand { get; }
         public virtual NavigationExpansionExpressionState State { get; private set; }
 
-        public override ExpressionType NodeType => ExpressionType.Extension;
+        public sealed override ExpressionType NodeType => ExpressionType.Extension;
         public override Type Type => _returnType;
         public override bool CanReduce => false;
 

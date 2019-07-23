@@ -19,7 +19,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         public virtual Expression ElementSelector { get; }
 
         public override Type Type => typeof(IGrouping<,>).MakeGenericType(KeySelector.Type, ElementSelector.Type);
-        public override ExpressionType NodeType => ExpressionType.Extension;
+        public sealed override ExpressionType NodeType => ExpressionType.Extension;
 
         public virtual void Print(ExpressionPrinter expressionPrinter)
         {

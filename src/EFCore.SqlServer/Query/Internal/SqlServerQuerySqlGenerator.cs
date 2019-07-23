@@ -58,7 +58,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
             if (!sqlFunctionExpression.IsBuiltIn
                 && string.IsNullOrEmpty(sqlFunctionExpression.Schema))
             {
-                sqlFunctionExpression = new SqlFunctionExpression(
+                sqlFunctionExpression = SqlFunctionExpression.Create(
                     schema: "dbo",
                     sqlFunctionExpression.Name,
                     sqlFunctionExpression.Arguments,

@@ -22,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         protected override Expression VisitChildren(ExpressionVisitor visitor) => this;
 
         public override Type Type => typeof(object);
-        public override ExpressionType NodeType => ExpressionType.Extension;
+        public sealed override ExpressionType NodeType => ExpressionType.Extension;
         public abstract void Print(ExpressionPrinter expressionPrinter);
         public override bool Equals(object obj)
             => obj != null

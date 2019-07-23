@@ -20,7 +20,7 @@ namespace Microsoft.EntityFrameworkCore.Query.NavigationExpansion.Internal
 
         public virtual NavigationExpansionExpression NavigationExpansion { get; }
         public virtual List<string> Mapping { get; }
-        public override ExpressionType NodeType => ExpressionType.Extension;
+        public sealed override ExpressionType NodeType => ExpressionType.Extension;
         public override bool CanReduce => false;
         public override Type Type => NavigationExpansion.Type;
 

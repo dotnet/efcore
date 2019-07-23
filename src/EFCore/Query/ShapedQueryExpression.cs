@@ -19,7 +19,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         public virtual ResultCardinality ResultCardinality { get; set; }
         public virtual Expression ShaperExpression { get; set; }
         public override Type Type => typeof(IQueryable<>).MakeGenericType(ShaperExpression.Type);
-        public override ExpressionType NodeType => ExpressionType.Extension;
+        public sealed override ExpressionType NodeType => ExpressionType.Extension;
         public override bool CanReduce => false;
 
         protected override Expression VisitChildren(ExpressionVisitor visitor)

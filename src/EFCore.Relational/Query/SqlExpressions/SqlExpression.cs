@@ -21,7 +21,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         protected override Expression VisitChildren(ExpressionVisitor visitor)
             => throw new InvalidOperationException("VisitChildren must be overridden in class deriving from SqlExpression");
 
-        public override ExpressionType NodeType => ExpressionType.Extension;
+        public sealed override ExpressionType NodeType => ExpressionType.Extension;
         public abstract void Print(ExpressionPrinter expressionPrinter);
 
         public override bool Equals(object obj)

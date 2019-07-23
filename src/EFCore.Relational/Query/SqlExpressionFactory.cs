@@ -319,7 +319,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 typeMappedArguments.Add(ApplyDefaultTypeMapping(argument));
             }
 
-            return new SqlFunctionExpression(
+            return SqlFunctionExpression.Create(
                 name,
                 typeMappedArguments,
                 returnType,
@@ -335,7 +335,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 typeMappedArguments.Add(ApplyDefaultTypeMapping(argument));
             }
 
-            return new SqlFunctionExpression(
+            return SqlFunctionExpression.Create(
                 schema,
                 name,
                 typeMappedArguments,
@@ -353,7 +353,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 typeMappedArguments.Add(ApplyDefaultTypeMapping(argument));
             }
 
-            return new SqlFunctionExpression(
+            return SqlFunctionExpression.Create(
                 instance,
                 name,
                 typeMappedArguments,
@@ -362,13 +362,13 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         public virtual SqlFunctionExpression Function(string name, Type returnType, RelationalTypeMapping typeMapping = null)
-            => new SqlFunctionExpression(name, returnType, typeMapping);
+            => SqlFunctionExpression.CreateNiladic(name, returnType, typeMapping);
 
         public virtual SqlFunctionExpression Function(string schema, string name, Type returnType, RelationalTypeMapping typeMapping = null)
-            => new SqlFunctionExpression(schema, name, returnType, typeMapping);
+            => SqlFunctionExpression.CreateNiladic(schema, name, returnType, typeMapping);
 
         public virtual SqlFunctionExpression Function(SqlExpression instance, string name, Type returnType, RelationalTypeMapping typeMapping = null)
-            => new SqlFunctionExpression(ApplyDefaultTypeMapping(instance), name, returnType, typeMapping);
+            => SqlFunctionExpression.CreateNiladic(ApplyDefaultTypeMapping(instance), name, returnType, typeMapping);
 
         public virtual ExistsExpression Exists(SelectExpression subquery, bool negated)
             => new ExistsExpression(subquery, negated, _boolTypeMapping);

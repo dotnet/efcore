@@ -64,7 +64,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
             _sqlExpressionFactory = sqlExpressionFactory;
         }
 
-        public virtual SqlExpression Translate(SqlExpression instance, MethodInfo method, IList<SqlExpression> arguments)
+        public virtual SqlExpression Translate(SqlExpression instance, MethodInfo method, IReadOnlyList<SqlExpression> arguments)
         {
             if (_indexOfMethodInfo.Equals(method))
             {
@@ -287,7 +287,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
             return builder.ToString();
         }
 
-        private SqlExpression ProcessTrimMethod(SqlExpression instance, IList<SqlExpression> arguments, string functionName)
+        private SqlExpression ProcessTrimMethod(SqlExpression instance, IReadOnlyList<SqlExpression> arguments, string functionName)
         {
             var typeMapping = instance.TypeMapping;
             if (typeMapping == null)

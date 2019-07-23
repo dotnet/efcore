@@ -85,7 +85,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         public virtual IEntityType EntityType { get; }
-        public override ExpressionType NodeType => ExpressionType.Extension;
+        public sealed override ExpressionType NodeType => ExpressionType.Extension;
         public override Type Type => EntityType.ClrType;
 
         public virtual ColumnExpression BindProperty(IProperty property)

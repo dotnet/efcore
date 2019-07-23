@@ -37,7 +37,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         public virtual Type ElementType { get; }
 
         public override Type Type => Navigation?.ClrType ?? typeof(List<>).MakeGenericType(ElementType);
-        public override ExpressionType NodeType => ExpressionType.Extension;
+        public sealed override ExpressionType NodeType => ExpressionType.Extension;
 
         protected override Expression VisitChildren(ExpressionVisitor visitor)
         {

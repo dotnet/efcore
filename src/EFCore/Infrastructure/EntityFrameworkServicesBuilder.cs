@@ -282,6 +282,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 .AddDependencySingleton<ValueConverterSelectorDependencies>()
                 .AddDependencySingleton<EntityMaterializerSourceDependencies>()
                 .AddDependencyScoped<ProviderConventionSetBuilderDependencies>()
+                .AddDependencyScoped<QueryCompilationContextDependencies>()
                 .AddDependencyScoped<StateManagerDependencies>()
                 .AddDependencyScoped<ExecutionStrategyDependencies>()
                 .AddDependencyScoped<CompiledQueryCacheKeyGeneratorDependencies>()
