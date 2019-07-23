@@ -1095,7 +1095,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual async Task Contains_with_local_int_array_closure(bool isAsync)
+        public virtual async Task Contains_with_local_uint_array_closure(bool isAsync)
         {
             var ids = new uint[] { 0, 1 };
 
@@ -1112,7 +1112,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual async Task Contains_with_local_nullable_int_array_closure(bool isAsync)
+        public virtual async Task Contains_with_local_nullable_uint_array_closure(bool isAsync)
         {
             var ids = new uint?[] { 0, 1 };
 

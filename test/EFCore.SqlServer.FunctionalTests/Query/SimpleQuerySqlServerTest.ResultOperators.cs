@@ -858,9 +858,9 @@ WHERE EXISTS (
     WHERE [c0].[City] IN (N'London') AND ([c0].[CustomerID] = [c].[CustomerID]))");
         }
 
-        public override async Task Contains_with_local_int_array_closure(bool isAsync)
+        public override async Task Contains_with_local_uint_array_closure(bool isAsync)
         {
-            await base.Contains_with_local_int_array_closure(isAsync);
+            await base.Contains_with_local_uint_array_closure(isAsync);
 
             AssertSql(
                 @"SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
@@ -872,9 +872,9 @@ FROM [Employees] AS [e]
 WHERE [e].[EmployeeID] IN (0)");
         }
 
-        public override async Task Contains_with_local_nullable_int_array_closure(bool isAsync)
+        public override async Task Contains_with_local_nullable_uint_array_closure(bool isAsync)
         {
-            await base.Contains_with_local_nullable_int_array_closure(isAsync);
+            await base.Contains_with_local_nullable_uint_array_closure(isAsync);
 
             AssertSql(
                 @"SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
