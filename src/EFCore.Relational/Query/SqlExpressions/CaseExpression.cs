@@ -26,7 +26,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         {
         }
 
-        private CaseExpression(
+        public CaseExpression(
             SqlExpression operand,
             IReadOnlyList<CaseWhenClause> whenClauses,
             SqlExpression elseResult)

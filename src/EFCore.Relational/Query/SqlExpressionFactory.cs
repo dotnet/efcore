@@ -269,12 +269,14 @@ namespace Microsoft.EntityFrameworkCore.Query
         public virtual SqlUnaryExpression Negate(SqlExpression operand)
             => MakeUnary(ExpressionType.Negate, operand, operand.Type, operand.TypeMapping);
 
-        public virtual CaseExpression Case(SqlExpression operand, params CaseWhenClause[] whenClauses)
+        public virtual CaseExpression Case(SqlExpression operand, SqlExpression elseResult, params CaseWhenClause[] whenClauses)
         {
             var operandTypeMapping = operand.TypeMapping
                 ?? whenClauses.Select(wc => wc.Test.TypeMapping).FirstOrDefault(t => t != null)
                 ?? _typeMappingSource.FindMapping(operand.Type);
-            var resultTypeMapping = whenClauses.Select(wc => wc.Result.TypeMapping).FirstOrDefault(t => t != null);
+
+            var resultTypeMapping = elseResult?.TypeMapping
+                ?? whenClauses.Select(wc => wc.Result.TypeMapping).FirstOrDefault(t => t != null);
 
             operand = ApplyTypeMapping(operand, operandTypeMapping);
 
@@ -287,8 +289,13 @@ namespace Microsoft.EntityFrameworkCore.Query
                         ApplyTypeMapping(caseWhenClause.Result, resultTypeMapping)));
             }
 
-            return new CaseExpression(operand, typeMappedWhenClauses);
+            elseResult = ApplyTypeMapping(elseResult, resultTypeMapping);
+
+            return new CaseExpression(operand, typeMappedWhenClauses, elseResult);
         }
+
+        public virtual CaseExpression Case(SqlExpression operand, params CaseWhenClause[] whenClauses)
+            => Case(operand, null, whenClauses);
 
         public virtual CaseExpression Case(IReadOnlyList<CaseWhenClause> whenClauses, SqlExpression elseResult)
         {
