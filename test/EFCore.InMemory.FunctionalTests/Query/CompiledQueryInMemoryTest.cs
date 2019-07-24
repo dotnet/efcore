@@ -7,11 +7,23 @@ using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    internal class CompiledQueryInMemoryTest : CompiledQueryTestBase<NorthwindQueryInMemoryFixture<NoopModelCustomizer>>
+    public class CompiledQueryInMemoryTest : CompiledQueryTestBase<NorthwindQueryInMemoryFixture<NoopModelCustomizer>>
     {
         public CompiledQueryInMemoryTest(NorthwindQueryInMemoryFixture<NoopModelCustomizer> fixture)
             : base(fixture)
         {
+        }
+
+        [ConditionalFact(Skip = "See issue#15318")]
+        public override void Query_ending_with_include()
+        {
+            base.Query_ending_with_include();
+        }
+
+        [ConditionalFact(Skip = "See issue#15318")]
+        public override void Query_with_single_parameter_with_include()
+        {
+            base.Query_ending_with_include();
         }
 
         [ConditionalFact(Skip = "See issue#13857")]

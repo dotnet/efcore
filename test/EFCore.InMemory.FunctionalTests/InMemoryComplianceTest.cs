@@ -30,7 +30,6 @@ namespace Microsoft.EntityFrameworkCore
             typeof(ConcurrencyDetectorTestBase<>),
             typeof(AsNoTrackingTestBase<>),
             typeof(AsTrackingTestBase<>),
-            typeof(CompiledQueryTestBase<>),
             typeof(ComplexNavigationsQueryTestBase<>),
             typeof(GearsOfWarQueryTestBase<>),
             typeof(IncludeAsyncTestBase<>),

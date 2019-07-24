@@ -119,8 +119,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             query = ExtractParameters(query, _queryContextFactory.Create(), _logger, parameterize: false);
 
-            //return CompileQueryCore<TResult>(query, _model, _queryModelGenerator, _database, _logger, _contextType);
-            throw new NotImplementedException();
+            return CompileQueryCore<TResult>(_database, query, _model, false);
         }
 
         public virtual TResult ExecuteAsync<TResult>(Expression query, CancellationToken cancellationToken = default)
@@ -154,8 +153,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             query = ExtractParameters(query, _queryContextFactory.Create(), _logger, parameterize: false);
 
-            //return CompileAsyncQueryCore<TResult>(query, _queryModelGenerator, _database);
-            throw new NotImplementedException();
+            return CompileQueryCore<TResult>(_database, query, _model, true);
         }
 
         /// <summary>

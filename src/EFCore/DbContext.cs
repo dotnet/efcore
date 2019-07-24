@@ -265,9 +265,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <typeparam name="TQuery"> The type of query for which a DbQuery should be returned. </typeparam>
         /// <returns> A DbQuery for the given keyless entity type. </returns>
         [Obsolete("Use Set() for entity types without keys")]
-        public virtual IQueryable<TQuery> Query<TQuery>()
+        public virtual DbQuery<TQuery> Query<TQuery>()
             where TQuery : class
-            => Set<TQuery>().AsNoTracking();
+            => (DbQuery<TQuery>)((IDbSetCache)this).GetOrAddSet(DbContextDependencies.SetSource, typeof(TQuery));
 
         private IEntityFinder Finder(Type type)
         {

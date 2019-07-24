@@ -26,8 +26,9 @@ namespace Microsoft.EntityFrameworkCore.Internal
     /// </summary>
     public class InternalDbSet<TEntity> :
 #pragma warning disable CS0618 // Type or member is obsolete
-        DbQuery<TEntity>, IQueryable<TEntity>, IAsyncEnumerable<TEntity>, IInfrastructure<IServiceProvider>, IResettableService
+        DbQuery<TEntity>,
 #pragma warning restore CS0618 // Type or member is obsolete
+        IQueryable<TEntity>, IAsyncEnumerable<TEntity>, IInfrastructure<IServiceProvider>, IResettableService
         where TEntity : class
     {
         private readonly DbContext _context;
@@ -110,7 +111,18 @@ namespace Microsoft.EntityFrameworkCore.Internal
         }
 
         private EntityQueryable<TEntity> CreateEntityQueryable()
-            => new EntityQueryable<TEntity>(_context.GetDependencies().QueryProvider);
+        {
+            var queryable = new EntityQueryable<TEntity>(_context.GetDependencies().QueryProvider);
+
+#pragma warning disable 618
+            if (_entityType.FindPrimaryKey() == null)
+#pragma warning restore 618
+            {
+                queryable = (EntityQueryable<TEntity>)queryable.AsNoTracking();
+            }
+
+            return queryable;
+        }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
