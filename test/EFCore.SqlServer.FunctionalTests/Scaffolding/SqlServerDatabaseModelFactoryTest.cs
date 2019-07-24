@@ -1528,6 +1528,9 @@ CREATE TABLE dbo.HiddenColumnsTable
      PERIOD FOR SYSTEM_TIME(SysStartTime, SysEndTime)
 )
 WITH (SYSTEM_VERSIONING = ON (HISTORY_TABLE = dbo.HiddenColumnsTableHistory));
+CREATE INDEX IX_HiddenColumnsTable_1 ON dbo.HiddenColumnsTable ( Name, SysStartTime);
+CREATE INDEX IX_HiddenColumnsTable_2 ON dbo.HiddenColumnsTable ( SysStartTime);
+CREATE INDEX IX_HiddenColumnsTable_3 ON dbo.HiddenColumnsTable ( Name );
 ",
                 Enumerable.Empty<string>(),
                 Enumerable.Empty<string>(),
@@ -1538,6 +1541,7 @@ WITH (SYSTEM_VERSIONING = ON (HISTORY_TABLE = dbo.HiddenColumnsTableHistory));
                     Assert.Equal(2, columns.Count);
                     Assert.DoesNotContain(columns, c => c.Name == "SysStartTime");
                     Assert.DoesNotContain(columns, c => c.Name == "SysEndTime");
+                    Assert.Equal("IX_HiddenColumnsTable_3", dbModel.Tables.Single().Indexes.Single().Name);
                 },
                 @"
 ALTER TABLE dbo.HiddenColumnsTable SET (SYSTEM_VERSIONING = OFF);
