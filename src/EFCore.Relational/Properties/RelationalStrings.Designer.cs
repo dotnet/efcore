@@ -1286,6 +1286,54 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
         }
 
         /// <summary>
+        ///     Creating DbCommand for '{executionType}'.
+        /// </summary>
+        public static EventDefinition<string> LogCommandCreating([NotNull] IDiagnosticsLogger logger)
+        {
+            var definition = ((RelationalLoggingDefinitions)logger.Definitions).LogCommandCreating;
+            if (definition == null)
+            {
+                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                    ref ((RelationalLoggingDefinitions)logger.Definitions).LogCommandCreating,
+                    () => new EventDefinition<string>(
+                        logger.Options,
+                        RelationalEventId.CommandCreating,
+                        LogLevel.Debug,
+                        "RelationalEventId.CommandCreating",
+                        type => LoggerMessage.Define<string>(
+                            type,
+                            RelationalEventId.CommandCreating,
+                            _resourceManager.GetString("LogCommandCreating"))));
+            }
+
+            return (EventDefinition<string>)definition;
+        }
+
+        /// <summary>
+        ///     Created DbCommand for '{executionType}' ({elapsed}ms).
+        /// </summary>
+        public static EventDefinition<string, int> LogCommandCreated([NotNull] IDiagnosticsLogger logger)
+        {
+            var definition = ((RelationalLoggingDefinitions)logger.Definitions).LogCommandCreated;
+            if (definition == null)
+            {
+                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                    ref ((RelationalLoggingDefinitions)logger.Definitions).LogCommandCreated,
+                    () => new EventDefinition<string, int>(
+                        logger.Options,
+                        RelationalEventId.CommandCreated,
+                        LogLevel.Debug,
+                        "RelationalEventId.CommandCreated",
+                        level => LoggerMessage.Define<string,int>(
+                            level,
+                            RelationalEventId.CommandCreated,
+                            _resourceManager.GetString("LogCommandCreated"))));
+            }
+
+            return (EventDefinition<string, int>)definition;
+        }
+
+        /// <summary>
         ///     Executing DbCommand [Parameters=[{parameters}], CommandType='{commandType}', CommandTimeout='{commandTimeout}']{newLine}{commandText}
         /// </summary>
         public static EventDefinition<string, System.Data.CommandType, int, string, string> LogExecutingCommand([NotNull] IDiagnosticsLogger logger)

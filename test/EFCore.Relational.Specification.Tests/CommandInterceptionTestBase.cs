@@ -4,6 +4,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Data;
 using System.Data.Common;
 using System.Linq;
 using System.Threading;
@@ -203,6 +204,75 @@ namespace Microsoft.EntityFrameworkCore
                 base.ReaderExecutingAsync(command, eventData, result, cancellationToken);
 
                 return Task.FromResult(InterceptionResult<DbDataReader>.SuppressWithResult(new FakeDbDataReader()));
+            }
+        }
+
+        [ConditionalTheory]
+        [InlineData(false, false)]
+        [InlineData(true, false)]
+        [InlineData(false, true)]
+        [InlineData(true, true)]
+        public virtual async Task Intercept_query_to_suppress_command_creation(bool async, bool inject)
+        {
+            var (context, interceptor) = CreateContext<SuppressingCreateCommandInterceptor>(inject);
+            using (context)
+            {
+                using (var listener = Fixture.SubscribeToDiagnosticListener(context.ContextId))
+                {
+                    var results = async
+                        ? await context.Set<Singularity>().ToListAsync()
+                        : context.Set<Singularity>().ToList();
+
+                    Assert.Equal(2, results.Count);
+                    Assert.Equal(77, results[0].Id);
+                    Assert.Equal(88, results[1].Id);
+                    Assert.Equal("Black Hole", results[0].Type);
+                    Assert.Equal("Bing Bang", results[1].Type);
+
+                    AssertNormalOutcome(context, interceptor, async);
+
+                    AssertExecutedEvents(listener);
+                }
+            }
+        }
+
+        protected class SuppressingCreateCommandInterceptor : CommandInterceptorBase
+        {
+            public SuppressingCreateCommandInterceptor()
+                : base(DbCommandMethod.ExecuteReader)
+            {
+            }
+
+            public override InterceptionResult<DbCommand> CommandCreating(
+                CommandCorrelatedEventData eventData,
+                InterceptionResult<DbCommand> result)
+            {
+                base.CommandCreating(eventData, result);
+
+                var wrappedCommand = eventData.Connection.CreateCommand();
+
+                return InterceptionResult<DbCommand>.SuppressWithResult(new WrappingDbCommand(wrappedCommand));
+            }
+
+            public override InterceptionResult<DbDataReader> ReaderExecuting(
+                DbCommand command,
+                CommandEventData eventData,
+                InterceptionResult<DbDataReader> result)
+            {
+                Assert.IsType<WrappingDbCommand>(command);
+
+                return base.ReaderExecuting(command, eventData, result);
+            }
+
+            public override Task<InterceptionResult<DbDataReader>> ReaderExecutingAsync(
+                DbCommand command,
+                CommandEventData eventData,
+                InterceptionResult<DbDataReader> result,
+                CancellationToken cancellationToken = default)
+            {
+                Assert.IsType<WrappingDbCommand>(command);
+
+                return base.ReaderExecutingAsync(command, eventData, result, cancellationToken);
             }
         }
 
@@ -1390,6 +1460,56 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
+        private class WrappingDbCommand : DbCommand
+        {
+            private readonly DbCommand _command;
+
+            public WrappingDbCommand(DbCommand command) => _command = command;
+
+            public override void Cancel() => _command.Cancel();
+            public override int ExecuteNonQuery() => _command.ExecuteNonQuery();
+            public override object ExecuteScalar() => _command.ExecuteScalar();
+            public override void Prepare() => _command.Prepare();
+            public override string CommandText
+            {
+                get => _command.CommandText;
+                set => _command.CommandText = value;
+            }
+            public override int CommandTimeout
+            {
+                get => _command.CommandTimeout;
+                set => _command.CommandTimeout = value;
+            }
+            public override CommandType CommandType
+            {
+                get => _command.CommandType;
+                set => _command.CommandType = value;
+            }
+            public override UpdateRowSource UpdatedRowSource
+            {
+                get => _command.UpdatedRowSource;
+                set => _command.UpdatedRowSource = value;
+            }
+            protected override DbConnection DbConnection
+            {
+                get => _command.Connection;
+                set => _command.Connection = value;
+            }
+            protected override DbParameterCollection DbParameterCollection => _command.Parameters;
+            protected override DbTransaction DbTransaction
+            {
+                get => _command.Transaction;
+                set => _command.Transaction = value;
+            }
+            public override bool DesignTimeVisible
+            {
+                get => _command.DesignTimeVisible;
+                set => _command.DesignTimeVisible = value;
+            }
+            protected override DbParameter CreateDbParameter() => _command.CreateParameter();
+            protected override DbDataReader ExecuteDbDataReader(CommandBehavior behavior) => _command.ExecuteReader();
+        }
+
         private class FakeDbDataReader : DbDataReader
         {
             private int _index;
@@ -1497,6 +1617,26 @@ namespace Microsoft.EntityFrameworkCore
             public bool ExecutingCalled { get; set; }
             public bool ExecutedCalled { get; set; }
             public bool FailedCalled { get; set; }
+            public bool CreatingCalled { get; set; }
+            public bool CreatedCalled { get; set; }
+
+            public virtual InterceptionResult<DbCommand> CommandCreating(
+                CommandCorrelatedEventData eventData,
+                InterceptionResult<DbCommand> result)
+            {
+                AssertCreating(eventData);
+
+                return result;
+            }
+
+            public virtual DbCommand CommandCreated(
+                CommandEndEventData eventData,
+                DbCommand result)
+            {
+                AssertCreated(result, eventData);
+
+                return result;
+            }
 
             public virtual InterceptionResult<DbDataReader> ReaderExecuting(
                 DbCommand command,
@@ -1688,6 +1828,8 @@ namespace Microsoft.EntityFrameworkCore
                 Assert.NotNull(eventData.Context);
                 Assert.NotEqual(default, eventData.CommandId);
                 Assert.NotEqual(default, eventData.ConnectionId);
+                Assert.Equal(CommandId, eventData.CommandId);
+                Assert.Equal(ConnectionId, eventData.ConnectionId);
                 Assert.Equal(_commandMethod, eventData.ExecuteMethod);
 
                 Context = eventData.Context;
@@ -1706,6 +1848,30 @@ namespace Microsoft.EntityFrameworkCore
                 Assert.Equal(_commandMethod, eventData.ExecuteMethod);
 
                 ExecutedCalled = true;
+            }
+
+            protected virtual void AssertCreating(CommandCorrelatedEventData eventData)
+            {
+                Assert.NotNull(eventData.Context);
+                Assert.NotEqual(default, eventData.CommandId);
+                Assert.NotEqual(default, eventData.ConnectionId);
+                Assert.Equal(_commandMethod, eventData.ExecuteMethod);
+
+                Context = eventData.Context;
+                CommandId = eventData.CommandId;
+                ConnectionId = eventData.ConnectionId;
+                CreatingCalled = true;
+            }
+
+            protected virtual void AssertCreated(DbCommand command, CommandEndEventData eventData)
+            {
+                Assert.NotNull(command);
+                Assert.Same(Context, eventData.Context);
+                Assert.Equal(CommandId, eventData.CommandId);
+                Assert.Equal(ConnectionId, eventData.ConnectionId);
+                Assert.Equal(_commandMethod, eventData.ExecuteMethod);
+
+                CreatedCalled = true;
             }
 
             protected virtual void AssertFailed(DbCommand command, CommandErrorEventData eventData)

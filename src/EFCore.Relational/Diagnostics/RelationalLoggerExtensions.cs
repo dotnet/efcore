@@ -39,9 +39,224 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
     public static class RelationalLoggerExtensions
     {
         /// <summary>
+        ///     Logs for the <see cref="RelationalEventId.CommandCreating" /> event.
+        /// </summary>
+        /// <param name="diagnostics"> The diagnostics logger to use. </param>
+        /// <param name="connection"> The connection. </param>
+        /// <param name="commandMethod"> The type of method that will be called on this command. </param>
+        /// <param name="context"> The <see cref="DbContext" /> currently being used, to null if not known. </param>
+        /// <param name="commandId"> The correlation ID associated with the given <see cref="DbCommand" />. </param>
+        /// <param name="connectionId"> The correlation ID associated with the <see cref="DbConnection" /> being used. </param>
+        /// <param name="startTime"> The time that execution began. </param>
+        /// <returns> An intercepted result. </returns>
+        public static InterceptionResult<DbCommand> CommandCreating(
+            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Command> diagnostics,
+            [NotNull] IRelationalConnection connection,
+            DbCommandMethod commandMethod,
+            [CanBeNull] DbContext context,
+            Guid commandId,
+            Guid connectionId,
+            DateTimeOffset startTime)
+        {
+            var definition = RelationalResources.LogCommandCreating(diagnostics);
+
+            LogCommandCreating(diagnostics, definition, commandMethod);
+
+            var diagnosticSourceEnabled = diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name);
+            var interceptor = diagnostics.Interceptors?.Aggregate<IDbCommandInterceptor>();
+
+            if (interceptor != null
+                || diagnosticSourceEnabled)
+            {
+                var eventData = BroadcastCommandCreating(
+                    diagnostics,
+                    connection.DbConnection,
+                    context,
+                    commandMethod,
+                    commandId,
+                    connectionId,
+                    false,
+                    startTime,
+                    definition,
+                    diagnosticSourceEnabled);
+
+                if (interceptor != null)
+                {
+                    return interceptor.CommandCreating(eventData, default);
+                }
+            }
+
+            return default;
+        }
+
+        private static CommandCorrelatedEventData BroadcastCommandCreating(
+            IDiagnosticsLogger<DbLoggerCategory.Database.Command> diagnostics,
+            DbConnection connection,
+            DbContext context,
+            DbCommandMethod executeMethod,
+            Guid commandId,
+            Guid connectionId,
+            bool async,
+            DateTimeOffset startTime,
+            EventDefinition<string> definition,
+            bool diagnosticSourceEnabled)
+        {
+            var eventData = new CommandCorrelatedEventData(
+                definition,
+                CommandCreating,
+                connection,
+                context,
+                executeMethod,
+                commandId,
+                connectionId,
+                async,
+                startTime);
+
+            if (diagnosticSourceEnabled)
+            {
+                diagnostics.DiagnosticSource.Write(definition.EventId.Name, eventData);
+            }
+
+            return eventData;
+        }
+
+        private static void LogCommandCreating(
+            IDiagnosticsLogger<DbLoggerCategory.Database.Command> diagnostics,
+            EventDefinition<string> definition,
+            DbCommandMethod commandMethod)
+        {
+            var warningBehavior = definition.GetLogBehavior(diagnostics);
+            if (warningBehavior != WarningBehavior.Ignore)
+            {
+                definition.Log(diagnostics, warningBehavior, commandMethod.ToString());
+            }
+        }
+
+        private static string CommandCreating(EventDefinitionBase definition, EventData payload)
+        {
+            var d = (EventDefinition<string>)definition;
+            var p = (CommandCorrelatedEventData)payload;
+            return d.GenerateMessage(p.ExecuteMethod.ToString());
+        }
+
+        /// <summary>
+        ///     Logs for the <see cref="RelationalEventId.CommandCreated" /> event.
+        /// </summary>
+        /// <param name="diagnostics"> The diagnostics logger to use. </param>
+        /// <param name="connection"> The connection. </param>
+        /// <param name="command"> The database command object. </param>
+        /// <param name="commandMethod"> The type of method that will be called on this command. </param>
+        /// <param name="context"> The <see cref="DbContext" /> currently being used, to null if not known. </param>
+        /// <param name="commandId"> The correlation ID associated with the given <see cref="DbCommand" />. </param>
+        /// <param name="connectionId"> The correlation ID associated with the <see cref="DbConnection" /> being used. </param>
+        /// <param name="startTime"> The time that execution began. </param>
+        /// <param name="duration"> The duration of the command creation. </param>
+        /// <returns> An intercepted result. </returns>
+        public static DbCommand CommandCreated(
+            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Command> diagnostics,
+            [NotNull] IRelationalConnection connection,
+            [NotNull] DbCommand command,
+            DbCommandMethod commandMethod,
+            [CanBeNull] DbContext context,
+            Guid commandId,
+            Guid connectionId,
+            DateTimeOffset startTime,
+            TimeSpan duration)
+        {
+            var definition = RelationalResources.LogCommandCreated(diagnostics);
+
+            LogCommandCreated(diagnostics, definition, commandMethod, duration);
+
+            var diagnosticSourceEnabled = diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name);
+            var interceptor = diagnostics.Interceptors?.Aggregate<IDbCommandInterceptor>();
+
+            if (interceptor != null
+                || diagnosticSourceEnabled)
+            {
+                var eventData = BroadcastCommandCreated(
+                    diagnostics,
+                    connection.DbConnection,
+                    command,
+                    context,
+                    commandMethod,
+                    commandId,
+                    connectionId,
+                    false,
+                    startTime,
+                    duration,
+                    definition,
+                    diagnosticSourceEnabled);
+
+                if (interceptor != null)
+                {
+                    return interceptor.CommandCreated(eventData, command);
+                }
+            }
+
+            return command;
+        }
+
+        private static CommandEndEventData BroadcastCommandCreated(
+            IDiagnosticsLogger<DbLoggerCategory.Database.Command> diagnostics,
+            DbConnection connection,
+            DbCommand command,
+            DbContext context,
+            DbCommandMethod executeMethod,
+            Guid commandId,
+            Guid connectionId,
+            bool async,
+            DateTimeOffset startTime,
+            TimeSpan duration,
+            EventDefinition<string, int> definition,
+            bool diagnosticSourceEnabled)
+        {
+            var eventData = new CommandEndEventData(
+                definition,
+                CommandCreated,
+                connection,
+                command,
+                context,
+                executeMethod,
+                commandId,
+                connectionId,
+                async,
+                false,
+                startTime,
+                duration);
+
+            if (diagnosticSourceEnabled)
+            {
+                diagnostics.DiagnosticSource.Write(definition.EventId.Name, eventData);
+            }
+
+            return eventData;
+        }
+
+        private static void LogCommandCreated(
+            IDiagnosticsLogger<DbLoggerCategory.Database.Command> diagnostics,
+            EventDefinition<string, int> definition,
+            DbCommandMethod commandMethod,
+            TimeSpan duration)
+        {
+            var warningBehavior = definition.GetLogBehavior(diagnostics);
+            if (warningBehavior != WarningBehavior.Ignore)
+            {
+                definition.Log(diagnostics, warningBehavior, commandMethod.ToString(), (int)duration.TotalMilliseconds);
+            }
+        }
+
+        private static string CommandCreated(EventDefinitionBase definition, EventData payload)
+        {
+            var d = (EventDefinition<string, int>)definition;
+            var p = (CommandEndEventData)payload;
+            return d.GenerateMessage(p.ExecuteMethod.ToString(), (int)p.Duration.TotalMilliseconds);
+        }
+
+        /// <summary>
         ///     Logs for the <see cref="RelationalEventId.CommandExecuting" /> event.
         /// </summary>
         /// <param name="diagnostics"> The diagnostics logger to use. </param>
+        /// <param name="connection"> The connection. </param>
         /// <param name="command"> The database command object. </param>
         /// <param name="context"> The <see cref="DbContext" /> currently being used, to null if not known. </param>
         /// <param name="commandId"> The correlation ID associated with the given <see cref="DbCommand" />. </param>
@@ -50,6 +265,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <returns> An intercepted result. </returns>
         public static InterceptionResult<DbDataReader> CommandReaderExecuting(
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Command> diagnostics,
+            [NotNull] IRelationalConnection connection,
             [NotNull] DbCommand command,
             [CanBeNull] DbContext context,
             Guid commandId,
@@ -68,6 +284,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             {
                 var eventData = BroadcastCommandExecuting(
                     diagnostics,
+                    connection.DbConnection,
                     command,
                     context,
                     DbCommandMethod.ExecuteReader,
@@ -91,6 +308,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     Logs for the <see cref="RelationalEventId.CommandExecuting" /> event.
         /// </summary>
         /// <param name="diagnostics"> The diagnostics logger to use. </param>
+        /// <param name="connection"> The connection. </param>
         /// <param name="command"> The database command object. </param>
         /// <param name="context"> The <see cref="DbContext" /> currently being used, to null if not known. </param>
         /// <param name="commandId"> The correlation ID associated with the given <see cref="DbCommand" />. </param>
@@ -99,6 +317,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <returns> An intercepted result. </returns>
         public static InterceptionResult<object> CommandScalarExecuting(
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Command> diagnostics,
+            [NotNull] IRelationalConnection connection,
             [NotNull] DbCommand command,
             [CanBeNull] DbContext context,
             Guid commandId,
@@ -117,6 +336,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             {
                 var eventData = BroadcastCommandExecuting(
                     diagnostics,
+                    connection.DbConnection,
                     command,
                     context,
                     DbCommandMethod.ExecuteScalar,
@@ -140,6 +360,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     Logs for the <see cref="RelationalEventId.CommandExecuting" /> event.
         /// </summary>
         /// <param name="diagnostics"> The diagnostics logger to use. </param>
+        /// <param name="connection"> The connection. </param>
         /// <param name="command"> The database command object. </param>
         /// <param name="context"> The <see cref="DbContext" /> currently being used, to null if not known. </param>
         /// <param name="commandId"> The correlation ID associated with the given <see cref="DbCommand" />. </param>
@@ -148,6 +369,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <returns> An intercepted result. </returns>
         public static InterceptionResult<int> CommandNonQueryExecuting(
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Command> diagnostics,
+            [NotNull] IRelationalConnection connection,
             [NotNull] DbCommand command,
             [CanBeNull] DbContext context,
             Guid commandId,
@@ -166,6 +388,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             {
                 var eventData = BroadcastCommandExecuting(
                     diagnostics,
+                    connection.DbConnection,
                     command,
                     context,
                     DbCommandMethod.ExecuteNonQuery,
@@ -189,6 +412,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     Logs for the <see cref="RelationalEventId.CommandExecuting" /> event.
         /// </summary>
         /// <param name="diagnostics"> The diagnostics logger to use. </param>
+        /// <param name="connection"> The connection. </param>
         /// <param name="command"> The database command object. </param>
         /// <param name="context"> The <see cref="DbContext" /> currently being used, to null if not known. </param>
         /// <param name="commandId"> The correlation ID associated with the given <see cref="DbCommand" />. </param>
@@ -198,6 +422,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <returns> An intercepted result. </returns>
         public static Task<InterceptionResult<DbDataReader>> CommandReaderExecutingAsync(
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Command> diagnostics,
+            [NotNull] IRelationalConnection connection,
             [NotNull] DbCommand command,
             [CanBeNull] DbContext context,
             Guid commandId,
@@ -217,6 +442,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             {
                 var eventData = BroadcastCommandExecuting(
                     diagnostics,
+                    connection.DbConnection,
                     command,
                     context,
                     DbCommandMethod.ExecuteReader,
@@ -240,6 +466,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     Logs for the <see cref="RelationalEventId.CommandExecuting" /> event.
         /// </summary>
         /// <param name="diagnostics"> The diagnostics logger to use. </param>
+        /// <param name="connection"> The connection. </param>
         /// <param name="command"> The database command object. </param>
         /// <param name="context"> The <see cref="DbContext" /> currently being used, to null if not known. </param>
         /// <param name="commandId"> The correlation ID associated with the given <see cref="DbCommand" />. </param>
@@ -249,6 +476,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <returns> An intercepted result. </returns>
         public static Task<InterceptionResult<object>> CommandScalarExecutingAsync(
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Command> diagnostics,
+            [NotNull] IRelationalConnection connection,
             [NotNull] DbCommand command,
             [CanBeNull] DbContext context,
             Guid commandId,
@@ -268,6 +496,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             {
                 var eventData = BroadcastCommandExecuting(
                     diagnostics,
+                    connection.DbConnection,
                     command,
                     context,
                     DbCommandMethod.ExecuteScalar,
@@ -291,6 +520,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     Logs for the <see cref="RelationalEventId.CommandExecuting" /> event.
         /// </summary>
         /// <param name="diagnostics"> The diagnostics logger to use. </param>
+        /// <param name="connection"> The connection. </param>
         /// <param name="command"> The database command object. </param>
         /// <param name="context"> The <see cref="DbContext" /> currently being used, to null if not known. </param>
         /// <param name="commandId"> The correlation ID associated with the given <see cref="DbCommand" />. </param>
@@ -300,6 +530,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <returns> An intercepted result. </returns>
         public static Task<InterceptionResult<int>> CommandNonQueryExecutingAsync(
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Command> diagnostics,
+            [NotNull] IRelationalConnection connection,
             [NotNull] DbCommand command,
             [CanBeNull] DbContext context,
             Guid commandId,
@@ -319,6 +550,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             {
                 var eventData = BroadcastCommandExecuting(
                     diagnostics,
+                    connection.DbConnection,
                     command,
                     context,
                     DbCommandMethod.ExecuteNonQuery,
@@ -340,6 +572,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
 
         private static CommandEventData BroadcastCommandExecuting(
             IDiagnosticsLogger<DbLoggerCategory.Database.Command> diagnostics,
+            DbConnection connection,
             DbCommand command,
             DbContext context,
             DbCommandMethod executeMethod,
@@ -353,6 +586,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             var eventData = new CommandEventData(
                 definition,
                 CommandExecuting,
+                connection,
                 command,
                 context,
                 executeMethod,
@@ -413,6 +647,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     Logs for the <see cref="RelationalEventId.CommandExecuted" /> event.
         /// </summary>
         /// <param name="diagnostics"> The diagnostics logger to use. </param>
+        /// <param name="connection"> The connection. </param>
         /// <param name="command"> The database command object. </param>
         /// <param name="context"> The <see cref="DbContext" /> currently being used, to null if not known. </param>
         /// <param name="commandId"> The correlation ID associated with the given <see cref="DbCommand" />. </param>
@@ -423,6 +658,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <returns> The result of execution, which may have been modified by an interceptor. </returns>
         public static DbDataReader CommandReaderExecuted(
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Command> diagnostics,
+            [NotNull] IRelationalConnection connection,
             [NotNull] DbCommand command,
             [CanBeNull] DbContext context,
             Guid commandId,
@@ -443,6 +679,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             {
                 var eventData = BroadcastCommandExecuted(
                     diagnostics,
+                    connection.DbConnection,
                     command,
                     context,
                     DbCommandMethod.ExecuteReader,
@@ -468,6 +705,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     Logs for the <see cref="RelationalEventId.CommandExecuted" /> event.
         /// </summary>
         /// <param name="diagnostics"> The diagnostics logger to use. </param>
+        /// <param name="connection"> The connection. </param>
         /// <param name="command"> The database command object. </param>
         /// <param name="context"> The <see cref="DbContext" /> currently being used, to null if not known. </param>
         /// <param name="commandId"> The correlation ID associated with the given <see cref="DbCommand" />. </param>
@@ -478,6 +716,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <returns> The result of execution, which may have been modified by an interceptor. </returns>
         public static object CommandScalarExecuted(
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Command> diagnostics,
+            [NotNull] IRelationalConnection connection,
             [NotNull] DbCommand command,
             [CanBeNull] DbContext context,
             Guid commandId,
@@ -498,6 +737,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             {
                 var eventData = BroadcastCommandExecuted(
                     diagnostics,
+                    connection.DbConnection,
                     command,
                     context,
                     DbCommandMethod.ExecuteScalar,
@@ -523,6 +763,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     Logs for the <see cref="RelationalEventId.CommandExecuted" /> event.
         /// </summary>
         /// <param name="diagnostics"> The diagnostics logger to use. </param>
+        /// <param name="connection"> The connection. </param>
         /// <param name="command"> The database command object. </param>
         /// <param name="context"> The <see cref="DbContext" /> currently being used, to null if not known. </param>
         /// <param name="commandId"> The correlation ID associated with the given <see cref="DbCommand" />. </param>
@@ -533,6 +774,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <returns> The result of execution, which may have been modified by an interceptor. </returns>
         public static int CommandNonQueryExecuted(
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Command> diagnostics,
+            [NotNull] IRelationalConnection connection,
             [NotNull] DbCommand command,
             [CanBeNull] DbContext context,
             Guid commandId,
@@ -553,6 +795,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             {
                 var eventData = BroadcastCommandExecuted(
                     diagnostics,
+                    connection.DbConnection,
                     command,
                     context,
                     DbCommandMethod.ExecuteNonQuery,
@@ -578,6 +821,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     Logs for the <see cref="RelationalEventId.CommandExecuted" /> event.
         /// </summary>
         /// <param name="diagnostics"> The diagnostics logger to use. </param>
+        /// <param name="connection"> The connection. </param>
         /// <param name="command"> The database command object. </param>
         /// <param name="context"> The <see cref="DbContext" /> currently being used, to null if not known. </param>
         /// <param name="commandId"> The correlation ID associated with the given <see cref="DbCommand" />. </param>
@@ -589,6 +833,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <returns> The result of execution, which may have been modified by an interceptor. </returns>
         public static Task<DbDataReader> CommandReaderExecutedAsync(
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Command> diagnostics,
+            [NotNull] IRelationalConnection connection,
             [NotNull] DbCommand command,
             [CanBeNull] DbContext context,
             Guid commandId,
@@ -610,6 +855,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             {
                 var eventData = BroadcastCommandExecuted(
                     diagnostics,
+                    connection.DbConnection,
                     command,
                     context,
                     DbCommandMethod.ExecuteReader,
@@ -635,6 +881,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     Logs for the <see cref="RelationalEventId.CommandExecuted" /> event.
         /// </summary>
         /// <param name="diagnostics"> The diagnostics logger to use. </param>
+        /// <param name="connection"> The connection. </param>
         /// <param name="command"> The database command object. </param>
         /// <param name="context"> The <see cref="DbContext" /> currently being used, to null if not known. </param>
         /// <param name="commandId"> The correlation ID associated with the given <see cref="DbCommand" />. </param>
@@ -646,6 +893,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <returns> The result of execution, which may have been modified by an interceptor. </returns>
         public static Task<object> CommandScalarExecutedAsync(
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Command> diagnostics,
+            [NotNull] IRelationalConnection connection,
             [NotNull] DbCommand command,
             [CanBeNull] DbContext context,
             Guid commandId,
@@ -667,6 +915,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             {
                 var eventData = BroadcastCommandExecuted(
                     diagnostics,
+                    connection.DbConnection,
                     command,
                     context,
                     DbCommandMethod.ExecuteScalar,
@@ -692,6 +941,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     Logs for the <see cref="RelationalEventId.CommandExecuted" /> event.
         /// </summary>
         /// <param name="diagnostics"> The diagnostics logger to use. </param>
+        /// <param name="connection"> The connection. </param>
         /// <param name="command"> The database command object. </param>
         /// <param name="context"> The <see cref="DbContext" /> currently being used, to null if not known. </param>
         /// <param name="commandId"> The correlation ID associated with the given <see cref="DbCommand" />. </param>
@@ -703,6 +953,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <returns> The result of execution, which may have been modified by an interceptor. </returns>
         public static Task<int> CommandNonQueryExecutedAsync(
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Command> diagnostics,
+            [NotNull] IRelationalConnection connection,
             [NotNull] DbCommand command,
             [CanBeNull] DbContext context,
             Guid commandId,
@@ -724,6 +975,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             {
                 var eventData = BroadcastCommandExecuted(
                     diagnostics,
+                    connection.DbConnection,
                     command,
                     context,
                     DbCommandMethod.ExecuteNonQuery,
@@ -747,6 +999,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
 
         private static CommandExecutedEventData BroadcastCommandExecuted(
             IDiagnosticsLogger<DbLoggerCategory.Database.Command> diagnostics,
+            DbConnection connection,
             DbCommand command,
             DbContext context,
             DbCommandMethod executeMethod,
@@ -762,6 +1015,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             var eventData = new CommandExecutedEventData(
                 definition,
                 CommandExecuted,
+                connection,
                 command,
                 context,
                 executeMethod,
@@ -821,6 +1075,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     Logs for the <see cref="RelationalEventId.CommandError" /> event.
         /// </summary>
         /// <param name="diagnostics"> The diagnostics logger to use. </param>
+        /// <param name="connection"> The connection. </param>
         /// <param name="command"> The database command object. </param>
         /// <param name="context"> The <see cref="DbContext" /> currently being used, to null if not known. </param>
         /// <param name="executeMethod"> Represents the method that will be called to execute the command. </param>
@@ -831,6 +1086,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="duration"> The amount of time that passed until the exception was raised. </param>
         public static void CommandError(
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Command> diagnostics,
+            [NotNull] IRelationalConnection connection,
             [NotNull] DbCommand command,
             [CanBeNull] DbContext context,
             DbCommandMethod executeMethod,
@@ -852,6 +1108,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             {
                 var eventData = BroadcastCommandError(
                     diagnostics,
+                    connection.DbConnection,
                     command,
                     context,
                     executeMethod,
@@ -893,6 +1150,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     Logs for the <see cref="RelationalEventId.CommandError" /> event.
         /// </summary>
         /// <param name="diagnostics"> The diagnostics logger to use. </param>
+        /// <param name="connection"> The connection. </param>
         /// <param name="command"> The database command object. </param>
         /// <param name="context"> The <see cref="DbContext" /> currently being used, to null if not known. </param>
         /// <param name="executeMethod"> Represents the method that will be called to execute the command. </param>
@@ -905,6 +1163,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <returns> A <see cref="Task"/> representing the async operation. </returns>
         public static Task CommandErrorAsync(
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Command> diagnostics,
+            [NotNull] IRelationalConnection connection,
             [NotNull] DbCommand command,
             [CanBeNull] DbContext context,
             DbCommandMethod executeMethod,
@@ -927,6 +1186,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             {
                 var eventData = BroadcastCommandError(
                     diagnostics,
+                    connection.DbConnection,
                     command,
                     context,
                     executeMethod,
@@ -950,6 +1210,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
 
         private static CommandErrorEventData BroadcastCommandError(
             IDiagnosticsLogger<DbLoggerCategory.Database.Command> diagnostics,
+            DbConnection connection,
             DbCommand command,
             DbContext context,
             DbCommandMethod executeMethod,
@@ -965,6 +1226,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             var eventData = new CommandErrorEventData(
                 definition,
                 CommandError,
+                connection,
                 command,
                 context,
                 executeMethod,

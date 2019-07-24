@@ -18,6 +18,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// </summary>
         /// <param name="eventDefinition"> The event definition. </param>
         /// <param name="messageGenerator"> A delegate that generates a log message for this event. </param>
+        /// <param name="connection"> The <see cref="DbConnection"/> being used. </param>
         /// <param name="command"> The <see cref="DbCommand" /> that was executing when it failed. </param>
         /// <param name="context"> The <see cref="DbContext" /> currently being used, to null if not known. </param>
         /// <param name="executeMethod"> The <see cref="DbCommand" /> method that was used to execute the command. </param>
@@ -31,6 +32,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         public CommandExecutedEventData(
             [NotNull] EventDefinitionBase eventDefinition,
             [NotNull] Func<EventDefinitionBase, EventData, string> messageGenerator,
+            [NotNull] DbConnection connection,
             [NotNull] DbCommand command,
             [CanBeNull] DbContext context,
             DbCommandMethod executeMethod,
@@ -44,6 +46,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             : base(
                 eventDefinition,
                 messageGenerator,
+                connection,
                 command,
                 context,
                 executeMethod,

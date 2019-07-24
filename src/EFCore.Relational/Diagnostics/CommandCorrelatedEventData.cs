@@ -9,10 +9,9 @@ using JetBrains.Annotations;
 namespace Microsoft.EntityFrameworkCore.Diagnostics
 {
     /// <summary>
-    ///     The <see cref="DiagnosticSource" /> event payload for
-    ///     <see cref="RelationalEventId" /> command end events.
+    ///     The <see cref="DiagnosticSource" /> event payload for events correlated with a <see cref="DbCommand"/>.
     /// </summary>
-    public class CommandEndEventData : CommandEventData
+    public class CommandCorrelatedEventData : DbContextEventData
     {
         /// <summary>
         ///     Constructs the event payload.
@@ -20,45 +19,60 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="eventDefinition"> The event definition. </param>
         /// <param name="messageGenerator"> A delegate that generates a log message for this event. </param>
         /// <param name="connection"> The <see cref="DbConnection"/> being used. </param>
-        /// <param name="command"> The <see cref="DbCommand" />. </param>
         /// <param name="context"> The <see cref="DbContext" /> currently being used, to null if not known. </param>
         /// <param name="executeMethod"> The <see cref="DbCommand" /> method. </param>
         /// <param name="commandId"> A correlation ID that identifies the <see cref="DbCommand" /> instance being used. </param>
         /// <param name="connectionId"> A correlation ID that identifies the <see cref="DbConnection" /> instance being used. </param>
         /// <param name="async"> Indicates whether or not the command was executed asynchronously. </param>
-        /// <param name="logParameterValues"> Indicates whether or not the application allows logging of parameter values. </param>
         /// <param name="startTime"> The start time of this event. </param>
-        /// <param name="duration"> The duration this event. </param>
-        public CommandEndEventData(
+        public CommandCorrelatedEventData(
             [NotNull] EventDefinitionBase eventDefinition,
             [NotNull] Func<EventDefinitionBase, EventData, string> messageGenerator,
             [NotNull] DbConnection connection,
-            [NotNull] DbCommand command,
             [CanBeNull] DbContext context,
             DbCommandMethod executeMethod,
             Guid commandId,
             Guid connectionId,
             bool async,
-            bool logParameterValues,
-            DateTimeOffset startTime,
-            TimeSpan duration)
-            : base(
-                eventDefinition,
-                messageGenerator,
-                connection,
-                command,
-                context,
-                executeMethod,
-                commandId,
-                connectionId,
-                async,
-                logParameterValues,
-                startTime)
-            => Duration = duration;
+            DateTimeOffset startTime)
+            : base(eventDefinition, messageGenerator, context)
+        {
+            Connection = connection;
+            CommandId = commandId;
+            ConnectionId = connectionId;
+            ExecuteMethod = executeMethod;
+            IsAsync = async;
+            StartTime = startTime;
+        }
 
         /// <summary>
-        ///     The duration this event.
+        ///     The <see cref="DbConnection" />.
         /// </summary>
-        public virtual TimeSpan Duration { get; }
+        public virtual DbConnection Connection { get; }
+
+        /// <summary>
+        ///     A correlation ID that identifies the <see cref="DbCommand" /> instance being used.
+        /// </summary>
+        public virtual Guid CommandId { get; }
+
+        /// <summary>
+        ///     A correlation ID that identifies the <see cref="DbConnection" /> instance being used.
+        /// </summary>
+        public virtual Guid ConnectionId { get; }
+
+        /// <summary>
+        ///     The <see cref="DbCommandMethod" /> method.
+        /// </summary>
+        public virtual DbCommandMethod ExecuteMethod { get; }
+
+        /// <summary>
+        ///     Indicates whether or not the operation is being executed asynchronously.
+        /// </summary>
+        public virtual bool IsAsync { get; }
+
+        /// <summary>
+        ///     The start time of this event.
+        /// </summary>
+        public virtual DateTimeOffset StartTime { get; }
     }
 }

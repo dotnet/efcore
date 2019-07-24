@@ -304,6 +304,14 @@
   <data name="ParameterNotObjectArray" xml:space="preserve">
     <value>Cannot use the value provided for parameter '{parameter}' because it isn't assignable to type object[].</value>
   </data>
+  <data name="LogCommandCreating" xml:space="preserve">
+    <value>Creating DbCommand for '{executionType}'.</value>
+    <comment>Debug RelationalEventId.CommandCreating string</comment>
+  </data>
+  <data name="LogCommandCreated" xml:space="preserve">
+    <value>Created DbCommand for '{executionType}' ({elapsed}ms).</value>
+    <comment>Debug RelationalEventId.CommandCreated string int</comment>
+  </data>
   <data name="LogExecutingCommand" xml:space="preserve">
     <value>Executing DbCommand [Parameters=[{parameters}], CommandType='{commandType}', CommandTimeout='{commandTimeout}']{newLine}{commandText}</value>
     <comment>Information RelationalEventId.CommandExecuting string System.Data.CommandType int string string</comment>
