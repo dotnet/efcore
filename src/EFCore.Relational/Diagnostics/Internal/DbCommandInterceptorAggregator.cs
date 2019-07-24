@@ -36,6 +36,30 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
                 _interceptors = interceptors.ToArray();
             }
 
+            public InterceptionResult<DbCommand> CommandCreating(
+                CommandCorrelatedEventData eventData,
+                InterceptionResult<DbCommand> result)
+            {
+                for (var i = 0; i < _interceptors.Length; i++)
+                {
+                    result = _interceptors[i].CommandCreating(eventData, result);
+                }
+
+                return result;
+            }
+
+            public DbCommand CommandCreated(
+                CommandEndEventData eventData,
+                DbCommand result)
+            {
+                for (var i = 0; i < _interceptors.Length; i++)
+                {
+                    result = _interceptors[i].CommandCreated(eventData, result);
+                }
+
+                return result;
+            }
+
             public InterceptionResult<DbDataReader> ReaderExecuting(
                 DbCommand command,
                 CommandEventData eventData,

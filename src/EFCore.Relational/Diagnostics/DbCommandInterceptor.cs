@@ -16,6 +16,48 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
     public abstract class DbCommandInterceptor : IDbCommandInterceptor
     {
         /// <summary>
+        ///     Called just before EF intends to call <see cref="DbConnection.CreateCommand"/>.
+        /// </summary>
+        /// <param name="eventData"> Contextual information about the command and execution. </param>
+        /// <param name="result">
+        ///     Represents the current result if one exists.
+        ///     This value will have <see cref="InterceptionResult{DbCommand}.HasResult"/> set to true if some previous
+        ///     interceptor suppressed execution by calling <see cref="InterceptionResult{DbCommand}.SuppressWithResult"/>.
+        ///     This value is typically used as the return value for the implementation of this method.
+        /// </param>
+        /// <returns>
+        ///     If <see cref="InterceptionResult{DbCommand}.HasResult"/> is false, the EF will continue as normal.
+        ///     If <see cref="InterceptionResult{DbCommand}.HasResult"/> is true, then EF will suppress the operation it
+        ///     was about to perform and use <see cref="InterceptionResult{DbCommand}.Result"/> instead.
+        ///     A normal implementation of this method for any interceptor that is not attempting to change the result
+        ///     is to return the <paramref name="result" /> value passed in.
+        /// </returns>
+        public virtual InterceptionResult<DbCommand> CommandCreating(CommandCorrelatedEventData eventData, InterceptionResult<DbCommand> result)
+            => result;
+
+        /// <summary>
+        ///     <para>
+        ///         Called immediately after EF calls <see cref="DbConnection.CreateCommand"/>.
+        ///     </para>
+        ///     <para>
+        ///         This method is still called if an interceptor suppressed creation of a command in <see cref="IDbCommandInterceptor.CommandCreating" />.
+        ///         In this case, <paramref name="result" /> is the result returned by <see cref="IDbCommandInterceptor.CommandCreating" />.
+        ///     </para>
+        /// </summary>
+        /// <param name="eventData"> Contextual information about the command and execution. </param>
+        /// <param name="result">
+        ///     The result of the call to <see cref="DbConnection.CreateCommand" />.
+        ///     This value is typically used as the return value for the implementation of this method.
+        /// </param>
+        /// <returns>
+        ///     The result that EF will use.
+        ///     A normal implementation of this method for any interceptor that is not attempting to change the result
+        ///     is to return the <paramref name="result" /> value passed in.
+        /// </returns>
+        public virtual DbCommand CommandCreated(CommandEndEventData eventData, DbCommand result)
+            => result;
+
+        /// <summary>
         ///     Called just before EF intends to call <see cref="DbCommand.ExecuteReader()" />.
         /// </summary>
         /// <param name="command"> The command. </param>
@@ -37,9 +79,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             DbCommand command,
             CommandEventData eventData,
             InterceptionResult<DbDataReader> result)
-        {
-            return result;
-        }
+            => result;
 
         /// <summary>
         ///     Called just before EF intends to call <see cref="DbCommand.ExecuteScalar()" />.
@@ -62,7 +102,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         public virtual InterceptionResult<object> ScalarExecuting(
             DbCommand command,
             CommandEventData eventData,
-            InterceptionResult<object> result) => result;
+            InterceptionResult<object> result)
+            => result;
 
         /// <summary>
         ///     Called just before EF intends to call <see cref="DbCommand.ExecuteNonQuery()" />.

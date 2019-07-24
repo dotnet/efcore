@@ -347,7 +347,7 @@ namespace Microsoft.EntityFrameworkCore
 
                 Assert.Equal(
                     RelationalResources.LogAmbientTransactionEnlisted(new TestLogger<TestRelationalLoggingDefinitions>()).GenerateMessage("Serializable"),
-                    Fixture.ListLoggerFactory.Log.First().Message);
+                    Fixture.ListLoggerFactory.Log.Skip(2).First().Message);
             }
 
             AssertStoreInitialState();
