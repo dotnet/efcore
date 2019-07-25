@@ -75,9 +75,51 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        private void Append([NotNull] string message) => _stringBuilder.Append(message);
+        public virtual ExpressionPrinter Append([NotNull] object o)
+        {
+            _stringBuilder.Append(o);
+            return this;
+        }
 
-        private void Append([NotNull] int value) => _stringBuilder.Append(value);
+        public virtual ExpressionPrinter AppendLine()
+        {
+            _stringBuilder.AppendLine();
+            return this;
+        }
+
+        public virtual ExpressionVisitor AppendLine([NotNull] object o)
+        {
+            _stringBuilder.AppendLine(o);
+            return this;
+        }
+
+        public virtual ExpressionPrinter AppendLines([NotNull] object o, bool skipFinalNewline = false)
+        {
+            _stringBuilder.AppendLines(o, skipFinalNewline);
+            return this;
+        }
+
+        public virtual ExpressionPrinter IncrementIndent()
+        {
+            _stringBuilder.IncrementIndent();
+            return this;
+        }
+
+        public virtual ExpressionPrinter IncrementIndent(bool connectNode)
+        {
+            _stringBuilder.IncrementIndent(connectNode);
+            return this;
+        }
+
+        public virtual ExpressionPrinter DecrementIndent()
+        {
+            _stringBuilder.DecrementIndent();
+            return this;
+        }
+
+        public virtual IDisposable Indent() => _stringBuilder.Indent();
+
+        private void Append([NotNull] string message) => _stringBuilder.Append(message);
 
         private void AppendLine([NotNull] string message = "")
         {
