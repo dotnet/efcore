@@ -102,17 +102,33 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
 
         private bool TryBindMember(Expression source, MemberIdentity member, out Expression expression)
         {
+            Type convertedType = null;
+            if (source is UnaryExpression unaryExpression
+                && unaryExpression.NodeType == ExpressionType.Convert)
+            {
+                if (unaryExpression.Type != typeof(object))
+                {
+                    convertedType = unaryExpression.Type;
+                }
+                source = unaryExpression.Operand;
+            }
+
             if (source is EntityProjectionExpression entityProjectionExpression)
             {
                 expression = member.MemberInfo != null
-                    ? entityProjectionExpression.BindMember(member.MemberInfo, null, clientEval: false, out _)
-                    : entityProjectionExpression.BindMember(member.Name, null, clientEval: false, out _);
+                    ? entityProjectionExpression.BindMember(member.MemberInfo, convertedType, clientEval: false, out _)
+                    : entityProjectionExpression.BindMember(member.Name, convertedType, clientEval: false, out _);
                 return expression != null;
             }
 
             if (source is MemberExpression innerMemberExpression
                 && TryBindMember(innerMemberExpression, MemberIdentity.Create(innerMemberExpression.Member), out var innerResult))
             {
+                if (convertedType != null)
+                {
+                    innerResult = Expression.Convert(innerResult, convertedType);
+                }
+
                 return TryBindMember(innerResult, member, out expression);
             }
 
