@@ -573,6 +573,11 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 GenerateComment(operation, model, builder, operation.Comment, operation.Schema, operation.Name);
             }
 
+            foreach (var column in operation.Columns.Where(c => c.Comment != null))
+            {
+                GenerateComment(operation, model, builder, column.Comment, operation.Schema, operation.Name, column.Name);
+            }
+
             if (terminate)
             {
                 builder.AppendLine(Dependencies.SqlGenerationHelper.StatementTerminator);
