@@ -382,8 +382,10 @@ namespace Microsoft.EntityFrameworkCore
                 Sql);
         }
 
-        [ConditionalFact]
-        public virtual void AlterColumnOperation_memoryOptimized_with_index()
+        [ConditionalTheory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual void AlterColumnOperation_memoryOptimized_with_index(bool obsolete)
         {
             Generate(
                 modelBuilder => modelBuilder
@@ -391,7 +393,16 @@ namespace Microsoft.EntityFrameworkCore
                     .Entity(
                         "Person", x =>
                         {
-                            x.ForSqlServerIsMemoryOptimized();
+                            if (obsolete)
+                            {
+#pragma warning disable 618
+                                x.ForSqlServerIsMemoryOptimized();
+#pragma warning restore 618
+                            }
+                            else
+                            {
+                                x.IsMemoryOptimized();
+                            }
                             x.Property<string>("Name");
                             x.HasKey("Name");
                             x.HasIndex("Name");
@@ -501,8 +512,10 @@ namespace Microsoft.EntityFrameworkCore
                 Sql);
         }
 
-        [ConditionalFact]
-        public virtual void AlterColumnOperation_with_index_included_column()
+        [ConditionalTheory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual void AlterColumnOperation_with_index_included_column(bool obsolete)
         {
             Generate(
                 modelBuilder => modelBuilder
@@ -514,8 +527,17 @@ namespace Microsoft.EntityFrameworkCore
                             x.Property<string>("FirstName");
                             x.Property<string>("LastName");
                             x.HasKey("Name");
-                            x.HasIndex("FirstName", "LastName")
-                                .ForSqlServerInclude("Name");
+
+                            if (obsolete)
+                            {
+#pragma warning disable 618
+                                x.HasIndex("FirstName", "LastName").ForSqlServerInclude("Name");
+#pragma warning restore 618
+                            }
+                            else
+                            {
+                                x.HasIndex("FirstName", "LastName").IncludeProperties("Name");
+                            }
                         }),
                 new AlterColumnOperation
                 {
@@ -707,8 +729,10 @@ namespace Microsoft.EntityFrameworkCore
                 Sql);
         }
 
-        [ConditionalFact]
-        public virtual void AlterColumnOperation_with_added_online_index()
+        [ConditionalTheory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual void AlterColumnOperation_with_added_online_index(bool obsolete)
         {
             Generate(
                 modelBuilder => modelBuilder
@@ -717,7 +741,17 @@ namespace Microsoft.EntityFrameworkCore
                         "Person", x =>
                         {
                             x.Property<string>("Name").HasMaxLength(30);
-                            x.HasIndex("Name").ForSqlServerIsCreatedOnline();
+
+                            if (obsolete)
+                            {
+#pragma warning disable 618
+                                x.HasIndex("Name").ForSqlServerIsCreatedOnline();
+#pragma warning restore 618
+                            }
+                            else
+                            {
+                                x.HasIndex("Name").IsCreatedOnline();
+                            }
                         }),
                 new AlterColumnOperation
                 {
@@ -850,7 +884,7 @@ namespace Microsoft.EntityFrameworkCore
                 + EOL +
                 "WHERE ([d].[parent_object_id] = OBJECT_ID(N'[dbo].[People]') AND [c].[name] = N'LuckyNumber');" + EOL +
                 "IF @var0 IS NOT NULL EXEC(N'ALTER TABLE [dbo].[People] DROP CONSTRAINT [' + @var0 + '];');" + EOL +
-                "ALTER TABLE [dbo].[People] ALTER COLUMN [LuckyNumber] int NOT NULL;" + EOL + 
+                "ALTER TABLE [dbo].[People] ALTER COLUMN [LuckyNumber] int NOT NULL;" + EOL +
                 "GO" + EOL + EOL +
                 "EXEC sp_addextendedproperty @name = N'Comment', @value = N'My Comment', @level0type = N'Schema', @level0name = N'dbo', @level1type = N'Table', @level1name = N'People', @level2type = N'Column', @level2name = N'LuckyNumber'",
                 Sql);
@@ -1287,13 +1321,24 @@ namespace Microsoft.EntityFrameworkCore
                 Sql);
         }
 
-        [ConditionalFact]
-        public virtual void CreateIndexOperation_memoryOptimized_unique_nullable()
+        [ConditionalTheory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual void CreateIndexOperation_memoryOptimized_unique_nullable(bool obsolete)
         {
             Generate(
                 modelBuilder => modelBuilder.Entity("People", x =>
                 {
-                    x.ToTable("People", "dbo").ForSqlServerIsMemoryOptimized().Property<string>("Name");
+                    if (obsolete)
+                    {
+#pragma warning disable 618
+                        x.ToTable("People", "dbo").ForSqlServerIsMemoryOptimized().Property<string>("Name");
+#pragma warning restore 618
+                    }
+                    else
+                    {
+                        x.ToTable("People", "dbo").IsMemoryOptimized().Property<string>("Name");
+                    }
                     x.Property<int>("Id");
                     x.HasKey("Id");
                 }),
@@ -1311,13 +1356,24 @@ namespace Microsoft.EntityFrameworkCore
                 Sql);
         }
 
-        [ConditionalFact]
-        public virtual void CreateIndexOperation_memoryOptimized_unique_nullable_with_filter()
+        [ConditionalTheory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual void CreateIndexOperation_memoryOptimized_unique_nullable_with_filter(bool obsolete)
         {
             Generate(
                 modelBuilder => modelBuilder.Entity("People", x =>
                 {
-                    x.ForSqlServerIsMemoryOptimized().Property<string>("Name");
+                    if (obsolete)
+                    {
+#pragma warning disable 618
+                        x.ForSqlServerIsMemoryOptimized().Property<string>("Name");
+#pragma warning restore 618
+                    }
+                    else
+                    {
+                        x.IsMemoryOptimized().Property<string>("Name");
+                    }
                     x.Property<int>("Id");
                     x.HasKey("Id");
                 }),
@@ -1335,13 +1391,24 @@ namespace Microsoft.EntityFrameworkCore
                 Sql);
         }
 
-        [ConditionalFact]
-        public virtual void CreateIndexOperation_memoryOptimized_unique_nonclustered_not_nullable()
+        [ConditionalTheory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual void CreateIndexOperation_memoryOptimized_unique_nonclustered_not_nullable(bool obsolete)
         {
             Generate(
                 modelBuilder => modelBuilder.Entity("People", x =>
                 {
-                    x.ForSqlServerIsMemoryOptimized().Property<string>("Name").IsRequired();
+                    if (obsolete)
+                    {
+#pragma warning disable 618
+                        x.ForSqlServerIsMemoryOptimized().Property<string>("Name").IsRequired();
+#pragma warning restore 618
+                    }
+                    else
+                    {
+                        x.IsMemoryOptimized().Property<string>("Name").IsRequired();
+                    }
                     x.HasKey("Name");
                 }),
                 new CreateIndexOperation
@@ -1431,13 +1498,24 @@ namespace Microsoft.EntityFrameworkCore
                 Sql);
         }
 
-        [ConditionalFact]
-        public virtual void DropIndexOperation_memoryOptimized()
+        [ConditionalTheory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual void DropIndexOperation_memoryOptimized(bool obsolete)
         {
             Generate(
                 modelBuilder => modelBuilder.Entity("People", x =>
                 {
-                    x.ForSqlServerIsMemoryOptimized();
+                    if (obsolete)
+                    {
+#pragma warning disable 618
+                        x.ForSqlServerIsMemoryOptimized();
+#pragma warning restore 618
+                    }
+                    else
+                    {
+                        x.IsMemoryOptimized();
+                    }
                     x.Property<int>("Id");
                     x.HasKey("Id");
                 }),

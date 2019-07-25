@@ -389,7 +389,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
                 modelBuilder.Entity<Person>(
                     eb => eb.OwnsMany(v => v.Addresses, b =>
                     {
-                        b.ForCosmosToProperty("Stored Addresses");
+                        b.ToJsonProperty("Stored Addresses");
                     }));
             }
         }

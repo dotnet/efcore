@@ -87,7 +87,7 @@ namespace Microsoft.EntityFrameworkCore
             {
                 if (TestEnvironment.GetFlag(nameof(SqlServerCondition.SupportsSequences)) ?? true)
                 {
-                    modelBuilder.ForSqlServerUseSequenceHiLo();
+                    modelBuilder.UseHiLo();
                 }
             }
         }

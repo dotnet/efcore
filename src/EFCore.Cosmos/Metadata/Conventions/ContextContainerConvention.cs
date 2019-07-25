@@ -39,7 +39,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             Check.NotNull(modelBuilder, nameof(modelBuilder));
             Check.NotNull(context, nameof(context));
 
-            modelBuilder.ForCosmosHasDefaultContainer(Dependencies.ContextType.Name);
+            modelBuilder.HasDefaultContainer(Dependencies.ContextType.Name);
         }
     }
 }

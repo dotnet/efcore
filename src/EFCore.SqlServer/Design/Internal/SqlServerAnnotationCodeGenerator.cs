@@ -58,8 +58,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Design.Internal
         public override MethodCallCodeFragment GenerateFluentApi(IKey key, IAnnotation annotation)
             => annotation.Name == SqlServerAnnotationNames.Clustered
                 ? (bool)annotation.Value == false
-                    ? new MethodCallCodeFragment(nameof(SqlServerIndexBuilderExtensions.ForSqlServerIsClustered), false)
-                    : new MethodCallCodeFragment(nameof(SqlServerIndexBuilderExtensions.ForSqlServerIsClustered))
+                    ? new MethodCallCodeFragment(nameof(SqlServerIndexBuilderExtensions.IsClustered), false)
+                    : new MethodCallCodeFragment(nameof(SqlServerIndexBuilderExtensions.IsClustered))
                 : null;
 
         /// <summary>
@@ -73,13 +73,13 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Design.Internal
             if (annotation.Name == SqlServerAnnotationNames.Clustered)
             {
                 return (bool)annotation.Value == false
-                    ? new MethodCallCodeFragment(nameof(SqlServerIndexBuilderExtensions.ForSqlServerIsClustered), false)
-                    : new MethodCallCodeFragment(nameof(SqlServerIndexBuilderExtensions.ForSqlServerIsClustered));
+                    ? new MethodCallCodeFragment(nameof(SqlServerIndexBuilderExtensions.IsClustered), false)
+                    : new MethodCallCodeFragment(nameof(SqlServerIndexBuilderExtensions.IsClustered));
             }
 
             if (annotation.Name == SqlServerAnnotationNames.Include)
             {
-                return new MethodCallCodeFragment(nameof(SqlServerIndexBuilderExtensions.ForSqlServerInclude), annotation.Value);
+                return new MethodCallCodeFragment(nameof(SqlServerIndexBuilderExtensions.IncludeProperties), annotation.Value);
             }
 
             return null;

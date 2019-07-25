@@ -47,7 +47,7 @@ namespace Microsoft.EntityFrameworkCore
 
                 protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
                 {
-                    modelBuilder.ForSqlServerUseIdentityColumns();
+                    modelBuilder.UseIdentityColumns();
 
                     base.OnModelCreating(modelBuilder, context);
                 }

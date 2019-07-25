@@ -9,8 +9,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 {
     public class SqlServerMemoryOptimizedTablesConventionTest
     {
-        [ConditionalFact]
-        public void Keys_and_indexes_are_nonclustered_for_memory_optimized_tables()
+        [ConditionalTheory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public void Keys_and_indexes_are_nonclustered_for_memory_optimized_tables(bool obsolete)
         {
             var modelBuilder = SqlServerTestHelpers.Instance.CreateConventionBuilder();
 
@@ -19,7 +21,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             Assert.True(modelBuilder.Model.FindEntityType(typeof(Order)).GetKeys().All(k => k.GetSqlServerIsClustered() == null));
             Assert.True(modelBuilder.Model.FindEntityType(typeof(Order)).GetIndexes().All(k => k.GetSqlServerIsClustered() == null));
 
-            modelBuilder.Entity<Order>().ForSqlServerIsMemoryOptimized();
+            if (obsolete)
+            {
+#pragma warning disable 618
+                modelBuilder.Entity<Order>().ForSqlServerIsMemoryOptimized();
+#pragma warning restore 618
+            }
+            else
+            {
+                modelBuilder.Entity<Order>().IsMemoryOptimized();
+            }
+
             modelBuilder.Entity<Order>().HasKey(
                 o => new
                 {
@@ -31,7 +43,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             Assert.True(modelBuilder.Model.FindEntityType(typeof(Order)).GetKeys().All(k => k.GetSqlServerIsClustered() == false));
             Assert.True(modelBuilder.Model.FindEntityType(typeof(Order)).GetIndexes().All(k => k.GetSqlServerIsClustered() == false));
 
-            modelBuilder.Entity<Order>().ForSqlServerIsMemoryOptimized(false);
+            if (obsolete)
+            {
+#pragma warning disable 618
+                modelBuilder.Entity<Order>().ForSqlServerIsMemoryOptimized(false);
+#pragma warning restore 618
+            }
+            else
+            {
+                modelBuilder.Entity<Order>().IsMemoryOptimized(false);
+            }
 
             Assert.True(modelBuilder.Model.FindEntityType(typeof(Order)).GetKeys().All(k => k.GetSqlServerIsClustered() == null));
             Assert.True(modelBuilder.Model.FindEntityType(typeof(Order)).GetIndexes().All(k => k.GetSqlServerIsClustered() == null));

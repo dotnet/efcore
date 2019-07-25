@@ -21,7 +21,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="propertyBuilder"> The builder for the property being configured. </param>
         /// <param name="name"> The name of the container. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
-        public static PropertyBuilder ForCosmosToProperty(
+        public static PropertyBuilder ToJsonProperty(
             [NotNull] this PropertyBuilder propertyBuilder,
             [NotNull] string name)
         {
@@ -40,10 +40,10 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="propertyBuilder"> The builder for the property being configured. </param>
         /// <param name="name"> The name of the container. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
-        public static PropertyBuilder<TProperty> ForCosmosToProperty<TProperty>(
+        public static PropertyBuilder<TProperty> ToJsonProperty<TProperty>(
             [NotNull] this PropertyBuilder<TProperty> propertyBuilder,
             [NotNull] string name)
-            => (PropertyBuilder<TProperty>)ForCosmosToProperty((PropertyBuilder)propertyBuilder, name);
+            => (PropertyBuilder<TProperty>)ToJsonProperty((PropertyBuilder)propertyBuilder, name);
 
         /// <summary>
         ///     <para>
@@ -60,12 +60,12 @@ namespace Microsoft.EntityFrameworkCore
         ///     The same builder instance if the configuration was applied,
         ///     <c>null</c> otherwise.
         /// </returns>
-        public static IConventionPropertyBuilder ForCosmosToProperty(
+        public static IConventionPropertyBuilder ToJsonProperty(
             [NotNull] this IConventionPropertyBuilder propertyBuilder,
             [CanBeNull] string name,
             bool fromDataAnnotation = false)
         {
-            if (!propertyBuilder.ForCosmosCanSetProperty(name, fromDataAnnotation))
+            if (!propertyBuilder.CanSetJsonProperty(name, fromDataAnnotation))
             {
                 return null;
             }
@@ -82,7 +82,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="name"> The name of the container. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> <c>true</c> if the property name can be set. </returns>
-        public static bool ForCosmosCanSetProperty(
+        public static bool CanSetJsonProperty(
             [NotNull] this IConventionPropertyBuilder propertyBuilder,
             [CanBeNull] string name,
             bool fromDataAnnotation = false)

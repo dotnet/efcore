@@ -87,12 +87,12 @@ namespace Microsoft.EntityFrameworkCore
                     .Entity<FastUn>(
                         eb =>
                         {
-                            eb.ForSqlServerIsMemoryOptimized();
+                            eb.IsMemoryOptimized();
                             eb.HasIndex(e => e.Name).IsUnique();
                             eb.HasOne(e => e.BigUn).WithMany(e => e.FastUns).IsRequired().OnDelete(DeleteBehavior.Restrict);
                         });
 
-                modelBuilder.Entity<BigUn>().ForSqlServerIsMemoryOptimized();
+                modelBuilder.Entity<BigUn>().IsMemoryOptimized();
             }
         }
 

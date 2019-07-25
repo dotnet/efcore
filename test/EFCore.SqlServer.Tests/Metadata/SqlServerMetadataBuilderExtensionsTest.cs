@@ -23,16 +23,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             var builder = CreateBuilder();
 
             Assert.NotNull(builder
-                .ForSqlServerHasValueGenerationStrategy(SqlServerValueGenerationStrategy.SequenceHiLo));
+                .HasValueGenerationStrategy(SqlServerValueGenerationStrategy.SequenceHiLo));
             Assert.Equal(SqlServerValueGenerationStrategy.SequenceHiLo, builder.Metadata.GetSqlServerValueGenerationStrategy());
 
             Assert.NotNull(builder
-                    .ForSqlServerHasValueGenerationStrategy(SqlServerValueGenerationStrategy.IdentityColumn, fromDataAnnotation: true));
+                    .HasValueGenerationStrategy(SqlServerValueGenerationStrategy.IdentityColumn, fromDataAnnotation: true));
             Assert.Equal(
                 SqlServerValueGenerationStrategy.IdentityColumn, builder.Metadata.GetSqlServerValueGenerationStrategy());
 
             Assert.Null(builder
-                .ForSqlServerHasValueGenerationStrategy(SqlServerValueGenerationStrategy.SequenceHiLo));
+                .HasValueGenerationStrategy(SqlServerValueGenerationStrategy.SequenceHiLo));
             Assert.Equal(SqlServerValueGenerationStrategy.IdentityColumn, builder.Metadata.GetSqlServerValueGenerationStrategy());
 
             Assert.Equal(
@@ -45,13 +45,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         {
             var typeBuilder = CreateBuilder().Entity(typeof(Splot));
 
-            Assert.NotNull(typeBuilder.ForSqlServerIsMemoryOptimized(true));
+            Assert.NotNull(typeBuilder.IsMemoryOptimized(true));
             Assert.True(typeBuilder.Metadata.GetSqlServerIsMemoryOptimized());
 
-            Assert.NotNull(typeBuilder.ForSqlServerIsMemoryOptimized(false, fromDataAnnotation: true));
+            Assert.NotNull(typeBuilder.IsMemoryOptimized(false, fromDataAnnotation: true));
             Assert.False(typeBuilder.Metadata.GetSqlServerIsMemoryOptimized());
 
-            Assert.Null(typeBuilder.ForSqlServerIsMemoryOptimized(true));
+            Assert.Null(typeBuilder.IsMemoryOptimized(true));
             Assert.False(typeBuilder.Metadata.GetSqlServerIsMemoryOptimized());
 
             Assert.Equal(
@@ -66,13 +66,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 .Entity(typeof(Splot))
                 .Property(typeof(int), "Id");
 
-            Assert.NotNull(propertyBuilder.ForSqlServerHasHiLoSequence("Splew", null));
+            Assert.NotNull(propertyBuilder.HasHiLoSequence("Splew", null));
             Assert.Equal("Splew", propertyBuilder.Metadata.GetSqlServerHiLoSequenceName());
 
-            Assert.NotNull(propertyBuilder.ForSqlServerHasHiLoSequence("Splow", null, fromDataAnnotation: true));
+            Assert.NotNull(propertyBuilder.HasHiLoSequence("Splow", null, fromDataAnnotation: true));
             Assert.Equal("Splow", propertyBuilder.Metadata.GetSqlServerHiLoSequenceName());
 
-            Assert.Null(propertyBuilder.ForSqlServerHasHiLoSequence("Splod", null));
+            Assert.Null(propertyBuilder.HasHiLoSequence("Splod", null));
             Assert.Equal("Splow", propertyBuilder.Metadata.GetSqlServerHiLoSequenceName());
 
             Assert.Equal(
@@ -90,12 +90,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Equal(
                 SqlServerStrings.SequenceBadType("Name", nameof(Splot), "string"),
                 Assert.Throws<ArgumentException>(
-                    () => propertyBuilder.ForSqlServerHasValueGenerationStrategy(SqlServerValueGenerationStrategy.SequenceHiLo)).Message);
+                    () => propertyBuilder.HasValueGenerationStrategy(SqlServerValueGenerationStrategy.SequenceHiLo)).Message);
 
             Assert.Equal(
                 SqlServerStrings.SequenceBadType("Name", nameof(Splot), "string"),
                 Assert.Throws<ArgumentException>(
-                    () => new PropertyBuilder((IMutableProperty)propertyBuilder.Metadata).ForSqlServerUseSequenceHiLo()).Message);
+                    () => new PropertyBuilder((IMutableProperty)propertyBuilder.Metadata).UseHiLo()).Message);
         }
 
         [ConditionalFact]
@@ -108,12 +108,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Equal(
                 SqlServerStrings.IdentityBadType("Name", nameof(Splot), "string"),
                 Assert.Throws<ArgumentException>(
-                    () => propertyBuilder.ForSqlServerHasValueGenerationStrategy(SqlServerValueGenerationStrategy.IdentityColumn)).Message);
+                    () => propertyBuilder.HasValueGenerationStrategy(SqlServerValueGenerationStrategy.IdentityColumn)).Message);
 
             Assert.Equal(
                 SqlServerStrings.IdentityBadType("Name", nameof(Splot), "string"),
                 Assert.Throws<ArgumentException>(
-                    () => new PropertyBuilder((IMutableProperty)propertyBuilder.Metadata).ForSqlServerUseIdentityColumn()).Message);
+                    () => new PropertyBuilder((IMutableProperty)propertyBuilder.Metadata).UseIdentityColumn()).Message);
         }
 
         [ConditionalFact]
@@ -124,13 +124,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             var idProperty = entityTypeBuilder.Property(typeof(string), "Id").Metadata;
             var keyBuilder = entityTypeBuilder.HasKey(new[] { idProperty });
 
-            Assert.NotNull(keyBuilder.ForSqlServerIsClustered(true));
+            Assert.NotNull(keyBuilder.IsClustered(true));
             Assert.True(keyBuilder.Metadata.GetSqlServerIsClustered());
 
-            Assert.NotNull(keyBuilder.ForSqlServerIsClustered(false, fromDataAnnotation: true));
+            Assert.NotNull(keyBuilder.IsClustered(false, fromDataAnnotation: true));
             Assert.False(keyBuilder.Metadata.GetSqlServerIsClustered());
 
-            Assert.Null(keyBuilder.ForSqlServerIsClustered(true));
+            Assert.Null(keyBuilder.IsClustered(true));
             Assert.False(keyBuilder.Metadata.GetSqlServerIsClustered());
 
             Assert.Equal(
@@ -138,21 +138,51 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                     a => a.Name.StartsWith(SqlServerAnnotationNames.Prefix, StringComparison.Ordinal)));
         }
 
-        [ConditionalFact]
-        public void Can_access_index()
+        [ConditionalTheory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public void Can_access_index(bool obsolete)
         {
             var modelBuilder = CreateBuilder();
             var entityTypeBuilder = modelBuilder.Entity(typeof(Splot));
             var idProperty = entityTypeBuilder.Property(typeof(int), "Id").Metadata;
             var indexBuilder = entityTypeBuilder.HasIndex(new[] { idProperty });
 
-            Assert.NotNull(indexBuilder.ForSqlServerIsClustered(true));
+            if (obsolete)
+            {
+#pragma warning disable 618
+                Assert.NotNull(indexBuilder.ForSqlServerIsClustered(true));
+#pragma warning restore 618
+            }
+            else
+            {
+                Assert.NotNull(indexBuilder.IsClustered(true));
+            }
             Assert.True(indexBuilder.Metadata.GetSqlServerIsClustered());
 
-            Assert.NotNull(indexBuilder.ForSqlServerIsClustered(false, fromDataAnnotation: true));
+            if (obsolete)
+            {
+#pragma warning disable 618
+                Assert.NotNull(indexBuilder.ForSqlServerIsClustered(false, fromDataAnnotation: true));
+#pragma warning restore 618
+            }
+            else
+            {
+                Assert.NotNull(indexBuilder.IsClustered(false, fromDataAnnotation: true));
+            }
             Assert.False(indexBuilder.Metadata.GetSqlServerIsClustered());
 
-            Assert.Null(indexBuilder.ForSqlServerIsClustered(true));
+
+            if (obsolete)
+            {
+#pragma warning disable 618
+                Assert.Null(indexBuilder.ForSqlServerIsClustered(true));
+#pragma warning restore 618
+            }
+            else
+            {
+                Assert.Null(indexBuilder.IsClustered(true));
+            }
             Assert.False(indexBuilder.Metadata.GetSqlServerIsClustered());
 
             Assert.Equal(

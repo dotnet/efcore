@@ -25,8 +25,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         public virtual void Passes_on_valid_partition_keys()
         {
             var modelBuilder = CreateConventionalModelBuilder();
-            modelBuilder.Entity<Customer>().ForCosmosToContainer("Orders").ForCosmosHasPartitionKey(c => c.PartitionId);
-            modelBuilder.Entity<Order>().ForCosmosToContainer("Orders").ForCosmosHasPartitionKey(o => o.PartitionId)
+            modelBuilder.Entity<Customer>().ToContainer("Orders").HasPartitionKey(c => c.PartitionId);
+            modelBuilder.Entity<Order>().ToContainer("Orders").HasPartitionKey(o => o.PartitionId)
                 .Property(o => o.PartitionId).HasConversion<string>();
 
             var model = modelBuilder.Model;
@@ -37,7 +37,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         public virtual void Detects_missing_partition_key_property()
         {
             var modelBuilder = CreateConventionalModelBuilder();
-            modelBuilder.Entity<Order>().ForCosmosHasPartitionKey("PartitionKey");
+            modelBuilder.Entity<Order>().HasPartitionKey("PartitionKey");
 
             var model = modelBuilder.Model;
             VerifyError(CosmosStrings.PartitionKeyMissingProperty(typeof(Order).Name, "PartitionKey"), model);
@@ -47,8 +47,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         public virtual void Detects_missing_partition_key_on_first_type()
         {
             var modelBuilder = CreateConventionalModelBuilder();
-            modelBuilder.Entity<Customer>().ForCosmosToContainer("Orders");
-            modelBuilder.Entity<Order>().ForCosmosToContainer("Orders").ForCosmosHasPartitionKey(c => c.PartitionId);
+            modelBuilder.Entity<Customer>().ToContainer("Orders");
+            modelBuilder.Entity<Order>().ToContainer("Orders").HasPartitionKey(c => c.PartitionId);
 
             var model = modelBuilder.Model;
             VerifyError(CosmosStrings.NoPartitionKey(typeof(Customer).Name, "Orders"), model);
@@ -58,8 +58,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         public virtual void Detects_missing_partition_keys_one_last_type()
         {
             var modelBuilder = CreateConventionalModelBuilder();
-            modelBuilder.Entity<Customer>().ForCosmosToContainer("Orders").ForCosmosHasPartitionKey(c => c.PartitionId);
-            modelBuilder.Entity<Order>().ForCosmosToContainer("Orders");
+            modelBuilder.Entity<Customer>().ToContainer("Orders").HasPartitionKey(c => c.PartitionId);
+            modelBuilder.Entity<Order>().ToContainer("Orders");
 
             var model = modelBuilder.Model;
             VerifyError(CosmosStrings.NoPartitionKey(typeof(Order).Name, "Orders"), model);
@@ -69,9 +69,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         public virtual void Detects_partition_keys_mapped_to_different_properties()
         {
             var modelBuilder = CreateConventionalModelBuilder();
-            modelBuilder.Entity<Customer>().ForCosmosToContainer("Orders").ForCosmosHasPartitionKey(c => c.PartitionId)
-                .Property(c => c.PartitionId).ForCosmosToProperty("pk");
-            modelBuilder.Entity<Order>().ForCosmosToContainer("Orders").ForCosmosHasPartitionKey(c => c.PartitionId);
+            modelBuilder.Entity<Customer>().ToContainer("Orders").HasPartitionKey(c => c.PartitionId)
+                .Property(c => c.PartitionId).ToJsonProperty("pk");
+            modelBuilder.Entity<Order>().ToContainer("Orders").HasPartitionKey(c => c.PartitionId);
 
             var model = modelBuilder.Model;
             VerifyError(CosmosStrings.PartitionKeyStoreNameMismatch(
@@ -82,8 +82,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         public virtual void Detects_partition_key_of_different_type()
         {
             var modelBuilder = CreateConventionalModelBuilder();
-            modelBuilder.Entity<Customer>().ForCosmosToContainer("Orders").ForCosmosHasPartitionKey(c => c.PartitionId);
-            modelBuilder.Entity<Order>().ForCosmosToContainer("Orders").ForCosmosHasPartitionKey(o => o.PartitionId)
+            modelBuilder.Entity<Customer>().ToContainer("Orders").HasPartitionKey(c => c.PartitionId);
+            modelBuilder.Entity<Order>().ToContainer("Orders").HasPartitionKey(o => o.PartitionId)
                 .Property(c => c.PartitionId).HasConversion<int>();
 
             var model = modelBuilder.Model;
@@ -95,8 +95,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         public virtual void Detects_missing_discriminator()
         {
             var modelBuilder = CreateConventionalModelBuilder();
-            modelBuilder.Entity<Customer>().ForCosmosToContainer("Orders").HasNoDiscriminator();
-            modelBuilder.Entity<Order>().ForCosmosToContainer("Orders");
+            modelBuilder.Entity<Customer>().ToContainer("Orders").HasNoDiscriminator();
+            modelBuilder.Entity<Order>().ToContainer("Orders");
 
             var model = modelBuilder.Model;
             VerifyError(CosmosStrings.NoDiscriminatorProperty(typeof(Customer).Name, "Orders"), model);
@@ -106,8 +106,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         public virtual void Detects_missing_discriminator_value()
         {
             var modelBuilder = CreateConventionalModelBuilder();
-            modelBuilder.Entity<Customer>().ForCosmosToContainer("Orders").HasDiscriminator().HasValue(null);
-            modelBuilder.Entity<Order>().ForCosmosToContainer("Orders");
+            modelBuilder.Entity<Customer>().ToContainer("Orders").HasDiscriminator().HasValue(null);
+            modelBuilder.Entity<Order>().ToContainer("Orders");
 
             var model = modelBuilder.Model;
             VerifyError(CosmosStrings.NoDiscriminatorValue(typeof(Customer).Name, "Orders"), model);
@@ -117,8 +117,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         public virtual void Detects_duplicate_discriminator_values()
         {
             var modelBuilder = CreateConventionalModelBuilder();
-            modelBuilder.Entity<Customer>().ForCosmosToContainer("Orders").HasDiscriminator().HasValue("type");
-            modelBuilder.Entity<Order>().ForCosmosToContainer("Orders").HasDiscriminator().HasValue("type");
+            modelBuilder.Entity<Customer>().ToContainer("Orders").HasDiscriminator().HasValue("type");
+            modelBuilder.Entity<Order>().ToContainer("Orders").HasDiscriminator().HasValue("type");
 
             var model = modelBuilder.Model;
             VerifyError(CosmosStrings.DuplicateDiscriminatorValue(typeof(Order).Name, "type", typeof(Customer).Name, "Orders"), model);

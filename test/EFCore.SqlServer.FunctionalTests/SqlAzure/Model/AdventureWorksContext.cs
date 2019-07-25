@@ -249,7 +249,7 @@ namespace Microsoft.EntityFrameworkCore.SqlAzure.Model
                         .HasName("AK_SalesOrderHeader_rowguid")
                         .IsUnique();
 
-                    entity.Property(e => e.SalesOrderID).ForSqlServerUseSequenceHiLo("SalesOrderNumber", "SalesLT");
+                    entity.Property(e => e.SalesOrderID).UseHiLo("SalesOrderNumber", "SalesLT");
 
                     entity.Property(e => e.CreditCardApprovalCode).HasColumnType("varchar(15)");
 

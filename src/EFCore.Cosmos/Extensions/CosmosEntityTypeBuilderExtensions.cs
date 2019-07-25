@@ -24,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="entityTypeBuilder"> The builder for the entity type being configured. </param>
         /// <param name="name"> The name of the container. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
-        public static EntityTypeBuilder ForCosmosToContainer(
+        public static EntityTypeBuilder ToContainer(
             [NotNull] this EntityTypeBuilder entityTypeBuilder,
             [CanBeNull] string name)
         {
@@ -43,11 +43,11 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="entityTypeBuilder"> The builder for the entity type being configured. </param>
         /// <param name="name"> The name of the container. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
-        public static EntityTypeBuilder<TEntity> ForCosmosToContainer<TEntity>(
+        public static EntityTypeBuilder<TEntity> ToContainer<TEntity>(
             [NotNull] this EntityTypeBuilder<TEntity> entityTypeBuilder,
             [CanBeNull] string name)
             where TEntity : class
-            => (EntityTypeBuilder<TEntity>)ForCosmosToContainer((EntityTypeBuilder)entityTypeBuilder, name);
+            => (EntityTypeBuilder<TEntity>)ToContainer((EntityTypeBuilder)entityTypeBuilder, name);
 
         /// <summary>
         ///     Configures the container that the entity type maps to when targeting Azure Cosmos.
@@ -59,12 +59,12 @@ namespace Microsoft.EntityFrameworkCore
         ///     The same builder instance if the configuration was applied,
         ///     <c>null</c> otherwise.
         /// </returns>
-        public static IConventionEntityTypeBuilder ForCosmosToContainer(
+        public static IConventionEntityTypeBuilder ToContainer(
             [NotNull] this IConventionEntityTypeBuilder entityTypeBuilder,
             [CanBeNull] string name,
             bool fromDataAnnotation = false)
         {
-            if (!entityTypeBuilder.ForCosmosCanSetContainer(name, fromDataAnnotation))
+            if (!entityTypeBuilder.CanSetContainer(name, fromDataAnnotation))
             {
                 return null;
             }
@@ -82,7 +82,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="name"> The name of the container. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> <c>true</c> if the configuration can be applied. </returns>
-        public static bool ForCosmosCanSetContainer(
+        public static bool CanSetContainer(
             [NotNull] this IConventionEntityTypeBuilder entityTypeBuilder, [CanBeNull] string name, bool fromDataAnnotation = false)
         {
             Check.NotNull(entityTypeBuilder, nameof(entityTypeBuilder));
@@ -97,7 +97,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="entityTypeBuilder"> The builder for the entity type being configured. </param>
         /// <param name="name"> The name of the parent property. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
-        public static OwnedNavigationBuilder ForCosmosToProperty(
+        public static OwnedNavigationBuilder ToJsonProperty(
             [NotNull] this OwnedNavigationBuilder entityTypeBuilder,
             [CanBeNull] string name)
         {
@@ -112,7 +112,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="entityTypeBuilder"> The builder for the entity type being configured. </param>
         /// <param name="name"> The name of the parent property. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
-        public static OwnedNavigationBuilder<TEntity, TDependentEntity> ForCosmosToProperty<TEntity, TDependentEntity>(
+        public static OwnedNavigationBuilder<TEntity, TDependentEntity> ToJsonProperty<TEntity, TDependentEntity>(
             [NotNull] this OwnedNavigationBuilder<TEntity, TDependentEntity> entityTypeBuilder,
             [CanBeNull] string name)
             where TEntity : class
@@ -133,12 +133,12 @@ namespace Microsoft.EntityFrameworkCore
         ///     The same builder instance if the configuration was applied,
         ///     <c>null</c> otherwise.
         /// </returns>
-        public static IConventionEntityTypeBuilder ForCosmosToProperty(
+        public static IConventionEntityTypeBuilder ToJsonProperty(
             [NotNull] this IConventionEntityTypeBuilder entityTypeBuilder,
             [CanBeNull] string name,
             bool fromDataAnnotation = false)
         {
-            if (!entityTypeBuilder.ForCosmosCanSetProperty(name, fromDataAnnotation))
+            if (!entityTypeBuilder.CanSetJsonProperty(name, fromDataAnnotation))
             {
                 return null;
             }
@@ -156,7 +156,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="name"> The name of the parent property. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> <c>true</c> if the configuration can be applied. </returns>
-        public static bool ForCosmosCanSetProperty(
+        public static bool CanSetJsonProperty(
             [NotNull] this IConventionEntityTypeBuilder entityTypeBuilder, [CanBeNull] string name, bool fromDataAnnotation = false)
         {
             Check.NotNull(entityTypeBuilder, nameof(entityTypeBuilder));
@@ -171,7 +171,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="entityTypeBuilder"> The builder for the entity type being configured. </param>
         /// <param name="name"> The name of the partition key property. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
-        public static EntityTypeBuilder ForCosmosHasPartitionKey(
+        public static EntityTypeBuilder HasPartitionKey(
             [NotNull] this EntityTypeBuilder entityTypeBuilder,
             [CanBeNull] string name)
         {
@@ -186,7 +186,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="entityTypeBuilder"> The builder for the entity type being configured. </param>
         /// <param name="name"> The name of the partition key property. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
-        public static EntityTypeBuilder<TEntity> ForCosmosHasPartitionKey<TEntity>(
+        public static EntityTypeBuilder<TEntity> HasPartitionKey<TEntity>(
             [NotNull] this EntityTypeBuilder<TEntity> entityTypeBuilder,
             [CanBeNull] string name)
             where TEntity : class
@@ -202,7 +202,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="entityTypeBuilder"> The builder for the entity type being configured. </param>
         /// <param name="propertyExpression"> The  partition key property. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
-        public static EntityTypeBuilder<TEntity> ForCosmosHasPartitionKey<TEntity, TProperty>(
+        public static EntityTypeBuilder<TEntity> HasPartitionKey<TEntity, TProperty>(
             [NotNull] this EntityTypeBuilder<TEntity> entityTypeBuilder,
             [NotNull] Expression<Func<TEntity, TProperty>> propertyExpression)
             where TEntity : class
@@ -224,12 +224,12 @@ namespace Microsoft.EntityFrameworkCore
         ///     The same builder instance if the configuration was applied,
         ///     <c>null</c> otherwise.
         /// </returns>
-        public static IConventionEntityTypeBuilder ForCosmosHasPartitionKey(
+        public static IConventionEntityTypeBuilder HasPartitionKey(
             [NotNull] this IConventionEntityTypeBuilder entityTypeBuilder,
             [CanBeNull] string name,
             bool fromDataAnnotation = false)
         {
-            if (!entityTypeBuilder.ForCosmosCanSetPartitionKey(name, fromDataAnnotation))
+            if (!entityTypeBuilder.CanSetPartitionKey(name, fromDataAnnotation))
             {
                 return null;
             }
@@ -247,7 +247,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="name"> The name of the partition key property. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> <c>true</c> if the configuration can be applied. </returns>
-        public static bool ForCosmosCanSetPartitionKey(
+        public static bool CanSetPartitionKey(
             [NotNull] this IConventionEntityTypeBuilder entityTypeBuilder, [CanBeNull] string name, bool fromDataAnnotation = false)
         {
             Check.NotNull(entityTypeBuilder, nameof(entityTypeBuilder));

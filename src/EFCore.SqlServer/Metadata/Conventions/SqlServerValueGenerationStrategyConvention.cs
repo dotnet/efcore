@@ -38,7 +38,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <param name="context"> Additional information associated with convention execution. </param>
         public virtual void ProcessModelInitialized(IConventionModelBuilder modelBuilder, IConventionContext<IConventionModelBuilder> context)
         {
-            modelBuilder.ForSqlServerHasValueGenerationStrategy(SqlServerValueGenerationStrategy.IdentityColumn);
+            modelBuilder.HasValueGenerationStrategy(SqlServerValueGenerationStrategy.IdentityColumn);
         }
 
         /// <summary>
@@ -57,7 +57,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                     var strategy = property.GetSqlServerValueGenerationStrategy();
                     if (strategy != SqlServerValueGenerationStrategy.None)
                     {
-                        property.Builder.ForSqlServerHasValueGenerationStrategy(strategy);
+                        property.Builder.HasValueGenerationStrategy(strategy);
                     }
                 }
             }
