@@ -22,13 +22,16 @@ See the [weekly status updates issue](https://github.com/aspnet/EntityFrameworkC
 
 The source for SQL Server, SQLite, and InMemory providers are included in this project. Additional providers are available.
 For a complete list, see https://docs.microsoft.com/ef/core/providers/.
-Information about how to use nightly builds can be found [here](https://github.com/aspnet/AspNetCore/blob/master/docs/DailyBuilds.md)
 
-Provider               | Package name                              | Stable                      | Nightly (master branch)
------------------------|-------------------------------------------|-----------------------------|-------------------------
-SQL Server             | `Microsoft.EntityFrameworkCore.SqlServer` | [![NuGet](https://img.shields.io/nuget/v/Microsoft.EntityFrameworkCore.SqlServer.svg?style=flat-square&label=nuget)](https://www.nuget.org/packages/Microsoft.EntityFrameworkCore.SqlServer/) | [![MyGet](https://img.shields.io/dotnet.myget/aspnetcore-dev/vpre/Microsoft.EntityFrameworkCore.SqlServer.svg?style=flat-square&label=myget)](https://dotnet.myget.org/feed/aspnetcore-dev/package/nuget/Microsoft.EntityFrameworkCore.SqlServer)
-SQLite                 | `Microsoft.EntityFrameworkCore.SQLite`    | [![NuGet](https://img.shields.io/nuget/v/Microsoft.EntityFrameworkCore.SqlServer.svg?style=flat-square&label=nuget)](https://www.nuget.org/packages/Microsoft.EntityFrameworkCore.Sqlite/) | [![MyGet](https://img.shields.io/dotnet.myget/aspnetcore-dev/vpre/Microsoft.EntityFrameworkCore.Sqlite.svg?style=flat-square&label=myget)](https://dotnet.myget.org/feed/aspnetcore-dev/package/nuget/Microsoft.EntityFrameworkCore.Sqlite)
-InMemory (for testing) | `Microsoft.EntityFrameworkCore.InMemory`  | [![NuGet](https://img.shields.io/nuget/v/Microsoft.EntityFrameworkCore.InMemory.svg?style=flat-square&label=nuget)](https://www.nuget.org/packages/Microsoft.EntityFrameworkCore.InMemory/) | [![MyGet](https://img.shields.io/dotnet.myget/aspnetcore-dev/vpre/Microsoft.EntityFrameworkCore.InMemory.svg?style=flat-square&label=myget)](https://dotnet.myget.org/feed/aspnetcore-dev/package/nuget/Microsoft.EntityFrameworkCore.InMemory)
+Provider               | Package name                              | Stable                      
+-----------------------|-------------------------------------------|-----------------------------
+SQL Server             | `Microsoft.EntityFrameworkCore.SqlServer` | [![NuGet](https://img.shields.io/nuget/v/Microsoft.EntityFrameworkCore.SqlServer.svg?style=flat-square&label=nuget)](https://www.nuget.org/packages/Microsoft.EntityFrameworkCore.SqlServer/) 
+SQLite                 | `Microsoft.EntityFrameworkCore.SQLite`    | [![NuGet](https://img.shields.io/nuget/v/Microsoft.EntityFrameworkCore.SqlServer.svg?style=flat-square&label=nuget)](https://www.nuget.org/packages/Microsoft.EntityFrameworkCore.Sqlite/) 
+InMemory (for testing) | `Microsoft.EntityFrameworkCore.InMemory`  | [![NuGet](https://img.shields.io/nuget/v/Microsoft.EntityFrameworkCore.InMemory.svg?style=flat-square&label=nuget)](https://www.nuget.org/packages/Microsoft.EntityFrameworkCore.InMemory/) 
+
+## Nightly builds
+
+[Nightly builds](https://github.com/aspnet/AspNetCore/blob/master/docs/DailyBuilds.md) are a great way to validate bugs are fixed and try out new features.
 
 ## Project Wiki
 
