@@ -17,6 +17,28 @@ namespace Microsoft.EntityFrameworkCore
 {
     public class SqlServerMigrationSqlGeneratorTest : MigrationSqlGeneratorTestBase
     {
+        public override void CreateTableOperation()
+        {
+            base.CreateTableOperation();
+
+            Assert.Equal(
+                @"CREATE TABLE [dbo].[People] (
+    [Id] int NOT NULL,
+    [EmployerId] int NULL,
+    [SSN] char(11) NULL,
+    PRIMARY KEY ([Id]),
+    UNIQUE ([SSN]),
+    CHECK (SSN > 0),
+    FOREIGN KEY ([EmployerId]) REFERENCES [Companies] ([Id])
+)GO
+
+EXEC sp_addextendedproperty @name = N'Comment', @value = N'Table comment', @level0type = N'Schema', @level0name = N'dbo', @level1type = N'Table', @level1name = N'People'GO
+
+EXEC sp_addextendedproperty @name = N'Comment', @value = N'Employer ID comment', @level0type = N'Schema', @level0name = N'dbo', @level1type = N'Table', @level1name = N'People', @level2type = N'Column', @level2name = N'EmployerId';
+",
+                Sql, ignoreLineEndingDifferences: true);
+        }
+
         public override void CreateIndexOperation_with_filter_where_clause()
         {
             base.CreateIndexOperation_with_filter_where_clause();

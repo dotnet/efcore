@@ -497,7 +497,8 @@ namespace Microsoft.EntityFrameworkCore
                             Name = "EmployerId",
                             Table = "People",
                             ClrType = typeof(int),
-                            IsNullable = true
+                            IsNullable = true,
+                            Comment = "Employer ID comment"
                         },
                         new AddColumnOperation
                         {
@@ -534,7 +535,8 @@ namespace Microsoft.EntityFrameworkCore
                             PrincipalTable = "Companies",
                             PrincipalColumns = new[] { "Id" }
                         }
-                    }
+                    },
+                    Comment = "Table comment"
                 });
 
         [ConditionalFact]
