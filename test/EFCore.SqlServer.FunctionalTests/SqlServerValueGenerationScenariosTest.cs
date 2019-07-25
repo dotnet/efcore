@@ -103,7 +103,7 @@ namespace Microsoft.EntityFrameworkCore
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
             {
-                modelBuilder.ForSqlServerUseSequenceHiLo();
+                modelBuilder.UseHiLo();
 
                 modelBuilder.Entity<Blog>(
                     eb =>

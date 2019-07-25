@@ -345,7 +345,7 @@ namespace Microsoft.EntityFrameworkCore
                     b =>
                     {
                         b.HasKey(e => e.Identifier);
-                        b.Property(e => e.Identifier).ForSqlServerUseSequenceHiLo();
+                        b.Property(e => e.Identifier).UseHiLo();
                     });
             }
         }
@@ -462,11 +462,11 @@ namespace Microsoft.EntityFrameworkCore
                         b.HasKey(e => e.Identifier);
                         if (_useSequence)
                         {
-                            b.Property(e => e.Identifier).ForSqlServerUseSequenceHiLo();
+                            b.Property(e => e.Identifier).UseHiLo();
                         }
                         else
                         {
-                            b.Property(e => e.Identifier).ForSqlServerUseIdentityColumn();
+                            b.Property(e => e.Identifier).UseIdentityColumn();
                         }
                     });
             }

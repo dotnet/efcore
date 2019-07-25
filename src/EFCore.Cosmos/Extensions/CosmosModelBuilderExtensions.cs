@@ -21,7 +21,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="modelBuilder"> The model builder. </param>
         /// <param name="name"> The default container name. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
-        public static ModelBuilder ForCosmosHasDefaultContainer(
+        public static ModelBuilder HasDefaultContainer(
             [NotNull] this ModelBuilder modelBuilder,
             [CanBeNull] string name)
         {
@@ -44,12 +44,12 @@ namespace Microsoft.EntityFrameworkCore
         ///     The same builder instance if the configuration was applied,
         ///     <c>null</c> otherwise.
         /// </returns>
-        public static IConventionModelBuilder ForCosmosHasDefaultContainer(
+        public static IConventionModelBuilder HasDefaultContainer(
             [NotNull] this IConventionModelBuilder modelBuilder,
             [CanBeNull] string name,
             bool fromDataAnnotation = false)
         {
-            if (!modelBuilder.ForCosmosCanSetDefaultContainer(name, fromDataAnnotation))
+            if (!modelBuilder.CanSetDefaultContainer(name, fromDataAnnotation))
             {
                 return null;
             }
@@ -66,7 +66,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="name"> The default container name. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> <c>true</c> if the given container name can be set as default. </returns>
-        public static bool ForCosmosCanSetDefaultContainer(
+        public static bool CanSetDefaultContainer(
             [NotNull] this IConventionModelBuilder modelBuilder,
             [CanBeNull] string name,
             bool fromDataAnnotation = false)

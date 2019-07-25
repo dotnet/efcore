@@ -31,15 +31,15 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     x =>
                     {
                         x.Property<int>("Id");
-                        x.HasKey("Id").ForSqlServerIsClustered(false);
+                        x.HasKey("Id").IsClustered(false);
                     }),
                 target => target.Entity(
                     "Person",
                     x =>
                     {
                         x.Property<int>("Id");
-                        x.HasKey("Id").ForSqlServerIsClustered(false);
-                        x.ForSqlServerIsMemoryOptimized();
+                        x.HasKey("Id").IsClustered(false);
+                        x.IsMemoryOptimized();
                     }),
                 operations =>
                 {
@@ -65,15 +65,15 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     x =>
                     {
                         x.Property<int>("Id");
-                        x.HasKey("Id").ForSqlServerIsClustered(false);
-                        x.ForSqlServerIsMemoryOptimized();
+                        x.HasKey("Id").IsClustered(false);
+                        x.IsMemoryOptimized();
                     }),
                 target => target.Entity(
                     "Person",
                     x =>
                     {
                         x.Property<int>("Id");
-                        x.HasKey("Id").ForSqlServerIsClustered(false);
+                        x.HasKey("Id").IsClustered(false);
                     }),
                 operations =>
                 {
@@ -214,7 +214,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     {
                         x.ToTable("Ram", "bah");
                         x.Property<int>("Id");
-                        x.HasKey("Id").ForSqlServerIsClustered(false);
+                        x.HasKey("Id").IsClustered(false);
                     }),
                 target => target.Entity(
                     "Ram",
@@ -222,7 +222,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     {
                         x.ToTable("Ram", "bah");
                         x.Property<int>("Id");
-                        x.HasKey("Id").ForSqlServerIsClustered();
+                        x.HasKey("Id").IsClustered();
                     }),
                 operations =>
                 {
@@ -251,7 +251,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     x =>
                     {
                         x.Property<int>("Id");
-                        x.HasKey("Id").ForSqlServerIsClustered(false);
+                        x.HasKey("Id").IsClustered(false);
                         x.OwnsOne("Address", "Address");
                     }),
                 operations =>
@@ -276,7 +276,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                         x.ToTable("Ewe", "bah");
                         x.Property<int>("Id");
                         x.Property<int>("AlternateId");
-                        x.HasAlternateKey("AlternateId").ForSqlServerIsClustered(false);
+                        x.HasAlternateKey("AlternateId").IsClustered(false);
                     }),
                 target => target.Entity(
                     "Ewe",
@@ -285,7 +285,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                         x.ToTable("Ewe", "bah");
                         x.Property<int>("Id");
                         x.Property<int>("AlternateId");
-                        x.HasAlternateKey("AlternateId").ForSqlServerIsClustered();
+                        x.HasAlternateKey("AlternateId").IsClustered();
                     }),
                 operations =>
                 {
@@ -364,7 +364,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     x =>
                     {
                         x.ToTable("Firefly", "dbo");
-                        x.Property<int>("SequenceId").ForSqlServerUseSequenceHiLo(schema: "dbo");
+                        x.Property<int>("SequenceId").UseHiLo(schema: "dbo");
                         x.HasData(
                             new
                             {
@@ -414,7 +414,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                         x.ToTable("Mutton", "bah");
                         x.Property<int>("Id");
                         x.Property<int>("Value");
-                        x.HasIndex("Value").ForSqlServerIsClustered(false);
+                        x.HasIndex("Value").IsClustered(false);
                     }),
                 target => target.Entity(
                     "Mutton",
@@ -423,7 +423,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                         x.ToTable("Mutton", "bah");
                         x.Property<int>("Id");
                         x.Property<int>("Value");
-                        x.HasIndex("Value").ForSqlServerIsClustered();
+                        x.HasIndex("Value").IsClustered();
                     }),
                 operations =>
                 {
@@ -677,7 +677,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                             x.Property<string>("Zip");
                             x.Property<string>("City");
                             x.HasIndex("Zip")
-                                .ForSqlServerInclude("City");
+                                .IncludeProperties("City");
                         }),
                 target => target
                     .Entity(
@@ -688,7 +688,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                             x.Property<string>("Zip");
                             x.Property<string>("City");
                             x.HasIndex("Zip")
-                                .ForSqlServerInclude("City");
+                                .IncludeProperties("City");
                         }),
                 operations => Assert.Equal(0, operations.Count));
         }
@@ -707,7 +707,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                             x.Property<string>("City");
                             x.Property<string>("Street");
                             x.HasIndex("Zip")
-                                .ForSqlServerInclude("City");
+                                .IncludeProperties("City");
                         }),
                 target => target
                     .Entity(
@@ -719,7 +719,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                             x.Property<string>("City");
                             x.Property<string>("Street");
                             x.HasIndex("Zip")
-                                .ForSqlServerInclude("Street");
+                                .IncludeProperties("Street");
                         }),
                 operations =>
                 {
@@ -755,7 +755,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                             x.Property<string>("Zip");
                             x.Property<string>("City");
                             x.HasIndex("Zip")
-                                .ForSqlServerIsCreatedOnline();
+                                .IsCreatedOnline();
                         }),
                 target => target
                     .Entity(
@@ -766,7 +766,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                             x.Property<string>("Zip");
                             x.Property<string>("City");
                             x.HasIndex("Zip")
-                                .ForSqlServerIsCreatedOnline();
+                                .IsCreatedOnline();
                         }),
                 operations => Assert.Equal(0, operations.Count));
         }
@@ -796,7 +796,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                             x.Property<string>("City");
                             x.Property<string>("Street");
                             x.HasIndex("Zip")
-                                .ForSqlServerIsCreatedOnline();
+                                .IsCreatedOnline();
                         }),
                 operations =>
                 {

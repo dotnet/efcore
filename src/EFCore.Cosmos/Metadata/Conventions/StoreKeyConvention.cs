@@ -54,7 +54,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 entityTypeBuilder.HasKey(new[] { idProperty.Metadata });
 
                 var jObjectProperty = entityTypeBuilder.Property(typeof(JObject), JObjectPropertyName);
-                jObjectProperty.ForCosmosToProperty("");
+                jObjectProperty.ToJsonProperty("");
                 jObjectProperty.ValueGenerated(ValueGenerated.OnAddOrUpdate);
             }
             else

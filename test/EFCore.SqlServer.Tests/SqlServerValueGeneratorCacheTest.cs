@@ -120,7 +120,7 @@ namespace Microsoft.EntityFrameworkCore
             var property = modelBuilder
                 .Entity<Robot>()
                 .Property(e => e.Id)
-                .ForSqlServerUseSequenceHiLo()
+                .UseHiLo()
                 .Metadata;
 
             modelBuilder.FinalizeModel();
@@ -138,7 +138,7 @@ namespace Microsoft.EntityFrameworkCore
             var property = modelBuilder
                 .Entity<Robot>()
                 .Property(e => e.Id)
-                .ForSqlServerUseSequenceHiLo("DaneelOlivaw")
+                .UseHiLo("DaneelOlivaw")
                 .Metadata;
 
             modelBuilder.FinalizeModel();
@@ -154,7 +154,7 @@ namespace Microsoft.EntityFrameworkCore
             var modelBuilder = CreateConventionModelBuilder();
 
             var property = modelBuilder
-                .ForSqlServerUseSequenceHiLo()
+                .UseHiLo()
                 .Entity<Robot>()
                 .Property(e => e.Id)
                 .Metadata;
@@ -172,7 +172,7 @@ namespace Microsoft.EntityFrameworkCore
             var modelBuilder = CreateConventionModelBuilder();
 
             var property = modelBuilder
-                .ForSqlServerUseSequenceHiLo("DaneelOlivaw")
+                .UseHiLo("DaneelOlivaw")
                 .Entity<Robot>()
                 .Property(e => e.Id)
                 .Metadata;
@@ -193,7 +193,7 @@ namespace Microsoft.EntityFrameworkCore
                 .HasSequence("DaneelOlivaw", b => b.IncrementsBy(11))
                 .Entity<Robot>()
                 .Property(e => e.Id)
-                .ForSqlServerUseSequenceHiLo("DaneelOlivaw")
+                .UseHiLo("DaneelOlivaw")
                 .Metadata;
 
             modelBuilder.FinalizeModel();
@@ -212,7 +212,7 @@ namespace Microsoft.EntityFrameworkCore
                 .HasSequence("DaneelOlivaw", b => b.IncrementsBy(-1))
                 .Entity<Robot>()
                 .Property(e => e.Id)
-                .ForSqlServerUseSequenceHiLo("DaneelOlivaw")
+                .UseHiLo("DaneelOlivaw")
                 .Metadata;
 
             var cache = new SqlServerValueGeneratorCache(new ValueGeneratorCacheDependencies());
@@ -231,7 +231,7 @@ namespace Microsoft.EntityFrameworkCore
             var modelBuilder = CreateConventionModelBuilder();
 
             var property = modelBuilder
-                .ForSqlServerUseSequenceHiLo("DaneelOlivaw")
+                .UseHiLo("DaneelOlivaw")
                 .HasSequence("DaneelOlivaw", b => b.IncrementsBy(11))
                 .Entity<Robot>()
                 .Property(e => e.Id)
@@ -252,7 +252,7 @@ namespace Microsoft.EntityFrameworkCore
             var property = modelBuilder
                 .Entity<Robot>()
                 .Property(e => e.Id)
-                .ForSqlServerUseSequenceHiLo()
+                .UseHiLo()
                 .Metadata;
 
             modelBuilder.FinalizeModel();
@@ -270,7 +270,7 @@ namespace Microsoft.EntityFrameworkCore
             var property = modelBuilder
                 .Entity<Robot>()
                 .Property(e => e.Id)
-                .ForSqlServerUseSequenceHiLo("DaneelOlivaw")
+                .UseHiLo("DaneelOlivaw")
                 .Metadata;
 
             modelBuilder.FinalizeModel();
@@ -286,7 +286,7 @@ namespace Microsoft.EntityFrameworkCore
             var modelBuilder = CreateConventionModelBuilder();
 
             var property = modelBuilder
-                .ForSqlServerUseSequenceHiLo()
+                .UseHiLo()
                 .Entity<Robot>()
                 .Property(e => e.Id)
                 .Metadata;
@@ -304,7 +304,7 @@ namespace Microsoft.EntityFrameworkCore
             var modelBuilder = CreateConventionModelBuilder();
 
             var property = modelBuilder
-                .ForSqlServerUseSequenceHiLo("DaneelOlivaw")
+                .UseHiLo("DaneelOlivaw")
                 .Entity<Robot>()
                 .Property(e => e.Id)
                 .Metadata;
@@ -325,7 +325,7 @@ namespace Microsoft.EntityFrameworkCore
                 .HasSequence("DaneelOlivaw", b => b.IncrementsBy(11))
                 .Entity<Robot>()
                 .Property(e => e.Id)
-                .ForSqlServerUseSequenceHiLo("DaneelOlivaw")
+                .UseHiLo("DaneelOlivaw")
                 .Metadata;
 
             modelBuilder.FinalizeModel();
@@ -341,7 +341,7 @@ namespace Microsoft.EntityFrameworkCore
             var modelBuilder = CreateConventionModelBuilder();
 
             var property = modelBuilder
-                .ForSqlServerUseSequenceHiLo("DaneelOlivaw")
+                .UseHiLo("DaneelOlivaw")
                 .HasSequence("DaneelOlivaw", b => b.IncrementsBy(11))
                 .Entity<Robot>()
                 .Property(e => e.Id)
@@ -362,7 +362,7 @@ namespace Microsoft.EntityFrameworkCore
             var property = modelBuilder
                 .Entity<Robot>()
                 .Property(e => e.Id)
-                .ForSqlServerUseSequenceHiLo("DaneelOlivaw", "R")
+                .UseHiLo("DaneelOlivaw", "R")
                 .Metadata;
 
             modelBuilder.FinalizeModel();
@@ -379,7 +379,7 @@ namespace Microsoft.EntityFrameworkCore
             var modelBuilder = CreateConventionModelBuilder();
 
             var property = modelBuilder
-                .ForSqlServerUseSequenceHiLo("DaneelOlivaw", "R")
+                .UseHiLo("DaneelOlivaw", "R")
                 .Entity<Robot>()
                 .Property(e => e.Id)
                 .Metadata;
@@ -401,7 +401,7 @@ namespace Microsoft.EntityFrameworkCore
                 .HasSequence("DaneelOlivaw", "R", b => b.IncrementsBy(11))
                 .Entity<Robot>()
                 .Property(e => e.Id)
-                .ForSqlServerUseSequenceHiLo("DaneelOlivaw", "R")
+                .UseHiLo("DaneelOlivaw", "R")
                 .Metadata;
 
             modelBuilder.FinalizeModel();
@@ -418,7 +418,7 @@ namespace Microsoft.EntityFrameworkCore
             var modelBuilder = CreateConventionModelBuilder();
 
             var property = modelBuilder
-                .ForSqlServerUseSequenceHiLo("DaneelOlivaw", "R")
+                .UseHiLo("DaneelOlivaw", "R")
                 .HasSequence("DaneelOlivaw", "R", b => b.IncrementsBy(11))
                 .Entity<Robot>()
                 .Property(e => e.Id)
@@ -455,9 +455,9 @@ namespace Microsoft.EntityFrameworkCore
             modelBuilder.Entity<Led>(
                 b =>
                 {
-                    b.Property(e => e.Zeppelin).ForSqlServerUseSequenceHiLo("Heaven");
-                    b.Property(e => e.Stairway).ForSqlServerUseSequenceHiLo("Heaven");
-                    b.Property(e => e.WholeLotta).ForSqlServerUseSequenceHiLo("Rosie");
+                    b.Property(e => e.Zeppelin).UseHiLo("Heaven");
+                    b.Property(e => e.Stairway).UseHiLo("Heaven");
+                    b.Property(e => e.WholeLotta).UseHiLo("Rosie");
                 });
 
             return modelBuilder.Model;

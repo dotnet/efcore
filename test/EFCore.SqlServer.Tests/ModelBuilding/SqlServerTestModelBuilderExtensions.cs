@@ -8,15 +8,15 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 {
     public static class SqlServerTestModelBuilderExtensions
     {
-        public static ModelBuilderTest.TestIndexBuilder ForSqlServerIsClustered(
+        public static ModelBuilderTest.TestIndexBuilder IsClustered(
             this ModelBuilderTest.TestIndexBuilder builder, bool clustered = true)
         {
             var indexBuilder = builder.GetInfrastructure();
-            indexBuilder.ForSqlServerIsClustered(clustered);
+            indexBuilder.IsClustered(clustered);
             return builder;
         }
 
-        public static ModelBuilderTest.TestOwnedNavigationBuilder<TEntity, TDependentEntity> ForSqlServerIsMemoryOptimized<TEntity,
+        public static ModelBuilderTest.TestOwnedNavigationBuilder<TEntity, TDependentEntity> IsMemoryOptimized<TEntity,
             TDependentEntity>(
             this ModelBuilderTest.TestOwnedNavigationBuilder<TEntity, TDependentEntity> builder, bool memoryOptimized = true)
             where TEntity : class
@@ -25,10 +25,10 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             switch (builder)
             {
                 case IInfrastructure<OwnedNavigationBuilder<TEntity, TDependentEntity>> genericBuilder:
-                    genericBuilder.Instance.ForSqlServerIsMemoryOptimized(memoryOptimized);
+                    genericBuilder.Instance.IsMemoryOptimized(memoryOptimized);
                     break;
                 case IInfrastructure<OwnedNavigationBuilder> nongenericBuilder:
-                    nongenericBuilder.Instance.ForSqlServerIsMemoryOptimized(memoryOptimized);
+                    nongenericBuilder.Instance.IsMemoryOptimized(memoryOptimized);
                     break;
             }
 

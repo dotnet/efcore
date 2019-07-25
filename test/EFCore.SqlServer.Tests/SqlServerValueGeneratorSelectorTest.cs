@@ -48,7 +48,7 @@ namespace Microsoft.EntityFrameworkCore
 
             if (setSequences)
             {
-                builder.ForSqlServerUseSequenceHiLo();
+                builder.UseHiLo();
                 Assert.NotNull(builder.Model.FindSequence(SqlServerModelExtensions.DefaultHiLoSequenceName));
             }
 
@@ -164,10 +164,10 @@ namespace Microsoft.EntityFrameworkCore
             builder.Entity<AnEntity>();
 
             builder
-                .ForSqlServerUseSequenceHiLo()
+                .UseHiLo()
                 .HasSequence<int>(SqlServerModelExtensions.DefaultHiLoSequenceName);
 
-            var model = builder.ForSqlServerUseSequenceHiLo().FinalizeModel();
+            var model = builder.UseHiLo().FinalizeModel();
             var entityType = model.FindEntityType(typeof(AnEntity));
 
             var selector = SqlServerTestHelpers.Instance.CreateContextServices(model).GetRequiredService<IValueGeneratorSelector>();

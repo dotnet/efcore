@@ -8,57 +8,129 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
 {
     public class SqliteBuilderExtensionsTest
     {
-        [ConditionalFact]
-        public void Can_set_srid()
+        [ConditionalTheory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public void Can_set_srid(bool obsolete)
         {
             var modelBuilder = CreateConventionModelBuilder();
+
+            if (obsolete)
+            {
+#pragma warning disable 618
+                modelBuilder
+                    .Entity<Customer>()
+                    .Property(e => e.Geometry)
+                    .ForSqliteHasSrid(1);
+#pragma warning restore 618
+            }
+            else
+            {
+                modelBuilder
+                    .Entity<Customer>()
+                    .Property(e => e.Geometry)
+                    .HasSrid(1);
+            }
 
             var property = modelBuilder
                 .Entity<Customer>()
                 .Property(e => e.Geometry)
-                .ForSqliteHasSrid(1)
                 .Metadata;
 
             Assert.Equal(1, property.GetSqliteSrid());
         }
 
-        [ConditionalFact]
-        public void Can_set_srid_non_generic()
+        [ConditionalTheory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public void Can_set_srid_non_generic(bool obsolete)
         {
             var modelBuilder = CreateConventionModelBuilder();
+
+            if (obsolete)
+            {
+#pragma warning disable 618
+                modelBuilder
+                    .Entity<Customer>()
+                    .Property<string>("Geometry")
+                    .ForSqliteHasSrid(1);
+#pragma warning restore 618
+            }
+            else
+            {
+                modelBuilder
+                    .Entity<Customer>()
+                    .Property<string>("Geometry")
+                    .HasSrid(1);
+            }
 
             var property = modelBuilder
                 .Entity<Customer>()
                 .Property<string>("Geometry")
-                .ForSqliteHasSrid(1)
                 .Metadata;
 
             Assert.Equal(1, property.GetSqliteSrid());
         }
 
-        [ConditionalFact]
-        public void Can_set_srid_convention()
+        [ConditionalTheory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public void Can_set_srid_convention(bool obsolete)
         {
             var modelBuilder = ((IConventionModel)CreateConventionModelBuilder().Model).Builder;
+
+            if (obsolete)
+            {
+#pragma warning disable 618
+                modelBuilder
+                    .Entity(typeof(Customer))
+                    .Property(typeof(string), "Geometry")
+                    .ForSqliteHasSrid(1);
+#pragma warning restore 618
+            }
+            else
+            {
+                modelBuilder
+                    .Entity(typeof(Customer))
+                    .Property(typeof(string), "Geometry")
+                    .HasSrid(1);
+            }
 
             var property = modelBuilder
                 .Entity(typeof(Customer))
                 .Property(typeof(string), "Geometry")
-                .ForSqliteHasSrid(1)
                 .Metadata;
 
             Assert.Equal(1, property.GetSqliteSrid());
         }
 
-        [ConditionalFact]
-        public void Can_set_dimension_convention()
+        [ConditionalTheory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public void Can_set_dimension_convention(bool obsolete)
         {
             var modelBuilder = ((IConventionModel)CreateConventionModelBuilder().Model).Builder;
+
+            if (obsolete)
+            {
+#pragma warning disable 618
+                modelBuilder
+                    .Entity(typeof(Customer))
+                    .Property(typeof(string), "Geometry")
+                    .ForSqliteHasDimension("Z");
+#pragma warning restore 618
+            }
+            else
+            {
+                modelBuilder
+                    .Entity(typeof(Customer))
+                    .Property(typeof(string), "Geometry")
+                    .HasSpatialDimension("Z");
+            }
 
             var property = modelBuilder
                 .Entity(typeof(Customer))
                 .Property(typeof(string), "Geometry")
-                .ForSqliteHasDimension("Z")
                 .Metadata;
 
             Assert.Equal("Z", property.GetSqliteDimension());

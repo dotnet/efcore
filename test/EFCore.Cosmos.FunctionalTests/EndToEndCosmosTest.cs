@@ -270,7 +270,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
             {
-                modelBuilder.Entity<Customer>().ForCosmosHasPartitionKey(c => c.PartitionKey);
+                modelBuilder.Entity<Customer>().HasPartitionKey(c => c.PartitionKey);
             }
         }
 
@@ -334,8 +334,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
             {
-                modelBuilder.ForCosmosHasDefaultContainer(nameof(CustomerContext));
-                modelBuilder.Entity<Customer>().Property<string>("EMail").ForCosmosToProperty("e-mail");
+                modelBuilder.HasDefaultContainer(nameof(CustomerContext));
+                modelBuilder.Entity<Customer>().Property<string>("EMail").ToJsonProperty("e-mail");
             }
         }
 
@@ -381,7 +381,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
             {
-                modelBuilder.Entity<Customer>().Property(c => c.Name).ForCosmosToProperty("");
+                modelBuilder.Entity<Customer>().Property(c => c.Name).ToJsonProperty("");
             }
         }
 

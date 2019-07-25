@@ -35,7 +35,7 @@ namespace Microsoft.EntityFrameworkCore
                     eb.ToTable("RelationalSimpleEntity");
                     eb.Property(typeof(string), SimpleEntity.ShadowPropertyName);
                     eb.HasKey(e => e.Id);
-                    eb.Property(e => e.Id).ForSqlServerUseIdentityColumn();
+                    eb.Property(e => e.Id).UseIdentityColumn();
                 });
         }
     }

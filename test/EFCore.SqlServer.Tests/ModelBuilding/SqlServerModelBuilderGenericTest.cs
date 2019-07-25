@@ -35,11 +35,11 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
                 Assert.Equal("[Name] IS NOT NULL", index.GetFilter());
 
-                indexBuilder.ForSqlServerIsClustered();
+                indexBuilder.IsClustered();
 
                 Assert.Null(index.GetFilter());
 
-                indexBuilder.ForSqlServerIsClustered(false);
+                indexBuilder.IsClustered(false);
 
                 Assert.Equal("[Name] IS NOT NULL", index.GetFilter());
 
@@ -298,7 +298,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                                 tb.WithOwner()
                                   .HasConstraintName("AlternateLabelFK");
                                 tb.ToTable("TT", "TS");
-                                tb.ForSqlServerIsMemoryOptimized();
+                                tb.IsMemoryOptimized();
                                 tb.OwnsOne(
                                     l => l.AnotherBookLabel, ab =>
                                     {
@@ -427,7 +427,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                     r =>
                     {
                         r.HasKey(o => o.OrderId);
-                        r.ForSqlServerIsMemoryOptimized();
+                        r.IsMemoryOptimized();
                         r.Ignore(o => o.OrderCombination);
                         r.Ignore(o => o.Details);
                     });

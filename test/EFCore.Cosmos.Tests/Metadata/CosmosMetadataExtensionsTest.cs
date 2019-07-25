@@ -32,7 +32,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Equal(nameof(Customer), entityType.GetCosmosContainer());
             Assert.Null(((IConventionEntityType)entityType).GetCosmosContainerConfigurationSource());
 
-            ((IConventionModel)modelBuilder.Model).Builder.ForCosmosHasDefaultContainer("Unicorn");
+            ((IConventionModel)modelBuilder.Model).Builder.HasDefaultContainer("Unicorn");
             Assert.Equal("Unicorn", entityType.GetCosmosContainer());
         }
 
