@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Linq.Expressions;
@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Microsoft.EntityFrameworkCore.Query.Internal
+namespace Microsoft.EntityFrameworkCore.Query
 {
     /// <summary>
     ///     <para>
@@ -33,12 +33,21 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public RelationalEvaluatableExpressionFilter([NotNull] IModel model)
+        public RelationalEvaluatableExpressionFilter(
+            [NotNull] EvaluatableExpressionFilterDependencies dependencies,
+            [NotNull] RelationalEvaluatableExpressionFilterDependencies relationalDependencies)
+            : base(dependencies)
         {
-            Check.NotNull(model, nameof(model));
+            Check.NotNull(relationalDependencies, nameof(relationalDependencies));
 
-            _model = model;
+            RelationalDependencies = relationalDependencies;
+            _model = relationalDependencies.Model;
         }
+
+        /// <summary>
+        ///     Dependencies used to create a <see cref="RelationalEvaluatableExpressionFilter" />
+        /// </summary>
+        protected virtual RelationalEvaluatableExpressionFilterDependencies RelationalDependencies { get; }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

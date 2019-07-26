@@ -1,12 +1,15 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
 using System.Linq.Expressions;
 using System.Reflection;
+using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Query.Internal;
+using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Microsoft.EntityFrameworkCore.Query.Internal
+namespace Microsoft.EntityFrameworkCore.Query
 {
     /// <summary>
     ///     <para>
@@ -22,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
     ///         The implementation does not need to be thread-safe.
     ///     </para>
     /// </summary>
-    public class EvaluatableExpressionFilter : EvaluatableExpressionFilterBase
+    public class EvaluatableExpressionFilter : IEvaluatableExpressionFilter
     {
         // This methods are non-deterministic and result varies based on time of running the query.
         // Hence we don't evaluate them. See issue#2069
@@ -55,12 +58,35 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             = typeof(Random).GetRuntimeMethod(nameof(Random.Next), new[] { typeof(int), typeof(int) });
 
         /// <summary>
+        ///     Parameter object containing dependencies for this service.
+        /// </summary>
+        protected virtual EvaluatableExpressionFilterDependencies Dependencies { get; }
+
+        /// <summary>
+        ///     <para>
+        ///         Creates a new <see cref="EvaluatableExpressionFilter"/> instance.
+        ///     </para>
+        ///     <para>
+        ///         This type is typically used by database providers (and other extensions). It is generally
+        ///         not used in application code.
+        ///     </para>
+        /// </summary>
+        /// <param name="dependencies"> The dependencies to use. </param>
+        public EvaluatableExpressionFilter(
+            [NotNull] EvaluatableExpressionFilterDependencies dependencies)
+        {
+            Check.NotNull(dependencies, nameof(dependencies));
+
+            Dependencies = dependencies;
+        }
+
+        /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
         ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public override bool IsEvaluatableExpression(Expression expression)
+        public virtual bool IsEvaluatableExpression(Expression expression)
         {
             switch (expression)
             {
@@ -91,7 +117,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     break;
             }
 
-            return base.IsEvaluatableExpression(expression);
+            return true;
         }
     }
 }
