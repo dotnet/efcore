@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -29,7 +30,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             // If the model is spread across multiple assemblies, it may contain different NullableAttribute types as
             // the compiler synthesizes them for each assembly.
             if (propertyBuilder.Metadata.GetIdentifyingMemberInfo() is MemberInfo memberInfo
-                && IsNonNullable(propertyBuilder.ModelBuilder, memberInfo))
+                && IsNonNullableRefType(propertyBuilder.ModelBuilder, memberInfo))
             {
                 propertyBuilder.IsRequired(true);
             }

@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.ComponentModel.DataAnnotations;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
@@ -57,10 +58,23 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         [InlineData(nameof(A.NullObliviousNonNullable), true)]
         [InlineData(nameof(A.NullObliviousNullable), true)]
         [InlineData(nameof(A.RequiredAndNullable), false)]
-        public void Reference_nullability_sets_is_nullable_correctly(string propertyName, bool expectedNullable)
+        public void Reference_nullability_sets_is_nullable_correctly1(string propertyName, bool expectedNullable)
         {
             var modelBuilder = CreateModelBuilder();
             var entityTypeBuilder = modelBuilder.Entity<A>();
+
+            Assert.Equal(expectedNullable, entityTypeBuilder.Property(propertyName).Metadata.IsNullable);
+        }
+
+        [ConditionalTheory]
+        [InlineData(nameof(B.NonNullableValueType), false)]
+        [InlineData(nameof(B.NullableValueType), true)]
+        [InlineData(nameof(B.NonNullableRefType), false)]
+        [InlineData(nameof(B.NullableRefType), true)]
+        public void Reference_nullability_sets_is_nullable_correctly2(string propertyName, bool expectedNullable)
+        {
+            var modelBuilder = CreateModelBuilder();
+            var entityTypeBuilder = modelBuilder.Entity<B>();
 
             Assert.Equal(expectedNullable, entityTypeBuilder.Property(propertyName).Metadata.IsNullable);
         }
@@ -107,6 +121,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             public string? NullObliviousNullable { get; set; }
 #pragma warning restore CS8632 // The annotation for nullable reference types should only be used in code within a '#nullable' context.
         }
+
+#nullable enable
+        public class B
+        {
+            [Key] public Guid NonNullableValueType { get; set; }
+            public Guid? NullableValueType { get; set; }
+            public string NonNullableRefType { get; set; } = "";
+            public string? NullableRefType { get; set; }
+        }
+#nullable disable
 
         private static ModelBuilder CreateModelBuilder() => InMemoryTestHelpers.Instance.CreateConventionBuilder();
     }
