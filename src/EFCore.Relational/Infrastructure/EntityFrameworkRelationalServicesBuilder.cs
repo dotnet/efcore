@@ -192,7 +192,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 .AddDependencyScoped<HistoryRepositoryDependencies>()
                 .AddDependencyScoped<RelationalCompiledQueryCacheKeyGeneratorDependencies>()
                 .AddDependencyScoped<RelationalConnectionDependencies>()
-                .AddDependencyScoped<RelationalDatabaseDependencies>();
+                .AddDependencyScoped<RelationalDatabaseDependencies>()
+                .AddDependencyScoped<RelationalEvaluatableExpressionFilterDependencies>();
 
             return base.TryAddCoreServices();
         }
