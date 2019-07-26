@@ -171,7 +171,7 @@ namespace Microsoft.EntityFrameworkCore
             public void EnlistTransaction(Transaction transaction) => throw new NotImplementedException();
 
             public void ResetState() => throw new NotImplementedException();
-            public ValueTask ResetStateAsync() => throw new NotImplementedException();
+            public Task ResetStateAsync(CancellationToken cancellationToken = default) => throw new NotImplementedException();
         }
 
         private class FakeDbContextTransaction : IDbContextTransaction

@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
@@ -380,7 +381,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             DeleteOrphansTiming = CascadeTiming.Immediate;
         }
 
-        ValueTask IResettableService.ResetStateAsync()
+        Task IResettableService.ResetStateAsync(CancellationToken cancellationToken)
         {
             ((IResettableService)this).ResetState();
 

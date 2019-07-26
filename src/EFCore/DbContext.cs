@@ -661,7 +661,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        void IDbContextPoolable.ResetState()
+        void IResettableService.ResetState()
         {
             foreach (var service in GetResettableServices())
             {
@@ -677,11 +677,12 @@ namespace Microsoft.EntityFrameworkCore
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        async ValueTask IDbContextPoolable.ResetStateAsync()
+        /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
+        async Task IResettableService.ResetStateAsync(CancellationToken cancellationToken)
         {
             foreach (var service in GetResettableServices())
             {
-                await service.ResetStateAsync();
+                await service.ResetStateAsync(cancellationToken);
             }
 
             _disposed = true;
