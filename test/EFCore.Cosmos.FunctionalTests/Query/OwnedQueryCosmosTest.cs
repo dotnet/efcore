@@ -20,6 +20,11 @@ namespace Microsoft.EntityFrameworkCore.Query
             //TestLoggerFactory.TestOutputHelper = testOutputHelper;
         }
 
+        [ConditionalFact(Skip = "Issue#12086")]
+        public override void Query_loads_reference_nav_automatically_in_projection()
+        {
+        }
+
         [ConditionalFact(Skip = "Issue#15711")]
         public override void Query_with_owned_entity_equality_operator()
         {
@@ -475,6 +480,31 @@ WHERE (c[""Discriminator""] = ""LeafA"")");
                                     new { Id = "H", Name = "Hydrogen", StarId = 1 },
                                     new { Id = "He", Name = "Helium", StarId = 1 });
                             });
+                    });
+
+                modelBuilder.Entity<Barton>(
+                    b =>
+                    {
+                        b.OwnsOne(
+                            e => e.Throned, b => b.HasData(
+                                new
+                                {
+                                    BartonId = 1,
+                                    Property = "Property"
+                                }));
+                        b.HasData(
+                            new Barton
+                            {
+                                Id = 1, Simple = "Simple"
+                            });
+
+                    });
+
+                modelBuilder.Entity<Fink>().HasData(
+                    new
+                    {
+                        Id = 1,
+                        BartonId = 1
                     });
             }
         }
