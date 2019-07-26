@@ -442,6 +442,20 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
+
+        [ConditionalFact]
+        public virtual void Query_loads_reference_nav_automatically_in_projection()
+        {
+            using (var context = CreateContext())
+            {
+                var barton = context.Set<Fink>().Select(e => e.Barton).Single();
+
+                Assert.Equal(1, barton.Id);
+                Assert.Equal("Simple", barton.Simple);
+                Assert.Equal("Property", barton.Throned.Property);
+            }
+        }
+
         protected virtual DbContext CreateContext() => Fixture.CreateContext();
 
         public abstract class OwnedQueryFixtureBase : SharedStoreFixtureBase<PoolableDbContext>
@@ -672,6 +686,31 @@ namespace Microsoft.EntityFrameworkCore.Query
                         //            new { Id = "He", Name = "Helium", StarId = 1 });
                         //    });
                     });
+
+                modelBuilder.Entity<Barton>(
+                    b =>
+                    {
+                        b.OwnsOne(
+                            e => e.Throned, b => b.HasData(
+                                new
+                                {
+                                    BartonId = 1,
+                                    Property = "Property"
+                                }));
+                        b.HasData(
+                            new Barton
+                            {
+                                Id = 1, Simple = "Simple"
+                            });
+
+                    });
+
+                modelBuilder.Entity<Fink>().HasData(
+                    new
+                    {
+                        Id = 1,
+                        BartonId = 1
+                    });
             }
 
             public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
@@ -761,6 +800,27 @@ namespace Microsoft.EntityFrameworkCore.Query
             public string Name { get; set; }
 
             public int StarId { get; set; }
+        }
+
+        protected class Barton
+        {
+            public int Id { get; set; }
+
+            public Throned Throned { get; set; }
+
+            public string Simple { get; set; }
+        }
+
+        protected class Fink
+        {
+            public Barton Barton { get; set; }
+
+            public int Id { get; set; }
+        }
+
+        protected class Throned
+        {
+            public string Property { get; set; }
         }
     }
 }
