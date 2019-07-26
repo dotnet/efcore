@@ -153,7 +153,7 @@ namespace Microsoft.EntityFrameworkCore
             {
             }
 
-            public ValueTask ResetStateAsync() => default;
+            public Task ResetStateAsync(CancellationToken cancellationToken = default) => Task.CompletedTask;
 
             public IDbContextTransaction BeginTransaction()
             {

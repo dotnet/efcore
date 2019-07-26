@@ -726,7 +726,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
         void IResettableService.ResetState() => Dispose();
 
-        ValueTask IResettableService.ResetStateAsync() => DisposeAsync();
+        Task IResettableService.ResetStateAsync(CancellationToken cancellationToken) => DisposeAsync().AsTask();
 
         /// <summary>
         ///     Gets a semaphore used to serialize access to this connection.

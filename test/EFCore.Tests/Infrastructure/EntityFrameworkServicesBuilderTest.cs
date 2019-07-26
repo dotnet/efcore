@@ -345,7 +345,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             {
             }
 
-            public ValueTask ResetStateAsync() => default;
+            public Task ResetStateAsync(CancellationToken cancellationToken = default) => Task.CompletedTask;
         }
 
         private static DbContext CreateContext(IServiceProvider serviceProvider)
