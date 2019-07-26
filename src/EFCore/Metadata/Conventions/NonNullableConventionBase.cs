@@ -65,10 +65,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <param name="modelBuilder"> The model builder used to build the model. </param>
         /// <param name="memberInfo"> The member info. </param>
         /// <returns> <c>true</c> if the member type is a non-nullable reference type. </returns>
-        protected virtual bool IsNonNullable(
+        protected virtual bool IsNonNullableRefType(
             [NotNull] IConventionModelBuilder modelBuilder,
             [NotNull] MemberInfo memberInfo)
         {
+            if (memberInfo.GetMemberType().IsValueType)
+            {
+                return false;
+            }
+
             var state = GetOrInitializeState(modelBuilder);
 
             // For C# 8.0 nullable types, the C# currently synthesizes a NullableAttribute that expresses nullability into assemblies
@@ -77,7 +82,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             // Note that this may change - if https://github.com/dotnet/corefx/issues/36222 is done we can remove all of this.
 
             // First look for NullableAttribute on the member itself
-            if (Attribute.GetCustomAttributes(memberInfo, true)
+            if (Attribute.GetCustomAttributes(memberInfo)
                     .FirstOrDefault(a => a.GetType().FullName == NullableAttributeFullName) is Attribute attribute)
             {
                 var attributeType = attribute.GetType();
@@ -88,10 +93,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                     state.NullableAttrType = attributeType;
                 }
 
-                if (state.NullableFlagsFieldInfo?.GetValue(attribute) is byte[] flags
-                    && flags.FirstOrDefault() == 1)
+                if (state.NullableFlagsFieldInfo?.GetValue(attribute) is byte[] flags)
                 {
-                    return true;
+                    return flags.FirstOrDefault() == 1;
                 }
             }
 

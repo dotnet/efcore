@@ -86,6 +86,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         private bool IsNonNullable(IConventionModelBuilder modelBuilder, IConventionNavigation navigation)
             => navigation.DeclaringEntityType.HasClrType()
                && navigation.DeclaringEntityType.GetRuntimeProperties().Find(navigation.Name) is PropertyInfo propertyInfo
-               && IsNonNullable(modelBuilder, propertyInfo);
+               && IsNonNullableRefType(modelBuilder, propertyInfo);
     }
 }
