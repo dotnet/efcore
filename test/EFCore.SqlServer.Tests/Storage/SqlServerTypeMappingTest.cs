@@ -228,7 +228,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Test_GenerateSqlLiteral_helper(
                 GetMapping("smalldatetime"),
                 new DateTime(2015, 3, 12, 13, 36, 37, 371, DateTimeKind.Utc),
-                "'2015-03-12T13:36:37.371'");
+                "'2015-03-12T13:36:37'");
 
             Test_GenerateSqlLiteral_helper(
                 GetMapping("datetime2"),

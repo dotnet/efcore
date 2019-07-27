@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Data;
 using System.Linq;
 using System.Linq.Expressions;
@@ -43,6 +44,227 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         protected SqlServerFixture Fixture { get; }
+
+        [ConditionalTheory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public async Task Where_equals_DateTime_Now(bool async)
+        {
+            using (CreateDateTimeStore())
+            {
+                Fixture.TestSqlLoggerFactory.Clear();
+
+                using (var context = new DateTimeContext(_options))
+                {
+                    var query = context.Dates.Where(
+                        d => d.DateTime2_2 == DateTime.Now
+                             || d.DateTime2_7 == DateTime.Now
+                             || d.DateTime == DateTime.Now
+                             || d.SmallDateTime == DateTime.Now);
+
+                    var results = async
+                        ? await query.ToListAsync()
+                        : query.ToList();
+
+                    Assert.Equal(0, results.Count);
+
+                    AssertSql(@"SELECT [d].[Id], [d].[DateTime], [d].[DateTime2], [d].[DateTime2_0], [d].[DateTime2_1], [d].[DateTime2_2], [d].[DateTime2_3], [d].[DateTime2_4], [d].[DateTime2_5], [d].[DateTime2_6], [d].[DateTime2_7], [d].[SmallDateTime]
+FROM [Dates] AS [d]
+WHERE ((([d].[DateTime2_2] = GETDATE()) OR ([d].[DateTime2_7] = GETDATE())) OR ([d].[DateTime] = GETDATE())) OR ([d].[SmallDateTime] = GETDATE())");
+                }
+            }
+        }
+
+        [ConditionalTheory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public async Task Where_not_equals_DateTime_Now(bool async)
+        {
+            using (CreateDateTimeStore())
+            {
+                Fixture.TestSqlLoggerFactory.Clear();
+
+                using (var context = new DateTimeContext(_options))
+                {
+                    var query = context.Dates.Where(
+                        d => d.DateTime2_2 != DateTime.Now
+                             && d.DateTime2_7 != DateTime.Now
+                             && d.DateTime != DateTime.Now
+                             && d.SmallDateTime != DateTime.Now);
+
+                    var results = async
+                        ? await query.ToListAsync()
+                        : query.ToList();
+
+                    Assert.Equal(1, results.Count);
+
+                    AssertSql(@"SELECT [d].[Id], [d].[DateTime], [d].[DateTime2], [d].[DateTime2_0], [d].[DateTime2_1], [d].[DateTime2_2], [d].[DateTime2_3], [d].[DateTime2_4], [d].[DateTime2_5], [d].[DateTime2_6], [d].[DateTime2_7], [d].[SmallDateTime]
+FROM [Dates] AS [d]
+WHERE ((([d].[DateTime2_2] <> GETDATE()) AND ([d].[DateTime2_7] <> GETDATE())) AND ([d].[DateTime] <> GETDATE())) AND ([d].[SmallDateTime] <> GETDATE())");
+                }
+            }
+        }
+
+        [ConditionalTheory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public async Task Where_equals_new_DateTime(bool async)
+        {
+            using (CreateDateTimeStore())
+            {
+                Fixture.TestSqlLoggerFactory.Clear();
+
+                using (var context = new DateTimeContext(_options))
+                {
+                    var query = context.Dates.Where(
+                        d => d.SmallDateTime == new DateTime(1970, 9, 3, 12, 0, 0)
+                             && d.DateTime == new DateTime(1971, 9, 3, 12, 0, 10, 220)
+                             && d.DateTime2 == new DateTime(1972, 9, 3, 12, 0, 10, 333)
+                             && d.DateTime2_0 == new DateTime(1973, 9, 3, 12, 0, 10)
+                             && d.DateTime2_1 == new DateTime(1974, 9, 3, 12, 0, 10, 500)
+                             && d.DateTime2_2 == new DateTime(1975, 9, 3, 12, 0, 10, 660)
+                             && d.DateTime2_3 == new DateTime(1976, 9, 3, 12, 0, 10, 777)
+                             && d.DateTime2_4 == new DateTime(1977, 9, 3, 12, 0, 10, 888)
+                             && d.DateTime2_5 == new DateTime(1978, 9, 3, 12, 0, 10, 999)
+                             && d.DateTime2_6 == new DateTime(1979, 9, 3, 12, 0, 10, 111)
+                             && d.DateTime2_7 == new DateTime(1980, 9, 3, 12, 0, 10, 222));
+
+                    var results = async
+                        ? await query.ToListAsync()
+                        : query.ToList();
+
+                    Assert.Equal(1, results.Count);
+
+                    AssertSql(@"SELECT [d].[Id], [d].[DateTime], [d].[DateTime2], [d].[DateTime2_0], [d].[DateTime2_1], [d].[DateTime2_2], [d].[DateTime2_3], [d].[DateTime2_4], [d].[DateTime2_5], [d].[DateTime2_6], [d].[DateTime2_7], [d].[SmallDateTime]
+FROM [Dates] AS [d]
+WHERE (((((((((([d].[SmallDateTime] = '1970-09-03T12:00:00') AND ([d].[DateTime] = '1971-09-03T12:00:10.220')) AND ([d].[DateTime2] = '1972-09-03T12:00:10.3330000')) AND ([d].[DateTime2_0] = '1973-09-03T12:00:10')) AND ([d].[DateTime2_1] = '1974-09-03T12:00:10.5')) AND ([d].[DateTime2_2] = '1975-09-03T12:00:10.66')) AND ([d].[DateTime2_3] = '1976-09-03T12:00:10.777')) AND ([d].[DateTime2_4] = '1977-09-03T12:00:10.8880')) AND ([d].[DateTime2_5] = '1978-09-03T12:00:10.99900')) AND ([d].[DateTime2_6] = '1979-09-03T12:00:10.111000')) AND ([d].[DateTime2_7] = '1980-09-03T12:00:10.2220000')");
+                }
+            }
+        }
+
+        [ConditionalTheory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public async Task Where_contains_DateTime_literals(bool async)
+        {
+            var dateTimes = new[]
+            {
+                new DateTime(1970, 9, 3, 12, 0, 0),
+                new DateTime(1971, 9, 3, 12, 0, 10, 220),
+                new DateTime(1972, 9, 3, 12, 0, 10, 333),
+                new DateTime(1973, 9, 3, 12, 0, 10),
+                new DateTime(1974, 9, 3, 12, 0, 10, 500),
+                new DateTime(1975, 9, 3, 12, 0, 10, 660),
+                new DateTime(1976, 9, 3, 12, 0, 10, 777),
+                new DateTime(1977, 9, 3, 12, 0, 10, 888),
+                new DateTime(1978, 9, 3, 12, 0, 10, 999),
+                new DateTime(1979, 9, 3, 12, 0, 10, 111),
+                new DateTime(1980, 9, 3, 12, 0, 10, 222)
+            };
+
+            using (CreateDateTimeStore())
+            {
+                Fixture.TestSqlLoggerFactory.Clear();
+
+                using (var context = new DateTimeContext(_options))
+                {
+                    var query = context.Dates.Where(
+                        d => dateTimes.Contains(d.SmallDateTime)
+                             && dateTimes.Contains(d.DateTime)
+                             && dateTimes.Contains(d.DateTime2)
+                             && dateTimes.Contains(d.DateTime2_0)
+                             && dateTimes.Contains(d.DateTime2_1)
+                             && dateTimes.Contains(d.DateTime2_2)
+                             && dateTimes.Contains(d.DateTime2_3)
+                             && dateTimes.Contains(d.DateTime2_4)
+                             && dateTimes.Contains(d.DateTime2_5)
+                             && dateTimes.Contains(d.DateTime2_6)
+                             && dateTimes.Contains(d.DateTime2_7));
+
+                    var results = async
+                        ? await query.ToListAsync()
+                        : query.ToList();
+
+                    Assert.Equal(1, results.Count);
+
+                    AssertSql(@"SELECT [d].[Id], [d].[DateTime], [d].[DateTime2], [d].[DateTime2_0], [d].[DateTime2_1], [d].[DateTime2_2], [d].[DateTime2_3], [d].[DateTime2_4], [d].[DateTime2_5], [d].[DateTime2_6], [d].[DateTime2_7], [d].[SmallDateTime]
+FROM [Dates] AS [d]
+WHERE ((((((((([d].[SmallDateTime] IN ('1970-09-03T12:00:00', '1971-09-03T12:00:10', '1972-09-03T12:00:10', '1973-09-03T12:00:10', '1974-09-03T12:00:10', '1975-09-03T12:00:10', '1976-09-03T12:00:10', '1977-09-03T12:00:10', '1978-09-03T12:00:10', '1979-09-03T12:00:10', '1980-09-03T12:00:10') AND [d].[DateTime] IN ('1970-09-03T12:00:00.000', '1971-09-03T12:00:10.220', '1972-09-03T12:00:10.333', '1973-09-03T12:00:10.000', '1974-09-03T12:00:10.500', '1975-09-03T12:00:10.660', '1976-09-03T12:00:10.777', '1977-09-03T12:00:10.888', '1978-09-03T12:00:10.999', '1979-09-03T12:00:10.111', '1980-09-03T12:00:10.222')) AND [d].[DateTime2] IN ('1970-09-03T12:00:00.0000000', '1971-09-03T12:00:10.2200000', '1972-09-03T12:00:10.3330000', '1973-09-03T12:00:10.0000000', '1974-09-03T12:00:10.5000000', '1975-09-03T12:00:10.6600000', '1976-09-03T12:00:10.7770000', '1977-09-03T12:00:10.8880000', '1978-09-03T12:00:10.9990000', '1979-09-03T12:00:10.1110000', '1980-09-03T12:00:10.2220000')) AND [d].[DateTime2_0] IN ('1970-09-03T12:00:00', '1971-09-03T12:00:10', '1972-09-03T12:00:10', '1973-09-03T12:00:10', '1974-09-03T12:00:10', '1975-09-03T12:00:10', '1976-09-03T12:00:10', '1977-09-03T12:00:10', '1978-09-03T12:00:10', '1979-09-03T12:00:10', '1980-09-03T12:00:10')) AND [d].[DateTime2_1] IN ('1970-09-03T12:00:00.0', '1971-09-03T12:00:10.2', '1972-09-03T12:00:10.3', '1973-09-03T12:00:10.0', '1974-09-03T12:00:10.5', '1975-09-03T12:00:10.6', '1976-09-03T12:00:10.7', '1977-09-03T12:00:10.8', '1978-09-03T12:00:10.9', '1979-09-03T12:00:10.1', '1980-09-03T12:00:10.2')) AND [d].[DateTime2_2] IN ('1970-09-03T12:00:00.00', '1971-09-03T12:00:10.22', '1972-09-03T12:00:10.33', '1973-09-03T12:00:10.00', '1974-09-03T12:00:10.50', '1975-09-03T12:00:10.66', '1976-09-03T12:00:10.77', '1977-09-03T12:00:10.88', '1978-09-03T12:00:10.99', '1979-09-03T12:00:10.11', '1980-09-03T12:00:10.22')) AND [d].[DateTime2_3] IN ('1970-09-03T12:00:00.000', '1971-09-03T12:00:10.220', '1972-09-03T12:00:10.333', '1973-09-03T12:00:10.000', '1974-09-03T12:00:10.500', '1975-09-03T12:00:10.660', '1976-09-03T12:00:10.777', '1977-09-03T12:00:10.888', '1978-09-03T12:00:10.999', '1979-09-03T12:00:10.111', '1980-09-03T12:00:10.222')) AND [d].[DateTime2_4] IN ('1970-09-03T12:00:00.0000', '1971-09-03T12:00:10.2200', '1972-09-03T12:00:10.3330', '1973-09-03T12:00:10.0000', '1974-09-03T12:00:10.5000', '1975-09-03T12:00:10.6600', '1976-09-03T12:00:10.7770', '1977-09-03T12:00:10.8880', '1978-09-03T12:00:10.9990', '1979-09-03T12:00:10.1110', '1980-09-03T12:00:10.2220')) AND [d].[DateTime2_5] IN ('1970-09-03T12:00:00.00000', '1971-09-03T12:00:10.22000', '1972-09-03T12:00:10.33300', '1973-09-03T12:00:10.00000', '1974-09-03T12:00:10.50000', '1975-09-03T12:00:10.66000', '1976-09-03T12:00:10.77700', '1977-09-03T12:00:10.88800', '1978-09-03T12:00:10.99900', '1979-09-03T12:00:10.11100', '1980-09-03T12:00:10.22200')) AND [d].[DateTime2_6] IN ('1970-09-03T12:00:00.000000', '1971-09-03T12:00:10.220000', '1972-09-03T12:00:10.333000', '1973-09-03T12:00:10.000000', '1974-09-03T12:00:10.500000', '1975-09-03T12:00:10.660000', '1976-09-03T12:00:10.777000', '1977-09-03T12:00:10.888000', '1978-09-03T12:00:10.999000', '1979-09-03T12:00:10.111000', '1980-09-03T12:00:10.222000')) AND [d].[DateTime2_7] IN ('1970-09-03T12:00:00.0000000', '1971-09-03T12:00:10.2200000', '1972-09-03T12:00:10.3330000', '1973-09-03T12:00:10.0000000', '1974-09-03T12:00:10.5000000', '1975-09-03T12:00:10.6600000', '1976-09-03T12:00:10.7770000', '1977-09-03T12:00:10.8880000', '1978-09-03T12:00:10.9990000', '1979-09-03T12:00:10.1110000', '1980-09-03T12:00:10.2220000')");
+                }
+            }
+        }
+
+        private class DatesAndPrunes
+        {
+            public int Id { get; set; }
+
+            [Column(TypeName = "smalldatetime")]
+            public DateTime SmallDateTime { get; set; }
+
+            [Column(TypeName = "datetime")]
+            public DateTime DateTime { get; set; }
+
+            [Column(TypeName = "datetime2")]
+            public DateTime DateTime2 { get; set; }
+
+            [Column(TypeName = "datetime2(0)")]
+            public DateTime DateTime2_0 { get; set; }
+
+            [Column(TypeName = "datetime2(1)")]
+            public DateTime DateTime2_1 { get; set; }
+
+            [Column(TypeName = "datetime2(2)")]
+            public DateTime DateTime2_2 { get; set; }
+
+            [Column(TypeName = "datetime2(3)")]
+            public DateTime DateTime2_3 { get; set; }
+
+            [Column(TypeName = "datetime2(4)")]
+            public DateTime DateTime2_4 { get; set; }
+
+            [Column(TypeName = "datetime2(5)")]
+            public DateTime DateTime2_5 { get; set; }
+
+            [Column(TypeName = "datetime2(6)")]
+            public DateTime DateTime2_6 { get; set; }
+
+            [Column(TypeName = "datetime2(7)")]
+            public DateTime DateTime2_7 { get; set; }
+        }
+
+        private class DateTimeContext : DbContext
+        {
+            public DateTimeContext(DbContextOptions options)
+                : base(options)
+            {
+            }
+
+            public DbSet<DatesAndPrunes> Dates { get; set; }
+        }
+
+        private SqlServerTestStore CreateDateTimeStore()
+            => CreateTestStore(
+                () => new DateTimeContext(_options),
+                c =>
+                {
+                    c.Add(
+                        new DatesAndPrunes
+                        {
+                            SmallDateTime = new DateTime(1970, 9, 3, 12, 0, 0),
+                            DateTime = new DateTime(1971, 9, 3, 12, 0, 10, 220),
+                            DateTime2 = new DateTime(1972, 9, 3, 12, 0, 10, 333),
+                            DateTime2_0 = new DateTime(1973, 9, 3, 12, 0, 10),
+                            DateTime2_1 = new DateTime(1974, 9, 3, 12, 0, 10, 500),
+                            DateTime2_2 = new DateTime(1975, 9, 3, 12, 0, 10, 660),
+                            DateTime2_3 = new DateTime(1976, 9, 3, 12, 0, 10, 777),
+                            DateTime2_4 = new DateTime(1977, 9, 3, 12, 0, 10, 888),
+                            DateTime2_5 = new DateTime(1978, 9, 3, 12, 0, 10, 999),
+                            DateTime2_6 = new DateTime(1979, 9, 3, 12, 0, 10, 111),
+                            DateTime2_7 = new DateTime(1980, 9, 3, 12, 0, 10, 222),
+                        });
+
+                    c.SaveChanges();
+                });
 
         #region Bug6901
 
@@ -4902,7 +5124,7 @@ FROM [Prices] AS [p]");
                     AssertSql(
                         @"SELECT [r].[Id], [r].[MyTime]
 FROM [ReproEntity] AS [r]
-WHERE [r].[MyTime] IN ('2018-10-07T00:00:00.000')");
+WHERE [r].[MyTime] IN ('2018-10-07T00:00:00')");
                 }
             }
         }
