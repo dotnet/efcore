@@ -405,12 +405,6 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 entity, property, clrType);
 
         /// <summary>
-        ///     Sequence contains no elements.
-        /// </summary>
-        public static string NoElements
-            => GetString("NoElements");
-
-        /// <summary>
         ///     Timeout must be greater than or equal to zero.  Provided: {seconds} seconds.
         /// </summary>
         public static string TimeoutTooSmall([CanBeNull] object seconds)
