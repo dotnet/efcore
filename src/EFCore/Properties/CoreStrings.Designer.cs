@@ -41,6 +41,12 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 method);
 
         /// <summary>
+        ///     Sequence contains no elements.
+        /// </summary>
+        public static string NoElements
+            => GetString("NoElements");
+
+        /// <summary>
         ///     The value provided for argument '{argumentName}' must be a valid value of enum type '{enumType}'.
         /// </summary>
         public static string InvalidEnumValue([CanBeNull] object argumentName, [CanBeNull] object enumType)

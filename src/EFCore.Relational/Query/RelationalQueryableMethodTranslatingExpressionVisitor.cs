@@ -1062,7 +1062,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                             Expression.New(
                                 typeof(InvalidOperationException).GetConstructors()
                                     .Single(ci => ci.GetParameters().Length == 1),
-                                Expression.Constant(RelationalStrings.NoElements)),
+                                Expression.Constant(CoreStrings.NoElements)),
                             resultType),
                         resultType != resultVariable.Type
                             ? Expression.Convert(resultVariable, resultType)

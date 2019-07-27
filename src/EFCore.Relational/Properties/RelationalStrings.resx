@@ -402,9 +402,6 @@
   <data name="UnsupportedPropertyType" xml:space="preserve">
     <value>No mapping to a relational type can be found for property '{entity}.{property}' with the CLR type '{clrType}'.</value>
   </data>
-  <data name="NoElements" xml:space="preserve">
-    <value>Sequence contains no elements.</value>
-  </data>
   <data name="LogConnectionErrorAsDebug" xml:space="preserve">
     <value>An error occurred using the connection to database '{database}' on server '{server}'.</value>
     <comment>Debug RelationalEventId.ConnectionError string string</comment>

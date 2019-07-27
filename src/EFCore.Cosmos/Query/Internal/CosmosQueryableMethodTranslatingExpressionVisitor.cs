@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -747,8 +748,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                             Expression.New(
                                 typeof(InvalidOperationException).GetConstructors()
                                     .Single(ci => ci.GetParameters().Length == 1),
-                                // TODO: See issue#16164
-                                Expression.Constant("Insert exception message here")),
+                                Expression.Constant(CoreStrings.NoElements)),
                             resultType),
                         resultType != resultVariable.Type
                             ? Expression.Convert(resultVariable, resultType)
