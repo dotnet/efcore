@@ -181,7 +181,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             {
                 builder.AppendLine(Dependencies.SqlGenerationHelper.StatementTerminator);
 
-                GenerateComment(operation, model, builder, operation.Comment, operation.Schema, operation.Table, operation.Name);
+                GenerateComment(operation, model, builder, operation.Comment, null, operation.Schema, operation.Table, operation.Name);
             }
 
             if (terminate)
@@ -570,12 +570,12 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 
             if (operation.Comment != null)
             {
-                GenerateComment(operation, model, builder, operation.Comment, operation.Schema, operation.Name);
+                GenerateComment(operation, model, builder, operation.Comment, null, operation.Schema, operation.Name);
             }
 
             foreach (var column in operation.Columns.Where(c => c.Comment != null))
             {
-                GenerateComment(operation, model, builder, column.Comment, operation.Schema, operation.Name, column.Name);
+                GenerateComment(operation, model, builder, column.Comment, null, operation.Schema, operation.Name, column.Name);
             }
 
             if (terminate)
@@ -1648,6 +1648,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <param name="model"> The target model which may be <c>null</c> if the operations exist without a model. </param>
         /// <param name="builder"> The command builder to use to build the commands. </param>
         /// <param name="comment"> The comment to be applied. </param>
+        /// <param name="oldComment"> The previous comment. </param>
         /// <param name="schema"> The schema of the table. </param>
         /// <param name="table"> The name of the table. </param>
         /// <param name="columnName"> The column name if comment is being applied to a column. </param>
@@ -1655,7 +1656,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             [NotNull] MigrationOperation operation,
             [CanBeNull] IModel model,
             [NotNull] MigrationCommandListBuilder builder,
-            [NotNull] string comment,
+            [CanBeNull] string comment,
+            [CanBeNull] string oldComment,
             [NotNull] string schema,
             [NotNull] string table,
             [CanBeNull] string columnName = null)

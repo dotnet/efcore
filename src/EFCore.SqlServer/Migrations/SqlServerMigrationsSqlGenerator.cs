@@ -337,14 +337,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 
             if (operation.OldColumn.Comment != operation.Comment)
             {
-                if (operation.OldColumn.Comment != null)
-                {
-                    EndStatement(builder);
-
-                    GenerateDropExtendedProperty(builder, model, "Comment", operation.Schema, operation.Table, operation.Name);
-                }
-
-                GenerateComment(operation, model, builder, operation.Comment, operation.Schema, operation.Table, operation.Name);
+                GenerateComment(operation, model, builder, operation.Comment, operation.OldColumn.Comment, operation.Schema, operation.Table, operation.Name);
             }
 
             if (narrowed)
@@ -1637,6 +1630,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <param name="model"> The target model which may be <c>null</c> if the operations exist without a model. </param>
         /// <param name="builder"> The command builder to use to build the commands. </param>
         /// <param name="comment"> The comment to be applied. </param>
+        /// <param name="oldComment"> The previous comment. </param>
         /// <param name="schema"> The schema of the table. </param>
         /// <param name="table"> The name of the table. </param>
         /// <param name="columnName"> The column name if comment is being applied to a column. </param>
@@ -1645,6 +1639,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             IModel model,
             MigrationCommandListBuilder builder,
             string comment,
+            string oldComment,
             string schema,
             string table,
             string columnName = null)
@@ -1652,6 +1647,18 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             Check.NotNull(operation, nameof(operation));
             Check.NotNull(builder, nameof(builder));
             Check.NotNull(table, nameof(table));
+
+            if (comment == oldComment)
+            {
+                return;
+            }
+
+            if (oldComment != null)
+            {
+                EndStatement(builder);
+
+                GenerateDropExtendedProperty(builder, model, "Comment", schema, table, columnName);
+            }
 
             if (comment != null)
             {
