@@ -2127,6 +2127,45 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         }
 
         [ConditionalFact]
+        public void Alter_column_comment()
+        {
+            Execute(
+                source => source.Entity(
+                    "MountainLion",
+                    x =>
+                    {
+                        x.ToTable("MountainLion", "dbo");
+                        x.Property<int>("Id");
+                        x.Property<string>("Name")
+                            .HasColumnType("nvarchar(30)")
+                            .HasComment("Old comment");
+                    }),
+                target => target.Entity(
+                    "MountainLion",
+                    x =>
+                    {
+                        x.ToTable("MountainLion", "dbo");
+                        x.Property<int>("Id");
+                        x.Property<string>("Name")
+                            .HasColumnType("nvarchar(30)")
+                            .HasComment("New comment");
+                    }),
+                operations =>
+                {
+                    Assert.Equal(1, operations.Count);
+
+                    var operation = Assert.IsType<AlterColumnOperation>(operations[0]);
+                    Assert.Equal("dbo", operation.Schema);
+                    Assert.Equal("MountainLion", operation.Table);
+                    Assert.Equal("Name", operation.Name);
+                    Assert.Equal(typeof(string), operation.ClrType);
+                    Assert.Equal("nvarchar(30)", operation.ColumnType);
+                    Assert.Equal("New comment", operation.Comment);
+                    Assert.Equal("Old comment", operation.OldColumn.Comment);
+                });
+        }
+
+        [ConditionalFact]
         public void Add_unique_constraint()
         {
             Execute(
