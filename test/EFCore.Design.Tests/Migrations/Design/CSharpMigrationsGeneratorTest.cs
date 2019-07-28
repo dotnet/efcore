@@ -215,13 +215,15 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             string generationDefault,
             Action<TestCSharpSnapshotGenerator, IMutableAnnotatable, IndentedStringBuilder> test)
         {
+            var sqlServerTypeMappingSource = new SqlServerTypeMappingSource(
+                TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
+                TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>());
+
             var codeHelper = new CSharpHelper(
-                new SqlServerTypeMappingSource(
-                    TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
-                    TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>()));
+                sqlServerTypeMappingSource);
 
             var generator = new TestCSharpSnapshotGenerator(
-                new CSharpSnapshotGeneratorDependencies(codeHelper));
+                new CSharpSnapshotGeneratorDependencies(codeHelper, sqlServerTypeMappingSource));
 
             var coreAnnotations = typeof(CoreAnnotationNames).GetFields().Where(f => f.FieldType == typeof(string)).ToList();
 
@@ -298,13 +300,15 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         [ConditionalFact]
         public void Snapshot_with_enum_discriminator_uses_converted_values()
         {
+            var sqlServerTypeMappingSource = new SqlServerTypeMappingSource(
+                TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
+                TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>());
+
             var codeHelper = new CSharpHelper(
-                new SqlServerTypeMappingSource(
-                    TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
-                    TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>()));
+                sqlServerTypeMappingSource);
 
             var generator = new CSharpMigrationsGenerator(
-                new MigrationsCodeGeneratorDependencies(),
+                new MigrationsCodeGeneratorDependencies(sqlServerTypeMappingSource),
                 new CSharpMigrationsGeneratorDependencies(
                     codeHelper,
                     new CSharpMigrationOperationGenerator(
@@ -312,7 +316,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                             codeHelper)),
                     new CSharpSnapshotGenerator(
                         new CSharpSnapshotGeneratorDependencies(
-                            codeHelper))));
+                            codeHelper, sqlServerTypeMappingSource))));
 
             var modelBuilder = RelationalTestHelpers.Instance.CreateConventionBuilder();
             modelBuilder.Model.RemoveAnnotation(CoreAnnotationNames.ProductVersion);
@@ -348,13 +352,14 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
 
             modelBuilder.FinalizeModel();
 
-            var codeHelper = new CSharpHelper(
-                new SqlServerTypeMappingSource(
-                    TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
-                    TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>()));
+            var sqlServerTypeMappingSource = new SqlServerTypeMappingSource(
+                TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
+                TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>());
+
+            var codeHelper = new CSharpHelper(sqlServerTypeMappingSource);
 
             var generator = new TestCSharpSnapshotGenerator(
-                new CSharpSnapshotGeneratorDependencies(codeHelper));
+                new CSharpSnapshotGeneratorDependencies(codeHelper, sqlServerTypeMappingSource));
 
             var sb = new IndentedStringBuilder();
 
