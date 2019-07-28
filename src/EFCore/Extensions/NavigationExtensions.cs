@@ -16,6 +16,15 @@ namespace Microsoft.EntityFrameworkCore
     public static class NavigationExtensions
     {
         /// <summary>
+        ///     Gets the <see cref="IClrCollectionAccessor"/> for this navigation property, which must be a collection
+        ///     navigation.
+        /// </summary>
+        /// <param name="navigation"> The navigation property. </param>
+        /// <returns> The accessor. </returns>
+        public static IClrCollectionAccessor GetCollectionAccessor([NotNull] this INavigation navigation)
+            => navigation.AsNavigation().CollectionAccessor;
+
+        /// <summary>
         ///     Gets a value indicating whether the given navigation property is the navigation property on the dependent entity
         ///     type that points to the principal entity.
         /// </summary>

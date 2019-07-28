@@ -18,6 +18,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public override IClrPropertySetter Create(IPropertyBase property)
-            => property as IClrPropertySetter ?? Create(property.GetMemberInfo(forConstruction: true, forSet: true), property);
+            => property as IClrPropertySetter ?? Create(property.GetMemberInfo(forMaterialization: true, forSet: true), property);
     }
 }

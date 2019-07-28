@@ -72,7 +72,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
                 currentValueExpression = Expression.MakeMemberAccess(
                     convertedExpression,
-                    propertyBase.GetMemberInfo(forConstruction: false, forSet: false));
+                    propertyBase.GetMemberInfo(forMaterialization: false, forSet: false));
 
                 if (currentValueExpression.Type != typeof(TProperty))
                 {

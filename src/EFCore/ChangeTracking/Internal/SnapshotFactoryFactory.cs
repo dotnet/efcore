@@ -136,7 +136,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
                 var memberAccess = (Expression)Expression.MakeMemberAccess(
                     entityVariable,
-                    propertyBase.GetMemberInfo(forConstruction: false, forSet: false));
+                    propertyBase.GetMemberInfo(forMaterialization: false, forSet: false));
 
                 if (memberAccess.Type != propertyBase.ClrType)
                 {
