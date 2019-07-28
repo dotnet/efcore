@@ -133,9 +133,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var entityParameter = Expression.Parameter(typeof(TEntity), "entity");
             var valueParameter = Expression.Parameter(typeof(TCollection), "collection");
 
-            var memberInfoForRead = navigation.GetMemberInfo(forConstruction: false, forSet: false);
-            var memberInfoForWrite = navigation.GetMemberInfo(forConstruction: false, forSet: true);
-            var memberInfoForMaterialization = navigation.GetMemberInfo(forConstruction: true, forSet: true);
+            var memberInfoForRead = navigation.GetMemberInfo(forMaterialization: false, forSet: false);
+            var memberInfoForWrite = navigation.GetMemberInfo(forMaterialization: false, forSet: true);
+            var memberInfoForMaterialization = navigation.GetMemberInfo(forMaterialization: true, forSet: true);
 
             var memberAccessForRead = (Expression)Expression.MakeMemberAccess(entityParameter, memberInfoForRead);
             if (memberAccessForRead.Type != typeof(TCollection))

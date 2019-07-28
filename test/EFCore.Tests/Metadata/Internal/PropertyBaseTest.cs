@@ -687,7 +687,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             string failMessage = null;
             try
             {
-                var memberInfo = propertyBase.GetMemberInfo(forConstruction: true, forSet: true);
+                var memberInfo = propertyBase.GetMemberInfo(forMaterialization: true, forSet: true);
                 Assert.Equal(forConstruction, memberInfo?.Name);
 
                 var propertyInfo = memberInfo as PropertyInfo;
@@ -704,7 +704,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             try
             {
-                var memberInfo = propertyBase.GetMemberInfo(forConstruction: false, forSet: true);
+                var memberInfo = propertyBase.GetMemberInfo(forMaterialization: false, forSet: true);
                 Assert.Equal(forSet, memberInfo?.Name);
 
                 var propertyInfo = memberInfo as PropertyInfo;
@@ -721,7 +721,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             try
             {
-                var memberInfo = propertyBase.GetMemberInfo(forConstruction: false, forSet: false);
+                var memberInfo = propertyBase.GetMemberInfo(forMaterialization: false, forSet: false);
                 Assert.Equal(forGet, memberInfo?.Name);
 
                 var propertyInfo = memberInfo as PropertyInfo;

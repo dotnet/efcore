@@ -49,11 +49,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             public FieldInfo FieldInfo { get; }
             public IEntityType DeclaringEntityType { get; }
             public IForeignKey ForeignKey { get; }
-            public bool Add(object instance, object value, bool forMaterialization) => throw new NotImplementedException();
-            public bool Contains(object instance, object value) => throw new NotImplementedException();
-            public bool Remove(object instance, object value) => throw new NotImplementedException();
+            public bool Add(object entity, object value, bool forMaterialization) => throw new NotImplementedException();
+            public bool Contains(object entity, object value) => throw new NotImplementedException();
+            public bool Remove(object entity, object value) => throw new NotImplementedException();
             public object Create() => throw new NotImplementedException();
-            public object GetOrCreate(object instance, bool forMaterialization) => throw new NotImplementedException();
+            public object GetOrCreate(object entity, bool forMaterialization) => throw new NotImplementedException();
             public Type CollectionType { get; }
         }
 

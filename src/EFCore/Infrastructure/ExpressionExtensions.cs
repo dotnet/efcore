@@ -16,7 +16,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 {
     /// <summary>
     ///     <para>
-    ///         Extension methods for <see cref="Expression"/> types.
+    ///         Extension methods for <see cref="Expression" /> types.
     ///     </para>
     ///     <para>
     ///         This type is typically used by database providers (and other extensions). It is generally
@@ -25,9 +25,74 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
     /// </summary>
     public static class ExpressionExtensions
     {
+        /// <summary>
+        ///     Checks whether or not the given <see cref="MethodCallExpression" /> represents a call
+        ///     to the <see cref="EF.Property{TProperty}" /> method.
+        /// </summary>
+        /// <param name="methodCallExpression"> The method-call expression. </param>
+        /// <returns> True if it is a call to <see cref="EF.Property{TProperty}" />; false otherwise. </returns>
         public static bool IsEFProperty([NotNull] this MethodCallExpression methodCallExpression)
             => methodCallExpression.Method.IsEFPropertyMethod();
 
+        /// <summary>
+        ///     Creates a <see cref="MemberExpression"></see> that represents accessing either a field or a property.
+        /// </summary>
+        /// <param name="expression"> An <see cref="Expression"></see> that represents the object that the member belongs to. </param>
+        /// <param name="member"> The <see cref="MemberInfo"></see> that describes the field or property to be accessed. </param>
+        /// <returns> The <see cref="MemberExpression"></see> that results from calling the appropriate factory method. </returns>
+        public static MemberExpression MakeMemberAccess(
+            [CanBeNull] this Expression expression,
+            [NotNull] MemberInfo member)
+        {
+            var memberDeclaringClrType = member.DeclaringType;
+            if (expression != null
+                && memberDeclaringClrType != expression.Type
+                && expression.Type.GetTypeInfo().IsAssignableFrom(memberDeclaringClrType.GetTypeInfo()))
+            {
+                expression = Expression.Convert(expression, memberDeclaringClrType);
+            }
+
+            return Expression.MakeMemberAccess(expression, member);
+        }
+
+        /// <summary>
+        ///     Creates a <see cref="BinaryExpression"></see> that represents an assignment operation.
+        /// </summary>
+        /// <param name="memberExpression"> The member to which assignment will be made. </param>
+        /// <param name="valueExpression"> The value that will be assigned. </param>
+        /// <returns> The <see cref="BinaryExpression" /> representing the assignment binding. </returns>
+        public static Expression Assign(
+            [NotNull] this MemberExpression memberExpression,
+            [NotNull] Expression valueExpression)
+        {
+            if (memberExpression.Member is FieldInfo fieldInfo
+                && fieldInfo.IsInitOnly)
+            {
+                return (BinaryExpression)Activator.CreateInstance(
+                    _assignBinaryExpressionType,
+                    BindingFlags.NonPublic | BindingFlags.Instance,
+                    null,
+                    new object[]
+                    {
+                        memberExpression, valueExpression
+                    },
+                    null);
+            }
+
+            return Expression.Assign(memberExpression, valueExpression);
+        }
+
+        private static readonly Type _assignBinaryExpressionType
+            = typeof(Expression).Assembly.GetType("System.Linq.Expressions.AssignBinaryExpression");
+
+        /// <summary>
+        /// If the given a method-call expression represents a call to <see cref="EF.Property{TProperty}"/>, then this
+        /// method extracts the entity expression and property name.
+        /// </summary>
+        /// <param name="methodCallExpression"> The method-call expression for <see cref="EF.Property{TProperty}"/> </param>
+        /// <param name="entityExpression"> The extracted entity access expression. </param>
+        /// <param name="propertyName"> The accessed property name. </param>
+        /// <returns> True if the method-call was for <see cref="EF.Property{TProperty}"/>; false otherwise. </returns>
         public static bool TryGetEFPropertyArguments(
             [NotNull] this MethodCallExpression methodCallExpression,
             out Expression entityExpression,
@@ -45,20 +110,16 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             return false;
         }
 
-        public static Expression CreateAssignExpression(
-            [NotNull] this MemberExpression left,
-            [NotNull] Expression right)
-        {
-            var leftType = left.Type;
-            if (leftType != right.Type
-                && right.Type.GetTypeInfo().IsAssignableFrom(leftType.GetTypeInfo()))
-            {
-                right = Expression.Convert(right, leftType);
-            }
-
-            return left.Assign(right);
-        }
-
+        /// <summary>
+        /// <para>
+        /// Gets the <see cref="PropertyInfo"/> represented by a simple property-access expression.
+        /// </para>
+        /// <para>
+        /// This method is typically used to parse property access lambdas from fluent APIs.
+        /// </para>
+        /// </summary>
+        /// <param name="propertyAccessExpression"> The expression. </param>
+        /// <returns> The <see cref="PropertyInfo"/>. </returns>
         public static PropertyInfo GetPropertyAccess([NotNull] this LambdaExpression propertyAccessExpression)
         {
             Debug.Assert(propertyAccessExpression.Parameters.Count == 1);
@@ -99,8 +160,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
         /// <summary>
         ///     <para>
-        ///         Returns a list of <see cref="PropertyInfo"/> extracted from the given simple
-        ///         <see cref="LambdaExpression"/>.
+        ///         Returns a list of <see cref="PropertyInfo" /> extracted from the given simple
+        ///         <see cref="LambdaExpression" />.
         ///     </para>
         ///     <para>
         ///         Only simple expressions are supported, such as those used to reference a property.
@@ -140,8 +201,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
         /// <summary>
         ///     <para>
-        ///         Returns a new expression with any see <see cref="ExpressionType.Convert"/> or
-        ///         <see cref="ExpressionType.ConvertChecked"/> nodes removed from the head of the
+        ///         Returns a new expression with any see <see cref="ExpressionType.Convert" /> or
+        ///         <see cref="ExpressionType.ConvertChecked" /> nodes removed from the head of the
         ///         given expression tree/
         ///     </para>
         ///     <para>

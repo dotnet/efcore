@@ -64,9 +64,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual bool Add(object instance, object value, bool forMaterialization)
+        public virtual bool Add(object entity, object value, bool forMaterialization)
         {
-            var collection = GetOrCreateCollection(instance, forMaterialization);
+            var collection = GetOrCreateCollection(entity, forMaterialization);
             var element = (TElement)value;
 
             if (!Contains(collection, value))
@@ -103,8 +103,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual object GetOrCreate(object instance, bool forMaterialization)
-            => GetOrCreateCollection(instance, forMaterialization);
+        public virtual object GetOrCreate(object entity, bool forMaterialization)
+            => GetOrCreateCollection(entity, forMaterialization);
 
         private ICollection<TElement> GetOrCreateCollection(object instance, bool forMaterialization)
         {
@@ -159,8 +159,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual bool Contains(object instance, object value)
-            => Contains(GetCollection((TEntity)instance), value);
+        public virtual bool Contains(object entity, object value)
+            => Contains(GetCollection((TEntity)entity), value);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -168,9 +168,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual bool Remove(object instance, object value)
+        public virtual bool Remove(object entity, object value)
         {
-            var collection = GetCollection((TEntity)instance);
+            var collection = GetCollection((TEntity)entity);
 
             switch (collection)
             {

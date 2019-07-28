@@ -10,10 +10,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using Microsoft.EntityFrameworkCore.Query.NavigationExpansion.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
@@ -275,11 +272,11 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
 
             private static void SetIsLoadedNoTracking(object entity, INavigation navigation)
-                => ((ILazyLoader)((PropertyBase)navigation
+                => ((ILazyLoader)(navigation
                             .DeclaringEntityType
                             .GetServiceProperties()
                             .FirstOrDefault(p => p.ClrType == typeof(ILazyLoader)))
-                        ?.Getter.GetClrValue(entity))
+                        ?.GetGetter().GetClrValue(entity))
                     ?.SetLoaded(entity, navigation.Name);
 
             protected override Expression VisitExtension(Expression extensionExpression)
@@ -469,8 +466,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 ParameterExpression relatedEntity,
                 INavigation navigation)
             {
-                return entity.MakeMemberAccess(navigation.GetMemberInfo(forConstruction: true, forSet: true))
-                    .CreateAssignExpression(relatedEntity);
+                return entity.MakeMemberAccess(navigation.GetMemberInfo(forMaterialization: true, forSet: true)).Assign(relatedEntity);
             }
 
             private static Expression AddToCollectionNavigation(

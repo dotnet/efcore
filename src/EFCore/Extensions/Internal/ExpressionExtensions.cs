@@ -213,54 +213,6 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public static MemberExpression MakeMemberAccess(
-            [CanBeNull] this Expression expression,
-            [NotNull] MemberInfo member)
-        {
-            var memberDeclaringClrType = member.DeclaringType;
-            if (expression != null
-                && memberDeclaringClrType != expression.Type
-                && expression.Type.GetTypeInfo().IsAssignableFrom(memberDeclaringClrType.GetTypeInfo()))
-            {
-                expression = Expression.Convert(expression, memberDeclaringClrType);
-            }
-
-            return Expression.MakeMemberAccess(expression, member);
-        }
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public static Expression Assign(
-            [NotNull] this MemberExpression memberExpression,
-            [NotNull] Expression valueExpression)
-        {
-            if (memberExpression.Member is FieldInfo fieldInfo
-                && fieldInfo.IsInitOnly)
-            {
-                return (BinaryExpression)Activator.CreateInstance(
-                    _assignBinaryExpressionType,
-                    BindingFlags.NonPublic | BindingFlags.Instance,
-                    null,
-                    new object[] { memberExpression, valueExpression },
-                    null);
-            }
-
-            return Expression.Assign(memberExpression, valueExpression);
-        }
-
-        private static readonly Type _assignBinaryExpressionType
-            = typeof(Expression).Assembly.GetType("System.Linq.Expressions.AssignBinaryExpression");
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
         public static LambdaExpression GetLambdaOrNull(this Expression expression)
             => expression is LambdaExpression lambda
             ? lambda

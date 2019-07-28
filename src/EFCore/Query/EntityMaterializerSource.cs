@@ -11,7 +11,7 @@ using System.Runtime.CompilerServices;
 using System.Threading;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -122,7 +122,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             foreach (var property in properties)
             {
-                var memberInfo = property.GetMemberInfo(forConstruction: true, forSet: true);
+                var memberInfo = property.GetMemberInfo(forMaterialization: true, forSet: true);
 
                 var readValueExpression
                     = property is IServiceProperty serviceProperty

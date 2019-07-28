@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
@@ -16,6 +17,79 @@ namespace Microsoft.EntityFrameworkCore
     /// </summary>
     public static class PropertyBaseExtensions
     {
+        /// <summary>
+        ///     <para>
+        ///         Gets the <see cref="PropertyInfo" /> or <see cref="FieldInfo" /> that should be used to
+        ///         get or set a value for the given property.
+        ///     </para>
+        ///     <para>
+        ///         Note that it is an error to call this method for a shadow property (<see cref="IsShadowProperty" />) since
+        ///         such a property has no associated <see cref="MemberInfo" />.
+        ///     </para>
+        /// </summary>
+        /// <param name="propertyBase"> The property. </param>
+        /// <param name="forMaterialization"> If true, then the member to use for query materialization will be returned. </param>
+        /// <param name="forSet">
+        ///     If true, then the member to use for setting the property value will be returned, otherwise
+        ///     the member to use for getting the property value will be returned.
+        /// </param>
+        /// <returns> The <see cref="MemberInfo" /> to use. </returns>
+        public static MemberInfo GetMemberInfo(
+            [NotNull] this IPropertyBase propertyBase,
+            bool forMaterialization,
+            bool forSet)
+        {
+            if (propertyBase.TryGetMemberInfo(forMaterialization, forSet, out var memberInfo, out var errorMessage))
+            {
+                return memberInfo;
+            }
+
+            throw new InvalidOperationException(errorMessage);
+        }
+
+        /// <summary>
+        ///     <para>
+        ///         Gets a <see cref="IClrPropertyGetter" /> for reading the value of this property.
+        ///     </para>
+        ///     <para>
+        ///         Note that it is an error to call this method for a shadow property (<see cref="IsShadowProperty" />) since
+        ///         such a property has no associated <see cref="MemberInfo" />.
+        ///     </para>
+        /// </summary>
+        /// <param name="propertyBase"> The property. </param>
+        /// <returns> The accessor. </returns>
+        public static IClrPropertyGetter GetGetter([NotNull] this IPropertyBase propertyBase)
+            => propertyBase.AsPropertyBase().Getter;
+
+        /// <summary>
+        ///     <para>
+        ///         Gets a <see cref="IClrPropertySetter" /> for writing the value of this property.
+        ///     </para>
+        ///     <para>
+        ///         Note that it is an error to call this method for a shadow property (<see cref="IsShadowProperty" />) since
+        ///         such a property has no associated <see cref="MemberInfo" />.
+        ///     </para>
+        /// </summary>
+        /// <param name="propertyBase"> The property. </param>
+        /// <returns> The accessor. </returns>
+        public static IClrPropertySetter GetSetter([NotNull] this IPropertyBase propertyBase)
+            => propertyBase.AsPropertyBase().Setter;
+
+        /// <summary>
+        ///     <para>
+        ///         Gets a <see cref="IClrPropertySetter" /> for writing the value of this property during materialization
+        ///         of a query.
+        ///     </para>
+        ///     <para>
+        ///         Note that it is an error to call this method for a shadow property (<see cref="IsShadowProperty" />) since
+        ///         such a property has no associated <see cref="MemberInfo" />.
+        ///     </para>
+        /// </summary>
+        /// <param name="propertyBase"> The property. </param>
+        /// <returns> The accessor. </returns>
+        public static IClrPropertySetter GetMaterializationSetter([NotNull] this IPropertyBase propertyBase)
+            => propertyBase.AsPropertyBase().MaterializationSetter;
+
         /// <summary>
         ///     Gets the name of the backing field for this property, or <c>null</c> if the backing field
         ///     is not known.

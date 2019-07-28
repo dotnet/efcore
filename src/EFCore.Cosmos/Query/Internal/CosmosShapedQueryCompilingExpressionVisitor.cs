@@ -13,10 +13,8 @@ using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Storage;
 using Newtonsoft.Json.Linq;
@@ -520,11 +518,11 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
             }
 
             private static void SetIsLoadedNoTracking(object entity, INavigation navigation)
-                => ((ILazyLoader)((PropertyBase)navigation
+                => ((ILazyLoader)(navigation
                             .DeclaringEntityType
                             .GetServiceProperties()
                             .FirstOrDefault(p => p.ClrType == typeof(ILazyLoader)))
-                        ?.Getter.GetClrValue(entity))
+                        ?.GetGetter().GetClrValue(entity))
                     ?.SetLoaded(entity, navigation.Name);
 
             private static LambdaExpression GenerateFixup(
@@ -558,8 +556,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                 ParameterExpression entity,
                 ParameterExpression relatedEntity,
                 INavigation navigation)
-                => entity.MakeMemberAccess(navigation.GetMemberInfo(forConstruction: false, forSet: true))
-                    .CreateAssignExpression(relatedEntity);
+                => entity.MakeMemberAccess(navigation.GetMemberInfo(forMaterialization: false, forSet: true)).Assign(relatedEntity);
 
             private static Expression AddToCollectionNavigation(
                 ParameterExpression entity,
