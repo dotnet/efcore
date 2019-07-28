@@ -937,6 +937,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 || source.GetDefaultValueSql() != target.GetDefaultValueSql()
                 || source.GetComputedColumnSql() != target.GetComputedColumnSql()
                 || !Equals(GetDefaultValue(source), GetDefaultValue(target))
+                || source.GetComment() != target.GetComment()
                 || HasDifferences(sourceMigrationsAnnotations, targetMigrationsAnnotations))
             {
                 var isDestructiveChange = isNullableChanged && isSourceColumnNullable
