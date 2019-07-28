@@ -48,10 +48,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual IClrCollectionAccessor Create(
-            [NotNull] INavigation navigation,
-            bool forConstruction = false,
-            bool forSet = false)
+        public virtual IClrCollectionAccessor Create([NotNull] INavigation navigation)
         {
             MemberInfo GetMostDerivedMemberInfo()
             {
@@ -99,55 +96,78 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var boundMethod = _genericCreate.MakeGenericMethod(
                 memberInfo.DeclaringType, propertyType, elementType);
 
-            return (IClrCollectionAccessor)boundMethod.Invoke(
-                null, new object[]
-                {
-                    navigation, navigation.GetMemberInfo(forConstruction, forSet)
-                });
+            try
+            {
+                return (IClrCollectionAccessor)boundMethod.Invoke(
+                    null, new object[]
+                    {
+                        navigation
+                    });
+            }
+            catch (TargetInvocationException invocationException)
+            {
+                throw invocationException.InnerException;
+            }
         }
 
         [UsedImplicitly]
-        private static IClrCollectionAccessor CreateGeneric<TEntity, TCollection, TElement>(INavigation navigation, MemberInfo memberInfo)
+        private static IClrCollectionAccessor CreateGeneric<TEntity, TCollection, TElement>(INavigation navigation)
             where TEntity : class
             where TCollection : class, IEnumerable<TElement>
             where TElement : class
         {
+            Action<TEntity, TCollection> CreateSetterDelegate(
+                ParameterExpression parameterExpression,
+                MemberInfo memberInfo,
+                ParameterExpression valueParameter1)
+                => Expression.Lambda<Action<TEntity, TCollection>>(
+                    Expression.MakeMemberAccess(
+                        parameterExpression,
+                        memberInfo).Assign(
+                        Expression.Convert(
+                            valueParameter1,
+                            memberInfo.GetMemberType())),
+                    parameterExpression,
+                    valueParameter1).Compile();
+
             var entityParameter = Expression.Parameter(typeof(TEntity), "entity");
             var valueParameter = Expression.Parameter(typeof(TCollection), "collection");
 
-            var memberAccess = (Expression)Expression.MakeMemberAccess(entityParameter, memberInfo);
-            if (memberAccess.Type != typeof(TCollection))
+            var memberInfoForRead = navigation.GetMemberInfo(forConstruction: false, forSet: false);
+            var memberInfoForWrite = navigation.GetMemberInfo(forConstruction: false, forSet: true);
+            var memberInfoForMaterialization = navigation.GetMemberInfo(forConstruction: true, forSet: true);
+
+            var memberAccessForRead = (Expression)Expression.MakeMemberAccess(entityParameter, memberInfoForRead);
+            if (memberAccessForRead.Type != typeof(TCollection))
             {
-                memberAccess = Expression.Convert(memberAccess, typeof(TCollection));
+                memberAccessForRead = Expression.Convert(memberAccessForRead, typeof(TCollection));
             }
 
             var getterDelegate = Expression.Lambda<Func<TEntity, TCollection>>(
-                memberAccess,
+                memberAccessForRead,
                 entityParameter).Compile();
 
             Action<TEntity, TCollection> setterDelegate = null;
+            Action<TEntity, TCollection> setterDelegateForMaterialization = null;
             Func<TEntity, Action<TEntity, TCollection>, TCollection> createAndSetDelegate = null;
             Func<TCollection> createDelegate = null;
 
-            var setterMemberInfo = navigation.GetMemberInfo(forConstruction: false, forSet: true);
-            if (setterMemberInfo != null)
+            if (memberInfoForWrite != null)
             {
-                setterDelegate = Expression.Lambda<Action<TEntity, TCollection>>(
-                    Expression.MakeMemberAccess(
-                        entityParameter,
-                        setterMemberInfo).Assign(
-                        Expression.Convert(
-                            valueParameter,
-                            setterMemberInfo.GetMemberType())),
-                    entityParameter,
-                    valueParameter).Compile();
+                setterDelegate = CreateSetterDelegate(entityParameter, memberInfoForWrite, valueParameter);
+            }
+
+            if (memberInfoForMaterialization != null)
+            {
+                setterDelegateForMaterialization = CreateSetterDelegate(entityParameter, memberInfoForMaterialization, valueParameter);
             }
 
             var concreteType = new CollectionTypeFactory().TryFindTypeToInstantiate(typeof(TEntity), typeof(TCollection));
             if (concreteType != null)
             {
                 var isHashSet = concreteType.IsGenericType && concreteType.GetGenericTypeDefinition() == typeof(HashSet<>);
-                if (setterDelegate != null)
+                if (setterDelegate != null
+                    || setterDelegateForMaterialization != null)
                 {
                     if (isHashSet)
                     {
@@ -190,7 +210,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
 
             return new ClrICollectionAccessor<TEntity, TCollection, TElement>(
-                navigation.Name, getterDelegate, setterDelegate, createAndSetDelegate, createDelegate);
+                navigation.Name,
+                getterDelegate,
+                setterDelegate,
+                setterDelegateForMaterialization,
+                createAndSetDelegate,
+                createDelegate);
         }
 
         private static bool IsObservableHashSet(Type type)

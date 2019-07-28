@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
+using System.Threading;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -23,6 +24,8 @@ namespace Microsoft.EntityFrameworkCore
         protected FieldMappingTestBase(TFixture fixture) => Fixture = fixture;
 
         protected TFixture Fixture { get; }
+
+        protected static AsyncLocal<bool> _isSeeding = new AsyncLocal<bool>();
 
         protected interface IUser2
         {
@@ -997,7 +1000,9 @@ namespace Microsoft.EntityFrameworkCore
         {
             private int _id;
             private string _title;
+#pragma warning disable 649
             private List<PostFull> _posts;
+#pragma warning restore 649
 
             // ReSharper disable once ConvertToAutoProperty
             [DatabaseGenerated(DatabaseGeneratedOption.None)]
@@ -1018,7 +1023,15 @@ namespace Microsoft.EntityFrameworkCore
             public IEnumerable<PostFull> Posts
             {
                 get => _posts;
-                set => _posts = (List<PostFull>)value;
+                set
+                {
+                    if (!_isSeeding.Value)
+                    {
+                        throw new InvalidOperationException();
+                    }
+
+                    _posts = (List<PostFull>)value;
+                }
             }
 
             int IBlogAccessor.AccessId
@@ -1036,7 +1049,7 @@ namespace Microsoft.EntityFrameworkCore
             IEnumerable<IPostAccessor> IBlogAccessor.AccessPosts
             {
                 get => Posts;
-                set => Posts = (IEnumerable<PostFull>)value;
+                set => _posts = (List<PostFull>)value;
             }
         }
 
@@ -1045,7 +1058,9 @@ namespace Microsoft.EntityFrameworkCore
             private int _id;
             private string _title;
             private int _blogId;
+#pragma warning disable 649
             private BlogFull _blog;
+#pragma warning restore 649
 
             // ReSharper disable once ConvertToAutoProperty
             [DatabaseGenerated(DatabaseGeneratedOption.None)]
@@ -1073,7 +1088,15 @@ namespace Microsoft.EntityFrameworkCore
             public BlogFull Blog
             {
                 get => _blog;
-                set => _blog = value;
+                set
+                {
+                    if (!_isSeeding.Value)
+                    {
+                        throw new InvalidOperationException();
+                    }
+
+                    _blog = value;
+                }
             }
 
             int IPostAccessor.AccessId
@@ -1097,7 +1120,7 @@ namespace Microsoft.EntityFrameworkCore
             IBlogAccessor IPostAccessor.AccessBlog
             {
                 get => Blog;
-                set => Blog = (BlogFull)value;
+                set => _blog = (BlogFull)value;
             }
         }
 
@@ -2019,47 +2042,58 @@ namespace Microsoft.EntityFrameworkCore
 
             protected override void Seed(PoolableDbContext context)
             {
-                context.Add(CreateBlogAndPosts<BlogAuto, PostAuto>(new List<PostAuto>()));
-                context.AddRange(CreatePostsAndBlog<BlogAuto, PostAuto>());
-
-                context.Add(CreateBlogAndPosts<BlogHiding, PostHiding>(new List<PostHiding>()));
-                context.AddRange(CreatePostsAndBlog<BlogHiding, PostHiding>());
-
-                context.Add(CreateBlogAndPosts<BlogFull, PostFull>(new List<PostFull>()));
-                context.AddRange(CreatePostsAndBlog<BlogFull, PostFull>());
-
-                context.Add(CreateBlogAndPosts<BlogFullExplicit, PostFullExplicit>(new List<PostFullExplicit>()));
-                context.AddRange(CreatePostsAndBlog<BlogFullExplicit, PostFullExplicit>());
-
-                if (context.Model.GetPropertyAccessMode() != PropertyAccessMode.Property)
+                _isSeeding.Value = true;
+                try
                 {
-                    context.Add(CreateBlogAndPosts<BlogReadOnly, PostReadOnly>(new ObservableCollection<PostReadOnly>()));
-                    context.AddRange(CreatePostsAndBlog<BlogReadOnly, PostReadOnly>());
+                    context.Add(CreateBlogAndPosts<BlogAuto, PostAuto>(new List<PostAuto>()));
+                    context.AddRange(CreatePostsAndBlog<BlogAuto, PostAuto>());
 
-                    context.Add(CreateBlogAndPosts<BlogReadOnlyExplicit, PostReadOnlyExplicit>(new Collection<PostReadOnlyExplicit>()));
-                    context.AddRange(CreatePostsAndBlog<BlogReadOnlyExplicit, PostReadOnlyExplicit>());
+                    context.Add(CreateBlogAndPosts<BlogHiding, PostHiding>(new List<PostHiding>()));
+                    context.AddRange(CreatePostsAndBlog<BlogHiding, PostHiding>());
 
-                    context.Add(CreateBlogAndPosts<BlogWriteOnly, PostWriteOnly>(new List<PostWriteOnly>()));
-                    context.AddRange(CreatePostsAndBlog<BlogWriteOnly, PostWriteOnly>());
+                    context.Add(CreateBlogAndPosts<BlogFull, PostFull>(new List<PostFull>()));
+                    context.AddRange(CreatePostsAndBlog<BlogFull, PostFull>());
 
-                    context.Add(CreateBlogAndPosts<BlogWriteOnlyExplicit, PostWriteOnlyExplicit>(new HashSet<PostWriteOnlyExplicit>()));
-                    context.AddRange(CreatePostsAndBlog<BlogWriteOnlyExplicit, PostWriteOnlyExplicit>());
+                    context.Add(CreateBlogAndPosts<BlogFullExplicit, PostFullExplicit>(new List<PostFullExplicit>()));
+                    context.AddRange(CreatePostsAndBlog<BlogFullExplicit, PostFullExplicit>());
 
-                    context.Add(CreateBlogAndPosts<BlogFields, PostFields>(new List<PostFields>()));
-                    context.AddRange(CreatePostsAndBlog<BlogFields, PostFields>());
-
-                    context.Add(CreateBlogAndPosts<BlogNavFields, PostNavFields>(new List<PostNavFields>()));
-                    context.AddRange(CreatePostsAndBlog<BlogNavFields, PostNavFields>());
-                }
-
-                context.Add(
-                    new LoginSession
+                    if (context.Model.GetPropertyAccessMode() != PropertyAccessMode.Property)
                     {
-                        User = new User2(),
-                        Users = new List<User2> { new User2() }
-                    });
+                        context.Add(CreateBlogAndPosts<BlogReadOnly, PostReadOnly>(new ObservableCollection<PostReadOnly>()));
+                        context.AddRange(CreatePostsAndBlog<BlogReadOnly, PostReadOnly>());
 
-                context.SaveChanges();
+                        context.Add(CreateBlogAndPosts<BlogReadOnlyExplicit, PostReadOnlyExplicit>(new Collection<PostReadOnlyExplicit>()));
+                        context.AddRange(CreatePostsAndBlog<BlogReadOnlyExplicit, PostReadOnlyExplicit>());
+
+                        context.Add(CreateBlogAndPosts<BlogWriteOnly, PostWriteOnly>(new List<PostWriteOnly>()));
+                        context.AddRange(CreatePostsAndBlog<BlogWriteOnly, PostWriteOnly>());
+
+                        context.Add(CreateBlogAndPosts<BlogWriteOnlyExplicit, PostWriteOnlyExplicit>(new HashSet<PostWriteOnlyExplicit>()));
+                        context.AddRange(CreatePostsAndBlog<BlogWriteOnlyExplicit, PostWriteOnlyExplicit>());
+
+                        context.Add(CreateBlogAndPosts<BlogFields, PostFields>(new List<PostFields>()));
+                        context.AddRange(CreatePostsAndBlog<BlogFields, PostFields>());
+
+                        context.Add(CreateBlogAndPosts<BlogNavFields, PostNavFields>(new List<PostNavFields>()));
+                        context.AddRange(CreatePostsAndBlog<BlogNavFields, PostNavFields>());
+                    }
+
+                    context.Add(
+                        new LoginSession
+                        {
+                            User = new User2(),
+                            Users = new List<User2>
+                            {
+                                new User2()
+                            }
+                        });
+
+                    context.SaveChanges();
+                }
+                finally
+                {
+                    _isSeeding.Value = true;
+                }
             }
         }
     }

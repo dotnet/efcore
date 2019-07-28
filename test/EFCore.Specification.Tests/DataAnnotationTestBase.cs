@@ -1816,7 +1816,7 @@ namespace Microsoft.EntityFrameworkCore
             var model = modelBuilder.Model;
             modelBuilder.Ignore<Author>();
             modelBuilder.Ignore<AuthorDetails>();
-            modelBuilder.Entity<Post>();
+            modelBuilder.Entity<Post>().Property("PostDetailsId");
 
             Assert.Null(model.FindEntityType(typeof(Post)).FindNavigation("PostDetails").ForeignKey.PrincipalToDependent);
             Assert.Equal(
@@ -1829,10 +1829,9 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Equal(LogLevel.Warning, logEntry.Level);
             Assert.Equal(
                 CoreResources.LogForeignKeyAttributesOnBothProperties(new TestLogger<TestLoggingDefinitions>()).GenerateMessage(
-                    nameof(PostDetails), nameof(PostDetails.Post),
-                    nameof(Post), nameof(Post.PostDetails),
-                    nameof(PostDetails.PostId),
-                    nameof(Post.PostDetailsId)),
+                    nameof(PostDetails.Post), nameof(PostDetails),
+                    nameof(Post.PostDetails), nameof(Post),
+                    nameof(Post.PostDetailsId), nameof(PostDetails.PostId)),
                 logEntry.Message);
         }
 
@@ -1843,7 +1842,7 @@ namespace Microsoft.EntityFrameworkCore
             var model = modelBuilder.Model;
             modelBuilder.Ignore<PostDetails>();
             modelBuilder.Ignore<AuthorDetails>();
-            modelBuilder.Entity<Post>();
+            modelBuilder.Entity<Post>().Property("PostDetailsId");
 
             Assert.Null(model.FindEntityType(typeof(Post)).FindNavigation("Author").ForeignKey.PrincipalToDependent);
             Assert.Equal("AuthorId", model.FindEntityType(typeof(Post)).FindNavigation("Author").ForeignKey.Properties.First().Name);
@@ -1894,7 +1893,7 @@ namespace Microsoft.EntityFrameworkCore
             public int Id { get; set; }
 
             [ForeignKey("PostDetails")]
-            public int PostDetailsId { get; set; }
+            public int PostDetailsId;
 
             public PostDetails PostDetails { get; set; }
 

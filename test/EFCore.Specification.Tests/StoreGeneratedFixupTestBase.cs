@@ -3945,7 +3945,7 @@ namespace Microsoft.EntityFrameworkCore
                 entry.Property(g => g.Id).IsTemporary = true;
                 var internalEntry = ((IInfrastructure<InternalEntityEntry>)entry).Instance;
                 internalEntry.PrepareToSave();
-                internalEntry.SetProperty(entry.Metadata.FindProperty("Id"), Guid77);
+                internalEntry.SetProperty(entry.Metadata.FindProperty("Id"), Guid77, false);
                 internalEntry.AcceptChanges();
 
                 Assert.Equal(EntityState.Unchanged, internalEntry.EntityState);

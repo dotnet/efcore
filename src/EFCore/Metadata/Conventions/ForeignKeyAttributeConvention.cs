@@ -278,10 +278,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 ?.GetCustomAttribute<ForeignKeyAttribute>(inherit: true);
 
         private static ForeignKeyAttribute GetForeignKeyAttribute(IConventionNavigation navigation)
-            => GetAttribute<ForeignKeyAttribute>(navigation.PropertyInfo);
+            => GetAttribute<ForeignKeyAttribute>(navigation.GetIdentifyingMemberInfo());
 
         private static InversePropertyAttribute GetInversePropertyAttribute(IConventionNavigation navigation)
-            => GetAttribute<InversePropertyAttribute>(navigation.PropertyInfo);
+            => GetAttribute<InversePropertyAttribute>(navigation.GetIdentifyingMemberInfo());
 
         private static TAttribute GetAttribute<TAttribute>(MemberInfo memberInfo)
             where TAttribute : Attribute

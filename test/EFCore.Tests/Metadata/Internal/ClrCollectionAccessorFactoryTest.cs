@@ -49,13 +49,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             public FieldInfo FieldInfo { get; }
             public IEntityType DeclaringEntityType { get; }
             public IForeignKey ForeignKey { get; }
-            public bool Add(object instance, object value) => throw new NotImplementedException();
-            public void AddRange(object instance, IEnumerable<object> values) => throw new NotImplementedException();
+            public bool Add(object instance, object value, bool forMaterialization) => throw new NotImplementedException();
             public bool Contains(object instance, object value) => throw new NotImplementedException();
             public bool Remove(object instance, object value) => throw new NotImplementedException();
             public object Create() => throw new NotImplementedException();
-            public object Create(IEnumerable<object> values) => throw new NotImplementedException();
-            public object GetOrCreate(object instance) => throw new NotImplementedException();
+            public object GetOrCreate(object instance, bool forMaterialization) => throw new NotImplementedException();
             public Type CollectionType { get; }
         }
 
@@ -227,7 +225,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.False(accessor.Contains(entity, value));
             accessor.Remove(entity, value);
 
-            accessor.Add(entity, value);
+            accessor.Add(entity, value, forMaterialization: false);
 
             Assert.True(accessor.Contains(entity, value));
             Assert.Equal(1, reader(entity).Count());
@@ -264,11 +262,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             Assert.False(accessor.Contains(entity, value));
 
-            accessor.Add(entity, value);
+            accessor.Add(entity, value, forMaterialization: false);
 
             value.Id = 42;
 
-            accessor.Add(entity, value);
+            accessor.Add(entity, value, forMaterialization: false);
 
             Assert.Equal(1, entity.AsICollectionWithCustomComparer.Count);
         }
@@ -286,13 +284,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         [ConditionalFact]
         public void Add_for_enumerable_backed_by_non_collection_throws()
         {
-            Enumerable_backed_by_non_collection_throws((a, e, v) => a.Add(e, v));
-        }
-
-        [ConditionalFact]
-        public void AddRange_for_enumerable_backed_by_non_collection_throws()
-        {
-            Enumerable_backed_by_non_collection_throws((a, e, v) => a.AddRange(e, new[] { v }));
+            Enumerable_backed_by_non_collection_throws((a, e, v) => a.Add(e, v, forMaterialization: false));
         }
 
         [ConditionalFact]
@@ -310,7 +302,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         [ConditionalFact]
         public void GetOrCreate_for_enumerable_backed_by_non_collection_throws()
         {
-            Enumerable_backed_by_non_collection_throws((a, e, v) => a.GetOrCreate(e));
+            Enumerable_backed_by_non_collection_throws((a, e, v) => a.GetOrCreate(e, forMaterialization: false));
         }
 
         private void Enumerable_backed_by_non_collection_throws(Action<IClrCollectionAccessor, MyEntity, MyOtherEntity> test)
@@ -343,7 +335,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             Assert.Equal(
                 CoreStrings.NavigationNoSetter("NoBackingFound", typeof(MyEntity).Name),
-                Assert.Throws<InvalidOperationException>(() => accessor.Add(new MyEntity(false), new MyOtherEntity())).Message);
+                Assert.Throws<InvalidOperationException>(
+                    () => accessor.Add(new MyEntity(false), new MyOtherEntity(), forMaterialization: false)).Message);
         }
 
         [ConditionalFact]
@@ -353,7 +346,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             Assert.Equal(
                 CoreStrings.NavigationNoSetter("ReadOnlyPropNoField", typeof(MyEntity).Name),
-                Assert.Throws<InvalidOperationException>(() => accessor.Add(new MyEntity(false), new MyOtherEntity())).Message);
+                Assert.Throws<InvalidOperationException>(
+                    () => accessor.Add(new MyEntity(false), new MyOtherEntity(), forMaterialization: false)).Message);
         }
 
         [ConditionalFact]
@@ -375,7 +369,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             Assert.Equal(
                 CoreStrings.NavigationCannotCreateType("AsMyPrivateCollection", typeof(MyEntity).Name, typeof(MyPrivateCollection).Name),
-                Assert.Throws<InvalidOperationException>(() => accessor.Add(new MyEntity(false), new MyOtherEntity())).Message);
+                Assert.Throws<InvalidOperationException>(
+                    () => accessor.Add(new MyEntity(false), new MyOtherEntity(), forMaterialization: false)).Message);
         }
 
         [ConditionalFact]
@@ -385,7 +380,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             Assert.Equal(
                 CoreStrings.NavigationCannotCreateType("AsMyInternalCollection", typeof(MyEntity).Name, typeof(MyInternalCollection).Name),
-                Assert.Throws<InvalidOperationException>(() => accessor.Add(new MyEntity(false), new MyOtherEntity())).Message);
+                Assert.Throws<InvalidOperationException>(
+                    () => accessor.Add(new MyEntity(false), new MyOtherEntity(), forMaterialization: false)).Message);
         }
 
         [ConditionalFact]
@@ -396,7 +392,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Equal(
                 CoreStrings.NavigationCannotCreateType(
                     "AsMyUnavailableCollection", typeof(MyEntity).Name, typeof(MyUnavailableCollection).Name),
-                Assert.Throws<InvalidOperationException>(() => accessor.Add(new MyEntity(false), new MyOtherEntity())).Message);
+                Assert.Throws<InvalidOperationException>(
+                    () => accessor.Add(new MyEntity(false), new MyOtherEntity(), forMaterialization: false)).Message);
         }
 
         private IMutableNavigation CreateNavigation(string navigationName)
