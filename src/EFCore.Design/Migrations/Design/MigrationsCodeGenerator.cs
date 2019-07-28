@@ -9,8 +9,8 @@ using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Migrations.Design
@@ -181,7 +181,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         protected virtual IEnumerable<string> GetNamespaces([NotNull] IModel model)
             => model.GetEntityTypes().SelectMany(
                     e => e.GetDeclaredProperties()
-                        .SelectMany(p => (p.GetTypeMapping().Converter?.ProviderClrType ?? p.ClrType).GetNamespaces()))
+                        .SelectMany(p => (FindValueConverter(p)?.ProviderClrType ?? p.ClrType).GetNamespaces()))
                 .Concat(GetAnnotationNamespaces(GetAnnotatables(model)));
 
         private static IEnumerable<IAnnotatable> GetAnnotatables(IModel model)
@@ -214,7 +214,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             }
         }
 
-        private static IEnumerable<string> GetAnnotationNamespaces(IEnumerable<IAnnotatable> items)
+        private IEnumerable<string> GetAnnotationNamespaces(IEnumerable<IAnnotatable> items)
         {
             var ignoredAnnotations = new List<string>
             {
@@ -261,10 +261,14 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     .SelectMany(a => GetProviderType(a.Annotatable, a.Annotation.Value.GetType()).GetNamespaces()));
         }
 
-        private static Type GetProviderType(IAnnotatable annotatable, Type valueType)
+        private ValueConverter FindValueConverter(IProperty property)
+            => (property.FindMapping()
+                ?? Dependencies.RelationalTypeMappingSource.FindMapping(property))?.Converter;
+
+        private Type GetProviderType(IAnnotatable annotatable, Type valueType)
             => annotatable is IProperty property
                && valueType.UnwrapNullableType() == property.ClrType.UnwrapNullableType()
-                ? property.GetTypeMapping().Converter?.ProviderClrType ?? valueType
+                ? FindValueConverter(property)?.ProviderClrType ?? valueType
                 : valueType;
     }
 }

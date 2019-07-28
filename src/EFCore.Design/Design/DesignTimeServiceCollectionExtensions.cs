@@ -105,6 +105,7 @@ namespace Microsoft.EntityFrameworkCore.Design
                 .AddTransient(_ => context.GetService<IMigrationsIdGenerator>())
                 .AddTransient(_ => context.GetService<IMigrationsModelDiffer>())
                 .AddTransient(_ => context.GetService<IMigrator>())
+                .AddTransient(_ => context.GetService<IRelationalTypeMappingSource>())
                 .AddTransient(_ => context.GetService<IModel>());
     }
 }

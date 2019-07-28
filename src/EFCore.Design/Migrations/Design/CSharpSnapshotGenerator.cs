@@ -504,8 +504,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             GenerateAnnotations(annotations, stringBuilder);
         }
 
-        private static ValueConverter FindValueConverter(IProperty property)
-            => property.GetTypeMapping().Converter;
+        private ValueConverter FindValueConverter(IProperty property)
+            => (property.FindMapping()
+                ?? Dependencies.RelationalTypeMappingSource.FindMapping(property))?.Converter;
 
         /// <summary>
         ///     Generates code for <see cref="IKey" /> objects.
