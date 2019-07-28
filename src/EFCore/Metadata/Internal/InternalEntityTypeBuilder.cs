@@ -678,7 +678,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 }
                 else
                 {
-                    if (existingProperty.PropertyInfo == memberInfo)
+                    if (existingProperty.GetIdentifyingMemberInfo() == memberInfo)
                     {
                         existingProperty.UpdateConfigurationSource(configurationSource);
                         return existingProperty.Builder;

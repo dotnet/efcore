@@ -105,7 +105,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             IEntityType entityType,
             ChangeTrackingStrategy changeTrackingStrategy)
         {
-            if (!(navigation.GetCollectionAccessor()?.GetOrCreate(entry.Entity) is INotifyCollectionChanged notifyingCollection))
+            if (!(navigation.GetCollectionAccessor()
+                ?.GetOrCreate(entry.Entity, forMaterialization: false) is INotifyCollectionChanged notifyingCollection))
             {
                 throw new InvalidOperationException(
                     CoreStrings.NonNotifyingCollection(navigation.Name, entityType.DisplayName(), changeTrackingStrategy));

@@ -481,7 +481,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                         SetOriginalValue(property, GetCurrentValue(property));
                     }
 
-                    SetProperty(property, GetOriginalValue(property), setModified: false);
+                    SetProperty(property, GetOriginalValue(property), isMaterialization: false, setModified: false);
                 }
 
                 _stateData.FlagProperty(propertyIndex, PropertyFlag.Modified, isModified);
@@ -603,7 +603,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     CoreStrings.TempValue(property.Name, EntityType.DisplayName()));
             }
 
-            SetProperty(property, value, setModified, isCascadeDelete: false, CurrentValueType.Temporary);
+            SetProperty(property, value, isMaterialization: false, setModified, isCascadeDelete: false, CurrentValueType.Temporary);
         }
 
         /// <summary>
@@ -620,7 +620,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     CoreStrings.StoreGenValue(property.Name, EntityType.DisplayName()));
             }
 
-            SetProperty(property, value, setModified: true, isCascadeDelete: false, CurrentValueType.StoreGenerated);
+            SetProperty(property, value, isMaterialization: false, setModified: true, isCascadeDelete: false, CurrentValueType.StoreGenerated);
         }
 
         /// <summary>
@@ -745,11 +745,20 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        protected virtual void WritePropertyValue([NotNull] IPropertyBase propertyBase, [CanBeNull] object value)
+        protected virtual void WritePropertyValue(
+            [NotNull] IPropertyBase propertyBase,
+            [CanBeNull] object value,
+            bool forMaterialization)
         {
             Debug.Assert(!propertyBase.IsShadowProperty());
 
-            ((PropertyBase)propertyBase).Setter.SetClrValue(Entity, value);
+            var concretePropertyBase = (PropertyBase)propertyBase;
+
+            var setter = forMaterialization
+                ? concretePropertyBase.MaterializationSetter
+                : concretePropertyBase.Setter;
+
+            setter.SetClrValue(Entity, value);
         }
 
         /// <summary>
@@ -758,11 +767,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual object GetOrCreateCollection([NotNull] INavigation navigation)
+        public virtual object GetOrCreateCollection([NotNull] INavigation navigation, bool forMaterialization)
         {
             Debug.Assert(!navigation.IsShadowProperty());
 
-            return ((Navigation)navigation).CollectionAccessor.GetOrCreate(Entity);
+            return ((Navigation)navigation).CollectionAccessor.GetOrCreate(Entity, forMaterialization);
         }
 
         /// <summary>
@@ -784,11 +793,14 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual bool AddToCollection([NotNull] INavigation navigation, [NotNull] InternalEntityEntry value)
+        public virtual bool AddToCollection(
+            [NotNull] INavigation navigation,
+            [NotNull] InternalEntityEntry value,
+            bool forMaterialization)
         {
             Debug.Assert(!navigation.IsShadowProperty());
 
-            return ((Navigation)navigation).CollectionAccessor.Add(Entity, value.Entity);
+            return ((Navigation)navigation).CollectionAccessor.Add(Entity, value.Entity, forMaterialization);
         }
 
         /// <summary>
@@ -1039,7 +1051,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 return value;
             }
 
-            [param: CanBeNull] set => SetProperty(propertyBase, value);
+            [param: CanBeNull] set => SetProperty(propertyBase, value, isMaterialization: false);
         }
 
         /// <summary>
@@ -1051,13 +1063,15 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         public virtual void SetProperty(
             [NotNull] IPropertyBase propertyBase,
             [CanBeNull] object value,
+            bool isMaterialization,
             bool setModified = true,
             bool isCascadeDelete = false)
-            => SetProperty(propertyBase, value, setModified, isCascadeDelete, CurrentValueType.Normal);
+            => SetProperty(propertyBase, value, isMaterialization, setModified, isCascadeDelete, CurrentValueType.Normal);
 
         private void SetProperty(
             [NotNull] IPropertyBase propertyBase,
             [CanBeNull] object value,
+            bool isMaterialization,
             bool setModified,
             bool isCascadeDelete,
             CurrentValueType valueType)
@@ -1138,7 +1152,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
                     if (valueType == CurrentValueType.Normal)
                     {
-                        WritePropertyValue(propertyBase, value);
+                        WritePropertyValue(propertyBase, value, isMaterialization);
                     }
                     else
                     {
@@ -1155,7 +1169,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                             var defaultValue = asProperty.ClrType.GetDefaultValue();
                             if (!equals(currentValue, defaultValue))
                             {
-                                WritePropertyValue(asProperty, defaultValue);
+                                WritePropertyValue(asProperty, defaultValue, isMaterialization);
                             }
 
                             if (_storeGeneratedValues.TryGetValue(storeGeneratedIndex, out var generatedValue)

@@ -1071,7 +1071,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                         {
                             foreach (var dependentProperty in fk.Properties)
                             {
-                                dependent.SetProperty(dependentProperty, null, setModified: true, isCascadeDelete: true);
+                                dependent.SetProperty(dependentProperty, null, isMaterialization: false, setModified: true, isCascadeDelete: true);
                             }
 
                             if (dependent.HasConceptualNull)

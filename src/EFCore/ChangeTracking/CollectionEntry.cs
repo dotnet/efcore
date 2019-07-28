@@ -142,7 +142,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         }
 
         private void EnsureInitialized()
-            => InternalEntry.GetOrCreateCollection(Metadata);
+            => Metadata.AsNavigation().CollectionAccessor.GetOrCreate(InternalEntry.Entity, forMaterialization: true);
 
         /// <summary>
         ///     The <see cref="EntityEntry" /> of an entity this navigation targets.

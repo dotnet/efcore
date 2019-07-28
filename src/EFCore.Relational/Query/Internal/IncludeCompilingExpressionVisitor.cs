@@ -237,7 +237,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                         SetIsLoadedNoTracking(entity, navigation);
                     }
 
-                    collection = clrCollectionAccessor.GetOrCreate(entity);
+                    collection = clrCollectionAccessor.GetOrCreate(entity, forMaterialization: true);
                 }
 
                 var parentKey = parentIdentifier(queryContext, dbDataReader);
@@ -469,7 +469,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 ParameterExpression relatedEntity,
                 INavigation navigation)
             {
-                return entity.MakeMemberAccess(navigation.GetMemberInfo(forConstruction: false, forSet: true))
+                return entity.MakeMemberAccess(navigation.GetMemberInfo(forConstruction: true, forSet: true))
                     .CreateAssignExpression(relatedEntity);
             }
 
@@ -482,7 +482,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                     Expression.Constant(navigation.GetCollectionAccessor()),
                     _collectionAccessorAddMethodInfo,
                     entity,
-                    relatedEntity);
+                    relatedEntity,
+                    Expression.Constant(true));
             }
 
             private static readonly MethodInfo _collectionAccessorAddMethodInfo

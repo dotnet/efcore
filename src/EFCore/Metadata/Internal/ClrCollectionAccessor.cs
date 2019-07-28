@@ -24,6 +24,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         private readonly string _propertyName;
         private readonly Func<TEntity, TCollection> _getCollection;
         private readonly Action<TEntity, TCollection> _setCollection;
+        private readonly Action<TEntity, TCollection> _setCollectionForMaterialization;
         private readonly Func<TEntity, Action<TEntity, TCollection>, TCollection> _createAndSetCollection;
         private readonly Func<TCollection> _createCollection;
 
@@ -45,12 +46,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             [NotNull] string propertyName,
             [NotNull] Func<TEntity, TCollection> getCollection,
             [CanBeNull] Action<TEntity, TCollection> setCollection,
+            [CanBeNull] Action<TEntity, TCollection> setCollectionForMaterialization,
             [CanBeNull] Func<TEntity, Action<TEntity, TCollection>, TCollection> createAndSetCollection,
             [CanBeNull] Func<TCollection> createCollection)
         {
             _propertyName = propertyName;
             _getCollection = getCollection;
             _setCollection = setCollection;
+            _setCollectionForMaterialization = setCollectionForMaterialization;
             _createAndSetCollection = createAndSetCollection;
             _createCollection = createCollection;
         }
@@ -61,9 +64,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual bool Add(object instance, object value)
+        public virtual bool Add(object instance, object value, bool forMaterialization)
         {
-            var collection = GetOrCreateCollection(instance);
+            var collection = GetOrCreateCollection(instance, forMaterialization);
             var element = (TElement)value;
 
             if (!Contains(collection, value))
@@ -74,25 +77,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
 
             return false;
-        }
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public virtual void AddRange(object instance, IEnumerable<object> values)
-        {
-            var collection = GetOrCreateCollection(instance);
-
-            foreach (TElement value in values)
-            {
-                if (!Contains(collection, value))
-                {
-                    collection.Add(value);
-                }
-            }
         }
 
         /// <summary>
@@ -119,32 +103,20 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual object Create(IEnumerable<object> values)
-        {
-            var collection = (ICollection<TElement>)Create();
-            foreach (TElement value in values)
-            {
-                collection.Add(value);
-            }
+        public virtual object GetOrCreate(object instance, bool forMaterialization)
+            => GetOrCreateCollection(instance, forMaterialization);
 
-            return collection;
-        }
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public virtual object GetOrCreate(object instance) => GetOrCreateCollection(instance);
-
-        private ICollection<TElement> GetOrCreateCollection(object instance)
+        private ICollection<TElement> GetOrCreateCollection(object instance, bool forMaterialization)
         {
             var collection = GetCollection(instance);
 
             if (collection == null)
             {
-                if (_setCollection == null)
+                var setCollection = forMaterialization
+                    ? _setCollectionForMaterialization
+                    : _setCollection;
+
+                if (setCollection == null)
                 {
                     throw new InvalidOperationException(CoreStrings.NavigationNoSetter(_propertyName, typeof(TEntity).ShortDisplayName()));
                 }
@@ -156,7 +128,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                             _propertyName, typeof(TEntity).ShortDisplayName(), typeof(TCollection).ShortDisplayName()));
                 }
 
-                collection = (ICollection<TElement>)_createAndSetCollection((TEntity)instance, _setCollection);
+                collection = (ICollection<TElement>)_createAndSetCollection((TEntity)instance, setCollection);
             }
 
             return collection;

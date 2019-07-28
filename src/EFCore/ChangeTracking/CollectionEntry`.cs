@@ -79,7 +79,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// </summary>
         public new virtual IQueryable<TRelatedEntity> Query()
         {
-            InternalEntry.GetOrCreateCollection(Metadata);
+            InternalEntry.GetOrCreateCollection(Metadata, forMaterialization: true);
 
             return (IQueryable<TRelatedEntity>)base.Query();
         }

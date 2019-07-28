@@ -304,6 +304,26 @@ namespace Microsoft.EntityFrameworkCore
             {
             }
 
+            public override void Include_collection_full_props(bool tracking)
+            {
+            }
+
+            public override void Include_reference_full_props(bool tracking)
+            {
+            }
+
+            public override void Load_collection_full_props()
+            {
+            }
+
+            public override void Load_reference_full_props()
+            {
+            }
+
+            public override void Update_full_props()
+            {
+            }
+
             public class EnforcePropertyFixture : FieldMappingSqliteFixtureBase
             {
                 protected override string StoreName { get; } = "FieldMappingEnforcePropertyTest";

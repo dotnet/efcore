@@ -4,6 +4,7 @@
 using System;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Query.NavigationExpansion.Internal
 {
@@ -33,14 +34,7 @@ namespace Microsoft.EntityFrameworkCore.Query.NavigationExpansion.Internal
             if (entity.GetType() == navigation.DeclaringEntityType.ClrType
                 || entity.GetType().GetBaseTypes().Where(t => t == navigation.DeclaringEntityType.ClrType).Count() > 0)
             {
-                if (navigation.PropertyInfo?.SetMethod != null)
-                {
-                    navigation.PropertyInfo.SetValue(entity, includedNavigation);
-                }
-                else
-                {
-                    navigation.FieldInfo.SetValue(entity, includedNavigation);
-                }
+                navigation.GetMaterializationSetter().SetClrValue(navigation, includedNavigation);
             }
 
             return entity;

@@ -569,7 +569,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                     Expression.Constant(navigation.GetCollectionAccessor()),
                     _collectionAccessorAddMethodInfo,
                     entity,
-                    relatedEntity);
+                    relatedEntity,
+                    Expression.Constant(true));
 
             private static readonly MethodInfo _collectionAccessorAddMethodInfo
                 = typeof(IClrCollectionAccessor).GetTypeInfo()
