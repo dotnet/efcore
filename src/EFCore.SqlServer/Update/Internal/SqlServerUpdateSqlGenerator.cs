@@ -57,7 +57,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Update.Internal
                     o =>
                         !o.IsKey
                         || !o.IsRead
-                        || o.Property?.GetSqlServerValueGenerationStrategy() == SqlServerValueGenerationStrategy.IdentityColumn))
+                        || o.Property?.GetValueGenerationStrategy() == SqlServerValueGenerationStrategy.IdentityColumn))
             {
                 return AppendInsertOperation(commandStringBuilder, modificationCommands[0], commandPosition);
             }
@@ -68,7 +68,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Update.Internal
 
             var defaultValuesOnly = writeOperations.Count == 0;
             var nonIdentityOperations = modificationCommands[0].ColumnModifications
-                .Where(o => o.Property?.GetSqlServerValueGenerationStrategy() != SqlServerValueGenerationStrategy.IdentityColumn)
+                .Where(o => o.Property?.GetValueGenerationStrategy() != SqlServerValueGenerationStrategy.IdentityColumn)
                 .ToList();
 
             if (defaultValuesOnly)
@@ -103,7 +103,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Update.Internal
             }
 
             if (modificationCommands[0].Entries.SelectMany(e => e.EntityType.GetAllBaseTypesInclusive())
-                .Any(e => e.GetSqlServerIsMemoryOptimized()))
+                .Any(e => e.IsMemoryOptimized()))
             {
                 if (!nonIdentityOperations.Any(o => o.IsRead && o.IsKey))
                 {

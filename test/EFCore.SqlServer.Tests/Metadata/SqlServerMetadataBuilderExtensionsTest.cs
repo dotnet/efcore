@@ -24,16 +24,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
             Assert.NotNull(builder
                 .HasValueGenerationStrategy(SqlServerValueGenerationStrategy.SequenceHiLo));
-            Assert.Equal(SqlServerValueGenerationStrategy.SequenceHiLo, builder.Metadata.GetSqlServerValueGenerationStrategy());
+            Assert.Equal(SqlServerValueGenerationStrategy.SequenceHiLo, builder.Metadata.GetValueGenerationStrategy());
 
             Assert.NotNull(builder
                     .HasValueGenerationStrategy(SqlServerValueGenerationStrategy.IdentityColumn, fromDataAnnotation: true));
             Assert.Equal(
-                SqlServerValueGenerationStrategy.IdentityColumn, builder.Metadata.GetSqlServerValueGenerationStrategy());
+                SqlServerValueGenerationStrategy.IdentityColumn, builder.Metadata.GetValueGenerationStrategy());
 
             Assert.Null(builder
                 .HasValueGenerationStrategy(SqlServerValueGenerationStrategy.SequenceHiLo));
-            Assert.Equal(SqlServerValueGenerationStrategy.IdentityColumn, builder.Metadata.GetSqlServerValueGenerationStrategy());
+            Assert.Equal(SqlServerValueGenerationStrategy.IdentityColumn, builder.Metadata.GetValueGenerationStrategy());
 
             Assert.Equal(
                 1, builder.Metadata.GetAnnotations().Count(
@@ -46,13 +46,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             var typeBuilder = CreateBuilder().Entity(typeof(Splot));
 
             Assert.NotNull(typeBuilder.IsMemoryOptimized(true));
-            Assert.True(typeBuilder.Metadata.GetSqlServerIsMemoryOptimized());
+            Assert.True(typeBuilder.Metadata.IsMemoryOptimized());
 
             Assert.NotNull(typeBuilder.IsMemoryOptimized(false, fromDataAnnotation: true));
-            Assert.False(typeBuilder.Metadata.GetSqlServerIsMemoryOptimized());
+            Assert.False(typeBuilder.Metadata.IsMemoryOptimized());
 
             Assert.Null(typeBuilder.IsMemoryOptimized(true));
-            Assert.False(typeBuilder.Metadata.GetSqlServerIsMemoryOptimized());
+            Assert.False(typeBuilder.Metadata.IsMemoryOptimized());
 
             Assert.Equal(
                 1, typeBuilder.Metadata.GetAnnotations().Count(
@@ -67,13 +67,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 .Property(typeof(int), "Id");
 
             Assert.NotNull(propertyBuilder.HasHiLoSequence("Splew", null));
-            Assert.Equal("Splew", propertyBuilder.Metadata.GetSqlServerHiLoSequenceName());
+            Assert.Equal("Splew", propertyBuilder.Metadata.GetHiLoSequenceName());
 
             Assert.NotNull(propertyBuilder.HasHiLoSequence("Splow", null, fromDataAnnotation: true));
-            Assert.Equal("Splow", propertyBuilder.Metadata.GetSqlServerHiLoSequenceName());
+            Assert.Equal("Splow", propertyBuilder.Metadata.GetHiLoSequenceName());
 
             Assert.Null(propertyBuilder.HasHiLoSequence("Splod", null));
-            Assert.Equal("Splow", propertyBuilder.Metadata.GetSqlServerHiLoSequenceName());
+            Assert.Equal("Splow", propertyBuilder.Metadata.GetHiLoSequenceName());
 
             Assert.Equal(
                 1, propertyBuilder.Metadata.GetAnnotations().Count(
@@ -125,13 +125,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             var keyBuilder = entityTypeBuilder.HasKey(new[] { idProperty });
 
             Assert.NotNull(keyBuilder.IsClustered(true));
-            Assert.True(keyBuilder.Metadata.GetSqlServerIsClustered());
+            Assert.True(keyBuilder.Metadata.IsClustered());
 
             Assert.NotNull(keyBuilder.IsClustered(false, fromDataAnnotation: true));
-            Assert.False(keyBuilder.Metadata.GetSqlServerIsClustered());
+            Assert.False(keyBuilder.Metadata.IsClustered());
 
             Assert.Null(keyBuilder.IsClustered(true));
-            Assert.False(keyBuilder.Metadata.GetSqlServerIsClustered());
+            Assert.False(keyBuilder.Metadata.IsClustered());
 
             Assert.Equal(
                 1, keyBuilder.Metadata.GetAnnotations().Count(
@@ -158,7 +158,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             {
                 Assert.NotNull(indexBuilder.IsClustered(true));
             }
-            Assert.True(indexBuilder.Metadata.GetSqlServerIsClustered());
+            Assert.True(indexBuilder.Metadata.IsClustered());
 
             if (obsolete)
             {
@@ -170,7 +170,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             {
                 Assert.NotNull(indexBuilder.IsClustered(false, fromDataAnnotation: true));
             }
-            Assert.False(indexBuilder.Metadata.GetSqlServerIsClustered());
+            Assert.False(indexBuilder.Metadata.IsClustered());
 
 
             if (obsolete)
@@ -183,7 +183,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             {
                 Assert.Null(indexBuilder.IsClustered(true));
             }
-            Assert.False(indexBuilder.Metadata.GetSqlServerIsClustered());
+            Assert.False(indexBuilder.Metadata.IsClustered());
 
             Assert.Equal(
                 1, indexBuilder.Metadata.GetAnnotations().Count(

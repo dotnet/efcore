@@ -70,13 +70,13 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Migrations.Internal
                 yield return new Annotation(SqliteAnnotationNames.Autoincrement, true);
             }
 
-            var srid = property.GetSqliteSrid();
+            var srid = property.GetSrid();
             if (srid != null)
             {
                 yield return new Annotation(SqliteAnnotationNames.Srid, srid);
             }
 
-            var dimension = property.GetSqliteDimension();
+            var dimension = property.GetSpatialDimension();
             if (dimension != null)
             {
                 yield return new Annotation(SqliteAnnotationNames.Dimension, dimension);

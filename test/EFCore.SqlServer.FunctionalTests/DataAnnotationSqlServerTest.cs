@@ -119,7 +119,7 @@ namespace Microsoft.EntityFrameworkCore
             var modelBuilder = base.DatabaseGeneratedOption_configures_the_property_correctly();
 
             var identity = modelBuilder.Model.FindEntityType(typeof(GeneratedEntity)).FindProperty(nameof(GeneratedEntity.Identity));
-            Assert.Equal(SqlServerValueGenerationStrategy.IdentityColumn, identity.GetSqlServerValueGenerationStrategy());
+            Assert.Equal(SqlServerValueGenerationStrategy.IdentityColumn, identity.GetValueGenerationStrategy());
 
             return modelBuilder;
         }
@@ -131,13 +131,13 @@ namespace Microsoft.EntityFrameworkCore
             var entity = modelBuilder.Model.FindEntityType(typeof(GeneratedEntityNonInteger));
 
             var stringProperty = entity.FindProperty(nameof(GeneratedEntityNonInteger.String));
-            Assert.Equal(SqlServerValueGenerationStrategy.None, stringProperty.GetSqlServerValueGenerationStrategy());
+            Assert.Equal(SqlServerValueGenerationStrategy.None, stringProperty.GetValueGenerationStrategy());
 
             var dateTimeProperty = entity.FindProperty(nameof(GeneratedEntityNonInteger.DateTime));
-            Assert.Equal(SqlServerValueGenerationStrategy.None, dateTimeProperty.GetSqlServerValueGenerationStrategy());
+            Assert.Equal(SqlServerValueGenerationStrategy.None, dateTimeProperty.GetValueGenerationStrategy());
 
             var guidProperty = entity.FindProperty(nameof(GeneratedEntityNonInteger.Guid));
-            Assert.Equal(SqlServerValueGenerationStrategy.None, guidProperty.GetSqlServerValueGenerationStrategy());
+            Assert.Equal(SqlServerValueGenerationStrategy.None, guidProperty.GetValueGenerationStrategy());
 
             return modelBuilder;
         }

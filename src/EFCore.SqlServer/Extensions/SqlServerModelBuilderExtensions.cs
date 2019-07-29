@@ -42,11 +42,11 @@ namespace Microsoft.EntityFrameworkCore
                 modelBuilder.HasSequence(name, schema).IncrementsBy(10);
             }
 
-            model.SetSqlServerValueGenerationStrategy(SqlServerValueGenerationStrategy.SequenceHiLo);
-            model.SetSqlServerHiLoSequenceName(name);
-            model.SetSqlServerHiLoSequenceSchema(schema);
-            model.SetSqlServerIdentitySeed(null);
-            model.SetSqlServerIdentityIncrement(null);
+            model.SetValueGenerationStrategy(SqlServerValueGenerationStrategy.SequenceHiLo);
+            model.SetHiLoSequenceName(name);
+            model.SetHiLoSequenceSchema(schema);
+            model.SetIdentitySeed(null);
+            model.SetIdentityIncrement(null);
 
             return modelBuilder;
         }
@@ -71,8 +71,8 @@ namespace Microsoft.EntityFrameworkCore
                 return null;
             }
 
-            modelBuilder.Metadata.SetSqlServerHiLoSequenceName(name, fromDataAnnotation);
-            modelBuilder.Metadata.SetSqlServerHiLoSequenceSchema(schema, fromDataAnnotation);
+            modelBuilder.Metadata.SetHiLoSequenceName(name, fromDataAnnotation);
+            modelBuilder.Metadata.SetHiLoSequenceSchema(schema, fromDataAnnotation);
 
             return name == null ? null : modelBuilder.HasSequence(name, schema, fromDataAnnotation);
         }
@@ -117,11 +117,11 @@ namespace Microsoft.EntityFrameworkCore
 
             var model = modelBuilder.Model;
 
-            model.SetSqlServerValueGenerationStrategy(SqlServerValueGenerationStrategy.IdentityColumn);
-            model.SetSqlServerIdentitySeed(seed);
-            model.SetSqlServerIdentityIncrement(increment);
-            model.SetSqlServerHiLoSequenceName(null);
-            model.SetSqlServerHiLoSequenceSchema(null);
+            model.SetValueGenerationStrategy(SqlServerValueGenerationStrategy.IdentityColumn);
+            model.SetIdentitySeed(seed);
+            model.SetIdentityIncrement(increment);
+            model.SetHiLoSequenceName(null);
+            model.SetHiLoSequenceSchema(null);
 
             return modelBuilder;
         }
@@ -141,7 +141,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             if (modelBuilder.CanSetIdentityColumnSeed(seed, fromDataAnnotation))
             {
-                modelBuilder.Metadata.SetSqlServerIdentitySeed(seed, fromDataAnnotation);
+                modelBuilder.Metadata.SetIdentitySeed(seed, fromDataAnnotation);
                 return modelBuilder;
             }
 
@@ -178,7 +178,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             if (modelBuilder.CanSetIdentityColumnIncrement(increment, fromDataAnnotation))
             {
-                modelBuilder.Metadata.SetSqlServerIdentityIncrement(increment, fromDataAnnotation);
+                modelBuilder.Metadata.SetIdentityIncrement(increment, fromDataAnnotation);
                 return modelBuilder;
             }
 
@@ -218,7 +218,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             if (modelBuilder.CanSetValueGenerationStrategy(valueGenerationStrategy, fromDataAnnotation))
             {
-                modelBuilder.Metadata.SetSqlServerValueGenerationStrategy(valueGenerationStrategy, fromDataAnnotation);
+                modelBuilder.Metadata.SetValueGenerationStrategy(valueGenerationStrategy, fromDataAnnotation);
                 if (valueGenerationStrategy != SqlServerValueGenerationStrategy.IdentityColumn)
                 {
                     modelBuilder.HasIdentityColumnSeed(null, fromDataAnnotation);

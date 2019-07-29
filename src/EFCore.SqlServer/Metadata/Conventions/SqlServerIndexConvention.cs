@@ -151,7 +151,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         {
             var index = indexBuilder.Metadata;
             if (index.IsUnique
-                && index.GetSqlServerIsClustered() != true
+                && index.IsClustered() != true
                 && index.Properties
                     .Any(property => property.IsColumnNullable()))
             {

@@ -25,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             Check.NotNull(propertyBuilder, nameof(propertyBuilder));
 
-            propertyBuilder.Metadata.SetSqliteSrid(srid);
+            propertyBuilder.Metadata.SetSrid(srid);
 
             return propertyBuilder;
         }
@@ -58,7 +58,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             if (propertyBuilder.CanSetSrid(srid, fromDataAnnotation))
             {
-                propertyBuilder.Metadata.SetSqliteSrid(srid, fromDataAnnotation);
+                propertyBuilder.Metadata.SetSrid(srid, fromDataAnnotation);
 
                 return propertyBuilder;
             }
@@ -99,7 +99,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             if (propertyBuilder.CanSetSpatialDimension(dimension, fromDataAnnotation))
             {
-                propertyBuilder.Metadata.SetSqliteDimension(dimension, fromDataAnnotation);
+                propertyBuilder.Metadata.SetSpatialDimension(dimension, fromDataAnnotation);
 
                 return propertyBuilder;
             }

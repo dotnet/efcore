@@ -25,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             Check.NotNull(keyBuilder, nameof(keyBuilder));
 
-            keyBuilder.Metadata.SetSqlServerIsClustered(clustered);
+            keyBuilder.Metadata.SetIsClustered(clustered);
 
             return keyBuilder;
         }
@@ -47,7 +47,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             if (keyBuilder.CanSetIsClustered(clustered, fromDataAnnotation))
             {
-                keyBuilder.Metadata.SetSqlServerIsClustered(clustered, fromDataAnnotation);
+                keyBuilder.Metadata.SetIsClustered(clustered, fromDataAnnotation);
                 return keyBuilder;
             }
 
