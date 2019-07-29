@@ -3,11 +3,20 @@
 
 using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
+using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
     public abstract class SqlExpressionVisitor : ExpressionVisitor
     {
+
+        protected SqlExpressionVisitor(SqlExpressionVisitorDependencies dependencies)
+        {
+            Dependencies = dependencies;
+        }
+
+        protected virtual SqlExpressionVisitorDependencies Dependencies { get; }
+
         protected override Expression VisitExtension(Expression extensionExpression)
         {
             switch (extensionExpression)

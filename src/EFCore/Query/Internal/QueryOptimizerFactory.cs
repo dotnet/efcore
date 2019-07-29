@@ -5,7 +5,14 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 {
     public class QueryOptimizerFactory : IQueryOptimizerFactory
     {
+        private readonly QueryOptimizerDependencies _dependencies;
+
+        public QueryOptimizerFactory(QueryOptimizerDependencies dependencies)
+        {
+            _dependencies = dependencies;
+        }
+
         public virtual QueryOptimizer Create(QueryCompilationContext queryCompilationContext)
-            => new QueryOptimizer(queryCompilationContext);
+            => new QueryOptimizer(_dependencies, queryCompilationContext);
     }
 }

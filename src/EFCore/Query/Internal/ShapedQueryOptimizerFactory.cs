@@ -5,9 +5,16 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 {
     public class ShapedQueryOptimizerFactory : IShapedQueryOptimizerFactory
     {
+        private readonly ShapedQueryOptimizerDependencies _dependencies;
+
+        public ShapedQueryOptimizerFactory(ShapedQueryOptimizerDependencies dependencies)
+        {
+            _dependencies = dependencies;
+        }
+
         public virtual ShapedQueryOptimizer Create(QueryCompilationContext queryCompilationContext)
         {
-            return new ShapedQueryOptimizer();
+            return new ShapedQueryOptimizer(_dependencies);
         }
     }
 }

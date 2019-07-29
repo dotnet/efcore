@@ -43,10 +43,10 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         /// </summary>
         public CosmosShapedQueryCompilingExpressionVisitor(
             QueryCompilationContext queryCompilationContext,
-            IEntityMaterializerSource entityMaterializerSource,
+            ShapedQueryCompilingExpressionVisitorDependencies dependencies,
             ISqlExpressionFactory sqlExpressionFactory,
             IQuerySqlGeneratorFactory querySqlGeneratorFactory)
-            : base(queryCompilationContext, entityMaterializerSource)
+            : base(queryCompilationContext, dependencies)
         {
             _sqlExpressionFactory = sqlExpressionFactory;
             _querySqlGeneratorFactory = querySqlGeneratorFactory;

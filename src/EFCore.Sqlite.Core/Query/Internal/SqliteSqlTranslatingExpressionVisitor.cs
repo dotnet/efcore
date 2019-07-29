@@ -78,12 +78,10 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
             };
 
         public SqliteSqlTranslatingExpressionVisitor(
+            RelationalSqlTranslatingExpressionVisitorDependencies dependencies,
             IModel model,
-            QueryableMethodTranslatingExpressionVisitor queryableMethodTranslatingExpressionVisitor,
-            ISqlExpressionFactory sqlExpressionFactory,
-            IMemberTranslatorProvider memberTranslatorProvider,
-            IMethodCallTranslatorProvider methodCallTranslatorProvider)
-            : base(model, queryableMethodTranslatingExpressionVisitor, sqlExpressionFactory, memberTranslatorProvider, methodCallTranslatorProvider)
+            QueryableMethodTranslatingExpressionVisitor queryableMethodTranslatingExpressionVisitor)
+            : base(dependencies, model, queryableMethodTranslatingExpressionVisitor)
         {
         }
 
