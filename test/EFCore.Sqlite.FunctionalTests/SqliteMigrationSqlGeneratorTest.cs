@@ -38,14 +38,12 @@ namespace Microsoft.EntityFrameworkCore
                     PrincipalColumns = new[] { "Id" }
                 });
 
-            Assert.Equal(
+            AssertSql(
                 @"CREATE TABLE ""Pie"" (
     ""FlavorId"" INT NOT NULL,
     FOREIGN KEY (""FlavorId"") REFERENCES ""Flavor"" (""Id"")
 );
-",
-                Sql,
-                ignoreLineEndingDifferences: true);
+");
         }
 
         [ConditionalFact]
@@ -67,13 +65,11 @@ namespace Microsoft.EntityFrameworkCore
                     }
                 });
 
-            Assert.Equal(
+            AssertSql(
                 @"CREATE TABLE ""History"" (
     ""Event"" TEXT NOT NULL DEFAULT '2015-04-12 17:05:00'
 );
-",
-                Sql,
-                ignoreLineEndingDifferences: true);
+");
         }
 
         [ConditionalTheory]
@@ -138,18 +134,15 @@ namespace Microsoft.EntityFrameworkCore
                     }
                 });
 
-            Assert.Equal(
-                "CREATE TABLE \"People\" (" + EOL +
-                "    \"Id\" INTEGER NOT NULL" +
-                (pkName != null ? $" CONSTRAINT \"{pkName}\"" : "")
-                + " PRIMARY KEY" +
-                (autoincrement ? " AUTOINCREMENT," : ",") + EOL +
-                "    \"EmployerId\" int NULL," + EOL +
-                "    \"SSN\" char(11) NULL," + EOL +
-                "    UNIQUE (\"SSN\")," + EOL +
-                "    FOREIGN KEY (\"EmployerId\") REFERENCES \"Companies\" (\"Id\")" + EOL +
-                ");" + EOL,
-                Sql);
+            AssertSql(
+                $@"CREATE TABLE ""People"" (
+    ""Id"" INTEGER NOT NULL{(pkName != null ? $@" CONSTRAINT ""{pkName}""" : "")} PRIMARY KEY{(autoincrement ? " AUTOINCREMENT," : ",")}
+    ""EmployerId"" int NULL,
+    ""SSN"" char(11) NULL,
+    UNIQUE (""SSN""),
+    FOREIGN KEY (""EmployerId"") REFERENCES ""Companies"" (""Id"")
+);
+");
         }
 
         [ConditionalFact]
@@ -164,18 +157,16 @@ namespace Microsoft.EntityFrameworkCore
         {
             base.AddColumnOperation_with_defaultValue();
 
-            Assert.Equal(
-                @"ALTER TABLE ""People"" ADD ""Name"" varchar(30) NOT NULL DEFAULT 'John Doe';" + EOL,
-                Sql);
+            AssertSql(@"ALTER TABLE ""People"" ADD ""Name"" varchar(30) NOT NULL DEFAULT 'John Doe';
+");
         }
 
         public override void AddColumnOperation_without_column_type()
         {
             base.AddColumnOperation_without_column_type();
 
-            Assert.Equal(
-                "ALTER TABLE \"People\" ADD \"Alias\" TEXT NOT NULL;" + EOL,
-                Sql);
+            AssertSql(@"ALTER TABLE ""People"" ADD ""Alias"" TEXT NOT NULL;
+");
         }
 
         public override void AddColumnOperation_with_defaultValueSql()
@@ -192,9 +183,8 @@ namespace Microsoft.EntityFrameworkCore
                     DefaultValueSql = "10"
                 });
 
-            Assert.Equal(
-                @"ALTER TABLE ""People"" ADD ""Age"" int NULL DEFAULT (10);" + EOL,
-                Sql);
+            AssertSql(@"ALTER TABLE ""People"" ADD ""Age"" int NULL DEFAULT (10);
+");
         }
 
         public override void AddColumnOperation_with_maxLength()
@@ -202,9 +192,8 @@ namespace Microsoft.EntityFrameworkCore
             base.AddColumnOperation_with_maxLength();
 
             // See issue #3698
-            Assert.Equal(
-                "ALTER TABLE \"Person\" ADD \"Name\" TEXT NULL;" + EOL,
-                Sql);
+            AssertSql(@"ALTER TABLE ""Person"" ADD ""Name"" TEXT NULL;
+");
         }
 
         public override void AddColumnOperation_with_maxLength_overridden()
@@ -212,9 +201,8 @@ namespace Microsoft.EntityFrameworkCore
             base.AddColumnOperation_with_maxLength_overridden();
 
             // See issue #3698
-            Assert.Equal(
-                "ALTER TABLE \"Person\" ADD \"Name\" TEXT NULL;" + EOL,
-                Sql);
+            AssertSql(@"ALTER TABLE ""Person"" ADD ""Name"" TEXT NULL;
+");
         }
 
         public override void AddColumnOperation_with_maxLength_on_derived()
@@ -222,18 +210,16 @@ namespace Microsoft.EntityFrameworkCore
             base.AddColumnOperation_with_maxLength_on_derived();
 
             // See issue #3698
-            Assert.Equal(
-                "ALTER TABLE \"Person\" ADD \"Name\" TEXT NULL;" + EOL,
-                Sql);
+            AssertSql(@"ALTER TABLE ""Person"" ADD ""Name"" TEXT NULL;
+");
         }
 
         public override void AddColumnOperation_with_shared_column()
         {
             base.AddColumnOperation_with_shared_column();
 
-            Assert.Equal(
-                "ALTER TABLE \"Base\" ADD \"Foo\" TEXT NULL;" + EOL,
-                Sql);
+            AssertSql(@"ALTER TABLE ""Base"" ADD ""Foo"" TEXT NULL;
+");
         }
 
         [ConditionalFact]
@@ -366,9 +352,8 @@ namespace Microsoft.EntityFrameworkCore
                     NewName = "FullName"
                 });
 
-            Assert.Equal(
-                @"ALTER TABLE ""People"" RENAME COLUMN ""Name"" TO ""FullName"";" + EOL,
-                Sql);
+            AssertSql(@"ALTER TABLE ""People"" RENAME COLUMN ""Name"" TO ""FullName"";
+");
         }
 
         [ConditionalFact]
@@ -390,10 +375,10 @@ namespace Microsoft.EntityFrameworkCore
                     NewName = "IX_Person_FullName"
                 });
 
-            Assert.Equal(
-                @"DROP INDEX ""IX_Person_Name"";" + EOL +
-                @"CREATE UNIQUE INDEX ""IX_Person_FullName"" ON ""Person"" (""FullName"") WHERE ""Id"" > 2;" + EOL,
-                Sql);
+            AssertSql(
+                @"DROP INDEX ""IX_Person_Name"";
+CREATE UNIQUE INDEX ""IX_Person_FullName"" ON ""Person"" (""FullName"") WHERE ""Id"" > 2;
+");
         }
 
         [ConditionalFact]
@@ -416,18 +401,16 @@ namespace Microsoft.EntityFrameworkCore
         {
             base.RenameTableOperation_legacy();
 
-            Assert.Equal(
-                "ALTER TABLE \"People\" RENAME TO \"Person\";" + EOL,
-                Sql);
+            AssertSql(@"ALTER TABLE ""People"" RENAME TO ""Person"";
+");
         }
 
         public override void RenameTableOperation()
         {
             base.RenameTableOperation();
 
-            Assert.Equal(
-                "ALTER TABLE \"People\" RENAME TO \"Person\";" + EOL,
-                Sql);
+            AssertSql(@"ALTER TABLE ""People"" RENAME TO ""Person"";
+");
         }
 
         public override void CreateSequenceOperation_with_minValue_and_maxValue()
@@ -464,9 +447,8 @@ namespace Microsoft.EntityFrameworkCore
         {
             base.DropIndexOperation();
 
-            Assert.Equal(
-                "DROP INDEX \"IX_People_Name\";" + EOL,
-                Sql);
+            AssertSql(@"DROP INDEX ""IX_People_Name"";
+");
         }
 
         public override void DropPrimaryKeyOperation()
@@ -517,11 +499,11 @@ namespace Microsoft.EntityFrameworkCore
                     }
                 });
 
-            Assert.Equal(
-                "CREATE TABLE \"People\" (" + EOL +
-                "    \"Id\" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT" + EOL +
-                ");" + EOL,
-                Sql);
+            AssertSql(
+                @"CREATE TABLE ""People"" (
+    ""Id"" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT
+);
+");
         }
 
         public SqliteMigrationSqlGeneratorTest()
