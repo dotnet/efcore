@@ -4,6 +4,7 @@
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Query.NavigationExpansion.Internal;
 
@@ -13,10 +14,15 @@ namespace Microsoft.EntityFrameworkCore.Query
     {
         private readonly QueryCompilationContext _queryCompilationContext;
 
-        public QueryOptimizer(QueryCompilationContext queryCompilationContext)
+        public QueryOptimizer(
+            QueryOptimizerDependencies dependencies,
+            QueryCompilationContext queryCompilationContext)
         {
+            Dependencies = dependencies;
             _queryCompilationContext = queryCompilationContext;
         }
+
+        protected virtual QueryOptimizerDependencies Dependencies { get; }
 
         public virtual Expression Visit(Expression query)
         {
