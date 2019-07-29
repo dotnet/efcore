@@ -136,8 +136,6 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                     {
                         _currentEntityIndex++;
 
-                        var resultType = typeof(IEnumerable<>).MakeGenericType(collectionShaperExpression.ElementType);
-
                         var jArrayVariable = Expression.Variable(
                             typeof(JArray),
                             "jArray" + _currentEntityIndex);
@@ -156,12 +154,12 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
 
                             Expression.Condition(
                                 Expression.Equal(jArrayVariable, Expression.Constant(null, jArrayVariable.Type)),
-                                Expression.Constant(null, resultType),
-                                Expression.Convert(collectionShaperExpression, resultType))
+                                Expression.Constant(null, collectionShaperExpression.Type),
+                                collectionShaperExpression)
                         };
 
                         return Expression.Block(
-                            resultType,
+                            collectionShaperExpression.Type,
                             variables,
                             expressions);
                         }
@@ -367,8 +365,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                                 var projection = GetProjection(projectionBindingExpression);
                                 objectArrayProjection = (ObjectArrayProjectionExpression)projection.Expression;
                                 break;
-                            case ObjectArrayProjectionExpression arrayProjectionExpression:
-                                objectArrayProjection = arrayProjectionExpression;
+                            case ObjectArrayProjectionExpression objectArrayProjectionExpression:
+                                objectArrayProjection = objectArrayProjectionExpression;
                                 break;
                             default:
                                 throw new InvalidOperationException();
@@ -389,21 +387,29 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                         var innerShaper = Visit(collectionShaperExpression.InnerShaper);
                         _ordinalParameter = previousOrdinalParameter;
 
-                        return Expression.Call(
+                        var entities = Expression.Call(
                             _selectMethodInfo.MakeGenericMethod(typeof(JObject), innerShaper.Type),
                             Expression.Call(
                                 _castMethodInfo.MakeGenericMethod(typeof(JObject)),
                                 jArray),
                             Expression.Lambda(innerShaper, jObjectParameter, ordinalParameter));
+
+                        var navigation = collectionShaperExpression.Navigation;
+                        return Expression.Call(
+                            _populateCollectionMethodInfo.MakeGenericMethod(navigation.GetTargetType().ClrType, navigation.ClrType),
+                            Expression.Constant(navigation.GetCollectionAccessor()),
+                            entities);
                     }
 
                     case IncludeExpression includeExpression:
+                    {
                         var navigation = includeExpression.Navigation;
                         var fk = navigation.ForeignKey;
                         if (includeExpression.Navigation.IsDependentToPrincipal()
                             || fk.DeclaringEntityType.IsDocumentRoot())
                         {
-                            throw new InvalidOperationException("Non-embedded IncludeExpression " + new ExpressionPrinter().Print(includeExpression));
+                            throw new InvalidOperationException(
+                                "Non-embedded IncludeExpression " + new ExpressionPrinter().Print(includeExpression));
                         }
 
                         // These are the expressions added by JObjectInjectingExpressionVisitor
@@ -425,7 +431,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                         var concreteEntityTypeVariable = shaperBlock.Variables.Single(v => v.Type == typeof(IEntityType));
                         var inverseNavigation = navigation.FindInverse();
                         var fixup = GenerateFixup(
-                                includingClrType, relatedEntityClrType, navigation, inverseNavigation);
+                            includingClrType, relatedEntityClrType, navigation, inverseNavigation);
                         var initialize = GenerateInitialize(includingClrType, navigation);
 
                         var previousOwner = _ownerInfo;
@@ -433,16 +439,17 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                         var navigationExpression = Visit(includeExpression.NavigationExpression);
                         _ownerInfo = previousOwner;
 
-                        shaperExpressions.Add(Expression.Call(
-                            includeMethod.MakeGenericMethod(includingClrType, relatedEntityClrType),
-                            entityEntryVariable,
-                            instanceVariable,
-                            concreteEntityTypeVariable,
-                            navigationExpression,
-                            Expression.Constant(navigation),
-                            Expression.Constant(inverseNavigation, typeof(INavigation)),
-                            Expression.Constant(fixup),
-                            Expression.Constant(initialize, typeof(Action<>).MakeGenericType(includingClrType))));
+                        shaperExpressions.Add(
+                            Expression.Call(
+                                includeMethod.MakeGenericMethod(includingClrType, relatedEntityClrType),
+                                entityEntryVariable,
+                                instanceVariable,
+                                concreteEntityTypeVariable,
+                                navigationExpression,
+                                Expression.Constant(navigation),
+                                Expression.Constant(inverseNavigation, typeof(INavigation)),
+                                Expression.Constant(fixup),
+                                Expression.Constant(initialize, typeof(Action<>).MakeGenericType(includingClrType))));
 
                         shaperExpressions.Add(instanceVariable);
                         shaperBlock = shaperBlock.Update(shaperBlock.Variables, shaperExpressions);
@@ -454,6 +461,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                             jObjectCondition.Update(jObjectCondition.Test, jObjectCondition.IfTrue, shaperBlock));
 
                         return jObjectBlock.Update(jObjectBlock.Variables, jObjectExpressions);
+                    }
                 }
 
                 return base.VisitExtension(extensionExpression);
@@ -633,6 +641,24 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                     entity,
                     relatedEntity,
                     Expression.Constant(true));
+
+            private static readonly MethodInfo _populateCollectionMethodInfo
+                = typeof(CosmosProjectionBindingRemovingExpressionVisitor).GetTypeInfo()
+                    .GetDeclaredMethod(nameof(PopulateCollection));
+
+            private static TCollection PopulateCollection<TEntity, TCollection>(
+                IClrCollectionAccessor accessor,
+                IEnumerable<TEntity> entities)
+            {
+                // TODO: throw a better exception for non ICollection navigations
+                var collection = (ICollection<TEntity>)accessor.Create();
+                foreach (var entity in entities)
+                {
+                    collection.Add(entity);
+                }
+
+                return (TCollection)collection;
+            }
 
             private int GetProjectionIndex(ProjectionBindingExpression projectionBindingExpression)
                 => projectionBindingExpression.ProjectionMember != null
