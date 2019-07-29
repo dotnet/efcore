@@ -30,10 +30,8 @@ namespace Microsoft.EntityFrameworkCore
     UNIQUE ([SSN]),
     CHECK (SSN > 0),
     FOREIGN KEY ([EmployerId]) REFERENCES [Companies] ([Id])
-)GO
-
-EXEC sp_addextendedproperty @name = N'Comment', @value = N'Table comment', @level0type = N'Schema', @level0name = N'dbo', @level1type = N'Table', @level1name = N'People'GO
-
+);
+EXEC sp_addextendedproperty @name = N'Comment', @value = N'Table comment', @level0type = N'Schema', @level0name = N'dbo', @level1type = N'Table', @level1name = N'People';
 EXEC sp_addextendedproperty @name = N'Comment', @value = N'Employer ID comment', @level0type = N'Schema', @level0name = N'dbo', @level1type = N'Table', @level1name = N'People', @level2type = N'Column', @level2name = N'EmployerId';
 ");
         }
@@ -242,8 +240,6 @@ EXEC sp_addextendedproperty @name = N'Comment', @value = N'Employer ID comment',
 
             AssertSql(
                 @"ALTER TABLE [People] ADD [FullName] nvarchar(max) NOT NULL;
-GO
-
 EXEC sp_addextendedproperty @name = N'Comment', @value = N'My comment', @level0type = N'Schema', @level0name = NULL, @level1type = N'Table', @level1name = N'People', @level2type = N'Column', @level2name = N'FullName';
 ");
         }
@@ -874,9 +870,8 @@ INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [
 WHERE ([d].[parent_object_id] = OBJECT_ID(N'[dbo].[People]') AND [c].[name] = N'LuckyNumber');
 IF @var0 IS NOT NULL EXEC(N'ALTER TABLE [dbo].[People] DROP CONSTRAINT [' + @var0 + '];');
 ALTER TABLE [dbo].[People] ALTER COLUMN [LuckyNumber] int NOT NULL;
-GO
-
-EXEC sp_addextendedproperty @name = N'Comment', @value = N'My Comment', @level0type = N'Schema', @level0name = N'dbo', @level1type = N'Table', @level1name = N'People', @level2type = N'Column', @level2name = N'LuckyNumber'");
+EXEC sp_addextendedproperty @name = N'Comment', @value = N'My Comment', @level0type = N'Schema', @level0name = N'dbo', @level1type = N'Table', @level1name = N'People', @level2type = N'Column', @level2name = N'LuckyNumber';
+");
         }
 
         [ConditionalFact]
@@ -914,11 +909,9 @@ INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [
 WHERE ([d].[parent_object_id] = OBJECT_ID(N'[dbo].[People]') AND [c].[name] = N'Name');
 IF @var0 IS NOT NULL EXEC(N'ALTER TABLE [dbo].[People] DROP CONSTRAINT [' + @var0 + '];');
 ALTER TABLE [dbo].[People] ALTER COLUMN [Name] nvarchar(max) NOT NULL;
-GO
-
-EXEC sp_dropextendedproperty @name = N'Comment', @level0type = N'Schema', @level0name = N'dbo', @level1type = N'Table', @level1name = N'People', @level2type = N'Column', @level2name = N'Name'GO
-
-EXEC sp_addextendedproperty @name = N'Comment', @value = N'My Comment 2', @level0type = N'Schema', @level0name = N'dbo', @level1type = N'Table', @level1name = N'People', @level2type = N'Column', @level2name = N'Name'");
+EXEC sp_dropextendedproperty @name = N'Comment', @level0type = N'Schema', @level0name = N'dbo', @level1type = N'Table', @level1name = N'People', @level2type = N'Column', @level2name = N'Name';
+EXEC sp_addextendedproperty @name = N'Comment', @value = N'My Comment 2', @level0type = N'Schema', @level0name = N'dbo', @level1type = N'Table', @level1name = N'People', @level2type = N'Column', @level2name = N'Name';
+");
         }
 
         [ConditionalFact]
@@ -955,9 +948,8 @@ INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [
 WHERE ([d].[parent_object_id] = OBJECT_ID(N'[dbo].[People]') AND [c].[name] = N'Name');
 IF @var0 IS NOT NULL EXEC(N'ALTER TABLE [dbo].[People] DROP CONSTRAINT [' + @var0 + '];');
 ALTER TABLE [dbo].[People] ALTER COLUMN [Name] nvarchar(max) NOT NULL;
-GO
-
-EXEC sp_dropextendedproperty @name = N'Comment', @level0type = N'Schema', @level0name = N'dbo', @level1type = N'Table', @level1name = N'People', @level2type = N'Column', @level2name = N'Name'");
+EXEC sp_dropextendedproperty @name = N'Comment', @level0type = N'Schema', @level0name = N'dbo', @level1type = N'Table', @level1name = N'People', @level2type = N'Column', @level2name = N'Name';
+");
         }
 
         [ConditionalFact]
