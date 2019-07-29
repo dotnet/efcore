@@ -21,7 +21,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             base.CreateTableOperation();
 
-            Assert.Equal(
+            AssertSql(
                 @"CREATE TABLE [dbo].[People] (
     [Id] int NOT NULL,
     [EmployerId] int NULL,
@@ -35,26 +35,23 @@ namespace Microsoft.EntityFrameworkCore
 EXEC sp_addextendedproperty @name = N'Comment', @value = N'Table comment', @level0type = N'Schema', @level0name = N'dbo', @level1type = N'Table', @level1name = N'People'GO
 
 EXEC sp_addextendedproperty @name = N'Comment', @value = N'Employer ID comment', @level0type = N'Schema', @level0name = N'dbo', @level1type = N'Table', @level1name = N'People', @level2type = N'Column', @level2name = N'EmployerId';
-",
-                Sql, ignoreLineEndingDifferences: true);
+");
         }
 
         public override void CreateIndexOperation_with_filter_where_clause()
         {
             base.CreateIndexOperation_with_filter_where_clause();
 
-            Assert.Equal(
-                "CREATE INDEX [IX_People_Name] ON [People] ([Name]) WHERE [Name] IS NOT NULL;" + EOL,
-                Sql);
+            AssertSql(@"CREATE INDEX [IX_People_Name] ON [People] ([Name]) WHERE [Name] IS NOT NULL;
+");
         }
 
         public override void CreateIndexOperation_with_filter_where_clause_and_is_unique()
         {
             base.CreateIndexOperation_with_filter_where_clause_and_is_unique();
 
-            Assert.Equal(
-                "CREATE UNIQUE INDEX [IX_People_Name] ON [People] ([Name]) WHERE [Name] IS NOT NULL AND <> '';" + EOL,
-                Sql);
+            AssertSql(@"CREATE UNIQUE INDEX [IX_People_Name] ON [People] ([Name]) WHERE [Name] IS NOT NULL AND <> '';
+");
         }
 
         [ConditionalFact]
@@ -69,9 +66,8 @@ EXEC sp_addextendedproperty @name = N'Comment', @value = N'Employer ID comment',
                     ComputedColumnSql = "FirstName + ' ' + LastName"
                 });
 
-            Assert.Equal(
-                "ALTER TABLE [People] ADD [FullName] AS FirstName + ' ' + LastName;" + EOL,
-                Sql);
+            AssertSql(@"ALTER TABLE [People] ADD [FullName] AS FirstName + ' ' + LastName;
+");
         }
 
         [ConditionalFact]
@@ -88,9 +84,8 @@ EXEC sp_addextendedproperty @name = N'Comment', @value = N'Employer ID comment',
                     ComputedColumnSql = "CURRENT_TIMESTAMP"
                 });
 
-            Assert.Equal(
-                "ALTER TABLE [People] ADD [Birthday] AS CURRENT_TIMESTAMP;" + EOL,
-                Sql);
+            AssertSql(@"ALTER TABLE [People] ADD [Birthday] AS CURRENT_TIMESTAMP;
+");
         }
 
         [ConditionalFact]
@@ -109,9 +104,8 @@ EXEC sp_addextendedproperty @name = N'Comment', @value = N'Employer ID comment',
                         SqlServerValueGenerationStrategy.IdentityColumn
                 });
 
-            Assert.Equal(
-                "ALTER TABLE [People] ADD [Id] int NOT NULL IDENTITY;" + EOL,
-                Sql);
+            AssertSql(@"ALTER TABLE [People] ADD [Id] int NOT NULL IDENTITY;
+");
         }
         [ConditionalFact]
         public virtual void AddColumnOperation_identity_seed_increment()
@@ -131,81 +125,72 @@ EXEC sp_addextendedproperty @name = N'Comment', @value = N'Employer ID comment',
                     [SqlServerAnnotationNames.IdentityIncrement] = 5
                 });
 
-            Assert.Equal(
-                "ALTER TABLE [People] ADD [Id] int NOT NULL IDENTITY(100,5);" + EOL,
-                Sql);
+            AssertSql(@"ALTER TABLE [People] ADD [Id] int NOT NULL IDENTITY(100,5);
+");
         }
 
         public override void AddColumnOperation_without_column_type()
         {
             base.AddColumnOperation_without_column_type();
 
-            Assert.Equal(
-                "ALTER TABLE [People] ADD [Alias] nvarchar(max) NOT NULL;" + EOL,
-                Sql);
+            AssertSql(@"ALTER TABLE [People] ADD [Alias] nvarchar(max) NOT NULL;
+");
         }
 
         public override void AddColumnOperation_with_unicode_no_model()
         {
             base.AddColumnOperation_with_unicode_no_model();
 
-            Assert.Equal(
-                "ALTER TABLE [Person] ADD [Name] varchar(max) NULL;" + EOL,
-                Sql);
+            AssertSql(@"ALTER TABLE [Person] ADD [Name] varchar(max) NULL;
+");
         }
 
         public override void AddColumnOperation_with_maxLength()
         {
             base.AddColumnOperation_with_maxLength();
 
-            Assert.Equal(
-                "ALTER TABLE [Person] ADD [Name] nvarchar(30) NULL;" + EOL,
-                Sql);
+            AssertSql(@"ALTER TABLE [Person] ADD [Name] nvarchar(30) NULL;
+");
         }
 
         public override void AddColumnOperation_with_maxLength_overridden()
         {
             base.AddColumnOperation_with_maxLength_overridden();
 
-            Assert.Equal(
-                "ALTER TABLE [Person] ADD [Name] nvarchar(32) NULL;" + EOL,
-                Sql);
+            AssertSql(@"ALTER TABLE [Person] ADD [Name] nvarchar(32) NULL;
+");
         }
 
         public override void AddColumnOperation_with_maxLength_on_derived()
         {
             base.AddColumnOperation_with_maxLength_on_derived();
 
-            Assert.Equal(
-                "ALTER TABLE [Person] ADD [Name] nvarchar(30) NULL;" + EOL,
-                Sql);
+            AssertSql(@"ALTER TABLE [Person] ADD [Name] nvarchar(30) NULL;
+");
         }
 
         public override void AddColumnOperation_with_ansi()
         {
             base.AddColumnOperation_with_ansi();
 
-            Assert.Equal(
-                "ALTER TABLE [Person] ADD [Name] varchar(max) NULL;" + EOL,
-                Sql);
+            AssertSql(@"ALTER TABLE [Person] ADD [Name] varchar(max) NULL;
+");
         }
 
         public override void AddColumnOperation_with_unicode_overridden()
         {
             base.AddColumnOperation_with_unicode_overridden();
 
-            Assert.Equal(
-                "ALTER TABLE [Person] ADD [Name] nvarchar(max) NULL;" + EOL,
-                Sql);
+            AssertSql(@"ALTER TABLE [Person] ADD [Name] nvarchar(max) NULL;
+");
         }
 
         public override void AddColumnOperation_with_shared_column()
         {
             base.AddColumnOperation_with_shared_column();
 
-            Assert.Equal(
-                "ALTER TABLE [Base] ADD [Foo] nvarchar(max) NULL;" + EOL,
-                Sql);
+            AssertSql(@"ALTER TABLE [Base] ADD [Foo] nvarchar(max) NULL;
+");
         }
 
         [ConditionalFact]
@@ -222,9 +207,8 @@ EXEC sp_addextendedproperty @name = N'Comment', @value = N'Employer ID comment',
                     IsNullable = true
                 });
 
-            Assert.Equal(
-                "ALTER TABLE [Person] ADD [RowVersion] rowversion NULL;" + EOL,
-                Sql);
+            AssertSql(@"ALTER TABLE [Person] ADD [RowVersion] rowversion NULL;
+");
         }
 
         [ConditionalFact]
@@ -240,9 +224,8 @@ EXEC sp_addextendedproperty @name = N'Comment', @value = N'Employer ID comment',
                     IsNullable = true
                 });
 
-            Assert.Equal(
-                "ALTER TABLE [Person] ADD [RowVersion] rowversion NULL;" + EOL,
-                Sql);
+            AssertSql(@"ALTER TABLE [Person] ADD [RowVersion] rowversion NULL;
+");
         }
 
         [ConditionalFact]
@@ -257,11 +240,12 @@ EXEC sp_addextendedproperty @name = N'Comment', @value = N'Employer ID comment',
                     Comment = "My comment"
                 });
 
-            Assert.Equal(
-                "ALTER TABLE [People] ADD [FullName] nvarchar(max) NOT NULL;" + EOL +
-                "GO" + EOL + EOL +
-                "EXEC sp_addextendedproperty @name = N'Comment', @value = N'My comment', @level0type = N'Schema', @level0name = NULL, @level1type = N'Table', @level1name = N'People', @level2type = N'Column', @level2name = N'FullName';" + EOL,
-                Sql);
+            AssertSql(
+                @"ALTER TABLE [People] ADD [FullName] nvarchar(max) NOT NULL;
+GO
+
+EXEC sp_addextendedproperty @name = N'Comment', @value = N'My comment', @level0type = N'Schema', @level0name = NULL, @level1type = N'Table', @level1name = N'People', @level2type = N'Column', @level2name = N'FullName';
+");
         }
 
         [ConditionalFact]
@@ -275,42 +259,39 @@ EXEC sp_addextendedproperty @name = N'Comment', @value = N'Employer ID comment',
                     [SqlServerAnnotationNames.Clustered] = false
                 });
 
-            Assert.Equal(
-                "ALTER TABLE [People] ADD PRIMARY KEY NONCLUSTERED ([Id]);" + EOL,
-                Sql);
+            AssertSql(@"ALTER TABLE [People] ADD PRIMARY KEY NONCLUSTERED ([Id]);
+");
         }
 
         public override void AlterColumnOperation()
         {
             base.AlterColumnOperation();
 
-            Assert.Equal(
-                "DECLARE @var0 sysname;" + EOL +
-                "SELECT @var0 = [d].[name]" + EOL +
-                "FROM [sys].[default_constraints] [d]" + EOL +
-                "INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]"
-                + EOL +
-                "WHERE ([d].[parent_object_id] = OBJECT_ID(N'[dbo].[People]') AND [c].[name] = N'LuckyNumber');" + EOL +
-                "IF @var0 IS NOT NULL EXEC(N'ALTER TABLE [dbo].[People] DROP CONSTRAINT [' + @var0 + '];');" + EOL +
-                "ALTER TABLE [dbo].[People] ALTER COLUMN [LuckyNumber] int NOT NULL;" + EOL +
-                "ALTER TABLE [dbo].[People] ADD DEFAULT 7 FOR [LuckyNumber];" + EOL,
-                Sql);
+            AssertSql(
+                @"DECLARE @var0 sysname;
+SELECT @var0 = [d].[name]
+FROM [sys].[default_constraints] [d]
+INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
+WHERE ([d].[parent_object_id] = OBJECT_ID(N'[dbo].[People]') AND [c].[name] = N'LuckyNumber');
+IF @var0 IS NOT NULL EXEC(N'ALTER TABLE [dbo].[People] DROP CONSTRAINT [' + @var0 + '];');
+ALTER TABLE [dbo].[People] ALTER COLUMN [LuckyNumber] int NOT NULL;
+ALTER TABLE [dbo].[People] ADD DEFAULT 7 FOR [LuckyNumber];
+");
         }
 
         public override void AlterColumnOperation_without_column_type()
         {
             base.AlterColumnOperation_without_column_type();
 
-            Assert.Equal(
-                "DECLARE @var0 sysname;" + EOL +
-                "SELECT @var0 = [d].[name]" + EOL +
-                "FROM [sys].[default_constraints] [d]" + EOL +
-                "INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]"
-                + EOL +
-                "WHERE ([d].[parent_object_id] = OBJECT_ID(N'[People]') AND [c].[name] = N'LuckyNumber');" + EOL +
-                "IF @var0 IS NOT NULL EXEC(N'ALTER TABLE [People] DROP CONSTRAINT [' + @var0 + '];');" + EOL +
-                "ALTER TABLE [People] ALTER COLUMN [LuckyNumber] int NOT NULL;" + EOL,
-                Sql);
+            AssertSql(
+                @"DECLARE @var0 sysname;
+SELECT @var0 = [d].[name]
+FROM [sys].[default_constraints] [d]
+INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
+WHERE ([d].[parent_object_id] = OBJECT_ID(N'[People]') AND [c].[name] = N'LuckyNumber');
+IF @var0 IS NOT NULL EXEC(N'ALTER TABLE [People] DROP CONSTRAINT [' + @var0 + '];');
+ALTER TABLE [People] ALTER COLUMN [LuckyNumber] int NOT NULL;
+");
         }
 
         [ConditionalFact]
@@ -326,16 +307,15 @@ EXEC sp_addextendedproperty @name = N'Comment', @value = N'Employer ID comment',
                         SqlServerValueGenerationStrategy.IdentityColumn
                 });
 
-            Assert.Equal(
-                "DECLARE @var0 sysname;" + EOL +
-                "SELECT @var0 = [d].[name]" + EOL +
-                "FROM [sys].[default_constraints] [d]" + EOL +
-                "INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]"
-                + EOL +
-                "WHERE ([d].[parent_object_id] = OBJECT_ID(N'[People]') AND [c].[name] = N'Id');" + EOL +
-                "IF @var0 IS NOT NULL EXEC(N'ALTER TABLE [People] DROP CONSTRAINT [' + @var0 + '];');" + EOL +
-                "ALTER TABLE [People] ALTER COLUMN [Id] int NOT NULL;" + EOL,
-                Sql);
+            AssertSql(
+                @"DECLARE @var0 sysname;
+SELECT @var0 = [d].[name]
+FROM [sys].[default_constraints] [d]
+INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
+WHERE ([d].[parent_object_id] = OBJECT_ID(N'[People]') AND [c].[name] = N'Id');
+IF @var0 IS NOT NULL EXEC(N'ALTER TABLE [People] DROP CONSTRAINT [' + @var0 + '];');
+ALTER TABLE [People] ALTER COLUMN [Id] int NOT NULL;
+");
         }
 
         [ConditionalFact]
@@ -350,17 +330,16 @@ EXEC sp_addextendedproperty @name = N'Comment', @value = N'Employer ID comment',
                     ComputedColumnSql = "[FirstName] + ' ' + [LastName]"
                 });
 
-            Assert.Equal(
-                "DECLARE @var0 sysname;" + EOL +
-                "SELECT @var0 = [d].[name]" + EOL +
-                "FROM [sys].[default_constraints] [d]" + EOL +
-                "INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]"
-                + EOL +
-                "WHERE ([d].[parent_object_id] = OBJECT_ID(N'[People]') AND [c].[name] = N'FullName');" + EOL +
-                "IF @var0 IS NOT NULL EXEC(N'ALTER TABLE [People] DROP CONSTRAINT [' + @var0 + '];');" + EOL +
-                "ALTER TABLE [People] DROP COLUMN [FullName];" + EOL +
-                "ALTER TABLE [People] ADD [FullName] AS [FirstName] + ' ' + [LastName];" + EOL,
-                Sql);
+            AssertSql(
+                @"DECLARE @var0 sysname;
+SELECT @var0 = [d].[name]
+FROM [sys].[default_constraints] [d]
+INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
+WHERE ([d].[parent_object_id] = OBJECT_ID(N'[People]') AND [c].[name] = N'FullName');
+IF @var0 IS NOT NULL EXEC(N'ALTER TABLE [People] DROP CONSTRAINT [' + @var0 + '];');
+ALTER TABLE [People] DROP COLUMN [FullName];
+ALTER TABLE [People] ADD [FullName] AS [FirstName] + ' ' + [LastName];
+");
         }
 
         [ConditionalFact]
@@ -389,19 +368,18 @@ EXEC sp_addextendedproperty @name = N'Comment', @value = N'Employer ID comment',
                     }
                 });
 
-            Assert.Equal(
-                "DROP INDEX [IX_Person_FullName] ON [Person];" + EOL +
-                "DECLARE @var0 sysname;" + EOL +
-                "SELECT @var0 = [d].[name]" + EOL +
-                "FROM [sys].[default_constraints] [d]" + EOL +
-                "INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]"
-                + EOL +
-                "WHERE ([d].[parent_object_id] = OBJECT_ID(N'[Person]') AND [c].[name] = N'FullName');" + EOL +
-                "IF @var0 IS NOT NULL EXEC(N'ALTER TABLE [Person] DROP CONSTRAINT [' + @var0 + '];');" + EOL +
-                "ALTER TABLE [Person] DROP COLUMN [FullName];" + EOL +
-                "ALTER TABLE [Person] ADD [FullName] AS [FirstName] + ' ' + [LastName];" + EOL +
-                "CREATE INDEX [IX_Person_FullName] ON [Person] ([FullName]);" + EOL,
-                Sql);
+            AssertSql(
+                @"DROP INDEX [IX_Person_FullName] ON [Person];
+DECLARE @var0 sysname;
+SELECT @var0 = [d].[name]
+FROM [sys].[default_constraints] [d]
+INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
+WHERE ([d].[parent_object_id] = OBJECT_ID(N'[Person]') AND [c].[name] = N'FullName');
+IF @var0 IS NOT NULL EXEC(N'ALTER TABLE [Person] DROP CONSTRAINT [' + @var0 + '];');
+ALTER TABLE [Person] DROP COLUMN [FullName];
+ALTER TABLE [Person] ADD [FullName] AS [FirstName] + ' ' + [LastName];
+CREATE INDEX [IX_Person_FullName] ON [Person] ([FullName]);
+");
         }
 
         [ConditionalTheory]
@@ -441,18 +419,17 @@ EXEC sp_addextendedproperty @name = N'Comment', @value = N'Employer ID comment',
                     }
                 });
 
-            Assert.Equal(
-                "ALTER TABLE [Person] DROP INDEX [IX_Person_Name];" + EOL +
-                "DECLARE @var0 sysname;" + EOL +
-                "SELECT @var0 = [d].[name]" + EOL +
-                "FROM [sys].[default_constraints] [d]" + EOL +
-                "INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]"
-                + EOL +
-                "WHERE ([d].[parent_object_id] = OBJECT_ID(N'[Person]') AND [c].[name] = N'Name');" + EOL +
-                "IF @var0 IS NOT NULL EXEC(N'ALTER TABLE [Person] DROP CONSTRAINT [' + @var0 + '];');" + EOL +
-                "ALTER TABLE [Person] ALTER COLUMN [Name] nvarchar(30) NOT NULL;" + EOL +
-                "ALTER TABLE [Person] ADD INDEX [IX_Person_Name] NONCLUSTERED ([Name]);" + EOL,
-                Sql);
+            AssertSql(
+                @"ALTER TABLE [Person] DROP INDEX [IX_Person_Name];
+DECLARE @var0 sysname;
+SELECT @var0 = [d].[name]
+FROM [sys].[default_constraints] [d]
+INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
+WHERE ([d].[parent_object_id] = OBJECT_ID(N'[Person]') AND [c].[name] = N'Name');
+IF @var0 IS NOT NULL EXEC(N'ALTER TABLE [Person] DROP CONSTRAINT [' + @var0 + '];');
+ALTER TABLE [Person] ALTER COLUMN [Name] nvarchar(30) NOT NULL;
+ALTER TABLE [Person] ADD INDEX [IX_Person_Name] NONCLUSTERED ([Name]);
+");
         }
 
         [ConditionalFact]
@@ -481,16 +458,15 @@ EXEC sp_addextendedproperty @name = N'Comment', @value = N'Employer ID comment',
                     }
                 });
 
-            Assert.Equal(
-                "DECLARE @var0 sysname;" + EOL +
-                "SELECT @var0 = [d].[name]" + EOL +
-                "FROM [sys].[default_constraints] [d]" + EOL +
-                "INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]"
-                + EOL +
-                "WHERE ([d].[parent_object_id] = OBJECT_ID(N'[Person]') AND [c].[name] = N'Name');" + EOL +
-                "IF @var0 IS NOT NULL EXEC(N'ALTER TABLE [Person] DROP CONSTRAINT [' + @var0 + '];');" + EOL +
-                "ALTER TABLE [Person] ALTER COLUMN [Name] nvarchar(450) NULL;" + EOL,
-                Sql);
+            AssertSql(
+                @"DECLARE @var0 sysname;
+SELECT @var0 = [d].[name]
+FROM [sys].[default_constraints] [d]
+INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
+WHERE ([d].[parent_object_id] = OBJECT_ID(N'[Person]') AND [c].[name] = N'Name');
+IF @var0 IS NOT NULL EXEC(N'ALTER TABLE [Person] DROP CONSTRAINT [' + @var0 + '];');
+ALTER TABLE [Person] ALTER COLUMN [Name] nvarchar(450) NULL;
+");
         }
 
         [ConditionalFact]
@@ -520,18 +496,17 @@ EXEC sp_addextendedproperty @name = N'Comment', @value = N'Employer ID comment',
                     }
                 });
 
-            Assert.Equal(
-                "DROP INDEX [IX_Person_Name] ON [Person];" + EOL +
-                "DECLARE @var0 sysname;" + EOL +
-                "SELECT @var0 = [d].[name]" + EOL +
-                "FROM [sys].[default_constraints] [d]" + EOL +
-                "INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]"
-                + EOL +
-                "WHERE ([d].[parent_object_id] = OBJECT_ID(N'[Person]') AND [c].[name] = N'Name');" + EOL +
-                "IF @var0 IS NOT NULL EXEC(N'ALTER TABLE [Person] DROP CONSTRAINT [' + @var0 + '];');" + EOL +
-                "ALTER TABLE [Person] ALTER COLUMN [Name] nvarchar(30) NULL;" + EOL +
-                "CREATE INDEX [IX_Person_Name] ON [Person] ([Name]);" + EOL,
-                Sql);
+            AssertSql(
+                @"DROP INDEX [IX_Person_Name] ON [Person];
+DECLARE @var0 sysname;
+SELECT @var0 = [d].[name]
+FROM [sys].[default_constraints] [d]
+INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
+WHERE ([d].[parent_object_id] = OBJECT_ID(N'[Person]') AND [c].[name] = N'Name');
+IF @var0 IS NOT NULL EXEC(N'ALTER TABLE [Person] DROP CONSTRAINT [' + @var0 + '];');
+ALTER TABLE [Person] ALTER COLUMN [Name] nvarchar(30) NULL;
+CREATE INDEX [IX_Person_Name] ON [Person] ([Name]);
+");
         }
 
         [ConditionalTheory]
@@ -575,18 +550,17 @@ EXEC sp_addextendedproperty @name = N'Comment', @value = N'Employer ID comment',
                     }
                 });
 
-            Assert.Equal(
-                "DROP INDEX [IX_Person_FirstName_LastName] ON [Person];" + EOL +
-                "DECLARE @var0 sysname;" + EOL +
-                "SELECT @var0 = [d].[name]" + EOL +
-                "FROM [sys].[default_constraints] [d]" + EOL +
-                "INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]"
-                + EOL +
-                "WHERE ([d].[parent_object_id] = OBJECT_ID(N'[Person]') AND [c].[name] = N'Name');" + EOL +
-                "IF @var0 IS NOT NULL EXEC(N'ALTER TABLE [Person] DROP CONSTRAINT [' + @var0 + '];');" + EOL +
-                "ALTER TABLE [Person] ALTER COLUMN [Name] nvarchar(30) NULL;" + EOL +
-                "CREATE INDEX [IX_Person_FirstName_LastName] ON [Person] ([FirstName], [LastName]) INCLUDE ([Name]);" + EOL,
-                Sql);
+            AssertSql(
+                @"DROP INDEX [IX_Person_FirstName_LastName] ON [Person];
+DECLARE @var0 sysname;
+SELECT @var0 = [d].[name]
+FROM [sys].[default_constraints] [d]
+INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
+WHERE ([d].[parent_object_id] = OBJECT_ID(N'[Person]') AND [c].[name] = N'Name');
+IF @var0 IS NOT NULL EXEC(N'ALTER TABLE [Person] DROP CONSTRAINT [' + @var0 + '];');
+ALTER TABLE [Person] ALTER COLUMN [Name] nvarchar(30) NULL;
+CREATE INDEX [IX_Person_FirstName_LastName] ON [Person] ([FirstName], [LastName]) INCLUDE ([Name]);
+");
         }
 
         [ConditionalFact]
@@ -617,16 +591,15 @@ EXEC sp_addextendedproperty @name = N'Comment', @value = N'Employer ID comment',
                     }
                 });
 
-            Assert.Equal(
-                "DECLARE @var0 sysname;" + EOL +
-                "SELECT @var0 = [d].[name]" + EOL +
-                "FROM [sys].[default_constraints] [d]" + EOL +
-                "INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]"
-                + EOL +
-                "WHERE ([d].[parent_object_id] = OBJECT_ID(N'[Person]') AND [c].[name] = N'Name');" + EOL +
-                "IF @var0 IS NOT NULL EXEC(N'ALTER TABLE [Person] DROP CONSTRAINT [' + @var0 + '];');" + EOL +
-                "ALTER TABLE [Person] ALTER COLUMN [Name] nvarchar(30) NULL;" + EOL,
-                Sql);
+            AssertSql(
+                @"DECLARE @var0 sysname;
+SELECT @var0 = [d].[name]
+FROM [sys].[default_constraints] [d]
+INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
+WHERE ([d].[parent_object_id] = OBJECT_ID(N'[Person]') AND [c].[name] = N'Name');
+IF @var0 IS NOT NULL EXEC(N'ALTER TABLE [Person] DROP CONSTRAINT [' + @var0 + '];');
+ALTER TABLE [Person] ALTER COLUMN [Name] nvarchar(30) NULL;
+");
         }
 
         [ConditionalFact]
@@ -651,16 +624,15 @@ EXEC sp_addextendedproperty @name = N'Comment', @value = N'Employer ID comment',
                     OldColumn = new ColumnOperation()
                 });
 
-            Assert.Equal(
-                "DECLARE @var0 sysname;" + EOL +
-                "SELECT @var0 = [d].[name]" + EOL +
-                "FROM [sys].[default_constraints] [d]" + EOL +
-                "INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]"
-                + EOL +
-                "WHERE ([d].[parent_object_id] = OBJECT_ID(N'[Person]') AND [c].[name] = N'Name');" + EOL +
-                "IF @var0 IS NOT NULL EXEC(N'ALTER TABLE [Person] DROP CONSTRAINT [' + @var0 + '];');" + EOL +
-                "ALTER TABLE [Person] ALTER COLUMN [Name] nvarchar(30) NULL;" + EOL,
-                Sql);
+            AssertSql(
+                @"DECLARE @var0 sysname;
+SELECT @var0 = [d].[name]
+FROM [sys].[default_constraints] [d]
+INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
+WHERE ([d].[parent_object_id] = OBJECT_ID(N'[Person]') AND [c].[name] = N'Name');
+IF @var0 IS NOT NULL EXEC(N'ALTER TABLE [Person] DROP CONSTRAINT [' + @var0 + '];');
+ALTER TABLE [Person] ALTER COLUMN [Name] nvarchar(30) NULL;
+");
         }
 
         [ConditionalFact]
@@ -690,18 +662,17 @@ EXEC sp_addextendedproperty @name = N'Comment', @value = N'Employer ID comment',
                     }
                 });
 
-            Assert.Equal(
-                "DROP INDEX [IX_Person_FirstName_LastName] ON [Person];" + EOL +
-                "DECLARE @var0 sysname;" + EOL +
-                "SELECT @var0 = [d].[name]" + EOL +
-                "FROM [sys].[default_constraints] [d]" + EOL +
-                "INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]"
-                + EOL +
-                "WHERE ([d].[parent_object_id] = OBJECT_ID(N'[Person]') AND [c].[name] = N'FirstName');" + EOL +
-                "IF @var0 IS NOT NULL EXEC(N'ALTER TABLE [Person] DROP CONSTRAINT [' + @var0 + '];');" + EOL +
-                "ALTER TABLE [Person] ALTER COLUMN [FirstName] nvarchar(450) NOT NULL;" + EOL +
-                "CREATE INDEX [IX_Person_FirstName_LastName] ON [Person] ([FirstName], [LastName]);" + EOL,
-                Sql);
+            AssertSql(
+                @"DROP INDEX [IX_Person_FirstName_LastName] ON [Person];
+DECLARE @var0 sysname;
+SELECT @var0 = [d].[name]
+FROM [sys].[default_constraints] [d]
+INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
+WHERE ([d].[parent_object_id] = OBJECT_ID(N'[Person]') AND [c].[name] = N'FirstName');
+IF @var0 IS NOT NULL EXEC(N'ALTER TABLE [Person] DROP CONSTRAINT [' + @var0 + '];');
+ALTER TABLE [Person] ALTER COLUMN [FirstName] nvarchar(450) NOT NULL;
+CREATE INDEX [IX_Person_FirstName_LastName] ON [Person] ([FirstName], [LastName]);
+");
         }
 
         [ConditionalFact]
@@ -736,19 +707,18 @@ EXEC sp_addextendedproperty @name = N'Comment', @value = N'Employer ID comment',
                     Columns = new[] { "Name" }
                 });
 
-            Assert.Equal(
-                "DECLARE @var0 sysname;" + EOL +
-                "SELECT @var0 = [d].[name]" + EOL +
-                "FROM [sys].[default_constraints] [d]" + EOL +
-                "INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]"
-                + EOL +
-                "WHERE ([d].[parent_object_id] = OBJECT_ID(N'[Person]') AND [c].[name] = N'Name');" + EOL +
-                "IF @var0 IS NOT NULL EXEC(N'ALTER TABLE [Person] DROP CONSTRAINT [' + @var0 + '];');" + EOL +
-                "ALTER TABLE [Person] ALTER COLUMN [Name] nvarchar(30) NULL;" + EOL +
-                "GO" + EOL +
-                EOL +
-                "CREATE INDEX [IX_Person_Name] ON [Person] ([Name]);" + EOL,
-                Sql);
+            AssertSql(
+                @"DECLARE @var0 sysname;
+SELECT @var0 = [d].[name]
+FROM [sys].[default_constraints] [d]
+INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
+WHERE ([d].[parent_object_id] = OBJECT_ID(N'[Person]') AND [c].[name] = N'Name');
+IF @var0 IS NOT NULL EXEC(N'ALTER TABLE [Person] DROP CONSTRAINT [' + @var0 + '];');
+ALTER TABLE [Person] ALTER COLUMN [Name] nvarchar(30) NULL;
+GO
+
+CREATE INDEX [IX_Person_Name] ON [Person] ([Name]);
+");
         }
 
         [ConditionalTheory]
@@ -796,19 +766,18 @@ EXEC sp_addextendedproperty @name = N'Comment', @value = N'Employer ID comment',
                     [SqlServerAnnotationNames.CreatedOnline] = true
                 });
 
-            Assert.Equal(
-                "DECLARE @var0 sysname;" + EOL +
-                "SELECT @var0 = [d].[name]" + EOL +
-                "FROM [sys].[default_constraints] [d]" + EOL +
-                "INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]"
-                + EOL +
-                "WHERE ([d].[parent_object_id] = OBJECT_ID(N'[Person]') AND [c].[name] = N'Name');" + EOL +
-                "IF @var0 IS NOT NULL EXEC(N'ALTER TABLE [Person] DROP CONSTRAINT [' + @var0 + '];');" + EOL +
-                "ALTER TABLE [Person] ALTER COLUMN [Name] nvarchar(30) NULL;" + EOL +
-                "GO" + EOL +
-                EOL +
-                "CREATE INDEX [IX_Person_Name] ON [Person] ([Name]) WITH (ONLINE = ON);" + EOL,
-                Sql);
+            AssertSql(
+                @"DECLARE @var0 sysname;
+SELECT @var0 = [d].[name]
+FROM [sys].[default_constraints] [d]
+INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
+WHERE ([d].[parent_object_id] = OBJECT_ID(N'[Person]') AND [c].[name] = N'Name');
+IF @var0 IS NOT NULL EXEC(N'ALTER TABLE [Person] DROP CONSTRAINT [' + @var0 + '];');
+ALTER TABLE [Person] ALTER COLUMN [Name] nvarchar(30) NULL;
+GO
+
+CREATE INDEX [IX_Person_Name] ON [Person] ([Name]) WITH (ONLINE = ON);
+");
         }
 
         [ConditionalFact]
@@ -829,16 +798,15 @@ EXEC sp_addextendedproperty @name = N'Comment', @value = N'Employer ID comment',
                     }
                 });
 
-            Assert.Equal(
-                "DECLARE @var0 sysname;" + EOL +
-                "SELECT @var0 = [d].[name]" + EOL +
-                "FROM [sys].[default_constraints] [d]" + EOL +
-                "INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]"
-                + EOL +
-                "WHERE ([d].[parent_object_id] = OBJECT_ID(N'[Person]') AND [c].[name] = N'Id');" + EOL +
-                "IF @var0 IS NOT NULL EXEC(N'ALTER TABLE [Person] DROP CONSTRAINT [' + @var0 + '];');" + EOL +
-                "ALTER TABLE [Person] ALTER COLUMN [Id] bigint NOT NULL;" + EOL,
-                Sql);
+            AssertSql(
+                @"DECLARE @var0 sysname;
+SELECT @var0 = [d].[name]
+FROM [sys].[default_constraints] [d]
+INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
+WHERE ([d].[parent_object_id] = OBJECT_ID(N'[Person]') AND [c].[name] = N'Id');
+IF @var0 IS NOT NULL EXEC(N'ALTER TABLE [Person] DROP CONSTRAINT [' + @var0 + '];');
+ALTER TABLE [Person] ALTER COLUMN [Id] bigint NOT NULL;
+");
         }
 
         [ConditionalFact]
@@ -898,18 +866,17 @@ EXEC sp_addextendedproperty @name = N'Comment', @value = N'Employer ID comment',
                     Comment = "My Comment"
                 });
 
-            Assert.Equal(
-                "DECLARE @var0 sysname;" + EOL +
-                "SELECT @var0 = [d].[name]" + EOL +
-                "FROM [sys].[default_constraints] [d]" + EOL +
-                "INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]"
-                + EOL +
-                "WHERE ([d].[parent_object_id] = OBJECT_ID(N'[dbo].[People]') AND [c].[name] = N'LuckyNumber');" + EOL +
-                "IF @var0 IS NOT NULL EXEC(N'ALTER TABLE [dbo].[People] DROP CONSTRAINT [' + @var0 + '];');" + EOL +
-                "ALTER TABLE [dbo].[People] ALTER COLUMN [LuckyNumber] int NOT NULL;" + EOL +
-                "GO" + EOL + EOL +
-                "EXEC sp_addextendedproperty @name = N'Comment', @value = N'My Comment', @level0type = N'Schema', @level0name = N'dbo', @level1type = N'Table', @level1name = N'People', @level2type = N'Column', @level2name = N'LuckyNumber'",
-                Sql);
+            AssertSql(
+                @"DECLARE @var0 sysname;
+SELECT @var0 = [d].[name]
+FROM [sys].[default_constraints] [d]
+INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
+WHERE ([d].[parent_object_id] = OBJECT_ID(N'[dbo].[People]') AND [c].[name] = N'LuckyNumber');
+IF @var0 IS NOT NULL EXEC(N'ALTER TABLE [dbo].[People] DROP CONSTRAINT [' + @var0 + '];');
+ALTER TABLE [dbo].[People] ALTER COLUMN [LuckyNumber] int NOT NULL;
+GO
+
+EXEC sp_addextendedproperty @name = N'Comment', @value = N'My Comment', @level0type = N'Schema', @level0name = N'dbo', @level1type = N'Table', @level1name = N'People', @level2type = N'Column', @level2name = N'LuckyNumber'");
         }
 
         [ConditionalFact]
@@ -939,20 +906,19 @@ EXEC sp_addextendedproperty @name = N'Comment', @value = N'Employer ID comment',
                     }
                 });
 
-            Assert.Equal(
-                "DECLARE @var0 sysname;" + EOL +
-                "SELECT @var0 = [d].[name]" + EOL +
-                "FROM [sys].[default_constraints] [d]" + EOL +
-                "INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]"
-                + EOL +
-                "WHERE ([d].[parent_object_id] = OBJECT_ID(N'[dbo].[People]') AND [c].[name] = N'Name');" + EOL +
-                "IF @var0 IS NOT NULL EXEC(N'ALTER TABLE [dbo].[People] DROP CONSTRAINT [' + @var0 + '];');" + EOL +
-                "ALTER TABLE [dbo].[People] ALTER COLUMN [Name] nvarchar(max) NOT NULL;" + EOL +
-                "GO" + EOL + EOL +
-                "EXEC sp_dropextendedproperty @name = N'Comment', @level0type = N'Schema', @level0name = N'dbo', @level1type = N'Table', @level1name = N'People', @level2type = N'Column', @level2name = N'Name'" +
-                "GO" + EOL + EOL +
-                "EXEC sp_addextendedproperty @name = N'Comment', @value = N'My Comment 2', @level0type = N'Schema', @level0name = N'dbo', @level1type = N'Table', @level1name = N'People', @level2type = N'Column', @level2name = N'Name'",
-                Sql);
+            AssertSql(
+                @"DECLARE @var0 sysname;
+SELECT @var0 = [d].[name]
+FROM [sys].[default_constraints] [d]
+INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
+WHERE ([d].[parent_object_id] = OBJECT_ID(N'[dbo].[People]') AND [c].[name] = N'Name');
+IF @var0 IS NOT NULL EXEC(N'ALTER TABLE [dbo].[People] DROP CONSTRAINT [' + @var0 + '];');
+ALTER TABLE [dbo].[People] ALTER COLUMN [Name] nvarchar(max) NOT NULL;
+GO
+
+EXEC sp_dropextendedproperty @name = N'Comment', @level0type = N'Schema', @level0name = N'dbo', @level1type = N'Table', @level1name = N'People', @level2type = N'Column', @level2name = N'Name'GO
+
+EXEC sp_addextendedproperty @name = N'Comment', @value = N'My Comment 2', @level0type = N'Schema', @level0name = N'dbo', @level1type = N'Table', @level1name = N'People', @level2type = N'Column', @level2name = N'Name'");
         }
 
         [ConditionalFact]
@@ -981,18 +947,17 @@ EXEC sp_addextendedproperty @name = N'Comment', @value = N'Employer ID comment',
                     }
                 });
 
-            Assert.Equal(
-                "DECLARE @var0 sysname;" + EOL +
-                "SELECT @var0 = [d].[name]" + EOL +
-                "FROM [sys].[default_constraints] [d]" + EOL +
-                "INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]"
-                + EOL +
-                "WHERE ([d].[parent_object_id] = OBJECT_ID(N'[dbo].[People]') AND [c].[name] = N'Name');" + EOL +
-                "IF @var0 IS NOT NULL EXEC(N'ALTER TABLE [dbo].[People] DROP CONSTRAINT [' + @var0 + '];');" + EOL +
-                "ALTER TABLE [dbo].[People] ALTER COLUMN [Name] nvarchar(max) NOT NULL;" + EOL +
-                "GO" + EOL + EOL +
-                "EXEC sp_dropextendedproperty @name = N'Comment', @level0type = N'Schema', @level0name = N'dbo', @level1type = N'Table', @level1name = N'People', @level2type = N'Column', @level2name = N'Name'",
-                Sql);
+            AssertSql(
+                @"DECLARE @var0 sysname;
+SELECT @var0 = [d].[name]
+FROM [sys].[default_constraints] [d]
+INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
+WHERE ([d].[parent_object_id] = OBJECT_ID(N'[dbo].[People]') AND [c].[name] = N'Name');
+IF @var0 IS NOT NULL EXEC(N'ALTER TABLE [dbo].[People] DROP CONSTRAINT [' + @var0 + '];');
+ALTER TABLE [dbo].[People] ALTER COLUMN [Name] nvarchar(max) NOT NULL;
+GO
+
+EXEC sp_dropextendedproperty @name = N'Comment', @level0type = N'Schema', @level0name = N'dbo', @level1type = N'Table', @level1name = N'People', @level2type = N'Column', @level2name = N'Name'");
         }
 
         [ConditionalFact]
@@ -1004,15 +969,15 @@ EXEC sp_addextendedproperty @name = N'Comment', @value = N'Employer ID comment',
                     Name = "Northwind"
                 });
 
-            Assert.Equal(
-                "CREATE DATABASE [Northwind];" + EOL +
-                "GO" + EOL +
-                EOL +
-                "IF SERVERPROPERTY('EngineEdition') <> 5" + EOL +
-                "BEGIN" + EOL +
-                "    ALTER DATABASE [Northwind] SET READ_COMMITTED_SNAPSHOT ON;" + EOL +
-                "END;" + EOL,
-                Sql);
+            AssertSql(
+                @"CREATE DATABASE [Northwind];
+GO
+
+IF SERVERPROPERTY('EngineEdition') <> 5
+BEGIN
+    ALTER DATABASE [Northwind] SET READ_COMMITTED_SNAPSHOT ON;
+END;
+");
         }
 
         [ConditionalFact]
@@ -1028,17 +993,17 @@ EXEC sp_addextendedproperty @name = N'Comment', @value = N'Employer ID comment',
             var expectedFile = Path.GetFullPath("Narf.mdf");
             var expectedLog = Path.GetFullPath("Narf_log.ldf");
 
-            Assert.Equal(
-                "CREATE DATABASE [Northwind]" + EOL +
-                "ON (NAME = N'Narf', FILENAME = N'" + expectedFile + "')" + EOL +
-                "LOG ON (NAME = N'Narf_log', FILENAME = N'" + expectedLog + "');" + EOL +
-                "GO" + EOL +
-                EOL +
-                "IF SERVERPROPERTY('EngineEdition') <> 5" + EOL +
-                "BEGIN" + EOL +
-                "    ALTER DATABASE [Northwind] SET READ_COMMITTED_SNAPSHOT ON;" + EOL +
-                "END;" + EOL,
-                Sql);
+            AssertSql(
+                $@"CREATE DATABASE [Northwind]
+ON (NAME = N'Narf', FILENAME = N'{expectedFile}')
+LOG ON (NAME = N'Narf_log', FILENAME = N'{expectedLog}');
+GO
+
+IF SERVERPROPERTY('EngineEdition') <> 5
+BEGIN
+    ALTER DATABASE [Northwind] SET READ_COMMITTED_SNAPSHOT ON;
+END;
+");
         }
 
         [ConditionalFact]
@@ -1056,17 +1021,17 @@ EXEC sp_addextendedproperty @name = N'Comment', @value = N'Employer ID comment',
             var expectedFile = Path.Combine(baseDirectory, "Narf.mdf");
             var expectedLog = Path.Combine(baseDirectory, "Narf_log.ldf");
 
-            Assert.Equal(
-                "CREATE DATABASE [Northwind]" + EOL +
-                "ON (NAME = N'Narf', FILENAME = N'" + expectedFile + "')" + EOL +
-                "LOG ON (NAME = N'Narf_log', FILENAME = N'" + expectedLog + "');" + EOL +
-                "GO" + EOL +
-                EOL +
-                "IF SERVERPROPERTY('EngineEdition') <> 5" + EOL +
-                "BEGIN" + EOL +
-                "    ALTER DATABASE [Northwind] SET READ_COMMITTED_SNAPSHOT ON;" + EOL +
-                "END;" + EOL,
-                Sql);
+            AssertSql(
+                $@"CREATE DATABASE [Northwind]
+ON (NAME = N'Narf', FILENAME = N'{expectedFile}')
+LOG ON (NAME = N'Narf_log', FILENAME = N'{expectedLog}');
+GO
+
+IF SERVERPROPERTY('EngineEdition') <> 5
+BEGIN
+    ALTER DATABASE [Northwind] SET READ_COMMITTED_SNAPSHOT ON;
+END;
+");
         }
 
         [ConditionalFact]
@@ -1088,17 +1053,17 @@ EXEC sp_addextendedproperty @name = N'Comment', @value = N'Employer ID comment',
             var expectedFile = Path.Combine(dataDirectory, "Narf.mdf");
             var expectedLog = Path.Combine(dataDirectory, "Narf_log.ldf");
 
-            Assert.Equal(
-                "CREATE DATABASE [Northwind]" + EOL +
-                "ON (NAME = N'Narf', FILENAME = N'" + expectedFile + "')" + EOL +
-                "LOG ON (NAME = N'Narf_log', FILENAME = N'" + expectedLog + "');" + EOL +
-                "GO" + EOL +
-                EOL +
-                "IF SERVERPROPERTY('EngineEdition') <> 5" + EOL +
-                "BEGIN" + EOL +
-                "    ALTER DATABASE [Northwind] SET READ_COMMITTED_SNAPSHOT ON;" + EOL +
-                "END;" + EOL,
-                Sql);
+            AssertSql(
+                $@"CREATE DATABASE [Northwind]
+ON (NAME = N'Narf', FILENAME = N'{expectedFile}')
+LOG ON (NAME = N'Narf_log', FILENAME = N'{expectedLog}');
+GO
+
+IF SERVERPROPERTY('EngineEdition') <> 5
+BEGIN
+    ALTER DATABASE [Northwind] SET READ_COMMITTED_SNAPSHOT ON;
+END;
+");
         }
 
         [ConditionalFact]
@@ -1119,19 +1084,16 @@ EXEC sp_addextendedproperty @name = N'Comment', @value = N'Employer ID comment',
         {
             base.CreateIndexOperation_nonunique();
 
-            Assert.Equal(
-                "CREATE INDEX [IX_People_Name] ON [People] ([Name]);" + EOL,
-                Sql);
+            AssertSql(@"CREATE INDEX [IX_People_Name] ON [People] ([Name]);
+");
         }
 
         public override void CreateIndexOperation_unique()
         {
             base.CreateIndexOperation_unique();
 
-            Assert.Equal(
-                "CREATE UNIQUE INDEX [IX_People_Name] ON [dbo].[People] ([FirstName], [LastName]) WHERE [FirstName] IS NOT NULL AND [LastName] IS NOT NULL;"
-                + EOL,
-                Sql);
+            AssertSql(@"CREATE UNIQUE INDEX [IX_People_Name] ON [dbo].[People] ([FirstName], [LastName]) WHERE [FirstName] IS NOT NULL AND [LastName] IS NOT NULL;
+");
         }
 
         [ConditionalFact]
@@ -1148,9 +1110,8 @@ EXEC sp_addextendedproperty @name = N'Comment', @value = N'Employer ID comment',
                     IsUnique = true
                 });
 
-            Assert.Equal(
-                "CREATE UNIQUE INDEX [IX_People_Name] ON [dbo].[People] ([FirstName], [LastName]);" + EOL,
-                Sql);
+            AssertSql(@"CREATE UNIQUE INDEX [IX_People_Name] ON [dbo].[People] ([FirstName], [LastName]);
+");
         }
 
         [ConditionalFact]
@@ -1165,9 +1126,8 @@ EXEC sp_addextendedproperty @name = N'Comment', @value = N'Employer ID comment',
                     [SqlServerAnnotationNames.Clustered] = true
                 });
 
-            Assert.Equal(
-                "CREATE CLUSTERED INDEX [IX_People_Name] ON [People] ([Name]);" + EOL,
-                Sql);
+            AssertSql(@"CREATE CLUSTERED INDEX [IX_People_Name] ON [People] ([Name]);
+");
         }
 
         [ConditionalFact]
@@ -1183,9 +1143,8 @@ EXEC sp_addextendedproperty @name = N'Comment', @value = N'Employer ID comment',
                     [SqlServerAnnotationNames.Clustered] = true
                 });
 
-            Assert.Equal(
-                "CREATE UNIQUE CLUSTERED INDEX [IX_People_Name] ON [People] ([Name]);" + EOL,
-                Sql);
+            AssertSql(@"CREATE UNIQUE CLUSTERED INDEX [IX_People_Name] ON [People] ([Name]);
+");
         }
 
         [ConditionalFact]
@@ -1200,9 +1159,8 @@ EXEC sp_addextendedproperty @name = N'Comment', @value = N'Employer ID comment',
                     [SqlServerAnnotationNames.Include] = new[] { "FirstName", "LastName" }
                 });
 
-            Assert.Equal(
-                "CREATE INDEX [IX_People_Name] ON [People] ([Name]) INCLUDE ([FirstName], [LastName]);" + EOL,
-                Sql);
+            AssertSql(@"CREATE INDEX [IX_People_Name] ON [People] ([Name]) INCLUDE ([FirstName], [LastName]);
+");
         }
 
         [ConditionalFact]
@@ -1218,10 +1176,8 @@ EXEC sp_addextendedproperty @name = N'Comment', @value = N'Employer ID comment',
                     [SqlServerAnnotationNames.Include] = new[] { "FirstName", "LastName" }
                 });
 
-            Assert.Equal(
-                "CREATE INDEX [IX_People_Name] ON [People] ([Name]) INCLUDE ([FirstName], [LastName]) WHERE [Name] IS NOT NULL AND <> '';"
-                + EOL,
-                Sql);
+            AssertSql(@"CREATE INDEX [IX_People_Name] ON [People] ([Name]) INCLUDE ([FirstName], [LastName]) WHERE [Name] IS NOT NULL AND <> '';
+");
         }
 
         [ConditionalFact]
@@ -1237,10 +1193,8 @@ EXEC sp_addextendedproperty @name = N'Comment', @value = N'Employer ID comment',
                     [SqlServerAnnotationNames.Include] = new[] { "FirstName", "LastName" }
                 });
 
-            Assert.Equal(
-                "CREATE UNIQUE INDEX [IX_People_Name] ON [People] ([Name]) INCLUDE ([FirstName], [LastName]) WHERE [Name] IS NOT NULL;"
-                + EOL,
-                Sql);
+            AssertSql(@"CREATE UNIQUE INDEX [IX_People_Name] ON [People] ([Name]) INCLUDE ([FirstName], [LastName]) WHERE [Name] IS NOT NULL;
+");
         }
 
         [ConditionalFact]
@@ -1257,10 +1211,8 @@ EXEC sp_addextendedproperty @name = N'Comment', @value = N'Employer ID comment',
                     [SqlServerAnnotationNames.Include] = new[] { "FirstName", "LastName" }
                 });
 
-            Assert.Equal(
-                "CREATE UNIQUE INDEX [IX_People_Name] ON [People] ([Name]) INCLUDE ([FirstName], [LastName]) WHERE [Name] IS NOT NULL AND <> '';"
-                + EOL,
-                Sql);
+            AssertSql(@"CREATE UNIQUE INDEX [IX_People_Name] ON [People] ([Name]) INCLUDE ([FirstName], [LastName]) WHERE [Name] IS NOT NULL AND <> '';
+");
         }
 
         [ConditionalFact]
@@ -1278,10 +1230,8 @@ EXEC sp_addextendedproperty @name = N'Comment', @value = N'Employer ID comment',
                     [SqlServerAnnotationNames.CreatedOnline] = true
                 });
 
-            Assert.Equal(
-                "CREATE UNIQUE INDEX [IX_People_Name] ON [People] ([Name]) INCLUDE ([FirstName], [LastName]) WHERE [Name] IS NOT NULL AND <> '' WITH (ONLINE = ON);"
-                + EOL,
-                Sql);
+            AssertSql(@"CREATE UNIQUE INDEX [IX_People_Name] ON [People] ([Name]) INCLUDE ([FirstName], [LastName]) WHERE [Name] IS NOT NULL AND <> '' WITH (ONLINE = ON);
+");
         }
 
         [ConditionalFact]
@@ -1298,9 +1248,8 @@ EXEC sp_addextendedproperty @name = N'Comment', @value = N'Employer ID comment',
                     [SqlServerAnnotationNames.Include] = new[] { "FirstName", "LastName" }
                 });
 
-            Assert.Equal(
-                "CREATE UNIQUE INDEX [IX_People_Name] ON [People] ([Name]) INCLUDE ([FirstName], [LastName]);" + EOL,
-                Sql);
+            AssertSql(@"CREATE UNIQUE INDEX [IX_People_Name] ON [People] ([Name]) INCLUDE ([FirstName], [LastName]);
+");
         }
 
         [ConditionalFact]
@@ -1316,9 +1265,8 @@ EXEC sp_addextendedproperty @name = N'Comment', @value = N'Employer ID comment',
                     IsUnique = true
                 });
 
-            Assert.Equal(
-                "CREATE UNIQUE INDEX [IX_People_Name] ON [People] ([Name]) WHERE [Name] IS NOT NULL;" + EOL,
-                Sql);
+            AssertSql(@"CREATE UNIQUE INDEX [IX_People_Name] ON [People] ([Name]) WHERE [Name] IS NOT NULL;
+");
         }
 
         [ConditionalFact]
@@ -1338,9 +1286,8 @@ EXEC sp_addextendedproperty @name = N'Comment', @value = N'Employer ID comment',
                     IsUnique = true
                 });
 
-            Assert.Equal(
-                "CREATE UNIQUE INDEX [IX_People_Name] ON [People] ([Name]);" + EOL,
-                Sql);
+            AssertSql(@"CREATE UNIQUE INDEX [IX_People_Name] ON [People] ([Name]);
+");
         }
 
         [ConditionalTheory]
@@ -1373,9 +1320,8 @@ EXEC sp_addextendedproperty @name = N'Comment', @value = N'Employer ID comment',
                     IsUnique = true
                 });
 
-            Assert.Equal(
-                "ALTER TABLE [dbo].[People] ADD INDEX [IX_People_Name] ([Name]);" + EOL,
-                Sql);
+            AssertSql(@"ALTER TABLE [dbo].[People] ADD INDEX [IX_People_Name] ([Name]);
+");
         }
 
         [ConditionalTheory]
@@ -1408,9 +1354,8 @@ EXEC sp_addextendedproperty @name = N'Comment', @value = N'Employer ID comment',
                     Filter = "[Name] IS NOT NULL AND <> ''"
                 });
 
-            Assert.Equal(
-                "ALTER TABLE [People] ADD INDEX [IX_People_Name] ([Name]);" + EOL,
-                Sql);
+            AssertSql(@"ALTER TABLE [People] ADD INDEX [IX_People_Name] ([Name]);
+");
         }
 
         [ConditionalTheory]
@@ -1442,9 +1387,8 @@ EXEC sp_addextendedproperty @name = N'Comment', @value = N'Employer ID comment',
                     [SqlServerAnnotationNames.Clustered] = false
                 });
 
-            Assert.Equal(
-                "ALTER TABLE [People] ADD INDEX [IX_People_Name] UNIQUE NONCLUSTERED ([Name]);" + EOL,
-                Sql);
+            AssertSql(@"ALTER TABLE [People] ADD INDEX [IX_People_Name] UNIQUE NONCLUSTERED ([Name]);
+");
         }
 
         [ConditionalFact]
@@ -1456,9 +1400,8 @@ EXEC sp_addextendedproperty @name = N'Comment', @value = N'Employer ID comment',
                     Name = "my"
                 });
 
-            Assert.Equal(
-                "IF SCHEMA_ID(N'my') IS NULL EXEC(N'CREATE SCHEMA [my];');" + EOL,
-                Sql);
+            AssertSql(@"IF SCHEMA_ID(N'my') IS NULL EXEC(N'CREATE SCHEMA [my];');
+");
         }
 
         [ConditionalFact]
@@ -1470,25 +1413,22 @@ EXEC sp_addextendedproperty @name = N'Comment', @value = N'Employer ID comment',
                     Name = "dbo"
                 });
 
-            Assert.Equal(
-                "",
-                Sql);
+            AssertSql("");
         }
 
         public override void DropColumnOperation()
         {
             base.DropColumnOperation();
 
-            Assert.Equal(
-                "DECLARE @var0 sysname;" + EOL +
-                "SELECT @var0 = [d].[name]" + EOL +
-                "FROM [sys].[default_constraints] [d]" + EOL +
-                "INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]"
-                + EOL +
-                "WHERE ([d].[parent_object_id] = OBJECT_ID(N'[dbo].[People]') AND [c].[name] = N'LuckyNumber');" + EOL +
-                "IF @var0 IS NOT NULL EXEC(N'ALTER TABLE [dbo].[People] DROP CONSTRAINT [' + @var0 + '];');" + EOL +
-                "ALTER TABLE [dbo].[People] DROP COLUMN [LuckyNumber];" + EOL,
-                Sql);
+            AssertSql(
+                @"DECLARE @var0 sysname;
+SELECT @var0 = [d].[name]
+FROM [sys].[default_constraints] [d]
+INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
+WHERE ([d].[parent_object_id] = OBJECT_ID(N'[dbo].[People]') AND [c].[name] = N'LuckyNumber');
+IF @var0 IS NOT NULL EXEC(N'ALTER TABLE [dbo].[People] DROP CONSTRAINT [' + @var0 + '];');
+ALTER TABLE [dbo].[People] DROP COLUMN [LuckyNumber];
+");
         }
 
         [ConditionalFact]
@@ -1500,24 +1440,23 @@ EXEC sp_addextendedproperty @name = N'Comment', @value = N'Employer ID comment',
                     Name = "Northwind"
                 });
 
-            Assert.Equal(
-                "IF SERVERPROPERTY('EngineEdition') <> 5" + EOL +
-                "BEGIN" + EOL +
-                "    ALTER DATABASE [Northwind] SET SINGLE_USER WITH ROLLBACK IMMEDIATE;" + EOL +
-                "END;" + EOL +
-                "GO" + EOL +
-                EOL +
-                "DROP DATABASE [Northwind];" + EOL,
-                Sql);
+            AssertSql(
+                @"IF SERVERPROPERTY('EngineEdition') <> 5
+BEGIN
+    ALTER DATABASE [Northwind] SET SINGLE_USER WITH ROLLBACK IMMEDIATE;
+END;
+GO
+
+DROP DATABASE [Northwind];
+");
         }
 
         public override void DropIndexOperation()
         {
             base.DropIndexOperation();
 
-            Assert.Equal(
-                "DROP INDEX [IX_People_Name] ON [dbo].[People];" + EOL,
-                Sql);
+            AssertSql(@"DROP INDEX [IX_People_Name] ON [dbo].[People];
+");
         }
 
         [ConditionalTheory]
@@ -1547,9 +1486,8 @@ EXEC sp_addextendedproperty @name = N'Comment', @value = N'Employer ID comment',
                     Table = "People"
                 });
 
-            Assert.Equal(
-                "ALTER TABLE [People] DROP INDEX [IX_People_Name];" + EOL,
-                Sql);
+            AssertSql(@"ALTER TABLE [People] DROP INDEX [IX_People_Name];
+");
         }
 
         [ConditionalFact]
@@ -1563,9 +1501,8 @@ EXEC sp_addextendedproperty @name = N'Comment', @value = N'Employer ID comment',
                     NewSchema = "my"
                 });
 
-            Assert.Equal(
-                "ALTER SCHEMA [my] TRANSFER [dbo].[EntityFrameworkHiLoSequence];" + EOL,
-                Sql);
+            AssertSql(@"ALTER SCHEMA [my] TRANSFER [dbo].[EntityFrameworkHiLoSequence];
+");
         }
 
         [ConditionalFact]
@@ -1581,9 +1518,8 @@ EXEC sp_addextendedproperty @name = N'Comment', @value = N'Employer ID comment',
                     NewSchema = "my"
                 });
 
-            Assert.Equal(
-                "ALTER SCHEMA [my] TRANSFER [dbo].[EntityFrameworkHiLoSequence];" + EOL,
-                Sql);
+            AssertSql(@"ALTER SCHEMA [my] TRANSFER [dbo].[EntityFrameworkHiLoSequence];
+");
         }
 
         [ConditionalFact]
@@ -1598,10 +1534,10 @@ EXEC sp_addextendedproperty @name = N'Comment', @value = N'Employer ID comment',
                     NewName = "EntityFrameworkHiLoSequence"
                 });
 
-            Assert.Equal(
-                "DECLARE @defaultSchema sysname = SCHEMA_NAME();" + EOL +
-                "EXEC(N'ALTER SCHEMA [' + @defaultSchema + N'] TRANSFER [dbo].[EntityFrameworkHiLoSequence];');" + EOL,
-                Sql);
+            AssertSql(
+                @"DECLARE @defaultSchema sysname = SCHEMA_NAME();
+EXEC(N'ALTER SCHEMA [' + @defaultSchema + N'] TRANSFER [dbo].[EntityFrameworkHiLoSequence];');
+");
         }
 
         [ConditionalFact]
@@ -1615,9 +1551,8 @@ EXEC sp_addextendedproperty @name = N'Comment', @value = N'Employer ID comment',
                     NewSchema = "hr"
                 });
 
-            Assert.Equal(
-                "ALTER SCHEMA [hr] TRANSFER [dbo].[People];" + EOL,
-                Sql);
+            AssertSql(@"ALTER SCHEMA [hr] TRANSFER [dbo].[People];
+");
         }
 
         [ConditionalFact]
@@ -1633,9 +1568,8 @@ EXEC sp_addextendedproperty @name = N'Comment', @value = N'Employer ID comment',
                     NewSchema = "hr"
                 });
 
-            Assert.Equal(
-                "ALTER SCHEMA [hr] TRANSFER [dbo].[People];" + EOL,
-                Sql);
+            AssertSql(@"ALTER SCHEMA [hr] TRANSFER [dbo].[People];
+");
         }
 
         [ConditionalFact]
@@ -1650,10 +1584,10 @@ EXEC sp_addextendedproperty @name = N'Comment', @value = N'Employer ID comment',
                     NewName = "People"
                 });
 
-            Assert.Equal(
-                "DECLARE @defaultSchema sysname = SCHEMA_NAME();" + EOL +
-                "EXEC(N'ALTER SCHEMA [' + @defaultSchema + N'] TRANSFER [dbo].[People];');" + EOL,
-                Sql);
+            AssertSql(
+                @"DECLARE @defaultSchema sysname = SCHEMA_NAME();
+EXEC(N'ALTER SCHEMA [' + @defaultSchema + N'] TRANSFER [dbo].[People];');
+");
         }
 
         [ConditionalFact]
@@ -1668,9 +1602,8 @@ EXEC sp_addextendedproperty @name = N'Comment', @value = N'Employer ID comment',
                     NewName = "FullName"
                 });
 
-            Assert.Equal(
-                "EXEC sp_rename N'[dbo].[People].[Name]', N'FullName', N'COLUMN';" + EOL,
-                Sql);
+            AssertSql(@"EXEC sp_rename N'[dbo].[People].[Name]', N'FullName', N'COLUMN';
+");
         }
 
         [ConditionalFact]
@@ -1685,9 +1618,8 @@ EXEC sp_addextendedproperty @name = N'Comment', @value = N'Employer ID comment',
                     NewName = "IX_People_FullName"
                 });
 
-            Assert.Equal(
-                "EXEC sp_rename N'[dbo].[People].[IX_People_Name]', N'IX_People_FullName', N'INDEX';" + EOL,
-                Sql);
+            AssertSql(@"EXEC sp_rename N'[dbo].[People].[IX_People_Name]', N'IX_People_FullName', N'INDEX';
+");
         }
 
         [ConditionalFact]
@@ -1716,9 +1648,8 @@ EXEC sp_addextendedproperty @name = N'Comment', @value = N'Employer ID comment',
                     NewName = "MySequence"
                 });
 
-            Assert.Equal(
-                "EXEC sp_rename N'[dbo].[EntityFrameworkHiLoSequence]', N'MySequence';" + EOL,
-                Sql);
+            AssertSql(@"EXEC sp_rename N'[dbo].[EntityFrameworkHiLoSequence]', N'MySequence';
+");
         }
 
         [ConditionalFact]
@@ -1734,9 +1665,8 @@ EXEC sp_addextendedproperty @name = N'Comment', @value = N'Employer ID comment',
                     NewSchema = "dbo"
                 });
 
-            Assert.Equal(
-                "EXEC sp_rename N'[dbo].[EntityFrameworkHiLoSequence]', N'MySequence';" + EOL,
-                Sql);
+            AssertSql(@"EXEC sp_rename N'[dbo].[EntityFrameworkHiLoSequence]', N'MySequence';
+");
         }
 
         [ConditionalFact]
@@ -1744,9 +1674,8 @@ EXEC sp_addextendedproperty @name = N'Comment', @value = N'Employer ID comment',
         {
             base.RenameTableOperation_legacy();
 
-            Assert.Equal(
-                "EXEC sp_rename N'[dbo].[People]', N'Person';" + EOL,
-                Sql);
+            AssertSql(@"EXEC sp_rename N'[dbo].[People]', N'Person';
+");
         }
 
         [ConditionalFact]
@@ -1754,9 +1683,8 @@ EXEC sp_addextendedproperty @name = N'Comment', @value = N'Employer ID comment',
         {
             base.RenameTableOperation();
 
-            Assert.Equal(
-                "EXEC sp_rename N'[dbo].[People]', N'Person';" + EOL,
-                Sql);
+            AssertSql(@"EXEC sp_rename N'[dbo].[People]', N'Person';
+");
         }
 
         [ConditionalFact]
@@ -1769,9 +1697,8 @@ EXEC sp_addextendedproperty @name = N'Comment', @value = N'Employer ID comment',
                           "comment"
                 });
 
-            Assert.Equal(
-                "-- Multiline comment" + EOL,
-                Sql);
+            AssertSql(@"-- Multiline comment
+");
         }
 
         [ConditionalFact]
@@ -1785,9 +1712,8 @@ EXEC sp_addextendedproperty @name = N'Comment', @value = N'Employer ID comment',
                           "GO"
                 });
 
-            Assert.Equal(
-                "-- Ready set" + EOL,
-                Sql);
+            AssertSql(@"-- Ready set
+");
         }
 
         [ConditionalFact]
@@ -1801,12 +1727,12 @@ EXEC sp_addextendedproperty @name = N'Comment', @value = N'Employer ID comment',
                           "-- Too"
                 });
 
-            Assert.Equal(
-                "-- I" + EOL +
-                "GO" + EOL +
-                EOL +
-                "-- Too" + EOL,
-                Sql);
+            AssertSql(
+                @"-- I
+GO
+
+-- Too
+");
         }
 
         [ConditionalFact]
@@ -1819,12 +1745,12 @@ EXEC sp_addextendedproperty @name = N'Comment', @value = N'Employer ID comment',
                           "GO 2"
                 });
 
-            Assert.Equal(
-                "-- I" + EOL +
-                "GO" + EOL +
-                EOL +
-                "-- I" + EOL,
-                Sql);
+            AssertSql(
+                @"-- I
+GO
+
+-- I
+");
         }
 
         [ConditionalFact]
@@ -1836,29 +1762,26 @@ EXEC sp_addextendedproperty @name = N'Comment', @value = N'Employer ID comment',
                     Sql = "-- I GO 2"
                 });
 
-            Assert.Equal(
-                "-- I GO 2" + EOL,
-                Sql);
+            AssertSql(@"-- I GO 2
+");
         }
 
         public override void InsertDataOperation()
         {
             base.InsertDataOperation();
 
-            Assert.Equal(
-                "IF EXISTS (SELECT * FROM [sys].[identity_columns] WHERE [name] IN (N'Id', N'Full Name') AND [object_id] = OBJECT_ID(N'[People]'))"
-                + EOL +
-                "    SET IDENTITY_INSERT [People] ON;" + EOL +
-                "INSERT INTO [People] ([Id], [Full Name])" + EOL +
-                "VALUES (0, NULL)," + EOL +
-                "(1, N'Daenerys Targaryen')," + EOL +
-                "(2, N'John Snow')," + EOL +
-                "(3, N'Arya Stark')," + EOL +
-                "(4, N'Harry Strickland');" + EOL +
-                "IF EXISTS (SELECT * FROM [sys].[identity_columns] WHERE [name] IN (N'Id', N'Full Name') AND [object_id] = OBJECT_ID(N'[People]'))"
-                + EOL +
-                "    SET IDENTITY_INSERT [People] OFF;" + EOL,
-                Sql);
+            AssertSql(
+                @"IF EXISTS (SELECT * FROM [sys].[identity_columns] WHERE [name] IN (N'Id', N'Full Name') AND [object_id] = OBJECT_ID(N'[People]'))
+    SET IDENTITY_INSERT [People] ON;
+INSERT INTO [People] ([Id], [Full Name])
+VALUES (0, NULL),
+(1, N'Daenerys Targaryen'),
+(2, N'John Snow'),
+(3, N'Arya Stark'),
+(4, N'Harry Strickland');
+IF EXISTS (SELECT * FROM [sys].[identity_columns] WHERE [name] IN (N'Id', N'Full Name') AND [object_id] = OBJECT_ID(N'[People]'))
+    SET IDENTITY_INSERT [People] OFF;
+");
         }
 
         public override void DeleteDataOperation_simple_key()
@@ -1866,14 +1789,16 @@ EXEC sp_addextendedproperty @name = N'Comment', @value = N'Employer ID comment',
             base.DeleteDataOperation_simple_key();
 
             // TODO remove rowcount
-            Assert.Equal(
-                "DELETE FROM [People]" + EOL +
-                "WHERE [Id] = 2;" + EOL +
-                "SELECT @@ROWCOUNT;" + EOL + EOL +
-                "DELETE FROM [People]" + EOL +
-                "WHERE [Id] = 4;" + EOL +
-                "SELECT @@ROWCOUNT;" + EOL + EOL,
-                Sql);
+            AssertSql(
+                @"DELETE FROM [People]
+WHERE [Id] = 2;
+SELECT @@ROWCOUNT;
+
+DELETE FROM [People]
+WHERE [Id] = 4;
+SELECT @@ROWCOUNT;
+
+");
         }
 
         public override void DeleteDataOperation_composite_key()
@@ -1881,14 +1806,16 @@ EXEC sp_addextendedproperty @name = N'Comment', @value = N'Employer ID comment',
             base.DeleteDataOperation_composite_key();
 
             // TODO remove rowcount
-            Assert.Equal(
-                "DELETE FROM [People]" + EOL +
-                "WHERE [First Name] = N'Hodor' AND [Last Name] IS NULL;" + EOL +
-                "SELECT @@ROWCOUNT;" + EOL + EOL +
-                "DELETE FROM [People]" + EOL +
-                "WHERE [First Name] = N'Daenerys' AND [Last Name] = N'Targaryen';" + EOL +
-                "SELECT @@ROWCOUNT;" + EOL + EOL,
-                Sql);
+            AssertSql(
+                @"DELETE FROM [People]
+WHERE [First Name] = N'Hodor' AND [Last Name] IS NULL;
+SELECT @@ROWCOUNT;
+
+DELETE FROM [People]
+WHERE [First Name] = N'Daenerys' AND [Last Name] = N'Targaryen';
+SELECT @@ROWCOUNT;
+
+");
         }
 
         public override void UpdateDataOperation_simple_key()
@@ -1896,14 +1823,16 @@ EXEC sp_addextendedproperty @name = N'Comment', @value = N'Employer ID comment',
             base.UpdateDataOperation_simple_key();
 
             // TODO remove rowcount
-            Assert.Equal(
-                "UPDATE [People] SET [Full Name] = N'Daenerys Stormborn'" + EOL +
-                "WHERE [Id] = 1;" + EOL +
-                "SELECT @@ROWCOUNT;" + EOL + EOL +
-                "UPDATE [People] SET [Full Name] = N'Homeless Harry Strickland'" + EOL +
-                "WHERE [Id] = 4;" + EOL +
-                "SELECT @@ROWCOUNT;" + EOL + EOL,
-                Sql);
+            AssertSql(
+                @"UPDATE [People] SET [Full Name] = N'Daenerys Stormborn'
+WHERE [Id] = 1;
+SELECT @@ROWCOUNT;
+
+UPDATE [People] SET [Full Name] = N'Homeless Harry Strickland'
+WHERE [Id] = 4;
+SELECT @@ROWCOUNT;
+
+");
         }
 
         public override void UpdateDataOperation_composite_key()
@@ -1911,14 +1840,16 @@ EXEC sp_addextendedproperty @name = N'Comment', @value = N'Employer ID comment',
             base.UpdateDataOperation_composite_key();
 
             // TODO remove rowcount
-            Assert.Equal(
-                "UPDATE [People] SET [First Name] = N'Hodor'" + EOL +
-                "WHERE [Id] = 0 AND [Last Name] IS NULL;" + EOL +
-                "SELECT @@ROWCOUNT;" + EOL + EOL +
-                "UPDATE [People] SET [First Name] = N'Harry'" + EOL +
-                "WHERE [Id] = 4 AND [Last Name] = N'Strickland';" + EOL +
-                "SELECT @@ROWCOUNT;" + EOL + EOL,
-                Sql);
+            AssertSql(
+                @"UPDATE [People] SET [First Name] = N'Hodor'
+WHERE [Id] = 0 AND [Last Name] IS NULL;
+SELECT @@ROWCOUNT;
+
+UPDATE [People] SET [First Name] = N'Harry'
+WHERE [Id] = 4 AND [Last Name] = N'Strickland';
+SELECT @@ROWCOUNT;
+
+");
         }
 
         public override void UpdateDataOperation_multiple_columns()
@@ -1926,14 +1857,16 @@ EXEC sp_addextendedproperty @name = N'Comment', @value = N'Employer ID comment',
             base.UpdateDataOperation_multiple_columns();
 
             // TODO remove rowcount
-            Assert.Equal(
-                "UPDATE [People] SET [First Name] = N'Daenerys', [Nickname] = N'Dany'" + EOL +
-                "WHERE [Id] = 1;" + EOL +
-                "SELECT @@ROWCOUNT;" + EOL + EOL +
-                "UPDATE [People] SET [First Name] = N'Harry', [Nickname] = N'Homeless'" + EOL +
-                "WHERE [Id] = 4;" + EOL +
-                "SELECT @@ROWCOUNT;" + EOL + EOL,
-                Sql);
+            AssertSql(
+                @"UPDATE [People] SET [First Name] = N'Daenerys', [Nickname] = N'Dany'
+WHERE [Id] = 1;
+SELECT @@ROWCOUNT;
+
+UPDATE [People] SET [First Name] = N'Harry', [Nickname] = N'Homeless'
+WHERE [Id] = 4;
+SELECT @@ROWCOUNT;
+
+");
         }
 
         public SqlServerMigrationSqlGeneratorTest()

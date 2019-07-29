@@ -753,5 +753,8 @@ namespace Microsoft.EntityFrameworkCore
                 "GO" + EOL + EOL,
                 batch.Select(b => b.CommandText));
         }
+
+        protected void AssertSql(string expected)
+            => Assert.Equal(expected, Sql, ignoreLineEndingDifferences: true);
     }
 }
