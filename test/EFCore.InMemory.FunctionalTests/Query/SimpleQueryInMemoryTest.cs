@@ -217,6 +217,16 @@ namespace Microsoft.EntityFrameworkCore.Query
             return Task.CompletedTask; //base.Select_Except_reference_projection(isAsync);
         }
 
+        public override Task GroupBy_Select_Union(bool isAsync)
+        {
+            return Task.CompletedTask; //base.GroupBy_Select_Union(isAsync);
+        }
+
+        public override Task Union_over_different_projection_types(bool isAsync, string leftType, string rightType)
+        {
+            return Task.CompletedTask; //base.Union_over_different_projection_types(isAsync);
+        }
+
         #endregion
 
         [ConditionalFact(Skip = "Issue#16564")]
