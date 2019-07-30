@@ -185,7 +185,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 .AddDependencySingleton<RelationalMemberTranslatorProviderDependencies>()
                 .AddDependencySingleton<RelationalSqlTranslatingExpressionVisitorDependencies>()
                 .AddDependencySingleton<RelationalQueryableMethodTranslatingExpressionVisitorDependencies>()
-                .AddDependencySingleton<SqlExpressionVisitorDependencies>()
+                .AddDependencySingleton<QuerySqlGeneratorDependencies>()
                 .AddDependencySingleton<RelationalShapedQueryCompilingExpressionVisitorDependencies>()
                 .AddDependencySingleton<RelationalShapedQueryOptimizerDependencies>()
                 .AddDependencyScoped<MigrationsSqlGeneratorDependencies>()

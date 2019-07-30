@@ -5,9 +5,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 {
     public class QuerySqlGeneratorFactory : IQuerySqlGeneratorFactory
     {
-        private readonly SqlExpressionVisitorDependencies _dependencies;
+        private readonly QuerySqlGeneratorDependencies _dependencies;
 
-        public QuerySqlGeneratorFactory(SqlExpressionVisitorDependencies dependencies)
+        public QuerySqlGeneratorFactory(QuerySqlGeneratorDependencies dependencies)
         {
             _dependencies = dependencies;
         }

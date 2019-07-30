@@ -11,7 +11,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 {
     /// <summary>
     ///     <para>
-    ///         Service dependencies parameter class for <see cref="SqlExpressionVisitor" />
+    ///         Service dependencies parameter class for <see cref="QuerySqlGenerator" />
     ///     </para>
     ///     <para>
     ///         This type is typically used by database providers (and other extensions). It is generally
@@ -31,11 +31,11 @@ namespace Microsoft.EntityFrameworkCore.Query
     ///         This service cannot depend on services registered as <see cref="ServiceLifetime.Scoped"/>.
     ///     </para>
     /// </summary>
-    public sealed class SqlExpressionVisitorDependencies
+    public sealed class QuerySqlGeneratorDependencies
     {
         /// <summary>
         ///     <para>
-        ///         Creates the service dependencies parameter object for a <see cref="SqlExpressionVisitor" />.
+        ///         Creates the service dependencies parameter object for a <see cref="QuerySqlGenerator" />.
         ///     </para>
         ///     <para>
         ///         Do not call this constructor directly from either provider or application code as it may change
@@ -53,7 +53,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         ///     </para>
         /// </summary>
         [EntityFrameworkInternal]
-        public SqlExpressionVisitorDependencies(
+        public QuerySqlGeneratorDependencies(
             [NotNull] IRelationalCommandBuilderFactory relationalCommandBuilderFactory,
             [NotNull] ISqlGenerationHelper sqlGenerationHelper)
         {
@@ -79,15 +79,15 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// </summary>
         /// <param name="relationalCommandBuilderFactory"> A replacement for the current dependency of this type. </param>
         /// <returns> A new parameter object with the given service replaced. </returns>
-        public SqlExpressionVisitorDependencies With([NotNull] IRelationalCommandBuilderFactory relationalCommandBuilderFactory)
-            => new SqlExpressionVisitorDependencies(relationalCommandBuilderFactory, SqlGenerationHelper);
+        public QuerySqlGeneratorDependencies With([NotNull] IRelationalCommandBuilderFactory relationalCommandBuilderFactory)
+            => new QuerySqlGeneratorDependencies(relationalCommandBuilderFactory, SqlGenerationHelper);
 
         /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
         /// </summary>
         /// <param name="sqlGenerationHelper"> A replacement for the current dependency of this type. </param>
         /// <returns> A new parameter object with the given service replaced. </returns>
-        public SqlExpressionVisitorDependencies With([NotNull] ISqlGenerationHelper sqlGenerationHelper)
-            => new SqlExpressionVisitorDependencies(RelationalCommandBuilderFactory, sqlGenerationHelper);
+        public QuerySqlGeneratorDependencies With([NotNull] ISqlGenerationHelper sqlGenerationHelper)
+            => new QuerySqlGeneratorDependencies(RelationalCommandBuilderFactory, sqlGenerationHelper);
     }
 }
