@@ -510,7 +510,7 @@ Foos
         {
             protected override void BuildModel(ModelBuilder modelBuilder)
             {
-#pragma warning disable 612, 618
+#pragma warning disable 612, 618, 1591
                 modelBuilder
                     .HasAnnotation("ProductVersion", "2.2.4-servicing-10062")
                     .HasAnnotation("Relational:MaxIdentifierLength", 128)
@@ -559,7 +559,7 @@ Foos
                             .WithMany("Posts")
                             .HasForeignKey("BlogId");
                     });
-#pragma warning restore 612, 618
+#pragma warning restore 612, 618, 1591
             }
         }
 
@@ -575,7 +575,7 @@ Foos
         {
             protected override void BuildModel(ModelBuilder modelBuilder)
             {
-#pragma warning disable 612, 618
+#pragma warning disable 612, 618, 1591
                 modelBuilder
                     .HasAnnotation("ProductVersion", "2.1.0")
                     .HasAnnotation("Relational:MaxIdentifierLength", 128)
@@ -802,7 +802,7 @@ Foos
                             .HasForeignKey("UserId")
                             .OnDelete(DeleteBehavior.Cascade);
                     });
-#pragma warning restore 612, 618
+#pragma warning restore 612, 618, 1591
             }
         }
 
@@ -818,7 +818,7 @@ Foos
         {
             protected override void BuildModel(ModelBuilder modelBuilder)
             {
-#pragma warning disable 612, 618
+#pragma warning disable 612, 618, 1591
                 modelBuilder
                     .HasAnnotation("ProductVersion", "2.2.0-preview1")
                     .HasAnnotation("Relational:MaxIdentifierLength", 128)
@@ -1045,7 +1045,7 @@ Foos
                             .HasForeignKey("UserId")
                             .OnDelete(DeleteBehavior.Cascade);
                     });
-#pragma warning restore 612, 618
+#pragma warning restore 612, 618, 1591
             }
         }
 
@@ -1061,7 +1061,7 @@ Foos
         {
             protected override void BuildModel(ModelBuilder modelBuilder)
             {
-#pragma warning disable 612, 618
+#pragma warning disable 612, 618, 1591
             modelBuilder
                 .HasAnnotation("ProductVersion", "3.0.0")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128)
@@ -1317,7 +1317,7 @@ Foos
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
-#pragma warning restore 612, 618
+#pragma warning restore 612, 618, 1591
             }
         }
     }

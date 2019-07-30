@@ -197,7 +197,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                         .AppendLine("{")
                         .DecrementIndent()
                         .DecrementIndent()
-                        .AppendLine("#pragma warning disable 612, 618")
+                        .AppendLine("#pragma warning disable 612, 618, 1591")
                         .IncrementIndent()
                         .IncrementIndent();
                     using (builder.Indent())
@@ -209,7 +209,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     builder
                         .DecrementIndent()
                         .DecrementIndent()
-                        .AppendLine("#pragma warning restore 612, 618")
+                        .AppendLine("#pragma warning restore 612, 618, 1591")
                         .IncrementIndent()
                         .IncrementIndent()
                         .AppendLine("}");
@@ -281,7 +281,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                         .AppendLine("{")
                         .DecrementIndent()
                         .DecrementIndent()
-                        .AppendLine("#pragma warning disable 612, 618")
+                        .AppendLine("#pragma warning disable 612, 618, 1591")
                         .IncrementIndent()
                         .IncrementIndent();
                     using (builder.Indent())
@@ -292,7 +292,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     builder
                         .DecrementIndent()
                         .DecrementIndent()
-                        .AppendLine("#pragma warning restore 612, 618")
+                        .AppendLine("#pragma warning restore 612, 618, 1591")
                         .IncrementIndent()
                         .IncrementIndent()
                         .AppendLine("}");

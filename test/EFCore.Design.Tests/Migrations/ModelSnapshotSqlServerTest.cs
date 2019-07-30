@@ -3133,7 +3133,7 @@ namespace RootNamespace
     {
         protected override void BuildModel(ModelBuilder modelBuilder)
         {
-#pragma warning disable 612, 618
+#pragma warning disable 612, 618, 1591
             modelBuilder
                 .HasAnnotation(""Relational:MaxIdentifierLength"", 128)
                 .HasAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.IdentityColumn);
@@ -3349,7 +3349,7 @@ namespace RootNamespace
                             UnsignedInt64 = 58m
                         });
                 });
-#pragma warning restore 612, 618
+#pragma warning restore 612, 618, 1591
         }
     }
 }
@@ -3515,8 +3515,8 @@ namespace RootNamespace
     {{
         protected override void BuildModel(ModelBuilder modelBuilder)
         {{
-#pragma warning disable 612, 618{code}
-#pragma warning restore 612, 618
+#pragma warning disable 612, 618, 1591{code}
+#pragma warning restore 612, 618, 1591
         }}
     }}
 }}

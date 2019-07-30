@@ -466,10 +466,10 @@ namespace MyNamespace
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
-#pragma warning disable 612, 618
+#pragma warning disable 612, 618, 1591
             modelBuilder
                 .HasAnnotation(""Some:EnumValue"", RegexOptions.Multiline);
-#pragma warning restore 612, 618
+#pragma warning restore 612, 618, 1591
         }
     }
 }
@@ -583,7 +583,7 @@ namespace MyNamespace
     {
         protected override void BuildModel(ModelBuilder modelBuilder)
         {
-#pragma warning disable 612, 618
+#pragma warning disable 612, 618, 1591
             modelBuilder
                 .HasAnnotation(""Some:EnumValue"", RegexOptions.Multiline);
 
@@ -613,7 +613,7 @@ namespace MyNamespace
 
                     b.ToTable(""EntityWithConstructorBinding"");
                 });
-#pragma warning restore 612, 618
+#pragma warning restore 612, 618, 1591
         }
     }
 }

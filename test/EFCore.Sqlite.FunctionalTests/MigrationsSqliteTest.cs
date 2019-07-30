@@ -315,7 +315,7 @@ sqlite_sequence
         {
             protected override void BuildModel(ModelBuilder modelBuilder)
             {
-#pragma warning disable 612, 618
+#pragma warning disable 612, 618, 1591
                 modelBuilder
                     .HasAnnotation("ProductVersion", "2.2.4-servicing-10062");
 
@@ -360,7 +360,7 @@ sqlite_sequence
                             .WithMany("Posts")
                             .HasForeignKey("BlogId");
                     });
-#pragma warning restore 612, 618
+#pragma warning restore 612, 618, 1591
             }
         }
 
@@ -368,7 +368,7 @@ sqlite_sequence
     {
         protected override void BuildModel(ModelBuilder modelBuilder)
         {
-#pragma warning disable 612, 618
+#pragma warning disable 612, 618, 1591
             modelBuilder
                 .HasAnnotation("ProductVersion", "2.1.0");
 
@@ -577,7 +577,7 @@ sqlite_sequence
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade);
                 });
-#pragma warning restore 612, 618
+#pragma warning restore 612, 618, 1591
         }
     }
 
@@ -593,7 +593,7 @@ sqlite_sequence
     {
         protected override void BuildModel(ModelBuilder modelBuilder)
         {
-#pragma warning disable 612, 618
+#pragma warning disable 612, 618, 1591
             modelBuilder
                 .HasAnnotation("ProductVersion", "2.2.0-preview1");
 
@@ -802,7 +802,7 @@ sqlite_sequence
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade);
                 });
-#pragma warning restore 612, 618
+#pragma warning restore 612, 618, 1591
         }
     }
 
@@ -818,7 +818,7 @@ sqlite_sequence
     {
         protected override void BuildModel(ModelBuilder modelBuilder)
         {
-#pragma warning disable 612, 618
+#pragma warning disable 612, 618, 1591
             modelBuilder
                 .HasAnnotation("ProductVersion", "3.0.0");
 
@@ -1068,7 +1068,7 @@ sqlite_sequence
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
-#pragma warning restore 612, 618
+#pragma warning restore 612, 618, 1591
         }
     }
 
