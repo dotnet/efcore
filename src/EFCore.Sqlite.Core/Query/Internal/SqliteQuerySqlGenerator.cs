@@ -12,7 +12,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
 {
     public class SqliteQuerySqlGenerator : QuerySqlGenerator
     {
-        public SqliteQuerySqlGenerator(SqlExpressionVisitorDependencies dependencies)
+        public SqliteQuerySqlGenerator(QuerySqlGeneratorDependencies dependencies)
             : base(dependencies)
         {
         }

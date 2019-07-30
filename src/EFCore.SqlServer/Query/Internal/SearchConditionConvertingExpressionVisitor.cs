@@ -15,9 +15,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
         private readonly ISqlExpressionFactory _sqlExpressionFactory;
 
         public SearchConditionConvertingExpressionVisitor(
-            SqlExpressionVisitorDependencies dependencies,
             ISqlExpressionFactory sqlExpressionFactory)
-            : base(dependencies)
         {
             _sqlExpressionFactory = sqlExpressionFactory;
         }
