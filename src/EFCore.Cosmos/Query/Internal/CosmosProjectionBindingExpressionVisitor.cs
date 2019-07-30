@@ -332,37 +332,55 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         /// </summary>
         protected override Expression VisitMemberInit(MemberInitExpression memberInitExpression)
         {
-            var newExpression = (NewExpression)Visit(memberInitExpression.NewExpression);
+            var newExpression = VisitAndConvert(memberInitExpression.NewExpression, nameof(VisitMemberInit));
             if (newExpression == null)
             {
                 return null;
             }
 
-            var newBindings = new MemberAssignment[memberInitExpression.Bindings.Count];
+            var newBindings = new MemberBinding[memberInitExpression.Bindings.Count];
             for (var i = 0; i < newBindings.Length; i++)
             {
-                var memberAssignment = (MemberAssignment)memberInitExpression.Bindings[i];
-                if (_clientEval)
+                if (memberInitExpression.Bindings[i].BindingType != MemberBindingType.Assignment)
                 {
-                    newBindings[i] = memberAssignment.Update(Visit(memberAssignment.Expression));
+                    return null;
                 }
-                else
+
+                newBindings[i] = VisitMemberBinding(memberInitExpression.Bindings[i]);
+
+                if (newBindings[i] == null)
                 {
-                    var projectionMember = _projectionMembers.Peek().Append(memberAssignment.Member);
-                    _projectionMembers.Push(projectionMember);
-
-                    var visitedExpression = Visit(memberAssignment.Expression);
-                    if (visitedExpression == null)
-                    {
-                        return null;
-                    }
-
-                    newBindings[i] = memberAssignment.Update(visitedExpression);
-                    _projectionMembers.Pop();
+                    return null;
                 }
             }
 
             return memberInitExpression.Update(newExpression, newBindings);
+        }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        protected override MemberAssignment VisitMemberAssignment(MemberAssignment memberAssignment)
+        {
+            if (_clientEval)
+            {
+                return memberAssignment.Update(Visit(memberAssignment.Expression));
+            }
+
+            var projectionMember = _projectionMembers.Peek().Append(memberAssignment.Member);
+            _projectionMembers.Push(projectionMember);
+
+            var visitedExpression = Visit(memberAssignment.Expression);
+            if (visitedExpression == null)
+            {
+                return null;
+            }
+
+            _projectionMembers.Pop();
+            return memberAssignment.Update(visitedExpression);
         }
 
         // TODO: Debugging

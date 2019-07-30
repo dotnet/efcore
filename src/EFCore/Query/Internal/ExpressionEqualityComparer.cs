@@ -711,7 +711,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     case MemberBindingType.MemberBinding:
                         return CompareMemberMemberBinding((MemberMemberBinding)a, (MemberMemberBinding)b);
                     default:
-                        throw new NotImplementedException();
+                        throw new InvalidOperationException("Unhandled member binding type: " + a.BindingType);
                 }
             }
 

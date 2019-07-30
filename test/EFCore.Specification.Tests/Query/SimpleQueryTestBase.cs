@@ -526,6 +526,23 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
+        public virtual Task Entity_equality_through_DTO_projection(bool isAsync)
+            => AssertQuery<Order>(
+                isAsync,
+                o => o
+                    .Select(o => new CustomerWrapper { Customer = o.Customer })
+                    .Where(x => x.Customer != null),
+                entryCount: 89);
+
+        private class CustomerWrapper
+        {
+            public Customer Customer { get; set; }
+            public override bool Equals(object obj) => obj is CustomerWrapper other && other.Customer.Equals(Customer);
+            public override int GetHashCode() => Customer.GetHashCode();
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task Entity_equality_through_subquery(bool isAsync)
             => AssertQuery<Customer>(
                 isAsync,

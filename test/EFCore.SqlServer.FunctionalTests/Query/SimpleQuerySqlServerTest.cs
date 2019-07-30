@@ -297,6 +297,17 @@ LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]
 WHERE [c].[CustomerID] IS NOT NULL");
         }
 
+        public override async Task Entity_equality_through_DTO_projection(bool isAsync)
+        {
+            await base.Entity_equality_through_DTO_projection(isAsync);
+
+            AssertSql(
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Orders] AS [o]
+LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]
+WHERE [c].[CustomerID] IS NOT NULL");
+        }
+
         public override async Task Entity_equality_through_subquery(bool isAsync)
         {
             await base.Entity_equality_through_subquery(isAsync);
