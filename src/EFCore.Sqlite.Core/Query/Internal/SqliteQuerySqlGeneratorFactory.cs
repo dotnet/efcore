@@ -7,9 +7,9 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
 {
     public class SqliteQuerySqlGeneratorFactory : IQuerySqlGeneratorFactory
     {
-        private readonly SqlExpressionVisitorDependencies _dependencies;
+        private readonly QuerySqlGeneratorDependencies _dependencies;
 
-        public SqliteQuerySqlGeneratorFactory(SqlExpressionVisitorDependencies dependencies)
+        public SqliteQuerySqlGeneratorFactory(QuerySqlGeneratorDependencies dependencies)
         {
             _dependencies = dependencies;
         }
