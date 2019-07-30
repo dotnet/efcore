@@ -125,7 +125,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                 modelBuilder
                     .Entity(typeof(Customer))
                     .Property(typeof(string), "Geometry")
-                    .HasSpatialDimension("Z");
+                    .HasGeometricDimension("Z");
             }
 
             var property = modelBuilder
@@ -133,7 +133,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                 .Property(typeof(string), "Geometry")
                 .Metadata;
 
-            Assert.Equal("Z", property.GetSpatialDimension());
+            Assert.Equal("Z", property.GetGeometricDimension());
         }
 
         protected virtual ModelBuilder CreateConventionModelBuilder()

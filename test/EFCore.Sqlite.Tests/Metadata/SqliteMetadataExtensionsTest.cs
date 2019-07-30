@@ -39,15 +39,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 .Property(e => e.Geometry)
                 .Metadata;
 
-            Assert.Null(property.GetSpatialDimension());
+            Assert.Null(property.GetGeometricDimension());
 
-            property.SetSpatialDimension("Z");
+            property.SetGeometricDimension("Z");
 
-            Assert.Equal("Z", property.GetSpatialDimension());
+            Assert.Equal("Z", property.GetGeometricDimension());
 
-            property.SetSpatialDimension(null);
+            property.SetGeometricDimension(null);
 
-            Assert.Null(property.GetSpatialDimension());
+            Assert.Null(property.GetGeometricDimension());
         }
 
         private class Customer

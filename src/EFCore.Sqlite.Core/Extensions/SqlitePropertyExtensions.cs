@@ -51,7 +51,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="property"> The property. </param>
         /// <returns> The dimension to use when creating a column for this property. </returns>
-        public static string GetSpatialDimension([NotNull] this IProperty property)
+        public static string GetGeometricDimension([NotNull] this IProperty property)
             => (string)property[SqliteAnnotationNames.Dimension];
 
         /// <summary>
@@ -59,7 +59,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="property"> The property. </param>
         /// <param name="value"> The dimension. </param>
-        public static void SetSpatialDimension([NotNull] this IMutableProperty property, [CanBeNull] string value)
+        public static void SetGeometricDimension([NotNull] this IMutableProperty property, [CanBeNull] string value)
             => property.SetOrRemoveAnnotation(SqliteAnnotationNames.Dimension, value);
 
         /// <summary>
@@ -68,7 +68,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="property"> The property. </param>
         /// <param name="value"> The dimension. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        public static void SetSpatialDimension(
+        public static void SetGeometricDimension(
             [NotNull] this IConventionProperty property, [CanBeNull] string value, bool fromDataAnnotation = false)
             => property.SetOrRemoveAnnotation(SqliteAnnotationNames.Dimension, value, fromDataAnnotation);
 
@@ -77,7 +77,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="property"> The property. </param>
         /// <returns> The <see cref="ConfigurationSource" /> for the column dimension. </returns>
-        public static ConfigurationSource? GetSpatialDimensionConfigurationSource([NotNull] this IConventionProperty property)
+        public static ConfigurationSource? GetGeometricDimensionConfigurationSource([NotNull] this IConventionProperty property)
             => property.FindAnnotation(SqliteAnnotationNames.Dimension)?.GetConfigurationSource();
     }
 }
