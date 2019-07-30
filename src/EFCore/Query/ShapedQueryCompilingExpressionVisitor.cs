@@ -30,20 +30,25 @@ namespace Microsoft.EntityFrameworkCore.Query
         private static readonly PropertyInfo _cancellationTokenMemberInfo
             = typeof(QueryContext).GetProperty(nameof(QueryContext.CancellationToken));
 
-        private readonly IEntityMaterializerSource _entityMaterializerSource;
         private readonly Expression _cancellationTokenParameter;
         private readonly EntityMaterializerInjectingExpressionVisitor _entityMaterializerInjectingExpressionVisitor;
 
         protected ShapedQueryCompilingExpressionVisitor(
             QueryCompilationContext queryCompilationContext,
-            IEntityMaterializerSource entityMaterializerSource)
+            ShapedQueryCompilingExpressionVisitorDependencies dependencies)
         {
-            _entityMaterializerSource = entityMaterializerSource;
+            Dependencies = dependencies;
+
             IsTracking = queryCompilationContext.IsTracking;
+
             _entityMaterializerInjectingExpressionVisitor =
-                new EntityMaterializerInjectingExpressionVisitor(entityMaterializerSource, IsTracking);
+                new EntityMaterializerInjectingExpressionVisitor(
+                    dependencies.EntityMaterializerSource,
+                    queryCompilationContext.IsTracking);
+
             IsAsync = queryCompilationContext.IsAsync;
-            if (IsAsync)
+
+            if (queryCompilationContext.IsAsync)
             {
                 _cancellationTokenParameter = Expression.MakeMemberAccess(
                     QueryCompilationContext.QueryContextParameter,
@@ -51,6 +56,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
+        protected virtual ShapedQueryCompilingExpressionVisitorDependencies Dependencies { get; }
 
         protected virtual bool IsTracking { get; }
 

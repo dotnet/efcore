@@ -8,6 +8,11 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
 {
     public class InMemoryShapedQueryOptimizer : ShapedQueryOptimizer
     {
+        public InMemoryShapedQueryOptimizer(ShapedQueryOptimizerDependencies dependencies)
+            : base(dependencies)
+        {
+        }
+
         public override Expression Visit(Expression query)
         {
             query = base.Visit(query);

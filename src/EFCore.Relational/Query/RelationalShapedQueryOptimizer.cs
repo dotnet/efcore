@@ -4,20 +4,27 @@
 using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Query.Internal;
+using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
     public class RelationalShapedQueryOptimizer : ShapedQueryOptimizer
     {
         public RelationalShapedQueryOptimizer(
-            QueryCompilationContext queryCompilationContext,
-            ISqlExpressionFactory sqlExpressionFactory)
+            ShapedQueryOptimizerDependencies dependencies,
+            RelationalShapedQueryOptimizerDependencies relationalDependencies,
+            QueryCompilationContext queryCompilationContext)
+            : base(dependencies)
         {
+            RelationalDependencies = relationalDependencies;
             UseRelationalNulls = RelationalOptionsExtension.Extract(queryCompilationContext.ContextOptions).UseRelationalNulls;
-            SqlExpressionFactory = sqlExpressionFactory;
+            SqlExpressionFactory = relationalDependencies.SqlExpressionFactory;
         }
 
+        protected virtual RelationalShapedQueryOptimizerDependencies RelationalDependencies { get; }
+
         protected virtual ISqlExpressionFactory SqlExpressionFactory { get; }
+
         protected virtual bool UseRelationalNulls { get; }
 
         public override Expression Visit(Expression query)

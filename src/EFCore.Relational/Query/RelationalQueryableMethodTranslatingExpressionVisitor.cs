@@ -26,24 +26,31 @@ namespace Microsoft.EntityFrameworkCore.Query
         private readonly ISqlExpressionFactory _sqlExpressionFactory;
 
         public RelationalQueryableMethodTranslatingExpressionVisitor(
-            IModel model,
-            IRelationalSqlTranslatingExpressionVisitorFactory relationalSqlTranslatingExpressionVisitorFactory,
-            ISqlExpressionFactory sqlExpressionFactory)
-            : base(subquery: false)
+            QueryableMethodTranslatingExpressionVisitorDependencies dependencies,
+            RelationalQueryableMethodTranslatingExpressionVisitorDependencies relationalDependencies,
+            IModel model)
+            : base(dependencies, subquery: false)
         {
-            _sqlTranslator = relationalSqlTranslatingExpressionVisitorFactory.Create(model, this);
+            RelationalDependencies = relationalDependencies;
+
+            var sqlExpressionFactory = relationalDependencies.SqlExpressionFactory;
+            _sqlTranslator = relationalDependencies.RelationalSqlTranslatingExpressionVisitorFactory.Create(model, this);
             _weakEntityExpandingExpressionVisitor = new WeakEntityExpandingExpressionVisitor(_sqlTranslator, sqlExpressionFactory);
             _projectionBindingExpressionVisitor = new RelationalProjectionBindingExpressionVisitor(this, _sqlTranslator);
             _model = model;
             _sqlExpressionFactory = sqlExpressionFactory;
         }
 
+        protected virtual RelationalQueryableMethodTranslatingExpressionVisitorDependencies RelationalDependencies { get; }
+
         private RelationalQueryableMethodTranslatingExpressionVisitor(
+            QueryableMethodTranslatingExpressionVisitorDependencies dependencies,
+            RelationalQueryableMethodTranslatingExpressionVisitorDependencies relationalDependencies,
             IModel model,
             RelationalSqlTranslatingExpressionVisitor sqlTranslator,
             WeakEntityExpandingExpressionVisitor weakEntityExpandingExpressionVisitor,
             ISqlExpressionFactory sqlExpressionFactory)
-            : base(subquery: true)
+            : base(dependencies, subquery: true)
         {
             _model = model;
             _sqlTranslator = sqlTranslator;
@@ -70,6 +77,8 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         public override ShapedQueryExpression TranslateSubquery(Expression expression)
             => (ShapedQueryExpression)new RelationalQueryableMethodTranslatingExpressionVisitor(
+                Dependencies,
+                RelationalDependencies,
                 _model,
                 _sqlTranslator,
                 _weakEntityExpandingExpressionVisitor,

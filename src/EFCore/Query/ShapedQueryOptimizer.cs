@@ -7,6 +7,13 @@ namespace Microsoft.EntityFrameworkCore.Query
 {
     public class ShapedQueryOptimizer
     {
+        public ShapedQueryOptimizer(ShapedQueryOptimizerDependencies dependencies)
+        {
+            Dependencies = dependencies;
+        }
+
+        protected virtual ShapedQueryOptimizerDependencies Dependencies { get; }
+
         public virtual Expression Visit(Expression query)
         {
             return query;

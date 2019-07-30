@@ -17,8 +17,10 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         private readonly InMemoryProjectionBindingExpressionVisitor _projectionBindingExpressionVisitor;
         private readonly IModel _model;
 
-        public InMemoryQueryableMethodTranslatingExpressionVisitor(IModel model)
-            : base(subquery: false)
+        public InMemoryQueryableMethodTranslatingExpressionVisitor(
+            QueryableMethodTranslatingExpressionVisitorDependencies dependencies,
+            IModel model)
+            : base(dependencies, subquery: false)
         {
             _expressionTranslator = new InMemoryExpressionTranslatingExpressionVisitor(this);
             _projectionBindingExpressionVisitor = new InMemoryProjectionBindingExpressionVisitor(this, _expressionTranslator);
@@ -26,9 +28,10 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         }
 
         public InMemoryQueryableMethodTranslatingExpressionVisitor(
+            QueryableMethodTranslatingExpressionVisitorDependencies dependencies,
             IModel model,
             InMemoryExpressionTranslatingExpressionVisitor expressionTranslator)
-            : base(subquery: true)
+            : base(dependencies, subquery: true)
         {
             _expressionTranslator = expressionTranslator;
             _projectionBindingExpressionVisitor = new InMemoryProjectionBindingExpressionVisitor(this, expressionTranslator);
@@ -41,8 +44,9 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         public override ShapedQueryExpression TranslateSubquery(Expression expression)
         {
             return (ShapedQueryExpression)new InMemoryQueryableMethodTranslatingExpressionVisitor(
-                _model,
-                _expressionTranslator)
+                    Dependencies,
+                    _model,
+                    _expressionTranslator)
                 .Visit(expression);
         }
 
