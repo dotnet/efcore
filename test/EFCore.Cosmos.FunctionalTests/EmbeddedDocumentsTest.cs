@@ -185,8 +185,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
             }
         }
 
-        // #12086
-        //[ConditionalFact]
+        [ConditionalFact]
         public virtual async Task Can_query_just_nested_collection()
         {
             await using (var testDatabase = CreateTestStore())
