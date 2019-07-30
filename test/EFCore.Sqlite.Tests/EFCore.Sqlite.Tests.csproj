@@ -4,8 +4,6 @@
     <TargetFramework>netcoreapp3.0</TargetFramework>
     <AssemblyName>Microsoft.EntityFrameworkCore.Sqlite.Tests</AssemblyName>
     <RootNamespace>Microsoft.EntityFrameworkCore</RootNamespace>
-    <!-- Workaround https://github.com/Microsoft/vstest/issues/792. -->
-    <HasRuntimeOutput>true</HasRuntimeOutput>
     <CodeAnalysisRuleSet>..\..\EFCore.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
 
