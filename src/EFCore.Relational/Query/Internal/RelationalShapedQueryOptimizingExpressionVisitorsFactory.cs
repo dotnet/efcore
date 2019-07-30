@@ -6,16 +6,27 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 {
     public class RelationalShapedQueryOptimizerFactory : IShapedQueryOptimizerFactory
     {
-        protected virtual ISqlExpressionFactory SqlExpressionFactory { get; private set; }
+        private readonly ShapedQueryOptimizerDependencies _dependencies;
+        private readonly RelationalShapedQueryOptimizerDependencies _relationalDependencies;
 
-        public RelationalShapedQueryOptimizerFactory(ISqlExpressionFactory sqlExpressionFactory)
+        public RelationalShapedQueryOptimizerFactory(
+            ShapedQueryOptimizerDependencies dependencies,
+            RelationalShapedQueryOptimizerDependencies relationalDependencies,
+            ISqlExpressionFactory sqlExpressionFactory)
         {
+            _dependencies = dependencies;
+            _relationalDependencies = relationalDependencies;
             SqlExpressionFactory = sqlExpressionFactory;
         }
 
+        protected virtual ISqlExpressionFactory SqlExpressionFactory { get; }
+
         public virtual ShapedQueryOptimizer Create(QueryCompilationContext queryCompilationContext)
         {
-            return new RelationalShapedQueryOptimizer(queryCompilationContext, SqlExpressionFactory);
+            return new RelationalShapedQueryOptimizer(
+                _dependencies,
+                _relationalDependencies,
+                queryCompilationContext);
         }
     }
 }

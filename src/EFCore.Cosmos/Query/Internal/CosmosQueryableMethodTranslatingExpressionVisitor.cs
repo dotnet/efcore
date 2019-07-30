@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Query;
@@ -32,11 +33,12 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public CosmosQueryableMethodTranslatingExpressionVisitor(
+            [NotNull] QueryableMethodTranslatingExpressionVisitorDependencies dependencies,
             IModel model,
             ISqlExpressionFactory sqlExpressionFactory,
             IMemberTranslatorProvider memberTranslatorProvider,
             IMethodCallTranslatorProvider methodCallTranslatorProvider)
-            : base(subquery: false)
+            : base(dependencies, subquery: false)
         {
             _model = model;
             _sqlExpressionFactory = sqlExpressionFactory;

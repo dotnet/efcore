@@ -26,8 +26,8 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
 
         public InMemoryShapedQueryCompilingExpressionVisitor(
             QueryCompilationContext queryCompilationContext,
-            IEntityMaterializerSource entityMaterializerSource)
-            : base(queryCompilationContext, entityMaterializerSource)
+            ShapedQueryCompilingExpressionVisitorDependencies dependencies)
+            : base(queryCompilationContext, dependencies)
         {
             _contextType = queryCompilationContext.ContextType;
             _logger = queryCompilationContext.Logger;

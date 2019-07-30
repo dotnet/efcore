@@ -7,9 +7,16 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
 {
     public class InMemoryShapedQueryOptimizerFactory : IShapedQueryOptimizerFactory
     {
+        private readonly ShapedQueryOptimizerDependencies _dependencies;
+
+        public InMemoryShapedQueryOptimizerFactory(ShapedQueryOptimizerDependencies dependencies)
+        {
+            _dependencies = dependencies;
+        }
+
         public virtual ShapedQueryOptimizer Create(QueryCompilationContext queryCompilationContext)
         {
-            return new InMemoryShapedQueryOptimizer();
+            return new InMemoryShapedQueryOptimizer(_dependencies);
         }
     }
 }

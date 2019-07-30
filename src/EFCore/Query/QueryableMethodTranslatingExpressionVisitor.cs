@@ -6,8 +6,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Query.NavigationExpansion.Internal;
+using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
@@ -15,10 +17,15 @@ namespace Microsoft.EntityFrameworkCore.Query
     {
         private readonly bool _subquery;
 
-        protected QueryableMethodTranslatingExpressionVisitor(bool subquery)
+        protected QueryableMethodTranslatingExpressionVisitor(
+            QueryableMethodTranslatingExpressionVisitorDependencies dependencies,
+            bool subquery)
         {
+            Dependencies = dependencies;
             _subquery = subquery;
         }
+
+        protected virtual QueryableMethodTranslatingExpressionVisitorDependencies Dependencies { get; }
 
         protected override Expression VisitConstant(ConstantExpression constantExpression)
             => constantExpression.IsEntityQueryable()
