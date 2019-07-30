@@ -45,7 +45,11 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                 private readonly ValueBuffer _value;
                 private bool _moved;
 
-                public ResultEnumerator(ValueBuffer value) => _value = value;
+                public ResultEnumerator(ValueBuffer value)
+                {
+                    _value = value;
+                    _moved = _value.IsEmpty;
+                }
 
                 public bool MoveNext()
                 {
