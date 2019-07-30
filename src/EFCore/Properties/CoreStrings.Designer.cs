@@ -2133,9 +2133,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <summary>
         ///     This query would cause multiple evaluation of a subquery because entity '{entityType}' has a composite key. Rewrite your query avoiding the subquery.
         /// </summary>
-        public static string SubqueryWithCompositeKeyNotSupported([CanBeNull] object entityType)
+        public static string EntityEqualitySubqueryWithCompositeKeyNotSupported([CanBeNull] object entityType)
             => string.Format(
-                GetString("SubqueryWithCompositeKeyNotSupported", nameof(entityType)),
+                GetString("EntityEqualitySubqueryWithCompositeKeyNotSupported", nameof(entityType)),
                 entityType);
 
         /// <summary>
@@ -2144,6 +2144,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         public static string EntityEqualityContainsWithCompositeKeyNotSupported([CanBeNull] object entityType)
             => string.Format(
                 GetString("EntityEqualityContainsWithCompositeKeyNotSupported", nameof(entityType)),
+                entityType);
+
+        /// <summary>
+        ///     Comparison on entity type '{entityType}' is not supported because it is a keyless entity.
+        /// </summary>
+        public static string EntityEqualityOnKeylessEntityNotSupported([CanBeNull] object entityType)
+            => string.Format(
+                GetString("EntityEqualityOnKeylessEntityNotSupported", nameof(entityType)),
                 entityType);
 
         /// <summary>
