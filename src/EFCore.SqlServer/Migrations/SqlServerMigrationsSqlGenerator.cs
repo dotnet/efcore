@@ -1577,7 +1577,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 {
                     yield return index;
                 }
-                else if (index.GetSqlServerIncludeProperties() is IReadOnlyList<string> includeProperties)
+                else if (index.GetIncludeProperties() is IReadOnlyList<string> includeProperties)
                 {
                     if (includeProperties.Contains(property.Name))
                     {
@@ -1848,7 +1848,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 
         private bool IsMemoryOptimized(Annotatable annotatable, IModel model, string schema, string tableName)
             => annotatable[SqlServerAnnotationNames.MemoryOptimized] as bool?
-               ?? FindEntityTypes(model, schema, tableName)?.Any(t => t.GetSqlServerIsMemoryOptimized()) == true;
+               ?? FindEntityTypes(model, schema, tableName)?.Any(t => t.IsMemoryOptimized()) == true;
 
         private static bool IsMemoryOptimized(Annotatable annotatable)
             => annotatable[SqlServerAnnotationNames.MemoryOptimized] as bool? == true;

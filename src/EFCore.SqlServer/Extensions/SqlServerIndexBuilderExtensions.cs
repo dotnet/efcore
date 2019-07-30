@@ -32,7 +32,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             Check.NotNull(indexBuilder, nameof(indexBuilder));
 
-            indexBuilder.Metadata.SetSqlServerIsClustered(clustered);
+            indexBuilder.Metadata.SetIsClustered(clustered);
 
             return indexBuilder;
         }
@@ -64,7 +64,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             if (indexBuilder.CanSetIsClustered(clustered, fromDataAnnotation))
             {
-                indexBuilder.Metadata.SetSqlServerIsClustered(clustered, fromDataAnnotation);
+                indexBuilder.Metadata.SetIsClustered(clustered, fromDataAnnotation);
                 return indexBuilder;
             }
 
@@ -99,7 +99,7 @@ namespace Microsoft.EntityFrameworkCore
             Check.NotNull(indexBuilder, nameof(indexBuilder));
             Check.NotNull(propertyNames, nameof(propertyNames));
 
-            indexBuilder.Metadata.SetSqlServerIncludeProperties(propertyNames);
+            indexBuilder.Metadata.SetIncludeProperties(propertyNames);
 
             return indexBuilder;
         }
@@ -149,7 +149,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             if (indexBuilder.CanSetIncludeProperties(propertyNames, fromDataAnnotation))
             {
-                indexBuilder.Metadata.SetSqlServerIncludeProperties(propertyNames, fromDataAnnotation);
+                indexBuilder.Metadata.SetIncludeProperties(propertyNames, fromDataAnnotation);
 
                 return indexBuilder;
             }
@@ -172,9 +172,9 @@ namespace Microsoft.EntityFrameworkCore
             Check.NotNull(indexBuilder, nameof(indexBuilder));
 
             return (fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention)
-                   .Overrides(indexBuilder.Metadata.GetSqlServerIncludePropertiesConfigurationSource())
+                   .Overrides(indexBuilder.Metadata.GetIncludePropertiesConfigurationSource())
                    || StructuralComparisons.StructuralEqualityComparer.Equals(
-                       propertyNames, indexBuilder.Metadata.GetSqlServerIncludeProperties());
+                       propertyNames, indexBuilder.Metadata.GetIncludeProperties());
         }
 
         /// <summary>
@@ -187,7 +187,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             Check.NotNull(indexBuilder, nameof(indexBuilder));
 
-            indexBuilder.Metadata.SetSqlServerIsCreatedOnline(createdOnline);
+            indexBuilder.Metadata.SetIsCreatedOnline(createdOnline);
 
             return indexBuilder;
         }
@@ -219,7 +219,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             if (indexBuilder.CanSetIsCreatedOnline(createdOnline, fromDataAnnotation))
             {
-                indexBuilder.Metadata.SetSqlServerIsCreatedOnline(createdOnline, fromDataAnnotation);
+                indexBuilder.Metadata.SetIsCreatedOnline(createdOnline, fromDataAnnotation);
 
                 return indexBuilder;
             }

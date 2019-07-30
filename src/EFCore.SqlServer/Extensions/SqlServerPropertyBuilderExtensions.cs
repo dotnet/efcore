@@ -44,11 +44,11 @@ namespace Microsoft.EntityFrameworkCore
                 model.AddSequence(name, schema).IncrementBy = 10;
             }
 
-            property.SetSqlServerValueGenerationStrategy(SqlServerValueGenerationStrategy.SequenceHiLo);
-            property.SetSqlServerHiLoSequenceName(name);
-            property.SetSqlServerHiLoSequenceSchema(schema);
-            property.SetSqlServerIdentitySeed(null);
-            property.SetSqlServerIdentityIncrement(null);
+            property.SetValueGenerationStrategy(SqlServerValueGenerationStrategy.SequenceHiLo);
+            property.SetHiLoSequenceName(name);
+            property.SetHiLoSequenceSchema(schema);
+            property.SetIdentitySeed(null);
+            property.SetIdentityIncrement(null);
 
             return propertyBuilder;
         }
@@ -88,8 +88,8 @@ namespace Microsoft.EntityFrameworkCore
                 return null;
             }
 
-            propertyBuilder.Metadata.SetSqlServerHiLoSequenceName(name, fromDataAnnotation);
-            propertyBuilder.Metadata.SetSqlServerHiLoSequenceSchema(schema, fromDataAnnotation);
+            propertyBuilder.Metadata.SetHiLoSequenceName(name, fromDataAnnotation);
+            propertyBuilder.Metadata.SetHiLoSequenceSchema(schema, fromDataAnnotation);
 
             return name == null
                 ? null
@@ -134,11 +134,11 @@ namespace Microsoft.EntityFrameworkCore
             Check.NotNull(propertyBuilder, nameof(propertyBuilder));
 
             var property = propertyBuilder.Metadata;
-            property.SetSqlServerValueGenerationStrategy(SqlServerValueGenerationStrategy.IdentityColumn);
-            property.SetSqlServerIdentitySeed(seed);
-            property.SetSqlServerIdentityIncrement(increment);
-            property.SetSqlServerHiLoSequenceName(null);
-            property.SetSqlServerHiLoSequenceSchema(null);
+            property.SetValueGenerationStrategy(SqlServerValueGenerationStrategy.IdentityColumn);
+            property.SetIdentitySeed(seed);
+            property.SetIdentityIncrement(increment);
+            property.SetHiLoSequenceName(null);
+            property.SetHiLoSequenceSchema(null);
 
             return propertyBuilder;
         }
@@ -173,7 +173,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             if (propertyBuilder.CanSetIdentityColumnSeed(seed, fromDataAnnotation))
             {
-                propertyBuilder.Metadata.SetSqlServerIdentitySeed(seed, fromDataAnnotation);
+                propertyBuilder.Metadata.SetIdentitySeed(seed, fromDataAnnotation);
                 return propertyBuilder;
             }
 
@@ -210,7 +210,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             if (propertyBuilder.CanSetIdentityColumnIncrement(increment, fromDataAnnotation))
             {
-                propertyBuilder.Metadata.SetSqlServerIdentityIncrement(increment, fromDataAnnotation);
+                propertyBuilder.Metadata.SetIdentityIncrement(increment, fromDataAnnotation);
                 return propertyBuilder;
             }
 
@@ -250,7 +250,7 @@ namespace Microsoft.EntityFrameworkCore
             if (propertyBuilder.CanSetAnnotation(
                 SqlServerAnnotationNames.ValueGenerationStrategy, valueGenerationStrategy, fromDataAnnotation))
             {
-                propertyBuilder.Metadata.SetSqlServerValueGenerationStrategy(valueGenerationStrategy, fromDataAnnotation);
+                propertyBuilder.Metadata.SetValueGenerationStrategy(valueGenerationStrategy, fromDataAnnotation);
                 if (valueGenerationStrategy != SqlServerValueGenerationStrategy.IdentityColumn)
                 {
                     propertyBuilder.HasIdentityColumnSeed(null, fromDataAnnotation);

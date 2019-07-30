@@ -60,7 +60,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Migrations.Internal
         /// </summary>
         public override IEnumerable<IAnnotation> For(IKey key)
         {
-            var isClustered = key.GetSqlServerIsClustered();
+            var isClustered = key.IsClustered();
             if (isClustered.HasValue)
             {
                 yield return new Annotation(
@@ -77,7 +77,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Migrations.Internal
         /// </summary>
         public override IEnumerable<IAnnotation> For(IIndex index)
         {
-            var isClustered = index.GetSqlServerIsClustered();
+            var isClustered = index.IsClustered();
             if (isClustered.HasValue)
             {
                 yield return new Annotation(
@@ -85,7 +85,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Migrations.Internal
                     isClustered.Value);
             }
 
-            var includeProperties = index.GetSqlServerIncludeProperties();
+            var includeProperties = index.GetIncludeProperties();
             if (includeProperties != null)
             {
                 yield return new Annotation(
@@ -93,7 +93,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Migrations.Internal
                     includeProperties);
             }
 
-            var isOnline = index.GetSqlServerIsCreatedOnline();
+            var isOnline = index.IsCreatedOnline();
             if (isOnline.HasValue)
             {
                 yield return new Annotation(
@@ -110,13 +110,13 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Migrations.Internal
         /// </summary>
         public override IEnumerable<IAnnotation> For(IProperty property)
         {
-            if (property.GetSqlServerValueGenerationStrategy() == SqlServerValueGenerationStrategy.IdentityColumn)
+            if (property.GetValueGenerationStrategy() == SqlServerValueGenerationStrategy.IdentityColumn)
             {
                 yield return new Annotation(
                     SqlServerAnnotationNames.ValueGenerationStrategy,
                     SqlServerValueGenerationStrategy.IdentityColumn);
 
-                var seed = property.GetSqlServerIdentitySeed();
+                var seed = property.GetIdentitySeed();
                 if (seed.HasValue)
                 {
                     yield return new Annotation(
@@ -124,7 +124,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Migrations.Internal
                         seed.Value);
                 }
 
-                var increment = property.GetSqlServerIdentityIncrement();
+                var increment = property.GetIdentityIncrement();
                 if (increment.HasValue)
                 {
                     yield return new Annotation(
@@ -143,7 +143,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Migrations.Internal
         /// </summary>
         public override IEnumerable<IAnnotation> ForRemove(IModel model)
         {
-            if (model.GetEntityTypes().Any(e => e.BaseType == null && e.GetSqlServerIsMemoryOptimized()))
+            if (model.GetEntityTypes().Any(e => e.BaseType == null && e.IsMemoryOptimized()))
             {
                 yield return new Annotation(
                     SqlServerAnnotationNames.MemoryOptimized,
@@ -168,6 +168,6 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Migrations.Internal
         }
 
         private static bool IsMemoryOptimized(IEntityType entityType)
-            => entityType.GetAllBaseTypesInclusive().Any(t => t.GetSqlServerIsMemoryOptimized());
+            => entityType.GetAllBaseTypesInclusive().Any(t => t.IsMemoryOptimized());
     }
 }

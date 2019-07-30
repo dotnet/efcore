@@ -73,7 +73,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <param name="context"> Additional information associated with convention execution. </param>
         public virtual void ProcessKeyAdded(IConventionKeyBuilder keyBuilder, IConventionContext<IConventionKeyBuilder> context)
         {
-            if (keyBuilder.Metadata.DeclaringEntityType.GetSqlServerIsMemoryOptimized())
+            if (keyBuilder.Metadata.DeclaringEntityType.IsMemoryOptimized())
             {
                 keyBuilder.IsClustered(false);
             }
@@ -86,7 +86,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <param name="context"> Additional information associated with convention execution. </param>
         public virtual void ProcessIndexAdded(IConventionIndexBuilder indexBuilder, IConventionContext<IConventionIndexBuilder> context)
         {
-            if (indexBuilder.Metadata.DeclaringEntityType.GetAllBaseTypesInclusive().Any(et => et.GetSqlServerIsMemoryOptimized()))
+            if (indexBuilder.Metadata.DeclaringEntityType.GetAllBaseTypesInclusive().Any(et => et.IsMemoryOptimized()))
             {
                 indexBuilder.IsClustered(false);
             }

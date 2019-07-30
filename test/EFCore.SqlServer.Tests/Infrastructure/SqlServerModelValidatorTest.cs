@@ -417,7 +417,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                     property.SetComputedColumnSql(value);
                     break;
                 case "SqlServerValueGenerationStrategy":
-                    property.SetSqlServerValueGenerationStrategy(SqlServerValueGenerationStrategy.IdentityColumn);
+                    property.SetValueGenerationStrategy(SqlServerValueGenerationStrategy.IdentityColumn);
                     break;
                 default:
                     throw new NotImplementedException();
