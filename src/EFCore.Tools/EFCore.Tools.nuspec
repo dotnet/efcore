@@ -12,7 +12,7 @@
   <files>
     <file src="lib\**\*" target="lib/" />
     <file src="tools\**\*" target="tools/"/>
-    <file src="$targetDir$*.psd1" target="tools/"/>
+    <file src="$intermediateOutputPath$*.psd1" target="tools/"/>
     <file src="../../artifacts/bin/ef/$configuration$/net461/ef.exe" target="tools/net461/any/" />
     <file src="../../artifacts/bin/ef/$configuration$/net461/ef.pdb" target="tools/net461/any/" />
     <file src="../../artifacts/bin/ef/x86/$configuration$/net461/ef.exe" target="tools/net461/win-x86/" />
