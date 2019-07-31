@@ -1537,5 +1537,10 @@ namespace Microsoft.EntityFrameworkCore.Query
                     .Where(od => od.Order.Customer.City == "London"),
                 entryCount: 221);
         }
+
+        private class OrderDTO
+        {
+            public Customer Customer { get; set; }
+        }
     }
 }

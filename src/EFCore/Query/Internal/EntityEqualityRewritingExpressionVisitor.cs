@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -56,13 +57,67 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             var visitedArgs = Visit(newExpression.Arguments);
             var visitedExpression = newExpression.Update(visitedArgs.Select(Unwrap));
 
-            return (newExpression.Members?.Count ?? 0) == 0
+            // NewExpression.Members is populated for anonymous types, mapping constructor arguments to the properties
+            // which receive their values. If not populated, a non-anonymous type is being constructed, and we have no idea where
+            // its constructor arguments will end up.
+            if (newExpression.Members == null)
+            {
+                return visitedExpression;
+            }
+
+            var entityReferenceInfo = visitedArgs
+                .Select((a, i) => (Arg: a, Index: i))
+                .Where(ai => ai.Arg is EntityReferenceExpression)
+                .ToDictionary(
+                    ai => visitedExpression.Members[ai.Index].Name,
+                    ai => EntityOrDtoType.FromEntityReferenceExpression((EntityReferenceExpression)ai.Arg));
+
+            return entityReferenceInfo.Count == 0
                 ? (Expression)visitedExpression
-                : new EntityReferenceExpression(visitedExpression, visitedExpression.Members
-                    .Select((m, i) => (Member: m, Index: i))
-                    .ToDictionary(
-                        mi => mi.Member.Name,
-                        mi => visitedArgs[mi.Index]));
+                : new EntityReferenceExpression(visitedExpression, entityReferenceInfo);
+        }
+
+        protected override Expression VisitMemberInit(MemberInitExpression memberInitExpression)
+        {
+            var visitedNew = Visit(memberInitExpression.NewExpression);
+            var (visitedBindings, entityReferenceInfo) = VisitMemberBindings(memberInitExpression.Bindings);
+            var visitedMemberInit = memberInitExpression.Update((NewExpression)Unwrap(visitedNew), visitedBindings);
+
+            return entityReferenceInfo == null
+                ? (Expression)visitedMemberInit
+                : new EntityReferenceExpression(visitedMemberInit, entityReferenceInfo);
+
+            // Visits member bindings, unwrapping expressions and surfacing entity reference information via the dictionary
+            (IEnumerable<MemberBinding>, Dictionary<string, EntityOrDtoType>) VisitMemberBindings(ReadOnlyCollection<MemberBinding> bindings)
+            {
+                var newBindings = new MemberBinding[bindings.Count];
+                Dictionary<string, EntityOrDtoType> bindingEntityReferenceInfo = null;
+
+                for (var i = 0; i < bindings.Count; i++)
+                {
+                    switch (bindings[i])
+                    {
+                        case MemberAssignment assignment:
+                            var visitedAssignment = VisitMemberAssignment(assignment);
+                            if (visitedAssignment.Expression is EntityReferenceExpression ere)
+                            {
+                                if (bindingEntityReferenceInfo == null)
+                                {
+                                    bindingEntityReferenceInfo = new Dictionary<string, EntityOrDtoType>();
+                                }
+                                bindingEntityReferenceInfo[assignment.Member.Name] = EntityOrDtoType.FromEntityReferenceExpression(ere);
+                            }
+                            newBindings[i] = assignment.Update(Unwrap(visitedAssignment.Expression));
+                            continue;
+
+                        default:
+                            newBindings[i] = VisitMemberBinding(bindings[i]);
+                            continue;
+                    }
+                }
+
+                return (newBindings, bindingEntityReferenceInfo);
+            }
         }
 
         protected override Expression VisitMember(MemberExpression memberExpression)
@@ -238,7 +293,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                             methodCallExpression.Update(null, newArguments),
                             newSourceWrapper.EntityType,
                             lastNavigation: null,
-                            newSourceWrapper.AnonymousType,
+                            newSourceWrapper.DtoType,
                             subqueryTraversed: true);
                     }
                 }
@@ -557,10 +612,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             var leftTypeWrapper = left as EntityReferenceExpression;
             var rightTypeWrapper = right as EntityReferenceExpression;
 
-            // If one of the sides is an anonymous object, or both sides are unknown, abort
+            // If one of the sides is a DTO, or both sides are unknown, abort
             if (leftTypeWrapper == null && rightTypeWrapper == null
-                || leftTypeWrapper?.IsAnonymousType == true
-                || rightTypeWrapper?.IsAnonymousType == true)
+                || leftTypeWrapper?.IsDtoType == true
+                || rightTypeWrapper?.IsDtoType == true)
             {
                 return null;
             }
@@ -786,6 +841,25 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 _ => expression
             };
 
+        protected struct EntityOrDtoType
+        {
+            public static EntityOrDtoType FromEntityReferenceExpression(EntityReferenceExpression ere)
+                => new EntityOrDtoType
+                {
+                    EntityType = ere.IsEntityType ? ere.EntityType : null,
+                    DtoType = ere.IsDtoType ? ere.DtoType : null
+                };
+
+            public static EntityOrDtoType FromDtoType(Dictionary<string, EntityOrDtoType> dtoType)
+                => new EntityOrDtoType { DtoType = dtoType };
+
+            public bool IsEntityType => EntityType != null;
+            public bool IsDto => DtoType != null;
+
+            public IEntityType EntityType;
+            public Dictionary<string, EntityOrDtoType> DtoType;
+        }
+
         protected class EntityReferenceExpression : Expression
         {
             public sealed override ExpressionType NodeType => ExpressionType.Extension;
@@ -808,17 +882,17 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             private readonly INavigation _lastNavigation;
 
             [CanBeNull]
-            public Dictionary<string, Expression> AnonymousType { get; }
+            public Dictionary<string, EntityOrDtoType> DtoType { get; }
 
             public bool SubqueryTraversed { get; }
 
-            public bool IsAnonymousType => AnonymousType != null;
+            public bool IsDtoType => DtoType != null;
             public bool IsEntityType => EntityType != null;
 
-            public EntityReferenceExpression(Expression underlying, Dictionary<string, Expression> anonymousType)
+            public EntityReferenceExpression(Expression underlying, Dictionary<string, EntityOrDtoType> dtoType)
             {
                 Underlying = underlying;
-                AnonymousType = anonymousType;
+                DtoType = dtoType;
             }
 
             public EntityReferenceExpression(Expression underlying, IEntityType entityType)
@@ -838,13 +912,13 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 Expression underlying,
                 IEntityType entityType,
                 INavigation lastNavigation,
-                Dictionary<string, Expression> anonymousType,
+                Dictionary<string, EntityOrDtoType> dtoType,
                 bool subqueryTraversed)
             {
                 Underlying = underlying;
                 EntityType = entityType;
                 _lastNavigation = lastNavigation;
-                AnonymousType = anonymousType;
+                DtoType = dtoType;
                 SubqueryTraversed = subqueryTraversed;
             }
 
@@ -866,14 +940,13 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                         : destinationExpression;
                 }
 
-                if (IsAnonymousType)
+                if (IsDtoType)
                 {
-                    if (AnonymousType.TryGetValue(propertyName, out var expression)
-                        && expression is EntityReferenceExpression wrapper)
+                    if (DtoType.TryGetValue(propertyName, out var entityOrDto))
                     {
-                        return wrapper.IsEntityType
-                            ? new EntityReferenceExpression(destinationExpression, wrapper.EntityType)
-                            : new EntityReferenceExpression(destinationExpression, wrapper.AnonymousType);
+                        return entityOrDto.IsEntityType
+                            ? new EntityReferenceExpression(destinationExpression, entityOrDto.EntityType)
+                            : new EntityReferenceExpression(destinationExpression, entityOrDto.DtoType);
                     }
 
                     return destinationExpression;
@@ -883,7 +956,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             }
 
             public EntityReferenceExpression Update(Expression newUnderlying)
-                => new EntityReferenceExpression(newUnderlying, EntityType, _lastNavigation, AnonymousType, SubqueryTraversed);
+                => new EntityReferenceExpression(newUnderlying, EntityType, _lastNavigation, DtoType, SubqueryTraversed);
 
             protected override Expression VisitChildren(ExpressionVisitor visitor)
                 => Update(visitor.Visit(Underlying));
@@ -896,9 +969,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 {
                     expressionPrinter.StringBuilder.Append($".EntityType({EntityType})");
                 }
-                else if (IsAnonymousType)
+                else if (IsDtoType)
                 {
-                    expressionPrinter.StringBuilder.Append(".AnonymousObject");
+                    expressionPrinter.StringBuilder.Append(".DTO");
                 }
 
                 if (SubqueryTraversed)
@@ -907,7 +980,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 }
             }
 
-            public override string ToString() => $"{Underlying}[{(IsEntityType ? EntityType.ShortName() : "AnonymousObject")}{(SubqueryTraversed ? ", Subquery" : "")}]";
+            public override string ToString() => $"{Underlying}[{(IsEntityType ? EntityType.ShortName() : "DTO")}{(SubqueryTraversed ? ", Subquery" : "")}]";
         }
     }
 }
