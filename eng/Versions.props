@@ -37,7 +37,6 @@
   </PropertyGroup>
   <PropertyGroup Label="Dependencies from dotnet/corefx">
     <MicrosoftCSharpPackageVersion>4.6.0-preview8.19378.8</MicrosoftCSharpPackageVersion>
-    <MicrosoftNETCorePlatformsPackageVersion>3.0.0-preview8.19378.8</MicrosoftNETCorePlatformsPackageVersion>
     <SystemCollectionsImmutablePackageVersion>1.6.0-preview8.19378.8</SystemCollectionsImmutablePackageVersion>
     <SystemComponentModelAnnotationsPackageVersion>4.6.0-preview8.19378.8</SystemComponentModelAnnotationsPackageVersion>
     <SystemDiagnosticsDiagnosticSourcePackageVersion>4.6.0-preview8.19378.8</SystemDiagnosticsDiagnosticSourcePackageVersion>
