@@ -145,7 +145,7 @@ namespace Microsoft.EntityFrameworkCore
                 _expectedMethodCall = expectedMethodCall;
             }
 
-            public TResult ExecuteAsync<TResult>(Expression expression, CancellationToken cancellationToken)
+            public Task<TResult> ExecuteAsync<TResult>(Expression expression, CancellationToken cancellationToken)
             {
                 var actualMethodCall = (MethodCallExpression)expression;
 

@@ -2,8 +2,10 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Threading;
+using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
@@ -122,7 +124,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             return CompileQueryCore<TResult>(_database, query, _model, false);
         }
 
-        public virtual TResult ExecuteAsync<TResult>(Expression query, CancellationToken cancellationToken = default)
+        public virtual Task<TResult> ExecuteAsync<TResult>(Expression query, CancellationToken cancellationToken = default)
         {
             Check.NotNull(query, nameof(query));
 
@@ -138,7 +140,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                         _compiledQueryCacheKeyGenerator.GenerateCacheKey(query, async: true),
                         () => CompileQueryCore<TResult>(_database, query, _model, true));
 
-            return compiledQuery(queryContext);
+            return Task.Run(() => compiledQuery(queryContext), cancellationToken);
         }
 
         /// <summary>

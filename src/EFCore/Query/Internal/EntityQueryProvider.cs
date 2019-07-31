@@ -2,10 +2,12 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Threading;
+using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -94,7 +96,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual TResult ExecuteAsync<TResult>(Expression expression, CancellationToken cancellationToken = default)
+        public virtual Task<TResult> ExecuteAsync<TResult>(Expression expression, CancellationToken cancellationToken = default)
             => _queryCompiler.ExecuteAsync<TResult>(expression, cancellationToken);
     }
 }

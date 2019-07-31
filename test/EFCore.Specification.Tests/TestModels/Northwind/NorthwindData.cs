@@ -217,7 +217,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.Northwind
                 throw new NotImplementedException();
             }
 
-            public TResult ExecuteAsync<TResult>(Expression expression, CancellationToken cancellationToken)
+            public Task<TResult> ExecuteAsync<TResult>(Expression expression, CancellationToken cancellationToken)
             {
                 throw new NotImplementedException();
             }

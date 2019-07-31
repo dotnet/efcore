@@ -54,7 +54,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             Check.NotNull(source, nameof(source));
 
-            return ExecuteAsync<TSource, Task<bool>>(_any, source, cancellationToken);
+            return ExecuteAsync<TSource, bool>(_any, source, cancellationToken);
         }
 
         private static readonly MethodInfo _anyPredicate = GetMethod(nameof(Queryable.Any), parameterCount: 1);
@@ -89,7 +89,7 @@ namespace Microsoft.EntityFrameworkCore
             Check.NotNull(source, nameof(source));
             Check.NotNull(predicate, nameof(predicate));
 
-            return ExecuteAsync<TSource, Task<bool>>(_anyPredicate, source, predicate, cancellationToken);
+            return ExecuteAsync<TSource, bool>(_anyPredicate, source, predicate, cancellationToken);
         }
 
         private static readonly MethodInfo _allPredicate = GetMethod(nameof(Queryable.All), parameterCount: 1);
@@ -124,7 +124,7 @@ namespace Microsoft.EntityFrameworkCore
             Check.NotNull(source, nameof(source));
             Check.NotNull(predicate, nameof(predicate));
 
-            return ExecuteAsync<TSource, Task<bool>>(_allPredicate, source, predicate, cancellationToken);
+            return ExecuteAsync<TSource, bool>(_allPredicate, source, predicate, cancellationToken);
         }
 
         #endregion
@@ -159,7 +159,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             Check.NotNull(source, nameof(source));
 
-            return ExecuteAsync<TSource, Task<int>>(_count, source, cancellationToken);
+            return ExecuteAsync<TSource, int>(_count, source, cancellationToken);
         }
 
         private static readonly MethodInfo _countPredicate = GetMethod(nameof(Queryable.Count), parameterCount: 1);
@@ -194,7 +194,7 @@ namespace Microsoft.EntityFrameworkCore
             Check.NotNull(source, nameof(source));
             Check.NotNull(predicate, nameof(predicate));
 
-            return ExecuteAsync<TSource, Task<int>>(_countPredicate, source, predicate, cancellationToken);
+            return ExecuteAsync<TSource, int>(_countPredicate, source, predicate, cancellationToken);
         }
 
         private static readonly MethodInfo _longCount = GetMethod(nameof(Queryable.LongCount));
@@ -225,7 +225,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             Check.NotNull(source, nameof(source));
 
-            return ExecuteAsync<TSource, Task<long>>(_longCount, source, cancellationToken);
+            return ExecuteAsync<TSource, long>(_longCount, source, cancellationToken);
         }
 
         private static readonly MethodInfo _longCountPredicate = GetMethod(nameof(Queryable.LongCount), parameterCount: 1);
@@ -261,7 +261,7 @@ namespace Microsoft.EntityFrameworkCore
             Check.NotNull(source, nameof(source));
             Check.NotNull(predicate, nameof(predicate));
 
-            return ExecuteAsync<TSource, Task<long>>(_longCountPredicate, source, predicate, cancellationToken);
+            return ExecuteAsync<TSource, long>(_longCountPredicate, source, predicate, cancellationToken);
         }
 
         #endregion
@@ -296,7 +296,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             Check.NotNull(source, nameof(source));
 
-            return ExecuteAsync<TSource, Task<TSource>>(_first, source, cancellationToken);
+            return ExecuteAsync<TSource, TSource>(_first, source, cancellationToken);
         }
 
         private static readonly MethodInfo _firstPredicate = GetMethod(nameof(Queryable.First), parameterCount: 1);
@@ -331,7 +331,7 @@ namespace Microsoft.EntityFrameworkCore
             Check.NotNull(source, nameof(source));
             Check.NotNull(predicate, nameof(predicate));
 
-            return ExecuteAsync<TSource, Task<TSource>>(_firstPredicate, source, predicate, cancellationToken);
+            return ExecuteAsync<TSource, TSource>(_firstPredicate, source, predicate, cancellationToken);
         }
 
         private static readonly MethodInfo _firstOrDefault = GetMethod(nameof(Queryable.FirstOrDefault));
@@ -363,7 +363,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             Check.NotNull(source, nameof(source));
 
-            return ExecuteAsync<TSource, Task<TSource>>(_firstOrDefault, source, cancellationToken);
+            return ExecuteAsync<TSource, TSource>(_firstOrDefault, source, cancellationToken);
         }
 
         private static readonly MethodInfo _firstOrDefaultPredicate = GetMethod(nameof(Queryable.FirstOrDefault), parameterCount: 1);
@@ -400,7 +400,7 @@ namespace Microsoft.EntityFrameworkCore
             Check.NotNull(source, nameof(source));
             Check.NotNull(predicate, nameof(predicate));
 
-            return ExecuteAsync<TSource, Task<TSource>>(_firstOrDefaultPredicate, source, predicate, cancellationToken);
+            return ExecuteAsync<TSource, TSource>(_firstOrDefaultPredicate, source, predicate, cancellationToken);
         }
 
         #endregion
@@ -435,7 +435,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             Check.NotNull(source, nameof(source));
 
-            return ExecuteAsync<TSource, Task<TSource>>(_last, source, cancellationToken);
+            return ExecuteAsync<TSource, TSource>(_last, source, cancellationToken);
         }
 
         private static readonly MethodInfo _lastPredicate = GetMethod(nameof(Queryable.Last), parameterCount: 1);
@@ -470,7 +470,7 @@ namespace Microsoft.EntityFrameworkCore
             Check.NotNull(source, nameof(source));
             Check.NotNull(predicate, nameof(predicate));
 
-            return ExecuteAsync<TSource, Task<TSource>>(_lastPredicate, source, predicate, cancellationToken);
+            return ExecuteAsync<TSource, TSource>(_lastPredicate, source, predicate, cancellationToken);
         }
 
         private static readonly MethodInfo _lastOrDefault = GetMethod(nameof(Queryable.LastOrDefault));
@@ -502,7 +502,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             Check.NotNull(source, nameof(source));
 
-            return ExecuteAsync<TSource, Task<TSource>>(_lastOrDefault, source, cancellationToken);
+            return ExecuteAsync<TSource, TSource>(_lastOrDefault, source, cancellationToken);
         }
 
         private static readonly MethodInfo _lastOrDefaultPredicate = GetMethod(nameof(Queryable.LastOrDefault), parameterCount: 1);
@@ -539,7 +539,7 @@ namespace Microsoft.EntityFrameworkCore
             Check.NotNull(source, nameof(source));
             Check.NotNull(predicate, nameof(predicate));
 
-            return ExecuteAsync<TSource, Task<TSource>>(_lastOrDefaultPredicate, source, predicate, cancellationToken);
+            return ExecuteAsync<TSource, TSource>(_lastOrDefaultPredicate, source, predicate, cancellationToken);
         }
 
         #endregion
@@ -575,7 +575,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             Check.NotNull(source, nameof(source));
 
-            return ExecuteAsync<TSource, Task<TSource>>(_single, source, cancellationToken);
+            return ExecuteAsync<TSource, TSource>(_single, source, cancellationToken);
         }
 
         private static readonly MethodInfo _singlePredicate = GetMethod(nameof(Queryable.Single), parameterCount: 1);
@@ -611,7 +611,7 @@ namespace Microsoft.EntityFrameworkCore
             Check.NotNull(source, nameof(source));
             Check.NotNull(predicate, nameof(predicate));
 
-            return ExecuteAsync<TSource, Task<TSource>>(_singlePredicate, source, predicate, cancellationToken);
+            return ExecuteAsync<TSource, TSource>(_singlePredicate, source, predicate, cancellationToken);
         }
 
         private static readonly MethodInfo _singleOrDefault = GetMethod(nameof(Queryable.SingleOrDefault));
@@ -645,7 +645,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             Check.NotNull(source, nameof(source));
 
-            return ExecuteAsync<TSource, Task<TSource>>(_singleOrDefault, source, cancellationToken);
+            return ExecuteAsync<TSource, TSource>(_singleOrDefault, source, cancellationToken);
         }
 
         private static readonly MethodInfo _singleOrDefaultPredicate = GetMethod(nameof(Queryable.SingleOrDefault), parameterCount: 1);
@@ -682,7 +682,7 @@ namespace Microsoft.EntityFrameworkCore
             Check.NotNull(source, nameof(source));
             Check.NotNull(predicate, nameof(predicate));
 
-            return ExecuteAsync<TSource, Task<TSource>>(_singleOrDefaultPredicate, source, predicate, cancellationToken);
+            return ExecuteAsync<TSource, TSource>(_singleOrDefaultPredicate, source, predicate, cancellationToken);
         }
 
         #endregion
@@ -717,7 +717,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             Check.NotNull(source, nameof(source));
 
-            return ExecuteAsync<TSource, Task<TSource>>(_min, source, cancellationToken);
+            return ExecuteAsync<TSource, TSource>(_min, source, cancellationToken);
         }
 
         private static readonly MethodInfo _minSelector = GetMethod(nameof(Queryable.Min), parameterCount: 1, predicate: mi => mi.IsGenericMethod);
@@ -754,7 +754,7 @@ namespace Microsoft.EntityFrameworkCore
             Check.NotNull(source, nameof(source));
             Check.NotNull(selector, nameof(selector));
 
-            return ExecuteAsync<TSource, Task<TResult>>(_minSelector, source, selector, cancellationToken);
+            return ExecuteAsync<TSource, TResult>(_minSelector, source, selector, cancellationToken);
         }
 
         #endregion
@@ -789,7 +789,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             Check.NotNull(source, nameof(source));
 
-            return ExecuteAsync<TSource, Task<TSource>>(_max, source, cancellationToken);
+            return ExecuteAsync<TSource, TSource>(_max, source, cancellationToken);
         }
 
         private static readonly MethodInfo _maxSelector = GetMethod(nameof(Queryable.Max), parameterCount: 1, predicate: mi => mi.IsGenericMethod);
@@ -826,7 +826,7 @@ namespace Microsoft.EntityFrameworkCore
             Check.NotNull(source, nameof(source));
             Check.NotNull(selector, nameof(selector));
 
-            return ExecuteAsync<TSource, Task<TResult>>(_maxSelector, source, selector, cancellationToken);
+            return ExecuteAsync<TSource, TResult>(_maxSelector, source, selector, cancellationToken);
         }
 
         #endregion
@@ -858,7 +858,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             Check.NotNull(source, nameof(source));
 
-            return ExecuteAsync<decimal, Task<decimal>>(_sumDecimal, source, cancellationToken);
+            return ExecuteAsync<decimal, decimal>(_sumDecimal, source, cancellationToken);
         }
 
         private static readonly MethodInfo _sumNullableDecimal = GetMethod<decimal?>(nameof(Queryable.Sum));
@@ -886,7 +886,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             Check.NotNull(source, nameof(source));
 
-            return ExecuteAsync<decimal?, Task<decimal?>>(_sumNullableDecimal, source, cancellationToken);
+            return ExecuteAsync<decimal?, decimal?>(_sumNullableDecimal, source, cancellationToken);
         }
 
         private static readonly MethodInfo _sumDecimalSelector = GetMethod<decimal>(nameof(Queryable.Sum), parameterCount: 1);
@@ -918,7 +918,7 @@ namespace Microsoft.EntityFrameworkCore
             Check.NotNull(source, nameof(source));
             Check.NotNull(selector, nameof(selector));
 
-            return ExecuteAsync<TSource, Task<decimal>>(_sumDecimalSelector, source, selector, cancellationToken);
+            return ExecuteAsync<TSource, decimal>(_sumDecimalSelector, source, selector, cancellationToken);
         }
 
         private static readonly MethodInfo _sumNullableDecimalSelector = GetMethod<decimal?>(nameof(Queryable.Sum), parameterCount: 1);
@@ -950,7 +950,7 @@ namespace Microsoft.EntityFrameworkCore
             Check.NotNull(source, nameof(source));
             Check.NotNull(selector, nameof(selector));
 
-            return ExecuteAsync<TSource, Task<decimal?>>(_sumNullableDecimalSelector, source, selector, cancellationToken);
+            return ExecuteAsync<TSource, decimal?>(_sumNullableDecimalSelector, source, selector, cancellationToken);
         }
 
         private static readonly MethodInfo _sumInt = GetMethod<int>(nameof(Queryable.Sum));
@@ -978,7 +978,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             Check.NotNull(source, nameof(source));
 
-            return ExecuteAsync<int, Task<int>>(_sumInt, source, cancellationToken);
+            return ExecuteAsync<int, int>(_sumInt, source, cancellationToken);
         }
 
         private static readonly MethodInfo _sumNullableInt = GetMethod<int?>(nameof(Queryable.Sum));
@@ -1006,7 +1006,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             Check.NotNull(source, nameof(source));
 
-            return ExecuteAsync<int?, Task<int?>>(_sumNullableInt, source, cancellationToken);
+            return ExecuteAsync<int?, int?>(_sumNullableInt, source, cancellationToken);
         }
 
         private static readonly MethodInfo _sumIntSelector = GetMethod<int>(nameof(Queryable.Sum), parameterCount: 1);
@@ -1038,7 +1038,7 @@ namespace Microsoft.EntityFrameworkCore
             Check.NotNull(source, nameof(source));
             Check.NotNull(selector, nameof(selector));
 
-            return ExecuteAsync<TSource, Task<int>>(_sumIntSelector, source, selector, cancellationToken);
+            return ExecuteAsync<TSource, int>(_sumIntSelector, source, selector, cancellationToken);
         }
 
         private static readonly MethodInfo _sumNullableIntSelector = GetMethod<int?>(nameof(Queryable.Sum), parameterCount: 1);
@@ -1070,7 +1070,7 @@ namespace Microsoft.EntityFrameworkCore
             Check.NotNull(source, nameof(source));
             Check.NotNull(selector, nameof(selector));
 
-            return ExecuteAsync<TSource, Task<int?>>(_sumNullableIntSelector, source, selector, cancellationToken);
+            return ExecuteAsync<TSource, int?>(_sumNullableIntSelector, source, selector, cancellationToken);
         }
 
         private static readonly MethodInfo _sumLong = GetMethod<long>(nameof(Queryable.Sum));
@@ -1098,7 +1098,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             Check.NotNull(source, nameof(source));
 
-            return ExecuteAsync<long, Task<long>>(_sumLong, source, cancellationToken);
+            return ExecuteAsync<long, long>(_sumLong, source, cancellationToken);
         }
 
         private static readonly MethodInfo _sumNullableLong = GetMethod<long?>(nameof(Queryable.Sum));
@@ -1126,7 +1126,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             Check.NotNull(source, nameof(source));
 
-            return ExecuteAsync<long?, Task<long?>>(_sumNullableLong, source, cancellationToken);
+            return ExecuteAsync<long?, long?>(_sumNullableLong, source, cancellationToken);
         }
 
         private static readonly MethodInfo _sumLongSelector = GetMethod<long>(nameof(Queryable.Sum), parameterCount: 1);
@@ -1158,7 +1158,7 @@ namespace Microsoft.EntityFrameworkCore
             Check.NotNull(source, nameof(source));
             Check.NotNull(selector, nameof(selector));
 
-            return ExecuteAsync<TSource, Task<long>>(_sumLongSelector, source, selector, cancellationToken);
+            return ExecuteAsync<TSource, long>(_sumLongSelector, source, selector, cancellationToken);
         }
 
         private static readonly MethodInfo _sumNullableLongSelector = GetMethod<long?>(nameof(Queryable.Sum), parameterCount: 1);
@@ -1190,7 +1190,7 @@ namespace Microsoft.EntityFrameworkCore
             Check.NotNull(source, nameof(source));
             Check.NotNull(selector, nameof(selector));
 
-            return ExecuteAsync<TSource, Task<long?>>(_sumNullableLongSelector, source, selector, cancellationToken);
+            return ExecuteAsync<TSource, long?>(_sumNullableLongSelector, source, selector, cancellationToken);
         }
 
         private static readonly MethodInfo _sumDouble = GetMethod<double>(nameof(Queryable.Sum));
@@ -1218,7 +1218,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             Check.NotNull(source, nameof(source));
 
-            return ExecuteAsync<double, Task<double>>(_sumDouble, source, cancellationToken);
+            return ExecuteAsync<double, double>(_sumDouble, source, cancellationToken);
         }
 
         private static readonly MethodInfo _sumNullableDouble = GetMethod<double?>(nameof(Queryable.Sum));
@@ -1246,7 +1246,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             Check.NotNull(source, nameof(source));
 
-            return ExecuteAsync<double?, Task<double?>>(_sumNullableDouble, source, cancellationToken);
+            return ExecuteAsync<double?, double?>(_sumNullableDouble, source, cancellationToken);
         }
 
         private static readonly MethodInfo _sumDoubleSelector = GetMethod<double>(nameof(Queryable.Sum), parameterCount: 1);
@@ -1278,7 +1278,7 @@ namespace Microsoft.EntityFrameworkCore
             Check.NotNull(source, nameof(source));
             Check.NotNull(selector, nameof(selector));
 
-            return ExecuteAsync<TSource, Task<double>>(_sumDoubleSelector, source, selector, cancellationToken);
+            return ExecuteAsync<TSource, double>(_sumDoubleSelector, source, selector, cancellationToken);
         }
 
         private static readonly MethodInfo _sumNullableDoubleSelector = GetMethod<double?>(nameof(Queryable.Sum), parameterCount: 1);
@@ -1310,7 +1310,7 @@ namespace Microsoft.EntityFrameworkCore
             Check.NotNull(source, nameof(source));
             Check.NotNull(selector, nameof(selector));
 
-            return ExecuteAsync<TSource, Task<double?>>(_sumNullableDoubleSelector, source, selector, cancellationToken);
+            return ExecuteAsync<TSource, double?>(_sumNullableDoubleSelector, source, selector, cancellationToken);
         }
 
         private static readonly MethodInfo _sumFloat = GetMethod<float>(nameof(Queryable.Sum));
@@ -1338,7 +1338,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             Check.NotNull(source, nameof(source));
 
-            return ExecuteAsync<float, Task<float>>(_sumFloat, source, cancellationToken);
+            return ExecuteAsync<float, float>(_sumFloat, source, cancellationToken);
         }
 
         private static readonly MethodInfo _sumNullableFloat = GetMethod<float?>(nameof(Queryable.Sum));
@@ -1366,7 +1366,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             Check.NotNull(source, nameof(source));
 
-            return ExecuteAsync<float?, Task<float?>>(_sumNullableFloat, source, cancellationToken);
+            return ExecuteAsync<float?, float?>(_sumNullableFloat, source, cancellationToken);
         }
 
         private static readonly MethodInfo _sumFloatSelector = GetMethod<float>(nameof(Queryable.Sum), parameterCount: 1);
@@ -1398,7 +1398,7 @@ namespace Microsoft.EntityFrameworkCore
             Check.NotNull(source, nameof(source));
             Check.NotNull(selector, nameof(selector));
 
-            return ExecuteAsync<TSource, Task<float>>(_sumFloatSelector, source, selector, cancellationToken);
+            return ExecuteAsync<TSource, float>(_sumFloatSelector, source, selector, cancellationToken);
         }
 
         private static readonly MethodInfo _sumNullableFloatSelector = GetMethod<float?>(nameof(Queryable.Sum), parameterCount: 1);
@@ -1430,7 +1430,7 @@ namespace Microsoft.EntityFrameworkCore
             Check.NotNull(source, nameof(source));
             Check.NotNull(selector, nameof(selector));
 
-            return ExecuteAsync<TSource, Task<float?>>(_sumNullableFloatSelector, source, selector, cancellationToken);
+            return ExecuteAsync<TSource, float?>(_sumNullableFloatSelector, source, selector, cancellationToken);
         }
 
         #endregion
@@ -1473,7 +1473,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             Check.NotNull(source, nameof(source));
 
-            return ExecuteAsync<decimal, Task<decimal>>(_averageDecimal, source, cancellationToken);
+            return ExecuteAsync<decimal, decimal>(_averageDecimal, source, cancellationToken);
         }
 
         private static readonly MethodInfo _averageNullableDecimal = GetAverageMethod<decimal?, decimal?>();
@@ -1501,7 +1501,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             Check.NotNull(source, nameof(source));
 
-            return ExecuteAsync<decimal?, Task<decimal?>>(_averageNullableDecimal, source, cancellationToken);
+            return ExecuteAsync<decimal?, decimal?>(_averageNullableDecimal, source, cancellationToken);
         }
 
         private static readonly MethodInfo _averageDecimalSelector = GetAverageMethod<decimal, decimal>(parameterCount: 1);
@@ -1534,7 +1534,7 @@ namespace Microsoft.EntityFrameworkCore
             Check.NotNull(source, nameof(source));
             Check.NotNull(selector, nameof(selector));
 
-            return ExecuteAsync<TSource, Task<decimal>>(_averageDecimalSelector, source, selector, cancellationToken);
+            return ExecuteAsync<TSource, decimal>(_averageDecimalSelector, source, selector, cancellationToken);
         }
 
         private static readonly MethodInfo _averageNullableDecimalSelector = GetAverageMethod<decimal?, decimal?>(parameterCount: 1);
@@ -1567,7 +1567,7 @@ namespace Microsoft.EntityFrameworkCore
             Check.NotNull(source, nameof(source));
             Check.NotNull(selector, nameof(selector));
 
-            return ExecuteAsync<TSource, Task<decimal?>>(_averageNullableDecimalSelector, source, selector, cancellationToken);
+            return ExecuteAsync<TSource, decimal?>(_averageNullableDecimalSelector, source, selector, cancellationToken);
         }
 
         private static readonly MethodInfo _averageInt = GetAverageMethod<int, double>();
@@ -1595,7 +1595,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             Check.NotNull(source, nameof(source));
 
-            return ExecuteAsync<int, Task<double>>(_averageInt, source, cancellationToken);
+            return ExecuteAsync<int, double>(_averageInt, source, cancellationToken);
         }
 
         private static readonly MethodInfo _averageNullableInt = GetAverageMethod<int?, double?>();
@@ -1623,7 +1623,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             Check.NotNull(source, nameof(source));
 
-            return ExecuteAsync<int?, Task<double?>>(_averageNullableInt, source, cancellationToken);
+            return ExecuteAsync<int?, double?>(_averageNullableInt, source, cancellationToken);
         }
 
         private static readonly MethodInfo _averageIntSelector = GetAverageMethod<int, double>(parameterCount: 1);
@@ -1656,7 +1656,7 @@ namespace Microsoft.EntityFrameworkCore
             Check.NotNull(source, nameof(source));
             Check.NotNull(selector, nameof(selector));
 
-            return ExecuteAsync<TSource, Task<double>>(_averageIntSelector, source, selector, cancellationToken);
+            return ExecuteAsync<TSource, double>(_averageIntSelector, source, selector, cancellationToken);
         }
 
         private static readonly MethodInfo _averageNullableIntSelector = GetAverageMethod<int?, double?>(parameterCount: 1);
@@ -1689,7 +1689,7 @@ namespace Microsoft.EntityFrameworkCore
             Check.NotNull(source, nameof(source));
             Check.NotNull(selector, nameof(selector));
 
-            return ExecuteAsync<TSource, Task<double?>>(_averageNullableIntSelector, source, selector, cancellationToken);
+            return ExecuteAsync<TSource, double?>(_averageNullableIntSelector, source, selector, cancellationToken);
         }
 
         private static readonly MethodInfo _averageLong = GetAverageMethod<long, double>();
@@ -1717,7 +1717,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             Check.NotNull(source, nameof(source));
 
-            return ExecuteAsync<long, Task<double>>(_averageLong, source, cancellationToken);
+            return ExecuteAsync<long, double>(_averageLong, source, cancellationToken);
         }
 
         private static readonly MethodInfo _averageNullableLong = GetAverageMethod<long?, double?>();
@@ -1745,7 +1745,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             Check.NotNull(source, nameof(source));
 
-            return ExecuteAsync<long?, Task<double?>>(_averageNullableLong, source, cancellationToken);
+            return ExecuteAsync<long?, double?>(_averageNullableLong, source, cancellationToken);
         }
 
         private static readonly MethodInfo _averageLongSelector = GetAverageMethod<long, double>(parameterCount: 1);
@@ -1778,7 +1778,7 @@ namespace Microsoft.EntityFrameworkCore
             Check.NotNull(source, nameof(source));
             Check.NotNull(selector, nameof(selector));
 
-            return ExecuteAsync<TSource, Task<double>>(_averageLongSelector, source, selector, cancellationToken);
+            return ExecuteAsync<TSource, double>(_averageLongSelector, source, selector, cancellationToken);
         }
 
         private static readonly MethodInfo _averageNullableLongSelector = GetAverageMethod<long?, double?>(parameterCount: 1);
@@ -1811,7 +1811,7 @@ namespace Microsoft.EntityFrameworkCore
             Check.NotNull(source, nameof(source));
             Check.NotNull(selector, nameof(selector));
 
-            return ExecuteAsync<TSource, Task<double?>>(_averageNullableLongSelector, source, selector, cancellationToken);
+            return ExecuteAsync<TSource, double?>(_averageNullableLongSelector, source, selector, cancellationToken);
         }
 
         private static readonly MethodInfo _averageDouble = GetAverageMethod<double, double>();
@@ -1839,7 +1839,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             Check.NotNull(source, nameof(source));
 
-            return ExecuteAsync<double, Task<double>>(_averageDouble, source, cancellationToken);
+            return ExecuteAsync<double, double>(_averageDouble, source, cancellationToken);
         }
 
         private static readonly MethodInfo _averageNullableDouble = GetAverageMethod<double?, double?>();
@@ -1867,7 +1867,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             Check.NotNull(source, nameof(source));
 
-            return ExecuteAsync<double?, Task<double?>>(_averageNullableDouble, source, cancellationToken);
+            return ExecuteAsync<double?, double?>(_averageNullableDouble, source, cancellationToken);
         }
 
         private static readonly MethodInfo _averageDoubleSelector = GetAverageMethod<double, double>(parameterCount: 1);
@@ -1900,7 +1900,7 @@ namespace Microsoft.EntityFrameworkCore
             Check.NotNull(source, nameof(source));
             Check.NotNull(selector, nameof(selector));
 
-            return ExecuteAsync<TSource, Task<double>>(_averageDoubleSelector, source, selector, cancellationToken);
+            return ExecuteAsync<TSource, double>(_averageDoubleSelector, source, selector, cancellationToken);
         }
 
         private static readonly MethodInfo _averageNullableDoubleSelector = GetAverageMethod<double?, double?>(parameterCount: 1);
@@ -1933,7 +1933,7 @@ namespace Microsoft.EntityFrameworkCore
             Check.NotNull(source, nameof(source));
             Check.NotNull(selector, nameof(selector));
 
-            return ExecuteAsync<TSource, Task<double?>>(_averageNullableDoubleSelector, source, selector, cancellationToken);
+            return ExecuteAsync<TSource, double?>(_averageNullableDoubleSelector, source, selector, cancellationToken);
         }
 
         private static readonly MethodInfo _averageFloat = GetAverageMethod<float, float>();
@@ -1961,7 +1961,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             Check.NotNull(source, nameof(source));
 
-            return ExecuteAsync<float, Task<float>>(_averageFloat, source, cancellationToken);
+            return ExecuteAsync<float, float>(_averageFloat, source, cancellationToken);
         }
 
         private static readonly MethodInfo _averageNullableFloat = GetAverageMethod<float?, float?>();
@@ -1989,7 +1989,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             Check.NotNull(source, nameof(source));
 
-            return ExecuteAsync<float?, Task<float?>>(_averageNullableFloat, source, cancellationToken);
+            return ExecuteAsync<float?, float?>(_averageNullableFloat, source, cancellationToken);
         }
 
         private static readonly MethodInfo _averageFloatSelector = GetAverageMethod<float, float>(parameterCount: 1);
@@ -2022,7 +2022,7 @@ namespace Microsoft.EntityFrameworkCore
             Check.NotNull(source, nameof(source));
             Check.NotNull(selector, nameof(selector));
 
-            return ExecuteAsync<TSource, Task<float>>(_averageFloatSelector, source, selector, cancellationToken);
+            return ExecuteAsync<TSource, float>(_averageFloatSelector, source, selector, cancellationToken);
         }
 
         private static readonly MethodInfo _averageNullableFloatSelector = GetAverageMethod<float?, float?>(parameterCount: 1);
@@ -2055,7 +2055,7 @@ namespace Microsoft.EntityFrameworkCore
             Check.NotNull(source, nameof(source));
             Check.NotNull(selector, nameof(selector));
 
-            return ExecuteAsync<TSource, Task<float?>>(_averageNullableFloatSelector, source, selector, cancellationToken);
+            return ExecuteAsync<TSource, float?>(_averageNullableFloatSelector, source, selector, cancellationToken);
         }
 
         #endregion
@@ -2092,7 +2092,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             Check.NotNull(source, nameof(source));
 
-            return ExecuteAsync<TSource, Task<bool>>(
+            return ExecuteAsync<TSource, bool>(
                 _contains,
                 source,
                 Expression.Constant(item, typeof(TSource)),
@@ -2935,7 +2935,7 @@ namespace Microsoft.EntityFrameworkCore
 
         #region Impl.
 
-        private static TResult ExecuteAsync<TSource, TResult>(
+        private static Task<TResult> ExecuteAsync<TSource, TResult>(
             MethodInfo operatorMethodInfo,
             IQueryable<TSource> source,
             Expression expression,
@@ -2964,7 +2964,7 @@ namespace Microsoft.EntityFrameworkCore
             throw new InvalidOperationException(CoreStrings.IQueryableProviderNotAsync);
         }
 
-        private static TResult ExecuteAsync<TSource, TResult>(
+        private static Task<TResult> ExecuteAsync<TSource, TResult>(
             MethodInfo operatorMethodInfo,
             IQueryable<TSource> source,
             LambdaExpression expression,
@@ -2972,7 +2972,7 @@ namespace Microsoft.EntityFrameworkCore
             => ExecuteAsync<TSource, TResult>(
                 operatorMethodInfo, source, Expression.Quote(expression), cancellationToken);
 
-        private static TResult ExecuteAsync<TSource, TResult>(
+        private static Task<TResult> ExecuteAsync<TSource, TResult>(
             MethodInfo operatorMethodInfo,
             IQueryable<TSource> source,
             CancellationToken cancellationToken = default)

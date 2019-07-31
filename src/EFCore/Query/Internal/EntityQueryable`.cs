@@ -108,8 +108,15 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual IAsyncEnumerator<TResult> GetAsyncEnumerator(CancellationToken cancellationToken = default)
-            => _queryProvider.ExecuteAsync<IAsyncEnumerable<TResult>>(Expression).GetAsyncEnumerator(cancellationToken);
+        public virtual async IAsyncEnumerator<TResult> GetAsyncEnumerator(CancellationToken cancellationToken = default)
+        {
+            var result = await _queryProvider.ExecuteAsync<IAsyncEnumerable<TResult>>(Expression);
+            var iter = result.GetAsyncEnumerator(cancellationToken);
+            while (await iter.MoveNextAsync())
+            {
+                yield return iter.Current;
+            }
+        }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
