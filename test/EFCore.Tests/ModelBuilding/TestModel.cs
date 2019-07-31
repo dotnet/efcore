@@ -94,6 +94,9 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
             public IEnumerable<Order> Orders { get; set; }
 
+            [NotMapped]
+            public ICollection<SpecialOrder> SomeOrders { get; set; }
+
             public CustomerDetails Details { get; set; }
         }
 

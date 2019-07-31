@@ -66,13 +66,29 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
         }
 
         [ConditionalFact]
+        public virtual void HasMany_with_a_collection_navigation_CLR_property_to_derived_type_throws()
+        {
+            using (var context = new CustomModelBuildingContext(
+                Configure(),
+                b =>
+                {
+                    b.Entity<Dr>().HasMany<Dre>(d => d.Jrs);
+                }))
+            {
+                Assert.Equal(
+                    CoreStrings.NavigationCollectionWrongClrType(nameof(Dr.Jrs), nameof(Dr), "ICollection<DreJr>", nameof(Dre)),
+                    Assert.Throws<InvalidOperationException>(() => context.Model).Message);
+            }
+        }
+
+        [ConditionalFact]
         public virtual void OwnsOne_HasOne_with_just_string_navigation_for_non_CLR_property_throws()
         {
             using (var context = new CustomModelBuildingContext(
                 Configure(),
                 b =>
                 {
-                    b.Entity<Dr>().OwnsOne(e =>e.Dre).HasOne("Snoop");
+                    b.Entity<Dr>().OwnsOne(e => e.Dre).HasOne("Snoop");
                 }))
             {
                 Assert.Equal(
@@ -86,9 +102,15 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public int Id { get; set; }
 
             public Dre Dre { get; set; }
+
+            public ICollection<DreJr> Jrs { get; set; }
         }
 
         protected class Dre
+        {
+        }
+
+        protected class DreJr : Dre
         {
         }
 
