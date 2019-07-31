@@ -268,6 +268,44 @@ EXEC sp_addextendedproperty @name = N'Comment', @value = N'My Comment 2', @level
 ");
         }
 
+        [ConditionalFact]
+        public virtual void AddColumnOperation_datetime_with_defaultValue()
+        {
+            Generate(
+                new AddColumnOperation
+                {
+                    Table = "People",
+                    Schema = "dbo",
+                    Name = "Birthday",
+                    ClrType = typeof(DateTime),
+                    ColumnType = "datetime",
+                    IsNullable = false,
+                    DefaultValue = new DateTime(2019, 1, 1)
+                });
+
+            AssertSql(@"ALTER TABLE [dbo].[People] ADD [Birthday] datetime NOT NULL DEFAULT '2019-01-01T00:00:00.000';
+");
+        }
+
+        [ConditionalFact]
+        public virtual void AddColumnOperation_smalldatetime_with_defaultValue()
+        {
+            Generate(
+                new AddColumnOperation
+                {
+                    Table = "People",
+                    Schema = "dbo",
+                    Name = "Birthday",
+                    ClrType = typeof(DateTime),
+                    ColumnType = "smalldatetime",
+                    IsNullable = false,
+                    DefaultValue = new DateTime(2019, 1, 1)
+                });
+
+            AssertSql(@"ALTER TABLE [dbo].[People] ADD [Birthday] smalldatetime NOT NULL DEFAULT '2019-01-01T00:00:00';
+");
+        }
+
         public override void AddColumnOperation_with_maxLength_overridden()
         {
             base.AddColumnOperation_with_maxLength_overridden();
