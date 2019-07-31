@@ -21,6 +21,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
     /// </summary>
     public class RelationshipDiscoveryConvention :
         IEntityTypeAddedConvention,
+        IEntityTypeIgnoredConvention,
         IEntityTypeBaseTypeChangedConvention,
         INavigationRemovedConvention,
         IEntityTypeMemberIgnoredConvention,
@@ -770,15 +771,24 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 DiscoverRelationships(oldBaseTypeBuilder, context);
             }
 
-            if (entityTypeBuilder.Metadata.BaseType != newBaseType)
+            var entityType = entityTypeBuilder.Metadata;
+            if (entityType.BaseType != newBaseType)
             {
                 return;
             }
 
-            ApplyOnRelatedEntityTypes(entityTypeBuilder.Metadata, context);
-            foreach (var entityType in entityTypeBuilder.Metadata.GetDerivedTypesInclusive())
+            if (newBaseType != null)
             {
-                DiscoverRelationships(entityType.Builder, context);
+                foreach (var ignoredMember in newBaseType.GetAllBaseTypesInclusive().SelectMany(et => et.GetIgnoredMembers()))
+                {
+                    ProcessEntityTypeMemberIgnoredOnBase(entityType, ignoredMember);
+                }
+            }
+
+            ApplyOnRelatedEntityTypes(entityType, context);
+            foreach (var derivedEntityType in entityType.GetDerivedTypesInclusive())
+            {
+                DiscoverRelationships(derivedEntityType.Builder, context);
             }
         }
 
@@ -850,6 +860,28 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                    || (memberInfo as PropertyInfo)?.PropertyType.TryGetSequenceType() == null);
 
         /// <summary>
+        ///     Called after an entity type is ignored.
+        /// </summary>
+        /// <param name="modelBuilder"> The builder for the model. </param>
+        /// <param name="name"> The name of the ignored entity type. </param>
+        /// <param name="type"> The ignored entity type. </param>
+        /// <param name="context"> Additional information associated with convention execution. </param>
+        public virtual void ProcessEntityTypeIgnored(
+            IConventionModelBuilder modelBuilder, string name, Type type, IConventionContext<string> context)
+        {
+            foreach (var entityType in modelBuilder.Metadata.GetEntityTypes())
+            {
+                // Only run the convention if an ambiguity might have been removed
+                var ambiguityRemoved = RemoveAmbiguous(entityType, type);
+
+                if (ambiguityRemoved)
+                {
+                    DiscoverRelationships(entityType.Builder, context);
+                }
+            }
+        }
+
+        /// <summary>
         ///     Called after an entity type member is ignored.
         /// </summary>
         /// <param name="entityTypeBuilder"> The builder for the entity type. </param>
@@ -861,43 +893,48 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             var anyAmbiguityRemoved = false;
             foreach (var derivedEntityType in entityTypeBuilder.Metadata.GetDerivedTypesInclusive())
             {
-                var ambiguousNavigations = GetAmbiguousNavigations(derivedEntityType);
-                if (ambiguousNavigations == null)
-                {
-                    continue;
-                }
-
-                KeyValuePair<MemberInfo, Type>? ambiguousNavigation = null;
-                foreach (var navigation in ambiguousNavigations)
-                {
-                    if (navigation.Key.GetSimpleMemberName() == name)
-                    {
-                        ambiguousNavigation = navigation;
-                    }
-                }
-
-                if (ambiguousNavigation == null)
-                {
-                    continue;
-                }
-
-                anyAmbiguityRemoved = true;
-
-                var targetClrType = ambiguousNavigation.Value.Value;
-                RemoveAmbiguous(derivedEntityType, targetClrType);
-
-                var targetType = ((InternalEntityTypeBuilder)entityTypeBuilder)
-                    .GetTargetEntityTypeBuilder(targetClrType, ambiguousNavigation.Value.Key, null)?.Metadata;
-                if (targetType != null)
-                {
-                    RemoveAmbiguous(targetType, derivedEntityType.ClrType);
-                }
+                anyAmbiguityRemoved |= ProcessEntityTypeMemberIgnoredOnBase(derivedEntityType, name);
             }
 
             if (anyAmbiguityRemoved)
             {
                 DiscoverRelationships(entityTypeBuilder, context);
             }
+        }
+
+        private bool ProcessEntityTypeMemberIgnoredOnBase(IConventionEntityType entityType, string name)
+        {
+            var ambiguousNavigations = GetAmbiguousNavigations(entityType);
+            if (ambiguousNavigations == null)
+            {
+                return false;
+            }
+
+            KeyValuePair<MemberInfo, Type>? ambiguousNavigation = null;
+            foreach (var navigation in ambiguousNavigations)
+            {
+                if (navigation.Key.GetSimpleMemberName() == name)
+                {
+                    ambiguousNavigation = navigation;
+                }
+            }
+
+            if (ambiguousNavigation == null)
+            {
+                return false;
+            }
+
+            var targetClrType = ambiguousNavigation.Value.Value;
+            RemoveAmbiguous(entityType, targetClrType);
+
+            var targetType = ((InternalEntityTypeBuilder)entityType.Builder)
+                .GetTargetEntityTypeBuilder(targetClrType, ambiguousNavigation.Value.Key, null)?.Metadata;
+            if (targetType != null)
+            {
+                RemoveAmbiguous(targetType, entityType.ClrType);
+            }
+
+            return true;
         }
 
         /// <summary>

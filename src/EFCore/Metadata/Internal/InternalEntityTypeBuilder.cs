@@ -445,7 +445,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             ConfigurationSource? typeConfigurationSource,
             ConfigurationSource? configurationSource)
         {
-            IEnumerable<Property> propertiesToDetach = null;
+            List<Property> propertiesToDetach = null;
             var existingProperty = Metadata.FindProperty(propertyName);
             if (existingProperty != null)
             {
@@ -456,7 +456,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     {
                         if (configurationSource.Overrides(existingProperty.GetConfigurationSource()))
                         {
-                            propertiesToDetach = new[]
+                            propertiesToDetach = new List<Property>
                             {
                                 existingProperty
                             };
@@ -527,7 +527,19 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
                 Metadata.RemoveIgnored(propertyName);
 
-                propertiesToDetach = Metadata.FindDerivedProperties(propertyName);
+                foreach (var derivedType in Metadata.GetDerivedTypes())
+                {
+                    var derivedProperty = derivedType.FindDeclaredProperty(propertyName);
+                    if (derivedProperty != null)
+                    {
+                        if (propertiesToDetach == null)
+                        {
+                            propertiesToDetach = new List<Property>();
+                        }
+
+                        propertiesToDetach.Add(derivedProperty);
+                    }
+                }
             }
 
             InternalPropertyBuilder builder;
