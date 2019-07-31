@@ -250,6 +250,11 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             {
                 foreach (var ignoredMember in entityType.GetIgnoredMembers())
                 {
+                    if (entityType.FindIgnoredConfigurationSource(ignoredMember) != ConfigurationSource.Explicit)
+                    {
+                        continue;
+                    }
+
                     var property = entityType.FindProperty(ignoredMember);
                     if (property != null)
                     {
