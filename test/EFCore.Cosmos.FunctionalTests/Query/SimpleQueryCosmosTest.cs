@@ -3828,6 +3828,12 @@ WHERE (c[""Discriminator""] = ""Customer"")");
         }
 
         [ConditionalTheory(Skip = "Issue#14935")]
+        public override async Task Entity_equality_through_DTO_projection(bool isAsync)
+        {
+            await base.Entity_equality_through_DTO_projection(isAsync);
+        }
+
+        [ConditionalTheory(Skip = "Issue#14935")]
         public override Task GroupJoin_customers_employees_shadow(bool isAsync)
         {
             return base.GroupJoin_customers_employees_shadow(isAsync);
