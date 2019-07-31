@@ -18,13 +18,13 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="key"> The key. </param>
         /// <returns> <c>true</c> if the key is clustered. </returns>
-        public static bool? GetSqlServerIsClustered([NotNull] this IKey key)
+        public static bool? IsClustered([NotNull] this IKey key)
             => (bool?)key[SqlServerAnnotationNames.Clustered] ?? GetDefaultIsClustered(key);
 
         private static bool? GetDefaultIsClustered(IKey key)
         {
             var sharedTablePrincipalPrimaryKeyProperty = key.Properties[0].FindSharedTableRootPrimaryKeyProperty();
-            return sharedTablePrincipalPrimaryKeyProperty?.FindContainingPrimaryKey().GetSqlServerIsClustered();
+            return sharedTablePrincipalPrimaryKeyProperty?.FindContainingPrimaryKey().IsClustered();
         }
 
         /// <summary>
@@ -32,7 +32,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="key"> The key. </param>
         /// <param name="clustered"> The value to set. </param>
-        public static void SetSqlServerIsClustered([NotNull] this IMutableKey key, bool? clustered)
+        public static void SetIsClustered([NotNull] this IMutableKey key, bool? clustered)
             => key.SetOrRemoveAnnotation(SqlServerAnnotationNames.Clustered, clustered);
 
         /// <summary>
@@ -41,7 +41,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="key"> The key. </param>
         /// <param name="clustered"> The value to set. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        public static void SetSqlServerIsClustered([NotNull] this IConventionKey key, bool? clustered, bool fromDataAnnotation = false)
+        public static void SetIsClustered([NotNull] this IConventionKey key, bool? clustered, bool fromDataAnnotation = false)
             => key.SetOrRemoveAnnotation(SqlServerAnnotationNames.Clustered, clustered, fromDataAnnotation);
 
         /// <summary>
@@ -49,7 +49,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="key"> The key. </param>
         /// <returns> The <see cref="ConfigurationSource" /> for whether the key is clustered. </returns>
-        public static ConfigurationSource? GetSqlServerIsClusteredConfigurationSource([NotNull] this IConventionKey key)
+        public static ConfigurationSource? GetIsClusteredConfigurationSource([NotNull] this IConventionKey key)
             => key.FindAnnotation(SqlServerAnnotationNames.Clustered)?.GetConfigurationSource();
     }
 }

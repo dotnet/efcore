@@ -9,15 +9,16 @@ using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Newtonsoft.Json.Linq;
 
+// ReSharper disable once CheckNamespace
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 {
     /// <summary>
     ///     <para>
     ///         A convention that adds the 'id' property - a key required by Azure Cosmos.
     ///     </para>
-    ///         This convention also add the '__jObject' containing the JSON object returned by the store.
     ///     <para>
-    /// </para>
+    ///         This convention also adds the '__jObject' containing the JSON object returned by the store.
+    ///     </para>
     /// </summary>
     public class StoreKeyConvention :
         IEntityTypeAddedConvention,
@@ -52,10 +53,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 var idProperty = entityTypeBuilder.Property(typeof(string), IdPropertyName);
                 idProperty.HasValueGenerator((_, __) => new IdValueGenerator());
                 entityTypeBuilder.HasKey(new[] { idProperty.Metadata });
-
-                var jObjectProperty = entityTypeBuilder.Property(typeof(JObject), JObjectPropertyName);
-                jObjectProperty.ToJsonProperty("");
-                jObjectProperty.ValueGenerated(ValueGenerated.OnAddOrUpdate);
             }
             else
             {
@@ -68,7 +65,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                         entityType.Builder.HasNoKey(key);
                     }
                 }
+            }
 
+            if (entityType.BaseType == null
+                && !entityType.IsKeyless)
+            {
+                var jObjectProperty = entityTypeBuilder.Property(typeof(JObject), JObjectPropertyName);
+                jObjectProperty.ToJsonProperty("");
+                jObjectProperty.ValueGenerated(ValueGenerated.OnAddOrUpdate);
+            }
+            else
+            {
                 var jObjectProperty = entityType.FindDeclaredProperty(JObjectPropertyName);
                 if (jObjectProperty != null)
                 {

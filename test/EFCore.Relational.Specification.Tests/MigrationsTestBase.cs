@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Migrations;
+using Microsoft.EntityFrameworkCore.Migrations.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
 using Microsoft.Extensions.DependencyInjection;
@@ -370,6 +371,18 @@ namespace Microsoft.EntityFrameworkCore
         {
             var sourceModel = snapshot.Model;
             var targetModel = context.Model;
+
+            var typeMapper = context.GetService<IRelationalTypeMappingSource>();
+
+            foreach (var property in sourceModel.GetEntityTypes().SelectMany(e => e.GetDeclaredProperties()))
+            {
+                Assert.NotNull(typeMapper.FindMapping(property));
+            }
+
+            foreach (var property in targetModel.GetEntityTypes().SelectMany(e => e.GetDeclaredProperties()))
+            {
+                Assert.NotNull(typeMapper.FindMapping(property));
+            }
 
             var modelDiffer = context.GetService<IMigrationsModelDiffer>();
             var operations = modelDiffer.GetDifferences(sourceModel, targetModel);

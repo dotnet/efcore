@@ -10,10 +10,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
 {
     public class SqlServerQuerySqlGenerator : QuerySqlGenerator
     {
-        public SqlServerQuerySqlGenerator(
-            IRelationalCommandBuilderFactory relationalCommandBuilderFactory,
-            ISqlGenerationHelper sqlGenerationHelper)
-            : base(relationalCommandBuilderFactory, sqlGenerationHelper)
+        public SqlServerQuerySqlGenerator(QuerySqlGeneratorDependencies dependencies)
+            : base(dependencies)
         {
         }
 

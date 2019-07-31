@@ -121,7 +121,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         private void Append([NotNull] string message) => _stringBuilder.Append(message);
 
-        private void AppendLine([NotNull] string message = "")
+        private void AppendLine([NotNull] string message)
         {
             if (RemoveFormatting)
             {
@@ -467,7 +467,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             foreach (var parameter in lambdaExpression.Parameters)
             {
-                var parameterName = parameter.Name ?? parameter.ToString();
+                var parameterName = parameter.Name;
 
                 if (!_parametersInScope.ContainsKey(parameter))
                 {
@@ -478,7 +478,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                 if (parameter != lambdaExpression.Parameters.Last())
                 {
-                    _stringBuilder.Append(" | ");
+                    _stringBuilder.Append(", ");
                 }
             }
 
@@ -568,11 +568,6 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
         {
-            if (!methodCallExpression.IsEFProperty())
-            {
-                _stringBuilder.Append(methodCallExpression.Method.ReturnType.ShortDisplayName() + " ");
-            }
-
             if (methodCallExpression.Object != null)
             {
                 if (methodCallExpression.Object is BinaryExpression)
@@ -589,7 +584,24 @@ namespace Microsoft.EntityFrameworkCore.Query
                 _stringBuilder.Append(".");
             }
 
-            _stringBuilder.Append(methodCallExpression.Method.Name + "(");
+            _stringBuilder.Append(methodCallExpression.Method.Name);
+            if (methodCallExpression.Method.IsGenericMethod)
+            {
+                _stringBuilder.Append("<");
+                var first = true;
+                foreach (var genericArgument in methodCallExpression.Method.GetGenericArguments())
+                {
+                    if (!first)
+                    {
+                        _stringBuilder.Append(", ");
+                    }
+                    _stringBuilder.Append(genericArgument.ShortDisplayName());
+                    first = false;
+                }
+
+                _stringBuilder.Append(">");
+            }
+            _stringBuilder.Append("(");
 
             var isSimpleMethodOrProperty = _simpleMethods.Contains(methodCallExpression.Method.Name)
                                            || methodCallExpression.Arguments.Count < 2

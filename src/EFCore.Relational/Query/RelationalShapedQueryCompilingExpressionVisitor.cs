@@ -8,34 +8,29 @@ using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
-using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
     public partial class RelationalShapedQueryCompilingExpressionVisitor : ShapedQueryCompilingExpressionVisitor
     {
-        private readonly IQuerySqlGeneratorFactory _querySqlGeneratorFactory;
-        private readonly ISqlExpressionFactory _sqlExpressionFactory;
-        private readonly IParameterNameGeneratorFactory _parameterNameGeneratorFactory;
         private readonly Type _contextType;
         private readonly IDiagnosticsLogger<DbLoggerCategory.Query> _logger;
         private readonly ISet<string> _tags;
 
         public RelationalShapedQueryCompilingExpressionVisitor(
             QueryCompilationContext queryCompilationContext,
-            IEntityMaterializerSource entityMaterializerSource,
-            IQuerySqlGeneratorFactory querySqlGeneratorFactory,
-            ISqlExpressionFactory sqlExpressionFactory,
-            IParameterNameGeneratorFactory parameterNameGeneratorFactory)
-            : base(queryCompilationContext, entityMaterializerSource)
+            ShapedQueryCompilingExpressionVisitorDependencies dependencies,
+            RelationalShapedQueryCompilingExpressionVisitorDependencies relationalDependencies)
+            : base(queryCompilationContext, dependencies)
         {
-            _querySqlGeneratorFactory = querySqlGeneratorFactory;
-            _sqlExpressionFactory = sqlExpressionFactory;
-            _parameterNameGeneratorFactory = parameterNameGeneratorFactory;
+            RelationalDependencies = relationalDependencies;
+
             _contextType = queryCompilationContext.ContextType;
             _logger = queryCompilationContext.Logger;
             _tags = queryCompilationContext.Tags;
         }
+
+        protected virtual RelationalShapedQueryCompilingExpressionVisitorDependencies RelationalDependencies { get; }
 
         protected override Expression VisitShapedQueryExpression(ShapedQueryExpression shapedQueryExpression)
         {
@@ -73,9 +68,9 @@ namespace Microsoft.EntityFrameworkCore.Query
                     ? typeof(AsyncQueryingEnumerable<>)
                     : typeof(QueryingEnumerable<>)).MakeGenericType(shaperLambda.ReturnType).GetConstructors()[0],
                 Expression.Convert(QueryCompilationContext.QueryContextParameter, typeof(RelationalQueryContext)),
-                Expression.Constant(_querySqlGeneratorFactory),
-                Expression.Constant(_sqlExpressionFactory),
-                Expression.Constant(_parameterNameGeneratorFactory),
+                Expression.Constant(RelationalDependencies.QuerySqlGeneratorFactory),
+                Expression.Constant(RelationalDependencies.SqlExpressionFactory),
+                Expression.Constant(RelationalDependencies.ParameterNameGeneratorFactory),
                 Expression.Constant(selectExpression),
                 Expression.Constant(shaperLambda.Compile()),
                 Expression.Constant(_contextType),

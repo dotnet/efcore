@@ -9,9 +9,10 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
     public class SqlServerShapedQueryOptimizer : RelationalShapedQueryOptimizer
     {
         public SqlServerShapedQueryOptimizer(
-            QueryCompilationContext queryCompilationContext,
-            ISqlExpressionFactory sqlExpressionFactory)
-            : base(queryCompilationContext, sqlExpressionFactory)
+            ShapedQueryOptimizerDependencies dependencies,
+            RelationalShapedQueryOptimizerDependencies relationalDependencies,
+            QueryCompilationContext queryCompilationContext)
+            : base(dependencies, relationalDependencies, queryCompilationContext)
         {
         }
 

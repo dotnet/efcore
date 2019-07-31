@@ -7,23 +7,21 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 {
     public class RelationalQueryableMethodTranslatingExpressionVisitorFactory : IQueryableMethodTranslatingExpressionVisitorFactory
     {
-        private readonly ISqlExpressionFactory _sqlExpressionFactory;
-        private readonly IRelationalSqlTranslatingExpressionVisitorFactory _relationalSqlTranslatingExpressionVisitorFactory;
+        private readonly QueryableMethodTranslatingExpressionVisitorDependencies _dependencies;
+        private readonly RelationalQueryableMethodTranslatingExpressionVisitorDependencies _relationalDependencies;
 
         public RelationalQueryableMethodTranslatingExpressionVisitorFactory(
-            IRelationalSqlTranslatingExpressionVisitorFactory relationalSqlTranslatingExpressionVisitorFactory,
-            ISqlExpressionFactory sqlExpressionFactory)
+            QueryableMethodTranslatingExpressionVisitorDependencies dependencies,
+            RelationalQueryableMethodTranslatingExpressionVisitorDependencies relationalDependencies)
         {
-            _sqlExpressionFactory = sqlExpressionFactory;
-            _relationalSqlTranslatingExpressionVisitorFactory = relationalSqlTranslatingExpressionVisitorFactory;
+            _dependencies = dependencies;
+            _relationalDependencies = relationalDependencies;
         }
 
         public virtual QueryableMethodTranslatingExpressionVisitor Create(IModel model)
-        {
-            return new RelationalQueryableMethodTranslatingExpressionVisitor(
-                model,
-                _relationalSqlTranslatingExpressionVisitorFactory,
-                _sqlExpressionFactory);
-        }
+            => new RelationalQueryableMethodTranslatingExpressionVisitor(
+                _dependencies,
+                _relationalDependencies,
+                model);
     }
 }

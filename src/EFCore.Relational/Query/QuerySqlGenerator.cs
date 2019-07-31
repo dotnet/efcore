@@ -38,13 +38,15 @@ namespace Microsoft.EntityFrameworkCore.Query
             { ExpressionType.Or, " | " }
         };
 
-        public QuerySqlGenerator(
-            IRelationalCommandBuilderFactory relationalCommandBuilderFactory,
-            ISqlGenerationHelper sqlGenerationHelper)
+        public QuerySqlGenerator(QuerySqlGeneratorDependencies dependencies)
         {
-            _relationalCommandBuilderFactory = relationalCommandBuilderFactory;
-            _sqlGenerationHelper = sqlGenerationHelper;
+            Dependencies = dependencies;
+
+            _relationalCommandBuilderFactory = dependencies.RelationalCommandBuilderFactory;
+            _sqlGenerationHelper = dependencies.SqlGenerationHelper;
         }
+
+        protected virtual QuerySqlGeneratorDependencies Dependencies { get; }
 
         public virtual IRelationalCommand GetCommand(SelectExpression selectExpression)
         {

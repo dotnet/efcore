@@ -19,16 +19,16 @@ namespace Microsoft.EntityFrameworkCore.Query
             private readonly IDictionary<FromSqlExpression, Expression> _visitedFromSqlExpressions
                 = new Dictionary<FromSqlExpression, Expression>(ReferenceEqualityComparer.Instance);
 
-            private readonly ISqlExpressionFactory _SqlExpressionFactory;
+            private readonly ISqlExpressionFactory _sqlExpressionFactory;
             private readonly ParameterNameGenerator _parameterNameGenerator;
             private readonly IReadOnlyDictionary<string, object> _parametersValues;
 
             public FromSqlParameterApplyingExpressionVisitor(
-                ISqlExpressionFactory _sqlExpressionFactory,
+                ISqlExpressionFactory sqlExpressionFactory,
                 ParameterNameGenerator parameterNameGenerator,
                 IReadOnlyDictionary<string, object> parametersValues)
             {
-                _SqlExpressionFactory = _sqlExpressionFactory;
+                _sqlExpressionFactory = sqlExpressionFactory;
                 _parameterNameGenerator = parameterNameGenerator;
                 _parametersValues = parametersValues;
             }
@@ -67,7 +67,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                                             new TypeMappedRelationalParameter(
                                                 parameterName,
                                                 parameterName,
-                                                _SqlExpressionFactory.GetTypeMappingForValue(parameterValues[i]),
+                                                _sqlExpressionFactory.GetTypeMappingForValue(parameterValues[i]),
                                                 parameterValues[i]?.GetType().IsNullableType()));
                                     }
                                 }

@@ -3534,15 +3534,16 @@ namespace RootNamespace
 
             var model = modelBuilder.FinalizeModel();
 
+            var sqlServerTypeMappingSource = new SqlServerTypeMappingSource(
+                TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
+                new RelationalTypeMappingSourceDependencies(
+                    new IRelationalTypeMappingSourcePlugin[]
+                        { new SqlServerNetTopologySuiteTypeMappingSourcePlugin(NtsGeometryServices.Instance) }));
             var codeHelper = new CSharpHelper(
-                new SqlServerTypeMappingSource(
-                    TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
-                    new RelationalTypeMappingSourceDependencies(
-                        new IRelationalTypeMappingSourcePlugin[]
-                            { new SqlServerNetTopologySuiteTypeMappingSourcePlugin(NtsGeometryServices.Instance) })));
+                sqlServerTypeMappingSource);
 
             var generator = new CSharpMigrationsGenerator(
-                new MigrationsCodeGeneratorDependencies(),
+                new MigrationsCodeGeneratorDependencies(sqlServerTypeMappingSource),
                 new CSharpMigrationsGeneratorDependencies(
                     codeHelper,
                     new CSharpMigrationOperationGenerator(
@@ -3550,7 +3551,7 @@ namespace RootNamespace
                             codeHelper)),
                     new CSharpSnapshotGenerator(
                         new CSharpSnapshotGeneratorDependencies(
-                            codeHelper))));
+                            codeHelper, sqlServerTypeMappingSource))));
 
             var code = generator.GenerateSnapshot("RootNamespace", typeof(DbContext), "Snapshot", model);
 

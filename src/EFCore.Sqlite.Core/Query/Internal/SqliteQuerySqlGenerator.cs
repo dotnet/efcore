@@ -12,10 +12,8 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
 {
     public class SqliteQuerySqlGenerator : QuerySqlGenerator
     {
-        public SqliteQuerySqlGenerator(
-            IRelationalCommandBuilderFactory relationalCommandBuilderFactory,
-            ISqlGenerationHelper sqlGenerationHelper)
-            : base(relationalCommandBuilderFactory, sqlGenerationHelper)
+        public SqliteQuerySqlGenerator(QuerySqlGeneratorDependencies dependencies)
+            : base(dependencies)
         {
         }
 

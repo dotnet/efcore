@@ -2,24 +2,19 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using Microsoft.EntityFrameworkCore.Query;
-using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
 {
     public class SqlServerQuerySqlGeneratorFactory : IQuerySqlGeneratorFactory
     {
-        private readonly IRelationalCommandBuilderFactory _commandBuilderFactory;
-        private readonly ISqlGenerationHelper _sqlGenerationHelper;
+        private readonly QuerySqlGeneratorDependencies _dependencies;
 
-        public SqlServerQuerySqlGeneratorFactory(
-            IRelationalCommandBuilderFactory commandBuilderFactory,
-            ISqlGenerationHelper sqlGenerationHelper)
+        public SqlServerQuerySqlGeneratorFactory(QuerySqlGeneratorDependencies dependencies)
         {
-            _commandBuilderFactory = commandBuilderFactory;
-            _sqlGenerationHelper = sqlGenerationHelper;
+            _dependencies = dependencies;
         }
 
         public virtual QuerySqlGenerator Create()
-            => new SqlServerQuerySqlGenerator(_commandBuilderFactory, _sqlGenerationHelper);
+            => new SqlServerQuerySqlGenerator(_dependencies);
     }
 }

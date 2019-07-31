@@ -25,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             Check.NotNull(propertyBuilder, nameof(propertyBuilder));
 
-            propertyBuilder.Metadata.SetSqliteSrid(srid);
+            propertyBuilder.Metadata.SetSrid(srid);
 
             return propertyBuilder;
         }
@@ -58,7 +58,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             if (propertyBuilder.CanSetSrid(srid, fromDataAnnotation))
             {
-                propertyBuilder.Metadata.SetSqliteSrid(srid, fromDataAnnotation);
+                propertyBuilder.Metadata.SetSrid(srid, fromDataAnnotation);
 
                 return propertyBuilder;
             }
@@ -92,14 +92,14 @@ namespace Microsoft.EntityFrameworkCore
         ///     The same builder instance if the configuration was applied,
         ///     <c>null</c> otherwise.
         /// </returns>
-        public static IConventionPropertyBuilder HasSpatialDimension(
+        public static IConventionPropertyBuilder HasGeometricDimension(
             [NotNull] this IConventionPropertyBuilder propertyBuilder,
             [CanBeNull] string dimension,
             bool fromDataAnnotation = false)
         {
-            if (propertyBuilder.CanSetSpatialDimension(dimension, fromDataAnnotation))
+            if (propertyBuilder.CanSetGeometricDimension(dimension, fromDataAnnotation))
             {
-                propertyBuilder.Metadata.SetSqliteDimension(dimension, fromDataAnnotation);
+                propertyBuilder.Metadata.SetGeometricDimension(dimension, fromDataAnnotation);
 
                 return propertyBuilder;
             }
@@ -114,7 +114,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="dimension"> The dimension. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> <c>true</c> if the given value can be set as the dimension for the column. </returns>
-        public static bool CanSetSpatialDimension(
+        public static bool CanSetGeometricDimension(
             [NotNull] this IConventionPropertyBuilder propertyBuilder,
             [CanBeNull] string dimension,
             bool fromDataAnnotation = false)
@@ -172,11 +172,11 @@ namespace Microsoft.EntityFrameworkCore
         ///     The same builder instance if the configuration was applied,
         ///     <c>null</c> otherwise.
         /// </returns>
-        [Obsolete("Use HasSpatialDimension")]
+        [Obsolete("Use HasGeometricDimension")]
         public static IConventionPropertyBuilder ForSqliteHasDimension(
             [NotNull] this IConventionPropertyBuilder propertyBuilder,
             [CanBeNull] string dimension,
             bool fromDataAnnotation = false)
-            => propertyBuilder.HasSpatialDimension(dimension, fromDataAnnotation);
+            => propertyBuilder.HasGeometricDimension(dimension, fromDataAnnotation);
     }
 }

@@ -23,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="accountEndpoint"> The account end-point to connect to. </param>
         /// <param name="accountKey"> The account key. </param>
         /// <param name="databaseName"> The database name. </param>
-        /// <param name="cosmosOptionsAction">An optional action to allow additional Cosmos-specific configuration.</param>
+        /// <param name="cosmosOptionsAction"> An optional action to allow additional Cosmos-specific configuration. </param>
         /// <returns> The options builder so that further configuration can be chained. </returns>
         public static DbContextOptionsBuilder<TContext> UseCosmos<TContext>(
             [NotNull] this DbContextOptionsBuilder<TContext> optionsBuilder,
@@ -46,7 +46,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="accountEndpoint"> The account end-point to connect to. </param>
         /// <param name="accountKey"> The account key. </param>
         /// <param name="databaseName"> The database name. </param>
-        /// <param name="cosmosOptionsAction">An optional action to allow additional Cosmos-specific configuration.</param>
+        /// <param name="cosmosOptionsAction"> An optional action to allow additional Cosmos-specific configuration. </param>
         /// <returns> The options builder so that further configuration can be chained. </returns>
         public static DbContextOptionsBuilder UseCosmos(
             [NotNull] this DbContextOptionsBuilder optionsBuilder,

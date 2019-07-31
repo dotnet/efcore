@@ -14,7 +14,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
         private bool _isSearchCondition;
         private readonly ISqlExpressionFactory _sqlExpressionFactory;
 
-        public SearchConditionConvertingExpressionVisitor(ISqlExpressionFactory sqlExpressionFactory)
+        public SearchConditionConvertingExpressionVisitor(
+            ISqlExpressionFactory sqlExpressionFactory)
         {
             _sqlExpressionFactory = sqlExpressionFactory;
         }

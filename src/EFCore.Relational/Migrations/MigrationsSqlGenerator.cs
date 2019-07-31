@@ -177,13 +177,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 
             ColumnDefinition(operation, model, builder);
 
-            if (operation.Comment != null)
-            {
-                builder.AppendLine(Dependencies.SqlGenerationHelper.StatementTerminator);
-
-                GenerateComment(operation, model, builder, operation.Comment, operation.Schema, operation.Table, operation.Name);
-            }
-
             if (terminate)
             {
                 builder.AppendLine(Dependencies.SqlGenerationHelper.StatementTerminator);
@@ -567,16 +560,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             }
 
             builder.Append(")");
-
-            if (operation.Comment != null)
-            {
-                GenerateComment(operation, model, builder, operation.Comment, operation.Schema, operation.Name);
-            }
-
-            foreach (var column in operation.Columns.Where(c => c.Comment != null))
-            {
-                GenerateComment(operation, model, builder, column.Comment, operation.Schema, operation.Name, column.Name);
-            }
 
             if (terminate)
             {
@@ -1631,35 +1614,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             Check.NotNull(builder, nameof(builder));
 
             builder.EndCommand(suppressTransaction);
-        }
-
-        /// <summary>
-        ///     <para>
-        ///         Can be overridden by database providers to build commands for applying comments to tables and columns
-        ///         by making calls on the given <see cref="MigrationCommandListBuilder" />.
-        ///     </para>
-        ///     <para>
-        ///         Note that the default implementation of this method does nothing because there is no common metadata
-        ///         relating to this operation. Providers only need to override this method if they have some provider-specific
-        ///         annotations that must be handled.
-        ///     </para>
-        /// </summary>
-        /// <param name="operation"> The operation. </param>
-        /// <param name="model"> The target model which may be <c>null</c> if the operations exist without a model. </param>
-        /// <param name="builder"> The command builder to use to build the commands. </param>
-        /// <param name="comment"> The comment to be applied. </param>
-        /// <param name="schema"> The schema of the table. </param>
-        /// <param name="table"> The name of the table. </param>
-        /// <param name="columnName"> The column name if comment is being applied to a column. </param>
-        protected virtual void GenerateComment(
-            [NotNull] MigrationOperation operation,
-            [CanBeNull] IModel model,
-            [NotNull] MigrationCommandListBuilder builder,
-            [NotNull] string comment,
-            [NotNull] string schema,
-            [NotNull] string table,
-            [CanBeNull] string columnName = null)
-        {
         }
 
         /// <summary>

@@ -180,7 +180,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
             object __,
             CancellationToken cancellationToken = default)
         {
-            var response = await Client.GetDatabase(_databaseId).DeleteAsync(cancellationToken: cancellationToken)
+            var response = await Client.GetDatabase(_databaseId).DeleteStreamAsync(cancellationToken: cancellationToken)
                 .ConfigureAwait(false);
 
             return response.StatusCode == HttpStatusCode.NoContent;

@@ -1,6 +1,7 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Query;
 
@@ -8,30 +9,20 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
 {
     public class SqliteSqlTranslatingExpressionVisitorFactory : IRelationalSqlTranslatingExpressionVisitorFactory
     {
-        private readonly ISqlExpressionFactory _sqlExpressionFactory;
-        private readonly IMemberTranslatorProvider _memberTranslatorProvider;
-        private readonly IMethodCallTranslatorProvider _methodCallTranslatorProvider;
+        private readonly RelationalSqlTranslatingExpressionVisitorDependencies _dependencies;
 
         public SqliteSqlTranslatingExpressionVisitorFactory(
-            ISqlExpressionFactory sqlExpressionFactory,
-            IMemberTranslatorProvider memberTranslatorProvider,
-            IMethodCallTranslatorProvider methodCallTranslatorProvider)
+            [NotNull] RelationalSqlTranslatingExpressionVisitorDependencies dependencies)
         {
-            _sqlExpressionFactory = sqlExpressionFactory;
-            _memberTranslatorProvider = memberTranslatorProvider;
-            _methodCallTranslatorProvider = methodCallTranslatorProvider;
+            _dependencies = dependencies;
         }
 
         public virtual RelationalSqlTranslatingExpressionVisitor Create(
             IModel model,
             QueryableMethodTranslatingExpressionVisitor queryableMethodTranslatingExpressionVisitor)
-        {
-            return new SqliteSqlTranslatingExpressionVisitor(
+            => new SqliteSqlTranslatingExpressionVisitor(
+                _dependencies,
                 model,
-                queryableMethodTranslatingExpressionVisitor,
-                _sqlExpressionFactory,
-                _memberTranslatorProvider,
-                _methodCallTranslatorProvider);
-        }
+                queryableMethodTranslatingExpressionVisitor);
     }
 }

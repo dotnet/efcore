@@ -1,7 +1,7 @@
 <Project>
   <PropertyGroup Label="Version settings">
-    <VersionPrefix>3.0.0</VersionPrefix>
-    <PreReleaseVersionLabel>preview8</PreReleaseVersionLabel>
+    <VersionPrefix>5.0.0</VersionPrefix>
+    <PreReleaseVersionLabel>alpha1</PreReleaseVersionLabel>
     <IncludeSourceRevisionInInformationalVersion>False</IncludeSourceRevisionInInformationalVersion>
   </PropertyGroup>
   <PropertyGroup Label="Arcade settings">
@@ -12,7 +12,7 @@
   <PropertyGroup Label="Dependencies from nuget.org">
     <SystemThreadingTasksExtensionsVersion>4.5.2</SystemThreadingTasksExtensionsVersion>
     <CastleCorePackageVersion>4.2.1</CastleCorePackageVersion>
-    <MicrosoftAzureCosmosPackageVersion>3.0.0.19-preview</MicrosoftAzureCosmosPackageVersion>
+    <MicrosoftAzureCosmosPackageVersion>3.0.0</MicrosoftAzureCosmosPackageVersion>
     <MicrosoftCodeAnalysisCSharpPackageVersion>2.8.0</MicrosoftCodeAnalysisCSharpPackageVersion>
     <MicrosoftCodeAnalysisCSharpWorkspacesPackageVersion>2.8.0</MicrosoftCodeAnalysisCSharpWorkspacesPackageVersion>
     <mod_spatialitePackageVersion>4.3.0.1</mod_spatialitePackageVersion>
@@ -50,7 +50,7 @@
     <NETStandardLibraryRefPackageVersion>2.1.0-alpha1.19380.11</NETStandardLibraryRefPackageVersion>
   </PropertyGroup>
   <PropertyGroup Label="Dependencies from dotnet/roslyn">
-    <MicrosoftNetCompilersToolsetVersion>3.3.0-beta2-19376-02</MicrosoftNetCompilersToolsetVersion>
+    <MicrosoftNetCompilersToolsetVersion>3.3.0-beta2-19380-01</MicrosoftNetCompilersToolsetVersion>
   </PropertyGroup>
   <PropertyGroup Label="Dependency version settings">
     <!--

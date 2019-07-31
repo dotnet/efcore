@@ -18,15 +18,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 .Property(e => e.Geometry)
                 .Metadata;
 
-            Assert.Null(property.GetSqliteSrid());
+            Assert.Null(property.GetSrid());
 
-            property.SetSqliteSrid(1);
+            property.SetSrid(1);
 
-            Assert.Equal(1, property.GetSqliteSrid());
+            Assert.Equal(1, property.GetSrid());
 
-            property.SetSqliteSrid(null);
+            property.SetSrid(null);
 
-            Assert.Null(property.GetSqliteSrid());
+            Assert.Null(property.GetSrid());
         }
 
         [ConditionalFact]
@@ -39,15 +39,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 .Property(e => e.Geometry)
                 .Metadata;
 
-            Assert.Null(property.GetSqliteDimension());
+            Assert.Null(property.GetGeometricDimension());
 
-            property.SetSqliteDimension("Z");
+            property.SetGeometricDimension("Z");
 
-            Assert.Equal("Z", property.GetSqliteDimension());
+            Assert.Equal("Z", property.GetGeometricDimension());
 
-            property.SetSqliteDimension(null);
+            property.SetGeometricDimension(null);
 
-            Assert.Null(property.GetSqliteDimension());
+            Assert.Null(property.GetGeometricDimension());
         }
 
         private class Customer

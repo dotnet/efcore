@@ -23,6 +23,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Update.Internal
         private readonly string _collectionId;
         private readonly CosmosDatabaseWrapper _database;
         private readonly IProperty _idProperty;
+        private readonly IProperty _jObjectProperty;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -35,6 +36,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Update.Internal
             _collectionId = entityType.GetCosmosContainer();
             _database = database;
             _idProperty = entityType.FindProperty(StoreKeyConvention.IdPropertyName);
+            _jObjectProperty = entityType.FindProperty(StoreKeyConvention.JObjectPropertyName);
         }
 
         /// <summary>
@@ -71,39 +73,43 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Update.Internal
                 {
                     document[storeName] = ConvertPropertyValue(property, entry.GetCurrentValue(property));
                 }
+                else if (entry.HasTemporaryValue(property))
+                {
+                    ((InternalEntityEntry)entry)[property] = entry.GetCurrentValue(property);
+                }
             }
 
-            foreach (var ownedNavigation in entry.EntityType.GetNavigations())
+            foreach (var embeddedNavigation in entry.EntityType.GetNavigations())
             {
-                var fk = ownedNavigation.ForeignKey;
+                var fk = embeddedNavigation.ForeignKey;
                 if (!fk.IsOwnership
-                    || ownedNavigation.IsDependentToPrincipal()
+                    || embeddedNavigation.IsDependentToPrincipal()
                     || fk.DeclaringEntityType.IsDocumentRoot())
                 {
                     continue;
                 }
 
-                var nestedValue = entry.GetCurrentValue(ownedNavigation);
-                var nestedPropertyName = fk.DeclaringEntityType.GetCosmosContainingPropertyName();
-                if (nestedValue == null)
+                var embeddedValue = entry.GetCurrentValue(embeddedNavigation);
+                var embeddedPropertyName = fk.DeclaringEntityType.GetCosmosContainingPropertyName();
+                if (embeddedValue == null)
                 {
-                    document[nestedPropertyName] = null;
+                    document[embeddedPropertyName] = null;
                 }
                 else if (fk.IsUnique)
                 {
-                    var dependentEntry = ((InternalEntityEntry)entry).StateManager.TryGetEntry(nestedValue, fk.DeclaringEntityType);
-                    document[nestedPropertyName] = _database.GetDocumentSource(dependentEntry.EntityType).CreateDocument(dependentEntry);
+                    var dependentEntry = ((InternalEntityEntry)entry).StateManager.TryGetEntry(embeddedValue, fk.DeclaringEntityType);
+                    document[embeddedPropertyName] = _database.GetDocumentSource(dependentEntry.EntityType).CreateDocument(dependentEntry);
                 }
                 else
                 {
                     var array = new JArray();
-                    foreach (var dependent in (IEnumerable)nestedValue)
+                    foreach (var dependent in (IEnumerable)embeddedValue)
                     {
                         var dependentEntry = ((InternalEntityEntry)entry).StateManager.TryGetEntry(dependent, fk.DeclaringEntityType);
                         array.Add(_database.GetDocumentSource(dependentEntry.EntityType).CreateDocument(dependentEntry));
                     }
 
-                    document[nestedPropertyName] = array;
+                    document[embeddedPropertyName] = array;
                 }
             }
 
@@ -130,6 +136,10 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Update.Internal
                         document[storeName] = ConvertPropertyValue(property, entry.GetCurrentValue(property));
                         anyPropertyUpdated = true;
                     }
+                    else if (entry.HasTemporaryValue(property))
+                    {
+                        ((InternalEntityEntry)entry)[property] = entry.GetCurrentValue(property);
+                    }
                 }
             }
 
@@ -143,60 +153,69 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Update.Internal
                     continue;
                 }
 
-                var nestedDocumentSource = _database.GetDocumentSource(fk.DeclaringEntityType);
-                var nestedValue = entry.GetCurrentValue(ownedNavigation);
-                var nestedPropertyName = fk.DeclaringEntityType.GetCosmosContainingPropertyName();
-                if (nestedValue == null)
+                var embeddedDocumentSource = _database.GetDocumentSource(fk.DeclaringEntityType);
+                var embeddedValue = entry.GetCurrentValue(ownedNavigation);
+                var embeddedPropertyName = fk.DeclaringEntityType.GetCosmosContainingPropertyName();
+                if (embeddedValue == null)
                 {
-                    if (document[nestedPropertyName] != null)
+                    if (document[embeddedPropertyName] != null)
                     {
-                        document[nestedPropertyName] = null;
+                        document[embeddedPropertyName] = null;
                         anyPropertyUpdated = true;
                     }
                 }
                 else if (fk.IsUnique)
                 {
-                    var nestedEntry = ((InternalEntityEntry)entry).StateManager.TryGetEntry(nestedValue, fk.DeclaringEntityType);
-                    if (nestedEntry == null)
+                    var embeddedEntry = ((InternalEntityEntry)entry).StateManager.TryGetEntry(embeddedValue, fk.DeclaringEntityType);
+                    if (embeddedEntry == null)
                     {
                         return document;
                     }
 
-                    if (document[nestedPropertyName] is JObject nestedDocument)
-                    {
-                        nestedDocument = nestedDocumentSource.UpdateDocument(nestedDocument, nestedEntry);
-                    }
-                    else
-                    {
-                        nestedDocument = nestedDocumentSource.CreateDocument(nestedEntry);
-                    }
+                    var embeddedDocument = embeddedDocumentSource.GetCurrentDocument(embeddedEntry);
+                    embeddedDocument = embeddedDocument != null
+                        ? embeddedDocumentSource.UpdateDocument(embeddedDocument, embeddedEntry)
+                        : embeddedDocumentSource.CreateDocument(embeddedEntry);
 
-                    if (nestedDocument != null)
+                    if (embeddedDocument != null)
                     {
-                        document[nestedPropertyName] = nestedDocument;
+                        document[embeddedPropertyName] = embeddedDocument;
                         anyPropertyUpdated = true;
                     }
                 }
                 else
                 {
                     var array = new JArray();
-                    foreach (var dependent in (IEnumerable)nestedValue)
+                    foreach (var dependent in (IEnumerable)embeddedValue)
                     {
-                        var dependentEntry = ((InternalEntityEntry)entry).StateManager.TryGetEntry(dependent, fk.DeclaringEntityType);
-                        if (dependentEntry == null)
+                        var embeddedEntry = ((InternalEntityEntry)entry).StateManager.TryGetEntry(dependent, fk.DeclaringEntityType);
+                        if (embeddedEntry == null)
                         {
                             continue;
                         }
 
-                        array.Add(_database.GetDocumentSource(dependentEntry.EntityType).CreateDocument(dependentEntry));
+                        var embeddedDocument = embeddedDocumentSource.GetCurrentDocument(embeddedEntry);
+                        embeddedDocument = embeddedDocument != null
+                            ? embeddedDocumentSource.UpdateDocument(embeddedDocument, embeddedEntry) ?? embeddedDocument
+                            : embeddedDocumentSource.CreateDocument(embeddedEntry);
+
+                        array.Add(embeddedDocument);
                     }
 
-                    document[nestedPropertyName] = array;
+                    document[embeddedPropertyName] = array;
                     anyPropertyUpdated = true;
                 }
             }
 
             return anyPropertyUpdated ? document : null;
+        }
+
+        public virtual JObject GetCurrentDocument(IUpdateEntry entry)
+        {
+            var document = _jObjectProperty != null
+                ? (JObject)(entry.SharedIdentityEntry ?? entry).GetCurrentValue(_jObjectProperty)
+                : null;
+            return document;
         }
 
         private static JToken ConvertPropertyValue(IProperty property, object value)

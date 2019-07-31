@@ -1,7 +1,9 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Microsoft.EntityFrameworkCore.Migrations.Design
 {
@@ -44,8 +46,22 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         ///     </para>
         /// </summary>
         [EntityFrameworkInternal]
-        public MigrationsCodeGeneratorDependencies()
+        public MigrationsCodeGeneratorDependencies([NotNull] IRelationalTypeMappingSource relationalTypeMappingSource)
         {
+            RelationalTypeMappingSource = relationalTypeMappingSource;
         }
+
+        /// <summary>
+        ///     The type mapper.
+        /// </summary>
+        public IRelationalTypeMappingSource RelationalTypeMappingSource { get; }
+
+        /// <summary>
+        ///     Clones this dependency parameter object with one service replaced.
+        /// </summary>
+        /// <param name="relationalTypeMappingSource"> A replacement for the current dependency of this type. </param>
+        /// <returns> A new parameter object with the given service replaced. </returns>
+        public MigrationsCodeGeneratorDependencies With([NotNull] IRelationalTypeMappingSource relationalTypeMappingSource)
+            => new MigrationsCodeGeneratorDependencies(relationalTypeMappingSource);
     }
 }

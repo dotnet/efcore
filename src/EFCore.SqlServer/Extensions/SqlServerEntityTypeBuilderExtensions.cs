@@ -26,7 +26,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             Check.NotNull(entityTypeBuilder, nameof(entityTypeBuilder));
 
-            entityTypeBuilder.Metadata.SetSqlServerIsMemoryOptimized(memoryOptimized);
+            entityTypeBuilder.Metadata.SetIsMemoryOptimized(memoryOptimized);
 
             return entityTypeBuilder;
         }
@@ -54,7 +54,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             Check.NotNull(collectionOwnershipBuilder, nameof(collectionOwnershipBuilder));
 
-            collectionOwnershipBuilder.OwnedEntityType.SetSqlServerIsMemoryOptimized(memoryOptimized);
+            collectionOwnershipBuilder.OwnedEntityType.SetIsMemoryOptimized(memoryOptimized);
 
             return collectionOwnershipBuilder;
         }
@@ -91,7 +91,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             if (entityTypeBuilder.CanSetIsMemoryOptimized(memoryOptimized, fromDataAnnotation))
             {
-                entityTypeBuilder.Metadata.SetSqlServerIsMemoryOptimized(memoryOptimized, fromDataAnnotation);
+                entityTypeBuilder.Metadata.SetIsMemoryOptimized(memoryOptimized, fromDataAnnotation);
                 return entityTypeBuilder;
             }
 

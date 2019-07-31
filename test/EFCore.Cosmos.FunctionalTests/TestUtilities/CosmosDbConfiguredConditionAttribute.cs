@@ -37,7 +37,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.TestUtilities
             }
             catch (AggregateException aggregate)
             {
-                if (aggregate.Flatten().InnerExceptions.Any(e => IsNotConfigured(e)))
+                if (aggregate.Flatten().InnerExceptions.Any(IsNotConfigured))
                 {
                     return false;
                 }
@@ -68,10 +68,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.TestUtilities
             {
                 case HttpRequestException re:
                     return true;
-                case Exception e:
-                    return e.Message.StartsWith("The input authorization token can't serve the request. Please check that the expected payload is built as per the protocol, and check the key being used.");
                 default:
-                    return false;
+                    return firstException.Message.StartsWith("The input authorization token can't serve the request. Please check that the expected payload is built as per the protocol, and check the key being used.", StringComparison.Ordinal);
             }
         }
     }

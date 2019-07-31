@@ -80,8 +80,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
             }
         }
 
-        // #12086
-        //[ConditionalFact]
+        [ConditionalFact]
         public virtual async Task Can_add_collection_dependent_to_owner()
         {
             await using (var testDatabase = CreateTestStore())
@@ -113,28 +112,20 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
                     addedAddress2 = new Address { Street = "Another", City = "Village" };
                     people[1].Addresses.Add(addedAddress2);
 
-                    // Remove when issues #13578 and #13579 are fixed
-                    var existingEntry = context.Attach(people[1].Addresses.First());
+                    var existingAddressEntry = context.Entry(people[1].Addresses.First());
 
-                    var secondPersonEntry = context.Entry(people[1]);
-                    var json = secondPersonEntry.Property<JObject>("__jObject").CurrentValue;
+                    var addressJson = existingAddressEntry.Property<JObject>("__jObject").CurrentValue;
 
-                    var addresses = (JArray)json["Stored Addresses"];
-                    var jsonAddress = (JObject)addresses[0];
-                    Assert.Equal("Second", jsonAddress[nameof(Address.Street)]);
-                    jsonAddress["unmappedId"] = 2;
+                    Assert.Equal("Second", addressJson[nameof(Address.Street)]);
+                    addressJson["unmappedId"] = 2;
 
-                    secondPersonEntry.Property<JObject>("__jObject").CurrentValue = json;
+                    existingAddressEntry.Property<JObject>("__jObject").CurrentValue = addressJson;
 
                     addedAddress3 = new Address { Street = "Another", City = "City" };
                     var existingLastAddress = people[2].Addresses.Last();
                     people[2].Addresses.Remove(existingLastAddress);
                     people[2].Addresses.Add(addedAddress3);
                     people[2].Addresses.Add(existingLastAddress);
-
-                    // Remove when issues #13578 and #13579 are fixed
-                    context.Attach(people[2].Addresses.First());
-                    context.Attach(existingLastAddress);
 
                     context.SaveChanges();
                 }
@@ -155,12 +146,13 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
                     Assert.Equal(addedAddress2.Street, addresses[1].Street);
                     Assert.Equal(addedAddress2.City, addresses[1].City);
 
-                    var json = context.Entry(people[1]).Property<JObject>("__jObject").CurrentValue;
-                    var jsonAddress = (JObject)((JArray)json["Stored Addresses"])[0];
-                    Assert.Equal("Second", jsonAddress[nameof(Address.Street)]);
-                    // Uncomment when issue #13578 is fixed
-                    //Assert.Equal(2, jsonAddress["unmappedId"]);
-                    //Assert.Equal(2, jsonAddress.Count);
+                    var existingAddressEntry = context.Entry(people[1].Addresses.First());
+
+                    var addressJson = existingAddressEntry.Property<JObject>("__jObject").CurrentValue;
+
+                    Assert.Equal("Second", addressJson[nameof(Address.Street)]);
+                    Assert.Equal(4, addressJson.Count);
+                    Assert.Equal(2, addressJson["unmappedId"]);
 
                     addresses = people[2].Addresses.ToList();
                     Assert.Equal(3, addresses.Count);
@@ -184,7 +176,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
             {
                 using (var context = CreateContext())
                 {
-                    var firstOperator = context.Set<Vehicle>().Select(v => v.Operator).OrderBy(o => o.VehicleName).AsNoTracking().First();
+                    var firstOperator = context.Set<Vehicle>().OrderBy(o => o.Name).Select(v => v.Operator)
+                        .AsNoTracking().First();
 
                     Assert.Equal("Albert Williams", firstOperator.Name);
                     Assert.Null(firstOperator.Vehicle);
@@ -192,8 +185,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
             }
         }
 
-        // #12086
-        //[ConditionalFact]
+        [ConditionalFact]
         public virtual async Task Can_query_just_nested_collection()
         {
             await using (var testDatabase = CreateTestStore())

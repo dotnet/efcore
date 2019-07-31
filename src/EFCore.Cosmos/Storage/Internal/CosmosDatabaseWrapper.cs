@@ -12,7 +12,6 @@ using Microsoft.EntityFrameworkCore.Cosmos.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Update.Internal;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Update;
 using Microsoft.Extensions.DependencyInjection;
@@ -193,10 +192,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
 
                     return _cosmosClient.CreateItem(collectionId, newDocument, GetPartitionKey(entry));
                 case EntityState.Modified:
-                    var jObjectProperty = entityType.FindProperty(StoreKeyConvention.JObjectPropertyName);
-                    var document = jObjectProperty != null
-                        ? (JObject)(entry.SharedIdentityEntry ?? entry).GetCurrentValue(jObjectProperty)
-                        : null;
+                    var document = documentSource.GetCurrentDocument(entry);
                     if (document != null)
                     {
                         if (documentSource.UpdateDocument(document, entry) == null)
@@ -247,10 +243,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
                     var newDocument = documentSource.CreateDocument(entry);
                     return _cosmosClient.CreateItemAsync(collectionId, newDocument, GetPartitionKey(entry), cancellationToken);
                 case EntityState.Modified:
-                    var jObjectProperty = entityType.FindProperty(StoreKeyConvention.JObjectPropertyName);
-                    var document = jObjectProperty != null
-                        ? (JObject)(entry.SharedIdentityEntry ?? entry).GetCurrentValue(jObjectProperty)
-                        : null;
+                    var document = documentSource.GetCurrentDocument(entry);
                     if (document != null)
                     {
                         if (documentSource.UpdateDocument(document, entry) == null)

@@ -32,7 +32,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                     _parameterNameGeneratorFactory.Create(),
                     parametersValues).Visit(query);
 
-
                 return (SelectExpression)query;
             }
         }

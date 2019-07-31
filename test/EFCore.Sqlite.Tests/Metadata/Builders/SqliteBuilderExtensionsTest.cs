@@ -37,7 +37,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                 .Property(e => e.Geometry)
                 .Metadata;
 
-            Assert.Equal(1, property.GetSqliteSrid());
+            Assert.Equal(1, property.GetSrid());
         }
 
         [ConditionalTheory]
@@ -69,7 +69,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                 .Property<string>("Geometry")
                 .Metadata;
 
-            Assert.Equal(1, property.GetSqliteSrid());
+            Assert.Equal(1, property.GetSrid());
         }
 
         [ConditionalTheory]
@@ -101,7 +101,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                 .Property(typeof(string), "Geometry")
                 .Metadata;
 
-            Assert.Equal(1, property.GetSqliteSrid());
+            Assert.Equal(1, property.GetSrid());
         }
 
         [ConditionalTheory]
@@ -125,7 +125,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                 modelBuilder
                     .Entity(typeof(Customer))
                     .Property(typeof(string), "Geometry")
-                    .HasSpatialDimension("Z");
+                    .HasGeometricDimension("Z");
             }
 
             var property = modelBuilder
@@ -133,7 +133,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                 .Property(typeof(string), "Geometry")
                 .Metadata;
 
-            Assert.Equal("Z", property.GetSqliteDimension());
+            Assert.Equal("Z", property.GetGeometricDimension());
         }
 
         protected virtual ModelBuilder CreateConventionModelBuilder()

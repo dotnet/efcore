@@ -34,14 +34,12 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
         private readonly ISqlExpressionFactory _sqlExpressionFactory;
 
         public SqlServerSqlTranslatingExpressionVisitor(
+            RelationalSqlTranslatingExpressionVisitorDependencies dependencies,
             IModel model,
-            QueryableMethodTranslatingExpressionVisitor queryableMethodTranslatingExpressionVisitor,
-            ISqlExpressionFactory sqlExpressionFactory,
-            IMemberTranslatorProvider memberTranslatorProvider,
-            IMethodCallTranslatorProvider methodCallTranslatorProvider)
-            : base(model, queryableMethodTranslatingExpressionVisitor, sqlExpressionFactory, memberTranslatorProvider, methodCallTranslatorProvider)
+            QueryableMethodTranslatingExpressionVisitor queryableMethodTranslatingExpressionVisitor)
+            : base(dependencies, model, queryableMethodTranslatingExpressionVisitor)
         {
-            _sqlExpressionFactory = sqlExpressionFactory;
+            _sqlExpressionFactory = dependencies.SqlExpressionFactory;
         }
 
         protected override Expression VisitBinary(BinaryExpression binaryExpression)
