@@ -38,27 +38,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// </summary>
         protected virtual ProviderConventionSetBuilderDependencies Dependencies { get; }
 
-        private byte? GetNullabilityContextFlag(NonNullabilityConventionState state, Attribute[] attributes)
-        {
-            if (attributes.FirstOrDefault(a => a.GetType().FullName == NullableContextAttributeFullName) is Attribute attribute)
-            {
-                var attributeType = attribute.GetType();
-
-                if (attributeType != state.NullableContextAttrType)
-                {
-                    state.NullableContextFlagFieldInfo = attributeType.GetField("Flag");
-                    state.NullableContextAttrType = attributeType;
-                }
-
-                if (state.NullableContextFlagFieldInfo?.GetValue(attribute) is byte flag)
-                {
-                    return flag;
-                }
-            }
-
-            return null;
-        }
-
         /// <summary>
         ///     Returns a value indicating whether the member type is a non-nullable reference type.
         /// </summary>
@@ -103,33 +82,32 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             var type = memberInfo.DeclaringType;
             if (type != null)
             {
-                if (state.TypeNonNullabilityContextCache.TryGetValue(type, out var cachedTypeNonNullable))
+                if (state.TypeCache.TryGetValue(type, out var cachedTypeNonNullable))
                 {
                     return cachedTypeNonNullable;
                 }
 
-                var typeContextFlag = GetNullabilityContextFlag(state, Attribute.GetCustomAttributes(type));
-                if (typeContextFlag.HasValue)
+                if (Attribute.GetCustomAttributes(type)
+                    .FirstOrDefault(a => a.GetType().FullName == NullableContextAttributeFullName) is Attribute contextAttr)
                 {
-                    return state.TypeNonNullabilityContextCache[type] = typeContextFlag.Value == 1;
+                    var attributeType = contextAttr.GetType();
+
+                    if (attributeType != state.NullableContextAttrType)
+                    {
+                        state.NullableContextFlagFieldInfo = attributeType.GetField("Flag");
+                        state.NullableContextAttrType = attributeType;
+                    }
+
+                    if (state.NullableContextFlagFieldInfo?.GetValue(contextAttr) is byte flag)
+                    {
+                        return state.TypeCache[type] = flag == 1;
+                    }
                 }
+
+                return state.TypeCache[type] = false;
             }
 
-            // Not found at the type level, try at the module level
-            var module = memberInfo.Module;
-            if (!state.ModuleNonNullabilityContextCache.TryGetValue(module, out var moduleNonNullable))
-            {
-                var moduleContextFlag = GetNullabilityContextFlag(state, Attribute.GetCustomAttributes(memberInfo.Module));
-                moduleNonNullable = state.ModuleNonNullabilityContextCache[module] =
-                    moduleContextFlag.HasValue && moduleContextFlag == 1;
-            }
-
-            if (type != null)
-            {
-                state.TypeNonNullabilityContextCache[type] = moduleNonNullable;
-            }
-
-            return moduleNonNullable;
+            return false;
         }
 
         private NonNullabilityConventionState GetOrInitializeState(IConventionModelBuilder modelBuilder)
@@ -152,8 +130,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             public Type NullableContextAttrType;
             public FieldInfo NullableFlagsFieldInfo;
             public FieldInfo NullableContextFlagFieldInfo;
-            public Dictionary<Type, bool> TypeNonNullabilityContextCache { get; } = new Dictionary<Type, bool>();
-            public Dictionary<Module, bool> ModuleNonNullabilityContextCache { get; } = new Dictionary<Module, bool>();
+            public Dictionary<Type, bool> TypeCache { get; } = new Dictionary<Type, bool>();
         }
     }
 }
