@@ -325,7 +325,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             FireStateChanged(oldState);
 
-            if (newState == EntityState.Deleted
+            if ((newState == EntityState.Deleted
+                 || newState == EntityState.Detached)
                 && StateManager.Context.ChangeTracker.CascadeDeleteTiming == CascadeTiming.Immediate)
             {
                 StateManager.CascadeDelete(this, force: false);
