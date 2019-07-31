@@ -41,10 +41,6 @@
       <Uri>https://github.com/aspnet/Extensions</Uri>
       <Sha>463d1047efa8c536f27b02423908e6808974c21d</Sha>
     </Dependency>
-    <Dependency Name="Microsoft.NETCore.Platforms" Version="5.0.0-alpha1.19379.11" CoherentParentDependency="Microsoft.NETCore.App.Runtime.win-x64">
-      <Uri>https://github.com/dotnet/corefx</Uri>
-      <Sha>fec76b0fc06b4fce9e4ac28b9a2bf1101209d984</Sha>
-    </Dependency>
     <Dependency Name="Microsoft.NETCore.App.Ref" Version="5.0.0-alpha1.19380.11" CoherentParentDependency="Microsoft.Extensions.Logging">
       <Uri>https://github.com/dotnet/core-setup</Uri>
       <Sha>cb7a520ae702fc923760240725ac3f5cf82c7ebe</Sha>
