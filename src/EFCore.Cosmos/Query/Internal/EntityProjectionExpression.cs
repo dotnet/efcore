@@ -171,32 +171,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual Expression BindMember(string name, Type entityClrType, bool clientEval, out IPropertyBase propertyBase)
-        {
-            var entityType = EntityType;
-            if (entityClrType != null
-                && !entityClrType.IsAssignableFrom(entityType.ClrType))
-            {
-                entityType = entityType.GetDerivedTypes().First(e => entityClrType.IsAssignableFrom(e.ClrType));
-            }
-
-            var property = entityType.FindProperty(name);
-            if (property != null)
-            {
-                propertyBase = property;
-                return BindProperty(property, clientEval);
-            }
-
-            var navigation = entityType.FindNavigation(name);
-            if (navigation != null)
-            {
-                propertyBase = navigation;
-                return BindNavigation(navigation, clientEval);
-            }
-
-            // Entity member not found
-            propertyBase = null;
-            return null;
-        }
+            => BindMember(MemberIdentity.Create(name), entityClrType, clientEval, out propertyBase);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -204,7 +179,11 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual Expression BindMember(MemberInfo memberInfo, Type entityClrType, bool clientEval, out IPropertyBase propertyBase)
+        public virtual Expression BindMember(
+            MemberInfo memberInfo, Type entityClrType, bool clientEval, out IPropertyBase propertyBase)
+            => BindMember(MemberIdentity.Create(memberInfo), entityClrType, clientEval, out propertyBase);
+
+        private Expression BindMember(MemberIdentity member, Type entityClrType, bool clientEval, out IPropertyBase propertyBase)
         {
             var entityType = EntityType;
             if (entityClrType != null
@@ -213,14 +192,18 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                 entityType = entityType.GetDerivedTypes().First(e => entityClrType.IsAssignableFrom(e.ClrType));
             }
 
-            var property = entityType.FindProperty(memberInfo);
+            var property = member.MemberInfo == null
+                ? entityType.FindProperty(member.Name)
+                : entityType.FindProperty(member.MemberInfo);
             if (property != null)
             {
                 propertyBase = property;
                 return BindProperty(property, clientEval);
             }
 
-            var navigation = entityType.FindNavigation(memberInfo);
+            var navigation = member.MemberInfo == null
+                ? entityType.FindNavigation(member.Name)
+                : entityType.FindNavigation(member.MemberInfo);
             if (navigation != null)
             {
                 propertyBase = navigation;

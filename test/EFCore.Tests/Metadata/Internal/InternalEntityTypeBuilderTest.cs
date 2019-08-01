@@ -1722,9 +1722,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var addedEntityTypeBuilder = modelBuilder.Entity(typeof(SpecialOrderMinimal), ConfigurationSource.Convention);
             Assert.False(findMember(addedEntityTypeBuilder));
 
-            var exceptionExpected = ignoredOnType == typeof(ExtraSpecialOrderMinimal);
+            var exceptionExpected = ignoredOnType == typeof(ExtraSpecialOrderMinimal)
+                && (ignoreConfigurationSource == ConfigurationSource.Explicit
+                    || (!ignoredFirst && setBaseFirst));
 
-            var expectedAdded = exceptionExpected
+            var expectedAdded = ignoredOnType == typeof(ExtraSpecialOrderMinimal)
                                 || (addConfigurationSource.Overrides(ignoreConfigurationSource)
                                     && (ignoreConfigurationSource != ConfigurationSource.Explicit
                                         || ignoredOnType != typeof(SpecialOrderMinimal)
