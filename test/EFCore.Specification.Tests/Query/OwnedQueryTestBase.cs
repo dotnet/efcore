@@ -308,7 +308,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalFact(Skip = "Issue#16622")]
+        [ConditionalFact]
         public virtual void Navigation_rewrite_on_owned_reference_followed_by_regular_entity_filter()
         {
             using (var ctx = CreateContext())

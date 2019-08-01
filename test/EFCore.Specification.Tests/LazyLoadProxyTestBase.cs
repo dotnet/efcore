@@ -1844,7 +1844,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [ConditionalFact(Skip = "Issue#16622")]
+        [ConditionalFact]
         public virtual void Lazy_loading_finds_correct_entity_type_with_multiple_queries_using_Count()
         {
             using (var context = CreateContext(lazyLoadingEnabled: true))
