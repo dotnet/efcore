@@ -3,9 +3,11 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq.Expressions;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.Cosmos.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -235,6 +237,92 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                 default:
                     throw new InvalidOperationException();
             }
+        }
+
+        protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
+        {
+            if (methodCallExpression.TryGetEFPropertyArguments(out var source, out var memberName))
+            {
+                if (!_clientEval)
+                {
+                    return null;
+                }
+
+                var visitedSource = Visit(source);
+
+                EntityShaperExpression shaperExpression;
+                switch (visitedSource)
+                {
+                    case EntityShaperExpression shaper:
+                        shaperExpression = shaper;
+                        break;
+
+                    case UnaryExpression unaryExpression:
+                        shaperExpression = unaryExpression.Operand as EntityShaperExpression;
+                        if (shaperExpression == null)
+                        {
+                            return null;
+                        }
+                        break;
+
+                    default:
+                        return null;
+                }
+
+                EntityProjectionExpression innerEntityProjection;
+                switch (shaperExpression.ValueBufferExpression)
+                {
+                    case ProjectionBindingExpression innerProjectionBindingExpression:
+                        innerEntityProjection = (EntityProjectionExpression)_selectExpression.Projection[
+                            innerProjectionBindingExpression.Index.Value].Expression;
+                        break;
+
+                    case UnaryExpression unaryExpression:
+                        innerEntityProjection = (EntityProjectionExpression)((UnaryExpression)unaryExpression.Operand).Operand;
+                        break;
+
+                    default:
+                        throw new InvalidOperationException();
+                }
+
+                var navigationProjection = innerEntityProjection.BindMember(
+                    memberName, visitedSource.Type, clientEval: true, out var propertyBase);
+
+                if (!(propertyBase is INavigation navigation)
+                    || !navigation.IsEmbedded())
+                {
+                    return null;
+                }
+
+                switch (navigationProjection)
+                {
+                    case EntityProjectionExpression entityProjection:
+                        return new EntityShaperExpression(
+                            navigation.GetTargetType(),
+                            Expression.Convert(Expression.Convert(entityProjection, typeof(object)), typeof(ValueBuffer)),
+                            nullable: true);
+
+                    case ObjectArrayProjectionExpression objectArrayProjectionExpression:
+                        {
+                            var innerShaperExpression = new EntityShaperExpression(
+                                navigation.GetTargetType(),
+                                Expression.Convert(
+                                    Expression.Convert(objectArrayProjectionExpression.InnerProjection, typeof(object)), typeof(ValueBuffer)),
+                                nullable: true);
+
+                            return new CollectionShaperExpression(
+                                objectArrayProjectionExpression,
+                                innerShaperExpression,
+                                navigation,
+                                innerShaperExpression.EntityType.ClrType);
+                        }
+
+                    default:
+                        throw new InvalidOperationException();
+                }
+            }
+
+            return base.VisitMethodCall(methodCallExpression);
         }
 
         /// <summary>

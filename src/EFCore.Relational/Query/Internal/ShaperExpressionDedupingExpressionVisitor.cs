@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
-using Microsoft.EntityFrameworkCore.Query.NavigationExpansion.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Query.Internal
 {

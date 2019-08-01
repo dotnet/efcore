@@ -9,7 +9,6 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Query.Internal;
-using Microsoft.EntityFrameworkCore.Query.NavigationExpansion.Internal;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 
 namespace Microsoft.EntityFrameworkCore.Query
@@ -470,9 +469,6 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                 case EntityShaperExpression entityShaperExpression:
                     return Visit(entityShaperExpression.ValueBufferExpression);
-
-                case CorrelationPredicateExpression correlationPredicateExpression:
-                    return Visit(correlationPredicateExpression.EqualExpression);
 
                 case ProjectionBindingExpression projectionBindingExpression:
                     var selectExpression = (SelectExpression)projectionBindingExpression.QueryExpression;
