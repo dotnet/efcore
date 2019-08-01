@@ -5,6 +5,7 @@ using System;
 using System.Data;
 using System.Data.Common;
 using JetBrains.Annotations;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
@@ -20,6 +21,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
         private const int UnicodeMax = 4000;
         private const int AnsiMax = 8000;
 
+        private readonly SqlDbType? _sqlDbType;
         private readonly int _maxSpecificSize;
 
         /// <summary>
@@ -33,6 +35,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
             bool unicode = false,
             int? size = null,
             bool fixedLength = false,
+            SqlDbType? sqlDbType = null,
             StoreTypePostfix? storeTypePostfix = null)
             : this(
                 new RelationalTypeMappingParameters(
@@ -42,7 +45,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
                     GetDbType(unicode, fixedLength),
                     unicode,
                     size,
-                    fixedLength))
+                    fixedLength),
+                sqlDbType)
         {
         }
 
@@ -62,10 +66,11 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        protected SqlServerStringTypeMapping(RelationalTypeMappingParameters parameters)
+        protected SqlServerStringTypeMapping(RelationalTypeMappingParameters parameters, SqlDbType? sqlDbType)
             : base(parameters)
         {
             _maxSpecificSize = CalculateSize(parameters.Unicode, parameters.Size);
+            _sqlDbType = sqlDbType;
         }
 
         private static int CalculateSize(bool unicode, int? size)
@@ -83,7 +88,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
         /// <param name="parameters"> The parameters for this mapping. </param>
         /// <returns> The newly created mapping. </returns>
         protected override RelationalTypeMapping Clone(RelationalTypeMappingParameters parameters)
-            => new SqlServerStringTypeMapping(parameters);
+            => new SqlServerStringTypeMapping(parameters, _sqlDbType);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -100,6 +105,12 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
 
             var value = parameter.Value;
             var length = (value as string)?.Length;
+
+            if (_sqlDbType.HasValue
+                && parameter is SqlParameter sqlParameter) // To avoid crashing wrapping providers
+            {
+                sqlParameter.SqlDbType = _sqlDbType.Value;
+            }
 
             parameter.Size = value == null || value == DBNull.Value || length != null && length <= _maxSpecificSize
                 ? _maxSpecificSize

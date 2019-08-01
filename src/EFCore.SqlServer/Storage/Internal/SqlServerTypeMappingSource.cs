@@ -64,6 +64,9 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
         private readonly SqlServerStringTypeMapping _fixedLengthUnicodeString
             = new SqlServerStringTypeMapping(unicode: true, fixedLength: true);
 
+        private readonly SqlServerStringTypeMapping _textUnicodeString
+            = new SqlServerStringTypeMapping("ntext", unicode: true, sqlDbType: SqlDbType.NText);
+
         private readonly SqlServerStringTypeMapping _variableLengthUnicodeString
             = new SqlServerStringTypeMapping(unicode: true);
 
@@ -73,6 +76,9 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
         private readonly SqlServerStringTypeMapping _fixedLengthAnsiString
             = new SqlServerStringTypeMapping(fixedLength: true);
 
+        private readonly SqlServerStringTypeMapping _textAnsiString
+            = new SqlServerStringTypeMapping("text", sqlDbType: SqlDbType.Text);
+
         private readonly SqlServerStringTypeMapping _variableLengthAnsiString
             = new SqlServerStringTypeMapping();
 
@@ -81,6 +87,9 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
 
         private readonly SqlServerByteArrayTypeMapping _variableLengthBinary
             = new SqlServerByteArrayTypeMapping();
+
+        private readonly SqlServerByteArrayTypeMapping _imageBinary
+            = new SqlServerByteArrayTypeMapping("image", sqlDbType: SqlDbType.Image);
 
         private readonly SqlServerByteArrayTypeMapping _variableLengthMaxBinary
             = new SqlServerByteArrayTypeMapping("varbinary(max)", storeTypePostfix: StoreTypePostfix.None);
@@ -197,14 +206,14 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
                     { "decimal", _decimal },
                     { "double precision", _double },
                     { "float", _double },
-                    { "image", _variableLengthBinary },
+                    { "image", _imageBinary },
                     { "int", _int },
                     { "money", _money },
                     { "national char varying", _variableLengthUnicodeString },
                     { "national character varying", _variableLengthUnicodeString },
                     { "national character", _fixedLengthUnicodeString },
                     { "nchar", _fixedLengthUnicodeString },
-                    { "ntext", _variableLengthUnicodeString },
+                    { "ntext", _textUnicodeString },
                     { "numeric", _decimal },
                     { "nvarchar", _variableLengthUnicodeString },
                     { "nvarchar(max)", _variableLengthMaxUnicodeString },
@@ -214,7 +223,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
                     { "smallint", _short },
                     { "smallmoney", _money },
                     { "sql_variant", _sqlVariant },
-                    { "text", _variableLengthAnsiString },
+                    { "text", _textAnsiString },
                     { "time", _time },
                     { "timestamp", _rowversion },
                     { "tinyint", _byte },
