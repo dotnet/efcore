@@ -334,5 +334,67 @@ SELECT [c0].[CustomerID], [c0].[Address], [c0].[City], [c0].[CompanyName], [c0].
     WHERE ([c0].[CustomerID] = [o0].[CustomerID]) AND [o0].[CustomerID] IS NOT NULL) AS [Orders]
 FROM [Customers] AS [c0]");
         }
+
+        public override async Task GroupBy_Select_Union(bool isAsync)
+        {
+            await base.GroupBy_Select_Union(isAsync);
+
+            AssertSql(
+                @"SELECT [c].[CustomerID], COUNT(*) AS [Count]
+FROM [Customers] AS [c]
+WHERE ([c].[City] = N'Berlin') AND [c].[City] IS NOT NULL
+GROUP BY [c].[CustomerID]
+UNION
+SELECT [c0].[CustomerID], COUNT(*) AS [Count]
+FROM [Customers] AS [c0]
+WHERE ([c0].[City] = N'London') AND [c0].[City] IS NOT NULL
+GROUP BY [c0].[CustomerID]");
+        }
+
+        public override async Task Union_over_different_projection_types(bool isAsync, string leftType, string rightType)
+        {
+            await base.Union_over_different_projection_types(isAsync, leftType, rightType);
+
+            var leftSql = GenerateSql(leftType);
+            var rightSql = GenerateSql(rightType);
+
+            // Fix up right-side SQL as table aliases shift
+            rightSql = leftType == "ScalarSubquery"
+                ? rightSql.Replace("[o]", "[o1]").Replace("[o0]", "[o2]")
+                : rightSql.Replace("[o0]", "[o1]").Replace("[o]", "[o0]");
+
+            AssertSql(leftSql + Environment.NewLine + "UNION" + Environment.NewLine + rightSql);
+
+            static string GenerateSql(string expressionType)
+            {
+                switch (expressionType)
+                {
+                    case "Column":
+                        return @"SELECT [o].[OrderID]
+FROM [Orders] AS [o]";
+                    case "Function":
+                        return @"SELECT COUNT(*)
+FROM [Orders] AS [o]
+GROUP BY [o].[OrderID]";
+                    case "Constant":
+                        return @"SELECT 8
+FROM [Orders] AS [o]";
+                    case "Unary":
+                        return @"SELECT -[o].[OrderID]
+FROM [Orders] AS [o]";
+                    case "Binary":
+                        return @"SELECT [o].[OrderID] + 1
+FROM [Orders] AS [o]";
+                    case "ScalarSubquery":
+                        return @"SELECT (
+    SELECT COUNT(*)
+    FROM [Order Details] AS [o]
+    WHERE [o0].[OrderID] = [o].[OrderID])
+FROM [Orders] AS [o0]";
+                    default:
+                        throw new NotSupportedException();
+                }
+            }
+        }
     }
 }

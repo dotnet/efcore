@@ -524,8 +524,11 @@ namespace Microsoft.EntityFrameworkCore
                     }
                     else
                     {
+                        new1.Parent = null;
+                        new1d.Parent = null;
+                        new1dd.Parent = null;
+
                         context.AddRange(new1, new1d, new1dd, new2a, new2d, new2dd, new2b);
-                        context.Entry(newRoot).State = EntityState.Detached;
                     }
 
                     if ((changeMechanism & ChangeMechanism.Principal) != 0)
@@ -780,20 +783,35 @@ namespace Microsoft.EntityFrameworkCore
                     LoadOptionalOneToManyGraph(context);
                     LoadRequiredNonPkAkGraph(context);
 
-                    Assert.Same(root, root.OptionalSingle.Root);
-                    Assert.Same(root, root.RequiredSingle.Root);
-                    Assert.Same(root, root.OptionalSingleAk.Root);
-                    Assert.Same(root, root.OptionalSingleDerived.DerivedRoot);
-                    Assert.Same(root, root.RequiredSingleAk.Root);
-                    Assert.Same(root, root.OptionalSingleAkDerived.DerivedRoot);
-                    Assert.Same(root, root.OptionalSingleMoreDerived.MoreDerivedRoot);
-                    Assert.Same(root, root.RequiredNonPkSingle.Root);
-                    Assert.Same(root, root.OptionalSingleAkMoreDerived.MoreDerivedRoot);
-                    Assert.Same(root, root.RequiredNonPkSingleAk.Root);
-                    Assert.Same(root, root.RequiredNonPkSingleDerived.DerivedRoot);
-                    Assert.Same(root, root.RequiredNonPkSingleAkDerived.DerivedRoot);
-                    Assert.Same(root, root.RequiredNonPkSingleMoreDerived.MoreDerivedRoot);
-                    Assert.Same(root, root.RequiredNonPkSingleAkMoreDerived.MoreDerivedRoot);
+                    var optionalSingle = root.OptionalSingle;
+                    var requiredSingle = root.RequiredSingle;
+                    var optionalSingleAk = root.OptionalSingleAk;
+                    var optionalSingleDerived = root.OptionalSingleDerived;
+                    var requiredSingleAk = root.RequiredSingleAk;
+                    var optionalSingleAkDerived = root.OptionalSingleAkDerived;
+                    var optionalSingleMoreDerived = root.OptionalSingleMoreDerived;
+                    var requiredNonPkSingle = root.RequiredNonPkSingle;
+                    var optionalSingleAkMoreDerived = root.OptionalSingleAkMoreDerived;
+                    var requiredNonPkSingleAk = root.RequiredNonPkSingleAk;
+                    var requiredNonPkSingleDerived = root.RequiredNonPkSingleDerived;
+                    var requiredNonPkSingleAkDerived = root.RequiredNonPkSingleAkDerived;
+                    var requiredNonPkSingleMoreDerived = root.RequiredNonPkSingleMoreDerived;
+                    var requiredNonPkSingleAkMoreDerived = root.RequiredNonPkSingleAkMoreDerived;
+
+                    Assert.Same(root, optionalSingle.Root);
+                    Assert.Same(root, requiredSingle.Root);
+                    Assert.Same(root, optionalSingleAk.Root);
+                    Assert.Same(root, optionalSingleDerived.DerivedRoot);
+                    Assert.Same(root, requiredSingleAk.Root);
+                    Assert.Same(root, optionalSingleAkDerived.DerivedRoot);
+                    Assert.Same(root, optionalSingleMoreDerived.MoreDerivedRoot);
+                    Assert.Same(root, requiredNonPkSingle.Root);
+                    Assert.Same(root, optionalSingleAkMoreDerived.MoreDerivedRoot);
+                    Assert.Same(root, requiredNonPkSingleAk.Root);
+                    Assert.Same(root, requiredNonPkSingleDerived.DerivedRoot);
+                    Assert.Same(root, requiredNonPkSingleAkDerived.DerivedRoot);
+                    Assert.Same(root, requiredNonPkSingleMoreDerived.MoreDerivedRoot);
+                    Assert.Same(root, requiredNonPkSingleAkMoreDerived.MoreDerivedRoot);
 
                     Assert.True(root.OptionalChildren.All(e => e.Parent == root));
                     Assert.True(root.RequiredChildren.All(e => e.Parent == root));
@@ -801,28 +819,41 @@ namespace Microsoft.EntityFrameworkCore
                     Assert.True(root.RequiredChildrenAk.All(e => e.Parent == root));
                     Assert.True(root.RequiredCompositeChildren.All(e => e.Parent == root));
 
-                    context.Entry(root).State = EntityState.Detached;
+                    context.Entry(optionalSingle).State = EntityState.Detached;
+                    context.Entry(requiredSingle).State = EntityState.Detached;
+                    context.Entry(optionalSingleAk).State = EntityState.Detached;
+                    context.Entry(optionalSingleDerived).State = EntityState.Detached;
+                    context.Entry(requiredSingleAk).State = EntityState.Detached;
+                    context.Entry(optionalSingleAkDerived).State = EntityState.Detached;
+                    context.Entry(optionalSingleMoreDerived).State = EntityState.Detached;
+                    context.Entry(requiredNonPkSingle).State = EntityState.Detached;
+                    context.Entry(optionalSingleAkMoreDerived).State = EntityState.Detached;
+                    context.Entry(requiredNonPkSingleAk).State = EntityState.Detached;
+                    context.Entry(requiredNonPkSingleDerived).State = EntityState.Detached;
+                    context.Entry(requiredNonPkSingleAkDerived).State = EntityState.Detached;
+                    context.Entry(requiredNonPkSingleMoreDerived).State = EntityState.Detached;
+                    context.Entry(requiredNonPkSingleAkMoreDerived).State = EntityState.Detached;
 
-                    Assert.Null(root.OptionalSingle.Root);
-                    Assert.Null(root.RequiredSingle.Root);
-                    Assert.Null(root.OptionalSingleAk.Root);
-                    Assert.Null(root.OptionalSingleDerived.DerivedRoot);
-                    Assert.Null(root.RequiredSingleAk.Root);
-                    Assert.Null(root.OptionalSingleAkDerived.DerivedRoot);
-                    Assert.Null(root.OptionalSingleMoreDerived.MoreDerivedRoot);
-                    Assert.Null(root.RequiredNonPkSingle.Root);
-                    Assert.Null(root.OptionalSingleAkMoreDerived.MoreDerivedRoot);
-                    Assert.Null(root.RequiredNonPkSingleAk.Root);
-                    Assert.Null(root.RequiredNonPkSingleDerived.DerivedRoot);
-                    Assert.Null(root.RequiredNonPkSingleAkDerived.DerivedRoot);
-                    Assert.Null(root.RequiredNonPkSingleMoreDerived.MoreDerivedRoot);
-                    Assert.Null(root.RequiredNonPkSingleAkMoreDerived.MoreDerivedRoot);
+                    Assert.NotNull(optionalSingle.Root);
+                    Assert.NotNull(requiredSingle.Root);
+                    Assert.NotNull(optionalSingleAk.Root);
+                    Assert.NotNull(optionalSingleDerived.DerivedRoot);
+                    Assert.NotNull(requiredSingleAk.Root);
+                    Assert.NotNull(optionalSingleAkDerived.DerivedRoot);
+                    Assert.NotNull(optionalSingleMoreDerived.MoreDerivedRoot);
+                    Assert.NotNull(requiredNonPkSingle.Root);
+                    Assert.NotNull(optionalSingleAkMoreDerived.MoreDerivedRoot);
+                    Assert.NotNull(requiredNonPkSingleAk.Root);
+                    Assert.NotNull(requiredNonPkSingleDerived.DerivedRoot);
+                    Assert.NotNull(requiredNonPkSingleAkDerived.DerivedRoot);
+                    Assert.NotNull(requiredNonPkSingleMoreDerived.MoreDerivedRoot);
+                    Assert.NotNull(requiredNonPkSingleAkMoreDerived.MoreDerivedRoot);
 
-                    Assert.True(root.OptionalChildren.All(e => e.Parent == null));
-                    Assert.True(root.RequiredChildren.All(e => e.Parent == null));
-                    Assert.True(root.OptionalChildrenAk.All(e => e.Parent == null));
-                    Assert.True(root.RequiredChildrenAk.All(e => e.Parent == null));
-                    Assert.True(root.RequiredCompositeChildren.All(e => e.Parent == null));
+                    Assert.True(root.OptionalChildren.All(e => e.Parent != null));
+                    Assert.True(root.RequiredChildren.All(e => e.Parent != null));
+                    Assert.True(root.OptionalChildrenAk.All(e => e.Parent != null));
+                    Assert.True(root.RequiredChildrenAk.All(e => e.Parent != null));
+                    Assert.True(root.RequiredCompositeChildren.All(e => e.Parent != null));
                 });
         }
 
@@ -906,6 +937,12 @@ namespace Microsoft.EntityFrameworkCore
                     context.Entry(requiredChild).State = EntityState.Detached;
                     context.Entry(optionalChildAk).State = EntityState.Detached;
                     context.Entry(requieredChildAk).State = EntityState.Detached;
+
+                    foreach (var overlappingEntry in context.ChangeTracker.Entries<OptionalOverlapping2>())
+                    {
+                        overlappingEntry.State = EntityState.Detached;
+                    }
+
                     context.Entry(requiredCompositeChild).State = EntityState.Detached;
 
                     Assert.Same(root, optionalSingle.Root);
@@ -3104,8 +3141,11 @@ namespace Microsoft.EntityFrameworkCore
                     }
                     else
                     {
+                        new1.Parent = null;
+                        new1d.Parent = null;
+                        new1dd.Parent = null;
+
                         context.AddRange(new1, new1d, new1dd, new2a, new2d, new2dd, new2b, new2ca, new2cb);
-                        context.Entry(newRoot).State = EntityState.Detached;
                     }
 
                     if ((changeMechanism & ChangeMechanism.Principal) != 0)

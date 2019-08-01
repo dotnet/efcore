@@ -4022,6 +4022,134 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
+        [ConditionalFact]
+        public virtual void Multi_level_add_replace_and_save()
+        {
+            ExecuteWithStrategyInTransaction(
+                context =>
+                {
+                    var firstLevel = context.Set<FirstLevel>().Single();
+
+                    AddData(firstLevel);
+
+                    var originalSecondLevels = firstLevel.SecondLevels.ToArray();
+                    var originalThirdLevels = originalSecondLevels.SelectMany(e => e.ThirdLevels).ToArray();
+
+                    context.ChangeTracker.DetectChanges();
+
+                    Assert.Equal(1, context.ChangeTracker.Entries<FirstLevel>().Count());
+                    Assert.Equal(2, context.ChangeTracker.Entries<SecondLevel>().Count());
+                    Assert.Equal(4, context.ChangeTracker.Entries<ThirdLevel>().Count());
+
+                    AssertValidFks(context, firstLevel, tempKeys: true);
+
+                    AddData(firstLevel);
+
+                    context.ChangeTracker.DetectChanges();
+
+                    Assert.Equal(1, context.ChangeTracker.Entries<FirstLevel>().Count());
+                    Assert.Equal(2, context.ChangeTracker.Entries<SecondLevel>().Count());
+                    Assert.Equal(4, context.ChangeTracker.Entries<ThirdLevel>().Count());
+
+                    AssertValidFks(context, firstLevel, tempKeys: true);
+
+                    Assert.All(
+                        originalSecondLevels.Select(l => context.Entry(l).State),
+                        s => Assert.Equal(EntityState.Detached, s));
+
+                    Assert.All(
+                        originalThirdLevels.Select(l => context.Entry(l).State),
+                        s => Assert.Equal(EntityState.Detached, s));
+
+                    context.SaveChanges();
+
+                    AssertValidFks(context, firstLevel, tempKeys: false);
+                });
+        }
+
+        private static void AssertValidFks(DbContext context, FirstLevel firstLevel, bool tempKeys)
+        {
+            var secondLevels = firstLevel.SecondLevels.ToArray();
+            var thirdLevels0 = secondLevels[0].ThirdLevels.ToArray();
+            var thirdLevels1 = secondLevels[1].ThirdLevels.ToArray();
+            var thirdLevels = thirdLevels0.Concat(thirdLevels1).ToArray();
+
+            Assert.Equal(EntityState.Unchanged, context.Entry(firstLevel).State);
+
+            var expectedState = tempKeys ? EntityState.Added : EntityState.Unchanged;
+
+            if (context.Database.ProviderName.EndsWith("InMemory", StringComparison.OrdinalIgnoreCase))
+            {
+                tempKeys = false;
+            }
+
+            Assert.All(
+                secondLevels.Select(l => context.Entry(l).State),
+                s => Assert.Equal(expectedState, s));
+
+            Assert.All(
+                thirdLevels.Select(l => context.Entry(l).State),
+                s => Assert.Equal(expectedState, s));
+
+            Assert.Equal(1, context.Entry(firstLevel).Property(e => e.Id).CurrentValue);
+
+            Assert.All(
+                secondLevels.Select(l => context.Entry(l).Property(e => e.Id).CurrentValue),
+                s => Assert.True(tempKeys ? s < 0 : s> 0));
+
+            Assert.All(
+                thirdLevels.Select(l => context.Entry(l).Property(e => e.Id).CurrentValue),
+                s => Assert.True(tempKeys ? s < 0 : s> 0));
+
+            Assert.All(
+                secondLevels.Select(l => context.Entry(l).Property(e => e.FirstLevelId).CurrentValue),
+                s => Assert.Equal(1, s));
+
+            Assert.All(
+                thirdLevels0.Select(l => context.Entry(l).Property(e => e.SecondLevelId).CurrentValue),
+                s => Assert.Equal(context.Entry(secondLevels[0]).Property(e => e.Id).CurrentValue, s));
+
+            Assert.All(
+                thirdLevels1.Select(l => context.Entry(l).Property(e => e.SecondLevelId).CurrentValue),
+                s => Assert.Equal(context.Entry(secondLevels[1]).Property(e => e.Id).CurrentValue, s));
+        }
+
+        protected class FirstLevel
+        {
+            public int Id { get; set; }
+            public IList<SecondLevel> SecondLevels { get; set; }
+        }
+
+        private static void AddData(FirstLevel first)
+        {
+            first.SecondLevels = new List<SecondLevel>
+            {
+                new SecondLevel
+                {
+                    ThirdLevels = new List<ThirdLevel> { new ThirdLevel(), new ThirdLevel() }
+                },
+                new SecondLevel
+                {
+                    ThirdLevels = new List<ThirdLevel> { new ThirdLevel(), new ThirdLevel() }
+                }
+            };
+        }
+
+        protected class SecondLevel
+        {
+            public int Id { get; set; }
+            public int FirstLevelId { get; set; }
+            public FirstLevel FirstLevel { get; set; }
+            public IList<ThirdLevel> ThirdLevels { get; set; }
+        }
+
+        protected class ThirdLevel
+        {
+            public int Id { get; set; }
+            public int SecondLevelId { get; set; }
+            public SecondLevel SecondLevel { get; set; }
+        }
+
         protected class Parent
         {
             public int Id1 { get; set; }
@@ -4368,6 +4496,10 @@ namespace Microsoft.EntityFrameworkCore
                             .HasForeignKey(i => new { i.GameId, i.LevelId })
                             .OnDelete(DeleteBehavior.Restrict);
                     });
+
+                modelBuilder
+                    .Entity<FirstLevel>()
+                    .HasData(new FirstLevel { Id = 1 });
             }
         }
     }
