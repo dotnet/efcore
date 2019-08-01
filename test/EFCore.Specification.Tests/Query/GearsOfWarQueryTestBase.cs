@@ -7474,6 +7474,15 @@ namespace Microsoft.EntityFrameworkCore.Query
                                     dates.Contains(m.Timeline)));
         }
 
+        [ConditionalTheory]  // issue #16724
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Navigation_inside_interpolated_string_expanded(bool isAsync)
+        {
+            return AssertQuery<Weapon>(
+                isAsync,
+                ws => ws.Select(w => w.SynergyWithId.HasValue ? $"SynergyWithOwner: {w.SynergyWith.OwnerFullName}" : string.Empty));
+        }
+
         protected GearsOfWarContext CreateContext() => Fixture.CreateContext();
 
         protected virtual void ClearLog()

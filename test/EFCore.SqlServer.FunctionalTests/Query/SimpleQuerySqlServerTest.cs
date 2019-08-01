@@ -4899,6 +4899,16 @@ WHERE (
 FROM [Orders] AS [o]");
         }
 
+        public override async Task Navigation_inside_interpolated_string_is_expanded(bool isAsync)
+        {
+            await base.Navigation_inside_interpolated_string_is_expanded(isAsync);
+
+            AssertSql(
+                @"SELECT [c].[City]
+FROM [Orders] AS [o]
+LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]");
+        }
+
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 
