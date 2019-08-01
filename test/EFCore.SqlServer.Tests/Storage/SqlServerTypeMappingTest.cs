@@ -105,16 +105,22 @@ namespace Microsoft.EntityFrameworkCore.Storage
             base.Create_and_clone_with_converter(mappingType, clrType);
         }
 
-        [InlineData(typeof(SqlServerByteArrayTypeMapping), typeof(byte[]))]
-        public override void Create_and_clone_sized_mappings_with_converter(Type mappingType, Type clrType)
+        [ConditionalFact]
+        public virtual void Create_and_clone_SQL_Server_sized_mappings_with_converter()
         {
-            base.Create_and_clone_sized_mappings_with_converter(mappingType, clrType);
+            ConversionCloneTest(
+                typeof(SqlServerByteArrayTypeMapping),
+                typeof(byte[]),
+                SqlDbType.Image);
         }
 
-        [InlineData(typeof(SqlServerStringTypeMapping), typeof(string))]
-        public override void Create_and_clone_unicode_sized_mappings_with_converter(Type mappingType, Type clrType)
+        [ConditionalFact]
+        public virtual void Create_and_clone_SQL_Server_unicode_sized_mappings_with_converter()
         {
-            base.Create_and_clone_unicode_sized_mappings_with_converter(mappingType, clrType);
+            UnicodeConversionCloneTest(
+                typeof(SqlServerStringTypeMapping),
+                typeof(string),
+                SqlDbType.Text);
         }
 
         [ConditionalFact]

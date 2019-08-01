@@ -145,7 +145,7 @@ namespace TestNamespace
                 scaffoldedModel.ContextFile.Code);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Comments_use_fluent_api()
         {
             Test(
@@ -166,7 +166,7 @@ namespace TestNamespace
                     model.FindEntityType("TestNamespace.Entity").GetProperty("Property").GetComment()));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Entity_comments_use_fluent_api()
         {
             Test(
