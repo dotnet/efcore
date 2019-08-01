@@ -92,7 +92,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalFact(Skip = "Issue#16619")]
+        [ConditionalFact]
         public virtual void No_ignored_include_warning_when_implicit_load()
         {
             using (var context = CreateContext())
