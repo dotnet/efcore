@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
 
 // ReSharper disable CheckNamespace
 namespace Microsoft.EntityFrameworkCore.Internal
@@ -17,6 +18,10 @@ namespace Microsoft.EntityFrameworkCore.Internal
     /// </summary>
     public static class QueryableExtensions
     {
+        internal static readonly MethodInfo LeftJoinMethodInfo = typeof(QueryableExtensions).GetTypeInfo()
+            .GetDeclaredMethods(nameof(QueryableExtensions.LeftJoin)).Single(mi => mi.GetParameters().Length == 5);
+
+
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
         ///     the same compatibility standards as public APIs. It may be changed or removed without notice in

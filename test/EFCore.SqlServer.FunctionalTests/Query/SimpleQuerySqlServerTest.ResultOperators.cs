@@ -256,19 +256,12 @@ WHERE [o].[ProductID] = 1");
             await base.Average_on_float_column_in_subquery(isAsync);
 
             AssertSql(
-                @"SELECT [o].[OrderID]
+                @"SELECT [o].[OrderID], (
+    SELECT CAST(AVG([o0].[Discount]) AS real)
+    FROM [Order Details] AS [o0]
+    WHERE [o].[OrderID] = [o0].[OrderID]) AS [Sum]
 FROM [Orders] AS [o]
-WHERE [o].[OrderID] < 10300",
-                //
-                @"@_outer_OrderID='10248'
-
-SELECT CAST(AVG([od0].[Discount]) AS real)
-FROM [Order Details] AS [od0]
-WHERE @_outer_OrderID = [od0].[OrderID]");
-
-            Assert.Contains(
-                RelationalResources.LogQueryPossibleExceptionWithAggregateOperatorWarning(new TestLogger<SqlServerLoggingDefinitions>()).GenerateMessage(),
-                Fixture.TestSqlLoggerFactory.Log.Select(l => l.Message));
+WHERE [o].[OrderID] < 10300");
         }
 
         public override async Task Average_on_float_column_in_subquery_with_cast(bool isAsync)

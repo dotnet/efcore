@@ -6,10 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Internal;
-using Microsoft.EntityFrameworkCore.Query.NavigationExpansion.Internal;
-using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
@@ -437,13 +434,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                             break;
                     }
                 }
-            }
-
-            // TODO: Skip ToOrderedQueryable method. See Issue#15591
-            if (methodCallExpression.Method.DeclaringType == typeof(NavigationExpansionReducingVisitor)
-                && methodCallExpression.Method.Name == nameof(NavigationExpansionReducingVisitor.ToOrderedQueryable))
-            {
-                return Visit(methodCallExpression.Arguments[0]);
             }
 
             return _subquery

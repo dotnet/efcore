@@ -7411,7 +7411,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalTheory]
+        [ConditionalTheory(Skip = "Issue#15260")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Where_contains_on_navigation_with_composite_keys(bool isAsync)
         {
