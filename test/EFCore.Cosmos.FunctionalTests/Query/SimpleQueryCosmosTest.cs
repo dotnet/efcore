@@ -4043,6 +4043,12 @@ WHERE (c[""Discriminator""] = ""Customer"")");
             return base.Inner_parameter_in_nested_lambdas_gets_preserved(isAsync);
         }
 
+        [ConditionalTheory(Skip = "Issue #14935")]
+        public override Task Navigation_inside_interpolated_string_is_expanded(bool isAsync)
+        {
+            return base.Navigation_inside_interpolated_string_is_expanded(isAsync);
+        }
+
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 
