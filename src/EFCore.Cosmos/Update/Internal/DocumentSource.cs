@@ -169,7 +169,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Update.Internal
                     var embeddedEntry = ((InternalEntityEntry)entry).StateManager.TryGetEntry(embeddedValue, fk.DeclaringEntityType);
                     if (embeddedEntry == null)
                     {
-                        return document;
+                        continue;
                     }
 
                     var embeddedDocument = embeddedDocumentSource.GetCurrentDocument(embeddedEntry);

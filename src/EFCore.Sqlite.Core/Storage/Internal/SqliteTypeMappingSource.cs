@@ -127,23 +127,43 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal
 
             mapping = base.FindMapping(mappingInfo);
 
-            return mapping ?? (storeTypeName != null
-                    ? storeTypeName.Length != 0
-                        ? _typeRules.Select(r => r(storeTypeName)).FirstOrDefault(r => r != null) ?? _blob
-                        : _blob // This may seem odd, but it's okay because we are matching SQLite's loose typing.
-                    : null);
+            if (mapping == null
+                && storeTypeName != null)
+            {
+                var affinityTypeMapping = _typeRules.Select(r => r(storeTypeName)).FirstOrDefault(r => r != null);
+
+                if (affinityTypeMapping == null)
+                {
+                    return _blob;
+                }
+
+                if (clrType == null
+                    || affinityTypeMapping.ClrType.UnwrapNullableType() == clrType)
+                {
+                    return affinityTypeMapping;
+                }
+            }
+
+            return mapping;
         }
 
         private readonly Func<string, RelationalTypeMapping>[] _typeRules =
         {
-            name => Contains(name, "INT") ? _integer : null, name => Contains(name, "CHAR")
-                                                                     || Contains(name, "CLOB")
-                                                                     || Contains(name, "TEXT")
+            name => Contains(name, "INT")
+                ? _integer
+                : null,
+            name => Contains(name, "CHAR")
+                    || Contains(name, "CLOB")
+                    || Contains(name, "TEXT")
                 ? _text
                 : null,
-            name => Contains(name, "BLOB") ? _blob : null, name => Contains(name, "REAL")
-                                                                   || Contains(name, "FLOA")
-                                                                   || Contains(name, "DOUB")
+            name => Contains(name, "BLOB")
+                    || Contains(name, "BIN")
+                ? _blob
+                : null,
+            name => Contains(name, "REAL")
+                    || Contains(name, "FLOA")
+                    || Contains(name, "DOUB")
                 ? _real
                 : null
         };

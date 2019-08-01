@@ -1689,14 +1689,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             ConfigurationSource addConfigurationSource,
             bool ignoredFirst,
             bool setBaseFirst)
-        {
-            VerifyIgnoreMember(
+            => VerifyIgnoreMember(
                 ignoredOnType, ignoreConfigurationSource, addConfigurationSource, ignoredFirst, setBaseFirst,
                 et => et.Metadata.FindProperty(OrderMinimal.CustomerIdProperty.Name) != null,
                 et => et.Property(OrderMinimal.CustomerIdProperty, addConfigurationSource) != null,
                 et => et.Property(OrderMinimal.CustomerIdProperty, ignoreConfigurationSource) != null,
                 OrderMinimal.CustomerIdProperty.Name);
-        }
 
         private void VerifyIgnoreMember(
             Type ignoredOnType,
@@ -1724,9 +1722,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var addedEntityTypeBuilder = modelBuilder.Entity(typeof(SpecialOrderMinimal), ConfigurationSource.Convention);
             Assert.False(findMember(addedEntityTypeBuilder));
 
-            var exceptionExpected = ignoredOnType == typeof(ExtraSpecialOrderMinimal);
+            var exceptionExpected = ignoredOnType == typeof(ExtraSpecialOrderMinimal)
+                && (ignoreConfigurationSource == ConfigurationSource.Explicit
+                    || (!ignoredFirst && setBaseFirst));
 
-            var expectedAdded = exceptionExpected
+            var expectedAdded = ignoredOnType == typeof(ExtraSpecialOrderMinimal)
                                 || (addConfigurationSource.Overrides(ignoreConfigurationSource)
                                     && (ignoreConfigurationSource != ConfigurationSource.Explicit
                                         || ignoredOnType != typeof(SpecialOrderMinimal)
@@ -1784,11 +1784,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 Assert.True(unignoreMember(ignoredEntityTypeBuilder));
             }
 
+            Assert.Equal(expectedAdded, findMember(addedEntityTypeBuilder));
             Assert.Equal(
                 expectedIgnored,
                 ignoredEntityTypeBuilder.Metadata.FindDeclaredIgnoredConfigurationSource(memberToIgnore)
                 == ignoreConfigurationSource);
-            Assert.Equal(expectedAdded, findMember(addedEntityTypeBuilder));
         }
 
         private void ConfigureOrdersHierarchy(InternalModelBuilder modelBuilder)

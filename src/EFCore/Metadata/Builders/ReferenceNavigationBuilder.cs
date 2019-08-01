@@ -178,23 +178,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                 ThrowForConflictingNavigation(foreignKey, collectionName, false);
             }
 
-            return RelatedEntityType != foreignKey.PrincipalEntityType
-                ? collection.MemberInfo == null && ReferenceMember == null
+            return collection.MemberInfo == null || ReferenceMember == null
                     ? builder.HasNavigations(
                         ReferenceName, collection.Name,
                         (EntityType)RelatedEntityType, (EntityType)DeclaringEntityType, ConfigurationSource.Explicit)
                     : builder.HasNavigations(
                         ReferenceMember, collection.MemberInfo,
-                        (EntityType)RelatedEntityType, (EntityType)DeclaringEntityType, ConfigurationSource.Explicit)
-                : collection.MemberInfo != null
-                    ? builder.HasNavigation(
-                        collection.MemberInfo,
-                        pointsToPrincipal: false,
-                        ConfigurationSource.Explicit)
-                    : builder.HasNavigation(
-                        collection.Name,
-                        pointsToPrincipal: false,
-                        ConfigurationSource.Explicit);
+                        (EntityType)RelatedEntityType, (EntityType)DeclaringEntityType, ConfigurationSource.Explicit);
         }
 
         /// <summary>
