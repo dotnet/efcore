@@ -221,9 +221,6 @@ WHERE (c[""Discriminator""] = ""LeafA"")");
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 
-        private void AssertContainsSql(params string[] expected)
-            => Fixture.TestSqlLoggerFactory.AssertBaseline(expected, assertOrder: false);
-
         private void ClearLog()
             => Fixture.TestSqlLoggerFactory.Clear();
 
