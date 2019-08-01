@@ -356,7 +356,18 @@ WHERE [o].[Discriminator] IN (N'OwnedPerson', N'Branch', N'LeafB', N'LeafA')");
             base.Navigation_rewrite_on_owned_reference_followed_by_regular_entity_filter();
 
             AssertSql(
-                @"");
+                @"SELECT [o].[Id], [o].[Discriminator], [o0].[Id], [o1].[Id], [o1].[PersonAddress_Country_Name], [o1].[PersonAddress_Country_PlanetId], [o2].[Id], [o3].[Id], [o3].[BranchAddress_Country_Name], [o3].[BranchAddress_Country_PlanetId], [o4].[Id], [o5].[Id], [o5].[LeafBAddress_Country_Name], [o5].[LeafBAddress_Country_PlanetId], [o6].[Id], [o7].[Id], [o7].[LeafAAddress_Country_Name], [o7].[LeafAAddress_Country_PlanetId]
+FROM [OwnedPerson] AS [o]
+LEFT JOIN [OwnedPerson] AS [o0] ON [o].[Id] = [o0].[Id]
+LEFT JOIN [OwnedPerson] AS [o1] ON [o0].[Id] = [o1].[Id]
+LEFT JOIN [Planet] AS [p] ON [o1].[PersonAddress_Country_PlanetId] = [p].[Id]
+LEFT JOIN [OwnedPerson] AS [o2] ON [o].[Id] = [o2].[Id]
+LEFT JOIN [OwnedPerson] AS [o3] ON [o2].[Id] = [o3].[Id]
+LEFT JOIN [OwnedPerson] AS [o4] ON [o].[Id] = [o4].[Id]
+LEFT JOIN [OwnedPerson] AS [o5] ON [o4].[Id] = [o5].[Id]
+LEFT JOIN [OwnedPerson] AS [o6] ON [o].[Id] = [o6].[Id]
+LEFT JOIN [OwnedPerson] AS [o7] ON [o6].[Id] = [o7].[Id]
+WHERE [o].[Discriminator] IN (N'OwnedPerson', N'Branch', N'LeafB', N'LeafA') AND (([p].[Id] <> 7) OR [p].[Id] IS NULL)");
         }
 
         public override void Navigation_rewrite_on_owned_reference_followed_by_regular_entity_and_property()
