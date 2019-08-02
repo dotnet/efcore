@@ -106,14 +106,14 @@ jobs:
           pool:
             vmImage: macOS-10.13
           steps:
-            - bash: brew install libspatialite
+            # HACK: Use an older version to work around #16667
+            - bash: brew install https://raw.githubusercontent.com/Homebrew/homebrew-core/835ae521c065524abdf66578e68032fa24bce514/Formula/libspatialite.rb
               displayName: Install SpatiaLite
               continueOnError: true
             - script: eng/common/cibuild.sh --configuration $(_BuildConfig) --binaryLog --prepareMachine
               env:
                 Test__Cosmos__DefaultConnection: $(_CosmosConnectionUrl)
               name: Build
-              continueOnError: true
             - task: PublishBuildArtifacts@1
               displayName: Upload TestResults
               condition: always()
