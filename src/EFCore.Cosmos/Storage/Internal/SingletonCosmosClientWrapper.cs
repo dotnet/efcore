@@ -45,7 +45,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
             var configuration = new CosmosClientOptions
             {
                 ApplicationName = _userAgent,
-                ConnectionMode = ConnectionMode.Direct
+                ConnectionMode = options.ConnectionMode ?? ConnectionMode.Direct
             };
 
             if (options.Region != null)
