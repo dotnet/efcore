@@ -3154,7 +3154,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                             principalEntityType = model.FindEntityType(
                                 Metadata.PrincipalEntityType.Name,
                                 Metadata.PrincipalEntityType.DefiningNavigationName,
-                                Metadata.PrincipalEntityType.DefiningEntityType.Name);
+                                Metadata.PrincipalEntityType.DefiningEntityType);
                             if (principalEntityType == null)
                             {
                                 return null;
@@ -3209,7 +3209,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                                     dependentEntityType = model.FindEntityType(
                                         Metadata.DeclaringEntityType.Name,
                                         Metadata.DeclaringEntityType.DefiningNavigationName,
-                                        Metadata.DeclaringEntityType.DefiningEntityType.Name);
+                                        Metadata.DeclaringEntityType.DefiningEntityType);
                                 }
 
                                 if (dependentEntityType == null)
