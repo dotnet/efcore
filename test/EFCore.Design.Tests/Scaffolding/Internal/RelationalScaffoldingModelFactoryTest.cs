@@ -1801,7 +1801,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             Assert.Equal(1, columns.Count);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Column_and_table_comments()
         {
             var database = new DatabaseModel

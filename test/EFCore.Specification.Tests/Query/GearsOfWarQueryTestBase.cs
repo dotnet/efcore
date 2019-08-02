@@ -82,21 +82,15 @@ namespace Microsoft.EntityFrameworkCore.Query
                 });
         }
 
-        [ConditionalTheory(Skip = "Issue#16225")]
-        [MemberData(nameof(IsAsyncData))]
-        public virtual Task Include_multiple_one_to_one_and_one_to_many_self_reference(bool isAsync)
+        [ConditionalFact]
+        public virtual void Include_multiple_one_to_one_and_one_to_many_self_reference()
         {
-            var expectedIncludes = new List<IExpectedInclude>
+            using (var context = CreateContext())
             {
-                new ExpectedInclude<Weapon>(w => w.Owner, "Owner"),
-                new ExpectedInclude<Gear>(g => g.Weapons, "Weapons", "Owner"),
-                new ExpectedInclude<Officer>(o => o.Weapons, "Weapons", "Owner")
-            };
+                Assert.Throws<InvalidOperationException>(
+                    () => context.Weapons.Include(w => w.Owner.Weapons).ToList());
 
-            return AssertIncludeQuery<Weapon>(
-                isAsync,
-                ws => ws.Include(w => w.Owner.Weapons),
-                expectedIncludes);
+            }
         }
 
         [ConditionalTheory]
@@ -116,22 +110,14 @@ namespace Microsoft.EntityFrameworkCore.Query
                 expectedIncludes);
         }
 
-        [ConditionalTheory(Skip = "Issue#16225")]
-        [MemberData(nameof(IsAsyncData))]
-        public virtual Task Include_multiple_one_to_one_and_one_to_one_and_one_to_many(bool isAsync)
+        [ConditionalFact]
+        public virtual void Include_multiple_one_to_one_and_one_to_one_and_one_to_many()
         {
-            var expectedIncludes = new List<IExpectedInclude>
+            using (var context = CreateContext())
             {
-                new ExpectedInclude<CogTag>(t => t.Gear, "Gear"),
-                new ExpectedInclude<Gear>(g => g.Squad, "Squad", "Gear"),
-                new ExpectedInclude<Officer>(o => o.Squad, "Squad", "Gear"),
-                new ExpectedInclude<Squad>(s => s.Members, "Members", "Gear.Squad")
-            };
-
-            return AssertIncludeQuery<CogTag>(
-                isAsync,
-                ts => ts.Include(t => t.Gear.Squad.Members),
-                expectedIncludes);
+                Assert.Throws<InvalidOperationException>(
+                    () => context.Tags.Include(t => t.Gear.Squad.Members).ToList());
+            }
         }
 
         [ConditionalTheory]
@@ -184,39 +170,18 @@ namespace Microsoft.EntityFrameworkCore.Query
                 expectedIncludes);
         }
 
-        [ConditionalTheory(Skip = "Issue#16225")]
-        [MemberData(nameof(IsAsyncData))]
-        public virtual Task Include_multiple_include_then_include(bool isAsync)
+        [ConditionalFact]
+        public virtual void Include_multiple_include_then_include()
         {
-            var expectedIncludes = new List<IExpectedInclude>
+            using (var context = CreateContext())
             {
-                new ExpectedInclude<Gear>(g => g.AssignedCity, "AssignedCity"),
-                new ExpectedInclude<Officer>(o => o.AssignedCity, "AssignedCity"),
-                new ExpectedInclude<City>(c => c.BornGears, "BornGears", "AssignedCity"),
-                new ExpectedInclude<Gear>(g => g.Tag, "Tag", "AssignedCity.BornGears"),
-                new ExpectedInclude<Officer>(o => o.Tag, "Tag", "AssignedCity.BornGears"),
-                new ExpectedInclude<City>(c => c.StationedGears, "StationedGears", "AssignedCity"),
-                new ExpectedInclude<Gear>(g => g.Tag, "Tag", "AssignedCity.StationedGears"),
-                new ExpectedInclude<Officer>(o => o.Tag, "Tag", "AssignedCity.StationedGears"),
-                new ExpectedInclude<Gear>(g => g.CityOfBirth, "CityOfBirth"),
-                new ExpectedInclude<Officer>(o => o.CityOfBirth, "CityOfBirth"),
-                new ExpectedInclude<City>(c => c.BornGears, "BornGears", "CityOfBirth"),
-                new ExpectedInclude<Gear>(g => g.Tag, "Tag", "CityOfBirth.BornGears"),
-                new ExpectedInclude<Officer>(o => o.Tag, "Tag", "CityOfBirth.BornGears"),
-                new ExpectedInclude<City>(c => c.StationedGears, "StationedGears", "CityOfBirth"),
-                new ExpectedInclude<Gear>(g => g.Tag, "Tag", "CityOfBirth.StationedGears"),
-                new ExpectedInclude<Officer>(o => o.Tag, "Tag", "CityOfBirth.StationedGears")
-            };
-
-            return AssertIncludeQuery<Gear>(
-                isAsync,
-                gs => gs.Include(g => g.AssignedCity.BornGears).ThenInclude(g => g.Tag)
+                Assert.Throws<InvalidOperationException>(
+                    () => context.Gears.Include(g => g.AssignedCity.BornGears).ThenInclude(g => g.Tag)
                     .Include(g => g.AssignedCity.StationedGears).ThenInclude(g => g.Tag)
                     .Include(g => g.CityOfBirth.BornGears).ThenInclude(g => g.Tag)
                     .Include(g => g.CityOfBirth.StationedGears).ThenInclude(g => g.Tag)
-                    .OrderBy(g => g.Nickname),
-                expectedIncludes,
-                assertOrder: true);
+                    .OrderBy(g => g.Nickname).ToList());
+            }
         }
 
         [ConditionalTheory]

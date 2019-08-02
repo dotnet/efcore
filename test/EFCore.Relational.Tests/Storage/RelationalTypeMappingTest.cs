@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
+using System.Linq;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
@@ -93,9 +94,16 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.Equal(StoreTypePostfix.PrecisionAndScale, clone.StoreTypePostfix);
         }
 
-        [ConditionalTheory]
-        [InlineData(typeof(ByteArrayTypeMapping), typeof(byte[]))]
-        public virtual void Create_and_clone_sized_mappings_with_converter(Type mappingType, Type clrType)
+        [ConditionalFact]
+        public virtual void Create_and_clone_sized_mappings_with_converter()
+        {
+            ConversionCloneTest(typeof(ByteArrayTypeMapping), typeof(byte[]));
+        }
+
+        protected virtual void ConversionCloneTest(
+            Type mappingType,
+            Type clrType,
+            params object[] additionalArgs)
         {
             var mapping = (RelationalTypeMapping)Activator.CreateInstance(
                 mappingType,
@@ -108,7 +116,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                         size: 33,
                         fixedLength: true,
                         storeTypePostfix: StoreTypePostfix.Size)
-                },
+                }.Concat(additionalArgs).ToArray(),
                 null,
                 null);
 
@@ -149,9 +157,16 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.Equal(StoreTypePostfix.Size, clone.StoreTypePostfix);
         }
 
-        [ConditionalTheory]
-        [InlineData(typeof(StringTypeMapping), typeof(string))]
-        public virtual void Create_and_clone_unicode_sized_mappings_with_converter(Type mappingType, Type clrType)
+        [ConditionalFact]
+        public virtual void Create_and_clone_unicode_sized_mappings_with_converter()
+        {
+            UnicodeConversionCloneTest(typeof(StringTypeMapping), typeof(string));
+        }
+
+        protected virtual void UnicodeConversionCloneTest(
+            Type mappingType,
+            Type clrType,
+            params object[] additionalArgs)
         {
             var mapping = (RelationalTypeMapping)Activator.CreateInstance(
                 mappingType,
@@ -165,7 +180,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                         unicode: false,
                         fixedLength: true,
                         storeTypePostfix: StoreTypePostfix.Size)
-                },
+                }.Concat(additionalArgs).ToArray(),
                 null,
                 null);
 
