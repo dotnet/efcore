@@ -78,7 +78,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalFact(Skip = "Issue#16076")]
+        [ConditionalFact(Skip = "Issue#16318")]
         public virtual async Task ToArray_on_nav_subquery_in_projection()
         {
             using (var context = CreateContext())
@@ -95,7 +95,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalFact(Skip = "Issue#16076")]
+        [ConditionalFact(Skip = "Issue#16318")]
         public virtual async Task ToArray_on_nav_subquery_in_projection_nested()
         {
             using (var context = CreateContext())
