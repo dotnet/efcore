@@ -97,6 +97,51 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
             Assert.Equal("Current location is not a valid Azure region.", exception.Message);
         }
 
+        [ConditionalFact]
+        public async Task Should_not_throw_if_specified_connection_mode_is_right()
+        {
+            var connectionMode = ConnectionMode.Direct;
+
+            await using (var testDatabase = CosmosTestStore.CreateInitialized(DatabaseName, o => o.ConnectionMode(connectionMode)))
+            {
+                var options = CreateOptions(testDatabase);
+
+                var customer = new Customer { Id = 42, Name = "Theon" };
+
+                using (var context = new CustomerContext(options))
+                {
+                    context.Database.EnsureCreated();
+
+                    context.Add(customer);
+
+                    context.SaveChanges();
+                }
+            }
+        }
+
+        [ConditionalFact]
+        public async Task Should_throw_if_specified_connection_mode_is_wrong()
+        {
+            var exception = await Assert.ThrowsAsync<ArgumentOutOfRangeException>(async () =>
+            {
+                await using (var testDatabase = CosmosTestStore.CreateInitialized(DatabaseName, o => o.ConnectionMode((ConnectionMode) 123456)))
+                {
+                    var options = CreateOptions(testDatabase);
+
+                    var customer = new Customer { Id = 42, Name = "Theon" };
+
+                    using (var context = new CustomerContext(options))
+                    {
+                        context.Database.EnsureCreated();
+
+                        context.Add(customer);
+
+                        context.SaveChanges();
+                    }
+                }
+            });
+        }
+
         private DbContextOptions CreateOptions(CosmosTestStore testDatabase)
             => Fixture.AddOptions(testDatabase.AddProviderOptions(new DbContextOptionsBuilder()))
                 .EnableDetailedErrors()
