@@ -46,12 +46,11 @@ namespace Microsoft.EntityFrameworkCore
                         .ToList();
 
                 Assert.Equal(0, results.Count);
-                Assert.Equal(
+
+                AssertSql(
                     @"SELECT [m].[Int]
 FROM [MappedNullableDataTypes] AS [m]
-WHERE ([m].[TimeSpanAsTime] = '00:01:02') AND [m].[TimeSpanAsTime] IS NOT NULL",
-                    Sql,
-                    ignoreLineEndingDifferences: true);
+WHERE ([m].[TimeSpanAsTime] = '00:01:02') AND [m].[TimeSpanAsTime] IS NOT NULL");
             }
         }
 
@@ -65,12 +64,10 @@ WHERE ([m].[TimeSpanAsTime] = '00:01:02') AND [m].[TimeSpanAsTime] IS NOT NULL",
                     .Select(p => p.BytesAsImage.Length)
                     .FirstOrDefault();
 
-                Assert.Equal(
+                AssertSql(
                     @"SELECT TOP(1) CAST(DATALENGTH([p].[BytesAsImage]) AS int)
 FROM [MappedDataTypesWithIdentity] AS [p]
-WHERE CAST(DATALENGTH([p].[BytesAsImage]) AS int) = 0",
-                    Sql,
-                    ignoreLineEndingDifferences: true);
+WHERE CAST(DATALENGTH([p].[BytesAsImage]) AS int) = 0");
             }
         }
 
@@ -88,14 +85,12 @@ WHERE CAST(DATALENGTH([p].[BytesAsImage]) AS int) = 0",
                         .ToList();
 
                 Assert.Equal(0, results.Count);
-                Assert.Equal(
+                AssertSql(
                     @"@__timeSpan_0='02:01:00' (Nullable = true)
 
 SELECT [m].[Int]
 FROM [MappedNullableDataTypes] AS [m]
-WHERE (([m].[TimeSpanAsTime] = @__timeSpan_0) AND ([m].[TimeSpanAsTime] IS NOT NULL AND @__timeSpan_0 IS NOT NULL)) OR ([m].[TimeSpanAsTime] IS NULL AND @__timeSpan_0 IS NULL)",
-                    Sql,
-                    ignoreLineEndingDifferences: true);
+WHERE (([m].[TimeSpanAsTime] = @__timeSpan_0) AND ([m].[TimeSpanAsTime] IS NOT NULL AND @__timeSpan_0 IS NOT NULL)) OR ([m].[TimeSpanAsTime] IS NULL AND @__timeSpan_0 IS NULL)");
             }
         }
 
@@ -113,14 +108,12 @@ WHERE (([m].[TimeSpanAsTime] = @__timeSpan_0) AND ([m].[TimeSpanAsTime] IS NOT N
                         .ToList();
 
                 Assert.Equal(0, results.Count);
-                Assert.Equal(
+                AssertSql(
                     @"@__timeSpan_1='02:01:00' (Nullable = true)
 
 SELECT [m].[Int]
 FROM [MappedNullableDataTypes] AS [m]
-WHERE (DATEDIFF(HOUR, [m].[TimeSpanAsTime], @__timeSpan_1) = 0) AND DATEDIFF(HOUR, [m].[TimeSpanAsTime], @__timeSpan_1) IS NOT NULL",
-                    Sql,
-                    ignoreLineEndingDifferences: true);
+WHERE (DATEDIFF(HOUR, [m].[TimeSpanAsTime], @__timeSpan_1) = 0) AND DATEDIFF(HOUR, [m].[TimeSpanAsTime], @__timeSpan_1) IS NOT NULL");
             }
         }
 
@@ -138,14 +131,12 @@ WHERE (DATEDIFF(HOUR, [m].[TimeSpanAsTime], @__timeSpan_1) = 0) AND DATEDIFF(HOU
                         .ToList();
 
                 Assert.Equal(0, results.Count);
-                Assert.Equal(
+                AssertSql(
                     @"@__timeSpan_1='02:01:00' (Nullable = true)
 
 SELECT [m].[Int]
 FROM [MappedNullableDataTypes] AS [m]
-WHERE (DATEDIFF(MINUTE, [m].[TimeSpanAsTime], @__timeSpan_1) = 0) AND DATEDIFF(MINUTE, [m].[TimeSpanAsTime], @__timeSpan_1) IS NOT NULL",
-                    Sql,
-                    ignoreLineEndingDifferences: true);
+WHERE (DATEDIFF(MINUTE, [m].[TimeSpanAsTime], @__timeSpan_1) = 0) AND DATEDIFF(MINUTE, [m].[TimeSpanAsTime], @__timeSpan_1) IS NOT NULL");
             }
         }
 
@@ -163,14 +154,12 @@ WHERE (DATEDIFF(MINUTE, [m].[TimeSpanAsTime], @__timeSpan_1) = 0) AND DATEDIFF(M
                         .ToList();
 
                 Assert.Equal(0, results.Count);
-                Assert.Equal(
+                AssertSql(
                     @"@__timeSpan_1='02:01:00' (Nullable = true)
 
 SELECT [m].[Int]
 FROM [MappedNullableDataTypes] AS [m]
-WHERE (DATEDIFF(SECOND, [m].[TimeSpanAsTime], @__timeSpan_1) = 0) AND DATEDIFF(SECOND, [m].[TimeSpanAsTime], @__timeSpan_1) IS NOT NULL",
-                    Sql,
-                    ignoreLineEndingDifferences: true);
+WHERE (DATEDIFF(SECOND, [m].[TimeSpanAsTime], @__timeSpan_1) = 0) AND DATEDIFF(SECOND, [m].[TimeSpanAsTime], @__timeSpan_1) IS NOT NULL");
             }
         }
 
@@ -188,14 +177,12 @@ WHERE (DATEDIFF(SECOND, [m].[TimeSpanAsTime], @__timeSpan_1) = 0) AND DATEDIFF(S
                         .ToList();
 
                 Assert.Equal(0, results.Count);
-                Assert.Equal(
+                AssertSql(
                     @"@__timeSpan_1='02:01:00' (Nullable = true)
 
 SELECT [m].[Int]
 FROM [MappedNullableDataTypes] AS [m]
-WHERE (DATEDIFF(MILLISECOND, [m].[TimeSpanAsTime], @__timeSpan_1) = 0) AND DATEDIFF(MILLISECOND, [m].[TimeSpanAsTime], @__timeSpan_1) IS NOT NULL",
-                    Sql,
-                    ignoreLineEndingDifferences: true);
+WHERE (DATEDIFF(MILLISECOND, [m].[TimeSpanAsTime], @__timeSpan_1) = 0) AND DATEDIFF(MILLISECOND, [m].[TimeSpanAsTime], @__timeSpan_1) IS NOT NULL");
             }
         }
 
@@ -213,14 +200,12 @@ WHERE (DATEDIFF(MILLISECOND, [m].[TimeSpanAsTime], @__timeSpan_1) = 0) AND DATED
                         .ToList();
 
                 Assert.Equal(0, results.Count);
-                Assert.Equal(
+                AssertSql(
                     @"@__timeSpan_1='02:01:00' (Nullable = true)
 
 SELECT [m].[Int]
 FROM [MappedNullableDataTypes] AS [m]
-WHERE (DATEDIFF(MICROSECOND, [m].[TimeSpanAsTime], @__timeSpan_1) = 0) AND DATEDIFF(MICROSECOND, [m].[TimeSpanAsTime], @__timeSpan_1) IS NOT NULL",
-                    Sql,
-                    ignoreLineEndingDifferences: true);
+WHERE (DATEDIFF(MICROSECOND, [m].[TimeSpanAsTime], @__timeSpan_1) = 0) AND DATEDIFF(MICROSECOND, [m].[TimeSpanAsTime], @__timeSpan_1) IS NOT NULL");
             }
         }
 
@@ -238,14 +223,12 @@ WHERE (DATEDIFF(MICROSECOND, [m].[TimeSpanAsTime], @__timeSpan_1) = 0) AND DATED
                         .ToList();
 
                 Assert.Equal(0, results.Count);
-                Assert.Equal(
+                AssertSql(
                     @"@__timeSpan_1='02:01:00' (Nullable = true)
 
 SELECT [m].[Int]
 FROM [MappedNullableDataTypes] AS [m]
-WHERE (DATEDIFF(NANOSECOND, [m].[TimeSpanAsTime], @__timeSpan_1) = 0) AND DATEDIFF(NANOSECOND, [m].[TimeSpanAsTime], @__timeSpan_1) IS NOT NULL",
-                    Sql,
-                    ignoreLineEndingDifferences: true);
+WHERE (DATEDIFF(NANOSECOND, [m].[TimeSpanAsTime], @__timeSpan_1) = 0) AND DATEDIFF(NANOSECOND, [m].[TimeSpanAsTime], @__timeSpan_1) IS NOT NULL");
             }
         }
 
@@ -3051,7 +3034,8 @@ UnicodeDataTypes.StringUnicode ---> [nullable nvarchar] [MaxLength = -1]
             return actual;
         }
 
-        private string Sql => Fixture.TestSqlLoggerFactory.Sql;
+        private void AssertSql(params string[] expected)
+            => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 
         public class BuiltInDataTypesSqlServerFixture : BuiltInDataTypesFixtureBase
         {
