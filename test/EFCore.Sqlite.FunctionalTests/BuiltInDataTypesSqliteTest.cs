@@ -35,13 +35,11 @@ namespace Microsoft.EntityFrameworkCore
                     .Select(p => p.Blob.Length)
                     .FirstOrDefault();
 
-                Assert.Equal(
+                AssertSql(
                     @"SELECT length(""p"".""Blob"")
 FROM ""MappedDataTypesWithIdentity"" AS ""p""
 WHERE length(""p"".""Blob"") = 0
-LIMIT 1",
-                    Fixture.TestSqlLoggerFactory.Sql,
-                    ignoreLineEndingDifferences: true);
+LIMIT 1");
             }
         }
 
@@ -1509,6 +1507,9 @@ LIMIT 1",
                 Assert.Equal(1ul, result.TestUnsignedInt64);
             }
         }
+
+        private void AssertSql(params string[] expected)
+            => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 
         public class BuiltInDataTypesSqliteFixture : BuiltInDataTypesFixtureBase
         {
