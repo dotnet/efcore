@@ -206,21 +206,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                 (e, a) => Assert.Equal(e.Id, a.Id));
         }
 
-        [ConditionalFact]
-        public virtual void Data_reader_is_closed_correct_number_of_times_for_include_queries_on_optional_navigations()
-        {
-            using (var context = CreateContext())
-            {
-                // reader for the last include is not opened because there is no data one level below - we should only try to close connection as many times as we tried to open it
-                // if we close it too many times, consecutive query will not work
-                // see issue #1457 for more details
-                context.LevelOne.Include(e => e.OneToMany_Optional1).ThenInclude(e => e.OneToMany_Optional2)
-                    .ThenInclude(e => e.OneToMany_Optional_Inverse3.OneToMany_Optional2).ToList();
-
-                context.LevelOne.ToList();
-            }
-        }
-
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Multi_level_include_one_to_many_optional_and_one_to_many_optional_produces_valid_sql(bool isAsync)
@@ -260,44 +245,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                     .ThenInclude(e => e.OneToMany_Required_Inverse3.OneToMany_Optional2),
                 expectedIncludes,
                 elementSorter: e => e.Id);
-        }
-
-        [ConditionalFact]
-        public virtual void Multi_level_include_reads_key_values_from_data_reader_rather_than_incorrect_reader_deep_into_the_stack()
-        {
-            using (var context = CreateContext())
-            {
-                // #1433
-                context.LevelOne.Include(e => e.OneToMany_Optional1).ToList();
-                context.LevelOne.Include(e => e.OneToMany_Optional_Self1).ToList();
-
-                // #1478
-                context.LevelOne
-                    .Include(e => e.OneToMany_Optional1)
-                    .ThenInclude(e => e.OneToMany_Optional_Inverse2.OneToMany_Optional_Self_Inverse1.OneToOne_Optional_FK1).ToList();
-
-                context.LevelOne
-                    .Include(e => e.OneToMany_Optional1)
-                    .ThenInclude(e => e.OneToMany_Optional_Inverse2.OneToMany_Optional_Self_Inverse1.OneToOne_Optional_PK1).ToList();
-
-                // #1487
-                context.LevelOne
-                    .Include(e => e.OneToMany_Optional1)
-                    .ThenInclude(e => e.OneToMany_Optional_Inverse2.OneToOne_Optional_PK1.OneToOne_Optional_FK2).ToList();
-
-                context.LevelOne
-                    .Include(e => e.OneToMany_Optional1)
-                    .ThenInclude(e => e.OneToMany_Optional_Inverse2.OneToOne_Optional_PK1.OneToOne_Optional_FK_Inverse2).ToList();
-
-                // #1488
-                context.LevelOne
-                    .Include(e => e.OneToMany_Optional1)
-                    .ThenInclude(e => e.OneToMany_Optional_Inverse2.OneToOne_Optional_PK1.OneToOne_Required_FK2).ToList();
-
-                context.LevelOne
-                    .Include(e => e.OneToMany_Optional1)
-                    .ThenInclude(e => e.OneToMany_Optional_Inverse2.OneToOne_Optional_PK1.OneToOne_Required_FK_Inverse2).ToList();
-            }
         }
 
         [ConditionalFact]
