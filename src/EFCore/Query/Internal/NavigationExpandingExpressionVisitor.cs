@@ -23,6 +23,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
     public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
     {
         private readonly IModel _model;
+        private readonly bool _isTracking;
         private readonly PendingSelectorExpandingExpressionVisitor _pendingSelectorExpandingExpressionVisitor;
         private readonly SubqueryMemberPushdownExpressionVisitor _subqueryMemberPushdownExpressionVisitor;
         private readonly ReducingExpressionVisitor _reducingExpressionVisitor;
@@ -34,6 +35,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         public NavigationExpandingExpressionVisitor(QueryCompilationContext queryCompilationContext)
         {
             _model = queryCompilationContext.Model;
+            _isTracking = queryCompilationContext.IsTracking;
             _pendingSelectorExpandingExpressionVisitor = new PendingSelectorExpandingExpressionVisitor(this);
             _subqueryMemberPushdownExpressionVisitor = new SubqueryMemberPushdownExpressionVisitor();
             _reducingExpressionVisitor = new ReducingExpressionVisitor();
@@ -56,7 +58,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         {
             var result = Visit(query);
             result = _pendingSelectorExpandingExpressionVisitor.Visit(result);
-            result = new IncludeApplyingExpressionVisitor(this).Visit(result);
+            result = new IncludeApplyingExpressionVisitor(this, _isTracking).Visit(result);
 
             return Reduce(result);
         }

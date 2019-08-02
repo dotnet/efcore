@@ -288,11 +288,15 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
         private class IncludeExpandingExpressionVisitor : ExpandingExpressionVisitor
         {
+            private readonly bool _isTracking;
+
             public IncludeExpandingExpressionVisitor(
                 NavigationExpandingExpressionVisitor navigationExpandingExpressionVisitor,
-                NavigationExpansionExpression source)
+                NavigationExpansionExpression source,
+                bool tracking)
                 : base(navigationExpandingExpressionVisitor, source)
             {
+                _isTracking = tracking;
             }
 
             public override Expression Visit(Expression expression)
@@ -302,7 +306,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     case NavigationTreeExpression navigationTreeExpression:
                         if (navigationTreeExpression.Value is EntityReference entityReference)
                         {
-                            return ExpandIncludes(navigationTreeExpression, entityReference);
+                            return ExpandInclude(navigationTreeExpression, entityReference);
                         }
 
                         if (navigationTreeExpression.Value is NewExpression newExpression)
@@ -315,7 +319,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                         break;
 
                     case OwnedNavigationReference ownedNavigationReference:
-                        return ExpandIncludes(ownedNavigationReference, ownedNavigationReference.EntityReference);
+                        return ExpandInclude(ownedNavigationReference, ownedNavigationReference.EntityReference);
                 }
 
                 return base.Visit(expression);
@@ -350,7 +354,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 {
                     var argument = newExpression.Arguments[i];
                     arguments[i] = argument is EntityReference entityReference
-                        ? ExpandIncludes(argument, entityReference)
+                        ? ExpandInclude(argument, entityReference)
                         : Visit(argument);
                 }
 
@@ -375,7 +379,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     if (argument is EntityReference entityReference)
                     {
                         changed = true;
-                        arguments[i] = ExpandIncludes(newRoot, entityReference);
+                        arguments[i] = ExpandInclude(newRoot, entityReference);
                     }
                     else if (argument is NewExpression innerNewExpression)
                     {
@@ -403,7 +407,37 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 return changed;
             }
 
-            private Expression ExpandIncludes(Expression root, EntityReference entityReference)
+            private Expression ExpandInclude(Expression root, EntityReference entityReference)
+            {
+                if (!_isTracking)
+                {
+                    VerifyNoCycles(entityReference.IncludePaths);
+                }
+
+                return ExpandIncludesHelper(root, entityReference);
+            }
+
+            private void VerifyNoCycles(IncludeTreeNode includeTreeNode)
+            {
+                foreach (var keyValuePair in includeTreeNode)
+                {
+                    var navigation = keyValuePair.Key;
+                    var referenceIncludeTreeNode = keyValuePair.Value;
+                    var inverseNavigation = navigation.FindInverse();
+                    if (inverseNavigation != null
+                        && referenceIncludeTreeNode.ContainsKey(inverseNavigation))
+                    {
+                        throw new InvalidOperationException(
+                            $"The Include path '{navigation.Name}->{inverseNavigation.Name}' results in a cycle. " +
+                            $"Cycles are not allowed in no-tracking queries. " +
+                            $"Either use a tracking query or remove the cycle.");
+                    }
+
+                    VerifyNoCycles(referenceIncludeTreeNode);
+                }
+            }
+
+            private Expression ExpandIncludesHelper(Expression root, EntityReference entityReference)
             {
                 var result = root;
                 var convertedRoot = root;
@@ -426,7 +460,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                         {
                             var elementType = navigation.ClrType.TryGetSequenceType();
                             var collectionSelectorParameter = Expression.Parameter(elementType);
-                            var nestedInclude = ExpandIncludes(collectionSelectorParameter, includedEntityReference);
+                            var nestedInclude = ExpandIncludesHelper(collectionSelectorParameter, includedEntityReference);
                             if (nestedInclude is IncludeExpression)
                             {
 
@@ -443,7 +477,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                         }
                         else
                         {
-                            included = ExpandIncludes(included, includedEntityReference);
+                            included = ExpandIncludesHelper(included, includedEntityReference);
                         }
                     }
                     else
@@ -453,7 +487,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                         {
                             var navigationTreeExpression = (NavigationTreeExpression)included;
                             var innerEntityReference = (EntityReference)navigationTreeExpression.Value;
-                            included = ExpandIncludes(navigationTreeExpression, innerEntityReference);
+                            included = ExpandIncludesHelper(navigationTreeExpression, innerEntityReference);
                         }
                     }
 
@@ -467,17 +501,19 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         private class IncludeApplyingExpressionVisitor : ExpressionVisitor
         {
             private readonly NavigationExpandingExpressionVisitor _visitor;
+            private readonly bool _isTracking;
 
-            public IncludeApplyingExpressionVisitor(NavigationExpandingExpressionVisitor visitor)
+            public IncludeApplyingExpressionVisitor(NavigationExpandingExpressionVisitor visitor, bool tracking)
             {
                 _visitor = visitor;
+                _isTracking = tracking;
             }
 
             public override Expression Visit(Expression expression)
             {
                 if (expression is NavigationExpansionExpression navigationExpansionExpression)
                 {
-                    var innerVisitor = new IncludeExpandingExpressionVisitor(_visitor, navigationExpansionExpression);
+                    var innerVisitor = new IncludeExpandingExpressionVisitor(_visitor, navigationExpansionExpression, _isTracking);
                     var pendingSelector = innerVisitor.Visit(navigationExpansionExpression.PendingSelector);
                     pendingSelector = _visitor.Visit(pendingSelector);
                     pendingSelector = Visit(pendingSelector);
