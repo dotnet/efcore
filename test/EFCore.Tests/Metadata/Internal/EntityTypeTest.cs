@@ -2074,6 +2074,192 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         }
 
         [ConditionalFact]
+        public void Entity_type_with_deeply_nested_owned_weak_types_builds_correctly()
+        {
+            using (var context = new RejectionContext(nameof(RejectionContext)))
+            {
+                var entityTypes = context.Model.GetEntityTypes();
+
+                Assert.Equal(new[]
+                {
+                    "Application",
+                    "ApplicationVersion",
+                    "Rejection",
+                    "Application.Attitude#Attitude",
+                    "ApplicationVersion.Attitude#Attitude",
+                    "Rejection.FirstTest#FirstTest",
+                    "Application.Attitude#Attitude.FirstTest#FirstTest",
+                    "ApplicationVersion.Attitude#Attitude.FirstTest#FirstTest",
+                    "Rejection.FirstTest#FirstTest.Tester#SpecialistStaff",
+                    "Application.Attitude#Attitude.FirstTest#FirstTest.Tester#SpecialistStaff",
+                    "ApplicationVersion.Attitude#Attitude.FirstTest#FirstTest.Tester#SpecialistStaff"
+                }, entityTypes.Select(e => e.DisplayName()).ToList());
+            }
+        }
+
+        //
+        //          ApplicationVersion             Application
+        //            |            |                   |
+        //         Attitude`     Rejection          Attitude``
+        //            |            |                   |
+        //         FirstTest`    FirstTest``       FirstTest```
+        //            |            |                   |
+        // SpecialistStaff`    SpecialistStaff``   SpecialistStaff```
+        //
+        // ApplicationVersion   = ApplicationVersion
+        // Attitude`            = ApplicationVersion.Attitude#Attitude
+        // FirstTest`           = Application.Attitude#Attitude.FirstTest#FirstTest
+        // SpecialistStaff`     = ApplicationVersion.Attitude#Attitude.FirstTest#FirstTest.Tester#SpecialistStaff
+        //
+        // Rejection            = Rejection
+        // FirstTest``          = Rejection.FirstTest#FirstTest
+        // SpecialistStaff``    = Rejection.FirstTest#FirstTest.Tester#SpecialistStaff
+        //
+        // Application          = Application
+        // Attitude``           = Application.Attitude#Attitude
+        // FistTest```          = ApplicationVersion.Attitude#Attitude.FirstTest#FirstTest
+        // SpecialistStaff```   = Application.Attitude#Attitude.FirstTest#FirstTest.Tester#SpecialistStaff
+        //
+
+        private class Application
+        {
+            public Guid Id { get; protected set; }
+            public Attitude Attitude { get; set; }
+            public Rejection Rejection { get; set; }
+        }
+
+        private class ApplicationVersion
+        {
+            public Guid Id { get; protected set; }
+            public Attitude Attitude { get; set; }
+        }
+
+        private class Rejection
+        {
+            public FirstTest FirstTest { get; set; }
+        }
+
+        private class Attitude
+        {
+            public FirstTest FirstTest { get; set; }
+        }
+
+        private class FirstTest
+        {
+            public SpecialistStaff Tester { get; set; }
+        }
+
+        private class SpecialistStaff
+        {
+        }
+
+        private class RejectionContext : DbContext
+        {
+            private readonly string _databaseName;
+
+            public RejectionContext(string databaseName)
+            {
+                _databaseName = databaseName;
+            }
+
+            protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+                => optionsBuilder.UseInMemoryDatabase(_databaseName);
+
+            protected internal override void OnModelCreating(ModelBuilder modelBuilder)
+            {
+                List<string> GetTypeNames()
+                    => modelBuilder.Model.GetEntityTypes().Select(e => e.DisplayName()).ToList();
+
+                modelBuilder.Entity<Application>(entity =>
+                {
+                    entity.OwnsOne(x => x.Attitude,
+                        amb =>
+                        {
+                            amb.OwnsOne(x => x.FirstTest, mb =>
+                            {
+                                mb.OwnsOne(a => a.Tester);
+                            });
+                        });
+
+                    entity.OwnsOne(x => x.Rejection,
+                        amb =>
+                        {
+                            amb.OwnsOne(x => x.FirstTest, mb =>
+                            {
+                                mb.OwnsOne(a => a.Tester);
+                            });
+                        });
+                });
+
+                Assert.Equal(new[]
+                {
+                    "Application",
+                    "Attitude",
+                    "Rejection",
+                    "Attitude.FirstTest#FirstTest", // FirstTest is weak
+                    "Rejection.FirstTest#FirstTest", // FirstTest is weak
+                    "Attitude.FirstTest#FirstTest.Tester#SpecialistStaff", // SpecialistStaff is weak
+                    "Rejection.FirstTest#FirstTest.Tester#SpecialistStaff" // SpecialistStaff is weak
+                }, GetTypeNames());
+
+                modelBuilder.Entity<ApplicationVersion>(entity =>
+                {
+                    Assert.Equal(new[]
+                    {
+                        "Application",
+                        "ApplicationVersion",
+                        "Attitude",
+                        "Rejection",
+                        "Attitude.FirstTest#FirstTest",
+                        "Rejection.FirstTest#FirstTest",
+                        "Attitude.FirstTest#FirstTest.Tester#SpecialistStaff",
+                        "Rejection.FirstTest#FirstTest.Tester#SpecialistStaff"
+                    }, GetTypeNames());
+
+                    entity.OwnsOne(x => x.Attitude,
+                        amb =>
+                        {
+                            var typeNames = GetTypeNames();
+                            Assert.Equal(new[]
+                            {
+                                "Application",
+                                "ApplicationVersion",
+                                "Rejection",
+                                "Application.Attitude#Attitude", // Attitude becomes weak
+                                "ApplicationVersion.Attitude#Attitude", // Attitude becomes weak
+                                "Rejection.FirstTest#FirstTest",
+                                "Application.Attitude#Attitude.FirstTest#FirstTest", // Attitude becomes weak
+                                "ApplicationVersion.Attitude#Attitude.FirstTest#FirstTest", // Attitude becomes weak
+                                "Rejection.FirstTest#FirstTest.Tester#SpecialistStaff",
+                                "Application.Attitude#Attitude.FirstTest#FirstTest.Tester#SpecialistStaff", // Attitude becomes weak
+                                "ApplicationVersion.Attitude#Attitude.FirstTest#FirstTest.Tester#SpecialistStaff" // Attitude becomes weak
+                            }, typeNames);
+
+                            amb.OwnsOne(x => x.FirstTest, mb =>
+                            {
+                                mb.OwnsOne(a => a.Tester);
+                            });
+                        });
+                });
+
+                Assert.Equal(new[]
+                {
+                    "Application",
+                    "ApplicationVersion",
+                    "Rejection",
+                    "Application.Attitude#Attitude",
+                    "ApplicationVersion.Attitude#Attitude",
+                    "Rejection.FirstTest#FirstTest",
+                    "Application.Attitude#Attitude.FirstTest#FirstTest",
+                    "ApplicationVersion.Attitude#Attitude.FirstTest#FirstTest",
+                    "Rejection.FirstTest#FirstTest.Tester#SpecialistStaff",
+                    "Application.Attitude#Attitude.FirstTest#FirstTest.Tester#SpecialistStaff",
+                    "ApplicationVersion.Attitude#Attitude.FirstTest#FirstTest.Tester#SpecialistStaff"
+                }, GetTypeNames());
+            }
+        }
+
+        [ConditionalFact]
         public void All_properties_have_original_value_indexes_when_using_snapshot_change_tracking()
         {
             var entityType = BuildFullNotificationEntityModel().FindEntityType(typeof(FullNotificationEntity));
