@@ -4,7 +4,6 @@
 using System;
 using System.IO;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
 using Microsoft.EntityFrameworkCore.SqlServer.Internal;
@@ -98,6 +97,25 @@ EXEC sp_addextendedproperty @name = N'Comment', @value = N'Employer ID comment',
                     ColumnType = "int",
                     DefaultValue = 0,
                     IsNullable = false,
+                    [SqlServerAnnotationNames.Identity] = "1, 1"
+                });
+
+            AssertSql(@"ALTER TABLE [People] ADD [Id] int NOT NULL IDENTITY;
+");
+        }
+
+        [ConditionalFact]
+        public virtual void AddColumnOperation_identity_legacy()
+        {
+            Generate(
+                new AddColumnOperation
+                {
+                    Table = "People",
+                    Name = "Id",
+                    ClrType = typeof(int),
+                    ColumnType = "int",
+                    DefaultValue = 0,
+                    IsNullable = false,
                     [SqlServerAnnotationNames.ValueGenerationStrategy] =
                         SqlServerValueGenerationStrategy.IdentityColumn
                 });
@@ -117,10 +135,7 @@ EXEC sp_addextendedproperty @name = N'Comment', @value = N'Employer ID comment',
                     ColumnType = "int",
                     DefaultValue = 0,
                     IsNullable = false,
-                    [SqlServerAnnotationNames.ValueGenerationStrategy] =
-                        SqlServerValueGenerationStrategy.IdentityColumn,
-                    [SqlServerAnnotationNames.IdentitySeed] = 100,
-                    [SqlServerAnnotationNames.IdentityIncrement] = 5
+                    [SqlServerAnnotationNames.Identity] = "100,5"
                 });
 
             AssertSql(@"ALTER TABLE [People] ADD [Id] int NOT NULL IDENTITY(100,5);
@@ -292,6 +307,29 @@ ALTER TABLE [People] ALTER COLUMN [LuckyNumber] int NOT NULL;
 
         [ConditionalFact]
         public virtual void AlterColumnOperation_with_identity()
+        {
+            Generate(
+                new AlterColumnOperation
+                {
+                    Table = "People",
+                    Name = "Id",
+                    ClrType = typeof(int),
+                    [SqlServerAnnotationNames.Identity] = "1, 1"
+                });
+
+            AssertSql(
+                @"DECLARE @var0 sysname;
+SELECT @var0 = [d].[name]
+FROM [sys].[default_constraints] [d]
+INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
+WHERE ([d].[parent_object_id] = OBJECT_ID(N'[People]') AND [c].[name] = N'Id');
+IF @var0 IS NOT NULL EXEC(N'ALTER TABLE [People] DROP CONSTRAINT [' + @var0 + '];');
+ALTER TABLE [People] ALTER COLUMN [Id] int NOT NULL;
+");
+        }
+
+        [ConditionalFact]
+        public virtual void AlterColumnOperation_with_identity_legacy()
         {
             Generate(
                 new AlterColumnOperation
@@ -786,6 +824,35 @@ CREATE INDEX [IX_Person_Name] ON [Person] ([Name]) WITH (ONLINE = ON);
                     Table = "Person",
                     Name = "Id",
                     ClrType = typeof(long),
+                    [SqlServerAnnotationNames.Identity] = "1, 1",
+                    OldColumn = new ColumnOperation
+                    {
+                        ClrType = typeof(int),
+                        [SqlServerAnnotationNames.Identity] = "1, 1"
+                    }
+                });
+
+            AssertSql(
+                @"DECLARE @var0 sysname;
+SELECT @var0 = [d].[name]
+FROM [sys].[default_constraints] [d]
+INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
+WHERE ([d].[parent_object_id] = OBJECT_ID(N'[Person]') AND [c].[name] = N'Id');
+IF @var0 IS NOT NULL EXEC(N'ALTER TABLE [Person] DROP CONSTRAINT [' + @var0 + '];');
+ALTER TABLE [Person] ALTER COLUMN [Id] bigint NOT NULL;
+");
+        }
+
+        [ConditionalFact]
+        public virtual void AlterColumnOperation_identity_legacy()
+        {
+            Generate(
+                modelBuilder => modelBuilder.HasAnnotation(CoreAnnotationNames.ProductVersion, "1.1.0"),
+                new AlterColumnOperation
+                {
+                    Table = "Person",
+                    Name = "Id",
+                    ClrType = typeof(long),
                     [SqlServerAnnotationNames.ValueGenerationStrategy] = SqlServerValueGenerationStrategy.IdentityColumn,
                     OldColumn = new ColumnOperation
                     {
@@ -816,6 +883,27 @@ ALTER TABLE [Person] ALTER COLUMN [Id] bigint NOT NULL;
                         Table = "Person",
                         Name = "Id",
                         ClrType = typeof(int),
+                        [SqlServerAnnotationNames.Identity] = "1, 1",
+                        OldColumn = new ColumnOperation
+                        {
+                            ClrType = typeof(int)
+                        }
+                    }));
+
+            Assert.Equal(SqlServerStrings.AlterIdentityColumn, ex.Message);
+        }
+
+        [ConditionalFact]
+        public virtual void AlterColumnOperation_add_identity_legacy()
+        {
+            var ex = Assert.Throws<InvalidOperationException>(
+                () => Generate(
+                    modelBuilder => modelBuilder.HasAnnotation(CoreAnnotationNames.ProductVersion, "1.1.0"),
+                    new AlterColumnOperation
+                    {
+                        Table = "Person",
+                        Name = "Id",
+                        ClrType = typeof(int),
                         [SqlServerAnnotationNames.ValueGenerationStrategy] = SqlServerValueGenerationStrategy.IdentityColumn,
                         OldColumn = new ColumnOperation
                         {
@@ -828,6 +916,27 @@ ALTER TABLE [Person] ALTER COLUMN [Id] bigint NOT NULL;
 
         [ConditionalFact]
         public virtual void AlterColumnOperation_remove_identity()
+        {
+            var ex = Assert.Throws<InvalidOperationException>(
+                () => Generate(
+                    modelBuilder => modelBuilder.HasAnnotation(CoreAnnotationNames.ProductVersion, "1.1.0"),
+                    new AlterColumnOperation
+                    {
+                        Table = "Person",
+                        Name = "Id",
+                        ClrType = typeof(int),
+                        OldColumn = new ColumnOperation
+                        {
+                            ClrType = typeof(int),
+                            [SqlServerAnnotationNames.Identity] = "1, 1"
+                        }
+                    }));
+
+            Assert.Equal(SqlServerStrings.AlterIdentityColumn, ex.Message);
+        }
+
+        [ConditionalFact]
+        public virtual void AlterColumnOperation_remove_identity_legacy()
         {
             var ex = Assert.Throws<InvalidOperationException>(
                 () => Generate(

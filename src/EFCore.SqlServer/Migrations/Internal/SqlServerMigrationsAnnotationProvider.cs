@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
@@ -112,25 +113,12 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Migrations.Internal
         {
             if (property.GetValueGenerationStrategy() == SqlServerValueGenerationStrategy.IdentityColumn)
             {
-                yield return new Annotation(
-                    SqlServerAnnotationNames.ValueGenerationStrategy,
-                    SqlServerValueGenerationStrategy.IdentityColumn);
-
                 var seed = property.GetIdentitySeed();
-                if (seed.HasValue)
-                {
-                    yield return new Annotation(
-                        SqlServerAnnotationNames.IdentitySeed,
-                        seed.Value);
-                }
-
                 var increment = property.GetIdentityIncrement();
-                if (increment.HasValue)
-                {
-                    yield return new Annotation(
-                        SqlServerAnnotationNames.IdentityIncrement,
-                        increment.Value);
-                }
+
+                yield return new Annotation(
+                    SqlServerAnnotationNames.Identity,
+                    string.Format(CultureInfo.InvariantCulture, "{0}, {1}", seed ?? 1, increment ?? 1));
             }
 
         }
