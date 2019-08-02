@@ -6012,5 +6012,14 @@ namespace Microsoft.EntityFrameworkCore.Query
                 isAsync,
                 os => os.Select(o => new Order { OrderDate = o.OrderDate.Value }));
         }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Navigation_inside_interpolated_string_is_expanded(bool isAsync)
+        {
+            return AssertQuery<Order>(
+                isAsync,
+                os => os.Select(o => $"CustomerCity:{o.Customer.City}"));
+        }
     }
 }

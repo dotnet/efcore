@@ -74,6 +74,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure
             conventionSet.EntityTypeAddedConventions.Add(new DerivedTypeDiscoveryConvention(Dependencies));
 
             conventionSet.EntityTypeIgnoredConventions.Add(inversePropertyAttributeConvention);
+            conventionSet.EntityTypeIgnoredConventions.Add(relationshipDiscoveryConvention);
 
             var discriminatorConvention = new DiscriminatorConvention(Dependencies);
             conventionSet.EntityTypeRemovedConventions.Add(new OwnedTypesConvention(Dependencies));

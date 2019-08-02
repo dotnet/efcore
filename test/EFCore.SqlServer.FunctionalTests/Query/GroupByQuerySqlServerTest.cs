@@ -1989,14 +1989,12 @@ FROM (
             await base.All_after_GroupBy_aggregate(isAsync);
 
             AssertSql(
-                @"
-CHECK THE SQL
-SELECT CASE
+                @"SELECT CASE
     WHEN NOT EXISTS (
         SELECT 1
         FROM [Orders] AS [o]
-        WHERE CAST(0 AS bit) = CAST(1 AS bit)
-        GROUP BY [o].[CustomerID]) THEN CAST(1 AS bit)
+        GROUP BY [o].[CustomerID]
+        HAVING CAST(0 AS bit) = CAST(1 AS bit)) THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
 END");
         }
@@ -2005,7 +2003,15 @@ END");
         {
             await base.All_after_GroupBy_aggregate2(isAsync);
 
-            AssertSql(@" ");
+            AssertSql(
+                @"SELECT CASE
+    WHEN NOT EXISTS (
+        SELECT 1
+        FROM [Orders] AS [o]
+        GROUP BY [o].[CustomerID]
+        HAVING SUM([o].[OrderID]) < 0) THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
+END");
         }
 
         public override async Task Any_after_GroupBy_aggregate(bool isAsync)
@@ -2013,9 +2019,7 @@ END");
             await base.Any_after_GroupBy_aggregate(isAsync);
 
             AssertSql(
-                @"
-CHECK THE SQL
-SELECT CASE
+                @"SELECT CASE
     WHEN EXISTS (
         SELECT 1
         FROM [Orders] AS [o]

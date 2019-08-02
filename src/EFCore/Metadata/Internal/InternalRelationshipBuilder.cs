@@ -234,7 +234,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 out var shouldInvert,
                 out var shouldBeUnique,
                 out var removeOppositeNavigation,
-                out var removeConflictingNavigations))
+                out var removeConflictingNavigations,
+                out var changeRelatedTypes))
             {
                 return null;
             }
@@ -280,7 +281,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             InternalRelationshipBuilder builder;
             if (shouldInvert == true
-                || removeConflictingNavigations)
+                || removeConflictingNavigations
+                || changeRelatedTypes)
             {
                 builder = ReplaceForeignKey(
                     configurationSource,
@@ -291,7 +293,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     dependentProperties,
                     principalProperties: principalProperties,
                     isUnique: shouldBeUnique,
-                    removeCurrent: shouldInvert ?? false,
+                    removeCurrent: shouldInvert == true || changeRelatedTypes,
                     principalEndConfigurationSource: shouldInvert != null ? configurationSource : (ConfigurationSource?)null,
                     oldRelationshipInverted: shouldInvert == true);
 
@@ -546,7 +548,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 out shouldInvert,
                 out shouldBeUnique,
                 out removeOppositeNavigation,
-                out removeConflictingNavigations);
+                out removeConflictingNavigations,
+                out _);
 
         private bool CanSetNavigations(
             MemberIdentity? navigationToPrincipal,
@@ -559,12 +562,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             out bool? shouldInvert,
             out bool? shouldBeUnique,
             out bool removeOppositeNavigation,
-            out bool removeConflictingNavigations)
+            out bool removeConflictingNavigations,
+            out bool changeRelatedTypes)
         {
             shouldInvert = null;
             shouldBeUnique = null;
             removeOppositeNavigation = false;
             removeConflictingNavigations = false;
+            changeRelatedTypes = false;
 
             if ((navigationToPrincipal == null
                  || navigationToPrincipal.Value.Name == Metadata.DependentToPrincipal?.Name)
@@ -736,6 +741,38 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 dependentProperties: null,
                 principalProperties: null).Where(r => r.Metadata != Metadata).Distinct().Any();
 
+            if (shouldInvert == false
+                && !removeConflictingNavigations
+                && (principalEntityType != Metadata.PrincipalEntityType
+                    || dependentEntityType != Metadata.DeclaringEntityType))
+            {
+                if (navigationToPrincipalProperty != null
+                    && !IsCompatible(
+                        navigationToPrincipalProperty,
+                        pointsToPrincipal: true,
+                        Metadata.DeclaringEntityType.ClrType,
+                        Metadata.PrincipalEntityType.ClrType,
+                        shouldThrow: false,
+                        out _))
+                {
+                    changeRelatedTypes = true;
+                    return true;
+                }
+
+                if (navigationToDependentProperty != null
+                    && !IsCompatible(
+                        navigationToDependentProperty,
+                        pointsToPrincipal: false,
+                        Metadata.DeclaringEntityType.ClrType,
+                        Metadata.PrincipalEntityType.ClrType,
+                        shouldThrow: false,
+                        out _))
+                {
+                    changeRelatedTypes = true;
+                    return true;
+                }
+            }
+
             return true;
         }
 
@@ -775,7 +812,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                             navigationProperty,
                             principalType,
                             dependentType,
-                            shouldBeCollection: false,
+                            shouldBeCollection: null,
                             shouldThrow: true);
                     }
 

@@ -276,8 +276,11 @@ namespace Microsoft.EntityFrameworkCore
                     }
                     else
                     {
+                        new1.Parent = null;
+                        new1d.Parent = null;
+                        new1dd.Parent = null;
+
                         context.AddRange(new1, new1d, new1dd, new2a, new2d, new2dd, new2b);
-                        context.Entry(newRoot).State = EntityState.Detached;
                     }
 
                     if ((changeMechanism & ChangeMechanism.Principal) != 0)
@@ -1678,8 +1681,11 @@ namespace Microsoft.EntityFrameworkCore
                     }
                     else
                     {
+                        new1.Parent = null;
+                        new1d.Parent = null;
+                        new1dd.Parent = null;
+
                         context.AddRange(new1, new1d, new1dd, new2a, new2d, new2dd, new2b, new2ca, new2cb);
-                        context.Entry(newRoot).State = EntityState.Detached;
                     }
 
                     if ((changeMechanism & ChangeMechanism.Principal) != 0)

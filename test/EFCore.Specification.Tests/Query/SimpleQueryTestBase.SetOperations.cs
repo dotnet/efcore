@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.TestModels.Northwind;
@@ -287,14 +288,14 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             using (var ctx = CreateContext())
             {
-                Assert.Throws<NotSupportedException>(() =>
+                Assert.Throws<InvalidOperationException>(() =>
                     ctx.Customers
                         .Where(c => c.City == "Berlin")
                         .Include(c => c.Orders)
                         .Union(ctx.Customers.Where(c => c.City == "London"))
                         .ToList());
 
-                Assert.Throws<NotSupportedException>(() =>
+                Assert.Throws<InvalidOperationException>(() =>
                     ctx.Customers
                         .Where(c => c.City == "Berlin")
                         .Union(ctx.Customers
@@ -309,7 +310,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             using (var ctx = CreateContext())
             {
-                Assert.Throws<NotSupportedException>(() =>
+                Assert.Throws<InvalidOperationException>(() =>
                     ctx.Customers
                         .Where(c => c.City == "Berlin")
                         .Include(c => c.Orders)
@@ -339,5 +340,60 @@ namespace Microsoft.EntityFrameworkCore.Query
                 .Union(cs));
 
         private static Customer ClientSideMethod(Customer c) => c;
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task GroupBy_Select_Union(bool isAsync)
+            => AssertQuery<Customer>(isAsync, cs => cs
+                    .Where(c => c.City == "Berlin")
+                    .GroupBy(c => c.CustomerID)
+                    .Select(g => new { CustomerID = g.Key, Count = g.Count() })
+                    .Union(cs
+                        .Where(c => c.City == "London")
+                        .GroupBy(c => c.CustomerID)
+                        .Select(g => new { CustomerID = g.Key, Count = g.Count() })));
+
+        [ConditionalTheory]
+        [MemberData(nameof(GetSetOperandTestCases))]
+        public virtual Task Union_over_different_projection_types(bool isAsync, string leftType, string rightType)
+        {
+            var (left, right) = (ExpressionGenerator(leftType), ExpressionGenerator(rightType));
+            return AssertQuery<Order>(isAsync, os => left(os).Union(right(os)));
+
+            static Func<IQueryable<Order>, IQueryable<object>> ExpressionGenerator(string expressionType)
+            {
+                switch (expressionType)
+                {
+                    case "Column":
+                        return os => os.Select(o => (object)o.OrderID);
+                    case "Function":
+                        return os => os
+                            .GroupBy(o => o.OrderID)
+                            .Select(g => (object)g.Count());
+                    case "Constant":
+                        return os => os.Select(o => (object)8);
+                    case "Unary":
+                        return os => os.Select(o => (object)-o.OrderID);
+                    case "Binary":
+                        return os => os.Select(o => (object)(o.OrderID + 1));
+                    case "ScalarSubquery":
+                        return os => os.Select(o => (object)o.OrderDetails.Count());
+                    default:
+                        throw new NotSupportedException();
+                }
+            }
+        }
+
+        private static IEnumerable<object[]> GetSetOperandTestCases()
+            => from async in new[] { true, false }
+               from leftType in SupportedOperandExpressionType
+               from rightType in SupportedOperandExpressionType
+               select new object[] { async, leftType, rightType };
+
+        // ReSharper disable once StaticMemberInGenericType
+        private static readonly string[] SupportedOperandExpressionType =
+        {
+            "Column", "Function", "Constant", "Unary", "Binary", "ScalarSubquery"
+        };
     }
 }

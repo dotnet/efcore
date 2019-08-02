@@ -1463,7 +1463,7 @@ Queen of the Andals and the Rhoynar and the First Men, Khaleesi of the Great Gra
 
         #region Bug3101
 
-        [ConditionalFact(Skip = "Issue#16229")]
+        [ConditionalFact]
         public virtual void Repro3101_simple_coalesce1()
         {
             using (CreateDatabase3101())
@@ -1483,7 +1483,7 @@ Queen of the Andals and the Rhoynar and the First Men, Khaleesi of the Great Gra
             }
         }
 
-        [ConditionalFact(Skip = "Issue#16229")]
+        [ConditionalFact]
         public virtual void Repro3101_simple_coalesce2()
         {
             using (CreateDatabase3101())
@@ -1503,7 +1503,7 @@ Queen of the Andals and the Rhoynar and the First Men, Khaleesi of the Great Gra
             }
         }
 
-        [ConditionalFact(Skip = "Issue#16229")]
+        [ConditionalFact]
         public virtual void Repro3101_simple_coalesce3()
         {
             using (CreateDatabase3101())
@@ -1523,7 +1523,7 @@ Queen of the Andals and the Rhoynar and the First Men, Khaleesi of the Great Gra
             }
         }
 
-        [ConditionalFact(Skip = "Issue#16229")]
+        [ConditionalFact]
         public virtual void Repro3101_complex_coalesce1()
         {
             using (CreateDatabase3101())
@@ -1547,7 +1547,7 @@ Queen of the Andals and the Rhoynar and the First Men, Khaleesi of the Great Gra
             }
         }
 
-        [ConditionalFact(Skip = "Issue#16229")]
+        [ConditionalFact]
         public virtual void Repro3101_complex_coalesce2()
         {
             using (CreateDatabase3101())
@@ -1571,7 +1571,7 @@ Queen of the Andals and the Rhoynar and the First Men, Khaleesi of the Great Gra
             }
         }
 
-        [ConditionalFact(Skip = "Issue#16229")]
+        [ConditionalFact]
         public virtual void Repro3101_nested_coalesce1()
         {
             using (CreateDatabase3101())
@@ -1596,7 +1596,7 @@ Queen of the Andals and the Rhoynar and the First Men, Khaleesi of the Great Gra
             }
         }
 
-        [ConditionalFact(Skip = "Issue#16229")]
+        [ConditionalFact]
         public virtual void Repro3101_nested_coalesce2()
         {
             using (CreateDatabase3101())
@@ -1622,7 +1622,7 @@ Queen of the Andals and the Rhoynar and the First Men, Khaleesi of the Great Gra
             }
         }
 
-        [ConditionalFact(Skip = "Issue#16229")]
+        [ConditionalFact]
         public virtual void Repro3101_conditional()
         {
             using (CreateDatabase3101())

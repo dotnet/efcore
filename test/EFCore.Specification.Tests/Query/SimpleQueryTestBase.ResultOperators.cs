@@ -351,7 +351,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 selector: od => od.Discount);
         }
 
-        [ConditionalTheory(Skip = "Issue #14935. Cannot eval 'Average()'")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Average_on_float_column_in_subquery(bool isAsync)
         {

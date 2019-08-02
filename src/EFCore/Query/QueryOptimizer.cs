@@ -6,7 +6,6 @@ using System.Linq.Expressions;
 using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Query.Internal;
-using Microsoft.EntityFrameworkCore.Query.NavigationExpansion.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
@@ -26,15 +25,14 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         public virtual Expression Visit(Expression query)
         {
+            query = new EnumerableToQueryableReMappingExpressionVisitor().Visit(query);
             query = new QueryMetadataExtractingExpressionVisitor(_queryCompilationContext).Visit(query);
             query = new AllAnyToContainsRewritingExpressionVisitor().Visit(query);
             query = new GroupJoinFlatteningExpressionVisitor().Visit(query);
             query = new NullCheckRemovingExpressionVisitor().Visit(query);
             query = new EntityEqualityRewritingExpressionVisitor(_queryCompilationContext).Rewrite(query);
-            query = new NavigationExpandingVisitor(_queryCompilationContext).Visit(query);
-            query = new NavigationExpansionReducingVisitor().Visit(query);
-            query = new EnumerableToQueryableReMappingExpressionVisitor().Visit(query);
-            query = new NullCheckRemovingExpressionVisitor().Visit(query);
+            query = new SubqueryMemberPushdownExpressionVisitor().Visit(query);
+            query = new NavigationExpandingExpressionVisitor(_queryCompilationContext).Expand(query);
             query = new FunctionPreprocessingVisitor().Visit(query);
             new EnumerableVerifyingExpressionVisitor().Visit(query);
 

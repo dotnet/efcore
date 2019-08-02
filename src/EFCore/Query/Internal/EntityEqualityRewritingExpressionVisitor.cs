@@ -13,7 +13,6 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using Microsoft.EntityFrameworkCore.Query.NavigationExpansion.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Query.Internal
 {
@@ -343,7 +342,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             var param = Expression.Parameter(entityType.ClrType, "v");
             var keySelector = Expression.Lambda(CreatePropertyAccessExpression(param, keyProperty), param);
             var keyProjection = Expression.Call(
-                LinqMethodHelpers.QueryableSelectMethodInfo.MakeGenericMethod(entityType.ClrType, keyProperty.ClrType),
+                QueryableMethodProvider.SelectMethodInfo.MakeGenericMethod(entityType.ClrType, keyProperty.ClrType),
                 Unwrap(newSource),
                 keySelector);
 
@@ -352,7 +351,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 : CreatePropertyAccessExpression(Unwrap(newItem), keyProperty);
 
             return Expression.Call(
-                LinqMethodHelpers.QueryableContainsMethodInfo.MakeGenericMethod(keyProperty.ClrType),
+                QueryableMethodProvider.ContainsMethodInfo.MakeGenericMethod(keyProperty.ClrType),
                 keyProjection,
                 rewrittenItem
             );
@@ -379,11 +378,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             var genericMethodDefinition = methodCallExpression.Method.GetGenericMethodDefinition();
             var firstOrdering =
-                genericMethodDefinition == LinqMethodHelpers.QueryableOrderByMethodInfo
-                || genericMethodDefinition == LinqMethodHelpers.QueryableOrderByDescendingMethodInfo;
+                genericMethodDefinition == QueryableMethodProvider.OrderByMethodInfo
+                || genericMethodDefinition == QueryableMethodProvider.OrderByDescendingMethodInfo;
             var isAscending =
-                genericMethodDefinition == LinqMethodHelpers.QueryableOrderByMethodInfo
-                || genericMethodDefinition == LinqMethodHelpers.QueryableThenByMethodInfo;
+                genericMethodDefinition == QueryableMethodProvider.OrderByMethodInfo
+                || genericMethodDefinition == QueryableMethodProvider.ThenByMethodInfo;
 
             var keyProperties = entityType.FindPrimaryKey().Properties;
             var expression = Unwrap(newSource);
@@ -417,12 +416,12 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 if (firstOrdering)
                 {
                     return ascending
-                        ? LinqMethodHelpers.QueryableOrderByMethodInfo
-                        : LinqMethodHelpers.QueryableOrderByDescendingMethodInfo;
+                        ? QueryableMethodProvider.OrderByMethodInfo
+                        : QueryableMethodProvider.OrderByDescendingMethodInfo;
                 }
                 return ascending
-                    ? LinqMethodHelpers.QueryableThenByMethodInfo
-                    : LinqMethodHelpers.QueryableThenByDescendingMethodInfo;
+                    ? QueryableMethodProvider.ThenByMethodInfo
+                    : QueryableMethodProvider.ThenByDescendingMethodInfo;
             }
         }
 

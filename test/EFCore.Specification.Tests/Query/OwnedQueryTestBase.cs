@@ -92,7 +92,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalFact(Skip = "Issue#16619")]
+        [ConditionalFact]
         public virtual void No_ignored_include_warning_when_implicit_load()
         {
             using (var context = CreateContext())
@@ -308,7 +308,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalFact(Skip = "Issue#16622")]
+        [ConditionalFact]
         public virtual void Navigation_rewrite_on_owned_reference_followed_by_regular_entity_filter()
         {
             using (var ctx = CreateContext())
