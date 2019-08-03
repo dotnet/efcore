@@ -192,7 +192,22 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
             {
                 using (var context = CreateContext())
                 {
-                    context.Add(new Person { Id = 3, Addresses = new[] { new Address { Street = "First", City = "City" }, new Address { Street = "Second", City = "City" } } });
+                    context.Add(
+                        new Person
+                        {
+                            Id = 3,
+                            Addresses = new[]
+                            {
+                                new Address
+                                {
+                                    Street = "First", City = "City"
+                                },
+                                new Address
+                                {
+                                    Street = "Second", City = "City"
+                                }
+                            }
+                        });
 
                     context.SaveChanges();
                 }

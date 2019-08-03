@@ -181,6 +181,12 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                 = typeof(JObject).GetTypeInfo().GetRuntimeProperties()
                     .Single(pi => pi.Name == "Item" && pi.GetIndexParameters()[0].ParameterType == typeof(string))
                     .GetMethod;
+            private static readonly PropertyInfo _jTokenTypePropertyInfo
+                = typeof(JToken).GetTypeInfo().GetRuntimeProperties()
+                    .Single(mi => mi.Name == nameof(JToken.Type));
+            private static readonly MethodInfo _jTokenToObjectMethodInfo
+                = typeof(JToken).GetTypeInfo().GetRuntimeMethods()
+                    .Single(mi => mi.Name == nameof(JToken.ToObject) && mi.GetParameters().Length == 0);
             private static readonly MethodInfo _toObjectMethodInfo
                 = typeof(CosmosProjectionBindingRemovingExpressionVisitor).GetTypeInfo().GetRuntimeMethods()
                     .Single(mi => mi.Name == nameof(SafeToObject));
@@ -199,8 +205,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                 = new Dictionary<ParameterExpression, Expression>();
             private readonly IDictionary<Expression, ParameterExpression> _projectionBindings
                 = new Dictionary<Expression, ParameterExpression>();
-            private readonly IDictionary<Expression, (IEntityType EntityType, ParameterExpression JObjectVariable)> _ownerMappings
-                = new Dictionary<Expression, (IEntityType EntityType, ParameterExpression JObjectVariable)>();
+            private readonly IDictionary<Expression, (IEntityType EntityType, Expression JObjectExpression)> _ownerMappings
+                = new Dictionary<Expression, (IEntityType, Expression)>();
             private (IEntityType EntityType, ParameterExpression JObjectVariable) _ownerInfo;
             private ParameterExpression _ordinalParameter;
 
@@ -329,14 +335,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                             (ParameterExpression)((MethodCallExpression)methodCallExpression.Arguments[0]).Object];
                     }
 
-                    var readExpression = CreateGetValueExpression(innerExpression, property);
-                    if (readExpression.Type.IsValueType
-                        && methodCallExpression.Type == typeof(object))
-                    {
-                        readExpression = Expression.Convert(readExpression, typeof(object));
-                    }
-
-                    return readExpression;
+                    return CreateGetValueExpression(innerExpression, property, methodCallExpression.Type);
                 }
 
                 return base.VisitMethodCall(methodCallExpression);
@@ -380,6 +379,10 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                         if (_ownerInfo.EntityType != null)
                         {
                             _ownerMappings[objectArrayProjection.InnerProjection.AccessExpression] = _ownerInfo;
+                        }
+                        else
+                        {
+                            _ownerMappings[objectArrayProjection.InnerProjection.AccessExpression] = (objectArrayProjection.Navigation.DeclaringEntityType, objectArrayProjection.AccessExpression);
                         }
 
                         var previousOrdinalParameter = _ordinalParameter;
@@ -676,7 +679,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
 
             private Expression CreateGetValueExpression(
                 Expression jObjectExpression,
-                IProperty property)
+                IProperty property,
+                Type clrType)
             {
                 if (property.Name == StoreKeyConvention.JObjectPropertyName)
                 {
@@ -697,7 +701,13 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                             && !property.IsForeignKey()
                             && property.ClrType == typeof(int))
                         {
-                            return _ordinalParameter;
+                            Expression readExpression = _ordinalParameter;
+                            if (readExpression.Type != clrType)
+                            {
+                                readExpression = Expression.Convert(readExpression, clrType);
+                            }
+
+                            return readExpression;
                         }
 
                         var principalProperty = property.FindFirstPrincipal();
@@ -708,7 +718,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                             {
                                 Debug.Assert(principalProperty.DeclaringEntityType.IsAssignableFrom(ownerInfo.EntityType));
 
-                                ownerJObjectExpression = ownerInfo.JObjectVariable;
+                                ownerJObjectExpression = ownerInfo.JObjectExpression;
                             }
                             else if (jObjectExpression is RootReferenceExpression rootReferenceExpression)
                             {
@@ -721,15 +731,15 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
 
                             if (ownerJObjectExpression != null)
                             {
-                                return CreateGetValueExpression(ownerJObjectExpression, principalProperty);
+                                return CreateGetValueExpression(ownerJObjectExpression, principalProperty, clrType);
                             }
                         }
                     }
 
-                    return Expression.Default(property.ClrType);
+                    return Expression.Default(clrType);
                 }
 
-                return CreateGetValueExpression(jObjectExpression, storeName, property.ClrType, property.GetTypeMapping());
+                return CreateGetValueExpression(jObjectExpression, storeName, clrType, property.GetTypeMapping());
             }
 
             private Expression CreateGetValueExpression(
@@ -762,21 +772,39 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                 var converter = typeMapping?.Converter;
                 if (converter != null)
                 {
-                    valueExpression = ConvertJTokenToType(jTokenExpression, converter.ProviderClrType);
+                    var jTokenParameter = Expression.Parameter(typeof(JToken));
 
-                    valueExpression = ReplacingExpressionVisitor.Replace(
-                        converter.ConvertFromProviderExpression.Parameters.Single(),
-                        valueExpression,
-                        converter.ConvertFromProviderExpression.Body);
+                    var body
+                        = ReplacingExpressionVisitor.Replace(
+                            converter.ConvertFromProviderExpression.Parameters.Single(),
+                            Expression.Call(
+                                jTokenParameter,
+                                _jTokenToObjectMethodInfo.MakeGenericMethod(converter.ProviderClrType)),
+                            converter.ConvertFromProviderExpression.Body);
+
+                    if (body.Type != clrType)
+                    {
+                        body = Expression.Convert(body, clrType);
+                    }
+
+                    body = Expression.Condition(
+                            Expression.OrElse(
+                                Expression.Equal(jTokenParameter, Expression.Default(typeof(JToken))),
+                                Expression.Equal(Expression.MakeMemberAccess(jTokenParameter, _jTokenTypePropertyInfo),
+                                    Expression.Constant(JTokenType.Null))),
+                            Expression.Default(clrType),
+                            body);
+
+                    valueExpression = Expression.Invoke(Expression.Lambda(body, jTokenParameter), jTokenExpression);
+                }
+                else
+                {
+                    valueExpression = ConvertJTokenToType(jTokenExpression, typeMapping?.ClrType.MakeNullable() ?? clrType);
 
                     if (valueExpression.Type != clrType)
                     {
                         valueExpression = Expression.Convert(valueExpression, clrType);
                     }
-                }
-                else
-                {
-                    valueExpression = ConvertJTokenToType(jTokenExpression, clrType);
                 }
 
                 return valueExpression;
