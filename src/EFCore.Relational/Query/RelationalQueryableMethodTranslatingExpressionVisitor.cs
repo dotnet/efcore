@@ -1009,9 +1009,25 @@ namespace Microsoft.EntityFrameworkCore.Query
                     {
                         if (navigation.IsCollection())
                         {
-                            return CreateShapedQueryExpression(
-                                navigation.GetTargetType(),
-                                _sqlExpressionFactory.Select(navigation.GetTargetType()));
+                            var targetEntityType = navigation.GetTargetType();
+                            var innerSelectExpression = _sqlExpressionFactory.Select(targetEntityType);
+                            var innerShapedQuery = CreateShapedQueryExpression(targetEntityType, innerSelectExpression);
+
+                            var makeNullable = navigation.ForeignKey.PrincipalKey.Properties
+                                .Concat(navigation.ForeignKey.Properties)
+                                .Select(p => p.ClrType)
+                                .Any(t => t.IsNullableType());
+
+                            var outerKey = CreateKeyAccessExpression(
+                                entityShaperExpression, navigation.ForeignKey.PrincipalKey.Properties, makeNullable);
+                            var innerKey = CreateKeyAccessExpression(
+                                innerShapedQuery.ShaperExpression, navigation.ForeignKey.Properties, makeNullable);
+
+                            var correlationPredicate = _sqlTranslator.Translate(Expression.Equal(outerKey, innerKey));
+
+                            innerSelectExpression.ApplyPredicate(correlationPredicate);
+
+                            return innerShapedQuery;
                         }
 
                         var entityProjectionExpression = (EntityProjectionExpression)

@@ -141,11 +141,21 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 {
                     var ownedEntityReference = new EntityReference(navigation.GetTargetType());
                     ownedEntityReference.MarkAsOptional();
-                    ownedEntityReference.SetIncludePaths(entityReference.IncludePaths[navigation]);
+                    if (entityReference.IncludePaths.ContainsKey(navigation))
+                    {
+                        ownedEntityReference.SetIncludePaths(entityReference.IncludePaths[navigation]);
+                    }
 
                     var ownedExpansion = new OwnedNavigationReference(root, navigation, ownedEntityReference);
-                    entityReference.NavigationMap[navigation] = ownedExpansion;
-                    return ownedExpansion;
+                    if (navigation.IsCollection())
+                    {
+                        return new MaterializeCollectionNavigationExpression(ownedExpansion, navigation);
+                    }
+                    else
+                    {
+                        entityReference.NavigationMap[navigation] = ownedExpansion;
+                        return ownedExpansion;
+                    }
                 }
 
                 var innerQueryableType = navigation.GetTargetType().ClrType;
@@ -455,28 +465,29 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     var included = ExpandNavigation(convertedRoot, entityReference, navigation, converted);
                     if (navigation.ForeignKey.IsOwnership)
                     {
-                        var includedEntityReference = ((OwnedNavigationReference)included).EntityReference;
                         if (navigation.IsCollection())
                         {
+                            var subquery = ((MaterializeCollectionNavigationExpression)included).Subquery;
+                            var includedEntityReference = ((OwnedNavigationReference)subquery).EntityReference;
                             var elementType = navigation.ClrType.TryGetSequenceType();
                             var collectionSelectorParameter = Expression.Parameter(elementType);
                             var nestedInclude = ExpandIncludesHelper(collectionSelectorParameter, includedEntityReference);
                             if (nestedInclude is IncludeExpression)
                             {
-
-                                included = Expression.Call(
+                                subquery = Expression.Call(
                                     QueryableMethodProvider.SelectMethodInfo.MakeGenericMethod(elementType, elementType),
                                     Expression.Call(
                                         QueryableMethodProvider.AsQueryableMethodInfo.MakeGenericMethod(elementType),
-                                        included),
+                                        subquery),
                                     Expression.Quote(
                                         Expression.Lambda(nestedInclude, collectionSelectorParameter)));
                             }
 
-                            included = new MaterializeCollectionNavigationExpression(included, navigation);
+                            included = new MaterializeCollectionNavigationExpression(subquery, navigation);
                         }
                         else
                         {
+                            var includedEntityReference = ((OwnedNavigationReference)included).EntityReference;
                             included = ExpandIncludesHelper(included, includedEntityReference);
                         }
                     }
@@ -567,10 +578,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                         {
                             var pendingSelector = Visit(navigationExpansionExpression.PendingSelector);
                             Expression result;
+                            var source = Visit(navigationExpansionExpression.Source);
                             if (pendingSelector == navigationExpansionExpression.CurrentParameter)
                             {
                                 // identity projection
-                                result = navigationExpansionExpression.Source;
+                                result = source;
                             }
                             else
                             {
@@ -580,7 +592,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                                     QueryableMethodProvider.SelectMethodInfo.MakeGenericMethod(
                                         navigationExpansionExpression.SourceElementType,
                                         selectorLambda.ReturnType),
-                                    navigationExpansionExpression.Source,
+                                    source,
                                     Expression.Quote(selectorLambda));
                             }
 
