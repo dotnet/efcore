@@ -98,6 +98,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         protected override Expression VisitExtension(Expression extensionExpression)
         {
             return extensionExpression is NavigationExpansionExpression
+                || extensionExpression is OwnedNavigationReference
                 ? extensionExpression
                 : base.VisitExtension(extensionExpression);
         }
@@ -110,10 +111,19 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             if (innerExpression is MaterializeCollectionNavigationExpression materializeCollectionNavigation
                 && memberExpression.Member.Name == nameof(List<int>.Count))
             {
+                var subquery = materializeCollectionNavigation.Subquery;
+                var elementType = subquery.Type.TryGetSequenceType();
+                if (subquery is OwnedNavigationReference ownedNavigationReference
+                    && ownedNavigationReference.Navigation.IsCollection())
+                {
+                    subquery = Expression.Call(
+                        QueryableMethodProvider.AsQueryableMethodInfo.MakeGenericMethod(elementType),
+                        subquery);
+                }
+
                 return Visit(Expression.Call(
-                    QueryableMethodProvider.CountWithoutPredicateMethodInfo.MakeGenericMethod(
-                        materializeCollectionNavigation.Subquery.Type.TryGetSequenceType()),
-                    materializeCollectionNavigation.Subquery));
+                    QueryableMethodProvider.CountWithoutPredicateMethodInfo.MakeGenericMethod(elementType),
+                    subquery));
             }
 
             var updatedExpression = (Expression)memberExpression.Update(innerExpression);
@@ -368,7 +378,26 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 else if (firstArgument is MaterializeCollectionNavigationExpression materializeCollectionNavigationExpression
                     && methodCallExpression.Method.Name == nameof(Queryable.AsQueryable))
                 {
-                    return materializeCollectionNavigationExpression.Subquery;
+                    var subquery = materializeCollectionNavigationExpression.Subquery;
+                    if (subquery is OwnedNavigationReference ownedNavigationReference
+                        && ownedNavigationReference.Navigation.IsCollection())
+                    {
+                        return Visit(Expression.Call(
+                            QueryableMethodProvider.AsQueryableMethodInfo.MakeGenericMethod(subquery.Type.TryGetSequenceType()),
+                            subquery));
+                    }
+
+                    return subquery;
+                }
+                else if (firstArgument is OwnedNavigationReference ownedNavigationReference
+                    && ownedNavigationReference.Navigation.IsCollection()
+                    && methodCallExpression.Method.Name == nameof(Queryable.AsQueryable))
+                {
+                    var parameterName = GetParameterName("o");
+                    var entityReference = ownedNavigationReference.EntityReference;
+                    var currentTree = new NavigationTreeExpression(entityReference);
+
+                    return new NavigationExpansionExpression(methodCallExpression, currentTree, currentTree, parameterName);
                 }
 
                 throw new NotImplementedException("NonNavSource");
