@@ -146,37 +146,20 @@ namespace Microsoft.EntityFrameworkCore
         {
             base.ConcurrencyCheckAttribute_throws_if_value_in_database_changed();
 
-            // Issue #15285
-            /*AssertSql(
-                @"SELECT TOP(1) [r].[UniqueNo], [r].[MaxLengthProperty], [r].[Name], [r].[RowVersion], [t].[UniqueNo], [t].[Details_Name], [t0].[UniqueNo], [t0].[AdditionalDetails_Name]
-FROM [Sample] AS [r]
-LEFT JOIN (
-    SELECT [r.Details].*
-    FROM [Sample] AS [r.Details]
-    WHERE [r.Details].[Details_Name] IS NOT NULL
-) AS [t] ON [r].[UniqueNo] = [t].[UniqueNo]
-LEFT JOIN (
-    SELECT [r.AdditionalDetails].*
-    FROM [Sample] AS [r.AdditionalDetails]
-    WHERE [r.AdditionalDetails].[AdditionalDetails_Name] IS NOT NULL
-) AS [t0] ON [r].[UniqueNo] = [t0].[UniqueNo]
-WHERE [r].[UniqueNo] = 1
-
-SELECT TOP(1) [r].[UniqueNo], [r].[MaxLengthProperty], [r].[Name], [r].[RowVersion], [t].[UniqueNo], [t].[Details_Name], [t0].[UniqueNo], [t0].[AdditionalDetails_Name]
-FROM [Sample] AS [r]
-LEFT JOIN (
-    SELECT [r.Details].*
-    FROM [Sample] AS [r.Details]
-    WHERE [r.Details].[Details_Name] IS NOT NULL
-) AS [t] ON [r].[UniqueNo] = [t].[UniqueNo]
-LEFT JOIN (
-    SELECT [r.AdditionalDetails].*
-    FROM [Sample] AS [r.AdditionalDetails]
-    WHERE [r.AdditionalDetails].[AdditionalDetails_Name] IS NOT NULL
-) AS [t0] ON [r].[UniqueNo] = [t0].[UniqueNo]
-WHERE [r].[UniqueNo] = 1
-
-@p2='1'
+            AssertSql(
+                @"SELECT TOP(1) [s].[UniqueNo], [s].[MaxLengthProperty], [s].[Name], [s].[RowVersion], [s0].[UniqueNo], [s0].[AdditionalDetails_Name], [s1].[UniqueNo], [s1].[Details_Name]
+FROM [Sample] AS [s]
+LEFT JOIN [Sample] AS [s0] ON [s].[UniqueNo] = [s0].[UniqueNo]
+LEFT JOIN [Sample] AS [s1] ON [s].[UniqueNo] = [s1].[UniqueNo]
+WHERE [s].[UniqueNo] = 1",
+                //
+                @"SELECT TOP(1) [s].[UniqueNo], [s].[MaxLengthProperty], [s].[Name], [s].[RowVersion], [s0].[UniqueNo], [s0].[AdditionalDetails_Name], [s1].[UniqueNo], [s1].[Details_Name]
+FROM [Sample] AS [s]
+LEFT JOIN [Sample] AS [s0] ON [s].[UniqueNo] = [s0].[UniqueNo]
+LEFT JOIN [Sample] AS [s1] ON [s].[UniqueNo] = [s1].[UniqueNo]
+WHERE [s].[UniqueNo] = 1",
+                //
+                @"@p2='1'
 @p0='ModifiedData' (Nullable = false) (Size = 4000)
 @p1='00000000-0000-0000-0003-000000000001'
 @p3='00000001-0000-0000-0000-000000000001'
@@ -184,9 +167,9 @@ WHERE [r].[UniqueNo] = 1
 SET NOCOUNT ON;
 UPDATE [Sample] SET [Name] = @p0, [RowVersion] = @p1
 WHERE [UniqueNo] = @p2 AND [RowVersion] = @p3;
-SELECT @@ROWCOUNT;
-
-@p2='1'
+SELECT @@ROWCOUNT;",
+                //
+                @"@p2='1'
 @p0='ChangedData' (Nullable = false) (Size = 4000)
 @p1='00000000-0000-0000-0002-000000000001'
 @p3='00000001-0000-0000-0000-000000000001'
@@ -194,7 +177,7 @@ SELECT @@ROWCOUNT;
 SET NOCOUNT ON;
 UPDATE [Sample] SET [Name] = @p0, [RowVersion] = @p1
 WHERE [UniqueNo] = @p2 AND [RowVersion] = @p3;
-SELECT @@ROWCOUNT;");*/
+SELECT @@ROWCOUNT;");
         }
 
         public override void DatabaseGeneratedAttribute_autogenerates_values_when_set_to_identity()

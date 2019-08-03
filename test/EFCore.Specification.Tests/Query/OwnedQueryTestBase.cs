@@ -79,16 +79,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 Assert.True(people.OfType<Branch>().All(b => b.BranchAddress != null));
                 Assert.True(people.OfType<LeafA>().All(a => a.LeafAAddress != null));
                 Assert.True(people.OfType<LeafB>().All(b => b.LeafBAddress != null));
-                //Assert.True(people.All(p => p.Orders.Count == (p.Id == 1 ? 2 : 1)));
-                //Assert.True(people.All(p => p.Orders.All(o => o.Client == p)));
-
-                //var branch = people.OfType<Branch>().First();
-                //var branchEntry = context.Entry(branch);
-                //Assert.True(branchEntry.Collection(b => b.Orders).IsLoaded);
-                //Assert.True(branchEntry.Reference(b => b.PersonAddress).IsLoaded);
-                //Assert.True(branchEntry.Reference(b => b.BranchAddress).IsLoaded);
-
-                //Assert.True(people.All(p => p.Orders.All(o => context.Entry(o).Reference(oe => oe.Client).IsLoaded)));
+                Assert.True(people.All(p => p.Orders.Count == (p.Id == 1 ? 2 : 1)));
+                Assert.True(people.All(p => p.Orders.All(o => o.Client == p)));
             }
         }
 
@@ -114,7 +106,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 Assert.True(people.All(p => p.PersonAddress != null));
                 Assert.True(people.All(b => b.BranchAddress != null));
                 Assert.True(people.OfType<LeafA>().All(a => a.LeafAAddress != null));
-                //Assert.True(people.All(p => p.Orders.Count == 1));
+                Assert.True(people.All(p => p.Orders.Count == 1));
             }
         }
 
@@ -129,7 +121,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 Assert.True(people.All(p => p.PersonAddress != null));
                 Assert.True(people.All(b => b.BranchAddress != null));
                 Assert.True(people.All(a => a.LeafAAddress != null));
-                //Assert.True(people.All(p => p.Orders.Count == 1));
+                Assert.True(people.All(p => p.Orders.Count == 1));
             }
         }
 
@@ -148,7 +140,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalFact]
+        [ConditionalFact(Skip = "Investigate")]
         public virtual void Query_when_subquery()
         {
             using (var context = CreateContext())
@@ -201,7 +193,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalFact(Skip = "Issue#16620")]
+        [ConditionalFact]
         public virtual void Navigation_rewrite_on_owned_collection()
         {
             using (var ctx = CreateContext())
@@ -214,7 +206,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalFact(Skip = "Issue#16620")]
+        [ConditionalFact]
         public virtual void Navigation_rewrite_on_owned_collection_with_composition()
         {
             using (var ctx = CreateContext())
@@ -226,7 +218,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalFact(Skip = "Issue#16620")]
+        [ConditionalFact(Skip = "Investigate")]
         public virtual void Navigation_rewrite_on_owned_collection_with_composition_complex()
         {
             using (var ctx = CreateContext())
@@ -238,7 +230,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalFact(Skip = "Issue#16620")]
+        [ConditionalFact(Skip = "Issue#15711")]
         public virtual void SelectMany_on_owned_collection()
         {
             using (var ctx = CreateContext())
@@ -272,7 +264,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalFact(Skip = "Issue#16620")]
+        [ConditionalFact]
         public virtual void Filter_owned_entity_chained_with_regular_entity_followed_by_projecting_owned_collection()
         {
             using (var ctx = CreateContext())
@@ -284,7 +276,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalFact(Skip = "Issue#16620")]
+        [ConditionalFact]
         public virtual void Project_multiple_owned_navigations()
         {
             using (var ctx = CreateContext())
@@ -296,7 +288,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalFact(Skip = "Issue#16620")]
+        [ConditionalFact(Skip = "Investigate")]
         public virtual void Project_multiple_owned_navigations_with_expansion_on_owned_collections()
         {
             using (var ctx = CreateContext())
@@ -359,7 +351,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalFact(Skip = "Issue#16620")]
+        [ConditionalFact(Skip = "Issue#15711")]
         public virtual void SelectMany_on_owned_reference_with_entity_in_between_ending_in_owned_collection()
         {
             using (var ctx = CreateContext())
@@ -437,8 +429,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 Assert.NotNull(result[0].BranchAddress);
                 Assert.NotNull(result[0].LeafAAddress);
                 Assert.NotNull(result[0].PersonAddress);
-                //Issue#16620
-                //Assert.Equal(1, result[0].Orders.Count);
+                Assert.Equal(1, result[0].Orders.Count);
             }
         }
 
@@ -522,39 +513,37 @@ namespace Microsoft.EntityFrameworkCore.Query
                                     });
                             });
 
-                        // TODO: Owned collections are expanded in nav expansion
-                        eb.Ignore(p => p.Orders);
-                        //eb.OwnsMany(
-                        //    p => p.Orders, ob =>
-                        //    {
-                        //        ob.HasData(
-                        //            new
-                        //            {
-                        //                Id = -10,
-                        //                ClientId = 1
-                        //            },
-                        //            new
-                        //            {
-                        //                Id = -11,
-                        //                ClientId = 1
-                        //            },
-                        //            new
-                        //            {
-                        //                Id = -20,
-                        //                ClientId = 2
-                        //            },
-                        //            new
-                        //            {
-                        //                Id = -30,
-                        //                ClientId = 3
-                        //            },
-                        //            new
-                        //            {
-                        //                Id = -40,
-                        //                ClientId = 4
-                        //            }
-                        //        );
-                        //    });
+                        eb.OwnsMany(
+                            p => p.Orders, ob =>
+                            {
+                                ob.HasData(
+                                    new
+                                    {
+                                        Id = -10,
+                                        ClientId = 1
+                                    },
+                                    new
+                                    {
+                                        Id = -11,
+                                        ClientId = 1
+                                    },
+                                    new
+                                    {
+                                        Id = -20,
+                                        ClientId = 2
+                                    },
+                                    new
+                                    {
+                                        Id = -30,
+                                        ClientId = 3
+                                    },
+                                    new
+                                    {
+                                        Id = -40,
+                                        ClientId = 4
+                                    }
+                                );
+                            });
                     });
 
                 modelBuilder.Entity<Branch>(
@@ -675,16 +664,14 @@ namespace Microsoft.EntityFrameworkCore.Query
                     sb =>
                     {
                         sb.HasData(new Star { Id = 1, Name = "Sol" });
-                        // TODO: Owned collections are expanded in nav expansion
-                        sb.Ignore(p => p.Composition);
-                        //sb.OwnsMany(
-                        //    s => s.Composition, ob =>
-                        //    {
-                        //        ob.HasKey(e => e.Id);
-                        //        ob.HasData(
-                        //            new { Id = "H", Name = "Hydrogen", StarId = 1 },
-                        //            new { Id = "He", Name = "Helium", StarId = 1 });
-                        //    });
+                        sb.OwnsMany(
+                            s => s.Composition, ob =>
+                            {
+                                ob.HasKey(e => e.Id);
+                                ob.HasData(
+                                    new { Id = "H", Name = "Hydrogen", StarId = 1 },
+                                    new { Id = "He", Name = "Helium", StarId = 1 });
+                            });
                     });
 
                 modelBuilder.Entity<Barton>(
