@@ -103,9 +103,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             Expression query,
             IModel model,
             bool async)
-        {
-            return database.CompileQuery<TResult>(query, async);
-        }
+            => database.CompileQuery<TResult>(query, async);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

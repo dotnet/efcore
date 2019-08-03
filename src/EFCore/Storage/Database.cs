@@ -68,10 +68,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
             CancellationToken cancellationToken = default);
 
         public virtual Func<QueryContext, TResult> CompileQuery<TResult>(Expression query, bool async)
-        {
-            return Dependencies.QueryCompilationContextFactory
+            => Dependencies.QueryCompilationContextFactory
                 .Create(async)
                 .CreateQueryExecutor<TResult>(query);
-        }
     }
 }

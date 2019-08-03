@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -249,9 +250,12 @@ namespace Microsoft.EntityFrameworkCore
                     set.Where(e => e.Id == 11 && EF.Property<int>(e, nameof(BuiltInDataTypes.TestInt32)) == param2).ToList().Single());
 
                 var param3 = -1234567890123456789L;
-                Assert.Same(
-                    entity,
-                    set.Where(e => e.Id == 11 && EF.Property<long>(e, nameof(BuiltInDataTypes.TestInt64)) == param3).ToList().Single());
+                if (Fixture.IntegerPrecision == 64)
+                {
+                    Assert.Same(
+                        entity,
+                        set.Where(e => e.Id == 11 && EF.Property<long>(e, nameof(BuiltInDataTypes.TestInt64)) == param3).ToList().Single());
+                }
 
                 double? param4 = -1.23456789;
                 if (Fixture.StrictEquality)
@@ -878,9 +882,6 @@ namespace Microsoft.EntityFrameworkCore
                 }
             }
         }
-
-        private static Type UnwrapNullableType(Type type)
-            => type == null ? null : Nullable.GetUnderlyingType(type) ?? type;
 
         protected virtual EntityEntry<TEntity> AddTestBuiltInNullableDataTypes<TEntity>(DbSet<TEntity> set)
             where TEntity : BuiltInNullableDataTypesBase, new()
@@ -1550,14 +1551,85 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        // ReSharper disable once ParameterOnlyUsedForPreconditionCheck.Local
-        private static void AssertEqualIfMapped<T>(IEntityType entityType, T expected, Expression<Func<T>> actual)
+        private void AssertEqualIfMapped<T>(IEntityType entityType, T expected, Expression<Func<T>> actualExpression)
         {
-            if (entityType.FindProperty(((MemberExpression)actual.Body).Member.Name) != null)
+            if (entityType.FindProperty(((MemberExpression)actualExpression.Body).Member.Name) != null)
             {
-                Assert.Equal(expected, actual.Compile()());
+                var actual = actualExpression.Compile()();
+                var type = UnwrapNullableEnumType(typeof(T));
+                if (IsSignedInteger(type))
+                {
+                    Assert.True(Equal(Convert.ToInt64(expected), Convert.ToInt64(actual)), $"Expected:\t{expected}\r\nActual:\t{actual}");
+                }
+                else if (IsUnsignedInteger(type))
+                {
+                    Assert.True(Equal(Convert.ToUInt64(expected), Convert.ToUInt64(actual)), $"Expected:\t{expected}\r\nActual:\t{actual}");
+                }
+                else
+                {
+                    Assert.Equal(expected, actual);
+                }
             }
         }
+
+        private bool Equal(long left, long right)
+        {
+            if (left >= 0
+                && right >= 0)
+            {
+                return Equal((ulong)left, (ulong)right);
+            }
+
+            if (left < 0
+                && right < 0)
+            {
+                return Equal((ulong)-left, (ulong)-right);
+            }
+
+            return false;
+        }
+
+        private bool Equal(ulong left, ulong right)
+        {
+            if (Fixture.IntegerPrecision < 64)
+            {
+                var largestPrecise = 1ul << Fixture.IntegerPrecision;
+                while (left > largestPrecise)
+                {
+                    left >>= 1;
+                    right >>= 1;
+                }
+            }
+
+            return left == right;
+        }
+
+        private static Type UnwrapNullableType(Type type)
+            => type == null ? null : Nullable.GetUnderlyingType(type) ?? type;
+
+        public static Type UnwrapNullableEnumType(Type type)
+        {
+            var underlyingNonNullableType = UnwrapNullableType(type);
+            if (!underlyingNonNullableType.GetTypeInfo().IsEnum)
+            {
+                return underlyingNonNullableType;
+            }
+
+            return Enum.GetUnderlyingType(underlyingNonNullableType);
+        }
+
+        private static bool IsSignedInteger(Type type)
+            => type == typeof(int)
+               || type == typeof(long)
+               || type == typeof(short)
+               || type == typeof(sbyte);
+
+        private static bool IsUnsignedInteger(Type type)
+            => type == typeof(byte)
+               || type == typeof(uint)
+               || type == typeof(ulong)
+               || type == typeof(ushort)
+               || type == typeof(char);
 
         [ConditionalFact]
         public virtual void Can_insert_and_read_back_all_nullable_data_types_with_values_set_to_null()
@@ -1652,7 +1724,7 @@ namespace Microsoft.EntityFrameworkCore
             {
                 var dt = context.Set<BuiltInNullableDataTypes>().Where(ndt => ndt.Id == 101).ToList().Single();
 
-                var entityType = context.Model.FindEntityType(typeof(BuiltInDataTypes));
+                var entityType = context.Model.FindEntityType(typeof(BuiltInNullableDataTypes));
                 AssertEqualIfMapped(entityType, "TestString", () => dt.TestString);
                 AssertEqualIfMapped(entityType, new byte[] { 10, 9, 8, 7, 6 }, () => dt.TestByteArray);
                 AssertEqualIfMapped(entityType, (short)-1234, () => dt.TestNullableInt16);
@@ -1729,32 +1801,33 @@ namespace Microsoft.EntityFrameworkCore
             {
                 var dt = context.Set<ObjectBackedDataTypes>().Where(ndt => ndt.Id == 101).ToList().Single();
 
-                Assert.Equal("TestString", dt.String);
-                Assert.Equal(new byte[] { 10, 9, 8, 7, 6 }, dt.Bytes);
-                Assert.Equal((short)-1234, dt.Int16);
-                Assert.Equal(-123456789, dt.Int32);
-                Assert.Equal(-1234567890123456789L, dt.Int64);
-                Assert.Equal(-1.23456789, dt.Double);
-                Assert.Equal(-1234567890.01M, dt.Decimal);
-                Assert.Equal(DateTime.Parse("01/01/2000 12:34:56"), dt.DateTime);
-                Assert.Equal(new DateTimeOffset(DateTime.Parse("01/01/2000 12:34:56"), TimeSpan.FromHours(-8.0)), dt.DateTimeOffset);
-                Assert.Equal(new TimeSpan(0, 10, 9, 8, 7), dt.TimeSpan);
-                Assert.Equal(-1.234F, dt.Single);
-                Assert.Equal(false, dt.Boolean);
-                Assert.Equal((byte)255, dt.Byte);
-                Assert.Equal(Enum64.SomeValue, dt.Enum64);
-                Assert.Equal(Enum32.SomeValue, dt.Enum32);
-                Assert.Equal(Enum16.SomeValue, dt.Enum16);
-                Assert.Equal(Enum8.SomeValue, dt.Enum8);
-                Assert.Equal((ushort)1234, dt.UnsignedInt16);
-                Assert.Equal(1234565789U, dt.UnsignedInt32);
-                Assert.Equal(1234567890123456789UL, dt.UnsignedInt64);
-                Assert.Equal('a', dt.Character);
-                Assert.Equal((sbyte)-128, dt.SignedByte);
-                Assert.Equal(EnumU64.SomeValue, dt.EnumU64);
-                Assert.Equal(EnumU32.SomeValue, dt.EnumU32);
-                Assert.Equal(EnumU16.SomeValue, dt.EnumU16);
-                Assert.Equal(EnumS8.SomeValue, dt.EnumS8);
+                var entityType = context.Model.FindEntityType(typeof(ObjectBackedDataTypes));
+                AssertEqualIfMapped(entityType, "TestString", () => dt.String);
+                AssertEqualIfMapped(entityType, new byte[] { 10, 9, 8, 7, 6 }, () => dt.Bytes);
+                AssertEqualIfMapped(entityType, (short)-1234, () => dt.Int16);
+                AssertEqualIfMapped(entityType, -123456789, () => dt.Int32);
+                AssertEqualIfMapped(entityType, -1234567890123456789L, () => dt.Int64);
+                AssertEqualIfMapped(entityType, -1.23456789, () => dt.Double);
+                AssertEqualIfMapped(entityType, -1234567890.01M, () => dt.Decimal);
+                AssertEqualIfMapped(entityType, DateTime.Parse("01/01/2000 12:34:56"), () => dt.DateTime);
+                AssertEqualIfMapped(entityType, new DateTimeOffset(DateTime.Parse("01/01/2000 12:34:56"), TimeSpan.FromHours(-8.0)), () => dt.DateTimeOffset);
+                AssertEqualIfMapped(entityType, new TimeSpan(0, 10, 9, 8, 7), () => dt.TimeSpan);
+                AssertEqualIfMapped(entityType, -1.234F, () => dt.Single);
+                AssertEqualIfMapped(entityType, false, () => dt.Boolean);
+                AssertEqualIfMapped(entityType, (byte)255, () => dt.Byte);
+                AssertEqualIfMapped(entityType, Enum64.SomeValue, () => dt.Enum64);
+                AssertEqualIfMapped(entityType, Enum32.SomeValue, () => dt.Enum32);
+                AssertEqualIfMapped(entityType, Enum16.SomeValue, () => dt.Enum16);
+                AssertEqualIfMapped(entityType, Enum8.SomeValue, () => dt.Enum8);
+                AssertEqualIfMapped(entityType, (ushort)1234, () => dt.UnsignedInt16);
+                AssertEqualIfMapped(entityType, 1234565789U, () => dt.UnsignedInt32);
+                AssertEqualIfMapped(entityType, 1234567890123456789UL, () => dt.UnsignedInt64);
+                AssertEqualIfMapped(entityType, 'a', () => dt.Character);
+                AssertEqualIfMapped(entityType, (sbyte)-128, () => dt.SignedByte);
+                AssertEqualIfMapped(entityType, EnumU64.SomeValue, () => dt.EnumU64);
+                AssertEqualIfMapped(entityType, EnumU32.SomeValue, () => dt.EnumU32);
+                AssertEqualIfMapped(entityType, EnumU16.SomeValue, () => dt.EnumU16);
+                AssertEqualIfMapped(entityType, EnumS8.SomeValue, () => dt.EnumS8);
             }
         }
 
@@ -1801,30 +1874,31 @@ namespace Microsoft.EntityFrameworkCore
             {
                 var dt = context.Set<NullableBackedDataTypes>().Where(ndt => ndt.Id == 101).ToList().Single();
 
-                Assert.Equal((short)-1234, dt.Int16);
-                Assert.Equal(-123456789, dt.Int32);
-                Assert.Equal(-1234567890123456789L, dt.Int64);
-                Assert.Equal(-1.23456789, dt.Double);
-                Assert.Equal(-1234567890.01M, dt.Decimal);
-                Assert.Equal(DateTime.Parse("01/01/2000 12:34:56"), dt.DateTime);
-                Assert.Equal(new DateTimeOffset(DateTime.Parse("01/01/2000 12:34:56"), TimeSpan.FromHours(-8.0)), dt.DateTimeOffset);
-                Assert.Equal(new TimeSpan(0, 10, 9, 8, 7), dt.TimeSpan);
-                Assert.Equal(-1.234F, dt.Single);
-                Assert.Equal(false, dt.Boolean);
-                Assert.Equal((byte)255, dt.Byte);
-                Assert.Equal(Enum64.SomeValue, dt.Enum64);
-                Assert.Equal(Enum32.SomeValue, dt.Enum32);
-                Assert.Equal(Enum16.SomeValue, dt.Enum16);
-                Assert.Equal(Enum8.SomeValue, dt.Enum8);
-                Assert.Equal((ushort)1234, dt.UnsignedInt16);
-                Assert.Equal(1234565789U, dt.UnsignedInt32);
-                Assert.Equal(1234567890123456789UL, dt.UnsignedInt64);
-                Assert.Equal('a', dt.Character);
-                Assert.Equal((sbyte)-128, dt.SignedByte);
-                Assert.Equal(EnumU64.SomeValue, dt.EnumU64);
-                Assert.Equal(EnumU32.SomeValue, dt.EnumU32);
-                Assert.Equal(EnumU16.SomeValue, dt.EnumU16);
-                Assert.Equal(EnumS8.SomeValue, dt.EnumS8);
+                var entityType = context.Model.FindEntityType(typeof(NullableBackedDataTypes));
+                AssertEqualIfMapped(entityType, (short)-1234, () => dt.Int16);
+                AssertEqualIfMapped(entityType, -123456789, () => dt.Int32);
+                AssertEqualIfMapped(entityType, -1234567890123456789L, () => dt.Int64);
+                AssertEqualIfMapped(entityType, -1.23456789, () => dt.Double);
+                AssertEqualIfMapped(entityType, -1234567890.01M, () => dt.Decimal);
+                AssertEqualIfMapped(entityType, DateTime.Parse("01/01/2000 12:34:56"), () => dt.DateTime);
+                AssertEqualIfMapped(entityType, new DateTimeOffset(DateTime.Parse("01/01/2000 12:34:56"), TimeSpan.FromHours(-8.0)), () => dt.DateTimeOffset);
+                AssertEqualIfMapped(entityType, new TimeSpan(0, 10, 9, 8, 7), () => dt.TimeSpan);
+                AssertEqualIfMapped(entityType, -1.234F, () => dt.Single);
+                AssertEqualIfMapped(entityType, false, () => dt.Boolean);
+                AssertEqualIfMapped(entityType, (byte)255, () => dt.Byte);
+                AssertEqualIfMapped(entityType, Enum64.SomeValue, () => dt.Enum64);
+                AssertEqualIfMapped(entityType, Enum32.SomeValue, () => dt.Enum32);
+                AssertEqualIfMapped(entityType, Enum16.SomeValue, () => dt.Enum16);
+                AssertEqualIfMapped(entityType, Enum8.SomeValue, () => dt.Enum8);
+                AssertEqualIfMapped(entityType, (ushort)1234, () => dt.UnsignedInt16);
+                AssertEqualIfMapped(entityType, 1234565789U, () => dt.UnsignedInt32);
+                AssertEqualIfMapped(entityType, 1234567890123456789UL, () => dt.UnsignedInt64);
+                AssertEqualIfMapped(entityType, 'a', () => dt.Character);
+                AssertEqualIfMapped(entityType, (sbyte)-128, () => dt.SignedByte);
+                AssertEqualIfMapped(entityType, EnumU64.SomeValue, () => dt.EnumU64);
+                AssertEqualIfMapped(entityType, EnumU32.SomeValue, () => dt.EnumU32);
+                AssertEqualIfMapped(entityType, EnumU16.SomeValue, () => dt.EnumU16);
+                AssertEqualIfMapped(entityType, EnumS8.SomeValue, () => dt.EnumS8);
             }
         }
 
@@ -1871,30 +1945,32 @@ namespace Microsoft.EntityFrameworkCore
             {
                 var dt = context.Set<NonNullableBackedDataTypes>().Where(ndt => ndt.Id == 101).ToList().Single();
 
-                Assert.Equal((short)-1234, dt.Int16);
-                Assert.Equal(-123456789, dt.Int32);
-                Assert.Equal(-1234567890123456789L, dt.Int64);
-                Assert.Equal(-1.23456789, dt.Double);
-                Assert.Equal(-1234567890.01M, dt.Decimal);
-                Assert.Equal(DateTime.Parse("01/01/2000 12:34:56"), dt.DateTime);
-                Assert.Equal(new DateTimeOffset(DateTime.Parse("01/01/2000 12:34:56"), TimeSpan.FromHours(-8.0)), dt.DateTimeOffset);
-                Assert.Equal(new TimeSpan(0, 10, 9, 8, 7), dt.TimeSpan);
-                Assert.Equal(-1.234F, dt.Single);
-                Assert.Equal(false, dt.Boolean);
-                Assert.Equal((byte)255, dt.Byte);
-                Assert.Equal(Enum64.SomeValue, dt.Enum64);
-                Assert.Equal(Enum32.SomeValue, dt.Enum32);
-                Assert.Equal(Enum16.SomeValue, dt.Enum16);
-                Assert.Equal(Enum8.SomeValue, dt.Enum8);
-                Assert.Equal((ushort)1234, dt.UnsignedInt16);
-                Assert.Equal(1234565789U, dt.UnsignedInt32);
-                Assert.Equal(1234567890123456789UL, dt.UnsignedInt64);
-                Assert.Equal('a', dt.Character);
-                Assert.Equal((sbyte)-128, dt.SignedByte);
-                Assert.Equal(EnumU64.SomeValue, dt.EnumU64);
-                Assert.Equal(EnumU32.SomeValue, dt.EnumU32);
-                Assert.Equal(EnumU16.SomeValue, dt.EnumU16);
-                Assert.Equal(EnumS8.SomeValue, dt.EnumS8);
+                var entityType = context.Model.FindEntityType(typeof(NonNullableBackedDataTypes));
+                AssertEqualIfMapped(entityType, (short)-1234, () => dt.Int16);
+                AssertEqualIfMapped(entityType, -123456789, () => dt.Int32);
+                AssertEqualIfMapped(entityType, -1234567890123456789L, () => dt.Int64);
+                AssertEqualIfMapped(entityType, -1234567890123456789L, () => dt.Int64);
+                AssertEqualIfMapped(entityType, -1.23456789, () => dt.Double);
+                AssertEqualIfMapped(entityType, -1234567890.01M, () => dt.Decimal);
+                AssertEqualIfMapped(entityType, DateTime.Parse("01/01/2000 12:34:56"), () => dt.DateTime);
+                AssertEqualIfMapped(entityType, new DateTimeOffset(DateTime.Parse("01/01/2000 12:34:56"), TimeSpan.FromHours(-8.0)), () => dt.DateTimeOffset);
+                AssertEqualIfMapped(entityType, new TimeSpan(0, 10, 9, 8, 7), () => dt.TimeSpan);
+                AssertEqualIfMapped(entityType, -1.234F, () => dt.Single);
+                AssertEqualIfMapped(entityType, false, () => dt.Boolean);
+                AssertEqualIfMapped(entityType, (byte)255, () => dt.Byte);
+                AssertEqualIfMapped(entityType, Enum64.SomeValue, () => dt.Enum64);
+                AssertEqualIfMapped(entityType, Enum32.SomeValue, () => dt.Enum32);
+                AssertEqualIfMapped(entityType, Enum16.SomeValue, () => dt.Enum16);
+                AssertEqualIfMapped(entityType, Enum8.SomeValue, () => dt.Enum8);
+                AssertEqualIfMapped(entityType, (ushort)1234, () => dt.UnsignedInt16);
+                AssertEqualIfMapped(entityType, 1234565789U, () => dt.UnsignedInt32);
+                AssertEqualIfMapped(entityType, 1234567890123456789UL, () => dt.UnsignedInt64);
+                AssertEqualIfMapped(entityType, 'a', () => dt.Character);
+                AssertEqualIfMapped(entityType, (sbyte)-128, () => dt.SignedByte);
+                AssertEqualIfMapped(entityType, EnumU64.SomeValue, () => dt.EnumU64);
+                AssertEqualIfMapped(entityType, EnumU32.SomeValue, () => dt.EnumU32);
+                AssertEqualIfMapped(entityType, EnumU16.SomeValue, () => dt.EnumU16);
+                AssertEqualIfMapped(entityType, EnumS8.SomeValue, () => dt.EnumS8);
             }
         }
 
@@ -2141,6 +2217,8 @@ namespace Microsoft.EntityFrameworkCore
             }
 
             public abstract bool StrictEquality { get; }
+
+            public virtual int IntegerPrecision => 19;
 
             public abstract bool SupportsAnsi { get; }
 

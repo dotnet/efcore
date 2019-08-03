@@ -52,7 +52,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
                 return mapping;
             }
 
-            if (clrType.IsValueType
+            if ((clrType.IsValueType
+                 && !clrType.IsEnum)
                 || clrType == typeof(string))
             {
                 return new CosmosTypeMapping(clrType);
