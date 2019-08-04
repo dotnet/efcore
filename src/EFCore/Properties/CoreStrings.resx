@@ -1180,11 +1180,14 @@
   <data name="PropertyClashingNonIndexer" xml:space="preserve">
     <value>The indexed property '{property}' cannot be added to type '{entityType}' because the CLR class contains a member with the same name.</value>
   </data>
-  <data name="SubqueryWithCompositeKeyNotSupported" xml:space="preserve">
+  <data name="EntityEqualitySubqueryWithCompositeKeyNotSupported" xml:space="preserve">
     <value>This query would cause multiple evaluation of a subquery because entity '{entityType}' has a composite key. Rewrite your query avoiding the subquery.</value>
   </data>
   <data name="EntityEqualityContainsWithCompositeKeyNotSupported" xml:space="preserve">
     <value>Cannot translate a Contains() operator on entity '{entityType}' because it has a composite key.</value>
+  </data>
+  <data name="EntityEqualityOnKeylessEntityNotSupported" xml:space="preserve">
+    <value>Comparison on entity type '{entityType}' is not supported because it is a keyless entity.</value>
   </data>
   <data name="UnableToDiscriminate" xml:space="preserve">
     <value>Unable to materialize entity of type '{entityType}'. No discriminators matched '{discriminator}'.</value>

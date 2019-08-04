@@ -1189,6 +1189,42 @@ SELECT CASE
 END");
         }
 
+        public override async Task List_Contains_over_entityType_should_rewrite_to_identity_equality(bool isAsync)
+        {
+            await base.List_Contains_over_entityType_should_rewrite_to_identity_equality(isAsync);
+
+            AssertSql(
+                @"@__entity_equality_someOrder_0_OrderID='10248'
+
+SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE @__entity_equality_someOrder_0_OrderID IN (
+    SELECT [o].[OrderID]
+    FROM [Orders] AS [o]
+    WHERE ([c].[CustomerID] = [o].[CustomerID]) AND [o].[CustomerID] IS NOT NULL
+)");
+        }
+
+        public override async Task List_Contains_with_constant_list(bool isAsync)
+        {
+            await base.List_Contains_with_constant_list(isAsync);
+
+            AssertSql(
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] IN (N'ALFKI', N'ANATR')");
+        }
+
+        public override async Task List_Contains_with_parameter_list(bool isAsync)
+        {
+            await base.List_Contains_with_parameter_list(isAsync);
+
+            AssertSql(
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] IN (N'ALFKI', N'ANATR')");
+        }
+
         public override void Contains_over_entityType_with_null_should_rewrite_to_identity_equality()
         {
             base.Contains_over_entityType_with_null_should_rewrite_to_identity_equality();

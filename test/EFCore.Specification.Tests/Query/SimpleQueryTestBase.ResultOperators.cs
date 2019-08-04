@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.TestModels.Northwind;
@@ -1507,6 +1508,53 @@ namespace Microsoft.EntityFrameworkCore.Query
                         .Contains(context.Orders.Single(o => o.OrderID == 10248));
 
                 Assert.True(query);
+            }
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task List_Contains_over_entityType_should_rewrite_to_identity_equality(bool isAsync)
+        {
+            var someOrder = new Order { OrderID = 10248 };
+
+            return AssertQuery<Customer>(isAsync, cs =>
+                cs.Where(c => c.Orders.Contains(someOrder)),
+                entryCount: 1);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task List_Contains_with_constant_list(bool isAsync)
+        {
+            return AssertQuery<Customer>(isAsync, cs =>
+                    cs.Where(c => new List<Customer>
+                    {
+                        new Customer { CustomerID = "ALFKI" },
+                        new Customer { CustomerID = "ANATR" }
+                    }.Contains(c)),
+                    entryCount: 2);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task List_Contains_with_parameter_list(bool isAsync)
+        {
+            var customers = new List<Customer>
+            {
+                new Customer { CustomerID = "ALFKI" },
+                new Customer { CustomerID = "ANATR" }
+            };
+
+            return AssertQuery<Customer>(isAsync, cs => cs.Where(c => customers.Contains(c)),
+                entryCount: 2);
+        }
+
+        [ConditionalFact]
+        public virtual void Contains_over_keyless_entity_throws()
+        {
+            using (var context = CreateContext())
+            {
+                Assert.Throws<InvalidOperationException>(() => context.CustomerQueries.Contains(new CustomerView()));
             }
         }
 

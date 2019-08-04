@@ -554,7 +554,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalFact]
         public virtual void Entity_equality_through_subquery_composite_key()
         {
-            Assert.Throws<NotSupportedException>(() =>
+            Assert.Throws<InvalidOperationException>(() =>
                 CreateContext().Orders
                     .Where(o => o.OrderDetails.FirstOrDefault() == new OrderDetail
                     {
