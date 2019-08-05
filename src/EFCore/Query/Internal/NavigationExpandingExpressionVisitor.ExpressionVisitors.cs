@@ -67,12 +67,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             {
                 var innerExpression = Visit(memberExpression.Expression);
                 var expansion = TryExpandNavigation(innerExpression, MemberIdentity.Create(memberExpression.Member));
-                if (expansion != null)
-                {
-                    return expansion;
-                }
-
-                return memberExpression.Update(innerExpression);
+                return expansion ?? memberExpression.Update(innerExpression);
             }
 
             protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
@@ -137,7 +132,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     return expansion;
                 }
 
-                if (navigation.ForeignKey.IsOwnership)
+                if (navigation.GetTargetType().IsOwned())
                 {
                     var ownedEntityReference = new EntityReference(navigation.GetTargetType());
                     ownedEntityReference.MarkAsOptional();
