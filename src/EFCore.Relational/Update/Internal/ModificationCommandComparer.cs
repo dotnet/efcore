@@ -151,6 +151,16 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
         private static readonly MethodInfo _structuralCompareMethod
             = typeof(ModificationCommandComparer).GetTypeInfo().GetDeclaredMethod(nameof(CompareStructureValue));
 
-        private static int CompareStructureValue<T>(T x, T y) => StructuralComparisons.StructuralComparer.Compare(x, y);
+        private static int CompareStructureValue<T>(T x, T y)
+        {
+            if (x is Array array1
+                && y is Array array2
+                && array1.Length != array2.Length)
+            {
+                return array1.Length - array2.Length;
+            }
+
+            return StructuralComparisons.StructuralComparer.Compare(x, y);
+        }
     }
 }

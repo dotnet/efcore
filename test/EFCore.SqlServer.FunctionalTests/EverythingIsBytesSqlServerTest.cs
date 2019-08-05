@@ -31,6 +31,7 @@ namespace Microsoft.EntityFrameworkCore
 
             const string expected = @"BinaryForeignKeyDataType.BinaryKeyDataTypeId ---> [nullable varbinary] [MaxLength = 900]
 BinaryForeignKeyDataType.Id ---> [varbinary] [MaxLength = 4]
+BinaryKeyDataType.Ex ---> [nullable varbinary] [MaxLength = -1]
 BinaryKeyDataType.Id ---> [varbinary] [MaxLength = 900]
 BuiltInDataTypes.Enum16 ---> [varbinary] [MaxLength = 2]
 BuiltInDataTypes.Enum32 ---> [varbinary] [MaxLength = 4]

@@ -1442,32 +1442,96 @@ namespace Microsoft.EntityFrameworkCore
 
             using (var context = CreateContext())
             {
-                context.Set<BinaryKeyDataType>().Add(
+                context.Set<BinaryKeyDataType>().AddRange(
                     new BinaryKeyDataType
                     {
-                        Id = new byte[] { 1, 2, 3 }
+                        Id = new byte[] { 1, 2, 3 },
+                        Ex = "X1"
+                    },
+                    new BinaryKeyDataType
+                    {
+                        Id = new byte[] { 1, 2, 3, 4 },
+                        Ex = "X3"
+                    },
+                    new BinaryKeyDataType
+                    {
+                        Id = new byte[] { 1, 2, 3, 4, 5 },
+                        Ex = "X2"
                     });
 
-                context.Set<BinaryForeignKeyDataType>().Add(
+                context.Set<BinaryForeignKeyDataType>().AddRange(
                     new BinaryForeignKeyDataType
                     {
                         Id = 77,
+                        BinaryKeyDataTypeId = new byte[] { 1, 2, 3, 4 }
+                    },
+                    new BinaryForeignKeyDataType
+                    {
+                        Id = 777,
                         BinaryKeyDataTypeId = new byte[] { 1, 2, 3 }
+                    },
+                    new BinaryForeignKeyDataType
+                    {
+                        Id = 7777,
+                        BinaryKeyDataTypeId = new byte[] { 1, 2, 3, 4, 5 }
                     });
 
-                Assert.Equal(2, context.SaveChanges());
+                Assert.Equal(6, context.SaveChanges());
+            }
+
+            BinaryKeyDataType QueryByBinaryKey(DbContext context, byte[] bytes)
+            {
+                return context
+                    .Set<BinaryKeyDataType>()
+                    .Include(e => e.Dependents)
+                    .Where(e => e.Id == bytes)
+                    .ToList().Single();
             }
 
             using (var context = CreateContext())
             {
-                var entity = context
-                    .Set<BinaryKeyDataType>()
-                    .Include(e => e.Dependents)
-                    .Where(e => e.Id == new byte[] { 1, 2, 3 })
-                    .ToList().Single();
+                var entity1 = QueryByBinaryKey(context, new byte[] { 1, 2, 3 });
+                Assert.Equal(new byte[] { 1, 2, 3 }, entity1.Id);
+                Assert.Equal(1, entity1.Dependents.Count);
 
-                Assert.Equal(new byte[] { 1, 2, 3 }, entity.Id);
-                Assert.Equal(new byte[] { 1, 2, 3 }, entity.Dependents.First().BinaryKeyDataTypeId);
+                var entity2 = QueryByBinaryKey(context, new byte[] { 1, 2, 3, 4 });
+                Assert.Equal(new byte[] { 1, 2, 3, 4 }, entity2.Id);
+                Assert.Equal(1, entity2.Dependents.Count);
+
+                var entity3 = QueryByBinaryKey(context, new byte[] { 1, 2, 3, 4, 5 });
+                Assert.Equal(new byte[] { 1, 2, 3, 4, 5 }, entity3.Id);
+                Assert.Equal(1, entity3.Dependents.Count);
+
+                entity3.Ex = "Xx1";
+                entity2.Ex = "Xx3";
+                entity1.Ex = "Xx7";
+
+                entity1.Dependents.Single().BinaryKeyDataTypeId = new byte[]
+                {
+                    1, 2, 3, 4, 5
+                };
+
+                entity2.Dependents.Single().BinaryKeyDataTypeId = new byte[]
+                {
+                    1, 2, 3, 4, 5
+                };
+
+                context.SaveChanges();
+            }
+
+            using (var context = CreateContext())
+            {
+                var entity1 = QueryByBinaryKey(context, new byte[] { 1, 2, 3 });
+                Assert.Equal("Xx7", entity1.Ex);
+                Assert.Equal(0, entity1.Dependents.Count);
+
+                var entity2 = QueryByBinaryKey(context, new byte[] { 1, 2, 3, 4 });
+                Assert.Equal("Xx3", entity2.Ex);
+                Assert.Equal(0, entity2.Dependents.Count);
+
+                var entity3 = QueryByBinaryKey(context, new byte[] { 1, 2, 3, 4, 5 });
+                Assert.Equal("Xx1", entity3.Ex);
+                Assert.Equal(3, entity3.Dependents.Count);
             }
         }
 
@@ -2333,6 +2397,8 @@ namespace Microsoft.EntityFrameworkCore
         protected class BinaryKeyDataType
         {
             public byte[] Id { get; set; }
+
+            public string Ex { get; set; }
 
             public ICollection<BinaryForeignKeyDataType> Dependents { get; set; }
         }
