@@ -122,13 +122,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 throw new ArgumentException($"When generating migrations SQL for {nameof(AddColumnOperation)}, can't produce unterminated SQL with comments");
             }
 
-            var valueGenerationStrategy = operation[
-                SqlServerAnnotationNames.ValueGenerationStrategy] as SqlServerValueGenerationStrategy?;
-            var identity = valueGenerationStrategy == SqlServerValueGenerationStrategy.IdentityColumn;
-            if (identity)
+            if (IsIdentity(operation))
             {
                 // NB: This gets added to all added non-nullable columns by MigrationsModelDiffer. We need to suppress
-                //     it, here because SQL Server can have both IDENTITY and a DEFAULT constraint on the same column.
+                //     it, here because SQL Server can't have both IDENTITY and a DEFAULT constraint on the same column.
                 operation.DefaultValue = null;
             }
 
@@ -260,13 +257,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             var narrowed = false;
             if (IsOldColumnSupported(model))
             {
-                var valueGenerationStrategy = operation[
-                    SqlServerAnnotationNames.ValueGenerationStrategy] as SqlServerValueGenerationStrategy?;
-                var identity = valueGenerationStrategy == SqlServerValueGenerationStrategy.IdentityColumn;
-                var oldValueGenerationStrategy = operation.OldColumn[
-                    SqlServerAnnotationNames.ValueGenerationStrategy] as SqlServerValueGenerationStrategy?;
-                var oldIdentity = oldValueGenerationStrategy == SqlServerValueGenerationStrategy.IdentityColumn;
-                if (identity != oldIdentity)
+                if (IsIdentity(operation) != IsIdentity(operation.OldColumn))
                 {
                     throw new InvalidOperationException(SqlServerStrings.AlterIdentityColumn);
                 }
@@ -318,7 +309,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 OldColumn = operation.OldColumn
             };
             definitionOperation.AddAnnotations(
-                operation.GetAnnotations().Where(a => a.Name != SqlServerAnnotationNames.ValueGenerationStrategy));
+                operation.GetAnnotations().Where(
+                    a => a.Name != SqlServerAnnotationNames.ValueGenerationStrategy
+                        && a.Name != SqlServerAnnotationNames.Identity));
 
             ColumnDefinition(
                 operation.Schema,
@@ -1289,22 +1282,19 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 model,
                 builder);
 
-            var valueGenerationStrategy = operation[
-                SqlServerAnnotationNames.ValueGenerationStrategy] as SqlServerValueGenerationStrategy?;
-            var identity = valueGenerationStrategy == SqlServerValueGenerationStrategy.IdentityColumn;
-            if (identity)
+            var identity = operation[SqlServerAnnotationNames.Identity] as string;
+            if (identity != null
+                || operation[SqlServerAnnotationNames.ValueGenerationStrategy] as SqlServerValueGenerationStrategy? == SqlServerValueGenerationStrategy.IdentityColumn)
             {
-                var identitySeed = operation[
-                    SqlServerAnnotationNames.IdentitySeed] as int?;
-
-                var identityIncrement = operation[
-                    SqlServerAnnotationNames.IdentityIncrement] as int?;
-
                 builder.Append(" IDENTITY");
 
-                if ((identitySeed != null && identitySeed != 1) || (identityIncrement != null && identityIncrement != 1))
+                if (!string.IsNullOrEmpty(identity)
+                    && identity != "1, 1")
                 {
-                    builder.Append($"({identitySeed ?? 1},{identityIncrement ?? 1})");
+                    builder
+                        .Append("(")
+                        .Append(identity)
+                        .Append(")");
                 }
             }
         }
@@ -1852,5 +1842,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 
         private static bool IsMemoryOptimized(Annotatable annotatable)
             => annotatable[SqlServerAnnotationNames.MemoryOptimized] as bool? == true;
+
+        private static bool IsIdentity(ColumnOperation operation)
+            => operation[SqlServerAnnotationNames.Identity] != null
+                || operation[SqlServerAnnotationNames.ValueGenerationStrategy] as SqlServerValueGenerationStrategy? == SqlServerValueGenerationStrategy.IdentityColumn;
     }
 }

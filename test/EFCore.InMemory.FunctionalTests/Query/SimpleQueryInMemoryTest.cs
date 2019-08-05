@@ -229,12 +229,6 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         #endregion
 
-        [ConditionalFact(Skip = "Issue#16564")]
-        public override void Contains_over_entityType_with_null_should_rewrite_to_identity_equality()
-        {
-            base.Contains_over_entityType_with_null_should_rewrite_to_identity_equality();
-        }
-
         [ConditionalTheory(Skip = "Issue#15711")]
         public override Task Include_with_orderby_skip_preserves_ordering(bool isAsync)
         {
@@ -263,24 +257,6 @@ namespace Microsoft.EntityFrameworkCore.Query
         public override void Select_nested_collection_multi_level6()
         {
             base.Select_nested_collection_multi_level6();
-        }
-
-        [ConditionalTheory(Skip = "Issue#16564")]
-        public override Task Where_subquery_FirstOrDefault_compared_to_entity(bool isAsync)
-        {
-            return base.Where_subquery_FirstOrDefault_compared_to_entity(isAsync);
-        }
-
-        [ConditionalTheory(Skip = "Issue#16564")]
-        public override Task Where_query_composition_entity_equality_one_element_FirstOrDefault(bool isAsync)
-        {
-            return base.Where_query_composition_entity_equality_one_element_FirstOrDefault(isAsync);
-        }
-
-        [ConditionalTheory(Skip = "Issue#16564")]
-        public override Task Where_query_composition_entity_equality_no_elements_FirstOrDefault(bool isAsync)
-        {
-            return base.Where_query_composition_entity_equality_no_elements_FirstOrDefault(isAsync);
         }
 
         [ConditionalTheory(Skip = "Issue#16575")]

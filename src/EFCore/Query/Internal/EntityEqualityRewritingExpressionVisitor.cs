@@ -378,7 +378,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 var keyListType = typeof(List<>).MakeGenericType(keyProperty.ClrType);
                 var lambda = Expression.Lambda(
                     Expression.Call(
-                        _parameterListValueExtractor.MakeGenericMethod(entityType.ClrType, keyProperty.ClrType),
+                        _parameterListValueExtractor.MakeGenericMethod(entityType.ClrType, keyProperty.ClrType.MakeNullable()),
                         QueryCompilationContext.QueryContextParameter,
                         Expression.Constant(listParam.Name, typeof(string)),
                         Expression.Constant(keyProperty, typeof(IProperty))),
@@ -394,7 +394,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 var param = Expression.Parameter(entityType.ClrType, "v");
                 var keySelector = Expression.Lambda(CreatePropertyAccessExpression(param, keyProperty), param);
                 rewrittenSource = Expression.Call(
-                    QueryableMethodProvider.SelectMethodInfo.MakeGenericMethod(entityType.ClrType, keyProperty.ClrType),
+                    QueryableMethodProvider.SelectMethodInfo.MakeGenericMethod(entityType.ClrType, keyProperty.ClrType.MakeNullable()),
                     Unwrap(newSource),
                     Expression.Quote(keySelector));
             }
@@ -407,7 +407,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             return Expression.Call(
                 (Unwrap(newSource).Type.IsQueryableType()
                     ? QueryableMethodProvider.ContainsMethodInfo
-                    : _enumerableContainsMethodInfo).MakeGenericMethod(keyProperty.ClrType),
+                    : _enumerableContainsMethodInfo).MakeGenericMethod(keyProperty.ClrType.MakeNullable()),
                 rewrittenSource,
                 rewrittenItem
             );
@@ -466,7 +466,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 var orderingMethodInfo = GetOrderingMethodInfo(firstOrdering, isAscending);
 
                 expression = Expression.Call(
-                    orderingMethodInfo.MakeGenericMethod(entityType.ClrType, keyProperty.ClrType),
+                    orderingMethodInfo.MakeGenericMethod(entityType.ClrType, keyProperty.ClrType.MakeNullable()),
                     expression,
                     Expression.Quote(rewrittenKeySelector)
                 );
@@ -753,7 +753,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             // (this is also why we can do it even over a subquery with a composite key)
             return Expression.MakeBinary(
                 equality ? ExpressionType.Equal : ExpressionType.NotEqual,
-                CreatePropertyAccessExpression(nonNullExpression, keyProperties[0], makeNullable: true),
+                CreatePropertyAccessExpression(nonNullExpression, keyProperties[0]),
                 Expression.Constant(null));
         }
 
@@ -853,12 +853,12 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                             .Cast<Expression>()
                             .ToArray()));
 
-        private Expression CreatePropertyAccessExpression(Expression target, IProperty property, bool makeNullable = false)
+        private Expression CreatePropertyAccessExpression(Expression target, IProperty property)
         {
             // The target is a constant - evaluate the property immediately and return the result
             if (target is ConstantExpression constantExpression)
             {
-                return Expression.Constant(property.GetGetter().GetClrValue(constantExpression.Value), property.ClrType);
+                return Expression.Constant(property.GetGetter().GetClrValue(constantExpression.Value), property.ClrType.MakeNullable());
             }
 
             // If the target is a query parameter, we can't simply add a property access over it, but must instead cause a new
@@ -877,10 +877,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     QueryCompilationContext.QueryContextParameter);
 
                 var newParameterName = $"{RuntimeParameterPrefix}{baseParameterExpression.Name.Substring(CompiledQueryCache.CompiledQueryParameterPrefix.Length)}_{property.Name}";
-                return _queryCompilationContext.RegisterRuntimeParameter(newParameterName, lambda, property.ClrType);
+                return _queryCompilationContext.RegisterRuntimeParameter(newParameterName, lambda, property.ClrType.MakeNullable());
             }
 
-            return target.CreateEFPropertyExpression(property, makeNullable);
+            return target.CreateEFPropertyExpression(property, true);
         }
 
         private static object ParameterValueExtractor(QueryContext context, string baseParameterName, IProperty property)
@@ -898,7 +898,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         /// Extracts the list parameter with name <paramref name="baseParameterName"/> from <paramref name="context"/> and returns a
         /// projection to its elements' <paramref name="property"/> values.
         /// </summary>
-        private static object ParameterListValueExtractor<TEntity, TProperty>(QueryContext context, string baseParameterName, IProperty property)
+        private static List<TProperty> ParameterListValueExtractor<TEntity, TProperty>(QueryContext context, string baseParameterName, IProperty property)
         {
             Debug.Assert(property.ClrType == typeof(TProperty));
 
@@ -1063,16 +1063,16 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
                 if (IsEntityType)
                 {
-                    expressionPrinter.StringBuilder.Append($".EntityType({EntityType})");
+                    expressionPrinter.Append($".EntityType({EntityType})");
                 }
                 else if (IsDtoType)
                 {
-                    expressionPrinter.StringBuilder.Append(".DTO");
+                    expressionPrinter.Append(".DTO");
                 }
 
                 if (SubqueryTraversed)
                 {
-                    expressionPrinter.StringBuilder.Append(".SubqueryTraversed");
+                    expressionPrinter.Append(".SubqueryTraversed");
                 }
             }
 

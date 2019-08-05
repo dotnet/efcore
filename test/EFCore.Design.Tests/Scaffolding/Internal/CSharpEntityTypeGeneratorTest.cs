@@ -77,6 +77,61 @@ namespace TestNamespace
         }
 
         [ConditionalFact]
+        public void Navigation_property_with_same_type_and_property_name()
+        {
+            Test(
+                modelBuilder => modelBuilder
+                    .Entity(
+                        "Blog",
+                        x => x.Property<int>("Id"))
+                    .Entity(
+                        "Post",
+                        x =>
+                        {
+                            x.Property<int>("Id");
+                            x.HasOne("Blog", "Blog").WithMany("Posts");
+                        }),
+                new ModelCodeGenerationOptions { UseDataAnnotations = true },
+                code =>
+                {
+                    var postFile = code.AdditionalFiles.First(f => f.Path == "Post.cs");
+                    Assert.Equal(
+                        @"using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+
+namespace TestNamespace
+{
+    public partial class Post
+    {
+        [Key]
+        public int Id { get; set; }
+        public int? BlogId { get; set; }
+
+        [ForeignKey(nameof(BlogId))]
+        [InverseProperty(""Posts"")]
+        public virtual Blog Blog { get; set; }
+    }
+}
+",
+                        postFile.Code);
+                },
+                model =>
+                {
+                    var postType = model.FindEntityType("TestNamespace.Post");
+                    var blogNavigation = postType.FindNavigation("Blog");
+
+                    var foreignKeyProperty = Assert.Single(blogNavigation.ForeignKey.Properties);
+                    Assert.Equal("BlogId", foreignKeyProperty.Name);
+
+                    var inverseNavigation = blogNavigation.FindInverse();
+                    Assert.Equal("TestNamespace.Blog", inverseNavigation.DeclaringEntityType.Name);
+                    Assert.Equal("Posts", inverseNavigation.Name);
+                });
+        }
+
+        [ConditionalFact]
         public void Composite_key()
         {
             Test(

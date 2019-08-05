@@ -187,8 +187,8 @@ WHERE ([c].[CustomerID] = @__entity_equality_local_0_CustomerID) AND @__entity_e
             await base.Entity_equality_local_composite_key(isAsync);
 
             AssertSql(
-                @"@__entity_equality_local_0_OrderID='10248'
-@__entity_equality_local_0_ProductID='11'
+                @"@__entity_equality_local_0_OrderID='10248' (Nullable = true)
+@__entity_equality_local_0_ProductID='11' (Nullable = true)
 
 SELECT [o].[OrderID], [o].[ProductID], [o].[Discount], [o].[Quantity], [o].[UnitPrice]
 FROM [Order Details] AS [o]
