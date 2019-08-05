@@ -1176,7 +1176,7 @@ ORDER BY [t].[CustomerID] DESC");
 FROM [Orders] AS [o]
 WHERE [o].[OrderID] = 10248",
                 //
-                @"@__entity_equality_p_0_OrderID='10248'
+                @"@__entity_equality_p_0_OrderID='10248' (Nullable = true)
 
 SELECT CASE
     WHEN @__entity_equality_p_0_OrderID IN (
@@ -1194,7 +1194,7 @@ END");
             await base.List_Contains_over_entityType_should_rewrite_to_identity_equality(isAsync);
 
             AssertSql(
-                @"@__entity_equality_someOrder_0_OrderID='10248'
+                @"@__entity_equality_someOrder_0_OrderID='10248' (Nullable = true)
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
@@ -1230,7 +1230,7 @@ WHERE [c].[CustomerID] IN (N'ALFKI', N'ANATR')");
             base.Contains_over_entityType_with_null_should_rewrite_to_identity_equality();
 
             AssertSql(
-                @"@__entity_equality_p_0_OrderID='' (Nullable = false) (DbType = Int32)
+                @"@__entity_equality_p_0_OrderID='' (DbType = Int32)
 
 SELECT CASE
     WHEN @__entity_equality_p_0_OrderID IN (
