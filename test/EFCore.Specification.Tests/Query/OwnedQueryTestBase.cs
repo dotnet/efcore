@@ -140,7 +140,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalFact(Skip = "Investigate")]
+        [ConditionalFact(Skip = "Issue#16330")]
         public virtual void Query_when_subquery()
         {
             using (var context = CreateContext())
@@ -218,7 +218,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalFact(Skip = "Investigate")]
+        [ConditionalFact]
         public virtual void Navigation_rewrite_on_owned_collection_with_composition_complex()
         {
             using (var ctx = CreateContext())
@@ -288,7 +288,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalFact(Skip = "Investigate")]
+        [ConditionalFact]
         public virtual void Project_multiple_owned_navigations_with_expansion_on_owned_collections()
         {
             using (var ctx = CreateContext())

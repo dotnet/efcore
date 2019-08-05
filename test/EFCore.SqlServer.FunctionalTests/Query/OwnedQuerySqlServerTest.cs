@@ -305,7 +305,19 @@ WHERE [o0].[Discriminator] IN (N'OwnedPerson', N'Branch', N'LeafB', N'LeafA')");
             base.Navigation_rewrite_on_owned_collection_with_composition_complex();
 
             AssertSql(
-                @"");
+                @"SELECT (
+    SELECT TOP(1) [o].[PersonAddress_Country_Name]
+    FROM [Order] AS [o0]
+    LEFT JOIN (
+        SELECT [o1].[Id], [o1].[Discriminator]
+        FROM [OwnedPerson] AS [o1]
+        WHERE [o1].[Discriminator] IN (N'OwnedPerson', N'Branch', N'LeafB', N'LeafA')
+    ) AS [t] ON [o0].[ClientId] = [t].[Id]
+    LEFT JOIN [OwnedPerson] AS [o2] ON [t].[Id] = [o2].[Id]
+    LEFT JOIN [OwnedPerson] AS [o] ON [o2].[Id] = [o].[Id]
+    WHERE [o3].[Id] = [o0].[ClientId])
+FROM [OwnedPerson] AS [o3]
+WHERE [o3].[Discriminator] IN (N'OwnedPerson', N'Branch', N'LeafB', N'LeafA')");
         }
 
         public override void SelectMany_on_owned_collection()
@@ -367,7 +379,24 @@ ORDER BY [o1].[Id], [o2].[ClientId], [o2].[Id]");
             base.Project_multiple_owned_navigations_with_expansion_on_owned_collections();
 
             AssertSql(
-                @"");
+                @"SELECT (
+    SELECT COUNT(*)
+    FROM [Order] AS [o]
+    LEFT JOIN (
+        SELECT [o0].[Id], [o0].[Discriminator]
+        FROM [OwnedPerson] AS [o0]
+        WHERE [o0].[Discriminator] IN (N'OwnedPerson', N'Branch', N'LeafB', N'LeafA')
+    ) AS [t] ON [o].[ClientId] = [t].[Id]
+    LEFT JOIN [OwnedPerson] AS [o1] ON [t].[Id] = [o1].[Id]
+    LEFT JOIN [OwnedPerson] AS [o2] ON [o1].[Id] = [o2].[Id]
+    LEFT JOIN [Planet] AS [p] ON [o2].[PersonAddress_Country_PlanetId] = [p].[Id]
+    LEFT JOIN [Star] AS [s] ON [p].[StarId] = [s].[Id]
+    WHERE ([o3].[Id] = [o].[ClientId]) AND (([s].[Id] <> 42) OR [s].[Id] IS NULL)) AS [Count], [p0].[Id], [p0].[StarId]
+FROM [OwnedPerson] AS [o3]
+LEFT JOIN [OwnedPerson] AS [o4] ON [o3].[Id] = [o4].[Id]
+LEFT JOIN [OwnedPerson] AS [o5] ON [o4].[Id] = [o5].[Id]
+LEFT JOIN [Planet] AS [p0] ON [o5].[PersonAddress_Country_PlanetId] = [p0].[Id]
+WHERE [o3].[Discriminator] IN (N'OwnedPerson', N'Branch', N'LeafB', N'LeafA')");
         }
 
         public override void Navigation_rewrite_on_owned_reference_followed_by_regular_entity_filter()
