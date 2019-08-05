@@ -89,9 +89,13 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Migrations.Internal
             var includeProperties = index.GetIncludeProperties();
             if (includeProperties != null)
             {
+                var includeColumns = (IReadOnlyList<string>)includeProperties
+                    .Select(p => index.DeclaringEntityType.FindProperty(p).GetColumnName())
+                    .ToArray();
+
                 yield return new Annotation(
                     SqlServerAnnotationNames.Include,
-                    includeProperties);
+                    includeColumns);
             }
 
             var isOnline = index.IsCreatedOnline();

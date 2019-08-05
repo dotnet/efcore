@@ -1455,15 +1455,15 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <param name="builder"> The command builder to use to add the SQL fragment. </param>
         protected override void IndexOptions(CreateIndexOperation operation, IModel model, MigrationCommandListBuilder builder)
         {
-            if (operation[SqlServerAnnotationNames.Include] is IReadOnlyList<string> includeProperties
-                && includeProperties.Count > 0)
+            if (operation[SqlServerAnnotationNames.Include] is IReadOnlyList<string> includeColumns
+                && includeColumns.Count > 0)
             {
                 builder.Append(" INCLUDE (");
-                for (var i = 0; i < includeProperties.Count; i++)
+                for (var i = 0; i < includeColumns.Count; i++)
                 {
-                    builder.Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(includeProperties[i]));
+                    builder.Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(includeColumns[i]));
 
-                    if (i != includeProperties.Count - 1)
+                    if (i != includeColumns.Count - 1)
                     {
                         builder.Append(", ");
                     }
