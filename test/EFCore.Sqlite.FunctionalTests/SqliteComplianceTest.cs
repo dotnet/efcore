@@ -15,9 +15,6 @@ namespace Microsoft.EntityFrameworkCore
             typeof(FromSqlSprocQueryTestBase<>),
             typeof(SqlExecutorTestBase<>),
             typeof(UdfDbFunctionTestBase<>),
-            typeof(FiltersInheritanceTestBase<>),          // issue #15264
-            typeof(FiltersTestBase<>),                     // issue #15264
-            typeof(QueryFilterFuncletizationTestBase<>),   // issue #15264
             // Query pipeline
             typeof(ConcurrencyDetectorTestBase<>),
             typeof(ConcurrencyDetectorRelationalTestBase<>),

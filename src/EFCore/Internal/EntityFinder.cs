@@ -222,7 +222,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 keyValues[i] = keyValue;
             }
 
-            return _queryRoot.AsNoTracking()//.IgnoreQueryFilters()
+            return _queryRoot.AsNoTracking().IgnoreQueryFilters()
                 .Where(BuildObjectLambda(properties, new ValueBuffer(keyValues)))
                 .Select(BuildProjection(entityType));
         }

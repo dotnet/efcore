@@ -2,45 +2,50 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using System.Runtime.InteropServices.ComTypes;
-using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using Microsoft.EntityFrameworkCore.Query.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Query.Internal
 {
     public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
     {
-        private readonly IModel _model;
-        private readonly bool _isTracking;
+        private readonly QueryCompilationContext _queryCompilationContext;
         private readonly PendingSelectorExpandingExpressionVisitor _pendingSelectorExpandingExpressionVisitor;
         private readonly SubqueryMemberPushdownExpressionVisitor _subqueryMemberPushdownExpressionVisitor;
         private readonly ReducingExpressionVisitor _reducingExpressionVisitor;
         private readonly EntityReferenceOptionalMarkingExpressionVisitor _entityReferenceOptionalMarkingExpressionVisitor;
         private readonly ISet<string> _parameterNames = new HashSet<string>();
+        private readonly ParameterExtractingExpressionVisitor _parameterExtractingExpressionVisitor;
+        private readonly Dictionary<IEntityType, LambdaExpression> _parameterizedQueryFilterPredicateCache
+            = new Dictionary<IEntityType, LambdaExpression>();
+        private readonly Parameters _parameters = new Parameters();
+
         private static readonly MethodInfo _enumerableToListMethodInfo = typeof(Enumerable).GetTypeInfo()
             .GetDeclaredMethods(nameof(Enumerable.ToList))
             .Single(mi => mi.GetParameters().Length == 1);
 
-        public NavigationExpandingExpressionVisitor(QueryCompilationContext queryCompilationContext)
+        public NavigationExpandingExpressionVisitor(
+            QueryCompilationContext queryCompilationContext,
+            IEvaluatableExpressionFilter evaluatableExpressionFilter)
         {
-            _model = queryCompilationContext.Model;
-            _isTracking = queryCompilationContext.IsTracking;
+            _queryCompilationContext = queryCompilationContext;
             _pendingSelectorExpandingExpressionVisitor = new PendingSelectorExpandingExpressionVisitor(this);
             _subqueryMemberPushdownExpressionVisitor = new SubqueryMemberPushdownExpressionVisitor();
             _reducingExpressionVisitor = new ReducingExpressionVisitor();
             _entityReferenceOptionalMarkingExpressionVisitor = new EntityReferenceOptionalMarkingExpressionVisitor();
+            _parameterExtractingExpressionVisitor = new ParameterExtractingExpressionVisitor(
+                evaluatableExpressionFilter,
+                _parameters,
+                _queryCompilationContext.ContextType,
+                _queryCompilationContext.Logger,
+                parameterize: false,
+                generateContextAccessors: true); 
         }
 
         private string GetParameterName(string prefix)
@@ -60,26 +65,103 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         {
             var result = Visit(query);
             result = _pendingSelectorExpandingExpressionVisitor.Visit(result);
-            result = new IncludeApplyingExpressionVisitor(this, _isTracking).Visit(result);
+            result = new IncludeApplyingExpressionVisitor(this, _queryCompilationContext.IsTracking).Visit(result);
+            result = Reduce(result);
 
-            return Reduce(result);
+            var dbContextOnQueryContextPropertyAccess =
+                Expression.Convert(
+                    Expression.Property(
+                        QueryCompilationContext.QueryContextParameter,
+                        _queryContextContextPropertyInfo),
+                    _queryCompilationContext.ContextType);
+
+            foreach (var parameterValue in _parameters.ParameterValues)
+            {
+                var lambda = (LambdaExpression)parameterValue.Value;
+                var remappedLambdaBody = ReplacingExpressionVisitor.Replace(
+                    lambda.Parameters[0],
+                    dbContextOnQueryContextPropertyAccess,
+                    lambda.Body);
+
+                _queryCompilationContext.RegisterRuntimeParameter(
+                    parameterValue.Key,
+                    Expression.Lambda(
+                        remappedLambdaBody.Type.IsValueType
+                            ? Expression.Convert(remappedLambdaBody, typeof(object))
+                            : remappedLambdaBody,
+                        QueryCompilationContext.QueryContextParameter),
+                    remappedLambdaBody.Type);
+            }
+
+            return result;
         }
+
+        private static readonly PropertyInfo _queryContextContextPropertyInfo
+           = typeof(QueryContext)
+               .GetTypeInfo()
+               .GetDeclaredProperty(nameof(QueryContext.Context));
 
         protected override Expression VisitConstant(ConstantExpression constantExpression)
         {
             if (constantExpression.IsEntityQueryable())
             {
-                var entityType = _model.FindEntityType(((IQueryable)constantExpression.Value).ElementType);
-                var entityReference = new EntityReference(entityType);
-                PopulateEagerLoadedNavigations(entityReference.IncludePaths);
+                var navigationExpansionExpression = CreateNavigationExpansionExpression(constantExpression);
 
-                var currentTree = new NavigationTreeExpression(entityReference);
-                var parameterName = GetParameterName(entityType.ShortName()[0].ToString().ToLower());
-
-                return new NavigationExpansionExpression(constantExpression, currentTree, currentTree, parameterName);
+                return ApplyQueryFilter(navigationExpansionExpression);
             }
 
             return base.VisitConstant(constantExpression);
+        }
+
+        private NavigationExpansionExpression CreateNavigationExpansionExpression(ConstantExpression constantExpression)
+        {
+            var entityType = _queryCompilationContext.Model.FindEntityType(((IQueryable)constantExpression.Value).ElementType);
+            var entityReference = new EntityReference(entityType);
+            PopulateEagerLoadedNavigations(entityReference.IncludePaths);
+
+            var currentTree = new NavigationTreeExpression(entityReference);
+            var parameterName = GetParameterName(entityType.ShortName()[0].ToString().ToLower());
+
+            return new NavigationExpansionExpression(constantExpression, currentTree, currentTree, parameterName);
+        }
+
+        private Expression ApplyQueryFilter(NavigationExpansionExpression navigationExpansionExpression)
+        {
+            if (!_queryCompilationContext.IgnoreQueryFilters)
+            {
+                var entityType = _queryCompilationContext.Model.FindEntityType(navigationExpansionExpression.Type.GetSequenceType());
+                var rootEntityType = entityType.RootType();
+                var queryFilterAnnotation = rootEntityType.FindAnnotation("QueryFilter");
+                if (queryFilterAnnotation != null)
+                {
+                    if (!_parameterizedQueryFilterPredicateCache.TryGetValue(rootEntityType, out var filterPredicate))
+                    {
+                        filterPredicate = (LambdaExpression)queryFilterAnnotation.Value;
+                        filterPredicate = (LambdaExpression)_parameterExtractingExpressionVisitor.ExtractParameters(filterPredicate);
+                        _parameterizedQueryFilterPredicateCache[rootEntityType] = filterPredicate;
+                    }
+
+                    var sequenceType = navigationExpansionExpression.Type.GetSequenceType();
+
+                    // if we are constructing EntityQueryable of a derived type, we need to re-map filter predicate to the correct derived type
+                    var filterPredicateParameter = filterPredicate.Parameters[0];
+                    if (filterPredicateParameter.Type != sequenceType)
+                    {
+                        var newFilterPredicateParameter = Expression.Parameter(sequenceType, filterPredicateParameter.Name);
+                        var newFilterPredicateBody = ReplacingExpressionVisitor.Replace(filterPredicateParameter, newFilterPredicateParameter, filterPredicate.Body);
+                        filterPredicate = Expression.Lambda(newFilterPredicateBody, newFilterPredicateParameter);
+                    }
+
+                    var filteredResult = Expression.Call(
+                        QueryableMethodProvider.WhereMethodInfo.MakeGenericMethod(sequenceType),
+                        navigationExpansionExpression,
+                        filterPredicate);
+
+                    return Visit(filteredResult);
+                }
+            }
+
+            return navigationExpansionExpression;
         }
 
         private static void PopulateEagerLoadedNavigations(IncludeTreeNode includeTreeNode)
@@ -474,14 +556,13 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 && methodCallExpression.Arguments[2] is ParameterExpression
                 && constantExpression.IsEntityQueryable())
             {
-                var source = (NavigationExpansionExpression)Visit(constantExpression);
-
+                var source = CreateNavigationExpansionExpression(constantExpression);
                 source.UpdateSource(
                     methodCallExpression.Update(
                         null,
                         new[] { source.Source, methodCallExpression.Arguments[1], methodCallExpression.Arguments[2] }));
 
-                return source;
+                return ApplyQueryFilter(source);
             }
 
             return ProcessUnknownMethod(methodCallExpression);
@@ -1258,6 +1339,31 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 lambdaExpression.Body);
 
             return ExpandNavigationsInExpression(source, lambdaBody);
+        }
+
+        private class Parameters : IParameterValues
+        {
+            private readonly IDictionary<string, object> _parameterValues = new Dictionary<string, object>();
+
+            public IReadOnlyDictionary<string, object> ParameterValues => (IReadOnlyDictionary<string, object>)_parameterValues;
+
+            public virtual void Add(string name, object value)
+            {
+                _parameterValues.Add(name, value);
+            }
+
+            public virtual void Replace(string name, object value)
+            {
+                _parameterValues[name] = value;
+            }
+
+            public virtual object Remove(string name)
+            {
+                var value = _parameterValues[name];
+                _parameterValues.Remove(name);
+
+                return value;
+            }
         }
     }
 }

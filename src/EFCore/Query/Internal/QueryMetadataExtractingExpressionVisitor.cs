@@ -39,6 +39,15 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
                     return innerQueryable;
                 }
+
+                if (genericMethodDefinition == EntityFrameworkQueryableExtensions.IgnoreQueryFiltersMethodInfo)
+                {
+                    var innerQueryable = Visit(methodCallExpression.Arguments[0]);
+
+                    _queryCompilationContext.IgnoreQueryFilters = true;
+
+                    return innerQueryable;
+                }
             }
 
             return base.VisitMethodCall(methodCallExpression);

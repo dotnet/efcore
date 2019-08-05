@@ -264,5 +264,17 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             return base.Project_single_element_from_collection_with_OrderBy_Distinct_and_FirstOrDefault_followed_by_projecting_length(isAsync);
         }
+
+        [ConditionalTheory(Skip = "Issue#16963")]
+        public override Task QueryType_with_included_nav(bool isAsync)
+        {
+            return base.QueryType_with_included_nav(isAsync);
+        }
+
+        [ConditionalTheory(Skip = "Issue#16963")]
+        public override Task QueryType_with_included_navs_multi_level(bool isAsync)
+        {
+            return base.QueryType_with_included_navs_multi_level(isAsync);
+        }
     }
 }

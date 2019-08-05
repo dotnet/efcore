@@ -89,5 +89,4 @@ namespace Microsoft.EntityFrameworkCore.Query
             return base.VisitMethodCall(methodCallExpression);
         }
     }
-
 }

@@ -21,7 +21,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         protected QueryFilterFuncletizationContext CreateContext() => Fixture.CreateContext();
 
-        [ConditionalFact(Skip = "issue #15264")]
+        [ConditionalFact]
         public virtual void DbContext_property_parameter_does_not_clash_with_closure_parameter_name()
         {
             using (var context = CreateContext())
@@ -31,7 +31,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalFact(Skip = "issue #15264")]
+        [ConditionalFact]
         public virtual void DbContext_field_is_parameterized()
         {
             using (var context = CreateContext())
@@ -46,7 +46,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalFact(Skip = "issue #15264")]
+        [ConditionalFact]
         public virtual void DbContext_property_is_parameterized()
         {
             using (var context = CreateContext())
@@ -61,7 +61,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalFact(Skip = "issue #15264")]
+        [ConditionalFact]
         public virtual void DbContext_method_call_is_parameterized()
         {
             using (var context = CreateContext())
@@ -71,14 +71,13 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalFact(Skip = "issue #15264")]
+        [ConditionalFact]
         public virtual void DbContext_list_is_parameterized()
         {
             using (var context = CreateContext())
             {
                 // This throws because the default value of TenantIds is null which is NRE
-                var exception = Record.Exception(() => context.Set<ListFilter>().ToList());
-                Assert.True(exception is InvalidOperationException || exception is ArgumentNullException);
+                Assert.Throws<NullReferenceException>(() => context.Set<ListFilter>().ToList());
 
                 context.TenantIds = new List<int>();
                 var query = context.Set<ListFilter>().ToList();
@@ -101,7 +100,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalFact(Skip = "issue #15264")]
+        [ConditionalFact]
         public virtual void DbContext_property_chain_is_parameterized()
         {
             using (var context = CreateContext())
@@ -125,7 +124,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalFact(Skip = "issue #15264")]
+        [ConditionalFact]
         public virtual void DbContext_property_method_call_is_parameterized()
         {
             using (var context = CreateContext())
@@ -139,7 +138,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalFact(Skip = "issue #15264")]
+        [ConditionalFact]
         public virtual void DbContext_method_call_chain_is_parameterized()
         {
             using (var context = CreateContext())
@@ -149,7 +148,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalFact(Skip = "issue #15264")]
+        [ConditionalFact]
         public virtual void DbContext_complex_expression_is_parameterized()
         {
             using (var context = CreateContext())
@@ -167,7 +166,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalFact(Skip = "issue #15264")]
+        [ConditionalFact]
         public virtual void DbContext_property_based_filter_does_not_short_circuit()
         {
             using (var context = CreateContext())
@@ -184,7 +183,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalFact(Skip = "issue #15264")]
+        [ConditionalFact]
         public virtual void EntityTypeConfiguration_DbContext_field_is_parameterized()
         {
             using (var context = CreateContext())
@@ -199,7 +198,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalFact(Skip = "issue #15264")]
+        [ConditionalFact]
         public virtual void EntityTypeConfiguration_DbContext_property_is_parameterized()
         {
             using (var context = CreateContext())
@@ -214,7 +213,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalFact(Skip = "issue #15264")]
+        [ConditionalFact]
         public virtual void EntityTypeConfiguration_DbContext_method_call_is_parameterized()
         {
             using (var context = CreateContext())
@@ -224,7 +223,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalFact(Skip = "issue #15264")]
+        [ConditionalFact]
         public virtual void EntityTypeConfiguration_DbContext_property_chain_is_parameterized()
         {
             using (var context = CreateContext())
@@ -248,7 +247,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalFact(Skip = "issue #15264")]
+        [ConditionalFact]
         public virtual void Local_method_DbContext_field_is_parameterized()
         {
             using (var context = CreateContext())
@@ -263,7 +262,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalFact(Skip = "issue #15264")]
+        [ConditionalFact]
         public virtual void Local_static_method_DbContext_property_is_parameterized()
         {
             using (var context = CreateContext())
@@ -278,7 +277,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalFact(Skip = "issue #15264")]
+        [ConditionalFact]
         public virtual void Remote_method_DbContext_property_method_call_is_parameterized()
         {
             using (var context = CreateContext())
@@ -292,7 +291,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalFact(Skip = "issue #15264")]
+        [ConditionalFact]
         public virtual void Extension_method_DbContext_field_is_parameterized()
         {
             using (var context = CreateContext())
@@ -307,7 +306,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalFact(Skip = "issue #15264")]
+        [ConditionalFact]
         public virtual void Extension_method_DbContext_property_chain_is_parameterized()
         {
             using (var context = CreateContext())
@@ -351,7 +350,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalFact(Skip = "issue #15264")]
+        [ConditionalFact]
         public virtual void Static_member_from_dbContext_is_inlined()
         {
             using (var context = CreateContext())
@@ -362,7 +361,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalFact(Skip = "issue #15264")]
+        [ConditionalFact]
         public virtual void Static_member_from_non_dbContext_is_inlined()
         {
             using (var context = CreateContext())
@@ -373,7 +372,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalFact(Skip = "issue #15264")]
+        [ConditionalFact]
         public virtual void Local_variable_from_OnModelCreating_is_inlined()
         {
             using (var context = CreateContext())
@@ -384,7 +383,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalFact(Skip = "issue #15264")]
+        [ConditionalFact]
         public virtual void Local_variable_from_OnModelCreating_can_throw_exception()
         {
             using (var context = CreateContext())
@@ -397,7 +396,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalFact(Skip = "issue #15264")]
+        [ConditionalFact]
         public virtual void Method_parameter_is_inlined()
         {
             using (var context = CreateContext())
@@ -406,7 +405,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalFact(Skip = "issue #15264")]
+        [ConditionalFact]
         public virtual void Using_multiple_context_in_filter_parametrize_only_current_context()
         {
             using (var context = CreateContext())

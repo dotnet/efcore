@@ -19,6 +19,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         private readonly IndentedStringBuilder _stringBuilder;
         private readonly Dictionary<ParameterExpression, string> _parametersInScope;
         private readonly List<ParameterExpression> _namelessParameters;
+        private readonly List<ParameterExpression> _encounteredParameters;
 
         private readonly Dictionary<ExpressionType, string> _binaryOperandMap = new Dictionary<ExpressionType, string>
         {
@@ -47,6 +48,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             _stringBuilder = new IndentedStringBuilder();
             _parametersInScope = new Dictionary<ParameterExpression, string>();
             _namelessParameters = new List<ParameterExpression>();
+            _encounteredParameters = new List<ParameterExpression>();
         }
 
         public virtual IndentedStringBuilder StringBuilder => _stringBuilder;
@@ -55,7 +57,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         private int? CharacterLimit { get; set; }
 
-        private bool PrintConnections { get; set; }
+        private bool GenerateUniqueParameterIds { get; set; }
 
         public virtual void VisitList<T>(
             IReadOnlyList<T> items,
@@ -105,12 +107,6 @@ namespace Microsoft.EntityFrameworkCore.Query
             return this;
         }
 
-        public virtual ExpressionPrinter IncrementIndent(bool connectNode)
-        {
-            _stringBuilder.IncrementIndent(connectNode);
-            return this;
-        }
-
         public virtual ExpressionPrinter DecrementIndent()
         {
             _stringBuilder.DecrementIndent();
@@ -134,16 +130,30 @@ namespace Microsoft.EntityFrameworkCore.Query
         public virtual string Print(
             Expression expression,
             bool removeFormatting = false,
+            int? characterLimit = null)
+            => PrintCore(expression, removeFormatting, characterLimit, generateUniqueParameterIds: false);
+
+        public virtual string PrintDebug(
+            Expression expression,
+            bool removeFormatting = false,
             int? characterLimit = null,
-            bool printConnections = true)
+            bool generateUniqueParameterIds = true)
+            => PrintCore(expression, removeFormatting, characterLimit, generateUniqueParameterIds);
+
+        protected virtual string PrintCore(
+            Expression expression,
+            bool removeFormatting,
+            int? characterLimit,
+            bool generateUniqueParameterIds)
         {
             _stringBuilder.Clear();
             _parametersInScope.Clear();
             _namelessParameters.Clear();
+            _encounteredParameters.Clear();
 
             RemoveFormatting = removeFormatting;
             CharacterLimit = characterLimit;
-            PrintConnections = printConnections;
+            GenerateUniqueParameterIds = generateUniqueParameterIds;
 
             Visit(expression);
 
@@ -318,12 +328,6 @@ namespace Microsoft.EntityFrameworkCore.Query
         protected override Expression VisitBlock(BlockExpression blockExpression)
         {
             AppendLine();
-
-            if (PrintConnections)
-            {
-                _stringBuilder.SuspendCurrentNode();
-            }
-
             AppendLine("{");
             _stringBuilder.IncrementIndent();
 
@@ -359,11 +363,6 @@ namespace Microsoft.EntityFrameworkCore.Query
             _stringBuilder.DecrementIndent();
             Append("}");
 
-            if (PrintConnections)
-            {
-                _stringBuilder.ReconnectCurrentNode();
-            }
-
             return blockExpression;
         }
 
@@ -384,11 +383,6 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         protected override Expression VisitConstant(ConstantExpression constantExpression)
         {
-            if (PrintConnections)
-            {
-                _stringBuilder.SuspendCurrentNode();
-            }
-
             if (constantExpression.Value is IPrintable printable)
             {
                 printable.Print(this);
@@ -400,11 +394,6 @@ namespace Microsoft.EntityFrameworkCore.Query
             else
             {
                 Print(constantExpression.Value);
-            }
-
-            if (PrintConnections)
-            {
-                _stringBuilder.ReconnectCurrentNode();
             }
 
             return constantExpression;
@@ -474,7 +463,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     _parametersInScope.Add(parameter, parameterName);
                 }
 
-                _stringBuilder.Append(parameter.Type.ShortDisplayName() + " " + parameterName);
+                Visit(parameter);
 
                 if (parameter != lambdaExpression.Parameters.Last())
                 {
@@ -620,8 +609,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                 if (!isSimpleMethodOrProperty)
                 {
-                    var shouldPrintConnections = PrintConnections && !_nonConnectableMethods.Contains(methodCallExpression.Method.Name);
-                    _stringBuilder.IncrementIndent(shouldPrintConnections);
+                    _stringBuilder.IncrementIndent();
                 }
 
                 for (var i = 0; i < methodCallExpression.Arguments.Count; i++)
@@ -631,12 +619,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                     if (!isSimpleMethodOrProperty)
                     {
                         _stringBuilder.Append(argumentNames[i] + ": ");
-                    }
-
-                    if (i == methodCallExpression.Arguments.Count - 1
-                        && !isSimpleMethodOrProperty)
-                    {
-                        _stringBuilder.DisconnectCurrentNode();
                     }
 
                     Visit(argument);
@@ -715,12 +697,6 @@ namespace Microsoft.EntityFrameworkCore.Query
             var appendAction = isComplex ? (Action<string>)AppendLine : Append;
 
             appendAction("new " + newArrayExpression.Type.GetElementType().ShortDisplayName() + "[]");
-
-            if (PrintConnections)
-            {
-                _stringBuilder.SuspendCurrentNode();
-            }
-
             appendAction("{ ");
 
             if (isComplex)
@@ -736,11 +712,6 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
 
             Append("}");
-
-            if (PrintConnections)
-            {
-                _stringBuilder.ReconnectCurrentNode();
-            }
 
             return newArrayExpression;
         }
@@ -777,6 +748,21 @@ namespace Microsoft.EntityFrameworkCore.Query
                 Append("(Unhandled parameter: ");
                 Append(parameterExpression.Name);
                 Append(")");
+            }
+
+            if (GenerateUniqueParameterIds)
+            {
+                var parameterIndex = _encounteredParameters.Count;
+                if (_encounteredParameters.Contains(parameterExpression))
+                {
+                    parameterIndex = _encounteredParameters.IndexOf(parameterExpression);
+                }
+                else
+                {
+                    _encounteredParameters.Add(parameterExpression);
+                }
+
+                _stringBuilder.Append("{" + parameterIndex + "}");
             }
 
             return parameterExpression;
@@ -893,7 +879,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                 if (areConnected && i == arguments.Count - 1)
                 {
                     Append("");
-                    _stringBuilder.DisconnectCurrentNode();
                 }
 
                 Visit(arguments[i]);
