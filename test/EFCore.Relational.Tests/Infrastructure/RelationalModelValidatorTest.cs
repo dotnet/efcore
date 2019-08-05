@@ -9,7 +9,6 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.Extensions.Logging;
@@ -129,6 +128,33 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             VerifyError(
                 RelationalStrings.IncompatibleTableNoRelationship(
                     "Schema.Table", entityB.DisplayName(), entityA.DisplayName()),
+                model);
+        }
+
+        [ConditionalFact]
+        public virtual void Detects_duplicate_table_names_when_no_key()
+        {
+            var model = CreateConventionlessModelBuilder().Model;
+
+            var entityA = model.AddEntityType(typeof(A));
+            entityA.AddProperty("Id", typeof(int));
+            entityA.IsKeyless = true;
+            AddProperties(entityA);
+
+            var entityB = model.AddEntityType(typeof(B));
+            entityB.AddProperty("Id", typeof(int));
+            entityB.IsKeyless = true;
+            AddProperties(entityB);
+            entityB.AddIgnored(nameof(B.A));
+            entityB.AddIgnored(nameof(B.AnotherA));
+            entityB.AddIgnored(nameof(B.ManyAs));
+
+            entityA.SetTableName("Table");
+            entityB.SetTableName("Table");
+
+            VerifyError(
+                RelationalStrings.IncompatibleTableNoRelationship(
+                    "Table", entityB.DisplayName(), entityA.DisplayName()),
                 model);
         }
 

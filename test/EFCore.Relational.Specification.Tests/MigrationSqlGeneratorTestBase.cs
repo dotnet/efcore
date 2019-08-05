@@ -4,7 +4,6 @@
 using System;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
 using Microsoft.EntityFrameworkCore.TestUtilities;
@@ -537,6 +536,24 @@ namespace Microsoft.EntityFrameworkCore
                         }
                     },
                     Comment = "Table comment"
+                });
+
+        [ConditionalFact]
+        public virtual void CreateTableOperation_no_key()
+            => Generate(
+                new CreateTableOperation
+                {
+                    Name = "Anonymous",
+                    Columns =
+                    {
+                        new AddColumnOperation
+                        {
+                            Name = "Value",
+                            Table = "Anonymous",
+                            ClrType = typeof(int),
+                            IsNullable = false
+                        }
+                    }
                 });
 
         [ConditionalFact]

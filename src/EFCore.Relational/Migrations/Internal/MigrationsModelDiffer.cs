@@ -617,7 +617,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             createTableOperation.Columns.AddRange(
                 GetSortedProperties(target).SelectMany(p => Add(p, diffContext, inline: true)).Cast<AddColumnOperation>());
             var primaryKey = target.EntityTypes[0].FindPrimaryKey();
-            createTableOperation.PrimaryKey = Add(primaryKey, diffContext).Cast<AddPrimaryKeyOperation>().Single();
+            if (primaryKey != null)
+            {
+                createTableOperation.PrimaryKey = Add(primaryKey, diffContext).Cast<AddPrimaryKeyOperation>().Single();
+            }
             createTableOperation.UniqueConstraints.AddRange(
                 target.GetKeys().Where(k => !k.IsPrimaryKey()).SelectMany(k => Add(k, diffContext))
                     .Cast<AddUniqueConstraintOperation>());
@@ -2147,7 +2150,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         protected virtual IEnumerable<string> GetSchemas([NotNull] IModel model)
-            => model.GetRootEntityTypes().Select(t => t.GetSchema())
+            => model.GetRootEntityTypes().Where(t => !t.MigrationsIgnored()).Select(t => t.GetSchema())
                 .Concat(model.GetSequences().Select(s => s.Schema))
                 .Where(s => !string.IsNullOrEmpty(s))
                 .Distinct();

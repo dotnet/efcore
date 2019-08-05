@@ -2,11 +2,13 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Threading.Tasks;
+using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
     public partial class SimpleQuerySqlServerTest
     {
+        [ConditionalTheory(Skip = "Issue #16323")]
         public override async Task KeylessEntity_simple(bool isAsync)
         {
             await base.KeylessEntity_simple(isAsync);
@@ -16,6 +18,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 FROM [Customers] AS [c]");
         }
 
+        [ConditionalTheory(Skip = "Issue #16323")]
         public override async Task KeylessEntity_where_simple(bool isAsync)
         {
             await base.KeylessEntity_where_simple(isAsync);
@@ -176,5 +179,9 @@ WHERE EXISTS (
     FROM [Orders] AS [o0]
     WHERE [ov.Customer].[CustomerID] = [o0].[CustomerID])");
         }
+
+        [ConditionalFact(Skip = "Issue #16323")]
+        public override void Auto_initialized_view_set()
+            => base.Auto_initialized_view_set();
     }
 }

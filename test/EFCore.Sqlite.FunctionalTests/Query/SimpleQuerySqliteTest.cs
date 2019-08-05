@@ -5,7 +5,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 using Microsoft.EntityFrameworkCore.TestUtilities;
-using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -1055,6 +1054,18 @@ FROM (
         [ConditionalTheory(Skip = "SQLite bug")]
         public override Task Project_single_element_from_collection_with_multiple_OrderBys_Take_and_FirstOrDefault_2(bool isAsync)
             => base.Project_single_element_from_collection_with_multiple_OrderBys_Take_and_FirstOrDefault_2(isAsync);
+
+        [ConditionalFact(Skip = "Issue #16323")]
+        public override void Auto_initialized_view_set()
+            => base.Auto_initialized_view_set();
+
+        [ConditionalTheory(Skip = "Issue #16323")]
+        public override Task KeylessEntity_simple(bool isAsync)
+            => base.KeylessEntity_simple(isAsync);
+
+        [ConditionalTheory(Skip = "Issue #16323")]
+        public override Task KeylessEntity_where_simple(bool isAsync)
+            => base.KeylessEntity_where_simple(isAsync);
 
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);

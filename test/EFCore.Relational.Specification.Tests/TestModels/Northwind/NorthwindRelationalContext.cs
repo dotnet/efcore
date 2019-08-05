@@ -26,7 +26,8 @@ namespace Microsoft.EntityFrameworkCore.TestModels.Northwind
             modelBuilder.Entity<MostExpensiveProduct>().HasKey(mep => mep.TenMostExpensiveProducts);
 
 #pragma warning disable CS0618 // Type or member is obsolete
-            modelBuilder.Query<CustomerView>().HasNoKey().ToView("Customers");
+            modelBuilder.Query<CustomerView>().HasNoKey().ToQuery(
+                () => CustomerQueries.FromSqlRaw("SELECT * FROM Customers"));
 
             modelBuilder
                 .Query<OrderQuery>()

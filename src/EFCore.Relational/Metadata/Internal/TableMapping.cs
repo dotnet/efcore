@@ -66,12 +66,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public virtual IEntityType GetRootType()
             => EntityTypes.SingleOrDefault(
                 t => t.BaseType == null
-                     && t.FindForeignKeys(t.FindDeclaredPrimaryKey().Properties)
+                     && (t.FindDeclaredPrimaryKey() == null || t.FindForeignKeys(t.FindDeclaredPrimaryKey().Properties)
                          .All(
                              fk => !fk.PrincipalKey.IsPrimaryKey()
                                    || fk.PrincipalEntityType.RootType() == t
                                    || t.GetTableName() != fk.PrincipalEntityType.GetTableName()
-                                   || t.GetSchema() != fk.PrincipalEntityType.GetSchema()));
+                                   || t.GetSchema() != fk.PrincipalEntityType.GetSchema())));
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -155,7 +155,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public static IReadOnlyList<TableMapping> GetTableMappings([NotNull] IModel model)
         {
             var tables = new Dictionary<(string Schema, string TableName), List<IEntityType>>();
-            foreach (var entityType in model.GetEntityTypes().Where(et => et.FindPrimaryKey() != null))
+            foreach (var entityType in model.GetEntityTypes().Where(et => !et.MigrationsIgnored()))
             {
                 var fullName = (entityType.GetSchema(), entityType.GetTableName());
                 if (!tables.TryGetValue(fullName, out var mappedEntityTypes))

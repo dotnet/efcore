@@ -3,6 +3,7 @@
 
 using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Design.Internal;
 using Microsoft.Extensions.DependencyInjection;
@@ -183,6 +184,16 @@ namespace TestNamespace
                 model => Assert.Equal(
                     "An entity comment",
                     model.FindEntityType("TestNamespace.Entity").GetComment()));
+        }
+
+        [ConditionalFact]
+        public void Views_work()
+        {
+            Test(
+                modelBuilder => modelBuilder.Entity("Vista").ToView("Vista"),
+                new ModelCodeGenerationOptions { UseDataAnnotations = true },
+                code => Assert.Contains(".ToView(\"Vista\")", code.ContextFile.Code),
+                model => Assert.NotNull(model.FindEntityType("TestNamespace.Vista").FindAnnotation(RelationalAnnotationNames.ViewDefinition)));
         }
 
         private class TestCodeGeneratorPlugin : ProviderCodeGeneratorPlugin

@@ -16,7 +16,6 @@ using Microsoft.EntityFrameworkCore.SqlServer.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Scaffolding.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
-using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
 using Microsoft.Extensions.Logging;
 using Xunit;
 
@@ -641,11 +640,11 @@ CREATE TABLE [dbo].[Blogs] (
 EXECUTE sys.sp_addextendedproperty @name = N'MS_Description', @value = N'Blog table comment.
 On multiple lines.',
     @level0type = N'SCHEMA', @level0name = 'dbo', 
-	@level1type = N'TABLE', @level1name = 'Blogs';
+    @level1type = N'TABLE', @level1name = 'Blogs';
 EXECUTE sys.sp_addextendedproperty @name = N'MS_Description', @value = N'Blog.Id column comment.',
     @level0type = N'SCHEMA', @level0name = 'dbo', 
-	@level1type = N'TABLE', @level1name = 'Blogs',
-	@level2type = N'COLUMN', @level2name = 'Id';
+    @level1type = N'TABLE', @level1name = 'Blogs',
+    @level2type = N'COLUMN', @level2name = 'Id';
 ",
                 Enumerable.Empty<string>(),
                 Enumerable.Empty<string>(),
@@ -685,7 +684,7 @@ SELECT
                 Enumerable.Empty<string>(),
                 dbModel =>
                 {
-                    var table = dbModel.Tables.Single();
+                    var table = Assert.IsType<DatabaseView>(dbModel.Tables.Single());
 
                     Assert.Equal(2, table.Columns.Count);
                     Assert.Equal(null, table.PrimaryKey);

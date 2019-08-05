@@ -176,5 +176,22 @@ namespace TestNamespace
                     Assert.NotNull(postType.FindPrimaryKey());
                 });
         }
+
+        [ConditionalFact]
+        public void Views_dont_generate_TableAttribute()
+        {
+            Test(
+                modelBuilder => modelBuilder.Entity("Vista").ToView("Vistas", "dbo"),
+                new ModelCodeGenerationOptions { UseDataAnnotations = true },
+                code => Assert.DoesNotContain(
+                    "[Table(",
+                    code.AdditionalFiles.First(f => f.Path == "Vista.cs").Code),
+                model =>
+                {
+                    var entityType = model.FindEntityType("TestNamespace.Vista");
+                    Assert.Equal("Vistas", entityType.GetTableName());
+                    Assert.Equal("dbo", entityType.GetSchema());
+                });
+        }
     }
 }

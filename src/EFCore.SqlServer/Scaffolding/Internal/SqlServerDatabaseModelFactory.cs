@@ -445,7 +445,8 @@ WHERE " + schemaFilter("OBJECT_SCHEMA_NAME([s].[object_id])");
 SELECT
     SCHEMA_NAME([t].[schema_id]) AS [schema],
     [t].[name],
-    CAST([e].[value] AS nvarchar(MAX)) AS [comment]";
+    CAST([e].[value] AS nvarchar(MAX)) AS [comment],
+    'table' AS [type]";
 
                 if (supportsMemoryOptimizedTable)
                 {
@@ -487,7 +488,8 @@ UNION
 SELECT
     SCHEMA_NAME([v].[schema_id]) AS [schema],
     [v].[name],
-    CAST([e].[value] AS nvarchar(MAX)) AS [comment]";
+    CAST([e].[value] AS nvarchar(MAX)) AS [comment],
+    'view' AS [type]";
 
                 if (supportsMemoryOptimizedTable)
                 {
@@ -520,15 +522,17 @@ WHERE " + viewFilter;
                         var schema = reader.GetValueOrDefault<string>("schema");
                         var name = reader.GetValueOrDefault<string>("name");
                         var comment = reader.GetValueOrDefault<string>("comment");
+                        var type = reader.GetValueOrDefault<string>("type");
 
                         _logger.TableFound(DisplayName(schema, name));
 
-                        var table = new DatabaseTable
-                        {
-                            Schema = schema,
-                            Name = name,
-                            Comment = comment,
-                        };
+                        var table = type == "table"
+                            ? new DatabaseTable()
+                            : new DatabaseView();
+
+                        table.Schema = schema;
+                        table.Name = name;
+                        table.Comment = comment;
 
                         if (supportsMemoryOptimizedTable)
                         {
@@ -832,7 +836,7 @@ AND CAST([i].[object_id] AS nvarchar(12)) + '#' + CAST([i].[index_id] AS nvarcha
 )";
                 }
 
-                commandText  += @"
+                commandText += @"
 ORDER BY [table_schema], [table_name], [index_name], [ic].[key_ordinal]";
 
                 command.CommandText = commandText;

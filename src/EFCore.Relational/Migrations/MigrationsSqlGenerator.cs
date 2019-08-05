@@ -11,7 +11,6 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Update;
@@ -1580,7 +1579,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             [CanBeNull] string schema,
             [NotNull] string tableName)
             => model?.GetEntityTypes().Where(
-                t => t.GetTableName() == tableName && t.GetSchema() == schema && t.FindPrimaryKey() != null);
+                t => t.GetTableName() == tableName && t.GetSchema() == schema && !t.MigrationsIgnored());
 
         /// <summary>
         ///     <para>

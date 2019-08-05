@@ -67,6 +67,17 @@ EXEC sp_addextendedproperty @name = N'Comment', @value = N'ID comment', @level0t
 ");
         }
 
+        public override void CreateTableOperation_no_key()
+        {
+            base.CreateTableOperation_no_key();
+
+            AssertSql(
+                @"CREATE TABLE [Anonymous] (
+    [Value] int NOT NULL
+);
+");
+        }
+
         public override void CreateIndexOperation_with_filter_where_clause()
         {
             base.CreateIndexOperation_with_filter_where_clause();

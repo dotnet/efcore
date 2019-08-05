@@ -360,8 +360,10 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             RemoveAnnotation(ref annotations, RelationalAnnotationNames.Comment);
             RemoveAnnotation(ref annotations, RelationalAnnotationNames.Schema);
             RemoveAnnotation(ref annotations, ScaffoldingAnnotationNames.DbSetName);
+            RemoveAnnotation(ref annotations, RelationalAnnotationNames.ViewDefinition);
 
-            if (!useDataAnnotations)
+            var isView = entityType.FindAnnotation(RelationalAnnotationNames.ViewDefinition) != null;
+            if (!useDataAnnotations || isView)
             {
                 GenerateTableName(entityType);
             }
@@ -526,7 +528,8 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             var explicitSchema = schema != null && schema != defaultSchema;
             var explicitTable = explicitSchema || tableName != null && tableName != entityType.GetDbSetName();
 
-            if (explicitTable)
+            var isView = entityType.FindAnnotation(RelationalAnnotationNames.ViewDefinition) != null;
+            if (explicitTable || isView)
             {
                 var parameterString = _code.Literal(tableName);
                 if (explicitSchema)
@@ -536,7 +539,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
                 var lines = new List<string>
                 {
-                    $".{nameof(RelationalEntityTypeBuilderExtensions.ToTable)}({parameterString})"
+                    $".{(isView ? nameof(RelationalEntityTypeBuilderExtensions.ToView) : nameof(RelationalEntityTypeBuilderExtensions.ToTable))}({parameterString})"
                 };
 
                 AppendMultiLineFluentApi(entityType, lines);
