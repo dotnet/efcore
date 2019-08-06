@@ -179,6 +179,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             private readonly IEntityMaterializerSource _entityMaterializerSource;
             private readonly bool _trackQueryResults;
+            private readonly ISet<IEntityType> _visitedEntityTypes = new HashSet<IEntityType>();
             private int _currentEntityIndex;
 
             public EntityMaterializerInjectingExpressionVisitor(
@@ -188,7 +189,30 @@ namespace Microsoft.EntityFrameworkCore.Query
                 _trackQueryResults = trackQueryResults;
             }
 
-            public Expression Inject(Expression expression) => Visit(expression);
+            public Expression Inject(Expression expression)
+            {
+                var result = Visit(expression);
+                if (_trackQueryResults)
+                {
+                    bool containsOwner(IEntityType owner)
+                        => owner != null && (_visitedEntityTypes.Contains(owner) || containsOwner(owner.BaseType));
+
+                    foreach (var entityType in _visitedEntityTypes)
+                    {
+                        if ((entityType.HasDefiningNavigation()
+                            && !containsOwner(entityType.DefiningEntityType))
+                            || (entityType.FindOwnership() is IForeignKey ownership
+                                && !containsOwner(ownership.PrincipalEntityType)))
+                        {
+                            throw new InvalidOperationException("A tracking query projects owned entity without corresponding owner in result. " +
+                                "Owned entities cannot be tracked without their owner. " +
+                                "Either include the owner entity in the result or make query non-tracking using AsNoTracking().");
+                        }
+                    }
+                }
+
+                return result;
+            }
 
             protected override Expression VisitExtension(Expression extensionExpression)
                 => extensionExpression is EntityShaperExpression entityShaperExpression
@@ -379,6 +403,8 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                 if (_trackQueryResults)
                 {
+                    _visitedEntityTypes.Add(entityType);
+
                     expressions.Add(
                         Expression.Assign(
                             entryVariable, Expression.Call(
