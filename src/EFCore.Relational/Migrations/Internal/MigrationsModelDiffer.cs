@@ -557,39 +557,41 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 };
             }
 
-            var operations = DiffAnnotations(source, target)
-                .Concat(Diff(source.GetProperties(), target.GetProperties(), diffContext))
+            // Validation should ensure that all the relevant annotations for the collocated entity types are the same
+            var sourceMigrationsAnnotations = MigrationsAnnotations.For(source.EntityTypes[0]).ToList();
+            var targetMigrationsAnnotations = MigrationsAnnotations.For(target.EntityTypes[0]).ToList();
+
+            if (source.GetComment() != target.GetComment()
+                || HasDifferences(sourceMigrationsAnnotations, targetMigrationsAnnotations))
+            {
+                var alterTableOperation = new AlterTableOperation
+                {
+                    Name = target.Name,
+                    Schema = target.Schema,
+                    Comment = target.GetComment(),
+                    OldTable =
+                    {
+                        Comment = source.GetComment()
+                    }
+                };
+
+                alterTableOperation.AddAnnotations(targetMigrationsAnnotations);
+                alterTableOperation.OldTable.AddAnnotations(sourceMigrationsAnnotations);
+
+                yield return alterTableOperation;
+            }
+
+            var operations = Diff(source.GetProperties(), target.GetProperties(), diffContext)
                 .Concat(Diff(source.GetKeys(), target.GetKeys(), diffContext))
                 .Concat(Diff(source.GetIndexes(), target.GetIndexes(), diffContext))
                 .Concat(Diff(source.GetCheckConstraints(), target.GetCheckConstraints(), diffContext));
+
             foreach (var operation in operations)
             {
                 yield return operation;
             }
 
             DiffData(source, target, diffContext);
-        }
-
-        private IEnumerable<MigrationOperation> DiffAnnotations(
-            [NotNull] TableMapping source,
-            [NotNull] TableMapping target)
-        {
-            // Validation should ensure that all the relevant annotations for the collocated entity types are the same
-            var sourceMigrationsAnnotations = MigrationsAnnotations.For(source.EntityTypes[0]).ToList();
-            var targetMigrationsAnnotations = MigrationsAnnotations.For(target.EntityTypes[0]).ToList();
-            if (HasDifferences(sourceMigrationsAnnotations, targetMigrationsAnnotations))
-            {
-                var alterTableOperation = new AlterTableOperation
-                {
-                    Name = target.Name,
-                    Schema = target.Schema,
-                    Comment = target.GetComment()
-                };
-                alterTableOperation.AddAnnotations(targetMigrationsAnnotations);
-
-                alterTableOperation.OldTable.AddAnnotations(sourceMigrationsAnnotations);
-                yield return alterTableOperation;
-            }
         }
 
         /// <summary>

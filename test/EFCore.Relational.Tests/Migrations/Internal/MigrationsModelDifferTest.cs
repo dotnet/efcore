@@ -621,6 +621,38 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         }
 
         [ConditionalFact]
+        public void Alter_table_comment()
+        {
+            Execute(
+                source => source.Entity(
+                    "MountainLion",
+                    x =>
+                    {
+                        x.ToTable("MountainLion", "dbo");
+                        x.Property<int>("Id");
+                        x.HasComment("Old comment");
+                    }),
+                target => target.Entity(
+                    "MountainLion",
+                    x =>
+                    {
+                        x.ToTable("MountainLion", "dbo");
+                        x.Property<int>("Id");
+                        x.HasComment("New comment");
+                    }),
+                operations =>
+                {
+                    Assert.Equal(1, operations.Count);
+
+                    var operation = Assert.IsType<AlterTableOperation>(operations[0]);
+                    Assert.Equal("dbo", operation.Schema);
+                    Assert.Equal("MountainLion", operation.Name);
+                    Assert.Equal("New comment", operation.Comment);
+                    Assert.Equal("Old comment", operation.OldTable.Comment);
+                });
+        }
+
+        [ConditionalFact]
         public void Rename_table()
         {
             Execute(
