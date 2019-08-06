@@ -358,9 +358,23 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                 }
 
                 case MaterializeCollectionNavigationExpression materializeCollectionNavigationExpression:
-                    return materializeCollectionNavigationExpression.Navigation.IsEmbedded()
-                        ? base.Visit(materializeCollectionNavigationExpression.Subquery)
-                        : base.VisitExtension(materializeCollectionNavigationExpression);
+                    if (materializeCollectionNavigationExpression.Navigation.IsEmbedded())
+                    {
+                        var subquery = materializeCollectionNavigationExpression.Subquery;
+                        // Unwrap AsQueryable around the subquery if present
+                        if (subquery is MethodCallExpression innerMethodCall
+                            && innerMethodCall.Method.IsGenericMethod
+                            && innerMethodCall.Method.GetGenericMethodDefinition() == QueryableMethodProvider.AsQueryableMethodInfo)
+                        {
+                            subquery = innerMethodCall.Arguments[0];
+                        }
+
+                        return base.Visit(subquery);
+                    }
+                    else
+                    {
+                        return base.VisitExtension(materializeCollectionNavigationExpression);
+                    }
 
                 case IncludeExpression includeExpression:
                     return _clientEval ? base.VisitExtension(includeExpression) : null;

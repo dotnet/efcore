@@ -125,5 +125,60 @@ namespace Microsoft.EntityFrameworkCore.Query
             return base.Complex_SelectMany_with_nested_navigations_and_explicit_DefaultIfEmpty_with_other_query_operators_composed_on_top(
                 isAsync);
         }
+
+        [ConditionalTheory(Skip = "Issue#16752")]
+        public override Task Include8(bool isAsync)
+        {
+            return base.Include8(isAsync);
+        }
+
+        [ConditionalTheory(Skip = "Issue#16752")]
+        public override Task Include9(bool isAsync)
+        {
+            return base.Include9(isAsync);
+        }
+
+        [ConditionalTheory(Skip = "Issue#16752")]
+        public override Task Include_collection_with_multiple_orderbys_complex(bool isAsync)
+        {
+            return base.Include_collection_with_multiple_orderbys_complex(isAsync);
+        }
+
+        [ConditionalTheory(Skip = "Issue#16752")]
+        public override Task Include_collection_with_multiple_orderbys_complex_repeated(bool isAsync)
+        {
+            return base.Include_collection_with_multiple_orderbys_complex_repeated(isAsync);
+        }
+
+        [ConditionalTheory(Skip = "Issue#16752")]
+        public override Task Include_collection_with_multiple_orderbys_member(bool isAsync)
+        {
+            return base.Include_collection_with_multiple_orderbys_member(isAsync);
+        }
+
+        [ConditionalTheory(Skip = "Issue#16752")]
+        public override Task Include_collection_with_multiple_orderbys_methodcall(bool isAsync)
+        {
+            return base.Include_collection_with_multiple_orderbys_methodcall(isAsync);
+        }
+
+        [ConditionalTheory(Skip = "Issue#16752")]
+        public override Task Include_collection_with_multiple_orderbys_property(bool isAsync)
+        {
+            return base.Include_collection_with_multiple_orderbys_property(isAsync);
+        }
+
+        // Cannot create DbSet for Level2
+        public override void Join_with_navigations_in_the_result_selector2()
+        {
+        }
+
+        public override void Member_pushdown_chain_3_levels_deep()
+        {
+        }
+
+        public override void Member_pushdown_with_collection_navigation_in_the_middle()
+        {
+        }
     }
 }

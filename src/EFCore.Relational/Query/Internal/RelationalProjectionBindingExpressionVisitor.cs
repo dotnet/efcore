@@ -13,7 +13,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 {
     public class RelationalProjectionBindingExpressionVisitor : ExpressionVisitor
     {
-        private readonly QueryableMethodTranslatingExpressionVisitor _queryableMethodTranslatingExpressionVisitor;
+        private readonly RelationalQueryableMethodTranslatingExpressionVisitor _queryableMethodTranslatingExpressionVisitor;
         private readonly RelationalSqlTranslatingExpressionVisitor _sqlTranslator;
 
         private SelectExpression _selectExpression;
@@ -23,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         private readonly Stack<ProjectionMember> _projectionMembers = new Stack<ProjectionMember>();
 
         public RelationalProjectionBindingExpressionVisitor(
-            QueryableMethodTranslatingExpressionVisitor queryableMethodTranslatingExpressionVisitor,
+            RelationalQueryableMethodTranslatingExpressionVisitor queryableMethodTranslatingExpressionVisitor,
             RelationalSqlTranslatingExpressionVisitor sqlTranslatingExpressionVisitor)
         {
             _queryableMethodTranslatingExpressionVisitor = queryableMethodTranslatingExpressionVisitor;
@@ -37,13 +37,15 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             _projectionMembers.Push(new ProjectionMember());
 
-            var result = Visit(expression);
+            var expandedExpression = _queryableMethodTranslatingExpressionVisitor.ExpandWeakEntities(_selectExpression, expression);
+            var result = Visit(expandedExpression);
 
             if (result == null)
             {
                 _clientEval = true;
 
-                result = Visit(expression);
+                expandedExpression = _queryableMethodTranslatingExpressionVisitor.ExpandWeakEntities(_selectExpression, expression);
+                result = Visit(expandedExpression);
 
                 _projectionMapping.Clear();
             }

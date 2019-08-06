@@ -1007,6 +1007,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                         return newExpression.Update(arguments);
                     }
 
+                case OwnedNavigationReference ownedNavigationReference:
+                    return ownedNavigationReference.EntityReference.Clone();
+
                 default:
                     return Expression.Default(selector.Type);
             }
