@@ -512,7 +512,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalFact(Skip = "#16217")]
+        [ConditionalFact(Skip = "#16298")]
         public virtual void OfType_Union_OfType()
         {
             using (var context = CreateContext())
@@ -520,6 +520,19 @@ namespace Microsoft.EntityFrameworkCore.Query
                 context.Set<Bird>()
                     .OfType<Kiwi>()
                     .Union(context.Set<Bird>())
+                    .OfType<Kiwi>()
+                    .ToList();
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Subquery_OfType()
+        {
+            using (var context = CreateContext())
+            {
+                context.Set<Bird>()
+                    .Take(5)
+                    .Distinct()  // Causes pushdown
                     .OfType<Kiwi>()
                     .ToList();
             }
