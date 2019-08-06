@@ -459,6 +459,29 @@ FROM (
 WHERE ([t].[FoundOn] = CAST(0 AS tinyint)) AND [t].[FoundOn] IS NOT NULL");
         }
 
+        public override void OfType_Union_OfType()
+        {
+            base.OfType_Union_OfType();
+
+            AssertSql(" ");
+        }
+
+        public override void Subquery_OfType()
+        {
+            base.Subquery_OfType();
+
+            AssertSql(
+                @"@__p_0='5'
+
+SELECT DISTINCT [t].[Species], [t].[CountryId], [t].[Discriminator], [t].[Name], [t].[EagleId], [t].[IsFlightless], [t].[FoundOn]
+FROM (
+    SELECT TOP(@__p_0) [a].[Species], [a].[CountryId], [a].[Discriminator], [a].[Name], [a].[EagleId], [a].[IsFlightless], [a].[Group], [a].[FoundOn]
+    FROM [Animal] AS [a]
+    WHERE [a].[Discriminator] IN (N'Eagle', N'Kiwi')
+) AS [t]
+WHERE [t].[Discriminator] = N'Kiwi'");
+        }
+
         public override void Union_entity_equality()
         {
             base.Union_entity_equality();
