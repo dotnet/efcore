@@ -109,11 +109,21 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task Sum_with_no_data_nullable(bool isAsync)
+        public virtual Task Sum_with_no_data_cast_to_nullable(bool isAsync)
         {
             return AssertSum<Order>(
                 isAsync,
                 os => os.Where(o => o.OrderID < 0).Select(o => (int?)o.OrderID));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Sum_with_no_data_nullable(bool isAsync)
+        {
+            return AssertSum<Product, Product>(
+                isAsync,
+                os => os,
+                selector: o => o.SupplierID);
         }
 
         [ConditionalTheory]
@@ -412,6 +422,24 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
+        public virtual void Min_no_data_nullable()
+        {
+            using (var context = CreateContext())
+            {
+                Assert.Null(context.Products.Where(o => o.SupplierID == -1).Min(o => o.SupplierID));
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Min_no_data_cast_to_nullable()
+        {
+            using (var context = CreateContext())
+            {
+                Assert.Null(context.Orders.Where(o => o.OrderID == -1).Min(o => (int?)o.OrderID));
+            }
+        }
+
+        [ConditionalFact]
         public virtual void Min_no_data_subquery()
         {
             using (var context = CreateContext())
@@ -431,6 +459,24 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
+        public virtual void Max_no_data_nullable()
+        {
+            using (var context = CreateContext())
+            {
+                Assert.Null(context.Products.Where(o => o.SupplierID == -1).Max(o => o.SupplierID));
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Max_no_data_cast_to_nullable()
+        {
+            using (var context = CreateContext())
+            {
+                Assert.Null(context.Orders.Where(o => o.OrderID == -1).Max(o => (int?)o.OrderID));
+            }
+        }
+
+        [ConditionalFact]
         public virtual void Max_no_data_subquery()
         {
             using (var context = CreateContext())
@@ -446,6 +492,25 @@ namespace Microsoft.EntityFrameworkCore.Query
             using (var context = CreateContext())
             {
                 Assert.Throws<InvalidOperationException>(() => context.Orders.Where(o => o.OrderID == -1).Average(o => o.OrderID));
+            }
+        }
+
+
+        [ConditionalFact]
+        public virtual void Average_no_data_nullable()
+        {
+            using (var context = CreateContext())
+            {
+                Assert.Null(context.Products.Where(o => o.SupplierID == -1).Average(o => o.SupplierID));
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Average_no_data_cast_to_nullable()
+        {
+            using (var context = CreateContext())
+            {
+                Assert.Null(context.Orders.Where(o => o.OrderID == -1).Average(o => (int?)o.OrderID));
             }
         }
 

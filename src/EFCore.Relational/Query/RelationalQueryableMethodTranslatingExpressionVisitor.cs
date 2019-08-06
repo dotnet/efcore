@@ -1096,7 +1096,22 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             Expression shaper = new ProjectionBindingExpression(source.QueryExpression, new ProjectionMember(), projection.Type);
 
-            if (throwOnNullResult)
+            if (throwOnNullResult
+                && resultType.IsNullableType())
+            {
+                var resultVariable = Expression.Variable(projection.Type, "result");
+
+                shaper = Expression.Block(
+                    new[] { resultVariable },
+                    Expression.Assign(resultVariable, shaper),
+                    Expression.Condition(
+                        Expression.Equal(resultVariable, Expression.Default(projection.Type)),
+                        Expression.Constant(null, resultType),
+                        resultType != resultVariable.Type
+                            ? Expression.Convert(resultVariable, resultType)
+                            : (Expression)resultVariable));
+            }
+            else if (throwOnNullResult)
             {
                 var resultVariable = Expression.Variable(projection.Type, "result");
 

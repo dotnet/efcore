@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -79,6 +80,11 @@ namespace Microsoft.EntityFrameworkCore.Query
         public static MethodInfo GroupByWithKeyElementSelectorMethodInfo { get; }
         public static MethodInfo GroupByWithKeyElementResultSelectorMethodInfo { get; }
         public static MethodInfo GroupByWithKeyResultSelectorMethodInfo { get; }
+
+        public static IDictionary<Type, MethodInfo> SumWithoutSelectorMethodInfos { get; }
+        public static IDictionary<Type, MethodInfo> SumWithSelectorMethodInfos { get; }
+        public static IDictionary<Type, MethodInfo> AverageWithoutSelectorMethodInfos { get; }
+        public static IDictionary<Type, MethodInfo> AverageWithSelectorMethodInfos { get; }
 
         static QueryableMethodProvider()
         {
@@ -202,6 +208,81 @@ namespace Microsoft.EntityFrameworkCore.Query
                 mi => mi.Name == nameof(Queryable.GroupBy) && mi.GetParameters().Length == 4 && IsExpressionOfFunc(mi.GetParameters()[1].ParameterType) && IsExpressionOfFunc(mi.GetParameters()[2].ParameterType) && IsExpressionOfFunc(mi.GetParameters()[3].ParameterType, 3));
             GroupByWithKeyResultSelectorMethodInfo = queryableMethods.Single(
                 mi => mi.Name == nameof(Queryable.GroupBy) && mi.GetParameters().Length == 3 && IsExpressionOfFunc(mi.GetParameters()[1].ParameterType) && IsExpressionOfFunc(mi.GetParameters()[2].ParameterType, 3));
+
+            MethodInfo GetSumOrAverageWithoutSelector<T>(string methodName)
+                => queryableMethods.Single(
+                    mi => mi.Name == methodName
+                          && mi.GetParameters().Length == 1
+                          && mi.GetParameters()[0].ParameterType.GetGenericArguments()[0] == typeof(T));
+
+            bool HasSelector<T>(Type type)
+                => type.IsGenericType
+                   && type.GetGenericTypeDefinition() == typeof(Expression<>)
+                   && type.GetGenericArguments()[0].IsGenericType
+                   && type.GetGenericArguments()[0].GetGenericArguments().Length == 2
+                   && type.GetGenericArguments()[0].GetGenericArguments()[1] == typeof(T);
+
+            MethodInfo GetSumOrAverageWithSelector<T>(string methodName)
+                => queryableMethods.Single(
+                    mi => mi.Name == methodName
+                          && mi.GetParameters().Length == 2
+                          && HasSelector<T>(mi.GetParameters()[1].ParameterType));
+
+            SumWithoutSelectorMethodInfos = new Dictionary<Type, MethodInfo>
+            {
+                { typeof(decimal), GetSumOrAverageWithoutSelector<decimal>(nameof(Queryable.Sum)) },
+                { typeof(long), GetSumOrAverageWithoutSelector<long>(nameof(Queryable.Sum)) },
+                { typeof(int), GetSumOrAverageWithoutSelector<int>(nameof(Queryable.Sum)) },
+                { typeof(double), GetSumOrAverageWithoutSelector<double>(nameof(Queryable.Sum)) },
+                { typeof(float), GetSumOrAverageWithoutSelector<float>(nameof(Queryable.Sum)) },
+                { typeof(decimal?), GetSumOrAverageWithoutSelector<decimal?>(nameof(Queryable.Sum)) },
+                { typeof(long?), GetSumOrAverageWithoutSelector<long?>(nameof(Queryable.Sum)) },
+                { typeof(int?), GetSumOrAverageWithoutSelector<int?>(nameof(Queryable.Sum)) },
+                { typeof(double?), GetSumOrAverageWithoutSelector<double?>(nameof(Queryable.Sum)) },
+                { typeof(float?), GetSumOrAverageWithoutSelector<float?>(nameof(Queryable.Sum)) },
+            };
+
+            SumWithSelectorMethodInfos = new Dictionary<Type, MethodInfo>
+            {
+                { typeof(decimal), GetSumOrAverageWithSelector<decimal>(nameof(Queryable.Sum)) },
+                { typeof(long), GetSumOrAverageWithSelector<long>(nameof(Queryable.Sum)) },
+                { typeof(int), GetSumOrAverageWithSelector<int>(nameof(Queryable.Sum)) },
+                { typeof(double), GetSumOrAverageWithSelector<double>(nameof(Queryable.Sum)) },
+                { typeof(float), GetSumOrAverageWithSelector<float>(nameof(Queryable.Sum)) },
+                { typeof(decimal?), GetSumOrAverageWithSelector<decimal?>(nameof(Queryable.Sum)) },
+                { typeof(long?), GetSumOrAverageWithSelector<long?>(nameof(Queryable.Sum)) },
+                { typeof(int?), GetSumOrAverageWithSelector<int?>(nameof(Queryable.Sum)) },
+                { typeof(double?), GetSumOrAverageWithSelector<double?>(nameof(Queryable.Sum)) },
+                { typeof(float?), GetSumOrAverageWithSelector<float?>(nameof(Queryable.Sum)) },
+            };
+
+            AverageWithoutSelectorMethodInfos = new Dictionary<Type, MethodInfo>
+            {
+                { typeof(decimal), GetSumOrAverageWithoutSelector<decimal>(nameof(Queryable.Average)) },
+                { typeof(long), GetSumOrAverageWithoutSelector<long>(nameof(Queryable.Average)) },
+                { typeof(int), GetSumOrAverageWithoutSelector<int>(nameof(Queryable.Average)) },
+                { typeof(double), GetSumOrAverageWithoutSelector<double>(nameof(Queryable.Average)) },
+                { typeof(float), GetSumOrAverageWithoutSelector<float>(nameof(Queryable.Average)) },
+                { typeof(decimal?), GetSumOrAverageWithoutSelector<decimal?>(nameof(Queryable.Average)) },
+                { typeof(long?), GetSumOrAverageWithoutSelector<long?>(nameof(Queryable.Average)) },
+                { typeof(int?), GetSumOrAverageWithoutSelector<int?>(nameof(Queryable.Average)) },
+                { typeof(double?), GetSumOrAverageWithoutSelector<double?>(nameof(Queryable.Average)) },
+                { typeof(float?), GetSumOrAverageWithoutSelector<float?>(nameof(Queryable.Average)) },
+            };
+
+            AverageWithSelectorMethodInfos = new Dictionary<Type, MethodInfo>
+            {
+                { typeof(decimal), GetSumOrAverageWithSelector<decimal>(nameof(Queryable.Average)) },
+                { typeof(long), GetSumOrAverageWithSelector<long>(nameof(Queryable.Average)) },
+                { typeof(int), GetSumOrAverageWithSelector<int>(nameof(Queryable.Average)) },
+                { typeof(double), GetSumOrAverageWithSelector<double>(nameof(Queryable.Average)) },
+                { typeof(float), GetSumOrAverageWithSelector<float>(nameof(Queryable.Average)) },
+                { typeof(decimal?), GetSumOrAverageWithSelector<decimal?>(nameof(Queryable.Average)) },
+                { typeof(long?), GetSumOrAverageWithSelector<long?>(nameof(Queryable.Average)) },
+                { typeof(int?), GetSumOrAverageWithSelector<int?>(nameof(Queryable.Average)) },
+                { typeof(double?), GetSumOrAverageWithSelector<double?>(nameof(Queryable.Average)) },
+                { typeof(float?), GetSumOrAverageWithSelector<float?>(nameof(Queryable.Average)) },
+            };
         }
     }
 }

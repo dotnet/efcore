@@ -35,6 +35,12 @@ WHERE (c[""Discriminator""] = ""Order"")");
         }
 
         [ConditionalTheory(Skip = "Issue#16146")]
+        public override Task Sum_with_no_data_cast_to_nullable(bool isAsync)
+        {
+            return base.Sum_with_no_data_cast_to_nullable(isAsync);
+        }
+
+        [ConditionalTheory(Skip = "Issue#16146")]
         public override async Task Sum_with_binary_expression(bool isAsync)
         {
             await base.Sum_with_binary_expression(isAsync);
@@ -180,6 +186,17 @@ WHERE ((c[""Discriminator""] = ""Order"") AND (c[""OrderID""] < 10250))");
             base.Average_no_data();
         }
 
+
+        [ConditionalFact(Skip = "Issue#16146")]
+        public override void Average_no_data_nullable()
+        {
+        }
+
+        [ConditionalFact(Skip = "Issue#16146")]
+        public override void Average_no_data_cast_to_nullable()
+        {
+        }
+
         [ConditionalFact(Skip = "Issue#16146")]
         public override void Min_no_data()
         {
@@ -202,6 +219,16 @@ WHERE ((c[""Discriminator""] = ""Order"") AND (c[""OrderID""] < 10250))");
         public override void Max_no_data_subquery()
         {
             base.Max_no_data_subquery();
+        }
+
+        [ConditionalFact(Skip = "Issue#16146")]
+        public override void Max_no_data_nullable()
+        {
+        }
+
+        [ConditionalFact(Skip = "Issue#16146")]
+        public override void Max_no_data_cast_to_nullable()
+        {
         }
 
         [ConditionalFact(Skip = "Issue#16146")]
@@ -401,6 +428,17 @@ WHERE (c[""Discriminator""] = ""Order"")");
                 @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Order"")");
+        }
+
+
+        [ConditionalFact(Skip = "Issue#16146")]
+        public override void Min_no_data_nullable()
+        {
+        }
+
+        [ConditionalFact(Skip = "Issue#16146")]
+        public override void Min_no_data_cast_to_nullable()
+        {
         }
 
         [ConditionalTheory(Skip = "Issue#16146")]
