@@ -42,19 +42,21 @@ Update-Database
     <ItemGroup>
       <NuspecProperty Include="version=$(PackageVersion)" />
       <NuspecProperty Include="configuration=$(Configuration)" />
-      <NuspecProperty Include="targetDir=$(TargetDir)" />
+      <NuspecProperty Include="intermediateOutputPath=$(IntermediateOutputPath)" />
     </ItemGroup>
   </Target>
 
   <Import Project="Sdk.targets" Sdk="Microsoft.NET.Sdk" />
 
-  <Target Name="Compile"
+  <Target Name="GenerateContent"
+    BeforeTargets="GenerateNuspec"
     Inputs="$(MSBuildAllProjects);@(GeneratedContent)"
-    Outputs="@(GeneratedContent->'$(TargetDir)%(FileName)'">
+    Outputs="@(GeneratedContent->'$(IntermediateOutputPath)%(FileName)'">
     <!-- TODO: Use dotnet/arcade#204 when available -->
-    <WriteLinesToFile Lines="$([System.IO.File]::ReadAllText('%(GeneratedContent.Identity)').Replace('${VersionPrefix}', $(VersionPrefix)))" File="$(TargetDir)%(FileName)" />
+    <WriteLinesToFile Lines="$([System.IO.File]::ReadAllText('%(GeneratedContent.Identity)').Replace('${VersionPrefix}', $(VersionPrefix)))" File="$(IntermediateOutputPath)%(FileName)" Overwrite="True" />
   </Target>
 
+  <Target Name="Compile" />
   <Target Name="CopyFilesToOutputDirectory" />
 
 </Project>

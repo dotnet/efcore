@@ -16,7 +16,24 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         {
             if (methodCallExpression.Method.DeclaringType == typeof(Enumerable))
             {
-                var arguments = VisitAndConvert(methodCallExpression.Arguments, nameof(VisitMethodCall));
+                if (methodCallExpression.Method.Name == nameof(Enumerable.SequenceEqual))
+                {
+                    // Skip SequenceEqual over enumerable since it could be over byte[] or other array properties
+                    // Ideally we could make check in nav expansion about it (since it can bind to property)
+                    // But since we don't translate SequenceEqual anyway, this is fine for now.
+                    return base.VisitMethodCall(methodCallExpression);
+                }
+
+                if (methodCallExpression.Arguments.Count > 0
+                    && (methodCallExpression.Arguments[0] is ParameterExpression
+                        || methodCallExpression.Arguments[0] is ConstantExpression))
+                {
+                    // this is methodCall over closure variable or constant
+                    return base.VisitMethodCall(methodCallExpression);
+                }
+
+                var arguments = VisitAndConvert(methodCallExpression.Arguments, nameof(VisitMethodCall)).ToArray();
+
                 var enumerableMethod = methodCallExpression.Method;
                 var enumerableParameters = enumerableMethod.GetParameters();
                 Type[] genericArguments = null;
@@ -81,8 +98,16 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                             continue;
                         }
 
-                        if (CanConvertEnumerableToQueryable(enumerableParameterType, queryableParameterType, arguments[i].Type))
+                        if (CanConvertEnumerableToQueryable(enumerableParameterType, queryableParameterType))
                         {
+                            if (arguments[i].Type.TryGetElementType(typeof(IQueryable<>)) == null)
+                            {
+                                arguments[i] = Expression.Call(
+                                    QueryableMethodProvider.AsQueryableMethodInfo.MakeGenericMethod(
+                                        arguments[i].Type.TryGetSequenceType()),
+                                    arguments[i]);
+                            }
+
                             continue;
                         }
 
@@ -108,11 +133,31 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
                 return methodCallExpression.Update(Visit(methodCallExpression.Object), arguments);
             }
+            else if (methodCallExpression.Method.DeclaringType.IsGenericType
+                && methodCallExpression.Method.DeclaringType.GetGenericTypeDefinition() == typeof(List<>)
+                && string.Equals(nameof(List<int>.Contains), methodCallExpression.Method.Name))
+            {
+                if (methodCallExpression.Object is ParameterExpression
+                    || methodCallExpression.Object is ConstantExpression)
+                {
+                    // this is methodCall over closure variable or constant
+                    return base.VisitMethodCall(methodCallExpression);
+                }
+
+                var sourceType = methodCallExpression.Method.DeclaringType.GetGenericArguments()[0];
+
+                return Expression.Call(
+                    QueryableMethodProvider.ContainsMethodInfo.MakeGenericMethod(sourceType),
+                    Expression.Call(
+                        QueryableMethodProvider.AsQueryableMethodInfo.MakeGenericMethod(sourceType),
+                        methodCallExpression.Object),
+                    methodCallExpression.Arguments[0]);
+            }
 
             return base.VisitMethodCall(methodCallExpression);
         }
 
-        private static bool CanConvertEnumerableToQueryable(Type enumerableType, Type queryableType, Type argumentType)
+        private static bool CanConvertEnumerableToQueryable(Type enumerableType, Type queryableType)
         {
             if (enumerableType == typeof(IEnumerable)
                 && queryableType == typeof(IQueryable))
@@ -122,7 +167,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             if (!enumerableType.IsGenericType
                 || !queryableType.IsGenericType
-                || argumentType.TryGetElementType(typeof(IQueryable<>)) == null
                 || !enumerableType.GetGenericArguments().SequenceEqual(queryableType.GetGenericArguments()))
             {
                 return false;

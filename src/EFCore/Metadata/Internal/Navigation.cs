@@ -160,38 +160,37 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
 
             var navigationTargetClrType = navigationProperty.GetMemberType().TryGetSequenceType();
-            if (shouldBeCollection == false
-                || navigationTargetClrType?.GetTypeInfo().IsAssignableFrom(targetClrType.GetTypeInfo()) != true)
+            shouldBeCollection ??= navigationTargetClrType != null && navigationProperty.GetMemberType() != targetClrType;
+            if (shouldBeCollection.Value
+                && navigationTargetClrType?.GetTypeInfo().IsAssignableFrom(targetClrType.GetTypeInfo()) != true)
             {
-                if (shouldBeCollection == true)
+                if (shouldThrow)
                 {
-                    if (shouldThrow)
-                    {
-                        throw new InvalidOperationException(
-                            CoreStrings.NavigationCollectionWrongClrType(
-                                navigationProperty.Name,
-                                sourceClrType.ShortDisplayName(),
-                                navigationProperty.GetMemberType().ShortDisplayName(),
-                                targetClrType.ShortDisplayName()));
-                    }
-
-                    return false;
+                    throw new InvalidOperationException(
+                        CoreStrings.NavigationCollectionWrongClrType(
+                            navigationProperty.Name,
+                            sourceClrType.ShortDisplayName(),
+                            navigationProperty.GetMemberType().ShortDisplayName(),
+                            targetClrType.ShortDisplayName()));
                 }
 
-                if (!navigationProperty.GetMemberType().GetTypeInfo().IsAssignableFrom(targetClrType.GetTypeInfo()))
-                {
-                    if (shouldThrow)
-                    {
-                        throw new InvalidOperationException(
-                            CoreStrings.NavigationSingleWrongClrType(
-                                navigationProperty.Name,
-                                sourceClrType.ShortDisplayName(),
-                                navigationProperty.GetMemberType().ShortDisplayName(),
-                                targetClrType.ShortDisplayName()));
-                    }
+                return false;
+            }
 
-                    return false;
+            if (!shouldBeCollection.Value
+                && !navigationProperty.GetMemberType().GetTypeInfo().IsAssignableFrom(targetClrType.GetTypeInfo()))
+            {
+                if (shouldThrow)
+                {
+                    throw new InvalidOperationException(
+                        CoreStrings.NavigationSingleWrongClrType(
+                            navigationProperty.Name,
+                            sourceClrType.ShortDisplayName(),
+                            navigationProperty.GetMemberType().ShortDisplayName(),
+                            targetClrType.ShortDisplayName()));
                 }
+
+                return false;
             }
 
             return true;

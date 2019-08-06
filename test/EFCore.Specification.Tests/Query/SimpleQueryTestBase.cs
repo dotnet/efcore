@@ -526,6 +526,23 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
+        public virtual Task Entity_equality_through_DTO_projection(bool isAsync)
+            => AssertQuery<Order>(
+                isAsync,
+                o => o
+                    .Select(o => new CustomerWrapper { Customer = o.Customer })
+                    .Where(x => x.Customer != null),
+                entryCount: 89);
+
+        private class CustomerWrapper
+        {
+            public Customer Customer { get; set; }
+            public override bool Equals(object obj) => obj is CustomerWrapper other && other.Customer.Equals(Customer);
+            public override int GetHashCode() => Customer.GetHashCode();
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task Entity_equality_through_subquery(bool isAsync)
             => AssertQuery<Customer>(
                 isAsync,
@@ -537,7 +554,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalFact]
         public virtual void Entity_equality_through_subquery_composite_key()
         {
-            Assert.Throws<NotSupportedException>(() =>
+            Assert.Throws<InvalidOperationException>(() =>
                 CreateContext().Orders
                     .Where(o => o.OrderDetails.FirstOrDefault() == new OrderDetail
                     {
@@ -5994,6 +6011,15 @@ namespace Microsoft.EntityFrameworkCore.Query
             return AssertQuery<Order>(
                 isAsync,
                 os => os.Select(o => new Order { OrderDate = o.OrderDate.Value }));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Navigation_inside_interpolated_string_is_expanded(bool isAsync)
+        {
+            return AssertQuery<Order>(
+                isAsync,
+                os => os.Select(o => $"CustomerCity:{o.Customer.City}"));
         }
     }
 }

@@ -169,7 +169,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Update.Internal
                     var embeddedEntry = ((InternalEntityEntry)entry).StateManager.TryGetEntry(embeddedValue, fk.DeclaringEntityType);
                     if (embeddedEntry == null)
                     {
-                        return document;
+                        continue;
                     }
 
                     var embeddedDocument = embeddedDocumentSource.GetCurrentDocument(embeddedEntry);
@@ -211,12 +211,9 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Update.Internal
         }
 
         public virtual JObject GetCurrentDocument(IUpdateEntry entry)
-        {
-            var document = _jObjectProperty != null
+            => _jObjectProperty != null
                 ? (JObject)(entry.SharedIdentityEntry ?? entry).GetCurrentValue(_jObjectProperty)
                 : null;
-            return document;
-        }
 
         private static JToken ConvertPropertyValue(IProperty property, object value)
         {

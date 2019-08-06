@@ -117,8 +117,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual void UpdateConfigurationSource(ConfigurationSource configurationSource)
-            => _configurationSource = _configurationSource.Max(configurationSource);
+        public virtual bool UpdateConfigurationSource(ConfigurationSource configurationSource)
+        {
+            var oldConfigurationSource = _configurationSource;
+            _configurationSource = _configurationSource.Max(configurationSource);
+            return _configurationSource != oldConfigurationSource;
+        }
 
         // Needed for a workaround before reference counting is implemented
         // Issue #214

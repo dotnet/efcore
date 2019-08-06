@@ -9,7 +9,6 @@ using System.Reflection;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Query;
-using Microsoft.EntityFrameworkCore.Query.NavigationExpansion.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
@@ -19,16 +18,51 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         private const string CompiledQueryParameterPrefix = "__";
 
         private readonly QueryableMethodTranslatingExpressionVisitor _queryableMethodTranslatingExpressionVisitor;
+        private readonly EntityProjectionFindingExpressionVisitor _entityProjectionFindingExpressionVisitor;
 
         public InMemoryExpressionTranslatingExpressionVisitor(
             QueryableMethodTranslatingExpressionVisitor queryableMethodTranslatingExpressionVisitor)
         {
             _queryableMethodTranslatingExpressionVisitor = queryableMethodTranslatingExpressionVisitor;
+            _entityProjectionFindingExpressionVisitor = new EntityProjectionFindingExpressionVisitor();
+        }
+
+        private class EntityProjectionFindingExpressionVisitor : ExpressionVisitor
+        {
+            private bool _found;
+            public bool Find(Expression expression)
+            {
+                _found = false;
+
+                Visit(expression);
+
+                return _found;
+            }
+
+            public override Expression Visit(Expression expression)
+            {
+                if (_found)
+                {
+                    return expression;
+                }
+
+                if (expression is EntityProjectionExpression)
+                {
+                    _found = true;
+                    return expression;
+                }
+
+                return base.Visit(expression);
+            }
         }
 
         public virtual Expression Translate(Expression expression)
         {
-            return Visit(expression);
+            var result = Visit(expression);
+
+            return _entityProjectionFindingExpressionVisitor.Find(result)
+                ? null
+                : result;
         }
 
         protected override Expression VisitMember(MemberExpression memberExpression)
@@ -243,9 +277,6 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                             ? translation
                             : Expression.Convert(translation, nullConditionalExpression.Type);
                     }
-
-                case CorrelationPredicateExpression correlationPredicateExpression:
-                    return Visit(correlationPredicateExpression.EqualExpression);
 
                 default:
                     throw new InvalidOperationException();

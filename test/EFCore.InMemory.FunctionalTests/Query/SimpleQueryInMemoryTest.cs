@@ -217,13 +217,17 @@ namespace Microsoft.EntityFrameworkCore.Query
             return Task.CompletedTask; //base.Select_Except_reference_projection(isAsync);
         }
 
-        #endregion
-
-        [ConditionalFact(Skip = "Issue#16564")]
-        public override void Contains_over_entityType_with_null_should_rewrite_to_identity_equality()
+        public override Task GroupBy_Select_Union(bool isAsync)
         {
-            base.Contains_over_entityType_with_null_should_rewrite_to_identity_equality();
+            return Task.CompletedTask; //base.GroupBy_Select_Union(isAsync);
         }
+
+        public override Task Union_over_different_projection_types(bool isAsync, string leftType, string rightType)
+        {
+            return Task.CompletedTask; //base.Union_over_different_projection_types(isAsync);
+        }
+
+        #endregion
 
         [ConditionalTheory(Skip = "Issue#15711")]
         public override Task Include_with_orderby_skip_preserves_ordering(bool isAsync)
@@ -253,24 +257,6 @@ namespace Microsoft.EntityFrameworkCore.Query
         public override void Select_nested_collection_multi_level6()
         {
             base.Select_nested_collection_multi_level6();
-        }
-
-        [ConditionalTheory(Skip = "Issue#16564")]
-        public override Task Where_subquery_FirstOrDefault_compared_to_entity(bool isAsync)
-        {
-            return base.Where_subquery_FirstOrDefault_compared_to_entity(isAsync);
-        }
-
-        [ConditionalTheory(Skip = "Issue#16564")]
-        public override Task Where_query_composition_entity_equality_one_element_FirstOrDefault(bool isAsync)
-        {
-            return base.Where_query_composition_entity_equality_one_element_FirstOrDefault(isAsync);
-        }
-
-        [ConditionalTheory(Skip = "Issue#16564")]
-        public override Task Where_query_composition_entity_equality_no_elements_FirstOrDefault(bool isAsync)
-        {
-            return base.Where_query_composition_entity_equality_no_elements_FirstOrDefault(isAsync);
         }
 
         [ConditionalTheory(Skip = "Issue#16575")]

@@ -2979,7 +2979,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 os => os.GroupBy(o => o.CustomerID).Select(g => g.Sum(gg => gg.OrderID)));
         }
 
-        [ConditionalTheory(Skip = "Issue#16389")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual async Task All_after_GroupBy_aggregate(bool isAsync)
         {
@@ -2989,7 +2989,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 predicate: ee => true);
         }
 
-        [ConditionalTheory(Skip = "Issue#16389")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual async Task All_after_GroupBy_aggregate2(bool isAsync)
         {
@@ -2999,7 +2999,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 predicate: ee => ee >= 0);
         }
 
-        [ConditionalTheory(Skip = "Issue#16389")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual async Task Any_after_GroupBy_aggregate(bool isAsync)
         {

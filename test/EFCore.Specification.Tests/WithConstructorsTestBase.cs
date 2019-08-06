@@ -1178,7 +1178,9 @@ namespace Microsoft.EntityFrameworkCore
             private ICollection<LazyFieldPost> _lazyFieldPosts = new List<LazyFieldPost>();
 
 #pragma warning disable 649
+#pragma warning disable IDE0044 // Add readonly modifier
             private ILazyLoader _loader;
+#pragma warning restore IDE0044 // Add readonly modifier
 #pragma warning restore 649
 
             public int Id { get; set; }
@@ -1195,7 +1197,9 @@ namespace Microsoft.EntityFrameworkCore
             private LazyFieldBlog _lazyFieldBlog;
 
 #pragma warning disable 649
+#pragma warning disable IDE0044 // Add readonly modifier
             private ILazyLoader _loader;
+#pragma warning restore IDE0044 // Add readonly modifier
 #pragma warning restore 649
 
             public int Id { get; set; }

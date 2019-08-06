@@ -32,39 +32,31 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             await base.From_sql_queryable_stored_procedure(async);
 
-            Assert.Equal(
-                "[dbo].[Ten Most Expensive Products]",
-                Sql);
+            AssertSql("[dbo].[Ten Most Expensive Products]");
         }
 
         public override async Task From_sql_queryable_stored_procedure_projection(bool async)
         {
             await base.From_sql_queryable_stored_procedure_projection(async);
 
-            Assert.Equal(
-                "[dbo].[Ten Most Expensive Products]",
-                Sql);
+            AssertSql("[dbo].[Ten Most Expensive Products]");
         }
 
         public override async Task From_sql_queryable_stored_procedure_with_parameter(bool async)
         {
             await base.From_sql_queryable_stored_procedure_with_parameter(async);
 
-            Assert.Equal(
+            AssertSql(
                 @"p0='ALFKI' (Size = 4000)
 
-[dbo].[CustOrderHist] @CustomerID = @p0",
-                Sql,
-                ignoreLineEndingDifferences: true);
+[dbo].[CustOrderHist] @CustomerID = @p0");
         }
 
         public override async Task From_sql_queryable_stored_procedure_re_projection_on_client(bool async)
         {
             await base.From_sql_queryable_stored_procedure_re_projection_on_client(async);
 
-            Assert.Equal(
-                "[dbo].[Ten Most Expensive Products]",
-                Sql);
+            AssertSql("[dbo].[Ten Most Expensive Products]");
         }
 
         public override async Task<Exception> From_sql_queryable_stored_procedure_re_projection(bool async)
@@ -74,9 +66,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             await base.From_sql_queryable_stored_procedure_composed_on_client(async);
 
-            Assert.Equal(
-                "[dbo].[Ten Most Expensive Products]",
-                Sql);
+            AssertSql("[dbo].[Ten Most Expensive Products]");
         }
 
         public override async Task<Exception> From_sql_queryable_stored_procedure_composed(bool async)
@@ -86,12 +76,10 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             await base.From_sql_queryable_stored_procedure_with_parameter_composed_on_client(async);
 
-            Assert.Equal(
+            AssertSql(
                 @"p0='ALFKI' (Size = 4000)
 
-[dbo].[CustOrderHist] @CustomerID = @p0",
-                Sql,
-                ignoreLineEndingDifferences: true);
+[dbo].[CustOrderHist] @CustomerID = @p0");
         }
 
         public override async Task<Exception> From_sql_queryable_stored_procedure_with_parameter_composed(bool async)
@@ -101,9 +89,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             await base.From_sql_queryable_stored_procedure_take_on_client(async);
 
-            Assert.Equal(
-                "[dbo].[Ten Most Expensive Products]",
-                Sql);
+            AssertSql("[dbo].[Ten Most Expensive Products]");
         }
 
         public override async Task<Exception> From_sql_queryable_stored_procedure_take(bool async)
@@ -113,9 +99,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             await base.From_sql_queryable_stored_procedure_min_on_client(async);
 
-            Assert.Equal(
-                "[dbo].[Ten Most Expensive Products]",
-                Sql);
+            AssertSql("[dbo].[Ten Most Expensive Products]");
         }
 
         public override async Task<Exception> From_sql_queryable_stored_procedure_min(bool async)
@@ -130,9 +114,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         public override async Task<Exception> From_sql_queryable_select_and_stored_procedure(bool async)
             => AssertSqlException(await base.From_sql_queryable_select_and_stored_procedure(async));
 
-        private static readonly string _eol = Environment.NewLine;
-
-        private string Sql => Fixture.TestSqlLoggerFactory.Sql;
+        private void AssertSql(params string[] expected)
+            => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 
         protected override string TenMostExpensiveProductsSproc => "[dbo].[Ten Most Expensive Products]";
 

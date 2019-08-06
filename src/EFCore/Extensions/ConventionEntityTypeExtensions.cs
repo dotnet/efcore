@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using JetBrains.Annotations;
@@ -51,6 +52,30 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> The derived types. </returns>
         public static IEnumerable<IConventionEntityType> GetDirectlyDerivedTypes([NotNull] this IConventionEntityType entityType)
             => ((EntityType)entityType).GetDirectlyDerivedTypes();
+
+        /// <summary>
+        ///     Returns all base types of the given <see cref="IEntityType" />, including the type itself, top to bottom.
+        /// </summary>
+        /// <param name="entityType"> The entity type. </param>
+        /// <returns> Base types. </returns>
+        public static IEnumerable<IConventionEntityType> GetAllBaseTypesInclusive([NotNull] this IConventionEntityType entityType)
+            => GetAllBaseTypesInclusiveAscending(entityType).Reverse();
+
+        /// <summary>
+        ///     Returns all base types of the given <see cref="IEntityType" />, including the type itself, bottom to top.
+        /// </summary>
+        /// <param name="entityType"> The entity type. </param>
+        /// <returns> Base types. </returns>
+        public static IEnumerable<IConventionEntityType> GetAllBaseTypesInclusiveAscending([NotNull] this IConventionEntityType entityType)
+        {
+            Check.NotNull(entityType, nameof(entityType));
+
+            while (entityType != null)
+            {
+                yield return entityType;
+                entityType = entityType.BaseType;
+            }
+        }
 
         /// <summary>
         ///     <para>

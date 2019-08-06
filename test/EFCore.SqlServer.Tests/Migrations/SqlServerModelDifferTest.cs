@@ -136,7 +136,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     Assert.Equal("bah", operation.Schema);
                     Assert.Equal("Lamb", operation.Table);
                     Assert.Equal("Id", operation.Name);
-                    Assert.Equal(SqlServerValueGenerationStrategy.IdentityColumn, operation["SqlServer:ValueGenerationStrategy"]);
+                    Assert.Equal("1, 1", operation["SqlServer:Identity"]);
                 });
         }
 
@@ -168,7 +168,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     Assert.Equal("bah", operation.Schema);
                     Assert.Equal("Lamb", operation.Table);
                     Assert.Equal("Num", operation.Name);
-                    Assert.Equal(SqlServerValueGenerationStrategy.IdentityColumn, operation["SqlServer:ValueGenerationStrategy"]);
+                    Assert.Equal("1, 1", operation["SqlServer:Identity"]);
                 });
         }
 
@@ -334,7 +334,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     Assert.Equal(2, createTableOperation.Columns.Count);
                     var idColumn = createTableOperation.Columns[0];
                     Assert.Equal("Id", idColumn.Name);
-                    Assert.Equal(SqlServerValueGenerationStrategy.IdentityColumn, idColumn["SqlServer:ValueGenerationStrategy"]);
+                    Assert.Equal("1, 1", idColumn["SqlServer:Identity"]);
                     var timeColumn = createTableOperation.Columns[1];
                     Assert.Equal("Time", timeColumn.Name);
                     Assert.True(timeColumn.IsNullable);

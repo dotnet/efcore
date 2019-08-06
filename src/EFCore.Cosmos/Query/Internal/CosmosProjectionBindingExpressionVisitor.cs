@@ -3,9 +3,11 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq.Expressions;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.Cosmos.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -237,6 +239,92 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
             }
         }
 
+        protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
+        {
+            if (methodCallExpression.TryGetEFPropertyArguments(out var source, out var memberName))
+            {
+                if (!_clientEval)
+                {
+                    return null;
+                }
+
+                var visitedSource = Visit(source);
+
+                EntityShaperExpression shaperExpression;
+                switch (visitedSource)
+                {
+                    case EntityShaperExpression shaper:
+                        shaperExpression = shaper;
+                        break;
+
+                    case UnaryExpression unaryExpression:
+                        shaperExpression = unaryExpression.Operand as EntityShaperExpression;
+                        if (shaperExpression == null)
+                        {
+                            return null;
+                        }
+                        break;
+
+                    default:
+                        return null;
+                }
+
+                EntityProjectionExpression innerEntityProjection;
+                switch (shaperExpression.ValueBufferExpression)
+                {
+                    case ProjectionBindingExpression innerProjectionBindingExpression:
+                        innerEntityProjection = (EntityProjectionExpression)_selectExpression.Projection[
+                            innerProjectionBindingExpression.Index.Value].Expression;
+                        break;
+
+                    case UnaryExpression unaryExpression:
+                        innerEntityProjection = (EntityProjectionExpression)((UnaryExpression)unaryExpression.Operand).Operand;
+                        break;
+
+                    default:
+                        throw new InvalidOperationException();
+                }
+
+                var navigationProjection = innerEntityProjection.BindMember(
+                    memberName, visitedSource.Type, clientEval: true, out var propertyBase);
+
+                if (!(propertyBase is INavigation navigation)
+                    || !navigation.IsEmbedded())
+                {
+                    return null;
+                }
+
+                switch (navigationProjection)
+                {
+                    case EntityProjectionExpression entityProjection:
+                        return new EntityShaperExpression(
+                            navigation.GetTargetType(),
+                            Expression.Convert(Expression.Convert(entityProjection, typeof(object)), typeof(ValueBuffer)),
+                            nullable: true);
+
+                    case ObjectArrayProjectionExpression objectArrayProjectionExpression:
+                        {
+                            var innerShaperExpression = new EntityShaperExpression(
+                                navigation.GetTargetType(),
+                                Expression.Convert(
+                                    Expression.Convert(objectArrayProjectionExpression.InnerProjection, typeof(object)), typeof(ValueBuffer)),
+                                nullable: true);
+
+                            return new CollectionShaperExpression(
+                                objectArrayProjectionExpression,
+                                innerShaperExpression,
+                                navigation,
+                                innerShaperExpression.EntityType.ClrType);
+                        }
+
+                    default:
+                        throw new InvalidOperationException();
+                }
+            }
+
+            return base.VisitMethodCall(methodCallExpression);
+        }
+
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
         ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -332,37 +420,55 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         /// </summary>
         protected override Expression VisitMemberInit(MemberInitExpression memberInitExpression)
         {
-            var newExpression = (NewExpression)Visit(memberInitExpression.NewExpression);
+            var newExpression = VisitAndConvert(memberInitExpression.NewExpression, nameof(VisitMemberInit));
             if (newExpression == null)
             {
                 return null;
             }
 
-            var newBindings = new MemberAssignment[memberInitExpression.Bindings.Count];
+            var newBindings = new MemberBinding[memberInitExpression.Bindings.Count];
             for (var i = 0; i < newBindings.Length; i++)
             {
-                var memberAssignment = (MemberAssignment)memberInitExpression.Bindings[i];
-                if (_clientEval)
+                if (memberInitExpression.Bindings[i].BindingType != MemberBindingType.Assignment)
                 {
-                    newBindings[i] = memberAssignment.Update(Visit(memberAssignment.Expression));
+                    return null;
                 }
-                else
+
+                newBindings[i] = VisitMemberBinding(memberInitExpression.Bindings[i]);
+
+                if (newBindings[i] == null)
                 {
-                    var projectionMember = _projectionMembers.Peek().Append(memberAssignment.Member);
-                    _projectionMembers.Push(projectionMember);
-
-                    var visitedExpression = Visit(memberAssignment.Expression);
-                    if (visitedExpression == null)
-                    {
-                        return null;
-                    }
-
-                    newBindings[i] = memberAssignment.Update(visitedExpression);
-                    _projectionMembers.Pop();
+                    return null;
                 }
             }
 
             return memberInitExpression.Update(newExpression, newBindings);
+        }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        protected override MemberAssignment VisitMemberAssignment(MemberAssignment memberAssignment)
+        {
+            if (_clientEval)
+            {
+                return memberAssignment.Update(Visit(memberAssignment.Expression));
+            }
+
+            var projectionMember = _projectionMembers.Peek().Append(memberAssignment.Member);
+            _projectionMembers.Push(projectionMember);
+
+            var visitedExpression = Visit(memberAssignment.Expression);
+            if (visitedExpression == null)
+            {
+                return null;
+            }
+
+            _projectionMembers.Pop();
+            return memberAssignment.Update(visitedExpression);
         }
 
         // TODO: Debugging

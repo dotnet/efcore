@@ -31,7 +31,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             base.Query_with_owned_entity_equality_operator();
         }
 
-        [ConditionalFact(Skip = "Issue#16392")]
+        [ConditionalFact(Skip = "Count #16146")]
         public override void Navigation_rewrite_on_owned_collection()
         {
             base.Navigation_rewrite_on_owned_collection();
@@ -42,16 +42,20 @@ FROM root c
 WHERE ((c[""Discriminator""] = ""LeafB"") OR ((c[""Discriminator""] = ""LeafA"") OR ((c[""Discriminator""] = ""Branch"") OR (c[""Discriminator""] = ""OwnedPerson""))))");
         }
 
-        [ConditionalFact(Skip = "Issue#16392")]
+        [ConditionalFact(Skip = "Issue#16926")]
         public override void Navigation_rewrite_on_owned_collection_with_composition()
         {
             base.Navigation_rewrite_on_owned_collection_with_composition();
+
+            AssertSql(" ");
         }
 
-        [ConditionalFact(Skip = "Issue#16392")]
+        [ConditionalFact(Skip = "Issue#16926")]
         public override void Navigation_rewrite_on_owned_collection_with_composition_complex()
         {
             base.Navigation_rewrite_on_owned_collection_with_composition_complex();
+
+            AssertSql(" ");
         }
 
         public override void Navigation_rewrite_on_owned_reference_projecting_entity()
@@ -220,9 +224,6 @@ WHERE (c[""Discriminator""] = ""LeafA"")");
 
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
-
-        private void AssertContainsSql(params string[] expected)
-            => Fixture.TestSqlLoggerFactory.AssertBaseline(expected, assertOrder: false);
 
         private void ClearLog()
             => Fixture.TestSqlLoggerFactory.Clear();

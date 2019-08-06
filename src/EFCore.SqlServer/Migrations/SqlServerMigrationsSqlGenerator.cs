@@ -117,14 +117,15 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             MigrationCommandListBuilder builder,
             bool terminate)
         {
+            if (!terminate && operation.Comment != null)
+            {
+                throw new ArgumentException($"When generating migrations SQL for {nameof(AddColumnOperation)}, can't produce unterminated SQL with comments");
+            }
 
-            var valueGenerationStrategy = operation[
-                SqlServerAnnotationNames.ValueGenerationStrategy] as SqlServerValueGenerationStrategy?;
-            var identity = valueGenerationStrategy == SqlServerValueGenerationStrategy.IdentityColumn;
-            if (identity)
+            if (IsIdentity(operation))
             {
                 // NB: This gets added to all added non-nullable columns by MigrationsModelDiffer. We need to suppress
-                //     it, here because SQL Server can have both IDENTITY and a DEFAULT constraint on the same column.
+                //     it, here because SQL Server can't have both IDENTITY and a DEFAULT constraint on the same column.
                 operation.DefaultValue = null;
             }
 
@@ -132,9 +133,14 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 
             if (terminate)
             {
-                builder
-                    .AppendLine(Dependencies.SqlGenerationHelper.StatementTerminator)
-                    .EndCommand(suppressTransaction: IsMemoryOptimized(operation, model, operation.Schema, operation.Table));
+                builder.AppendLine(Dependencies.SqlGenerationHelper.StatementTerminator);
+
+                if (operation.Comment != null)
+                {
+                    AddDropComment(builder, operation.Comment, null, operation.Schema, operation.Table, operation.Name);
+                }
+
+                builder.EndCommand(suppressTransaction: IsMemoryOptimized(operation, model, operation.Schema, operation.Table));
             }
         }
 
@@ -251,13 +257,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             var narrowed = false;
             if (IsOldColumnSupported(model))
             {
-                var valueGenerationStrategy = operation[
-                    SqlServerAnnotationNames.ValueGenerationStrategy] as SqlServerValueGenerationStrategy?;
-                var identity = valueGenerationStrategy == SqlServerValueGenerationStrategy.IdentityColumn;
-                var oldValueGenerationStrategy = operation.OldColumn[
-                    SqlServerAnnotationNames.ValueGenerationStrategy] as SqlServerValueGenerationStrategy?;
-                var oldIdentity = oldValueGenerationStrategy == SqlServerValueGenerationStrategy.IdentityColumn;
-                if (identity != oldIdentity)
+                if (IsIdentity(operation) != IsIdentity(operation.OldColumn))
                 {
                     throw new InvalidOperationException(SqlServerStrings.AlterIdentityColumn);
                 }
@@ -309,7 +309,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 OldColumn = operation.OldColumn
             };
             definitionOperation.AddAnnotations(
-                operation.GetAnnotations().Where(a => a.Name != SqlServerAnnotationNames.ValueGenerationStrategy));
+                operation.GetAnnotations().Where(
+                    a => a.Name != SqlServerAnnotationNames.ValueGenerationStrategy
+                        && a.Name != SqlServerAnnotationNames.Identity));
 
             ColumnDefinition(
                 operation.Schema,
@@ -337,14 +339,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 
             if (operation.OldColumn.Comment != operation.Comment)
             {
-                if (operation.OldColumn.Comment != null)
-                {
-                    EndStatement(builder);
-
-                    GenerateDropExtendedProperty(builder, model, "Comment", operation.Schema, operation.Table, operation.Name);
-                }
-
-                GenerateComment(operation, model, builder, operation.Comment, operation.Schema, operation.Table, operation.Name);
+                AddDropComment(builder, operation.Comment, operation.OldColumn.Comment, operation.Schema, operation.Table, operation.Name);
             }
 
             if (narrowed)
@@ -458,6 +453,11 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             MigrationCommandListBuilder builder,
             bool terminate = true)
         {
+            if (!terminate && operation.Comment != null)
+            {
+                throw new ArgumentException($"When generating migrations SQL for {nameof(CreateTableOperation)}, can't produce unterminated SQL with comments");
+            }
+
             base.Generate(operation, model, builder, terminate: false);
 
             var memoryOptimized = IsMemoryOptimized(operation);
@@ -474,12 +474,19 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 }
             }
 
-            if (terminate)
+            builder.AppendLine(Dependencies.SqlGenerationHelper.StatementTerminator);
+
+            if (operation.Comment != null)
             {
-                builder
-                    .AppendLine(Dependencies.SqlGenerationHelper.StatementTerminator)
-                    .EndCommand(suppressTransaction: memoryOptimized);
+                AddDropComment(builder, operation.Comment, null, operation.Schema, operation.Name);
             }
+
+            foreach (var column in operation.Columns.Where(c => c.Comment != null))
+            {
+                AddDropComment(builder, column.Comment, null, operation.Schema, operation.Name, column.Name);
+            }
+
+            builder.EndCommand(suppressTransaction: memoryOptimized);
         }
 
         /// <summary>
@@ -1275,22 +1282,19 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 model,
                 builder);
 
-            var valueGenerationStrategy = operation[
-                SqlServerAnnotationNames.ValueGenerationStrategy] as SqlServerValueGenerationStrategy?;
-            var identity = valueGenerationStrategy == SqlServerValueGenerationStrategy.IdentityColumn;
-            if (identity)
+            var identity = operation[SqlServerAnnotationNames.Identity] as string;
+            if (identity != null
+                || operation[SqlServerAnnotationNames.ValueGenerationStrategy] as SqlServerValueGenerationStrategy? == SqlServerValueGenerationStrategy.IdentityColumn)
             {
-                var identitySeed = operation[
-                    SqlServerAnnotationNames.IdentitySeed] as int?;
-
-                var identityIncrement = operation[
-                    SqlServerAnnotationNames.IdentityIncrement] as int?;
-
                 builder.Append(" IDENTITY");
 
-                if ((identitySeed != null && identitySeed != 1) || (identityIncrement != null && identityIncrement != 1))
+                if (!string.IsNullOrEmpty(identity)
+                    && identity != "1, 1")
                 {
-                    builder.Append($"({identitySeed ?? 1},{identityIncrement ?? 1})");
+                    builder
+                        .Append("(")
+                        .Append(identity)
+                        .Append(")");
                 }
             }
         }
@@ -1631,117 +1635,193 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         }
 
         /// <summary>
-        ///     Generates SQL to create comment extended properties on table and columns.
+        ///     <para>
+        ///         Generates add and drop commands for comments on tables and columns.
+        ///     </para>
         /// </summary>
-        /// <param name="operation"> The operation. </param>
-        /// <param name="model"> The target model which may be <c>null</c> if the operations exist without a model. </param>
         /// <param name="builder"> The command builder to use to build the commands. </param>
-        /// <param name="comment"> The comment to be applied. </param>
+        /// <param name="comment"> The new comment to be applied. </param>
+        /// <param name="oldComment"> The previous comment. </param>
         /// <param name="schema"> The schema of the table. </param>
         /// <param name="table"> The name of the table. </param>
         /// <param name="columnName"> The column name if comment is being applied to a column. </param>
-        protected override void GenerateComment(
-            MigrationOperation operation,
-            IModel model,
-            MigrationCommandListBuilder builder,
-            string comment,
-            string schema,
-            string table,
-            string columnName = null)
+        protected virtual void AddDropComment(
+            [NotNull] MigrationCommandListBuilder builder,
+            [CanBeNull] string comment,
+            [CanBeNull] string oldComment,
+            [NotNull] string schema,
+            [NotNull] string table,
+            [CanBeNull] string columnName = null)
         {
-            Check.NotNull(operation, nameof(operation));
-            Check.NotNull(builder, nameof(builder));
-            Check.NotNull(table, nameof(table));
+            if (comment == oldComment)
+            {
+                return;
+            }
+
+            if (oldComment != null)
+            {
+                GenerateDropExtendedProperty(builder,
+                    "Comment",
+                    "Schema", schema,
+                    "Table", table,
+                    columnName == null ? null : "Column", columnName);
+            }
 
             if (comment != null)
             {
-                EndStatement(builder);
-
-                GenerateCreateExtendedProperty(builder, model, "Comment", comment, schema, table, columnName);
+                GenerateAddExtendedProperty(builder,
+                    "Comment", comment,
+                    "Schema", schema,
+                    "Table", table,
+                    columnName == null ? null : "Column", columnName);
             }
         }
 
         /// <summary>
-        ///     Generates SQL to create a extended property on table and columns.
+        ///     Generates SQL to create a extended property.
         /// </summary>
+        /// <remarks>
+        /// See https://docs.microsoft.com/en-us/sql/relational-databases/system-stored-procedures/sp-addextendedproperty-transact-sql?view=sql-server-2017
+        /// </remarks>
         /// <param name="builder"> The command builder to use to build the commands. </param>
-        /// <param name="model"> The target model which may be <c>null</c> if the operations exist without a model. </param>
         /// <param name="name"> The name of the extended property. </param>
         /// <param name="value"> The value of the extended property. </param>
-        /// <param name="schema"> The schema of the table. </param>
-        /// <param name="table"> The name of the table. </param>
-        /// <param name="columnName"> The column name if comment is being applied to a column. </param>
-        protected virtual void GenerateCreateExtendedProperty(
+        /// <param name="level0Type">
+        ///     The type of level 0 object.
+        ///     Valid inputs are ASSEMBLY, CONTRACT, EVENT NOTIFICATION, FILEGROUP, MESSAGE TYPE, PARTITION FUNCTION, PARTITION SCHEME,
+        ///     REMOTE SERVICE BINDING, ROUTE, SCHEMA, SERVICE, USER, TRIGGER, TYPE, PLAN GUIDE, and NULL.
+        /// </param>
+        /// <param name="level0Name"> The name of the level 0 object type specified. </param>
+        /// <param name="level1Type">
+        ///     The type of level 1 object.
+        ///     Valid inputs are AGGREGATE, DEFAULT, FUNCTION, LOGICAL FILE NAME, PROCEDURE, QUEUE, RULE, SEQUENCE, SYNONYM, TABLE,
+        ///     TABLE_TYPE, TYPE, VIEW, XML SCHEMA COLLECTION, and NULL.
+        /// </param>
+        /// <param name="level1Name"> The name of the level 0 object type specified. </param>
+        /// <param name="level2Type">
+        ///     The type of level 2 object.
+        ///     Valid inputs are COLUMN, CONSTRAINT, EVENT NOTIFICATION, INDEX, PARAMETER, TRIGGER, and NULL.
+        /// </param>
+        /// <param name="level2Name"> The name of the level 2 object type specified. </param>
+        protected virtual void GenerateAddExtendedProperty(
             [NotNull] MigrationCommandListBuilder builder,
-            [CanBeNull] IModel model,
             [NotNull] string name,
-            [NotNull] string value,
-            [CanBeNull] string schema,
-            [NotNull] string table,
-            [CanBeNull] string columnName = null)
+            [CanBeNull] string value,
+            [CanBeNull] string level0Type = null,
+            [CanBeNull] string level0Name = null,
+            [CanBeNull] string level1Type = null,
+            [CanBeNull] string level1Name = null,
+            [CanBeNull] string level2Type = null,
+            [CanBeNull] string level2Name = null)
         {
             Check.NotNull(builder, nameof(builder));
             Check.NotNull(name, nameof(name));
-            Check.NotNull(value, nameof(value));
-            Check.NotNull(table, nameof(table));
 
             var stringTypeMapping = Dependencies.TypeMappingSource.GetMapping(typeof(string));
 
-            builder
-                .Append("EXEC sp_addextendedproperty @name = ")
-                .Append(stringTypeMapping.GenerateSqlLiteral(name))
-                .Append(", @value = ")
-                .Append(stringTypeMapping.GenerateSqlLiteral(value))
-                .Append(", @level0type = N'Schema', @level0name = ")
-                .Append(stringTypeMapping.GenerateSqlLiteral(schema ?? model?.GetDefaultSchema()))
-                .Append(", @level1type = N'Table', @level1name = ")
-                .Append(stringTypeMapping.GenerateSqlLiteral(table));
+            builder.Append("EXEC sp_addextendedproperty @name = ").Append(stringTypeMapping.GenerateSqlLiteral(name));
+            if (value != null)
+            {
+                builder.Append(", @value = ").Append(stringTypeMapping.GenerateSqlLiteral(value));
+            }
 
-            if (columnName != null)
+            if (level0Type != null)
             {
                 builder
-                    .Append(", @level2type = N'Column', @level2name = ")
-                    .Append(stringTypeMapping.GenerateSqlLiteral(columnName));
+                    .Append(", @level0type = ")
+                    .Append(stringTypeMapping.GenerateSqlLiteral(level0Type))
+                    .Append(", @level0name = ")
+                    .Append(stringTypeMapping.GenerateSqlLiteral(level0Name));
+
+                if (level1Type != null)
+                {
+                    builder
+                        .Append(", @level1type = ")
+                        .Append(stringTypeMapping.GenerateSqlLiteral(level1Type))
+                        .Append(", @level1name = ")
+                        .Append(stringTypeMapping.GenerateSqlLiteral(level1Name));
+
+                    if (level2Type != null)
+                    {
+                        builder
+                            .Append(", @level2type = ")
+                            .Append(stringTypeMapping.GenerateSqlLiteral(level2Type))
+                            .Append(", @level2name = ")
+                            .Append(stringTypeMapping.GenerateSqlLiteral(level2Name));
+                    }
+                }
             }
+
+            builder.AppendLine(Dependencies.SqlGenerationHelper.StatementTerminator);
         }
 
         /// <summary>
-        ///     Generates SQL to drop a extended property on table and columns.
+        ///     Generates SQL to drop a extended property.
         /// </summary>
         /// <param name="builder"> The command builder to use to build the commands. </param>
-        /// <param name="model"> The target model which may be <c>null</c> if the operations exist without a model. </param>
         /// <param name="name"> The name of the extended property. </param>
-        /// <param name="schema"> The schema of the table. </param>
-        /// <param name="table"> The name of the table. </param>
-        /// <param name="columnName"> The column name if comment is being applied to a column. </param>
+        /// <param name="level0Type">
+        ///     The type of level 0 object.
+        ///     Valid inputs are ASSEMBLY, CONTRACT, EVENT NOTIFICATION, FILEGROUP, MESSAGE TYPE, PARTITION FUNCTION, PARTITION SCHEME,
+        ///     REMOTE SERVICE BINDING, ROUTE, SCHEMA, SERVICE, USER, TRIGGER, TYPE, PLAN GUIDE, and NULL.
+        /// </param>
+        /// <param name="level0Name"> The name of the level 0 object type specified. </param>
+        /// <param name="level1Type">
+        ///     The type of level 1 object.
+        ///     Valid inputs are AGGREGATE, DEFAULT, FUNCTION, LOGICAL FILE NAME, PROCEDURE, QUEUE, RULE, SEQUENCE, SYNONYM, TABLE,
+        ///     TABLE_TYPE, TYPE, VIEW, XML SCHEMA COLLECTION, and NULL.
+        /// </param>
+        /// <param name="level1Name"> The name of the level 0 object type specified. </param>
+        /// <param name="level2Type">
+        ///     The type of level 2 object.
+        ///     Valid inputs are COLUMN, CONSTRAINT, EVENT NOTIFICATION, INDEX, PARAMETER, TRIGGER, and NULL.
+        /// </param>
+        /// <param name="level2Name"> The name of the level 2 object type specified. </param>
         protected virtual void GenerateDropExtendedProperty(
             [NotNull] MigrationCommandListBuilder builder,
-            [CanBeNull] IModel model,
             [NotNull] string name,
-            [CanBeNull] string schema,
-            [NotNull] string table,
-            [CanBeNull] string columnName = null)
+            [CanBeNull] string level0Type = null,
+            [CanBeNull] string level0Name = null,
+            [CanBeNull] string level1Type = null,
+            [CanBeNull] string level1Name = null,
+            [CanBeNull] string level2Type = null,
+            [CanBeNull] string level2Name = null)
         {
             Check.NotNull(builder, nameof(builder));
             Check.NotNull(name, nameof(name));
-            Check.NotNull(table, nameof(table));
 
             var stringTypeMapping = Dependencies.TypeMappingSource.GetMapping(typeof(string));
 
-            builder
-                .Append("EXEC sp_dropextendedproperty @name = ")
-                .Append(stringTypeMapping.GenerateSqlLiteral(name))
-                .Append(", @level0type = N'Schema', @level0name = ")
-                .Append(stringTypeMapping.GenerateSqlLiteral(schema ?? model?.GetDefaultSchema()))
-                .Append(", @level1type = N'Table', @level1name = ")
-                .Append(stringTypeMapping.GenerateSqlLiteral(table));
+            builder.Append("EXEC sp_dropextendedproperty @name = ").Append(stringTypeMapping.GenerateSqlLiteral(name));
 
-            if (columnName != null)
+            if (level0Type != null)
             {
                 builder
-                    .Append(", @level2type = N'Column', @level2name = ")
-                    .Append(stringTypeMapping.GenerateSqlLiteral(columnName));
+                    .Append(", @level0type = ")
+                    .Append(stringTypeMapping.GenerateSqlLiteral(level0Type))
+                    .Append(", @level0name = ")
+                    .Append(stringTypeMapping.GenerateSqlLiteral(level0Name));
+
+                if (level1Type != null)
+                {
+                    builder
+                        .Append(", @level1type = ")
+                        .Append(stringTypeMapping.GenerateSqlLiteral(level1Type))
+                        .Append(", @level1name = ")
+                        .Append(stringTypeMapping.GenerateSqlLiteral(level1Name));
+
+                    if (level2Type != null)
+                    {
+                        builder
+                            .Append(", @level2type = ")
+                            .Append(stringTypeMapping.GenerateSqlLiteral(level2Type))
+                            .Append(", @level2name = ")
+                            .Append(stringTypeMapping.GenerateSqlLiteral(level2Name));
+                    }
+                }
             }
+
+            builder.AppendLine(Dependencies.SqlGenerationHelper.StatementTerminator);
         }
 
         /// <summary>
@@ -1762,5 +1842,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 
         private static bool IsMemoryOptimized(Annotatable annotatable)
             => annotatable[SqlServerAnnotationNames.MemoryOptimized] as bool? == true;
+
+        private static bool IsIdentity(ColumnOperation operation)
+            => operation[SqlServerAnnotationNames.Identity] != null
+                || operation[SqlServerAnnotationNames.ValueGenerationStrategy] as SqlServerValueGenerationStrategy? == SqlServerValueGenerationStrategy.IdentityColumn;
     }
 }

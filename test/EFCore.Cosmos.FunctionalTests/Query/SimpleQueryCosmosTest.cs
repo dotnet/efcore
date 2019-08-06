@@ -3828,6 +3828,12 @@ WHERE (c[""Discriminator""] = ""Customer"")");
         }
 
         [ConditionalTheory(Skip = "Issue#14935")]
+        public override async Task Entity_equality_through_DTO_projection(bool isAsync)
+        {
+            await base.Entity_equality_through_DTO_projection(isAsync);
+        }
+
+        [ConditionalTheory(Skip = "Issue#14935")]
         public override Task GroupJoin_customers_employees_shadow(bool isAsync)
         {
             return base.GroupJoin_customers_employees_shadow(isAsync);
@@ -4035,6 +4041,12 @@ WHERE (c[""Discriminator""] = ""Customer"")");
         public override Task Inner_parameter_in_nested_lambdas_gets_preserved(bool isAsync)
         {
             return base.Inner_parameter_in_nested_lambdas_gets_preserved(isAsync);
+        }
+
+        [ConditionalTheory(Skip = "Issue #14935")]
+        public override Task Navigation_inside_interpolated_string_is_expanded(bool isAsync)
+        {
+            return base.Navigation_inside_interpolated_string_is_expanded(isAsync);
         }
 
         private void AssertSql(params string[] expected)

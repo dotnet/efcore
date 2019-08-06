@@ -243,13 +243,13 @@ namespace Microsoft.EntityFrameworkCore
             var modelBuilder = CreateModelBuilder();
 
             modelBuilder.Entity<Unit1>();
-            modelBuilder.Entity<BaseEntity1>();
+            modelBuilder.Entity<BaseEntity1>().Property(e => e.BaseClassProperty);
 
             Validate(modelBuilder);
 
             Assert.Null(modelBuilder.Model.FindEntityType(typeof(AbstractBaseEntity1)).FindProperty("BaseClassProperty"));
-            Assert.Null(modelBuilder.Model.FindEntityType(typeof(BaseEntity1)).FindProperty("BaseClassProperty"));
-            Assert.Null(modelBuilder.Model.FindEntityType(typeof(Unit1)).FindProperty("BaseClassProperty"));
+            Assert.NotNull(modelBuilder.Model.FindEntityType(typeof(BaseEntity1)).FindProperty("BaseClassProperty"));
+            Assert.NotNull(modelBuilder.Model.FindEntityType(typeof(Unit1)).FindProperty("BaseClassProperty"));
             Assert.Null(modelBuilder.Model.FindEntityType(typeof(AbstractBaseEntity1)).FindProperty("VirtualBaseClassProperty"));
             Assert.Null(modelBuilder.Model.FindEntityType(typeof(BaseEntity1)).FindProperty("VirtualBaseClassProperty"));
             Assert.Null(modelBuilder.Model.FindEntityType(typeof(Unit1)).FindProperty("VirtualBaseClassProperty"));
@@ -342,18 +342,16 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [ConditionalFact]
-        public virtual void NotMapped_on_overridden_mapped_base_class_property_throws()
+        public virtual void NotMapped_on_overridden_property_is_ignored()
         {
             var modelBuilder = CreateModelBuilder();
 
             modelBuilder.Entity<Unit3>();
             modelBuilder.Entity<BaseEntity3>();
 
-            Assert.Equal(
-                CoreStrings.InheritedPropertyCannotBeIgnored(
-                    nameof(Unit3.VirtualBaseClassProperty), typeof(Unit3).ShortDisplayName(), typeof(BaseEntity3).ShortDisplayName()),
-                Assert.Throws<InvalidOperationException>(
-                    () => Validate(modelBuilder)).Message);
+            Assert.NotNull(modelBuilder.Model.FindEntityType(typeof(Unit3)).FindProperty("VirtualBaseClassProperty"));
+
+            Validate(modelBuilder);
         }
 
         [ConditionalFact]

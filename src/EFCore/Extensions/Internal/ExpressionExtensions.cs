@@ -8,9 +8,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
@@ -82,46 +80,6 @@ namespace Microsoft.EntityFrameworkCore.Internal
             return propertyInfos?.Count == 1 ? propertyInfos[0] : null;
         }
 
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public static IReadOnlyList<PropertyInfo> GetComplexPropertyAccess(
-            [NotNull] this LambdaExpression propertyAccessExpression,
-            [NotNull] string methodName)
-        {
-            if (!TryGetComplexPropertyAccess(propertyAccessExpression, out var propertyPath))
-            {
-                throw new ArgumentException(
-                    CoreStrings.InvalidIncludeLambdaExpression(methodName, propertyAccessExpression));
-            }
-
-            return propertyPath;
-        }
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public static bool TryGetComplexPropertyAccess(
-            [NotNull] this LambdaExpression propertyAccessExpression,
-            out IReadOnlyList<PropertyInfo> propertyPath)
-        {
-            Debug.Assert(propertyAccessExpression.Parameters.Count == 1);
-
-            propertyPath
-                = propertyAccessExpression
-                    .Parameters
-                    .Single()
-                    .MatchPropertyAccess(propertyAccessExpression.Body);
-
-            return propertyPath != null;
-        }
-
         private static IReadOnlyList<PropertyInfo> MatchPropertyAccess(
             this Expression parameterExpression, Expression propertyAccessExpression)
         {
@@ -183,26 +141,6 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public static bool IsComparisonOperation([NotNull] this Expression expression)
-        {
-            Check.NotNull(expression, nameof(expression));
-
-            return expression.Type == typeof(bool)
-                   && (expression.NodeType == ExpressionType.Equal
-                       || expression.NodeType == ExpressionType.NotEqual
-                       || expression.NodeType == ExpressionType.LessThan
-                       || expression.NodeType == ExpressionType.LessThanOrEqual
-                       || expression.NodeType == ExpressionType.GreaterThan
-                       || expression.NodeType == ExpressionType.GreaterThanOrEqual
-                       || expression.NodeType == ExpressionType.Not);
-        }
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
         public static bool IsEntityQueryable([NotNull] this ConstantExpression constantExpression)
             => constantExpression.Type.GetTypeInfo().IsGenericType
                && constantExpression.Type.GetGenericTypeDefinition() == typeof(EntityQueryable<>);
@@ -230,41 +168,5 @@ namespace Microsoft.EntityFrameworkCore.Internal
             => (LambdaExpression)(expression is UnaryExpression unary && expression.NodeType == ExpressionType.Quote
             ? unary.Operand
             : expression);
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public static bool IsIncludeMethod(this MethodCallExpression methodCallExpression)
-            => methodCallExpression.Method.DeclaringType == typeof(EntityFrameworkQueryableExtensions)
-                && methodCallExpression.Method.Name == nameof(EntityFrameworkQueryableExtensions.Include);
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public static Expression BuildPropertyAccess(this Expression root, List<string> path, List<INavigation> navigations = null)
-        {
-            var result = root;
-            var i = (navigations?.Count ?? 0) - 1;
-            foreach (var pathElement in path)
-            {
-                var declaringType = navigations?[i--].DeclaringEntityType.ClrType;
-                if (declaringType != null
-                    && result.Type != declaringType
-                    && result.Type.IsAssignableFrom(declaringType)
-                    && !declaringType.IsAssignableFrom(result.Type))
-                {
-                    result = Expression.Convert(result, declaringType);
-                }
-                result = Expression.PropertyOrField(result, pathElement);
-            }
-
-            return result;
-        }
     }
 }

@@ -15,15 +15,10 @@ namespace Microsoft.EntityFrameworkCore
         {
             base.Property_entry_original_value_is_set();
 
-            // Issue #15285
-            /*AssertContainsSql(
-                @"SELECT ""e"".""Id"", ""e"".""EngineSupplierId"", ""e"".""Name"", ""t"".""Id"", ""t"".""StorageLocation_Latitude"", ""t"".""StorageLocation_Longitude""
+            AssertSql(
+                @"SELECT ""e"".""Id"", ""e"".""EngineSupplierId"", ""e"".""Name"", ""e0"".""Id"", ""e0"".""StorageLocation_Latitude"", ""e0"".""StorageLocation_Longitude""
 FROM ""Engines"" AS ""e""
-LEFT JOIN (
-    SELECT ""e.StorageLocation"".*
-    FROM ""Engines"" AS ""e.StorageLocation""
-    WHERE ""e.StorageLocation"".""StorageLocation_Longitude"" IS NOT NULL AND ""e.StorageLocation"".""StorageLocation_Latitude"" IS NOT NULL
-) AS ""t"" ON ""e"".""Id"" = ""t"".""Id""
+LEFT JOIN ""Engines"" AS ""e0"" ON ""e"".""Id"" = ""e0"".""Id""
 ORDER BY ""e"".""Id""
 LIMIT 1",
                 //
@@ -36,7 +31,10 @@ LIMIT 1",
 
 UPDATE ""Engines"" SET ""Name"" = @p0
 WHERE ""Id"" = @p1 AND ""EngineSupplierId"" = @p2 AND ""Name"" = @p3 AND ""StorageLocation_Latitude"" = @p4 AND ""StorageLocation_Longitude"" = @p5;
-SELECT changes();");*/
+SELECT changes();");
         }
+
+        private void AssertSql(params string[] expected)
+            => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
     }
 }

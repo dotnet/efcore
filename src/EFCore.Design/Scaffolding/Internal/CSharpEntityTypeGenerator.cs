@@ -11,7 +11,6 @@ using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.EntityFrameworkCore.Design.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
@@ -364,7 +363,10 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 {
                     var inversePropertyAttribute = new AttributeWriter(nameof(InversePropertyAttribute));
 
-                    inversePropertyAttribute.AddParameter($"nameof({inverseNavigation.DeclaringEntityType.Name}.{inverseNavigation.Name})");
+                    inversePropertyAttribute.AddParameter(
+                        navigation.Name != inverseNavigation.DeclaringEntityType.Name
+                            ? $"nameof({inverseNavigation.DeclaringEntityType.Name}.{inverseNavigation.Name})"
+                            : _code.Literal(inverseNavigation.Name));
 
                     _sb.AppendLine(inversePropertyAttribute.ToString());
                 }
