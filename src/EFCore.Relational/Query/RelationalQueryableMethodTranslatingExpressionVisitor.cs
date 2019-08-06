@@ -167,7 +167,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             var newSelector = selector == null
                 || selector.Body == selector.Parameters[0]
                 ? selectExpression.GetMappedProjection(new ProjectionMember())
-                : ReplacingExpressionVisitor.Replace(selector.Parameters.Single(), source.ShaperExpression, selector.Body);
+                : RemapLambdaBody(source, selector);
 
             var projection = _sqlTranslator.TranslateAverage(newSelector);
 
@@ -325,6 +325,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                         { original1, keyAccessExpression },
                         { original2, source.ShaperExpression }
                     }).Visit(resultSelector.Body);
+
+                newResultSelectorBody = ExpandWeakEntities(selectExpression, newResultSelectorBody);
 
                 source.ShaperExpression = _projectionBindingExpressionVisitor.Translate(selectExpression, newResultSelectorBody);
 
@@ -590,7 +592,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             var newSelector = selector == null
                 || selector.Body == selector.Parameters[0]
                 ? selectExpression.GetMappedProjection(new ProjectionMember())
-                : ReplacingExpressionVisitor.Replace(selector.Parameters.Single(), source.ShaperExpression, selector.Body);
+                : RemapLambdaBody(source, selector);
 
             var projection = _sqlTranslator.TranslateMax(newSelector);
 
@@ -605,7 +607,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             var newSelector = selector == null
                  || selector.Body == selector.Parameters[0]
                  ? selectExpression.GetMappedProjection(new ProjectionMember())
-                 : ReplacingExpressionVisitor.Replace(selector.Parameters.Single(), source.ShaperExpression, selector.Body);
+                 : RemapLambdaBody(source, selector);
 
             var projection = _sqlTranslator.TranslateMin(newSelector);
 
@@ -701,7 +703,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 selectExpression.PushdownIntoSubquery();
             }
 
-            var newSelectorBody = RemapLambdaBody(source, selector);
+            var newSelectorBody = ReplacingExpressionVisitor.Replace(
+                selector.Parameters.Single(), source.ShaperExpression, selector.Body);
             source.ShaperExpression = _projectionBindingExpressionVisitor.Translate(selectExpression, newSelectorBody);
 
             return source;
@@ -825,7 +828,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             var newSelector = selector == null
                 || selector.Body == selector.Parameters[0]
                 ? selectExpression.GetMappedProjection(new ProjectionMember())
-                : ReplacingExpressionVisitor.Replace(selector.Parameters.Single(), source.ShaperExpression, selector.Body);
+                : RemapLambdaBody(source, selector);
 
             var projection = _sqlTranslator.TranslateSum(newSelector);
 
@@ -901,10 +904,12 @@ namespace Microsoft.EntityFrameworkCore.Query
             var lambdaBody = ReplacingExpressionVisitor.Replace(
                 lambdaExpression.Parameters.Single(), shapedQueryExpression.ShaperExpression, lambdaExpression.Body);
 
-            var selectExpression = (SelectExpression)shapedQueryExpression.QueryExpression;
-            lambdaBody = _weakEntityExpandingExpressionVisitor.Expand(selectExpression, lambdaBody);
+            return ExpandWeakEntities((SelectExpression)shapedQueryExpression.QueryExpression, lambdaBody);
+        }
 
-            return lambdaBody;
+        internal Expression ExpandWeakEntities(SelectExpression selectExpression, Expression lambdaBody)
+        {
+            return _weakEntityExpandingExpressionVisitor.Expand(selectExpression, lambdaBody);
         }
 
         public class WeakEntityExpandingExpressionVisitor : ExpressionVisitor
@@ -914,7 +919,8 @@ namespace Microsoft.EntityFrameworkCore.Query
             private readonly ISqlExpressionFactory _sqlExpressionFactory;
 
             public WeakEntityExpandingExpressionVisitor(
-                RelationalSqlTranslatingExpressionVisitor sqlTranslator, ISqlExpressionFactory sqlExpressionFactory)
+                RelationalSqlTranslatingExpressionVisitor sqlTranslator,
+                ISqlExpressionFactory sqlExpressionFactory)
             {
                 _sqlTranslator = sqlTranslator;
                 _sqlExpressionFactory = sqlExpressionFactory;
@@ -965,6 +971,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                     return methodCallExpression.Update(null, new[] { source, methodCallExpression.Arguments[1] });
                 }
+
                 return base.VisitMethodCall(methodCallExpression);
             }
 
@@ -986,86 +993,110 @@ namespace Microsoft.EntityFrameworkCore.Query
                     }
                 }
 
-                if (source is EntityShaperExpression entityShaperExpression)
+                if (!(source is EntityShaperExpression entityShaperExpression))
                 {
-                    var entityType = entityShaperExpression.EntityType;
-                    if (convertedType != null)
+                    return null;
+                }
+
+                var entityType = entityShaperExpression.EntityType;
+                if (convertedType != null)
+                {
+                    entityType = entityType.RootType().GetDerivedTypesInclusive()
+                        .FirstOrDefault(et => et.ClrType == convertedType);
+
+                    if (entityType == null)
                     {
-                        entityType = entityType.RootType().GetDerivedTypesInclusive()
-                            .FirstOrDefault(et => et.ClrType == convertedType);
-
-                        if (entityType == null)
-                        {
-                            return null;
-                        }
-                    }
-
-                    var navigation = member.MemberInfo != null
-                        ? entityType.FindNavigation(member.MemberInfo)
-                        : entityType.FindNavigation(member.Name);
-
-                    if (navigation != null
-                        && navigation.ForeignKey.IsOwnership)
-                    {
-                        if (navigation.IsCollection())
-                        {
-                            var targetEntityType = navigation.GetTargetType();
-                            var innerSelectExpression = _sqlExpressionFactory.Select(targetEntityType);
-                            var innerShapedQuery = CreateShapedQueryExpression(targetEntityType, innerSelectExpression);
-
-                            var makeNullable = navigation.ForeignKey.PrincipalKey.Properties
-                                .Concat(navigation.ForeignKey.Properties)
-                                .Select(p => p.ClrType)
-                                .Any(t => t.IsNullableType());
-
-                            var outerKey = CreateKeyAccessExpression(
-                                entityShaperExpression, navigation.ForeignKey.PrincipalKey.Properties, makeNullable);
-                            var innerKey = CreateKeyAccessExpression(
-                                innerShapedQuery.ShaperExpression, navigation.ForeignKey.Properties, makeNullable);
-
-                            var correlationPredicate = _sqlTranslator.Translate(Expression.Equal(outerKey, innerKey));
-
-                            innerSelectExpression.ApplyPredicate(correlationPredicate);
-
-                            return innerShapedQuery;
-                        }
-
-                        var entityProjectionExpression = (EntityProjectionExpression)
-                            (entityShaperExpression.ValueBufferExpression is ProjectionBindingExpression projectionBindingExpression
-                                ? _selectExpression.GetMappedProjection(projectionBindingExpression.ProjectionMember)
-                                : entityShaperExpression.ValueBufferExpression);
-
-                        var innerShaper = entityProjectionExpression.BindNavigation(navigation);
-                        if (innerShaper == null)
-                        {
-                            var targetEntityType = navigation.GetTargetType();
-                            var innerSelectExpression = _sqlExpressionFactory.Select(targetEntityType);
-                            var innerShapedQuery = CreateShapedQueryExpression(targetEntityType, innerSelectExpression);
-
-                            var makeNullable = navigation.ForeignKey.PrincipalKey.Properties
-                                .Concat(navigation.ForeignKey.Properties)
-                                .Select(p => p.ClrType)
-                                .Any(t => t.IsNullableType());
-
-                            var outerKey = CreateKeyAccessExpression(
-                                entityShaperExpression, navigation.ForeignKey.PrincipalKey.Properties, makeNullable);
-                            var innerKey = CreateKeyAccessExpression(
-                                innerShapedQuery.ShaperExpression, navigation.ForeignKey.Properties, makeNullable);
-
-                            var joinPredicate = _sqlTranslator.Translate(Expression.Equal(outerKey, innerKey));
-                            _selectExpression.AddLeftJoin(innerSelectExpression, joinPredicate, null);
-                            var leftJoinTable = ((LeftJoinExpression)_selectExpression.Tables.Last()).Table;
-                            innerShaper = new EntityShaperExpression(targetEntityType,
-                                new EntityProjectionExpression(targetEntityType, leftJoinTable, true),
-                                true);
-                            entityProjectionExpression.AddNavigationBinding(navigation, innerShaper);
-                        }
-
-                        return innerShaper;
+                        return null;
                     }
                 }
 
-                return null;
+                var navigation = member.MemberInfo != null
+                    ? entityType.FindNavigation(member.MemberInfo)
+                    : entityType.FindNavigation(member.Name);
+
+                if (navigation == null)
+                {
+                    return null;
+                }
+
+                var targetEntityType = navigation.GetTargetType();
+                if (targetEntityType == null
+                    || (!targetEntityType.HasDefiningNavigation()
+                        && !targetEntityType.IsOwned()))
+                {
+                    return null;
+                }
+
+
+                if (navigation.IsCollection())
+                {
+                    var innerSelectExpression = _sqlExpressionFactory.Select(targetEntityType);
+                    var innerShapedQuery = CreateShapedQueryExpression(targetEntityType, innerSelectExpression);
+
+                    var makeNullable = navigation.ForeignKey.PrincipalKey.Properties
+                        .Concat(navigation.ForeignKey.Properties)
+                        .Select(p => p.ClrType)
+                        .Any(t => t.IsNullableType());
+
+                    var outerKey = CreateKeyAccessExpression(
+                        entityShaperExpression,
+                        navigation.IsDependentToPrincipal()
+                            ? navigation.ForeignKey.Properties
+                            : navigation.ForeignKey.PrincipalKey.Properties,
+                        makeNullable);
+                    var innerKey = CreateKeyAccessExpression(
+                        innerShapedQuery.ShaperExpression,
+                        navigation.IsDependentToPrincipal()
+                            ? navigation.ForeignKey.PrincipalKey.Properties
+                            : navigation.ForeignKey.Properties,
+                        makeNullable);
+
+                    var correlationPredicate = _sqlTranslator.Translate(Expression.Equal(outerKey, innerKey));
+
+                    innerSelectExpression.ApplyPredicate(correlationPredicate);
+
+                    return innerShapedQuery;
+                }
+
+                var entityProjectionExpression = (EntityProjectionExpression)
+                    (entityShaperExpression.ValueBufferExpression is ProjectionBindingExpression projectionBindingExpression
+                        ? _selectExpression.GetMappedProjection(projectionBindingExpression.ProjectionMember)
+                        : entityShaperExpression.ValueBufferExpression);
+
+                var innerShaper = entityProjectionExpression.BindNavigation(navigation);
+                if (innerShaper == null)
+                {
+                    var innerSelectExpression = _sqlExpressionFactory.Select(targetEntityType);
+                    var innerShapedQuery = CreateShapedQueryExpression(targetEntityType, innerSelectExpression);
+
+                    var makeNullable = navigation.ForeignKey.PrincipalKey.Properties
+                        .Concat(navigation.ForeignKey.Properties)
+                        .Select(p => p.ClrType)
+                        .Any(t => t.IsNullableType());
+
+                    var outerKey = CreateKeyAccessExpression(
+                        entityShaperExpression,
+                        navigation.IsDependentToPrincipal()
+                            ? navigation.ForeignKey.Properties
+                            : navigation.ForeignKey.PrincipalKey.Properties,
+                        makeNullable);
+                    var innerKey = CreateKeyAccessExpression(
+                        innerShapedQuery.ShaperExpression,
+                        navigation.IsDependentToPrincipal()
+                            ? navigation.ForeignKey.PrincipalKey.Properties
+                            : navigation.ForeignKey.Properties,
+                        makeNullable);
+
+                    var joinPredicate = _sqlTranslator.Translate(Expression.Equal(outerKey, innerKey));
+                    _selectExpression.AddLeftJoin(innerSelectExpression, joinPredicate, null);
+                    var leftJoinTable = ((LeftJoinExpression)_selectExpression.Tables.Last()).Table;
+                    innerShaper = new EntityShaperExpression(targetEntityType,
+                        new EntityProjectionExpression(targetEntityType, leftJoinTable, true),
+                        true);
+                    entityProjectionExpression.AddNavigationBinding(navigation, innerShaper);
+                }
+
+                return innerShaper;
             }
 
             public static Expression CreateKeyAccessExpression(

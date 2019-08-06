@@ -542,6 +542,8 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                 SetOperationType = SetOperationType
             };
 
+            var projectionMap = new Dictionary<SqlExpression, ColumnExpression>();
+
             ColumnExpression liftProjectionFromSubquery(SqlExpression projection)
             {
                 var index = subquery.AddToProjection(projection);
@@ -549,7 +551,35 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                 return new ColumnExpression(projectionExpression, subquery);
             }
 
-            var projectionMap = new Dictionary<SqlExpression, ColumnExpression>();
+            EntityProjectionExpression liftEntityProjectionFromSubquery(EntityProjectionExpression entityProjection)
+            {
+                var propertyExpressions = new Dictionary<IProperty, ColumnExpression>();
+                foreach (var property in GetAllPropertiesInHierarchy(entityProjection.EntityType))
+                {
+                    var innerColumn = entityProjection.BindProperty(property);
+                    var outerColumn = liftProjectionFromSubquery(innerColumn);
+                    projectionMap[innerColumn] = outerColumn;
+                    propertyExpressions[property] = outerColumn;
+                }
+
+                var newEntityProjection = new EntityProjectionExpression(entityProjection.EntityType, propertyExpressions);
+                // Also lift nested entity projections
+                foreach (var navigation in entityProjection.EntityType.GetTypesInHierarchy()
+                            .SelectMany(EntityTypeExtensions.GetDeclaredNavigations))
+                {
+                    var boundEntityShaperExpression = entityProjection.BindNavigation(navigation);
+                    if (boundEntityShaperExpression != null)
+                    {
+                        var innerEntityProjection = (EntityProjectionExpression)boundEntityShaperExpression.ValueBufferExpression;
+                        var newInnerEntityProjection = liftEntityProjectionFromSubquery(innerEntityProjection);
+                        boundEntityShaperExpression = boundEntityShaperExpression.Update(newInnerEntityProjection);
+                        newEntityProjection.AddNavigationBinding(navigation, boundEntityShaperExpression);
+                    }
+                }
+
+                return newEntityProjection;
+            }
+
             if (_projection.Any())
             {
                 var projections = _projection.Select(pe => pe.Expression).ToList();
@@ -567,16 +597,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                 {
                     if (mapping.Value is EntityProjectionExpression entityProjection)
                     {
-                        var propertyExpressions = new Dictionary<IProperty, ColumnExpression>();
-                        foreach (var property in GetAllPropertiesInHierarchy(entityProjection.EntityType))
-                        {
-                            var innerColumn = entityProjection.BindProperty(property);
-                            var outerColumn = liftProjectionFromSubquery(innerColumn);
-                            projectionMap[innerColumn] = outerColumn;
-                            propertyExpressions[property] = outerColumn;
-                        }
-
-                        _projectionMapping[mapping.Key] = new EntityProjectionExpression(entityProjection.EntityType, propertyExpressions);
+                        _projectionMapping[mapping.Key] = liftEntityProjectionFromSubquery(entityProjection);
                     }
                     else
                     {

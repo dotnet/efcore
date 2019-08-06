@@ -12,13 +12,11 @@ namespace Microsoft.EntityFrameworkCore
     {
         protected override ICollection<Type> IgnoredTestBases { get; } = new HashSet<Type>
         {
-            typeof(ComplexNavigationsWeakQueryTestBase<>), // issue #15285
             typeof(FiltersInheritanceTestBase<>),          // issue #15264
             typeof(FiltersTestBase<>),                     // issue #15264
             typeof(QueryFilterFuncletizationTestBase<>),   // issue #15264
             // Query pipeline
             typeof(ConcurrencyDetectorTestBase<>),
-            typeof(CompiledQueryTestBase<>),
             typeof(ConcurrencyDetectorRelationalTestBase<>),
             typeof(QueryNoClientEvalTestBase<>),
             typeof(WarningsTestBase<>),
