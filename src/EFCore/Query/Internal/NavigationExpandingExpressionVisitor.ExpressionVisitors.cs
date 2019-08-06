@@ -132,9 +132,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     return expansion;
                 }
 
-                if (navigation.GetTargetType().IsOwned())
+                var targetType = navigation.GetTargetType();
+                if (targetType.HasDefiningNavigation()
+                    || targetType.IsOwned())
                 {
-                    var ownedEntityReference = new EntityReference(navigation.GetTargetType());
+                    var ownedEntityReference = new EntityReference(targetType);
                     ownedEntityReference.MarkAsOptional();
                     if (entityReference.IncludePaths.ContainsKey(navigation))
                     {
@@ -144,7 +146,12 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     var ownedExpansion = new OwnedNavigationReference(root, navigation, ownedEntityReference);
                     if (navigation.IsCollection())
                     {
-                        return new MaterializeCollectionNavigationExpression(ownedExpansion, navigation);
+                        var elementType = ownedExpansion.Type.TryGetSequenceType();
+                        var subquery = Expression.Call(
+                            QueryableMethodProvider.AsQueryableMethodInfo.MakeGenericMethod(elementType),
+                            ownedExpansion);
+
+                        return new MaterializeCollectionNavigationExpression(subquery, navigation);
                     }
                     else
                     {
@@ -153,7 +160,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     }
                 }
 
-                var innerQueryableType = navigation.GetTargetType().ClrType;
+                var innerQueryableType = targetType.ClrType;
                 var innerQueryable = NullAsyncQueryProvider.Instance.CreateEntityQueryableExpression(innerQueryableType);
                 var innerSource = (NavigationExpansionExpression)_navigationExpandingExpressionVisitor.Visit(innerQueryable);
                 if (entityReference.IncludePaths.ContainsKey(navigation))
@@ -458,43 +465,15 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     }
 
                     var included = ExpandNavigation(convertedRoot, entityReference, navigation, converted);
-                    if (navigation.ForeignKey.IsOwnership)
+                    // Collection will expand it's includes when reducing the navigationExpansionExpression
+                    if (!navigation.IsCollection())
                     {
-                        if (navigation.IsCollection())
-                        {
-                            var subquery = ((MaterializeCollectionNavigationExpression)included).Subquery;
-                            var includedEntityReference = ((OwnedNavigationReference)subquery).EntityReference;
-                            var elementType = navigation.ClrType.TryGetSequenceType();
-                            var collectionSelectorParameter = Expression.Parameter(elementType);
-                            var nestedInclude = ExpandIncludesHelper(collectionSelectorParameter, includedEntityReference);
-                            if (nestedInclude is IncludeExpression)
-                            {
-                                subquery = Expression.Call(
-                                    QueryableMethodProvider.SelectMethodInfo.MakeGenericMethod(elementType, elementType),
-                                    Expression.Call(
-                                        QueryableMethodProvider.AsQueryableMethodInfo.MakeGenericMethod(elementType),
-                                        subquery),
-                                    Expression.Quote(
-                                        Expression.Lambda(nestedInclude, collectionSelectorParameter)));
-                            }
+                        var innerEntityReference = navigation.GetTargetType().HasDefiningNavigation()
+                            || navigation.GetTargetType().IsOwned()
+                            ? ((OwnedNavigationReference)included).EntityReference
+                            : (EntityReference)((NavigationTreeExpression)included).Value;
 
-                            included = new MaterializeCollectionNavigationExpression(subquery, navigation);
-                        }
-                        else
-                        {
-                            var includedEntityReference = ((OwnedNavigationReference)included).EntityReference;
-                            included = ExpandIncludesHelper(included, includedEntityReference);
-                        }
-                    }
-                    else
-                    {
-                        // Collection will expand it's includes when reducing the navigationExpansionExpression
-                        if (!navigation.IsCollection())
-                        {
-                            var navigationTreeExpression = (NavigationTreeExpression)included;
-                            var innerEntityReference = (EntityReference)navigationTreeExpression.Value;
-                            included = ExpandIncludesHelper(navigationTreeExpression, innerEntityReference);
-                        }
+                        included = ExpandIncludesHelper(included, innerEntityReference);
                     }
 
                     result = new IncludeExpression(result, included, navigation);
@@ -525,6 +504,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     pendingSelector = Visit(pendingSelector);
 
                     navigationExpansionExpression.ApplySelector(pendingSelector);
+
+                    return navigationExpansionExpression;
                 }
 
                 return base.Visit(expression);
@@ -604,6 +585,17 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
                     case OwnedNavigationReference ownedNavigationReference:
                         return Visit(ownedNavigationReference.Parent).CreateEFPropertyExpression(ownedNavigationReference.Navigation);
+
+                    case IncludeExpression includeExpression:
+                        var entityExpression = Visit(includeExpression.EntityExpression);
+                        var navigationExpression = ReplacingExpressionVisitor.Replace(
+                            includeExpression.EntityExpression,
+                            entityExpression,
+                            includeExpression.NavigationExpression);
+
+                        navigationExpression = Visit(navigationExpression);
+
+                        return includeExpression.Update(entityExpression, navigationExpression);
 
                     default:
                         return base.Visit(expression);
