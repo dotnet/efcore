@@ -9,7 +9,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations
     /// <summary>
     ///     A <see cref="MigrationOperation" /> for creating a new table.
     /// </summary>
-    public class CreateTableOperation : MigrationOperation
+    public class CreateTableOperation : TableOperation
     {
         /// <summary>
         ///     The name of the table.
@@ -20,11 +20,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations
         ///     The schema that contains the table, or <c>null</c> if the default schema should be used.
         /// </summary>
         public virtual string Schema { get; [param: CanBeNull] set; }
-
-        /// <summary>
-        ///     Comment for this table
-        /// </summary>
-        public virtual string Comment { get; [param: CanBeNull] set; }
 
         /// <summary>
         ///     The <see cref="AddPrimaryKeyOperation" /> representing the creation of the primary key for the table.

@@ -768,6 +768,14 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                         .Append(Code.Literal(operation.Comment));
                 }
 
+                if (operation.OldTable.Comment != null)
+                {
+                    builder
+                        .AppendLine(",")
+                        .Append("oldComment: ")
+                        .Append(Code.Literal(operation.OldTable.Comment));
+                }
+
                 builder.Append(")");
 
                 Annotations(operation.GetAnnotations(), builder);
@@ -1051,6 +1059,13 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                             builder
                                 .Append(", defaultValue: ")
                                 .Append(Code.UnknownLiteral(column.DefaultValue));
+                        }
+
+                        if (column.Comment != null)
+                        {
+                            builder
+                                .Append(", comment: ")
+                                .Append(Code.Literal(operation.Comment));
                         }
 
                         builder.Append(")");
