@@ -83,11 +83,14 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                             return expression;
 
                         case MaterializeCollectionNavigationExpression materializeCollectionNavigationExpression:
-                            //return _selectExpression.AddCollectionProjection(
-                            //    _queryableMethodTranslatingExpressionVisitor.TranslateSubquery(
-                            //    materializeCollectionNavigationExpression.Subquery),
-                            //    materializeCollectionNavigationExpression.Navigation, null);
-                            throw new NotImplementedException();
+
+                            var translated = _queryableMethodTranslatingExpressionVisitor.TranslateSubquery(
+                                materializeCollectionNavigationExpression.Subquery);
+
+                            return new ProjectionBindingExpression(
+                                _queryExpression,
+                                _queryExpression.AddToProjection(translated),
+                                typeof(IEnumerable<>).MakeGenericType(materializeCollectionNavigationExpression.Navigation.GetTargetType().ClrType));
 
                         case MethodCallExpression methodCallExpression:
                         {

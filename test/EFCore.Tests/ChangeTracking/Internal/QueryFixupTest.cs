@@ -33,7 +33,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             }
         }
 
-        [ConditionalFact(Skip = "Issue #16963")]
+        [ConditionalFact]
         public void Query_principal_include_dependent()
         {
             Seed();
@@ -74,7 +74,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             }
         }
 
-        [ConditionalFact(Skip = "Issue #16963")]
+        [ConditionalFact]
         public void Query_principal_include_dependent_unidirectional()
         {
             Seed();
@@ -220,7 +220,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             }
         }
 
-        [ConditionalFact(Skip = "Issue #16963")]
+        [ConditionalFact]
         public void Query_principal_include_dependent_self_ref()
         {
             Seed();
@@ -305,7 +305,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             }
         }
 
-        [ConditionalFact(Skip = "Issue #16963")]
+        [ConditionalFact]
         public void Query_principal_include_dependent_self_ref_unidirectional()
         {
             Seed();
@@ -500,7 +500,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             }
         }
 
-        [ConditionalFact(Skip = "Issue #16963")]
+        [ConditionalFact]
         public void Query_principal_include_dependent_multiple_relationships()
         {
             Seed();
@@ -558,7 +558,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             }
         }
 
-        [ConditionalTheory(Skip = "Issue #16963")]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
@@ -624,7 +624,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             }
         }
 
-        [ConditionalTheory(Skip = "Issue #16963")]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
@@ -726,7 +726,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             }
         }
 
-        [ConditionalTheory(Skip = "Issue #16963")]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
@@ -860,7 +860,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             }
         }
 
-        [ConditionalTheory(Skip = "Issue #16963")]
+        [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Unchanged)]
