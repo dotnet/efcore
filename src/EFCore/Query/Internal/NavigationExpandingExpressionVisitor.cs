@@ -151,9 +151,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 var firstArgument = Visit(methodCallExpression.Arguments[0]);
                 if (firstArgument is NavigationExpansionExpression source)
                 {
-                    var genericMethod = methodCallExpression.Method.IsGenericMethod
-                        ? methodCallExpression.Method.GetGenericMethodDefinition()
-                        : null;
+                    var method = methodCallExpression.Method;
+                    var genericMethod = method.IsGenericMethod ? method.GetGenericMethodDefinition() : null;
 
                     if (source.PendingOrderings.Any()
                         && genericMethod != QueryableMethodProvider.ThenByMethodInfo
@@ -183,13 +182,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
                         case nameof(Queryable.All)
                         when genericMethod == QueryableMethodProvider.AllMethodInfo:
-
                         case nameof(Queryable.Any)
                         when genericMethod == QueryableMethodProvider.AnyWithPredicateMethodInfo:
-
                         case nameof(Queryable.Count)
                         when genericMethod == QueryableMethodProvider.CountWithPredicateMethodInfo:
-
                         case nameof(Queryable.LongCount)
                         when genericMethod == QueryableMethodProvider.LongCountWithPredicateMethodInfo:
                             return ProcessAllAnyCountLongCount(
@@ -197,10 +193,16 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                                 genericMethod,
                                 methodCallExpression.Arguments[1].UnwrapLambdaFromQuote());
 
-                        case nameof(Queryable.Average):
-                        case nameof(Queryable.Max):
-                        case nameof(Queryable.Min):
-                        case nameof(Queryable.Sum):
+                        case nameof(Queryable.Average)
+                        when QueryableMethodProvider.IsAverageMethodInfo(method):
+                        case nameof(Queryable.Sum)
+                        when QueryableMethodProvider.IsSumMethodInfo(method):
+                        case nameof(Queryable.Max)
+                        when genericMethod == QueryableMethodProvider.MaxWithoutSelectorMethodInfo ||
+                             genericMethod == QueryableMethodProvider.MaxWithSelectorMethodInfo:
+                        case nameof(Queryable.Min)
+                        when genericMethod == QueryableMethodProvider.MinWithoutSelectorMethodInfo ||
+                             genericMethod == QueryableMethodProvider.MinWithSelectorMethodInfo:
                             return ProcessAverageMaxMinSum(
                                 source,
                                 methodCallExpression.Method.IsGenericMethod
@@ -210,9 +212,12 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                                     ? methodCallExpression.Arguments[1].UnwrapLambdaFromQuote()
                                     : null);
 
-                        case nameof(Queryable.Distinct):
-                        case nameof(Queryable.Skip):
-                        case nameof(Queryable.Take):
+                        case nameof(Queryable.Distinct)
+                        when genericMethod == QueryableMethodProvider.DistinctMethodInfo:
+                        case nameof(Queryable.Skip)
+                        when genericMethod == QueryableMethodProvider.SkipMethodInfo:
+                        case nameof(Queryable.Take)
+                        when genericMethod == QueryableMethodProvider.TakeMethodInfo:
                             return ProcessDistinctSkipTake(
                                 source,
                                 methodCallExpression.Method.GetGenericMethodDefinition(),
@@ -220,17 +225,30 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                                     ? methodCallExpression.Arguments[1]
                                     : null);
 
-                        case nameof(Queryable.Contains):
+                        case nameof(Queryable.Contains)
+                        when genericMethod == QueryableMethodProvider.ContainsMethodInfo:
                             return ProcessContains(
                                 source,
                                 methodCallExpression.Arguments[1]);
 
-                        case nameof(Queryable.First):
-                        case nameof(Queryable.FirstOrDefault):
-                        case nameof(Queryable.Single):
-                        case nameof(Queryable.SingleOrDefault):
-                        case nameof(Queryable.Last):
-                        case nameof(Queryable.LastOrDefault):
+                        case nameof(Queryable.First)
+                        when genericMethod == QueryableMethodProvider.FirstWithoutPredicateMethodInfo ||
+                             genericMethod == QueryableMethodProvider.FirstWithPredicateMethodInfo:
+                        case nameof(Queryable.FirstOrDefault)
+                        when genericMethod == QueryableMethodProvider.FirstOrDefaultWithoutPredicateMethodInfo ||
+                             genericMethod == QueryableMethodProvider.FirstOrDefaultWithPredicateMethodInfo:
+                        case nameof(Queryable.Single)
+                        when genericMethod == QueryableMethodProvider.SingleWithoutPredicateMethodInfo ||
+                            genericMethod == QueryableMethodProvider.SingleWithPredicateMethodInfo:
+                        case nameof(Queryable.SingleOrDefault)
+                        when genericMethod == QueryableMethodProvider.SingleOrDefaultWithoutPredicateMethodInfo ||
+                            genericMethod == QueryableMethodProvider.SingleOrDefaultWithPredicateMethodInfo:
+                        case nameof(Queryable.Last)
+                        when genericMethod == QueryableMethodProvider.LastWithoutPredicateMethodInfo ||
+                            genericMethod == QueryableMethodProvider.LastWithPredicateMethodInfo:
+                        case nameof(Queryable.LastOrDefault)
+                        when genericMethod == QueryableMethodProvider.LastOrDefaultWithoutPredicateMethodInfo ||
+                             genericMethod == QueryableMethodProvider.LastOrDefaultWithPredicateMethodInfo:
                             return ProcessFirstSingleLastOrDefault(
                                 source,
                                 methodCallExpression.Method.GetGenericMethodDefinition(),
@@ -239,37 +257,41 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                                     : null,
                                 methodCallExpression.Type);
 
-                        case nameof(Queryable.Join):
+                        case nameof(Queryable.Join)
+                        when genericMethod == QueryableMethodProvider.JoinMethodInfo:
+                        {
+                            var secondArgument = Visit(methodCallExpression.Arguments[1]);
+                            if (secondArgument is NavigationExpansionExpression innerSource)
                             {
-                                var secondArgument = Visit(methodCallExpression.Arguments[1]);
-                                if (secondArgument is NavigationExpansionExpression innerSource)
-                                {
-                                    return ProcessJoin(
-                                        source,
-                                        innerSource,
-                                        methodCallExpression.Arguments[2].UnwrapLambdaFromQuote(),
-                                        methodCallExpression.Arguments[3].UnwrapLambdaFromQuote(),
-                                        methodCallExpression.Arguments[4].UnwrapLambdaFromQuote());
-                                }
+                                return ProcessJoin(
+                                    source,
+                                    innerSource,
+                                    methodCallExpression.Arguments[2].UnwrapLambdaFromQuote(),
+                                    methodCallExpression.Arguments[3].UnwrapLambdaFromQuote(),
+                                    methodCallExpression.Arguments[4].UnwrapLambdaFromQuote());
                             }
                             break;
+                        }
 
-                        case nameof(QueryableExtensions.LeftJoin):
+                        case nameof(QueryableExtensions.LeftJoin)
+                        when genericMethod == QueryableExtensions.LeftJoinMethodInfo:
+                        {
+                            var secondArgument = Visit(methodCallExpression.Arguments[1]);
+                            if (secondArgument is NavigationExpansionExpression innerSource)
                             {
-                                var secondArgument = Visit(methodCallExpression.Arguments[1]);
-                                if (secondArgument is NavigationExpansionExpression innerSource)
-                                {
-                                    return ProcessLeftJoin(
-                                        source,
-                                        innerSource,
-                                        methodCallExpression.Arguments[2].UnwrapLambdaFromQuote(),
-                                        methodCallExpression.Arguments[3].UnwrapLambdaFromQuote(),
-                                        methodCallExpression.Arguments[4].UnwrapLambdaFromQuote());
-                                }
+                                return ProcessLeftJoin(
+                                    source,
+                                    innerSource,
+                                    methodCallExpression.Arguments[2].UnwrapLambdaFromQuote(),
+                                    methodCallExpression.Arguments[3].UnwrapLambdaFromQuote(),
+                                    methodCallExpression.Arguments[4].UnwrapLambdaFromQuote());
                             }
                             break;
+                        }
 
-                        case nameof(Queryable.SelectMany):
+                        case nameof(Queryable.SelectMany)
+                        when genericMethod == QueryableMethodProvider.SelectManyWithoutCollectionSelectorMethodInfo ||
+                             genericMethod == QueryableMethodProvider.SelectManyWithCollectionSelectorMethodInfo:
                             return ProcessSelectMany(
                                 source,
                                 methodCallExpression.Method.GetGenericMethodDefinition(),
@@ -278,30 +300,34 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                                     ? methodCallExpression.Arguments[2].UnwrapLambdaFromQuote()
                                     : null);
 
-                        case nameof(Queryable.Concat):
-                        case nameof(Queryable.Except):
-                        case nameof(Queryable.Intersect):
-                        case nameof(Queryable.Union):
+                        case nameof(Queryable.Concat)
+                        when genericMethod == QueryableMethodProvider.ConcatMethodInfo:
+                        case nameof(Queryable.Except)
+                        when genericMethod == QueryableMethodProvider.ExceptMethodInfo:
+                        case nameof(Queryable.Intersect)
+                        when genericMethod == QueryableMethodProvider.IntersectMethodInfo:
+                        case nameof(Queryable.Union)
+                        when genericMethod == QueryableMethodProvider.UnionMethodInfo:
+                        {
+                            var secondArgument = Visit(methodCallExpression.Arguments[1]);
+                            if (secondArgument is NavigationExpansionExpression innerSource)
                             {
-                                var secondArgument = Visit(methodCallExpression.Arguments[1]);
-                                if (secondArgument is NavigationExpansionExpression innerSource)
-                                {
-                                    return ProcessSetOperation(
-                                        source,
-                                        methodCallExpression.Method.GetGenericMethodDefinition(),
-                                        innerSource);
-                                }
+                                return ProcessSetOperation(
+                                    source,
+                                    methodCallExpression.Method.GetGenericMethodDefinition(),
+                                    innerSource);
                             }
                             break;
+                        }
 
-                        case nameof(Queryable.Cast):
-                        case nameof(Queryable.OfType):
+                        case nameof(Queryable.Cast)
+                        when genericMethod == QueryableMethodProvider.CastMethodInfo:
+                        case nameof(Queryable.OfType)
+                        when genericMethod == QueryableMethodProvider.OfTypeMethodInfo:
                             return ProcessCastOfType(
                                 source,
                                 methodCallExpression.Method.GetGenericMethodDefinition(),
                                 methodCallExpression.Type.TryGetSequenceType());
-
-
 
                         case nameof(EntityFrameworkQueryableExtensions.Include):
                         case nameof(EntityFrameworkQueryableExtensions.ThenInclude):
@@ -343,29 +369,34 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                                 null,
                                 methodCallExpression.Arguments[2].UnwrapLambdaFromQuote());
 
-                        case nameof(Queryable.OrderBy):
-                        case nameof(Queryable.OrderByDescending):
+                        case nameof(Queryable.OrderBy)
+                        when genericMethod == QueryableMethodProvider.OrderByMethodInfo:
+                        case nameof(Queryable.OrderByDescending)
+                        when genericMethod == QueryableMethodProvider.OrderByDescendingMethodInfo:
                             return ProcessOrderByThenBy(
                                 source,
                                 methodCallExpression.Method.GetGenericMethodDefinition(),
                                 methodCallExpression.Arguments[1].UnwrapLambdaFromQuote(),
                                 thenBy: false);
 
-                        case nameof(Queryable.ThenBy):
-                        case nameof(Queryable.ThenByDescending):
+                        case nameof(Queryable.ThenBy)
+                        when genericMethod == QueryableMethodProvider.ThenByMethodInfo:
+                        case nameof(Queryable.ThenByDescending)
+                        when genericMethod == QueryableMethodProvider.ThenByDescendingMethodInfo:
                             return ProcessOrderByThenBy(
                                 source,
                                 methodCallExpression.Method.GetGenericMethodDefinition(),
                                 methodCallExpression.Arguments[1].UnwrapLambdaFromQuote(),
                                 thenBy: true);
 
-
-                        case nameof(Queryable.Select):
+                        case nameof(Queryable.Select)
+                        when genericMethod == QueryableMethodProvider.SelectMethodInfo:
                             return ProcessSelect(
                                 source,
                                 methodCallExpression.Arguments[1].UnwrapLambdaFromQuote());
 
-                        case nameof(Queryable.Where):
+                        case nameof(Queryable.Where)
+                        when genericMethod == QueryableMethodProvider.WhereMethodInfo:
                             return ProcessWhere(
                                 source,
                                 methodCallExpression.Arguments[1].UnwrapLambdaFromQuote());
