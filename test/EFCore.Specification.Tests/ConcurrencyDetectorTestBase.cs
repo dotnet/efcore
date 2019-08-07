@@ -163,7 +163,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateContext())
             {
-                context.Products.Add(new Product());
+                context.Products.Add(new Product { ProductID = 10001 });
 
                 using (context.GetService<IConcurrencyDetector>().EnterCriticalSection())
                 {

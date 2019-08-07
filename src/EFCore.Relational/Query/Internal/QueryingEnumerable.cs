@@ -82,80 +82,83 @@ namespace Microsoft.EntityFrameworkCore.Query
                 {
                     try
                     {
-                        if (_dataReader == null)
+                        using (_relationalQueryContext.ConcurrencyDetector.EnterCriticalSection())
                         {
-                            var selectExpression = new ParameterValueBasedSelectExpressionOptimizer(
-                                _sqlExpressionFactory,
-                                _parameterNameGeneratorFactory)
-                                .Optimize(_selectExpression, _relationalQueryContext.ParameterValues);
-
-                            var relationalCommand = _querySqlGeneratorFactory.Create().GetCommand(selectExpression);
-
-                            _dataReader
-                                = relationalCommand.ExecuteReader(
-                                    new RelationalCommandParameterObject(
-                                        _relationalQueryContext.Connection,
-                                        _relationalQueryContext.ParameterValues,
-                                        _relationalQueryContext.Context,
-                                        _relationalQueryContext.CommandLogger));
-
-                            if (selectExpression.IsNonComposedFromSql())
+                            if (_dataReader == null)
                             {
-                                var projection = _selectExpression.Projection.ToList();
-                                var readerColumns = Enumerable.Range(0, _dataReader.DbDataReader.FieldCount)
-                                    .ToDictionary(i => _dataReader.DbDataReader.GetName(i), i => i, StringComparer.OrdinalIgnoreCase);
+                                var selectExpression = new ParameterValueBasedSelectExpressionOptimizer(
+                                    _sqlExpressionFactory,
+                                    _parameterNameGeneratorFactory)
+                                    .Optimize(_selectExpression, _relationalQueryContext.ParameterValues);
 
-                                _indexMap = new int[projection.Count];
-                                for (var i = 0; i < projection.Count; i++)
+                                var relationalCommand = _querySqlGeneratorFactory.Create().GetCommand(selectExpression);
+
+                                _dataReader
+                                    = relationalCommand.ExecuteReader(
+                                        new RelationalCommandParameterObject(
+                                            _relationalQueryContext.Connection,
+                                            _relationalQueryContext.ParameterValues,
+                                            _relationalQueryContext.Context,
+                                            _relationalQueryContext.CommandLogger));
+
+                                if (selectExpression.IsNonComposedFromSql())
                                 {
-                                    if (projection[i].Expression is ColumnExpression columnExpression)
-                                    {
-                                        var columnName = columnExpression.Name;
-                                        if (columnName != null)
-                                        {
-                                            if (!readerColumns.TryGetValue(columnName, out var ordinal))
-                                            {
-                                                throw new InvalidOperationException(RelationalStrings.FromSqlMissingColumn(columnName));
-                                            }
+                                    var projection = _selectExpression.Projection.ToList();
+                                    var readerColumns = Enumerable.Range(0, _dataReader.DbDataReader.FieldCount)
+                                        .ToDictionary(i => _dataReader.DbDataReader.GetName(i), i => i, StringComparer.OrdinalIgnoreCase);
 
-                                            _indexMap[i] = ordinal;
+                                    _indexMap = new int[projection.Count];
+                                    for (var i = 0; i < projection.Count; i++)
+                                    {
+                                        if (projection[i].Expression is ColumnExpression columnExpression)
+                                        {
+                                            var columnName = columnExpression.Name;
+                                            if (columnName != null)
+                                            {
+                                                if (!readerColumns.TryGetValue(columnName, out var ordinal))
+                                                {
+                                                    throw new InvalidOperationException(RelationalStrings.FromSqlMissingColumn(columnName));
+                                                }
+
+                                                _indexMap[i] = ordinal;
+                                            }
                                         }
                                     }
                                 }
-                            }
-                            else
-                            {
-                                _indexMap = null;
-                            }
-
-                            _resultCoordinator = new ResultCoordinator();
-                        }
-
-                        var hasNext = _resultCoordinator.HasNext ?? _dataReader.Read();
-                        Current = default;
-
-                        if (hasNext)
-                        {
-                            while (true)
-                            {
-                                _resultCoordinator.ResultReady = true;
-                                _resultCoordinator.HasNext = null;
-                                Current = _shaper(_relationalQueryContext, _dataReader.DbDataReader, Current, _indexMap, _resultCoordinator);
-                                if (_resultCoordinator.ResultReady)
+                                else
                                 {
-                                    break;
+                                    _indexMap = null;
                                 }
 
-                                if (!_dataReader.Read())
-                                {
-                                    _resultCoordinator.HasNext = false;
+                                _resultCoordinator = new ResultCoordinator();
+                            }
 
-                                    break;
+                            var hasNext = _resultCoordinator.HasNext ?? _dataReader.Read();
+                            Current = default;
+
+                            if (hasNext)
+                            {
+                                while (true)
+                                {
+                                    _resultCoordinator.ResultReady = true;
+                                    _resultCoordinator.HasNext = null;
+                                    Current = _shaper(_relationalQueryContext, _dataReader.DbDataReader, Current, _indexMap, _resultCoordinator);
+                                    if (_resultCoordinator.ResultReady)
+                                    {
+                                        break;
+                                    }
+
+                                    if (!_dataReader.Read())
+                                    {
+                                        _resultCoordinator.HasNext = false;
+
+                                        break;
+                                    }
                                 }
                             }
-                        }
 
-                        return hasNext;
+                            return hasNext;
+                        }
                     }
                     catch (Exception exception)
                     {
