@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Text;
 using JetBrains.Annotations;
+using Microsoft.Azure.Cosmos;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -24,6 +25,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.Internal
         private string _accountEndpoint;
         private string _accountKey;
         private string _region;
+        private ConnectionMode? _connectionMode;
         private string _databaseName;
         private Func<ExecutionStrategyDependencies, IExecutionStrategy> _executionStrategyFactory;
         private DbContextOptionsExtensionInfo _info;
@@ -51,6 +53,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.Internal
             _databaseName = copyFrom._databaseName;
             _executionStrategyFactory = copyFrom._executionStrategyFactory;
             _region = copyFrom._region;
+            _connectionMode = copyFrom._connectionMode;
         }
 
         /// <summary>
@@ -155,6 +158,34 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.Internal
         }
 
         /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual ConnectionMode? ConnectionMode => _connectionMode;
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual CosmosOptionsExtension WithConnectionMode(ConnectionMode connectionMode)
+        {
+            if (!Enum.IsDefined(typeof(ConnectionMode), connectionMode))
+            {
+                throw new ArgumentOutOfRangeException(nameof(connectionMode));
+            }
+
+            var clone = Clone();
+
+            clone._connectionMode = connectionMode;
+
+            return clone;
+        }
+
+        /// <summary>
         ///     A factory for creating the default <see cref="IExecutionStrategy" />, or <c>null</c> if none has been
         ///     configured.
         /// </summary>
@@ -219,6 +250,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.Internal
                     var hashCode = Extension._accountEndpoint.GetHashCode();
                     hashCode = (hashCode * 397) ^ Extension._accountKey.GetHashCode();
                     hashCode = (hashCode * 397) ^ (Extension._region?.GetHashCode() ?? 0);
+                    hashCode = (hashCode * 397) ^ (Extension._connectionMode?.GetHashCode() ?? 0);
 
                     _serviceProviderHash = hashCode;
                 }

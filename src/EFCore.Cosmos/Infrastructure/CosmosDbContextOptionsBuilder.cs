@@ -4,6 +4,7 @@
 using System;
 using System.ComponentModel;
 using JetBrains.Annotations;
+using Microsoft.Azure.Cosmos;
 using Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -49,6 +50,13 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <param name="region">CosmosDB region name</param>
         public virtual CosmosDbContextOptionsBuilder Region([NotNull] string region)
             => WithOption(e => e.WithRegion(Check.NotNull(region, nameof(region))));
+
+        /// <summary>
+        /// Configures the context to use the provided connection mode.
+        /// </summary>
+        /// <param name="connectionMode">CosmosDB connection mode</param>
+        public virtual CosmosDbContextOptionsBuilder ConnectionMode(ConnectionMode connectionMode)
+            => WithOption(e => e.WithConnectionMode(Check.NotNull(connectionMode, nameof(connectionMode))));
 
         /// <summary>
         ///     Sets an option by cloning the extension used to store the settings. This ensures the builder
