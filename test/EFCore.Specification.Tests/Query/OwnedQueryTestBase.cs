@@ -447,6 +447,23 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
+        [ConditionalFact]
+        public virtual void Throw_for_owned_entities_without_owner_in_tracking_query()
+        {
+            using (var context = CreateContext())
+            {
+                var query = context.Set<OwnedPerson>().Select(e => e.PersonAddress);
+
+                var result = query.AsNoTracking().ToList();
+                Assert.Equal(4, result.Count);
+                Assert.Equal(0, context.ChangeTracker.Entries().Count());
+
+                Assert.Throws<InvalidOperationException>(() => query.AsTracking().ToList());
+
+                Assert.Equal(0, context.ChangeTracker.Entries().Count());
+            }
+        }
+
         protected virtual DbContext CreateContext() => Fixture.CreateContext();
 
         public abstract class OwnedQueryFixtureBase : SharedStoreFixtureBase<PoolableDbContext>
@@ -687,7 +704,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                         b.HasData(
                             new Barton
                             {
-                                Id = 1, Simple = "Simple"
+                                Id = 1,
+                                Simple = "Simple"
                             });
 
                     });

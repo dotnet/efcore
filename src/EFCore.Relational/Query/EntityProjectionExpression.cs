@@ -80,8 +80,21 @@ namespace Microsoft.EntityFrameworkCore.Query
             {
                 return new EntityProjectionExpression(derivedType, _innerTable, _nullable);
             }
+            else
+            {
+                var propertyExpressionCache = new Dictionary<IProperty, ColumnExpression>();
+                foreach (var kvp in _propertyExpressionsCache)
+                {
+                    var property = kvp.Key;
+                    if (derivedType.IsAssignableFrom(property.DeclaringEntityType)
+                        || property.DeclaringEntityType.IsAssignableFrom(derivedType))
+                    {
+                        propertyExpressionCache[property] = kvp.Value;
+                    }
+                }
 
-            throw new InvalidOperationException("EntityProjectionExpression: Cannot update EntityType when _innerTable is null");
+                return new EntityProjectionExpression(derivedType, propertyExpressionCache);
+            }
         }
 
         public virtual IEntityType EntityType { get; }

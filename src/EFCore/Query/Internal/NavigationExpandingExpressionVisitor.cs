@@ -655,8 +655,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             if (outer is EntityReference outerEntityReference
                 && inner is EntityReference innerEntityReference)
             {
-                return outerEntityReference.EntityType == innerEntityReference.EntityType
-                    && outerEntityReference.IncludePaths.Equals(innerEntityReference.IncludePaths);
+                return outerEntityReference.IncludePaths.Equals(innerEntityReference.IncludePaths);
             }
 
             if (outer is NewExpression outerNewExpression
