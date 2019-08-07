@@ -250,6 +250,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.Internal
                     var hashCode = Extension._accountEndpoint.GetHashCode();
                     hashCode = (hashCode * 397) ^ Extension._accountKey.GetHashCode();
                     hashCode = (hashCode * 397) ^ (Extension._region?.GetHashCode() ?? 0);
+                    hashCode = (hashCode * 397) ^ (Extension._connectionMode?.GetHashCode() ?? 0);
 
                     _serviceProviderHash = hashCode;
                 }

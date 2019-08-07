@@ -52,7 +52,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             => WithOption(e => e.WithRegion(Check.NotNull(region, nameof(region))));
 
         /// <summary>
-        /// Configures the context to use the provide connection mode.
+        /// Configures the context to use the provided connection mode.
         /// </summary>
         /// <param name="connectionMode">CosmosDB connection mode</param>
         public virtual CosmosDbContextOptionsBuilder ConnectionMode(ConnectionMode connectionMode)
