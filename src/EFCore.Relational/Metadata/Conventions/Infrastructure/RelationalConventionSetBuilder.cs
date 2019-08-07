@@ -67,8 +67,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure
             ReplaceConvention(conventionSet.ForeignKeyRemovedConventions, valueGenerationConvention);
 
             var relationalColumnAttributeConvention = new RelationalColumnAttributeConvention(Dependencies, RelationalDependencies);
+            var relationalDefaultValueAttributeConvention = new RelationalDefaultValueAttributeConvention(Dependencies, RelationalDependencies);
 
             conventionSet.PropertyAddedConventions.Add(relationalColumnAttributeConvention);
+            conventionSet.PropertyAddedConventions.Add(relationalDefaultValueAttributeConvention);
 
             var tableNameFromDbSetConvention = new TableNameFromDbSetConvention(Dependencies, RelationalDependencies);
             conventionSet.EntityTypeAddedConventions.Add(new RelationalTableAttributeConvention(Dependencies, RelationalDependencies));
@@ -77,6 +79,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure
             conventionSet.EntityTypeBaseTypeChangedConventions.Add(tableNameFromDbSetConvention);
 
             conventionSet.PropertyFieldChangedConventions.Add(relationalColumnAttributeConvention);
+            conventionSet.PropertyFieldChangedConventions.Add(relationalDefaultValueAttributeConvention);
 
             var storeGenerationConvention = new StoreGenerationConvention(Dependencies, RelationalDependencies);
             conventionSet.PropertyAnnotationChangedConventions.Add(storeGenerationConvention);
