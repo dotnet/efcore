@@ -990,7 +990,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                 {
                     try
                     {
-                        using (await _cosmosQueryContext.ConcurrencyDetector.EnterCriticalSectionAsync(_cancellationToken))
+                        using (_cosmosQueryContext.ConcurrencyDetector.EnterCriticalSection())
                         {
                             if (_enumerator == null)
                             {
