@@ -17,12 +17,10 @@ using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
 {
-    public class InMemoryShapedQueryCompilingExpressionVisitor : ShapedQueryCompilingExpressionVisitor
+    public partial class InMemoryShapedQueryCompilingExpressionVisitor : ShapedQueryCompilingExpressionVisitor
     {
         private readonly Type _contextType;
         private readonly IDiagnosticsLogger<DbLoggerCategory.Query> _logger;
-        private static readonly ConstructorInfo _valueBufferConstructor
-            = typeof(ValueBuffer).GetConstructors().Single(ci => ci.GetParameters().Length == 1);
 
         public InMemoryShapedQueryCompilingExpressionVisitor(
             QueryCompilationContext queryCompilationContext,
@@ -53,19 +51,20 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
 
         protected override Expression VisitShapedQueryExpression(ShapedQueryExpression shapedQueryExpression)
         {
-            var shaperBody = InjectEntityMaterializers(shapedQueryExpression.ShaperExpression);
-
-            var innerEnumerable = Visit(shapedQueryExpression.QueryExpression);
-
             var inMemoryQueryExpression = (InMemoryQueryExpression)shapedQueryExpression.QueryExpression;
 
-            var newBody = new InMemoryProjectionBindingRemovingExpressionVisitor(inMemoryQueryExpression)
-                .Visit(shaperBody);
+            var shaper = new ShaperExpressionProcessingExpressionVisitor(inMemoryQueryExpression)
+                .Inject(shapedQueryExpression.ShaperExpression);
 
-            var shaperLambda = Expression.Lambda(
-                newBody,
-                QueryCompilationContext.QueryContextParameter,
-                inMemoryQueryExpression.ValueBufferParameter);
+            shaper = InjectEntityMaterializers(shaper);
+
+            var innerEnumerable = Visit(inMemoryQueryExpression);
+
+            shaper = new InMemoryProjectionBindingRemovingExpressionVisitor(inMemoryQueryExpression).Visit(shaper);
+
+            shaper = new CustomShaperCompilingExpressionVisitor(IsTracking).Visit(shaper);
+
+            var shaperLambda = (LambdaExpression)shaper;
 
             return Expression.New(
                 (IsAsync
@@ -263,6 +262,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         private class InMemoryProjectionBindingRemovingExpressionVisitor : ExpressionVisitor
         {
             private readonly InMemoryQueryExpression _queryExpression;
+
             private readonly IDictionary<ParameterExpression, IDictionary<IProperty, int>> _materializationContextBindings
                 = new Dictionary<ParameterExpression, IDictionary<IProperty, int>>();
 
@@ -284,7 +284,8 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                     _materializationContextBindings[parameterExpression]
                         = (IDictionary<IProperty, int>)GetProjectionIndex(projectionBindingExpression);
 
-                    var updatedExpression = Expression.New(newExpression.Constructor,
+                    var updatedExpression = Expression.New(
+                        newExpression.Constructor,
                         Expression.Constant(ValueBuffer.Empty),
                         newExpression.Arguments[1]);
 
@@ -300,7 +301,9 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                     && methodCallExpression.Method.GetGenericMethodDefinition() == EntityMaterializerSource.TryReadValueMethod)
                 {
                     var property = (IProperty)((ConstantExpression)methodCallExpression.Arguments[2]).Value;
-                    var indexMap = _materializationContextBindings[(ParameterExpression)((MethodCallExpression)methodCallExpression.Arguments[0]).Object];
+                    var indexMap =
+                        _materializationContextBindings[
+                            (ParameterExpression)((MethodCallExpression)methodCallExpression.Arguments[0]).Object];
 
                     return Expression.Call(
                         methodCallExpression.Method,
