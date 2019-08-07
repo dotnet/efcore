@@ -167,6 +167,13 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                 }
             }
 
+            if (extensionExpression is IncludeExpression includeExpression)
+            {
+                return _clientEval
+                    ? base.VisitExtension(includeExpression)
+                    : null;
+            }
+
             throw new InvalidOperationException();
         }
 
