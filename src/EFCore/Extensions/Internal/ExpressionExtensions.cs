@@ -142,8 +142,24 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public static bool IsEntityQueryable([NotNull] this ConstantExpression constantExpression)
-            => constantExpression.Type.GetTypeInfo().IsGenericType
-               && constantExpression.Type.GetGenericTypeDefinition() == typeof(EntityQueryable<>);
+        {
+            if (constantExpression.Type.GetTypeInfo().IsGenericType)
+            {
+                if (constantExpression.Type.GetTypeInfo().GetGenericTypeDefinition() == typeof(EntityQueryable<>))
+                {
+                    return true;
+                }
+
+                var genericArguments = constantExpression.Type.GetTypeInfo().GetGenericArguments();
+                if (genericArguments.Length == 1)
+                {
+                    return typeof(EntityQueryable<>).MakeGenericType(genericArguments[0])
+                        .GetTypeInfo().IsAssignableFrom(constantExpression.Type);
+                }
+            }
+
+            return false;
+        }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

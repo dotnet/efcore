@@ -167,6 +167,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             TryAdd<IMethodCallTranslatorProvider, RelationalMethodCallTranslatorProvider>();
             TryAdd<IMemberTranslatorProvider, RelationalMemberTranslatorProvider>();
             TryAdd<IShapedQueryOptimizerFactory, RelationalShapedQueryOptimizerFactory>();
+            TryAdd<IQueryOptimizerFactory, RelationalQueryOptimizerFactory>();
             TryAdd<IRelationalSqlTranslatingExpressionVisitorFactory, RelationalSqlTranslatingExpressionVisitorFactory>();
             TryAdd<ISqlExpressionFactory, SqlExpressionFactory>();
 
@@ -188,6 +189,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 .AddDependencySingleton<QuerySqlGeneratorDependencies>()
                 .AddDependencySingleton<RelationalShapedQueryCompilingExpressionVisitorDependencies>()
                 .AddDependencySingleton<RelationalShapedQueryOptimizerDependencies>()
+                .AddDependencySingleton<RelationalQueryOptimizerDependencies>()
                 .AddDependencyScoped<MigrationsSqlGeneratorDependencies>()
                 .AddDependencyScoped<RelationalConventionSetBuilderDependencies>()
                 .AddDependencyScoped<ModificationCommandBatchFactoryDependencies>()

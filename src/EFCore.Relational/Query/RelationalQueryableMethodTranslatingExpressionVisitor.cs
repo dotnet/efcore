@@ -61,17 +61,23 @@ namespace Microsoft.EntityFrameworkCore.Query
             _sqlExpressionFactory = sqlExpressionFactory;
         }
 
-        protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
-        {
-            if (methodCallExpression.Method.DeclaringType == typeof(RelationalQueryableExtensions)
-                && methodCallExpression.Method.Name == nameof(RelationalQueryableExtensions.FromSqlOnQueryable))
-            {
-                var sql = (string)((ConstantExpression)methodCallExpression.Arguments[1]).Value;
-                var queryable = (IQueryable)((ConstantExpression)methodCallExpression.Arguments[0]).Value;
-                return CreateShapedQueryExpression(queryable.ElementType, sql, methodCallExpression.Arguments[2]);
-            }
+        protected override Expression VisitConstant(ConstantExpression constantExpression)
+            => constantExpression.Type.IsGenericType
+            && constantExpression.Type.GetGenericTypeDefinition() == typeof(FromSqlEntityQueryable<>)
+                ? (Expression)_createFromSqlShapedQueryExpressionMethodInfo
+                    .MakeGenericMethod(constantExpression.Type.GetGenericArguments()[0])
+                    .Invoke(this, new object[] { constantExpression })
+                : base.VisitConstant(constantExpression);
 
-            return base.VisitMethodCall(methodCallExpression);
+        private static readonly MethodInfo _createFromSqlShapedQueryExpressionMethodInfo
+            = typeof(RelationalQueryableMethodTranslatingExpressionVisitor)
+                .GetTypeInfo().GetDeclaredMethod(nameof(CreateFromSqlShapedQueryExpression));
+
+        private Expression CreateFromSqlShapedQueryExpression<TResult>(ConstantExpression constantExpression)
+        {
+            var fromSqlEntityQueryable = (FromSqlEntityQueryable<TResult>)constantExpression.Value;
+            return CreateShapedQueryExpression(
+                fromSqlEntityQueryable.ElementType, fromSqlEntityQueryable.Sql, fromSqlEntityQueryable.Arguments);
         }
 
         public override ShapedQueryExpression TranslateSubquery(Expression expression)
