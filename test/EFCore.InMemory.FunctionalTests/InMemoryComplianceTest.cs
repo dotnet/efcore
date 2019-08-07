@@ -33,8 +33,6 @@ namespace Microsoft.EntityFrameworkCore
             typeof(ComplexNavigationsQueryTestBase<>),
             typeof(GearsOfWarQueryTestBase<>),
             typeof(IncludeAsyncTestBase<>),
-            typeof(IncludeOneToOneTestBase<>),
-            typeof(IncludeTestBase<>),
             typeof(InheritanceRelationshipsQueryTestBase<>),
             typeof(InheritanceTestBase<>),
             typeof(NullKeysTestBase<>),
