@@ -148,18 +148,21 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                 {
                     try
                     {
-                        if (_enumerator == null)
+                        using (_queryContext.ConcurrencyDetector.EnterCriticalSection())
                         {
-                            _enumerator = _innerEnumerable.GetEnumerator();
+                            if (_enumerator == null)
+                            {
+                                _enumerator = _innerEnumerable.GetEnumerator();
+                            }
+
+                            var hasNext = _enumerator.MoveNext();
+
+                            Current = hasNext
+                                ? _shaper(_queryContext, _enumerator.Current)
+                                : default;
+
+                            return hasNext;
                         }
-
-                        var hasNext = _enumerator.MoveNext();
-
-                        Current = hasNext
-                            ? _shaper(_queryContext, _enumerator.Current)
-                            : default;
-
-                        return hasNext;
                     }
                     catch (Exception exception)
                     {
@@ -226,20 +229,23 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                 {
                     try
                     {
-                        _cancellationToken.ThrowIfCancellationRequested();
-
-                        if (_enumerator == null)
+                        using (_queryContext.ConcurrencyDetector.EnterCriticalSection())
                         {
-                            _enumerator = _innerEnumerable.GetEnumerator();
+                            _cancellationToken.ThrowIfCancellationRequested();
+
+                            if (_enumerator == null)
+                            {
+                                _enumerator = _innerEnumerable.GetEnumerator();
+                            }
+
+                            var hasNext = _enumerator.MoveNext();
+
+                            Current = hasNext
+                                ? _shaper(_queryContext, _enumerator.Current)
+                                : default;
+
+                            return new ValueTask<bool>(hasNext);
                         }
-
-                        var hasNext = _enumerator.MoveNext();
-
-                        Current = hasNext
-                            ? _shaper(_queryContext, _enumerator.Current)
-                            : default;
-
-                        return new ValueTask<bool>(hasNext);
                     }
                     catch (Exception exception)
                     {
