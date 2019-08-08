@@ -25,12 +25,9 @@ namespace Microsoft.EntityFrameworkCore.Internal
     ///         The implementation does not need to be thread-safe.
     ///     </para>
     /// </summary>
-    public class ConcurrencyDetector : IConcurrencyDetector, IDisposable
+    public class ConcurrencyDetector : IConcurrencyDetector
     {
         private readonly IDisposable _disposer;
-
-        private SemaphoreSlim _semaphore = new SemaphoreSlim(1);
-
         private int _inCriticalSection;
 
         /// <summary>
@@ -64,43 +61,6 @@ namespace Microsoft.EntityFrameworkCore.Internal
             _inCriticalSection = 0;
         }
 
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public virtual async Task<IDisposable> EnterCriticalSectionAsync(CancellationToken cancellationToken)
-        {
-            await _semaphore.WaitAsync(cancellationToken);
-
-            return new AsyncDisposer(EnterCriticalSection(), this);
-        }
-
-        private readonly struct AsyncDisposer : IDisposable
-        {
-            private readonly IDisposable _disposable;
-            private readonly ConcurrencyDetector _concurrencyDetector;
-
-            public AsyncDisposer(IDisposable disposable, ConcurrencyDetector concurrencyDetector)
-            {
-                _disposable = disposable;
-                _concurrencyDetector = concurrencyDetector;
-            }
-
-            public void Dispose()
-            {
-                _disposable.Dispose();
-
-                if (_concurrencyDetector._semaphore == null)
-                {
-                    throw new ObjectDisposedException(GetType().ShortDisplayName(), CoreStrings.ContextDisposed);
-                }
-
-                _concurrencyDetector._semaphore.Release();
-            }
-        }
-
         private readonly struct Disposer : IDisposable
         {
             private readonly ConcurrencyDetector _concurrencyDetector;
@@ -109,18 +69,6 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 => _concurrencyDetector = concurrencyDetector;
 
             public void Dispose() => _concurrencyDetector.ExitCriticalSection();
-        }
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public virtual void Dispose()
-        {
-            _semaphore?.Dispose();
-            _semaphore = null;
         }
     }
 }

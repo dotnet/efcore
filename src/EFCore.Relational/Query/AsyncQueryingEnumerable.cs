@@ -85,7 +85,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 {
                     try
                     {
-                        using (await _relationalQueryContext.ConcurrencyDetector.EnterCriticalSectionAsync(_cancellationToken))
+                        using (_relationalQueryContext.ConcurrencyDetector.EnterCriticalSection())
                         {
                             if (_dataReader == null)
                             {
