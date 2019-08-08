@@ -240,8 +240,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 case nameof(Queryable.Select)
                 when genericMethod == QueryableMethodProvider.SelectMethodInfo:
                 case nameof(Queryable.SelectMany)
-                when genericMethod == QueryableMethodProvider.SelectManyWithoutCollectionSelectorMethodInfo ||
-                     genericMethod == QueryableMethodProvider.SelectManyWithCollectionSelectorMethodInfo:
+                when genericMethod == QueryableMethodProvider.SelectManyWithoutCollectionSelectorMethodInfo
+                     || genericMethod == QueryableMethodProvider.SelectManyWithCollectionSelectorMethodInfo:
                     return VisitSelectMethodCall(methodCallExpression);
 
                 case nameof(Queryable.GroupJoin)
@@ -253,10 +253,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     return VisitJoinMethodCall(methodCallExpression);
 
                 case nameof(Queryable.GroupBy)
-                when genericMethod == QueryableMethodProvider.GroupByWithKeySelectorMethodInfo ||
-                     genericMethod == QueryableMethodProvider.GroupByWithKeyElementSelectorMethodInfo ||
-                     genericMethod == QueryableMethodProvider.GroupByWithKeyResultSelectorMethodInfo ||
-                     genericMethod == QueryableMethodProvider.GroupByWithKeyElementResultSelectorMethodInfo:
+                when genericMethod == QueryableMethodProvider.GroupByWithKeySelectorMethodInfo
+                     || genericMethod == QueryableMethodProvider.GroupByWithKeyElementSelectorMethodInfo
+                     || genericMethod == QueryableMethodProvider.GroupByWithKeyResultSelectorMethodInfo
+                     || genericMethod == QueryableMethodProvider.GroupByWithKeyElementResultSelectorMethodInfo:
                     break;  // TODO: Implement
             }
 

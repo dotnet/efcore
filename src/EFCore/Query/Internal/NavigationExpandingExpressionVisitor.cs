@@ -198,11 +198,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                         case nameof(Queryable.Sum)
                         when QueryableMethodProvider.IsSumMethodInfo(method):
                         case nameof(Queryable.Max)
-                        when genericMethod == QueryableMethodProvider.MaxWithoutSelectorMethodInfo ||
-                             genericMethod == QueryableMethodProvider.MaxWithSelectorMethodInfo:
+                        when genericMethod == QueryableMethodProvider.MaxWithoutSelectorMethodInfo
+                             || genericMethod == QueryableMethodProvider.MaxWithSelectorMethodInfo:
                         case nameof(Queryable.Min)
-                        when genericMethod == QueryableMethodProvider.MinWithoutSelectorMethodInfo ||
-                             genericMethod == QueryableMethodProvider.MinWithSelectorMethodInfo:
+                        when genericMethod == QueryableMethodProvider.MinWithoutSelectorMethodInfo
+                             || genericMethod == QueryableMethodProvider.MinWithSelectorMethodInfo:
                             return ProcessAverageMaxMinSum(
                                 source,
                                 methodCallExpression.Method.IsGenericMethod
@@ -232,23 +232,23 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                                 methodCallExpression.Arguments[1]);
 
                         case nameof(Queryable.First)
-                        when genericMethod == QueryableMethodProvider.FirstWithoutPredicateMethodInfo ||
-                             genericMethod == QueryableMethodProvider.FirstWithPredicateMethodInfo:
+                        when genericMethod == QueryableMethodProvider.FirstWithoutPredicateMethodInfo
+                             || genericMethod == QueryableMethodProvider.FirstWithPredicateMethodInfo:
                         case nameof(Queryable.FirstOrDefault)
-                        when genericMethod == QueryableMethodProvider.FirstOrDefaultWithoutPredicateMethodInfo ||
-                             genericMethod == QueryableMethodProvider.FirstOrDefaultWithPredicateMethodInfo:
+                        when genericMethod == QueryableMethodProvider.FirstOrDefaultWithoutPredicateMethodInfo
+                             || genericMethod == QueryableMethodProvider.FirstOrDefaultWithPredicateMethodInfo:
                         case nameof(Queryable.Single)
-                        when genericMethod == QueryableMethodProvider.SingleWithoutPredicateMethodInfo ||
-                            genericMethod == QueryableMethodProvider.SingleWithPredicateMethodInfo:
+                        when genericMethod == QueryableMethodProvider.SingleWithoutPredicateMethodInfo
+                             || genericMethod == QueryableMethodProvider.SingleWithPredicateMethodInfo:
                         case nameof(Queryable.SingleOrDefault)
-                        when genericMethod == QueryableMethodProvider.SingleOrDefaultWithoutPredicateMethodInfo ||
-                            genericMethod == QueryableMethodProvider.SingleOrDefaultWithPredicateMethodInfo:
+                        when genericMethod == QueryableMethodProvider.SingleOrDefaultWithoutPredicateMethodInfo
+                             || genericMethod == QueryableMethodProvider.SingleOrDefaultWithPredicateMethodInfo:
                         case nameof(Queryable.Last)
-                        when genericMethod == QueryableMethodProvider.LastWithoutPredicateMethodInfo ||
-                            genericMethod == QueryableMethodProvider.LastWithPredicateMethodInfo:
+                        when genericMethod == QueryableMethodProvider.LastWithoutPredicateMethodInfo
+                             || genericMethod == QueryableMethodProvider.LastWithPredicateMethodInfo:
                         case nameof(Queryable.LastOrDefault)
-                        when genericMethod == QueryableMethodProvider.LastOrDefaultWithoutPredicateMethodInfo ||
-                             genericMethod == QueryableMethodProvider.LastOrDefaultWithPredicateMethodInfo:
+                        when genericMethod == QueryableMethodProvider.LastOrDefaultWithoutPredicateMethodInfo
+                             || genericMethod == QueryableMethodProvider.LastOrDefaultWithPredicateMethodInfo:
                             return ProcessFirstSingleLastOrDefault(
                                 source,
                                 methodCallExpression.Method.GetGenericMethodDefinition(),
@@ -290,8 +290,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                         }
 
                         case nameof(Queryable.SelectMany)
-                        when genericMethod == QueryableMethodProvider.SelectManyWithoutCollectionSelectorMethodInfo ||
-                             genericMethod == QueryableMethodProvider.SelectManyWithCollectionSelectorMethodInfo:
+                        when genericMethod == QueryableMethodProvider.SelectManyWithoutCollectionSelectorMethodInfo
+                             || genericMethod == QueryableMethodProvider.SelectManyWithCollectionSelectorMethodInfo:
                             return ProcessSelectMany(
                                 source,
                                 methodCallExpression.Method.GetGenericMethodDefinition(),
