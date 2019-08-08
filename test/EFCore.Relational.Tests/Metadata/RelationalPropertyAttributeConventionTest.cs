@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
@@ -70,6 +71,54 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Equal("BYTE", propertyBuilder.Metadata.GetColumnType());
         }
 
+        [ConditionalFact]
+        public void DefaultValueAttribute_sets_default_value_with_conventional_builder()
+        {
+            var modelBuilder = CreateConventionalModelBuilder();
+
+            var entityBuilder = modelBuilder.Entity<A>();
+
+            Assert.Equal("Hello World!", entityBuilder.Property(e => e.Name).Metadata.GetDefaultValue());
+        }
+
+        [ConditionalFact]
+        public void DefaultValueAttribute_on_field_sets_default_value_with_conventional_builder()
+        {
+            var modelBuilder = CreateConventionalModelBuilder();
+
+            var entityBuilder = modelBuilder.Entity<F>();
+
+            Assert.Equal("Hello World!", entityBuilder.Property<string>(nameof(F.Name)).Metadata.GetDefaultValue());
+        }
+
+        [ConditionalFact]
+        public void DefaultValueAttribute_overrides_configuration_from_convention_source()
+        {
+            var entityBuilder = CreateInternalEntityTypeBuilder<A>();
+
+            var propertyBuilder = entityBuilder.Property(typeof(string), "Name", ConfigurationSource.Explicit);
+
+            propertyBuilder.HasAnnotation(RelationalAnnotationNames.DefaultValue, "ConventionalDefaultValue", ConfigurationSource.Convention);
+
+            RunConvention(propertyBuilder);
+
+            Assert.Equal("Hello World!", propertyBuilder.Metadata.GetDefaultValue());
+        }
+
+        [ConditionalFact]
+        public void DefaultValueAttribute_does_not_override_configuration_from_explicit_source()
+        {
+            var entityBuilder = CreateInternalEntityTypeBuilder<A>();
+
+            var propertyBuilder = entityBuilder.Property(typeof(string), "Name", ConfigurationSource.Explicit);
+
+            propertyBuilder.HasAnnotation(RelationalAnnotationNames.DefaultValue, "ExplicitDefaultValue", ConfigurationSource.Explicit);
+
+            RunConvention(propertyBuilder);
+
+            Assert.Equal("ExplicitDefaultValue", propertyBuilder.Metadata.GetDefaultValue());
+        }
+
         private void RunConvention(InternalPropertyBuilder propertyBuilder)
         {
             var context = new ConventionContext<IConventionPropertyBuilder>(
@@ -104,6 +153,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             public int Id { get; set; }
 
             [Column("Post Name", Order = 1, TypeName = "DECIMAL")]
+            [DefaultValue("Hello World!")]
             public string Name { get; set; }
         }
 
@@ -112,6 +162,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             public int Id { get; set; }
 
             [Column("Post Name", Order = 1, TypeName = "DECIMAL")]
+            [DefaultValue("Hello World!")]
             public string Name;
         }
     }
