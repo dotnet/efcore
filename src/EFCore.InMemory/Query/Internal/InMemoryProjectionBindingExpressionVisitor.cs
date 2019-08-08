@@ -90,32 +90,32 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                             throw new NotImplementedException();
 
                         case MethodCallExpression methodCallExpression:
+                        {
+                            if (methodCallExpression.Method.IsGenericMethod
+                                && methodCallExpression.Method.DeclaringType == typeof(Enumerable)
+                                && methodCallExpression.Method.Name == nameof(Enumerable.ToList))
                             {
-                                if (methodCallExpression.Method.IsGenericMethod
-                                    && methodCallExpression.Method.DeclaringType == typeof(Enumerable)
-                                    && methodCallExpression.Method.Name == nameof(Enumerable.ToList))
-                                {
-                                    //var elementType = methodCallExpression.Method.GetGenericArguments()[0];
+                                //var elementType = methodCallExpression.Method.GetGenericArguments()[0];
 
-                                    //var result = _queryableMethodTranslatingExpressionVisitor.TranslateSubquery(methodCallExpression.Arguments[0]);
+                                //var result = _queryableMethodTranslatingExpressionVisitor.TranslateSubquery(methodCallExpression.Arguments[0]);
 
-                                    //return _selectExpression.AddCollectionProjection(result, null, elementType);
-                                    throw new NotImplementedException();
-                                }
-
-                                var subquery = _queryableMethodTranslatingExpressionVisitor.TranslateSubquery(methodCallExpression);
-
-                                if (subquery != null)
-                                {
-                                    //if (subquery.ResultType == ResultType.Enumerable)
-                                    //{
-                                    //    return _selectExpression.AddCollectionProjection(subquery, null, subquery.ShaperExpression.Type);
-                                    //}
-                                    throw new NotImplementedException();
-                                }
-
-                                break;
+                                //return _selectExpression.AddCollectionProjection(result, null, elementType);
+                                throw new NotImplementedException();
                             }
+
+                            var subquery = _queryableMethodTranslatingExpressionVisitor.TranslateSubquery(methodCallExpression);
+
+                            if (subquery != null)
+                            {
+                                //if (subquery.ResultType == ResultType.Enumerable)
+                                //{
+                                //    return _selectExpression.AddCollectionProjection(subquery, null, subquery.ShaperExpression.Type);
+                                //}
+                                throw new NotImplementedException();
+                            }
+
+                            break;
+                        }
                     }
 
 

@@ -1056,39 +1056,39 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                     switch (inExpression.Values)
                     {
                         case SqlConstantExpression sqlConstant:
+                        {
+                            typeMapping = sqlConstant.TypeMapping;
+                            var values = (IEnumerable)sqlConstant.Value;
+                            foreach (var value in values)
                             {
-                                typeMapping = sqlConstant.TypeMapping;
-                                var values = (IEnumerable)sqlConstant.Value;
-                                foreach (var value in values)
+                                if (value == null)
                                 {
-                                    if (value == null)
-                                    {
-                                        hasNullValue = true;
-                                        continue;
-                                    }
-
-                                    inValues.Add(value);
+                                    hasNullValue = true;
+                                    continue;
                                 }
+
+                                inValues.Add(value);
                             }
-                            break;
+                        }
+                        break;
 
                         case SqlParameterExpression sqlParameter:
+                        {
+                            typeMapping = sqlParameter.TypeMapping;
+                            var values = (IEnumerable)_parametersValues[sqlParameter.Name];
+                            foreach (var value in values)
                             {
-                                typeMapping = sqlParameter.TypeMapping;
-                                var values = (IEnumerable)_parametersValues[sqlParameter.Name];
-                                foreach (var value in values)
+                                if (value == null)
                                 {
-                                    if (value == null)
-                                    {
-                                        hasNullValue = true;
-                                        continue;
-                                    }
-
-                                    inValues.Add(value);
+                                    hasNullValue = true;
+                                    continue;
                                 }
+
+                                inValues.Add(value);
                             }
-                            break;
-                    }
+                        }
+                        break;
+                   }
 
                     var updatedInExpression = inValues.Count > 0
                         ? _sqlExpressionFactory.In(
