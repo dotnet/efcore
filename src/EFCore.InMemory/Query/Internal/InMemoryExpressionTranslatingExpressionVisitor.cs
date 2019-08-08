@@ -270,13 +270,13 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                         .GetMappedProjection(projectionBindingExpression.ProjectionMember);
 
                 case NullConditionalExpression nullConditionalExpression:
-                    {
-                        var translation = Visit(nullConditionalExpression.AccessOperation);
+                {
+                    var translation = Visit(nullConditionalExpression.AccessOperation);
 
-                        return translation.Type == nullConditionalExpression.Type
-                            ? translation
-                            : Expression.Convert(translation, nullConditionalExpression.Type);
-                    }
+                    return translation.Type == nullConditionalExpression.Type
+                        ? translation
+                        : Expression.Convert(translation, nullConditionalExpression.Type);
+                }
 
                 default:
                     throw new InvalidOperationException();

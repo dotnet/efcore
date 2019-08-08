@@ -1024,18 +1024,18 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     return SnapshotExpression(navigationTreeExpression.Value);
 
                 case NewExpression newExpression:
+                {
+                    var arguments = new Expression[newExpression.Arguments.Count];
+                    for (var i = 0; i < newExpression.Arguments.Count; i++)
                     {
-                        var arguments = new Expression[newExpression.Arguments.Count];
-                        for (var i = 0; i < newExpression.Arguments.Count; i++)
-                        {
-                            arguments[i] = newExpression.Arguments[i] is NewExpression
-                                || newExpression.Arguments[i] is NavigationTreeExpression
-                                ? SnapshotExpression(newExpression.Arguments[i])
-                                : Expression.Default(newExpression.Arguments[i].Type);
-                        }
-
-                        return newExpression.Update(arguments);
+                        arguments[i] = newExpression.Arguments[i] is NewExpression
+                            || newExpression.Arguments[i] is NavigationTreeExpression
+                            ? SnapshotExpression(newExpression.Arguments[i])
+                            : Expression.Default(newExpression.Arguments[i].Type);
                     }
+
+                    return newExpression.Update(arguments);
+                }
 
                 case OwnedNavigationReference ownedNavigationReference:
                     return ownedNavigationReference.EntityReference.Clone();

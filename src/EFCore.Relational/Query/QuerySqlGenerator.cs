@@ -512,57 +512,52 @@ namespace Microsoft.EntityFrameworkCore.Query
             switch (sqlUnaryExpression.OperatorType)
             {
                 case ExpressionType.Convert:
+                {
+                    _relationalCommandBuilder.Append("CAST(");
+                    var requiresBrackets = RequiresBrackets(sqlUnaryExpression.Operand);
+                    if (requiresBrackets)
                     {
-                        _relationalCommandBuilder.Append("CAST(");
-                        var requiresBrackets = RequiresBrackets(sqlUnaryExpression.Operand);
-                        if (requiresBrackets)
-                        {
-                            _relationalCommandBuilder.Append("(");
-                        }
-                        Visit(sqlUnaryExpression.Operand);
-                        if (requiresBrackets)
-                        {
-                            _relationalCommandBuilder.Append(")");
-                        }
-                        _relationalCommandBuilder.Append(" AS ");
-                        _relationalCommandBuilder.Append(sqlUnaryExpression.TypeMapping.StoreType);
+                        _relationalCommandBuilder.Append("(");
+                    }
+                    Visit(sqlUnaryExpression.Operand);
+                    if (requiresBrackets)
+                    {
                         _relationalCommandBuilder.Append(")");
                     }
-
-                    break;
+                    _relationalCommandBuilder.Append(" AS ");
+                    _relationalCommandBuilder.Append(sqlUnaryExpression.TypeMapping.StoreType);
+                    _relationalCommandBuilder.Append(")");
+                }
+                break;
 
                 case ExpressionType.Not:
-                    {
-                        _relationalCommandBuilder.Append("NOT (");
-                        Visit(sqlUnaryExpression.Operand);
-                        _relationalCommandBuilder.Append(")");
-                    }
-
-                    break;
+                {
+                    _relationalCommandBuilder.Append("NOT (");
+                    Visit(sqlUnaryExpression.Operand);
+                    _relationalCommandBuilder.Append(")");
+                }
+                break;
 
                 case ExpressionType.Equal:
-                    {
-                        Visit(sqlUnaryExpression.Operand);
-                        _relationalCommandBuilder.Append(" IS NULL");
-                    }
-
-                    break;
+                {
+                    Visit(sqlUnaryExpression.Operand);
+                    _relationalCommandBuilder.Append(" IS NULL");
+                }
+                break;
 
                 case ExpressionType.NotEqual:
-                    {
-                        Visit(sqlUnaryExpression.Operand);
-                        _relationalCommandBuilder.Append(" IS NOT NULL");
-                    }
-
-                    break;
+                {
+                    Visit(sqlUnaryExpression.Operand);
+                    _relationalCommandBuilder.Append(" IS NOT NULL");
+                }
+                break;
 
                 case ExpressionType.Negate:
-                    {
-                        _relationalCommandBuilder.Append("-");
-                        Visit(sqlUnaryExpression.Operand);
-                    }
-
-                    break;
+                {
+                    _relationalCommandBuilder.Append("-");
+                    Visit(sqlUnaryExpression.Operand);
+                }
+                break;
             }
 
             return sqlUnaryExpression;
