@@ -263,7 +263,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalFact(Skip = "#12138")]
+        [ConditionalFact(Skip = "Issue#17019")]
         public virtual async Task Throws_on_concurrent_query_list()
         {
             using (var context = CreateContext())
@@ -298,7 +298,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalFact(Skip = "#12138")]
+        [ConditionalFact(Skip = "Issue#17019")]
         public virtual async Task Throws_on_concurrent_query_first()
         {
             using (var context = CreateContext())
@@ -316,6 +316,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                             async () =>
                             {
                                 synchronizationEvent.Wait();
+
                                 Assert.Equal(
                                     CoreStrings.ConcurrentMethodInvocation,
                                     (await Assert.ThrowsAsync<InvalidOperationException>(
