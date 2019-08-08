@@ -88,93 +88,93 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             switch (extensionExpression)
             {
                 case EntityShaperExpression entityShaperExpression:
+                {
+                    var key = GenerateKey((ProjectionBindingExpression)entityShaperExpression.ValueBufferExpression);
+                    if (!_mapping.TryGetValue(key, out var variable))
                     {
-                        var key = GenerateKey((ProjectionBindingExpression)entityShaperExpression.ValueBufferExpression);
-                        if (!_mapping.TryGetValue(key, out var variable))
-                        {
-                            variable = Expression.Parameter(entityShaperExpression.EntityType.ClrType);
-                            _variables.Add(variable);
-                            _expressions.Add(Expression.Assign(variable, entityShaperExpression));
-                            _mapping[key] = variable;
-                        }
-
-                        return variable;
+                        variable = Expression.Parameter(entityShaperExpression.EntityType.ClrType);
+                        _variables.Add(variable);
+                        _expressions.Add(Expression.Assign(variable, entityShaperExpression));
+                        _mapping[key] = variable;
                     }
+
+                    return variable;
+                }
 
                 case ProjectionBindingExpression projectionBindingExpression:
+                {
+                    var key = GenerateKey(projectionBindingExpression);
+                    if (!_mapping.TryGetValue(key, out var variable))
                     {
-                        var key = GenerateKey(projectionBindingExpression);
-                        if (!_mapping.TryGetValue(key, out var variable))
-                        {
-                            variable = Expression.Parameter(projectionBindingExpression.Type);
-                            _variables.Add(variable);
-                            _expressions.Add(Expression.Assign(variable, projectionBindingExpression));
-                            _mapping[key] = variable;
-                        }
-
-                        return variable;
+                        variable = Expression.Parameter(projectionBindingExpression.Type);
+                        _variables.Add(variable);
+                        _expressions.Add(Expression.Assign(variable, projectionBindingExpression));
+                        _mapping[key] = variable;
                     }
+
+                    return variable;
+                }
 
                 case IncludeExpression includeExpression:
-                    {
-                        var entity = Visit(includeExpression.EntityExpression);
-                        if (includeExpression.NavigationExpression is RelationalCollectionShaperExpression
-                            relationalCollectionShaperExpression)
-                        {
-                            var innerShaper = new ShaperExpressionProcessingExpressionVisitor(
-                                _selectExpression, _dataReaderParameter, _resultCoordinatorParameter, null)
-                                        .Inject(relationalCollectionShaperExpression.InnerShaper);
-
-                            _collectionPopulatingExpressions.Add(new CollectionPopulatingExpression(
-                                    relationalCollectionShaperExpression.Update(
-                                        relationalCollectionShaperExpression.ParentIdentifier,
-                                        relationalCollectionShaperExpression.OuterIdentifier,
-                                        relationalCollectionShaperExpression.SelfIdentifier,
-                                        innerShaper),
-                                    includeExpression.Navigation.ClrType,
-                                    true));
-
-                            _expressions.Add(new CollectionInitializingExpression(
-                                relationalCollectionShaperExpression.CollectionId,
-                                entity,
-                                relationalCollectionShaperExpression.ParentIdentifier,
-                                relationalCollectionShaperExpression.OuterIdentifier,
-                                includeExpression.Navigation,
-                                includeExpression.Navigation.ClrType));
-                        }
-                        else
-                        {
-                            _expressions.Add(includeExpression.Update(
-                                entity,
-                                Visit(includeExpression.NavigationExpression)));
-                        }
-
-                        return entity;
-                    }
-
-                case RelationalCollectionShaperExpression relationalCollectionShaperExpression2:
+                {
+                    var entity = Visit(includeExpression.EntityExpression);
+                    if (includeExpression.NavigationExpression is RelationalCollectionShaperExpression
+                        relationalCollectionShaperExpression)
                     {
                         var innerShaper = new ShaperExpressionProcessingExpressionVisitor(
                             _selectExpression, _dataReaderParameter, _resultCoordinatorParameter, null)
-                                .Inject(relationalCollectionShaperExpression2.InnerShaper);
+                                    .Inject(relationalCollectionShaperExpression.InnerShaper);
 
                         _collectionPopulatingExpressions.Add(new CollectionPopulatingExpression(
-                                relationalCollectionShaperExpression2.Update(
-                                    relationalCollectionShaperExpression2.ParentIdentifier,
-                                    relationalCollectionShaperExpression2.OuterIdentifier,
-                                    relationalCollectionShaperExpression2.SelfIdentifier,
+                                relationalCollectionShaperExpression.Update(
+                                    relationalCollectionShaperExpression.ParentIdentifier,
+                                    relationalCollectionShaperExpression.OuterIdentifier,
+                                    relationalCollectionShaperExpression.SelfIdentifier,
                                     innerShaper),
-                                relationalCollectionShaperExpression2.Type,
-                                false));
+                                includeExpression.Navigation.ClrType,
+                                true));
 
-                        return new CollectionInitializingExpression(
-                            relationalCollectionShaperExpression2.CollectionId,
-                            null,
-                            relationalCollectionShaperExpression2.ParentIdentifier,
-                            relationalCollectionShaperExpression2.OuterIdentifier,
-                            relationalCollectionShaperExpression2.Navigation,
-                            relationalCollectionShaperExpression2.Type);
+                        _expressions.Add(new CollectionInitializingExpression(
+                            relationalCollectionShaperExpression.CollectionId,
+                            entity,
+                            relationalCollectionShaperExpression.ParentIdentifier,
+                            relationalCollectionShaperExpression.OuterIdentifier,
+                            includeExpression.Navigation,
+                            includeExpression.Navigation.ClrType));
                     }
+                    else
+                    {
+                        _expressions.Add(includeExpression.Update(
+                            entity,
+                            Visit(includeExpression.NavigationExpression)));
+                    }
+
+                    return entity;
+                }
+
+                case RelationalCollectionShaperExpression relationalCollectionShaperExpression2:
+                {
+                    var innerShaper = new ShaperExpressionProcessingExpressionVisitor(
+                        _selectExpression, _dataReaderParameter, _resultCoordinatorParameter, null)
+                            .Inject(relationalCollectionShaperExpression2.InnerShaper);
+
+                    _collectionPopulatingExpressions.Add(new CollectionPopulatingExpression(
+                            relationalCollectionShaperExpression2.Update(
+                                relationalCollectionShaperExpression2.ParentIdentifier,
+                                relationalCollectionShaperExpression2.OuterIdentifier,
+                                relationalCollectionShaperExpression2.SelfIdentifier,
+                                innerShaper),
+                            relationalCollectionShaperExpression2.Type,
+                            false));
+
+                    return new CollectionInitializingExpression(
+                        relationalCollectionShaperExpression2.CollectionId,
+                        null,
+                        relationalCollectionShaperExpression2.ParentIdentifier,
+                        relationalCollectionShaperExpression2.OuterIdentifier,
+                        relationalCollectionShaperExpression2.Navigation,
+                        relationalCollectionShaperExpression2.Type);
+                }
             }
 
             return base.VisitExtension(extensionExpression);

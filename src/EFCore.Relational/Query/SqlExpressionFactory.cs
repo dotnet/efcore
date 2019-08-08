@@ -131,22 +131,22 @@ namespace Microsoft.EntityFrameworkCore.Query
                 case ExpressionType.LessThan:
                 case ExpressionType.LessThanOrEqual:
                 case ExpressionType.NotEqual:
-                    {
-                        inferredTypeMapping = ExpressionExtensions.InferTypeMapping(left, right)
-                            ?? _typeMappingSource.FindMapping(left.Type);
-                        resultType = typeof(bool);
-                        resultTypeMapping = _boolTypeMapping;
-                    }
-                    break;
+                {
+                    inferredTypeMapping = ExpressionExtensions.InferTypeMapping(left, right)
+                        ?? _typeMappingSource.FindMapping(left.Type);
+                    resultType = typeof(bool);
+                    resultTypeMapping = _boolTypeMapping;
+                }
+                break;
 
                 case ExpressionType.AndAlso:
                 case ExpressionType.OrElse:
-                    {
-                        inferredTypeMapping = _boolTypeMapping;
-                        resultType = typeof(bool);
-                        resultTypeMapping = _boolTypeMapping;
-                    }
-                    break;
+                {
+                    inferredTypeMapping = _boolTypeMapping;
+                    resultType = typeof(bool);
+                    resultTypeMapping = _boolTypeMapping;
+                }
+                break;
 
                 case ExpressionType.Add:
                 case ExpressionType.Subtract:
@@ -156,12 +156,12 @@ namespace Microsoft.EntityFrameworkCore.Query
                 case ExpressionType.Coalesce:
                 case ExpressionType.And:
                 case ExpressionType.Or:
-                    {
-                        inferredTypeMapping = typeMapping ?? ExpressionExtensions.InferTypeMapping(left, right);
-                        resultType = left.Type;
-                        resultTypeMapping = inferredTypeMapping;
-                    }
-                    break;
+                {
+                    inferredTypeMapping = typeMapping ?? ExpressionExtensions.InferTypeMapping(left, right);
+                    resultType = left.Type;
+                    resultTypeMapping = inferredTypeMapping;
+                }
+                break;
 
                 default:
                     throw new InvalidOperationException("Incorrect operatorType for SqlBinaryExpression");

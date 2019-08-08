@@ -98,30 +98,30 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                                 materializeCollectionNavigationExpression.Navigation, null);
 
                         case MethodCallExpression methodCallExpression:
+                        {
+                            if (methodCallExpression.Method.IsGenericMethod
+                                && methodCallExpression.Method.DeclaringType == typeof(Enumerable)
+                                && methodCallExpression.Method.Name == nameof(Enumerable.ToList))
                             {
-                                if (methodCallExpression.Method.IsGenericMethod
-                                    && methodCallExpression.Method.DeclaringType == typeof(Enumerable)
-                                    && methodCallExpression.Method.Name == nameof(Enumerable.ToList))
-                                {
-                                    var elementType = methodCallExpression.Method.GetGenericArguments()[0];
+                                var elementType = methodCallExpression.Method.GetGenericArguments()[0];
 
-                                    var result = _queryableMethodTranslatingExpressionVisitor.TranslateSubquery(methodCallExpression.Arguments[0]);
+                                var result = _queryableMethodTranslatingExpressionVisitor.TranslateSubquery(methodCallExpression.Arguments[0]);
 
-                                    return _selectExpression.AddCollectionProjection(result, null, elementType);
-                                }
-
-                                var subquery = _queryableMethodTranslatingExpressionVisitor.TranslateSubquery(methodCallExpression);
-
-                                if (subquery != null)
-                                {
-                                    if (subquery.ResultCardinality == ResultCardinality.Enumerable)
-                                    {
-                                        return _selectExpression.AddCollectionProjection(subquery, null, subquery.ShaperExpression.Type);
-                                    }
-                                }
-
-                                break;
+                                return _selectExpression.AddCollectionProjection(result, null, elementType);
                             }
+
+                            var subquery = _queryableMethodTranslatingExpressionVisitor.TranslateSubquery(methodCallExpression);
+
+                            if (subquery != null)
+                            {
+                                if (subquery.ResultCardinality == ResultCardinality.Enumerable)
+                                {
+                                    return _selectExpression.AddCollectionProjection(subquery, null, subquery.ShaperExpression.Type);
+                                }
+                            }
+
+                            break;
+                        }
                     }
 
                     var translation = _sqlTranslator.Translate(expression);

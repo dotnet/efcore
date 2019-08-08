@@ -303,19 +303,19 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                             nullable: true);
 
                     case ObjectArrayProjectionExpression objectArrayProjectionExpression:
-                        {
-                            var innerShaperExpression = new EntityShaperExpression(
-                                navigation.GetTargetType(),
-                                Expression.Convert(
-                                    Expression.Convert(objectArrayProjectionExpression.InnerProjection, typeof(object)), typeof(ValueBuffer)),
-                                nullable: true);
+                    {
+                        var innerShaperExpression = new EntityShaperExpression(
+                            navigation.GetTargetType(),
+                            Expression.Convert(
+                                Expression.Convert(objectArrayProjectionExpression.InnerProjection, typeof(object)), typeof(ValueBuffer)),
+                            nullable: true);
 
-                            return new CollectionShaperExpression(
-                                objectArrayProjectionExpression,
-                                innerShaperExpression,
-                                navigation,
-                                innerShaperExpression.EntityType.ClrType);
-                        }
+                        return new CollectionShaperExpression(
+                            objectArrayProjectionExpression,
+                            innerShaperExpression,
+                            navigation,
+                            innerShaperExpression.EntityType.ClrType);
+                    }
 
                     default:
                         throw new InvalidOperationException();
