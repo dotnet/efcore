@@ -90,16 +90,12 @@ namespace Microsoft.EntityFrameworkCore.Query
         public static bool IsSumWithSelectorMethodInfo(MethodInfo methodInfo)
             => methodInfo.IsGenericMethod
                && SumWithSelectorMethodInfos.Values.Contains(methodInfo.GetGenericMethodDefinition());
-        public static bool IsSumMethodInfo(MethodInfo methodInfo)
-            => IsSumWithoutSelectorMethodInfo(methodInfo) || IsSumWithSelectorMethodInfo(methodInfo);
 
         public static bool IsAverageWithoutSelectorMethodInfo(MethodInfo methodInfo)
             => AverageWithoutSelectorMethodInfos.Values.Contains(methodInfo);
         public static bool IsAverageWithSelectorMethodInfo(MethodInfo methodInfo)
             => methodInfo.IsGenericMethod
                && AverageWithSelectorMethodInfos.Values.Contains(methodInfo.GetGenericMethodDefinition());
-        public static bool IsAverageMethodInfo(MethodInfo methodInfo)
-            => IsAverageWithoutSelectorMethodInfo(methodInfo) || IsAverageWithSelectorMethodInfo(methodInfo);
 
         static QueryableMethodProvider()
         {
