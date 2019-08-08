@@ -79,14 +79,18 @@ WHERE (([p].[DependentId] = @__category_PrincipalId_0) AND ([p].[DependentId] IS
                 Assert.Equal(
                     "LoginEntityTypeWithAnExtremelyLongAndOverlyConvolutedNameThatIsUsedToVerifyThatTheStoreIdentifierGenerationLengthLimitIsWorkin~1",
                     entityType2.GetTableName());
-
+                Assert.Equal(
+                    "PK_LoginDetails",
+                    entityType2.GetKeys().Single().GetName());
                 Assert.Equal(
                     "ExtraPropertyWithAnExtremelyLongAndOverlyConvolutedNameThatIsUsedToVerifyThatTheStoreIdentifierGenerationLengthLimitIsWorkingCo~",
                     entityType2.GetProperties().ElementAt(1).GetColumnName());
-
                 Assert.Equal(
                     "ExtraPropertyWithAnExtremelyLongAndOverlyConvolutedNameThatIsUsedToVerifyThatTheStoreIdentifierGenerationLengthLimitIsWorkingC~1",
                     entityType2.GetProperties().ElementAt(2).GetColumnName());
+                Assert.Equal(
+                    "IX_LoginEntityTypeWithAnExtremelyLongAndOverlyConvolutedNameThatIsUsedToVerifyThatTheStoreIdentifierGenerationLengthLimitIsWor~1",
+                    entityType2.GetIndexes().Single().GetName());
             }
         }
 
