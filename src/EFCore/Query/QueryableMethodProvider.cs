@@ -40,7 +40,6 @@ namespace Microsoft.EntityFrameworkCore.Query
         public static MethodInfo MaxWithSelectorMethodInfo { get; }
         public static MethodInfo MaxWithoutSelectorMethodInfo { get; }
 
-
         public static MethodInfo ElementAtMethodInfo { get; }
         public static MethodInfo ElementAtOrDefaultMethodInfo { get; }
         public static MethodInfo FirstWithoutPredicateMethodInfo { get; }
@@ -85,6 +84,22 @@ namespace Microsoft.EntityFrameworkCore.Query
         public static IDictionary<Type, MethodInfo> SumWithSelectorMethodInfos { get; }
         public static IDictionary<Type, MethodInfo> AverageWithoutSelectorMethodInfos { get; }
         public static IDictionary<Type, MethodInfo> AverageWithSelectorMethodInfos { get; }
+
+        public static bool IsSumWithoutSelectorMethodInfo(MethodInfo methodInfo)
+            => SumWithoutSelectorMethodInfos.Values.Contains(methodInfo);
+        public static bool IsSumWithSelectorMethodInfo(MethodInfo methodInfo)
+            => methodInfo.IsGenericMethod
+               && SumWithSelectorMethodInfos.Values.Contains(methodInfo.GetGenericMethodDefinition());
+        public static bool IsSumMethodInfo(MethodInfo methodInfo)
+            => IsSumWithoutSelectorMethodInfo(methodInfo) || IsSumWithSelectorMethodInfo(methodInfo);
+
+        public static bool IsAverageWithoutSelectorMethodInfo(MethodInfo methodInfo)
+            => AverageWithoutSelectorMethodInfos.Values.Contains(methodInfo);
+        public static bool IsAverageWithSelectorMethodInfo(MethodInfo methodInfo)
+            => methodInfo.IsGenericMethod
+               && AverageWithSelectorMethodInfos.Values.Contains(methodInfo.GetGenericMethodDefinition());
+        public static bool IsAverageMethodInfo(MethodInfo methodInfo)
+            => IsAverageWithoutSelectorMethodInfo(methodInfo) || IsAverageWithSelectorMethodInfo(methodInfo);
 
         static QueryableMethodProvider()
         {

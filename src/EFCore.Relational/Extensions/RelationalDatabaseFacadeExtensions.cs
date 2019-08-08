@@ -377,7 +377,7 @@ namespace Microsoft.EntityFrameworkCore
             var concurrencyDetector = facadeDependencies.ConcurrencyDetector;
             var logger = facadeDependencies.CommandLogger;
 
-            using (await concurrencyDetector.EnterCriticalSectionAsync(cancellationToken))
+            using (concurrencyDetector.EnterCriticalSection())
             {
                 var rawSqlCommand = GetFacadeDependencies(databaseFacade).RawSqlCommandBuilder
                     .Build(sql.Format, parameters);
@@ -645,7 +645,7 @@ namespace Microsoft.EntityFrameworkCore
             var concurrencyDetector = facadeDependencies.ConcurrencyDetector;
             var logger = facadeDependencies.CommandLogger;
 
-            using (await concurrencyDetector.EnterCriticalSectionAsync(cancellationToken))
+            using (concurrencyDetector.EnterCriticalSection())
             {
                 var rawSqlCommand = GetFacadeDependencies(databaseFacade).RawSqlCommandBuilder
                     .Build(sql, parameters);
