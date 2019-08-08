@@ -126,6 +126,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
             new RelationalColumnAttributeConvention(CreateDependencies(), CreateRelationalDependencies())
                 .ProcessPropertyAdded(propertyBuilder, context);
+
+            new RelationalDefaultValueAttributeConvention(CreateDependencies(), CreateRelationalDependencies())
+                .ProcessPropertyAdded(propertyBuilder, context);
         }
 
         private InternalEntityTypeBuilder CreateInternalEntityTypeBuilder<T>()
