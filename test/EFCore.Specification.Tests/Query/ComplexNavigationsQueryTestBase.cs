@@ -170,9 +170,9 @@ namespace Microsoft.EntityFrameworkCore.Query
                 isAsync,
                 l1s => l1s.Where(
                     l => l.OneToOne_Required_FK1 == new Level2
-                         {
-                             Id = 1
-                         }
+                    {
+                        Id = 1
+                    }
                          || l.OneToOne_Required_FK1 == new Level2
                          {
                              Id = 2
@@ -192,9 +192,9 @@ namespace Microsoft.EntityFrameworkCore.Query
                 isAsync,
                 l2s => l2s.Where(
                     l => l.OneToOne_Required_FK_Inverse2 == new Level1
-                         {
-                             Id = 1
-                         }
+                    {
+                        Id = 1
+                    }
                          || l.OneToOne_Required_FK_Inverse2 == new Level1
                          {
                              Id = 2
@@ -3365,7 +3365,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                        orderby l2.OneToOne_Optional_FK2.Id
                        select new
                        {
-                           Entity = l4, Collection = l2.OneToMany_Optional_Self2.Where(e => e.Id != 42).ToList(),
+                           Entity = l4,
+                           Collection = l2.OneToMany_Optional_Self2.Where(e => e.Id != 42).ToList(),
                            Property = l3.OneToOne_Optional_FK_Inverse3.OneToOne_Required_FK2.Name
                        },
                 (l1s, l4s)
@@ -3578,7 +3579,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     .Where(l1 => l2s.OrderBy(l2i => l2i.Id).First().OneToOne_Required_FK_Inverse2.Name == "L1 02"));
         }
 
-        [ConditionalTheory(Skip = "Issue#16088")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Manually_created_left_join_propagates_nullability_to_navigations(bool isAsync)
         {
@@ -6227,22 +6228,20 @@ namespace Microsoft.EntityFrameworkCore.Query
                 assertOrder: true);
         }
 
-        [ConditionalTheory(Skip = "Issue#16088")]
+        [ConditionalTheory(Skip = "Issue#17020")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Null_check_removal_applied_recursively(bool isAsync)
         {
             return AssertQuery<Level1>(
                 isAsync,
                 l1s => l1s.Where(l1 =>
-                    ((((l1.OneToOne_Optional_FK1 == null
+                    (((l1.OneToOne_Optional_FK1 == null
                         ? null
                         : l1.OneToOne_Optional_FK1.OneToOne_Optional_FK2) == null
                             ? null
                             : l1.OneToOne_Optional_FK1.OneToOne_Optional_FK2.OneToOne_Optional_FK3) == null
                                 ? null
-                                : l1.OneToOne_Optional_FK1.OneToOne_Optional_FK2.OneToOne_Optional_FK3) == null
-                                    ? null
-                                    : l1.OneToOne_Optional_FK1.OneToOne_Optional_FK2.OneToOne_Optional_FK3.Name) == "L4 01"));
+                                : l1.OneToOne_Optional_FK1.OneToOne_Optional_FK2.OneToOne_Optional_FK3.Name) == "L4 01"));
         }
 
         [ConditionalTheory]
@@ -6258,9 +6257,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                             ? null
                             : l1.OneToOne_Optional_FK1.OneToOne_Optional_FK2.OneToOne_Optional_FK3 == null
                                 ? null
-                                : l1.OneToOne_Optional_FK1.OneToOne_Optional_FK2.OneToOne_Optional_FK3 == null
-                                    ? null
-                                    : l1.OneToOne_Optional_FK1.OneToOne_Optional_FK2.OneToOne_Optional_FK3.Name) == "L4 01"));
+                                : l1.OneToOne_Optional_FK1.OneToOne_Optional_FK2.OneToOne_Optional_FK3.Name) == "L4 01"));
         }
     }
 }

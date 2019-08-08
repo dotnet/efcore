@@ -73,10 +73,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         {
             private readonly ISet<Expression> _nullSafeAccesses = new HashSet<Expression>(ExpressionEqualityComparer.Instance);
 
-            public NullSafeAccessVerifyingExpressionVisitor()
-            {
-            }
-
             public virtual bool Verify(Expression caller, Expression result)
             {
                 _nullSafeAccesses.Clear();
@@ -87,19 +83,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             }
 
             public override Expression Visit(Expression expression)
-            {
-                if (expression == null)
-                {
-                    return expression;
-                }
-
-                if (_nullSafeAccesses.Contains(expression))
-                {
-                    return expression;
-                }
-
-                return base.Visit(expression);
-            }
+                => expression == null || _nullSafeAccesses.Contains(expression)
+                    ? expression
+                    : base.Visit(expression);
 
             protected override Expression VisitMember(MemberExpression memberExpression)
             {
@@ -127,14 +113,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         }
 
         private bool IsNullConstant(Expression expression)
-        {
-            if (expression is ConstantExpression constantExpression
-                && constantExpression.Value == null)
-            {
-                return true;
-            }
-
-            return false;
-        }
+            => expression is ConstantExpression constantExpression
+                && constantExpression.Value == null;
     }
 }
