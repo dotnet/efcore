@@ -9,6 +9,8 @@ variables:
     value: true
   - name: _DotNetArtifactsCategory
     value: ENTITYFRAMEWORKCORE
+  - name: _DotNetValidationArtifactsCategory
+    value: ENTITYFRAMEWORKCORE
   - name: _CosmosConnectionUrl
     value: https://ef-nightly-test.documents.azure.com:443/
   - name: _CosmosToken
