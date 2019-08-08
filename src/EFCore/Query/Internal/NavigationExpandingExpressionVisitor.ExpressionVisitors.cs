@@ -551,37 +551,37 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                         return navigationTreeExpression.GetExpression();
 
                     case NavigationExpansionExpression navigationExpansionExpression:
+                    {
+                        var pendingSelector = Visit(navigationExpansionExpression.PendingSelector);
+                        Expression result;
+                        var source = Visit(navigationExpansionExpression.Source);
+                        if (pendingSelector == navigationExpansionExpression.CurrentParameter)
                         {
-                            var pendingSelector = Visit(navigationExpansionExpression.PendingSelector);
-                            Expression result;
-                            var source = Visit(navigationExpansionExpression.Source);
-                            if (pendingSelector == navigationExpansionExpression.CurrentParameter)
-                            {
-                                // identity projection
-                                result = source;
-                            }
-                            else
-                            {
-                                var selectorLambda = Expression.Lambda(pendingSelector, navigationExpansionExpression.CurrentParameter);
-
-                                result = Expression.Call(
-                                    QueryableMethodProvider.SelectMethodInfo.MakeGenericMethod(
-                                        navigationExpansionExpression.SourceElementType,
-                                        selectorLambda.ReturnType),
-                                    source,
-                                    Expression.Quote(selectorLambda));
-                            }
-
-                            if (navigationExpansionExpression.CardinalityReducingGenericMethodInfo != null)
-                            {
-                                result = Expression.Call(
-                                    navigationExpansionExpression.CardinalityReducingGenericMethodInfo.MakeGenericMethod(
-                                        result.Type.TryGetSequenceType()),
-                                    result);
-                            }
-
-                            return result;
+                            // identity projection
+                            result = source;
                         }
+                        else
+                        {
+                            var selectorLambda = Expression.Lambda(pendingSelector, navigationExpansionExpression.CurrentParameter);
+
+                            result = Expression.Call(
+                                QueryableMethodProvider.SelectMethodInfo.MakeGenericMethod(
+                                    navigationExpansionExpression.SourceElementType,
+                                    selectorLambda.ReturnType),
+                                source,
+                                Expression.Quote(selectorLambda));
+                        }
+
+                        if (navigationExpansionExpression.CardinalityReducingGenericMethodInfo != null)
+                        {
+                            result = Expression.Call(
+                                navigationExpansionExpression.CardinalityReducingGenericMethodInfo.MakeGenericMethod(
+                                    result.Type.TryGetSequenceType()),
+                                result);
+                        }
+
+                        return result;
+                    }
 
                     case OwnedNavigationReference ownedNavigationReference:
                         return Visit(ownedNavigationReference.Parent).CreateEFPropertyExpression(ownedNavigationReference.Navigation);

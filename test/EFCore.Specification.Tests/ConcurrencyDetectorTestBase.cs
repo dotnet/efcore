@@ -51,7 +51,7 @@ namespace Microsoft.EntityFrameworkCore
                 });
         }
 
-        [ConditionalFact(Skip = "#12138")]
+        [ConditionalFact]
         public virtual Task Find_logs_concurrent_access_async()
         {
             return ConcurrencyDetectorTest(c => c.Products.FindAsync(1).AsTask());
@@ -68,7 +68,7 @@ namespace Microsoft.EntityFrameworkCore
                 });
         }
 
-        [ConditionalFact(Skip = "#12138")]
+        [ConditionalFact]
         public virtual Task Count_logs_concurrent_access_async()
         {
             return ConcurrencyDetectorTest(c => c.Products.CountAsync());
@@ -85,7 +85,7 @@ namespace Microsoft.EntityFrameworkCore
                 });
         }
 
-        [ConditionalFact(Skip = "#12138")]
+        [ConditionalFact]
         public virtual Task First_logs_concurrent_access_async()
         {
             return ConcurrencyDetectorTest(c => c.Products.FirstAsync());
@@ -102,7 +102,7 @@ namespace Microsoft.EntityFrameworkCore
                 });
         }
 
-        [ConditionalFact(Skip = "#12138")]
+        [ConditionalFact]
         public virtual Task Last_logs_concurrent_access_async()
         {
             return ConcurrencyDetectorTest(c => c.Products.LastAsync());
@@ -119,7 +119,7 @@ namespace Microsoft.EntityFrameworkCore
                 });
         }
 
-        [ConditionalFact(Skip = "#12138")]
+        [ConditionalFact]
         public virtual Task Single_logs_concurrent_access_async()
         {
             return ConcurrencyDetectorTest(c => c.Products.SingleAsync(p => p.ProductID == 1));
@@ -136,7 +136,7 @@ namespace Microsoft.EntityFrameworkCore
                 });
         }
 
-        [ConditionalFact(Skip = "#12138")]
+        [ConditionalFact]
         public virtual Task Any_logs_concurrent_access_async()
         {
             return ConcurrencyDetectorTest(c => c.Products.AnyAsync(p => p.ProductID < 10));
@@ -153,7 +153,7 @@ namespace Microsoft.EntityFrameworkCore
                 });
         }
 
-        [ConditionalFact(Skip = "#12138")]
+        [ConditionalFact]
         public virtual Task ToList_logs_concurrent_access_async()
         {
             return ConcurrencyDetectorTest(c => c.Products.ToListAsync());
@@ -163,7 +163,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateContext())
             {
-                context.Products.Add(new Product());
+                context.Products.Add(new Product { ProductID = 10001 });
 
                 using (context.GetService<IConcurrencyDetector>().EnterCriticalSection())
                 {

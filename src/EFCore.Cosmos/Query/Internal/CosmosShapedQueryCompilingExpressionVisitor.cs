@@ -882,29 +882,32 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                 {
                     try
                     {
-                        if (_enumerator == null)
+                        using (_cosmosQueryContext.ConcurrencyDetector.EnterCriticalSection())
                         {
-                            var selectExpression = (SelectExpression)new InExpressionValuesExpandingExpressionVisitor(
-                                _sqlExpressionFactory, _cosmosQueryContext.ParameterValues).Visit(_selectExpression);
+                            if (_enumerator == null)
+                            {
+                                var selectExpression = (SelectExpression)new InExpressionValuesExpandingExpressionVisitor(
+                                    _sqlExpressionFactory, _cosmosQueryContext.ParameterValues).Visit(_selectExpression);
 
-                            var sqlQuery = _querySqlGeneratorFactory.Create().GetSqlQuery(
-                                selectExpression, _cosmosQueryContext.ParameterValues);
+                                var sqlQuery = _querySqlGeneratorFactory.Create().GetSqlQuery(
+                                    selectExpression, _cosmosQueryContext.ParameterValues);
 
-                            _enumerator = _cosmosQueryContext.CosmosClient
-                                .ExecuteSqlQuery(
-                                    _selectExpression.Container,
-                                    sqlQuery)
-                                .GetEnumerator();
+                                _enumerator = _cosmosQueryContext.CosmosClient
+                                    .ExecuteSqlQuery(
+                                        _selectExpression.Container,
+                                        sqlQuery)
+                                    .GetEnumerator();
+                            }
+
+                            var hasNext = _enumerator.MoveNext();
+
+                            Current
+                                = hasNext
+                                    ? _shaper(_cosmosQueryContext, _enumerator.Current)
+                                    : default;
+
+                            return hasNext;
                         }
-
-                        var hasNext = _enumerator.MoveNext();
-
-                        Current
-                            = hasNext
-                                ? _shaper(_cosmosQueryContext, _enumerator.Current)
-                                : default;
-
-                        return hasNext;
                     }
                     catch (Exception exception)
                     {
@@ -987,27 +990,30 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                 {
                     try
                     {
-                        if (_enumerator == null)
+                        using (_cosmosQueryContext.ConcurrencyDetector.EnterCriticalSection())
                         {
-                            var selectExpression = (SelectExpression)new InExpressionValuesExpandingExpressionVisitor(
-                               _sqlExpressionFactory, _cosmosQueryContext.ParameterValues).Visit(_selectExpression);
+                            if (_enumerator == null)
+                            {
+                                var selectExpression = (SelectExpression)new InExpressionValuesExpandingExpressionVisitor(
+                                   _sqlExpressionFactory, _cosmosQueryContext.ParameterValues).Visit(_selectExpression);
 
-                            _enumerator = _cosmosQueryContext.CosmosClient
-                                .ExecuteSqlQueryAsync(
-                                    _selectExpression.Container,
-                                    _querySqlGeneratorFactory.Create().GetSqlQuery(selectExpression, _cosmosQueryContext.ParameterValues))
-                                .GetAsyncEnumerator(_cancellationToken);
+                                _enumerator = _cosmosQueryContext.CosmosClient
+                                    .ExecuteSqlQueryAsync(
+                                        _selectExpression.Container,
+                                        _querySqlGeneratorFactory.Create().GetSqlQuery(selectExpression, _cosmosQueryContext.ParameterValues))
+                                    .GetAsyncEnumerator(_cancellationToken);
 
+                            }
+
+                            var hasNext = await _enumerator.MoveNextAsync();
+
+                            Current
+                                = hasNext
+                                    ? _shaper(_cosmosQueryContext, _enumerator.Current)
+                                    : default;
+
+                            return hasNext;
                         }
-
-                        var hasNext = await _enumerator.MoveNextAsync();
-
-                        Current
-                            = hasNext
-                                ? _shaper(_cosmosQueryContext, _enumerator.Current)
-                                : default;
-
-                        return hasNext;
                     }
                     catch (Exception exception)
                     {
@@ -1050,39 +1056,39 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                     switch (inExpression.Values)
                     {
                         case SqlConstantExpression sqlConstant:
+                        {
+                            typeMapping = sqlConstant.TypeMapping;
+                            var values = (IEnumerable)sqlConstant.Value;
+                            foreach (var value in values)
                             {
-                                typeMapping = sqlConstant.TypeMapping;
-                                var values = (IEnumerable)sqlConstant.Value;
-                                foreach (var value in values)
+                                if (value == null)
                                 {
-                                    if (value == null)
-                                    {
-                                        hasNullValue = true;
-                                        continue;
-                                    }
-
-                                    inValues.Add(value);
+                                    hasNullValue = true;
+                                    continue;
                                 }
+
+                                inValues.Add(value);
                             }
-                            break;
+                        }
+                        break;
 
                         case SqlParameterExpression sqlParameter:
+                        {
+                            typeMapping = sqlParameter.TypeMapping;
+                            var values = (IEnumerable)_parametersValues[sqlParameter.Name];
+                            foreach (var value in values)
                             {
-                                typeMapping = sqlParameter.TypeMapping;
-                                var values = (IEnumerable)_parametersValues[sqlParameter.Name];
-                                foreach (var value in values)
+                                if (value == null)
                                 {
-                                    if (value == null)
-                                    {
-                                        hasNullValue = true;
-                                        continue;
-                                    }
-
-                                    inValues.Add(value);
+                                    hasNullValue = true;
+                                    continue;
                                 }
+
+                                inValues.Add(value);
                             }
-                            break;
-                    }
+                        }
+                        break;
+                   }
 
                     var updatedInExpression = inValues.Count > 0
                         ? _sqlExpressionFactory.In(

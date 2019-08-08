@@ -5,6 +5,7 @@ using System;
 using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -316,10 +317,13 @@ namespace Microsoft.EntityFrameworkCore.Query
                     return null;
                 }
 
-                if ((methodCallExpression.Method.Name == nameof(Queryable.Any)
-                    || methodCallExpression.Method.Name == nameof(Queryable.All)
-                    || methodCallExpression.Method.Name == nameof(Queryable.Contains))
-                    && subquery.Tables.Count == 0)
+                if (subquery.Tables.Count == 0
+                    && methodCallExpression.Method.IsGenericMethod
+                    && methodCallExpression.Method.GetGenericMethodDefinition() is MethodInfo genericMethod
+                    && (genericMethod == QueryableMethodProvider.AnyWithoutPredicateMethodInfo
+                        || genericMethod == QueryableMethodProvider.AnyWithPredicateMethodInfo
+                        || genericMethod == QueryableMethodProvider.AllMethodInfo
+                        || genericMethod == QueryableMethodProvider.ContainsMethodInfo))
                 {
                     return subquery.Projection[0].Expression;
                 }

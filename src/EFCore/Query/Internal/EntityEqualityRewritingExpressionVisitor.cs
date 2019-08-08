@@ -188,6 +188,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
         {
             var method = methodCallExpression.Method;
+            var genericMethod = method.IsGenericMethod ? method.GetGenericMethodDefinition() : null;
             var arguments = methodCallExpression.Arguments;
             Expression newSource;
 
@@ -219,37 +220,48 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                        : newMethodCall;
             }
 
-            if (method.DeclaringType == typeof(Queryable) || method.DeclaringType == typeof(QueryableExtensions))
+            switch (method.Name)
             {
-                switch (method.Name)
-                {
-                    // These are methods that require special handling
-                    case nameof(Queryable.Contains) when arguments.Count == 2:
-                        return VisitContainsMethodCall(methodCallExpression);
+                // These are methods that require special handling
+                case nameof(Queryable.Contains)
+                when genericMethod == QueryableMethodProvider.ContainsMethodInfo:
+                    return VisitContainsMethodCall(methodCallExpression);
 
-                    case nameof(Queryable.OrderBy) when arguments.Count == 2:
-                    case nameof(Queryable.OrderByDescending) when arguments.Count == 2:
-                    case nameof(Queryable.ThenBy) when arguments.Count == 2:
-                    case nameof(Queryable.ThenByDescending) when arguments.Count == 2:
-                        return VisitOrderingMethodCall(methodCallExpression);
+                case nameof(Queryable.OrderBy)
+                when genericMethod == QueryableMethodProvider.OrderByMethodInfo:
+                case nameof(Queryable.OrderByDescending)
+                when genericMethod == QueryableMethodProvider.OrderByDescendingMethodInfo:
+                case nameof(Queryable.ThenBy)
+                when genericMethod == QueryableMethodProvider.ThenByMethodInfo:
+                case nameof(Queryable.ThenByDescending) when genericMethod == QueryableMethodProvider.ThenByDescendingMethodInfo:
+                    return VisitOrderingMethodCall(methodCallExpression);
 
-                    // The following are projecting methods, which flow the entity type from *within* the lambda outside.
-                    case nameof(Queryable.Select):
-                    case nameof(Queryable.SelectMany):
-                        return VisitSelectMethodCall(methodCallExpression);
+                // The following are projecting methods, which flow the entity type from *within* the lambda outside.
+                case nameof(Queryable.Select)
+                when genericMethod == QueryableMethodProvider.SelectMethodInfo:
+                case nameof(Queryable.SelectMany)
+                when genericMethod == QueryableMethodProvider.SelectManyWithoutCollectionSelectorMethodInfo
+                     || genericMethod == QueryableMethodProvider.SelectManyWithCollectionSelectorMethodInfo:
+                    return VisitSelectMethodCall(methodCallExpression);
 
-                    case nameof(Queryable.GroupJoin):
-                    case nameof(Queryable.Join):
-                    case nameof(QueryableExtensions.LeftJoin):
-                        return VisitJoinMethodCall(methodCallExpression);
+                case nameof(Queryable.GroupJoin)
+                when genericMethod == QueryableMethodProvider.GroupJoinMethodInfo:
+                case nameof(Queryable.Join)
+                when genericMethod == QueryableMethodProvider.JoinMethodInfo:
+                case nameof(QueryableExtensions.LeftJoin)
+                when genericMethod == QueryableExtensions.LeftJoinMethodInfo:
+                    return VisitJoinMethodCall(methodCallExpression);
 
-                    case nameof(Queryable.GroupBy): // TODO: Implement
-                        break;
-                }
+                case nameof(Queryable.GroupBy)
+                when genericMethod == QueryableMethodProvider.GroupByWithKeySelectorMethodInfo
+                     || genericMethod == QueryableMethodProvider.GroupByWithKeyElementSelectorMethodInfo
+                     || genericMethod == QueryableMethodProvider.GroupByWithKeyResultSelectorMethodInfo
+                     || genericMethod == QueryableMethodProvider.GroupByWithKeyElementResultSelectorMethodInfo:
+                    break;  // TODO: Implement
             }
 
             // We handled the Contains Queryable extension method above, but there's also IList.Contains
-            if (method.IsGenericMethod && method.GetGenericMethodDefinition().Equals(_enumerableContainsMethodInfo)
+            if (genericMethod == _enumerableContainsMethodInfo
                 || method.DeclaringType.GetInterfaces().Contains(typeof(IList)) && string.Equals(method.Name, nameof(IList.Contains)))
             {
                 return VisitContainsMethodCall(methodCallExpression);
@@ -293,8 +305,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     if (methodCallExpression.Method.ReturnType.TryGetSequenceType() is Type returnElementType
                         && (returnElementType == sourceElementType || sourceElementType == null))
                     {
-                        return newSourceWrapper.Update(
-                            methodCallExpression.Update(null, newArguments));
+                        return newSourceWrapper.Update(methodCallExpression.Update(null, newArguments));
                     }
 
                     // If the source type is an IQueryable over the return type, this is a cardinality-reducing method (e.g. First).

@@ -6041,6 +6041,83 @@ WHERE ([c].[Name] = N'Leeds') AND [c].[Name] IS NOT NULL");
 
         #endregion
 
+        #region Bug15518
+
+        [ConditionalTheory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual void Nested_queries_does_not_cause_concurrency_exception_sync(bool tracking)
+        {
+            using (CreateDatabase15518())
+            {
+                using (var context = new MyContext15518(_options))
+                {
+                    var query = context.Repos.OrderBy(r => r.Id).Where(r => r.Id > 0);
+                    query = tracking ? query.AsTracking() : query.AsNoTracking();
+
+                    foreach (var a in query)
+                    {
+                        foreach (var b in query)
+                        {
+                        }
+                    }
+                }
+            }
+        }
+
+        [ConditionalTheory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual async Task Nested_queries_does_not_cause_concurrency_exception_async(bool tracking)
+        {
+            using (CreateDatabase15518())
+            {
+                using (var context = new MyContext15518(_options))
+                {
+                    var query = context.Repos.OrderBy(r => r.Id).Where(r => r.Id > 0);
+                    query = tracking ? query.AsTracking() : query.AsNoTracking();
+
+                    await foreach (var a in query.AsAsyncEnumerable())
+                    {
+                        await foreach (var b in query.AsAsyncEnumerable())
+                        {
+                        }
+                    }
+                }
+            }
+        }
+
+        private SqlServerTestStore CreateDatabase15518()
+            => CreateTestStore(
+                () => new MyContext15518(_options),
+                context =>
+                {
+                    context.AddRange(
+                        new Repo15518 { Name = "London" },
+                        new Repo15518 { Name = "New York" });
+
+                    context.SaveChanges();
+
+                    ClearLog();
+                });
+
+        public class MyContext15518 : DbContext
+        {
+            public DbSet<Repo15518> Repos { get; set; }
+
+            public MyContext15518(DbContextOptions options) : base(options)
+            {
+            }
+        }
+
+        public class Repo15518
+        {
+            public int Id { get; set; }
+            public string Name { get; set; }
+        }
+
+        #endregion
+
         private DbContextOptions _options;
 
         private SqlServerTestStore CreateTestStore<TContext>(

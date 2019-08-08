@@ -52,7 +52,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalFact(Skip = "Issue#14534")]
+        [ConditionalFact]
         public virtual void Throws_on_concurrent_command()
         {
             using (var context = CreateContext())
@@ -221,7 +221,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalFact(Skip = "#12138")]
+        [ConditionalFact]
         public virtual async Task Throws_on_concurrent_command_async()
         {
             using (var context = CreateContext())
