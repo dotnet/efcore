@@ -58,6 +58,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     case OwnedNavigationReference ownedNavigationReference:
                         return ownedNavigationReference.EntityReference;
 
+                    case NullConditionalExpression nullConditionalExpression:
+                        return UnwrapEntityReference(nullConditionalExpression.AccessOperation);
+
                     default:
                         return null;
                 }
@@ -66,8 +69,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             protected override Expression VisitMember(MemberExpression memberExpression)
             {
                 var innerExpression = Visit(memberExpression.Expression);
-                var expansion = TryExpandNavigation(innerExpression, MemberIdentity.Create(memberExpression.Member));
-                return expansion ?? memberExpression.Update(innerExpression);
+                return TryExpandNavigation(innerExpression, MemberIdentity.Create(memberExpression.Member))
+                    ?? memberExpression.Update(innerExpression);
             }
 
             protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
@@ -75,11 +78,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 if (methodCallExpression.TryGetEFPropertyArguments(out var source, out var navigationName))
                 {
                     source = Visit(source);
-                    var expansion = TryExpandNavigation(source, MemberIdentity.Create(navigationName));
-                    if (expansion != null)
-                    {
-                        return expansion;
-                    }
+                    return TryExpandNavigation(source, MemberIdentity.Create(navigationName))
+                        ?? methodCallExpression.Update(null, new[] { source, methodCallExpression.Arguments[1] });
                 }
 
                 return base.VisitMethodCall(methodCallExpression);
@@ -600,6 +600,21 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     default:
                         return base.Visit(expression);
                 }
+            }
+        }
+
+        private class EntityReferenceOptionalMarkingExpressionVisitor : ExpressionVisitor
+        {
+            public override Expression Visit(Expression expression)
+            {
+                if (expression is EntityReference entityReference)
+                {
+                    entityReference.MarkAsOptional();
+
+                    return entityReference;
+                }
+
+                return base.Visit(expression);
             }
         }
     }
