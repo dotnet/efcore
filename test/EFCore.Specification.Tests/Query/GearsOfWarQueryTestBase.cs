@@ -5104,7 +5104,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 elementAsserter: (e, a) => CollectionAsserter<Gear>(elementAsserter: (ee, aa) => Assert.Equal(ee.Nickname, aa.Nickname)));
         }
 
-        [ConditionalTheory(Skip = "Issue#16088")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Correlated_collections_on_left_join_with_predicate(bool isAsync)
         {
@@ -5124,7 +5124,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     from t in ts
                     join g in gs on t.GearNickName equals g.Nickname into grouping
                     from g in grouping.DefaultIfEmpty()
-                    where !MaybeScalar<bool>(g, () => g.HasSoulPatch) == true || g == null
+                    where !MaybeScalar<bool>(g, () => g.HasSoulPatch) == true
                     select new
                     {
                         Nickname = Maybe(g, () => g.Nickname),
@@ -5138,7 +5138,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 });
         }
 
-        [ConditionalTheory(Skip = "Issue#16088")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Correlated_collections_on_left_join_with_null_value(bool isAsync)
         {
@@ -5160,7 +5160,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 elementAsserter: (e, a) => CollectionAsserter<string>(ee => ee));
         }
 
-        [ConditionalTheory(Skip = "Issue#16088")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Correlated_collections_left_join_with_self_reference(bool isAsync)
         {
@@ -5192,7 +5192,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 });
         }
 
-        [ConditionalTheory(Skip = "Issue#16088")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Correlated_collections_deeply_nested_left_join(bool isAsync)
         {

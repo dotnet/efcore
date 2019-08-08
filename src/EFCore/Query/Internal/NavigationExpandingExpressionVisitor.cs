@@ -27,6 +27,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         private readonly PendingSelectorExpandingExpressionVisitor _pendingSelectorExpandingExpressionVisitor;
         private readonly SubqueryMemberPushdownExpressionVisitor _subqueryMemberPushdownExpressionVisitor;
         private readonly ReducingExpressionVisitor _reducingExpressionVisitor;
+        private readonly EntityReferenceOptionalMarkingExpressionVisitor _entityReferenceOptionalMarkingExpressionVisitor;
         private readonly ISet<string> _parameterNames = new HashSet<string>();
         private static readonly MethodInfo _enumerableToListMethodInfo = typeof(Enumerable).GetTypeInfo()
             .GetDeclaredMethods(nameof(Enumerable.ToList))
@@ -39,6 +40,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             _pendingSelectorExpandingExpressionVisitor = new PendingSelectorExpandingExpressionVisitor(this);
             _subqueryMemberPushdownExpressionVisitor = new SubqueryMemberPushdownExpressionVisitor();
             _reducingExpressionVisitor = new ReducingExpressionVisitor();
+            _entityReferenceOptionalMarkingExpressionVisitor = new EntityReferenceOptionalMarkingExpressionVisitor();
         }
 
         private string GetParameterName(string prefix)
@@ -898,12 +900,15 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 Expression.Quote(innerKeySelector),
                 Expression.Quote(newResultSelector));
 
+            var innerPendingSelector = innerSource.PendingSelector;
+            innerPendingSelector = _entityReferenceOptionalMarkingExpressionVisitor.Visit(innerPendingSelector);
+
             var currentTree = new NavigationTreeNode(outerSource.CurrentTree, innerSource.CurrentTree);
             var pendingSelector = new ReplacingExpressionVisitor(
                 new Dictionary<Expression, Expression>
                 {
                     { resultSelector.Parameters[0], outerSource.PendingSelector },
-                    { resultSelector.Parameters[1], innerSource.PendingSelector }
+                    { resultSelector.Parameters[1], innerPendingSelector }
                 }).Visit(resultSelector.Body);
             var parameterName = GetParameterName("ti");
 
