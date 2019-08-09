@@ -199,10 +199,8 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                     foreach (var entityType in _visitedEntityTypes)
                     {
-                        if ((entityType.HasDefiningNavigation()
-                            && !containsOwner(entityType.DefiningEntityType))
-                            || (entityType.FindOwnership() is IForeignKey ownership
-                                && !containsOwner(ownership.PrincipalEntityType)))
+                        if (entityType.FindOwnership() is IForeignKey ownership
+                            && !containsOwner(ownership.PrincipalEntityType))
                         {
                             throw new InvalidOperationException("A tracking query projects owned entity without corresponding owner in result. " +
                                 "Owned entities cannot be tracked without their owner. " +
