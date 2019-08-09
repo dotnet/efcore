@@ -19,6 +19,11 @@
         RuntimeFrameworkVersion="$(MicrosoftNETCoreAppRuntimeVersion)"
         TargetingPackVersion="$(MicrosoftNETCoreAppRefPackageVersion)" />
 
+    <!-- HACK: Use the latest version instead of the one bundled with the SDK -->
+    <KnownFrameworkReference Update="NETStandard.Library">
+      <TargetingPackVersion Condition="'%(TargetFramework)' == 'netstandard2.1'">$(NETStandardLibraryRefPackageVersion)</TargetingPackVersion>
+    </KnownFrameworkReference>
+
     <!-- Workaround for netstandard2.1 projects until we can get a 5.0 SDK containing https://github.com/dotnet/sdk/pull/3463 fix. -->
     <KnownFrameworkReference Update="NETStandard.Library">
       <RuntimeFrameworkName>NETStandard.Library</RuntimeFrameworkName>
