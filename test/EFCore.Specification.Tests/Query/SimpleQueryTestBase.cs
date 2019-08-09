@@ -3683,7 +3683,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalFact(Skip = "Deadlock")]
+        [ConditionalFact(Skip = "Issue#17019")]
         public virtual void Throws_on_concurrent_query_list()
         {
             using (var context = CreateContext())
@@ -3719,7 +3719,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalFact(Skip = "Deadlock")]
+        [ConditionalFact(Skip = "Issue#17019")]
         public virtual void Throws_on_concurrent_query_first()
         {
             using (var context = CreateContext())
@@ -4290,7 +4290,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 e => e.ShipName);
         }
 
-        [ConditionalTheory]
+        [ConditionalTheory(Skip = "Issue#17048")]
         [MemberData(nameof(IsAsyncData))]
         public virtual async Task ToString_with_formatter_is_evaluated_on_the_client(bool isAsync)
         {
@@ -5999,6 +5999,40 @@ namespace Microsoft.EntityFrameworkCore.Query
             return AssertQuery<Order>(
                 isAsync,
                 os => os.Select(o => $"CustomerCity:{o.Customer.City}"));
+        }
+
+        [ConditionalFact]
+        public virtual void Client_code_using_instance_method_throws()
+        {
+            using (var context = CreateContext())
+            {
+                Assert.Throws<InvalidOperationException>(
+                    () => context.Customers.Select(c => InstanceMethod(c)).ToList());
+            }
+        }
+
+        private string InstanceMethod(Customer c) => c.City;
+
+        [ConditionalFact]
+        public virtual void Client_code_using_instance_in_static_method()
+        {
+            using (var context = CreateContext())
+            {
+                Assert.Throws<InvalidOperationException>(
+                    () => context.Customers.Select(c => StaticMethod(this, c)).ToList());
+            }
+        }
+
+        private static string StaticMethod(SimpleQueryTestBase<TFixture> containingClass, Customer c) => c.City;
+
+        [ConditionalFact]
+        public virtual void Client_code_using_instance_in_anonymous_type()
+        {
+            using (var context = CreateContext())
+            {
+                Assert.Throws<InvalidOperationException>(
+                    () => context.Customers.Select(c => new { A = this }).ToList());
+            }
         }
     }
 }

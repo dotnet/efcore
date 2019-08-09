@@ -7092,7 +7092,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             return Task.CompletedTask;
         }
 
-        public TEntity Client<TEntity>(TEntity entity) => entity;
+        public static TEntity Client<TEntity>(TEntity entity) => entity;
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]

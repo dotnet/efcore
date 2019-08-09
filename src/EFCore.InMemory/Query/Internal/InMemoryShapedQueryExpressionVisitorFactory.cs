@@ -15,7 +15,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         }
 
         public virtual ShapedQueryCompilingExpressionVisitor Create(QueryCompilationContext queryCompilationContext)
-            => new InMemoryShapedQueryCompilingExpressionVisitor(queryCompilationContext, _dependencies);
+            => new InMemoryShapedQueryCompilingExpressionVisitor(_dependencies, queryCompilationContext);
     }
 
 }

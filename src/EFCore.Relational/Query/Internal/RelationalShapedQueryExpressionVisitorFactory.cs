@@ -19,9 +19,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         public virtual ShapedQueryCompilingExpressionVisitor Create(QueryCompilationContext queryCompilationContext)
         {
             return new RelationalShapedQueryCompilingExpressionVisitor(
-                queryCompilationContext,
                 _dependencies,
-                _relationalDependencies);
+                _relationalDependencies,
+                queryCompilationContext);
         }
     }
 }
