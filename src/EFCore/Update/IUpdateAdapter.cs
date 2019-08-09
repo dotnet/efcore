@@ -3,6 +3,7 @@
 
 using System.Collections.Generic;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -20,6 +21,35 @@ namespace Microsoft.EntityFrameworkCore.Update
     /// </summary>
     public interface IUpdateAdapter
     {
+        /// <summary>
+        ///     <para>
+        ///         Gets or sets a value indicating when a dependent/child entity will have its state
+        ///         set to <see cref="EntityState.Deleted" /> once severed from a parent/principal entity
+        ///         through either a navigation or foreign key property being set to null. The default
+        ///         value is <see cref="CascadeTiming.Immediate" />.
+        ///     </para>
+        ///     <para>
+        ///         Dependent/child entities are only deleted automatically when the relationship
+        ///         is configured with <see cref="DeleteBehavior.Cascade" />. This is set by default
+        ///         for required relationships.
+        ///     </para>
+        /// </summary>
+        CascadeTiming DeleteOrphansTiming { get; set; }
+
+        /// <summary>
+        ///     <para>
+        ///         Gets or sets a value indicating when a dependent/child entity will have its state
+        ///         set to <see cref="EntityState.Deleted" /> once its parent/principal entity has been marked
+        ///         as <see cref="EntityState.Deleted" />. The default value is<see cref="CascadeTiming.Immediate" />.
+        ///     </para>
+        ///     <para>
+        ///         Dependent/child entities are only deleted automatically when the relationship
+        ///         is configured with <see cref="DeleteBehavior.Cascade" />. This is set by default
+        ///         for required relationships.
+        ///     </para>
+        /// </summary>
+        CascadeTiming CascadeDeleteTiming { get; set; }
+
         /// <summary>
         ///     Gets the principal entry for the given dependent entry and foreign key.
         /// </summary>
@@ -53,6 +83,33 @@ namespace Microsoft.EntityFrameworkCore.Update
         ///    Causes the underlying tracker to detect changes made to the tracked entities.
         /// </summary>
         void DetectChanges();
+
+        /// <summary>
+        ///     <para>
+        ///         Forces immediate cascading deletion of child/dependent entities when they are either
+        ///         severed from a required parent/principal entity, or the required parent/principal entity
+        ///         is itself deleted. See <see cref="DeleteBehavior" />.
+        ///     </para>
+        ///     <para>
+        ///         This method is usually used when <see cref="ChangeTracker.CascadeDeleteTiming" /> and/or
+        ///         <see cref="ChangeTracker.DeleteOrphansTiming" /> have been set to <see cref="CascadeTiming.Never" />
+        ///         to manually force the deletes to have at a time controlled by the application.
+        ///     </para>
+        ///     <para>
+        ///         If <see cref="ChangeTracker.AutoDetectChangesEnabled"/> is <code>true</code> then this method
+        ///         will call <see cref="DetectChanges"/>.
+        ///     </para>
+        /// </summary>
+        void CascadeChanges();
+
+        /// <summary>
+        ///     Forces immediate cascading deletion of child/dependent entities when they are either
+        ///     severed from a required parent/principal entity, or the required parent/principal entity
+        ///     is itself deleted. See <see cref="DeleteBehavior" />.
+        /// </summary>
+        /// <param name="entry"> The entry. </param>
+        /// <param name="foreignKeys"> The foreign keys to consider when cascading. </param>
+        void CascadeDelete([NotNull] IUpdateEntry entry, [CanBeNull] IEnumerable<IForeignKey> foreignKeys = null);
 
         /// <summary>
         ///     Gets all the entries that require inserts/updates/deletes in the database.

@@ -115,6 +115,22 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
+        public virtual CascadeTiming DeleteOrphansTiming { get; set; } = CascadeTiming.Immediate;
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual CascadeTiming CascadeDeleteTiming { get; set; } = CascadeTiming.Immediate;
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         public virtual TrackingQueryMode GetTrackingQueryMode(IEntityType entityType)
         {
             if (_trackingQueryMode == TrackingQueryMode.Simple
@@ -890,7 +906,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         public virtual IEnumerable<InternalEntityEntry> GetDependentsFromNavigation(InternalEntityEntry principalEntry, IForeignKey foreignKey)
         {
             var navigation = foreignKey.PrincipalToDependent;
-            if (navigation == null)
+            if (navigation == null
+                || navigation.IsShadowProperty())
             {
                 return null;
             }
@@ -944,7 +961,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 return 0;
             }
 
-            var entriesToSave = GetEntriesToSave();
+            var entriesToSave = GetEntriesToSave(cascadeChanges: true);
             if (entriesToSave.Count == 0)
             {
                 return 0;
@@ -978,9 +995,12 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual IList<IUpdateEntry> GetEntriesToSave()
+        public virtual IList<IUpdateEntry> GetEntriesToSave(bool cascadeChanges)
         {
-            CascadeChanges(force: false);
+            if (cascadeChanges)
+            {
+                CascadeChanges(force: false);
+            }
 
             var toSave = new List<IUpdateEntry>(GetCountForState(added: true, modified: true, deleted: true));
 
@@ -1031,18 +1051,23 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual void CascadeDelete(InternalEntityEntry entry, bool force)
+        public virtual void CascadeDelete(InternalEntityEntry entry, bool force, IEnumerable<IForeignKey> foreignKeys = null)
         {
-            var doCascadeDelete = force || Context.ChangeTracker.CascadeDeleteTiming != CascadeTiming.Never;
+            var doCascadeDelete = force || CascadeDeleteTiming != CascadeTiming.Never;
 
-            foreach (var fk in entry.EntityType.GetReferencingForeignKeys())
+            foreignKeys ??= entry.EntityType.GetReferencingForeignKeys();
+            foreach (var fk in foreignKeys)
             {
+                if (fk.DeleteBehavior == DeleteBehavior.ClientNoAction)
+                {
+                    continue;
+                }
+
                 foreach (var dependent in (GetDependentsFromNavigation(entry, fk)
                                            ?? GetDependents(entry, fk)).ToList())
                 {
                     if (dependent.EntityState != EntityState.Deleted
                         && dependent.EntityState != EntityState.Detached
-                        && fk.DeleteBehavior != DeleteBehavior.ClientNoAction
                         && (dependent.EntityState == EntityState.Added
                             || KeysEqual(entry, fk, dependent)))
                     {
@@ -1123,7 +1148,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 return 0;
             }
 
-            var entriesToSave = GetEntriesToSave();
+            var entriesToSave = GetEntriesToSave(cascadeChanges: true);
             if (entriesToSave.Count == 0)
             {
                 return 0;
