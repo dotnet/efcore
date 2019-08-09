@@ -1277,7 +1277,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                         .Select(g => g.Sum(o => o.OrderID)));
         }
 
-        [ConditionalTheory]
+        [ConditionalTheory(Skip = "Issue#17048")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_empty_key_Aggregate_Key(bool isAsync)
         {

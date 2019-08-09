@@ -23,9 +23,9 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         private readonly IDiagnosticsLogger<DbLoggerCategory.Query> _logger;
 
         public InMemoryShapedQueryCompilingExpressionVisitor(
-            QueryCompilationContext queryCompilationContext,
-            ShapedQueryCompilingExpressionVisitorDependencies dependencies)
-            : base(queryCompilationContext, dependencies)
+            ShapedQueryCompilingExpressionVisitorDependencies dependencies,
+            QueryCompilationContext queryCompilationContext)
+            : base(dependencies, queryCompilationContext)
         {
             _contextType = queryCompilationContext.ContextType;
             _logger = queryCompilationContext.Logger;
