@@ -373,7 +373,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             {
                 // The source list is a constant, evaluate and replace with a list of the keys
                 var listValue = (IEnumerable)listConstant.Value;
-                var keyListType = typeof(List<>).MakeGenericType(keyProperty.ClrType);
+                var keyListType = typeof(List<>).MakeGenericType(keyProperty.ClrType.MakeNullable());
                 var keyList = (IList)Activator.CreateInstance(keyListType);
                 var getter = keyProperty.GetGetter();
                 foreach (var listItem in listValue)
@@ -386,7 +386,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                      && listParam.Name.StartsWith(CompiledQueryCache.CompiledQueryParameterPrefix, StringComparison.Ordinal))
             {
                 // The source list is a parameter. Add a runtime parameter that will contain a list of the extracted keys for each execution.
-                var keyListType = typeof(List<>).MakeGenericType(keyProperty.ClrType);
                 var lambda = Expression.Lambda(
                     Expression.Call(
                         _parameterListValueExtractor.MakeGenericMethod(entityType.ClrType, keyProperty.ClrType.MakeNullable()),
@@ -397,7 +396,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 );
 
                 var newParameterName = $"{RuntimeParameterPrefix}{listParam.Name.Substring(CompiledQueryCache.CompiledQueryParameterPrefix.Length)}_{keyProperty.Name}";
-                rewrittenSource = _queryCompilationContext.RegisterRuntimeParameter(newParameterName, lambda, keyListType);
+                rewrittenSource = _queryCompilationContext.RegisterRuntimeParameter(
+                    newParameterName,
+                    lambda,
+                    typeof(List<>).MakeGenericType(keyProperty.ClrType.MakeNullable()));
             }
             else
             {
@@ -911,8 +913,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         /// </summary>
         private static List<TProperty> ParameterListValueExtractor<TEntity, TProperty>(QueryContext context, string baseParameterName, IProperty property)
         {
-            Debug.Assert(property.ClrType == typeof(TProperty));
-
             var baseListParameter = context.ParameterValues[baseParameterName] as IEnumerable<TEntity>;
             if (baseListParameter == null)
             {

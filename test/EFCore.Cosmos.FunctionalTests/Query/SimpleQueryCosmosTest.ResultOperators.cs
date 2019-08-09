@@ -1279,6 +1279,28 @@ WHERE ((c[""Discriminator""] = ""Order"") AND (c[""OrderID""] = 10248))");
         }
 
         [ConditionalTheory(Skip = "Issue#14935 (Contains not implemented)")]
+        public override async Task Contains_with_parameter_list_value_type_id(bool isAsync)
+        {
+            await base.Contains_with_parameter_list_value_type_id(isAsync);
+
+            AssertSql(
+                @"SELECT c
+FROM root c
+WHERE ((c[""Discriminator""] = ""Order"") AND (c[""OrderID""] = 10248))");
+        }
+
+        [ConditionalTheory(Skip = "Issue#14935 (Contains not implemented)")]
+        public override async Task Contains_with_constant_list_value_type_id(bool isAsync)
+        {
+            await base.Contains_with_constant_list_value_type_id(isAsync);
+
+            AssertSql(
+                @"SELECT c
+FROM root c
+WHERE ((c[""Discriminator""] = ""Order"") AND (c[""OrderID""] = 10248))");
+        }
+
+        [ConditionalTheory(Skip = "Issue#14935 (Contains not implemented)")]
         public override void Contains_over_entityType_with_null_should_rewrite_to_identity_equality()
         {
             base.Contains_over_entityType_with_null_should_rewrite_to_identity_equality();
