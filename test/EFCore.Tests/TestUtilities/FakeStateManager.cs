@@ -89,9 +89,11 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         public IEnumerable<InternalEntityEntry> GetDependentsFromNavigation(InternalEntityEntry principalEntry, IForeignKey foreignKey) =>
             throw new NotImplementedException();
 
-        public IList<IUpdateEntry> GetEntriesToSave() => Enumerable.Empty<IUpdateEntry>().ToList();
+        public IList<IUpdateEntry> GetEntriesToSave(bool cascadeChanges) => Enumerable.Empty<IUpdateEntry>().ToList();
         public virtual void AcceptAllChanges() => throw new NotImplementedException();
         public StateManagerDependencies Dependencies { get; }
+        public CascadeTiming DeleteOrphansTiming { get; set; }
+        public CascadeTiming CascadeDeleteTiming { get; set; }
         public InternalEntityEntry GetOrCreateEntry(object entity) => throw new NotImplementedException();
         public InternalEntityEntry GetOrCreateEntry(object entity, IEntityType entityType) => throw new NotImplementedException();
 
@@ -146,7 +148,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         public void OnStateChanged(InternalEntityEntry internalEntityEntry, EntityState oldState) => StateChanged?.Invoke(null, null);
         public bool SensitiveLoggingEnabled { get; }
         public void CascadeChanges(bool force) => throw new NotImplementedException();
-        public void CascadeDelete(InternalEntityEntry entry, bool force) => throw new NotImplementedException();
+        public void CascadeDelete(InternalEntityEntry entry, bool force, IEnumerable<IForeignKey> foreignKeys = null) => throw new NotImplementedException();
 
         public InternalEntityEntry TryGetEntry([NotNull] IKey key, object[] keyValues, bool throwOnNullKey, out bool hasNullKey)
         {

@@ -327,7 +327,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             if ((newState == EntityState.Deleted
                  || newState == EntityState.Detached)
-                && StateManager.Context.ChangeTracker.CascadeDeleteTiming == CascadeTiming.Immediate)
+                && StateManager.CascadeDeleteTiming == CascadeTiming.Immediate)
             {
                 StateManager.CascadeDelete(this, force: false);
             }
@@ -1130,7 +1130,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                             }
 
                             if (!isCascadeDelete
-                                && StateManager.Context.ChangeTracker.DeleteOrphansTiming == CascadeTiming.Immediate)
+                                && StateManager.DeleteOrphansTiming == CascadeTiming.Immediate)
                             {
                                 HandleConceptualNulls(
                                     StateManager.SensitiveLoggingEnabled,
@@ -1351,7 +1351,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             if (cascadeFk != null
                 && (force
                     || (!isCascadeDelete
-                        && StateManager.Context.ChangeTracker.DeleteOrphansTiming != CascadeTiming.Never)))
+                        && StateManager.DeleteOrphansTiming != CascadeTiming.Never)))
             {
                 var cascadeState = EntityState == EntityState.Added
                     ? EntityState.Detached
