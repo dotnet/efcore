@@ -56,7 +56,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 columns.Clear();
                 keys.Clear();
                 foreignKeys.Clear();
-                indexes.Clear();
 
                 foreach (var entityType in entityTypes)
                 {
