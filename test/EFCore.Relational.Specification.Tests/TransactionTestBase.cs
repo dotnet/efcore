@@ -162,11 +162,6 @@ namespace Microsoft.EntityFrameworkCore
         [InlineData(false, false)]
         public virtual async Task SaveChanges_uses_enlisted_transaction(bool async, bool autoTransactionsEnabled)
         {
-            if (!AmbientTransactionsSupported)
-            {
-                return;
-            }
-
             using (var transaction = new CommittableTransaction(TimeSpan.FromMinutes(10)))
             {
                 using (var context = CreateContext())
@@ -195,9 +190,35 @@ namespace Microsoft.EntityFrameworkCore
                     context.Database.AutoTransactionsEnabled = true;
                 }
 
-                Assert.Equal(
-                    RelationalResources.LogExplicitTransactionEnlisted(new TestLogger<TestRelationalLoggingDefinitions>()).GenerateMessage("Serializable"),
-                    Fixture.ListLoggerFactory.Log.First().Message);
+                if (AmbientTransactionsSupported)
+                {
+                    Assert.Equal(
+                        RelationalResources.LogExplicitTransactionEnlisted(new TestLogger<TestRelationalLoggingDefinitions>()).GenerateMessage("Serializable"),
+                        Fixture.ListLoggerFactory.Log.First().Message);
+                }
+                else
+                {
+                    Assert.Equal(
+                        RelationalResources.LogAmbientTransaction(new TestLogger<TestRelationalLoggingDefinitions>()).GenerateMessage(),
+                        Fixture.ListLoggerFactory.Log.First().Message);
+
+                    if (!autoTransactionsEnabled)
+                    {
+                        using (var context = CreateContext())
+                        {
+                            context.Entry(context.Set<TransactionCustomer>().Single(c => c.Id == 77)).State = EntityState.Deleted;
+
+                            if (async)
+                            {
+                                await context.SaveChangesAsync();
+                            }
+                            else
+                            {
+                                context.SaveChanges();
+                            }
+                        }
+                    }
+                }
             }
 
             AssertStoreInitialState();
@@ -308,11 +329,6 @@ namespace Microsoft.EntityFrameworkCore
         [InlineData(false, false)]
         public virtual async Task SaveChanges_uses_ambient_transaction(bool async, bool autoTransactionsEnabled)
         {
-            if (!AmbientTransactionsSupported)
-            {
-                return;
-            }
-
             if (TestStore.ConnectionState == ConnectionState.Closed)
             {
                 TestStore.OpenConnection();
@@ -345,9 +361,32 @@ namespace Microsoft.EntityFrameworkCore
                     context.Database.AutoTransactionsEnabled = true;
                 }
 
-                Assert.Equal(
-                    RelationalResources.LogAmbientTransactionEnlisted(new TestLogger<TestRelationalLoggingDefinitions>()).GenerateMessage("Serializable"),
-                    Fixture.ListLoggerFactory.Log.Skip(2).First().Message);
+                if (AmbientTransactionsSupported)
+                {
+                    Assert.Equal(
+                        RelationalResources.LogAmbientTransactionEnlisted(new TestLogger<TestRelationalLoggingDefinitions>()).GenerateMessage("Serializable"),
+                        Fixture.ListLoggerFactory.Log.Skip(2).First().Message);
+                }
+                else
+                {
+                    Assert.Equal(
+                        RelationalResources.LogAmbientTransaction(new TestLogger<TestRelationalLoggingDefinitions>()).GenerateMessage(),
+                        Fixture.ListLoggerFactory.Log.Skip(2).First().Message);
+
+                    using (var context = CreateContext())
+                    {
+                        context.Entry(context.Set<TransactionCustomer>().Single(c => c.Id == 77)).State = EntityState.Deleted;
+
+                        if (async)
+                        {
+                            await context.SaveChangesAsync();
+                        }
+                        else
+                        {
+                            context.SaveChanges();
+                        }
+                    }
+                }
             }
 
             AssertStoreInitialState();
