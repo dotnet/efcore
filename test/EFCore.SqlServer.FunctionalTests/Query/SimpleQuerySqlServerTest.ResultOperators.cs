@@ -1225,6 +1225,26 @@ FROM [Customers] AS [c]
 WHERE [c].[CustomerID] IN (N'ALFKI', N'ANATR')");
         }
 
+        public override async Task Contains_with_parameter_list_value_type_id(bool isAsync)
+        {
+            await base.Contains_with_parameter_list_value_type_id(isAsync);
+
+            AssertSql(
+                @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+WHERE [o].[OrderID] IN (10248, 10249)");
+        }
+
+        public override async Task Contains_with_constant_list_value_type_id(bool isAsync)
+        {
+            await base.Contains_with_constant_list_value_type_id(isAsync);
+
+            AssertSql(
+                @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+WHERE [o].[OrderID] IN (10248, 10249)");
+        }
+
         public override void Contains_over_entityType_with_null_should_rewrite_to_identity_equality()
         {
             base.Contains_over_entityType_with_null_should_rewrite_to_identity_equality();

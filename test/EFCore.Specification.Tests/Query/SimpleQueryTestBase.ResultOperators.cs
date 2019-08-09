@@ -1614,6 +1614,32 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 2);
         }
 
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Contains_with_parameter_list_value_type_id(bool isAsync)
+        {
+            var orders = new List<Order>
+            {
+                new Order { OrderID = 10248 },
+                new Order { OrderID = 10249 }
+            };
+
+            return AssertQuery<Order>(isAsync, od => od.Where(o => orders.Contains(o)),
+                entryCount: 2);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Contains_with_constant_list_value_type_id(bool isAsync)
+        {
+            return AssertQuery<Order>(isAsync, od => od.Where(o => new List<Order>
+                {
+                    new Order { OrderID = 10248 },
+                    new Order { OrderID = 10249 }
+                }.Contains(o)),
+                entryCount: 2);
+        }
+
         [ConditionalFact]
         public virtual void Contains_over_keyless_entity_throws()
         {
