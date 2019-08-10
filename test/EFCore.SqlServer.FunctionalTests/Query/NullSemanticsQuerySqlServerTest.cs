@@ -1243,11 +1243,11 @@ WHERE @__p_0 = CAST(1 AS bit)");
             base.From_sql_composed_with_relational_null_comparison();
 
             AssertSql(
-                @"SELECT [c].[Id], [c].[BoolA], [c].[BoolB], [c].[BoolC], [c].[IntA], [c].[IntB], [c].[IntC], [c].[NullableBoolA], [c].[NullableBoolB], [c].[NullableBoolC], [c].[NullableIntA], [c].[NullableIntB], [c].[NullableIntC], [c].[NullableStringA], [c].[NullableStringB], [c].[NullableStringC], [c].[StringA], [c].[StringB], [c].[StringC]
+                @"SELECT [e].[Id], [e].[BoolA], [e].[BoolB], [e].[BoolC], [e].[IntA], [e].[IntB], [e].[IntC], [e].[NullableBoolA], [e].[NullableBoolB], [e].[NullableBoolC], [e].[NullableIntA], [e].[NullableIntB], [e].[NullableIntC], [e].[NullableStringA], [e].[NullableStringB], [e].[NullableStringC], [e].[StringA], [e].[StringB], [e].[StringC]
 FROM (
     SELECT * FROM ""Entities1""
-) AS [c]
-WHERE [c].[StringA] = [c].[StringB]");
+) AS [e]
+WHERE [e].[StringA] = [e].[StringB]");
         }
 
         public override void Projecting_nullable_bool_with_coalesce()
