@@ -111,7 +111,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalFact(Skip = "#15711")]
+        [ConditionalFact]
         public virtual async Task GroupBy_Select_sum()
         {
             using (var ctx = CreateContext())

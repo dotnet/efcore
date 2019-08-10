@@ -1383,9 +1383,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                     select grouping.Count());
         }
 
-        [ConditionalTheory(Skip = "Issue#15711")]
-        [InlineData(false)]
-        //[InlineData(true)] issue #12449
+        [ConditionalTheory(Skip = "Issue#17068")]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task Navigation_projection_on_groupjoin_qsre(bool isAsync)
         {
             return AssertQuery<Customer, Order>(
@@ -1413,9 +1412,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 1);
         }
 
-        [ConditionalTheory(Skip = "Issue#15711")]
-        [InlineData(false)]
-        //[InlineData(true)] issue #12449
+        [ConditionalTheory(Skip = "Issue#17068")]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task Navigation_projection_on_groupjoin_qsre_no_outer_in_final_result(bool isAsync)
         {
             return AssertQuery<Customer, Order>(
@@ -1435,9 +1433,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 });
         }
 
-        [ConditionalTheory(Skip = "Issue#15711")]
-        [InlineData(false)]
-        //[InlineData(true)] issue #12449
+        [ConditionalTheory(Skip = "Issue#17068")]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task Navigation_projection_on_groupjoin_qsre_with_empty_grouping(bool isAsync)
         {
             var anatrsOrders = new[] { 10308, 10625, 10759, 10926 };
@@ -1462,11 +1459,10 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                     Assert.Equal(expected, actual);
                 },
-                // issue: #8956
                 entryCount: 4);
         }
 
-        [ConditionalFact(Skip = "Issue#15711")]
+        [ConditionalFact(Skip = "Issue#17068")]
         public virtual void Include_on_inner_projecting_groupjoin()
         {
             using (var ctx = CreateContext())
@@ -1485,7 +1481,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalFact(Skip = "Issue#15711")]
+        [ConditionalFact(Skip = "Issue#17068")]
         public virtual void Include_on_inner_projecting_groupjoin_complex()
         {
             using (var ctx = CreateContext())

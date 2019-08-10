@@ -178,22 +178,11 @@ LEFT JOIN [Level1] AS [l] ON [t].[Id] = [l].[Id]");
             await base.SelectMany_with_Include1(isAsync);
 
             AssertSql(
-                @"SELECT [l1.OneToMany_Optional1].[Id], [l1.OneToMany_Optional1].[OneToOne_Required_PK_Date], [l1.OneToMany_Optional1].[Level1_Optional_Id], [l1.OneToMany_Optional1].[Level1_Required_Id], [l1.OneToMany_Optional1].[Level2_Name], [l1.OneToMany_Optional1].[OneToMany_Optional_Inverse2Id], [l1.OneToMany_Optional1].[OneToMany_Required_Inverse2Id], [l1.OneToMany_Optional1].[OneToOne_Optional_PK_Inverse2Id]
-FROM [Level1] AS [l1]
-INNER JOIN [Level1] AS [l1.OneToMany_Optional1] ON [l1].[Id] = [l1.OneToMany_Optional1].[OneToMany_Optional_Inverse2Id]
-WHERE [l1.OneToMany_Optional1].[OneToMany_Required_Inverse2Id] IS NOT NULL AND ([l1.OneToMany_Optional1].[Level1_Required_Id] IS NOT NULL AND [l1.OneToMany_Optional1].[OneToOne_Required_PK_Date] IS NOT NULL)
-ORDER BY [l1.OneToMany_Optional1].[Id]",
-                //
-                @"SELECT [l1.OneToMany_Optional1.OneToMany_Optional2].[Id], [l1.OneToMany_Optional1.OneToMany_Optional2].[Level2_Optional_Id], [l1.OneToMany_Optional1.OneToMany_Optional2].[Level2_Required_Id], [l1.OneToMany_Optional1.OneToMany_Optional2].[Level3_Name], [l1.OneToMany_Optional1.OneToMany_Optional2].[OneToMany_Optional_Inverse3Id], [l1.OneToMany_Optional1.OneToMany_Optional2].[OneToMany_Required_Inverse3Id], [l1.OneToMany_Optional1.OneToMany_Optional2].[OneToOne_Optional_PK_Inverse3Id]
-FROM [Level1] AS [l1.OneToMany_Optional1.OneToMany_Optional2]
-INNER JOIN (
-    SELECT DISTINCT [l1.OneToMany_Optional10].[Id]
-    FROM [Level1] AS [l10]
-    INNER JOIN [Level1] AS [l1.OneToMany_Optional10] ON [l10].[Id] = [l1.OneToMany_Optional10].[OneToMany_Optional_Inverse2Id]
-    WHERE [l1.OneToMany_Optional10].[OneToMany_Required_Inverse2Id] IS NOT NULL AND ([l1.OneToMany_Optional10].[Level1_Required_Id] IS NOT NULL AND [l1.OneToMany_Optional10].[OneToOne_Required_PK_Date] IS NOT NULL)
-) AS [t] ON [l1.OneToMany_Optional1.OneToMany_Optional2].[OneToMany_Optional_Inverse3Id] = [t].[Id]
-WHERE ([l1.OneToMany_Optional1.OneToMany_Optional2].[OneToMany_Required_Inverse2Id] IS NOT NULL AND ([l1.OneToMany_Optional1.OneToMany_Optional2].[Level1_Required_Id] IS NOT NULL AND [l1.OneToMany_Optional1.OneToMany_Optional2].[OneToOne_Required_PK_Date] IS NOT NULL)) AND ([l1.OneToMany_Optional1.OneToMany_Optional2].[OneToMany_Required_Inverse3Id] IS NOT NULL AND [l1.OneToMany_Optional1.OneToMany_Optional2].[Level2_Required_Id] IS NOT NULL)
-ORDER BY [t].[Id]");
+                @"SELECT [l].[Id], [l].[OneToOne_Required_PK_Date], [l].[Level1_Optional_Id], [l].[Level1_Required_Id], [l].[Level2_Name], [l].[OneToMany_Optional_Inverse2Id], [l].[OneToMany_Required_Inverse2Id], [l].[OneToOne_Optional_PK_Inverse2Id], [l0].[Id], [l1].[Id], [l1].[Level2_Optional_Id], [l1].[Level2_Required_Id], [l1].[Level3_Name], [l1].[OneToMany_Optional_Inverse3Id], [l1].[OneToMany_Required_Inverse3Id], [l1].[OneToOne_Optional_PK_Inverse3Id]
+FROM [Level1] AS [l0]
+INNER JOIN [Level1] AS [l] ON [l0].[Id] = [l].[OneToMany_Optional_Inverse2Id]
+LEFT JOIN [Level1] AS [l1] ON [l].[Id] = [l1].[OneToMany_Optional_Inverse3Id]
+ORDER BY [l0].[Id], [l].[Id], [l1].[Id]");
         }
 
         private void AssertSql(params string[] expected)

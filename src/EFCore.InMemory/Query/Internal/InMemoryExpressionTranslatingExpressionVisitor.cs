@@ -340,7 +340,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
 
         [DebuggerStepThrough]
         private bool TranslationFailed(Expression original, Expression translation)
-            => original != null && translation is EntityProjectionExpression;
+            => original != null && (translation == null || translation is EntityProjectionExpression);
     }
 
 }

@@ -22,6 +22,12 @@ namespace Microsoft.EntityFrameworkCore.Query
                 case CrossJoinExpression crossJoinExpression:
                     return VisitCrossJoin(crossJoinExpression);
 
+                case CrossApplyExpression crossApplyExpression:
+                    return VisitCrossApply(crossApplyExpression);
+
+                case OuterApplyExpression outerApplyExpression:
+                    return VisitOuterApply(outerApplyExpression);
+
                 case ExistsExpression existsExpression:
                     return VisitExists(existsExpression);
 
@@ -80,6 +86,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         protected abstract Expression VisitExists(ExistsExpression existsExpression);
         protected abstract Expression VisitIn(InExpression inExpression);
         protected abstract Expression VisitCrossJoin(CrossJoinExpression crossJoinExpression);
+        protected abstract Expression VisitCrossApply(CrossApplyExpression crossApplyExpression);
+        protected abstract Expression VisitOuterApply(OuterApplyExpression outerApplyExpression);
         protected abstract Expression VisitFromSql(FromSqlExpression fromSqlExpression);
         protected abstract Expression VisitInnerJoin(InnerJoinExpression innerJoinExpression);
         protected abstract Expression VisitLeftJoin(LeftJoinExpression leftJoinExpression);

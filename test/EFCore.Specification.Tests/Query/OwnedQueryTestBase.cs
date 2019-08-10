@@ -140,7 +140,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalFact(Skip = "Issue#16330")]
+        [ConditionalFact]
         public virtual void Query_when_subquery()
         {
             using (var context = CreateContext())
@@ -230,7 +230,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalFact(Skip = "Issue#15711")]
+        [ConditionalFact]
         public virtual void SelectMany_on_owned_collection()
         {
             using (var ctx = CreateContext())
@@ -338,7 +338,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalFact(Skip = "Issue#15711")]
+        [ConditionalFact]
         public virtual void SelectMany_on_owned_reference_followed_by_regular_entity_and_collection()
         {
             using (var ctx = CreateContext())
@@ -351,7 +351,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalFact(Skip = "Issue#15711")]
+        [ConditionalFact]
         public virtual void SelectMany_on_owned_reference_with_entity_in_between_ending_in_owned_collection()
         {
             using (var ctx = CreateContext())

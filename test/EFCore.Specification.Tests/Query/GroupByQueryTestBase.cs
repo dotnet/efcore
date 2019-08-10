@@ -1390,7 +1390,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 e => e.Key);
         }
 
-        [ConditionalTheory(Skip = "Issue#15711")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task SelectMany_GroupBy_Aggregate(bool isAsync)
         {

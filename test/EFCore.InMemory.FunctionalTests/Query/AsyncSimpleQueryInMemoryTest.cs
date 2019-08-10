@@ -14,19 +14,19 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
         }
 
-        [ConditionalFact(Skip = "See issue#15711")]
+        [ConditionalFact(Skip = "Issue#16963")]
         public override Task ToList_context_subquery_deadlock_issue()
         {
             return base.ToList_context_subquery_deadlock_issue();
         }
 
-        [ConditionalFact(Skip = "See issue#15711")]
+        [ConditionalFact(Skip = "Issue#16963")]
         public override Task ToList_on_nav_subquery_in_projection()
         {
             return base.ToList_on_nav_subquery_in_projection();
         }
 
-        [ConditionalFact(Skip = "See issue#15711")]
+        [ConditionalFact(Skip = "Issue#16963")]
         public override Task ToList_on_nav_subquery_with_predicate_in_projection()
         {
             return base.ToList_on_nav_subquery_with_predicate_in_projection();

@@ -15,7 +15,7 @@ namespace Microsoft.EntityFrameworkCore
         {
         }
 
-        [ConditionalFact(Skip = "Issue#15711")]
+        [ConditionalFact(Skip = "Issue#16963")]
         public override void Can_insert_and_read_back_with_string_key()
         {
             base.Can_insert_and_read_back_with_string_key();
