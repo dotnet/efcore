@@ -496,7 +496,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 o => o
                     .Select(x => new
                     {
-                        CustomerInfo = new {
+                        CustomerInfo = new
+                        {
                             x.Customer
                         }
                     })
@@ -1721,7 +1722,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalTheory(Skip = "Issue#15711")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Select_DTO_with_member_init_distinct_in_subquery_translated_to_server(bool isAsync)
         {
@@ -1737,6 +1738,26 @@ namespace Microsoft.EntityFrameworkCore.Query
                             })
                         .Distinct()
                     from c in cs.Where(c => c.CustomerID == o.Id)
+                    select c,
+                entryCount: 35);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Select_DTO_with_member_init_distinct_in_subquery_translated_to_server_2(bool isAsync)
+        {
+            return AssertQuery<Customer, Order>(
+                isAsync,
+                (cs, os) =>
+                    from o in os.Where(o => o.OrderID < 10300)
+                        .Select(
+                            o => new OrderCountDTO
+                            {
+                                Id = o.CustomerID,
+                                Count = o.OrderID
+                            })
+                        .Distinct()
+                    from c in cs.Where(c => o.Id == c.CustomerID)
                     select c,
                 entryCount: 35);
         }
@@ -2397,7 +2418,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 15);
         }
 
-        [ConditionalTheory(Skip = "Issue#15711")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task SelectMany_correlated_subquery_simple(bool isAsync)
         {
@@ -2663,7 +2684,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         protected const uint NonExistentID = uint.MaxValue;
 
-        [ConditionalTheory(Skip = "Issue#15711")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Default_if_empty_top_level(bool isAsync)
         {
@@ -2674,9 +2695,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                     select e);
         }
 
-        // issue #12872
-        //[ConditionalTheory]
-        //[MemberData(nameof(IsAsyncData))]
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task Join_with_default_if_empty_on_both_sources(bool isAsync)
         {
             return AssertQuery<Employee>(
@@ -2688,9 +2708,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                         select e, o => o, i => i, (o, i) => o));
         }
 
-        // issue #12567
-        //[ConditionalTheory]
-        //[MemberData(nameof(IsAsyncData))]
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task Default_if_empty_top_level_followed_by_projecting_constant(bool isAsync)
         {
             return AssertQuery<Employee>(
@@ -2712,9 +2731,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 1);
         }
 
-        // issue #12572
-        //[ConditionalTheory]
-        //[MemberData(nameof(IsAsyncData))]
+        [ConditionalTheory(Skip = "Issue #14935. Cannot eval 'DefaultIfEmpty(__p_0)'")]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task Default_if_empty_top_level_arg_followed_by_projecting_constant(bool isAsync)
         {
             return AssertQueryScalar<Employee>(
@@ -2724,7 +2742,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     select 42);
         }
 
-        [ConditionalTheory(Skip = "Issue#15711")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Default_if_empty_top_level_positive(bool isAsync)
         {
@@ -2736,7 +2754,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 9);
         }
 
-        [ConditionalTheory(Skip = "Issue#15711")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Default_if_empty_top_level_projection(bool isAsync)
         {
@@ -3205,7 +3223,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalTheory(Skip = "Issue#15711")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task SelectMany_Joined(bool isAsync)
         {
@@ -3222,7 +3240,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 e => e.ContactName + " " + e.OrderDate);
         }
 
-        [ConditionalTheory(Skip = "Issue#15711")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task SelectMany_Joined_DefaultIfEmpty(bool isAsync)
         {
@@ -3240,7 +3258,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 830);
         }
 
-        [ConditionalTheory(Skip = "Issue#15711")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task SelectMany_Joined_Take(bool isAsync)
         {
@@ -3258,7 +3276,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 830);
         }
 
-        [ConditionalTheory(Skip = "Issue#15711")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task SelectMany_Joined_DefaultIfEmpty2(bool isAsync)
         {
@@ -3272,7 +3290,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 830);
         }
 
-        [ConditionalTheory(Skip = "Issue #15711")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Select_many_cross_join_same_collection(bool isAsync)
         {
@@ -4466,7 +4484,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     .Where(x => x < nextYear));
         }
 
-        [ConditionalFact(Skip = "Issue#15711")]
+        [ConditionalFact]
         public virtual void DefaultIfEmpty_without_group_join()
         {
             using (var context = CreateContext())
@@ -4482,7 +4500,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalTheory(Skip = "Issue#15711")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task DefaultIfEmpty_in_subquery(bool isAsync)
         {
@@ -4500,7 +4518,24 @@ namespace Microsoft.EntityFrameworkCore.Query
                 e => e.CustomerID + " " + e.OrderID);
         }
 
-        [ConditionalTheory(Skip = "Issue#15711")]
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task DefaultIfEmpty_in_subquery_not_correlated(bool isAsync)
+        {
+            return AssertQuery<Customer, Order>(
+                isAsync,
+                (cs, os) =>
+                    (from c in cs
+                     from o in os.Where(o => o.OrderID > 15000).DefaultIfEmpty()
+                     select new
+                     {
+                         c.CustomerID,
+                         OrderID = o != null ? o.OrderID : (int?)null
+                     }),
+                e => e.CustomerID + " " + e.OrderID);
+        }
+
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task DefaultIfEmpty_in_subquery_nested(bool isAsync)
         {
@@ -4508,7 +4543,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 isAsync,
                 (cs, os) =>
                     (from c in cs.Where(c => c.City == "Seattle")
-                     from o1 in os.Where(o => o.OrderID > 11000).DefaultIfEmpty()
+                     from o1 in os.Where(o => o.OrderID > 15000).DefaultIfEmpty()
                      from o2 in os.Where(o => o.CustomerID == c.CustomerID).DefaultIfEmpty()
                      where o1 != null && o2 != null
                      orderby o1.OrderID, o2.OrderDate
@@ -4696,8 +4731,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalTheory(Skip = "Issue #14935. Cannot eval 'from Customer c in ClientDefaultIfEmpty([grouping])'")]
-        [InlineData(false)]
-        //[InlineData(true)] issue #12449
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task No_orderby_added_for_client_side_GroupJoin_dependent_to_principal_LOJ(bool isAsync)
         {
             return AssertQuery<Customer, Order>(
@@ -4717,8 +4751,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalTheory(Skip = "Issue #14935. Cannot eval 'from Customer c in ClientDefaultIfEmpty([grouping])'")]
-        [InlineData(false)]
-        //[InlineData(true)] issue #12449
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task No_orderby_added_for_client_side_GroupJoin_dependent_to_principal_LOJ_with_additional_join_condition1(
             bool isAsync)
         {
@@ -4747,8 +4780,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalTheory(Skip = "Issue #14935. Cannot eval 'from Customer c in ClientDefaultIfEmpty([grouping])'")]
-        [InlineData(false)]
-        //[InlineData(true)] issue #12449
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task No_orderby_added_for_client_side_GroupJoin_dependent_to_principal_LOJ_with_additional_join_condition2(
             bool isAsync)
         {
@@ -4777,8 +4809,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalTheory(Skip = "Issue #14935. Cannot eval 'from Employee e2 in ClientDefaultIfEmpty([grouping])'")]
-        [InlineData(false)]
-        //[InlineData(true)] issue #12449
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task Orderby_added_for_client_side_GroupJoin_principal_to_dependent_LOJ(bool isAsync)
         {
             return AssertQuery<Employee>(

@@ -1476,7 +1476,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                         })));
         }
 
-        [ConditionalFact(Skip = "Issue#15711")]
+        [ConditionalFact]
         public virtual void OfType_Select()
         {
             using (var context = CreateContext())
@@ -1491,7 +1491,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalFact(Skip = "Issue#15711")]
+        [ConditionalFact]
         public virtual void OfType_Select_OfType_Select()
         {
             using (var context = CreateContext())

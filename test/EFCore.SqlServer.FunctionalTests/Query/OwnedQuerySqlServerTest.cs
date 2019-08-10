@@ -215,7 +215,7 @@ ORDER BY [t15].[Id]");
             AssertSql(
                 @"@__p_0='5'
 
-SELECT [t0].[Id], [t0].[Discriminator], [o0].[Id], [o1].[Id], [o1].[PersonAddress_Country_Name], [o1].[PersonAddress_Country_PlanetId], [o2].[Id], [o3].[Id], [o3].[BranchAddress_Country_Name], [o3].[BranchAddress_Country_PlanetId], [o4].[Id], [o5].[Id], [o5].[LeafBAddress_Country_Name], [o5].[LeafBAddress_Country_PlanetId], [o6].[Id], [o7].[Id], [o7].[LeafAAddress_Country_Name], [o7].[LeafAAddress_Country_PlanetId]
+SELECT [t0].[Id], [t0].[Discriminator], [o0].[Id], [o1].[Id], [o1].[PersonAddress_Country_Name], [o1].[PersonAddress_Country_PlanetId], [o2].[Id], [o3].[Id], [o3].[BranchAddress_Country_Name], [o3].[BranchAddress_Country_PlanetId], [o4].[Id], [o5].[Id], [o5].[LeafBAddress_Country_Name], [o5].[LeafBAddress_Country_PlanetId], [o6].[Id], [o7].[Id], [o7].[LeafAAddress_Country_Name], [o7].[LeafAAddress_Country_PlanetId], [o8].[ClientId], [o8].[Id]
 FROM (
     SELECT TOP(@__p_0) [t].[Id], [t].[Discriminator]
     FROM (
@@ -225,16 +225,17 @@ FROM (
     ) AS [t]
     ORDER BY [t].[Id]
 ) AS [t0]
+LEFT JOIN [OwnedPerson] AS [o9] ON [t0].[Id] = [o9].[Id]
 LEFT JOIN [OwnedPerson] AS [o0] ON [t0].[Id] = [o0].[Id]
-LEFT JOIN [OwnedPerson] AS [o8] ON [t0].[Id] = [o8].[Id]
-LEFT JOIN [OwnedPerson] AS [o1] ON [o8].[Id] = [o1].[Id]
+LEFT JOIN [OwnedPerson] AS [o1] ON [o0].[Id] = [o1].[Id]
 LEFT JOIN [OwnedPerson] AS [o2] ON [t0].[Id] = [o2].[Id]
 LEFT JOIN [OwnedPerson] AS [o3] ON [o2].[Id] = [o3].[Id]
 LEFT JOIN [OwnedPerson] AS [o4] ON [t0].[Id] = [o4].[Id]
 LEFT JOIN [OwnedPerson] AS [o5] ON [o4].[Id] = [o5].[Id]
 LEFT JOIN [OwnedPerson] AS [o6] ON [t0].[Id] = [o6].[Id]
 LEFT JOIN [OwnedPerson] AS [o7] ON [o6].[Id] = [o7].[Id]
-ORDER BY [t0].[Id]");
+LEFT JOIN [Order] AS [o8] ON [t0].[Id] = [o8].[ClientId]
+ORDER BY [t0].[Id], [o8].[ClientId], [o8].[Id]");
         }
 
         public override void Navigation_rewrite_on_owned_reference_projecting_scalar()
@@ -325,10 +326,10 @@ WHERE [o3].[Discriminator] IN (N'OwnedPerson', N'Branch', N'LeafB', N'LeafA')");
             base.SelectMany_on_owned_collection();
 
             AssertSql(
-                @"SELECT [p.Orders].[Id], [p.Orders].[ClientId]
-FROM [OwnedPerson] AS [p]
-INNER JOIN [Order] AS [p.Orders] ON [p].[Id] = [p.Orders].[ClientId]
-WHERE [p].[Discriminator] IN (N'LeafB', N'LeafA', N'Branch', N'OwnedPerson')");
+                @"SELECT [o].[ClientId], [o].[Id]
+FROM [OwnedPerson] AS [o0]
+INNER JOIN [Order] AS [o] ON [o0].[Id] = [o].[ClientId]
+WHERE [o0].[Discriminator] IN (N'OwnedPerson', N'Branch', N'LeafB', N'LeafA')");
         }
 
         public override void Navigation_rewrite_on_owned_reference_followed_by_regular_entity()
@@ -453,13 +454,13 @@ ORDER BY [o].[Id], [m].[Id]");
             base.SelectMany_on_owned_reference_followed_by_regular_entity_and_collection();
 
             AssertSql(
-                @"SELECT [p.PersonAddress.Country.Planet.Moons].[Id], [p.PersonAddress.Country.Planet.Moons].[Diameter], [p.PersonAddress.Country.Planet.Moons].[PlanetId]
-FROM [OwnedPerson] AS [p]
-INNER JOIN [OwnedPerson] AS [p.PersonAddress] ON [p].[Id] = [p.PersonAddress].[Id]
-INNER JOIN [OwnedPerson] AS [p.PersonAddress.Country] ON [p.PersonAddress].[Id] = [p.PersonAddress.Country].[Id]
-INNER JOIN [Planet] AS [p.PersonAddress.Country.Planet] ON [p.PersonAddress.Country].[PersonAddress_Country_PlanetId] = [p.PersonAddress.Country.Planet].[Id]
-INNER JOIN [Moon] AS [p.PersonAddress.Country.Planet.Moons] ON [p.PersonAddress.Country.Planet].[Id] = [p.PersonAddress.Country.Planet.Moons].[PlanetId]
-WHERE ([p].[Discriminator] IN (N'LeafB', N'LeafA', N'Branch', N'OwnedPerson') AND [p.PersonAddress].[Discriminator] IN (N'LeafB', N'LeafA', N'Branch', N'OwnedPerson')) AND ([p.PersonAddress.Country].[Discriminator] IN (N'LeafB', N'LeafA', N'Branch', N'OwnedPerson') AND [p.PersonAddress.Country].[PersonAddress_Country_PlanetId] IS NOT NULL)");
+                @"SELECT [m].[Id], [m].[Diameter], [m].[PlanetId]
+FROM [OwnedPerson] AS [o]
+LEFT JOIN [OwnedPerson] AS [o0] ON [o].[Id] = [o0].[Id]
+LEFT JOIN [OwnedPerson] AS [o1] ON [o0].[Id] = [o1].[Id]
+LEFT JOIN [Planet] AS [p] ON [o1].[PersonAddress_Country_PlanetId] = [p].[Id]
+INNER JOIN [Moon] AS [m] ON [p].[Id] = [m].[PlanetId]
+WHERE [o].[Discriminator] IN (N'OwnedPerson', N'Branch', N'LeafB', N'LeafA')");
         }
 
         public override void SelectMany_on_owned_reference_with_entity_in_between_ending_in_owned_collection()
@@ -467,14 +468,14 @@ WHERE ([p].[Discriminator] IN (N'LeafB', N'LeafA', N'Branch', N'OwnedPerson') AN
             base.SelectMany_on_owned_reference_with_entity_in_between_ending_in_owned_collection();
 
             AssertSql(
-                @"SELECT [p.PersonAddress.Country.Planet.Star.Composition].[Id], [p.PersonAddress.Country.Planet.Star.Composition].[Name], [p.PersonAddress.Country.Planet.Star.Composition].[StarId]
-FROM [OwnedPerson] AS [p]
-INNER JOIN [OwnedPerson] AS [p.PersonAddress] ON [p].[Id] = [p.PersonAddress].[Id]
-INNER JOIN [OwnedPerson] AS [p.PersonAddress.Country] ON [p.PersonAddress].[Id] = [p.PersonAddress.Country].[Id]
-INNER JOIN [Planet] AS [p.PersonAddress.Country.Planet] ON [p.PersonAddress.Country].[PersonAddress_Country_PlanetId] = [p.PersonAddress.Country.Planet].[Id]
-INNER JOIN [Star] AS [p.PersonAddress.Country.Planet.Star] ON [p.PersonAddress.Country.Planet].[StarId] = [p.PersonAddress.Country.Planet.Star].[Id]
-INNER JOIN [Element] AS [p.PersonAddress.Country.Planet.Star.Composition] ON [p.PersonAddress.Country.Planet.Star].[Id] = [p.PersonAddress.Country.Planet.Star.Composition].[StarId]
-WHERE ([p].[Discriminator] IN (N'LeafB', N'LeafA', N'Branch', N'OwnedPerson') AND [p.PersonAddress].[Discriminator] IN (N'LeafB', N'LeafA', N'Branch', N'OwnedPerson')) AND ([p.PersonAddress.Country].[Discriminator] IN (N'LeafB', N'LeafA', N'Branch', N'OwnedPerson') AND [p.PersonAddress.Country].[PersonAddress_Country_PlanetId] IS NOT NULL)");
+                @"SELECT [e].[Id], [e].[Name], [e].[StarId]
+FROM [OwnedPerson] AS [o]
+LEFT JOIN [OwnedPerson] AS [o0] ON [o].[Id] = [o0].[Id]
+LEFT JOIN [OwnedPerson] AS [o1] ON [o0].[Id] = [o1].[Id]
+LEFT JOIN [Planet] AS [p] ON [o1].[PersonAddress_Country_PlanetId] = [p].[Id]
+LEFT JOIN [Star] AS [s] ON [p].[StarId] = [s].[Id]
+INNER JOIN [Element] AS [e] ON [s].[Id] = [e].[StarId]
+WHERE [o].[Discriminator] IN (N'OwnedPerson', N'Branch', N'LeafB', N'LeafA')");
         }
 
         public override void Navigation_rewrite_on_owned_reference_followed_by_regular_entity_and_another_reference()

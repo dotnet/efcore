@@ -1159,6 +1159,7 @@ FROM root c
 WHERE (c[""Discriminator""] = ""OrderDetail"")");
         }
 
+        [ConditionalFact(Skip = "Issue #14935")]
         public override void OfType_Select()
         {
             base.OfType_Select();
@@ -1169,6 +1170,7 @@ FROM root c
 WHERE (c[""Discriminator""] = ""Order"")");
         }
 
+        [ConditionalFact(Skip = "Issue #14935")]
         public override void OfType_Select_OfType_Select()
         {
             base.OfType_Select_OfType_Select();

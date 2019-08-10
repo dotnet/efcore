@@ -229,34 +229,82 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         #endregion
 
-        [ConditionalTheory(Skip = "Issue#15711")]
+        [ConditionalTheory(Skip = "Issue#16963")]
         public override Task Include_with_orderby_skip_preserves_ordering(bool isAsync)
         {
             return base.Include_with_orderby_skip_preserves_ordering(isAsync);
         }
 
-        [ConditionalFact(Skip = "Issue#15711")]
+        [ConditionalFact(Skip = "Issue#16963")]
         public override void Select_nested_collection_multi_level()
         {
             base.Select_nested_collection_multi_level();
         }
 
-        [ConditionalFact(Skip = "Issue#15711")]
-        public override void Select_nested_collection_multi_level4()
+        [ConditionalTheory(Skip = "Issue#16963")]
+        public override Task DefaultIfEmpty_in_subquery(bool isAsync)
         {
-            base.Select_nested_collection_multi_level4();
+            return base.DefaultIfEmpty_in_subquery(isAsync);
         }
 
-        [ConditionalFact(Skip = "Issue#15711")]
-        public override void Select_nested_collection_multi_level5()
+        [ConditionalTheory(Skip = "Issue#16963")]
+        public override Task DefaultIfEmpty_in_subquery_nested(bool isAsync)
         {
-            base.Select_nested_collection_multi_level5();
+            return base.DefaultIfEmpty_in_subquery_nested(isAsync);
         }
 
-        [ConditionalFact(Skip = "Issue#15711")]
-        public override void Select_nested_collection_multi_level6()
+        [ConditionalTheory(Skip = "Issue#16963")]
+        public override Task DefaultIfEmpty_in_subquery_not_correlated(bool isAsync)
         {
-            base.Select_nested_collection_multi_level6();
+            return base.DefaultIfEmpty_in_subquery_not_correlated(isAsync);
+        }
+
+        [ConditionalFact(Skip = "Issue#16963")]
+        public override void DefaultIfEmpty_without_group_join()
+        {
+            base.DefaultIfEmpty_without_group_join();
+        }
+
+        [ConditionalTheory(Skip = "Issue#16963")]
+        public override Task Default_if_empty_top_level(bool isAsync)
+        {
+            return base.Default_if_empty_top_level(isAsync);
+        }
+
+        [ConditionalTheory(Skip = "Issue#16963")]
+        public override Task Default_if_empty_top_level_followed_by_projecting_constant(bool isAsync)
+        {
+            return base.Default_if_empty_top_level_followed_by_projecting_constant(isAsync);
+        }
+
+        [ConditionalTheory(Skip = "Issue#16963")]
+        public override Task Default_if_empty_top_level_positive(bool isAsync)
+        {
+            return base.Default_if_empty_top_level_positive(isAsync);
+        }
+
+        [ConditionalTheory(Skip = "Issue#16963")]
+        public override Task Default_if_empty_top_level_projection(bool isAsync)
+        {
+            return base.Default_if_empty_top_level_projection(isAsync);
+        }
+
+        [ConditionalTheory(Skip = "Issue#16963")]
+        public override Task Join_with_default_if_empty_on_both_sources(bool isAsync)
+        {
+            return base.Join_with_default_if_empty_on_both_sources(isAsync);
+        }
+
+        [ConditionalFact(Skip = "Issue#16963")]
+        public override void OfType_Select()
+        {
+            base.OfType_Select();
+        }
+
+        [ConditionalFact(Skip = "Issue#16963")]
+        public override void OfType_Select_OfType_Select()
+        {
+            base.OfType_Select_OfType_Select();
         }
 
         [ConditionalTheory(Skip = "Issue#16575")]
@@ -294,5 +342,69 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             base.Client_code_using_instance_in_anonymous_type();
         }
+
+        #region SelectMany
+
+        [ConditionalTheory(Skip = "Issue#16963")]
+        public override Task Multiple_select_many_with_predicate(bool isAsync)
+        {
+            return base.Multiple_select_many_with_predicate(isAsync);
+        }
+
+        [ConditionalTheory(Skip = "Issue#16963")]
+        public override Task Select_DTO_with_member_init_distinct_in_subquery_translated_to_server(bool isAsync)
+        {
+            return base.Select_DTO_with_member_init_distinct_in_subquery_translated_to_server(isAsync);
+        }
+
+        [ConditionalTheory(Skip = "Issue#16963")]
+        public override Task Select_DTO_with_member_init_distinct_in_subquery_translated_to_server_2(bool isAsync)
+        {
+            return base.Select_DTO_with_member_init_distinct_in_subquery_translated_to_server_2(isAsync);
+        }
+
+        [ConditionalTheory(Skip = "Issue#16963")]
+        public override Task SelectMany_correlated_subquery_simple(bool isAsync)
+        {
+            return base.SelectMany_correlated_subquery_simple(isAsync);
+        }
+
+        [ConditionalTheory(Skip = "Issue#16963")]
+        public override Task SelectMany_Joined(bool isAsync)
+        {
+            return base.SelectMany_Joined(isAsync);
+        }
+
+        [ConditionalTheory(Skip = "Issue#16963")]
+        public override Task SelectMany_Joined_DefaultIfEmpty(bool isAsync)
+        {
+            return base.SelectMany_Joined_DefaultIfEmpty(isAsync);
+        }
+
+        [ConditionalTheory(Skip = "Issue#16963")]
+        public override Task SelectMany_Joined_DefaultIfEmpty2(bool isAsync)
+        {
+            return base.SelectMany_Joined_DefaultIfEmpty2(isAsync);
+        }
+
+        [ConditionalTheory(Skip = "Issue#16963")]
+        public override Task SelectMany_Joined_Take(bool isAsync)
+        {
+            return base.SelectMany_Joined_Take(isAsync);
+        }
+
+        [ConditionalTheory(Skip = "Issue#16963")]
+        public override Task SelectMany_without_result_selector_naked_collection_navigation(bool isAsync)
+        {
+            return base.SelectMany_without_result_selector_naked_collection_navigation(isAsync);
+        }
+
+        [ConditionalTheory(Skip = "Issue#16963")]
+        public override Task SelectMany_without_result_selector_collection_navigation_composed(bool isAsync)
+        {
+            return base.SelectMany_without_result_selector_collection_navigation_composed(isAsync);
+        }
+
+        #endregion
     }
 }

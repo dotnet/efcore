@@ -233,8 +233,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 
             if (Limit != null || Offset != null || IsSetOperation)
             {
-                var mappings = PushdownIntoSubquery();
-                expression = new SqlRemappingVisitor(mappings).Remap(expression);
+                expression = new SqlRemappingVisitor(PushdownIntoSubquery(), (SelectExpression)Tables[0]).Remap(expression);
             }
 
             if (_groupBy.Count > 0)
@@ -269,7 +268,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                 || keySelector is SqlParameterExpression)
             {
                 PushdownIntoSubquery();
-                var subquery = (SelectExpression)_tables[0];
+                var subquery = (SelectExpression)Tables[0];
                 var projectionIndex = subquery.AddToProjection((SqlExpression)keySelector, nameof(IGrouping<int, int>.Key));
 
                 keySelector = new ColumnExpression(subquery.Projection[projectionIndex], subquery);
@@ -315,8 +314,8 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             if (IsDistinct || Limit != null || Offset != null || IsSetOperation)
             {
                 orderingExpression = orderingExpression.Update(
-                    new SqlRemappingVisitor(PushdownIntoSubquery())
-                        .Remap(orderingExpression.Expression));
+                    new SqlRemappingVisitor(PushdownIntoSubquery(), (SelectExpression)Tables[0])
+                    .Remap(orderingExpression.Expression));
             }
 
             _orderings.Clear();
@@ -384,6 +383,54 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             IsDistinct = true;
 
             ClearOrdering();
+        }
+
+        public void ApplyDefaultIfEmpty(ISqlExpressionFactory sqlExpressionFactory)
+        {
+            var nullSqlExpression = sqlExpressionFactory.ApplyDefaultTypeMapping(
+                new SqlConstantExpression(Constant(null, typeof(string)), null));
+
+            var dummySelectExpression = new SelectExpression(
+                alias: "empty",
+                new List<ProjectionExpression> { new ProjectionExpression(nullSqlExpression, "empty") },
+                new List<TableExpressionBase>(),
+                new List<SqlExpression>(),
+                new List<OrderingExpression>());
+
+            if (Orderings.Any()
+                || Limit != null
+                || Offset != null
+                || IsDistinct
+                || Predicate != null
+                || Tables.Count > 1
+                || GroupBy.Count > 1)
+            {
+                PushdownIntoSubquery();
+            }
+
+            var joinPredicate = sqlExpressionFactory.Equal(sqlExpressionFactory.Constant(1), sqlExpressionFactory.Constant(1));
+            var joinTable = new LeftJoinExpression(Tables.Single(), joinPredicate);
+            _tables.Clear();
+            _tables.Add(dummySelectExpression);
+            _tables.Add(joinTable);
+
+            var projectionMapping = new Dictionary<ProjectionMember, Expression>();
+            foreach (var projection in _projectionMapping)
+            {
+                var projectionToAdd = projection.Value;
+                if (projectionToAdd is EntityProjectionExpression entityProjection)
+                {
+                    projectionToAdd = entityProjection.MakeNullable();
+                }
+                else if (projectionToAdd is ColumnExpression column)
+                {
+                    projectionToAdd = column.MakeNullable();
+                }
+
+                projectionMapping[projection.Key] = projectionToAdd;
+            }
+
+            _projectionMapping = projectionMapping;
         }
 
         public void ClearOrdering()
@@ -643,7 +690,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 
             var pendingCollections = _pendingCollections.ToList();
             _pendingCollections.Clear();
-            _pendingCollections.AddRange(pendingCollections.Select(new SqlRemappingVisitor(projectionMap).Remap));
+            _pendingCollections.AddRange(pendingCollections.Select(new SqlRemappingVisitor(projectionMap, subquery).Remap));
 
             _orderings.Clear();
             // Only lift order by to outer if subquery does not have distinct
@@ -710,7 +757,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                 }
             }
 
-            var joinPredicate = ExtractJoinKey(innerSelectExpression);
+            var joinPredicate = TryExtractJoinKey(innerSelectExpression);
             if (joinPredicate != null)
             {
                 if (innerSelectExpression.Offset != null
@@ -720,7 +767,8 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                     || innerSelectExpression.Tables.Count > 1
                     || innerSelectExpression.GroupBy.Count > 1)
                 {
-                    var sqlRemappingVisitor = new SqlRemappingVisitor(innerSelectExpression.PushdownIntoSubquery());
+                    var sqlRemappingVisitor = new SqlRemappingVisitor(innerSelectExpression.PushdownIntoSubquery(),
+                        (SelectExpression)innerSelectExpression.Tables[0]);
                     joinPredicate = sqlRemappingVisitor.Remap(joinPredicate);
                 }
 
@@ -829,11 +877,11 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             }
         }
 
-        private SqlExpression ExtractJoinKey(SelectExpression selectExpression)
+        private SqlExpression TryExtractJoinKey(SelectExpression selectExpression)
         {
             if (selectExpression.Predicate != null)
             {
-                var joinPredicate = ExtractJoinKey(selectExpression, selectExpression.Predicate, out var predicate);
+                var joinPredicate = TryExtractJoinKey(selectExpression, selectExpression.Predicate, out var predicate);
                 selectExpression.Predicate = predicate;
 
                 return joinPredicate;
@@ -842,7 +890,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             return null;
         }
 
-        private SqlExpression ExtractJoinKey(SelectExpression selectExpression, SqlExpression predicate, out SqlExpression updatedPredicate)
+        private SqlExpression TryExtractJoinKey(SelectExpression selectExpression, SqlExpression predicate, out SqlExpression updatedPredicate)
         {
             if (predicate is SqlBinaryExpression sqlBinaryExpression)
             {
@@ -865,8 +913,8 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                             : right;
                     }
 
-                    var leftJoinKey = ExtractJoinKey(selectExpression, sqlBinaryExpression.Left, out var leftPredicate);
-                    var rightJoinKey = ExtractJoinKey(selectExpression, sqlBinaryExpression.Right, out var rightPredicate);
+                    var leftJoinKey = TryExtractJoinKey(selectExpression, sqlBinaryExpression.Left, out var leftPredicate);
+                    var rightJoinKey = TryExtractJoinKey(selectExpression, sqlBinaryExpression.Right, out var rightPredicate);
 
                     updatedPredicate = combineNonNullExpressions(leftPredicate, rightPredicate);
 
@@ -888,14 +936,12 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                     if (ContainsTableReference(leftColumn.Table)
                         && inner.ContainsTableReference(rightColumn.Table))
                     {
-                        inner.AddToProjection(rightColumn);
                         return sqlBinaryExpression;
                     }
 
                     if (ContainsTableReference(rightColumn.Table)
                         && inner.ContainsTableReference(leftColumn.Table))
                     {
-                        inner.AddToProjection(leftColumn);
                         return sqlBinaryExpression.Update(
                             sqlBinaryExpression.Right,
                             sqlBinaryExpression.Left);
@@ -917,7 +963,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         {
             if (Limit != null || Offset != null || IsDistinct || IsSetOperation || GroupBy.Count > 1)
             {
-                joinPredicate = new SqlRemappingVisitor(PushdownIntoSubquery())
+                joinPredicate = new SqlRemappingVisitor(PushdownIntoSubquery(), (SelectExpression)Tables[0])
                     .Remap(joinPredicate);
             }
 
@@ -931,7 +977,8 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                 || innerSelectExpression.Tables.Count > 1
                 || innerSelectExpression.GroupBy.Count > 1)
             {
-                joinPredicate = new SqlRemappingVisitor(innerSelectExpression.PushdownIntoSubquery())
+                joinPredicate = new SqlRemappingVisitor(
+                    innerSelectExpression.PushdownIntoSubquery(), (SelectExpression)innerSelectExpression.Tables[0])
                     .Remap(joinPredicate);
             }
 
@@ -959,7 +1006,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         {
             if (Limit != null || Offset != null || IsDistinct || IsSetOperation || GroupBy.Count > 1)
             {
-                joinPredicate = new SqlRemappingVisitor(PushdownIntoSubquery())
+                joinPredicate = new SqlRemappingVisitor(PushdownIntoSubquery(), (SelectExpression)Tables[0])
                     .Remap(joinPredicate);
             }
 
@@ -971,7 +1018,8 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                 || innerSelectExpression.Tables.Count > 1
                 || innerSelectExpression.GroupBy.Count > 1)
             {
-                joinPredicate = new SqlRemappingVisitor(innerSelectExpression.PushdownIntoSubquery())
+                joinPredicate = new SqlRemappingVisitor(
+                    innerSelectExpression.PushdownIntoSubquery(), (SelectExpression)innerSelectExpression.Tables[0])
                     .Remap(joinPredicate);
             }
 
@@ -1045,12 +1093,118 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             _projectionMapping = projectionMapping;
         }
 
+        public void AddCrossApply(SelectExpression innerSelectExpression, Type transparentIdentifierType)
+        {
+            var joinPredicate = TryExtractJoinKey(innerSelectExpression);
+            if (joinPredicate != null)
+            {
+                // TODO: Make sure that innerSelectExpression does not contain any reference from this SelectExpression
+                AddInnerJoin(innerSelectExpression, joinPredicate, transparentIdentifierType);
+                return;
+            }
+
+            if (Limit != null || Offset != null || IsDistinct || Predicate != null || IsSetOperation || GroupBy.Count > 1)
+            {
+                innerSelectExpression = new SqlRemappingVisitor(
+                    PushdownIntoSubquery(), (SelectExpression)Tables[0]).Remap(innerSelectExpression);
+            }
+
+            if (innerSelectExpression.Orderings.Any()
+                || innerSelectExpression.Limit != null
+                || innerSelectExpression.Offset != null
+                || innerSelectExpression.IsDistinct
+                || innerSelectExpression.Predicate != null
+                || innerSelectExpression.Tables.Count > 1
+                || innerSelectExpression.GroupBy.Count > 1)
+            {
+                innerSelectExpression.PushdownIntoSubquery();
+            }
+
+            _identifier.AddRange(innerSelectExpression._identifier);
+            var joinTable = new CrossApplyExpression(innerSelectExpression.Tables.Single());
+            _tables.Add(joinTable);
+
+            var outerMemberInfo = transparentIdentifierType.GetTypeInfo().GetDeclaredField("Outer");
+            var projectionMapping = new Dictionary<ProjectionMember, Expression>();
+            foreach (var projection in _projectionMapping)
+            {
+                projectionMapping[projection.Key.Prepend(outerMemberInfo)] = projection.Value;
+            }
+
+            var innerMemberInfo = transparentIdentifierType.GetTypeInfo().GetDeclaredField("Inner");
+            foreach (var projection in innerSelectExpression._projectionMapping)
+            {
+                projectionMapping[projection.Key.Prepend(innerMemberInfo)] = projection.Value;
+            }
+
+            _projectionMapping = projectionMapping;
+        }
+
+        public void AddOuterApply(SelectExpression innerSelectExpression, Type transparentIdentifierType)
+        {
+            var joinPredicate = TryExtractJoinKey(innerSelectExpression);
+            if (joinPredicate != null)
+            {
+                // TODO: Make sure that innerSelectExpression does not contain any reference from this SelectExpression
+                AddLeftJoin(innerSelectExpression, joinPredicate, transparentIdentifierType);
+                return;
+            }
+
+            if (Limit != null || Offset != null || IsDistinct || Predicate != null || IsSetOperation || GroupBy.Count > 1)
+            {
+                innerSelectExpression = new SqlRemappingVisitor(
+                    PushdownIntoSubquery(), (SelectExpression)Tables[0]).Remap(innerSelectExpression);
+            }
+
+            if (innerSelectExpression.Orderings.Any()
+                || innerSelectExpression.Limit != null
+                || innerSelectExpression.Offset != null
+                || innerSelectExpression.IsDistinct
+                || innerSelectExpression.Predicate != null
+                || innerSelectExpression.Tables.Count > 1
+                || innerSelectExpression.GroupBy.Count > 1)
+            {
+                innerSelectExpression.PushdownIntoSubquery();
+            }
+
+            _identifier.AddRange(innerSelectExpression._identifier);
+            var joinTable = new OuterApplyExpression(innerSelectExpression.Tables.Single());
+            _tables.Add(joinTable);
+
+            var outerMemberInfo = transparentIdentifierType.GetTypeInfo().GetDeclaredField("Outer");
+            var projectionMapping = new Dictionary<ProjectionMember, Expression>();
+            foreach (var projection in _projectionMapping)
+            {
+                projectionMapping[projection.Key.Prepend(outerMemberInfo)] = projection.Value;
+            }
+
+            var innerMemberInfo = transparentIdentifierType.GetTypeInfo().GetDeclaredField("Inner");
+            foreach (var projection in innerSelectExpression._projectionMapping)
+            {
+                var projectionToAdd = projection.Value;
+                if (projectionToAdd is EntityProjectionExpression entityProjection)
+                {
+                    projectionToAdd = entityProjection.MakeNullable();
+                }
+                else if (projectionToAdd is ColumnExpression column)
+                {
+                    projectionToAdd = column.MakeNullable();
+                }
+
+                projectionMapping[projection.Key.Prepend(innerMemberInfo)] = projectionToAdd;
+            }
+
+            _projectionMapping = projectionMapping;
+        }
+
         private class SqlRemappingVisitor : ExpressionVisitor
         {
+            private readonly SelectExpression _subquery;
             private readonly IDictionary<SqlExpression, ColumnExpression> _mappings;
 
-            public SqlRemappingVisitor(IDictionary<SqlExpression, ColumnExpression> mappings)
+            public SqlRemappingVisitor(IDictionary<SqlExpression, ColumnExpression> mappings, SelectExpression subquery)
             {
+                _subquery = subquery;
                 _mappings = mappings;
             }
 
@@ -1059,13 +1213,21 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 
             public override Expression Visit(Expression expression)
             {
-                if (expression is SqlExpression sqlExpression
-                    && _mappings.TryGetValue(sqlExpression, out var outer))
+                switch (expression)
                 {
-                    return outer;
-                }
+                    case SqlExpression sqlExpression
+                    when _mappings.TryGetValue(sqlExpression, out var outer):
+                        return outer;
 
-                return base.Visit(expression);
+                    case ColumnExpression columnExpression
+                    when _subquery.ContainsTableReference(columnExpression.Table):
+                        var index = _subquery.AddToProjection(columnExpression);
+                        var projectionExpression = _subquery._projection[index];
+                        return new ColumnExpression(projectionExpression, _subquery);
+
+                    default:
+                        return base.Visit(expression);
+                }
             }
         }
 

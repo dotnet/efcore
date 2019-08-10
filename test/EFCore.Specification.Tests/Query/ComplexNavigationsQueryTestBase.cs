@@ -1970,7 +1970,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     select e1.Id);
         }
 
-        [ConditionalTheory(Skip = "Issue#15711")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task SelectMany_navigation_property(bool isAsync)
         {
@@ -1981,7 +1981,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 (e, a) => Assert.Equal(e.Id, a.Id));
         }
 
-        [ConditionalTheory(Skip = "Issue#15711")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task SelectMany_navigation_property_and_projection(bool isAsync)
         {
@@ -1990,7 +1990,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 l1s => l1s.SelectMany(l1 => l1.OneToMany_Optional1).Select(e => e.Name));
         }
 
-        [ConditionalTheory(Skip = "Issue#15711")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task SelectMany_navigation_property_and_filter_before(bool isAsync)
         {
@@ -2001,7 +2001,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 (e, a) => Assert.Equal(e.Id, a.Id));
         }
 
-        [ConditionalTheory(Skip = "Issue#15711")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task SelectMany_navigation_property_and_filter_after(bool isAsync)
         {
@@ -2012,7 +2012,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 (e, a) => Assert.Equal(e.Id, a.Id));
         }
 
-        [ConditionalTheory(Skip = "Issue#15711")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task SelectMany_nested_navigation_property_required(bool isAsync)
         {
@@ -2027,7 +2027,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 (e, a) => Assert.Equal(e.Id, a.Id));
         }
 
-        [ConditionalTheory(Skip = "Issue#15711")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task SelectMany_nested_navigation_property_optional_and_projection(bool isAsync)
         {
@@ -2040,7 +2040,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                               () => l1.OneToOne_Optional_FK1.OneToMany_Optional2) ?? new List<Level3>()).Select(e => e.Name));
         }
 
-        [ConditionalTheory(Skip = "Issue#15711")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Multiple_SelectMany_calls(bool isAsync)
         {
@@ -2051,7 +2051,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 (e, a) => Assert.Equal(e.Id, a.Id));
         }
 
-        [ConditionalTheory(Skip = "issue #15081")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task SelectMany_navigation_property_with_another_navigation_in_subquery(bool isAsync)
         {
@@ -2384,7 +2384,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 (e, a) => Assert.Equal(e.Id, a.Id));
         }
 
-        [ConditionalTheory(Skip = "Issue#15711")]
+        [ConditionalTheory(Skip = "Issue#17068")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Null_protection_logic_work_for_outer_key_access_of_manually_created_GroupJoin(bool isAsync)
         {
@@ -2426,7 +2426,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 });
         }
 
-        [ConditionalTheory(Skip = "Issue#15711")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task SelectMany_where_with_subquery(bool isAsync)
         {
@@ -2610,7 +2610,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     .Select(l1 => l1.Name));
         }
 
-        [ConditionalTheory(Skip = "Issue#15711")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task SelectMany_with_Include1(bool isAsync)
         {
@@ -2643,7 +2643,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 elementSorter: e => e.Id);
         }
 
-        [ConditionalTheory(Skip = "Issue#15711")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task SelectMany_with_Include2(bool isAsync)
         {
@@ -2659,7 +2659,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 elementSorter: e => e.Id);
         }
 
-        [ConditionalTheory(Skip = "Issue#15711")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task SelectMany_with_Include_ThenInclude(bool isAsync)
         {
@@ -2679,7 +2679,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 elementSorter: e => e.Id);
         }
 
-        [ConditionalTheory(Skip = "Issue#15711")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Multiple_SelectMany_with_Include(bool isAsync)
         {
@@ -2700,7 +2700,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 elementSorter: e => e.Id);
         }
 
-        [ConditionalTheory(Skip = "Issue#15711")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task SelectMany_with_string_based_Include1(bool isAsync)
         {
@@ -2716,7 +2716,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 elementSorter: e => e.Id);
         }
 
-        [ConditionalTheory(Skip = "Issue#15711")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task SelectMany_with_string_based_Include2(bool isAsync)
         {
@@ -2735,7 +2735,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 elementSorter: e => e.Id);
         }
 
-        [ConditionalTheory(Skip = "Issue#15711")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Multiple_SelectMany_with_string_based_Include(bool isAsync)
         {
@@ -2969,7 +2969,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 assertOrder: true);
         }
 
-        [ConditionalTheory(Skip = "Issue#15711")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task SelectMany_with_order_by_and_Include(bool isAsync)
         {
@@ -2989,7 +2989,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 assertOrder: true);
         }
 
-        [ConditionalTheory(Skip = "Issue#15711")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task SelectMany_with_Include_and_order_by(bool isAsync)
         {
@@ -3009,7 +3009,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 assertOrder: true);
         }
 
-        [ConditionalTheory(Skip = "Issue#15711")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task SelectMany_with_navigation_and_explicit_DefaultIfEmpty(bool isAsync)
         {
@@ -3041,7 +3041,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 elementSorter: e => e.Id);
         }
 
-        [ConditionalTheory(Skip = "Issue#15711")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task SelectMany_with_navigation_filter_and_explicit_DefaultIfEmpty(bool isAsync)
         {
@@ -3055,7 +3055,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 (e, a) => Assert.Equal(e.Id, a.Id));
         }
 
-        [ConditionalTheory(Skip = "Issue#15711")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task SelectMany_with_nested_navigation_and_explicit_DefaultIfEmpty(bool isAsync)
         {
@@ -3077,7 +3077,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 (e, a) => Assert.Equal(e.Id, a.Id));
         }
 
-        [ConditionalTheory(Skip = "Issue#15711")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task SelectMany_with_nested_navigation_filter_and_explicit_DefaultIfEmpty(bool isAsync)
         {
@@ -3099,7 +3099,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 (e, a) => Assert.Equal(e.Id, a.Id));
         }
 
-        [ConditionalTheory(Skip = "Issue#15711")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task SelectMany_with_nested_required_navigation_filter_and_explicit_DefaultIfEmpty(bool isAsync)
         {
@@ -3121,7 +3121,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 (e, a) => Assert.Equal(e.Id, a.Id));
         }
 
-        [ConditionalFact(Skip = "Issue#15711")]
+        [ConditionalFact]
         public virtual void SelectMany_with_nested_navigations_and_additional_joins_outside_of_SelectMany()
         {
             using (var ctx = CreateContext())
@@ -3138,7 +3138,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalTheory(Skip = "Issue#15711")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task SelectMany_with_nested_navigations_explicit_DefaultIfEmpty_and_additional_joins_outside_of_SelectMany(
             bool isAsync)
@@ -3172,7 +3172,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 });
         }
 
-        [ConditionalTheory(Skip = "Issue#15711")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task SelectMany_with_nested_navigations_explicit_DefaultIfEmpty_and_additional_joins_outside_of_SelectMany2(
             bool isAsync)
@@ -3202,7 +3202,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 });
         }
 
-        [ConditionalTheory(Skip = "Issue#15711")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task SelectMany_with_nested_navigations_explicit_DefaultIfEmpty_and_additional_joins_outside_of_SelectMany3(
             bool isAsync)
@@ -3231,7 +3231,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 });
         }
 
-        [ConditionalTheory(Skip = "Issue#15711")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task SelectMany_with_nested_navigations_explicit_DefaultIfEmpty_and_additional_joins_outside_of_SelectMany4(
             bool isAsync)
@@ -3262,7 +3262,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 });
         }
 
-        [ConditionalTheory(Skip = "Issue#15711")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Multiple_SelectMany_with_nested_navigations_and_explicit_DefaultIfEmpty_joined_together(bool isAsync)
         {
@@ -3301,7 +3301,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 });
         }
 
-        [ConditionalTheory(Skip = "Issue#15711")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task
             SelectMany_with_nested_navigations_and_explicit_DefaultIfEmpty_followed_by_Select_required_navigation_using_same_navs(
@@ -3324,7 +3324,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                            () => l3.OneToOne_Required_FK_Inverse3.OneToOne_Required_PK_Inverse2));
         }
 
-        [ConditionalTheory(Skip = "Issue#15711")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task
             SelectMany_with_nested_navigations_and_explicit_DefaultIfEmpty_followed_by_Select_required_navigation_using_different_navs(
@@ -3344,7 +3344,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                            () => l3.OneToOne_Required_FK_Inverse3.OneToOne_Required_PK_Inverse2));
         }
 
-        [ConditionalTheory(Skip = "Issue#15711")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task
             Complex_SelectMany_with_nested_navigations_and_explicit_DefaultIfEmpty_with_other_query_operators_composed_on_top(bool isAsync)
@@ -3430,7 +3430,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 });
         }
 
-        [ConditionalTheory(Skip = "Issue#15711")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Multiple_SelectMany_with_navigation_and_explicit_DefaultIfEmpty(bool isAsync)
         {
@@ -5340,7 +5340,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 l1s => l1s.Where(l1 => names.All(n => Maybe(l1.OneToOne_Optional_FK1, () => l1.OneToOne_Optional_FK1.Name) != n)));
         }
 
-        [ConditionalTheory(Skip = "Issue#15711")]
+        [ConditionalTheory(Skip = "Issue#16752")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Include_after_SelectMany_and_reference_navigation(bool isAsync)
         {
@@ -5354,7 +5354,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 });
         }
 
-        [ConditionalTheory(Skip = "Issue#15711")]
+        [ConditionalTheory(Skip = "Issue#16752")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Include_after_multiple_SelectMany_and_reference_navigation(bool isAsync)
         {
@@ -5368,7 +5368,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 });
         }
 
-        [ConditionalTheory(Skip = "Issue#15711")]
+        [ConditionalTheory(Skip = "Issue#16752")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Include_after_SelectMany_and_multiple_reference_navigations(bool isAsync)
         {
@@ -5384,7 +5384,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                 });
         }
 
-        // also #15081
         [ConditionalTheory(Skip = "Issue #14935. Cannot eval 'Distinct()'")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Include_after_SelectMany_and_reference_navigation_with_another_SelectMany_with_Distinct(bool isAsync)
@@ -5407,7 +5406,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 });
         }
 
-        [ConditionalTheory(Skip = "issue #15081")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task SelectMany_subquery_with_custom_projection(bool isAsync)
         {
@@ -5421,7 +5420,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                         })).Take(1));
         }
 
-        [ConditionalTheory(Skip = "issue #15081")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Null_check_in_anonymous_type_projection_should_not_be_removed(bool isAsync)
         {
@@ -5478,7 +5477,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             public T Value { get; set; }
         }
 
-        [ConditionalTheory(Skip = "issue #15081")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task SelectMany_navigation_property_followed_by_select_collection_navigation(bool isAsync)
         {
@@ -5494,7 +5493,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 });
         }
 
-        [ConditionalTheory(Skip = "issue #15081")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Multiple_SelectMany_navigation_property_followed_by_select_collection_navigation(bool isAsync)
         {
@@ -5511,7 +5510,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 });
         }
 
-        [ConditionalFact(Skip = "issue #15081")]
+        [ConditionalFact]
         public virtual void SelectMany_navigation_property_with_include_and_followed_by_select_collection_navigation()
         {
             using (var ctx = CreateContext())

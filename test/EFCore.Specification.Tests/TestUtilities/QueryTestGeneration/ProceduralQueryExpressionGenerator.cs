@@ -123,20 +123,12 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities.QueryTestGeneration
 
             // -------------------------------------------------------------- actual product bugs --------------------------------------------------------------
 
-            AddExpectedFailure("Default_if_empty_top_level", "Object reference not set to an instance of an object."); // 12567
-            AddExpectedFailure("Default_if_empty_top_level_positive", "Object reference not set to an instance of an object."); // 12567
-            AddExpectedFailure("Default_if_empty_top_level_projection", "Object reference not set to an instance of an object."); // 12567
-
             AddExpectedFailure("Except_simple", "cannot be used for"); // 12568
             AddExpectedFailure("Except_dbset", "cannot be used for"); // 12568
             AddExpectedFailure("Except_nested", "cannot be used for"); // 12568
 
             AddExpectedFailure("GroupBy_aggregate_Pushdown", "Invalid column name 'c'."); // 12569
             AddExpectedFailure("GroupBy_with_orderby_take_skip_distinct", "Invalid column name 'c'."); // 12569
-
-            AddExpectedFailure(
-                "Default_if_empty_top_level_arg",
-                "Expression of type 'Microsoft.EntityFrameworkCore.TestModels.Northwind.Employee' cannot be used for parameter of type"); // 12572
 
             AddExpectedFailure(
                 "GroupBy_Select_First_GroupBy",
@@ -400,10 +392,6 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities.QueryTestGeneration
             AddExpectedFailure(
                 "Where_poco_closure",
                 "has already been declared. Variable names must be unique within a query batch or stored procedure."); // 12871
-
-            AddExpectedFailure(
-                "Default_if_empty_top_level_positive", "Operation is not valid due to the current state of the object."); // 12872
-            AddExpectedFailure("Default_if_empty_top_level", "Operation is not valid due to the current state of the object."); // 12872
 
             AddExpectedFailure("QueryType_with_defining_query", "Object reference not set to an instance of an object."); // 12873
 

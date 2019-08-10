@@ -937,10 +937,10 @@ GROUP BY [t].[EmployeeID]");
             await base.SelectMany_GroupBy_Aggregate(isAsync);
 
             AssertSql(
-                @"SELECT [c.Orders].[EmployeeID] AS [Key], COUNT(*) AS [c]
+                @"SELECT [o].[EmployeeID] AS [Key], COUNT(*) AS [c]
 FROM [Customers] AS [c]
-INNER JOIN [Orders] AS [c.Orders] ON [c].[CustomerID] = [c.Orders].[CustomerID]
-GROUP BY [c.Orders].[EmployeeID]");
+INNER JOIN [Orders] AS [o] ON [c].[CustomerID] = [o].[CustomerID]
+GROUP BY [o].[EmployeeID]");
         }
 
         public override async Task Join_GroupBy_Aggregate(bool isAsync)

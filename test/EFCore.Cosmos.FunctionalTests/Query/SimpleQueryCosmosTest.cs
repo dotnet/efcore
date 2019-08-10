@@ -229,6 +229,7 @@ FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
 
+        [ConditionalTheory(Skip = "Issue#14935")]
         public override async Task Default_if_empty_top_level(bool isAsync)
         {
             await base.Default_if_empty_top_level(isAsync);
@@ -239,6 +240,7 @@ FROM root c
 WHERE ((c[""Discriminator""] = ""Employee"") AND (c[""EmployeeID""] = 4294967295))");
         }
 
+        [ConditionalTheory(Skip = "Issue#14935")]
         public override async Task Join_with_default_if_empty_on_both_sources(bool isAsync)
         {
             await base.Join_with_default_if_empty_on_both_sources(isAsync);
@@ -249,6 +251,7 @@ FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
 
+        [ConditionalTheory(Skip = "Issue#14935")]
         public override async Task Default_if_empty_top_level_followed_by_projecting_constant(bool isAsync)
         {
             await base.Default_if_empty_top_level_followed_by_projecting_constant(isAsync);
@@ -259,6 +262,7 @@ FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
 
+        [ConditionalTheory(Skip = "Issue#14935")]
         public override async Task Default_if_empty_top_level_positive(bool isAsync)
         {
             await base.Default_if_empty_top_level_positive(isAsync);
@@ -285,6 +289,7 @@ FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
 
+        [ConditionalTheory(Skip = "Issue#14935")]
         public override async Task Default_if_empty_top_level_projection(bool isAsync)
         {
             await base.Default_if_empty_top_level_projection(isAsync);
@@ -1888,6 +1893,7 @@ FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
 
+        [ConditionalTheory(Skip = "Issue #14935")]
         public override async Task Select_DTO_with_member_init_distinct_in_subquery_translated_to_server(bool isAsync)
         {
             await base.Select_DTO_with_member_init_distinct_in_subquery_translated_to_server(isAsync);
@@ -1969,6 +1975,7 @@ FROM root c
 WHERE ((c[""Discriminator""] = ""Product"") AND (c[""ProductID""] = 72))");
         }
 
+        [ConditionalTheory(Skip = "Issue #14935")]
         public override async Task Select_many_cross_join_same_collection(bool isAsync)
         {
             await base.Select_many_cross_join_same_collection(isAsync);
@@ -2563,6 +2570,7 @@ FROM root c
 WHERE ((c[""Discriminator""] = ""Order"") AND (c[""OrderDate""] != null))");
         }
 
+        [ConditionalFact(Skip = "Issue#14935")]
         public override void DefaultIfEmpty_without_group_join()
         {
             base.DefaultIfEmpty_without_group_join();
@@ -2573,6 +2581,7 @@ FROM root c
 WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""City""] = ""London""))");
         }
 
+        [ConditionalTheory(Skip = "Issue#14935")]
         public override async Task DefaultIfEmpty_in_subquery(bool isAsync)
         {
             await AssertQuery<Customer, Order>(
@@ -2594,6 +2603,13 @@ FROM root c
 WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""City""] = ""London""))");
         }
 
+        [ConditionalTheory(Skip = "Issue#14935")]
+        public override Task DefaultIfEmpty_in_subquery_not_correlated(bool isAsync)
+        {
+            return base.DefaultIfEmpty_in_subquery_not_correlated(isAsync);
+        }
+
+        [ConditionalTheory(Skip = "Issue#14935")]
         public override async Task DefaultIfEmpty_in_subquery_nested(bool isAsync)
         {
             await AssertQuery<Customer, Order>(
@@ -4039,11 +4055,38 @@ WHERE (c[""Discriminator""] = ""Customer"")");
             return base.Navigation_inside_interpolated_string_is_expanded(isAsync);
         }
 
+        [ConditionalTheory(Skip = "Issue #14935")]
+        public override Task Select_DTO_with_member_init_distinct_in_subquery_translated_to_server_2(bool isAsync)
+        {
+            return base.Select_DTO_with_member_init_distinct_in_subquery_translated_to_server_2(isAsync);
+        }
+
+        [ConditionalTheory(Skip = "Issue #14935")]
+        public override Task SelectMany_without_result_selector_naked_collection_navigation(bool isAsync)
+        {
+            return base.SelectMany_without_result_selector_naked_collection_navigation(isAsync);
+        }
+
+        [ConditionalTheory(Skip = "Issue #14935")]
+        public override Task SelectMany_without_result_selector_collection_navigation_composed(bool isAsync)
+        {
+            return base.SelectMany_without_result_selector_collection_navigation_composed(isAsync);
+        }
+
+        [ConditionalTheory(Skip = "Issue #14935")]
+        public override Task SelectMany_correlated_subquery_simple(bool isAsync)
+        {
+            return base.SelectMany_correlated_subquery_simple(isAsync);
+        }
+
+        [ConditionalTheory(Skip = "Issue#14935")]
+        public override Task Multiple_select_many_with_predicate(bool isAsync)
+        {
+            return base.Multiple_select_many_with_predicate(isAsync);
+        }
+
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
-
-        private void AssertContainsSql(params string[] expected)
-            => Fixture.TestSqlLoggerFactory.AssertBaseline(expected, assertOrder: false);
 
         protected override void ClearLog()
             => Fixture.TestSqlLoggerFactory.Clear();

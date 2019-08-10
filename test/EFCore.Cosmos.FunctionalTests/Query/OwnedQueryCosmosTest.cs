@@ -25,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
         }
 
-        [ConditionalFact(Skip = "Issue#15711")]
+        [ConditionalFact(Skip = "SelectMany #12086")]
         public override void Query_with_owned_entity_equality_operator()
         {
             base.Query_with_owned_entity_equality_operator();

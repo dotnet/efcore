@@ -356,9 +356,9 @@ FROM (
     SELECT NULL AS [empty]
 ) AS [empty]
 LEFT JOIN (
-    SELECT [c].[EmployeeID], [c].[City], [c].[Country], [c].[FirstName], [c].[ReportsTo], [c].[Title]
-    FROM [Employees] AS [c]
-    WHERE [c].[EmployeeID] = -1
+    SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
+    FROM [Employees] AS [e]
+    WHERE [e].[EmployeeID] = -1
 ) AS [t] ON 1 = 1");
         }
 
@@ -367,7 +367,26 @@ LEFT JOIN (
             await base.Join_with_default_if_empty_on_both_sources(isAsync);
 
             AssertSql(
-                "");
+                @"SELECT [t].[EmployeeID], [t].[City], [t].[Country], [t].[FirstName], [t].[ReportsTo], [t].[Title]
+FROM (
+    SELECT NULL AS [empty]
+) AS [empty]
+LEFT JOIN (
+    SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
+    FROM [Employees] AS [e]
+    WHERE [e].[EmployeeID] = -1
+) AS [t] ON 1 = 1
+INNER JOIN (
+    SELECT [t0].[EmployeeID], [t0].[City], [t0].[Country], [t0].[FirstName], [t0].[ReportsTo], [t0].[Title], [t0].[EmployeeID] AS [EmployeeID0]
+    FROM (
+        SELECT NULL AS [empty]
+    ) AS [empty0]
+    LEFT JOIN (
+        SELECT [e0].[EmployeeID], [e0].[City], [e0].[Country], [e0].[FirstName], [e0].[ReportsTo], [e0].[Title]
+        FROM [Employees] AS [e0]
+        WHERE [e0].[EmployeeID] = -1
+    ) AS [t0] ON 1 = 1
+) AS [t1] ON [t].[EmployeeID] = [t1].[EmployeeID]");
         }
 
         public override async Task Default_if_empty_top_level_followed_by_projecting_constant(bool isAsync)
@@ -375,7 +394,15 @@ LEFT JOIN (
             await base.Default_if_empty_top_level_followed_by_projecting_constant(isAsync);
 
             AssertSql(
-                "");
+                @"SELECT N'Foo'
+FROM (
+    SELECT NULL AS [empty]
+) AS [empty]
+LEFT JOIN (
+    SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
+    FROM [Employees] AS [e]
+    WHERE [e].[EmployeeID] = -1
+) AS [t] ON 1 = 1");
         }
 
         public override async Task Default_if_empty_top_level_positive(bool isAsync)
@@ -388,9 +415,9 @@ FROM (
     SELECT NULL AS [empty]
 ) AS [empty]
 LEFT JOIN (
-    SELECT [c].[EmployeeID], [c].[City], [c].[Country], [c].[FirstName], [c].[ReportsTo], [c].[Title]
-    FROM [Employees] AS [c]
-    WHERE [c].[EmployeeID] > 0
+    SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
+    FROM [Employees] AS [e]
+    WHERE [e].[EmployeeID] > 0
 ) AS [t] ON 1 = 1");
         }
 
@@ -422,7 +449,7 @@ FROM (
     SELECT NULL AS [empty]
 ) AS [empty]
 LEFT JOIN (
-    SELECT [e].[EmployeeID]
+    SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
     FROM [Employees] AS [e]
     WHERE [e].[EmployeeID] = -1
 ) AS [t] ON 1 = 1");
@@ -1907,19 +1934,9 @@ ORDER BY [e].[City], [c].[CustomerID] DESC");
             await base.SelectMany_Joined_DefaultIfEmpty(isAsync);
 
             AssertSql(
-                @"SELECT [t0].[OrderID], [t0].[CustomerID], [t0].[EmployeeID], [t0].[OrderDate], [c].[ContactName]
+                @"SELECT [c].[ContactName], [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Customers] AS [c]
-CROSS APPLY (
-    SELECT [t].[OrderID], [t].[CustomerID], [t].[EmployeeID], [t].[OrderDate]
-    FROM (
-        SELECT NULL AS [empty]
-    ) AS [empty]
-    LEFT JOIN (
-        SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
-        FROM [Orders] AS [o]
-        WHERE [o].[CustomerID] = [c].[CustomerID]
-    ) AS [t] ON 1 = 1
-) AS [t0]");
+LEFT JOIN [Orders] AS [o] ON [c].[CustomerID] = [o].[CustomerID]");
         }
 
         public override async Task SelectMany_Joined_DefaultIfEmpty2(bool isAsync)
@@ -1927,19 +1944,9 @@ CROSS APPLY (
             await base.SelectMany_Joined_DefaultIfEmpty2(isAsync);
 
             AssertSql(
-                @"SELECT [t0].[OrderID], [t0].[CustomerID], [t0].[EmployeeID], [t0].[OrderDate]
+                @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Customers] AS [c]
-CROSS APPLY (
-    SELECT [t].[OrderID], [t].[CustomerID], [t].[EmployeeID], [t].[OrderDate]
-    FROM (
-        SELECT NULL AS [empty]
-    ) AS [empty]
-    LEFT JOIN (
-        SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
-        FROM [Orders] AS [o]
-        WHERE [o].[CustomerID] = [c].[CustomerID]
-    ) AS [t] ON 1 = 1
-) AS [t0]");
+LEFT JOIN [Orders] AS [o] ON [c].[CustomerID] = [o].[CustomerID]");
         }
 
         public override async Task SelectMany_Joined_Take(bool isAsync)
@@ -1947,13 +1954,12 @@ CROSS APPLY (
             await base.SelectMany_Joined_Take(isAsync);
 
             AssertSql(
-                @"SELECT [t].[OrderID], [t].[CustomerID], [t].[EmployeeID], [t].[OrderDate], [c].[ContactName]
+                @"SELECT [c].[ContactName], [t].[OrderID], [t].[CustomerID], [t].[EmployeeID], [t].[OrderDate]
 FROM [Customers] AS [c]
-CROSS APPLY (
+INNER JOIN (
     SELECT TOP(1000) [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
     FROM [Orders] AS [o]
-    WHERE [o].[CustomerID] = [c].[CustomerID]
-) AS [t]");
+) AS [t] ON [c].[CustomerID] = [t].[CustomerID]");
         }
 
         public override async Task Take_with_single(bool isAsync)
@@ -2470,14 +2476,27 @@ WHERE [c].[CustomerID] LIKE N'A%'");
             await base.Select_DTO_with_member_init_distinct_in_subquery_translated_to_server(isAsync);
 
             AssertSql(
-                @"SELECT [t].[Id], [t].[Count], [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM (
-    SELECT DISTINCT [o].[CustomerID] AS [Id], [o].[OrderID] AS [Count]
+    SELECT DISTINCT [o].[CustomerID], [o].[OrderID]
     FROM [Orders] AS [o]
     WHERE [o].[OrderID] < 10300
 ) AS [t]
-CROSS JOIN [Customers] AS [c]
-WHERE [c].[CustomerID] = [t].[Id]");
+INNER JOIN [Customers] AS [c] ON [t].[CustomerID] = [c].[CustomerID]");
+        }
+
+        public override async Task Select_DTO_with_member_init_distinct_in_subquery_translated_to_server_2(bool isAsync)
+        {
+            await base.Select_DTO_with_member_init_distinct_in_subquery_translated_to_server_2(isAsync);
+
+            AssertSql(
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM (
+    SELECT DISTINCT [o].[CustomerID], [o].[OrderID]
+    FROM [Orders] AS [o]
+    WHERE [o].[OrderID] < 10300
+) AS [t]
+INNER JOIN [Customers] AS [c] ON [t].[CustomerID] = [c].[CustomerID]");
         }
 
         public override void Select_DTO_with_member_init_distinct_in_subquery_used_in_projection_translated_to_server()
@@ -2614,9 +2633,9 @@ WHERE CAST(5 AS smallint) IN (
             await base.Select_many_cross_join_same_collection(isAsync);
 
             AssertSql(
-                @"SELECT [c0].[CustomerID], [c0].[Address], [c0].[City], [c0].[CompanyName], [c0].[ContactName], [c0].[ContactTitle], [c0].[Country], [c0].[Fax], [c0].[Phone], [c0].[PostalCode], [c0].[Region]
-FROM [Customers] AS [c]
-CROSS JOIN [Customers] AS [c0]");
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c0]
+CROSS JOIN [Customers] AS [c]");
         }
 
         public override async Task OrderBy_null_coalesce_operator(bool isAsync)
@@ -3441,19 +3460,16 @@ WHERE [o].[OrderDate] IS NOT NULL AND (DATEPART(year, [o].[OrderDate]) < @__next
             base.DefaultIfEmpty_without_group_join();
 
             AssertSql(
-                @"SELECT [t0].[CustomerID]
+                @"SELECT [t].[CustomerID]
 FROM (
-    SELECT [t].*
-    FROM (
-        SELECT NULL AS [empty]
-    ) AS [empty]
-    LEFT JOIN (
-        SELECT [c].*
-        FROM [Customers] AS [c]
-        WHERE [c].[City] = N'London'
-    ) AS [t] ON 1 = 1
-) AS [t0]
-WHERE [t0].[CustomerID] IS NOT NULL");
+    SELECT NULL AS [empty]
+) AS [empty]
+LEFT JOIN (
+    SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+    FROM [Customers] AS [c]
+    WHERE ([c].[City] = N'London') AND [c].[City] IS NOT NULL
+) AS [t] ON 1 = 1
+WHERE [t].[CustomerID] IS NOT NULL");
         }
 
         public override async Task DefaultIfEmpty_in_subquery(bool isAsync)
@@ -3461,20 +3477,30 @@ WHERE [t0].[CustomerID] IS NOT NULL");
             await base.DefaultIfEmpty_in_subquery(isAsync);
 
             AssertSql(
+                @"SELECT [c].[CustomerID], [o].[OrderID]
+FROM [Customers] AS [c]
+LEFT JOIN [Orders] AS [o] ON [c].[CustomerID] = [o].[CustomerID]
+WHERE [o].[OrderID] IS NOT NULL");
+        }
+
+        public override async Task DefaultIfEmpty_in_subquery_not_correlated(bool isAsync)
+        {
+            await base.DefaultIfEmpty_in_subquery_not_correlated(isAsync);
+
+            AssertSql(
                 @"SELECT [c].[CustomerID], [t0].[OrderID]
 FROM [Customers] AS [c]
-CROSS APPLY (
-    SELECT [t].*
+CROSS JOIN (
+    SELECT [t].[OrderID], [t].[CustomerID], [t].[EmployeeID], [t].[OrderDate], [t].[OrderID] AS [OrderID0]
     FROM (
         SELECT NULL AS [empty]
     ) AS [empty]
     LEFT JOIN (
-        SELECT [o].*
+        SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
         FROM [Orders] AS [o]
-        WHERE [o].[CustomerID] = [c].[CustomerID]
+        WHERE [o].[OrderID] > 15000
     ) AS [t] ON 1 = 1
-) AS [t0]
-WHERE [t0].[OrderID] IS NOT NULL");
+) AS [t0]");
         }
 
         public override async Task DefaultIfEmpty_in_subquery_nested(bool isAsync)
@@ -3482,32 +3508,26 @@ WHERE [t0].[OrderID] IS NOT NULL");
             await base.DefaultIfEmpty_in_subquery_nested(isAsync);
 
             AssertSql(
-                @"SELECT [c].[CustomerID], [t0].[OrderID], [t2].[OrderDate]
-FROM [Customers] AS [c]
-CROSS APPLY (
-    SELECT [t].*
+                @"SELECT [t].[CustomerID], [t1].[OrderID], [o0].[OrderDate]
+FROM (
+    SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+    FROM [Customers] AS [c]
+    WHERE ([c].[City] = N'Seattle') AND [c].[City] IS NOT NULL
+) AS [t]
+CROSS JOIN (
+    SELECT [t0].[OrderID], [t0].[CustomerID], [t0].[EmployeeID], [t0].[OrderDate], [t0].[OrderID] AS [OrderID0]
     FROM (
         SELECT NULL AS [empty]
     ) AS [empty]
     LEFT JOIN (
-        SELECT [o].*
+        SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
         FROM [Orders] AS [o]
-        WHERE [o].[OrderID] > 11000
-    ) AS [t] ON 1 = 1
-) AS [t0]
-CROSS APPLY (
-    SELECT [t1].*
-    FROM (
-        SELECT NULL AS [empty]
-    ) AS [empty0]
-    LEFT JOIN (
-        SELECT [o0].*
-        FROM [Orders] AS [o0]
-        WHERE [o0].[CustomerID] = [c].[CustomerID]
-    ) AS [t1] ON 1 = 1
-) AS [t2]
-WHERE ([c].[City] = N'Seattle') AND ([t0].[OrderID] IS NOT NULL AND [t2].[OrderID] IS NOT NULL)
-ORDER BY [OrderID], [t2].[OrderDate]");
+        WHERE [o].[OrderID] > 15000
+    ) AS [t0] ON 1 = 1
+) AS [t1]
+LEFT JOIN [Orders] AS [o0] ON [t].[CustomerID] = [o0].[CustomerID]
+WHERE [t1].[OrderID] IS NOT NULL AND [o0].[OrderID] IS NOT NULL
+ORDER BY [t1].[OrderID], [o0].[OrderDate]");
         }
 
         [SqlServerCondition(SqlServerCondition.SupportsOffset)]

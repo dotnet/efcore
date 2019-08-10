@@ -13,6 +13,7 @@ namespace Microsoft.EntityFrameworkCore.Query
     public abstract class QueryableMethodTranslatingExpressionVisitor : ExpressionVisitor
     {
         private readonly bool _subquery;
+        private readonly EntityShaperNullableMarkingExpressionVisitor _entityShaperNullableMarkingExpressionVisitor;
 
         protected QueryableMethodTranslatingExpressionVisitor(
             QueryableMethodTranslatingExpressionVisitorDependencies dependencies,
@@ -20,6 +21,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             Dependencies = dependencies;
             _subquery = subquery;
+            _entityShaperNullableMarkingExpressionVisitor = new EntityShaperNullableMarkingExpressionVisitor();
         }
 
         protected virtual QueryableMethodTranslatingExpressionVisitorDependencies Dependencies { get; }
@@ -374,27 +376,21 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             protected override Expression VisitExtension(Expression extensionExpression)
             {
-                if (extensionExpression is EntityShaperExpression entityShaper)
-                {
-                    return entityShaper.MarkAsNullable();
-                }
-
-                return base.VisitExtension(extensionExpression);
+                return extensionExpression is EntityShaperExpression entityShaper
+                    ? entityShaper.MarkAsNullable()
+                    : base.VisitExtension(extensionExpression);
             }
         }
+
+        protected virtual Expression MarkShaperNullable(Expression shaperExpression)
+            => _entityShaperNullableMarkingExpressionVisitor.Visit(shaperExpression);
 
         protected virtual ShapedQueryExpression TranslateResultSelectorForJoin(
             ShapedQueryExpression outer,
             LambdaExpression resultSelector,
             Expression innerShaper,
-            Type transparentIdentifierType,
-            bool innerNullable)
+            Type transparentIdentifierType)
         {
-            if (innerNullable)
-            {
-                innerShaper = new EntityShaperNullableMarkingExpressionVisitor().Visit(innerShaper);
-            }
-
             outer.ShaperExpression = CombineShapers(
                 outer.QueryExpression,
                 outer.ShaperExpression,
@@ -404,9 +400,9 @@ namespace Microsoft.EntityFrameworkCore.Query
             var transparentIdentifierParameter = Expression.Parameter(transparentIdentifierType);
 
             Expression original1 = resultSelector.Parameters[0];
-            Expression replacement1 = AccessOuterTransparentField(transparentIdentifierType, transparentIdentifierParameter);
+            var replacement1 = AccessOuterTransparentField(transparentIdentifierType, transparentIdentifierParameter);
             Expression original2 = resultSelector.Parameters[1];
-            Expression replacement2 = AccessInnerTransparentField(transparentIdentifierType, transparentIdentifierParameter);
+            var replacement2 = AccessInnerTransparentField(transparentIdentifierType, transparentIdentifierParameter);
             var newResultSelector = Expression.Lambda(
                 new ReplacingExpressionVisitor(
                     new Dictionary<Expression, Expression> {

@@ -22,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore
             base.Query_with_keyless_type();
         }
 
-        [ConditionalFact(Skip = "Issue#15711")]
+        [ConditionalFact(Skip = "Issue#16963")]
         public override void Query_and_update_using_constructors_with_property_parameters()
         {
             base.Query_and_update_using_constructors_with_property_parameters();
