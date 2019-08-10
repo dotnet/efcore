@@ -92,16 +92,6 @@ WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] = @__p_0))
 OFFSET 0 LIMIT 2");
         }
 
-        public override void Method_with_constant_queryable_arg()
-        {
-            base.Method_with_constant_queryable_arg();
-
-            AssertSql(
-                @"SELECT c
-FROM root c
-WHERE (c[""Discriminator""] = ""Customer"")");
-        }
-
         public override async Task Entity_equality_self(bool isAsync)
         {
             await base.Entity_equality_self(isAsync);
@@ -2537,7 +2527,7 @@ WHERE ((c[""Discriminator""] = ""Order"") AND (c[""OrderDate""] != null))");
             await base.Select_expression_date_add_milliseconds_above_the_range(isAsync);
 
             AssertSql(
-                @"SELECT c
+                @"SELECT c[""OrderDate""]
 FROM root c
 WHERE ((c[""Discriminator""] = ""Order"") AND (c[""OrderDate""] != null))");
         }
@@ -2547,7 +2537,7 @@ WHERE ((c[""Discriminator""] = ""Order"") AND (c[""OrderDate""] != null))");
             await base.Select_expression_date_add_milliseconds_below_the_range(isAsync);
 
             AssertSql(
-                @"SELECT c
+                @"SELECT c[""OrderDate""]
 FROM root c
 WHERE ((c[""Discriminator""] = ""Order"") AND (c[""OrderDate""] != null))");
         }

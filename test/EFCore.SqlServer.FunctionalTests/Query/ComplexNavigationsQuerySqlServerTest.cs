@@ -4602,38 +4602,6 @@ LEFT JOIN [LevelTwo] AS [l] ON [l1].[Id] = [l].[Level1_Optional_Id]");
                 @"");
         }
 
-        public override void GroupJoin_with_grouping_composed_on1()
-        {
-            base.GroupJoin_with_grouping_composed_on1();
-
-            AssertSql(
-                @"");
-        }
-
-        public override void GroupJoin_with_grouping_composed_on2()
-        {
-            base.GroupJoin_with_grouping_composed_on2();
-
-            AssertSql(
-                @"");
-        }
-
-        public override void GroupJoin_with_grouping_composed_on3()
-        {
-            base.GroupJoin_with_grouping_composed_on3();
-
-            AssertSql(
-                @"");
-        }
-
-        public override void GroupJoin_with_grouping_composed_on4()
-        {
-            base.GroupJoin_with_grouping_composed_on4();
-
-            AssertSql(
-                @"");
-        }
-
         public override void Member_pushdown_chain_3_levels_deep()
         {
             base.Member_pushdown_chain_3_levels_deep();

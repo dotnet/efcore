@@ -146,20 +146,6 @@ FROM [Customers] AS [c]
 WHERE ([c].[CustomerID] = @__p_0) AND @__p_0 IS NOT NULL");
         }
 
-        public override void Method_with_constant_queryable_arg()
-        {
-            base.Method_with_constant_queryable_arg();
-
-            AssertSql(
-                @"SELECT COUNT(*)
-FROM [Customers] AS [c]
-WHERE [c].[CustomerID] IN (N'ALFKI')",
-                //
-                @"SELECT COUNT(*)
-FROM [Customers] AS [c]
-WHERE [c].[CustomerID] IN (N'FOO')");
-        }
-
         public override async Task Entity_equality_self(bool isAsync)
         {
             await base.Entity_equality_self(isAsync);

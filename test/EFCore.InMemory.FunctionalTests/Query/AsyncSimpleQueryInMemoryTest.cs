@@ -32,7 +32,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             return base.ToList_on_nav_subquery_with_predicate_in_projection();
         }
 
-        [ConditionalFact(Skip = "See issue#13857")]
+        [ConditionalFact(Skip = "See issue#16963")]
         public override Task Query_backed_by_database_view()
         {
             return base.Query_backed_by_database_view();
