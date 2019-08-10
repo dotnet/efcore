@@ -14,13 +14,13 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
         }
 
-        [ConditionalFact(Skip = "See issue#15318")]
+        [ConditionalFact(Skip = "See issue#16963")]
         public override void Query_ending_with_include()
         {
             base.Query_ending_with_include();
         }
 
-        [ConditionalFact(Skip = "See issue#15318")]
+        [ConditionalFact(Skip = "See issue#16963")]
         public override void Query_with_single_parameter_with_include()
         {
             base.Query_ending_with_include();

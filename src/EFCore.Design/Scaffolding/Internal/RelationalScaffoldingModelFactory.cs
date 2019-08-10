@@ -140,7 +140,6 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
             var table = column.Table ?? _nullTable;
             var usedNames = new List<string>();
-            // TODO - need to clean up the way CSharpNamer & CSharpUniqueNamer work (see issue #1671)
             if (column.Table != null)
             {
                 usedNames.Add(GetEntityTypeName(table));

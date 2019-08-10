@@ -83,23 +83,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                 () => Single_Predicate_Cancellation_test(Fixture.TestSqlLoggerFactory.CancelQuery()));
         }
 
-        [ConditionalFact(Skip = "Issue#10914")]
-        public async Task Concurrent_async_queries_are_serialized()
-        {
-            using (var context = CreateContext())
-            {
-                var task1 = context.Customers.Where(c => c.City == "México D.F.").ToListAsync();
-                var task2 = context.Customers.Where(c => c.City == "London").ToListAsync();
-                var task3 = context.Customers.Where(c => c.City == "Sao Paulo").ToListAsync();
-
-                var tasks = await Task.WhenAll(task1, task2, task3);
-
-                Assert.Equal(5, tasks[0].Count);
-                Assert.Equal(6, tasks[1].Count);
-                Assert.Equal(4, tasks[2].Count);
-            }
-        }
-
         [ConditionalFact(Skip = "Issue #14935. Cannot eval 'Except({from Customer c in value(Microsoft.EntityFrameworkCore.Query.Internal.EntityQueryable`1[Microsoft.EntityFrameworkCore.TestModels.Northwind.Customer]) where ([c].City == \"México D.F.\") select [c].CustomerID})'")]
         public async Task Concurrent_async_queries_are_serialized2()
         {
@@ -113,46 +96,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                     .Intersect(
                         context.OrderDetails
                             .Where(od => od.OrderID > 0)).ToListAsync();
-            }
-        }
-
-        [ConditionalFact(Skip = "Issue#10914")]
-        public async Task Concurrent_async_queries_are_serialized_find()
-        {
-            using (var context = CreateContext())
-            {
-                var task1 = context.Customers.FindAsync("ALFKI").AsTask();
-                var task2 = context.Customers.FindAsync("ANATR").AsTask();
-                var task3 = context.Customers.FindAsync("FISSA").AsTask();
-
-                var tasks = await Task.WhenAll(task1, task2, task3);
-
-                Assert.NotNull(tasks[0]);
-                Assert.NotNull(tasks[1]);
-                Assert.NotNull(tasks[2]);
-            }
-        }
-
-        [ConditionalFact(Skip = "Issue#10914")]
-        public async Task Concurrent_async_queries_are_serialized_mixed1()
-        {
-            using (var context = CreateContext())
-            {
-                await context.Customers.ForEachAsync(
-                    // ReSharper disable once ReturnValueOfPureMethodIsNotUsed
-                    c => context.Orders.Where(o => o.CustomerID == c.CustomerID).ToList());
-            }
-        }
-
-        [ConditionalFact(Skip = "Issue#10914")]
-        public async Task Concurrent_async_queries_are_serialized_mixed2()
-        {
-            using (var context = CreateContext())
-            {
-                foreach (var c in context.Customers)
-                {
-                    await context.Orders.Where(o => o.CustomerID == c.CustomerID).ToListAsync();
-                }
             }
         }
 

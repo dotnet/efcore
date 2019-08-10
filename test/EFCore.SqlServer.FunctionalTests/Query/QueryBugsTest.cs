@@ -4010,45 +4010,6 @@ GROUP BY [t].[Name], [t1].[MaumarEntity11818_Name]");
             }
         }
 
-        [ConditionalFact(Skip = "Issue #11870")]
-        public virtual void GroupJoin_Anonymous_projection_GroupBy_Aggregate_join_elimination_3()
-        {
-            using (CreateDatabase11818())
-            {
-                using (var context = new MyContext11818(_options))
-                {
-                    var query = (from e in context.Set<Entity11818>()
-                                 join a in context.Set<AnotherEntity11818>()
-                                     on e.Id equals a.Id into grouping
-                                 from a in grouping.DefaultIfEmpty()
-                                 join m in context.Set<MaumarEntity11818>()
-                                     on e.Id equals m.Id into grouping2
-                                 from m in grouping2.DefaultIfEmpty()
-                                 select new
-                                 {
-                                     aname = a.Name,
-                                     mname = m.Name
-                                 })
-                        .GroupBy(
-                            g => new
-                            {
-                                g.aname,
-                                g.mname
-                            }).DefaultIfEmpty()
-                        .Select(
-                            g => new
-                            {
-                                MyKey = g.Key.aname,
-                                cnt = g.Count() + 5
-                            })
-                        .ToList();
-
-                    AssertSql(
-                        "");
-                }
-            }
-        }
-
         [ConditionalFact(Skip = "Issue #11871")]
         public virtual void GroupJoin_Anonymous_projection_GroupBy_Aggregate_join_elimination_4()
         {
@@ -4148,7 +4109,7 @@ GROUP BY [t].[Name], [t1].[MaumarEntity11818_Name]");
 
         #region Bug11803_11791
 
-        [ConditionalFact(Skip = "See issue#13587")]
+        [ConditionalFact(Skip = "Issue #15364")]
         public virtual void Query_filter_with_db_set_should_not_block_other_filters()
         {
             using (CreateDatabase11803())
@@ -5246,7 +5207,7 @@ END IN ('0a47bcb7-a1cb-4345-8944-c58f82d6aac7', '5f221fb9-66f4-442a-92c9-d97ed59
 
         #region Bug13157
 
-        [ConditionalFact(Skip = "Issue#16321")]
+        [ConditionalFact]
         public virtual void Correlated_subquery_with_owned_navigation_being_compared_to_null_works()
         {
             using (CreateDatabase13157())
@@ -5275,25 +5236,17 @@ END IN ('0a47bcb7-a1cb-4345-8944-c58f82d6aac7', '5f221fb9-66f4-442a-92c9-d97ed59
                     Assert.Equal(10, partners[0].Addresses[0].Turnovers.AmountIn);
 
                     AssertSql(
-                @"SELECT [x].[Id]
-FROM [Partners] AS [x]
-ORDER BY [x].[Id]",
-                //
-                @"SELECT [t0].[Id], CASE
-    WHEN [t].[Id] IS NULL
-    THEN CAST(1 AS bit) ELSE CAST(0 AS bit)
-END, [t].[Turnovers_AmountIn] AS [AmountIn], [x.Addresses].[Partner13157Id]
-FROM [Address13157] AS [x.Addresses]
+                @"SELECT [p].[Id], [t].[c], [t].[Turnovers_AmountIn], [t].[Id], [t].[Partner13157Id]
+FROM [Partners] AS [p]
 LEFT JOIN (
-    SELECT [y.Turnovers].*
-    FROM [Address13157] AS [y.Turnovers]
-    WHERE [y.Turnovers].[Turnovers_AmountIn] IS NOT NULL
-) AS [t] ON [x.Addresses].[Id] = [t].[Id]
-INNER JOIN (
-    SELECT [x0].[Id]
-    FROM [Partners] AS [x0]
-) AS [t0] ON [x.Addresses].[Partner13157Id] = [t0].[Id]
-ORDER BY [t0].[Id]");
+    SELECT CASE
+        WHEN [a].[Id] IS NULL THEN CAST(1 AS bit)
+        ELSE CAST(0 AS bit)
+    END AS [c], [a].[Turnovers_AmountIn], [a0].[Id], [a0].[Partner13157Id]
+    FROM [Address13157] AS [a0]
+    LEFT JOIN [Address13157] AS [a] ON [a0].[Id] = [a].[Id]
+) AS [t] ON [p].[Id] = [t].[Partner13157Id]
+ORDER BY [p].[Id], [t].[Id]");
                 }
             }
         }
@@ -5361,7 +5314,7 @@ ORDER BY [t0].[Id]");
 
         #region Bug13346
 
-        [ConditionalFact(Skip = "See issue#13587")]
+        [ConditionalFact(Skip = "Issue #13346")]
         public virtual void ToQuery_can_define_in_own_terms_using_FromSql()
         {
             using (CreateDatabase13346())

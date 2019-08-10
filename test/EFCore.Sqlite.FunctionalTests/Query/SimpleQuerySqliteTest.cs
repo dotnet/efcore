@@ -840,7 +840,7 @@ FROM ""Orders"" AS ""o""");
             await base.Select_datetime_DayOfWeek_component(isAsync);
 
             AssertSql(
-                @"SELECT CAST(strftime('%w', ""o"".""OrderDate"") AS INTEGER)
+                @"SELECT CAST(CAST(strftime('%w', ""o"".""OrderDate"") AS INTEGER) AS INTEGER)
 FROM ""Orders"" AS ""o""");
         }
 
@@ -849,7 +849,7 @@ FROM ""Orders"" AS ""o""");
             await base.Select_datetime_Ticks_component(isAsync);
 
             AssertSql(
-                @"SELECT CAST((julianday(""o"".""OrderDate"") - 1721425.5) * 864000000000 AS INTEGER)
+                @"SELECT CAST(((julianday(""o"".""OrderDate"") - 1721425.5) * 864000000000.0) AS INTEGER)
 FROM ""Orders"" AS ""o""");
         }
 
@@ -930,7 +930,7 @@ WHERE ""o"".""OrderDate"" IS NOT NULL");
             await base.Select_expression_datetime_add_ticks(isAsync);
 
             AssertSql(
-                @"SELECT rtrim(rtrim(strftime('%Y-%m-%d %H:%M:%f', ""o"".""OrderDate"", CAST(10000 / 10000000.0 AS TEXT) || ' seconds'), '0'), '.') AS ""OrderDate""
+                @"SELECT rtrim(rtrim(strftime('%Y-%m-%d %H:%M:%f', ""o"".""OrderDate"", CAST((10000 / 864000000000) AS TEXT) || ' seconds'), '0'), '.') AS ""OrderDate""
 FROM ""Orders"" AS ""o""
 WHERE ""o"".""OrderDate"" IS NOT NULL");
         }
@@ -940,7 +940,7 @@ WHERE ""o"".""OrderDate"" IS NOT NULL");
             await base.Select_expression_date_add_milliseconds_above_the_range(isAsync);
 
             AssertSql(
-                @"SELECT rtrim(rtrim(strftime('%Y-%m-%d %H:%M:%f', ""o"".""OrderDate"", CAST(1000000000000.0 / 1000 AS TEXT) || ' seconds'), '0'), '.') AS ""OrderDate""
+                @"SELECT rtrim(rtrim(strftime('%Y-%m-%d %H:%M:%f', ""o"".""OrderDate"", CAST((1000000000000.0 / 1000.0) AS TEXT) || ' seconds'), '0'), '.') AS ""OrderDate""
 FROM ""Orders"" AS ""o""
 WHERE ""o"".""OrderDate"" IS NOT NULL");
         }
@@ -950,7 +950,7 @@ WHERE ""o"".""OrderDate"" IS NOT NULL");
             await base.Select_expression_date_add_milliseconds_below_the_range(isAsync);
 
             AssertSql(
-                @"SELECT rtrim(rtrim(strftime('%Y-%m-%d %H:%M:%f', ""o"".""OrderDate"", CAST(-1000000000000.0 / 1000 AS TEXT) || ' seconds'), '0'), '.') AS ""OrderDate""
+                @"SELECT rtrim(rtrim(strftime('%Y-%m-%d %H:%M:%f', ""o"".""OrderDate"", CAST((-1000000000000.0 / 1000.0) AS TEXT) || ' seconds'), '0'), '.') AS ""OrderDate""
 FROM ""Orders"" AS ""o""
 WHERE ""o"".""OrderDate"" IS NOT NULL");
         }
