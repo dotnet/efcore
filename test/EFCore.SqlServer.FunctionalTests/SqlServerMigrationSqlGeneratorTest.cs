@@ -35,6 +35,38 @@ EXEC sp_addextendedproperty @name = N'Comment', @value = N'Employer ID comment',
 ");
         }
 
+        [ConditionalFact]
+        public void CreateTableOperation_default_schema_with_comment()
+        {
+            Generate(
+                new CreateTableOperation
+                {
+                    Name = "People",
+                    Columns =
+                    {
+                        new AddColumnOperation
+                        {
+                            Name = "Id",
+                            Table = "People",
+                            ClrType = typeof(int),
+                            IsNullable = false,
+                            Comment = "ID comment"
+                        },
+                    },
+                    Comment = "Table comment"
+                });
+
+            AssertSql(
+                @"CREATE TABLE [People] (
+    [Id] int NOT NULL
+);
+DECLARE @schema AS nvarchar(max);
+SET @schema = SCHEMA_NAME();
+EXEC sp_addextendedproperty @name = N'Comment', @value = N'Table comment', @level0type = N'Schema', @level0name = @schema, @level1type = N'Table', @level1name = N'People';
+EXEC sp_addextendedproperty @name = N'Comment', @value = N'ID comment', @level0type = N'Schema', @level0name = @schema, @level1type = N'Table', @level1name = N'People', @level2type = N'Column', @level2name = N'Id';
+");
+        }
+
         public override void CreateIndexOperation_with_filter_where_clause()
         {
             base.CreateIndexOperation_with_filter_where_clause();
@@ -48,6 +80,76 @@ EXEC sp_addextendedproperty @name = N'Comment', @value = N'Employer ID comment',
             base.CreateIndexOperation_with_filter_where_clause_and_is_unique();
 
             AssertSql(@"CREATE UNIQUE INDEX [IX_People_Name] ON [People] ([Name]) WHERE [Name] IS NOT NULL AND <> '';
+");
+        }
+
+        [ConditionalFact]
+        public void AlterTableOperation_with_new_comment()
+        {
+            Generate(
+                new AlterTableOperation
+                {
+                    Name = "People",
+                    Schema = "dbo",
+                    Comment = "My Comment"
+                });
+
+            AssertSql(
+                @"EXEC sp_addextendedproperty @name = N'Comment', @value = N'My Comment', @level0type = N'Schema', @level0name = N'dbo', @level1type = N'Table', @level1name = N'People';
+");
+        }
+
+        [ConditionalFact]
+        public void AlterTableOperation_with_different_comment_to_existing()
+        {
+            Generate(
+                modelBuilder => modelBuilder
+                    .HasAnnotation(CoreAnnotationNames.ProductVersion, "1.1.0")
+                    .Entity(
+                        "Person", x =>
+                        {
+                            x.HasComment("My Comment");
+                        }),
+                new AlterTableOperation
+                {
+                    Schema = "dbo",
+                    Name = "People",
+                    Comment = "My Comment 2",
+                    OldTable = new TableOperation
+                    {
+                        Comment = "My Comment"
+                    }
+                });
+
+            AssertSql(
+                @"EXEC sp_dropextendedproperty @name = N'Comment', @level0type = N'Schema', @level0name = N'dbo', @level1type = N'Table', @level1name = N'People';
+EXEC sp_addextendedproperty @name = N'Comment', @value = N'My Comment 2', @level0type = N'Schema', @level0name = N'dbo', @level1type = N'Table', @level1name = N'People';
+");
+        }
+
+        [ConditionalFact]
+        public void AlterTableOperation_removing_comment()
+        {
+            Generate(
+                modelBuilder => modelBuilder
+                    .HasAnnotation(CoreAnnotationNames.ProductVersion, "1.1.0")
+                    .Entity(
+                        "Person", x =>
+                        {
+                            x.HasComment("My Comment");
+                        }),
+                new AlterTableOperation
+                {
+                    Schema = "dbo",
+                    Name = "People",
+                    OldTable = new TableOperation
+                    {
+                        Comment = "My Comment"
+                    }
+                });
+
+            AssertSql(
+                @"EXEC sp_dropextendedproperty @name = N'Comment', @level0type = N'Schema', @level0name = N'dbo', @level1type = N'Table', @level1name = N'People';
 ");
         }
 
@@ -255,7 +357,28 @@ EXEC sp_addextendedproperty @name = N'Comment', @value = N'Employer ID comment',
 
             AssertSql(
                 @"ALTER TABLE [People] ADD [FullName] nvarchar(max) NOT NULL;
-EXEC sp_addextendedproperty @name = N'Comment', @value = N'My comment', @level0type = N'Schema', @level0name = NULL, @level1type = N'Table', @level1name = N'People', @level2type = N'Column', @level2name = N'FullName';
+DECLARE @schema AS nvarchar(max);
+SET @schema = SCHEMA_NAME();
+EXEC sp_addextendedproperty @name = N'Comment', @value = N'My comment', @level0type = N'Schema', @level0name = @schema, @level1type = N'Table', @level1name = N'People', @level2type = N'Column', @level2name = N'FullName';
+");
+        }
+
+        [ConditionalFact]
+        public virtual void AddColumnOperation_with_comment_non_default_schema()
+        {
+            Generate(
+                new AddColumnOperation
+                {
+                    Schema = "my",
+                    Table = "People",
+                    Name = "FullName",
+                    ClrType = typeof(string),
+                    Comment = "My comment"
+                });
+
+            AssertSql(
+                @"ALTER TABLE [my].[People] ADD [FullName] nvarchar(max) NOT NULL;
+EXEC sp_addextendedproperty @name = N'Comment', @value = N'My comment', @level0type = N'Schema', @level0name = N'my', @level1type = N'Table', @level1name = N'People', @level2type = N'Column', @level2name = N'FullName';
 ");
         }
 
@@ -1024,7 +1147,7 @@ EXEC sp_addextendedproperty @name = N'Comment', @value = N'My Comment 2', @level
         }
 
         [ConditionalFact]
-        public void AlterColumnOperation_by_removing_comment()
+        public void AlterColumnOperation_removing_comment()
         {
             Generate(
                 modelBuilder => modelBuilder

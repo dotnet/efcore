@@ -12,7 +12,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 {
     public partial class NavigationExpandingExpressionVisitor
     {
-        public class NavigationExpansionExpression : Expression
+        public class NavigationExpansionExpression : Expression, IPrintable
         {
             private readonly List<(MethodInfo OrderingMethod, Expression KeySelector)> _pendingOrderings
                 = new List<(MethodInfo OrderingMethod, Expression KeySelector)>();
@@ -81,13 +81,31 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             protected override Expression VisitChildren(ExpressionVisitor visitor) => this;
 
+            public virtual void Print(ExpressionPrinter expressionPrinter)
+            {
+                expressionPrinter.StringBuilder.AppendLine(nameof(NavigationExpansionExpression));
+                using (expressionPrinter.Indent())
+                {
+                    expressionPrinter.StringBuilder.Append("Source: ");
+                    expressionPrinter.Visit(Source);
+                    expressionPrinter.StringBuilder.AppendLine();
+                    expressionPrinter.StringBuilder.Append("PendingSelector: ");
+                    expressionPrinter.Visit(Lambda(PendingSelector, CurrentParameter));
+                    expressionPrinter.StringBuilder.AppendLine();
+                    if (CardinalityReducingGenericMethodInfo != null)
+                    {
+                        expressionPrinter.StringBuilder.AppendLine("CardinalityReducingMethod: " + CardinalityReducingGenericMethodInfo.Name);
+                    }
+                }
+            }
+
             public override ExpressionType NodeType => ExpressionType.Extension;
             public override Type Type => CardinalityReducingGenericMethodInfo == null
                 ? typeof(IQueryable<>).MakeGenericType(PendingSelector.Type)
                 : PendingSelector.Type;
         }
 
-        public class NavigationTreeExpression : NavigationTreeNode
+        public class NavigationTreeExpression : NavigationTreeNode, IPrintable
         {
             public NavigationTreeExpression(Expression value)
                 : base(null, null)
@@ -102,9 +120,22 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 return this;
             }
             public override Type Type => Value.Type;
+
+            public virtual void Print(ExpressionPrinter expressionPrinter)
+            {
+                expressionPrinter.AppendLine(nameof(NavigationTreeExpression));
+                using (expressionPrinter.Indent())
+                {
+                    expressionPrinter.Append("Value: ");
+                    expressionPrinter.Visit(Value);
+                    expressionPrinter.AppendLine();
+                    expressionPrinter.Append("Expression: ");
+                    expressionPrinter.Visit(GetExpression());
+                }
+            }
         }
 
-        public class EntityReference : Expression
+        public class EntityReference : Expression, IPrintable
         {
             public EntityReference(IEntityType entityType)
             {
@@ -146,6 +177,22 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             public virtual void MarkAsOptional()
             {
                 IsOptional = true;
+            }
+
+            public virtual void Print(ExpressionPrinter expressionPrinter)
+            {
+                expressionPrinter.Append(nameof(EntityReference));
+                expressionPrinter.Append(EntityType.DisplayName());
+                if (IsOptional)
+                {
+                    expressionPrinter.StringBuilder.Append("[Optional]");
+                }
+
+                if (IncludePaths.Count > 0)
+                {
+                    // TODO: fully render nested structure of include tree
+                    expressionPrinter.Append(" | IncludePaths: " + string.Join(" ", IncludePaths.Select(ip => ip.Value.Count() > 0 ? ip.Key.Name + "->..." : ip.Key.Name)));
+                }
             }
 
             public virtual bool IsOptional { get; private set; }

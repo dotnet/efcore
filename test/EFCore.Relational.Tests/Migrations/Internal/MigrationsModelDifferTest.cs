@@ -621,6 +621,38 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         }
 
         [ConditionalFact]
+        public void Alter_table_comment()
+        {
+            Execute(
+                source => source.Entity(
+                    "MountainLion",
+                    x =>
+                    {
+                        x.ToTable("MountainLion", "dbo");
+                        x.Property<int>("Id");
+                        x.HasComment("Old comment");
+                    }),
+                target => target.Entity(
+                    "MountainLion",
+                    x =>
+                    {
+                        x.ToTable("MountainLion", "dbo");
+                        x.Property<int>("Id");
+                        x.HasComment("New comment");
+                    }),
+                operations =>
+                {
+                    Assert.Equal(1, operations.Count);
+
+                    var operation = Assert.IsType<AlterTableOperation>(operations[0]);
+                    Assert.Equal("dbo", operation.Schema);
+                    Assert.Equal("MountainLion", operation.Name);
+                    Assert.Equal("New comment", operation.Comment);
+                    Assert.Equal("Old comment", operation.OldTable.Comment);
+                });
+        }
+
+        [ConditionalFact]
         public void Rename_table()
         {
             Execute(
@@ -6231,6 +6263,127 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     }));
         }
 
+
+        [ConditionalFact]
+        public void Update_AK_seed_value_with_a_referencing_foreign_key()
+        {
+            Execute(
+                common => common
+                    .Entity(
+                        "ReferencedTable", x =>
+                        {
+                            x.Property<int>("Id");
+                            x.Property<int>("AlternateId");
+                            x.HasAlternateKey("AlternateId");
+                        })
+                    .Entity(
+                        "Table",
+                        x =>
+                        {
+                            x.Property<int>("Id");
+                            x.Property<int>("ForeignId");
+                            x.HasIndex("ForeignId");
+                            x.HasOne("ReferencedTable").WithMany().HasForeignKey("ForeignId").IsRequired();
+                            x.HasData(
+                                new
+                                {
+                                    Id = 43, ForeignId = 42
+                                });
+                        }),
+                source => source
+                    .Entity(
+                        "ReferencedTable", x =>
+                        {
+                            x.HasData(
+                                new
+                                {
+                                    Id = 42, AlternateId = 4242
+                                });
+                        }),
+                target => target
+                    .Entity(
+                        "ReferencedTable", x =>
+                        {
+                            x.HasData(
+                                new
+                                {
+                                    Id = 42, AlternateId = 4343
+                                });
+                        }),
+                upOps => Assert.Collection(
+                    upOps,
+                    o =>
+                    {
+                        var operation = Assert.IsType<DeleteDataOperation>(o);
+                        Assert.Equal("Table", operation.Table);
+                        AssertMultidimensionalArray(
+                            operation.KeyValues,
+                            v => Assert.Equal(43, v));
+                    },
+                    o =>
+                    {
+                        var operation = Assert.IsType<DeleteDataOperation>(o);
+                        Assert.Equal("ReferencedTable", operation.Table);
+                        AssertMultidimensionalArray(
+                            operation.KeyValues,
+                            v => Assert.Equal(42, v));
+                    },
+                    o =>
+                    {
+                        var operation = Assert.IsType<InsertDataOperation>(o);
+                        Assert.Equal("ReferencedTable", operation.Table);
+                        AssertMultidimensionalArray(
+                            operation.Values,
+                            v => Assert.Equal(42, v),
+                            v => Assert.Equal(4343, v));
+                    },
+                    o =>
+                    {
+                        var operation = Assert.IsType<InsertDataOperation>(o);
+                        Assert.Equal("Table", operation.Table);
+                        AssertMultidimensionalArray(
+                            operation.Values,
+                            v => Assert.Equal(43, v),
+                            v => Assert.Equal(42, v));
+                    }),
+                downOps => Assert.Collection(
+                    downOps,
+                    o =>
+                    {
+                        var operation = Assert.IsType<DeleteDataOperation>(o);
+                        Assert.Equal("Table", operation.Table);
+                        AssertMultidimensionalArray(
+                            operation.KeyValues,
+                            v => Assert.Equal(43, v));
+                    },
+                    o =>
+                    {
+                        var operation = Assert.IsType<DeleteDataOperation>(o);
+                        Assert.Equal("ReferencedTable", operation.Table);
+                        AssertMultidimensionalArray(
+                            operation.KeyValues,
+                            v => Assert.Equal(42, v));
+                    },
+                    o =>
+                    {
+                        var operation = Assert.IsType<InsertDataOperation>(o);
+                        Assert.Equal("ReferencedTable", operation.Table);
+                        AssertMultidimensionalArray(
+                            operation.Values,
+                            v => Assert.Equal(42, v),
+                            v => Assert.Equal(4242, v));
+                    },
+                    o =>
+                    {
+                        var operation = Assert.IsType<InsertDataOperation>(o);
+                        Assert.Equal("Table", operation.Table);
+                        AssertMultidimensionalArray(
+                            operation.Values,
+                            v => Assert.Equal(43, v),
+                            v => Assert.Equal(42, v));
+                    }));
+        }
+
         [ConditionalFact]
         public void SeedData_add_on_existing_table()
         {
@@ -7355,6 +7508,30 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     o =>
                     {
                         var m = Assert.IsType<DeleteDataOperation>(o);
+                        Assert.Equal("Post", m.Table);
+                        AssertMultidimensionalArray(
+                            m.KeyValues,
+                            v => Assert.Equal(416, v));
+                    },
+                    o =>
+                    {
+                        var m = Assert.IsType<DeleteDataOperation>(o);
+                        Assert.Equal("Post", m.Table);
+                        AssertMultidimensionalArray(
+                            m.KeyValues,
+                            v => Assert.Equal(545, v));
+                    },
+                    o =>
+                    {
+                        var m = Assert.IsType<DeleteDataOperation>(o);
+                        Assert.Equal("Post", m.Table);
+                        AssertMultidimensionalArray(
+                            m.KeyValues,
+                            v => Assert.Equal(546, v));
+                    },
+                    o =>
+                    {
+                        var m = Assert.IsType<DeleteDataOperation>(o);
                         Assert.Equal("Blog", m.Table);
                         AssertMultidimensionalArray(
                             m.KeyValues,
@@ -7370,14 +7547,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     },
                     o =>
                     {
-                        var m = Assert.IsType<DeleteDataOperation>(o);
-                        Assert.Equal("Post", m.Table);
-                        AssertMultidimensionalArray(
-                            m.KeyValues,
-                            v => Assert.Equal(546, v));
-                    },
-                    o =>
-                    {
                         var m = Assert.IsType<UpdateDataOperation>(o);
                         Assert.Equal("Blog", m.Table);
                         AssertMultidimensionalArray(
@@ -7389,13 +7558,21 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     },
                     o =>
                     {
-                        var m = Assert.IsType<UpdateDataOperation>(o);
+                        var m = Assert.IsType<InsertDataOperation>(o);
                         Assert.Equal("Post", m.Table);
                         AssertMultidimensionalArray(
-                            m.KeyValues,
-                            v => Assert.Equal(545, v));
+                            m.Values,
+                            v => Assert.Equal(416, v),
+                            v => Assert.Equal(316, v),
+                            v => Assert.Equal("Post To Non-existent BlogId", v));
+                    },
+                    o =>
+                    {
+                        var m = Assert.IsType<InsertDataOperation>(o);
+                        Assert.Equal("Post", m.Table);
                         AssertMultidimensionalArray(
                             m.Values,
+                            v => Assert.Equal(545, v),
                             v => Assert.Equal(32, v),
                             v => Assert.Equal("Original Title", v));
                     },
