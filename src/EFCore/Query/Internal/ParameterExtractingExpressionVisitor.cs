@@ -9,6 +9,7 @@ using System.Reflection;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Microsoft.EntityFrameworkCore.Query.Internal
@@ -45,12 +46,13 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             IEvaluatableExpressionFilter evaluatableExpressionFilter,
             IParameterValues parameterValues,
             Type contextType,
+            IModel model,
             IDiagnosticsLogger<DbLoggerCategory.Query> logger,
             bool parameterize,
             bool generateContextAccessors)
         {
             _evaluatableExpressionFindingExpressionVisitor
-                = new EvaluatableExpressionFindingExpressionVisitor(evaluatableExpressionFilter);
+                = new EvaluatableExpressionFindingExpressionVisitor(evaluatableExpressionFilter, model);
             _parameterValues = parameterValues;
             _logger = logger;
             _parameterize = parameterize;
@@ -401,15 +403,17 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         {
             private readonly IEvaluatableExpressionFilter _evaluatableExpressionFilter;
             private readonly ISet<ParameterExpression> _allowedParameters = new HashSet<ParameterExpression>();
+            private readonly IModel _model;
 
             private bool _evaluatable;
             private bool _containsClosure;
             private bool _inLambda;
             private IDictionary<Expression, bool> _evaluatableExpressions;
 
-            public EvaluatableExpressionFindingExpressionVisitor(IEvaluatableExpressionFilter evaluatableExpressionFilter)
+            public EvaluatableExpressionFindingExpressionVisitor(IEvaluatableExpressionFilter evaluatableExpressionFilter, IModel model)
             {
                 _evaluatableExpressionFilter = evaluatableExpressionFilter;
+                _model = model;
             }
 
             public IDictionary<Expression, bool> Find(Expression expression)
@@ -437,7 +441,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
                 _evaluatable = IsEvaluatableNodeType(expression)
                                // Extension point to disable funcletization
-                               && _evaluatableExpressionFilter.IsEvaluatableExpression(expression);
+                               && _evaluatableExpressionFilter.IsEvaluatableExpression(expression, _model);
                 _containsClosure = false;
 
                 base.Visit(expression);

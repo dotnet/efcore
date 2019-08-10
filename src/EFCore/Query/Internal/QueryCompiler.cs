@@ -171,6 +171,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 _evaluatableExpressionFilter,
                 parameterValues,
                 _contextType,
+                _model,
                 logger,
                 parameterize,
                 generateContextAccessors);
