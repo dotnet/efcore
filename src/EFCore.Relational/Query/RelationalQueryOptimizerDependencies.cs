@@ -1,16 +1,14 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
     /// <summary>
     ///     <para>
-    ///         Service dependencies parameter class for <see cref="RelationalShapedQueryOptimizer" />
+    ///         Service dependencies parameter class for <see cref="RelationalQueryOptimizer" />
     ///     </para>
     ///     <para>
     ///         This type is typically used by database providers (and other extensions). It is generally
@@ -30,11 +28,11 @@ namespace Microsoft.EntityFrameworkCore.Query
     ///         This service cannot depend on services registered as <see cref="ServiceLifetime.Scoped"/>.
     ///     </para>
     /// </summary>
-    public sealed class RelationalShapedQueryOptimizerDependencies
+    public sealed class RelationalQueryOptimizerDependencies
     {
         /// <summary>
         ///     <para>
-        ///         Creates the service dependencies parameter object for a <see cref="RelationalShapedQueryOptimizer" />.
+        ///         Creates the service dependencies parameter object for a <see cref="RelationalQueryOptimizer" />.
         ///     </para>
         ///     <para>
         ///         Do not call this constructor directly from either provider or application code as it may change
@@ -52,24 +50,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         ///     </para>
         /// </summary>
         [EntityFrameworkInternal]
-        public RelationalShapedQueryOptimizerDependencies(
-            [NotNull] ISqlExpressionFactory sqlExpressionFactory)
+        public RelationalQueryOptimizerDependencies()
         {
-            SqlExpressionFactory = sqlExpressionFactory;
-            Check.NotNull(sqlExpressionFactory, nameof(sqlExpressionFactory));
         }
-
-        /// <summary>
-        ///    The SQL expression factory.
-        /// </summary>
-        public ISqlExpressionFactory SqlExpressionFactory { get; }
-
-        /// <summary>
-        ///     Clones this dependency parameter object with one service replaced.
-        /// </summary>
-        /// <param name="sqlExpressionFactory"> A replacement for the current dependency of this type. </param>
-        /// <returns> A new parameter object with the given service replaced. </returns>
-        public RelationalShapedQueryOptimizerDependencies With([NotNull] ISqlExpressionFactory sqlExpressionFactory)
-            => new RelationalShapedQueryOptimizerDependencies(sqlExpressionFactory);
     }
 }

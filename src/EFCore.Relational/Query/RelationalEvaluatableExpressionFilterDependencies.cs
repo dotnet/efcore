@@ -1,10 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore.Query
@@ -26,10 +23,9 @@ namespace Microsoft.EntityFrameworkCore.Query
     ///         services using the 'With...' methods. Do not call the constructor at any point in this process.
     ///     </para>
     ///     <para>
-    ///         The service lifetime is <see cref="ServiceLifetime.Scoped"/>. This means that each
-    ///         <see cref="DbContext"/> instance will use its own instance of this service.
-    ///         The implementation may depend on other services registered with any lifetime.
-    ///         The implementation does not need to be thread-safe.
+    ///         The service lifetime is <see cref="ServiceLifetime.Singleton"/>. This means a single instance
+    ///         is used by many <see cref="DbContext"/> instances. The implementation must be thread-safe.
+    ///         This service cannot depend on services registered as <see cref="ServiceLifetime.Scoped"/>.
     ///     </para>
     /// </summary>
     public sealed class RelationalEvaluatableExpressionFilterDependencies
@@ -54,24 +50,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         ///     </para>
         /// </summary>
         [EntityFrameworkInternal]
-        public RelationalEvaluatableExpressionFilterDependencies([NotNull] IModel model)
+        public RelationalEvaluatableExpressionFilterDependencies()
         {
-            Check.NotNull(model, nameof(model));
-
-            Model = model;
         }
-
-        /// <summary>
-        ///     The model used with this <see cref="RelationalEvaluatableExpressionFilter"/>.
-        /// </summary>
-        public IModel Model { get; }
-
-        /// <summary>
-        ///     Clones this dependency parameter object with one service replaced.
-        /// </summary>
-        /// <param name="model"> A replacement for the current dependency of this type. </param>
-        /// <returns> A new parameter object with the given service replaced. </returns>
-        public RelationalEvaluatableExpressionFilterDependencies With([NotNull] IModel model)
-            => new RelationalEvaluatableExpressionFilterDependencies(model);
     }
 }
