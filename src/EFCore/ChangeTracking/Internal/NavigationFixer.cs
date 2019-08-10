@@ -474,14 +474,13 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual void TrackedFromQuery(
-            InternalEntityEntry entry,
-            ISet<IForeignKey> handledForeignKeys)
+            InternalEntityEntry entry)
         {
             try
             {
                 _inFixup = true;
 
-                InitialFixup(entry, handledForeignKeys, fromQuery: true);
+                InitialFixup(entry, fromQuery: true);
             }
             finally
             {
@@ -511,7 +510,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
                 if (oldState == EntityState.Detached)
                 {
-                    InitialFixup(entry, null, fromQuery: false);
+                    InitialFixup(entry, fromQuery: false);
                 }
                 else if (entry.EntityState == EntityState.Detached)
                 {
@@ -574,7 +573,6 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
         private void InitialFixup(
             InternalEntityEntry entry,
-            ISet<IForeignKey> handledForeignKeys,
             bool fromQuery)
         {
             var entityType = entry.EntityType;
@@ -582,30 +580,26 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             foreach (var foreignKey in entityType.GetForeignKeys())
             {
-                if (handledForeignKeys?.Contains(foreignKey) != true)
+                var principalEntry = stateManager.FindPrincipal(entry, foreignKey);
+                if (principalEntry != null)
                 {
-                    var principalEntry = stateManager.FindPrincipal(entry, foreignKey);
-                    if (principalEntry != null)
+                    var navigation = foreignKey.DependentToPrincipal;
+                    var existingPrincipal = navigation == null ? null : entry[navigation];
+                    if (existingPrincipal == null
+                        || existingPrincipal == principalEntry.Entity)
                     {
-                        var navigation = foreignKey.DependentToPrincipal;
-                        var existingPrincipal = navigation == null ? null : entry[navigation];
-                        if (existingPrincipal == null
-                            || existingPrincipal == principalEntry.Entity)
-                        {
-                            // Set navigation to principal based on FK properties
-                            SetNavigation(entry, navigation, principalEntry, fromQuery);
+                        // Set navigation to principal based on FK properties
+                        SetNavigation(entry, navigation, principalEntry, fromQuery);
 
-                            // Add this entity to principal's collection, or set inverse for 1:1
-                            ToDependentFixup(entry, principalEntry, foreignKey, fromQuery);
-                        }
+                        // Add this entity to principal's collection, or set inverse for 1:1
+                        ToDependentFixup(entry, principalEntry, foreignKey, fromQuery);
                     }
                 }
             }
 
             foreach (var foreignKey in entityType.GetReferencingForeignKeys())
             {
-                if (foreignKey.DeclaringEntityType.FindPrimaryKey() != null
-                    && handledForeignKeys?.Contains(foreignKey) != true)
+                if (foreignKey.DeclaringEntityType.FindPrimaryKey() != null)
                 {
                     var dependents = stateManager.GetDependents(entry, foreignKey);
                     if (foreignKey.IsUnique)

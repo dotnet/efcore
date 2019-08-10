@@ -209,8 +209,6 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             // can happen without constraints on changing read-only values kicking in
             _stateData.EntityState = EntityState.Detached;
 
-            StateManager.EndSingleQueryMode();
-
             return true;
         }
 
@@ -251,8 +249,6 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                         _stateData.FlagProperty(property.GetIndex(), PropertyFlag.Modified, isFlagged: false);
                     }
                 }
-
-                StateManager.EndSingleQueryMode();
             }
 
             if (oldState == newState)
@@ -379,7 +375,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual void MarkUnchangedFromQuery([CanBeNull] ISet<IForeignKey> handledForeignKeys)
+        public virtual void MarkUnchangedFromQuery()
         {
             StateManager.InternalEntityEntryNotifier.StateChanging(this, EntityState.Unchanged);
 
@@ -389,15 +385,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             StateManager.OnTracked(this, fromQuery: true);
 
-            var trackingQueryMode = StateManager.GetTrackingQueryMode(EntityType);
-            if (trackingQueryMode != TrackingQueryMode.Simple)
-            {
-                StateManager.InternalEntityEntryNotifier.TrackedFromQuery(
-                    this,
-                    trackingQueryMode == TrackingQueryMode.Single
-                        ? handledForeignKeys
-                        : null);
-            }
+            StateManager.InternalEntityEntryNotifier.TrackedFromQuery(this);
         }
 
         /// <summary>
@@ -505,8 +493,6 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                         StateManager.StartTracking(this);
                     }
                 }
-
-                StateManager.EndSingleQueryMode();
 
                 if (changeState)
                 {
