@@ -240,6 +240,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         x.Property<int?>("ParentAltId");
                         x.HasOne("Node").WithMany().HasForeignKey("ParentAltId");
                         x.HasIndex("ParentAltId");
+                        x.HasCheckConstraint("SomeCheckConstraint", "[Id] > 10");
                     }),
                 upOps =>
                 {
@@ -255,7 +256,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     Assert.Null(createTableOperation.Columns.First(o => o.Name == "AltId").DefaultValue);
                     Assert.NotNull(createTableOperation.PrimaryKey);
                     Assert.Equal(1, createTableOperation.UniqueConstraints.Count);
-                    Assert.Equal(0, createTableOperation.CheckConstraints.Count);
+                    Assert.Equal(1, createTableOperation.CheckConstraints.Count);
                     Assert.Equal(1, createTableOperation.ForeignKeys.Count);
 
                     Assert.IsType<CreateIndexOperation>(upOps[2]);
