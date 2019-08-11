@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.TestUtilities;
 
 namespace Microsoft.EntityFrameworkCore
 {
-    // issue #15318
+    // issue #16963
     internal class GraphUpdatesInMemoryTest
         : GraphUpdatesTestBase<GraphUpdatesInMemoryTest.GraphUpdatesInMemoryFixture>
     {

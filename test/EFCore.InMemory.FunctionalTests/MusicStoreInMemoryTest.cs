@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.TestUtilities;
 
 namespace Microsoft.EntityFrameworkCore
 {
-    // issue #15318
+    // issue #16963
     internal class MusicStoreInMemoryTest : MusicStoreTestBase<MusicStoreInMemoryTest.MusicStoreInMemoryFixture>
     {
         public MusicStoreInMemoryTest(MusicStoreInMemoryFixture fixture)

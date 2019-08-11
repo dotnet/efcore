@@ -114,7 +114,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        // issue #15318
+        // issue #16963
         internal class LazyLoading : ProxyGraphUpdatesInMemoryTestBase<LazyLoading.ProxyGraphUpdatesWithLazyLoadingInMemoryFixture>
         {
             public LazyLoading(ProxyGraphUpdatesWithLazyLoadingInMemoryFixture fixture)

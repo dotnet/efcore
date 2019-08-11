@@ -254,7 +254,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalFact(Skip = "Compiled queries not yet supported, #14551")]
+        [ConditionalFact(Skip = "Issue #17071")]
         public virtual void FromSqlRaw_queryable_composed_compiled()
         {
             var query = EF.CompileQuery(

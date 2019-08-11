@@ -251,27 +251,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 1);
         }
 
-        [ConditionalFact(Skip = "issue #12037")]
-        public virtual void Method_with_constant_queryable_arg()
-        {
-            using (var context = CreateContext())
-            {
-                var cache = (MemoryCache)typeof(CompiledQueryCache).GetTypeInfo()
-                    .GetField("_memoryCache", BindingFlags.Instance | BindingFlags.NonPublic)
-                    ?.GetValue(context.GetService<ICompiledQueryCache>());
-
-                cache.Compact(1);
-
-                var count = QueryableArgQuery(context, new[] { "ALFKI" }.AsQueryable()).Count();
-                Assert.Equal(1, count);
-                Assert.Equal(1, cache.Count);
-
-                count = QueryableArgQuery(context, new[] { "FOO" }.AsQueryable()).Count();
-                Assert.Equal(1, cache.Count);
-                Assert.Equal(0, count);
-            }
-        }
-
         private static IQueryable<Customer> QueryableArgQuery(NorthwindContext context, IQueryable<string> ids)
         {
             return context.Customers.Where(c => ids.Contains(c.CustomerID));
@@ -4411,7 +4390,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 e => e.OrderDate);
         }
 
-        [ConditionalTheory(Skip = "Issue #15716")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Select_expression_datetime_add_ticks(bool isAsync)
         {
@@ -4426,7 +4405,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 e => e.OrderDate);
         }
 
-        [ConditionalTheory(Skip = "Issue #15716")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Select_expression_date_add_milliseconds_above_the_range(bool isAsync)
         {
@@ -4441,7 +4420,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 e => e.OrderDate);
         }
 
-        [ConditionalTheory(Skip = "Issue #15716")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Select_expression_date_add_milliseconds_below_the_range(bool isAsync)
         {

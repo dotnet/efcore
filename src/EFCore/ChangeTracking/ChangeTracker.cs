@@ -127,7 +127,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///         for required relationships.
         ///     </para>
         /// </summary>
-        public virtual CascadeTiming DeleteOrphansTiming { get; set; } = CascadeTiming.Immediate;
+        public virtual CascadeTiming DeleteOrphansTiming
+        {
+            get => StateManager.DeleteOrphansTiming;
+            set => StateManager.DeleteOrphansTiming = value;
+        }
 
         /// <summary>
         ///     <para>
@@ -141,7 +145,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///         for required relationships.
         ///     </para>
         /// </summary>
-        public virtual CascadeTiming CascadeDeleteTiming { get; set; } = CascadeTiming.Immediate;
+        public virtual CascadeTiming CascadeDeleteTiming
+        {
+            get => StateManager.CascadeDeleteTiming;
+            set => StateManager.CascadeDeleteTiming = value;
+        }
 
         /// <summary>
         ///     Gets an <see cref="EntityEntry" /> for each entity being tracked by the context.
@@ -211,7 +219,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// </summary>
         public virtual void DetectChanges()
         {
-            if (_model[Internal.ChangeDetector.SkipDetectChangesAnnotation] == null)
+            if ((string)_model[Internal.ChangeDetector.SkipDetectChangesAnnotation] != "true")
             {
                 ChangeDetector.DetectChanges(StateManager);
             }

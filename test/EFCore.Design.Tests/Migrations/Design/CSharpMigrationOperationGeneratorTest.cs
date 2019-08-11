@@ -778,17 +778,23 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 {
                     Name = "Customer",
                     Schema = "dbo",
-                    Comment = "My Comment"
+                    Comment = "My Comment 2",
+                    OldTable =
+                    {
+                        Comment = "My Comment"
+                    }
                 },
                 "mb.AlterTable(" + _eol +
                 "    name: \"Customer\"," + _eol +
                 "    schema: \"dbo\"," + _eol +
-                "    comment: \"My Comment\");",
+                "    comment: \"My Comment 2\"," + _eol +
+                "    oldComment: \"My Comment\");",
                 o =>
                 {
                     Assert.Equal("Customer", o.Name);
                     Assert.Equal("dbo", o.Schema);
-                    Assert.Equal("My Comment", o.Comment);
+                    Assert.Equal("My Comment 2", o.Comment);
+                    Assert.Equal("My Comment", o.OldTable.Comment);
                 });
         }
 

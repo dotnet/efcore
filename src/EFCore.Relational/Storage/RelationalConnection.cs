@@ -149,6 +149,12 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="transaction"> The transaction to be used. </param>
         public virtual void EnlistTransaction(Transaction transaction)
         {
+            if (!SupportsAmbientTransactions)
+            {
+                Dependencies.TransactionLogger.AmbientTransactionWarning(this, DateTimeOffset.UtcNow);
+                return;
+            }
+
             if (transaction != null)
             {
                 Dependencies.TransactionLogger.ExplicitTransactionEnlisted(this, transaction);
@@ -563,6 +569,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 && !SupportsAmbientTransactions)
             {
                 Dependencies.TransactionLogger.AmbientTransactionWarning(this, DateTimeOffset.UtcNow);
+                return;
             }
 
             if (Equals(current, _ambientTransaction))

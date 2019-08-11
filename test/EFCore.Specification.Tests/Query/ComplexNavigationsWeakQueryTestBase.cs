@@ -180,10 +180,5 @@ namespace Microsoft.EntityFrameworkCore.Query
         public override void Member_pushdown_with_collection_navigation_in_the_middle()
         {
         }
-
-        // Invalid test due to projecting owned entity without owner in tracking query
-        public override void Entries_for_detached_entities_are_removed()
-        {
-        }
     }
 }

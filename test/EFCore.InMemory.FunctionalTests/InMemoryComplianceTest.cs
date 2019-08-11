@@ -15,15 +15,14 @@ namespace Microsoft.EntityFrameworkCore
             typeof(FunkyDataQueryTestBase<>),
             typeof(OptimisticConcurrencyTestBase<>),
             typeof(StoreGeneratedTestBase<>),
-            typeof(LoadTestBase<>),                        // issue #15318
-            typeof(MusicStoreTestBase<>),                  // issue #15318
-            typeof(ConferencePlannerTestBase<>),           // issue #15318
-            typeof(GraphUpdatesTestBase<>),                // issue #15318
-            typeof(ProxyGraphUpdatesTestBase<>),           // issue #15318
-            typeof(ComplexNavigationsWeakQueryTestBase<>), // issue #15285
-            typeof(FiltersInheritanceTestBase<>),          // issue #15264
-            typeof(FiltersTestBase<>),                     // issue #15264
-            typeof(OwnedQueryTestBase<>),                  // issue #15285
+            typeof(LoadTestBase<>),                        // issue #16963
+            typeof(MusicStoreTestBase<>),                  // issue #16963
+            typeof(ConferencePlannerTestBase<>),           // issue #16963
+            typeof(GraphUpdatesTestBase<>),                // issue #16963
+            typeof(ProxyGraphUpdatesTestBase<>),           // issue #16963
+            typeof(ComplexNavigationsWeakQueryTestBase<>), // issue #16963
+            typeof(FiltersInheritanceTestBase<>),          // issue #16963
+            typeof(OwnedQueryTestBase<>),                  // issue #16963
             // Query pipeline
             typeof(SimpleQueryTestBase<>),
             typeof(GroupByQueryTestBase<>),

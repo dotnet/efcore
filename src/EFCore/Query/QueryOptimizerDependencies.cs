@@ -1,7 +1,10 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Query.Internal;
+using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore.Query
@@ -51,8 +54,25 @@ namespace Microsoft.EntityFrameworkCore.Query
         ///     </para>
         /// </summary>
         [EntityFrameworkInternal]
-        public QueryOptimizerDependencies()
+        public QueryOptimizerDependencies(
+            [NotNull] IEvaluatableExpressionFilter evaluatableExpressionFilter)
         {
+            Check.NotNull(evaluatableExpressionFilter, nameof(evaluatableExpressionFilter));
+
+            EvaluatableExpressionFilter = evaluatableExpressionFilter;
         }
+
+        /// <summary>
+        ///     Evaluatable expression filter.
+        /// </summary>
+        public IEvaluatableExpressionFilter EvaluatableExpressionFilter { get; }
+
+        /// <summary>
+        ///     Clones this dependency parameter object with one service replaced.
+        /// </summary>
+        /// <param name="evaluatableExpressionFilter"> A replacement for the current dependency of this type. </param>
+        /// <returns> A new parameter object with the given service replaced. </returns>
+        public QueryOptimizerDependencies With([NotNull] IEvaluatableExpressionFilter evaluatableExpressionFilter)
+            => new QueryOptimizerDependencies(evaluatableExpressionFilter);
     }
 }

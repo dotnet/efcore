@@ -1,0 +1,14 @@
+{
+  "solution": {
+    "path": "All.sln",
+    "projects": [
+      "src\\dotnet-ef\\dotnet-ef.csproj",
+      "src\\ef\\ef.csproj",
+      "src\\EFCore.Design\\EFCore.Design.csproj",      
+      "src\\EFCore.Tools\\EFCore.Tools.csproj",
+      "test\\dotnet-ef.Tests\\dotnet-ef.Tests.csproj",
+      "test\\ef.Tests\\ef.Tests.csproj",
+      "test\\EFCore.Design.Tests\\EFCore.Design.Tests.csproj"
+    ]
+  }
+}

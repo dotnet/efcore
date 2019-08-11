@@ -1018,7 +1018,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 os => os.Select(o => o.OrderDate.Value.Millisecond));
         }
 
-        [ConditionalTheory(Skip = "Issue #15716")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Select_datetime_DayOfWeek_component(bool isAsync)
         {
@@ -1027,7 +1027,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 os => os.Select(o => (int)o.OrderDate.Value.DayOfWeek));
         }
 
-        [ConditionalTheory(Skip = "Issue #15716")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Select_datetime_Ticks_component(bool isAsync)
         {

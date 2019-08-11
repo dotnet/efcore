@@ -3,7 +3,7 @@
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    // TODO: Issue#14630#21
+    // TODO: Issue #16963
     internal class InheritanceRelationshipsQueryInMemoryTest : InheritanceRelationshipsQueryTestBase<
         InheritanceRelationshipsQueryInMemoryFixture>
     {

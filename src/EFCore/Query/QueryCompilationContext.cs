@@ -51,6 +51,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         public virtual IModel Model { get; }
         public virtual IDbContextOptions ContextOptions { get; }
         public virtual bool IsTracking { get; internal set; }
+        public virtual bool IgnoreQueryFilters { get; internal set; }
         public virtual ISet<string> Tags { get; } = new HashSet<string>();
         public virtual IDiagnosticsLogger<DbLoggerCategory.Query> Logger { get; }
         public virtual Type ContextType { get; }
