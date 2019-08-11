@@ -621,6 +621,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             createTableOperation.UniqueConstraints.AddRange(
                 target.GetKeys().Where(k => !k.IsPrimaryKey()).SelectMany(k => Add(k, diffContext))
                     .Cast<AddUniqueConstraintOperation>());
+            createTableOperation.CheckConstraints.AddRange(
+                target.GetCheckConstraints().SelectMany(c => Add(c, diffContext))
+                    .Cast<CreateCheckConstraintOperation>());
 
             foreach (var targetEntityType in target.EntityTypes)
             {
