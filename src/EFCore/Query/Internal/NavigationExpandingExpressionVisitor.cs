@@ -43,9 +43,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 evaluatableExpressionFilter,
                 _parameters,
                 _queryCompilationContext.ContextType,
+                _queryCompilationContext.Model,
                 _queryCompilationContext.Logger,
                 parameterize: false,
-                generateContextAccessors: true); 
+                generateContextAccessors: true);
         }
 
         private string GetParameterName(string prefix)
