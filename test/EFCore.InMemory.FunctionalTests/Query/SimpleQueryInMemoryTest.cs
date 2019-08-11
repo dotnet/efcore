@@ -276,5 +276,23 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             return base.QueryType_with_included_navs_multi_level(isAsync);
         }
+
+        [ConditionalTheory(Skip = "Issue#17050")]
+        public override void Client_code_using_instance_in_static_method()
+        {
+            base.Client_code_using_instance_in_static_method();
+        }
+
+        [ConditionalTheory(Skip = "Issue#17050")]
+        public override void Client_code_using_instance_method_throws()
+        {
+            base.Client_code_using_instance_method_throws();
+        }
+
+        [ConditionalTheory(Skip = "Issue#17050")]
+        public override void Client_code_using_instance_in_anonymous_type()
+        {
+            base.Client_code_using_instance_in_anonymous_type();
+        }
     }
 }

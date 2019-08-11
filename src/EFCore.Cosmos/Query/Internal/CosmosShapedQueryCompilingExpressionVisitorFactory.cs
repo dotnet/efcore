@@ -41,8 +41,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         /// </summary>
         public virtual ShapedQueryCompilingExpressionVisitor Create(QueryCompilationContext queryCompilationContext)
             => new CosmosShapedQueryCompilingExpressionVisitor(
-                queryCompilationContext,
                 _dependencies,
+                queryCompilationContext,
                 _sqlExpressionFactory,
                 _querySqlGeneratorFactory);
     }

@@ -3,6 +3,7 @@
 
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -54,11 +55,14 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// </summary>
         [EntityFrameworkInternal]
         public ShapedQueryCompilingExpressionVisitorDependencies(
-            [NotNull] IEntityMaterializerSource entityMaterializerSource)
+            [NotNull] IEntityMaterializerSource entityMaterializerSource,
+            [NotNull] ITypeMappingSource typeMappingSource)
         {
             Check.NotNull(entityMaterializerSource, nameof(entityMaterializerSource));
+            Check.NotNull(typeMappingSource, nameof(typeMappingSource));
 
             EntityMaterializerSource = entityMaterializerSource;
+            TypeMappingSource = typeMappingSource;
         }
 
         /// <summary>
@@ -67,11 +71,24 @@ namespace Microsoft.EntityFrameworkCore.Query
         public IEntityMaterializerSource EntityMaterializerSource { get; }
 
         /// <summary>
+        ///     The type mapping source.
+        /// </summary>
+        public ITypeMappingSource TypeMappingSource { get; }
+
+        /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
         /// </summary>
         /// <param name="entityMaterializerSource"> A replacement for the current dependency of this type. </param>
         /// <returns> A new parameter object with the given service replaced. </returns>
         public ShapedQueryCompilingExpressionVisitorDependencies With([NotNull] IEntityMaterializerSource entityMaterializerSource)
-            => new ShapedQueryCompilingExpressionVisitorDependencies(entityMaterializerSource);
+            => new ShapedQueryCompilingExpressionVisitorDependencies(entityMaterializerSource, TypeMappingSource);
+
+        /// <summary>
+        ///     Clones this dependency parameter object with one service replaced.
+        /// </summary>
+        /// <param name="typeMappingSource"> A replacement for the current dependency of this type. </param>
+        /// <returns> A new parameter object with the given service replaced. </returns>
+        public ShapedQueryCompilingExpressionVisitorDependencies With([NotNull] ITypeMappingSource typeMappingSource)
+            => new ShapedQueryCompilingExpressionVisitorDependencies(EntityMaterializerSource, typeMappingSource);
     }
 }

@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -32,10 +33,11 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         private readonly Expression _cancellationTokenParameter;
         private readonly EntityMaterializerInjectingExpressionVisitor _entityMaterializerInjectingExpressionVisitor;
+        private readonly ConstantVerifyingExpressionVisitor _constantVerifyingExpressionVisitor;
 
         protected ShapedQueryCompilingExpressionVisitor(
-            QueryCompilationContext queryCompilationContext,
-            ShapedQueryCompilingExpressionVisitorDependencies dependencies)
+            ShapedQueryCompilingExpressionVisitorDependencies dependencies,
+            QueryCompilationContext queryCompilationContext)
         {
             Dependencies = dependencies;
 
@@ -45,6 +47,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 new EntityMaterializerInjectingExpressionVisitor(
                     dependencies.EntityMaterializerSource,
                     queryCompilationContext.IsTracking);
+
+            _constantVerifyingExpressionVisitor = new ConstantVerifyingExpressionVisitor(dependencies.TypeMappingSource);
 
             IsAsync = queryCompilationContext.IsAsync;
 
@@ -113,7 +117,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             await using (var enumerator = asyncEnumerable.GetAsyncEnumerator(cancellationToken))
             {
-                if (!(await enumerator.MoveNextAsync()))
+                if (!await enumerator.MoveNextAsync())
                 {
                     throw new InvalidOperationException();
                 }
@@ -124,6 +128,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 {
                     throw new InvalidOperationException();
                 }
+
                 return result;
             }
         }
@@ -153,7 +158,42 @@ namespace Microsoft.EntityFrameworkCore.Query
         protected abstract Expression VisitShapedQueryExpression(ShapedQueryExpression shapedQueryExpression);
 
         protected virtual Expression InjectEntityMaterializers(Expression expression)
-            => _entityMaterializerInjectingExpressionVisitor.Inject(expression);
+        {
+            _constantVerifyingExpressionVisitor.Visit(expression);
+
+            return _entityMaterializerInjectingExpressionVisitor.Inject(expression);
+        }
+
+        private class ConstantVerifyingExpressionVisitor : ExpressionVisitor
+        {
+            private readonly ITypeMappingSource _typeMappingSource;
+
+            public ConstantVerifyingExpressionVisitor(ITypeMappingSource typeMappingSource)
+            {
+                _typeMappingSource = typeMappingSource;
+            }
+
+            protected override Expression VisitConstant(ConstantExpression constantExpression)
+            {
+                if (constantExpression.Value == null
+                    || _typeMappingSource.FindMapping(constantExpression.Type) != null)
+                {
+                    return constantExpression;
+                }
+
+                throw new InvalidOperationException(
+                    $"Client projection contains reference to constant expression of type: {constantExpression.Type.DisplayName()}. " +
+                    "This could potentially cause memory leak.");
+            }
+
+            protected override Expression VisitExtension(Expression extensionExpression)
+            {
+                return extensionExpression is EntityShaperExpression
+                    || extensionExpression is ProjectionBindingExpression
+                    ? extensionExpression
+                    : base.VisitExtension(extensionExpression);
+            }
+        }
 
         private class EntityMaterializerInjectingExpressionVisitor : ExpressionVisitor
         {

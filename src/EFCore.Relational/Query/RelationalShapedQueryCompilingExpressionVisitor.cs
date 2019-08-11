@@ -18,10 +18,10 @@ namespace Microsoft.EntityFrameworkCore.Query
         private readonly ISet<string> _tags;
 
         public RelationalShapedQueryCompilingExpressionVisitor(
-            QueryCompilationContext queryCompilationContext,
             ShapedQueryCompilingExpressionVisitorDependencies dependencies,
-            RelationalShapedQueryCompilingExpressionVisitorDependencies relationalDependencies)
-            : base(queryCompilationContext, dependencies)
+            RelationalShapedQueryCompilingExpressionVisitorDependencies relationalDependencies,
+            QueryCompilationContext queryCompilationContext)
+            : base(dependencies, queryCompilationContext)
         {
             RelationalDependencies = relationalDependencies;
 
