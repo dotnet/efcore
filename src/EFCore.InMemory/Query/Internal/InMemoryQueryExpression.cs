@@ -621,9 +621,8 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                     ifFalse = Default(ifTrue.Type);
                 }
 
-                return conditionalExpression.Update(test, ifTrue, ifFalse);
+                return Condition(test, ifTrue, ifFalse);
             }
-
         }
     }
 }

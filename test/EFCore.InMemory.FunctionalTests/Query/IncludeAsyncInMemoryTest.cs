@@ -3,7 +3,7 @@
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    internal class IncludeAsyncInMemoryTest : IncludeAsyncTestBase<IncludeInMemoryFixture>
+    public class IncludeAsyncInMemoryTest : IncludeAsyncTestBase<IncludeInMemoryFixture>
     {
         public IncludeAsyncInMemoryTest(IncludeInMemoryFixture fixture)
             : base(fixture)
