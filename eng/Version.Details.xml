@@ -67,13 +67,13 @@
     </Dependency>
   </ProductDependencies>
   <ToolsetDependencies>
-    <Dependency Name="Microsoft.DotNet.Arcade.Sdk" Version="1.0.0-beta.19404.1">
+    <Dependency Name="Microsoft.DotNet.Arcade.Sdk" Version="1.0.0-beta.19411.1">
       <Uri>https://github.com/dotnet/arcade</Uri>
-      <Sha>b1c2f33f0cef32d1df6e7f388017fd6761d3fcad</Sha>
+      <Sha>a11024c8c22cc762011addafc30c653c938048f4</Sha>
     </Dependency>
-    <Dependency Name="Microsoft.Net.Compilers.Toolset" Version="3.3.0-beta2-19407-12" CoherentParentDependency="Microsoft.Extensions.Logging">
+    <Dependency Name="Microsoft.Net.Compilers.Toolset" Version="3.3.0-beta3-19409-05" CoherentParentDependency="Microsoft.Extensions.Logging">
       <Uri>https://github.com/dotnet/roslyn</Uri>
-      <Sha>a06bcb44c6bc374d1af6b2a0b3eb9e7f0fed1913</Sha>
+      <Sha>ed92d532473db83c1db47b313ee1c1bd7520aa08</Sha>
     </Dependency>
   </ToolsetDependencies>
 </Dependencies>
