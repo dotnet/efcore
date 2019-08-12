@@ -4,9 +4,7 @@
 using System;
 using System.Diagnostics;
 using System.Threading;
-using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore.Internal
@@ -29,6 +27,8 @@ namespace Microsoft.EntityFrameworkCore.Internal
     {
         private readonly IDisposable _disposer;
         private int _inCriticalSection;
+        private static readonly AsyncLocal<bool> _threadHasLock = new AsyncLocal<bool>();
+        private int _refCount;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -48,9 +48,17 @@ namespace Microsoft.EntityFrameworkCore.Internal
         {
             if (Interlocked.CompareExchange(ref _inCriticalSection, 1, 0) == 1)
             {
-                throw new InvalidOperationException(CoreStrings.ConcurrentMethodInvocation);
+                if (!_threadHasLock.Value)
+                {
+                    throw new InvalidOperationException(CoreStrings.ConcurrentMethodInvocation);
+                }
+            }
+            else
+            {
+                _threadHasLock.Value = true;
             }
 
+            _refCount++;
             return _disposer;
         }
 
@@ -58,7 +66,11 @@ namespace Microsoft.EntityFrameworkCore.Internal
         {
             Debug.Assert(_inCriticalSection == 1, "Expected to be in a critical section");
 
-            _inCriticalSection = 0;
+            if (--_refCount == 0)
+            {
+                _threadHasLock.Value = false;
+                _inCriticalSection = 0;
+            }
         }
 
         private readonly struct Disposer : IDisposable

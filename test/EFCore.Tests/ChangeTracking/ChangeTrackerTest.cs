@@ -81,7 +81,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             }
         }
 
-        [ConditionalTheory(Skip = "Issue #16963")]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public void Detect_foreign_key_property_change_is_logged(bool sensitive)
@@ -121,7 +121,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             }
         }
 
-        [ConditionalTheory(Skip = "Issue #16963")]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public void Detect_collection_change_is_logged(bool sensitive)
@@ -161,7 +161,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             }
         }
 
-        [ConditionalTheory(Skip = "Issue #16963")]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public void Detect_reference_change_is_logged(bool sensitive)
@@ -352,7 +352,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             }
         }
 
-        [ConditionalTheory(Skip = "Issue #16963")]
+        [ConditionalTheory]
         [InlineData(false, CascadeTiming.OnSaveChanges, CascadeTiming.OnSaveChanges)]
         [InlineData(false, CascadeTiming.OnSaveChanges, CascadeTiming.Immediate)]
         [InlineData(false, CascadeTiming.OnSaveChanges, CascadeTiming.Never)]
@@ -471,7 +471,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             }
         }
 
-        [ConditionalTheory(Skip = "Issue #16963")]
+        [ConditionalTheory]
         [InlineData(false, CascadeTiming.OnSaveChanges, CascadeTiming.OnSaveChanges)]
         [InlineData(false, CascadeTiming.OnSaveChanges, CascadeTiming.Immediate)]
         [InlineData(false, CascadeTiming.OnSaveChanges, CascadeTiming.Never)]

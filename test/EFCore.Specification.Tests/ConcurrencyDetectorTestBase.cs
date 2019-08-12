@@ -3,6 +3,7 @@
 
 using System;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
@@ -163,9 +164,18 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateContext())
             {
-                context.Products.Add(new Product { ProductID = 10001 });
+                context.Products.Add(
+                    new Product
+                    {
+                        ProductID = 10001
+                    });
 
-                using (context.GetService<IConcurrencyDetector>().EnterCriticalSection())
+                var concurrencyDetector = context.GetService<IConcurrencyDetector>();
+                IDisposable disposer = null;
+
+                Task.Run(() => disposer = concurrencyDetector.EnterCriticalSection()).Wait();
+
+                using (disposer)
                 {
                     Exception ex = await Assert.ThrowsAsync<InvalidOperationException>(() => test(context));
 
