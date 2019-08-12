@@ -67,9 +67,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             var shaperLambda = (LambdaExpression)shaper;
 
             return Expression.New(
-                (IsAsync
-                    ? typeof(AsyncQueryingEnumerable<>)
-                    : typeof(QueryingEnumerable<>)).MakeGenericType(shaperLambda.ReturnType).GetConstructors()[0],
+                typeof(QueryingEnumerable<>).MakeGenericType(shaperLambda.ReturnType).GetConstructors()[0],
                 QueryCompilationContext.QueryContextParameter,
                 innerEnumerable,
                 Expression.Constant(shaperLambda.Compile()),
@@ -90,7 +88,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                 .SelectMany(t => t.Rows.Select(vs => new ValueBuffer(vs)));
         }
 
-        private class QueryingEnumerable<T> : IEnumerable<T>
+        private class QueryingEnumerable<T> : IAsyncEnumerable<T>, IEnumerable<T>
         {
             private readonly QueryContext _queryContext;
             private readonly IEnumerable<ValueBuffer> _innerEnumerable;
@@ -111,6 +109,9 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                 _contextType = contextType;
                 _logger = logger;
             }
+
+            public IAsyncEnumerator<T> GetAsyncEnumerator(CancellationToken cancellationToken = default)
+                => new AsyncEnumerator(this, cancellationToken);
 
             public IEnumerator<T> GetEnumerator() => new Enumerator(this);
 
@@ -174,32 +175,6 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
 
                 public void Reset() => throw new NotImplementedException();
             }
-        }
-
-        private class AsyncQueryingEnumerable<T> : IAsyncEnumerable<T>
-        {
-            private readonly QueryContext _queryContext;
-            private readonly IEnumerable<ValueBuffer> _innerEnumerable;
-            private readonly Func<QueryContext, ValueBuffer, T> _shaper;
-            private readonly Type _contextType;
-            private readonly IDiagnosticsLogger<DbLoggerCategory.Query> _logger;
-
-            public AsyncQueryingEnumerable(
-                QueryContext queryContext,
-                IEnumerable<ValueBuffer> innerEnumerable,
-                Func<QueryContext, ValueBuffer, T> shaper,
-                Type contextType,
-                IDiagnosticsLogger<DbLoggerCategory.Query> logger)
-            {
-                _queryContext = queryContext;
-                _innerEnumerable = innerEnumerable;
-                _shaper = shaper;
-                _contextType = contextType;
-                _logger = logger;
-            }
-
-            public IAsyncEnumerator<T> GetAsyncEnumerator(CancellationToken cancellationToken = default)
-                => new AsyncEnumerator(this, cancellationToken);
 
             private sealed class AsyncEnumerator : IAsyncEnumerator<T>
             {
@@ -212,7 +187,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                 private readonly CancellationToken _cancellationToken;
 
                 public AsyncEnumerator(
-                    AsyncQueryingEnumerable<T> asyncQueryingEnumerable,
+                    QueryingEnumerable<T> asyncQueryingEnumerable,
                     CancellationToken cancellationToken)
                 {
                     _queryContext = asyncQueryingEnumerable._queryContext;

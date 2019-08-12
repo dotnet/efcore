@@ -12,35 +12,21 @@ namespace Microsoft.EntityFrameworkCore
     {
         protected override ICollection<Type> IgnoredTestBases { get; } = new HashSet<Type>
         {
+            // No in-memory tests
             typeof(FunkyDataQueryTestBase<>),
             typeof(OptimisticConcurrencyTestBase<>),
             typeof(StoreGeneratedTestBase<>),
-            typeof(MusicStoreTestBase<>),                  // issue #16963
-            typeof(ConferencePlannerTestBase<>),           // issue #16963
-            typeof(GraphUpdatesTestBase<>),                // issue #16963
-            typeof(ProxyGraphUpdatesTestBase<>),           // issue #16963
-            typeof(ComplexNavigationsWeakQueryTestBase<>), // issue #16963
-            typeof(FiltersInheritanceTestBase<>),          // issue #16963
-            typeof(OwnedQueryTestBase<>),                  // issue #16963
-            // Query pipeline
-            typeof(SimpleQueryTestBase<>),
+            typeof(ConferencePlannerTestBase<>),
+            // Remaining Issue #16963 3.0 query tests:
+            typeof(ComplexNavigationsWeakQueryTestBase<>),
+            typeof(FiltersInheritanceTestBase<>),
+            typeof(OwnedQueryTestBase<>),
             typeof(GroupByQueryTestBase<>),
-            typeof(ConcurrencyDetectorTestBase<>),
-            typeof(AsNoTrackingTestBase<>),
-            typeof(AsTrackingTestBase<>),
             typeof(ComplexNavigationsQueryTestBase<>),
             typeof(GearsOfWarQueryTestBase<>),
-            typeof(IncludeAsyncTestBase<>),
             typeof(InheritanceRelationshipsQueryTestBase<>),
             typeof(InheritanceTestBase<>),
-            typeof(NullKeysTestBase<>),
-            typeof(QueryNavigationsTestBase<>),
-            typeof(QueryTaggingTestBase<>),
-            typeof(SpatialQueryTestBase<>),
-            typeof(UpdatesTestBase<>),
-            typeof(FindTestBase<>),
-            typeof(NotificationEntitiesTestBase<>),
-            typeof(PropertyValuesTestBase<>),
+            typeof(SpatialQueryTestBase<>)
         };
 
         protected override Assembly TargetAssembly { get; } = typeof(InMemoryComplianceTest).Assembly;
