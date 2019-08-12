@@ -111,18 +111,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         }
 
         private EntityQueryable<TEntity> CreateEntityQueryable()
-        {
-            var queryable = new EntityQueryable<TEntity>(_context.GetDependencies().QueryProvider);
-
-#pragma warning disable 618
-            if (_entityType.FindPrimaryKey() == null)
-#pragma warning restore 618
-            {
-                queryable = (EntityQueryable<TEntity>)queryable.AsNoTracking();
-            }
-
-            return queryable;
-        }
+            => new EntityQueryable<TEntity>(_context.GetDependencies().QueryProvider);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

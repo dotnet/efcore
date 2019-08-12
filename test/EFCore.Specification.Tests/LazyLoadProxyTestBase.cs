@@ -756,12 +756,15 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [ConditionalTheory]
+        [InlineData(EntityState.Unchanged, CascadeTiming.OnSaveChanges)]
+        [InlineData(EntityState.Modified, CascadeTiming.OnSaveChanges)]
+        [InlineData(EntityState.Deleted, CascadeTiming.OnSaveChanges)]
         [InlineData(EntityState.Unchanged, CascadeTiming.Immediate)]
         [InlineData(EntityState.Modified, CascadeTiming.Immediate)]
         [InlineData(EntityState.Deleted, CascadeTiming.Immediate)]
-        [InlineData(EntityState.Unchanged, CascadeTiming.Immediate)]
-        [InlineData(EntityState.Modified, CascadeTiming.Immediate)]
-        [InlineData(EntityState.Deleted, CascadeTiming.Immediate)]
+        [InlineData(EntityState.Unchanged, CascadeTiming.Never)]
+        [InlineData(EntityState.Modified, CascadeTiming.Never)]
+        [InlineData(EntityState.Deleted, CascadeTiming.Never)]
         public virtual void Lazy_load_collection_already_loaded(EntityState state, CascadeTiming cascadeDeleteTiming)
         {
             using (var context = CreateContext(lazyLoadingEnabled: true))

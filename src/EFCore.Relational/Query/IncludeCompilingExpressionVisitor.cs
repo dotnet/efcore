@@ -48,7 +48,8 @@ namespace Microsoft.EntityFrameworkCore.Query
             {
                 if (entity is TIncludingEntity includingEntity)
                 {
-                    if (trackingQuery)
+                    if (trackingQuery
+                        && navigation.DeclaringEntityType.FindPrimaryKey() != null)
                     {
                         // For non-null relatedEntity StateManager will set the flag
                         if (relatedEntity == null)
