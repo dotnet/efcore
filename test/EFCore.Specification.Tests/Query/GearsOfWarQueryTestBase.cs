@@ -5668,7 +5668,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     select h);
         }
 
-        [ConditionalFact(Skip = "Issue #10974")]
+        [ConditionalFact(Skip = "Issue #17068")]
         public virtual void Include_collection_group_by_reference()
         {
             using (var context = CreateContext())
@@ -5860,7 +5860,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 elementSorter: e => e.c);
         }
 
-        [ConditionalTheory(Skip = "Issue #15848")]
+        [ConditionalTheory(Skip = "Issue #17109")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Order_by_entity_qsre(bool isAsync)
         {
@@ -5872,7 +5872,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 assertOrder: true);
         }
 
-        [ConditionalTheory(Skip = "Issue #15848")]
+        [ConditionalTheory(Skip = "Issue #17109")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Order_by_entity_qsre_with_inheritance(bool isAsync)
         {
@@ -5882,7 +5882,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 assertOrder: true);
         }
 
-        [ConditionalTheory(Skip = "Issue #15848")]
+        [ConditionalTheory(Skip = "Issue #17109")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Order_by_entity_qsre_composite_key(bool isAsync)
         {
@@ -5894,7 +5894,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 assertOrder: true);
         }
 
-        [ConditionalTheory(Skip = "Issue #15848")]
+        [ConditionalTheory(Skip = "Issue #17109")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Order_by_entity_qsre_with_other_orderbys(bool isAsync)
         {
