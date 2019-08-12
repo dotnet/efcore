@@ -2822,7 +2822,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 elementSorter: e => e.Id);
         }
 
-        [ConditionalTheory(Skip = "Issue#16090")]
+        [ConditionalTheory(Skip = "Issue#16752")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Multiple_required_navigation_with_string_based_Include(bool isAsync)
         {
@@ -2838,7 +2838,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 elementSorter: e => e.Id);
         }
 
-        [ConditionalTheory(Skip = "Issue#16090")]
+        [ConditionalTheory(Skip = "Issue#16752")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Multiple_required_navigation_using_multiple_selects_with_string_based_Include(bool isAsync)
         {
@@ -2909,7 +2909,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 elementSorter: e => e != null ? e.Id : 0);
         }
 
-        [ConditionalTheory(Skip = "Issue#16090")]
+        [ConditionalTheory(Skip = "Issue#16752")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Multiple_optional_navigation_with_string_based_Include(bool isAsync)
         {

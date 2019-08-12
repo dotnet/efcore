@@ -330,7 +330,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalFact(Skip = "See issue#13587")]
+        [ConditionalFact(Skip = "See issue#17111")]
         public virtual void Using_DbSet_in_filter_works()
         {
             using (var context = CreateContext())
@@ -339,7 +339,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalFact(Skip = "See issue#13587")]
+        [ConditionalFact(Skip = "See issue#17111")]
         public virtual void Using_Context_set_method_in_filter_works()
         {
             using (var context = CreateContext())
