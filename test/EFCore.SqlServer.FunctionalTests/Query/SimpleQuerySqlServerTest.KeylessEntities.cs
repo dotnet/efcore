@@ -8,24 +8,25 @@ namespace Microsoft.EntityFrameworkCore.Query
 {
     public partial class SimpleQuerySqlServerTest
     {
-        [ConditionalTheory(Skip = "Issue #16323")]
+        [ConditionalTheory]
         public override async Task KeylessEntity_simple(bool isAsync)
         {
             await base.KeylessEntity_simple(isAsync);
 
             AssertSql(
-                @"SELECT [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle]
-FROM [Customers] AS [c]");
+                @"SELECT [c].[CustomerID] + N'' as [CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region] FROM [Customers] AS [c]");
         }
 
-        [ConditionalTheory(Skip = "Issue #16323")]
+        [ConditionalTheory]
         public override async Task KeylessEntity_where_simple(bool isAsync)
         {
             await base.KeylessEntity_where_simple(isAsync);
 
             AssertSql(
                 @"SELECT [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle]
-FROM [Customers] AS [c]
+FROM (
+    SELECT [c].[CustomerID] + N'' as [CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region] FROM [Customers] AS [c]
+) AS [c]
 WHERE ([c].[City] = N'London') AND [c].[City] IS NOT NULL");
         }
 
@@ -33,9 +34,14 @@ WHERE ([c].[City] = N'London') AND [c].[City] IS NOT NULL");
         {
             base.KeylessEntity_by_database_view();
 
+            // when we have defining query and ToView, defining query wins
+            //            AssertSql(
+            //                @"SELECT [a].[CategoryName], [a].[ProductID], [a].[ProductName]
+            //FROM [Alphabetical list of products] AS [a]");
             AssertSql(
-                @"SELECT [a].[CategoryName], [a].[ProductID], [a].[ProductName]
-FROM [Alphabetical list of products] AS [a]");
+                @"SELECT [p].[ProductID], [p].[ProductName], N'Food' AS [CategoryName]
+FROM [Products] AS [p]
+WHERE [p].[Discontinued] <> CAST(1 AS bit)");
         }
 
         public override void KeylessEntity_with_nav_defining_query()
@@ -46,16 +52,15 @@ FROM [Alphabetical list of products] AS [a]");
                 @"@__ef_filter___searchTerm_0='A' (Size = 4000)
 @__ef_filter___searchTerm_1='A' (Size = 4000)
 
-SELECT [t].[CompanyName], [t].[OrderCount], [t].[SearchTerm]
-FROM (
-    SELECT [c].[CompanyName], (
-        SELECT COUNT(*)
-        FROM [Orders] AS [o]
-        WHERE [c].[CustomerID] = [o].[CustomerID]
-    ) AS [OrderCount], @__ef_filter___searchTerm_0 AS [SearchTerm]
-    FROM [Customers] AS [c]
-) AS [t]
-WHERE (([t].[CompanyName] LIKE @__ef_filter___searchTerm_1 + N'%' AND (LEFT([t].[CompanyName], LEN(@__ef_filter___searchTerm_1)) = @__ef_filter___searchTerm_1)) OR (@__ef_filter___searchTerm_1 = N'')) AND ([t].[OrderCount] > 0)");
+SELECT [c].[CompanyName], (
+    SELECT COUNT(*)
+    FROM [Orders] AS [o]
+    WHERE ([c].[CustomerID] = [o].[CustomerID]) AND [o].[CustomerID] IS NOT NULL) AS [OrderCount], @__ef_filter___searchTerm_0 AS [SearchTerm]
+FROM [Customers] AS [c]
+WHERE (((@__ef_filter___searchTerm_1 = N'') AND @__ef_filter___searchTerm_1 IS NOT NULL) OR ([c].[CompanyName] IS NOT NULL AND (@__ef_filter___searchTerm_1 IS NOT NULL AND (([c].[CompanyName] LIKE [c].[CompanyName] + N'%') AND (((LEFT([c].[CompanyName], LEN(@__ef_filter___searchTerm_1)) = @__ef_filter___searchTerm_1) AND (LEFT([c].[CompanyName], LEN(@__ef_filter___searchTerm_1)) IS NOT NULL AND @__ef_filter___searchTerm_1 IS NOT NULL)) OR (LEFT([c].[CompanyName], LEN(@__ef_filter___searchTerm_1)) IS NULL AND @__ef_filter___searchTerm_1 IS NULL)))))) AND ((
+    SELECT COUNT(*)
+    FROM [Orders] AS [o]
+    WHERE ([c].[CustomerID] = [o].[CustomerID]) AND [o].[CustomerID] IS NOT NULL) > 0)");
         }
 
         public override async Task KeylessEntity_with_mixed_tracking(bool isAsync)
@@ -79,14 +84,11 @@ WHERE [t].[CustomerID] = [c].[CustomerID]");
             await base.KeylessEntity_with_defining_query(isAsync);
 
             AssertSql(
-                @"SELECT [t].[CustomerID]
+                @"SELECT [o].[CustomerID]
 FROM (
-    SELECT [o].[CustomerID]
-    FROM (
-        select * from ""Orders""
-    ) AS [o]
-) AS [t]
-WHERE [t].[CustomerID] = N'ALFKI'");
+    select * from ""Orders""
+) AS [o]
+WHERE ([o].[CustomerID] = N'ALFKI') AND [o].[CustomerID] IS NOT NULL");
         }
 
         public override async Task KeylessEntity_with_defining_query_and_correlated_collection(bool isAsync)
@@ -97,68 +99,17 @@ WHERE [t].[CustomerID] = N'ALFKI'");
                 "");
         }
 
-        public override async Task KeylessEntity_with_included_nav(bool isAsync)
-        {
-            await base.KeylessEntity_with_included_nav(isAsync);
-
-            AssertSql(
-                @"SELECT [t].[CustomerID], [ov.Customer].[CustomerID], [ov.Customer].[Address], [ov.Customer].[City], [ov.Customer].[CompanyName], [ov.Customer].[ContactName], [ov.Customer].[ContactTitle], [ov.Customer].[Country], [ov.Customer].[Fax], [ov.Customer].[Phone], [ov.Customer].[PostalCode], [ov.Customer].[Region]
-FROM (
-    SELECT [o].[CustomerID]
-    FROM (
-        select * from ""Orders""
-    ) AS [o]
-) AS [t]
-LEFT JOIN [Customers] AS [ov.Customer] ON [t].[CustomerID] = [ov.Customer].[CustomerID]
-WHERE [t].[CustomerID] = N'ALFKI'");
-        }
-
-        public override async Task KeylessEntity_with_included_navs_multi_level(bool isAsync)
-        {
-            await base.KeylessEntity_with_included_navs_multi_level(isAsync);
-
-            AssertSql(
-                @"SELECT [t].[CustomerID], [ov.Customer].[CustomerID], [ov.Customer].[Address], [ov.Customer].[City], [ov.Customer].[CompanyName], [ov.Customer].[ContactName], [ov.Customer].[ContactTitle], [ov.Customer].[Country], [ov.Customer].[Fax], [ov.Customer].[Phone], [ov.Customer].[PostalCode], [ov.Customer].[Region]
-FROM (
-    SELECT [o].[CustomerID]
-    FROM (
-        select * from ""Orders""
-    ) AS [o]
-) AS [t]
-LEFT JOIN [Customers] AS [ov.Customer] ON [t].[CustomerID] = [ov.Customer].[CustomerID]
-WHERE [t].[CustomerID] = N'ALFKI'
-ORDER BY [ov.Customer].[CustomerID]",
-                //
-                @"SELECT [ov.Customer.Orders].[OrderID], [ov.Customer.Orders].[CustomerID], [ov.Customer.Orders].[EmployeeID], [ov.Customer.Orders].[OrderDate]
-FROM [Orders] AS [ov.Customer.Orders]
-INNER JOIN (
-    SELECT DISTINCT [t0].[CustomerID], [ov.Customer0].[CustomerID] AS [CustomerID0]
-    FROM (
-        SELECT [o0].[CustomerID]
-        FROM (
-            select * from ""Orders""
-        ) AS [o0]
-    ) AS [t0]
-    LEFT JOIN [Customers] AS [ov.Customer0] ON [t0].[CustomerID] = [ov.Customer0].[CustomerID]
-    WHERE [t0].[CustomerID] = N'ALFKI'
-) AS [t1] ON [ov.Customer.Orders].[CustomerID] = [t1].[CustomerID]
-ORDER BY [t1].[CustomerID]");
-        }
-
         public override async Task KeylessEntity_select_where_navigation(bool isAsync)
         {
             await base.KeylessEntity_select_where_navigation(isAsync);
 
             AssertSql(
-                @"SELECT [t].[CustomerID]
+                @"SELECT [o].[CustomerID]
 FROM (
-    SELECT [o].[CustomerID]
-    FROM (
-        select * from ""Orders""
-    ) AS [o]
-) AS [t]
-LEFT JOIN [Customers] AS [ov.Customer] ON [t].[CustomerID] = [ov.Customer].[CustomerID]
-WHERE [ov.Customer].[City] = N'Seattle'");
+    select * from ""Orders""
+) AS [o]
+LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]
+WHERE ([c].[City] = N'Seattle') AND [c].[City] IS NOT NULL");
         }
 
         public override async Task KeylessEntity_select_where_navigation_multi_level(bool isAsync)
@@ -166,22 +117,24 @@ WHERE [ov.Customer].[City] = N'Seattle'");
             await base.KeylessEntity_select_where_navigation_multi_level(isAsync);
 
             AssertSql(
-                @"SELECT [t].[CustomerID]
+                @"SELECT [o].[CustomerID]
 FROM (
-    SELECT [o].[CustomerID]
-    FROM (
-        select * from ""Orders""
-    ) AS [o]
-) AS [t]
-LEFT JOIN [Customers] AS [ov.Customer] ON [t].[CustomerID] = [ov.Customer].[CustomerID]
+    select * from ""Orders""
+) AS [o]
+LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]
 WHERE EXISTS (
     SELECT 1
     FROM [Orders] AS [o0]
-    WHERE [ov.Customer].[CustomerID] = [o0].[CustomerID])");
+    WHERE (([c].[CustomerID] = [o0].[CustomerID]) AND ([c].[CustomerID] IS NOT NULL AND [o0].[CustomerID] IS NOT NULL)) OR ([c].[CustomerID] IS NULL AND [o0].[CustomerID] IS NULL))");
         }
 
-        [ConditionalFact(Skip = "Issue #16323")]
+        [ConditionalFact]
         public override void Auto_initialized_view_set()
-            => base.Auto_initialized_view_set();
+        {
+            base.Auto_initialized_view_set();
+
+            AssertSql(
+                @"SELECT [c].[CustomerID] + N'' as [CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region] FROM [Customers] AS [c]");
+        }
     }
 }

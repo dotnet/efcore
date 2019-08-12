@@ -218,7 +218,9 @@ ORDER BY [a].[Species]");
 
             AssertSql(
                 @"SELECT [a].[CountryId], [a].[Discriminator], [a].[Name], [a].[EagleId], [a].[IsFlightless], [a].[Group], [a].[FoundOn]
-FROM [Animal] AS [a]
+FROM (
+    SELECT * FROM Animal
+) AS [a]
 WHERE [a].[Discriminator] IN (N'Eagle', N'Kiwi')
 ORDER BY [a].[CountryId]");
         }

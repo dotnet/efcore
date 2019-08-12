@@ -12,6 +12,8 @@ namespace Microsoft.EntityFrameworkCore.TestModels.Northwind
         {
         }
 
+        public string _empty = string.Empty;
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -27,7 +29,8 @@ namespace Microsoft.EntityFrameworkCore.TestModels.Northwind
 
 #pragma warning disable CS0618 // Type or member is obsolete
             modelBuilder.Query<CustomerView>().HasNoKey().ToQuery(
-                () => CustomerQueries.FromSqlRaw("SELECT * FROM Customers"));
+                () => CustomerQueries.FromSqlInterpolated($"SELECT [c].[CustomerID] + {_empty} as [CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region] FROM [Customers] AS [c]"
+));
 
             modelBuilder
                 .Query<OrderQuery>()

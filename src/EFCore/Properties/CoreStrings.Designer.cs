@@ -2190,6 +2190,15 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         public static string SetOperationWithDifferentIncludesInOperands
             => GetString("SetOperationWithDifferentIncludesInOperands");
 
+        /// <summary>
+        ///     Include is not supported for entities with defining query. Entity type: '{entityType}'. 
+        /// </summary>
+        /// <returns></returns>
+        public static string IncludeOnEntityWithDefiningQueryNotSupported([CanBeNull] object entityType)
+            => string.Format(
+                GetString("IncludeOnEntityWithDefiningQueryNotSupported", nameof(entityType)),
+                entityType);
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);

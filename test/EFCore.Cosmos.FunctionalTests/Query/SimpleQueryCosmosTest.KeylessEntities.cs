@@ -10,47 +10,46 @@ namespace Microsoft.EntityFrameworkCore.Query
 {
     public partial class SimpleQueryCosmosTest
     {
-        [ConditionalTheory(Skip = "See issue#13857")]
+        [ConditionalTheory]
         public override async Task KeylessEntity_simple(bool isAsync)
         {
             await base.KeylessEntity_simple(isAsync);
 
             AssertSql(
-                @"SELECT c
+                @"SELECT c[""Address""], c[""City""], c[""CompanyName""], c[""ContactName""], c[""ContactTitle""]
 FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
 
-        [ConditionalTheory(Skip = "See issue#13857")]
+        [ConditionalTheory]
         public override async Task KeylessEntity_where_simple(bool isAsync)
         {
             await base.KeylessEntity_where_simple(isAsync);
 
             AssertSql(
-                @"SELECT c
+                @"SELECT c[""Address""], c[""City""], c[""CompanyName""], c[""ContactName""], c[""ContactTitle""]
 FROM root c
-WHERE (c[""Discriminator""] = ""Customer"")");
+WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""City""] = ""London""))");
         }
 
-        [ConditionalFact(Skip = "See issue#13857")]
+        [ConditionalFact]
         public override void KeylessEntity_by_database_view()
         {
             base.KeylessEntity_by_database_view();
 
             AssertSql(
-                @"SELECT c
+                @"SELECT c[""ProductID""], c[""ProductName""], ""Food"" AS CategoryName
 FROM root c
 WHERE ((c[""Discriminator""] = ""Product"") AND NOT(c[""Discontinued""]))");
         }
 
+        [ConditionalFact(Skip = "issue #12086")] // collection support
         public override void KeylessEntity_with_nav_defining_query()
         {
             base.KeylessEntity_with_nav_defining_query();
 
             AssertSql(
-                @"SELECT c
-FROM root c
-WHERE (c[""Discriminator""] = ""Customer"")");
+                @"");
         }
 
         public override async Task KeylessEntity_with_mixed_tracking(bool isAsync)
@@ -78,9 +77,9 @@ WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""City""] = ""London""))");
             await base.KeylessEntity_with_defining_query(isAsync);
 
             AssertSql(
-                @"SELECT c
+                @"SELECT c[""CustomerID""]
 FROM root c
-WHERE (c[""Discriminator""] = ""Order"")");
+WHERE ((c[""Discriminator""] = ""Order"") AND (c[""CustomerID""] = ""ALFKI""))");
         }
 
         public override async Task KeylessEntity_with_defining_query_and_correlated_collection(bool isAsync)
@@ -93,36 +92,15 @@ FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
 
-        public override async Task KeylessEntity_with_included_nav(bool isAsync)
-        {
-            await base.KeylessEntity_with_included_nav(isAsync);
-
-            AssertSql(
-                @"SELECT c
-FROM root c
-WHERE (c[""Discriminator""] = ""Order"")");
-        }
-
-        public override async Task KeylessEntity_with_included_navs_multi_level(bool isAsync)
-        {
-            await base.KeylessEntity_with_included_navs_multi_level(isAsync);
-
-            AssertSql(
-                @"SELECT c
-FROM root c
-WHERE (c[""Discriminator""] = ""Order"")");
-        }
-
+        [ConditionalTheory(Skip = "issue 312086")] // left join translation
         public override async Task KeylessEntity_select_where_navigation(bool isAsync)
         {
             await base.KeylessEntity_select_where_navigation(isAsync);
 
-            AssertSql(
-                @"SELECT c
-FROM root c
-WHERE (c[""Discriminator""] = ""Order"")");
+            AssertSql(@"");
         }
 
+        [ConditionalTheory(Skip = "issue 312086")] // left join translation
         public override async Task KeylessEntity_select_where_navigation_multi_level(bool isAsync)
         {
             await AssertQuery<OrderQuery>(
@@ -131,10 +109,7 @@ WHERE (c[""Discriminator""] = ""Order"")");
                        where ov.Customer.Orders.Any()
                        select ov);
 
-            AssertSql(
-                @"SELECT c
-FROM root c
-WHERE (c[""Discriminator""] = ""Order"")");
+            AssertSql(@"");
         }
     }
 }
