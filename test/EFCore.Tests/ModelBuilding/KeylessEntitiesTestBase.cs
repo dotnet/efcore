@@ -8,7 +8,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 {
     public abstract partial class ModelBuilderTest
     {
-        public abstract class QueryTypesTestBase : ModelBuilderTestBase
+        public abstract class KeylessEntitiesTestBase : ModelBuilderTestBase
         {
             [ConditionalFact]
             public virtual void Keyless_type_discovered_before_entity_type_does_not_leave_temp_id()
@@ -18,13 +18,13 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 modelBuilder.Ignore<Order>();
                 modelBuilder.Ignore<CustomerDetails>();
 
-                modelBuilder.Entity<QueryType>().HasNoKey();
+                modelBuilder.Entity<KeylessEntity>().HasNoKey();
                 modelBuilder.Entity<Customer>();
 
                 modelBuilder.FinalizeModel();
 
                 Assert.Null(modelBuilder.Model.FindEntityType(typeof(Customer))?.FindProperty("TempId"));
-                Assert.Null(modelBuilder.Model.FindEntityType(typeof(QueryType)).FindPrimaryKey());
+                Assert.Null(modelBuilder.Model.FindEntityType(typeof(KeylessEntity)).FindPrimaryKey());
             }
 
             [ConditionalFact]

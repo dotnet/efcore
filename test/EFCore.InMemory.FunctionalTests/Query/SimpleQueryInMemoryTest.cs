@@ -28,21 +28,21 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalTheory(Skip = "See issue#13857")]
-        public override Task QueryType_simple(bool isAsync)
+        public override Task KeylessEntity_simple(bool isAsync)
         {
-            return base.QueryType_simple(isAsync);
+            return base.KeylessEntity_simple(isAsync);
         }
 
         [ConditionalTheory(Skip = "See issue#13857")]
-        public override Task QueryType_where_simple(bool isAsync)
+        public override Task KeylessEntity_where_simple(bool isAsync)
         {
-            return base.QueryType_where_simple(isAsync);
+            return base.KeylessEntity_where_simple(isAsync);
         }
 
         [ConditionalFact(Skip = "See issue#13857")]
-        public override void Query_backed_by_database_view()
+        public override void KeylessEntity_by_database_view()
         {
-            base.Query_backed_by_database_view();
+            base.KeylessEntity_by_database_view();
         }
 
          // InMemory can mimic throw behavior for subquery
@@ -266,15 +266,15 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalTheory(Skip = "Issue#16963")]
-        public override Task QueryType_with_included_nav(bool isAsync)
+        public override Task KeylessEntity_with_included_nav(bool isAsync)
         {
-            return base.QueryType_with_included_nav(isAsync);
+            return base.KeylessEntity_with_included_nav(isAsync);
         }
 
         [ConditionalTheory(Skip = "Issue#16963")]
-        public override Task QueryType_with_included_navs_multi_level(bool isAsync)
+        public override Task KeylessEntity_with_included_navs_multi_level(bool isAsync)
         {
-            return base.QueryType_with_included_navs_multi_level(isAsync);
+            return base.KeylessEntity_with_included_navs_multi_level(isAsync);
         }
 
         [ConditionalTheory(Skip = "Issue#17050")]

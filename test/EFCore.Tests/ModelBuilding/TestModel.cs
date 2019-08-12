@@ -667,7 +667,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public Value Value { get; set; }
         }
 
-        protected class QueryType
+        protected class KeylessEntity
         {
             public int CustomerId { get; set; }
             public Customer Customer { get; set; }

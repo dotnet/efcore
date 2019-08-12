@@ -171,7 +171,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         // Skip for SQLite. Issue #14935. Cannot eval 'where (Truncate([od].UnitPrice) > 10)'
         public override Task Where_math_truncate(bool isAsync) => null;
 
-        public override void Query_backed_by_database_view()
+        public override void KeylessEntity_by_database_view()
         {
             // Not present on SQLite
         }
