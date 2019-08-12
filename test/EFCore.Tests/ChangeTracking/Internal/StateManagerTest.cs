@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.Extensions.DependencyInjection;
@@ -395,9 +394,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             };
             var valueBuffer = new ValueBuffer(new object[] { 77, "Bjork", 777 });
 
-            var entry = stateManager.StartTrackingFromQuery(categoryType, category, valueBuffer, null);
+            var entry = stateManager.StartTrackingFromQuery(categoryType, category, valueBuffer);
 
-            Assert.Same(entry, stateManager.StartTrackingFromQuery(categoryType, category, valueBuffer, null));
+            Assert.Same(entry, stateManager.StartTrackingFromQuery(categoryType, category, valueBuffer));
         }
 
         [ConditionalFact]
@@ -435,210 +434,6 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 CoreStrings.InvalidAlternateKeyValue("Category", "PrincipalId"),
                 Assert.Throws<InvalidOperationException>(
                     () => stateManager.StartTracking(entry)).Message);
-        }
-
-        [ConditionalFact]
-        public void State_manager_switches_out_of_single_query_mode_when_second_query_begins()
-        {
-            var model = BuildModel();
-            var categoryType = model.FindEntityType(typeof(Category));
-            var stateManager = CreateStateManager(model);
-
-            Assert.Equal(TrackingQueryMode.Simple, stateManager.GetTrackingQueryMode(categoryType));
-
-            stateManager.BeginTrackingQuery();
-
-            Assert.Equal(TrackingQueryMode.Simple, stateManager.GetTrackingQueryMode(categoryType));
-
-            stateManager.StartTrackingFromQuery(
-                categoryType,
-                new Category
-                {
-                    Id = 77,
-                    PrincipalId = 777
-                },
-                new ValueBuffer(new object[] { 77, "Bjork", 777 }), null);
-
-            Assert.Equal(TrackingQueryMode.Simple, stateManager.GetTrackingQueryMode(categoryType));
-
-            stateManager.StartTrackingFromQuery(
-                categoryType,
-                new Category
-                {
-                    Id = 78,
-                    PrincipalId = 778
-                },
-                new ValueBuffer(new object[] { 78, "Beck", 778 }), null);
-
-            Assert.Equal(TrackingQueryMode.Simple, stateManager.GetTrackingQueryMode(categoryType));
-
-            stateManager.BeginTrackingQuery();
-
-            Assert.Equal(TrackingQueryMode.Multiple, stateManager.GetTrackingQueryMode(categoryType));
-
-            stateManager.StartTrackingFromQuery(
-                categoryType,
-                new Category
-                {
-                    Id = 79,
-                    PrincipalId = 779
-                },
-                new ValueBuffer(new object[] { 79, "Bush", 779 }), null);
-
-            Assert.Equal(TrackingQueryMode.Multiple, stateManager.GetTrackingQueryMode(categoryType));
-        }
-
-        [ConditionalFact]
-        public void State_manager_switches_out_of_single_query_mode_when_entity_has_self_refs()
-        {
-            var model = BuildModel();
-            var widgetType = model.FindEntityType(typeof(Widget));
-            var stateManager = CreateStateManager(model);
-
-            Assert.Equal(TrackingQueryMode.Single, stateManager.GetTrackingQueryMode(widgetType));
-
-            stateManager.BeginTrackingQuery();
-
-            Assert.Equal(TrackingQueryMode.Single, stateManager.GetTrackingQueryMode(widgetType));
-        }
-
-        [ConditionalFact]
-        public void State_manager_switches_out_of_single_query_mode_when_entity_included()
-        {
-            var model = BuildModel();
-            var productType = model.FindEntityType(typeof(Product));
-            var categoryType = model.FindEntityType(typeof(Category));
-            var stateManager = CreateStateManager(model);
-
-            Assert.Equal(TrackingQueryMode.Simple, stateManager.GetTrackingQueryMode(categoryType));
-
-            stateManager.BeginTrackingQuery();
-
-            Assert.Equal(TrackingQueryMode.Simple, stateManager.GetTrackingQueryMode(categoryType));
-
-            Assert.Equal(TrackingQueryMode.Single, stateManager.GetTrackingQueryMode(productType));
-
-            Assert.Equal(TrackingQueryMode.Single, stateManager.GetTrackingQueryMode(categoryType));
-        }
-
-        [ConditionalFact]
-        public void State_manager_switches_out_of_single_query_mode_when_tracked_state_changes_to_Modified()
-        {
-            var model = BuildModel();
-            var categoryType = model.FindEntityType(typeof(Category));
-            var stateManager = CreateStateManager(model);
-
-            Assert.Equal(TrackingQueryMode.Simple, stateManager.GetTrackingQueryMode(categoryType));
-
-            stateManager.BeginTrackingQuery();
-
-            Assert.Equal(TrackingQueryMode.Simple, stateManager.GetTrackingQueryMode(categoryType));
-
-            stateManager.StartTrackingFromQuery(
-                categoryType,
-                new Category
-                {
-                    Id = 77,
-                    PrincipalId = 777
-                },
-                new ValueBuffer(new object[] { 77, "Bjork", 777 }), null);
-
-            Assert.Equal(TrackingQueryMode.Simple, stateManager.GetTrackingQueryMode(categoryType));
-
-            var entry = stateManager.StartTrackingFromQuery(
-                categoryType,
-                new Category
-                {
-                    Id = 78,
-                    PrincipalId = 778
-                },
-                new ValueBuffer(new object[] { 78, "Beck", 778 }), null);
-
-            Assert.Equal(TrackingQueryMode.Simple, stateManager.GetTrackingQueryMode(categoryType));
-
-            entry.SetEntityState(EntityState.Modified);
-
-            Assert.Equal(TrackingQueryMode.Multiple, stateManager.GetTrackingQueryMode(categoryType));
-        }
-
-        [ConditionalFact]
-        public void State_manager_switches_out_of_single_query_mode_when_tracked_state_changes_to_Added()
-        {
-            var model = BuildModel();
-            var categoryType = model.FindEntityType(typeof(Category));
-            var stateManager = CreateStateManager(model);
-
-            Assert.Equal(TrackingQueryMode.Simple, stateManager.GetTrackingQueryMode(categoryType));
-
-            stateManager.BeginTrackingQuery();
-
-            Assert.Equal(TrackingQueryMode.Simple, stateManager.GetTrackingQueryMode(categoryType));
-
-            stateManager.StartTrackingFromQuery(
-                categoryType,
-                new Category
-                {
-                    Id = 77,
-                    PrincipalId = 777
-                },
-                new ValueBuffer(new object[] { 77, "Bjork", null }), null);
-
-            Assert.Equal(TrackingQueryMode.Simple, stateManager.GetTrackingQueryMode(categoryType));
-
-            var entry = stateManager.StartTrackingFromQuery(
-                categoryType,
-                new Category
-                {
-                    Id = 78,
-                    PrincipalId = 778
-                },
-                new ValueBuffer(new object[] { 78, "Beck", 778 }), null);
-
-            Assert.Equal(TrackingQueryMode.Simple, stateManager.GetTrackingQueryMode(categoryType));
-
-            entry.SetEntityState(EntityState.Added);
-
-            Assert.Equal(TrackingQueryMode.Multiple, stateManager.GetTrackingQueryMode(categoryType));
-        }
-
-        [ConditionalFact]
-        public void State_manager_does_not_switch_out_of_single_query_mode_when_getting_existing_entry()
-        {
-            var model = BuildModel();
-            var categoryType = model.FindEntityType(typeof(Category));
-            var stateManager = CreateStateManager(model);
-
-            Assert.Equal(TrackingQueryMode.Simple, stateManager.GetTrackingQueryMode(categoryType));
-
-            stateManager.BeginTrackingQuery();
-
-            Assert.Equal(TrackingQueryMode.Simple, stateManager.GetTrackingQueryMode(categoryType));
-
-            var entry = stateManager.StartTrackingFromQuery(
-                categoryType,
-                new Category
-                {
-                    Id = 77,
-                    PrincipalId = 777
-                },
-                new ValueBuffer(new object[] { 77, "Bjork", 777 }), null);
-
-            Assert.Equal(TrackingQueryMode.Simple, stateManager.GetTrackingQueryMode(categoryType));
-
-            stateManager.StartTrackingFromQuery(
-                categoryType,
-                new Category
-                {
-                    Id = 78,
-                    PrincipalId = 778
-                },
-                new ValueBuffer(new object[] { 78, "Beck", 778 }), null);
-
-            Assert.Equal(TrackingQueryMode.Simple, stateManager.GetTrackingQueryMode(categoryType));
-
-            stateManager.GetOrCreateEntry(entry.Entity);
-
-            Assert.Equal(TrackingQueryMode.Simple, stateManager.GetTrackingQueryMode(categoryType));
         }
 
         [ConditionalFact]
@@ -840,7 +635,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             {
             }
 
-            public void TrackedFromQuery(InternalEntityEntry entry, ISet<IForeignKey> handledForeignKeys)
+            public void TrackedFromQuery(InternalEntityEntry entry)
             {
             }
 

@@ -408,7 +408,7 @@ namespace Microsoft.EntityFrameworkCore
                 InternalEntityEntry entry, IProperty property, IReadOnlyList<IKey> containingPrincipalKeys,
                 IReadOnlyList<IForeignKey> containingForeignKeys, object oldValue, object newValue) => throw new NotImplementedException();
 
-            public void TrackedFromQuery(InternalEntityEntry entry, ISet<IForeignKey> handledForeignKeys) =>
+            public void TrackedFromQuery(InternalEntityEntry entry) =>
                 throw new NotImplementedException();
         }
 

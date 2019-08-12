@@ -150,15 +150,10 @@ namespace Microsoft.EntityFrameworkCore.Query
             return value;
         }
 
-        /// <summary>
-        ///     Notify the state manager that a tracking query is starting.
-        /// </summary>
-        public virtual void BeginTrackingQuery() => StateManager.BeginTrackingQuery();
-
         public virtual InternalEntityEntry StartTracking(
             IEntityType entityType,
             object entity,
             ValueBuffer valueBuffer)
-            => StateManager.StartTrackingFromQuery(entityType, entity, valueBuffer, handledForeignKeys: null);
+            => StateManager.StartTrackingFromQuery(entityType, entity, valueBuffer);
     }
 }

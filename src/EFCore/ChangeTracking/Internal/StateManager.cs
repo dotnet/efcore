@@ -44,9 +44,6 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         private IIdentityMap _identityMap1;
         private Dictionary<IKey, IIdentityMap> _identityMaps;
         private bool _needsUnsubscribe;
-        private bool _queryIsTracked;
-        private TrackingQueryMode _trackingQueryMode = TrackingQueryMode.Simple;
-        private IEntityType _singleQueryModeEntityType;
 
         private readonly IDiagnosticsLogger<DbLoggerCategory.ChangeTracking> _changeTrackingLogger;
         private readonly IInternalEntityEntryFactory _internalEntityEntryFactory;
@@ -131,38 +128,6 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual TrackingQueryMode GetTrackingQueryMode(IEntityType entityType)
-        {
-            if (_trackingQueryMode == TrackingQueryMode.Simple
-                && _singleQueryModeEntityType != entityType)
-            {
-                // Drop out if SQM for change of entity type or self-refs since query may not fix them up.
-                if (_singleQueryModeEntityType != null
-                    || entityType.GetNavigations().Any(n => entityType.IsSameHierarchy(n.GetTargetType())))
-                {
-                    _trackingQueryMode = TrackingQueryMode.Single;
-                }
-
-                _singleQueryModeEntityType = entityType;
-            }
-
-            return _trackingQueryMode;
-        }
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public virtual void EndSingleQueryMode() => _trackingQueryMode = TrackingQueryMode.Multiple;
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
         public virtual IInternalEntityEntryNotifier InternalEntityEntryNotifier { get; }
 
         /// <summary>
@@ -229,8 +194,6 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             var entry = TryGetEntry(entity);
             if (entry == null)
             {
-                _trackingQueryMode = TrackingQueryMode.Multiple;
-
                 var entityType = _model.FindRuntimeEntityType(entity.GetType());
                 if (entityType == null)
                 {
@@ -271,8 +234,6 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             var entry = TryGetEntry(entity, entityType);
             if (entry == null)
             {
-                _trackingQueryMode = TrackingQueryMode.Multiple;
-
                 var runtimeEntityType = _model.FindRuntimeEntityType(entity.GetType());
                 if (runtimeEntityType != null)
                 {
@@ -305,8 +266,6 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         /// </summary>
         public virtual InternalEntityEntry CreateEntry(IDictionary<string, object> values, IEntityType entityType)
         {
-            _trackingQueryMode = TrackingQueryMode.Multiple;
-
             var (i, j) = (0, 0);
             var valuesArray = new object[entityType.PropertyCount()];
             var shadowPropertyValuesArray = new object[entityType.ShadowPropertyCount()];
@@ -363,29 +322,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual void BeginTrackingQuery()
-        {
-            if (_queryIsTracked)
-            {
-                _trackingQueryMode = TrackingQueryMode.Multiple;
-            }
-            else
-            {
-                _queryIsTracked = true;
-            }
-        }
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
         public virtual InternalEntityEntry StartTrackingFromQuery(
             IEntityType baseEntityType,
             object entity,
-            in ValueBuffer valueBuffer,
-            ISet<IForeignKey> handledForeignKeys)
+            in ValueBuffer valueBuffer)
         {
             var existingEntry = TryGetEntry(entity);
             if (existingEntry != null)
@@ -410,7 +350,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             UpdateReferenceMaps(newEntry, EntityState.Unchanged, null);
 
-            newEntry.MarkUnchangedFromQuery(handledForeignKeys);
+            newEntry.MarkUnchangedFromQuery();
 
             if (_internalEntityEntrySubscriber.SnapshotAndSubscribe(newEntry))
             {
@@ -711,9 +651,6 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             _identityMap1?.Clear();
 
             _needsUnsubscribe = false;
-            _queryIsTracked = false;
-            _trackingQueryMode = TrackingQueryMode.Simple;
-            _singleQueryModeEntityType = null;
 
             Tracked = null;
             StateChanged = null;
