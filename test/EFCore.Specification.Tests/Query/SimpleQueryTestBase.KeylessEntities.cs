@@ -18,7 +18,7 @@ namespace Microsoft.EntityFrameworkCore.Query
     {
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task QueryType_simple(bool isAsync)
+        public virtual Task KeylessEntity_simple(bool isAsync)
         {
             return AssertQuery<CustomerView>(
                 isAsync,
@@ -27,7 +27,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task QueryType_where_simple(bool isAsync)
+        public virtual Task KeylessEntity_where_simple(bool isAsync)
         {
             return AssertQuery<CustomerView>(
                 isAsync,
@@ -35,7 +35,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Query_backed_by_database_view()
+        public virtual void KeylessEntity_by_database_view()
         {
             using (var context = CreateContext())
             {
@@ -57,7 +57,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact(Skip = "issue #16323")]
-        public virtual void QueryType_with_nav_defining_query()
+        public virtual void KeylessEntity_with_nav_defining_query()
         {
             using (var context = CreateContext())
             {
@@ -72,7 +72,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory(Skip = "issue #16323")]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task QueryType_with_defining_query(bool isAsync)
+        public virtual Task KeylessEntity_with_defining_query(bool isAsync)
         {
             return AssertQuery<OrderQuery>(
                 isAsync,
@@ -82,7 +82,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         // also issue 12873
         [ConditionalTheory(Skip = "issue #16323")]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task QueryType_with_defining_query_and_correlated_collection(bool isAsync)
+        public virtual Task KeylessEntity_with_defining_query_and_correlated_collection(bool isAsync)
         {
             return AssertQuery<OrderQuery>(
                 isAsync,
@@ -92,7 +92,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory(Skip = "issue #15081")]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task QueryType_with_mixed_tracking(bool isAsync)
+        public virtual Task KeylessEntity_with_mixed_tracking(bool isAsync)
         {
             return AssertQuery<Customer, OrderQuery>(
                 isAsync,
@@ -109,7 +109,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory(Skip = "issue #16323")]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task QueryType_with_included_nav(bool isAsync)
+        public virtual Task KeylessEntity_with_included_nav(bool isAsync)
         {
             return AssertIncludeQuery<OrderQuery>(
                 isAsync,
@@ -124,7 +124,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory(Skip = "issue #16323")]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task QueryType_with_included_navs_multi_level(bool isAsync)
+        public virtual Task KeylessEntity_with_included_navs_multi_level(bool isAsync)
         {
             return AssertIncludeQuery<OrderQuery>(
                 isAsync,
@@ -140,7 +140,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory(Skip = "issue #16323")]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task QueryType_select_where_navigation(bool isAsync)
+        public virtual Task KeylessEntity_select_where_navigation(bool isAsync)
         {
             return AssertQuery<OrderQuery>(
                 isAsync,
@@ -151,7 +151,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory(Skip = "issue #16323")]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task QueryType_select_where_navigation_multi_level(bool isAsync)
+        public virtual Task KeylessEntity_select_where_navigation_multi_level(bool isAsync)
         {
             return AssertQuery<OrderQuery>(
                 isAsync,

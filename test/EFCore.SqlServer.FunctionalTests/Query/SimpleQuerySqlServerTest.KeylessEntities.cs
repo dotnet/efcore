@@ -7,18 +7,18 @@ namespace Microsoft.EntityFrameworkCore.Query
 {
     public partial class SimpleQuerySqlServerTest
     {
-        public override async Task QueryType_simple(bool isAsync)
+        public override async Task KeylessEntity_simple(bool isAsync)
         {
-            await base.QueryType_simple(isAsync);
+            await base.KeylessEntity_simple(isAsync);
 
             AssertSql(
                 @"SELECT [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle]
 FROM [Customers] AS [c]");
         }
 
-        public override async Task QueryType_where_simple(bool isAsync)
+        public override async Task KeylessEntity_where_simple(bool isAsync)
         {
-            await base.QueryType_where_simple(isAsync);
+            await base.KeylessEntity_where_simple(isAsync);
 
             AssertSql(
                 @"SELECT [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle]
@@ -26,18 +26,18 @@ FROM [Customers] AS [c]
 WHERE ([c].[City] = N'London') AND [c].[City] IS NOT NULL");
         }
 
-        public override void Query_backed_by_database_view()
+        public override void KeylessEntity_by_database_view()
         {
-            base.Query_backed_by_database_view();
+            base.KeylessEntity_by_database_view();
 
             AssertSql(
                 @"SELECT [a].[CategoryName], [a].[ProductID], [a].[ProductName]
 FROM [Alphabetical list of products] AS [a]");
         }
 
-        public override void QueryType_with_nav_defining_query()
+        public override void KeylessEntity_with_nav_defining_query()
         {
-            base.QueryType_with_nav_defining_query();
+            base.KeylessEntity_with_nav_defining_query();
 
             AssertSql(
                 @"@__ef_filter___searchTerm_0='A' (Size = 4000)
@@ -55,9 +55,9 @@ FROM (
 WHERE (([t].[CompanyName] LIKE @__ef_filter___searchTerm_1 + N'%' AND (LEFT([t].[CompanyName], LEN(@__ef_filter___searchTerm_1)) = @__ef_filter___searchTerm_1)) OR (@__ef_filter___searchTerm_1 = N'')) AND ([t].[OrderCount] > 0)");
         }
 
-        public override async Task QueryType_with_mixed_tracking(bool isAsync)
+        public override async Task KeylessEntity_with_mixed_tracking(bool isAsync)
         {
-            await base.QueryType_with_mixed_tracking(isAsync);
+            await base.KeylessEntity_with_mixed_tracking(isAsync);
 
             AssertSql(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [t].[CustomerID]
@@ -71,9 +71,9 @@ CROSS JOIN (
 WHERE [t].[CustomerID] = [c].[CustomerID]");
         }
 
-        public override async Task QueryType_with_defining_query(bool isAsync)
+        public override async Task KeylessEntity_with_defining_query(bool isAsync)
         {
-            await base.QueryType_with_defining_query(isAsync);
+            await base.KeylessEntity_with_defining_query(isAsync);
 
             AssertSql(
                 @"SELECT [t].[CustomerID]
@@ -86,17 +86,17 @@ FROM (
 WHERE [t].[CustomerID] = N'ALFKI'");
         }
 
-        public override async Task QueryType_with_defining_query_and_correlated_collection(bool isAsync)
+        public override async Task KeylessEntity_with_defining_query_and_correlated_collection(bool isAsync)
         {
-            await base.QueryType_with_defining_query_and_correlated_collection(isAsync);
+            await base.KeylessEntity_with_defining_query_and_correlated_collection(isAsync);
 
             AssertSql(
                 "");
         }
 
-        public override async Task QueryType_with_included_nav(bool isAsync)
+        public override async Task KeylessEntity_with_included_nav(bool isAsync)
         {
-            await base.QueryType_with_included_nav(isAsync);
+            await base.KeylessEntity_with_included_nav(isAsync);
 
             AssertSql(
                 @"SELECT [t].[CustomerID], [ov.Customer].[CustomerID], [ov.Customer].[Address], [ov.Customer].[City], [ov.Customer].[CompanyName], [ov.Customer].[ContactName], [ov.Customer].[ContactTitle], [ov.Customer].[Country], [ov.Customer].[Fax], [ov.Customer].[Phone], [ov.Customer].[PostalCode], [ov.Customer].[Region]
@@ -110,9 +110,9 @@ LEFT JOIN [Customers] AS [ov.Customer] ON [t].[CustomerID] = [ov.Customer].[Cust
 WHERE [t].[CustomerID] = N'ALFKI'");
         }
 
-        public override async Task QueryType_with_included_navs_multi_level(bool isAsync)
+        public override async Task KeylessEntity_with_included_navs_multi_level(bool isAsync)
         {
-            await base.QueryType_with_included_navs_multi_level(isAsync);
+            await base.KeylessEntity_with_included_navs_multi_level(isAsync);
 
             AssertSql(
                 @"SELECT [t].[CustomerID], [ov.Customer].[CustomerID], [ov.Customer].[Address], [ov.Customer].[City], [ov.Customer].[CompanyName], [ov.Customer].[ContactName], [ov.Customer].[ContactTitle], [ov.Customer].[Country], [ov.Customer].[Fax], [ov.Customer].[Phone], [ov.Customer].[PostalCode], [ov.Customer].[Region]
@@ -142,9 +142,9 @@ INNER JOIN (
 ORDER BY [t1].[CustomerID]");
         }
 
-        public override async Task QueryType_select_where_navigation(bool isAsync)
+        public override async Task KeylessEntity_select_where_navigation(bool isAsync)
         {
-            await base.QueryType_select_where_navigation(isAsync);
+            await base.KeylessEntity_select_where_navigation(isAsync);
 
             AssertSql(
                 @"SELECT [t].[CustomerID]
@@ -158,9 +158,9 @@ LEFT JOIN [Customers] AS [ov.Customer] ON [t].[CustomerID] = [ov.Customer].[Cust
 WHERE [ov.Customer].[City] = N'Seattle'");
         }
 
-        public override async Task QueryType_select_where_navigation_multi_level(bool isAsync)
+        public override async Task KeylessEntity_select_where_navigation_multi_level(bool isAsync)
         {
-            await base.QueryType_select_where_navigation_multi_level(isAsync);
+            await base.KeylessEntity_select_where_navigation_multi_level(isAsync);
 
             AssertSql(
                 @"SELECT [t].[CustomerID]

@@ -11,9 +11,9 @@ namespace Microsoft.EntityFrameworkCore.Query
     public partial class SimpleQueryCosmosTest
     {
         [ConditionalTheory(Skip = "See issue#13857")]
-        public override async Task QueryType_simple(bool isAsync)
+        public override async Task KeylessEntity_simple(bool isAsync)
         {
-            await base.QueryType_simple(isAsync);
+            await base.KeylessEntity_simple(isAsync);
 
             AssertSql(
                 @"SELECT c
@@ -22,9 +22,9 @@ WHERE (c[""Discriminator""] = ""Customer"")");
         }
 
         [ConditionalTheory(Skip = "See issue#13857")]
-        public override async Task QueryType_where_simple(bool isAsync)
+        public override async Task KeylessEntity_where_simple(bool isAsync)
         {
-            await base.QueryType_where_simple(isAsync);
+            await base.KeylessEntity_where_simple(isAsync);
 
             AssertSql(
                 @"SELECT c
@@ -33,9 +33,9 @@ WHERE (c[""Discriminator""] = ""Customer"")");
         }
 
         [ConditionalFact(Skip = "See issue#13857")]
-        public override void Query_backed_by_database_view()
+        public override void KeylessEntity_by_database_view()
         {
-            base.Query_backed_by_database_view();
+            base.KeylessEntity_by_database_view();
 
             AssertSql(
                 @"SELECT c
@@ -43,9 +43,9 @@ FROM root c
 WHERE ((c[""Discriminator""] = ""Product"") AND NOT(c[""Discontinued""]))");
         }
 
-        public override void QueryType_with_nav_defining_query()
+        public override void KeylessEntity_with_nav_defining_query()
         {
-            base.QueryType_with_nav_defining_query();
+            base.KeylessEntity_with_nav_defining_query();
 
             AssertSql(
                 @"SELECT c
@@ -53,7 +53,7 @@ FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
 
-        public override async Task QueryType_with_mixed_tracking(bool isAsync)
+        public override async Task KeylessEntity_with_mixed_tracking(bool isAsync)
         {
             await AssertQuery<Customer, OrderQuery>(
                 isAsync,
@@ -73,9 +73,9 @@ FROM root c
 WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""City""] = ""London""))");
         }
 
-        public override async Task QueryType_with_defining_query(bool isAsync)
+        public override async Task KeylessEntity_with_defining_query(bool isAsync)
         {
-            await base.QueryType_with_defining_query(isAsync);
+            await base.KeylessEntity_with_defining_query(isAsync);
 
             AssertSql(
                 @"SELECT c
@@ -83,9 +83,9 @@ FROM root c
 WHERE (c[""Discriminator""] = ""Order"")");
         }
 
-        public override async Task QueryType_with_defining_query_and_correlated_collection(bool isAsync)
+        public override async Task KeylessEntity_with_defining_query_and_correlated_collection(bool isAsync)
         {
-            await base.QueryType_with_defining_query_and_correlated_collection(isAsync);
+            await base.KeylessEntity_with_defining_query_and_correlated_collection(isAsync);
 
             AssertSql(
                 @"SELECT c
@@ -93,9 +93,9 @@ FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
 
-        public override async Task QueryType_with_included_nav(bool isAsync)
+        public override async Task KeylessEntity_with_included_nav(bool isAsync)
         {
-            await base.QueryType_with_included_nav(isAsync);
+            await base.KeylessEntity_with_included_nav(isAsync);
 
             AssertSql(
                 @"SELECT c
@@ -103,9 +103,9 @@ FROM root c
 WHERE (c[""Discriminator""] = ""Order"")");
         }
 
-        public override async Task QueryType_with_included_navs_multi_level(bool isAsync)
+        public override async Task KeylessEntity_with_included_navs_multi_level(bool isAsync)
         {
-            await base.QueryType_with_included_navs_multi_level(isAsync);
+            await base.KeylessEntity_with_included_navs_multi_level(isAsync);
 
             AssertSql(
                 @"SELECT c
@@ -113,9 +113,9 @@ FROM root c
 WHERE (c[""Discriminator""] = ""Order"")");
         }
 
-        public override async Task QueryType_select_where_navigation(bool isAsync)
+        public override async Task KeylessEntity_select_where_navigation(bool isAsync)
         {
-            await base.QueryType_select_where_navigation(isAsync);
+            await base.KeylessEntity_select_where_navigation(isAsync);
 
             AssertSql(
                 @"SELECT c
@@ -123,7 +123,7 @@ FROM root c
 WHERE (c[""Discriminator""] = ""Order"")");
         }
 
-        public override async Task QueryType_select_where_navigation_multi_level(bool isAsync)
+        public override async Task KeylessEntity_select_where_navigation_multi_level(bool isAsync)
         {
             await AssertQuery<OrderQuery>(
                 isAsync,
