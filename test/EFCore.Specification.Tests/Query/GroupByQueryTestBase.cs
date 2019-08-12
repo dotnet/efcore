@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.TestModels.Northwind;
@@ -260,6 +261,22 @@ namespace Microsoft.EntityFrameworkCore.Query
                             Sum = g.Sum(o => o.OrderID)
                         }),
                 e => e.Key1);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task GroupBy_Property_Select_Key_with_constant(bool isAsync)
+        {
+            return AssertQuery<Order>(
+                isAsync,
+                os => os.GroupBy(o => new { Name = "CustomerID", Value = o.CustomerID }).Select(
+                    g =>
+                        new
+                        {
+                            g.Key,
+                            Count = g.Count()
+                        }),
+                e => e.Key.Value);
         }
 
         [ConditionalTheory]
