@@ -744,13 +744,13 @@ namespace Microsoft.EntityFrameworkCore.Query
                     var innerShaperExpression = inner.ShaperExpression;
                     if (defaultIfEmpty)
                     {
-                        ((SelectExpression)source.QueryExpression).AddOuterApply(
+                        ((SelectExpression)source.QueryExpression).AddLeftJoinLateral(
                             (SelectExpression)inner.QueryExpression, transparentIdentifierType);
                         innerShaperExpression = MarkShaperNullable(innerShaperExpression);
                     }
                     else
                     {
-                        ((SelectExpression)source.QueryExpression).AddCrossApply(
+                        ((SelectExpression)source.QueryExpression).AddInnerJoinLateral(
                            (SelectExpression)inner.QueryExpression, transparentIdentifierType);
                     }
 

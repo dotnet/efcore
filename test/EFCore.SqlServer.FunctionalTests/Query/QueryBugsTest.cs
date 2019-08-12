@@ -5236,7 +5236,7 @@ END IN ('0a47bcb7-a1cb-4345-8944-c58f82d6aac7', '5f221fb9-66f4-442a-92c9-d97ed59
                     Assert.Equal(10, partners[0].Addresses[0].Turnovers.AmountIn);
 
                     AssertSql(
-                @"SELECT [p].[Id], [t].[c], [t].[Turnovers_AmountIn], [t].[Id], [t].[Partner13157Id]
+                        @"SELECT [p].[Id], [t].[c], [t].[Turnovers_AmountIn], [t].[Id]
 FROM [Partners] AS [p]
 LEFT JOIN (
     SELECT CASE

@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Threading.Tasks;
+using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
@@ -1005,6 +1006,12 @@ INNER JOIN [Orders] AS [o] ON [c].[CustomerID] = [o].[CustomerID]");
                 @"SELECT [o].[CustomerID]
 FROM [Customers] AS [c]
 INNER JOIN [Orders] AS [o] ON [c].[CustomerID] = [o].[CustomerID]");
+        }
+
+        [ConditionalFact(Skip = "Issue#17117")]
+        public override void Select_nested_projection()
+        {
+            base.Select_nested_projection();
         }
     }
 }
