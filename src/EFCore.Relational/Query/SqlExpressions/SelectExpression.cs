@@ -1093,7 +1093,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             _projectionMapping = projectionMapping;
         }
 
-        public void AddCrossApply(SelectExpression innerSelectExpression, Type transparentIdentifierType)
+        public void AddInnerJoinLateral(SelectExpression innerSelectExpression, Type transparentIdentifierType)
         {
             var joinPredicate = TryExtractJoinKey(innerSelectExpression);
             if (joinPredicate != null)
@@ -1121,7 +1121,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             }
 
             _identifier.AddRange(innerSelectExpression._identifier);
-            var joinTable = new CrossApplyExpression(innerSelectExpression.Tables.Single());
+            var joinTable = new InnerJoinLateralExpression(innerSelectExpression.Tables.Single());
             _tables.Add(joinTable);
 
             var outerMemberInfo = transparentIdentifierType.GetTypeInfo().GetDeclaredField("Outer");
@@ -1140,7 +1140,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             _projectionMapping = projectionMapping;
         }
 
-        public void AddOuterApply(SelectExpression innerSelectExpression, Type transparentIdentifierType)
+        public void AddLeftJoinLateral(SelectExpression innerSelectExpression, Type transparentIdentifierType)
         {
             var joinPredicate = TryExtractJoinKey(innerSelectExpression);
             if (joinPredicate != null)
@@ -1168,7 +1168,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             }
 
             _identifier.AddRange(innerSelectExpression._identifier);
-            var joinTable = new OuterApplyExpression(innerSelectExpression.Tables.Single());
+            var joinTable = new LeftJoinLateralExpression(innerSelectExpression.Tables.Single());
             _tables.Add(joinTable);
 
             var outerMemberInfo = transparentIdentifierType.GetTypeInfo().GetDeclaredField("Outer");

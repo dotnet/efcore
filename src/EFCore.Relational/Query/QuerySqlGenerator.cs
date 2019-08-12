@@ -706,20 +706,20 @@ namespace Microsoft.EntityFrameworkCore.Query
             return crossJoinExpression;
         }
 
-        protected override Expression VisitCrossApply(CrossApplyExpression crossApplyExpression)
+        protected override Expression VisitInnerJoinLateral(InnerJoinLateralExpression innerJoinLateralExpression)
         {
-            _relationalCommandBuilder.Append("CROSS APPLY ");
-            Visit(crossApplyExpression.Table);
+            _relationalCommandBuilder.Append("INNER JOIN LATERAL ");
+            Visit(innerJoinLateralExpression.Table);
 
-            return crossApplyExpression;
+            return innerJoinLateralExpression;
         }
 
-        protected override Expression VisitOuterApply(OuterApplyExpression outerApplyExpression)
+        protected override Expression VisitLeftJoinLateral(LeftJoinLateralExpression leftJoinLateralExpression)
         {
-            _relationalCommandBuilder.Append("OUTER APPLY ");
-            Visit(outerApplyExpression.Table);
+            _relationalCommandBuilder.Append("LEFT JOIN LATERAL ");
+            Visit(leftJoinLateralExpression.Table);
 
-            return outerApplyExpression;
+            return leftJoinLateralExpression;
         }
 
         protected override Expression VisitInnerJoin(InnerJoinExpression innerJoinExpression)

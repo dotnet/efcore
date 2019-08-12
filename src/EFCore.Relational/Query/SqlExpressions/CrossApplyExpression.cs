@@ -1,14 +1,13 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
 using System.Linq.Expressions;
 
 namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 {
-    public class CrossApplyExpression : JoinExpressionBase
+    public class InnerJoinLateralExpression : JoinExpressionBase
     {
-        public CrossApplyExpression(TableExpressionBase table)
+        public InnerJoinLateralExpression(TableExpressionBase table)
             : base(table)
         {
         }
@@ -16,25 +15,25 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         protected override Expression VisitChildren(ExpressionVisitor visitor)
             => Update((TableExpressionBase)visitor.Visit(Table));
 
-        public virtual CrossApplyExpression Update(TableExpressionBase table)
+        public virtual InnerJoinLateralExpression Update(TableExpressionBase table)
             => table != Table
-                ? new CrossApplyExpression(table)
+                ? new InnerJoinLateralExpression(table)
                 : this;
 
         public override void Print(ExpressionPrinter expressionPrinter)
         {
-            expressionPrinter.StringBuilder.Append("CROSS APPLY ");
+            expressionPrinter.StringBuilder.Append("INNER JOIN LATERAL ");
             expressionPrinter.Visit(Table);
         }
 
         public override bool Equals(object obj)
             => obj != null
             && (ReferenceEquals(this, obj)
-                || obj is CrossApplyExpression crossApplyExpression
-                    && Equals(crossApplyExpression));
+                || obj is InnerJoinLateralExpression innerJoinLateralExpression
+                    && Equals(innerJoinLateralExpression));
 
-        private bool Equals(CrossApplyExpression crossApplyExpression)
-            => base.Equals(crossApplyExpression);
+        private bool Equals(InnerJoinLateralExpression innerJoinLateralExpression)
+            => base.Equals(innerJoinLateralExpression);
 
         public override int GetHashCode() => base.GetHashCode();
     }
