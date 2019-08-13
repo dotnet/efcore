@@ -173,7 +173,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             {
                 _relationalCommandBuilder.AppendLine().Append("GROUP BY ");
 
-                GenerateList(selectExpression.GroupBy, e => Visit(e),  skipCondition: e => e is SqlConstantExpression);
+                GenerateList(selectExpression.GroupBy, e => Visit(e));
             }
 
             if (selectExpression.Having != null)
@@ -683,24 +683,16 @@ namespace Microsoft.EntityFrameworkCore.Query
         private void GenerateList<T>(
             IReadOnlyList<T> items,
             Action<T> generationAction,
-            Action<IRelationalCommandBuilder> joinAction = null,
-            Func<T, bool> skipCondition = null)
+            Action<IRelationalCommandBuilder> joinAction = null)
         {
             joinAction ??= (isb => isb.Append(", "));
-            bool first = true;
 
             for (var i = 0; i < items.Count; i++)
             {
-                if (skipCondition?.Invoke(items[i])?? false)
-                {
-                    continue;
-                }
-
-                if (!first)
+                if (i > 0)
                 {
                     joinAction(_relationalCommandBuilder);
                 }
-                first = false;
 
                 generationAction(items[i]);
             }
