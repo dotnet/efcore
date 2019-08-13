@@ -5,7 +5,6 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -39,9 +38,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             = typeof(object).GetRuntimeMethod(nameof(object.Equals), new[] { typeof(object), typeof(object) });
 
         private static readonly MethodInfo _enumerableContainsMethodInfo = typeof(Enumerable).GetTypeInfo()
-            .GetDeclaredMethods(nameof(Enumerable.Contains))
-            .Single(mi => mi.GetParameters().Length == 2);
-        private static readonly MethodInfo _enumerableSelectMethodInfo = typeof(Enumerable).GetTypeInfo()
             .GetDeclaredMethods(nameof(Enumerable.Contains))
             .Single(mi => mi.GetParameters().Length == 2);
 
@@ -510,7 +506,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 firstOrdering = false;
             }
 
-            return expression;
+            return sourceWrapper.Update(expression);
 
             static MethodInfo GetOrderingMethodInfo(bool firstOrdering, bool ascending)
             {
