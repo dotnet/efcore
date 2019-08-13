@@ -13,14 +13,6 @@ namespace Microsoft.Data.Sqlite
     public class SqliteParameterTest
     {
         [Fact]
-        public void Ctor_validates_arguments()
-        {
-            var ex = Assert.Throws<ArgumentNullException>(() => new SqliteParameter(null, 1));
-
-            Assert.Equal("name", ex.ParamName);
-        }
-
-        [Fact]
         public void Ctor_sets_name_and_value()
         {
             var result = new SqliteParameter("@Parameter", 1);
@@ -74,13 +66,6 @@ namespace Microsoft.Data.Sqlite
         {
             var ex = Assert.Throws<ArgumentException>(() => new SqliteParameter().Direction = ParameterDirection.Output);
             Assert.Equal(Resources.InvalidParameterDirection(ParameterDirection.Output), ex.Message);
-        }
-
-        [Fact]
-        public void ParameterName_validates_value()
-        {
-            var ex = Assert.Throws<ArgumentNullException>(() => new SqliteParameter().ParameterName = null);
-            Assert.Equal("value", ex.ParamName);
         }
 
         [Fact]
