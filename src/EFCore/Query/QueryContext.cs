@@ -17,7 +17,7 @@ namespace Microsoft.EntityFrameworkCore.Query
     /// <summary>
     ///     The principal data structure used by a compiled query during execution.
     /// </summary>
-    public class QueryContext : IParameterValues
+    public abstract class QueryContext : IParameterValues
     {
         private readonly IDictionary<string, object> _parameterValues = new Dictionary<string, object>();
 
@@ -118,36 +118,6 @@ namespace Microsoft.EntityFrameworkCore.Query
             Check.NotEmpty(name, nameof(name));
 
             _parameterValues.Add(name, value);
-        }
-
-        /// <summary>
-        ///     Sets a parameter value.
-        /// </summary>
-        /// <param name="name"> The name. </param>
-        /// <param name="value"> The value. </param>
-        public virtual void Replace(string name, object value)
-        {
-            Check.NotEmpty(name, nameof(name));
-
-            _parameterValues[name] = value;
-        }
-
-        /// <summary>
-        ///     Removes a parameter by name.
-        /// </summary>
-        /// <param name="name"> The name. </param>
-        /// <returns>
-        ///     The parameter value.
-        /// </returns>
-        public virtual object Remove(string name)
-        {
-            Check.NotEmpty(name, nameof(name));
-
-            var value = _parameterValues[name];
-
-            _parameterValues.Remove(name);
-
-            return value;
         }
 
         public virtual InternalEntityEntry StartTracking(

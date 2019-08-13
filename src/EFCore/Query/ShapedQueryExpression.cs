@@ -31,22 +31,22 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         public virtual void Print(ExpressionPrinter expressionPrinter)
         {
-            expressionPrinter.StringBuilder.AppendLine(nameof(ShapedQueryExpression) + ": ");
-            using (expressionPrinter.StringBuilder.Indent())
+            expressionPrinter.AppendLine(nameof(ShapedQueryExpression) + ": ");
+            using (expressionPrinter.Indent())
             {
-                expressionPrinter.StringBuilder.AppendLine(nameof(QueryExpression) + ": ");
-                using (expressionPrinter.StringBuilder.Indent())
+                expressionPrinter.AppendLine(nameof(QueryExpression) + ": ");
+                using (expressionPrinter.Indent())
                 {
                     expressionPrinter.Visit(QueryExpression);
                 }
 
-                expressionPrinter.StringBuilder.AppendLine().Append(nameof(ShaperExpression) + ": ");
-                using (expressionPrinter.StringBuilder.Indent())
+                expressionPrinter.AppendLine().Append(nameof(ShaperExpression) + ": ");
+                using (expressionPrinter.Indent())
                 {
                     expressionPrinter.Visit(ShaperExpression);
                 }
 
-                expressionPrinter.StringBuilder.AppendLine();
+                expressionPrinter.AppendLine();
             }
         }
     }

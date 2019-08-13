@@ -80,7 +80,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                 {
                     if (!first)
                     {
-                        expressionPrinter.StringBuilder.Append(", ");
+                        expressionPrinter.Append(", ");
                     }
 
                     first = false;
@@ -91,7 +91,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
             {
                 var jToken = GenerateJToken(Value, TypeMapping);
 
-                expressionPrinter.StringBuilder.Append(jToken == null ? "null" : jToken.ToString(Formatting.None));
+                expressionPrinter.Append(jToken == null ? "null" : jToken.ToString(Formatting.None));
             }
         }
 

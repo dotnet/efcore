@@ -40,13 +40,14 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         public virtual void Print(ExpressionPrinter expressionPrinter)
         {
-            expressionPrinter.StringBuilder.AppendLine($"IncludeExpression(");
-            expressionPrinter.StringBuilder.IncrementIndent();
-            expressionPrinter.Visit(EntityExpression);
-            expressionPrinter.StringBuilder.AppendLine($", ");
-            expressionPrinter.Visit(NavigationExpression);
-            expressionPrinter.StringBuilder.AppendLine($", {Navigation.Name})");
-            expressionPrinter.StringBuilder.DecrementIndent();
+            expressionPrinter.AppendLine($"IncludeExpression(");
+            using (expressionPrinter.Indent())
+            {
+                expressionPrinter.Visit(EntityExpression);
+                expressionPrinter.AppendLine($", ");
+                expressionPrinter.Visit(NavigationExpression);
+                expressionPrinter.AppendLine($", {Navigation.Name})");
+            }
         }
     }
 }

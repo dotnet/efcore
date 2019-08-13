@@ -32,20 +32,15 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
 
         private Expression ConvertToValue(SqlExpression sqlExpression, bool condition)
         {
-            if (condition)
-            {
-                return _sqlExpressionFactory.Case(new[]
-                {
-                    new CaseWhenClause(
-                        sqlExpression,
-                        _sqlExpressionFactory.ApplyDefaultTypeMapping(_sqlExpressionFactory.Constant(true)))
-                },
-                _sqlExpressionFactory.Constant(false));
-            }
-            else
-            {
-                return sqlExpression;
-            }
+            return condition
+                ? _sqlExpressionFactory.Case(new[]
+                    {
+                        new CaseWhenClause(
+                            sqlExpression,
+                            _sqlExpressionFactory.ApplyDefaultTypeMapping(_sqlExpressionFactory.Constant(true)))
+                    },
+                    _sqlExpressionFactory.Constant(false))
+                : sqlExpression;
         }
 
         private SqlExpression BuildCompareToExpression(SqlExpression sqlExpression)
@@ -177,13 +172,10 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
 
             _isSearchCondition = parentSearchCondition;
 
-            if (changed)
-            {
-                return selectExpression.Update(
-                    projections, tables, predicate, groupBy, havingExpression, orderings, limit, offset, selectExpression.IsDistinct, selectExpression.Alias);
-            }
-
-            return selectExpression;
+            return changed
+                ? selectExpression.Update(
+                    projections, tables, predicate, groupBy, havingExpression, orderings, limit, offset, selectExpression.IsDistinct, selectExpression.Alias)
+                : selectExpression;
         }
 
         protected override Expression VisitSqlBinary(SqlBinaryExpression sqlBinaryExpression)

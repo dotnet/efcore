@@ -24,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         public virtual Expression Visit(Expression query)
         {
-            query = new EnumerableToQueryableReMappingExpressionVisitor().Visit(query);
+            query = new EnumerableToQueryableMethodConvertingExpressionVisitor().Visit(query);
             query = new QueryMetadataExtractingExpressionVisitor(_queryCompilationContext).Visit(query);
             query = new AllAnyToContainsRewritingExpressionVisitor().Visit(query);
             query = new GroupJoinFlatteningExpressionVisitor().Visit(query);
@@ -32,7 +32,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             query = new EntityEqualityRewritingExpressionVisitor(_queryCompilationContext).Rewrite(query);
             query = new SubqueryMemberPushdownExpressionVisitor().Visit(query);
             query = new NavigationExpandingExpressionVisitor(_queryCompilationContext, Dependencies.EvaluatableExpressionFilter).Expand(query);
-            query = new FunctionPreprocessingVisitor().Visit(query);
+            query = new FunctionPreprocessingExpressionVisitor().Visit(query);
             new EnumerableVerifyingExpressionVisitor().Visit(query);
 
             return query;

@@ -9,7 +9,7 @@ using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 
 namespace Microsoft.EntityFrameworkCore.Query.Internal
 {
-    public class SelectExpressionTableAliasUniquifyingExpressionVisitor : ExpressionVisitor
+    public class TableAliasUniquifyingExpressionVisitor : ExpressionVisitor
     {
         private readonly ISet<string> _usedAliases = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         private readonly ISet<TableExpressionBase> _visitedTableExpressionBases

@@ -35,12 +35,12 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 
         public override void Print(ExpressionPrinter expressionPrinter)
         {
-            expressionPrinter.StringBuilder.Append("(");
-            using (expressionPrinter.StringBuilder.Indent())
+            expressionPrinter.Append("(");
+            using (expressionPrinter.Indent())
             {
                 expressionPrinter.Visit(Subquery);
             }
-            expressionPrinter.StringBuilder.Append(")");
+            expressionPrinter.Append(")");
         }
         public override bool Equals(object obj)
             => obj != null

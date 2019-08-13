@@ -12,7 +12,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 {
     public partial class NavigationExpandingExpressionVisitor
     {
-        public class NavigationExpansionExpression : Expression, IPrintable
+        protected class NavigationExpansionExpression : Expression, IPrintable
         {
             private readonly List<(MethodInfo OrderingMethod, Expression KeySelector)> _pendingOrderings
                 = new List<(MethodInfo OrderingMethod, Expression KeySelector)>();
@@ -83,18 +83,18 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             public virtual void Print(ExpressionPrinter expressionPrinter)
             {
-                expressionPrinter.StringBuilder.AppendLine(nameof(NavigationExpansionExpression));
+                expressionPrinter.AppendLine(nameof(NavigationExpansionExpression));
                 using (expressionPrinter.Indent())
                 {
-                    expressionPrinter.StringBuilder.Append("Source: ");
+                    expressionPrinter.Append("Source: ");
                     expressionPrinter.Visit(Source);
-                    expressionPrinter.StringBuilder.AppendLine();
-                    expressionPrinter.StringBuilder.Append("PendingSelector: ");
+                    expressionPrinter.AppendLine();
+                    expressionPrinter.Append("PendingSelector: ");
                     expressionPrinter.Visit(Lambda(PendingSelector, CurrentParameter));
-                    expressionPrinter.StringBuilder.AppendLine();
+                    expressionPrinter.AppendLine();
                     if (CardinalityReducingGenericMethodInfo != null)
                     {
-                        expressionPrinter.StringBuilder.AppendLine("CardinalityReducingMethod: " + CardinalityReducingGenericMethodInfo.Name);
+                        expressionPrinter.AppendLine("CardinalityReducingMethod: " + CardinalityReducingGenericMethodInfo.Name);
                     }
                 }
             }
@@ -105,7 +105,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 : PendingSelector.Type;
         }
 
-        public class NavigationTreeExpression : NavigationTreeNode, IPrintable
+        protected class NavigationTreeExpression : NavigationTreeNode, IPrintable
         {
             public NavigationTreeExpression(Expression value)
                 : base(null, null)
@@ -135,7 +135,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             }
         }
 
-        public class EntityReference : Expression, IPrintable
+        protected class EntityReference : Expression, IPrintable
         {
             public EntityReference(IEntityType entityType)
             {
@@ -185,7 +185,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 expressionPrinter.Append(EntityType.DisplayName());
                 if (IsOptional)
                 {
-                    expressionPrinter.StringBuilder.Append("[Optional]");
+                    expressionPrinter.Append("[Optional]");
                 }
 
                 if (IncludePaths.Count > 0)
@@ -201,7 +201,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             public override Type Type => EntityType.ClrType;
         }
 
-        public class NavigationTreeNode : Expression
+        protected class NavigationTreeNode : Expression
         {
             private NavigationTreeNode _parent;
 
@@ -252,7 +252,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             }
         }
 
-        public class OwnedNavigationReference : Expression
+        protected class OwnedNavigationReference : Expression
         {
             public OwnedNavigationReference(Expression parent, INavigation navigation, EntityReference entityReference)
             {
@@ -276,7 +276,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             public virtual EntityReference EntityReference { get; }
         }
 
-        public class IncludeTreeNode : Dictionary<INavigation, IncludeTreeNode>
+        protected class IncludeTreeNode : Dictionary<INavigation, IncludeTreeNode>
         {
             private EntityReference _entityReference;
             public virtual IEntityType EntityType { get; private set; }

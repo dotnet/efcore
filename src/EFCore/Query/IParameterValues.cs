@@ -11,9 +11,5 @@ namespace Microsoft.EntityFrameworkCore.Query
         IReadOnlyDictionary<string, object> ParameterValues { get; }
 
         void Add([NotNull] string name, [CanBeNull] object value);
-
-        object Remove([NotNull] string name);
-
-        void Replace([NotNull] string name, [CanBeNull] object value);
     }
 }

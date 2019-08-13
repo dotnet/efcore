@@ -51,19 +51,19 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         {
             if (OperatorType == ExpressionType.Convert)
             {
-                expressionPrinter.StringBuilder.Append("CAST(");
+                expressionPrinter.Append("CAST(");
                 expressionPrinter.Visit(Operand);
-                expressionPrinter.StringBuilder.Append(")");
-                expressionPrinter.StringBuilder.Append(" AS ");
-                expressionPrinter.StringBuilder.Append(TypeMapping.StoreType);
-                expressionPrinter.StringBuilder.Append(")");
+                expressionPrinter.Append(")");
+                expressionPrinter.Append(" AS ");
+                expressionPrinter.Append(TypeMapping.StoreType);
+                expressionPrinter.Append(")");
             }
             else
             {
-                expressionPrinter.StringBuilder.Append(OperatorType);
-                expressionPrinter.StringBuilder.Append("(");
+                expressionPrinter.Append(OperatorType);
+                expressionPrinter.Append("(");
                 expressionPrinter.Visit(Operand);
-                expressionPrinter.StringBuilder.Append(")");
+                expressionPrinter.Append(")");
             }
         }
         public override bool Equals(object obj)

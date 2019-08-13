@@ -25,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         public override void Print(ExpressionPrinter expressionPrinter) => Print(Value, expressionPrinter);
 
         private void Print(object value, ExpressionPrinter expressionPrinter)
-            => expressionPrinter.StringBuilder.Append(TypeMapping?.GenerateSqlLiteral(value) ?? Value?.ToString() ?? "NULL");
+            => expressionPrinter.Append(TypeMapping?.GenerateSqlLiteral(value) ?? Value?.ToString() ?? "NULL");
 
         public override bool Equals(object obj)
             => obj != null

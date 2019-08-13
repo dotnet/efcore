@@ -28,11 +28,11 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 
         private static bool IsNullableProjection(ProjectionExpression projectionExpression)
             => projectionExpression.Expression switch
-                {
-                    ColumnExpression columnExpression => columnExpression.IsNullable,
-                    SqlConstantExpression sqlConstantExpression => sqlConstantExpression.Value == null,
-                    _ => true,
-                };
+            {
+                ColumnExpression columnExpression => columnExpression.IsNullable,
+                SqlConstantExpression sqlConstantExpression => sqlConstantExpression.Value == null,
+                _ => true,
+            };
 
         private ColumnExpression(string name, TableExpressionBase table, Type type, RelationalTypeMapping typeMapping, bool nullable)
             : base(type, typeMapping)
@@ -64,11 +64,8 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 
         public override void Print(ExpressionPrinter expressionPrinter)
         {
-            if (Table.Alias != null)
-            {
-                expressionPrinter.StringBuilder.Append(Table.Alias).Append(".");
-            }
-            expressionPrinter.StringBuilder.Append(Name);
+            expressionPrinter.Append(Table.Alias).Append(".");
+            expressionPrinter.Append(Name);
         }
 
         public override bool Equals(object obj)

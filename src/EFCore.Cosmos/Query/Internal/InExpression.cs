@@ -96,10 +96,10 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         public override void Print(ExpressionPrinter expressionPrinter)
         {
             expressionPrinter.Visit(Item);
-            expressionPrinter.StringBuilder.Append(IsNegated ? " NOT IN " : " IN ");
-            expressionPrinter.StringBuilder.Append("(");
+            expressionPrinter.Append(IsNegated ? " NOT IN " : " IN ");
+            expressionPrinter.Append("(");
             expressionPrinter.Visit(Values);
-            expressionPrinter.StringBuilder.Append(")");
+            expressionPrinter.Append(")");
         }
 
         /// <summary>

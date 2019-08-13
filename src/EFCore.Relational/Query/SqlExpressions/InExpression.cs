@@ -54,8 +54,8 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         public override void Print(ExpressionPrinter expressionPrinter)
         {
             expressionPrinter.Visit(Item);
-            expressionPrinter.StringBuilder.Append(IsNegated ? " NOT IN " : " IN ");
-            expressionPrinter.StringBuilder.Append("(");
+            expressionPrinter.Append(IsNegated ? " NOT IN " : " IN ");
+            expressionPrinter.Append("(");
 
             if (Values is SqlConstantExpression constantValuesExpression
                 && constantValuesExpression.Value is IEnumerable constantValues)
@@ -65,11 +65,11 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                 {
                     if (!first)
                     {
-                        expressionPrinter.StringBuilder.Append(", ");
+                        expressionPrinter.Append(", ");
                     }
 
                     first = false;
-                    expressionPrinter.StringBuilder.Append(constantValuesExpression.TypeMapping?.GenerateSqlLiteral(item) ?? item?.ToString() ?? "NULL");
+                    expressionPrinter.Append(constantValuesExpression.TypeMapping?.GenerateSqlLiteral(item) ?? item?.ToString() ?? "NULL");
                 }
             }
             else
@@ -77,7 +77,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                 expressionPrinter.Visit(Values);
             }
 
-            expressionPrinter.StringBuilder.Append(")");
+            expressionPrinter.Append(")");
         }
 
         public override bool Equals(object obj)

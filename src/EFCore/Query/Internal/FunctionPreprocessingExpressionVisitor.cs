@@ -6,7 +6,7 @@ using System.Reflection;
 
 namespace Microsoft.EntityFrameworkCore.Query.Internal
 {
-    public class FunctionPreprocessingVisitor : ExpressionVisitor
+    public class FunctionPreprocessingExpressionVisitor : ExpressionVisitor
     {
         private static readonly MethodInfo _startsWithMethodInfo
             = typeof(string).GetRuntimeMethod(nameof(string.StartsWith), new[] { typeof(string) });

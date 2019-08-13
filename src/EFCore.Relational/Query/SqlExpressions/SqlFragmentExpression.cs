@@ -17,7 +17,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         public string Sql { get; }
         protected override Expression VisitChildren(ExpressionVisitor visitor) => this;
         public override void Print(ExpressionPrinter expressionPrinter)
-            => expressionPrinter.StringBuilder.Append(Sql);
+            => expressionPrinter.Append(Sql);
 
         public override bool Equals(object obj)
             => obj != null

@@ -33,20 +33,20 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         public virtual void Print(ExpressionPrinter expressionPrinter)
         {
-            expressionPrinter.StringBuilder.AppendLine("InitializeCollection:");
-            using (expressionPrinter.StringBuilder.Indent())
+            expressionPrinter.AppendLine("InitializeCollection:");
+            using (expressionPrinter.Indent())
             {
-                expressionPrinter.StringBuilder.AppendLine($"CollectionId: {CollectionId}");
-                expressionPrinter.StringBuilder.AppendLine($"Navigation: {Navigation?.Name}");
-                expressionPrinter.StringBuilder.Append("Parent:");
+                expressionPrinter.AppendLine($"CollectionId: {CollectionId}");
+                expressionPrinter.AppendLine($"Navigation: {Navigation?.Name}");
+                expressionPrinter.Append("Parent:");
                 expressionPrinter.Visit(Parent);
-                expressionPrinter.StringBuilder.AppendLine();
-                expressionPrinter.StringBuilder.Append("ParentIdentifier:");
+                expressionPrinter.AppendLine();
+                expressionPrinter.Append("ParentIdentifier:");
                 expressionPrinter.Visit(ParentIdentifier);
-                expressionPrinter.StringBuilder.AppendLine();
-                expressionPrinter.StringBuilder.Append("OuterIdentifier:");
+                expressionPrinter.AppendLine();
+                expressionPrinter.Append("OuterIdentifier:");
                 expressionPrinter.Visit(OuterIdentifier);
-                expressionPrinter.StringBuilder.AppendLine();
+                expressionPrinter.AppendLine();
             }
         }
 

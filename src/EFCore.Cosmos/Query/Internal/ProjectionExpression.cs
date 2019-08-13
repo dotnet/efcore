@@ -100,7 +100,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
             if (!string.Equals(string.Empty, Alias)
                 && !string.Equals(Alias, Name))
             {
-                expressionPrinter.StringBuilder.Append(" AS " + Alias);
+                expressionPrinter.Append(" AS " + Alias);
             }
         }
 

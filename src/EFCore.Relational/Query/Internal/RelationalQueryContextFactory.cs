@@ -5,7 +5,7 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Microsoft.EntityFrameworkCore.Query
+namespace Microsoft.EntityFrameworkCore.Query.Internal
 {
     /// <summary>
     ///     <para>
@@ -18,8 +18,11 @@ namespace Microsoft.EntityFrameworkCore.Query
     ///         The implementation does not need to be thread-safe.
     ///     </para>
     /// </summary>
-    public class RelationalQueryContextFactory : QueryContextFactory
+    public class RelationalQueryContextFactory : IQueryContextFactory
     {
+        private readonly QueryContextDependencies _dependencies;
+        private readonly RelationalQueryContextDependencies _relationalDependencies;
+
         /// <summary>
         ///     Creates a new <see cref="RelationalQueryContextFactory"/> instance using the given dependencies.
         /// </summary>
@@ -28,24 +31,10 @@ namespace Microsoft.EntityFrameworkCore.Query
         public RelationalQueryContextFactory(
             [NotNull] QueryContextDependencies dependencies,
             [NotNull] RelationalQueryContextDependencies relationalDependencies)
-            : base(dependencies)
         {
-            RelationalDependencies = relationalDependencies;
+            _dependencies = dependencies;
+            _relationalDependencies = relationalDependencies;
         }
-
-        /// <summary>
-        ///     Relational-specific dependencies.
-        /// </summary>
-        protected virtual RelationalQueryContextDependencies RelationalDependencies { get; }
-
-        /// <summary>
-        ///     The execution strategy factory.
-        /// </summary>
-        /// <value>
-        ///     The execution strategy factory.
-        /// </value>
-        protected virtual IExecutionStrategyFactory ExecutionStrategyFactory
-            => RelationalDependencies.ExecutionStrategyFactory;
 
         /// <summary>
         ///     Creates a new <see cref="RelationalQueryContext"/>.
@@ -53,7 +42,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <returns>
         ///     A QueryContext.
         /// </returns>
-        public override QueryContext Create()
-            => new RelationalQueryContext(Dependencies, RelationalDependencies);
+        public virtual QueryContext Create()
+            => new RelationalQueryContext(_dependencies, _relationalDependencies);
     }
 }

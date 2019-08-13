@@ -1369,19 +1369,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             {
                 _parameterValues.Add(name, value);
             }
-
-            public virtual void Replace(string name, object value)
-            {
-                _parameterValues[name] = value;
-            }
-
-            public virtual object Remove(string name)
-            {
-                var value = _parameterValues[name];
-                _parameterValues.Remove(name);
-
-                return value;
-            }
         }
     }
 }
