@@ -1,15 +1,12 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
-using Microsoft.EntityFrameworkCore.Diagnostics;
 using Xunit;
 using Xunit.Abstractions;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    // TODO: Issue #16963
-    internal class InheritanceInMemoryTest : InheritanceTestBase<InheritanceInMemoryFixture>
+    public class InheritanceInMemoryTest : InheritanceTestBase<InheritanceInMemoryFixture>
     {
         public InheritanceInMemoryTest(InheritanceInMemoryFixture fixture, ITestOutputHelper testOutputHelper)
             : base(fixture)
@@ -17,20 +14,69 @@ namespace Microsoft.EntityFrameworkCore.Query
             //TestLoggerFactory.TestOutputHelper = testOutputHelper;
         }
 
-        public override void Discriminator_used_when_projection_over_derived_type2()
+        [ConditionalFact(Skip = "Issue #16963")]
+        public override void Can_use_is_kiwi()
         {
-            Assert.Equal(
-                CoreStrings.PropertyNotFound(property: "Discriminator", entityType: "Bird"),
-                Assert.Throws<InvalidOperationException>(
-                    () => base.Discriminator_used_when_projection_over_derived_type2()).Message);
         }
 
-        public override void Discriminator_with_cast_in_shadow_property()
+        [ConditionalFact(Skip = "Issue #16963")]
+        public override void Can_use_is_kiwi_with_other_predicate()
         {
-            Assert.Equal(
-                CoreStrings.PropertyNotFound(property: "Discriminator", entityType: "Animal"),
-                Assert.Throws<InvalidOperationException>(
-                    () => base.Discriminator_with_cast_in_shadow_property()).Message);
+        }
+
+        [ConditionalFact(Skip = "Issue #16963")]
+        public override void Subquery_OfType()
+        {
+        }
+
+        [ConditionalFact(Skip = "Issue #16963")]
+        public override void Discriminator_used_when_projection_over_of_type()
+        {
+        }
+
+        [ConditionalFact(Skip = "Issue #16963")]
+        public override void Can_use_of_type_animal()
+        {
+        }
+
+        [ConditionalFact(Skip = "Issue #16963")]
+        public override void Can_use_of_type_bird()
+        {
+        }
+
+        [ConditionalFact(Skip = "Issue #16963")]
+        public override void Can_use_of_type_bird_first()
+        {
+        }
+
+        [ConditionalFact(Skip = "Issue #16963")]
+        public override void Can_use_of_type_bird_predicate()
+        {
+        }
+
+        [ConditionalFact(Skip = "Issue #16963")]
+        public override void Can_use_of_type_bird_with_projection()
+        {
+        }
+
+        [ConditionalFact(Skip = "Issue #16963")]
+        public override void Can_use_of_type_kiwi()
+        {
+        }
+
+        [ConditionalFact(Skip = "Issue #16963")]
+        public override void Can_use_of_type_kiwi_where_north_on_derived_property()
+        {
+        }
+
+        [ConditionalFact(Skip = "Issue #16963")]
+        public override void Can_use_of_type_kiwi_where_south_on_derived_property()
+        {
+        }
+
+        [ConditionalFact(Skip = "Issue #16963")]
+        public override void Can_use_of_type_rose()
+        {
         }
 
         [ConditionalFact(Skip = "See issue#13857")]
