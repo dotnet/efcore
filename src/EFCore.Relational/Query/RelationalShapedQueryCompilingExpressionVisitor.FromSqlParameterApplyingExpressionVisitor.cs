@@ -82,6 +82,39 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                                 _visitedFromSqlExpressions[fromSql] = updatedFromSql;
                                 break;
+
+                            case ConstantExpression constantExpression:
+                                var constantValues = (object[])constantExpression.Value;
+                                for (var i = 0; i < constantValues.Length; i++)
+                                {
+                                    var value = constantValues[i];
+                                    if (value is DbParameter dbParameter)
+                                    {
+                                        var parameterName = _parameterNameGenerator.GenerateNext();
+                                        if (string.IsNullOrEmpty(dbParameter.ParameterName))
+                                        {
+                                            dbParameter.ParameterName = parameterName;
+                                        }
+                                        else
+                                        {
+                                            parameterName = dbParameter.ParameterName;
+                                        }
+                                        constantValues[i] = new RawRelationalParameter(parameterName, dbParameter);
+                                    }
+                                    else
+                                    {
+                                        constantValues[i] = _sqlExpressionFactory.Constant(
+                                            value, _sqlExpressionFactory.GetTypeMappingForValue(value));
+                                    }
+                                }
+
+                                updatedFromSql = new FromSqlExpression(
+                                    fromSql.Sql,
+                                    Expression.Constant(constantValues, typeof(object[])),
+                                    fromSql.Alias);
+
+                                _visitedFromSqlExpressions[fromSql] = updatedFromSql;
+                                break;
                         }
                     }
 

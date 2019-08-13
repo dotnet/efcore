@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Data.Common;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -205,13 +206,14 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         private static string GenerateSetOperationType(SetOperationType setOperationType)
-            => setOperationType switch {
-                SetOperationType.Union     => "UNION",
-                SetOperationType.UnionAll  => "UNION ALL",
+            => setOperationType switch
+            {
+                SetOperationType.Union => "UNION",
+                SetOperationType.UnionAll => "UNION ALL",
                 SetOperationType.Intersect => "INTERSECT",
-                SetOperationType.Except    => "EXCEPT",
+                SetOperationType.Except => "EXCEPT",
                 _ => throw new NotSupportedException($"Invalid {nameof(SetOperationType)}: {setOperationType}")
-                };
+            };
 
         protected virtual void GenerateSetOperationOperand(
             SelectExpression setOperationExpression,
@@ -312,18 +314,39 @@ namespace Microsoft.EntityFrameworkCore.Query
             {
                 case ConstantExpression constantExpression
                 when constantExpression.Value is CompositeRelationalParameter compositeRelationalParameter:
+                {
+                    var subParameters = compositeRelationalParameter.RelationalParameters;
+                    substitutions = new string[subParameters.Count];
+                    for (var i = 0; i < subParameters.Count; i++)
                     {
-                        var subParameters = compositeRelationalParameter.RelationalParameters;
-                        substitutions = new string[subParameters.Count];
-                        for (var i = 0; i < subParameters.Count; i++)
-                        {
-                            substitutions[i] = _sqlGenerationHelper.GenerateParameterNamePlaceholder(subParameters[i].InvariantName);
-                        }
-
-                        _relationalCommandBuilder.AddParameter(compositeRelationalParameter);
-
-                        break;
+                        substitutions[i] = _sqlGenerationHelper.GenerateParameterNamePlaceholder(subParameters[i].InvariantName);
                     }
+
+                    _relationalCommandBuilder.AddParameter(compositeRelationalParameter);
+
+                    break;
+                }
+
+                case ConstantExpression constantExpression
+                when constantExpression.Value is object[] constantValues:
+                {
+                    substitutions = new string[constantValues.Length];
+                    for (var i = 0; i < constantValues.Length; i++)
+                    {
+                        var value = constantValues[i];
+                        if (value is RawRelationalParameter rawRelationalParameter)
+                        {
+                            substitutions[i] = _sqlGenerationHelper.GenerateParameterNamePlaceholder(rawRelationalParameter.InvariantName);
+                            _relationalCommandBuilder.AddParameter(rawRelationalParameter);
+                        }
+                        else if (value is SqlConstantExpression sqlConstantExpression)
+                        {
+                            substitutions[i] = sqlConstantExpression.TypeMapping.GenerateSqlLiteral(sqlConstantExpression.Value);
+                        }
+                    }
+
+                    break;
+                }
             }
 
             if (substitutions != null)
@@ -332,7 +355,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                 // InvariantCulture not needed since substitutions are all strings
                 sql = string.Format(sql, substitutions);
             }
-
 
             _relationalCommandBuilder.AppendLines(sql);
         }
