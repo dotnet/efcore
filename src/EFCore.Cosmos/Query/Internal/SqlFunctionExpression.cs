@@ -102,10 +102,10 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         /// </summary>
         public override void Print(ExpressionPrinter expressionPrinter)
         {
-            expressionPrinter.StringBuilder.Append(Name);
-            expressionPrinter.StringBuilder.Append("(");
+            expressionPrinter.Append(Name);
+            expressionPrinter.Append("(");
             expressionPrinter.VisitList(Arguments);
-            expressionPrinter.StringBuilder.Append(")");
+            expressionPrinter.Append(")");
         }
 
         /// <summary>

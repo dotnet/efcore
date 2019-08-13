@@ -14,8 +14,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
     {
         private static readonly SelectManyVerifyingExpressionVisitor _selectManyVerifyingExpressionVisitor
             = new SelectManyVerifyingExpressionVisitor();
-        private static readonly EnumerableToQueryableReMappingExpressionVisitor _enumerableToQueryableReMappingExpressionVisitor
-            = new EnumerableToQueryableReMappingExpressionVisitor();
+        private static readonly EnumerableToQueryableMethodConvertingExpressionVisitor _enumerableToQueryableReMappingExpressionVisitor
+            = new EnumerableToQueryableMethodConvertingExpressionVisitor();
 
         protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
         {

@@ -23,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             => new SqlParameterExpression(_parameterExpression, typeMapping);
         protected override Expression VisitChildren(ExpressionVisitor visitor) => this;
         public override void Print(ExpressionPrinter expressionPrinter)
-            => expressionPrinter.StringBuilder.Append("@" + _parameterExpression.Name);
+            => expressionPrinter.Append("@" + _parameterExpression.Name);
 
         public override bool Equals(object obj)
             => obj != null

@@ -32,16 +32,16 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         {
             if (IsNegated)
             {
-                expressionPrinter.StringBuilder.Append("NOT ");
+                expressionPrinter.Append("NOT ");
             }
 
-            expressionPrinter.StringBuilder.AppendLine("EXISTS (");
-            using (expressionPrinter.StringBuilder.Indent())
+            expressionPrinter.AppendLine("EXISTS (");
+            using (expressionPrinter.Indent())
             {
                 expressionPrinter.Visit(Subquery);
             }
 
-            expressionPrinter.StringBuilder.Append(")");
+            expressionPrinter.Append(")");
         }
 
         public override bool Equals(object obj)

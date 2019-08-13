@@ -63,23 +63,23 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         public virtual void Print(ExpressionPrinter expressionPrinter)
         {
-            expressionPrinter.StringBuilder.AppendLine("RelationalCollectionShaper:");
-            using (expressionPrinter.StringBuilder.Indent())
+            expressionPrinter.AppendLine("RelationalCollectionShaper:");
+            using (expressionPrinter.Indent())
             {
-                expressionPrinter.StringBuilder.AppendLine($"CollectionId: {CollectionId}");
-                expressionPrinter.StringBuilder.Append("ParentIdentifier:");
+                expressionPrinter.AppendLine($"CollectionId: {CollectionId}");
+                expressionPrinter.Append("ParentIdentifier:");
                 expressionPrinter.Visit(ParentIdentifier);
-                expressionPrinter.StringBuilder.AppendLine();
-                expressionPrinter.StringBuilder.Append("OuterIdentifier:");
+                expressionPrinter.AppendLine();
+                expressionPrinter.Append("OuterIdentifier:");
                 expressionPrinter.Visit(OuterIdentifier);
-                expressionPrinter.StringBuilder.AppendLine();
-                expressionPrinter.StringBuilder.Append("SelfIdentifier:");
+                expressionPrinter.AppendLine();
+                expressionPrinter.Append("SelfIdentifier:");
                 expressionPrinter.Visit(SelfIdentifier);
-                expressionPrinter.StringBuilder.AppendLine();
-                expressionPrinter.StringBuilder.Append("InnerShaper:");
+                expressionPrinter.AppendLine();
+                expressionPrinter.Append("InnerShaper:");
                 expressionPrinter.Visit(InnerShaper);
-                expressionPrinter.StringBuilder.AppendLine();
-                expressionPrinter.StringBuilder.AppendLine($"Navigation: {Navigation?.Name}");
+                expressionPrinter.AppendLine();
+                expressionPrinter.AppendLine($"Navigation: {Navigation?.Name}");
 
             }
         }

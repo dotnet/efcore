@@ -47,19 +47,19 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         public virtual void Print(ExpressionPrinter expressionPrinter)
         {
-            expressionPrinter.StringBuilder.AppendLine(nameof(EntityShaperExpression) + ": ");
-            using (expressionPrinter.StringBuilder.Indent())
+            expressionPrinter.AppendLine(nameof(EntityShaperExpression) + ": ");
+            using (expressionPrinter.Indent())
             {
-                expressionPrinter.StringBuilder.AppendLine(EntityType);
-                expressionPrinter.StringBuilder.AppendLine(nameof(ValueBufferExpression) + ": ");
-                using (expressionPrinter.StringBuilder.Indent())
+                expressionPrinter.AppendLine(EntityType);
+                expressionPrinter.AppendLine(nameof(ValueBufferExpression) + ": ");
+                using (expressionPrinter.Indent())
                 {
                     expressionPrinter.Visit(ValueBufferExpression);
-                    expressionPrinter.StringBuilder.AppendLine();
+                    expressionPrinter.AppendLine();
                 }
 
-                expressionPrinter.StringBuilder.Append(nameof(IsNullable) + ": ");
-                expressionPrinter.StringBuilder.AppendLine(IsNullable);
+                expressionPrinter.Append(nameof(IsNullable) + ": ");
+                expressionPrinter.AppendLine(IsNullable);
             }
         }
     }

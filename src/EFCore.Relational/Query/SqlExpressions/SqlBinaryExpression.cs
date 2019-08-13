@@ -81,30 +81,30 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 
             if (requiresBrackets)
             {
-                expressionPrinter.StringBuilder.Append("(");
+                expressionPrinter.Append("(");
             }
 
             expressionPrinter.Visit(Left);
 
             if (requiresBrackets)
             {
-                expressionPrinter.StringBuilder.Append(")");
+                expressionPrinter.Append(")");
             }
 
-            expressionPrinter.StringBuilder.Append(expressionPrinter.GenerateBinaryOperator(OperatorType));
+            expressionPrinter.Append(expressionPrinter.GenerateBinaryOperator(OperatorType));
 
             requiresBrackets = RequiresBrackets(Right);
 
             if (requiresBrackets)
             {
-                expressionPrinter.StringBuilder.Append("(");
+                expressionPrinter.Append("(");
             }
 
             expressionPrinter.Visit(Right);
 
             if (requiresBrackets)
             {
-                expressionPrinter.StringBuilder.Append(")");
+                expressionPrinter.Append(")");
             }
         }
 

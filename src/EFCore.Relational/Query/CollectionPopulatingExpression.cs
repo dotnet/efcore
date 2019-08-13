@@ -26,10 +26,10 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         public virtual void Print(ExpressionPrinter expressionPrinter)
         {
-            expressionPrinter.StringBuilder.AppendLine("PopulateCollection:");
-            using (expressionPrinter.StringBuilder.Indent())
+            expressionPrinter.AppendLine("PopulateCollection:");
+            using (expressionPrinter.Indent())
             {
-                expressionPrinter.StringBuilder.Append("Parent:");
+                expressionPrinter.Append("Parent:");
                 expressionPrinter.Visit(Parent);
             }
         }

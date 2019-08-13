@@ -35,7 +35,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                 && !(Expression is ColumnExpression column
                 && string.Equals(column.Name, Alias)))
             {
-                expressionPrinter.StringBuilder.Append(" AS " + Alias);
+                expressionPrinter.Append(" AS " + Alias);
             }
         }
 

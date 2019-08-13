@@ -4,12 +4,13 @@
 using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Query.Internal;
-using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
     public class RelationalShapedQueryOptimizer : ShapedQueryOptimizer
     {
+        private readonly SqlExpressionOptimizingExpressionVisitor _sqlExpressionOptimizingExpressionVisitor;
+
         public RelationalShapedQueryOptimizer(
             ShapedQueryOptimizerDependencies dependencies,
             RelationalShapedQueryOptimizerDependencies relationalDependencies,
@@ -19,6 +20,8 @@ namespace Microsoft.EntityFrameworkCore.Query
             RelationalDependencies = relationalDependencies;
             UseRelationalNulls = RelationalOptionsExtension.Extract(queryCompilationContext.ContextOptions).UseRelationalNulls;
             SqlExpressionFactory = relationalDependencies.SqlExpressionFactory;
+            _sqlExpressionOptimizingExpressionVisitor
+                = new SqlExpressionOptimizingExpressionVisitor(SqlExpressionFactory, UseRelationalNulls);
         }
 
         protected virtual RelationalShapedQueryOptimizerDependencies RelationalDependencies { get; }
@@ -32,17 +35,19 @@ namespace Microsoft.EntityFrameworkCore.Query
             query = base.Visit(query);
             query = new SelectExpressionProjectionApplyingExpressionVisitor().Visit(query);
             query = new CollectionJoinApplyingExpressionVisitor().Visit(query);
-            query = new SelectExpressionTableAliasUniquifyingExpressionVisitor().Visit(query);
+            query = new TableAliasUniquifyingExpressionVisitor().Visit(query);
 
             if (!UseRelationalNulls)
             {
-                query = new NullSemanticsRewritingVisitor(SqlExpressionFactory).Visit(query);
+                query = new NullSemanticsRewritingExpressionVisitor(SqlExpressionFactory).Visit(query);
             }
 
-            query = new SqlExpressionOptimizingVisitor(SqlExpressionFactory, UseRelationalNulls).Visit(query);
+            query = OptimizeSqlExpression(query);
             query = new NullComparisonTransformingExpressionVisitor().Visit(query);
 
             return query;
         }
+
+        protected virtual Expression OptimizeSqlExpression(Expression query) => _sqlExpressionOptimizingExpressionVisitor.Visit(query);
     }
 }

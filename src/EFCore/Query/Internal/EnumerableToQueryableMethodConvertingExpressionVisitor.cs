@@ -10,7 +10,7 @@ using System.Reflection;
 
 namespace Microsoft.EntityFrameworkCore.Query.Internal
 {
-    public class EnumerableToQueryableReMappingExpressionVisitor : ExpressionVisitor
+    public class EnumerableToQueryableMethodConvertingExpressionVisitor : ExpressionVisitor
     {
         protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
         {

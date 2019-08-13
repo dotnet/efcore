@@ -4,9 +4,9 @@
 using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 
-namespace Microsoft.EntityFrameworkCore.Query
+namespace Microsoft.EntityFrameworkCore.Query.Internal
 {
-    public class SqlExpressionOptimizingVisitor : ExpressionVisitor
+    public class SqlExpressionOptimizingExpressionVisitor : ExpressionVisitor
     {
         private readonly ISqlExpressionFactory _sqlExpressionFactory;
         private readonly bool _useRelationalNulls;
@@ -29,7 +29,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             return negated.HasValue;
         }
 
-        public SqlExpressionOptimizingVisitor(ISqlExpressionFactory sqlExpressionFactory, bool useRelationalNulls)
+        public SqlExpressionOptimizingExpressionVisitor(ISqlExpressionFactory sqlExpressionFactory, bool useRelationalNulls)
         {
             _sqlExpressionFactory = sqlExpressionFactory;
             _useRelationalNulls = useRelationalNulls;

@@ -31,7 +31,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         {
             expressionPrinter.Visit(Expression);
 
-            expressionPrinter.StringBuilder.Append(IsAscending ? " ASC" : " DESC");
+            expressionPrinter.Append(IsAscending ? " ASC" : " DESC");
         }
 
         public override bool Equals(object obj)

@@ -6,7 +6,7 @@ using System.Linq.Expressions;
 
 namespace Microsoft.EntityFrameworkCore.Query.Internal
 {
-    public class NegationOptimizingVisitor : ExpressionVisitor
+    public class NegationOptimizingExpressionVisitor : ExpressionVisitor
     {
         private static bool TryNegate(ExpressionType expressionType, out ExpressionType result)
         {

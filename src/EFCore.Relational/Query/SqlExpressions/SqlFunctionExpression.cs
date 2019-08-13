@@ -137,27 +137,24 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         {
             if (!string.IsNullOrEmpty(Schema))
             {
-                expressionPrinter.StringBuilder
-                    .Append(Schema)
-                    .Append(".")
-                    .Append(Name);
+                expressionPrinter.Append(Schema).Append(".").Append(Name);
             }
             else
             {
                 if (Instance != null)
                 {
                     expressionPrinter.Visit(Instance);
-                    expressionPrinter.StringBuilder.Append(".");
+                    expressionPrinter.Append(".");
                 }
 
-                expressionPrinter.StringBuilder.Append(Name);
+                expressionPrinter.Append(Name);
             }
 
             if (!IsNiladic)
             {
-                expressionPrinter.StringBuilder.Append("(");
+                expressionPrinter.Append("(");
                 expressionPrinter.VisitList(Arguments);
-                expressionPrinter.StringBuilder.Append(")");
+                expressionPrinter.Append(")");
             }
         }
 

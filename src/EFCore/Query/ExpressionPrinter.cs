@@ -51,8 +51,6 @@ namespace Microsoft.EntityFrameworkCore.Query
             _encounteredParameters = new List<ParameterExpression>();
         }
 
-        public virtual IndentedStringBuilder StringBuilder => _stringBuilder;
-
         private bool RemoveFormatting { get; set; }
 
         private int? CharacterLimit { get; set; }
@@ -64,7 +62,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             Action<ExpressionPrinter> joinAction = null)
             where T : Expression
         {
-            joinAction ??= (p => p.StringBuilder.Append(", "));
+            joinAction ??= (p => p.Append(", "));
 
             for (var i = 0; i < items.Count; i++)
             {
@@ -98,18 +96,6 @@ namespace Microsoft.EntityFrameworkCore.Query
         public virtual ExpressionPrinter AppendLines([NotNull] object o, bool skipFinalNewline = false)
         {
             _stringBuilder.AppendLines(o, skipFinalNewline);
-            return this;
-        }
-
-        public virtual ExpressionPrinter IncrementIndent()
-        {
-            _stringBuilder.IncrementIndent();
-            return this;
-        }
-
-        public virtual ExpressionPrinter DecrementIndent()
-        {
-            _stringBuilder.DecrementIndent();
             return this;
         }
 
@@ -329,38 +315,39 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             AppendLine();
             AppendLine("{");
-            _stringBuilder.IncrementIndent();
 
-            foreach (var variable in blockExpression.Variables)
+            using (_stringBuilder.Indent())
             {
-                if (!_parametersInScope.ContainsKey(variable))
+                foreach (var variable in blockExpression.Variables)
                 {
-                    _parametersInScope.Add(variable, variable.Name);
-                    Append(variable.Type.ShortDisplayName());
-                    Append(" ");
-                    VisitParameter(variable);
+                    if (!_parametersInScope.ContainsKey(variable))
+                    {
+                        _parametersInScope.Add(variable, variable.Name);
+                        Append(variable.Type.ShortDisplayName());
+                        Append(" ");
+                        VisitParameter(variable);
+                        AppendLine(";");
+                    }
+                }
+
+                var expressions = blockExpression.Result != null
+                    ? blockExpression.Expressions.Except(new[] { blockExpression.Result })
+                    : blockExpression.Expressions;
+
+                foreach (var expression in expressions)
+                {
+                    Visit(expression);
                     AppendLine(";");
                 }
+
+                if (blockExpression.Result != null)
+                {
+                    Append("return ");
+                    Visit(blockExpression.Result);
+                    AppendLine(";");
+                }
+
             }
-
-            var expressions = blockExpression.Result != null
-                ? blockExpression.Expressions.Except(new[] { blockExpression.Result })
-                : blockExpression.Expressions;
-
-            foreach (var expression in expressions)
-            {
-                Visit(expression);
-                AppendLine(";");
-            }
-
-            if (blockExpression.Result != null)
-            {
-                Append("return ");
-                Visit(blockExpression.Result);
-                AppendLine(";");
-            }
-
-            _stringBuilder.DecrementIndent();
             Append("}");
 
             return blockExpression;
@@ -433,11 +420,11 @@ namespace Microsoft.EntityFrameworkCore.Query
         protected override Expression VisitGoto(GotoExpression gotoExpression)
         {
             AppendLine("return (" + gotoExpression.Target.Type.ShortDisplayName() + ")" + gotoExpression.Target + " {");
-            _stringBuilder.IncrementIndent();
+            using (_stringBuilder.Indent())
+            {
 
-            Visit(gotoExpression.Value);
-
-            _stringBuilder.DecrementIndent();
+                Visit(gotoExpression.Value);
+            }
             _stringBuilder.Append("}");
 
             return gotoExpression;
@@ -516,24 +503,23 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             var appendAction = memberInitExpression.Bindings.Count > 1 ? (Action<string>)AppendLine : Append;
             appendAction("{ ");
-            _stringBuilder.IncrementIndent();
-
-            for (var i = 0; i < memberInitExpression.Bindings.Count; i++)
+            using (_stringBuilder.Indent())
             {
-                if (memberInitExpression.Bindings[i] is MemberAssignment assignment)
+                for (var i = 0; i < memberInitExpression.Bindings.Count; i++)
                 {
-                    _stringBuilder.Append(assignment.Member.Name + " = ");
-                    Visit(assignment.Expression);
-                    appendAction(i == memberInitExpression.Bindings.Count - 1 ? " " : ", ");
-                }
-                else
-                {
-                    ////throw new NotSupportedException(CoreStrings.InvalidMemberInitBinding);
-                    AppendLine(CoreStrings.InvalidMemberInitBinding);
+                    if (memberInitExpression.Bindings[i] is MemberAssignment assignment)
+                    {
+                        _stringBuilder.Append(assignment.Member.Name + " = ");
+                        Visit(assignment.Expression);
+                        appendAction(i == memberInitExpression.Bindings.Count - 1 ? " " : ", ");
+                    }
+                    else
+                    {
+                        ////throw new NotSupportedException(CoreStrings.InvalidMemberInitBinding);
+                        AppendLine(CoreStrings.InvalidMemberInitBinding);
+                    }
                 }
             }
-
-            _stringBuilder.DecrementIndent();
             AppendLine("}");
 
             return memberInitExpression;
@@ -544,15 +530,6 @@ namespace Microsoft.EntityFrameworkCore.Query
             "get_Item",
             "TryReadValue",
             "ReferenceEquals"
-        };
-
-        private static readonly List<string> _nonConnectableMethods = new List<string>
-        {
-            "GetValueFromEntity",
-            "StartTracking",
-            "SetRelationshipSnapshotValue",
-            "SetRelationshipIsLoaded",
-            "Add"
         };
 
         protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
@@ -607,9 +584,11 @@ namespace Microsoft.EntityFrameworkCore.Query
                         ? methodCallExpression.Method.GetParameters().Select(p => p.Name).ToList()
                         : new List<string>();
 
+                IDisposable indent = null;
+
                 if (!isSimpleMethodOrProperty)
                 {
-                    _stringBuilder.IncrementIndent();
+                    indent = _stringBuilder.Indent();
                 }
 
                 for (var i = 0; i < methodCallExpression.Arguments.Count; i++)
@@ -631,7 +610,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                 if (!isSimpleMethodOrProperty)
                 {
-                    _stringBuilder.DecrementIndent();
+                    indent?.Dispose();
                 }
             }
 
@@ -658,9 +637,10 @@ namespace Microsoft.EntityFrameworkCore.Query
                 appendAction("{ ");
             }
 
+            IDisposable indent = null;
             if (isComplex)
             {
-                _stringBuilder.IncrementIndent();
+                indent = _stringBuilder.Indent();
             }
 
             for (var i = 0; i < newExpression.Arguments.Count; i++)
@@ -676,7 +656,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             if (isComplex)
             {
-                _stringBuilder.DecrementIndent();
+                indent?.Dispose();
             }
 
             if (!isAnonymousType)
@@ -699,16 +679,17 @@ namespace Microsoft.EntityFrameworkCore.Query
             appendAction("new " + newArrayExpression.Type.GetElementType().ShortDisplayName() + "[]");
             appendAction("{ ");
 
+            IDisposable indent = null;
             if (isComplex)
             {
-                _stringBuilder.IncrementIndent();
+                indent = _stringBuilder.Indent();
             }
 
             VisitArguments(newArrayExpression.Expressions, appendAction, lastSeparator: " ");
 
             if (isComplex)
             {
-                _stringBuilder.DecrementIndent();
+                indent?.Dispose();
             }
 
             Append("}");
@@ -886,14 +867,14 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        protected virtual string PostProcess([NotNull] string queryPlan)
+        protected virtual string PostProcess([NotNull] string printedExpression)
         {
-            var processedPlan = queryPlan
+            var processedPrintedExpression = printedExpression
                 .Replace("Microsoft.EntityFrameworkCore.Query.", "")
                 .Replace("Microsoft.EntityFrameworkCore.", "")
                 .Replace(Environment.NewLine + Environment.NewLine, Environment.NewLine);
 
-            return processedPlan;
+            return processedPrintedExpression;
         }
 
         private void UnhandledExpressionType(Expression expression)

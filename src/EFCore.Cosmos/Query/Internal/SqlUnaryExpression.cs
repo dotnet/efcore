@@ -87,10 +87,10 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         public override void Print(ExpressionPrinter expressionPrinter)
         {
 
-            expressionPrinter.StringBuilder.Append(OperatorType);
-            expressionPrinter.StringBuilder.Append("(");
+            expressionPrinter.Append(OperatorType);
+            expressionPrinter.Append("(");
             expressionPrinter.Visit(Operand);
-            expressionPrinter.StringBuilder.Append(")");
+            expressionPrinter.Append(")");
         }
 
         /// <summary>

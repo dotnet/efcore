@@ -43,22 +43,22 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         public virtual void Print(ExpressionPrinter expressionPrinter)
         {
-            expressionPrinter.StringBuilder.Append(nameof(ProjectionBindingExpression) + ": ");
+            expressionPrinter.Append(nameof(ProjectionBindingExpression) + ": ");
             if (ProjectionMember != null)
             {
-                expressionPrinter.StringBuilder.Append(ProjectionMember);
+                expressionPrinter.Append(ProjectionMember);
             }
             else if (Index != null)
             {
-                expressionPrinter.StringBuilder.Append(Index);
+                expressionPrinter.Append(Index);
             }
             else
             {
-                using (expressionPrinter.StringBuilder.Indent())
+                using (expressionPrinter.Indent())
                 {
                     foreach (var kvp in IndexMap)
                     {
-                        expressionPrinter.StringBuilder.AppendLine($"{kvp.Key.Name}:{kvp.Value},");
+                        expressionPrinter.AppendLine($"{kvp.Key.Name}:{kvp.Value},");
                     }
                 }
             }
