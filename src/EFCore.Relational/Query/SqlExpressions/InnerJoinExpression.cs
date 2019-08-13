@@ -27,9 +27,9 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 
         public override void Print(ExpressionPrinter expressionPrinter)
         {
-            expressionPrinter.StringBuilder.Append("INNER JOIN ");
+            expressionPrinter.Append("INNER JOIN ");
             expressionPrinter.Visit(Table);
-            expressionPrinter.StringBuilder.Append(" ON ");
+            expressionPrinter.Append(" ON ");
             expressionPrinter.Visit(JoinPredicate);
         }
 

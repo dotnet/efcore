@@ -19,15 +19,10 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         {
             if (!string.IsNullOrEmpty(Schema))
             {
-                expressionPrinter.StringBuilder
-                    .Append(Schema)
-                    .Append(".");
+                expressionPrinter.Append(Schema).Append(".");
             }
 
-            expressionPrinter.StringBuilder
-                .Append(Name)
-                .Append(" AS ")
-                .Append(Alias);
+            expressionPrinter.Append(Name).Append(" AS ").Append(Alias);
         }
 
         public string Name { get; }

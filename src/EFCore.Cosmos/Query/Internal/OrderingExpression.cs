@@ -89,7 +89,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         {
             expressionPrinter.Visit(Expression);
 
-            expressionPrinter.StringBuilder.Append(IsAscending ? " ASC" : " DESC");
+            expressionPrinter.Append(IsAscending ? " ASC" : " DESC");
         }
 
         /// <summary>

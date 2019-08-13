@@ -39,15 +39,6 @@ namespace Microsoft.EntityFrameworkCore.Query
         protected virtual RelationalQueryContextDependencies RelationalDependencies { get; }
 
         /// <summary>
-        ///     The execution strategy factory.
-        /// </summary>
-        /// <value>
-        ///     The execution strategy factory.
-        /// </value>
-        protected virtual IExecutionStrategyFactory ExecutionStrategyFactory
-            => RelationalDependencies.ExecutionStrategyFactory;
-
-        /// <summary>
         ///     Creates a new <see cref="RelationalQueryContext"/>.
         /// </summary>
         /// <returns>

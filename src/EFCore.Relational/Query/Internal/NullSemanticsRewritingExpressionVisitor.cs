@@ -8,13 +8,13 @@ using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 
 namespace Microsoft.EntityFrameworkCore.Query.Internal
 {
-    public class NullSemanticsRewritingVisitor : ExpressionVisitor
+    public class NullSemanticsRewritingExpressionVisitor : ExpressionVisitor
     {
         private readonly ISqlExpressionFactory _sqlExpressionFactory;
 
         private bool _isNullable = false;
 
-        public NullSemanticsRewritingVisitor(ISqlExpressionFactory sqlExpressionFactory)
+        public NullSemanticsRewritingExpressionVisitor(ISqlExpressionFactory sqlExpressionFactory)
         {
             _sqlExpressionFactory = sqlExpressionFactory;
         }

@@ -22,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 
         public override void Print(ExpressionPrinter expressionPrinter)
         {
-            expressionPrinter.StringBuilder.Append("LEFT JOIN LATERAL ");
+            expressionPrinter.Append("LEFT JOIN LATERAL ");
             expressionPrinter.Visit(Table);
         }
 

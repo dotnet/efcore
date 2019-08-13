@@ -122,7 +122,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             if (AccessOperation is MemberExpression memberExpression)
             {
                 expressionPrinter.Visit(Caller);
-                expressionPrinter.StringBuilder.Append("?." + memberExpression.Member.Name);
+                expressionPrinter.Append("?." + memberExpression.Member.Name);
 
                 return;
             }
@@ -132,9 +132,9 @@ namespace Microsoft.EntityFrameworkCore.Query
                 if (methodCallExpression.Object != null)
                 {
                     expressionPrinter.Visit(Caller);
-                    expressionPrinter.StringBuilder.Append("?." + methodCallExpression.Method.Name + "(");
+                    expressionPrinter.Append("?." + methodCallExpression.Method.Name + "(");
                     VisitArguments(expressionPrinter, methodCallExpression.Arguments);
-                    expressionPrinter.StringBuilder.Append(")");
+                    expressionPrinter.Append(")");
 
                     return;
                 }
@@ -143,21 +143,21 @@ namespace Microsoft.EntityFrameworkCore.Query
                 {
                     var method = methodCallExpression.Method;
 
-                    expressionPrinter.StringBuilder.Append(method.DeclaringType?.Name + "." + method.Name + "(?");
+                    expressionPrinter.Append(method.DeclaringType?.Name + "." + method.Name + "(?");
                     expressionPrinter.Visit(Caller);
-                    expressionPrinter.StringBuilder.Append("?, ");
+                    expressionPrinter.Append("?, ");
                     expressionPrinter.Visit(Constant(propertyName));
-                    expressionPrinter.StringBuilder.Append(")");
+                    expressionPrinter.Append(")");
 
                     return;
                 }
             }
 
-            expressionPrinter.StringBuilder.Append("?");
+            expressionPrinter.Append("?");
             expressionPrinter.Visit(Caller);
-            expressionPrinter.StringBuilder.Append(" | ");
+            expressionPrinter.Append(" | ");
             expressionPrinter.Visit(AccessOperation);
-            expressionPrinter.StringBuilder.Append("?");
+            expressionPrinter.Append("?");
         }
 
         private static void VisitArguments(ExpressionPrinter expressionPrinter, IReadOnlyList<Expression> arguments)
@@ -165,7 +165,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             for (var i = 0; i < arguments.Count; i++)
             {
                 expressionPrinter.Visit(arguments[i]);
-                expressionPrinter.StringBuilder.Append(i == arguments.Count - 1 ? "" : ", ");
+                expressionPrinter.Append(i == arguments.Count - 1 ? "" : ", ");
             }
         }
 

@@ -38,12 +38,12 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         public override void Print(ExpressionPrinter expressionPrinter)
         {
             expressionPrinter.Visit(Match);
-            expressionPrinter.StringBuilder.Append(" LIKE ");
+            expressionPrinter.Append(" LIKE ");
             expressionPrinter.Visit(Pattern);
 
             if (EscapeChar != null)
             {
-                expressionPrinter.StringBuilder.Append(" ESCAPE ");
+                expressionPrinter.Append(" ESCAPE ");
                 expressionPrinter.Visit(EscapeChar);
             }
         }

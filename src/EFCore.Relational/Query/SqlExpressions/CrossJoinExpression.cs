@@ -22,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 
         public override void Print(ExpressionPrinter expressionPrinter)
         {
-            expressionPrinter.StringBuilder.Append("CROSS JOIN ");
+            expressionPrinter.Append("CROSS JOIN ");
             expressionPrinter.Visit(Table);
         }
 

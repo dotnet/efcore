@@ -45,14 +45,15 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         public virtual void Print(ExpressionPrinter expressionPrinter)
         {
-            expressionPrinter.StringBuilder.AppendLine("CollectionShaper:");
-            expressionPrinter.StringBuilder.IncrementIndent();
-            expressionPrinter.StringBuilder.Append("(");
-            expressionPrinter.Visit(Projection);
-            expressionPrinter.StringBuilder.Append(", ");
-            expressionPrinter.Visit(InnerShaper);
-            expressionPrinter.StringBuilder.AppendLine($", {Navigation?.Name})");
-            expressionPrinter.StringBuilder.DecrementIndent();
+            expressionPrinter.AppendLine("CollectionShaper:");
+            using (expressionPrinter.Indent())
+            {
+                expressionPrinter.Append("(");
+                expressionPrinter.Visit(Projection);
+                expressionPrinter.Append(", ");
+                expressionPrinter.Visit(InnerShaper);
+                expressionPrinter.AppendLine($", {Navigation?.Name})");
+            }
         }
     }
 }

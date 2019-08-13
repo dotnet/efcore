@@ -80,31 +80,31 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 
         public override void Print(ExpressionPrinter expressionPrinter)
         {
-            expressionPrinter.StringBuilder.Append("CASE");
+            expressionPrinter.Append("CASE");
             if (Operand != null)
             {
-                expressionPrinter.StringBuilder.Append(" ");
+                expressionPrinter.Append(" ");
                 expressionPrinter.Visit(Operand);
             }
 
-            using (expressionPrinter.StringBuilder.Indent())
+            using (expressionPrinter.Indent())
             {
                 foreach (var whenClause in WhenClauses)
                 {
-                    expressionPrinter.StringBuilder.AppendLine().Append("WHEN ");
+                    expressionPrinter.AppendLine().Append("WHEN ");
                     expressionPrinter.Visit(whenClause.Test);
-                    expressionPrinter.StringBuilder.Append(" THEN ");
+                    expressionPrinter.Append(" THEN ");
                     expressionPrinter.Visit(whenClause.Result);
                 }
 
                 if (ElseResult != null)
                 {
-                    expressionPrinter.StringBuilder.AppendLine().Append("ELSE ");
+                    expressionPrinter.AppendLine().Append("ELSE ");
                     expressionPrinter.Visit(ElseResult);
                 }
             }
 
-            expressionPrinter.StringBuilder.AppendLine().Append("END");
+            expressionPrinter.AppendLine().Append("END");
         }
 
         public override bool Equals(object obj)

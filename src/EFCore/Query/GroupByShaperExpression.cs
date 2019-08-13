@@ -23,13 +23,13 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         public virtual void Print(ExpressionPrinter expressionPrinter)
         {
-            expressionPrinter.StringBuilder.AppendLine("GroupBy(");
-            expressionPrinter.StringBuilder.Append("KeySelector: ");
+            expressionPrinter.AppendLine("GroupBy(");
+            expressionPrinter.Append("KeySelector: ");
             expressionPrinter.Visit(KeySelector);
-            expressionPrinter.StringBuilder.AppendLine(", ");
-            expressionPrinter.StringBuilder.Append("ElementSelector:");
+            expressionPrinter.AppendLine(", ");
+            expressionPrinter.Append("ElementSelector:");
             expressionPrinter.Visit(ElementSelector);
-            expressionPrinter.StringBuilder.AppendLine(")");
+            expressionPrinter.AppendLine(")");
         }
 
         protected override Expression VisitChildren(ExpressionVisitor visitor)
