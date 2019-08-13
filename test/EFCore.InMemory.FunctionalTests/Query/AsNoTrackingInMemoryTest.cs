@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore.TestUtilities;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    internal class AsNoTrackingInMemoryTest : AsNoTrackingTestBase<NorthwindQueryInMemoryFixture<NoopModelCustomizer>>
+    public class AsNoTrackingInMemoryTest : AsNoTrackingTestBase<NorthwindQueryInMemoryFixture<NoopModelCustomizer>>
     {
         public AsNoTrackingInMemoryTest(NorthwindQueryInMemoryFixture<NoopModelCustomizer> fixture)
             : base(fixture)
