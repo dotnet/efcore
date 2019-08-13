@@ -1007,11 +1007,5 @@ INNER JOIN [Orders] AS [o] ON [c].[CustomerID] = [o].[CustomerID]");
 FROM [Customers] AS [c]
 INNER JOIN [Orders] AS [o] ON [c].[CustomerID] = [o].[CustomerID]");
         }
-
-        [ConditionalFact(Skip = "Issue#17117")]
-        public override void Select_nested_projection()
-        {
-            base.Select_nested_projection();
-        }
     }
 }

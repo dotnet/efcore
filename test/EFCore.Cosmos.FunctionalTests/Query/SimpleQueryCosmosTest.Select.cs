@@ -257,12 +257,6 @@ FROM root c
 WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""City""] = ""London""))");
         }
 
-        [ConditionalTheory(Skip = "Issue #16143")]
-        public override void Select_nested_projection()
-        {
-            base.Select_nested_projection();
-        }
-
         public override async Task Select_nested_collection(bool isAsync)
         {
             await base.Select_nested_collection(isAsync);

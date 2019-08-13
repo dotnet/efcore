@@ -6071,6 +6071,67 @@ WHERE ([c].[Name] = N'Leeds') AND [c].[Name] IS NOT NULL");
 
         #endregion
 
+        #region Bug8864
+
+        [ConditionalFact]
+        public virtual void Select_nested_projection()
+        {
+            using (CreateDatabase8864())
+            {
+                using (var context = new MyContext8864(_options))
+                {
+                    var customers = context.Customers
+                        .Select(c => new
+                        {
+                            Customer = c,
+                            CustomerAgain = Get(context, c.Id)
+                        })
+                        .ToList();
+
+                    Assert.Equal(2, customers.Count);
+
+                    foreach (var customer in customers)
+                    {
+                        Assert.Same(customer.Customer, customer.CustomerAgain);
+                    }
+                }
+            }
+        }
+
+        private static Customer8864 Get(MyContext8864 context, int id)
+          => context.Customers.Single(c => c.Id == id);
+
+        private SqlServerTestStore CreateDatabase8864()
+            => CreateTestStore(
+                () => new MyContext8864(_options),
+                context =>
+                {
+                    context.AddRange(
+                        new Customer8864 { Name = "Alan" },
+                        new Customer8864 { Name = "Elon" });
+
+                    context.SaveChanges();
+
+                    ClearLog();
+                });
+
+        public class MyContext8864 : DbContext
+        {
+            public DbSet<Customer8864> Customers { get; set; }
+
+            public MyContext8864(DbContextOptions options) : base(options)
+            {
+            }
+        }
+
+        public class Customer8864
+        {
+            public int Id { get; set; }
+            public string Name { get; set; }
+        }
+
+        #endregion
+
         private DbContextOptions _options;
 
         private SqlServerTestStore CreateTestStore<TContext>(
