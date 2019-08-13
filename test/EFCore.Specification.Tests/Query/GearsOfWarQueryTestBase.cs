@@ -5860,7 +5860,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 elementSorter: e => e.c);
         }
 
-        [ConditionalTheory(Skip = "Issue #17109")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Order_by_entity_qsre(bool isAsync)
         {
@@ -5882,7 +5882,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 assertOrder: true);
         }
 
-        [ConditionalTheory(Skip = "Issue #17109")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Order_by_entity_qsre_composite_key(bool isAsync)
         {

@@ -469,7 +469,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             foreach (var keyProperty in keyProperties)
             {
-                var param = Expression.Parameter(entityType.ClrType, "v");
+                var param = Expression.Parameter(oldParam.Type, oldParam.Name);
+
                 var rewrittenKeySelector = Expression.Lambda(
                     ReplacingExpressionVisitor.Replace(
                         oldParam, param,
@@ -479,7 +480,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 var orderingMethodInfo = GetOrderingMethodInfo(firstOrdering, isAscending);
 
                 expression = Expression.Call(
-                    orderingMethodInfo.MakeGenericMethod(entityType.ClrType, keyProperty.ClrType.MakeNullable()),
+                    orderingMethodInfo.MakeGenericMethod(oldParam.Type, keyProperty.ClrType.MakeNullable()),
                     expression,
                     Expression.Quote(rewrittenKeySelector)
                 );
