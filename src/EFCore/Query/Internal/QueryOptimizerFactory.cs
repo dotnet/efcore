@@ -17,14 +17,14 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
     /// </summary>
     public class QueryOptimizerFactory : IQueryOptimizerFactory
     {
+        private readonly QueryOptimizerDependencies _dependencies;
+
         public QueryOptimizerFactory(QueryOptimizerDependencies dependencies)
         {
-            Dependencies = dependencies;
+            _dependencies = dependencies;
         }
 
-        protected virtual QueryOptimizerDependencies Dependencies { get; }
-
         public virtual QueryOptimizer Create(QueryCompilationContext queryCompilationContext)
-            => new QueryOptimizer(Dependencies, queryCompilationContext);
+            => new QueryOptimizer(_dependencies, queryCompilationContext);
     }
 }

@@ -15,19 +15,20 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
     ///         This service cannot depend on services registered as <see cref="ServiceLifetime.Scoped"/>.
     ///     </para>
     /// </summary>
-    public class RelationalQueryOptimizerFactory : QueryOptimizerFactory
+    public class RelationalQueryOptimizerFactory : IQueryOptimizerFactory
     {
+        private readonly QueryOptimizerDependencies _dependencies;
+        private readonly RelationalQueryOptimizerDependencies _relationalDependencies;
+
         public RelationalQueryOptimizerFactory(
             QueryOptimizerDependencies dependencies,
             RelationalQueryOptimizerDependencies relationalDependencies)
-            : base(dependencies)
         {
-            RelationalDependencies = relationalDependencies;
+            _dependencies = dependencies;
+            _relationalDependencies = relationalDependencies;
         }
 
-        protected virtual RelationalQueryOptimizerDependencies RelationalDependencies { get; }
-
-        public override QueryOptimizer Create(QueryCompilationContext queryCompilationContext)
-             => new RelationalQueryOptimizer(Dependencies, RelationalDependencies, queryCompilationContext);
+        public virtual QueryOptimizer Create(QueryCompilationContext queryCompilationContext)
+             => new RelationalQueryOptimizer(_dependencies, _relationalDependencies, queryCompilationContext);
     }
 }
