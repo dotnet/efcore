@@ -914,6 +914,13 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 return Expression.Constant(property.GetGetter().GetClrValue(constantExpression.Value), property.ClrType.MakeNullable());
             }
 
+            // The target is complex which can be evaluated to Constant.
+            if (CanEvaluate(target))
+            {
+                var value = Expression.Lambda<Func<object>>(Expression.Convert(target, typeof(object))).Compile().Invoke();
+                return Expression.Constant(property.GetGetter().GetClrValue(value), property.ClrType.MakeNullable());
+            }
+
             // If the target is a query parameter, we can't simply add a property access over it, but must instead cause a new
             // parameter to be added at runtime, with the value of the property on the base parameter.
             if (target is ParameterExpression baseParameterExpression
@@ -934,6 +941,26 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             }
 
             return target.CreateEFPropertyExpression(property, true);
+        }
+
+        private static bool CanEvaluate(Expression expression)
+        {
+            switch (expression)
+            {
+                case ConstantExpression constantExpression:
+                    return true;
+
+                case NewExpression newExpression:
+                    return newExpression.Arguments.All(e => CanEvaluate(e));
+
+                case MemberInitExpression memberInitExpression:
+                    return CanEvaluate(memberInitExpression.NewExpression)
+                        && memberInitExpression.Bindings.All(
+                            mb => mb is MemberAssignment memberAssignment && CanEvaluate(memberAssignment.Expression));
+
+                default:
+                    return false;
+            }
         }
 
         private static object ParameterValueExtractor(QueryContext context, string baseParameterName, IProperty property)

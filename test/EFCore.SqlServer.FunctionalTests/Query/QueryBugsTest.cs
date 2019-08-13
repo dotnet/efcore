@@ -6132,6 +6132,84 @@ WHERE ([c].[Name] = N'Leeds') AND [c].[Name] IS NOT NULL");
 
         #endregion
 
+        #region Bug7983
+
+        [ConditionalFact]
+        public virtual void New_instances_in_projection_are_not_shared_across_results()
+        {
+            using (CreateDatabase7983())
+            {
+                using (var context = new MyContext7983(_options))
+                {
+                    var list = context.Posts.Select(p => new PostDTO7983().From(p)).ToList();
+
+                    Assert.Equal(3, list.Count);
+                    Assert.Equal(new[] { "First", "Second", "Third" }, list.Select(dto => dto.Title));
+
+                    AssertSql(
+                        @"SELECT [p].[Id], [p].[BlogId], [p].[Title]
+FROM [Posts] AS [p]");
+                }
+            }
+        }
+
+        private SqlServerTestStore CreateDatabase7983()
+            => CreateTestStore(
+                () => new MyContext7983(_options),
+                context =>
+                {
+                    context.Add(new Blog7983
+                    {
+                        Posts = new List<Post7983> {
+                            new Post7983 { Title = "First" },
+                            new Post7983 { Title = "Second" },
+                            new Post7983 { Title = "Third" } }
+                    });
+
+                    context.SaveChanges();
+
+                    ClearLog();
+                });
+
+        public class MyContext7983 : DbContext
+        {
+            public DbSet<Blog7983> Blogs { get; set; }
+            public DbSet<Post7983> Posts { get; set; }
+
+            public MyContext7983(DbContextOptions options) : base(options)
+            {
+            }
+        }
+
+        public class Blog7983
+        {
+            public int Id { get; set; }
+            public string Title { get; set; }
+
+            public ICollection<Post7983> Posts { get; set; }
+        }
+
+        public class Post7983
+        {
+            public int Id { get; set; }
+            public string Title { get; set; }
+
+            public int? BlogId { get; set; }
+            public Blog7983 Blog { get; set; }
+        }
+
+        public class PostDTO7983
+        {
+            public string Title { get; set; }
+            public PostDTO7983 From(Post7983 post)
+            {
+                Title = post.Title;
+                return this;
+            }
+        }
+
+        #endregion
+
         private DbContextOptions _options;
 
         private SqlServerTestStore CreateTestStore<TContext>(

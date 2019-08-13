@@ -72,15 +72,20 @@ namespace Microsoft.EntityFrameworkCore.Query
                 var newEntityExpression = Visit(entityExpression);
                 if (newEntityExpression is NewExpression newExpression)
                 {
-                    var index = newExpression.Members.Select(m => m.Name).IndexOf(propertyName);
-
-                    return newExpression.Arguments[index];
+                    var index = newExpression.Members?.Select(m => m.Name).IndexOf(propertyName);
+                    if (index > 0)
+                    {
+                        return newExpression.Arguments[index.Value];
+                    }
                 }
 
                 if (newEntityExpression is MemberInitExpression memberInitExpression)
                 {
-                    return ((MemberAssignment)memberInitExpression.Bindings
-                        .Single(mb => mb.Member.Name == propertyName)).Expression;
+                    if (memberInitExpression.Bindings.SingleOrDefault(
+                        mb => mb.Member.Name == propertyName) is MemberAssignment memberAssignment)
+                    {
+                        return memberAssignment.Expression;
+                    }
                 }
 
                 return methodCallExpression.Update(null, new[] { newEntityExpression, methodCallExpression.Arguments[1] });

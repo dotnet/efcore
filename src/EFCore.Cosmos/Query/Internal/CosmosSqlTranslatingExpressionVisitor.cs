@@ -58,6 +58,14 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
             {
                 translation = _sqlExpressionFactory.ApplyDefaultTypeMapping(translation);
 
+                if ((translation is SqlConstantExpression
+                     || translation is SqlParameterExpression)
+                    && translation.TypeMapping == null)
+                {
+                    // Non-mappable constant/parameter
+                    return null;
+                }
+
                 _sqlVerifyingExpressionVisitor.Visit(translation);
 
                 return translation;
@@ -339,13 +347,36 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
             return null;
         }
 
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        protected override Expression VisitNew(NewExpression node) => null;
+        private SqlConstantExpression GetConstantOrNull(Expression expression)
+        {
+            if (CanEvaluate(expression))
+            {
+                var value = Expression.Lambda<Func<object>>(Expression.Convert(expression, typeof(object))).Compile().Invoke();
+                return new SqlConstantExpression(Expression.Constant(value, expression.Type), null);
+            }
+
+            return null;
+        }
+
+        private static bool CanEvaluate(Expression expression)
+        {
+            switch (expression)
+            {
+                case ConstantExpression constantExpression:
+                    return true;
+
+                case NewExpression newExpression:
+                    return newExpression.Arguments.All(e => CanEvaluate(e));
+
+                case MemberInitExpression memberInitExpression:
+                    return CanEvaluate(memberInitExpression.NewExpression)
+                        && memberInitExpression.Bindings.All(
+                            mb => mb is MemberAssignment memberAssignment && CanEvaluate(memberAssignment.Expression));
+
+                default:
+                    return false;
+            }
+        }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -353,7 +384,15 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        protected override Expression VisitMemberInit(MemberInitExpression node) => null;
+        protected override Expression VisitNew(NewExpression node) => GetConstantOrNull(node);
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        protected override Expression VisitMemberInit(MemberInitExpression node) => GetConstantOrNull(node);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

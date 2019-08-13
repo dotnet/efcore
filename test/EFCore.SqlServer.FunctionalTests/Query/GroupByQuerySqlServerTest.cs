@@ -824,12 +824,8 @@ GROUP BY [o].[CustomerID]");
             await base.GroupBy_empty_key_Aggregate(isAsync);
 
             AssertSql(
-                @"SELECT SUM([t].[OrderID])
-FROM (
-    SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate], 1 AS [Key]
-    FROM [Orders] AS [o]
-) AS [t]
-GROUP BY [t].[Key]");
+                @"SELECT SUM([o].[OrderID])
+FROM [Orders] AS [o]");
         }
 
         public override async Task GroupBy_empty_key_Aggregate_Key(bool isAsync)
@@ -837,12 +833,8 @@ GROUP BY [t].[Key]");
             await base.GroupBy_empty_key_Aggregate_Key(isAsync);
 
             AssertSql(
-                @"SELECT SUM([t].[OrderID])
-FROM (
-    SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate], 1 AS [Key]
-    FROM [Orders] AS [o]
-) AS [t]
-GROUP BY [t].[Key]");
+                @"SELECT SUM([o].[OrderID]) AS [Sum]
+FROM [Orders] AS [o]");
         }
 
         public override async Task OrderBy_GroupBy_Aggregate(bool isAsync)

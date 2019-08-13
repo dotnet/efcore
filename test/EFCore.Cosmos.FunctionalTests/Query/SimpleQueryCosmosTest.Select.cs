@@ -364,6 +364,7 @@ FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
 
+        [ConditionalTheory(Skip = "Issue#14935")]
         public override async Task New_date_time_in_anonymous_type_works(bool isAsync)
         {
             await base.New_date_time_in_anonymous_type_works(isAsync);

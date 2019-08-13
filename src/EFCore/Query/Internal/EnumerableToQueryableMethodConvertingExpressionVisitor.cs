@@ -25,8 +25,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 }
 
                 if (methodCallExpression.Arguments.Count > 0
-                    && (methodCallExpression.Arguments[0] is ParameterExpression
-                        || methodCallExpression.Arguments[0] is ConstantExpression))
+                    && ClientSource(methodCallExpression.Arguments[0]))
                 {
                     // this is methodCall over closure variable or constant
                     return base.VisitMethodCall(methodCallExpression);
@@ -137,8 +136,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 && methodCallExpression.Method.DeclaringType.GetGenericTypeDefinition() == typeof(List<>)
                 && string.Equals(nameof(List<int>.Contains), methodCallExpression.Method.Name))
             {
-                if (methodCallExpression.Object is ParameterExpression
-                    || methodCallExpression.Object is ConstantExpression)
+                if (ClientSource(methodCallExpression.Object))
                 {
                     // this is methodCall over closure variable or constant
                     return base.VisitMethodCall(methodCallExpression);
@@ -156,6 +154,12 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             return base.VisitMethodCall(methodCallExpression);
         }
+
+        private static bool ClientSource(Expression expression)
+            => expression is ConstantExpression
+                || expression is MemberInitExpression
+                || expression is NewExpression
+                || expression is ParameterExpression;
 
         private static bool CanConvertEnumerableToQueryable(Type enumerableType, Type queryableType)
         {

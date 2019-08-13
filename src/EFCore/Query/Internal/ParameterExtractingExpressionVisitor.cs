@@ -100,6 +100,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             }
 
             if (_evaluatableExpressions.TryGetValue(expression, out var generateParameter)
+                && !PreserveInitializationConstant(expression, generateParameter)
                 && !PreserveConvertNode(expression))
             {
                 return Evaluate(expression, _parameterize && generateParameter);
@@ -108,13 +109,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             return base.Visit(expression);
         }
 
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        protected virtual bool PreserveConvertNode(Expression expression)
+        private bool PreserveInitializationConstant(Expression expression, bool generateParameter)
+            => !generateParameter && (expression is NewExpression || expression is MemberInitExpression);
+
+        private bool PreserveConvertNode(Expression expression)
         {
             if (expression is UnaryExpression unaryExpression
                 && (unaryExpression.NodeType == ExpressionType.Convert

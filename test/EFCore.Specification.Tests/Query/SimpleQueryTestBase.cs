@@ -4308,7 +4308,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 e => e.ShipName);
         }
 
-        [ConditionalTheory(Skip = "Issue#17048")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual async Task ToString_with_formatter_is_evaluated_on_the_client(bool isAsync)
         {
