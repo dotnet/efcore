@@ -2060,6 +2060,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             {
                 var modelBuilder = CreateModelBuilder();
                 var model = modelBuilder.Model;
+                modelBuilder.Ignore<OrderDetails>();
                 modelBuilder.Entity<Order>(
                     eb =>
                     {
@@ -2078,7 +2079,11 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                     {
                         eb.HasOne(p => p.Order).WithMany(o => o.Products).HasForeignKey("CommonId", "OrderId");
                         eb.HasOne<ProductCategory>().WithMany(c => c.Products).HasForeignKey("CommonId", "Category").IsRequired();
+
+                        eb.HasKey("Id", "CommonId");
                     });
+
+                modelBuilder.FinalizeModel();
 
                 var dependentType = model.FindEntityType(typeof(Product));
 
@@ -2089,6 +2094,9 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 var requiredFk = dependentType.GetForeignKeys().Single(foreignKey => foreignKey != optionalFk);
                 Assert.True(requiredFk.IsRequired);
                 Assert.False(requiredFk.Properties.Last().IsNullable);
+
+                var dependentKey = dependentType.FindPrimaryKey();
+                Assert.True(dependentKey.Properties.All(p => p.ValueGenerated == ValueGenerated.Never));
             }
 
             [ConditionalFact]
@@ -2434,9 +2442,11 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 modelBuilder.Ignore<Delta>();
                 modelBuilder.Entity<Epsilon>().HasOne<Alpha>().WithMany(b => b.Epsilons);
 
+                var property = modelBuilder.Model.FindEntityType(typeof(Epsilon)).FindProperty("Id");
+                Assert.Equal(ValueGenerated.Never, property.ValueGenerated);
+
                 modelBuilder.FinalizeModel();
 
-                var property = modelBuilder.Model.FindEntityType(typeof(Epsilon)).FindProperty("Id");
                 Assert.Equal(ValueGenerated.Never, property.ValueGenerated);
             }
 
@@ -2801,6 +2811,8 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
                 var fk = modelBuilder.Model.FindEntityType(typeof(CompositeChild)).GetForeignKeys().Single();
                 Assert.Equal("ParentId", fk.Properties[0].Name);
+
+                modelBuilder.FinalizeModel();
             }
 
             private static void AssertGraph(

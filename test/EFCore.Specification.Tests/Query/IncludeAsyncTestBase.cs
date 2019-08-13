@@ -319,7 +319,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalFact(Skip = "issue #15711")]
+        [ConditionalFact(Skip = "Issue#17068")]
         public virtual async Task Include_collection_on_inner_group_join_clause_with_filter()
         {
             using (var context = CreateContext())

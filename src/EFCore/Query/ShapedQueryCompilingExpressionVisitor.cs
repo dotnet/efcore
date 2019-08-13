@@ -40,7 +40,6 @@ namespace Microsoft.EntityFrameworkCore.Query
             QueryCompilationContext queryCompilationContext)
         {
             Dependencies = dependencies;
-
             IsTracking = queryCompilationContext.IsTracking;
 
             _entityMaterializerInjectingExpressionVisitor =
@@ -283,11 +282,6 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                 var primaryKey = entityType.FindPrimaryKey();
 
-                if (_trackQueryResults && primaryKey == null)
-                {
-                    throw new InvalidOperationException("A tracking query contains entityType without key in final result.");
-                }
-
                 var concreteEntityTypeVariable = Expression.Variable(typeof(IEntityType),
                     "entityType" + _currentEntityIndex);
                 variables.Add(concreteEntityTypeVariable);
@@ -298,7 +292,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                                     instanceVariable,
                                     Expression.Constant(null, entityType.ClrType)));
 
-                if (_trackQueryResults)
+                if (_trackQueryResults
+                    && primaryKey != null)
                 {
                     var entryVariable = Expression.Variable(typeof(InternalEntityEntry), "entry" + _currentEntityIndex);
                     var hasNullKeyVariable = Expression.Variable(typeof(bool), "hasNullKey" + _currentEntityIndex);
@@ -439,7 +434,8 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                 expressions.Add(Expression.Assign(instanceVariable, materializationExpression));
 
-                if (_trackQueryResults)
+                if (_trackQueryResults
+                    && entityType.FindPrimaryKey() != null)
                 {
                     _visitedEntityTypes.Add(entityType);
 

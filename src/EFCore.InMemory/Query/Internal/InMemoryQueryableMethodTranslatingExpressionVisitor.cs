@@ -38,9 +38,6 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             _model = model;
         }
 
-        private static Type CreateTransparentIdentifierType(Type outerType, Type innerType)
-            => typeof(TransparentIdentifier<,>).MakeGenericType(outerType, innerType);
-
         public override ShapedQueryExpression TranslateSubquery(Expression expression)
         {
             return (ShapedQueryExpression)new InMemoryQueryableMethodTranslatingExpressionVisitor(
@@ -217,8 +214,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                 outer,
                 resultSelector,
                 inner.ShaperExpression,
-                transparentIdentifierType,
-                false);
+                transparentIdentifierType);
         }
 
         protected override ShapedQueryExpression TranslateLastOrDefault(ShapedQueryExpression source, LambdaExpression predicate, Type returnType, bool returnDefault)
@@ -250,9 +246,8 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             return TranslateResultSelectorForJoin(
                 outer,
                 resultSelector,
-                inner.ShaperExpression,
-                transparentIdentifierType,
-                true);
+                MarkShaperNullable(inner.ShaperExpression),
+                transparentIdentifierType);
         }
 
         protected override ShapedQueryExpression TranslateLongCount(ShapedQueryExpression source, LambdaExpression predicate)
@@ -360,8 +355,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                         source,
                         resultSelector,
                         inner.ShaperExpression,
-                        transparentIdentifierType,
-                        false);
+                        transparentIdentifierType);
                 }
             }
 

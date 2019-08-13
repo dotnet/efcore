@@ -22,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             return AssertQuery<CustomerView>(
                 isAsync,
-                cvs => cvs.AsNoTracking());
+                cvs => cvs);
         }
 
         [ConditionalTheory]
@@ -31,7 +31,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             return AssertQuery<CustomerView>(
                 isAsync,
-                cvs => cvs.AsNoTracking().Where(c => c.City == "London"));
+                cvs => cvs.Where(c => c.City == "London"));
         }
 
         [ConditionalFact]
@@ -39,7 +39,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             using (var context = CreateContext())
             {
-                var results = context.Set<ProductQuery>().AsNoTracking().ToArray();
+                var results = context.Set<ProductQuery>().ToArray();
 
                 Assert.Equal(69, results.Length);
             }
@@ -50,7 +50,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             using (var context = CreateContext())
             {
-                var results = context.CustomerQueries.AsNoTracking().ToArray();
+                var results = context.CustomerQueries.ToArray();
 
                 Assert.Equal(91, results.Length);
             }
@@ -62,7 +62,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             using (var context = CreateContext())
             {
                 var results
-                    = context.Set<CustomerQuery>().AsNoTracking()
+                    = context.Set<CustomerQuery>()
                         .Where(cq => cq.OrderCount > 0)
                         .ToArray();
 
@@ -76,7 +76,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             return AssertQuery<OrderQuery>(
                 isAsync,
-                ovs => ovs.AsNoTracking().Where(ov => ov.CustomerID == "ALFKI"));
+                ovs => ovs.Where(ov => ov.CustomerID == "ALFKI"));
         }
 
         // also issue 12873
@@ -86,7 +86,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             return AssertQuery<OrderQuery>(
                 isAsync,
-                ovs => ovs.AsNoTracking().Where(ov => ov.CustomerID == "ALFKI").Select(ov => ov.Customer)
+                ovs => ovs.Where(ov => ov.CustomerID == "ALFKI").Select(ov => ov.Customer)
                     .Select(cv => cv.Orders.Where(cc => true).ToList()));
         }
 
@@ -98,7 +98,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 isAsync,
                 (cs, ovs)
                     => from c in cs
-                       from o in ovs.AsNoTracking().Where(ov => ov.CustomerID == c.CustomerID)
+                       from o in ovs.Where(ov => ov.CustomerID == c.CustomerID)
                        select new
                        {
                            c,
@@ -113,7 +113,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             return AssertIncludeQuery<OrderQuery>(
                 isAsync,
-                ovs => from ov in ovs.AsNoTracking().Include(ov => ov.Customer)
+                ovs => from ov in ovs.Include(ov => ov.Customer)
                        where ov.CustomerID == "ALFKI"
                        select ov,
                 new List<IExpectedInclude>
@@ -128,7 +128,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             return AssertIncludeQuery<OrderQuery>(
                 isAsync,
-                ovs => from ov in ovs.AsNoTracking().Include(ov => ov.Customer.Orders)
+                ovs => from ov in ovs.Include(ov => ov.Customer.Orders)
                        where ov.CustomerID == "ALFKI"
                        select ov,
                 new List<IExpectedInclude>
@@ -144,7 +144,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             return AssertQuery<OrderQuery>(
                 isAsync,
-                ovs => from ov in ovs.AsNoTracking()
+                ovs => from ov in ovs
                        where ov.Customer.City == "Seattle"
                        select ov);
         }
@@ -155,7 +155,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             return AssertQuery<OrderQuery>(
                 isAsync,
-                ovs => from ov in ovs.AsNoTracking()
+                ovs => from ov in ovs
                        where ov.Customer.Orders.Any()
                        select ov);
         }

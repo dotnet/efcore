@@ -317,6 +317,26 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
             return crossJoinExpression.Update(table);
         }
 
+        protected override Expression VisitInnerJoinLateral(InnerJoinLateralExpression crossApplyExpression)
+        {
+            var parentSearchCondition = _isSearchCondition;
+            _isSearchCondition = false;
+            var table = (TableExpressionBase)Visit(crossApplyExpression.Table);
+            _isSearchCondition = parentSearchCondition;
+
+            return crossApplyExpression.Update(table);
+        }
+
+        protected override Expression VisitLeftJoinLateral(LeftJoinLateralExpression outerApplyExpression)
+        {
+            var parentSearchCondition = _isSearchCondition;
+            _isSearchCondition = false;
+            var table = (TableExpressionBase)Visit(outerApplyExpression.Table);
+            _isSearchCondition = parentSearchCondition;
+
+            return outerApplyExpression.Update(table);
+        }
+
         protected override Expression VisitInnerJoin(InnerJoinExpression innerJoinExpression)
         {
             var parentSearchCondition = _isSearchCondition;

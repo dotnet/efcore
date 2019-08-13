@@ -706,6 +706,22 @@ namespace Microsoft.EntityFrameworkCore.Query
             return crossJoinExpression;
         }
 
+        protected override Expression VisitInnerJoinLateral(InnerJoinLateralExpression innerJoinLateralExpression)
+        {
+            _relationalCommandBuilder.Append("INNER JOIN LATERAL ");
+            Visit(innerJoinLateralExpression.Table);
+
+            return innerJoinLateralExpression;
+        }
+
+        protected override Expression VisitLeftJoinLateral(LeftJoinLateralExpression leftJoinLateralExpression)
+        {
+            _relationalCommandBuilder.Append("LEFT JOIN LATERAL ");
+            Visit(leftJoinLateralExpression.Table);
+
+            return leftJoinLateralExpression;
+        }
+
         protected override Expression VisitInnerJoin(InnerJoinExpression innerJoinExpression)
         {
             _relationalCommandBuilder.Append("INNER JOIN ");

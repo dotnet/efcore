@@ -3651,7 +3651,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalFact(Skip = "Issue#15711")]
+        [ConditionalFact]
         public virtual void Collection_navigation_access_on_derived_entity_using_cast()
         {
             using (var ctx = CreateContext())
@@ -3675,7 +3675,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalFact(Skip = "Issue#15711")]
+        [ConditionalFact]
         public virtual void Collection_navigation_access_on_derived_entity_using_cast_in_SelectMany()
         {
             using (var ctx = CreateContext())
@@ -3806,7 +3806,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalFact(Skip = "Issue#15711")]
+        [ConditionalFact]
         public virtual void Cast_result_operator_on_subquery_is_properly_lifted_to_a_convert()
         {
             using (var ctx = CreateContext())
@@ -3820,7 +3820,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalFact(Skip = "Issue#15711")]
+        [ConditionalFact]
         public virtual void Comparing_two_collection_navigations_composite_key()
         {
             using (var ctx = CreateContext())
@@ -3842,7 +3842,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalFact(Skip = "Issue#15711")]
+        [ConditionalFact(Skip = "Issue#17076")]
         public virtual void Comparing_two_collection_navigations_inheritance()
         {
             using (var ctx = CreateContext())
@@ -5436,7 +5436,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 });
         }
 
-        [ConditionalFact(Skip = "Issue#16330")]
+        [ConditionalFact]
         public virtual void Correlated_collection_with_top_level_FirstOrDefault()
         {
             using (var ctx = CreateContext())
@@ -5456,7 +5456,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalTheory(Skip = "Issue#15711")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Correlated_collection_with_top_level_Count(bool isAsync)
         {
@@ -5465,7 +5465,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 gs => gs.Select(g => g.Weapons));
         }
 
-        [ConditionalFact(Skip = "Issue#16330")]
+        [ConditionalFact]
         public virtual void Correlated_collection_with_top_level_Last_with_orderby_on_outer()
         {
             using (var ctx = CreateContext())
@@ -5486,7 +5486,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalFact(Skip = "Issue#16330")]
+        [ConditionalFact]
         public virtual void Correlated_collection_with_top_level_Last_with_order_by_on_inner()
         {
             using (var ctx = CreateContext())
@@ -5668,7 +5668,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     select h);
         }
 
-        [ConditionalFact(Skip = "Issue #10974")]
+        [ConditionalFact(Skip = "Issue #17068")]
         public virtual void Include_collection_group_by_reference()
         {
             using (var context = CreateContext())
@@ -5767,7 +5767,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 elementAsserter: (e, a) => CollectionAsserter<string>(elementSorter: ee => ee)(e.Collection, a.Collection));
         }
 
-        [ConditionalTheory(Skip = "Issue#15711")]
+        [ConditionalTheory(Skip = "Issue#17068")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Outer_parameter_in_group_join_key(bool isAsync)
         {
@@ -5860,7 +5860,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 elementSorter: e => e.c);
         }
 
-        [ConditionalTheory(Skip = "Issue #15848")]
+        [ConditionalTheory(Skip = "Issue #17109")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Order_by_entity_qsre(bool isAsync)
         {
@@ -5872,7 +5872,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 assertOrder: true);
         }
 
-        [ConditionalTheory(Skip = "Issue #15848")]
+        [ConditionalTheory(Skip = "Issue #17109")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Order_by_entity_qsre_with_inheritance(bool isAsync)
         {
@@ -5882,7 +5882,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 assertOrder: true);
         }
 
-        [ConditionalTheory(Skip = "Issue #15848")]
+        [ConditionalTheory(Skip = "Issue #17109")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Order_by_entity_qsre_composite_key(bool isAsync)
         {
@@ -5894,7 +5894,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 assertOrder: true);
         }
 
-        [ConditionalTheory(Skip = "Issue #15848")]
+        [ConditionalTheory(Skip = "Issue #17109")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Order_by_entity_qsre_with_other_orderbys(bool isAsync)
         {
@@ -6156,7 +6156,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalFact(Skip = "Issue#16330")]
+        [ConditionalFact(Skip = "Issue#16314")]
         public virtual void Streaming_correlated_collection_issue_11403()
         {
             Weapon[] expected;
@@ -6542,7 +6542,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalTheory(Skip = "Issue#15711")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Cast_to_derived_type_after_OfType_works(bool isAsync)
         {
@@ -6931,7 +6931,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 gs => gs.Include(g => g.CityOfBirth).GroupBy(g => g.Rank).Select(g => g.Min(gg => gg.SquadId)));
         }
 
-        [ConditionalTheory(Skip = "Issue #15711")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_Property_Include_Aggregate_with_anonymous_selector(bool isAsync)
         {

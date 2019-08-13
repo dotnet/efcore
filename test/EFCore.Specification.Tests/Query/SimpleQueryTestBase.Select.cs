@@ -1200,6 +1200,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 4);
         }
 
+        private static string ClientMethod(Customer c) => c.CustomerID;
+
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Projecting_nullable_struct(bool isAsync)
@@ -1221,6 +1223,37 @@ namespace Microsoft.EntityFrameworkCore.Query
             public int X, Y;
         }
 
-        private static string ClientMethod(Customer c) => c.CustomerID;
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Multiple_select_many_with_predicate(bool isAsync)
+        {
+            return AssertQuery<Customer>(
+                isAsync,
+                cs => from c in cs
+                      from o in c.Orders
+                      from od in o.OrderDetails
+                      where od.Discount >= 0.25
+                      select c,
+                entryCount: 38);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task SelectMany_without_result_selector_naked_collection_navigation(bool isAsync)
+        {
+            return AssertQuery<Customer>(
+                isAsync,
+                cs => cs.SelectMany(c => c.Orders),
+                entryCount: 830);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task SelectMany_without_result_selector_collection_navigation_composed(bool isAsync)
+        {
+            return AssertQuery<Customer>(
+                isAsync,
+                cs => cs.SelectMany(c => c.Orders.Select(o => o.CustomerID)));
+        }
     }
 }

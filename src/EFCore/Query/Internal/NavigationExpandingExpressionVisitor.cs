@@ -361,41 +361,40 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
                         case nameof(Queryable.Join)
                         when genericMethod == QueryableMethodProvider.JoinMethodInfo:
+                        {
+                            var secondArgument = Visit(methodCallExpression.Arguments[1]);
+                            if (secondArgument is NavigationExpansionExpression innerSource)
                             {
-                                var secondArgument = Visit(methodCallExpression.Arguments[1]);
-                                if (secondArgument is NavigationExpansionExpression innerSource)
-                                {
-                                    return ProcessJoin(
-                                        source,
-                                        innerSource,
-                                        methodCallExpression.Arguments[2].UnwrapLambdaFromQuote(),
-                                        methodCallExpression.Arguments[3].UnwrapLambdaFromQuote(),
-                                        methodCallExpression.Arguments[4].UnwrapLambdaFromQuote());
-                                }
-                                break;
+                                return ProcessJoin(
+                                    source,
+                                    innerSource,
+                                    methodCallExpression.Arguments[2].UnwrapLambdaFromQuote(),
+                                    methodCallExpression.Arguments[3].UnwrapLambdaFromQuote(),
+                                    methodCallExpression.Arguments[4].UnwrapLambdaFromQuote());
                             }
+                            break;
+                        }
 
                         case nameof(QueryableExtensions.LeftJoin)
                         when genericMethod == QueryableExtensions.LeftJoinMethodInfo:
+                        {
+                            var secondArgument = Visit(methodCallExpression.Arguments[1]);
+                            if (secondArgument is NavigationExpansionExpression innerSource)
                             {
-                                var secondArgument = Visit(methodCallExpression.Arguments[1]);
-                                if (secondArgument is NavigationExpansionExpression innerSource)
-                                {
-                                    return ProcessLeftJoin(
-                                        source,
-                                        innerSource,
-                                        methodCallExpression.Arguments[2].UnwrapLambdaFromQuote(),
-                                        methodCallExpression.Arguments[3].UnwrapLambdaFromQuote(),
-                                        methodCallExpression.Arguments[4].UnwrapLambdaFromQuote());
-                                }
-                                break;
+                                return ProcessLeftJoin(
+                                    source,
+                                    innerSource,
+                                    methodCallExpression.Arguments[2].UnwrapLambdaFromQuote(),
+                                    methodCallExpression.Arguments[3].UnwrapLambdaFromQuote(),
+                                    methodCallExpression.Arguments[4].UnwrapLambdaFromQuote());
                             }
+                            break;
+                        }
 
                         case nameof(Queryable.SelectMany)
                         when genericMethod == QueryableMethodProvider.SelectManyWithoutCollectionSelectorMethodInfo:
                             return ProcessSelectMany(
                                 source,
-                                genericMethod,
                                 methodCallExpression.Arguments[1].UnwrapLambdaFromQuote(),
                                 null);
 
@@ -403,7 +402,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                         when genericMethod == QueryableMethodProvider.SelectManyWithCollectionSelectorMethodInfo:
                             return ProcessSelectMany(
                                 source,
-                                genericMethod,
                                 methodCallExpression.Arguments[1].UnwrapLambdaFromQuote(),
                                 methodCallExpression.Arguments[2].UnwrapLambdaFromQuote());
 
@@ -415,17 +413,17 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                         when genericMethod == QueryableMethodProvider.IntersectMethodInfo:
                         case nameof(Queryable.Union)
                         when genericMethod == QueryableMethodProvider.UnionMethodInfo:
+                        {
+                            var secondArgument = Visit(methodCallExpression.Arguments[1]);
+                            if (secondArgument is NavigationExpansionExpression innerSource)
                             {
-                                var secondArgument = Visit(methodCallExpression.Arguments[1]);
-                                if (secondArgument is NavigationExpansionExpression innerSource)
-                                {
-                                    return ProcessSetOperation(
-                                        source,
-                                        genericMethod,
-                                        innerSource);
-                                }
-                                break;
+                                return ProcessSetOperation(
+                                    source,
+                                    genericMethod,
+                                    innerSource);
                             }
+                            break;
+                        }
 
                         case nameof(Queryable.Cast)
                         when genericMethod == QueryableMethodProvider.CastMethodInfo:
@@ -508,6 +506,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                                 source,
                                 methodCallExpression.Arguments[1].UnwrapLambdaFromQuote());
 
+                        case nameof(Queryable.DefaultIfEmpty)
+                        when genericMethod == QueryableMethodProvider.DefaultIfEmptyWithoutArgumentMethodInfo:
+                            return ProcessDefaultIfEmpty(source);
+
                         default:
                             throw new NotImplementedException($"Unhandled method in navigation expansion: {method.Name}");
                     }
@@ -567,6 +569,18 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             }
 
             return ProcessUnknownMethod(methodCallExpression);
+        }
+
+        private Expression ProcessDefaultIfEmpty(NavigationExpansionExpression source)
+        {
+            source.UpdateSource(
+                Expression.Call(
+                    QueryableMethodProvider.DefaultIfEmptyWithoutArgumentMethodInfo.MakeGenericMethod(source.SourceElementType),
+                    source.Source));
+
+            _entityReferenceOptionalMarkingExpressionVisitor.Visit(source.PendingSelector);
+
+            return source;
         }
 
         private Expression ProcessUnknownMethod(MethodCallExpression methodCallExpression)
@@ -721,11 +735,15 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
         private Expression ProcessSelectMany(
             NavigationExpansionExpression source,
-            MethodInfo genericMethod,
             LambdaExpression collectionSelector,
             LambdaExpression resultSelector)
         {
             var collectionSelectorBody = ExpandNavigationsInLambdaExpression(source, collectionSelector);
+            if (collectionSelectorBody is MaterializeCollectionNavigationExpression materializeCollectionNavigationExpression)
+            {
+                collectionSelectorBody = materializeCollectionNavigationExpression.Subquery;
+            }
+
             if (collectionSelectorBody is NavigationExpansionExpression collectionSource)
             {
                 collectionSource = (NavigationExpansionExpression)_pendingSelectorExpandingExpressionVisitor.Visit(collectionSource);
@@ -746,10 +764,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
                 var transparentIdentifierType = TransparentIdentifierFactory.Create(
                     source.SourceElementType, collectionElementType);
-
                 var transparentIdentifierOuterMemberInfo = transparentIdentifierType.GetTypeInfo().GetDeclaredField("Outer");
                 var transparentIdentifierInnerMemberInfo = transparentIdentifierType.GetTypeInfo().GetDeclaredField("Inner");
-
                 var collectionElementParameter = Expression.Parameter(collectionElementType, "c");
 
                 var newResultSelector = Expression.Lambda(
@@ -761,20 +777,21 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     collectionElementParameter);
 
                 var newSource = Expression.Call(
-                    genericMethod.MakeGenericMethod(
+                    QueryableMethodProvider.SelectManyWithCollectionSelectorMethodInfo.MakeGenericMethod(
                         source.SourceElementType, collectionElementType, newResultSelector.ReturnType),
                     source.Source,
                     Expression.Quote(collectionSelector),
                     Expression.Quote(newResultSelector));
 
-
                 var currentTree = new NavigationTreeNode(source.CurrentTree, innerTree);
-                var pendingSelector = new ReplacingExpressionVisitor(
-                    new Dictionary<Expression, Expression>
-                    {
-                    { resultSelector.Parameters[0], source.PendingSelector },
-                    { resultSelector.Parameters[1], innerTree }
-                    }).Visit(resultSelector.Body);
+                var pendingSelector = resultSelector == null
+                    ? innerTree
+                    : new ReplacingExpressionVisitor(
+                        new Dictionary<Expression, Expression>
+                        {
+                            { resultSelector.Parameters[0], source.PendingSelector },
+                            { resultSelector.Parameters[1], innerTree }
+                        }).Visit(resultSelector.Body);
                 var parameterName = GetParameterName("ti");
 
                 return new NavigationExpansionExpression(newSource, currentTree, pendingSelector, parameterName);

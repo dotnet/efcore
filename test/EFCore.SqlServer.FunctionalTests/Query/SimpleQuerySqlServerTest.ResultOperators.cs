@@ -1087,9 +1087,9 @@ FROM [Order Details] AS [o]");
             base.OfType_Select();
 
             AssertSql(
-                @"SELECT TOP(1) [o.Customer].[City]
+                @"SELECT TOP(1) [c].[City]
 FROM [Orders] AS [o]
-LEFT JOIN [Customers] AS [o.Customer] ON [o].[CustomerID] = [o.Customer].[CustomerID]
+LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]
 ORDER BY [o].[OrderID]");
         }
 
@@ -1098,9 +1098,9 @@ ORDER BY [o].[OrderID]");
             base.OfType_Select_OfType_Select();
 
             AssertSql(
-                @"SELECT TOP(1) [o.Customer].[City]
+                @"SELECT TOP(1) [c].[City]
 FROM [Orders] AS [o]
-LEFT JOIN [Customers] AS [o.Customer] ON [o].[CustomerID] = [o.Customer].[CustomerID]
+LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]
 ORDER BY [o].[OrderID]");
         }
 

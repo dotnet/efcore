@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Threading.Tasks;
+using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
@@ -324,7 +325,7 @@ ORDER BY [o].[OrderID]");
             base.Select_nested_collection_multi_level();
 
             AssertSql(
-                @"SELECT [c].[CustomerID], [t].[OrderDate], [t].[OrderID], [t].[CustomerID]
+                @"SELECT [c].[CustomerID], [t].[OrderDate], [t].[OrderID]
 FROM [Customers] AS [c]
 LEFT JOIN (
     SELECT TOP(3) [o].[OrderDate], [o].[OrderID], [o].[CustomerID]
@@ -973,6 +974,44 @@ FROM [Orders] AS [o]");
     ELSE CAST(0 AS bit)
 END, [o].[OrderID], CAST(LEN([o].[CustomerID]) AS int)
 FROM [Orders] AS [o]");
+        }
+
+        public override async Task Multiple_select_many_with_predicate(bool isAsync)
+        {
+            await base.Multiple_select_many_with_predicate(isAsync);
+
+            AssertSql(
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+INNER JOIN [Orders] AS [o] ON [c].[CustomerID] = [o].[CustomerID]
+INNER JOIN [Order Details] AS [o0] ON [o].[OrderID] = [o0].[OrderID]
+WHERE CAST([o0].[Discount] AS float) >= 0.25E0");
+        }
+
+        public override async Task SelectMany_without_result_selector_naked_collection_navigation(bool isAsync)
+        {
+            await base.SelectMany_without_result_selector_naked_collection_navigation(isAsync);
+
+            AssertSql(
+                @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Customers] AS [c]
+INNER JOIN [Orders] AS [o] ON [c].[CustomerID] = [o].[CustomerID]");
+        }
+
+        public override async Task SelectMany_without_result_selector_collection_navigation_composed(bool isAsync)
+        {
+            await base.SelectMany_without_result_selector_collection_navigation_composed(isAsync);
+
+            AssertSql(
+                @"SELECT [o].[CustomerID]
+FROM [Customers] AS [c]
+INNER JOIN [Orders] AS [o] ON [c].[CustomerID] = [o].[CustomerID]");
+        }
+
+        [ConditionalFact(Skip = "Issue#17117")]
+        public override void Select_nested_projection()
+        {
+            base.Select_nested_projection();
         }
     }
 }
