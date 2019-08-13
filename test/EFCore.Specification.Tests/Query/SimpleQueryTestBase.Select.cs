@@ -408,32 +408,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                     select c.City);
         }
 
-        [ConditionalFact]
-        public virtual void Select_nested_projection()
-        {
-            using (var context = CreateContext())
-            {
-                var customers = context.Customers
-                    .Where(c => c.CustomerID.StartsWith("A"))
-                    .Select(c => new
-                    {
-                        Customer = c,
-                        CustomerAgain = Get(context, c.CustomerID)
-                    })
-                    .ToList();
-
-                Assert.Equal(4, customers.Count);
-
-                foreach (var customer in customers)
-                {
-                    Assert.Same(customer.Customer, customer.CustomerAgain);
-                }
-            }
-        }
-
-        private static Customer Get(NorthwindContext context, string id)
-          => context.Customers.Single(c => c.CustomerID == id);
-
         [ConditionalTheory(Skip = "Issue#16314")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Select_nested_collection(bool isAsync)
