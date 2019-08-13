@@ -3886,20 +3886,28 @@ ORDER BY [t].[Nickname]");
             base.Comparing_two_collection_navigations_inheritance();
 
             AssertSql(
-                @"SELECT [f].[Name], [o].[Nickname]
-FROM [ConditionalFactions] AS [f]
-CROSS JOIN [Gears] AS [o]
+                @"SELECT [t].[Name], [t0].[Nickname]
+FROM (
+    SELECT [f].[Id], [f].[CapitalName], [f].[Discriminator], [f].[Name], [f].[CommanderName], [f].[Eradicated]
+    FROM [Factions] AS [f]
+    WHERE [f].[Discriminator] = N'LocustHorde'
+) AS [t]
+CROSS JOIN (
+    SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOrBirthName], [g].[Discriminator], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank]
+    FROM [Gears] AS [g]
+    WHERE [g].[Discriminator] IN (N'Gear', N'Officer') AND ([g].[Discriminator] = N'Officer')
+) AS [t0]
 LEFT JOIN (
-    SELECT [join.Commander].*
-    FROM [LocustLeaders] AS [join.Commander]
-    WHERE [join.Commander].[Discriminator] = N'LocustCommander'
-) AS [t] ON ([f].[Discriminator] = N'LocustHorde') AND ([f].[CommanderName] = [t].[Name])
+    SELECT [l].[Name], [l].[Discriminator], [l].[LocustHordeId], [l].[ThreatLevel], [l].[DefeatedByNickname], [l].[DefeatedBySquadId], [l].[HighCommandId]
+    FROM [LocustLeaders] AS [l]
+    WHERE [l].[Discriminator] = N'LocustCommander'
+) AS [t1] ON [t].[CommanderName] = [t1].[Name]
 LEFT JOIN (
-    SELECT [join.Commander.DefeatedBy].*
-    FROM [Gears] AS [join.Commander.DefeatedBy]
-    WHERE [join.Commander.DefeatedBy].[Discriminator] IN (N'Officer', N'Gear')
-) AS [t0] ON ([t].[DefeatedByNickname] = [t0].[Nickname]) AND ([t].[DefeatedBySquadId] = [t0].[SquadId])
-WHERE (([f].[Discriminator] = N'LocustHorde') AND (([f].[Discriminator] = N'LocustHorde') AND ([o].[HasSoulPatch] = CAST(1 AS bit)))) AND (([t0].[Nickname] = [o].[Nickname]) AND ([t0].[SquadId] = [o].[SquadId]))");
+    SELECT [g0].[Nickname], [g0].[SquadId], [g0].[AssignedCityName], [g0].[CityOrBirthName], [g0].[Discriminator], [g0].[FullName], [g0].[HasSoulPatch], [g0].[LeaderNickname], [g0].[LeaderSquadId], [g0].[Rank]
+    FROM [Gears] AS [g0]
+    WHERE [g0].[Discriminator] IN (N'Gear', N'Officer')
+) AS [t2] ON (([t1].[DefeatedByNickname] = [t2].[Nickname]) AND [t1].[DefeatedByNickname] IS NOT NULL) AND (([t1].[DefeatedBySquadId] = [t2].[SquadId]) AND [t1].[DefeatedBySquadId] IS NOT NULL)
+WHERE (([t].[Discriminator] = N'LocustHorde') AND ([t0].[HasSoulPatch] = CAST(1 AS bit))) AND ((([t2].[Nickname] = [t0].[Nickname]) AND [t2].[Nickname] IS NOT NULL) AND (([t2].[SquadId] = [t0].[SquadId]) AND [t2].[SquadId] IS NOT NULL))");
         }
 
         public override void Comparing_entities_using_Equals_inheritance()
@@ -5779,28 +5787,21 @@ LEFT JOIN (
             AssertSql(
                 @"SELECT [g].[FullName]
 FROM [Gears] AS [g]
-LEFT JOIN [Cities] AS [g.AssignedCity] ON [g].[AssignedCityName] = [g.AssignedCity].[Name]
-WHERE [g].[Discriminator] IN (N'Officer', N'Gear')
-ORDER BY [g.AssignedCity].[Name], [g].[Nickname] DESC");
+LEFT JOIN [Cities] AS [c] ON [g].[AssignedCityName] = [c].[Name]
+WHERE [g].[Discriminator] IN (N'Gear', N'Officer')
+ORDER BY [c].[Name], [g].[Nickname] DESC");
         }
 
         public override async Task Order_by_entity_qsre_with_inheritance(bool isAsync)
         {
             await base.Order_by_entity_qsre_with_inheritance(isAsync);
 
-            // TODO: projection is incorrect - we only need lc.Name
             AssertSql(
-                @"SELECT [lc.HighCommand].[Id], [lc.HighCommand].[IsOperational], [lc.HighCommand].[Name], [lc].[Name]
-FROM [LocustLeaders] AS [lc]
-INNER JOIN [LocustHighCommands] AS [lc.HighCommand] ON [lc].[HighCommandId] = [lc.HighCommand].[Id]
-WHERE [lc].[Discriminator] = N'LocustCommander'
-ORDER BY [lc.HighCommand].[Id], [lc].[Name]");
-            //            AssertSql(
-            //                @"SELECT [lc].[Name]
-            //FROM [LocustLeaders] AS [lc]
-            //INNER JOIN [LocustHighCommands] AS [lc.HighCommand] ON [lc].[HighCommandId] = [lc.HighCommand].[Id]
-            //WHERE [lc].[Discriminator] = N'LocustCommander'
-            //ORDER BY [lc.HighCommand].[Id], [lc].[Name]");
+                @"SELECT [l].[Name]
+FROM [LocustLeaders] AS [l]
+INNER JOIN [LocustHighCommands] AS [l0] ON [l].[HighCommandId] = [l0].[Id]
+WHERE [l].[Discriminator] IN (N'LocustLeader', N'LocustCommander') AND ([l].[Discriminator] = N'LocustCommander')
+ORDER BY [l0].[Id], [l].[Name]");
         }
 
         public override async Task Order_by_entity_qsre_composite_key(bool isAsync)
@@ -5811,9 +5812,9 @@ ORDER BY [lc.HighCommand].[Id], [lc].[Name]");
                 @"SELECT [w].[Name]
 FROM [Weapons] AS [w]
 LEFT JOIN (
-    SELECT [w.Owner].*
-    FROM [Gears] AS [w.Owner]
-    WHERE [w.Owner].[Discriminator] IN (N'Officer', N'Gear')
+    SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOrBirthName], [g].[Discriminator], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank]
+    FROM [Gears] AS [g]
+    WHERE [g].[Discriminator] IN (N'Gear', N'Officer')
 ) AS [t] ON [w].[OwnerFullName] = [t].[FullName]
 ORDER BY [t].[Nickname], [t].[SquadId], [w].[Id]");
         }
@@ -5825,13 +5826,13 @@ ORDER BY [t].[Nickname], [t].[SquadId], [w].[Id]");
             AssertSql(
                 @"SELECT [w].[Id], [w].[AmmunitionType], [w].[IsAutomatic], [w].[Name], [w].[OwnerFullName], [w].[SynergyWithId]
 FROM [Weapons] AS [w]
-LEFT JOIN [Weapons] AS [w.SynergyWith] ON [w].[SynergyWithId] = [w.SynergyWith].[Id]
 LEFT JOIN (
-    SELECT [w.Owner].*
-    FROM [Gears] AS [w.Owner]
-    WHERE [w.Owner].[Discriminator] IN (N'Officer', N'Gear')
+    SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOrBirthName], [g].[Discriminator], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank]
+    FROM [Gears] AS [g]
+    WHERE [g].[Discriminator] IN (N'Gear', N'Officer')
 ) AS [t] ON [w].[OwnerFullName] = [t].[FullName]
-ORDER BY [w].[IsAutomatic], [t].[Nickname] DESC, [t].[SquadId] DESC, [w.SynergyWith].[Id], [w].[Name]");
+LEFT JOIN [Weapons] AS [w0] ON [w].[SynergyWithId] = [w0].[Id]
+ORDER BY [w].[IsAutomatic], [t].[Nickname] DESC, [t].[SquadId] DESC, [w0].[Id], [w].[Name]");
         }
 
         public override async Task Join_on_entity_qsre_keys(bool isAsync)

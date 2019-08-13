@@ -5,7 +5,6 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -14,6 +13,7 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Query.Internal
 {
@@ -38,9 +38,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             = typeof(object).GetRuntimeMethod(nameof(object.Equals), new[] { typeof(object), typeof(object) });
 
         private static readonly MethodInfo _enumerableContainsMethodInfo = typeof(Enumerable).GetTypeInfo()
-            .GetDeclaredMethods(nameof(Enumerable.Contains))
-            .Single(mi => mi.GetParameters().Length == 2);
-        private static readonly MethodInfo _enumerableSelectMethodInfo = typeof(Enumerable).GetTypeInfo()
             .GetDeclaredMethods(nameof(Enumerable.Contains))
             .Single(mi => mi.GetParameters().Length == 2);
 
@@ -152,9 +149,27 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
         protected override Expression VisitUnary(UnaryExpression unaryExpression)
         {
-            // This is needed for Convert but is generalized
             var newOperand = Visit(unaryExpression.Operand);
             var newUnary = unaryExpression.Update(Unwrap(newOperand));
+
+            if (unaryExpression.NodeType == ExpressionType.Convert)
+            {
+                if (!(newOperand is EntityReferenceExpression sourceWrapper)
+                    || sourceWrapper.EntityType == null)
+                {
+                    return newUnary;
+                }
+
+                var castType = unaryExpression.Type;
+                var castEntityType = sourceWrapper.EntityType.GetTypesInHierarchy().FirstOrDefault(et => et.ClrType == castType);
+                if (castEntityType == null)
+                {
+                    return newUnary;
+                }
+
+                return new EntityReferenceExpression(newUnary, castEntityType);
+            }
+
             return newOperand is EntityReferenceExpression entityWrapper
                 ? entityWrapper.Update(newUnary)
                 : (Expression)newUnary;
@@ -252,6 +267,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 when genericMethod == QueryableExtensions.LeftJoinMethodInfo:
                     return VisitJoinMethodCall(methodCallExpression);
 
+                case nameof(Queryable.OfType)
+                when genericMethod == QueryableMethodProvider.OfTypeMethodInfo:
+                    return VisitOfType(methodCallExpression);
+
                 case nameof(Queryable.GroupBy)
                 when genericMethod == QueryableMethodProvider.GroupByWithKeySelectorMethodInfo
                      || genericMethod == QueryableMethodProvider.GroupByWithKeyElementSelectorMethodInfo
@@ -297,13 +316,12 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
                 var sourceParamType = methodCallExpression.Method.GetParameters()[0].ParameterType;
                 var sourceElementType = sourceParamType.TryGetSequenceType();
-                if (sourceElementType != null
-                    || sourceParamType == typeof(IQueryable))   // OfType
+                if (sourceElementType != null)
                 {
                     // If the method returns the element same type as the source, flow the type information
                     // (e.g. Where)
                     if (methodCallExpression.Method.ReturnType.TryGetSequenceType() is Type returnElementType
-                        && (returnElementType == sourceElementType || sourceElementType == null))
+                        && returnElementType == sourceElementType)
                     {
                         return newSourceWrapper.Update(methodCallExpression.Update(null, newArguments));
                     }
@@ -469,7 +487,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             foreach (var keyProperty in keyProperties)
             {
-                var param = Expression.Parameter(entityType.ClrType, "v");
+                var param = Expression.Parameter(oldParam.Type, oldParam.Name);
+
                 var rewrittenKeySelector = Expression.Lambda(
                     ReplacingExpressionVisitor.Replace(
                         oldParam, param,
@@ -479,7 +498,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 var orderingMethodInfo = GetOrderingMethodInfo(firstOrdering, isAscending);
 
                 expression = Expression.Call(
-                    orderingMethodInfo.MakeGenericMethod(entityType.ClrType, keyProperty.ClrType.MakeNullable()),
+                    orderingMethodInfo.MakeGenericMethod(oldParam.Type, keyProperty.ClrType.MakeNullable()),
                     expression,
                     Expression.Quote(rewrittenKeySelector)
                 );
@@ -487,7 +506,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 firstOrdering = false;
             }
 
-            return expression;
+            return sourceWrapper.Update(expression);
 
             static MethodInfo GetOrderingMethodInfo(bool firstOrdering, bool ascending)
             {
@@ -641,6 +660,27 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             return newResultSelector.Body is EntityReferenceExpression wrapper
                 ? wrapper.Update(newMethodCall)
                 : (Expression)newMethodCall;
+        }
+
+        protected virtual Expression VisitOfType(MethodCallExpression methodCallExpression)
+        {
+            var newSource = Visit(methodCallExpression.Arguments[0]);
+            var updatedMethodCall = methodCallExpression.Update(null, new[] { Unwrap(newSource) });
+
+            if (!(newSource is EntityReferenceExpression sourceWrapper)
+                || sourceWrapper.EntityType == null)
+            {
+                return updatedMethodCall;
+            }
+
+            var castType = methodCallExpression.Type.TryGetSequenceType();
+            var castEntityType = sourceWrapper.EntityType.GetTypesInHierarchy().FirstOrDefault(et => et.ClrType == castType);
+            if (castEntityType == null)
+            {
+                return updatedMethodCall;
+            }
+
+            return new EntityReferenceExpression(updatedMethodCall, castEntityType);
         }
 
         /// <summary>
