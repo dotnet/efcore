@@ -179,7 +179,14 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                 _sqlBuilder.Append("DISTINCT ");
             }
 
-            GenerateList(selectExpression.Projection, t => Visit(t));
+            if (selectExpression.Projection.Any())
+            {
+                GenerateList(selectExpression.Projection, e => Visit(e));
+            }
+            else
+            {
+                _sqlBuilder.Append("1");
+            }
             _sqlBuilder.AppendLine();
 
             _sqlBuilder.Append("FROM root ");

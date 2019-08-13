@@ -19,7 +19,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         private readonly IModel _model;
         private readonly QueryableMethodTranslatingExpressionVisitor _queryableMethodTranslatingExpressionVisitor;
         private readonly ISqlExpressionFactory _sqlExpressionFactory;
-        private readonly SqlTypeMappingVerifyingExpressionVisitor _sqlVerifyingExpressionVisitor;
+        private readonly SqlTypeMappingVerifyingExpressionVisitor _sqlTypeMappingVerifyingExpressionVisitor;
 
         public RelationalSqlTranslatingExpressionVisitor(
             RelationalSqlTranslatingExpressionVisitorDependencies dependencies,
@@ -31,7 +31,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             _model = model;
             _queryableMethodTranslatingExpressionVisitor = queryableMethodTranslatingExpressionVisitor;
             _sqlExpressionFactory = dependencies.SqlExpressionFactory;
-            _sqlVerifyingExpressionVisitor = new SqlTypeMappingVerifyingExpressionVisitor();
+            _sqlTypeMappingVerifyingExpressionVisitor = new SqlTypeMappingVerifyingExpressionVisitor();
         }
 
         protected virtual RelationalSqlTranslatingExpressionVisitorDependencies Dependencies { get; }
@@ -51,14 +51,15 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                 translation = _sqlExpressionFactory.ApplyDefaultTypeMapping(translation);
 
-                if (translation is SqlConstantExpression
+                if ((translation is SqlConstantExpression
+                     || translation is SqlParameterExpression)
                     && translation.TypeMapping == null)
                 {
-                    // Non-mappable constant
+                    // Non-mappable constant/parameter
                     return null;
                 }
 
-                _sqlVerifyingExpressionVisitor.Visit(translation);
+                _sqlTypeMappingVerifyingExpressionVisitor.Visit(translation);
 
                 return translation;
             }
@@ -442,9 +443,40 @@ namespace Microsoft.EntityFrameworkCore.Query
                 null);
         }
 
-        protected override Expression VisitNew(NewExpression node) => null;
+        private SqlConstantExpression GetConstantOrNull(Expression expression)
+        {
+            if (CanEvaluate(expression))
+            {
+                var value = Expression.Lambda<Func<object>>(Expression.Convert(expression, typeof(object))).Compile().Invoke();
+                return new SqlConstantExpression(Expression.Constant(value, expression.Type), null);
+            }
 
-        protected override Expression VisitMemberInit(MemberInitExpression node) => null;
+            return null;
+        }
+
+        private static bool CanEvaluate(Expression expression)
+        {
+            switch (expression)
+            {
+                case ConstantExpression constantExpression:
+                    return true;
+
+                case NewExpression newExpression:
+                    return newExpression.Arguments.All(e => CanEvaluate(e));
+
+                case MemberInitExpression memberInitExpression:
+                    return CanEvaluate(memberInitExpression.NewExpression)
+                        && memberInitExpression.Bindings.All(
+                            mb => mb is MemberAssignment memberAssignment && CanEvaluate(memberAssignment.Expression));
+
+                default:
+                    return false;
+            }
+        }
+
+        protected override Expression VisitNew(NewExpression node) => GetConstantOrNull(node);
+
+        protected override Expression VisitMemberInit(MemberInitExpression node) => GetConstantOrNull(node);
 
         protected override Expression VisitNewArray(NewArrayExpression node) => null;
 

@@ -101,7 +101,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalTheory(Skip = "Issue #15712")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual async Task Select_bool_closure(bool isAsync)
         {
@@ -309,7 +309,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 e => e.City);
         }
 
-        [ConditionalTheory(Skip = "Issue#15712")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Select_anonymous_empty(bool isAsync)
         {
@@ -322,7 +322,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 e => 1);
         }
 
-        [ConditionalTheory(Skip = "Issue#15712")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Select_anonymous_literal(bool isAsync)
         {
@@ -620,7 +620,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 });
         }
 
-        [ConditionalTheory(Skip = "Issue#15712")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task New_date_time_in_anonymous_type_works(bool isAsync)
         {
