@@ -23,9 +23,10 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
     ///         The implementation does not need to be thread-safe.
     ///     </para>
     /// </summary>
-    public class InMemoryQueryContextFactory : QueryContextFactory
+    public class InMemoryQueryContextFactory : IQueryContextFactory
     {
         private readonly IInMemoryStore _store;
+        private readonly QueryContextDependencies _dependencies;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -37,9 +38,9 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             [NotNull] QueryContextDependencies dependencies,
             [NotNull] IInMemoryStoreCache storeCache,
             [NotNull] IDbContextOptions contextOptions)
-            : base(dependencies)
         {
             _store = storeCache.GetStore(contextOptions);
+            _dependencies = dependencies;
         }
 
         /// <summary>
@@ -48,7 +49,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public override QueryContext Create()
-            => new InMemoryQueryContext(Dependencies, _store);
+        public virtual QueryContext Create()
+            => new InMemoryQueryContext(_dependencies, _store);
     }
 }

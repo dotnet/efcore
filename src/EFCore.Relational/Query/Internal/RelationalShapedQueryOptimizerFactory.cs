@@ -22,15 +22,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
         public RelationalShapedQueryOptimizerFactory(
             ShapedQueryOptimizerDependencies dependencies,
-            RelationalShapedQueryOptimizerDependencies relationalDependencies,
-            ISqlExpressionFactory sqlExpressionFactory)
+            RelationalShapedQueryOptimizerDependencies relationalDependencies)
         {
             _dependencies = dependencies;
             _relationalDependencies = relationalDependencies;
-            SqlExpressionFactory = sqlExpressionFactory;
         }
-
-        protected virtual ISqlExpressionFactory SqlExpressionFactory { get; }
 
         public virtual ShapedQueryOptimizer Create(QueryCompilationContext queryCompilationContext)
         {
