@@ -83,6 +83,46 @@ FROM (
 WHERE CHARINDEX(N'z', [c].[ContactName]) > 0");
         }
 
+        public override void FromSqlRaw_queryable_composed_compiled_with_DbParameter()
+        {
+            base.FromSqlRaw_queryable_composed_compiled_with_DbParameter();
+
+            AssertSql(
+                @"customer='CONSH' (Nullable = false) (Size = 5)
+
+SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM (
+    SELECT * FROM ""Customers"" WHERE ""CustomerID"" = @customer
+) AS [c]
+WHERE CHARINDEX(N'z', [c].[ContactName]) > 0");
+        }
+
+        public override void FromSqlRaw_queryable_composed_compiled_with_nameless_DbParameter()
+        {
+            base.FromSqlRaw_queryable_composed_compiled_with_nameless_DbParameter();
+
+            AssertSql(
+                @"p0='CONSH' (Nullable = false) (Size = 5)
+
+SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM (
+    SELECT * FROM ""Customers"" WHERE ""CustomerID"" = @p0
+) AS [c]
+WHERE CHARINDEX(N'z', [c].[ContactName]) > 0");
+        }
+
+        public override void FromSqlRaw_queryable_composed_compiled_with_parameter()
+        {
+            base.FromSqlRaw_queryable_composed_compiled_with_parameter();
+
+            AssertSql(
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM (
+    SELECT * FROM ""Customers"" WHERE ""CustomerID"" = N'CONSH'
+) AS [c]
+WHERE CHARINDEX(N'z', [c].[ContactName]) > 0");
+        }
+
         public override void FromSqlRaw_composed_contains()
         {
             base.FromSqlRaw_composed_contains();

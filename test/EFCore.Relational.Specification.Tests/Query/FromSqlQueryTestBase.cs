@@ -254,7 +254,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalFact(Skip = "Issue #17071")]
+        [ConditionalFact]
         public virtual void FromSqlRaw_queryable_composed_compiled()
         {
             var query = EF.CompileQuery(
@@ -266,6 +266,59 @@ namespace Microsoft.EntityFrameworkCore.Query
                 var actual = query(context).ToArray();
 
                 Assert.Equal(14, actual.Length);
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void FromSqlRaw_queryable_composed_compiled_with_parameter()
+        {
+            var query = EF.CompileQuery(
+                (NorthwindContext context) => context.Set<Customer>()
+                    .FromSqlRaw(
+                        NormalizeDelimetersInRawString("SELECT * FROM [Customers] WHERE [CustomerID] = {0}"), "CONSH")
+                    .Where(c => c.ContactName.Contains("z")));
+
+            using (var context = CreateContext())
+            {
+                var actual = query(context).ToArray();
+
+                Assert.Equal(1, actual.Length);
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void FromSqlRaw_queryable_composed_compiled_with_DbParameter()
+        {
+            var query = EF.CompileQuery(
+                (NorthwindContext context) => context.Set<Customer>()
+                    .FromSqlRaw(
+                        NormalizeDelimetersInRawString("SELECT * FROM [Customers] WHERE [CustomerID] = @customer"),
+                        CreateDbParameter("customer", "CONSH"))
+                    .Where(c => c.ContactName.Contains("z")));
+
+            using (var context = CreateContext())
+            {
+                var actual = query(context).ToArray();
+
+                Assert.Equal(1, actual.Length);
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void FromSqlRaw_queryable_composed_compiled_with_nameless_DbParameter()
+        {
+            var query = EF.CompileQuery(
+                (NorthwindContext context) => context.Set<Customer>()
+                    .FromSqlRaw(
+                        NormalizeDelimetersInRawString("SELECT * FROM [Customers] WHERE [CustomerID] = {0}"),
+                        CreateDbParameter(null, "CONSH"))
+                    .Where(c => c.ContactName.Contains("z")));
+
+            using (var context = CreateContext())
+            {
+                var actual = query(context).ToArray();
+
+                Assert.Equal(1, actual.Length);
             }
         }
 
