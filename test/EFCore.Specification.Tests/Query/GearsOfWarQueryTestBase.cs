@@ -3842,7 +3842,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalFact(Skip = "Issue#17076")]
+        [ConditionalFact]
         public virtual void Comparing_two_collection_navigations_inheritance()
         {
             using (var ctx = CreateContext())
@@ -5872,7 +5872,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 assertOrder: true);
         }
 
-        [ConditionalTheory(Skip = "Issue #17109")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Order_by_entity_qsre_with_inheritance(bool isAsync)
         {
