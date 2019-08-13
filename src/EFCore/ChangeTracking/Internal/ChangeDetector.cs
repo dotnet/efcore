@@ -144,7 +144,6 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             _logger.DetectChangesStarting(stateManager.Context);
 
             foreach (var entry in stateManager.ToList()) // Might be too big, but usually _all_ entities are using Snapshot tracking
-
             {
                 if (entry.EntityType.GetChangeTrackingStrategy() == ChangeTrackingStrategy.Snapshot
                     && entry.EntityState != EntityState.Detached)
@@ -299,7 +298,6 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 }
 
                 var added = new HashSet<object>(ReferenceEqualityComparer.Instance);
-
                 if (currentCollection != null)
                 {
                     foreach (var entity in currentCollection)

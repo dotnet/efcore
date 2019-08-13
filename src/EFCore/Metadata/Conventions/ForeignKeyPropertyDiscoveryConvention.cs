@@ -16,14 +16,19 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
     /// <summary>
     ///     <para>
     ///         A convention that finds foreign key properties for relationships based on their names, ignoring case:
-    ///             * [navigation property name][primary key property name]
+    ///             * [navigation property name][principal key property name]
     ///             * [navigation property name]Id
-    ///             * [principal entity name][primary key property name]
+    ///             * [principal entity name][principal key property name]
     ///             * [principal entity name]Id
     ///     </para>
     ///     <para>
-    ///         If no matching properties were found, the relationship is one-to-one, doesn't represent an ownership,
-    ///         the dependent side is not ambiguous and not derived then the primary key properties are used.
+    ///         If no matching properties were found, the relationship doesn't represent an ownership,
+    ///         the dependent side is not ambiguous and not derived then if the relationship is one-to-one,
+    ///         the primary key properties are used, otherwise the convention tries to match properties with
+    ///         the exact name as principal key properties if they are a proper subset of the dependent PK.
+    ///     </para>
+    ///     <para>
+    ///     
     ///     </para>
     ///     <para>
     ///         If a match was found, but the property types are not compatible with the principal key types no further matches are searched for.
@@ -189,41 +194,57 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                     }
                 }
 
-                if (foreignKey.IsUnique
-                    && foreignKey.DeclaringEntityType.BaseType == null
+                if (foreignKey.DeclaringEntityType.BaseType == null
                     && !foreignKey.IsSelfReferencing())
                 {
-                    // Try to use PK properties if principal end is not ambiguous
-                    if (!foreignKey.IsOwnership
-                        && (!ConfigurationSource.Convention.Overrides(foreignKey.GetPrincipalEndConfigurationSource())
-                            || foreignKey.DeclaringEntityType.DefiningEntityType == foreignKey.PrincipalEntityType))
+                    if (foreignKey.IsUnique)
                     {
-                        foreignKeyProperties = GetCompatiblePrimaryKeyProperties(
-                            foreignKey.DeclaringEntityType,
-                            foreignKey.PrincipalEntityType,
-                            foreignKey.PrincipalKey.Properties);
-                    }
-                    else if (invertible)
-                    {
-                        foreignKeyProperties = FindCandidateForeignKeyProperties(foreignKey, onDependent: true, matchPk: true);
-                        var candidatePropertiesOnPrincipal =
-                            FindCandidateForeignKeyProperties(foreignKey, onDependent: false, matchPk: true);
-                        if (candidatePropertiesOnPrincipal != null)
+                        // Try to use PK properties if principal end is not ambiguous
+                        if (!foreignKey.IsOwnership
+                            && (!ConfigurationSource.Convention.Overrides(foreignKey.GetPrincipalEndConfigurationSource())
+                                || foreignKey.DeclaringEntityType.DefiningEntityType == foreignKey.PrincipalEntityType))
                         {
-                            if (foreignKeyProperties == null)
+                            foreignKeyProperties = GetCompatiblePrimaryKeyProperties(
+                                foreignKey.DeclaringEntityType,
+                                foreignKey.PrincipalEntityType,
+                                foreignKey.PrincipalKey.Properties);
+                        }
+                        else if (invertible)
+                        {
+                            foreignKeyProperties = FindCandidateForeignKeyProperties(foreignKey, onDependent: true, matchPk: true);
+                            var candidatePropertiesOnPrincipal =
+                                FindCandidateForeignKeyProperties(foreignKey, onDependent: false, matchPk: true);
+                            if (candidatePropertiesOnPrincipal != null)
                             {
-                                using (var batch = context.DelayConventions())
+                                if (foreignKeyProperties == null)
                                 {
-                                    var invertedRelationshipBuilder = relationshipBuilder
-                                        .HasEntityTypes(foreignKey.DeclaringEntityType, foreignKey.PrincipalEntityType);
-                                    return batch.Run(
-                                        invertedRelationshipBuilder.HasForeignKey(candidatePropertiesOnPrincipal).Metadata)
-                                        ?.Builder;
+                                    using (var batch = context.DelayConventions())
+                                    {
+                                        var invertedRelationshipBuilder = relationshipBuilder
+                                            .HasEntityTypes(foreignKey.DeclaringEntityType, foreignKey.PrincipalEntityType);
+                                        return batch.Run(
+                                            invertedRelationshipBuilder.HasForeignKey(candidatePropertiesOnPrincipal).Metadata)
+                                            ?.Builder;
+                                    }
                                 }
-                            }
 
+                                foreignKeyProperties = null;
+                                ((ForeignKey)relationshipBuilder.Metadata).SetPrincipalEndConfigurationSource(null);
+                            }
+                        }
+                    }
+                    else
+                    {
+                        // Try match properties with the exact name as principal key if they are a proper subset of the dependent PK
+                        var dependentPk = foreignKey.DeclaringEntityType.FindPrimaryKey();
+                        if (dependentPk != null
+                            && dependentPk.Properties.Count > foreignKey.PrincipalKey.Properties.Count
+                            && TryFindMatchingProperties(foreignKey, "", onDependent: true, matchPk: false, out foreignKeyProperties)
+                            && foreignKeyProperties != null
+                            && foreignKeyProperties.Any(p => !dependentPk.Properties.Contains(p)
+                                || p.Name.Equals("Id", StringComparison.OrdinalIgnoreCase)))
+                        {
                             foreignKeyProperties = null;
-                            ((ForeignKey)relationshipBuilder.Metadata).SetPrincipalEndConfigurationSource(null);
                         }
                     }
                 }
@@ -412,17 +433,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                         isKeyContainedInForeignKey = false;
                         break;
                     }
-
-                    if (!foreignKey.IsUnique)
-                    {
-                        // Stop searching if match found, but is incompatible
-                        return true;
-                    }
                 }
 
                 if (isKeyContainedInForeignKey
-                    && key.IsPrimaryKey()
-                    && !matchPk)
+                    && (!foreignKey.IsUnique
+                        || (key.IsPrimaryKey()
+                            && !matchPk)))
                 {
                     // Stop searching if match found, but is incompatible
                     return true;

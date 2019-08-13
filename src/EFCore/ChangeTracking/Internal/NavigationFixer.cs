@@ -258,7 +258,6 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             foreach (var newValue in added)
             {
                 var newTargetEntry = stateManager.GetOrCreateEntry(newValue, targetEntityType);
-
                 if (newTargetEntry.EntityState != EntityState.Detached)
                 {
                     try
