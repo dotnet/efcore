@@ -5779,9 +5779,9 @@ LEFT JOIN (
             AssertSql(
                 @"SELECT [g].[FullName]
 FROM [Gears] AS [g]
-LEFT JOIN [Cities] AS [g.AssignedCity] ON [g].[AssignedCityName] = [g.AssignedCity].[Name]
-WHERE [g].[Discriminator] IN (N'Officer', N'Gear')
-ORDER BY [g.AssignedCity].[Name], [g].[Nickname] DESC");
+LEFT JOIN [Cities] AS [c] ON [g].[AssignedCityName] = [c].[Name]
+WHERE [g].[Discriminator] IN (N'Gear', N'Officer')
+ORDER BY [c].[Name], [g].[Nickname] DESC");
         }
 
         public override async Task Order_by_entity_qsre_with_inheritance(bool isAsync)
@@ -5811,9 +5811,9 @@ ORDER BY [lc.HighCommand].[Id], [lc].[Name]");
                 @"SELECT [w].[Name]
 FROM [Weapons] AS [w]
 LEFT JOIN (
-    SELECT [w.Owner].*
-    FROM [Gears] AS [w.Owner]
-    WHERE [w.Owner].[Discriminator] IN (N'Officer', N'Gear')
+    SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOrBirthName], [g].[Discriminator], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank]
+    FROM [Gears] AS [g]
+    WHERE [g].[Discriminator] IN (N'Gear', N'Officer')
 ) AS [t] ON [w].[OwnerFullName] = [t].[FullName]
 ORDER BY [t].[Nickname], [t].[SquadId], [w].[Id]");
         }
