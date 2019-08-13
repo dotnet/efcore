@@ -1224,12 +1224,12 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// </summary>
         /// <param name="defaultValue"> The default value for the column. </param>
         /// <param name="defaultValueSql"> The SQL expression to use for the column's default constraint. </param>
-        /// <param name="type"> Store/database type of the column. </param>
+        /// <param name="columnType"> Store/database type of the column. </param>
         /// <param name="builder"> The command builder to use to add the SQL fragment. </param>
         protected virtual void DefaultValue(
             [CanBeNull] object defaultValue,
             [CanBeNull] string defaultValueSql,
-            [CanBeNull] string type,
+            [CanBeNull] string columnType,
             [NotNull] MigrationCommandListBuilder builder)
         {
             Check.NotNull(builder, nameof(builder));
@@ -1243,7 +1243,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             }
             else if (defaultValue != null)
             {
-                var typeMapping = type != null ? Dependencies.TypeMappingSource.FindMapping(defaultValue.GetType(), type) : null;
+                var typeMapping = columnType != null ? Dependencies.TypeMappingSource.FindMapping(defaultValue.GetType(), columnType) : null;
                 if (typeMapping == null)
                 {
                     typeMapping = Dependencies.TypeMappingSource.GetMappingForValue(defaultValue);
