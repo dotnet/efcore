@@ -285,7 +285,10 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             switch (keySelector)
             {
                 case SqlExpression sqlExpression:
-                    _groupBy.Add(sqlExpression);
+                    if (!(sqlExpression is SqlConstantExpression))
+                    {
+                        _groupBy.Add(sqlExpression);
+                    }
                     break;
 
                 case NewExpression newExpression:
@@ -1102,7 +1105,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 
                 var groupBy = _groupBy.ToList();
                 _groupBy.Clear();
-                _groupBy.AddRange(GroupBy.Select(e => (SqlExpression)visitor.Visit(e)));
+                _groupBy.AddRange(GroupBy.Select(e => (SqlExpression)visitor.Visit(e)).Where(e => !(e is SqlConstantExpression)));
 
                 Having = (SqlExpression)visitor.Visit(Having);
 
