@@ -24,8 +24,6 @@ namespace Microsoft.EntityFrameworkCore
             typeof(GroupByQueryTestBase<>),
             typeof(ComplexNavigationsQueryTestBase<>),
             typeof(GearsOfWarQueryTestBase<>),
-            typeof(InheritanceRelationshipsQueryTestBase<>),
-            typeof(InheritanceTestBase<>),
             typeof(SpatialQueryTestBase<>)
         };
 

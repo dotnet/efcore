@@ -92,9 +92,12 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             foreach (var property in entityType.GetDerivedTypes().SelectMany(et => et.GetDeclaredProperties()))
             {
                 readExpressionMap[property] = Condition(
-                    LessThan(Constant(property.GetIndex()), MakeMemberAccess(ValueBufferParameter, _valueBufferCountMemberInfo)),
-                    CreateReadValueExpression(property.ClrType, property.GetIndex(), property),
-                    Default(property.ClrType));
+                    LessThan(
+                        Constant(property.GetIndex()),
+                        MakeMemberAccess(ValueBufferParameter,
+                            _valueBufferCountMemberInfo)),
+                    CreateReadValueExpression(typeof(object), property.GetIndex(), property),
+                    Default(typeof(object)));
             }
 
             var entityProjection = new EntityProjectionExpression(entityType, readExpressionMap);
