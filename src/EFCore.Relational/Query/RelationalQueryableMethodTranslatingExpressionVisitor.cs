@@ -725,7 +725,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             var defaultIfEmpty = false;
             if (collectionSelector.Body is MethodCallExpression collectionEndingMethod
                 && collectionEndingMethod.Method.IsGenericMethod
-                && collectionEndingMethod.Method.GetGenericMethodDefinition() == QueryableMethodProvider.DefaultIfEmptyWithoutArgumentMethodInfo)
+                && collectionEndingMethod.Method.GetGenericMethodDefinition() == QueryableMethods.DefaultIfEmptyWithoutArgument)
             {
                 defaultIfEmpty = true;
                 collectionSelector = Expression.Lambda(collectionEndingMethod.Arguments[0], collectionSelector.Parameters);

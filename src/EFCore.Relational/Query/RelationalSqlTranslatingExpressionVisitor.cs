@@ -321,10 +321,10 @@ namespace Microsoft.EntityFrameworkCore.Query
                 if (subquery.Tables.Count == 0
                     && methodCallExpression.Method.IsGenericMethod
                     && methodCallExpression.Method.GetGenericMethodDefinition() is MethodInfo genericMethod
-                    && (genericMethod == QueryableMethodProvider.AnyWithoutPredicateMethodInfo
-                        || genericMethod == QueryableMethodProvider.AnyWithPredicateMethodInfo
-                        || genericMethod == QueryableMethodProvider.AllMethodInfo
-                        || genericMethod == QueryableMethodProvider.ContainsMethodInfo))
+                    && (genericMethod == QueryableMethods.AnyWithoutPredicate
+                        || genericMethod == QueryableMethods.AnyWithPredicate
+                        || genericMethod == QueryableMethods.All
+                        || genericMethod == QueryableMethods.Contains))
                 {
                     return subquery.Projection[0].Expression;
                 }
