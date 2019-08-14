@@ -302,7 +302,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             var remappedKeySelector = RemapLambdaBody(source, keySelector);
 
             var translatedKey = TranslateGroupingKey(remappedKeySelector)
-                ?? (remappedKeySelector is ConstantExpression ? remappedKeySelector : null);
+                ?? (remappedKeySelector as ConstantExpression);
             if (translatedKey != null)
             {
                 if (elementSelector != null)
