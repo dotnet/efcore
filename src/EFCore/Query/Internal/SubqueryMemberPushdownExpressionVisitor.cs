@@ -14,30 +14,30 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
     {
         private static readonly List<MethodInfo> _supportedMethods = new List<MethodInfo>
             {
-                QueryableMethodProvider.FirstWithPredicateMethodInfo,
-                QueryableMethodProvider.FirstWithoutPredicateMethodInfo,
-                QueryableMethodProvider.FirstOrDefaultWithPredicateMethodInfo,
-                QueryableMethodProvider.FirstOrDefaultWithoutPredicateMethodInfo,
-                QueryableMethodProvider.SingleWithPredicateMethodInfo,
-                QueryableMethodProvider.SingleWithoutPredicateMethodInfo,
-                QueryableMethodProvider.SingleOrDefaultWithPredicateMethodInfo,
-                QueryableMethodProvider.SingleOrDefaultWithoutPredicateMethodInfo,
-                QueryableMethodProvider.LastWithPredicateMethodInfo,
-                QueryableMethodProvider.LastWithoutPredicateMethodInfo,
-                QueryableMethodProvider.LastOrDefaultWithPredicateMethodInfo,
-                QueryableMethodProvider.LastOrDefaultWithoutPredicateMethodInfo,
+                QueryableMethods.FirstWithPredicate,
+                QueryableMethods.FirstWithoutPredicate,
+                QueryableMethods.FirstOrDefaultWithPredicate,
+                QueryableMethods.FirstOrDefaultWithoutPredicate,
+                QueryableMethods.SingleWithPredicate,
+                QueryableMethods.SingleWithoutPredicate,
+                QueryableMethods.SingleOrDefaultWithPredicate,
+                QueryableMethods.SingleOrDefaultWithoutPredicate,
+                QueryableMethods.LastWithPredicate,
+                QueryableMethods.LastWithoutPredicate,
+                QueryableMethods.LastOrDefaultWithPredicate,
+                QueryableMethods.LastOrDefaultWithoutPredicate,
                 //QueryableMethodProvider.ElementAtMethodInfo,
                 //QueryableMethodProvider.ElementAtOrDefaultMethodInfo
             };
 
         private static readonly IDictionary<MethodInfo, MethodInfo> _predicateLessMethodInfo = new Dictionary<MethodInfo, MethodInfo>
             {
-                { QueryableMethodProvider.FirstWithPredicateMethodInfo, QueryableMethodProvider.FirstWithoutPredicateMethodInfo },
-                { QueryableMethodProvider.FirstOrDefaultWithPredicateMethodInfo, QueryableMethodProvider.FirstOrDefaultWithoutPredicateMethodInfo },
-                { QueryableMethodProvider.SingleWithPredicateMethodInfo, QueryableMethodProvider.SingleWithoutPredicateMethodInfo },
-                { QueryableMethodProvider.SingleOrDefaultWithPredicateMethodInfo, QueryableMethodProvider.SingleOrDefaultWithoutPredicateMethodInfo },
-                { QueryableMethodProvider.LastWithPredicateMethodInfo, QueryableMethodProvider.LastWithoutPredicateMethodInfo },
-                { QueryableMethodProvider.LastOrDefaultWithPredicateMethodInfo, QueryableMethodProvider.LastOrDefaultWithoutPredicateMethodInfo },
+                { QueryableMethods.FirstWithPredicate, QueryableMethods.FirstWithoutPredicate },
+                { QueryableMethods.FirstOrDefaultWithPredicate, QueryableMethods.FirstOrDefaultWithoutPredicate },
+                { QueryableMethods.SingleWithPredicate, QueryableMethods.SingleWithoutPredicate },
+                { QueryableMethods.SingleOrDefaultWithPredicate, QueryableMethods.SingleOrDefaultWithoutPredicate },
+                { QueryableMethods.LastWithPredicate, QueryableMethods.LastWithoutPredicate },
+                { QueryableMethods.LastOrDefaultWithPredicate, QueryableMethods.LastOrDefaultWithoutPredicate },
             };
 
         protected override Expression VisitMember(MemberExpression memberExpression)
@@ -93,13 +93,13 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             // Avoid pushing down a collection navigation which is followed by AsQueryable
             if (methodCallExpression.Method.IsGenericMethod
-                && methodCallExpression.Method.GetGenericMethodDefinition() == QueryableMethodProvider.AsQueryableMethodInfo
+                && methodCallExpression.Method.GetGenericMethodDefinition() == QueryableMethods.AsQueryable
                 && methodCallExpression.Arguments[0] is MemberExpression memberExpression)
             {
                 var updatedMemberExpression = memberExpression.Update(Visit(memberExpression.Expression));
 
                 return Expression.Call(
-                    QueryableMethodProvider.AsQueryableMethodInfo.MakeGenericMethod(updatedMemberExpression.Type.TryGetSequenceType()),
+                    QueryableMethods.AsQueryable.MakeGenericMethod(updatedMemberExpression.Type.TryGetSequenceType()),
                     updatedMemberExpression);
             }
 
@@ -116,7 +116,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             {
                 // Move predicate to Where so that we can change shape before operator
                 source = Expression.Call(
-                    QueryableMethodProvider.WhereMethodInfo.MakeGenericMethod(queryableType),
+                    QueryableMethods.Where.MakeGenericMethod(queryableType),
                     source,
                     methodCallExpression.Arguments[1]);
 
@@ -125,14 +125,14 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             if (source is MethodCallExpression sourceMethodCallExpression
                 && sourceMethodCallExpression.Method.IsGenericMethod
-                && sourceMethodCallExpression.Method.GetGenericMethodDefinition() == QueryableMethodProvider.SelectMethodInfo)
+                && sourceMethodCallExpression.Method.GetGenericMethodDefinition() == QueryableMethods.Select)
             {
                 var selector = sourceMethodCallExpression.Arguments[1].UnwrapLambdaFromQuote();
                 var selectorBody = selector.Body;
                 var memberAccessExpression = createSelector(selectorBody, methodCallExpression.Method.Name.EndsWith("OrDefault"));
 
                 source = Expression.Call(
-                    QueryableMethodProvider.SelectMethodInfo.MakeGenericMethod(
+                    QueryableMethods.Select.MakeGenericMethod(
                         sourceMethodCallExpression.Arguments[0].Type.TryGetSequenceType(), memberAccessExpression.Type),
                     sourceMethodCallExpression.Arguments[0],
                     Expression.Quote(Expression.Lambda(memberAccessExpression, selector.Parameters[0])));
@@ -145,7 +145,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 var memberAccessExpression = createSelector(parameter, methodCallExpression.Method.Name.EndsWith("OrDefault"));
 
                 source = Expression.Call(
-                    QueryableMethodProvider.SelectMethodInfo.MakeGenericMethod(queryableType, memberAccessExpression.Type),
+                    QueryableMethods.Select.MakeGenericMethod(queryableType, memberAccessExpression.Type),
                     source,
                     Expression.Quote(Expression.Lambda(memberAccessExpression, parameter)));
             }
