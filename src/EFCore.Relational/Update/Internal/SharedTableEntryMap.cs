@@ -106,7 +106,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
         {
             var principals = new Dictionary<IEntityType, IReadOnlyList<IEntityType>>(entityTypes.Count);
             var dependents = new Dictionary<IEntityType, IReadOnlyList<IEntityType>>(entityTypes.Count);
-            foreach (var entityType in entityTypes)
+            foreach (var entityType in entityTypes.Where(t => t.FindPrimaryKey() != null))
             {
                 var principalList = new List<IEntityType>();
                 foreach (var foreignKey in entityType.FindForeignKeys(entityType.FindPrimaryKey().Properties))

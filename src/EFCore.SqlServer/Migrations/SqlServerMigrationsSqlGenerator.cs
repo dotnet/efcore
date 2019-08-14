@@ -334,7 +334,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     .Append("ALTER TABLE ")
                     .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(operation.Table, operation.Schema))
                     .Append(" ADD");
-                DefaultValue(operation.DefaultValue, operation.DefaultValueSql, builder);
+                DefaultValue(operation.DefaultValue, operation.DefaultValueSql, operation.ColumnType, builder);
                 builder
                     .Append(" FOR ")
                     .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(operation.Name))

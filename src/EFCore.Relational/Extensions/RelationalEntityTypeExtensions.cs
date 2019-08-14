@@ -277,5 +277,22 @@ namespace Microsoft.EntityFrameworkCore
             [NotNull] this IConventionEntityType entityType, [CanBeNull] string comment, bool fromDataAnnotation = false)
             => entityType.SetOrRemoveAnnotation(RelationalAnnotationNames.Comment, comment, fromDataAnnotation);
 
+        /// <summary>
+        ///     Gets a value indicating whether the entity type is ignored by Migrations.
+        /// </summary>
+        /// <param name="entityType">The entity type.</param>
+        /// <returns>A value indicating whether the entity type is ignored by Migrations.</returns>
+        public static bool MigrationsIgnored([NotNull] this IEntityType entityType)
+        {
+            if (entityType.BaseType != null)
+            {
+                return entityType.BaseType.MigrationsIgnored();
+            }
+
+            var viewDefinition = entityType.FindAnnotation(RelationalAnnotationNames.ViewDefinition);
+
+            return (viewDefinition != null && viewDefinition.Value == null)
+                || entityType.GetDefiningQuery() != null;
+        }
     }
 }

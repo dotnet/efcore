@@ -310,6 +310,15 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         }
 
         [ConditionalFact]
+        public void Views_are_ignored()
+        {
+            Test(
+                builder => builder.Entity<EntityWithOneProperty>().Ignore(e => e.EntityWithTwoProperties).ToView("EntityWithOneProperty"),
+                AddBoilerPlate(GetHeading(empty: true)),
+                o => Assert.Empty(o.GetEntityTypes()));
+        }
+
+        [ConditionalFact]
         public virtual void Sequence_is_stored_in_snapshot_as_annotations()
         {
             Test(
@@ -677,6 +686,28 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                         t => Assert.Equal("Id", t.Name),
                         t => Assert.Equal("AlternateId", t.Name)
                     );
+                });
+        }
+
+        [Fact]
+        public void HasNoKey_is_handled()
+        {
+            Test(
+                builder => builder.Entity<EntityWithOneProperty>().Ignore(e => e.EntityWithTwoProperties).HasNoKey(),
+                AddBoilerPlate(
+                    GetHeading() + @"
+            modelBuilder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithOneProperty"", b =>
+                {
+                    b.Property<int>(""Id"")
+                        .HasColumnType(""int"");
+
+                    b.ToTable(""EntityWithOneProperty"");
+                });"),
+                o =>
+                {
+                    var entityType = Assert.Single(o.GetEntityTypes());
+                    Assert.Equal("Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithOneProperty", entityType.Name);
+                    Assert.Null(entityType.FindPrimaryKey());
                 });
         }
 
@@ -3383,7 +3414,7 @@ namespace RootNamespace
                     var originalProperties = getAllProperties(originalModel);
                     var snapshotProperties = getAllProperties(snapshotModel);
 
-                    Assert.Equal(originalProperties.Count,  snapshotProperties.Count);
+                    Assert.Equal(originalProperties.Count, snapshotProperties.Count);
 
                     for (var i = 0; i < originalProperties.Count; i++)
                     {
@@ -3508,11 +3539,11 @@ namespace RootNamespace
 
         #endregion
 
-        protected virtual string GetHeading() => @"
+        protected virtual string GetHeading(bool empty = false) => @"
             modelBuilder
                 .HasAnnotation(""Relational:MaxIdentifierLength"", 128)
-                .HasAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.IdentityColumn);
-";
+                .HasAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.IdentityColumn);" + (empty ? null : @"
+");
 
         protected virtual ICollection<BuildReference> GetReferences() => new List<BuildReference>
         {

@@ -90,7 +90,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
                 foreach (var parameter in dbFunction.Parameters)
                 {
-                    if(parameter.TypeMapping == null)
+                    if (parameter.TypeMapping == null)
                     {
                         throw new InvalidOperationException(
                             RelationalStrings.DbFunctionInvalidParameterType(
@@ -152,7 +152,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             [NotNull] IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
         {
             var tables = new Dictionary<string, List<IEntityType>>();
-            foreach (var entityType in model.GetEntityTypes().Where(et => et.FindPrimaryKey() != null))
+            foreach (var entityType in model.GetEntityTypes())
             {
                 var tableName = Format(entityType.GetSchema(), entityType.GetTableName());
 
@@ -196,11 +196,11 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             foreach (var mappedType in mappedTypes)
             {
                 if (mappedType.BaseType != null
-                    || mappedType.FindForeignKeys(mappedType.FindPrimaryKey().Properties)
+                    || (mappedType.FindPrimaryKey() != null && mappedType.FindForeignKeys(mappedType.FindPrimaryKey().Properties)
                         .Any(
                             fk => fk.PrincipalKey.IsPrimaryKey()
                                   && fk.PrincipalEntityType.RootType() != mappedType
-                                  && unvalidatedTypes.Contains(fk.PrincipalEntityType)))
+                                  && unvalidatedTypes.Contains(fk.PrincipalEntityType))))
                 {
                     continue;
                 }
@@ -235,17 +235,17 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 {
                     var key = entityType.FindPrimaryKey();
                     var otherKey = nextEntityType.FindPrimaryKey();
-                    if (key.GetName() != otherKey.GetName())
+                    if (key?.GetName() != otherKey?.GetName())
                     {
                         throw new InvalidOperationException(
                             RelationalStrings.IncompatibleTableKeyNameMismatch(
                                 tableName,
                                 entityType.DisplayName(),
                                 nextEntityType.DisplayName(),
-                                key.GetName(),
-                                key.Properties.Format(),
-                                otherKey.GetName(),
-                                otherKey.Properties.Format()));
+                                key?.GetName(),
+                                key?.Properties.Format(),
+                                otherKey?.GetName(),
+                                otherKey?.Properties.Format()));
                     }
 
                     var nextComment = nextEntityType.GetComment();

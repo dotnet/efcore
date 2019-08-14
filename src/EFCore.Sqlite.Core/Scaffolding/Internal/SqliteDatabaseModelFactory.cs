@@ -153,7 +153,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Scaffolding.Internal
             using (var command = connection.CreateCommand())
             {
                 command.CommandText = new StringBuilder()
-                    .AppendLine("SELECT \"name\"")
+                    .AppendLine("SELECT \"name\", \"type\"")
                     .AppendLine("FROM \"sqlite_master\"")
                     .Append("WHERE \"type\" IN ('table', 'view') AND instr(\"name\", 'sqlite_') <> 1 AND \"name\" NOT IN ('")
                     .Append(HistoryRepository.DefaultTableName)
@@ -179,10 +179,12 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Scaffolding.Internal
 
                         _logger.TableFound(name);
 
-                        var table = new DatabaseTable
-                        {
-                            Name = name
-                        };
+                        var type = reader.GetString(1);
+                        var table = type == "table"
+                            ? new DatabaseTable()
+                            : new DatabaseView();
+
+                        table.Name = name;
 
                         foreach (var column in GetColumns(connection, name))
                         {

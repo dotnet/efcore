@@ -67,6 +67,17 @@ EXEC sp_addextendedproperty @name = N'Comment', @value = N'ID comment', @level0t
 ");
         }
 
+        public override void CreateTableOperation_no_key()
+        {
+            base.CreateTableOperation_no_key();
+
+            AssertSql(
+                @"CREATE TABLE [Anonymous] (
+    [Value] int NOT NULL
+);
+");
+        }
+
         public override void CreateIndexOperation_with_filter_where_clause()
         {
             base.CreateIndexOperation_with_filter_where_clause();
@@ -265,6 +276,44 @@ EXEC sp_addextendedproperty @name = N'Comment', @value = N'My Comment 2', @level
             base.AddColumnOperation_with_maxLength();
 
             AssertSql(@"ALTER TABLE [Person] ADD [Name] nvarchar(30) NULL;
+");
+        }
+
+        [ConditionalFact]
+        public virtual void AddColumnOperation_datetime_with_defaultValue()
+        {
+            Generate(
+                new AddColumnOperation
+                {
+                    Table = "People",
+                    Schema = "dbo",
+                    Name = "Birthday",
+                    ClrType = typeof(DateTime),
+                    ColumnType = "datetime",
+                    IsNullable = false,
+                    DefaultValue = new DateTime(2019, 1, 1)
+                });
+
+            AssertSql(@"ALTER TABLE [dbo].[People] ADD [Birthday] datetime NOT NULL DEFAULT '2019-01-01T00:00:00.000';
+");
+        }
+
+        [ConditionalFact]
+        public virtual void AddColumnOperation_smalldatetime_with_defaultValue()
+        {
+            Generate(
+                new AddColumnOperation
+                {
+                    Table = "People",
+                    Schema = "dbo",
+                    Name = "Birthday",
+                    ClrType = typeof(DateTime),
+                    ColumnType = "smalldatetime",
+                    IsNullable = false,
+                    DefaultValue = new DateTime(2019, 1, 1)
+                });
+
+            AssertSql(@"ALTER TABLE [dbo].[People] ADD [Birthday] smalldatetime NOT NULL DEFAULT '2019-01-01T00:00:00';
 ");
         }
 

@@ -79,6 +79,10 @@ namespace Microsoft.EntityFrameworkCore.Internal
                     new DatabaseTable
                     {
                         Name = "noPrimaryKey"
+                    },
+                    new DatabaseView
+                    {
+                        Name = "view"
                     }
                 }
             };
@@ -99,6 +103,11 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 {
                     Assert.Equal("tableWithSchema", pgtable.GetTableName());
                     Assert.Equal("public", pgtable.GetSchema());
+                },
+                view =>
+                {
+                    Assert.Equal("view", view.GetTableName());
+                    Assert.NotNull(view.FindAnnotation(RelationalAnnotationNames.ViewDefinition));
                 }
             );
             Assert.Empty(model.GetEntityTypeErrors().Values);

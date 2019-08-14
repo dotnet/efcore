@@ -178,7 +178,7 @@ SELECT
                 Enumerable.Empty<string>(),
                 dbModel =>
                 {
-                    var table = dbModel.Tables.Single();
+                    var table = Assert.IsType<DatabaseView>(dbModel.Tables.Single());
 
                     Assert.Equal(2, table.Columns.Count);
                     Assert.Equal(null, table.PrimaryKey);

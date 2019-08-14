@@ -324,7 +324,14 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             var dbSetName = GetDbSetName(table);
             builder.Metadata.SetDbSetName(dbSetName);
 
-            builder.ToTable(table.Name, table.Schema);
+            if (table is DatabaseView)
+            {
+                builder.ToView(table.Name, table.Schema);
+            }
+            else
+            {
+                builder.ToTable(table.Name, table.Schema);
+            }
 
             if (table.Comment != null)
             {

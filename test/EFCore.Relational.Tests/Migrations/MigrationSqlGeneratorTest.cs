@@ -202,6 +202,17 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 ");
         }
 
+        public override void CreateTableOperation_no_key()
+        {
+            base.CreateTableOperation_no_key();
+
+            AssertSql(
+                @"CREATE TABLE ""Anonymous"" (
+    ""Value"" default_int_mapping NOT NULL
+);
+");
+        }
+
         public override void DropColumnOperation()
         {
             base.DropColumnOperation();

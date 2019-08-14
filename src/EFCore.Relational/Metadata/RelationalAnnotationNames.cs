@@ -93,5 +93,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     A flag indicating whether the property is constrained to fixed length values.
         /// </summary>
         public const string IsFixedLength = Prefix + "IsFixedLength";
+
+        /// <summary>
+        ///     The definition of a database view.
+        /// </summary>
+        public const string ViewDefinition = Prefix + "ViewDefinition";
     }
 }

@@ -72,11 +72,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         {
             foreach (var entityType in model.GetEntityTypes())
             {
-                if (entityType.FindPrimaryKey() == null)
-                {
-                    continue;
-                }
-
                 var tableName = (Schema: entityType.GetSchema(), TableName: entityType.GetTableName());
                 if (!tables.TryGetValue(tableName, out var entityTypes))
                 {
@@ -131,8 +126,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         private static bool ShouldUniquify(IConventionEntityType entityType, ICollection<IConventionEntityType> entityTypes)
         {
             var rootType = entityType.RootType();
-            var pkProperty = entityType.FindPrimaryKey().Properties[0];
-            var rootSharedTableType = pkProperty.FindSharedTableRootPrimaryKeyProperty()?.DeclaringEntityType;
+            var pkProperty = entityType.FindPrimaryKey()?.Properties[0];
+            var rootSharedTableType = pkProperty?.FindSharedTableRootPrimaryKeyProperty()?.DeclaringEntityType;
 
             foreach (var otherEntityType in entityTypes)
             {
@@ -142,8 +137,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                     return false;
                 }
 
-                var otherPkProperty = otherEntityType.FindPrimaryKey().Properties[0];
-                var otherRootSharedTableType = otherPkProperty.FindSharedTableRootPrimaryKeyProperty()?.DeclaringEntityType;
+                var otherPkProperty = otherEntityType.FindPrimaryKey()?.Properties[0];
+                var otherRootSharedTableType = otherPkProperty?.FindSharedTableRootPrimaryKeyProperty()?.DeclaringEntityType;
                 if (otherRootSharedTableType == entityType
                     || (otherRootSharedTableType == rootSharedTableType
                         && otherRootSharedTableType != null))

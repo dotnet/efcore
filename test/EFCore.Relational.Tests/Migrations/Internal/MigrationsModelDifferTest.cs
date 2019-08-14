@@ -27,12 +27,23 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         }
 
         [ConditionalFact]
-        public void Model_differ_does_not_detect_keyless_types()
+        public void Model_differ_does_not_detect_views()
         {
             Execute(
                 _ => { },
-                modelBuilder => modelBuilder.Entity<TestQueryType>().HasNoKey(),
+                modelBuilder => modelBuilder.Entity<TestQueryType>().HasNoKey().ToView("Vista", "dbo"),
                 result => Assert.Equal(0, result.Count));
+        }
+
+        [ConditionalFact]
+        public void Model_differ_does_not_detect_queries()
+        {
+            DbContext context = null;
+            Execute(
+                _ => { },
+                modelBuilder => modelBuilder.Entity<TestQueryType>().HasNoKey().ToQuery(
+                    () => context.Set<TestQueryType>().FromSqlRaw("SELECT * FROM Vista")),
+                result => Assert.Empty(result));
         }
 
         [ConditionalFact]
@@ -618,6 +629,53 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         x => Assert.Equal("XId", x.Name));
 
                     Assert.IsType<CreateIndexOperation>(operations[1]);
+                });
+        }
+
+        [ConditionalFact]
+        public void Create_table_no_key()
+        {
+            Execute(
+                _ => { },
+                _ => { },
+                modelBuilder => modelBuilder.Entity("Anonymous").HasNoKey().Property<int>("Value"),
+                upOps =>
+                {
+                    Assert.Equal(1, upOps.Count);
+
+                    var operation = Assert.IsType<CreateTableOperation>(upOps[0]);
+                    Assert.Equal("Anonymous", operation.Name);
+                    Assert.Null(operation.PrimaryKey);
+                },
+                downOps =>
+                {
+                    Assert.Equal(1, downOps.Count);
+
+                    var operation = Assert.IsType<DropTableOperation>(downOps[0]);
+                    Assert.Equal("Anonymous", operation.Name);
+                });
+        }
+
+        [ConditionalFact]
+        public void Create_table_from_view()
+        {
+            Execute(
+                _ => { },
+                source => source.Entity("Material").ToView("Immaterial").HasNoKey().Property<int>("Value"),
+                target => target.Entity("Material").HasNoKey().Property<int>("Value"),
+                upOps =>
+                {
+                    Assert.Equal(1, upOps.Count);
+
+                    var operation = Assert.IsType<CreateTableOperation>(upOps[0]);
+                    Assert.Equal("Material", operation.Name);
+                },
+                downOps =>
+                {
+                    Assert.Equal(1, downOps.Count);
+
+                    var operation = Assert.IsType<DropTableOperation>(downOps[0]);
+                    Assert.Equal("Material", operation.Name);
                 });
         }
 
@@ -2483,6 +2541,34 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     Assert.Equal("Rook", createOperation.Table);
                     Assert.Equal("CK_Flamingo_AlternateId", createOperation.Name);
                     Assert.Equal("AlternateId < Id", createOperation.Sql);
+                });
+        }
+
+        [ConditionalFact]
+        public void Add_primary_key()
+        {
+            Execute(
+                _ => { },
+                source => source.Entity("Puffin").ToTable("Puffin", "dbo").HasNoKey().Property<int>("Id"),
+                target => target.Entity("Puffin").ToTable("Puffin", "dbo").Property<int>("Id"),
+                upOps =>
+                {
+                    Assert.Equal(1, upOps.Count);
+
+                    var operation = Assert.IsType<AddPrimaryKeyOperation>(upOps[0]);
+                    Assert.Equal("dbo", operation.Schema);
+                    Assert.Equal("Puffin", operation.Table);
+                    Assert.Equal("PK_Puffin", operation.Name);
+                    Assert.Equal(new[] { "Id" }, operation.Columns);
+                },
+                downOps =>
+                {
+                    Assert.Equal(1, downOps.Count);
+
+                    var operation = Assert.IsType<DropPrimaryKeyOperation>(downOps[0]);
+                    Assert.Equal("dbo", operation.Schema);
+                    Assert.Equal("Puffin", operation.Table);
+                    Assert.Equal("PK_Puffin", operation.Name);
                 });
         }
 
@@ -6288,7 +6374,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                             x.HasData(
                                 new
                                 {
-                                    Id = 43, ForeignId = 42
+                                    Id = 43,
+                                    ForeignId = 42
                                 });
                         }),
                 source => source
@@ -6298,7 +6385,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                             x.HasData(
                                 new
                                 {
-                                    Id = 42, AlternateId = 4242
+                                    Id = 42,
+                                    AlternateId = 4242
                                 });
                         }),
                 target => target
@@ -6308,7 +6396,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                             x.HasData(
                                 new
                                 {
-                                    Id = 42, AlternateId = 4343
+                                    Id = 42,
+                                    AlternateId = 4343
                                 });
                         }),
                 upOps => Assert.Collection(
@@ -7827,7 +7916,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         b.ToTable("Order");
                     });
                 },
-                source => {
+                source =>
+                {
                     source.Entity("Order", b =>
                     {
                         b.OwnsOne("OrderInfo", "OrderInfo", b1 =>
@@ -7846,7 +7936,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         });
                     });
                 },
-                target => {
+                target =>
+                {
                     target.Entity("Order", b =>
                     {
                         b.OwnsOne("OrderInfo", "OrderInfo", b1 =>
