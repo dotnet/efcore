@@ -41,12 +41,23 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>
         ///     The root base type. If the given entity type is not a derived type, then the same entity type is returned.
         /// </returns>
-        public static IEntityType RootType([NotNull] this IEntityType entityType)
+        public static IEntityType GetRootType([NotNull] this IEntityType entityType)
         {
             Check.NotNull(entityType, nameof(entityType));
 
-            return entityType.BaseType?.RootType() ?? entityType;
+            return entityType.BaseType?.GetRootType() ?? entityType;
         }
+
+        /// <summary>
+        ///     Gets the root base type for a given entity type.
+        /// </summary>
+        /// <param name="entityType"> The type to find the root of. </param>
+        /// <returns>
+        ///     The root base type. If the given entity type is not a derived type, then the same entity type is returned.
+        /// </returns>
+        [Obsolete("Use GetRootType")]
+        public static IEntityType RootType([NotNull] this IEntityType entityType)
+            => entityType.GetRootType();
 
         /// <summary>
         ///     Gets all types in the model that derive from a given entity type.
@@ -636,6 +647,7 @@ namespace Microsoft.EntityFrameworkCore
 
             return (LambdaExpression)entityType[CoreAnnotationNames.DefiningQuery];
         }
+
         /// <summary>
         ///     Returns the <see cref="IProperty" /> that will be used for storing a discriminator value.
         /// </summary>
@@ -644,7 +656,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             if (entityType.BaseType != null)
             {
-                return entityType.RootType().GetDiscriminatorProperty();
+                return entityType.GetRootType().GetDiscriminatorProperty();
             }
 
             var propertyName = (string)entityType[CoreAnnotationNames.DiscriminatorProperty];

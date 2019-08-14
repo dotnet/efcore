@@ -56,7 +56,42 @@ namespace Microsoft.EntityFrameworkCore
             {
                 using (var context = CreateContext())
                 {
-                    Assert.Equal(4, context.Set<Operator>().ToList().Count);
+                    Assert.Equal(5, context.Set<Operator>().ToList().Count);
+                }
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Can_query_shared_nonhierarchy()
+        {
+            using (CreateTestStore(
+                modelBuilder =>
+                {
+                    OnModelCreating(modelBuilder);
+                    modelBuilder.Ignore<LicensedOperator>();
+                }))
+            {
+                using (var context = CreateContext())
+                {
+                    Assert.Equal(5, context.Set<Operator>().ToList().Count);
+                }
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Can_query_shared_nonhierarchy_with_nonshared_dependent()
+        {
+            using (CreateTestStore(
+                modelBuilder =>
+                {
+                    OnModelCreating(modelBuilder);
+                    modelBuilder.Ignore<LicensedOperator>();
+                    modelBuilder.Entity<OperatorDetails>().ToTable("OperatorDetails");
+                }))
+            {
+                using (var context = CreateContext())
+                {
+                    Assert.Equal(5, context.Set<Operator>().ToList().Count);
                 }
             }
         }
@@ -365,6 +400,7 @@ namespace Microsoft.EntityFrameworkCore
 
             modelBuilder.Entity<Engine>().ToTable("Vehicles");
             modelBuilder.Entity<Operator>().ToTable("Vehicles");
+            modelBuilder.Entity<OperatorDetails>().ToTable("Vehicles");
             modelBuilder.Entity<FuelTank>().ToTable("Vehicles");
         }
 

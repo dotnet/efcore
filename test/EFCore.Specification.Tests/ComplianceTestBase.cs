@@ -18,7 +18,10 @@ namespace Microsoft.EntityFrameworkCore
         [ConditionalFact]
         public virtual void All_test_bases_must_be_implemented()
         {
-            var concreteTests = TargetAssembly.GetTypes().Where(c => c.BaseType != typeof(object) && !c.IsAbstract).ToList();
+            var concreteTests = TargetAssembly.GetTypes().Where(c =>
+                c.BaseType != typeof(object) && !c.IsAbstract
+                && (c.IsPublic || c.IsNestedPublic))
+                .ToList();
             var nonImplementedBases
                 = (from baseType in GetBaseTestClasses()
                    where !IgnoredTestBases.Contains(baseType)

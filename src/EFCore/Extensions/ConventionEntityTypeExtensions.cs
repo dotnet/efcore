@@ -27,7 +27,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     The root base type. If the given entity type is not a derived type, then the same entity type is returned.
         /// </returns>
         public static IConventionEntityType RootType([NotNull] this IConventionEntityType entityType)
-            => (IConventionEntityType)((IEntityType)entityType).RootType();
+            => (IConventionEntityType)((IEntityType)entityType).GetRootType();
 
         /// <summary>
         ///     Gets all types in the model that derive from a given entity type.

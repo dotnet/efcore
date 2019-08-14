@@ -23,5 +23,13 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> The foreign keys that reference the given key. </returns>
         public static IEnumerable<IForeignKey> GetReferencingForeignKeys([NotNull] this IKey key)
             => Check.NotNull(key, nameof(key)).AsKey().ReferencingForeignKeys ?? Enumerable.Empty<IForeignKey>();
+
+        /// <summary>
+        ///     Returns a value indicating whether the key is the primary key.
+        /// </summary>
+        /// <param name="key"> The key to find whether it is primary. </param>
+        /// <returns> <c>true</c> if the key is the primary key. </returns>
+        public static bool IsPrimaryKey([NotNull] this IKey key)
+            => key == key.DeclaringEntityType.FindPrimaryKey();
     }
 }

@@ -131,7 +131,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             if (!_queryCompilationContext.IgnoreQueryFilters)
             {
                 var entityType = _queryCompilationContext.Model.FindEntityType(navigationExpansionExpression.Type.GetSequenceType());
-                var rootEntityType = entityType.RootType();
+                var rootEntityType = entityType.GetRootType();
                 var queryFilterAnnotation = rootEntityType.FindAnnotation("QueryFilter");
                 if (queryFilterAnnotation != null)
                 {

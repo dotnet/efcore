@@ -192,7 +192,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
 
         private IUpdateEntry GetMainEntry(IUpdateEntry entry)
         {
-            var entityType = entry.EntityType.RootType();
+            var entityType = entry.EntityType.GetRootType();
             if (_principals[entityType].Count == 0)
             {
                 return entry;
