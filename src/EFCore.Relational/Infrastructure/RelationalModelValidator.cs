@@ -199,7 +199,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                     || (mappedType.FindPrimaryKey() != null && mappedType.FindForeignKeys(mappedType.FindPrimaryKey().Properties)
                         .Any(
                             fk => fk.PrincipalKey.IsPrimaryKey()
-                                  && fk.PrincipalEntityType.RootType() != mappedType
+                                  && fk.PrincipalEntityType.GetRootType() != mappedType
                                   && unvalidatedTypes.Contains(fk.PrincipalEntityType))))
                 {
                     continue;

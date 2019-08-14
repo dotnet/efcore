@@ -370,7 +370,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             }
 
             if (sourceEntityType != null && itemEntityType != null
-                && sourceEntityType.RootType() != itemEntityType.RootType())
+                && sourceEntityType.GetRootType() != itemEntityType.GetRootType())
             {
                 return Expression.Constant(false);
             }
@@ -599,7 +599,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             if (newOuterKeySelector.Body is EntityReferenceExpression outerKeySelectorWrapper
                 && newInnerKeySelector.Body is EntityReferenceExpression innerKeySelectorWrapper
                 && outerKeySelectorWrapper.IsEntityType && innerKeySelectorWrapper.IsEntityType
-                && outerKeySelectorWrapper.EntityType.RootType() == innerKeySelectorWrapper.EntityType.RootType())
+                && outerKeySelectorWrapper.EntityType.GetRootType() == innerKeySelectorWrapper.EntityType.GetRootType())
             {
                 var entityType = outerKeySelectorWrapper.EntityType;
                 var keyProperties = entityType.FindPrimaryKey()?.Properties;
@@ -761,7 +761,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             if (leftTypeWrapper != null
                 && rightTypeWrapper != null
-                && leftTypeWrapper.EntityType.RootType() != rightTypeWrapper.EntityType.RootType())
+                && leftTypeWrapper.EntityType.GetRootType() != rightTypeWrapper.EntityType.GetRootType())
             {
                 return Expression.Constant(!equality);
             }
@@ -878,16 +878,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 : visitedExpression;
         }
 
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        // TODO: DRY with NavigationExpansionHelpers
-        protected virtual Expression CreateKeyAccessExpression(
-            [NotNull] Expression target,
-            [NotNull] IReadOnlyList<IProperty> properties)
+        private Expression CreateKeyAccessExpression(
+            Expression target,
+            IReadOnlyList<IProperty> properties)
             => properties.Count == 1
                 ? CreatePropertyAccessExpression(target, properties[0])
                 : Expression.New(
@@ -895,11 +888,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     Expression.NewArrayInit(
                         typeof(object),
                         properties
-                            .Select(
-                                p =>
-                                    Expression.Convert(
-                                        CreatePropertyAccessExpression(target, p),
-                                        typeof(object)))
+                            .Select(p => Expression.Convert(CreatePropertyAccessExpression(target, p), typeof(object)))
                             .Cast<Expression>()
                             .ToArray()));
 

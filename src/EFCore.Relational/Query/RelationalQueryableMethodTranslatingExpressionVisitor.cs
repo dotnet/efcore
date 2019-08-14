@@ -100,8 +100,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         private static ShapedQueryExpression CreateShapedQueryExpression(IEntityType entityType, SelectExpression selectExpression)
-        {
-            return new ShapedQueryExpression(
+            => new ShapedQueryExpression(
                 selectExpression,
                 new EntityShaperExpression(
                 entityType,
@@ -110,7 +109,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                     new ProjectionMember(),
                     typeof(ValueBuffer)),
                 false));
-        }
 
         protected override ShapedQueryExpression TranslateAll(ShapedQueryExpression source, LambdaExpression predicate)
         {
@@ -1076,7 +1074,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 var entityType = entityShaperExpression.EntityType;
                 if (convertedType != null)
                 {
-                    entityType = entityType.RootType().GetDerivedTypesInclusive()
+                    entityType = entityType.GetRootType().GetDerivedTypesInclusive()
                         .FirstOrDefault(et => et.ClrType == convertedType);
 
                     if (entityType == null)
@@ -1102,28 +1100,26 @@ namespace Microsoft.EntityFrameworkCore.Query
                     return null;
                 }
 
-
+                var foreignKey = navigation.ForeignKey;
                 if (navigation.IsCollection())
                 {
                     var innerSelectExpression = _sqlExpressionFactory.Select(targetEntityType);
                     var innerShapedQuery = CreateShapedQueryExpression(targetEntityType, innerSelectExpression);
 
-                    var makeNullable = navigation.ForeignKey.PrincipalKey.Properties
-                        .Concat(navigation.ForeignKey.Properties)
+                    var makeNullable = foreignKey.PrincipalKey.Properties
+                        .Concat(foreignKey.Properties)
                         .Select(p => p.ClrType)
                         .Any(t => t.IsNullableType());
 
-                    var outerKey = CreateKeyAccessExpression(
-                        entityShaperExpression,
+                    var outerKey = entityShaperExpression.CreateKeyAccessExpression(
                         navigation.IsDependentToPrincipal()
-                            ? navigation.ForeignKey.Properties
-                            : navigation.ForeignKey.PrincipalKey.Properties,
+                            ? foreignKey.Properties
+                            : foreignKey.PrincipalKey.Properties,
                         makeNullable);
-                    var innerKey = CreateKeyAccessExpression(
-                        innerShapedQuery.ShaperExpression,
+                    var innerKey = innerShapedQuery.ShaperExpression.CreateKeyAccessExpression(
                         navigation.IsDependentToPrincipal()
-                            ? navigation.ForeignKey.PrincipalKey.Properties
-                            : navigation.ForeignKey.Properties,
+                            ? foreignKey.PrincipalKey.Properties
+                            : foreignKey.Properties,
                         makeNullable);
 
                     var correlationPredicate = _sqlTranslator.Translate(Expression.Equal(outerKey, innerKey));
@@ -1144,22 +1140,20 @@ namespace Microsoft.EntityFrameworkCore.Query
                     var innerSelectExpression = _sqlExpressionFactory.Select(targetEntityType);
                     var innerShapedQuery = CreateShapedQueryExpression(targetEntityType, innerSelectExpression);
 
-                    var makeNullable = navigation.ForeignKey.PrincipalKey.Properties
-                        .Concat(navigation.ForeignKey.Properties)
+                    var makeNullable = foreignKey.PrincipalKey.Properties
+                        .Concat(foreignKey.Properties)
                         .Select(p => p.ClrType)
                         .Any(t => t.IsNullableType());
 
-                    var outerKey = CreateKeyAccessExpression(
-                        entityShaperExpression,
+                    var outerKey = entityShaperExpression.CreateKeyAccessExpression(
                         navigation.IsDependentToPrincipal()
-                            ? navigation.ForeignKey.Properties
-                            : navigation.ForeignKey.PrincipalKey.Properties,
+                            ? foreignKey.Properties
+                            : foreignKey.PrincipalKey.Properties,
                         makeNullable);
-                    var innerKey = CreateKeyAccessExpression(
-                        innerShapedQuery.ShaperExpression,
+                    var innerKey = innerShapedQuery.ShaperExpression.CreateKeyAccessExpression(
                         navigation.IsDependentToPrincipal()
-                            ? navigation.ForeignKey.PrincipalKey.Properties
-                            : navigation.ForeignKey.Properties,
+                            ? foreignKey.PrincipalKey.Properties
+                            : foreignKey.Properties,
                         makeNullable);
 
                     var joinPredicate = _sqlTranslator.Translate(Expression.Equal(outerKey, innerKey));
@@ -1173,19 +1167,6 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                 return innerShaper;
             }
-
-            public static Expression CreateKeyAccessExpression(
-                Expression target, IReadOnlyList<IProperty> properties, bool makeNullable = false)
-                => properties.Count == 1
-                    ? target.CreateEFPropertyExpression(properties[0], makeNullable)
-                    : Expression.New(
-                        AnonymousObject.AnonymousObjectCtor,
-                        Expression.NewArrayInit(
-                            typeof(object),
-                            properties
-                                .Select(p => Expression.Convert(target.CreateEFPropertyExpression(p, makeNullable), typeof(object)))
-                                .Cast<Expression>()
-                                .ToArray()));
         }
 
         private ShapedQueryExpression AggregateResultShaper(

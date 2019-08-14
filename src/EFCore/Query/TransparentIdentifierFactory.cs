@@ -9,9 +9,7 @@ namespace Microsoft.EntityFrameworkCore.Query
     public static class TransparentIdentifierFactory
     {
         public static Type Create(Type outerType, Type innerType)
-        {
-            return typeof(TransparentIdentifier<,>).MakeGenericType(outerType, innerType);
-        }
+            => typeof(TransparentIdentifier<,>).MakeGenericType(outerType, innerType);
 
         private readonly struct TransparentIdentifier<TOuter, TInner>
         {

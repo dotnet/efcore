@@ -457,7 +457,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [DebuggerStepThrough]
-        public virtual EntityType RootType() => (EntityType)((IEntityType)this).RootType();
+        public virtual EntityType RootType() => (EntityType)((IEntityType)this).GetRootType();
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -2532,7 +2532,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 && entityType.GetDiscriminatorProperty() == null)
             {
                 throw new InvalidOperationException(
-                    CoreStrings.NoDiscriminatorForValue(entityType.DisplayName(), entityType.RootType().DisplayName()));
+                    CoreStrings.NoDiscriminatorForValue(entityType.DisplayName(), entityType.GetRootType().DisplayName()));
             }
 
             if (value != null

@@ -730,7 +730,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 
             foreach (var definingForeignKey in entityType.GetDeclaredReferencingForeignKeys()
                 .Where(
-                    fk => fk.DeclaringEntityType.RootType() != entityType.RootType()
+                    fk => fk.DeclaringEntityType.GetRootType() != entityType.GetRootType()
                           && fk.DeclaringEntityType.GetTableName() == entityType.GetTableName()
                           && fk == fk.DeclaringEntityType
                               .FindForeignKey(
@@ -913,7 +913,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         /// </summary>
         protected virtual IEnumerable<MigrationOperation> Diff([NotNull] IProperty source, [NotNull] IProperty target, [NotNull] DiffContext diffContext)
         {
-            var targetEntityType = target.DeclaringEntityType.RootType();
+            var targetEntityType = target.DeclaringEntityType.GetRootType();
 
             if (source.GetColumnName() != target.GetColumnName())
             {
@@ -985,7 +985,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             [NotNull] DiffContext diffContext,
             bool inline = false)
         {
-            var targetEntityType = target.DeclaringEntityType.RootType();
+            var targetEntityType = target.DeclaringEntityType.GetRootType();
 
             var operation = new AddColumnOperation
             {
@@ -1009,7 +1009,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         /// </summary>
         protected virtual IEnumerable<MigrationOperation> Remove([NotNull] IProperty source, [NotNull] DiffContext diffContext)
         {
-            var sourceEntityType = source.DeclaringEntityType.RootType();
+            var sourceEntityType = source.DeclaringEntityType.GetRootType();
 
             var operation = new DropColumnOperation
             {
@@ -1102,7 +1102,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         /// </summary>
         protected virtual IEnumerable<MigrationOperation> Add([NotNull] IKey target, [NotNull] DiffContext diffContext)
         {
-            var targetEntityType = target.DeclaringEntityType.RootType();
+            var targetEntityType = target.DeclaringEntityType.GetRootType();
             var columns = GetColumns(target.Properties);
 
             MigrationOperation operation;
@@ -1142,7 +1142,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             [NotNull] IKey source,
             [NotNull] DiffContext diffContext)
         {
-            var sourceEntityType = source.DeclaringEntityType.RootType();
+            var sourceEntityType = source.DeclaringEntityType.GetRootType();
 
             MigrationOperation operation;
             if (source.IsPrimaryKey())
@@ -1218,8 +1218,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         /// </summary>
         protected virtual IEnumerable<MigrationOperation> Add([NotNull] IForeignKey target, [NotNull] DiffContext diffContext)
         {
-            var targetEntityType = target.DeclaringEntityType.RootType();
-            var targetPrincipalEntityType = target.PrincipalEntityType.RootType();
+            var targetEntityType = target.DeclaringEntityType.GetRootType();
+            var targetPrincipalEntityType = target.PrincipalEntityType.GetRootType();
 
             var operation = new AddForeignKeyOperation
             {
@@ -1253,7 +1253,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         /// </summary>
         protected virtual IEnumerable<MigrationOperation> Remove([NotNull] IForeignKey source, [NotNull] DiffContext diffContext)
         {
-            var declaringRootEntityType = source.DeclaringEntityType.RootType();
+            var declaringRootEntityType = source.DeclaringEntityType.GetRootType();
 
             var dropTableOperation = diffContext.FindDrop(declaringRootEntityType);
             if (dropTableOperation == null)
@@ -1316,7 +1316,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             [NotNull] IIndex target,
             [NotNull] DiffContext diffContext)
         {
-            var targetEntityType = target.DeclaringEntityType.RootType();
+            var targetEntityType = target.DeclaringEntityType.GetRootType();
             var sourceName = source.GetName();
             var targetName = target.GetName();
 
@@ -1342,7 +1342,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             [NotNull] IIndex target,
             [NotNull] DiffContext diffContext)
         {
-            var targetEntityType = target.DeclaringEntityType.RootType();
+            var targetEntityType = target.DeclaringEntityType.GetRootType();
 
             var operation = new CreateIndexOperation
             {
@@ -1366,7 +1366,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         /// </summary>
         protected virtual IEnumerable<MigrationOperation> Remove([NotNull] IIndex source, [NotNull] DiffContext diffContext)
         {
-            var sourceEntityType = source.DeclaringEntityType.RootType();
+            var sourceEntityType = source.DeclaringEntityType.GetRootType();
 
             var operation = new DropIndexOperation
             {
@@ -1422,7 +1422,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         /// </summary>
         protected virtual IEnumerable<MigrationOperation> Add([NotNull] ICheckConstraint target, [NotNull] DiffContext diffContext)
         {
-            var targetEntityType = target.EntityType.RootType();
+            var targetEntityType = target.EntityType.GetRootType();
 
             var operation = new CreateCheckConstraintOperation
             {
@@ -1446,7 +1446,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         /// </summary>
         protected virtual IEnumerable<MigrationOperation> Remove([NotNull] ICheckConstraint source, [NotNull] DiffContext diffContext)
         {
-            var sourceEntityType = source.EntityType.RootType();
+            var sourceEntityType = source.EntityType.GetRootType();
 
             var operation = new DropCheckConstraintOperation
             {
@@ -2011,7 +2011,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                                 batchInsertOperation = null;
                             }
 
-                            if (c.Entries.All(e => diffContext.FindDrop(e.EntityType.RootType()) == null))
+                            if (c.Entries.All(e => diffContext.FindDrop(e.EntityType.GetRootType()) == null))
                             {
                                 yield return new DeleteDataOperation
                                 {

@@ -99,7 +99,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                 var entityType = entityProjection.EntityType;
                 if (convertedType != null)
                 {
-                    entityType = entityType.RootType().GetDerivedTypesInclusive()
+                    entityType = entityType.GetRootType().GetDerivedTypesInclusive()
                         .FirstOrDefault(et => et.ClrType == convertedType);
 
                     if (entityType == null)
