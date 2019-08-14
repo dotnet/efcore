@@ -3714,24 +3714,33 @@ namespace Microsoft.EntityFrameworkCore.Query
                     {
                         var blockingTask = Task.Run(
                             () =>
-                                context.Customers.Select(
-                                    c => Process(c, synchronizationEvent, blockingSemaphore)).ToList());
+                            {
+                                try
+                                {
+                                    context.Customers.Select(
+                                        c => Process(c, synchronizationEvent, blockingSemaphore)).ToList();
+                                }
+                                finally
+                                {
+                                    synchronizationEvent.Set();
+                                }
+                            });
 
                         var throwingTask = Task.Run(
                             () =>
                             {
-                                synchronizationEvent.Wait();
+                                synchronizationEvent.Wait(TimeSpan.FromMinutes(5));
                                 Assert.Equal(
                                     CoreStrings.ConcurrentMethodInvocation,
                                     Assert.Throws<InvalidOperationException>(
                                         () => context.Customers.ToList()).Message);
                             });
 
-                        throwingTask.Wait();
+                        throwingTask.Wait(TimeSpan.FromMinutes(5));
 
                         blockingSemaphore.Release(1);
 
-                        blockingTask.Wait();
+                        blockingTask.Wait(TimeSpan.FromMinutes(5));
                     }
                 }
             }
@@ -3750,24 +3759,33 @@ namespace Microsoft.EntityFrameworkCore.Query
                     {
                         var blockingTask = Task.Run(
                             () =>
-                                context.Customers.Select(
-                                    c => Process(c, synchronizationEvent, blockingSemaphore)).ToList());
+                            {
+                                try
+                                {
+                                    context.Customers.Select(
+                                        c => Process(c, synchronizationEvent, blockingSemaphore)).ToList();
+                                }
+                                finally
+                                {
+                                    synchronizationEvent.Set();
+                                }
+                            });
 
                         var throwingTask = Task.Run(
                             () =>
                             {
-                                synchronizationEvent.Wait();
+                                synchronizationEvent.Wait(TimeSpan.FromMinutes(5));
                                 Assert.Equal(
                                     CoreStrings.ConcurrentMethodInvocation,
                                     Assert.Throws<InvalidOperationException>(
                                         () => context.Customers.First()).Message);
                             });
 
-                        throwingTask.Wait();
+                        throwingTask.Wait(TimeSpan.FromMinutes(5));
 
                         blockingSemaphore.Release(1);
 
-                        blockingTask.Wait();
+                        blockingTask.Wait(TimeSpan.FromMinutes(5));
                     }
                 }
             }
@@ -3776,7 +3794,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         private static Customer Process(Customer c, ManualResetEventSlim e, SemaphoreSlim s)
         {
             e.Set();
-            s.Wait();
+            s.Wait(TimeSpan.FromMinutes(5));
             s.Release(1);
             return c;
         }
