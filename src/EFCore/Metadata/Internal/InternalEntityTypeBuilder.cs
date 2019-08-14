@@ -3200,10 +3200,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                         && (!property.IsNullable || (required && property.GetIsNullableConfigurationSource() == null))
                         && property.ClrType.IsNullableType())
                     {
-                        property.DeclaringEntityType.Builder.Property(
+                        property = property.DeclaringEntityType.Builder.Property(
                             property.ClrType.MakeNullable(false),
                             property.Name,
-                            configurationSource.Value);
+                            configurationSource.Value)
+                            .Metadata;
                     }
                     else
                     {

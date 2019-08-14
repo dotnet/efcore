@@ -2080,6 +2080,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                         eb.HasOne(p => p.Order).WithMany(o => o.Products).HasForeignKey("CommonId", "OrderId");
                         eb.HasOne<ProductCategory>().WithMany(c => c.Products).HasForeignKey("CommonId", "Category").IsRequired();
 
+                        eb.HasIndex("Id", "OrderId").IsUnique(true);
                         eb.HasKey("Id", "CommonId");
                     });
 
@@ -2097,6 +2098,9 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
                 var dependentKey = dependentType.FindPrimaryKey();
                 Assert.True(dependentKey.Properties.All(p => p.ValueGenerated == ValueGenerated.Never));
+
+                var index = dependentType.FindIndex(new[] { dependentKey.Properties[0], optionalFk.Properties[1] });
+                Assert.True(index.IsUnique);
             }
 
             [ConditionalFact]
