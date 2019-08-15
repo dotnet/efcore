@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore.Metadata;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    public class MaterializeCollectionNavigationExpression : Expression, IPrintable
+    public class MaterializeCollectionNavigationExpression : Expression, IPrintableExpression
     {
         public MaterializeCollectionNavigationExpression(Expression subquery, INavigation navigation)
         {

@@ -7,7 +7,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 {
     /// <summary>
     ///     <para>
-    ///         A factory for creating <see cref="ShapedQueryOptimizer"/> instances.
+    ///         A factory for creating <see cref="QueryTranslationPreprocessor"/> instances.
     ///     </para>
     ///     <para>
     ///         The service lifetime is <see cref="ServiceLifetime.Singleton"/>. This means a single instance
@@ -15,8 +15,8 @@ namespace Microsoft.EntityFrameworkCore.Query
     ///         This service cannot depend on services registered as <see cref="ServiceLifetime.Scoped"/>.
     ///     </para>
     /// </summary>
-    public interface IShapedQueryOptimizerFactory
+    public interface IQueryTranslationPreprocessorFactory
     {
-        ShapedQueryOptimizer Create(QueryCompilationContext queryCompilationContext);
+        QueryTranslationPreprocessor Create(QueryCompilationContext queryCompilationContext);
     }
 }

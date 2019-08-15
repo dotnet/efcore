@@ -60,7 +60,7 @@ namespace Microsoft.Extensions.DependencyInjection
                 // New Query pipeline
                 .TryAdd<IShapedQueryCompilingExpressionVisitorFactory, InMemoryShapedQueryCompilingExpressionVisitorFactory>()
                 .TryAdd<IQueryableMethodTranslatingExpressionVisitorFactory, InMemoryQueryableMethodTranslatingExpressionVisitorFactory>()
-                .TryAdd<IShapedQueryOptimizerFactory, InMemoryShapedQueryOptimizerFactory>()
+                .TryAdd<IQueryTranslationPostprocessorFactory, InMemoryQueryTranslationPostprocessorFactory>()
 
                 .TryAdd<ISingletonOptions, IInMemorySingletonOptions>(p => p.GetService<IInMemorySingletonOptions>())
                 .TryAddProviderSpecificServices(

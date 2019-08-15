@@ -1365,7 +1365,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             public IReadOnlyDictionary<string, object> ParameterValues => (IReadOnlyDictionary<string, object>)_parameterValues;
 
-            public virtual void Add(string name, object value)
+            public virtual void AddParameter(string name, object value)
             {
                 _parameterValues.Add(name, value);
             }

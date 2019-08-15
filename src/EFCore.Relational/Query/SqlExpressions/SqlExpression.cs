@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 {
-    public abstract class SqlExpression : Expression, IPrintable
+    public abstract class SqlExpression : Expression, IPrintableExpression
     {
         protected SqlExpression(Type type, RelationalTypeMapping typeMapping)
         {

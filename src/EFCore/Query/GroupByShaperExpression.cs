@@ -7,7 +7,7 @@ using System.Linq.Expressions;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    public class GroupByShaperExpression : Expression, IPrintable
+    public class GroupByShaperExpression : Expression, IPrintableExpression
     {
         public GroupByShaperExpression(Expression keySelector, Expression elementSelector)
         {

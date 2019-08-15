@@ -271,15 +271,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     }
                     case ExpressionType.Extension:
                     {
-                        if (obj is NullConditionalExpression nullConditionalExpression)
-                        {
-                            hash.Add(nullConditionalExpression.AccessOperation, this);
-                        }
-                        else
-                        {
-                            hash.Add(obj);
-                        }
-
+                        hash.Add(obj);
                         break;
                     }
                     case ExpressionType.Index:
@@ -614,17 +606,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 => CompareExpressionList(a.Expressions, b.Expressions);
 
             private bool CompareExtension(Expression a, Expression b)
-            {
-                if (a is NullConditionalExpression nullConditionalExpressionA
-                    && b is NullConditionalExpression nullConditionalExpressionB)
-                {
-                    return Compare(
-                        nullConditionalExpressionA.AccessOperation,
-                        nullConditionalExpressionB.AccessOperation);
-                }
-
-                return a.Equals(b);
-            }
+                => a.Equals(b);
 
             private bool CompareInvocation(InvocationExpression a, InvocationExpression b)
                 => Compare(a.Expression, b.Expression)

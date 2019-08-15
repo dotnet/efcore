@@ -94,9 +94,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 { typeof(IMemberClassifier), new ServiceCharacteristics(ServiceLifetime.Singleton) },
                 { typeof(IMemoryCache), new ServiceCharacteristics(ServiceLifetime.Singleton) },
                 { typeof(IEvaluatableExpressionFilter), new ServiceCharacteristics(ServiceLifetime.Singleton) },
-                { typeof(IQueryOptimizerFactory), new ServiceCharacteristics(ServiceLifetime.Singleton) },
+                { typeof(IQueryTranslationPreprocessorFactory), new ServiceCharacteristics(ServiceLifetime.Singleton) },
                 { typeof(IQueryableMethodTranslatingExpressionVisitorFactory), new ServiceCharacteristics(ServiceLifetime.Singleton) },
-                { typeof(IShapedQueryOptimizerFactory), new ServiceCharacteristics(ServiceLifetime.Singleton) },
+                { typeof(IQueryTranslationPostprocessorFactory), new ServiceCharacteristics(ServiceLifetime.Singleton) },
                 { typeof(IShapedQueryCompilingExpressionVisitorFactory), new ServiceCharacteristics(ServiceLifetime.Singleton) },
                 { typeof(IProviderConventionSetBuilder), new ServiceCharacteristics(ServiceLifetime.Scoped) },
                 { typeof(IConventionSetBuilder), new ServiceCharacteristics(ServiceLifetime.Scoped) },
@@ -258,8 +258,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             TryAdd<IMemoryCache>(p => new MemoryCache(new MemoryCacheOptions()));
             TryAdd<IUpdateAdapterFactory, UpdateAdapterFactory>();
             TryAdd<IQueryCompilationContextFactory, QueryCompilationContextFactory>();
-            TryAdd<IQueryOptimizerFactory, QueryOptimizerFactory>();
-            TryAdd<IShapedQueryOptimizerFactory, ShapedQueryOptimizerFactory>();
+            TryAdd<IQueryTranslationPreprocessorFactory, QueryTranslationPreprocessorFactory>();
+            TryAdd<IQueryTranslationPostprocessorFactory, QueryTranslationPostprocessorFactory>();
 
             // This has to be lazy to avoid creating instances that are not disposed
             ServiceCollectionMap
@@ -278,8 +278,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 .AddDependencySingleton<EntityMaterializerSourceDependencies>()
                 .AddDependencySingleton<ShapedQueryCompilingExpressionVisitorDependencies>()
                 .AddDependencySingleton<QueryableMethodTranslatingExpressionVisitorDependencies>()
-                .AddDependencySingleton<QueryOptimizerDependencies>()
-                .AddDependencySingleton<ShapedQueryOptimizerDependencies>()
+                .AddDependencySingleton<QueryTranslationPreprocessorDependencies>()
+                .AddDependencySingleton<QueryTranslationPostprocessorDependencies>()
                 .AddDependencySingleton<EvaluatableExpressionFilterDependencies>()
                 .AddDependencyScoped<ProviderConventionSetBuilderDependencies>()
                 .AddDependencyScoped<QueryCompilationContextDependencies>()

@@ -8,21 +8,21 @@ using Microsoft.EntityFrameworkCore.Query.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    public class QueryOptimizer
+    public class QueryTranslationPreprocessor
     {
         private readonly QueryCompilationContext _queryCompilationContext;
 
-        public QueryOptimizer(
-            QueryOptimizerDependencies dependencies,
+        public QueryTranslationPreprocessor(
+            QueryTranslationPreprocessorDependencies dependencies,
             QueryCompilationContext queryCompilationContext)
         {
             Dependencies = dependencies;
             _queryCompilationContext = queryCompilationContext;
         }
 
-        protected virtual QueryOptimizerDependencies Dependencies { get; }
+        protected virtual QueryTranslationPreprocessorDependencies Dependencies { get; }
 
-        public virtual Expression Visit(Expression query)
+        public virtual Expression Process(Expression query)
         {
             query = new EnumerableToQueryableMethodConvertingExpressionVisitor().Visit(query);
             query = new QueryMetadataExtractingExpressionVisitor(_queryCompilationContext).Visit(query);

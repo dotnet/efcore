@@ -9,7 +9,7 @@ using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    public class ProjectionBindingExpression : Expression, IPrintable
+    public class ProjectionBindingExpression : Expression, IPrintableExpression
     {
         public ProjectionBindingExpression(Expression queryExpression, ProjectionMember projectionMember, Type type)
         {
