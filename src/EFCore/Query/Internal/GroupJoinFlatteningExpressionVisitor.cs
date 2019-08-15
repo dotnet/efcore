@@ -5,17 +5,16 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Reflection;
 using Microsoft.EntityFrameworkCore.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Query.Internal
 {
     public class GroupJoinFlatteningExpressionVisitor : ExpressionVisitor
     {
-        private static readonly SelectManyVerifyingExpressionVisitor _selectManyVerifyingExpressionVisitor
-            = new SelectManyVerifyingExpressionVisitor();
         private static readonly EnumerableToQueryableMethodConvertingExpressionVisitor _enumerableToQueryableReMappingExpressionVisitor
             = new EnumerableToQueryableMethodConvertingExpressionVisitor();
+        private readonly SelectManyVerifyingExpressionVisitor _selectManyVerifyingExpressionVisitor
+            = new SelectManyVerifyingExpressionVisitor();
 
         protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
         {
@@ -34,12 +33,12 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                         // GroupJoin
                         var outer = Visit(groupJoinMethod.Arguments[0]);
                         var inner = Visit(groupJoinMethod.Arguments[1]);
-                        var outerKeySelector = UnwrapLambdaFromQuoteExpression(groupJoinMethod.Arguments[2]);
-                        var innerKeySelector = UnwrapLambdaFromQuoteExpression(groupJoinMethod.Arguments[3]);
-                        var groupJoinResultSelector = UnwrapLambdaFromQuoteExpression(groupJoinMethod.Arguments[4]);
+                        var outerKeySelector = groupJoinMethod.Arguments[2].UnwrapLambdaFromQuote();
+                        var innerKeySelector = groupJoinMethod.Arguments[3].UnwrapLambdaFromQuote();
+                        var groupJoinResultSelector = groupJoinMethod.Arguments[4].UnwrapLambdaFromQuote();
 
-                        var selectManyCollectionSelector = UnwrapLambdaFromQuoteExpression(methodCallExpression.Arguments[1]);
-                        var selectManyResultSelector = UnwrapLambdaFromQuoteExpression(methodCallExpression.Arguments[2]);
+                        var selectManyCollectionSelector = methodCallExpression.Arguments[1].UnwrapLambdaFromQuote();
+                        var selectManyResultSelector = methodCallExpression.Arguments[2].UnwrapLambdaFromQuote();
 
                         var collectionSelectorBody = selectManyCollectionSelector.Body;
                         var defaultIfEmpty = false;
@@ -161,11 +160,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                         // GroupJoin
                         var outer = Visit(groupJoinMethod.Arguments[0]);
                         var inner = Visit(groupJoinMethod.Arguments[1]);
-                        var outerKeySelector = UnwrapLambdaFromQuoteExpression(groupJoinMethod.Arguments[2]);
-                        var innerKeySelector = UnwrapLambdaFromQuoteExpression(groupJoinMethod.Arguments[3]);
-                        var groupJoinResultSelector = UnwrapLambdaFromQuoteExpression(groupJoinMethod.Arguments[4]);
+                        var outerKeySelector = groupJoinMethod.Arguments[2].UnwrapLambdaFromQuote();
+                        var innerKeySelector = groupJoinMethod.Arguments[3].UnwrapLambdaFromQuote();
+                        var groupJoinResultSelector = groupJoinMethod.Arguments[4].UnwrapLambdaFromQuote();
 
-                        var selectManyResultSelector = UnwrapLambdaFromQuoteExpression(methodCallExpression.Arguments[1]);
+                        var selectManyResultSelector = methodCallExpression.Arguments[1].UnwrapLambdaFromQuote();
 
                         var groupJoinResultSelectorBody = groupJoinResultSelector.Body;
                         var defaultIfEmpty = false;
@@ -383,8 +382,5 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 return base.VisitParameter(parameterExpression);
             }
         }
-
-        private LambdaExpression UnwrapLambdaFromQuoteExpression(Expression expression)
-            => (LambdaExpression)((UnaryExpression)expression).Operand;
     }
 }

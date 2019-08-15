@@ -1919,7 +1919,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 1);
         }
 
-        [ConditionalTheory(Skip = "Issue#16311")]
+        [ConditionalTheory(Skip = "Issue#16314")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Select_subquery_recursive_trivial(bool isAsync)
         {
@@ -3266,14 +3266,14 @@ namespace Microsoft.EntityFrameworkCore.Query
                 isAsync,
                 (cs, os) =>
                     from c in cs
-                    from o in os.Where(o => o.CustomerID == c.CustomerID).Take(1000)
+                    from o in os.Where(o => o.CustomerID == c.CustomerID).Take(4)
                     select new
                     {
                         c.ContactName,
                         o
                     },
                 e => e.o.OrderID,
-                entryCount: 830);
+                entryCount: 342);
         }
 
         [ConditionalTheory]
@@ -3714,24 +3714,33 @@ namespace Microsoft.EntityFrameworkCore.Query
                     {
                         var blockingTask = Task.Run(
                             () =>
-                                context.Customers.Select(
-                                    c => Process(c, synchronizationEvent, blockingSemaphore)).ToList());
+                            {
+                                try
+                                {
+                                    context.Customers.Select(
+                                        c => Process(c, synchronizationEvent, blockingSemaphore)).ToList();
+                                }
+                                finally
+                                {
+                                    synchronizationEvent.Set();
+                                }
+                            });
 
                         var throwingTask = Task.Run(
                             () =>
                             {
-                                synchronizationEvent.Wait();
+                                synchronizationEvent.Wait(TimeSpan.FromMinutes(5));
                                 Assert.Equal(
                                     CoreStrings.ConcurrentMethodInvocation,
                                     Assert.Throws<InvalidOperationException>(
                                         () => context.Customers.ToList()).Message);
                             });
 
-                        throwingTask.Wait();
+                        throwingTask.Wait(TimeSpan.FromMinutes(5));
 
                         blockingSemaphore.Release(1);
 
-                        blockingTask.Wait();
+                        blockingTask.Wait(TimeSpan.FromMinutes(5));
                     }
                 }
             }
@@ -3750,24 +3759,33 @@ namespace Microsoft.EntityFrameworkCore.Query
                     {
                         var blockingTask = Task.Run(
                             () =>
-                                context.Customers.Select(
-                                    c => Process(c, synchronizationEvent, blockingSemaphore)).ToList());
+                            {
+                                try
+                                {
+                                    context.Customers.Select(
+                                        c => Process(c, synchronizationEvent, blockingSemaphore)).ToList();
+                                }
+                                finally
+                                {
+                                    synchronizationEvent.Set();
+                                }
+                            });
 
                         var throwingTask = Task.Run(
                             () =>
                             {
-                                synchronizationEvent.Wait();
+                                synchronizationEvent.Wait(TimeSpan.FromMinutes(5));
                                 Assert.Equal(
                                     CoreStrings.ConcurrentMethodInvocation,
                                     Assert.Throws<InvalidOperationException>(
                                         () => context.Customers.First()).Message);
                             });
 
-                        throwingTask.Wait();
+                        throwingTask.Wait(TimeSpan.FromMinutes(5));
 
                         blockingSemaphore.Release(1);
 
-                        blockingTask.Wait();
+                        blockingTask.Wait(TimeSpan.FromMinutes(5));
                     }
                 }
             }
@@ -3776,7 +3794,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         private static Customer Process(Customer c, ManualResetEventSlim e, SemaphoreSlim s)
         {
             e.Set();
-            s.Wait();
+            s.Wait(TimeSpan.FromMinutes(5));
             s.Release(1);
             return c;
         }

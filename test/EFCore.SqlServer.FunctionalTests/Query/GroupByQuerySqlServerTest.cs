@@ -192,6 +192,16 @@ FROM [Orders] AS [o]
 GROUP BY [o].[CustomerID]");
         }
 
+        public override async Task GroupBy_Property_Select_Key_with_constant(bool isAsync)
+        {
+            await base.GroupBy_Property_Select_Key_with_constant(isAsync);
+
+            AssertSql(
+                @"SELECT N'CustomerID' AS [Name], [o].[CustomerID] AS [Value], COUNT(*) AS [Count]
+FROM [Orders] AS [o]
+GROUP BY [o].[CustomerID]");
+        }
+
         public override async Task GroupBy_aggregate_projecting_conditional_expression_based_on_group_key(bool isAsync)
         {
             await base.GroupBy_aggregate_projecting_conditional_expression_based_on_group_key(isAsync);

@@ -4084,6 +4084,30 @@ WHERE (c[""Discriminator""] = ""Customer"")");
             return base.Multiple_select_many_with_predicate(isAsync);
         }
 
+        [ConditionalTheory(Skip = "Issue#14935")]
+        public override Task SelectMany_correlated_with_outer_1(bool isAsync)
+        {
+            return base.SelectMany_correlated_with_outer_1(isAsync);
+        }
+
+        [ConditionalTheory(Skip = "Issue#14935")]
+        public override Task SelectMany_correlated_with_outer_2(bool isAsync)
+        {
+            return base.SelectMany_correlated_with_outer_2(isAsync);
+        }
+
+        [ConditionalTheory(Skip = "Issue#14935")]
+        public override Task SelectMany_correlated_with_outer_3(bool isAsync)
+        {
+            return base.SelectMany_correlated_with_outer_3(isAsync);
+        }
+
+        [ConditionalTheory(Skip = "Issue#14935")]
+        public override Task SelectMany_correlated_with_outer_4(bool isAsync)
+        {
+            return base.SelectMany_correlated_with_outer_4(isAsync);
+        }
+
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 
