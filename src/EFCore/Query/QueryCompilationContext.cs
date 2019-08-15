@@ -16,9 +16,9 @@ namespace Microsoft.EntityFrameworkCore.Query
     {
         public static readonly ParameterExpression QueryContextParameter = Expression.Parameter(typeof(QueryContext), "queryContext");
 
-        private readonly IQueryOptimizerFactory _queryOptimizerFactory;
+        private readonly IQueryTranslationPreprocessorFactory _queryTranslationPreprocessorFactory;
         private readonly IQueryableMethodTranslatingExpressionVisitorFactory _queryableMethodTranslatingExpressionVisitorFactory;
-        private readonly IShapedQueryOptimizerFactory _shapedQueryOptimizerFactory;
+        private readonly IQueryTranslationPostprocessorFactory _queryTranslationPostprocessorFactory;
         private readonly IShapedQueryCompilingExpressionVisitorFactory _shapedQueryCompilingExpressionVisitorFactory;
 
         /// <summary>
@@ -41,9 +41,9 @@ namespace Microsoft.EntityFrameworkCore.Query
             ContextType = context.GetType();
             Logger = dependencies.Logger;
 
-            _queryOptimizerFactory = dependencies.QueryOptimizerFactory;
+            _queryTranslationPreprocessorFactory = dependencies.QueryTranslationPreprocessorFactory;
             _queryableMethodTranslatingExpressionVisitorFactory = dependencies.QueryableMethodTranslatingExpressionVisitorFactory;
-            _shapedQueryOptimizerFactory = dependencies.ShapedQueryOptimizerFactory;
+            _queryTranslationPostprocessorFactory = dependencies.QueryTranslationPostprocessorFactory;
             _shapedQueryCompilingExpressionVisitorFactory = dependencies.ShapedQueryCompilingExpressionVisitorFactory;
         }
 
@@ -63,10 +63,10 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         public virtual Func<QueryContext, TResult> CreateQueryExecutor<TResult>(Expression query)
         {
-            query = _queryOptimizerFactory.Create(this).Visit(query);
+            query = _queryTranslationPreprocessorFactory.Create(this).Process(query);
             // Convert EntityQueryable to ShapedQueryExpression
             query = _queryableMethodTranslatingExpressionVisitorFactory.Create(Model).Visit(query);
-            query = _shapedQueryOptimizerFactory.Create(this).Visit(query);
+            query = _queryTranslationPostprocessorFactory.Create(this).Process(query);
 
             // Inject actual entity materializer
             // Inject tracking
@@ -127,6 +127,6 @@ namespace Microsoft.EntityFrameworkCore.Query
         private static readonly MethodInfo _queryContextAddParameterMethodInfo
             = typeof(QueryContext)
                 .GetTypeInfo()
-                .GetDeclaredMethod(nameof(QueryContext.Add));
+                .GetDeclaredMethod(nameof(QueryContext.AddParameter));
     }
 }

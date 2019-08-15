@@ -7,13 +7,13 @@ using Microsoft.EntityFrameworkCore.Query.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    public class RelationalShapedQueryOptimizer : ShapedQueryOptimizer
+    public class RelationalQueryTranslationPostprocessor : QueryTranslationPostprocessor
     {
         private readonly SqlExpressionOptimizingExpressionVisitor _sqlExpressionOptimizingExpressionVisitor;
 
-        public RelationalShapedQueryOptimizer(
-            ShapedQueryOptimizerDependencies dependencies,
-            RelationalShapedQueryOptimizerDependencies relationalDependencies,
+        public RelationalQueryTranslationPostprocessor(
+            QueryTranslationPostprocessorDependencies dependencies,
+            RelationalQueryTranslationPostprocessorDependencies relationalDependencies,
             QueryCompilationContext queryCompilationContext)
             : base(dependencies)
         {
@@ -24,15 +24,15 @@ namespace Microsoft.EntityFrameworkCore.Query
                 = new SqlExpressionOptimizingExpressionVisitor(SqlExpressionFactory, UseRelationalNulls);
         }
 
-        protected virtual RelationalShapedQueryOptimizerDependencies RelationalDependencies { get; }
+        protected virtual RelationalQueryTranslationPostprocessorDependencies RelationalDependencies { get; }
 
         protected virtual ISqlExpressionFactory SqlExpressionFactory { get; }
 
         protected virtual bool UseRelationalNulls { get; }
 
-        public override Expression Visit(Expression query)
+        public override Expression Process(Expression query)
         {
-            query = base.Visit(query);
+            query = base.Process(query);
             query = new SelectExpressionProjectionApplyingExpressionVisitor().Visit(query);
             query = new CollectionJoinApplyingExpressionVisitor().Visit(query);
             query = new TableAliasUniquifyingExpressionVisitor().Visit(query);

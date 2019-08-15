@@ -3,17 +3,17 @@
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    public class RelationalQueryOptimizer : QueryOptimizer
+    public class RelationalQueryTranslationPreprocessor : QueryTranslationPreprocessor
     {
-        public RelationalQueryOptimizer(
-            QueryOptimizerDependencies dependencies,
-            RelationalQueryOptimizerDependencies relationalDependencies,
+        public RelationalQueryTranslationPreprocessor(
+            QueryTranslationPreprocessorDependencies dependencies,
+            RelationalQueryTranslationPreprocessorDependencies relationalDependencies,
             QueryCompilationContext queryCompilationContext)
             : base(dependencies, queryCompilationContext)
         {
             RelationalDependencies = relationalDependencies;
         }
 
-        protected virtual RelationalQueryOptimizerDependencies RelationalDependencies { get; }
+        protected virtual RelationalQueryTranslationPreprocessorDependencies RelationalDependencies { get; }
     }
 }

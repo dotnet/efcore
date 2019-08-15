@@ -5,7 +5,7 @@ using JetBrains.Annotations;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    public interface IPrintable
+    public interface IPrintableExpression
     {
         void Print([NotNull] ExpressionPrinter expressionPrinter);
     }

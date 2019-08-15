@@ -15,10 +15,8 @@ namespace Microsoft.EntityFrameworkCore.Query
     ///     Expression representing null-conditional access.
     ///     Logic in this file is based on https://github.com/bartdesmet/ExpressionFutures
     /// </summary>
-    public class NullConditionalExpression : Expression, IPrintable
+    public class NullConditionalExpression : Expression, IPrintableExpression
     {
-        private readonly Type _type;
-
         /// <summary>
         ///     Creates a new instance of NullConditionalExpression.
         /// </summary>
@@ -34,7 +32,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             Caller = caller;
             AccessOperation = accessOperation;
 
-            _type = accessOperation.Type.IsNullableType()
+            Type = accessOperation.Type.IsNullableType()
                 ? accessOperation.Type
                 : accessOperation.Type.MakeNullable();
         }
@@ -58,46 +56,12 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <summary>
         ///     Gets the static type of the expression that this expression represents.
         /// </summary>
-        public override Type Type => _type;
+        public override Type Type { get; }
 
         /// <summary>
         ///     Gets the node type of this expression.
         /// </summary>
         public sealed override ExpressionType NodeType => ExpressionType.Extension;
-
-        /// <summary>
-        ///     Reduces this node to a simpler expression. If CanReduce returns true, this should
-        ///     return a valid expression. This method can return another node which itself must
-        ///     be reduced.
-        /// </summary>
-        public override Expression Reduce()
-        {
-            var nullableCallerType = Caller.Type;
-            var nullableCaller = Parameter(nullableCallerType, "__caller");
-            var result = Parameter(_type, "__result");
-
-            var caller = Caller.Type != nullableCaller.Type
-                ? (Expression)Convert(nullableCaller, Caller.Type)
-                : nullableCaller;
-
-            var operation
-                = ReplacingExpressionVisitor
-                    .Replace(Caller, caller, AccessOperation);
-
-            if (operation.Type != _type)
-            {
-                operation = Convert(operation, _type);
-            }
-
-            return Block(
-                new[] { nullableCaller, result },
-                Assign(nullableCaller, Caller),
-                Assign(result, Default(_type)),
-                IfThen(
-                    NotEqual(nullableCaller, Default(nullableCallerType)),
-                    Assign(result, operation)),
-                result);
-        }
 
         /// <summary>
         ///     Reduces the node and then calls the visitor delegate on the reduced expression.
@@ -111,11 +75,82 @@ namespace Microsoft.EntityFrameworkCore.Query
         protected override Expression VisitChildren(ExpressionVisitor visitor)
             => Update(visitor.Visit(Caller), visitor.Visit(AccessOperation));
 
+        /// <summary>
+        ///     Reduces this node to a simpler expression. If CanReduce returns true, this should
+        ///     return a valid expression. This method can return another node which itself must
+        ///     be reduced.
+        /// </summary>
+        public override Expression Reduce()
+        {
+            var nullableCallerType = Caller.Type;
+            var nullableCaller = Parameter(nullableCallerType, "__caller");
+            var result = Parameter(Type, "__result");
+
+            var caller = Caller.Type != nullableCaller.Type
+                ? (Expression)Convert(nullableCaller, Caller.Type)
+                : nullableCaller;
+
+            var operation
+                = ReplacingExpressionVisitor
+                    .Replace(Caller, caller, AccessOperation);
+
+            if (operation.Type != Type)
+            {
+                operation = Convert(operation, Type);
+            }
+
+            return Block(
+                new[] { nullableCaller, result },
+                Assign(nullableCaller, Caller),
+                Assign(result, Default(Type)),
+                IfThen(
+                    NotEqual(nullableCaller, Default(nullableCallerType)),
+                    Assign(result, operation)),
+                result);
+        }
+
         public virtual Expression Update(Expression newCaller, Expression newAccessOperation)
             => newCaller != Caller || newAccessOperation != AccessOperation
-               && !ExpressionEqualityComparer.Instance.Equals((newAccessOperation as NullConditionalExpression)?.AccessOperation, AccessOperation)
+               && !ExpressionEqualityComparer.Instance.Equals(
+                   (newAccessOperation as NullConditionalExpression)?.AccessOperation, AccessOperation)
                 ? new NullConditionalExpression(newCaller, newAccessOperation)
                 : this;
+
+        /// <summary>
+        ///     Determines whether the specified object is equal to the current object.
+        /// </summary>
+        /// <param name="other">
+        ///     The object to compare with the current object.
+        /// </param>
+        /// <returns>
+        ///     True if the specified object  is equal to the current object; otherwise, false.
+        /// </returns>
+        protected virtual bool Equals([CanBeNull] NullConditionalExpression other)
+            => Equals(AccessOperation, other?.AccessOperation);
+
+        /// <summary>
+        ///     Determines whether the specified object is equal to the current object.
+        /// </summary>
+        /// <param name="obj">
+        ///     The object to compare with the current object.
+        /// </param>
+        /// <returns>
+        ///     True if the specified object  is equal to the current object; otherwise, false.
+        /// </returns>
+        public override bool Equals(object obj)
+            => obj != null
+               && (obj == this
+                   || obj.GetType() == GetType()
+                   && Equals((NullConditionalExpression)obj));
+
+        /// <summary>
+        ///     Serves as the default hash function.
+        /// </summary>
+        /// <returns>
+        ///     A hash code for the current object.
+        /// </returns>
+        public override int GetHashCode()
+            => AccessOperation.GetHashCode();
 
         public virtual void Print(ExpressionPrinter expressionPrinter)
         {

@@ -7,7 +7,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 {
     /// <summary>
     ///     <para>
-    ///         A factory for creating <see cref="ShapedQueryOptimizer"/> instances.
+    ///         A factory for creating <see cref="QueryTranslationPostprocessor"/> instances.
     ///     </para>
     ///     <para>
     ///         The service lifetime is <see cref="ServiceLifetime.Singleton"/>. This means a single instance
@@ -15,22 +15,22 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
     ///         This service cannot depend on services registered as <see cref="ServiceLifetime.Scoped"/>.
     ///     </para>
     /// </summary>
-    public class RelationalShapedQueryOptimizerFactory : IShapedQueryOptimizerFactory
+    public class RelationalQueryTranslationPostprocessorFactory : IQueryTranslationPostprocessorFactory
     {
-        private readonly ShapedQueryOptimizerDependencies _dependencies;
-        private readonly RelationalShapedQueryOptimizerDependencies _relationalDependencies;
+        private readonly QueryTranslationPostprocessorDependencies _dependencies;
+        private readonly RelationalQueryTranslationPostprocessorDependencies _relationalDependencies;
 
-        public RelationalShapedQueryOptimizerFactory(
-            ShapedQueryOptimizerDependencies dependencies,
-            RelationalShapedQueryOptimizerDependencies relationalDependencies)
+        public RelationalQueryTranslationPostprocessorFactory(
+            QueryTranslationPostprocessorDependencies dependencies,
+            RelationalQueryTranslationPostprocessorDependencies relationalDependencies)
         {
             _dependencies = dependencies;
             _relationalDependencies = relationalDependencies;
         }
 
-        public virtual ShapedQueryOptimizer Create(QueryCompilationContext queryCompilationContext)
+        public virtual QueryTranslationPostprocessor Create(QueryCompilationContext queryCompilationContext)
         {
-            return new RelationalShapedQueryOptimizer(
+            return new RelationalQueryTranslationPostprocessor(
                 _dependencies,
                 _relationalDependencies,
                 queryCompilationContext);

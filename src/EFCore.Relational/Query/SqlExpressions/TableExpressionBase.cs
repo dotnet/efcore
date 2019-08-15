@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 {
-    public abstract class TableExpressionBase : Expression, IPrintable
+    public abstract class TableExpressionBase : Expression, IPrintableExpression
     {
         protected TableExpressionBase([CanBeNull] string alias)
         {

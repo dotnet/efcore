@@ -414,19 +414,6 @@ namespace Microsoft.EntityFrameworkCore.Query
             return TranslateSelect(outer, newResultSelector);
         }
 
-        protected virtual ShapedQueryExpression TranslateResultSelectorForGroupJoin(
-#pragma warning disable IDE0060 // Remove unused parameter
-            ShapedQueryExpression outer,
-            Expression innerShaper,
-            LambdaExpression outerKeySelector,
-            LambdaExpression innerKeySelector,
-            LambdaExpression resultSelector,
-            Type transparentIdentifierType)
-#pragma warning restore IDE0060 // Remove unused parameter
-        {
-            throw new NotImplementedException();
-        }
-
         private Expression CombineShapers(
             Expression queryExpression,
             Expression outerShaper,
