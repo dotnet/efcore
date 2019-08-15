@@ -327,11 +327,11 @@ ORDER BY [o].[OrderID]");
             AssertSql(
                 @"SELECT [c].[CustomerID], [t].[OrderDate], [t].[OrderID]
 FROM [Customers] AS [c]
-LEFT JOIN (
-    SELECT TOP(3) [o].[OrderDate], [o].[OrderID], [o].[CustomerID]
+OUTER APPLY (
+    SELECT TOP(3) [o].[OrderDate], [o].[OrderID]
     FROM [Orders] AS [o]
-    WHERE [o].[OrderID] < 10500
-) AS [t] ON [c].[CustomerID] = [t].[CustomerID]
+    WHERE (([c].[CustomerID] = [o].[CustomerID]) AND [o].[CustomerID] IS NOT NULL) AND ([o].[OrderID] < 10500)
+) AS [t]
 WHERE [c].[CustomerID] LIKE N'A%'
 ORDER BY [c].[CustomerID], [t].[OrderID]");
         }
@@ -1006,6 +1006,64 @@ INNER JOIN [Orders] AS [o] ON [c].[CustomerID] = [o].[CustomerID]");
                 @"SELECT [o].[CustomerID]
 FROM [Customers] AS [c]
 INNER JOIN [Orders] AS [o] ON [c].[CustomerID] = [o].[CustomerID]");
+        }
+
+        public override async Task SelectMany_correlated_with_outer_1(bool isAsync)
+        {
+            await base.SelectMany_correlated_with_outer_1(isAsync);
+
+            AssertSql(
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [t].[City] AS [o]
+FROM [Customers] AS [c]
+CROSS APPLY (
+    SELECT [c].[City], [o].[OrderID], [o].[CustomerID]
+    FROM [Orders] AS [o]
+    WHERE ([c].[CustomerID] = [o].[CustomerID]) AND [o].[CustomerID] IS NOT NULL
+) AS [t]");
+        }
+
+        public override async Task SelectMany_correlated_with_outer_2(bool isAsync)
+        {
+            await base.SelectMany_correlated_with_outer_2(isAsync);
+
+            AssertSql(
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [t].[OrderID], [t].[CustomerID], [t].[EmployeeID], [t].[OrderDate]
+FROM [Customers] AS [c]
+CROSS APPLY (
+    SELECT TOP(2) [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate], [c].[City]
+    FROM [Orders] AS [o]
+    WHERE ([c].[CustomerID] = [o].[CustomerID]) AND [o].[CustomerID] IS NOT NULL
+    ORDER BY [c].[City]
+) AS [t]");
+        }
+
+        public override async Task SelectMany_correlated_with_outer_3(bool isAsync)
+        {
+            await base.SelectMany_correlated_with_outer_3(isAsync);
+
+            AssertSql(
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [t].[City] AS [o]
+FROM [Customers] AS [c]
+OUTER APPLY (
+    SELECT [c].[City], [o].[OrderID], [o].[CustomerID]
+    FROM [Orders] AS [o]
+    WHERE ([c].[CustomerID] = [o].[CustomerID]) AND [o].[CustomerID] IS NOT NULL
+) AS [t]");
+        }
+
+        public override async Task SelectMany_correlated_with_outer_4(bool isAsync)
+        {
+            await base.SelectMany_correlated_with_outer_4(isAsync);
+
+            AssertSql(
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [t].[OrderID], [t].[CustomerID], [t].[EmployeeID], [t].[OrderDate]
+FROM [Customers] AS [c]
+OUTER APPLY (
+    SELECT TOP(2) [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate], [c].[City]
+    FROM [Orders] AS [o]
+    WHERE ([c].[CustomerID] = [o].[CustomerID]) AND [o].[CustomerID] IS NOT NULL
+    ORDER BY [c].[City]
+) AS [t]");
         }
     }
 }

@@ -722,19 +722,11 @@ namespace Microsoft.EntityFrameworkCore.Query
         protected override ShapedQueryExpression TranslateSelectMany(
             ShapedQueryExpression source, LambdaExpression collectionSelector, LambdaExpression resultSelector)
         {
-            var defaultIfEmpty = false;
-            if (collectionSelector.Body is MethodCallExpression collectionEndingMethod
-                && collectionEndingMethod.Method.IsGenericMethod
-                && collectionEndingMethod.Method.GetGenericMethodDefinition() == QueryableMethods.DefaultIfEmptyWithoutArgument)
-            {
-                defaultIfEmpty = true;
-                collectionSelector = Expression.Lambda(collectionEndingMethod.Arguments[0], collectionSelector.Parameters);
-            }
-
-            var correlated = new CorrelationFindingExpressionVisitor().IsCorrelated(collectionSelector);
+            var (newCollectionSelector, correlated, defaultIfEmpty)
+                = new CorrelationFindingExpressionVisitor().IsCorrelated(collectionSelector);
             if (correlated)
             {
-                var collectionSelectorBody = RemapLambdaBody(source, collectionSelector);
+                var collectionSelectorBody = RemapLambdaBody(source, newCollectionSelector);
                 if (Visit(collectionSelectorBody) is ShapedQueryExpression inner)
                 {
                     var transparentIdentifierType = TransparentIdentifierFactory.Create(
@@ -763,7 +755,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
             else
             {
-                if (Visit(collectionSelector.Body) is ShapedQueryExpression inner)
+                if (Visit(newCollectionSelector.Body) is ShapedQueryExpression inner)
                 {
                     if (defaultIfEmpty)
                     {
@@ -791,27 +783,42 @@ namespace Microsoft.EntityFrameworkCore.Query
         private class CorrelationFindingExpressionVisitor : ExpressionVisitor
         {
             private ParameterExpression _outerParameter;
-            private bool _isCorrelated;
+            private bool _correlated;
+            private bool _defaultIfEmpty;
 
-            public bool IsCorrelated(LambdaExpression lambdaExpression)
+            public (LambdaExpression, bool, bool) IsCorrelated(LambdaExpression lambdaExpression)
             {
                 Debug.Assert(lambdaExpression.Parameters.Count == 1, "Multiparameter lambda passed to CorrelationFindingExpressionVisitor");
-                _isCorrelated = false;
+
+                _correlated = false;
+                _defaultIfEmpty = false;
                 _outerParameter = lambdaExpression.Parameters[0];
 
-                Visit(lambdaExpression.Body);
+                var result = Visit(lambdaExpression.Body);
 
-                return _isCorrelated;
+                return (Expression.Lambda(result, _outerParameter), _correlated, _defaultIfEmpty);
             }
 
             protected override Expression VisitParameter(ParameterExpression parameterExpression)
             {
                 if (parameterExpression == _outerParameter)
                 {
-                    _isCorrelated = true;
+                    _correlated = true;
                 }
 
                 return base.VisitParameter(parameterExpression);
+            }
+
+            protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
+            {
+                if (methodCallExpression.Method.IsGenericMethod
+                    && methodCallExpression.Method.GetGenericMethodDefinition() == QueryableMethods.DefaultIfEmptyWithoutArgument)
+                {
+                    _defaultIfEmpty = true;
+                    return Visit(methodCallExpression.Arguments[0]);
+                }
+
+                return base.VisitMethodCall(methodCallExpression);
             }
         }
 
