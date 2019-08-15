@@ -392,7 +392,7 @@ FROM [Orders] AS [o]";
     WHERE [o0].[OrderID] = [o].[OrderID])
 FROM [Orders] AS [o0]";
                     default:
-                        throw new NotSupportedException();
+                        throw new InvalidOperationException();
                 }
             }
         }

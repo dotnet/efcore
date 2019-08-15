@@ -215,6 +215,6 @@ namespace Microsoft.EntityFrameworkCore
             [NotParameterized] string sql,
             [NotNull] params object[] parameters)
             where TEntity : class
-        => throw new NotSupportedException();
+        => throw new InvalidOperationException();
     }
 }

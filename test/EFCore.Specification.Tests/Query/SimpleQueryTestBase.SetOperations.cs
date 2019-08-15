@@ -379,19 +379,19 @@ namespace Microsoft.EntityFrameworkCore.Query
                     case "ScalarSubquery":
                         return os => os.Select(o => (object)o.OrderDetails.Count());
                     default:
-                        throw new NotSupportedException();
+                        throw new InvalidOperationException();
                 }
             }
         }
 
         private static IEnumerable<object[]> GetSetOperandTestCases()
             => from async in new[] { true, false }
-               from leftType in SupportedOperandExpressionType
-               from rightType in SupportedOperandExpressionType
+               from leftType in _supportedOperandExpressionType
+               from rightType in _supportedOperandExpressionType
                select new object[] { async, leftType, rightType };
 
         // ReSharper disable once StaticMemberInGenericType
-        private static readonly string[] SupportedOperandExpressionType =
+        private static readonly string[] _supportedOperandExpressionType =
         {
             "Column", "Function", "Constant", "Unary", "Binary", "ScalarSubquery"
         };
