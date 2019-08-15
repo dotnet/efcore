@@ -193,6 +193,16 @@ namespace Microsoft.EntityFrameworkCore.Query
             Debug.Assert(setOperationExpression.Tables.Count == 2,
                 $"{nameof(SelectExpression)} with {setOperationExpression.Tables.Count} tables, must be 2");
 
+            static string GenerateSetOperationType(SetOperationType setOperationType)
+                => setOperationType switch
+                {
+                    SetOperationType.Union => "UNION",
+                    SetOperationType.UnionAll => "UNION ALL",
+                    SetOperationType.Intersect => "INTERSECT",
+                    SetOperationType.Except => "EXCEPT",
+                    _ => throw new InvalidOperationException($"Invalid {nameof(SetOperationType)}: {setOperationType}")
+                };
+
             GenerateSetOperationOperand(setOperationExpression, (SelectExpression)setOperationExpression.Tables[0]);
 
             _relationalCommandBuilder
@@ -204,16 +214,6 @@ namespace Microsoft.EntityFrameworkCore.Query
             GenerateOrderings(setOperationExpression);
             GenerateLimitOffset(setOperationExpression);
         }
-
-        private static string GenerateSetOperationType(SetOperationType setOperationType)
-            => setOperationType switch
-            {
-                SetOperationType.Union => "UNION",
-                SetOperationType.UnionAll => "UNION ALL",
-                SetOperationType.Intersect => "INTERSECT",
-                SetOperationType.Except => "EXCEPT",
-                _ => throw new NotSupportedException($"Invalid {nameof(SetOperationType)}: {setOperationType}")
-            };
 
         protected virtual void GenerateSetOperationOperand(
             SelectExpression setOperationExpression,

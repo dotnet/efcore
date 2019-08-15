@@ -19,26 +19,22 @@ namespace Microsoft.EntityFrameworkCore.Query
             base.Query_with_owned_entity_equality_operator();
 
             AssertSql(
-                @"SELECT [t].[Id], [t].[Discriminator], [o0].[Id], [o1].[Id], [o1].[PersonAddress_Country_Name], [o1].[PersonAddress_Country_PlanetId], [o2].[Id], [o3].[Id], [o3].[BranchAddress_Country_Name], [o3].[BranchAddress_Country_PlanetId], [o4].[Id], [o5].[Id], [o5].[LeafAAddress_Country_Name], [o5].[LeafAAddress_Country_PlanetId], [t0].[Id], [o7].[ClientId], [o7].[Id]
-FROM (
-    SELECT [o].[Id], [o].[Discriminator]
-    FROM [OwnedPerson] AS [o]
-    WHERE [o].[Discriminator] = N'LeafA'
-) AS [t]
+                @"SELECT [o].[Id], [o].[Discriminator], [o0].[Id], [o1].[Id], [o1].[PersonAddress_Country_Name], [o1].[PersonAddress_Country_PlanetId], [o2].[Id], [o3].[Id], [o3].[BranchAddress_Country_Name], [o3].[BranchAddress_Country_PlanetId], [o4].[Id], [o5].[Id], [o5].[LeafAAddress_Country_Name], [o5].[LeafAAddress_Country_PlanetId], [t].[Id], [o7].[ClientId], [o7].[Id]
+FROM [OwnedPerson] AS [o]
 CROSS JOIN (
     SELECT [o6].[Id], [o6].[Discriminator]
     FROM [OwnedPerson] AS [o6]
     WHERE [o6].[Discriminator] = N'LeafB'
-) AS [t0]
-LEFT JOIN [OwnedPerson] AS [o0] ON [t].[Id] = [o0].[Id]
+) AS [t]
+LEFT JOIN [OwnedPerson] AS [o0] ON [o].[Id] = [o0].[Id]
 LEFT JOIN [OwnedPerson] AS [o1] ON [o0].[Id] = [o1].[Id]
-LEFT JOIN [OwnedPerson] AS [o2] ON [t].[Id] = [o2].[Id]
+LEFT JOIN [OwnedPerson] AS [o2] ON [o].[Id] = [o2].[Id]
 LEFT JOIN [OwnedPerson] AS [o3] ON [o2].[Id] = [o3].[Id]
-LEFT JOIN [OwnedPerson] AS [o4] ON [t].[Id] = [o4].[Id]
+LEFT JOIN [OwnedPerson] AS [o4] ON [o].[Id] = [o4].[Id]
 LEFT JOIN [OwnedPerson] AS [o5] ON [o4].[Id] = [o5].[Id]
-LEFT JOIN [Order] AS [o7] ON [t].[Id] = [o7].[ClientId]
+LEFT JOIN [Order] AS [o7] ON [o].[Id] = [o7].[ClientId]
 WHERE CAST(0 AS bit) = CAST(1 AS bit)
-ORDER BY [t].[Id], [t0].[Id], [o7].[ClientId], [o7].[Id]");
+ORDER BY [o].[Id], [t].[Id], [o7].[ClientId], [o7].[Id]");
         }
 
         public override void Query_for_base_type_loads_all_owned_navs()

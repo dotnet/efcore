@@ -559,7 +559,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 cs => cs.Where(c => c.CustomerID == "ALFKI" & c.CustomerID == "ANATR"));
         }
 
-        [ConditionalTheory(Skip = "Issue #14935. Cannot eval 'where (([c].CustomerID == \"ALFKI\") ^ True)'")]
+        [ConditionalTheory(Skip = "Issue #16645. Cannot eval 'where (([c].CustomerID == \"ALFKI\") ^ True)'")]
         [InlineData(false)]
         public virtual Task Where_bitwise_xor(bool isAsync)
         {
@@ -1895,10 +1895,11 @@ namespace Microsoft.EntityFrameworkCore.Query
                 isAsync,
                 order => order
                     .Where(o => o.CustomerID == "QUICK")
-                    .Where(o => o.OrderDate > new DateTime(1998, 1, 1)), entryCount: 8);
+                    .Where(o => o.OrderDate > new DateTime(1998, 1, 1)),
+                entryCount: 8);
         }
 
-        [ConditionalFact(Skip = "Issue #14935. Cannot eval 'Contains(Property([od], \"OrderID\"))'")]
+        [ConditionalFact]
         public virtual void Where_navigation_contains()
         {
             using (var context = CreateContext())

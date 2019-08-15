@@ -515,7 +515,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                     }
                     else
                     {
-                        ////throw new NotSupportedException(CoreStrings.InvalidMemberInitBinding);
                         AppendLine(CoreStrings.InvalidMemberInitBinding);
                     }
                 }
