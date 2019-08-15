@@ -1919,7 +1919,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 1);
         }
 
-        [ConditionalTheory(Skip = "Issue#16311")]
+        [ConditionalTheory(Skip = "Issue#16314")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Select_subquery_recursive_trivial(bool isAsync)
         {
@@ -3266,14 +3266,14 @@ namespace Microsoft.EntityFrameworkCore.Query
                 isAsync,
                 (cs, os) =>
                     from c in cs
-                    from o in os.Where(o => o.CustomerID == c.CustomerID).Take(1000)
+                    from o in os.Where(o => o.CustomerID == c.CustomerID).Take(4)
                     select new
                     {
                         c.ContactName,
                         o
                     },
                 e => e.o.OrderID,
-                entryCount: 830);
+                entryCount: 342);
         }
 
         [ConditionalTheory]

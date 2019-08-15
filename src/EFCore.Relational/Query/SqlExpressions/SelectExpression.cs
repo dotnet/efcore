@@ -758,53 +758,58 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             }
 
             var joinPredicate = TryExtractJoinKey(innerSelectExpression);
-            if (joinPredicate != null)
+            var containsOuterReference = new SelectExpressionCorrelationFindingExpressionVisitor(Tables)
+                .ContainsOuterReference(innerSelectExpression);
+            if (containsOuterReference && joinPredicate != null)
             {
-                if (innerSelectExpression.Offset != null
-                    || innerSelectExpression.Limit != null
-                    || innerSelectExpression.IsDistinct
-                    || innerSelectExpression.Predicate != null
-                    || innerSelectExpression.Tables.Count > 1
-                    || innerSelectExpression.GroupBy.Count > 1)
-                {
-                    var sqlRemappingVisitor = new SqlRemappingVisitor(innerSelectExpression.PushdownIntoSubquery(),
-                        (SelectExpression)innerSelectExpression.Tables[0]);
-                    joinPredicate = sqlRemappingVisitor.Remap(joinPredicate);
-                }
-
-                var leftJoinExpression = new LeftJoinExpression(innerSelectExpression.Tables.Single(), joinPredicate);
-                _tables.Add(leftJoinExpression);
-
-                foreach (var ordering in innerSelectExpression.Orderings)
-                {
-                    AppendOrdering(ordering.Update(MakeNullable(ordering.Expression)));
-                }
-
-                var indexOffset = _projection.Count;
-                foreach (var projection in innerSelectExpression.Projection)
-                {
-                    AddToProjection(MakeNullable(projection.Expression));
-                }
-
-                foreach (var identifier in innerSelectExpression._identifier.Concat(innerSelectExpression._childIdentifiers))
-                {
-                    var updatedColumn = MakeNullable(identifier);
-                    _childIdentifiers.Add(updatedColumn);
-                    AppendOrdering(new OrderingExpression(updatedColumn, ascending: true));
-                }
-
-                var shaperRemapper = new ShaperRemappingExpressionVisitor(this, innerSelectExpression, indexOffset);
-                innerShaper = shaperRemapper.Visit(innerShaper);
-                selfIdentifier = shaperRemapper.Visit(selfIdentifier);
-
-                return new RelationalCollectionShaperExpression(
-                    collectionId, parentIdentifier, outerIdentifier, selfIdentifier, innerShaper, navigation, elementType);
+                innerSelectExpression.ApplyPredicate(joinPredicate);
+                joinPredicate = null;
             }
 
-            throw new InvalidOperationException("CollectionJoin: Unable to identify correlation predicate to convert to Left Join");
+            if (innerSelectExpression.Offset != null
+                || innerSelectExpression.Limit != null
+                || innerSelectExpression.IsDistinct
+                || innerSelectExpression.Predicate != null
+                || innerSelectExpression.Tables.Count > 1
+                || innerSelectExpression.GroupBy.Count > 1)
+            {
+                var sqlRemappingVisitor = new SqlRemappingVisitor(innerSelectExpression.PushdownIntoSubquery(),
+                    (SelectExpression)innerSelectExpression.Tables[0]);
+                joinPredicate = sqlRemappingVisitor.Remap(joinPredicate);
+            }
+
+            var joinExpression = joinPredicate == null
+                ? (TableExpressionBase)new LeftJoinLateralExpression(innerSelectExpression.Tables.Single())
+                : new LeftJoinExpression(innerSelectExpression.Tables.Single(), joinPredicate);
+            _tables.Add(joinExpression);
+
+            foreach (var ordering in innerSelectExpression.Orderings)
+            {
+                AppendOrdering(ordering.Update(MakeNullable(ordering.Expression)));
+            }
+
+            var indexOffset = _projection.Count;
+            foreach (var projection in innerSelectExpression.Projection)
+            {
+                AddToProjection(MakeNullable(projection.Expression));
+            }
+
+            foreach (var identifier in innerSelectExpression._identifier.Concat(innerSelectExpression._childIdentifiers))
+            {
+                var updatedColumn = MakeNullable(identifier);
+                _childIdentifiers.Add(updatedColumn);
+                AppendOrdering(new OrderingExpression(updatedColumn, ascending: true));
+            }
+
+            var shaperRemapper = new ShaperRemappingExpressionVisitor(this, innerSelectExpression, indexOffset);
+            innerShaper = shaperRemapper.Visit(innerShaper);
+            selfIdentifier = shaperRemapper.Visit(selfIdentifier);
+
+            return new RelationalCollectionShaperExpression(
+                collectionId, parentIdentifier, outerIdentifier, selfIdentifier, innerShaper, navigation, elementType);
         }
 
-        private SqlExpression MakeNullable(SqlExpression sqlExpression)
+        private static SqlExpression MakeNullable(SqlExpression sqlExpression)
             => sqlExpression is ColumnExpression column ? column.MakeNullable() : sqlExpression;
 
         private Expression GetIdentifierAccessor(IEnumerable<SqlExpression> identifyingProjection)
@@ -879,7 +884,9 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 
         private SqlExpression TryExtractJoinKey(SelectExpression selectExpression)
         {
-            if (selectExpression.Predicate != null)
+            if (selectExpression.Limit == null
+                && selectExpression.Offset == null
+                && selectExpression.Predicate != null)
             {
                 var joinPredicate = TryExtractJoinKey(selectExpression, selectExpression.Predicate, out var predicate);
                 selectExpression.Predicate = predicate;
@@ -959,6 +966,44 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                 ? ((SelectExpression)Tables[0]).ContainsTableReference(table)
                 : Tables.Any(te => ReferenceEquals(te is JoinExpressionBase jeb ? jeb.Table : te, table));
 
+        private class SelectExpressionCorrelationFindingExpressionVisitor : ExpressionVisitor
+        {
+            private readonly IReadOnlyList<TableExpressionBase> _tables;
+            private bool _containsOuterReference;
+
+            public SelectExpressionCorrelationFindingExpressionVisitor(IReadOnlyList<TableExpressionBase> tables)
+            {
+                _tables = tables;
+            }
+
+            public bool ContainsOuterReference(SelectExpression selectExpression)
+            {
+                _containsOuterReference = false;
+
+                Visit(selectExpression);
+
+                return _containsOuterReference;
+            }
+
+            public override Expression Visit(Expression expression)
+            {
+                if (_containsOuterReference)
+                {
+                    return expression;
+                }
+
+                if (expression is ColumnExpression columnExpression
+                    && _tables.Contains(columnExpression.Table))
+                {
+                    _containsOuterReference = true;
+
+                    return expression;
+                }
+
+                return base.Visit(expression);
+            }
+        }
+
         private enum JoinType
         {
             InnerJoin,
@@ -978,12 +1023,20 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             if (joinType == JoinType.InnerJoinLateral || joinType == JoinType.LeftJoinLateral)
             {
                 joinPredicate = TryExtractJoinKey(innerSelectExpression);
-                // TODO: Make sure that innerSelectExpression does not contain any reference from this SelectExpression
                 if (joinPredicate != null)
                 {
-                    AddJoin(joinType == JoinType.InnerJoinLateral ? JoinType.InnerJoin : JoinType.LeftJoin,
-                        innerSelectExpression, transparentIdentifierType, joinPredicate);
-                    return;
+                    var containsOuterReference = new SelectExpressionCorrelationFindingExpressionVisitor(Tables)
+                        .ContainsOuterReference(innerSelectExpression);
+                    if (containsOuterReference)
+                    {
+                        innerSelectExpression.ApplyPredicate(joinPredicate);
+                    }
+                    else
+                    {
+                        AddJoin(joinType == JoinType.InnerJoinLateral ? JoinType.InnerJoin : JoinType.LeftJoin,
+                            innerSelectExpression, transparentIdentifierType, joinPredicate);
+                        return;
+                    }
                 }
             }
 

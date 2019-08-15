@@ -50,5 +50,20 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         // Skip for SQLite. Issue #14935. Cannot eval 'where ([m].Timeline >= x)'
         public override Task DateTimeOffset_Contains_Less_than_Greater_than(bool isAsync) => null;
+
+        // Sqlite does not support lateral joins
+        public override Task Correlated_collections_inner_subquery_predicate_references_outer_qsre(bool isAsync) => null;
+
+        public override Task Correlated_collections_inner_subquery_selector_references_outer_qsre(bool isAsync) => null;
+
+        public override Task Correlated_collections_nested_inner_subquery_references_outer_qsre_one_level_up(bool isAsync) => null;
+
+        public override Task Correlated_collections_nested_inner_subquery_references_outer_qsre_two_levels_up(bool isAsync) => null;
+
+        public override Task Outer_parameter_in_group_join_with_DefaultIfEmpty(bool isAsync) => null;
+
+        public override Task Outer_parameter_in_join_key(bool isAsync) => null;
+
+        public override Task Outer_parameter_in_join_key_inner_and_outer(bool isAsync) => null;
     }
 }

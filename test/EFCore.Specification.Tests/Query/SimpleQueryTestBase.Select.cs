@@ -592,7 +592,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 e => e.Count);
         }
 
-        [ConditionalTheory(Skip = "Issue#16311")]
+        [ConditionalTheory(Skip = "Issue#16314")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Select_nested_collection_deep(bool isAsync)
         {
@@ -1228,6 +1228,70 @@ namespace Microsoft.EntityFrameworkCore.Query
             return AssertQuery<Customer>(
                 isAsync,
                 cs => cs.SelectMany(c => c.Orders.Select(o => o.CustomerID)));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task SelectMany_correlated_with_outer_1(bool isAsync)
+        {
+            return AssertQuery<Customer, Order>(
+                isAsync,
+                (cs, os) => from c in cs
+                            from o in os.Where(o => c.CustomerID == o.CustomerID).Select(o => c.City)
+                            select new
+                            {
+                                c,
+                                o
+                            },
+                entryCount: 89);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task SelectMany_correlated_with_outer_2(bool isAsync)
+        {
+            return AssertQuery<Customer, Order>(
+                isAsync,
+                (cs, os) => from c in cs
+                            from o in os.Where(o => c.CustomerID == o.CustomerID).OrderBy(o => c.City).Take(2)
+                            select new
+                            {
+                                c,
+                                o
+                            },
+                entryCount: 266);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task SelectMany_correlated_with_outer_3(bool isAsync)
+        {
+            return AssertQuery<Customer, Order>(
+                isAsync,
+                (cs, os) => from c in cs
+                            from o in os.Where(o => c.CustomerID == o.CustomerID).Select(o => c.City).DefaultIfEmpty()
+                            select new
+                            {
+                                c,
+                                o
+                            },
+                entryCount: 91);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task SelectMany_correlated_with_outer_4(bool isAsync)
+        {
+            return AssertQuery<Customer, Order>(
+                isAsync,
+                (cs, os) => from c in cs
+                            from o in os.Where(o => c.CustomerID == o.CustomerID).OrderBy(o => c.City).Take(2).DefaultIfEmpty()
+                            select new
+                            {
+                                c,
+                                o
+                            },
+                entryCount: 268);
         }
     }
 }

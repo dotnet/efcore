@@ -405,6 +405,30 @@ namespace Microsoft.EntityFrameworkCore.Query
             return base.SelectMany_without_result_selector_collection_navigation_composed(isAsync);
         }
 
+        [ConditionalTheory(Skip = "Issue#16963")]
+        public override Task SelectMany_correlated_with_outer_1(bool isAsync)
+        {
+            return base.SelectMany_correlated_with_outer_1(isAsync);
+        }
+
+        [ConditionalTheory(Skip = "Issue#16963")]
+        public override Task SelectMany_correlated_with_outer_2(bool isAsync)
+        {
+            return base.SelectMany_correlated_with_outer_2(isAsync);
+        }
+
+        [ConditionalTheory(Skip = "Issue#16963")]
+        public override Task SelectMany_correlated_with_outer_3(bool isAsync)
+        {
+            return base.SelectMany_correlated_with_outer_3(isAsync);
+        }
+
+        [ConditionalTheory(Skip = "Issue#16963")]
+        public override Task SelectMany_correlated_with_outer_4(bool isAsync)
+        {
+            return base.SelectMany_correlated_with_outer_4(isAsync);
+        }
+
         #endregion
     }
 }
