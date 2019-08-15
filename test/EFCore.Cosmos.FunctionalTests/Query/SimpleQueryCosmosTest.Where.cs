@@ -1737,6 +1737,7 @@ FROM root c
 WHERE (((c[""Discriminator""] = ""Order"") AND (c[""CustomerID""] = ""QUICK"")) AND (c[""OrderDate""] > ""1998-01-01T00:00:00""))");
         }
 
+        [ConditionalFact(Skip = "Issue #14935")]
         public override void Where_navigation_contains()
         {
             base.Where_navigation_contains();
