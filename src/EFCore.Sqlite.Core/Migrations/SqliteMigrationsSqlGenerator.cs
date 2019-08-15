@@ -345,7 +345,88 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 }
             }
 
-            base.Generate(operation, model, builder, terminate);
+            if (string.IsNullOrEmpty(operation.Comment))
+            {
+                base.Generate(operation, model, builder, terminate);
+            }
+            else
+            {
+                builder
+                   .Append("CREATE TABLE ")
+                   .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(operation.Name, operation.Schema))
+                   .AppendLine(" (");
+
+                using (builder.Indent())
+                {
+                    CreateComment(builder, operation.Comment);
+                    builder.AppendLine();
+                    CreateTableColumns(operation, model, builder);
+                    CreateTableConstraints(operation, model, builder);
+                    builder.AppendLine();
+                }
+
+                builder.Append(")");
+
+                if (terminate)
+                {
+                    builder.AppendLine(Dependencies.SqlGenerationHelper.StatementTerminator);
+                    EndStatement(builder);
+                }
+            }
+        }
+
+        protected override void CreateTableColumns(
+            CreateTableOperation operation,
+            IModel model,
+            MigrationCommandListBuilder builder)
+        {
+            Check.NotNull(operation, nameof(operation));
+            Check.NotNull(builder, nameof(builder));
+
+            if (!operation.Columns.Any(c => !string.IsNullOrEmpty(c.Comment)))
+            {
+                base.CreateTableColumns(operation, model, builder);
+            }
+            else
+            {
+                CreateTableColumnsWithComments(operation, model, builder);
+            }
+        }
+
+        private void CreateTableColumnsWithComments(
+            CreateTableOperation operation,
+            IModel model,
+            MigrationCommandListBuilder builder)
+        {
+            for (var i = 0; i < operation.Columns.Count; i++)
+            {
+                var column = operation.Columns[i];
+
+                if (i > 0)
+                {
+                    builder.AppendLine();
+                }
+
+                if (!string.IsNullOrEmpty(column.Comment))
+                {
+                    CreateComment(builder, column.Comment);
+                }
+
+                ColumnDefinition(column, model, builder);
+
+                if (i != operation.Columns.Count - 1)
+                {
+                    builder.AppendLine(",");
+                }
+            }
+        }
+
+        private void CreateComment(MigrationCommandListBuilder builder, string comment)
+        {
+            foreach (var line in comment.Split(Environment.NewLine).Select(l => $"-- {l}"))
+            {
+                builder.AppendLine(line);
+            }
         }
 
         /// <summary>

@@ -506,6 +506,181 @@ CREATE UNIQUE INDEX ""IX_Person_FullName"" ON ""Person"" (""FullName"") WHERE ""
 ");
         }
 
+        [ConditionalFact]
+        public virtual void CreateTableOperation_has_comment()
+        {
+            Generate(
+                new CreateTableOperation
+                {
+                    Name = "People",
+                    Columns =
+                    {
+                        new AddColumnOperation
+                        {
+                            Name = "Id",
+                            Table = "People",
+                            ClrType = typeof(int),
+                            IsNullable = false,
+                            Comment = "The ID"
+                        },
+                        new AddColumnOperation
+                        {
+                            Name = "UncommentedColumn1",
+                            Table = "People",
+                            ClrType = typeof(string),
+                            IsNullable = false
+                        },
+                        new AddColumnOperation
+                        {
+                            Name = "UncommentedColumn2",
+                            Table = "People",
+                            ClrType = typeof(string),
+                            IsNullable = false
+                        },
+                        new AddColumnOperation
+                        {
+                            Name = "Name",
+                            Table = "People",
+                            ClrType = typeof(string),
+                            IsNullable = false,
+                            Comment = "The Name"
+                        }
+                    }
+                });
+
+            AssertSql(
+                @"CREATE TABLE ""People"" (
+    -- The ID
+    ""Id"" INTEGER NOT NULL,
+
+    ""UncommentedColumn1"" TEXT NOT NULL,
+
+    ""UncommentedColumn2"" TEXT NOT NULL,
+
+    -- The Name
+    ""Name"" TEXT NOT NULL
+);
+");
+        }
+
+        [ConditionalFact]
+        public virtual void CreateTableOperation_no_comments()
+        {
+            Generate(
+                new CreateTableOperation
+                {
+                    Name = "People",
+                    Columns =
+                    {
+                        new AddColumnOperation
+                        {
+                            Name = "Id",
+                            Table = "People",
+                            ClrType = typeof(int),
+                            IsNullable = false,
+                        },
+                        new AddColumnOperation
+                        {
+                            Name = "UncommentedColumn1",
+                            Table = "People",
+                            ClrType = typeof(string),
+                            IsNullable = false
+                        },
+                        new AddColumnOperation
+                        {
+                            Name = "UncommentedColumn2",
+                            Table = "People",
+                            ClrType = typeof(string),
+                            IsNullable = false
+                        },
+                        new AddColumnOperation
+                        {
+                            Name = "UncommentedName",
+                            Table = "People",
+                            ClrType = typeof(string),
+                            IsNullable = false,
+                        }
+                    }
+                });
+
+            AssertSql(
+                @"CREATE TABLE ""People"" (
+    ""Id"" INTEGER NOT NULL,
+    ""UncommentedColumn1"" TEXT NOT NULL,
+    ""UncommentedColumn2"" TEXT NOT NULL,
+    ""UncommentedName"" TEXT NOT NULL
+);
+");
+        }
+
+        [ConditionalFact]
+        public virtual void CreateTableOperation_has_multi_line_comment()
+        {
+            Generate(
+                new CreateTableOperation
+                {
+                    Name = "People",
+                    Columns =
+                    {
+                        new AddColumnOperation
+                        {
+                            Name = "Id",
+                            Table = "People",
+                            ClrType = typeof(int),
+                            IsNullable = false,
+                            Comment = @"This is a multi-line
+comment.
+More information can
+be found in the docs."
+
+                        },
+                    }
+                });
+
+            AssertSql(
+                @"CREATE TABLE ""People"" (
+    -- This is a multi-line
+    -- comment.
+    -- More information can
+    -- be found in the docs.
+    ""Id"" INTEGER NOT NULL
+);
+");
+        }
+
+        [ConditionalFact]
+        public virtual void CreateTableOperation_has_multi_line_table_comment()
+        {
+            Generate(
+                new CreateTableOperation
+                {
+                    Name = "People",
+                    Comment = @"Table level comment
+that continues onto another line",
+                    Columns =
+                    {
+                        new AddColumnOperation
+                        {
+                            Name = "Id",
+                            Table = "People",
+                            ClrType = typeof(int),
+                            IsNullable = false,
+                            Comment = "My Comment"
+                        },
+                    }
+                });
+
+            AssertSql(
+                @"CREATE TABLE ""People"" (
+    -- Table level comment
+    -- that continues onto another line
+
+    -- My Comment
+    ""Id"" INTEGER NOT NULL
+);
+");
+        }
+
         public SqliteMigrationSqlGeneratorTest()
             : base(SqliteTestHelpers.Instance)
         {
