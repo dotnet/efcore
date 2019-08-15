@@ -23,13 +23,13 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 && methodCallExpression.Method.IsGenericMethod)
             {
                 var genericMethod = methodCallExpression.Method.GetGenericMethodDefinition();
-                if (genericMethod == QueryableMethodProvider.SelectManyWithCollectionSelectorMethodInfo)
+                if (genericMethod == QueryableMethods.SelectManyWithCollectionSelector)
                 {
                     // SelectMany
                     var selectManySource = methodCallExpression.Arguments[0];
                     if (selectManySource is MethodCallExpression groupJoinMethod
                         && groupJoinMethod.Method.IsGenericMethod
-                        && groupJoinMethod.Method.GetGenericMethodDefinition() == QueryableMethodProvider.GroupJoinMethodInfo)
+                        && groupJoinMethod.Method.GetGenericMethodDefinition() == QueryableMethods.GroupJoin)
                     {
                         // GroupJoin
                         var outer = Visit(groupJoinMethod.Arguments[0]);
@@ -46,7 +46,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
                         if (collectionSelectorBody is MethodCallExpression collectionEndingMethod
                             && collectionEndingMethod.Method.IsGenericMethod
-                            && collectionEndingMethod.Method.GetGenericMethodDefinition() == QueryableMethodProvider.DefaultIfEmptyWithoutArgumentMethodInfo)
+                            && collectionEndingMethod.Method.GetGenericMethodDefinition() == QueryableMethods.DefaultIfEmptyWithoutArgument)
                         {
                             defaultIfEmpty = true;
                             collectionSelectorBody = collectionEndingMethod.Arguments[0];
@@ -70,7 +70,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                                 innerKeySelector.Body);
 
                             inner = Expression.Call(
-                                QueryableMethodProvider.WhereMethodInfo.MakeGenericMethod(inner.Type.TryGetSequenceType()),
+                                QueryableMethods.Where.MakeGenericMethod(inner.Type.TryGetSequenceType()),
                                 inner,
                                 Expression.Quote(Expression.Lambda(correlationPredicate, innerParameter)));
 
@@ -91,7 +91,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
                             if (inner is MethodCallExpression innerMethodCall
                                 && innerMethodCall.Method.IsGenericMethod
-                                && innerMethodCall.Method.GetGenericMethodDefinition() == QueryableMethodProvider.AsQueryableMethodInfo
+                                && innerMethodCall.Method.GetGenericMethodDefinition() == QueryableMethods.AsQueryable
                                 && innerMethodCall.Type == innerMethodCall.Arguments[0].Type)
                             {
                                 // Remove redundant AsQueryable.
@@ -136,7 +136,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                             {
                                 // inner join
                                 return Expression.Call(
-                                    QueryableMethodProvider.JoinMethodInfo.MakeGenericMethod(
+                                    QueryableMethods.Join.MakeGenericMethod(
                                         outer.Type.TryGetSequenceType(),
                                         inner.Type.TryGetSequenceType(),
                                         outerKeySelector.ReturnType,
@@ -150,13 +150,13 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                         }
                     }
                 }
-                else if (genericMethod == QueryableMethodProvider.SelectManyWithoutCollectionSelectorMethodInfo)
+                else if (genericMethod == QueryableMethods.SelectManyWithoutCollectionSelector)
                 {
                     // SelectMany
                     var selectManySource = methodCallExpression.Arguments[0];
                     if (selectManySource is MethodCallExpression groupJoinMethod
                         && groupJoinMethod.Method.IsGenericMethod
-                        && groupJoinMethod.Method.GetGenericMethodDefinition() == QueryableMethodProvider.GroupJoinMethodInfo)
+                        && groupJoinMethod.Method.GetGenericMethodDefinition() == QueryableMethods.GroupJoin)
                     {
                         // GroupJoin
                         var outer = Visit(groupJoinMethod.Arguments[0]);
@@ -172,7 +172,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
                         if (groupJoinResultSelectorBody is MethodCallExpression collectionEndingMethod
                             && collectionEndingMethod.Method.IsGenericMethod
-                            && collectionEndingMethod.Method.GetGenericMethodDefinition() == QueryableMethodProvider.DefaultIfEmptyWithoutArgumentMethodInfo)
+                            && collectionEndingMethod.Method.GetGenericMethodDefinition() == QueryableMethods.DefaultIfEmptyWithoutArgument)
                         {
                             defaultIfEmpty = true;
                             groupJoinResultSelectorBody = collectionEndingMethod.Arguments[0];
@@ -242,7 +242,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                             {
                                 // inner join
                                 return Expression.Call(
-                                    QueryableMethodProvider.JoinMethodInfo.MakeGenericMethod(
+                                    QueryableMethods.Join.MakeGenericMethod(
                                         outer.Type.TryGetSequenceType(),
                                         inner.Type.TryGetSequenceType(),
                                         outerKeySelector.ReturnType,
@@ -346,7 +346,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     && !_allowedMethods.Contains(methodCallExpression.Method.Name))
                 {
                     if (methodCallExpression.Method.IsGenericMethod
-                        && methodCallExpression.Method.GetGenericMethodDefinition() == QueryableMethodProvider.SelectMethodInfo)
+                        && methodCallExpression.Method.GetGenericMethodDefinition() == QueryableMethods.Select)
                     {
                         var selector = methodCallExpression.Arguments[1].UnwrapLambdaFromQuote();
                         if (selector.Body == selector.Parameters[0])

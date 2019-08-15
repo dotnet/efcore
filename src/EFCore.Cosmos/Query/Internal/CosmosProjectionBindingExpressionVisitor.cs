@@ -364,7 +364,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                         // Unwrap AsQueryable around the subquery if present
                         if (subquery is MethodCallExpression innerMethodCall
                             && innerMethodCall.Method.IsGenericMethod
-                            && innerMethodCall.Method.GetGenericMethodDefinition() == QueryableMethodProvider.AsQueryableMethodInfo)
+                            && innerMethodCall.Method.GetGenericMethodDefinition() == QueryableMethods.AsQueryable)
                         {
                             subquery = innerMethodCall.Arguments[0];
                         }

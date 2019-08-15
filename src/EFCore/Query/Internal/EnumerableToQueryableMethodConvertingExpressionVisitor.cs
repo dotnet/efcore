@@ -102,7 +102,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                             if (arguments[i].Type.TryGetElementType(typeof(IQueryable<>)) == null)
                             {
                                 arguments[i] = Expression.Call(
-                                    QueryableMethodProvider.AsQueryableMethodInfo.MakeGenericMethod(
+                                    QueryableMethods.AsQueryable.MakeGenericMethod(
                                         arguments[i].Type.TryGetSequenceType()),
                                     arguments[i]);
                             }
@@ -145,9 +145,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 var sourceType = methodCallExpression.Method.DeclaringType.GetGenericArguments()[0];
 
                 return Expression.Call(
-                    QueryableMethodProvider.ContainsMethodInfo.MakeGenericMethod(sourceType),
+                    QueryableMethods.Contains.MakeGenericMethod(sourceType),
                     Expression.Call(
-                        QueryableMethodProvider.AsQueryableMethodInfo.MakeGenericMethod(sourceType),
+                        QueryableMethods.AsQueryable.MakeGenericMethod(sourceType),
                         methodCallExpression.Object),
                     methodCallExpression.Arguments[0]);
             }

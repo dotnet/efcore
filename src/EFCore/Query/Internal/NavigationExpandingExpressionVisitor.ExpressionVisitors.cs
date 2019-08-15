@@ -148,7 +148,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     {
                         var elementType = ownedExpansion.Type.TryGetSequenceType();
                         var subquery = Expression.Call(
-                            QueryableMethodProvider.AsQueryableMethodInfo.MakeGenericMethod(elementType),
+                            QueryableMethods.AsQueryable.MakeGenericMethod(elementType),
                             ownedExpansion);
 
                         return new MaterializeCollectionNavigationExpression(subquery, navigation);
@@ -220,7 +220,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     // This is intentionally deferred to be applied to innerSource.Source
                     // Since outerKey's reference could change if a reference navigation is expanded afterwards
                     var subquery = Expression.Call(
-                        QueryableMethodProvider.WhereMethodInfo.MakeGenericMethod(innerSoureSequenceType),
+                        QueryableMethods.Where.MakeGenericMethod(innerSoureSequenceType),
                         innerSource,
                         Expression.Quote(
                             Expression.Lambda(
@@ -264,7 +264,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
                     _source.UpdateSource(Expression.Call(
                         (innerJoin
-                            ? QueryableMethodProvider.JoinMethodInfo
+                            ? QueryableMethods.Join
                             : QueryableExtensions.LeftJoinMethodInfo).MakeGenericMethod(
                                 _source.SourceElementType,
                                 innerSource.SourceElementType,
@@ -563,7 +563,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                             var selectorLambda = Expression.Lambda(pendingSelector, navigationExpansionExpression.CurrentParameter);
 
                             result = Expression.Call(
-                                QueryableMethodProvider.SelectMethodInfo.MakeGenericMethod(
+                                QueryableMethods.Select.MakeGenericMethod(
                                     navigationExpansionExpression.SourceElementType,
                                     selectorLambda.ReturnType),
                                 source,
