@@ -2,12 +2,10 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 using Microsoft.EntityFrameworkCore.TestUtilities;
-using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
 using Xunit;
 
 // ReSharper disable InconsistentNaming
@@ -820,14 +818,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             public uint? EmployeeId { get; set; }
 
             public override bool Equals(object obj)
-            {
-                if (obj is null)
-                {
-                    return false;
-                }
-
-                return ReferenceEquals(this, obj) ? true : obj.GetType() == GetType() && Equals((CompositeDto)obj);
-            }
+                => obj != null && (ReferenceEquals(this, obj) || (obj is CompositeDto dto && Equals(dto)));
 
             public override int GetHashCode() => 0;
 
@@ -1051,6 +1042,22 @@ namespace Microsoft.EntityFrameworkCore.Query
                             g.Key
                         }),
                 e => e.Sum);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task GroupBy_anonymous_key_type_mismatch_with_aggregate(bool isAsync)
+        {
+            return AssertQuery<Order>(
+                isAsync,
+                os => os.GroupBy(o => new { I0 = (int?)o.OrderDate.Value.Year })
+                    .OrderBy(g => g.Key.I0)
+                    .Select(g => new
+                    {
+                        I0 = g.Count(),
+                        I1 = g.Key.I0
+                    }),
+                elementSorter: a => a.I1);
         }
 
         #endregion
@@ -1855,24 +1862,18 @@ namespace Microsoft.EntityFrameworkCore.Query
                     .Select(e => 5));
         }
 
-        [ConditionalFact(Skip = "Issue #14935. Cannot eval 'GroupBy([o].CustomerID, [o])'")]
-        public virtual void GroupBy_Select_sum_over_unmapped_property()
+        [ConditionalTheory(Skip = "Issue #14935. Cannot eval 'GroupBy([o].CustomerID, [o])'")]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task GroupBy_Select_sum_over_unmapped_property(bool isAsync)
         {
-            using (var context = CreateContext())
-            {
-                var query = context.Orders
-                    .GroupBy(o => o.CustomerID)
-                    .Select(
-                        g => new
-                        {
-                            g.Key,
-                            Sum = g.Sum(o => o.Freight)
-                        })
-                    .ToList();
-
-                // Do not do deep assertion of result. We don't have data for unmapped property in EF model
-                Assert.Equal(89, query.Count);
-            }
+            return AssertQuery<Order>(
+                isAsync,
+                os => os.GroupBy(o => o.CustomerID)
+                    .Select(g => new
+                    {
+                        g.Key,
+                        Sum = g.Sum(o => o.Freight)
+                    }));
         }
 
         [ConditionalTheory]
@@ -2151,55 +2152,32 @@ namespace Microsoft.EntityFrameworkCore.Query
                 assertOrder: true);
         }
 
-        [ConditionalFact(Skip = "Issue #14935. Cannot eval 'GroupBy([o].OrderID, [o])'")]
-        public virtual void Select_nested_collection_with_groupby()
+        [ConditionalTheory(Skip = "Issue #14935. Cannot eval 'GroupBy([o].OrderID, [o])'")]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Select_nested_collection_with_groupby(bool isAsync)
         {
-            using (var context = CreateContext())
-            {
-                var expected = context.Customers
-                    .Include(c => c.Orders)
-                    // ReSharper disable once StringStartsWithIsCultureSpecific
-                    .Where(c => c.CustomerID.StartsWith("A"))
-                    .ToList()
+            return AssertQuery<Customer>(
+                isAsync,
+                cs => cs.Where(c => c.CustomerID.StartsWith("A"))
                     .Select(
                         c => c.Orders.Any()
                             ? c.Orders.GroupBy(o => o.OrderID).Select(g => g.Key).ToArray()
-                            : Array.Empty<int>()).ToList();
-
-                ClearLog();
-
-                var query = context.Customers
-                    // ReSharper disable once StringStartsWithIsCultureSpecific
-                    .Where(c => c.CustomerID.StartsWith("A"))
-                    .Select(
-                        c => c.Orders.Any()
-                            ? c.Orders.GroupBy(o => o.OrderID).Select(g => g.Key).ToArray()
-                            : Array.Empty<int>());
-
-                var result = query.ToList();
-
-                Assert.Equal(expected.Count, result.Count);
-            }
+                            : Array.Empty<int>()));
         }
 
-        [ConditionalFact(Skip = "Issue #14935. Cannot eval 'GroupBy([o].CustomerID, new ProjectedType() {Order = [o].OrderID, Customer = [o].CustomerID})'")]
-        public virtual void Select_GroupBy_All()
+        [ConditionalTheory(Skip = "Issue #14935. Cannot eval 'GroupBy([o].CustomerID, new ProjectedType() {Order = [o].OrderID, Customer = [o].CustomerID})'")]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Select_GroupBy_All(bool isAsync)
         {
-            using (var context = CreateContext())
-            {
-                Assert.False(
-                    context
-                        .Set<Order>()
-                        .Select(
-                            o => new ProjectedType
-                            {
-                                Order = o.OrderID,
-                                Customer = o.CustomerID
-                            })
-                        .GroupBy(a => a.Customer)
-                        .All(a => a.Key == "ALFKI")
-                );
-            }
+            return AssertAll<Order, IGrouping<string, ProjectedType>>(
+                isAsync,
+                os => os.Select(o => new ProjectedType
+                {
+                    Order = o.OrderID,
+                    Customer = o.CustomerID
+                })
+                .GroupBy(a => a.Customer),
+                a => a.Key == "ALFKI");
         }
 
         private class ProjectedType
@@ -2680,13 +2658,13 @@ namespace Microsoft.EntityFrameworkCore.Query
                 elementSorter: e => e.max);
         }
 
-        [ConditionalFact(Skip = "Issue #14935. Cannot eval 'GroupBy(new <>f__AnonymousType19`2(CustomerID = [o].CustomerID, OrderDate = [o].OrderDate), [o])'")]
-        public virtual void GroupBy_anonymous_key_without_aggregate()
+        [ConditionalTheory(Skip = "Issue #14935. Cannot eval 'GroupBy(new <>f__AnonymousType19`2(CustomerID = [o].CustomerID, OrderDate = [o].OrderDate), [o])'")]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task GroupBy_anonymous_key_without_aggregate(bool isAsync)
         {
-            using (var context = CreateContext())
-            {
-                var actual = context.Set<Order>()
-                    .GroupBy(
+            return AssertQuery<Order>(
+                isAsync,
+                os => os.GroupBy(
                         o => new
                         {
                             o.CustomerID,
@@ -2697,33 +2675,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                         {
                             g.Key,
                             g
-                        })
-                    .ToList()
-                    .OrderBy(g => g.Key + " " + g.g.Count()).ToList();
-
-                var expected = Fixture.QueryAsserter.ExpectedData.Set<Order>()
-                    .GroupBy(
-                        o => new
-                        {
-                            o.CustomerID,
-                            o.OrderDate
-                        })
-                    .Select(
-                        g => new
-                        {
-                            g.Key,
-                            g
-                        })
-                    .ToList()
-                    .OrderBy(g => g.Key + " " + g.g.Count()).ToList();
-
-                Assert.Equal(expected.Count, actual.Count);
-                for (var i = 0; i < expected.Count; i++)
-                {
-                    Assert.Equal(expected[i].Key, actual[i].Key);
-                    Assert.Equal(expected[i].g.Count(), actual[i].g.Count());
-                }
-            }
+                        }),
+                elementSorter: g => g.Key + " " + g.g.Count());
         }
 
         #endregion
@@ -2804,115 +2757,67 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         #region GroupByEntityType
 
-        [ConditionalFact(Skip = "Issue #14935. Cannot eval 'GroupBy([o].CustomerID, new ProjectedType() {Order = [o].OrderID, Customer = [o].CustomerID})'")]
-        public virtual void Select_GroupBy()
+        [ConditionalTheory(Skip = "Issue #14935. Cannot eval 'GroupBy([o].CustomerID, new ProjectedType() {Order = [o].OrderID, Customer = [o].CustomerID})'")]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Select_GroupBy(bool isAsync)
         {
-            using (var context = CreateContext())
-            {
-                var actual = context.Set<Order>().Select(
+            return AssertQuery<Order>(
+                isAsync,
+                os => os.Select(
                     o => new ProjectedType
                     {
                         Order = o.OrderID,
                         Customer = o.CustomerID
-                    }).GroupBy(p => p.Customer).ToList().OrderBy(g => g.Key + " " + g.Count()).ToList();
+                    })
+                .GroupBy(p => p.Customer),
+                elementSorter: g => g.Key + " " + g.Count());
+        }
 
-                var expected = Fixture.QueryAsserter.ExpectedData.Set<Order>().Select(
+        [ConditionalTheory(Skip = "Issue #14935. Cannot eval 'GroupBy([o].OrderID, new ProjectedType() {Order = [o].OrderID, Customer = [o].CustomerID})'")]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Select_GroupBy_SelectMany(bool isAsync)
+        {
+            return AssertQuery<Order>(
+                isAsync,
+                os => os.Select(
                     o => new ProjectedType
                     {
                         Order = o.OrderID,
                         Customer = o.CustomerID
-                    }).GroupBy(p => p.Customer).ToList().OrderBy(g => g.Key + " " + g.Count()).ToList();
-
-                Assert.Equal(expected.Count, actual.Count);
-                for (var i = 0; i < expected.Count; i++)
-                {
-                    Assert.Equal(expected[i].Key, actual[i].Key);
-                    Assert.Equal(expected[i].Count(), actual[i].Count());
-                }
-            }
+                    })
+                .GroupBy(p => p.Customer)
+                .SelectMany(g => g),
+                elementSorter: g => g.Order);
         }
 
-        [ConditionalFact(Skip = "Issue #14935. Cannot eval 'GroupBy([o].OrderID, new ProjectedType() {Order = [o].OrderID, Customer = [o].CustomerID})'")]
-        public virtual void Select_GroupBy_SelectMany()
+        [ConditionalTheory(Skip = "Issue #14935. Cannot eval 'GroupBy([c], [o])'")]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Join_GroupBy_entity_ToList(bool isAsync)
         {
-            using (var context = CreateContext())
-            {
-                var actual = context.Set<Order>().Select(
-                        o => new ProjectedType
-                        {
-                            Order = o.OrderID,
-                            Customer = o.CustomerID
-                        })
-                    .GroupBy(o => o.Order)
-                    .SelectMany(g => g).ToList().OrderBy(e => e.Order).ToList();
-
-                var expected = Fixture.QueryAsserter.ExpectedData.Set<Order>().Select(
-                        o => new ProjectedType
-                        {
-                            Order = o.OrderID,
-                            Customer = o.CustomerID
-                        })
-                    .GroupBy(o => o.Order)
-                    .SelectMany(g => g).ToList().OrderBy(e => e.Order).ToList();
-
-                Assert.Equal(expected.Count, actual.Count);
-                for (var i = 0; i < expected.Count; i++)
-                {
-                    Assert.Equal(expected[i], actual[i]);
-                }
-            }
-        }
-
-        [ConditionalFact(Skip = "Issue #14935. Cannot eval 'GroupBy([c], [o])'")]
-        public virtual void Join_GroupBy_entity_ToList()
-        {
-            using (var context = CreateContext())
-            {
-                var actual = (from c in context.Customers.OrderBy(c => c.CustomerID).Take(5)
-                              join o in context.Orders.OrderBy(o => o.OrderID).Take(50)
-                                  on c.CustomerID equals o.CustomerID
-                              group o by c
-                              into grp
-                              select new
-                              {
-                                  C = grp.Key,
-                                  Os = grp.ToList()
-                              }).ToList();
-
-                var expected = (from c in Fixture.QueryAsserter.ExpectedData.Set<Customer>()
-                                    .OrderBy(c => c.CustomerID).Take(5)
-                                join o in Fixture.QueryAsserter.ExpectedData.Set<Order>()
-                                        .OrderBy(o => o.OrderID).Take(50)
-                                    on c.CustomerID equals o.CustomerID
-                                group o by c
-                                into grp
-                                select new
-                                {
-                                    C = grp.Key,
-                                    Os = grp.ToList()
-                                }).ToList();
-
-                Assert.Equal(expected.Count, actual.Count);
-
-                for (var i = 0; i < expected.Count; i++)
-                {
-                    Assert.Equal(expected[i].C, actual[i].C);
-                    Assert.Equal(expected[i].Os, actual[i].Os);
-                }
-            }
+            return AssertQuery<Customer, Order>(
+                isAsync,
+                (cs, os) => from c in cs.OrderBy(c => c.CustomerID).Take(5)
+                            join o in os.OrderBy(o => o.OrderID).Take(50)
+                                on c.CustomerID equals o.CustomerID
+                            group o by c into grp
+                            select new
+                            {
+                                C = grp.Key,
+                                Os = grp.ToList()
+                            });
         }
 
         #endregion
 
         #region DoubleGroupBy
 
-        [ConditionalFact(Skip = "Issue #14935. Cannot eval 'GroupBy(new <>f__AnonymousType22`2(OrderID = [o].OrderID, OrderDate = [o].OrderDate), [o])'")]
-        public virtual void Double_GroupBy_with_aggregate()
+        [ConditionalTheory(Skip = "Issue #14935. Cannot eval 'GroupBy(new <>f__AnonymousType22`2(OrderID = [o].OrderID, OrderDate = [o].OrderDate), [o])'")]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Double_GroupBy_with_aggregate(bool isAsync)
         {
-            using (var context = CreateContext())
-            {
-                var actual = context.Set<Order>()
-                    .GroupBy(
+            return AssertQuery<Order>(
+                isAsync,
+                os => os.GroupBy(
                         o => new
                         {
                             o.OrderID,
@@ -2924,33 +2829,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                         {
                             g.Key,
                             Lastest = g.OrderBy(e => e.Key.OrderID).FirstOrDefault()
-                        })
-                    .ToList();
-
-                var expected = Fixture.QueryAsserter.ExpectedData.Set<Order>()
-                    .GroupBy(
-                        o => new
-                        {
-                            o.OrderID,
-                            o.OrderDate
-                        })
-                    .GroupBy(g => g.Key.OrderDate)
-                    .Select(
-                        g => new
-                        {
-                            g.Key,
-                            Lastest = g.OrderBy(e => e.Key.OrderID).FirstOrDefault()
-                        })
-                    .ToList();
-
-                Assert.Equal(expected.Count, actual.Count);
-                for (var i = 0; i < expected.Count; i++)
-                {
-                    Assert.Equal(expected[i].Key, actual[i].Key);
-                    Assert.Equal(expected[i].Lastest.Key, actual[i].Lastest.Key);
-                    Assert.Equal(expected[i].Lastest.Count(), actual[i].Lastest.Count());
-                }
-            }
+                        }));
         }
 
         #endregion
