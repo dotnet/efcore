@@ -301,8 +301,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             var remappedKeySelector = RemapLambdaBody(source, keySelector);
 
-            var translatedKey = TranslateGroupingKey(remappedKeySelector)
-                ?? (remappedKeySelector as ConstantExpression);
+            var translatedKey = TranslateGroupingKey(remappedKeySelector);
             if (translatedKey != null)
             {
                 if (elementSelector != null)
@@ -310,13 +309,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     source = TranslateSelect(source, elementSelector);
                 }
 
-                var sqlKeySelector = translatedKey is ConstantExpression
-                    ? _sqlExpressionFactory.ApplyDefaultTypeMapping(_sqlExpressionFactory.Constant(1))
-                    : translatedKey;
-
-                var appliedKeySelector = selectExpression.ApplyGrouping(sqlKeySelector);
-                translatedKey = translatedKey is ConstantExpression ? translatedKey : appliedKeySelector;
-
+                selectExpression.ApplyGrouping(translatedKey);
                 source.ShaperExpression = new GroupByShaperExpression(translatedKey, source.ShaperExpression);
 
                 if (resultSelector == null)
@@ -349,51 +342,54 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         private Expression TranslateGroupingKey(Expression expression)
         {
-            if (expression is NewExpression newExpression)
+            switch (expression)
             {
-                if (newExpression.Arguments.Count == 0)
-                {
-                    return newExpression;
-                }
-
-                var newArguments = new Expression[newExpression.Arguments.Count];
-                for (var i = 0; i < newArguments.Length; i++)
-                {
-                    newArguments[i] = TranslateGroupingKey(newExpression.Arguments[i]);
-                    if (newArguments[i] == null)
+                case NewExpression newExpression:
+                    if (newExpression.Arguments.Count == 0)
                     {
-                        return null;
+                        return newExpression;
                     }
-                }
 
-                return newExpression.Update(newArguments);
-            }
+                    var newArguments = new Expression[newExpression.Arguments.Count];
+                    for (var i = 0; i < newArguments.Length; i++)
+                    {
+                        newArguments[i] = TranslateGroupingKey(newExpression.Arguments[i]);
+                        if (newArguments[i] == null)
+                        {
+                            return null;
+                        }
+                    }
 
-            if (expression is MemberInitExpression memberInitExpression)
-            {
-                var updatedNewExpression = (NewExpression)TranslateGroupingKey(memberInitExpression.NewExpression);
-                if (updatedNewExpression == null)
-                {
-                    return null;
-                }
+                    return newExpression.Update(newArguments);
 
-                var newBindings = new MemberAssignment[memberInitExpression.Bindings.Count];
-                for (var i = 0; i < newBindings.Length; i++)
-                {
-                    var memberAssignment = (MemberAssignment)memberInitExpression.Bindings[i];
-                    var visitedExpression = TranslateGroupingKey(memberAssignment.Expression);
-                    if (visitedExpression == null)
+                case MemberInitExpression memberInitExpression:
+                    var updatedNewExpression = (NewExpression)TranslateGroupingKey(memberInitExpression.NewExpression);
+                    if (updatedNewExpression == null)
                     {
                         return null;
                     }
 
-                    newBindings[i] = memberAssignment.Update(visitedExpression);
-                }
+                    var newBindings = new MemberAssignment[memberInitExpression.Bindings.Count];
+                    for (var i = 0; i < newBindings.Length; i++)
+                    {
+                        var memberAssignment = (MemberAssignment)memberInitExpression.Bindings[i];
+                        var visitedExpression = TranslateGroupingKey(memberAssignment.Expression);
+                        if (visitedExpression == null)
+                        {
+                            return null;
+                        }
 
-                return memberInitExpression.Update(updatedNewExpression, newBindings);
+                        newBindings[i] = memberAssignment.Update(visitedExpression);
+                    }
+
+                    return memberInitExpression.Update(updatedNewExpression, newBindings);
+
+                default:
+                    var translation = _sqlTranslator.Translate(expression);
+                    return translation.Type == expression.Type
+                        ? (Expression)translation
+                        : Expression.Convert(translation, expression.Type);
             }
-
-            return _sqlTranslator.Translate(expression);
         }
 
         protected override ShapedQueryExpression TranslateGroupJoin(ShapedQueryExpression outer, ShapedQueryExpression inner, LambdaExpression outerKeySelector, LambdaExpression innerKeySelector, LambdaExpression resultSelector)
