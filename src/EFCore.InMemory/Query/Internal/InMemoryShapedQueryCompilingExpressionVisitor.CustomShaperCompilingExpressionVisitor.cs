@@ -51,7 +51,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                         // For non-null relatedEntity StateManager will set the flag
                         if (relatedEntity == null)
                         {
-                            queryContext.StateManager.TryGetEntry(includingEntity).SetIsLoaded(navigation);
+                            queryContext.SetIsLoaded(includingEntity, navigation);
                         }
                     }
                     else
@@ -94,7 +94,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                             collectionAccessor.Add(includingEntity, relatedEntity, forMaterialization: true);
                         }
 
-                        queryContext.StateManager.TryGetEntry(includingEntity).SetIsLoaded(navigation);
+                        queryContext.SetIsLoaded(includingEntity, navigation);
                     }
                     else
                     {

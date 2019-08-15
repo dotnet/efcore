@@ -19,21 +19,21 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
     ///         This service cannot depend on services registered as <see cref="ServiceLifetime.Scoped" />.
     ///     </para>
     /// </summary>
-    public class SqlServerShapedQueryOptimizerFactory : IShapedQueryOptimizerFactory
+    public class SqlServerQueryTranslationPostprocessorFactory : IQueryTranslationPostprocessorFactory
     {
-        private readonly ShapedQueryOptimizerDependencies _dependencies;
-        private readonly RelationalShapedQueryOptimizerDependencies _relationalDependencies;
+        private readonly QueryTranslationPostprocessorDependencies _dependencies;
+        private readonly RelationalQueryTranslationPostprocessorDependencies _relationalDependencies;
 
-        public SqlServerShapedQueryOptimizerFactory(
-            ShapedQueryOptimizerDependencies dependencies,
-            RelationalShapedQueryOptimizerDependencies relationalDependencies)
+        public SqlServerQueryTranslationPostprocessorFactory(
+            QueryTranslationPostprocessorDependencies dependencies,
+            RelationalQueryTranslationPostprocessorDependencies relationalDependencies)
         {
             _dependencies = dependencies;
             _relationalDependencies = relationalDependencies;
         }
 
-        public virtual ShapedQueryOptimizer Create(QueryCompilationContext queryCompilationContext)
-            => new SqlServerShapedQueryOptimizer(
+        public virtual QueryTranslationPostprocessor Create(QueryCompilationContext queryCompilationContext)
+            => new SqlServerQueryTranslationPostprocessor(
                 _dependencies,
                 _relationalDependencies,
                 queryCompilationContext);

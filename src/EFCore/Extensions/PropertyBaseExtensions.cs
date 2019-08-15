@@ -62,35 +62,6 @@ namespace Microsoft.EntityFrameworkCore
             => propertyBase.AsPropertyBase().Getter;
 
         /// <summary>
-        ///     <para>
-        ///         Gets a <see cref="IClrPropertySetter" /> for writing the value of this property.
-        ///     </para>
-        ///     <para>
-        ///         Note that it is an error to call this method for a shadow property (<see cref="IsShadowProperty" />) since
-        ///         such a property has no associated <see cref="MemberInfo" />.
-        ///     </para>
-        /// </summary>
-        /// <param name="propertyBase"> The property. </param>
-        /// <returns> The accessor. </returns>
-        public static IClrPropertySetter GetSetter([NotNull] this IPropertyBase propertyBase)
-            => propertyBase.AsPropertyBase().Setter;
-
-        /// <summary>
-        ///     <para>
-        ///         Gets a <see cref="IClrPropertySetter" /> for writing the value of this property during materialization
-        ///         of a query.
-        ///     </para>
-        ///     <para>
-        ///         Note that it is an error to call this method for a shadow property (<see cref="IsShadowProperty" />) since
-        ///         such a property has no associated <see cref="MemberInfo" />.
-        ///     </para>
-        /// </summary>
-        /// <param name="propertyBase"> The property. </param>
-        /// <returns> The accessor. </returns>
-        public static IClrPropertySetter GetMaterializationSetter([NotNull] this IPropertyBase propertyBase)
-            => propertyBase.AsPropertyBase().MaterializationSetter;
-
-        /// <summary>
         ///     Gets the name of the backing field for this property, or <c>null</c> if the backing field
         ///     is not known.
         /// </summary>

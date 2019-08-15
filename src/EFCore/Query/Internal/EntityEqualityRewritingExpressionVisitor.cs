@@ -998,7 +998,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         protected static Expression UnwrapLastNavigation(Expression expression)
             => (expression as MemberExpression)?.Expression
                ?? (expression is MethodCallExpression methodCallExpression
-                   && methodCallExpression.IsEFProperty()
+                   && methodCallExpression.Method.IsEFPropertyMethod()
                    ? methodCallExpression.Arguments[0]
                    : null);
 

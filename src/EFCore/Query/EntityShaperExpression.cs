@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore.Metadata;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    public class EntityShaperExpression : Expression, IPrintable
+    public class EntityShaperExpression : Expression, IPrintableExpression
     {
         public EntityShaperExpression(IEntityType entityType, Expression valueBufferExpression, bool nullable)
         {

@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore.Metadata;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    public class CollectionInitializingExpression : Expression, IPrintable
+    public class CollectionInitializingExpression : Expression, IPrintableExpression
     {
         public CollectionInitializingExpression(
             int collectionId, Expression parent, Expression parentIdentifier, Expression outerIdentifier, INavigation navigation, Type type)

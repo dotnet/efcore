@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore.Metadata;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    public class IncludeExpression : Expression, IPrintable
+    public class IncludeExpression : Expression, IPrintableExpression
     {
         public IncludeExpression(Expression entityExpression, Expression navigationExpression, INavigation navigation)
         {
@@ -22,7 +22,6 @@ namespace Microsoft.EntityFrameworkCore.Query
         public virtual INavigation Navigation { get; set; }
 
         public sealed override ExpressionType NodeType => ExpressionType.Extension;
-        public override bool CanReduce => false;
         public override Type Type { get; }
 
         protected override Expression VisitChildren(ExpressionVisitor visitor)

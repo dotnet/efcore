@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Metadata;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    public class CollectionShaperExpression : Expression, IPrintable
+    public class CollectionShaperExpression : Expression, IPrintableExpression
     {
         public CollectionShaperExpression(
             Expression projection,

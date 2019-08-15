@@ -6,7 +6,7 @@ using System.Linq.Expressions;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    public class CollectionPopulatingExpression : Expression, IPrintable
+    public class CollectionPopulatingExpression : Expression, IPrintableExpression
     {
         public CollectionPopulatingExpression(RelationalCollectionShaperExpression parent, Type type, bool include)
         {

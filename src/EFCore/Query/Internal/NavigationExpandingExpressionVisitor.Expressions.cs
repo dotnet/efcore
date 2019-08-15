@@ -12,7 +12,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 {
     public partial class NavigationExpandingExpressionVisitor
     {
-        protected class NavigationExpansionExpression : Expression, IPrintable
+        protected class NavigationExpansionExpression : Expression, IPrintableExpression
         {
             private readonly List<(MethodInfo OrderingMethod, Expression KeySelector)> _pendingOrderings
                 = new List<(MethodInfo OrderingMethod, Expression KeySelector)>();
@@ -105,7 +105,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 : PendingSelector.Type;
         }
 
-        protected class NavigationTreeExpression : NavigationTreeNode, IPrintable
+        protected class NavigationTreeExpression : NavigationTreeNode, IPrintableExpression
         {
             public NavigationTreeExpression(Expression value)
                 : base(null, null)
@@ -135,7 +135,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             }
         }
 
-        protected class EntityReference : Expression, IPrintable
+        protected class EntityReference : Expression, IPrintableExpression
         {
             public EntityReference(IEntityType entityType)
             {

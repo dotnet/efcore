@@ -26,15 +26,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
     public static class ExpressionExtensions
     {
         /// <summary>
-        ///     Checks whether or not the given <see cref="MethodCallExpression" /> represents a call
-        ///     to the <see cref="EF.Property{TProperty}" /> method.
-        /// </summary>
-        /// <param name="methodCallExpression"> The method-call expression. </param>
-        /// <returns> True if it is a call to <see cref="EF.Property{TProperty}" />; false otherwise. </returns>
-        public static bool IsEFProperty([NotNull] this MethodCallExpression methodCallExpression)
-            => methodCallExpression.Method.IsEFPropertyMethod();
-
-        /// <summary>
         ///     Creates a <see cref="MemberExpression"></see> that represents accessing either a field or a property.
         /// </summary>
         /// <param name="expression"> An <see cref="Expression"></see> that represents the object that the member belongs to. </param>
@@ -98,7 +89,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             out Expression entityExpression,
             out string propertyName)
         {
-            if (IsEFProperty(methodCallExpression)
+            if (methodCallExpression.Method.IsEFPropertyMethod()
                 && methodCallExpression.Arguments[1] is ConstantExpression propertyNameExpression)
             {
                 entityExpression = methodCallExpression.Arguments[0];

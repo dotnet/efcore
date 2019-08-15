@@ -162,10 +162,10 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             TryAdd<IQueryableMethodTranslatingExpressionVisitorFactory, RelationalQueryableMethodTranslatingExpressionVisitorFactory>();
             TryAdd<IMethodCallTranslatorProvider, RelationalMethodCallTranslatorProvider>();
             TryAdd<IMemberTranslatorProvider, RelationalMemberTranslatorProvider>();
-            TryAdd<IShapedQueryOptimizerFactory, RelationalShapedQueryOptimizerFactory>();
+            TryAdd<IQueryTranslationPostprocessorFactory, RelationalQueryTranslationPostprocessorFactory>();
             TryAdd<IRelationalSqlTranslatingExpressionVisitorFactory, RelationalSqlTranslatingExpressionVisitorFactory>();
             TryAdd<ISqlExpressionFactory, SqlExpressionFactory>();
-            TryAdd<IQueryOptimizerFactory, RelationalQueryOptimizerFactory>();
+            TryAdd<IQueryTranslationPreprocessorFactory, RelationalQueryTranslationPreprocessorFactory>();
 
             ServiceCollectionMap.GetInfrastructure()
                 .AddDependencySingleton<RelationalSqlGenerationHelperDependencies>()
@@ -184,9 +184,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 .AddDependencySingleton<RelationalQueryableMethodTranslatingExpressionVisitorDependencies>()
                 .AddDependencySingleton<QuerySqlGeneratorDependencies>()
                 .AddDependencySingleton<RelationalShapedQueryCompilingExpressionVisitorDependencies>()
-                .AddDependencySingleton<RelationalShapedQueryOptimizerDependencies>()
+                .AddDependencySingleton<RelationalQueryTranslationPostprocessorDependencies>()
                 .AddDependencySingleton<RelationalEvaluatableExpressionFilterDependencies>()
-                .AddDependencySingleton<RelationalQueryOptimizerDependencies>()
+                .AddDependencySingleton<RelationalQueryTranslationPreprocessorDependencies>()
                 .AddDependencyScoped<MigrationsSqlGeneratorDependencies>()
                 .AddDependencyScoped<RelationalConventionSetBuilderDependencies>()
                 .AddDependencyScoped<ModificationCommandBatchFactoryDependencies>()

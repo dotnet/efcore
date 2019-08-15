@@ -282,7 +282,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                   + "_"
                   + _parameterValues.ParameterValues.Count;
 
-            _parameterValues.Add(parameterName, parameterValue);
+            _parameterValues.AddParameter(parameterName, parameterValue);
 
             var parameter = Expression.Parameter(expression.Type, parameterName);
 

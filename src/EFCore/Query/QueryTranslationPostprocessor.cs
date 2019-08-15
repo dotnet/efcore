@@ -5,16 +5,16 @@ using System.Linq.Expressions;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    public class ShapedQueryOptimizer
+    public class QueryTranslationPostprocessor
     {
-        public ShapedQueryOptimizer(ShapedQueryOptimizerDependencies dependencies)
+        public QueryTranslationPostprocessor(QueryTranslationPostprocessorDependencies dependencies)
         {
             Dependencies = dependencies;
         }
 
-        protected virtual ShapedQueryOptimizerDependencies Dependencies { get; }
+        protected virtual QueryTranslationPostprocessorDependencies Dependencies { get; }
 
-        public virtual Expression Visit(Expression query)
+        public virtual Expression Process(Expression query)
         {
             return query;
         }
