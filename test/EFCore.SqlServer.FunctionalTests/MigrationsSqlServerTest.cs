@@ -528,6 +528,13 @@ Foos
                         b.HasKey("Id");
 
                         b.ToTable("Blogs");
+
+                        b.HasData(
+                            new
+                            {
+                                Id = 1,
+                                Name = "HalfADonkey"
+                            });
                     });
 
                 modelBuilder.Entity(
@@ -1349,6 +1356,15 @@ namespace ModelSnapshot22
             => optionsBuilder.UseSqlServer(@"Server=(localdb)\mssqllocaldb;Database=Test;ConnectRetryCount=0");
 
         public DbSet<Blog> Blogs { get; set; }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<Blog>().HasData(
+                new Blog
+                {
+                    Id = 1, Name = "HalfADonkey"
+                });
+        }
     }
 }
 

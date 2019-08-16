@@ -76,9 +76,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 }
             }
 
-            return (model is IMutableModel mutableModel)
-                ? mutableModel.FinalizeModel()
-                : model;
+            return model;
         }
 
         private void ProcessCollection(IEnumerable<IAnnotatable> metadata, string version)

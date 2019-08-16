@@ -93,5 +93,14 @@ namespace Microsoft.EntityFrameworkCore.Utilities
 
             return value;
         }
+
+        [Conditional("DEBUG")]
+        public static void DebugAssert([System.Diagnostics.CodeAnalysis.DoesNotReturnIf(false)] bool condition, string message)
+        {
+            if (!condition)
+            {
+                throw new Exception($"Check.DebugAssert failed: {message}");
+            }
+        }
     }
 }
