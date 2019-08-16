@@ -2069,14 +2069,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 {
                     navigationToPrincipal = Metadata.GetPrincipalToDependentConfigurationSource()?.Overrides(configurationSource)
                                             ?? false
-                        ? MemberIdentity.Create(Metadata.PrincipalToDependent)
+                        ? Metadata.PrincipalToDependent.CreateMemberIdentity()
                         : navigationToPrincipal;
                 }
                 else
                 {
                     navigationToPrincipal = Metadata.GetDependentToPrincipalConfigurationSource()?.Overrides(configurationSource)
                                             ?? false
-                        ? MemberIdentity.Create(Metadata.DependentToPrincipal)
+                        ? Metadata.DependentToPrincipal.CreateMemberIdentity()
                         : navigationToPrincipal;
                 }
             }
@@ -2087,14 +2087,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 {
                     navigationToDependent = Metadata.GetDependentToPrincipalConfigurationSource()?.Overrides(configurationSource)
                                             ?? false
-                        ? MemberIdentity.Create(Metadata.DependentToPrincipal)
+                        ? Metadata.DependentToPrincipal.CreateMemberIdentity()
                         : navigationToDependent;
                 }
                 else
                 {
                     navigationToDependent = Metadata.GetPrincipalToDependentConfigurationSource()?.Overrides(configurationSource)
                                             ?? false
-                        ? MemberIdentity.Create(Metadata.PrincipalToDependent)
+                        ? Metadata.PrincipalToDependent.CreateMemberIdentity()
                         : navigationToDependent;
                 }
             }
@@ -2205,10 +2205,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     dependentEntityTypeBuilder.Metadata,
                     navigationToPrincipal ?? (Metadata.DependentToPrincipal == null
                         ? (MemberIdentity?)null
-                        : MemberIdentity.Create(Metadata.DependentToPrincipal)),
+                        : Metadata.DependentToPrincipal.CreateMemberIdentity()),
                     navigationToDependent ?? (Metadata.PrincipalToDependent == null
                         ? (MemberIdentity?)null
-                        : MemberIdentity.Create(Metadata.PrincipalToDependent)),
+                        : Metadata.PrincipalToDependent.CreateMemberIdentity()),
                     dependentProperties?.Count > 0 ? dependentProperties : null,
                     oldNameDependentProperties,
                     principalProperties?.Count > 0 ? principalProperties : null,

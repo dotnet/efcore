@@ -40,13 +40,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             => name == null ? None : new MemberIdentity(name);
 
         [DebuggerStepThrough]
-        public static MemberIdentity Create([CanBeNull] MemberInfo property)
-            => property == null ? None : new MemberIdentity(property);
-
-        public static MemberIdentity Create([CanBeNull] INavigation navigation)
-            => navigation?.GetIdentifyingMemberInfo() == null
-                ? Create(navigation?.Name)
-                : Create(navigation.GetIdentifyingMemberInfo());
+        public static MemberIdentity Create([CanBeNull] MemberInfo member)
+            => member == null ? None : new MemberIdentity(member);
 
         public string Name
         {
