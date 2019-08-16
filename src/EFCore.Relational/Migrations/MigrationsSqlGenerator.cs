@@ -1580,7 +1580,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             [CanBeNull] string schema,
             [NotNull] string tableName)
             => model?.GetEntityTypes().Where(
-                t => t.GetTableName() == tableName && t.GetSchema() == schema && !t.MigrationsIgnored());
+                t => t.GetTableName() == tableName && t.GetSchema() == schema && !t.IsIgnoredByMigrations());
 
         /// <summary>
         ///     <para>

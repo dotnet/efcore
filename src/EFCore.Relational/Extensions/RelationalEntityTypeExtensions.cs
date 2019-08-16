@@ -282,11 +282,11 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="entityType">The entity type.</param>
         /// <returns>A value indicating whether the entity type is ignored by Migrations.</returns>
-        public static bool MigrationsIgnored([NotNull] this IEntityType entityType)
+        public static bool IsIgnoredByMigrations([NotNull] this IEntityType entityType)
         {
             if (entityType.BaseType != null)
             {
-                return entityType.BaseType.MigrationsIgnored();
+                return entityType.BaseType.IsIgnoredByMigrations();
             }
 
             var viewDefinition = entityType.FindAnnotation(RelationalAnnotationNames.ViewDefinition);

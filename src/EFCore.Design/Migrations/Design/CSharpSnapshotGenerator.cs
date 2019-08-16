@@ -76,7 +76,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 stringBuilder.AppendLine(";");
             }
 
-            GenerateEntityTypes(builderName, Sort(model.GetEntityTypes().Where(et => !et.MigrationsIgnored()).ToList()), stringBuilder);
+            GenerateEntityTypes(builderName, Sort(model.GetEntityTypes().Where(et => !et.IsIgnoredByMigrations()).ToList()), stringBuilder);
         }
 
         private static IReadOnlyList<IEntityType> Sort(IReadOnlyList<IEntityType> entityTypes)
