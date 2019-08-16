@@ -197,7 +197,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     var current = entry[property];
                     var original = entry.GetOriginalValue(property);
 
-                    var comparer = property.GetValueComparer() ?? property.FindMapping()?.Comparer;
+                    var comparer = property.GetValueComparer() ?? property.FindTypeMapping()?.Comparer;
 
                     if (comparer == null)
                     {

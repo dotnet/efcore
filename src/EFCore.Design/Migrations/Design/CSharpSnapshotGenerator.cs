@@ -505,7 +505,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         }
 
         private ValueConverter FindValueConverter(IProperty property)
-            => (property.FindMapping()
+            => (property.FindTypeMapping()
                 ?? Dependencies.RelationalTypeMappingSource.FindMapping(property))?.Converter;
 
         /// <summary>

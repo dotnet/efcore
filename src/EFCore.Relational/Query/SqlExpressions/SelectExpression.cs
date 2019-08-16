@@ -260,23 +260,11 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             }
         }
 
-        public Expression ApplyGrouping(Expression keySelector)
+        public void ApplyGrouping(Expression keySelector)
         {
             ClearOrdering();
 
-            if (keySelector is SqlConstantExpression
-                || keySelector is SqlParameterExpression)
-            {
-                PushdownIntoSubquery();
-                var subquery = (SelectExpression)Tables[0];
-                var projectionIndex = subquery.AddToProjection((SqlExpression)keySelector, nameof(IGrouping<int, int>.Key));
-
-                keySelector = new ColumnExpression(subquery.Projection[projectionIndex], subquery);
-            }
-
             AppendGroupBy(keySelector);
-
-            return keySelector;
         }
 
         private void AppendGroupBy(Expression keySelector)
@@ -284,7 +272,8 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             switch (keySelector)
             {
                 case SqlExpression sqlExpression:
-                    if (!(sqlExpression is SqlConstantExpression))
+                    if (!(sqlExpression is SqlConstantExpression
+                          || sqlExpression is SqlParameterExpression))
                     {
                         _groupBy.Add(sqlExpression);
                     }
@@ -303,6 +292,12 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                     {
                         AppendGroupBy(((MemberAssignment)argument).Expression);
                     }
+                    break;
+
+                case UnaryExpression unaryExpression
+                when unaryExpression.NodeType == ExpressionType.Convert
+                    || unaryExpression.NodeType == ExpressionType.ConvertChecked:
+                    AppendGroupBy(unaryExpression.Operand);
                     break;
 
                 default:
@@ -1204,7 +1199,8 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 
                 var groupBy = _groupBy.ToList();
                 _groupBy.Clear();
-                _groupBy.AddRange(GroupBy.Select(e => (SqlExpression)visitor.Visit(e)).Where(e => !(e is SqlConstantExpression)));
+                _groupBy.AddRange(GroupBy.Select(e => (SqlExpression)visitor.Visit(e))
+                    .Where(e => !(e is SqlConstantExpression || e is SqlParameterExpression)));
 
                 Having = (SqlExpression)visitor.Visit(Having);
 
@@ -1262,7 +1258,11 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                 {
                     var newGroupingKey = (SqlExpression)visitor.Visit(groupingKey);
                     changed |= newGroupingKey != groupingKey;
-                    groupBy.Add(newGroupingKey);
+                    if (!(newGroupingKey is SqlConstantExpression
+                        || newGroupingKey is SqlParameterExpression))
+                    {
+                        groupBy.Add(newGroupingKey);
+                    }
                 }
 
                 var havingExpression = (SqlExpression)visitor.Visit(Having);
