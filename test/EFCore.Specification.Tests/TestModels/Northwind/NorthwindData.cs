@@ -200,7 +200,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.Northwind
             private class ShadowStateAccessRewriter : ExpressionVisitor
             {
                 protected override Expression VisitMethodCall(MethodCallExpression expression)
-                    => expression.IsEFProperty()
+                    => expression.Method.IsEFPropertyMethod()
                         ? Expression.Property(
                             expression.Arguments[0].RemoveConvert(),
                             Expression.Lambda<Func<string>>(expression.Arguments[1]).Compile().Invoke())

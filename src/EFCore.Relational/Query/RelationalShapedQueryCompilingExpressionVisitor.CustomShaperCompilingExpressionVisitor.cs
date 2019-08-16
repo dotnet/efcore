@@ -54,7 +54,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                         // For non-null relatedEntity StateManager will set the flag
                         if (relatedEntity == null)
                         {
-                            queryContext.StateManager.TryGetEntry(includingEntity).SetIsLoaded(navigation);
+                            queryContext.SetIsLoaded(includingEntity, navigation);
                         }
                     }
                     else
@@ -231,7 +231,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 {
                     if (trackingQuery)
                     {
-                        queryContext.StateManager.TryGetEntry(entity).SetIsLoaded(navigation);
+                        queryContext.SetIsLoaded(entity, navigation);
                     }
                     else
                     {

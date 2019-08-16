@@ -71,9 +71,9 @@
       <Uri>https://github.com/dotnet/arcade</Uri>
       <Sha>a11024c8c22cc762011addafc30c653c938048f4</Sha>
     </Dependency>
-    <Dependency Name="Microsoft.Net.Compilers.Toolset" Version="3.3.0-beta3-19407-05" CoherentParentDependency="Microsoft.Extensions.Logging">
+    <Dependency Name="Microsoft.Net.Compilers.Toolset" Version="3.3.0-beta3-19415-01" CoherentParentDependency="Microsoft.Extensions.Logging">
       <Uri>https://github.com/dotnet/roslyn</Uri>
-      <Sha>a4f6432caf9b65787d565de33c47aed115bcd90f</Sha>
+      <Sha>f5ba9f2c61a2fe853dc4913888d40df221539147</Sha>
     </Dependency>
   </ToolsetDependencies>
 </Dependencies>

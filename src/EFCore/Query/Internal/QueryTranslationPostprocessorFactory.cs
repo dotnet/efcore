@@ -1,10 +1,9 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
+namespace Microsoft.EntityFrameworkCore.Query.Internal
 {
     /// <summary>
     ///     <para>
@@ -19,18 +18,18 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
     ///         This service cannot depend on services registered as <see cref="ServiceLifetime.Scoped" />.
     ///     </para>
     /// </summary>
-    public class InMemoryShapedQueryOptimizerFactory : IShapedQueryOptimizerFactory
+    public class QueryTranslationPostprocessorFactory : IQueryTranslationPostprocessorFactory
     {
-        private readonly ShapedQueryOptimizerDependencies _dependencies;
+        private readonly QueryTranslationPostprocessorDependencies _dependencies;
 
-        public InMemoryShapedQueryOptimizerFactory(ShapedQueryOptimizerDependencies dependencies)
+        public QueryTranslationPostprocessorFactory(QueryTranslationPostprocessorDependencies dependencies)
         {
             _dependencies = dependencies;
         }
 
-        public virtual ShapedQueryOptimizer Create(QueryCompilationContext queryCompilationContext)
+        public virtual QueryTranslationPostprocessor Create(QueryCompilationContext queryCompilationContext)
         {
-            return new InMemoryShapedQueryOptimizer(_dependencies);
+            return new QueryTranslationPostprocessor(_dependencies);
         }
     }
 }

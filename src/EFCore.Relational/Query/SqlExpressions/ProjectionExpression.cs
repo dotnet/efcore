@@ -6,7 +6,7 @@ using System.Linq.Expressions;
 
 namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 {
-    public class ProjectionExpression : Expression, IPrintable
+    public class ProjectionExpression : Expression, IPrintableExpression
     {
         public ProjectionExpression(SqlExpression expression, string alias)
         {

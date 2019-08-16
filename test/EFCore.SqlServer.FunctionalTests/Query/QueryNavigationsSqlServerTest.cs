@@ -412,20 +412,16 @@ WHERE (([c].[City] = N'Seattle') AND [c].[City] IS NOT NULL) AND (([c].[Phone] <
             await base.Select_Where_Navigation_Scalar_Equals_Navigation_Scalar(isAsync);
 
             AssertSql(
-                @"SELECT [t].[OrderID], [t].[CustomerID], [t].[EmployeeID], [t].[OrderDate], [t0].[OrderID], [t0].[CustomerID], [t0].[EmployeeID], [t0].[OrderDate]
-FROM (
-    SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
-    FROM [Orders] AS [o]
-    WHERE [o].[OrderID] < 10300
-) AS [t]
+                @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate], [t].[OrderID], [t].[CustomerID], [t].[EmployeeID], [t].[OrderDate]
+FROM [Orders] AS [o]
 CROSS JOIN (
     SELECT [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate]
     FROM [Orders] AS [o0]
     WHERE [o0].[OrderID] < 10400
-) AS [t0]
-LEFT JOIN [Customers] AS [c] ON [t].[CustomerID] = [c].[CustomerID]
-LEFT JOIN [Customers] AS [c0] ON [t0].[CustomerID] = [c0].[CustomerID]
-WHERE (([c].[City] = [c0].[City]) AND ([c].[City] IS NOT NULL AND [c0].[City] IS NOT NULL)) OR ([c].[City] IS NULL AND [c0].[City] IS NULL)");
+) AS [t]
+LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]
+LEFT JOIN [Customers] AS [c0] ON [t].[CustomerID] = [c0].[CustomerID]
+WHERE ([o].[OrderID] < 10300) AND ((([c].[City] = [c0].[City]) AND ([c].[City] IS NOT NULL AND [c0].[City] IS NOT NULL)) OR ([c].[City] IS NULL AND [c0].[City] IS NULL))");
         }
 
         public override async Task Select_Where_Navigation_Scalar_Equals_Navigation_Scalar_Projected(bool isAsync)
@@ -433,20 +429,16 @@ WHERE (([c].[City] = [c0].[City]) AND ([c].[City] IS NOT NULL AND [c0].[City] IS
             await base.Select_Where_Navigation_Scalar_Equals_Navigation_Scalar_Projected(isAsync);
 
             AssertSql(
-                @"SELECT [t].[CustomerID], [t0].[CustomerID] AS [C2]
-FROM (
-    SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
-    FROM [Orders] AS [o]
-    WHERE [o].[OrderID] < 10300
-) AS [t]
+                @"SELECT [o].[CustomerID], [t].[CustomerID] AS [C2]
+FROM [Orders] AS [o]
 CROSS JOIN (
     SELECT [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate]
     FROM [Orders] AS [o0]
     WHERE [o0].[OrderID] < 10400
-) AS [t0]
-LEFT JOIN [Customers] AS [c] ON [t].[CustomerID] = [c].[CustomerID]
-LEFT JOIN [Customers] AS [c0] ON [t0].[CustomerID] = [c0].[CustomerID]
-WHERE (([c].[City] = [c0].[City]) AND ([c].[City] IS NOT NULL AND [c0].[City] IS NOT NULL)) OR ([c].[City] IS NULL AND [c0].[City] IS NULL)");
+) AS [t]
+LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]
+LEFT JOIN [Customers] AS [c0] ON [t].[CustomerID] = [c0].[CustomerID]
+WHERE ([o].[OrderID] < 10300) AND ((([c].[City] = [c0].[City]) AND ([c].[City] IS NOT NULL AND [c0].[City] IS NOT NULL)) OR ([c].[City] IS NULL AND [c0].[City] IS NULL))");
         }
 
         public override async Task Select_Where_Navigation_Equals_Navigation(bool isAsync)

@@ -7,7 +7,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 {
     /// <summary>
     ///     <para>
-    ///         A factory for creating <see cref="RelationalQueryOptimizer"/> instances.
+    ///         A factory for creating <see cref="RelationalQueryTranslationPreprocessor"/> instances.
     ///     </para>
     ///     <para>
     ///         The service lifetime is <see cref="ServiceLifetime.Singleton"/>. This means a single instance
@@ -15,20 +15,20 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
     ///         This service cannot depend on services registered as <see cref="ServiceLifetime.Scoped"/>.
     ///     </para>
     /// </summary>
-    public class RelationalQueryOptimizerFactory : IQueryOptimizerFactory
+    public class RelationalQueryTranslationPreprocessorFactory : IQueryTranslationPreprocessorFactory
     {
-        private readonly QueryOptimizerDependencies _dependencies;
-        private readonly RelationalQueryOptimizerDependencies _relationalDependencies;
+        private readonly QueryTranslationPreprocessorDependencies _dependencies;
+        private readonly RelationalQueryTranslationPreprocessorDependencies _relationalDependencies;
 
-        public RelationalQueryOptimizerFactory(
-            QueryOptimizerDependencies dependencies,
-            RelationalQueryOptimizerDependencies relationalDependencies)
+        public RelationalQueryTranslationPreprocessorFactory(
+            QueryTranslationPreprocessorDependencies dependencies,
+            RelationalQueryTranslationPreprocessorDependencies relationalDependencies)
         {
             _dependencies = dependencies;
             _relationalDependencies = relationalDependencies;
         }
 
-        public virtual QueryOptimizer Create(QueryCompilationContext queryCompilationContext)
-             => new RelationalQueryOptimizer(_dependencies, _relationalDependencies, queryCompilationContext);
+        public virtual QueryTranslationPreprocessor Create(QueryCompilationContext queryCompilationContext)
+             => new RelationalQueryTranslationPreprocessor(_dependencies, _relationalDependencies, queryCompilationContext);
     }
 }

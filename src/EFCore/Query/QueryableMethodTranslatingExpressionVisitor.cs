@@ -43,40 +43,40 @@ namespace Microsoft.EntityFrameworkCore.Query
                     switch (method.Name)
                     {
                         case nameof(Queryable.All)
-                        when genericMethod == QueryableMethodProvider.AllMethodInfo:
+                        when genericMethod == QueryableMethods.All:
                             shapedQueryExpression.ResultCardinality = ResultCardinality.Single;
                             return TranslateAll(shapedQueryExpression, GetLambdaExpressionFromArgument(1));
 
                         case nameof(Queryable.Any)
-                        when genericMethod == QueryableMethodProvider.AnyWithoutPredicateMethodInfo:
+                        when genericMethod == QueryableMethods.AnyWithoutPredicate:
                             shapedQueryExpression.ResultCardinality = ResultCardinality.Single;
                             return TranslateAny(shapedQueryExpression, null);
 
                         case nameof(Queryable.Any)
-                        when genericMethod == QueryableMethodProvider.AnyWithPredicateMethodInfo:
+                        when genericMethod == QueryableMethods.AnyWithPredicate:
                             shapedQueryExpression.ResultCardinality = ResultCardinality.Single;
                             return TranslateAny(shapedQueryExpression, GetLambdaExpressionFromArgument(1));
 
                         case nameof(Queryable.AsQueryable)
-                        when genericMethod == QueryableMethodProvider.AsQueryableMethodInfo:
+                        when genericMethod == QueryableMethods.AsQueryable:
                             return source;
 
                         case nameof(Queryable.Average)
-                        when QueryableMethodProvider.IsAverageWithoutSelectorMethodInfo(method):
+                        when QueryableMethods.IsAverageWithoutSelector(method):
                             shapedQueryExpression.ResultCardinality = ResultCardinality.Single;
                             return TranslateAverage(shapedQueryExpression, null, methodCallExpression.Type);
 
                         case nameof(Queryable.Average)
-                        when QueryableMethodProvider.IsAverageWithSelectorMethodInfo(method):
+                        when QueryableMethods.IsAverageWithSelector(method):
                             shapedQueryExpression.ResultCardinality = ResultCardinality.Single;
                             return TranslateAverage(shapedQueryExpression, GetLambdaExpressionFromArgument(1), methodCallExpression.Type);
 
                         case nameof(Queryable.Cast)
-                        when genericMethod == QueryableMethodProvider.CastMethodInfo:
+                        when genericMethod == QueryableMethods.Cast:
                             return TranslateCast(shapedQueryExpression, method.GetGenericArguments()[0]);
 
                         case nameof(Queryable.Concat)
-                        when genericMethod == QueryableMethodProvider.ConcatMethodInfo:
+                        when genericMethod == QueryableMethods.Concat:
                         {
                             var source2 = Visit(methodCallExpression.Arguments[1]);
                             if (source2 is ShapedQueryExpression innerShapedQueryExpression)
@@ -89,44 +89,44 @@ namespace Microsoft.EntityFrameworkCore.Query
                         }
 
                         case nameof(Queryable.Contains)
-                        when genericMethod == QueryableMethodProvider.ContainsMethodInfo:
+                        when genericMethod == QueryableMethods.Contains:
                             shapedQueryExpression.ResultCardinality = ResultCardinality.Single;
                             return TranslateContains(shapedQueryExpression, methodCallExpression.Arguments[1]);
 
                         case nameof(Queryable.Count)
-                        when genericMethod == QueryableMethodProvider.CountWithoutPredicateMethodInfo:
+                        when genericMethod == QueryableMethods.CountWithoutPredicate:
                             shapedQueryExpression.ResultCardinality = ResultCardinality.Single;
                             return TranslateCount(shapedQueryExpression, null);
 
                         case nameof(Queryable.Count)
-                        when genericMethod == QueryableMethodProvider.CountWithPredicateMethodInfo:
+                        when genericMethod == QueryableMethods.CountWithPredicate:
                             shapedQueryExpression.ResultCardinality = ResultCardinality.Single;
                             return TranslateCount(shapedQueryExpression, GetLambdaExpressionFromArgument(1));
 
                         case nameof(Queryable.DefaultIfEmpty)
-                        when genericMethod == QueryableMethodProvider.DefaultIfEmptyWithoutArgumentMethodInfo:
+                        when genericMethod == QueryableMethods.DefaultIfEmptyWithoutArgument:
                             return TranslateDefaultIfEmpty(shapedQueryExpression, null);
 
                         case nameof(Queryable.DefaultIfEmpty)
-                        when genericMethod == QueryableMethodProvider.DefaultIfEmptyWithArgumentMethodInfo:
+                        when genericMethod == QueryableMethods.DefaultIfEmptyWithArgument:
                             return TranslateDefaultIfEmpty(shapedQueryExpression, methodCallExpression.Arguments[1]);
 
                         case nameof(Queryable.Distinct)
-                        when genericMethod == QueryableMethodProvider.DistinctMethodInfo:
+                        when genericMethod == QueryableMethods.Distinct:
                             return TranslateDistinct(shapedQueryExpression);
 
                         case nameof(Queryable.ElementAt)
-                        when genericMethod == QueryableMethodProvider.ElementAtMethodInfo:
+                        when genericMethod == QueryableMethods.ElementAt:
                             shapedQueryExpression.ResultCardinality = ResultCardinality.Single;
                             return TranslateElementAtOrDefault(shapedQueryExpression, methodCallExpression.Arguments[1], false);
 
                         case nameof(Queryable.ElementAtOrDefault)
-                        when genericMethod == QueryableMethodProvider.ElementAtOrDefaultMethodInfo:
+                        when genericMethod == QueryableMethods.ElementAtOrDefault:
                             shapedQueryExpression.ResultCardinality = ResultCardinality.SingleOrDefault;
                             return TranslateElementAtOrDefault(shapedQueryExpression, methodCallExpression.Arguments[1], true);
 
                         case nameof(Queryable.Except)
-                        when genericMethod == QueryableMethodProvider.ExceptMethodInfo:
+                        when genericMethod == QueryableMethods.Except:
                         {
                             var source2 = Visit(methodCallExpression.Arguments[1]);
                             if (source2 is ShapedQueryExpression innerShapedQueryExpression)
@@ -139,43 +139,43 @@ namespace Microsoft.EntityFrameworkCore.Query
                         }
 
                         case nameof(Queryable.First)
-                        when genericMethod == QueryableMethodProvider.FirstWithoutPredicateMethodInfo:
+                        when genericMethod == QueryableMethods.FirstWithoutPredicate:
                             shapedQueryExpression.ResultCardinality = ResultCardinality.Single;
                             return TranslateFirstOrDefault(shapedQueryExpression, null, methodCallExpression.Type, false);
 
                         case nameof(Queryable.First)
-                        when genericMethod == QueryableMethodProvider.FirstWithPredicateMethodInfo:
+                        when genericMethod == QueryableMethods.FirstWithPredicate:
                             shapedQueryExpression.ResultCardinality = ResultCardinality.Single;
                             return TranslateFirstOrDefault(shapedQueryExpression, GetLambdaExpressionFromArgument(1), methodCallExpression.Type, false);
 
                         case nameof(Queryable.FirstOrDefault)
-                        when genericMethod == QueryableMethodProvider.FirstOrDefaultWithoutPredicateMethodInfo:
+                        when genericMethod == QueryableMethods.FirstOrDefaultWithoutPredicate:
                             shapedQueryExpression.ResultCardinality = ResultCardinality.SingleOrDefault;
                             return TranslateFirstOrDefault(shapedQueryExpression, null, methodCallExpression.Type, true);
 
                         case nameof(Queryable.FirstOrDefault)
-                        when genericMethod == QueryableMethodProvider.FirstOrDefaultWithPredicateMethodInfo:
+                        when genericMethod == QueryableMethods.FirstOrDefaultWithPredicate:
                             shapedQueryExpression.ResultCardinality = ResultCardinality.SingleOrDefault;
                             return TranslateFirstOrDefault(shapedQueryExpression, GetLambdaExpressionFromArgument(1), methodCallExpression.Type, true);
 
                         case nameof(Queryable.GroupBy)
-                        when genericMethod == QueryableMethodProvider.GroupByWithKeySelectorMethodInfo:
+                        when genericMethod == QueryableMethods.GroupByWithKeySelector:
                             return TranslateGroupBy(shapedQueryExpression, GetLambdaExpressionFromArgument(1), null, null);
 
                         case nameof(Queryable.GroupBy)
-                        when genericMethod == QueryableMethodProvider.GroupByWithKeyElementSelectorMethodInfo:
+                        when genericMethod == QueryableMethods.GroupByWithKeyElementSelector:
                             return TranslateGroupBy(shapedQueryExpression, GetLambdaExpressionFromArgument(1), GetLambdaExpressionFromArgument(2), null);
 
                         case nameof(Queryable.GroupBy)
-                        when genericMethod == QueryableMethodProvider.GroupByWithKeyElementResultSelectorMethodInfo:
+                        when genericMethod == QueryableMethods.GroupByWithKeyElementResultSelector:
                             return TranslateGroupBy(shapedQueryExpression, GetLambdaExpressionFromArgument(1), GetLambdaExpressionFromArgument(2), GetLambdaExpressionFromArgument(3));
 
                         case nameof(Queryable.GroupBy)
-                        when genericMethod == QueryableMethodProvider.GroupByWithKeyResultSelectorMethodInfo:
+                        when genericMethod == QueryableMethods.GroupByWithKeyResultSelector:
                             return TranslateGroupBy(shapedQueryExpression, GetLambdaExpressionFromArgument(1), null, GetLambdaExpressionFromArgument(2));
 
                         case nameof(Queryable.GroupJoin)
-                        when genericMethod == QueryableMethodProvider.GroupJoinMethodInfo:
+                        when genericMethod == QueryableMethods.GroupJoin:
                         {
                             if (Visit(methodCallExpression.Arguments[1]) is ShapedQueryExpression innerShapedQueryExpression)
                             {
@@ -185,7 +185,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                         }
 
                         case nameof(Queryable.Intersect)
-                        when genericMethod == QueryableMethodProvider.IntersectMethodInfo:
+                        when genericMethod == QueryableMethods.Intersect:
                         {
                             if (Visit(methodCallExpression.Arguments[1]) is ShapedQueryExpression innerShapedQueryExpression)
                             {
@@ -197,7 +197,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                         }
 
                         case nameof(Queryable.Join)
-                        when genericMethod == QueryableMethodProvider.JoinMethodInfo:
+                        when genericMethod == QueryableMethods.Join:
                         {
                             if (Visit(methodCallExpression.Arguments[1]) is ShapedQueryExpression innerShapedQueryExpression)
                             {
@@ -217,139 +217,139 @@ namespace Microsoft.EntityFrameworkCore.Query
                         }
 
                         case nameof(Queryable.Last)
-                        when genericMethod == QueryableMethodProvider.LastWithoutPredicateMethodInfo:
+                        when genericMethod == QueryableMethods.LastWithoutPredicate:
                             shapedQueryExpression.ResultCardinality = ResultCardinality.Single;
                             return TranslateLastOrDefault(shapedQueryExpression, null, methodCallExpression.Type, false);
 
                         case nameof(Queryable.Last)
-                        when genericMethod == QueryableMethodProvider.LastWithPredicateMethodInfo:
+                        when genericMethod == QueryableMethods.LastWithPredicate:
                             shapedQueryExpression.ResultCardinality = ResultCardinality.Single;
                             return TranslateLastOrDefault(shapedQueryExpression, GetLambdaExpressionFromArgument(1), methodCallExpression.Type, false);
 
                         case nameof(Queryable.LastOrDefault)
-                        when genericMethod == QueryableMethodProvider.LastOrDefaultWithoutPredicateMethodInfo:
+                        when genericMethod == QueryableMethods.LastOrDefaultWithoutPredicate:
                             shapedQueryExpression.ResultCardinality = ResultCardinality.SingleOrDefault;
                             return TranslateLastOrDefault(shapedQueryExpression, null, methodCallExpression.Type, true);
 
                         case nameof(Queryable.LastOrDefault)
-                        when genericMethod == QueryableMethodProvider.LastOrDefaultWithPredicateMethodInfo:
+                        when genericMethod == QueryableMethods.LastOrDefaultWithPredicate:
                             shapedQueryExpression.ResultCardinality = ResultCardinality.SingleOrDefault;
                             return TranslateLastOrDefault(shapedQueryExpression, GetLambdaExpressionFromArgument(1), methodCallExpression.Type, true);
 
                         case nameof(Queryable.LongCount)
-                        when genericMethod == QueryableMethodProvider.LongCountWithoutPredicateMethodInfo:
+                        when genericMethod == QueryableMethods.LongCountWithoutPredicate:
                             shapedQueryExpression.ResultCardinality = ResultCardinality.Single;
                             return TranslateLongCount(shapedQueryExpression, null);
 
                         case nameof(Queryable.LongCount)
-                        when genericMethod == QueryableMethodProvider.LongCountWithPredicateMethodInfo:
+                        when genericMethod == QueryableMethods.LongCountWithPredicate:
                             shapedQueryExpression.ResultCardinality = ResultCardinality.Single;
                             return TranslateLongCount(shapedQueryExpression, GetLambdaExpressionFromArgument(1));
 
                         case nameof(Queryable.Max)
-                        when genericMethod == QueryableMethodProvider.MaxWithoutSelectorMethodInfo:
+                        when genericMethod == QueryableMethods.MaxWithoutSelector:
                             shapedQueryExpression.ResultCardinality = ResultCardinality.Single;
                             return TranslateMax(shapedQueryExpression, null, methodCallExpression.Type);
 
                         case nameof(Queryable.Max)
-                        when genericMethod == QueryableMethodProvider.MaxWithSelectorMethodInfo:
+                        when genericMethod == QueryableMethods.MaxWithSelector:
                             shapedQueryExpression.ResultCardinality = ResultCardinality.Single;
                             return TranslateMax(shapedQueryExpression, GetLambdaExpressionFromArgument(1), methodCallExpression.Type);
 
                         case nameof(Queryable.Min)
-                        when genericMethod == QueryableMethodProvider.MinWithoutSelectorMethodInfo:
+                        when genericMethod == QueryableMethods.MinWithoutSelector:
                             shapedQueryExpression.ResultCardinality = ResultCardinality.Single;
                             return TranslateMin(shapedQueryExpression, null, methodCallExpression.Type);
 
                         case nameof(Queryable.Min)
-                        when genericMethod == QueryableMethodProvider.MinWithSelectorMethodInfo:
+                        when genericMethod == QueryableMethods.MinWithSelector:
                             shapedQueryExpression.ResultCardinality = ResultCardinality.Single;
                             return TranslateMin(shapedQueryExpression, GetLambdaExpressionFromArgument(1), methodCallExpression.Type);
 
                         case nameof(Queryable.OfType)
-                        when genericMethod == QueryableMethodProvider.OfTypeMethodInfo:
+                        when genericMethod == QueryableMethods.OfType:
                             return TranslateOfType(shapedQueryExpression, method.GetGenericArguments()[0]);
 
                         case nameof(Queryable.OrderBy)
-                        when genericMethod == QueryableMethodProvider.OrderByMethodInfo:
+                        when genericMethod == QueryableMethods.OrderBy:
                             return TranslateOrderBy(shapedQueryExpression, GetLambdaExpressionFromArgument(1), true);
 
                         case nameof(Queryable.OrderByDescending)
-                        when genericMethod == QueryableMethodProvider.OrderByDescendingMethodInfo:
+                        when genericMethod == QueryableMethods.OrderByDescending:
                             return TranslateOrderBy(shapedQueryExpression, GetLambdaExpressionFromArgument(1), false);
 
                         case nameof(Queryable.Reverse)
-                        when genericMethod == QueryableMethodProvider.ReverseMethodInfo:
+                        when genericMethod == QueryableMethods.Reverse:
                             return TranslateReverse(shapedQueryExpression);
 
                         case nameof(Queryable.Select)
-                        when genericMethod == QueryableMethodProvider.SelectMethodInfo:
+                        when genericMethod == QueryableMethods.Select:
                             return TranslateSelect(shapedQueryExpression, GetLambdaExpressionFromArgument(1));
 
                         case nameof(Queryable.SelectMany)
-                        when genericMethod == QueryableMethodProvider.SelectManyWithoutCollectionSelectorMethodInfo:
+                        when genericMethod == QueryableMethods.SelectManyWithoutCollectionSelector:
                             return TranslateSelectMany(shapedQueryExpression, GetLambdaExpressionFromArgument(1));
 
                         case nameof(Queryable.SelectMany)
-                        when genericMethod == QueryableMethodProvider.SelectManyWithCollectionSelectorMethodInfo:
+                        when genericMethod == QueryableMethods.SelectManyWithCollectionSelector:
                             return TranslateSelectMany(shapedQueryExpression, GetLambdaExpressionFromArgument(1), GetLambdaExpressionFromArgument(2));
 
                         case nameof(Queryable.Single)
-                        when genericMethod == QueryableMethodProvider.SingleWithoutPredicateMethodInfo:
+                        when genericMethod == QueryableMethods.SingleWithoutPredicate:
                             shapedQueryExpression.ResultCardinality = ResultCardinality.Single;
                             return TranslateSingleOrDefault(shapedQueryExpression, null, methodCallExpression.Type, false);
 
                         case nameof(Queryable.Single)
-                        when genericMethod == QueryableMethodProvider.SingleWithPredicateMethodInfo:
+                        when genericMethod == QueryableMethods.SingleWithPredicate:
                             shapedQueryExpression.ResultCardinality = ResultCardinality.Single;
                             return TranslateSingleOrDefault(shapedQueryExpression, GetLambdaExpressionFromArgument(1), methodCallExpression.Type, false);
 
                         case nameof(Queryable.SingleOrDefault)
-                        when genericMethod == QueryableMethodProvider.SingleOrDefaultWithoutPredicateMethodInfo:
+                        when genericMethod == QueryableMethods.SingleOrDefaultWithoutPredicate:
                             shapedQueryExpression.ResultCardinality = ResultCardinality.SingleOrDefault;
                             return TranslateSingleOrDefault(shapedQueryExpression, null, methodCallExpression.Type, true);
 
                         case nameof(Queryable.SingleOrDefault)
-                        when genericMethod == QueryableMethodProvider.SingleOrDefaultWithPredicateMethodInfo:
+                        when genericMethod == QueryableMethods.SingleOrDefaultWithPredicate:
                             shapedQueryExpression.ResultCardinality = ResultCardinality.SingleOrDefault;
                             return TranslateSingleOrDefault(shapedQueryExpression, GetLambdaExpressionFromArgument(1), methodCallExpression.Type, true);
 
                         case nameof(Queryable.Skip)
-                        when genericMethod == QueryableMethodProvider.SkipMethodInfo:
+                        when genericMethod == QueryableMethods.Skip:
                             return TranslateSkip(shapedQueryExpression, methodCallExpression.Arguments[1]);
 
                         case nameof(Queryable.SkipWhile)
-                        when genericMethod == QueryableMethodProvider.SkipWhileMethodInfo:
+                        when genericMethod == QueryableMethods.SkipWhile:
                             return TranslateSkipWhile(shapedQueryExpression, GetLambdaExpressionFromArgument(1));
 
                         case nameof(Queryable.Sum)
-                        when QueryableMethodProvider.IsSumWithoutSelectorMethodInfo(method):
+                        when QueryableMethods.IsSumWithoutSelector(method):
                             shapedQueryExpression.ResultCardinality = ResultCardinality.Single;
                             return TranslateSum(shapedQueryExpression, null, methodCallExpression.Type);
 
                         case nameof(Queryable.Sum)
-                        when QueryableMethodProvider.IsSumWithSelectorMethodInfo(method):
+                        when QueryableMethods.IsSumWithSelector(method):
                             shapedQueryExpression.ResultCardinality = ResultCardinality.Single;
                             return TranslateSum(shapedQueryExpression, GetLambdaExpressionFromArgument(1), methodCallExpression.Type);
 
                         case nameof(Queryable.Take)
-                        when genericMethod == QueryableMethodProvider.TakeMethodInfo:
+                        when genericMethod == QueryableMethods.Take:
                             return TranslateTake(shapedQueryExpression, methodCallExpression.Arguments[1]);
 
                         case nameof(Queryable.TakeWhile)
-                        when genericMethod == QueryableMethodProvider.TakeWhileMethodInfo:
+                        when genericMethod == QueryableMethods.TakeWhile:
                             return TranslateTakeWhile(shapedQueryExpression, GetLambdaExpressionFromArgument(1));
 
                         case nameof(Queryable.ThenBy)
-                        when genericMethod == QueryableMethodProvider.ThenByMethodInfo:
+                        when genericMethod == QueryableMethods.ThenBy:
                             return TranslateThenBy(shapedQueryExpression, GetLambdaExpressionFromArgument(1), true);
 
                         case nameof(Queryable.ThenByDescending)
-                        when genericMethod == QueryableMethodProvider.ThenByDescendingMethodInfo:
+                        when genericMethod == QueryableMethods.ThenByDescending:
                             return TranslateThenBy(shapedQueryExpression, GetLambdaExpressionFromArgument(1), false);
 
                         case nameof(Queryable.Union)
-                        when genericMethod == QueryableMethodProvider.UnionMethodInfo:
+                        when genericMethod == QueryableMethods.Union:
                         {
                             if (Visit(methodCallExpression.Arguments[1]) is ShapedQueryExpression innerShapedQueryExpression)
                             {
@@ -359,7 +359,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                         }
 
                         case nameof(Queryable.Where)
-                        when genericMethod == QueryableMethodProvider.WhereMethodInfo:
+                        when genericMethod == QueryableMethods.Where:
                             return TranslateWhere(shapedQueryExpression, GetLambdaExpressionFromArgument(1));
 
                         LambdaExpression GetLambdaExpressionFromArgument(int argumentIndex) => methodCallExpression.Arguments[argumentIndex].UnwrapLambdaFromQuote();
@@ -412,19 +412,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                 transparentIdentifierParameter);
 
             return TranslateSelect(outer, newResultSelector);
-        }
-
-        protected virtual ShapedQueryExpression TranslateResultSelectorForGroupJoin(
-#pragma warning disable IDE0060 // Remove unused parameter
-            ShapedQueryExpression outer,
-            Expression innerShaper,
-            LambdaExpression outerKeySelector,
-            LambdaExpression innerKeySelector,
-            LambdaExpression resultSelector,
-            Type transparentIdentifierType)
-#pragma warning restore IDE0060 // Remove unused parameter
-        {
-            throw new NotImplementedException();
         }
 
         private Expression CombineShapers(

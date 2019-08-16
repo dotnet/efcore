@@ -1067,6 +1067,19 @@ FROM (
         public override Task KeylessEntity_where_simple(bool isAsync)
             => base.KeylessEntity_where_simple(isAsync);
 
+        // Sqlite does not support lateral joins
+        public override void Select_nested_collection_multi_level()
+        {
+        }
+
+        public override Task SelectMany_correlated_with_outer_1(bool isAsync) => null;
+
+        public override Task SelectMany_correlated_with_outer_2(bool isAsync) => null;
+
+        public override Task SelectMany_correlated_with_outer_3(bool isAsync) => null;
+
+        public override Task SelectMany_correlated_with_outer_4(bool isAsync) => null;
+
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
     }

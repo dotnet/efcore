@@ -239,43 +239,43 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             {
                 // These are methods that require special handling
                 case nameof(Queryable.Contains)
-                when genericMethod == QueryableMethodProvider.ContainsMethodInfo:
+                when genericMethod == QueryableMethods.Contains:
                     return VisitContainsMethodCall(methodCallExpression);
 
                 case nameof(Queryable.OrderBy)
-                when genericMethod == QueryableMethodProvider.OrderByMethodInfo:
+                when genericMethod == QueryableMethods.OrderBy:
                 case nameof(Queryable.OrderByDescending)
-                when genericMethod == QueryableMethodProvider.OrderByDescendingMethodInfo:
+                when genericMethod == QueryableMethods.OrderByDescending:
                 case nameof(Queryable.ThenBy)
-                when genericMethod == QueryableMethodProvider.ThenByMethodInfo:
-                case nameof(Queryable.ThenByDescending) when genericMethod == QueryableMethodProvider.ThenByDescendingMethodInfo:
+                when genericMethod == QueryableMethods.ThenBy:
+                case nameof(Queryable.ThenByDescending) when genericMethod == QueryableMethods.ThenByDescending:
                     return VisitOrderingMethodCall(methodCallExpression);
 
                 // The following are projecting methods, which flow the entity type from *within* the lambda outside.
                 case nameof(Queryable.Select)
-                when genericMethod == QueryableMethodProvider.SelectMethodInfo:
+                when genericMethod == QueryableMethods.Select:
                 case nameof(Queryable.SelectMany)
-                when genericMethod == QueryableMethodProvider.SelectManyWithoutCollectionSelectorMethodInfo
-                     || genericMethod == QueryableMethodProvider.SelectManyWithCollectionSelectorMethodInfo:
+                when genericMethod == QueryableMethods.SelectManyWithoutCollectionSelector
+                     || genericMethod == QueryableMethods.SelectManyWithCollectionSelector:
                     return VisitSelectMethodCall(methodCallExpression);
 
                 case nameof(Queryable.GroupJoin)
-                when genericMethod == QueryableMethodProvider.GroupJoinMethodInfo:
+                when genericMethod == QueryableMethods.GroupJoin:
                 case nameof(Queryable.Join)
-                when genericMethod == QueryableMethodProvider.JoinMethodInfo:
+                when genericMethod == QueryableMethods.Join:
                 case nameof(QueryableExtensions.LeftJoin)
                 when genericMethod == QueryableExtensions.LeftJoinMethodInfo:
                     return VisitJoinMethodCall(methodCallExpression);
 
                 case nameof(Queryable.OfType)
-                when genericMethod == QueryableMethodProvider.OfTypeMethodInfo:
+                when genericMethod == QueryableMethods.OfType:
                     return VisitOfType(methodCallExpression);
 
                 case nameof(Queryable.GroupBy)
-                when genericMethod == QueryableMethodProvider.GroupByWithKeySelectorMethodInfo
-                     || genericMethod == QueryableMethodProvider.GroupByWithKeyElementSelectorMethodInfo
-                     || genericMethod == QueryableMethodProvider.GroupByWithKeyResultSelectorMethodInfo
-                     || genericMethod == QueryableMethodProvider.GroupByWithKeyElementResultSelectorMethodInfo:
+                when genericMethod == QueryableMethods.GroupByWithKeySelector
+                     || genericMethod == QueryableMethods.GroupByWithKeyElementSelector
+                     || genericMethod == QueryableMethods.GroupByWithKeyResultSelector
+                     || genericMethod == QueryableMethods.GroupByWithKeyElementResultSelector:
                     break;  // TODO: Implement
             }
 
@@ -425,7 +425,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 var param = Expression.Parameter(entityType.ClrType, "v");
                 var keySelector = Expression.Lambda(CreatePropertyAccessExpression(param, keyProperty), param);
                 rewrittenSource = Expression.Call(
-                    QueryableMethodProvider.SelectMethodInfo.MakeGenericMethod(entityType.ClrType, keyProperty.ClrType.MakeNullable()),
+                    QueryableMethods.Select.MakeGenericMethod(entityType.ClrType, keyProperty.ClrType.MakeNullable()),
                     Unwrap(newSource),
                     Expression.Quote(keySelector));
             }
@@ -437,7 +437,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             return Expression.Call(
                 (Unwrap(newSource).Type.IsQueryableType()
-                    ? QueryableMethodProvider.ContainsMethodInfo
+                    ? QueryableMethods.Contains
                     : _enumerableContainsMethodInfo).MakeGenericMethod(keyProperty.ClrType.MakeNullable()),
                 rewrittenSource,
                 rewrittenItem
@@ -469,11 +469,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             var genericMethodDefinition = methodCallExpression.Method.GetGenericMethodDefinition();
             var firstOrdering =
-                genericMethodDefinition == QueryableMethodProvider.OrderByMethodInfo
-                || genericMethodDefinition == QueryableMethodProvider.OrderByDescendingMethodInfo;
+                genericMethodDefinition == QueryableMethods.OrderBy
+                || genericMethodDefinition == QueryableMethods.OrderByDescending;
             var isAscending =
-                genericMethodDefinition == QueryableMethodProvider.OrderByMethodInfo
-                || genericMethodDefinition == QueryableMethodProvider.ThenByMethodInfo;
+                genericMethodDefinition == QueryableMethods.OrderBy
+                || genericMethodDefinition == QueryableMethods.ThenBy;
 
             var keyProperties = entityType.FindPrimaryKey()?.Properties;
             if (keyProperties == null)
@@ -513,12 +513,12 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 if (firstOrdering)
                 {
                     return ascending
-                        ? QueryableMethodProvider.OrderByMethodInfo
-                        : QueryableMethodProvider.OrderByDescendingMethodInfo;
+                        ? QueryableMethods.OrderBy
+                        : QueryableMethods.OrderByDescending;
                 }
                 return ascending
-                    ? QueryableMethodProvider.ThenByMethodInfo
-                    : QueryableMethodProvider.ThenByDescendingMethodInfo;
+                    ? QueryableMethods.ThenBy
+                    : QueryableMethods.ThenByDescending;
             }
         }
 
@@ -914,6 +914,13 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 return Expression.Constant(property.GetGetter().GetClrValue(constantExpression.Value), property.ClrType.MakeNullable());
             }
 
+            // The target is complex which can be evaluated to Constant.
+            if (CanEvaluate(target))
+            {
+                var value = Expression.Lambda<Func<object>>(Expression.Convert(target, typeof(object))).Compile().Invoke();
+                return Expression.Constant(property.GetGetter().GetClrValue(value), property.ClrType.MakeNullable());
+            }
+
             // If the target is a query parameter, we can't simply add a property access over it, but must instead cause a new
             // parameter to be added at runtime, with the value of the property on the base parameter.
             if (target is ParameterExpression baseParameterExpression
@@ -934,6 +941,26 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             }
 
             return target.CreateEFPropertyExpression(property, true);
+        }
+
+        private static bool CanEvaluate(Expression expression)
+        {
+            switch (expression)
+            {
+                case ConstantExpression constantExpression:
+                    return true;
+
+                case NewExpression newExpression:
+                    return newExpression.Arguments.All(e => CanEvaluate(e));
+
+                case MemberInitExpression memberInitExpression:
+                    return CanEvaluate(memberInitExpression.NewExpression)
+                        && memberInitExpression.Bindings.All(
+                            mb => mb is MemberAssignment memberAssignment && CanEvaluate(memberAssignment.Expression));
+
+                default:
+                    return false;
+            }
         }
 
         private static object ParameterValueExtractor(QueryContext context, string baseParameterName, IProperty property)
@@ -971,7 +998,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         protected static Expression UnwrapLastNavigation(Expression expression)
             => (expression as MemberExpression)?.Expression
                ?? (expression is MethodCallExpression methodCallExpression
-                   && methodCallExpression.IsEFProperty()
+                   && methodCallExpression.Method.IsEFPropertyMethod()
                    ? methodCallExpression.Arguments[0]
                    : null);
 

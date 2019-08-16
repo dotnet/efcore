@@ -1893,13 +1893,10 @@ ORDER BY [c].[CustomerID]");
             await base.Where_select_many(isAsync);
 
             AssertSql(
-                @"SELECT [t].[CustomerID], [t].[Address], [t].[City], [t].[CompanyName], [t].[ContactName], [t].[ContactTitle], [t].[Country], [t].[Fax], [t].[Phone], [t].[PostalCode], [t].[Region]
-FROM (
-    SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
-    FROM [Customers] AS [c]
-    WHERE [c].[CustomerID] = N'ALFKI'
-) AS [t]
-CROSS JOIN [Orders] AS [o]");
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+CROSS JOIN [Orders] AS [o]
+WHERE [c].[CustomerID] = N'ALFKI'");
         }
 
         public override async Task Where_orderby_select_many(bool isAsync)
@@ -1907,14 +1904,11 @@ CROSS JOIN [Orders] AS [o]");
             await base.Where_orderby_select_many(isAsync);
 
             AssertSql(
-                @"SELECT [t].[CustomerID], [t].[Address], [t].[City], [t].[CompanyName], [t].[ContactName], [t].[ContactTitle], [t].[Country], [t].[Fax], [t].[Phone], [t].[PostalCode], [t].[Region]
-FROM (
-    SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
-    FROM [Customers] AS [c]
-    WHERE [c].[CustomerID] = N'ALFKI'
-) AS [t]
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
 CROSS JOIN [Orders] AS [o]
-ORDER BY [t].[CustomerID]");
+WHERE [c].[CustomerID] = N'ALFKI'
+ORDER BY [c].[CustomerID]");
         }
 
         public override async Task SelectMany_cartesian_product_with_ordering(bool isAsync)
@@ -1956,10 +1950,11 @@ LEFT JOIN [Orders] AS [o] ON [c].[CustomerID] = [o].[CustomerID]");
             AssertSql(
                 @"SELECT [c].[ContactName], [t].[OrderID], [t].[CustomerID], [t].[EmployeeID], [t].[OrderDate]
 FROM [Customers] AS [c]
-INNER JOIN (
-    SELECT TOP(1000) [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+CROSS APPLY (
+    SELECT TOP(4) [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
     FROM [Orders] AS [o]
-) AS [t] ON [c].[CustomerID] = [t].[CustomerID]");
+    WHERE ([o].[CustomerID] = [c].[CustomerID]) AND [o].[CustomerID] IS NOT NULL
+) AS [t]");
         }
 
         public override async Task Take_with_single(bool isAsync)
@@ -3508,14 +3503,10 @@ CROSS JOIN (
             await base.DefaultIfEmpty_in_subquery_nested(isAsync);
 
             AssertSql(
-                @"SELECT [t].[CustomerID], [t1].[OrderID], [o0].[OrderDate]
-FROM (
-    SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
-    FROM [Customers] AS [c]
-    WHERE ([c].[City] = N'Seattle') AND [c].[City] IS NOT NULL
-) AS [t]
+                @"SELECT [c].[CustomerID], [t0].[OrderID], [o0].[OrderDate]
+FROM [Customers] AS [c]
 CROSS JOIN (
-    SELECT [t0].[OrderID], [t0].[CustomerID], [t0].[EmployeeID], [t0].[OrderDate], [t0].[OrderID] AS [OrderID0]
+    SELECT [t].[OrderID], [t].[CustomerID], [t].[EmployeeID], [t].[OrderDate], [t].[OrderID] AS [OrderID0]
     FROM (
         SELECT NULL AS [empty]
     ) AS [empty]
@@ -3523,11 +3514,11 @@ CROSS JOIN (
         SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
         FROM [Orders] AS [o]
         WHERE [o].[OrderID] > 15000
-    ) AS [t0] ON 1 = 1
-) AS [t1]
-LEFT JOIN [Orders] AS [o0] ON [t].[CustomerID] = [o0].[CustomerID]
-WHERE [t1].[OrderID] IS NOT NULL AND [o0].[OrderID] IS NOT NULL
-ORDER BY [t1].[OrderID], [o0].[OrderDate]");
+    ) AS [t] ON 1 = 1
+) AS [t0]
+LEFT JOIN [Orders] AS [o0] ON [c].[CustomerID] = [o0].[CustomerID]
+WHERE (([c].[City] = N'Seattle') AND [c].[City] IS NOT NULL) AND ([t0].[OrderID] IS NOT NULL AND [o0].[OrderID] IS NOT NULL)
+ORDER BY [t0].[OrderID], [o0].[OrderDate]");
         }
 
         [SqlServerCondition(SqlServerCondition.SupportsOffset)]

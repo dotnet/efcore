@@ -6,12 +6,12 @@ using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    public class RelationalShapedQueryOptimizerDependenciesTest
+    public class QueryTranslationPostprocessorDependenciesDependenciesTest
     {
         [ConditionalFact]
         public void Can_use_With_methods_to_clone_and_replace_service()
         {
-            RelationalTestHelpers.Instance.TestDependenciesClone<RelationalShapedQueryOptimizerDependencies>();
+            InMemoryTestHelpers.Instance.TestDependenciesClone<QueryTranslationPostprocessorDependencies>();
         }
     }
 }

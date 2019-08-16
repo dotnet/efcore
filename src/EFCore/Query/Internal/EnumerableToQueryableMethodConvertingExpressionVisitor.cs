@@ -25,8 +25,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 }
 
                 if (methodCallExpression.Arguments.Count > 0
-                    && (methodCallExpression.Arguments[0] is ParameterExpression
-                        || methodCallExpression.Arguments[0] is ConstantExpression))
+                    && ClientSource(methodCallExpression.Arguments[0]))
                 {
                     // this is methodCall over closure variable or constant
                     return base.VisitMethodCall(methodCallExpression);
@@ -103,7 +102,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                             if (arguments[i].Type.TryGetElementType(typeof(IQueryable<>)) == null)
                             {
                                 arguments[i] = Expression.Call(
-                                    QueryableMethodProvider.AsQueryableMethodInfo.MakeGenericMethod(
+                                    QueryableMethods.AsQueryable.MakeGenericMethod(
                                         arguments[i].Type.TryGetSequenceType()),
                                     arguments[i]);
                             }
@@ -137,8 +136,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 && methodCallExpression.Method.DeclaringType.GetGenericTypeDefinition() == typeof(List<>)
                 && string.Equals(nameof(List<int>.Contains), methodCallExpression.Method.Name))
             {
-                if (methodCallExpression.Object is ParameterExpression
-                    || methodCallExpression.Object is ConstantExpression)
+                if (ClientSource(methodCallExpression.Object))
                 {
                     // this is methodCall over closure variable or constant
                     return base.VisitMethodCall(methodCallExpression);
@@ -147,15 +145,21 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 var sourceType = methodCallExpression.Method.DeclaringType.GetGenericArguments()[0];
 
                 return Expression.Call(
-                    QueryableMethodProvider.ContainsMethodInfo.MakeGenericMethod(sourceType),
+                    QueryableMethods.Contains.MakeGenericMethod(sourceType),
                     Expression.Call(
-                        QueryableMethodProvider.AsQueryableMethodInfo.MakeGenericMethod(sourceType),
+                        QueryableMethods.AsQueryable.MakeGenericMethod(sourceType),
                         methodCallExpression.Object),
                     methodCallExpression.Arguments[0]);
             }
 
             return base.VisitMethodCall(methodCallExpression);
         }
+
+        private static bool ClientSource(Expression expression)
+            => expression is ConstantExpression
+                || expression is MemberInitExpression
+                || expression is NewExpression
+                || expression is ParameterExpression;
 
         private static bool CanConvertEnumerableToQueryable(Type enumerableType, Type queryableType)
         {

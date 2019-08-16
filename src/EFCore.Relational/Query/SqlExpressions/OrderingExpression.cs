@@ -6,7 +6,7 @@ using System.Linq.Expressions;
 
 namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 {
-    public class OrderingExpression : Expression, IPrintable
+    public class OrderingExpression : Expression, IPrintableExpression
     {
         public OrderingExpression(SqlExpression expression, bool ascending)
         {

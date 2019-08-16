@@ -67,7 +67,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             for (var i = 0; i < parameters.Length; i++)
             {
-                queryContext.Add(
+                queryContext.AddParameter(
                     CompiledQueryCache.CompiledQueryParameterPrefix + _queryExpression.Parameters[i + 1].Name,
                     parameters[i]);
             }

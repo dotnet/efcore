@@ -6,16 +6,16 @@ using Microsoft.EntityFrameworkCore.Query;
 
 namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
 {
-    public class InMemoryShapedQueryOptimizer : ShapedQueryOptimizer
+    public class InMemoryQueryTranslationPostprocessor : QueryTranslationPostprocessor
     {
-        public InMemoryShapedQueryOptimizer(ShapedQueryOptimizerDependencies dependencies)
+        public InMemoryQueryTranslationPostprocessor(QueryTranslationPostprocessorDependencies dependencies)
             : base(dependencies)
         {
         }
 
-        public override Expression Visit(Expression query)
+        public override Expression Process(Expression query)
         {
-            query = base.Visit(query);
+            query = base.Process(query);
 
             return query;
         }

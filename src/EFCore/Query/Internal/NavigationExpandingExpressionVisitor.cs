@@ -154,7 +154,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     }
 
                     var filteredResult = Expression.Call(
-                        QueryableMethodProvider.WhereMethodInfo.MakeGenericMethod(sequenceType),
+                        QueryableMethods.Where.MakeGenericMethod(sequenceType),
                         navigationExpansionExpression,
                         filterPredicate);
 
@@ -202,12 +202,12 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     && ownedNavigationReference.Navigation.IsCollection())
                 {
                     subquery = Expression.Call(
-                        QueryableMethodProvider.AsQueryableMethodInfo.MakeGenericMethod(elementType),
+                        QueryableMethods.AsQueryable.MakeGenericMethod(elementType),
                         subquery);
                 }
 
                 return Visit(Expression.Call(
-                    QueryableMethodProvider.CountWithoutPredicateMethodInfo.MakeGenericMethod(elementType),
+                    QueryableMethods.CountWithoutPredicate.MakeGenericMethod(elementType),
                     subquery));
             }
 
@@ -240,8 +240,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     var genericMethod = method.IsGenericMethod ? method.GetGenericMethodDefinition() : null;
 
                     if (source.PendingOrderings.Any()
-                        && genericMethod != QueryableMethodProvider.ThenByMethodInfo
-                        && genericMethod != QueryableMethodProvider.ThenByDescendingMethodInfo)
+                        && genericMethod != QueryableMethods.ThenBy
+                        && genericMethod != QueryableMethods.ThenByDescending)
                     {
                         ApplyPendingOrderings(source);
                     }
@@ -249,92 +249,92 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     switch (method.Name)
                     {
                         case nameof(Queryable.AsQueryable)
-                        when genericMethod == QueryableMethodProvider.AsQueryableMethodInfo:
+                        when genericMethod == QueryableMethods.AsQueryable:
                             return source;
 
                         case nameof(Queryable.Any)
-                        when genericMethod == QueryableMethodProvider.AnyWithoutPredicateMethodInfo:
+                        when genericMethod == QueryableMethods.AnyWithoutPredicate:
 
                         case nameof(Queryable.Count)
-                        when genericMethod == QueryableMethodProvider.CountWithoutPredicateMethodInfo:
+                        when genericMethod == QueryableMethods.CountWithoutPredicate:
 
                         case nameof(Queryable.LongCount)
-                        when genericMethod == QueryableMethodProvider.LongCountWithoutPredicateMethodInfo:
+                        when genericMethod == QueryableMethods.LongCountWithoutPredicate:
                             return ProcessAllAnyCountLongCount(
                                 source,
                                 genericMethod,
                                 predicate: null);
 
                         case nameof(Queryable.All)
-                        when genericMethod == QueryableMethodProvider.AllMethodInfo:
+                        when genericMethod == QueryableMethods.All:
                         case nameof(Queryable.Any)
-                        when genericMethod == QueryableMethodProvider.AnyWithPredicateMethodInfo:
+                        when genericMethod == QueryableMethods.AnyWithPredicate:
                         case nameof(Queryable.Count)
-                        when genericMethod == QueryableMethodProvider.CountWithPredicateMethodInfo:
+                        when genericMethod == QueryableMethods.CountWithPredicate:
                         case nameof(Queryable.LongCount)
-                        when genericMethod == QueryableMethodProvider.LongCountWithPredicateMethodInfo:
+                        when genericMethod == QueryableMethods.LongCountWithPredicate:
                             return ProcessAllAnyCountLongCount(
                                 source,
                                 genericMethod,
                                 methodCallExpression.Arguments[1].UnwrapLambdaFromQuote());
 
                         case nameof(Queryable.Average)
-                        when QueryableMethodProvider.IsAverageWithoutSelectorMethodInfo(method):
+                        when QueryableMethods.IsAverageWithoutSelector(method):
                         case nameof(Queryable.Sum)
-                        when QueryableMethodProvider.IsSumWithoutSelectorMethodInfo(method):
+                        when QueryableMethods.IsSumWithoutSelector(method):
                         case nameof(Queryable.Max)
-                        when genericMethod == QueryableMethodProvider.MaxWithoutSelectorMethodInfo:
+                        when genericMethod == QueryableMethods.MaxWithoutSelector:
                         case nameof(Queryable.Min)
-                        when genericMethod == QueryableMethodProvider.MinWithoutSelectorMethodInfo:
+                        when genericMethod == QueryableMethods.MinWithoutSelector:
                             return ProcessAverageMaxMinSum(
                                 source,
                                 genericMethod ?? method,
                                 null);
 
                         case nameof(Queryable.Average)
-                        when QueryableMethodProvider.IsAverageWithSelectorMethodInfo(method):
+                        when QueryableMethods.IsAverageWithSelector(method):
                         case nameof(Queryable.Sum)
-                        when QueryableMethodProvider.IsSumWithSelectorMethodInfo(method):
+                        when QueryableMethods.IsSumWithSelector(method):
                         case nameof(Queryable.Max)
-                        when genericMethod == QueryableMethodProvider.MaxWithSelectorMethodInfo:
+                        when genericMethod == QueryableMethods.MaxWithSelector:
                         case nameof(Queryable.Min)
-                        when genericMethod == QueryableMethodProvider.MinWithSelectorMethodInfo:
+                        when genericMethod == QueryableMethods.MinWithSelector:
                             return ProcessAverageMaxMinSum(
                                 source,
                                 genericMethod ?? method,
                                 methodCallExpression.Arguments[1].UnwrapLambdaFromQuote());
 
                         case nameof(Queryable.Distinct)
-                        when genericMethod == QueryableMethodProvider.DistinctMethodInfo:
+                        when genericMethod == QueryableMethods.Distinct:
                             return ProcessDistinctSkipTake(source, genericMethod, null);
 
                         case nameof(Queryable.Skip)
-                        when genericMethod == QueryableMethodProvider.SkipMethodInfo:
+                        when genericMethod == QueryableMethods.Skip:
                         case nameof(Queryable.Take)
-                        when genericMethod == QueryableMethodProvider.TakeMethodInfo:
+                        when genericMethod == QueryableMethods.Take:
                             return ProcessDistinctSkipTake(
                                 source,
                                 genericMethod,
                                 methodCallExpression.Arguments[1]);
 
                         case nameof(Queryable.Contains)
-                        when genericMethod == QueryableMethodProvider.ContainsMethodInfo:
+                        when genericMethod == QueryableMethods.Contains:
                             return ProcessContains(
                                 source,
                                 methodCallExpression.Arguments[1]);
 
                         case nameof(Queryable.First)
-                        when genericMethod == QueryableMethodProvider.FirstWithoutPredicateMethodInfo:
+                        when genericMethod == QueryableMethods.FirstWithoutPredicate:
                         case nameof(Queryable.FirstOrDefault)
-                        when genericMethod == QueryableMethodProvider.FirstOrDefaultWithoutPredicateMethodInfo:
+                        when genericMethod == QueryableMethods.FirstOrDefaultWithoutPredicate:
                         case nameof(Queryable.Single)
-                        when genericMethod == QueryableMethodProvider.SingleWithoutPredicateMethodInfo:
+                        when genericMethod == QueryableMethods.SingleWithoutPredicate:
                         case nameof(Queryable.SingleOrDefault)
-                        when genericMethod == QueryableMethodProvider.SingleOrDefaultWithoutPredicateMethodInfo:
+                        when genericMethod == QueryableMethods.SingleOrDefaultWithoutPredicate:
                         case nameof(Queryable.Last)
-                        when genericMethod == QueryableMethodProvider.LastWithoutPredicateMethodInfo:
+                        when genericMethod == QueryableMethods.LastWithoutPredicate:
                         case nameof(Queryable.LastOrDefault)
-                        when genericMethod == QueryableMethodProvider.LastOrDefaultWithoutPredicateMethodInfo:
+                        when genericMethod == QueryableMethods.LastOrDefaultWithoutPredicate:
                             return ProcessFirstSingleLastOrDefault(
                                 source,
                                 genericMethod,
@@ -342,17 +342,17 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                                 methodCallExpression.Type);
 
                         case nameof(Queryable.First)
-                        when genericMethod == QueryableMethodProvider.FirstWithPredicateMethodInfo:
+                        when genericMethod == QueryableMethods.FirstWithPredicate:
                         case nameof(Queryable.FirstOrDefault)
-                        when genericMethod == QueryableMethodProvider.FirstOrDefaultWithPredicateMethodInfo:
+                        when genericMethod == QueryableMethods.FirstOrDefaultWithPredicate:
                         case nameof(Queryable.Single)
-                        when genericMethod == QueryableMethodProvider.SingleWithPredicateMethodInfo:
+                        when genericMethod == QueryableMethods.SingleWithPredicate:
                         case nameof(Queryable.SingleOrDefault)
-                        when genericMethod == QueryableMethodProvider.SingleOrDefaultWithPredicateMethodInfo:
+                        when genericMethod == QueryableMethods.SingleOrDefaultWithPredicate:
                         case nameof(Queryable.Last)
-                        when genericMethod == QueryableMethodProvider.LastWithPredicateMethodInfo:
+                        when genericMethod == QueryableMethods.LastWithPredicate:
                         case nameof(Queryable.LastOrDefault)
-                        when genericMethod == QueryableMethodProvider.LastOrDefaultWithPredicateMethodInfo:
+                        when genericMethod == QueryableMethods.LastOrDefaultWithPredicate:
                             return ProcessFirstSingleLastOrDefault(
                                 source,
                                 genericMethod,
@@ -360,7 +360,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                                 methodCallExpression.Type);
 
                         case nameof(Queryable.Join)
-                        when genericMethod == QueryableMethodProvider.JoinMethodInfo:
+                        when genericMethod == QueryableMethods.Join:
                         {
                             var secondArgument = Visit(methodCallExpression.Arguments[1]);
                             if (secondArgument is NavigationExpansionExpression innerSource)
@@ -392,27 +392,27 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                         }
 
                         case nameof(Queryable.SelectMany)
-                        when genericMethod == QueryableMethodProvider.SelectManyWithoutCollectionSelectorMethodInfo:
+                        when genericMethod == QueryableMethods.SelectManyWithoutCollectionSelector:
                             return ProcessSelectMany(
                                 source,
                                 methodCallExpression.Arguments[1].UnwrapLambdaFromQuote(),
                                 null);
 
                         case nameof(Queryable.SelectMany)
-                        when genericMethod == QueryableMethodProvider.SelectManyWithCollectionSelectorMethodInfo:
+                        when genericMethod == QueryableMethods.SelectManyWithCollectionSelector:
                             return ProcessSelectMany(
                                 source,
                                 methodCallExpression.Arguments[1].UnwrapLambdaFromQuote(),
                                 methodCallExpression.Arguments[2].UnwrapLambdaFromQuote());
 
                         case nameof(Queryable.Concat)
-                        when genericMethod == QueryableMethodProvider.ConcatMethodInfo:
+                        when genericMethod == QueryableMethods.Concat:
                         case nameof(Queryable.Except)
-                        when genericMethod == QueryableMethodProvider.ExceptMethodInfo:
+                        when genericMethod == QueryableMethods.Except:
                         case nameof(Queryable.Intersect)
-                        when genericMethod == QueryableMethodProvider.IntersectMethodInfo:
+                        when genericMethod == QueryableMethods.Intersect:
                         case nameof(Queryable.Union)
-                        when genericMethod == QueryableMethodProvider.UnionMethodInfo:
+                        when genericMethod == QueryableMethods.Union:
                         {
                             var secondArgument = Visit(methodCallExpression.Arguments[1]);
                             if (secondArgument is NavigationExpansionExpression innerSource)
@@ -426,9 +426,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                         }
 
                         case nameof(Queryable.Cast)
-                        when genericMethod == QueryableMethodProvider.CastMethodInfo:
+                        when genericMethod == QueryableMethods.Cast:
                         case nameof(Queryable.OfType)
-                        when genericMethod == QueryableMethodProvider.OfTypeMethodInfo:
+                        when genericMethod == QueryableMethods.OfType:
                             return ProcessCastOfType(
                                 source,
                                 genericMethod,
@@ -443,7 +443,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                                   nameof(EntityFrameworkQueryableExtensions.ThenInclude)));
 
                         case nameof(Queryable.GroupBy)
-                        when genericMethod == QueryableMethodProvider.GroupByWithKeySelectorMethodInfo:
+                        when genericMethod == QueryableMethods.GroupByWithKeySelector:
                             return ProcessGroupBy(
                                 source,
                                 methodCallExpression.Arguments[1].UnwrapLambdaFromQuote(),
@@ -451,7 +451,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                                 null);
 
                         case nameof(Queryable.GroupBy)
-                        when genericMethod == QueryableMethodProvider.GroupByWithKeyElementSelectorMethodInfo:
+                        when genericMethod == QueryableMethods.GroupByWithKeyElementSelector:
                             return ProcessGroupBy(
                                 source,
                                 methodCallExpression.Arguments[1].UnwrapLambdaFromQuote(),
@@ -459,7 +459,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                                 null);
 
                         case nameof(Queryable.GroupBy)
-                        when genericMethod == QueryableMethodProvider.GroupByWithKeyElementResultSelectorMethodInfo:
+                        when genericMethod == QueryableMethods.GroupByWithKeyElementResultSelector:
                             return ProcessGroupBy(
                                 source,
                                 methodCallExpression.Arguments[1].UnwrapLambdaFromQuote(),
@@ -467,7 +467,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                                 methodCallExpression.Arguments[3].UnwrapLambdaFromQuote());
 
                         case nameof(Queryable.GroupBy)
-                        when genericMethod == QueryableMethodProvider.GroupByWithKeyResultSelectorMethodInfo:
+                        when genericMethod == QueryableMethods.GroupByWithKeyResultSelector:
                             return ProcessGroupBy(
                                 source,
                                 methodCallExpression.Arguments[1].UnwrapLambdaFromQuote(),
@@ -475,9 +475,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                                 methodCallExpression.Arguments[2].UnwrapLambdaFromQuote());
 
                         case nameof(Queryable.OrderBy)
-                        when genericMethod == QueryableMethodProvider.OrderByMethodInfo:
+                        when genericMethod == QueryableMethods.OrderBy:
                         case nameof(Queryable.OrderByDescending)
-                        when genericMethod == QueryableMethodProvider.OrderByDescendingMethodInfo:
+                        when genericMethod == QueryableMethods.OrderByDescending:
                             return ProcessOrderByThenBy(
                                 source,
                                 genericMethod,
@@ -485,9 +485,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                                 thenBy: false);
 
                         case nameof(Queryable.ThenBy)
-                        when genericMethod == QueryableMethodProvider.ThenByMethodInfo:
+                        when genericMethod == QueryableMethods.ThenBy:
                         case nameof(Queryable.ThenByDescending)
-                        when genericMethod == QueryableMethodProvider.ThenByDescendingMethodInfo:
+                        when genericMethod == QueryableMethods.ThenByDescending:
                             return ProcessOrderByThenBy(
                                 source,
                                 genericMethod,
@@ -495,19 +495,19 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                                 thenBy: true);
 
                         case nameof(Queryable.Select)
-                        when genericMethod == QueryableMethodProvider.SelectMethodInfo:
+                        when genericMethod == QueryableMethods.Select:
                             return ProcessSelect(
                                 source,
                                 methodCallExpression.Arguments[1].UnwrapLambdaFromQuote());
 
                         case nameof(Queryable.Where)
-                        when genericMethod == QueryableMethodProvider.WhereMethodInfo:
+                        when genericMethod == QueryableMethods.Where:
                             return ProcessWhere(
                                 source,
                                 methodCallExpression.Arguments[1].UnwrapLambdaFromQuote());
 
                         case nameof(Queryable.DefaultIfEmpty)
-                        when genericMethod == QueryableMethodProvider.DefaultIfEmptyWithoutArgumentMethodInfo:
+                        when genericMethod == QueryableMethods.DefaultIfEmptyWithoutArgument:
                             return ProcessDefaultIfEmpty(source);
 
                         default:
@@ -521,7 +521,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     return subquery is OwnedNavigationReference ownedNavigationReference
                         && ownedNavigationReference.Navigation.IsCollection()
                         ? Visit(Expression.Call(
-                            QueryableMethodProvider.AsQueryableMethodInfo.MakeGenericMethod(subquery.Type.TryGetSequenceType()),
+                            QueryableMethods.AsQueryable.MakeGenericMethod(subquery.Type.TryGetSequenceType()),
                             subquery))
                         : subquery;
                 }
@@ -575,7 +575,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         {
             source.UpdateSource(
                 Expression.Call(
-                    QueryableMethodProvider.DefaultIfEmptyWithoutArgumentMethodInfo.MakeGenericMethod(source.SourceElementType),
+                    QueryableMethods.DefaultIfEmptyWithoutArgument.MakeGenericMethod(source.SourceElementType),
                     source.Source));
 
             _entityReferenceOptionalMarkingExpressionVisitor.Visit(source.PendingSelector);
@@ -777,7 +777,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     collectionElementParameter);
 
                 var newSource = Expression.Call(
-                    QueryableMethodProvider.SelectManyWithCollectionSelectorMethodInfo.MakeGenericMethod(
+                    QueryableMethods.SelectManyWithCollectionSelector.MakeGenericMethod(
                         source.SourceElementType, collectionElementType, newResultSelector.ReturnType),
                     source.Source,
                     Expression.Quote(collectionSelector),
@@ -864,7 +864,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 if (resultSelector == null)
                 {
                     result = Expression.Call(
-                        QueryableMethodProvider.GroupByWithKeySelectorMethodInfo.MakeGenericMethod(
+                        QueryableMethods.GroupByWithKeySelector.MakeGenericMethod(
                             queryable.Type.TryGetSequenceType(), keySelector.ReturnType),
                         queryable,
                         Expression.Quote(keySelector));
@@ -872,7 +872,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 else
                 {
                     result = Expression.Call(
-                        QueryableMethodProvider.GroupByWithKeyResultSelectorMethodInfo.MakeGenericMethod(
+                        QueryableMethods.GroupByWithKeyResultSelector.MakeGenericMethod(
                             queryable.Type.TryGetSequenceType(), keySelector.ReturnType, resultSelector.ReturnType),
                         queryable,
                         Expression.Quote(keySelector),
@@ -884,7 +884,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 if (resultSelector == null)
                 {
                     result = Expression.Call(
-                        QueryableMethodProvider.GroupByWithKeyElementSelectorMethodInfo.MakeGenericMethod(
+                        QueryableMethods.GroupByWithKeyElementSelector.MakeGenericMethod(
                             queryable.Type.TryGetSequenceType(), keySelector.ReturnType, elementSelector.ReturnType),
                         queryable,
                         Expression.Quote(keySelector),
@@ -893,7 +893,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 else
                 {
                     result = Expression.Call(
-                        QueryableMethodProvider.GroupByWithKeyElementResultSelectorMethodInfo.MakeGenericMethod(
+                        QueryableMethods.GroupByWithKeyElementResultSelector.MakeGenericMethod(
                             queryable.Type.TryGetSequenceType(), keySelector.ReturnType, elementSelector.ReturnType, resultSelector.ReturnType),
                         queryable,
                         Expression.Quote(keySelector),
@@ -974,7 +974,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 innerSource.CurrentParameter);
 
             var source = Expression.Call(
-                QueryableMethodProvider.JoinMethodInfo.MakeGenericMethod(
+                QueryableMethods.Join.MakeGenericMethod(
                     outerSource.SourceElementType, innerSource.SourceElementType, outerKeySelector.ReturnType, newResultSelector.ReturnType),
                 outerSource.Source,
                 innerSource.Source,
@@ -1187,12 +1187,12 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
         private static readonly IDictionary<MethodInfo, MethodInfo> _predicateLessMethodInfo = new Dictionary<MethodInfo, MethodInfo>
         {
-            { QueryableMethodProvider.FirstWithPredicateMethodInfo, QueryableMethodProvider.FirstWithoutPredicateMethodInfo },
-            { QueryableMethodProvider.FirstOrDefaultWithPredicateMethodInfo, QueryableMethodProvider.FirstOrDefaultWithoutPredicateMethodInfo },
-            { QueryableMethodProvider.SingleWithPredicateMethodInfo, QueryableMethodProvider.SingleWithoutPredicateMethodInfo },
-            { QueryableMethodProvider.SingleOrDefaultWithPredicateMethodInfo, QueryableMethodProvider.SingleOrDefaultWithoutPredicateMethodInfo },
-            { QueryableMethodProvider.LastWithPredicateMethodInfo, QueryableMethodProvider.LastWithoutPredicateMethodInfo },
-            { QueryableMethodProvider.LastOrDefaultWithPredicateMethodInfo, QueryableMethodProvider.LastOrDefaultWithoutPredicateMethodInfo },
+            { QueryableMethods.FirstWithPredicate, QueryableMethods.FirstWithoutPredicate },
+            { QueryableMethods.FirstOrDefaultWithPredicate, QueryableMethods.FirstOrDefaultWithoutPredicate },
+            { QueryableMethods.SingleWithPredicate, QueryableMethods.SingleWithoutPredicate },
+            { QueryableMethods.SingleOrDefaultWithPredicate, QueryableMethods.SingleOrDefaultWithoutPredicate },
+            { QueryableMethods.LastWithPredicate, QueryableMethods.LastWithoutPredicate },
+            { QueryableMethods.LastOrDefaultWithPredicate, QueryableMethods.LastOrDefaultWithoutPredicate },
         };
 
         private Expression ProcessFirstSingleLastOrDefault(
@@ -1206,7 +1206,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 var predicateBody = ExpandNavigationsInLambdaExpression(source, predicate);
 
                 source.UpdateSource(Expression.Call(
-                    QueryableMethodProvider.WhereMethodInfo.MakeGenericMethod(source.SourceElementType),
+                    QueryableMethods.Where.MakeGenericMethod(source.SourceElementType),
                     source.Source,
                     Expression.Quote(GenerateLambda(predicateBody, source.CurrentParameter))));
 
@@ -1257,7 +1257,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 var selectorLambda = GenerateLambda(ExpandNavigationsInLambdaExpression(source, selector), source.CurrentParameter);
 
                 var newSource = Expression.Call(
-                    QueryableMethodProvider.SelectMethodInfo.MakeGenericMethod(source.SourceElementType, selectorLambda.ReturnType),
+                    QueryableMethods.Select.MakeGenericMethod(source.SourceElementType, selectorLambda.ReturnType),
                     source.Source,
                     Expression.Quote(selectorLambda));
 
@@ -1285,7 +1285,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             var queryable = Reduce(source);
 
             return Expression.Call(
-                QueryableMethodProvider.ContainsMethodInfo.MakeGenericMethod(queryable.Type.TryGetSequenceType()),
+                QueryableMethods.Contains.MakeGenericMethod(queryable.Type.TryGetSequenceType()),
                 queryable,
                 item);
         }
@@ -1321,7 +1321,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             var predicateBody = ExpandNavigationsInLambdaExpression(source, predicate);
 
             source.UpdateSource(Expression.Call(
-                QueryableMethodProvider.WhereMethodInfo.MakeGenericMethod(source.SourceElementType),
+                QueryableMethods.Where.MakeGenericMethod(source.SourceElementType),
                 source.Source,
                 Expression.Quote(GenerateLambda(predicateBody, source.CurrentParameter))));
 
@@ -1365,7 +1365,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             public IReadOnlyDictionary<string, object> ParameterValues => (IReadOnlyDictionary<string, object>)_parameterValues;
 
-            public virtual void Add(string name, object value)
+            public virtual void AddParameter(string name, object value)
             {
                 _parameterValues.Add(name, value);
             }

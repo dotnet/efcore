@@ -370,7 +370,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         protected override Expression VisitConstant(ConstantExpression constantExpression)
         {
-            if (constantExpression.Value is IPrintable printable)
+            if (constantExpression.Value is IPrintableExpression printable)
             {
                 printable.Print(this);
             }
@@ -515,7 +515,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                     }
                     else
                     {
-                        ////throw new NotSupportedException(CoreStrings.InvalidMemberInitBinding);
                         AppendLine(CoreStrings.InvalidMemberInitBinding);
                     }
                 }
@@ -571,7 +570,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             var isSimpleMethodOrProperty = _simpleMethods.Contains(methodCallExpression.Method.Name)
                                            || methodCallExpression.Arguments.Count < 2
-                                           || methodCallExpression.IsEFProperty();
+                                           || methodCallExpression.Method.IsEFPropertyMethod();
 
             var appendAction = isSimpleMethodOrProperty ? (Action<string>)Append : AppendLine;
 
@@ -841,7 +840,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         protected override Expression VisitExtension(Expression extensionExpression)
         {
-            if (extensionExpression is IPrintable printable)
+            if (extensionExpression is IPrintableExpression printable)
             {
                 printable.Print(this);
             }

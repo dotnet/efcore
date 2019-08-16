@@ -43,7 +43,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         public static MemberIdentity Create([CanBeNull] MemberInfo property)
             => property == null ? None : new MemberIdentity(property);
 
-        public static MemberIdentity Create([CanBeNull] Navigation navigation)
+        public static MemberIdentity Create([CanBeNull] INavigation navigation)
             => navigation?.GetIdentifyingMemberInfo() == null
                 ? Create(navigation?.Name)
                 : Create(navigation.GetIdentifyingMemberInfo());

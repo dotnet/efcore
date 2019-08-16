@@ -7,7 +7,7 @@ using System.Linq.Expressions;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    public class ShapedQueryExpression : Expression, IPrintable
+    public class ShapedQueryExpression : Expression, IPrintableExpression
     {
         public ShapedQueryExpression(Expression queryExpression, Expression shaperExpression)
         {
@@ -20,7 +20,6 @@ namespace Microsoft.EntityFrameworkCore.Query
         public virtual Expression ShaperExpression { get; set; }
         public override Type Type => typeof(IQueryable<>).MakeGenericType(ShaperExpression.Type);
         public sealed override ExpressionType NodeType => ExpressionType.Extension;
-        public override bool CanReduce => false;
 
         protected override Expression VisitChildren(ExpressionVisitor visitor)
         {

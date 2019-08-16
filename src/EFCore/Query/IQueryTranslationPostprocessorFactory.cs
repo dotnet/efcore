@@ -3,11 +3,11 @@
 
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Microsoft.EntityFrameworkCore.Query.Internal
+namespace Microsoft.EntityFrameworkCore.Query
 {
     /// <summary>
     ///     <para>
-    ///         A factory for creating <see cref="QueryOptimizer"/> instances.
+    ///         A factory for creating <see cref="QueryTranslationPostprocessor"/> instances.
     ///     </para>
     ///     <para>
     ///         The service lifetime is <see cref="ServiceLifetime.Singleton"/>. This means a single instance
@@ -15,16 +15,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
     ///         This service cannot depend on services registered as <see cref="ServiceLifetime.Scoped"/>.
     ///     </para>
     /// </summary>
-    public class QueryOptimizerFactory : IQueryOptimizerFactory
+    public interface IQueryTranslationPostprocessorFactory
     {
-        private readonly QueryOptimizerDependencies _dependencies;
-
-        public QueryOptimizerFactory(QueryOptimizerDependencies dependencies)
-        {
-            _dependencies = dependencies;
-        }
-
-        public virtual QueryOptimizer Create(QueryCompilationContext queryCompilationContext)
-            => new QueryOptimizer(_dependencies, queryCompilationContext);
+        QueryTranslationPostprocessor Create(QueryCompilationContext queryCompilationContext);
     }
 }

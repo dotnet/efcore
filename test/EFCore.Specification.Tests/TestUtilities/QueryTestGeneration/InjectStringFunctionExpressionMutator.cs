@@ -63,7 +63,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities.QueryTestGeneration
             protected override Expression VisitMethodCall(MethodCallExpression node)
             {
                 if (node != null
-                    && node.IsEFProperty())
+                    && node.Method.IsEFPropertyMethod())
                 {
                     var oldInsideEFProperty = _insideEFProperty;
                     _insideEFProperty = true;

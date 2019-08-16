@@ -10,6 +10,6 @@ namespace Microsoft.EntityFrameworkCore.Query
     {
         IReadOnlyDictionary<string, object> ParameterValues { get; }
 
-        void Add([NotNull] string name, [CanBeNull] object value);
+        void AddParameter([NotNull] string name, [CanBeNull] object value);
     }
 }
