@@ -1814,8 +1814,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                             var targetValue = entry.GetCurrentValue(targetProperty);
                             var comparer = targetProperty.GetValueComparer() ??
                                            sourceProperty.GetValueComparer() ??
-                                           targetProperty.GetTypeMapping().Comparer ??
-                                           sourceProperty.GetTypeMapping().Comparer;
+                                           targetProperty.FindTypeMapping()?.Comparer ??
+                                           sourceProperty.FindTypeMapping()?.Comparer;
 
                             var modelValuesChanged
                                 = sourceProperty.ClrType.UnwrapNullableType() == targetProperty.ClrType.UnwrapNullableType()

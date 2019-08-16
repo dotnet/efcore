@@ -89,7 +89,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
             => properties.Select(GetStructuralComparer).ToList();
 
         private static ValueComparer GetStructuralComparer(IProperty p)
-            => p.GetStructuralValueComparer() ?? p.GetTypeMapping().StructuralComparer;
+            => p.GetStructuralValueComparer() ?? p.FindTypeMapping()?.StructuralComparer;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
