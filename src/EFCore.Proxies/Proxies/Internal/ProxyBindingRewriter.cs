@@ -92,15 +92,18 @@ namespace Microsoft.EntityFrameworkCore.Proxies.Internal
                                     nameof(IProxyLazyLoader.LazyLoader)));
                         }
 
+                        // WARNING: This code is EF internal; it should not be copied. See #10789 #14554
                         var binding = (InstantiationBinding)entityType[CoreAnnotationNames.ConstructorBinding];
                         if (binding == null)
                         {
                             _directBindingConvention.ProcessModelFinalized(modelBuilder, context);
                         }
 
+                        // WARNING: This code is EF internal; it should not be copied. See #10789 #14554
                         binding = (InstantiationBinding)entityType[CoreAnnotationNames.ConstructorBinding];
 
                         entityType.SetAnnotation(
+                            // WARNING: This code is EF internal; it should not be copied. See #10789 #14554
                             CoreAnnotationNames.ConstructorBinding,
                             new FactoryMethodBinding(
                                 _proxyFactory,
