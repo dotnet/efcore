@@ -412,7 +412,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> The type mapping, or null if none was found. </returns>
         [DebuggerStepThrough]
         public static RelationalTypeMapping FindRelationalMapping([NotNull] this IProperty property)
-            => (RelationalTypeMapping)property.FindMapping();
+            => (RelationalTypeMapping)property.FindTypeMapping();
 
         /// <summary>
         ///     <para>

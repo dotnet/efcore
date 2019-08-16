@@ -125,7 +125,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 var unmappedProperty = entityType.GetProperties().FirstOrDefault(
                     p => (!ConfigurationSource.Convention.Overrides(p.GetConfigurationSource())
                           || !p.IsShadowProperty())
-                         && p.FindMapping() == null);
+                         && p.FindTypeMapping() == null);
 
                 if (unmappedProperty != null)
                 {

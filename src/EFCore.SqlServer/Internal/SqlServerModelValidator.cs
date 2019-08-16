@@ -73,15 +73,12 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
                     p => p.ClrType.UnwrapNullableType() == typeof(decimal)
                          && !p.IsForeignKey()))
             {
-#pragma warning disable IDE0019 // Use pattern matching
-                var type = property.FindAnnotation(RelationalAnnotationNames.ColumnType) as ConventionAnnotation;
-#pragma warning restore IDE0019 // Use pattern matching
-                var typeMapping = property.FindAnnotation(CoreAnnotationNames.TypeMapping) as ConventionAnnotation;
-                if ((type == null
-                     && (typeMapping == null
-                         || ConfigurationSource.Convention.Overrides(typeMapping.GetConfigurationSource())))
-                    || (type != null
-                        && ConfigurationSource.Convention.Overrides(type.GetConfigurationSource())))
+                var typeConfigurationSource = (property as IConventionProperty)?.GetColumnTypeConfigurationSource();
+                var typeMappingConfigurationSource = (property as IConventionProperty)?.GetTypeMappingConfigurationSource();
+                if ((typeConfigurationSource == null
+                     && ConfigurationSource.Convention.Overrides(typeMappingConfigurationSource))
+                    || (typeConfigurationSource != null
+                     && ConfigurationSource.Convention.Overrides(typeConfigurationSource)))
                 {
                     logger.DecimalTypeDefaultWarning(property);
                 }

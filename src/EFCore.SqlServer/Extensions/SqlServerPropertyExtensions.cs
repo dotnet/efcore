@@ -314,7 +314,7 @@ namespace Microsoft.EntityFrameworkCore
 
             return (type.IsInteger()
                     || type == typeof(decimal))
-                   && (property.FindMapping()?.Converter
+                   && (property.FindTypeMapping()?.Converter
                        ?? property.GetValueConverter()) == null;
         }
     }

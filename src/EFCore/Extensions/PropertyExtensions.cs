@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
@@ -29,8 +28,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="property"> The property. </param>
         /// <returns> The type mapping. </returns>
-        public static CoreTypeMapping GetTypeMapping(
-            [NotNull] this IProperty property)
+        public static CoreTypeMapping GetTypeMapping([NotNull] this IProperty property)
         {
             var mapping = (CoreTypeMapping)property[CoreAnnotationNames.TypeMapping];
 
@@ -48,9 +46,25 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="property"> The property. </param>
         /// <returns> The type mapping, or <c>null</c> if none was found. </returns>
-        public static CoreTypeMapping FindMapping(
-            [NotNull] this IProperty property)
+        public static CoreTypeMapping FindTypeMapping([NotNull] this IProperty property)
             => (CoreTypeMapping)property[CoreAnnotationNames.TypeMapping];
+
+        /// <summary>
+        ///     Returns the <see cref="CoreTypeMapping" /> for the given property.
+        /// </summary>
+        /// <param name="property"> The property. </param>
+        /// <returns> The type mapping, or <c>null</c> if none was found. </returns>
+        [Obsolete("Use FindTypeMapping instead")]
+        public static CoreTypeMapping FindMapping([NotNull] this IProperty property)
+            => property.FindTypeMapping();
+
+        /// <summary>
+        ///     Gets the <see cref="ConfigurationSource" /> for <see cref="FindTypeMapping(IProperty)" />.
+        /// </summary>
+        /// <param name="property"> The property. </param>
+        /// <returns> The <see cref="ConfigurationSource" /> for <see cref="FindTypeMapping(IProperty)" />. </returns>
+        public static ConfigurationSource? GetTypeMappingConfigurationSource([NotNull] this IConventionProperty property)
+            => property.FindAnnotation(CoreAnnotationNames.TypeMapping)?.GetConfigurationSource();
 
         /// <summary>
         ///     Finds the first principal property that the given property is constrained by
