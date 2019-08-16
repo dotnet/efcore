@@ -32,5 +32,22 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Migrations.Internal
             var identity = Assert.Single(migrationAnnotations, a => a.Name == SqlServerAnnotationNames.Identity);
             Assert.Equal("2, 3", identity.Value);
         }
+
+        [ConditionalFact]
+        public void Resolves_column_names_for_Index_with_included_properties()
+        {
+            _modelBuilder.Entity<Entity>().Property(e => e.IncludedProp).HasColumnName("IncludedColumn");
+            var index = _modelBuilder.Entity<Entity>().HasIndex(e => e.IndexedProp).IncludeProperties(e => e.IncludedProp).Metadata;
+            _modelBuilder.FinalizeModel();
+
+            Assert.Contains(_annotations.For(index), a => a.Name == SqlServerAnnotationNames.Include && ((string[])a.Value).Contains("IncludedColumn"));
+        }
+
+        private class Entity
+        {
+            public int Id { get; set; }
+            public string IndexedProp { get; set; }
+            public string IncludedProp { get; set; }
+        }
     }
 }
