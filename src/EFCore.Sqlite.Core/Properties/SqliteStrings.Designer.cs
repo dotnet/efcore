@@ -47,6 +47,14 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Internal
         public static string ComputedColumnsNotSupported
             => GetString("ComputedColumnsNotSupported");
 
+        /// <summary>
+        ///     SQLite cannot order by expressions of type '{type}'. Convert the values to a supported type or use LINQ to Objects to order the results.
+        /// </summary>
+        public static string OrderByNotSupported([CanBeNull] object type)
+            => string.Format(
+                GetString("OrderByNotSupported", nameof(type)),
+                type);
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);

@@ -125,6 +125,58 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
                 : visitedExpression;
         }
 
+        public override SqlExpression TranslateAverage(Expression expression)
+        {
+            var visitedExpression = base.TranslateAverage(expression);
+            if (GetProviderType(visitedExpression) == typeof(decimal))
+            {
+                return null;
+            }
+
+            return visitedExpression;
+        }
+
+        public override SqlExpression TranslateMax(Expression expression)
+        {
+            var visitedExpression = base.TranslateMax(expression);
+            var argumentType = GetProviderType(visitedExpression);
+            if (argumentType == typeof(DateTimeOffset)
+                || argumentType == typeof(decimal)
+                || argumentType == typeof(TimeSpan)
+                || argumentType == typeof(ulong))
+            {
+                return null;
+            }
+
+            return visitedExpression;
+        }
+
+        public override SqlExpression TranslateMin(Expression expression)
+        {
+            var visitedExpression = base.TranslateMin(expression);
+            var argumentType = GetProviderType(visitedExpression);
+            if (argumentType == typeof(DateTimeOffset)
+                || argumentType == typeof(decimal)
+                || argumentType == typeof(TimeSpan)
+                || argumentType == typeof(ulong))
+            {
+                return null;
+            }
+
+            return visitedExpression;
+        }
+
+        public override SqlExpression TranslateSum(Expression expression)
+        {
+            var visitedExpression = base.TranslateSum(expression);
+            if (GetProviderType(visitedExpression) == typeof(decimal))
+            {
+                return null;
+            }
+
+            return visitedExpression;
+        }
+
         private static Type GetProviderType(SqlExpression expression)
         {
             return (expression.TypeMapping?.Converter?.ProviderClrType
