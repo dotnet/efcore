@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 using Xunit;
 
@@ -128,20 +129,24 @@ namespace Microsoft.EntityFrameworkCore.Query
                 e => e.f);
         }
 
-        [ConditionalTheory(Skip = "Issue #14935. Cannot eval 'orderby Convert(__p_0.f, Nullable`1) asc'")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual async Task Select_bool_closure_with_order_by_property_with_cast_to_nullable(bool isAsync)
         {
             var boolean = false;
 
-            await AssertQuery<Customer>(
-                isAsync,
-                cs => cs.Select(
-                    c => new
-                    {
-                        f = boolean
-                    }).OrderBy(e => (bool?)e.f),
-                e => e.f);
+            Assert.Equal(
+                CoreStrings.TranslationFailed("(c) => (Nullable<bool>)(Unhandled parameter: __p_0).f"),
+                RemoveNewLines(
+                    (await Assert.ThrowsAsync<InvalidOperationException>(
+                        () => AssertQuery<Customer>(
+                            isAsync,
+                            cs => cs.Select(
+                                c => new
+                                {
+                                    f = boolean
+                                }).OrderBy(e => (bool?)e.f),
+                            assertOrder: true))).Message));
         }
 
         [ConditionalTheory]
@@ -859,7 +864,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     c => c.Orders.OrderBy(o => o.OrderID).Select(o => o.CustomerID).Distinct().FirstOrDefault()).Select(e => e == null ? 0 : e.Length));
         }
 
-        [ConditionalTheory(Skip = "Issue #14935. Cannot eval 'SingleOrDefault()'")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Project_single_element_from_collection_with_OrderBy_Take_and_SingleOrDefault(bool isAsync)
         {

@@ -508,7 +508,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///         This event is in the <see cref="DbLoggerCategory.Query" /> category.
         ///     </para>
         /// </summary>
-        [Obsolete]
+        [Obsolete("Automatic client evaluation is no longer supported. This event is no longer generated.")]
         public static readonly EventId QueryClientEvaluationWarning = MakeQueryId(Id.QueryClientEvaluationWarning);
 
         /// <summary>

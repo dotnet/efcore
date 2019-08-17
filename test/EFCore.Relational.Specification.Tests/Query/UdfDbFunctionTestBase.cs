@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
@@ -361,7 +362,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalFact(Skip = "Issue#14935")]
+        [ConditionalFact]
         public virtual void Scalar_Function_ClientEval_Method_As_Translateable_Method_Parameter_Static()
         {
             using (var context = CreateContext())
@@ -607,34 +608,35 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalFact(Skip = "Issue#14935")]
+        [ConditionalFact]
         public virtual void Scalar_Nested_Function_Unwind_Client_Eval_Where_Static()
         {
             using (var context = CreateContext())
             {
-                var results = (from c in context.Customers
+                Assert.Equal(
+                    CoreStrings.TranslationFailed("(c) => 2 == AddOneStatic(c.Id)"),
+                    Assert.Throws<InvalidOperationException>(
+                        () => (from c in context.Customers
                                where 2 == UDFSqlContext.AddOneStatic(c.Id)
-                               select c.Id).Single();
-
-                Assert.Equal(1, results);
+                               select c.Id).Single()).Message);
             }
         }
 
-        [ConditionalFact(Skip = "Issue#14935")]
+        [ConditionalFact]
         public virtual void Scalar_Nested_Function_Unwind_Client_Eval_OrderBy_Static()
         {
             using (var context = CreateContext())
             {
-                var results = (from c in context.Customers
+                Assert.Equal(
+                    CoreStrings.TranslationFailed("(c) => AddOneStatic(c.Id)"),
+                    Assert.Throws<InvalidOperationException>(
+                        () => (from c in context.Customers
                                orderby UDFSqlContext.AddOneStatic(c.Id)
-                               select c.Id).ToList();
-
-                Assert.Equal(3, results.Count);
-                Assert.True(results.SequenceEqual(Enumerable.Range(1, 3)));
+                               select c.Id).ToList()).Message);
             }
         }
 
-        [ConditionalFact(Skip = "Issue#14935")]
+        [ConditionalFact]
         public virtual void Scalar_Nested_Function_Unwind_Client_Eval_Select_Static()
         {
             using (var context = CreateContext())
@@ -648,120 +650,135 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalFact(Skip = "Issue#14935")]
+        [ConditionalFact]
         public virtual void Scalar_Nested_Function_Client_BCL_UDF_Static()
         {
             using (var context = CreateContext())
             {
-                var results = (from c in context.Customers
+                Assert.Equal(
+                    CoreStrings.TranslationFailed(
+                        "(c) => 2 == AddOneStatic(Abs(CustomerOrderCountWithClientStatic(c.Id)))"),
+                    Assert.Throws<InvalidOperationException>(
+                        () => (from c in context.Customers
                                where 2 == UDFSqlContext.AddOneStatic(Math.Abs(UDFSqlContext.CustomerOrderCountWithClientStatic(c.Id)))
-                               select c.Id).Single();
-
-                Assert.Equal(3, results);
+                               select c.Id).Single()).Message);
             }
         }
 
-        [ConditionalFact(Skip = "Issue#14935")]
+        [ConditionalFact]
         public virtual void Scalar_Nested_Function_Client_UDF_BCL_Static()
         {
             using (var context = CreateContext())
             {
-                var results = (from c in context.Customers
+                Assert.Equal(
+                    CoreStrings.TranslationFailed(
+                        "(c) => 2 == AddOneStatic(CustomerOrderCountWithClientStatic(Abs(c.Id)))"),
+                    Assert.Throws<InvalidOperationException>(
+                        () => (from c in context.Customers
                                where 2 == UDFSqlContext.AddOneStatic(UDFSqlContext.CustomerOrderCountWithClientStatic(Math.Abs(c.Id)))
-                               select c.Id).Single();
-
-                Assert.Equal(3, results);
+                               select c.Id).Single()).Message);
             }
         }
 
-        [ConditionalFact(Skip = "Issue#14935")]
+        [ConditionalFact]
         public virtual void Scalar_Nested_Function_BCL_Client_UDF_Static()
         {
             using (var context = CreateContext())
             {
-                var results = (from c in context.Customers
+                Assert.Equal(
+                    CoreStrings.TranslationFailed(
+                        "(c) => 2 == Abs(AddOneStatic(CustomerOrderCountWithClientStatic(c.Id)))"),
+                    Assert.Throws<InvalidOperationException>(
+                        () => (from c in context.Customers
                                where 2 == Math.Abs(UDFSqlContext.AddOneStatic(UDFSqlContext.CustomerOrderCountWithClientStatic(c.Id)))
-                               select c.Id).Single();
-
-                Assert.Equal(3, results);
+                               select c.Id).Single()).Message);
             }
         }
 
-        [ConditionalFact(Skip = "Issue#14935")]
+        [ConditionalFact]
         public virtual void Scalar_Nested_Function_BCL_UDF_Client_Static()
         {
             using (var context = CreateContext())
             {
-                var results = (from c in context.Customers
+                Assert.Equal(
+                    CoreStrings.TranslationFailed(
+                        "(c) => 1 == Abs(CustomerOrderCountWithClientStatic(AddOneStatic(c.Id)))"),
+                    Assert.Throws<InvalidOperationException>(
+                        () => (from c in context.Customers
                                where 1 == Math.Abs(UDFSqlContext.CustomerOrderCountWithClientStatic(UDFSqlContext.AddOneStatic(c.Id)))
-                               select c.Id).Single();
-
-                Assert.Equal(2, results);
+                               select c.Id).Single()).Message);
             }
         }
 
-        [ConditionalFact(Skip = "Issue#14935")]
+        [ConditionalFact]
         public virtual void Scalar_Nested_Function_UDF_BCL_Client_Static()
         {
             using (var context = CreateContext())
             {
-                var results = (from c in context.Customers
+                Assert.Equal(
+                    CoreStrings.TranslationFailed(
+                        "(c) => 1 == CustomerOrderCountWithClientStatic(Abs(AddOneStatic(c.Id)))"),
+                    Assert.Throws<InvalidOperationException>(
+                        () => (from c in context.Customers
                                where 1 == UDFSqlContext.CustomerOrderCountWithClientStatic(Math.Abs(UDFSqlContext.AddOneStatic(c.Id)))
-                               select c.Id).Single();
-
-                Assert.Equal(2, results);
+                               select c.Id).Single()).Message);
             }
         }
 
-        [ConditionalFact(Skip = "Issue#14935")]
+        [ConditionalFact]
         public virtual void Scalar_Nested_Function_UDF_Client_BCL_Static()
         {
             using (var context = CreateContext())
             {
-                var results = (from c in context.Customers
+                Assert.Equal(
+                    CoreStrings.TranslationFailed(
+                        "(c) => 1 == CustomerOrderCountWithClientStatic(AddOneStatic(Abs(c.Id)))"),
+                    Assert.Throws<InvalidOperationException>(
+                        () => (from c in context.Customers
                                where 1 == UDFSqlContext.CustomerOrderCountWithClientStatic(UDFSqlContext.AddOneStatic(Math.Abs(c.Id)))
-                               select c.Id).Single();
-
-                Assert.Equal(2, results);
+                               select c.Id).Single()).Message);
             }
         }
 
-        [ConditionalFact(Skip = "Issue#14935")]
+        [ConditionalFact]
         public virtual void Scalar_Nested_Function_Client_BCL_Static()
         {
             using (var context = CreateContext())
             {
-                var results = (from c in context.Customers
+                Assert.Equal(
+                    CoreStrings.TranslationFailed("(c) => 3 == AddOneStatic(Abs(c.Id))"),
+                    Assert.Throws<InvalidOperationException>(
+                        () => (from c in context.Customers
                                where 3 == UDFSqlContext.AddOneStatic(Math.Abs(c.Id))
-                               select c.Id).Single();
-
-                Assert.Equal(2, results);
+                               select c.Id).Single()).Message);
             }
         }
 
-        [ConditionalFact(Skip = "Issue#14935")]
+        [ConditionalFact]
         public virtual void Scalar_Nested_Function_Client_UDF_Static()
         {
             using (var context = CreateContext())
             {
-                var results = (from c in context.Customers
+                Assert.Equal(
+                    CoreStrings.TranslationFailed("(c) => 2 == AddOneStatic(CustomerOrderCountWithClientStatic(c.Id))"),
+                    Assert.Throws<InvalidOperationException>(
+                        () => (from c in context.Customers
                                where 2 == UDFSqlContext.AddOneStatic(UDFSqlContext.CustomerOrderCountWithClientStatic(c.Id))
-                               select c.Id).Single();
-
-                Assert.Equal(3, results);
+                               select c.Id).Single()).Message);
             }
         }
 
-        [ConditionalFact(Skip = "Issue#14935")]
+        [ConditionalFact]
         public virtual void Scalar_Nested_Function_BCL_Client_Static()
         {
             using (var context = CreateContext())
             {
-                var results = (from c in context.Customers
+                Assert.Equal(
+                    CoreStrings.TranslationFailed("(c) => 3 == Abs(AddOneStatic(c.Id))"),
+                    Assert.Throws<InvalidOperationException>(
+                        () => (from c in context.Customers
                                where 3 == Math.Abs(UDFSqlContext.AddOneStatic(c.Id))
-                               select c.Id).Single();
-
-                Assert.Equal(2, results);
+                               select c.Id).Single()).Message);
             }
         }
 
@@ -778,16 +795,17 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalFact(Skip = "Issue#14935")]
+        [ConditionalFact]
         public virtual void Scalar_Nested_Function_UDF_Client_Static()
         {
             using (var context = CreateContext())
             {
-                var results = (from c in context.Customers
+                Assert.Equal(
+                    CoreStrings.TranslationFailed("(c) => 2 == CustomerOrderCountWithClientStatic(AddOneStatic(c.Id))"),
+                    Assert.Throws<InvalidOperationException>(
+                        () => (from c in context.Customers
                                where 2 == UDFSqlContext.CustomerOrderCountWithClientStatic(UDFSqlContext.AddOneStatic(c.Id))
-                               select c.Id).Single();
-
-                Assert.Equal(1, results);
+                               select c.Id).Single()).Message);
             }
         }
 
@@ -864,7 +882,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalFact(Skip = "Issue#14935")]
+        [ConditionalFact]
         public virtual void Scalar_Function_ClientEval_Method_As_Translateable_Method_Parameter_Instance()
         {
             using (var context = CreateContext())
@@ -1110,34 +1128,35 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalFact(Skip = "Issue#14935")]
+        [ConditionalFact]
         public virtual void Scalar_Nested_Function_Unwind_Client_Eval_Where_Instance()
         {
             using (var context = CreateContext())
             {
-                var results = (from c in context.Customers
+                Assert.Equal(
+                    CoreStrings.TranslationFailed("(c) => 2 == (Unhandled parameter: __context_0).AddOneInstance(c.Id)"),
+                    Assert.Throws<InvalidOperationException>(
+                        () => (from c in context.Customers
                                where 2 == context.AddOneInstance(c.Id)
-                               select c.Id).Single();
-
-                Assert.Equal(1, results);
+                               select c.Id).Single()).Message);
             }
         }
 
-        [ConditionalFact(Skip = "Issue#14935")]
+        [ConditionalFact]
         public virtual void Scalar_Nested_Function_Unwind_Client_Eval_OrderBy_Instance()
         {
             using (var context = CreateContext())
             {
-                var results = (from c in context.Customers
+                Assert.Equal(
+                    CoreStrings.TranslationFailed("(c) => (Unhandled parameter: __context_0).AddOneInstance(c.Id)"),
+                    Assert.Throws<InvalidOperationException>(
+                        () => (from c in context.Customers
                                orderby context.AddOneInstance(c.Id)
-                               select c.Id).ToList();
-
-                Assert.Equal(3, results.Count);
-                Assert.True(results.SequenceEqual(Enumerable.Range(1, 3)));
+                               select c.Id).ToList()).Message);
             }
         }
 
-        [ConditionalFact(Skip = "Issue#14935")]
+        [ConditionalFact]
         public virtual void Scalar_Nested_Function_Unwind_Client_Eval_Select_Instance()
         {
             using (var context = CreateContext())
@@ -1151,121 +1170,145 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalFact(Skip = "Issue#14935")]
+        [ConditionalFact]
         public virtual void Scalar_Nested_Function_Client_BCL_UDF_Instance()
         {
             using (var context = CreateContext())
             {
-                var results = (from c in context.Customers
+                Assert.Equal(
+                    CoreStrings.TranslationFailed(
+                        "(c) => 2 == (Unhandled parameter: __context_0).AddOneInstance(Abs((Unhandled parameter: __context_0).CustomerOrderCountWithClientInstance(c.Id)))"),
+                    Assert.Throws<InvalidOperationException>(
+                        () => (from c in context.Customers
                                where 2 == context.AddOneInstance(Math.Abs(context.CustomerOrderCountWithClientInstance(c.Id)))
-                               select c.Id).Single();
-
-                Assert.Equal(3, results);
+                               select c.Id).Single()).Message);
             }
         }
 
-        [ConditionalFact(Skip = "Issue#14935")]
+        [ConditionalFact]
         public virtual void Scalar_Nested_Function_Client_UDF_BCL_Instance()
         {
             using (var context = CreateContext())
             {
-                var results = (from c in context.Customers
+                Assert.Equal(
+                    CoreStrings.TranslationFailed(
+                        "(c) => 2 == (Unhandled parameter: __context_0).AddOneInstance((Unhandled parameter: __context_0).CustomerOrderCountWithClientInstance(Abs(c.Id)))"),
+                    Assert.Throws<InvalidOperationException>(
+                        () => (from c in context.Customers
                                where 2 == context.AddOneInstance(context.CustomerOrderCountWithClientInstance(Math.Abs(c.Id)))
-                               select c.Id).Single();
-
-                Assert.Equal(3, results);
+                               select c.Id).Single()).Message);
             }
         }
 
-        [ConditionalFact(Skip = "Issue#14935")]
+        [ConditionalFact]
         public virtual void Scalar_Nested_Function_BCL_Client_UDF_Instance()
         {
             using (var context = CreateContext())
             {
-                var results = (from c in context.Customers
+                Assert.Equal(
+                    CoreStrings.TranslationFailed("(c) => 2 == Abs((Unhandled parameter: __context_0).AddOneInstance((Unhandled parameter: __context_0).CustomerOrderCountWithClientInstance(c.Id)))"),
+                    Assert.Throws<InvalidOperationException>(
+                        () => (from c in context.Customers
                                where 2 == Math.Abs(context.AddOneInstance(context.CustomerOrderCountWithClientInstance(c.Id)))
-                               select c.Id).Single();
-
-                Assert.Equal(3, results);
+                               select c.Id).Single()).Message);
             }
         }
 
-        [ConditionalFact(Skip = "Issue#14935")]
+        [ConditionalFact]
         public virtual void Scalar_Nested_Function_BCL_UDF_Client_Instance()
         {
             using (var context = CreateContext())
             {
-                var results = (from c in context.Customers
+                Assert.Equal(
+                    CoreStrings.TranslationFailed(
+                        "(c) => 1 == Abs((Unhandled parameter: __context_0).CustomerOrderCountWithClientInstance((Unhandled parameter: __context_0).AddOneInstance(c.Id)))"),
+                    Assert.Throws<InvalidOperationException>(
+                        () => (from c in context.Customers
                                where 1 == Math.Abs(context.CustomerOrderCountWithClientInstance(context.AddOneInstance(c.Id)))
-                               select c.Id).Single();
-
-                Assert.Equal(2, results);
+                               select c.Id).Single()).Message);
             }
         }
 
-        [ConditionalFact(Skip = "Issue#14935")]
+        [ConditionalFact]
         public virtual void Scalar_Nested_Function_UDF_BCL_Client_Instance()
         {
             using (var context = CreateContext())
             {
-                var results = (from c in context.Customers
+                Assert.Equal(
+                    CoreStrings.TranslationFailed(
+                        "(c) => 1 == (Unhandled parameter: __context_0).CustomerOrderCountWithClientInstance(Abs((Unhandled parameter: __context_0).AddOneInstance(c.Id)))"),
+                    Assert.Throws<InvalidOperationException>(
+                        () => (from c in context.Customers
                                where 1 == context.CustomerOrderCountWithClientInstance(Math.Abs(context.AddOneInstance(c.Id)))
-                               select c.Id).Single();
-
-                Assert.Equal(2, results);
+                               select c.Id).Single()).Message);
             }
         }
 
-        [ConditionalFact(Skip = "Issue#14935")]
+        [ConditionalFact]
         public virtual void Scalar_Nested_Function_UDF_Client_BCL_Instance()
         {
             using (var context = CreateContext())
             {
-                var results = (from c in context.Customers
+                Assert.Equal(
+                    CoreStrings.TranslationFailed(
+                        "(c) => 1 == (Unhandled parameter: __context_0).CustomerOrderCountWithClientInstance((Unhandled parameter: __context_0).AddOneInstance(Abs(c.Id)))"),
+                    Assert.Throws<InvalidOperationException>(
+                        () => (from c in context.Customers
                                where 1 == context.CustomerOrderCountWithClientInstance(context.AddOneInstance(Math.Abs(c.Id)))
-                               select c.Id).Single();
-
-                Assert.Equal(2, results);
+                               select c.Id).Single()).Message);
             }
         }
 
-        [ConditionalFact(Skip = "Issue#14935")]
+        [ConditionalFact]
         public virtual void Scalar_Nested_Function_Client_BCL_Instance()
         {
             using (var context = CreateContext())
             {
-                var results = (from c in context.Customers
+                Assert.Equal(
+                    CoreStrings.TranslationFailed(
+                        "(c) => 3 == (Unhandled parameter: __context_0).AddOneInstance(Abs(c.Id))"),
+                    Assert.Throws<InvalidOperationException>(
+                        () => (from c in context.Customers
                                where 3 == context.AddOneInstance(Math.Abs(c.Id))
-                               select c.Id).Single();
-
-                Assert.Equal(2, results);
+                               select c.Id).Single()).Message);
             }
         }
 
-        [ConditionalFact(Skip = "Issue#14935")]
+        [ConditionalFact]
         public virtual void Scalar_Nested_Function_Client_UDF_Instance()
         {
             using (var context = CreateContext())
             {
-                var results = (from c in context.Customers
+                Assert.Equal(
+                    CoreStrings.TranslationFailed(
+                        "(c) => 2 == (Unhandled parameter: __context_0).AddOneInstance((Unhandled parameter: __context_0).CustomerOrderCountWithClientInstance(c.Id))"),
+                    Assert.Throws<InvalidOperationException>(
+                        () => (from c in context.Customers
                                where 2 == context.AddOneInstance(context.CustomerOrderCountWithClientInstance(c.Id))
-                               select c.Id).Single();
-
-                Assert.Equal(3, results);
+                               select c.Id).Single()).Message);
             }
         }
 
-        [ConditionalFact(Skip = "Issue#14935")]
+        [ConditionalFact]
         public virtual void Scalar_Nested_Function_BCL_Client_Instance()
         {
             using (var context = CreateContext())
             {
-                var results = (from c in context.Customers
+                Assert.Equal(
+                    CoreStrings.TranslationFailed("(c) => 3 == Abs((Unhandled parameter: __context_0).AddOneInstance(c.Id))"),
+                    Assert.Throws<InvalidOperationException>(
+                        () => (from c in context.Customers
                                where 3 == Math.Abs(context.AddOneInstance(c.Id))
-                               select c.Id).Single();
-
-                Assert.Equal(2, results);
+                               select c.Id).Single()).Message);
             }
+        }
+
+        public static Exception AssertThrows<T>(Func<object> testCode)
+            where T : Exception, new()
+        {
+            testCode();
+
+            return new T();
         }
 
         [ConditionalFact]
@@ -1281,16 +1324,18 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalFact(Skip = "Issue#14935")]
+        [ConditionalFact]
         public virtual void Scalar_Nested_Function_UDF_Client_Instance()
         {
             using (var context = CreateContext())
             {
-                var results = (from c in context.Customers
+                Assert.Equal(
+                    CoreStrings.TranslationFailed(
+                        "(c) => 2 == (Unhandled parameter: __context_0).CustomerOrderCountWithClientInstance((Unhandled parameter: __context_0).AddOneInstance(c.Id))"),
+                    Assert.Throws<InvalidOperationException>(
+                        () => (from c in context.Customers
                                where 2 == context.CustomerOrderCountWithClientInstance(context.AddOneInstance(c.Id))
-                               select c.Id).Single();
-
-                Assert.Equal(1, results);
+                               select c.Id).Single()).Message);
             }
         }
 

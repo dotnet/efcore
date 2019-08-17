@@ -7,6 +7,7 @@ using System.Diagnostics;
 using System.Linq.Expressions;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.Cosmos.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Query;
@@ -380,7 +381,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                     return _clientEval ? base.VisitExtension(includeExpression) : null;
 
                 default:
-                    throw new InvalidOperationException(new ExpressionPrinter().Print(extensionExpression));
+                    throw new InvalidOperationException(CoreStrings.TranslationFailed(extensionExpression.Print()));
             }
         }
 

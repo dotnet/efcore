@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Query;
 
 namespace Microsoft.EntityFrameworkCore.TestUtilities.QueryTestGeneration
@@ -468,7 +469,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities.QueryTestGeneration
             }
 
             // printed just for debugging purposes
-            var queryString = new ExpressionPrinter().Print(newExpression);
+            var queryString = newExpression.Print();
 
             try
             {

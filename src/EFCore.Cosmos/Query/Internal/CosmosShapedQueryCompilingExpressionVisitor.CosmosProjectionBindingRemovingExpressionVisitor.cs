@@ -263,7 +263,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                             || fk.DeclaringEntityType.IsDocumentRoot())
                         {
                             throw new InvalidOperationException(
-                                "Non-embedded IncludeExpression " + new ExpressionPrinter().Print(includeExpression));
+                                "Non-embedded IncludeExpression " + includeExpression.Print());
                         }
 
                         // These are the expressions added by JObjectInjectingExpressionVisitor

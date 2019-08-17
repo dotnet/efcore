@@ -1,7 +1,9 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Threading.Tasks;
+using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
@@ -12,44 +14,125 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
         }
 
-        // Skip for SQLite. Issue #14935. Cannot eval 'where ([m].Timeline.Date > 1/1/0001 12:00:00 AM)'
-        public override Task String_concat_with_null_conditional_argument2(bool isAsync) => null;
+        // SQLite client-eval
+        public override async Task Where_datetimeoffset_date_component(bool isAsync)
+        {
+            Assert.StartsWith(
+                "The LINQ expression",
+                (await Assert.ThrowsAsync<InvalidOperationException>(
+                    () => base.Where_datetimeoffset_date_component(isAsync)))
+                .Message);
+        }
 
-        // Skip for SQLite. Issue #14935. Cannot eval 'where ([m].Timeline.Date > 1/1/0001 12:00:00 AM)'
-        public override Task Where_datetimeoffset_date_component(bool isAsync) => null;
+        // SQLite client-eval
+        public override async Task Where_datetimeoffset_day_component(bool isAsync)
+        {
+            Assert.StartsWith(
+                "The LINQ expression",
+                (await Assert.ThrowsAsync<InvalidOperationException>(
+                    () => base.Where_datetimeoffset_day_component(isAsync)))
+                .Message);
+        }
 
-        // Skip for SQLite. Issue #14935. Cannot eval 'where ([m].Timeline.Day == 2)'
-        public override Task Where_datetimeoffset_day_component(bool isAsync) => null;
+        // SQLite client-eval
+        public override async Task Where_datetimeoffset_dayofyear_component(bool isAsync)
+        {
+            Assert.StartsWith(
+                "The LINQ expression",
+                (await Assert.ThrowsAsync<InvalidOperationException>(
+                    () => base.Where_datetimeoffset_dayofyear_component(isAsync)))
+                .Message);
+        }
 
-        // Skip for SQLite. Issue #14935. Cannot eval 'where ([m].Timeline.DayOfYear == 2)'
-        public override Task Where_datetimeoffset_dayofyear_component(bool isAsync) => null;
+        // SQLite client-eval
+        public override async Task Where_datetimeoffset_hour_component(bool isAsync)
+        {
+            Assert.StartsWith(
+                "The LINQ expression",
+                (await Assert.ThrowsAsync<InvalidOperationException>(
+                    () => base.Where_datetimeoffset_hour_component(isAsync)))
+                .Message);
+        }
 
-        // Skip for SQLite. Issue #14935. Cannot eval 'where ([m].Timeline.Hour == 10)'
-        public override Task Where_datetimeoffset_hour_component(bool isAsync) => null;
+        // SQLite client-eval
+        public override async Task Where_datetimeoffset_millisecond_component(bool isAsync)
+        {
+            Assert.StartsWith(
+                "The LINQ expression",
+                (await Assert.ThrowsAsync<InvalidOperationException>(
+                    () => base.Where_datetimeoffset_millisecond_component(isAsync)))
+                .Message);
+        }
 
-        // Skip for SQLite. Issue #14935. Cannot eval 'where ([m].Timeline.Millisecond == 0)'
-        public override Task Where_datetimeoffset_millisecond_component(bool isAsync) => null;
+        // SQLite client-eval
+        public override async Task Where_datetimeoffset_minute_component(bool isAsync)
+        {
+            Assert.StartsWith(
+                "The LINQ expression",
+                (await Assert.ThrowsAsync<InvalidOperationException>(
+                    () => base.Where_datetimeoffset_minute_component(isAsync)))
+                .Message);
+        }
 
-        // Skip for SQLite. Issue #14935. Cannot eval 'where ([m].Timeline.Minute == 0)'
-        public override Task Where_datetimeoffset_minute_component(bool isAsync) => null;
+        // SQLite client-eval
+        public override async Task Where_datetimeoffset_month_component(bool isAsync)
+        {
+            Assert.StartsWith(
+                "The LINQ expression",
+                (await Assert.ThrowsAsync<InvalidOperationException>(
+                    () => base.Where_datetimeoffset_month_component(isAsync)))
+                .Message);
+        }
 
-        // Skip for SQLite. Issue #14935. Cannot eval 'where ([m].Timeline.Month == 1)'
-        public override Task Where_datetimeoffset_month_component(bool isAsync) => null;
+        // SQLite client-eval
+        public override async Task Where_datetimeoffset_now(bool isAsync)
+        {
+            Assert.StartsWith(
+                "The LINQ expression",
+                (await Assert.ThrowsAsync<InvalidOperationException>(
+                    () => base.Where_datetimeoffset_now(isAsync)))
+                .Message);
+        }
 
-        // Skip for SQLite. Issue #14935. Cannot eval 'where ([m].Timeline != DateTimeOffset.Now)'
-        public override Task Where_datetimeoffset_now(bool isAsync) => null;
+        // SQLite client-eval
+        public override async Task Where_datetimeoffset_second_component(bool isAsync)
+        {
+            Assert.StartsWith(
+                "The LINQ expression",
+                (await Assert.ThrowsAsync<InvalidOperationException>(
+                    () => base.Where_datetimeoffset_second_component(isAsync)))
+                .Message);
+        }
 
-        // Skip for SQLite. Issue #14935. Cannot eval 'where ([m].Timeline.Second == 0)'
-        public override Task Where_datetimeoffset_second_component(bool isAsync) => null;
+        // SQLite client-eval
+        public override async Task Where_datetimeoffset_utcnow(bool isAsync)
+        {
+            Assert.StartsWith(
+                "The LINQ expression",
+                (await Assert.ThrowsAsync<InvalidOperationException>(
+                    () => base.Where_datetimeoffset_utcnow(isAsync)))
+                .Message);
+        }
 
-        // Skip for SQLite. Issue #14935. Cannot eval 'where ([m].Timeline != DateTimeOffset.UtcNow)'
-        public override Task Where_datetimeoffset_utcnow(bool isAsync) => null;
+        // SQLite client-eval
+        public override async Task Where_datetimeoffset_year_component(bool isAsync)
+        {
+            Assert.StartsWith(
+                "The LINQ expression",
+                (await Assert.ThrowsAsync<InvalidOperationException>(
+                    () => base.Where_datetimeoffset_year_component(isAsync)))
+                .Message);
+        }
 
-        // Skip for SQLite. Issue #14935. Cannot eval 'where ([m].Timeline.Year == 2)'
-        public override Task Where_datetimeoffset_year_component(bool isAsync) => null;
-
-        // Skip for SQLite. Issue #14935. Cannot eval 'where ([m].Timeline >= x)'
-        public override Task DateTimeOffset_Contains_Less_than_Greater_than(bool isAsync) => null;
+        // SQLite client-eval
+        public override async Task DateTimeOffset_Contains_Less_than_Greater_than(bool isAsync)
+        {
+            Assert.StartsWith(
+                "The LINQ expression",
+                (await Assert.ThrowsAsync<InvalidOperationException>(
+                    () => base.DateTimeOffset_Contains_Less_than_Greater_than(isAsync)))
+                .Message);
+        }
 
         // Sqlite does not support lateral joins
         public override Task Correlated_collections_inner_subquery_predicate_references_outer_qsre(bool isAsync) => null;

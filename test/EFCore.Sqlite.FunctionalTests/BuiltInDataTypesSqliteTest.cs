@@ -3,6 +3,7 @@
 
 using System;
 using System.Linq;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -974,7 +975,7 @@ LIMIT 1");
                     .Where(e => e.PartitionId == 200)
                     .GroupBy(_ => true);
 
-                // TODO: Update with #16133
+                // TODO: Update with #15249
                 var ex = Assert.Throws<InvalidOperationException>(
                     () => query
                         .Select(g => g.Min(e => e.TestNullableDecimal))
@@ -1034,7 +1035,7 @@ LIMIT 1");
                     .Where(e => e.PartitionId == 201)
                     .GroupBy(_ => true);
 
-                // TODO: Update with #16133
+                // TODO: Update with #15249
                 var ex = Assert.Throws<InvalidOperationException>(
                     () => query
                         .Select(g => g.Max(e => e.TestNullableDecimal))
@@ -1084,12 +1085,14 @@ LIMIT 1");
 
                 context.SaveChanges();
 
-                // TODO: Update with #15937
-                var ex = Assert.Throws<NullReferenceException>(
+                var ex = Assert.Throws<InvalidOperationException>(
                     () => context.Set<BuiltInNullableDataTypes>()
                         .Where(e => e.PartitionId == 202)
                         .Average(e => e.TestNullableDecimal));
-                Assert.Equal(new NullReferenceException().Message, ex.Message);
+                Assert.Equal(
+                    CoreStrings.TranslationFailed(
+                        "Projection Mapping:    EmptyProjectionMember -> [EntityProjectionExpression]SELECT 1FROM BuiltInNullableDataTypes AS bWHERE b.PartitionId == 202"),
+                    RemoveNewLines(ex.Message));
             }
         }
 
@@ -1116,14 +1119,18 @@ LIMIT 1");
 
                 context.SaveChanges();
 
-                // TODO: Update with #15937
-                var ex = Assert.Throws<NullReferenceException>(
+                var ex = Assert.Throws<InvalidOperationException>(
                     () => context.Set<BuiltInDataTypes>()
                         .Where(e => e.PartitionId == 203)
                         .Sum(e => e.TestDecimal));
-                Assert.Equal(new NullReferenceException().Message, ex.Message);
+                Assert.Equal(
+                    CoreStrings.TranslationFailed("Projection Mapping:    EmptyProjectionMember -> [EntityProjectionExpression]SELECT 1FROM BuiltInDataTypes AS bWHERE b.PartitionId == 203"),
+                    RemoveNewLines(ex.Message));
             }
         }
+
+        private string RemoveNewLines(string message)
+            => message.Replace("\n", "").Replace("\r", "");
 
         [ConditionalFact]
         public virtual void Can_query_negation_of_converted_types()

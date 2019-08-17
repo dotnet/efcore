@@ -449,15 +449,11 @@ WHERE (DATEDIFF(NANOSECOND, [m].[TimeSpanAsTime], @__timeSpan_1) = 0) AND DATEDI
                 StringEnum16? param60 = StringEnum16.Value2;
                 Assert.Same(entity, context.Set<MappedNullableDataTypes>().Single(e => e.Int == 999 && e.EnumAsVarcharMax == param60));
 
-                // Issue #14935. Cannot eval 'where [e].SqlVariantString.Equals(__param61_0)'
-                // Added AsEnumerable()
                 object param61 = "Bang!";
-                Assert.Same(entity, context.Set<MappedNullableDataTypes>().AsEnumerable().Single(e => e.Int == 999 && e.SqlVariantString.Equals(param61)));
+                Assert.Same(entity, context.Set<MappedNullableDataTypes>().Single(e => e.Int == 999 && e.SqlVariantString.Equals(param61)));
 
-                // Issue #14935. Cannot eval 'where [e].SqlVariantInt.Equals(__param62_0)'
-                // Added AsEnumerable()
                 object param62 = 887876;
-                Assert.Same(entity, context.Set<MappedNullableDataTypes>().AsEnumerable().Single(e => e.Int == 999 && e.SqlVariantInt.Equals(param62)));
+                Assert.Same(entity, context.Set<MappedNullableDataTypes>().Single(e => e.Int == 999 && e.SqlVariantInt.Equals(param62)));
             }
         }
 
@@ -662,15 +658,10 @@ WHERE (DATEDIFF(NANOSECOND, [m].[TimeSpanAsTime], @__timeSpan_1) = 0) AND DATEDI
                 StringEnum16? param60 = null;
                 Assert.Same(entity, context.Set<MappedNullableDataTypes>().Single(e => e.Int == 911 && e.EnumAsVarcharMax == param60));
 
-                // Issue #14935. Cannot eval 'where ([e].SqlVariantString == __param61_0)'
-                // Added AsEnumerable()
                 object param61 = null;
-                Assert.Same(entity, context.Set<MappedNullableDataTypes>().AsEnumerable().Single(e => e.Int == 911 && e.SqlVariantString == param61));
-
-                // Issue #14935. Cannot eval 'where ([e].SqlVariantInt == __param62_0)'
-                // Added AsEnumerable()
+                Assert.Same(entity, context.Set<MappedNullableDataTypes>().Single(e => e.Int == 911 && e.SqlVariantString == param61));
                 object param62 = null;
-                Assert.Same(entity, context.Set<MappedNullableDataTypes>().AsEnumerable().Single(e => e.Int == 911 && e.SqlVariantInt == param62));
+                Assert.Same(entity, context.Set<MappedNullableDataTypes>().Single(e => e.Int == 911 && e.SqlVariantInt == param62));
             }
         }
 

@@ -6,6 +6,7 @@ using Xunit.Abstractions;
 
 namespace Microsoft.EntityFrameworkCore
 {
+    // Issue #16032
     internal class TableSplittingSqlServerTest : TableSplittingTestBase
     {
         public TableSplittingSqlServerTest(ITestOutputHelper testOutputHelper)

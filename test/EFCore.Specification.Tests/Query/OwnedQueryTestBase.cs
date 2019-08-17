@@ -125,7 +125,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalFact(Skip = "Issue #14935. Cannot eval 'GroupBy([op].Id, _Include(queryContext, [op], new [] {[op.PersonAddress], [op.PersonAddress.Country], [op.BranchAddress], [op.BranchAddress.Country], [op.LeafAAddress], [op.LeafAAddress.Country], [op.LeafBAddress], [op.LeafBAddress.Country]}, (queryContext, entity, included) => { ... }))'")]
+        [ConditionalFact(Skip = "Issue #17068")]
         public virtual void Query_when_group_by()
         {
             using (var context = CreateContext())

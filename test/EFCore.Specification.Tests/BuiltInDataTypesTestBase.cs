@@ -127,8 +127,7 @@ namespace Microsoft.EntityFrameworkCore
                 }
                 else
                 {
-                    // Issue #14935. Cannot eval 'where [e].ByteArray5.SequenceEqual(__shortBinary_0)'
-                    // Uses == operator instead.
+                    // Issue #10582
                     Assert.NotNull(
                         context.Set<MaxLengthDataTypes>().Where(e => e.Id == 799 && e.ByteArray5 == shortBinary).ToList()
                             .SingleOrDefault());

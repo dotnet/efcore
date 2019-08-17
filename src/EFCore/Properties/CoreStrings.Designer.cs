@@ -33,6 +33,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 cycle);
 
         /// <summary>
+        ///     The LINQ expression '{expression}' could not be translated. Either rewrite the query in a form that can be translated, or switch to client evaluation explicitly by inserting a call to either AsEnumerable(), AsAsyncEnumerable(), ToList(), or ToListAsync(). See https://go.microsoft.com/fwlink/?linkid=2101038 for more information.
+        /// </summary>
+        public static string TranslationFailed([CanBeNull] object expression)
+            => string.Format(
+                GetString("TranslationFailed", nameof(expression)),
+                expression);
+
+        /// <summary>
         ///     The model must be finalized before '{method}' can be used. Ensure that either 'OnModelCreating' has completed or, if using a stand-alone 'ModelBuilder', that 'FinalizeModel' has been called.
         /// </summary>
         public static string ModelNotFinalized([CanBeNull] object method)

@@ -1862,7 +1862,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     .Select(e => 5));
         }
 
-        [ConditionalTheory(Skip = "Issue #14935. Cannot eval 'GroupBy([o].CustomerID, [o])'")]
+        [ConditionalTheory(Skip = "Issue #17068")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_Select_sum_over_unmapped_property(bool isAsync)
         {
@@ -2152,7 +2152,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 assertOrder: true);
         }
 
-        [ConditionalTheory(Skip = "Issue #14935. Cannot eval 'GroupBy([o].OrderID, [o])'")]
+        [ConditionalTheory(Skip = "Issue #17068")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Select_nested_collection_with_groupby(bool isAsync)
         {
@@ -2165,7 +2165,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                             : Array.Empty<int>()));
         }
 
-        [ConditionalTheory(Skip = "Issue #14935. Cannot eval 'GroupBy([o].CustomerID, new ProjectedType() {Order = [o].OrderID, Customer = [o].CustomerID})'")]
+        [ConditionalTheory(Skip = "Issue #17068")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Select_GroupBy_All(bool isAsync)
         {
@@ -2199,7 +2199,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             public override int GetHashCode() => Order.GetHashCode();
         }
 
-        [ConditionalTheory(Skip = "Issue #14935. Cannot eval 'GroupBy(new <>f__AnonymousType25`1(CustomerID = [o].CustomerID), [o])'")]
+        [ConditionalTheory(Skip = "Issue #17068")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_Where_in_aggregate(bool isAsync)
         {
@@ -2264,7 +2264,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         #region GroupByWithoutAggregate
 
-        [ConditionalTheory(Skip = "Issue #14935. Cannot eval 'GroupBy([c].City, new <>f__AnonymousType270`2(City = [c].City, CustomerID = [c].CustomerID))'")]
+        [ConditionalTheory(Skip = "Issue #17068")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_anonymous(bool isAsync)
         {
@@ -2280,7 +2280,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 elementAsserter: GroupingAsserter<string, dynamic>(d => d.CustomerID));
         }
 
-        [ConditionalTheory(Skip = "Issue #14935. Cannot eval 'GroupBy([c].City, new <>f__AnonymousType270`2(City = [c].City, CustomerID = [c].CustomerID))'")]
+        [ConditionalTheory(Skip = "Issue #17068")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_anonymous_with_where(bool isAsync)
         {
@@ -2316,7 +2316,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 assertOrder: true);
         }
 
-        [ConditionalTheory(Skip = "Issue #14935. Cannot eval 'GroupBy([c].Country, new <>f__AnonymousType271`2(Country = [c].Country, CustomerID = [c].CustomerID))'")]
+        [ConditionalTheory(Skip = "Issue #17068")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_nested_order_by_enumerable(bool isAsync)
         {
@@ -2335,7 +2335,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 assertOrder: true);
         }
 
-        [ConditionalTheory(Skip = "Issue #14935. Cannot eval 'DefaultIfEmpty()'")]
+        [ConditionalTheory(Skip = "Issue #17068")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_join_default_if_empty_anonymous(bool isAsync)
         {
@@ -2358,7 +2358,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 elementAsserter: GroupingAsserter<dynamic, dynamic>(d => d.ProductID));
         }
 
-        [ConditionalTheory(Skip = "Issue #14935. Cannot eval 'GroupBy([c].City, [c])'")]
+        [ConditionalTheory(Skip = "Issue #17068")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_SelectMany(bool isAsync)
         {
@@ -2368,7 +2368,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 91);
         }
 
-        [ConditionalTheory(Skip = "Issue #14935. Cannot eval 'GroupBy([o].CustomerID, [o])'")]
+        [ConditionalTheory(Skip = "Issue #17068")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_simple(bool isAsync)
         {
@@ -2380,7 +2380,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 830);
         }
 
-        [ConditionalTheory(Skip = "Issue #14935. Cannot eval 'GroupBy([o].CustomerID, [o])'")]
+        [ConditionalTheory(Skip = "Issue #17068")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_simple2(bool isAsync)
         {
@@ -2392,7 +2392,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 830);
         }
 
-        [ConditionalTheory(Skip = "Issue #14935. Cannot eval 'GroupBy([o].CustomerID, [o])'")]
+        [ConditionalTheory(Skip = "Issue #17068")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_first(bool isAsync)
         {
@@ -2403,7 +2403,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 6);
         }
 
-        [ConditionalTheory(Skip = "Issue #14935. Cannot eval 'GroupBy([o].CustomerID, [o].OrderID)'")]
+        [ConditionalTheory(Skip = "Issue #17068")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_with_element_selector(bool isAsync)
         {
@@ -2416,7 +2416,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 elementAsserter: CollectionAsserter<int>());
         }
 
-        [ConditionalTheory(Skip = "Issue #14935. Cannot eval 'GroupBy([o].CustomerID, [o])'")]
+        [ConditionalTheory(Skip = "Issue #17068")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_with_element_selector2(bool isAsync)
         {
@@ -2429,7 +2429,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 elementAsserter: CollectionAsserter<Order>());
         }
 
-        [ConditionalTheory(Skip = "Issue #14935. Cannot eval 'GroupBy([e].EmployeeID, [e])'")]
+        [ConditionalTheory(Skip = "Issue #17068")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_with_element_selector3(bool isAsync)
         {
@@ -2447,7 +2447,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 assertOrder: true);
         }
 
-        [ConditionalTheory(Skip = "Issue #14935. Cannot eval 'GroupBy(Convert([o].OrderDate, DateTime).Month, [o])'")]
+        [ConditionalTheory(Skip = "Issue #17068")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_DateTimeOffset_Property(bool isAsync)
         {
@@ -2459,7 +2459,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 830);
         }
 
-        [ConditionalTheory(Skip = "Issue #14935. Cannot eval 'GroupBy([o].CustomerID, [o])'")]
+        [ConditionalTheory(Skip = "Issue #17068")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task OrderBy_GroupBy_SelectMany(bool isAsync)
         {
@@ -2472,7 +2472,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 830);
         }
 
-        [ConditionalTheory(Skip = "Issue #14935. Cannot eval 'GroupBy([e].EmployeeID, [e])'")]
+        [ConditionalTheory(Skip = "Issue #17068")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task OrderBy_GroupBy_SelectMany_shadow(bool isAsync)
         {
@@ -2485,7 +2485,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                         .Select(g => EF.Property<string>(g, "Title")));
         }
 
-        [ConditionalTheory(Skip = "Issue #14935. Cannot eval 'GroupBy([o].CustomerID, [o])'")]
+        [ConditionalTheory(Skip = "Issue #17068")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_with_orderby(bool isAsync)
         {
@@ -2497,7 +2497,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 830);
         }
 
-        [ConditionalTheory(Skip = "Issue #14935. Cannot eval 'GroupBy([o].CustomerID, [o])'")]
+        [ConditionalTheory(Skip = "Issue #17068")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_with_orderby_and_anonymous_projection(bool isAsync)
         {
@@ -2520,7 +2520,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 830);
         }
 
-        [ConditionalTheory(Skip = "Issue #14935. Cannot eval 'GroupBy([o].CustomerID, [o])'")]
+        [ConditionalTheory(Skip = "Issue #17068")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_with_orderby_take_skip_distinct(bool isAsync)
         {
@@ -2558,7 +2558,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 31);
         }
 
-        [ConditionalTheory(Skip = "Issue #14935. Cannot eval 'from OrderDetail orderDetail in [orderJoin]'")]
+        [ConditionalTheory(Skip = "Issue #17068")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_join_anonymous(bool isAsync)
         {
@@ -2581,7 +2581,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 elementAsserter: GroupingAsserter<dynamic, dynamic>(d => d.ProductID));
         }
 
-        [ConditionalTheory(Skip = "Issue #14935. Cannot eval 'GroupBy([o].CustomerID, [o])'")]
+        [ConditionalTheory(Skip = "Issue #17068")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_Distinct(bool isAsync)
         {
@@ -2592,7 +2592,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     os.GroupBy(o => o.CustomerID).Distinct().Select(g => g.Key));
         }
 
-        [ConditionalTheory(Skip = "Issue #14935. Cannot eval 'GroupBy([o].CustomerID, [o])'")]
+        [ConditionalTheory(Skip = "Issue #17068")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task OrderBy_Skip_GroupBy(bool isAsync)
         {
@@ -2604,7 +2604,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 30);
         }
 
-        [ConditionalTheory(Skip = "Issue #14935. Cannot eval 'GroupBy([o].CustomerID, [o])'")]
+        [ConditionalTheory(Skip = "Issue #17068")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task OrderBy_Take_GroupBy(bool isAsync)
         {
@@ -2616,7 +2616,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 50);
         }
 
-        [ConditionalTheory(Skip = "Issue #14935. Cannot eval 'GroupBy([o].CustomerID, [o])'")]
+        [ConditionalTheory(Skip = "Issue #17068")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task OrderBy_Skip_Take_GroupBy(bool isAsync)
         {
@@ -2628,7 +2628,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 50);
         }
 
-        [ConditionalTheory(Skip = "Issue #14935. Cannot eval 'GroupBy([o].CustomerID, new <>f__AnonymousType236`2(CustomerID = [o].CustomerID, EmployeeID = [o].EmployeeID))'")]
+        [ConditionalTheory(Skip = "Issue #17068")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Select_Distinct_GroupBy(bool isAsync)
         {
@@ -2644,7 +2644,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 elementAsserter: GroupingAsserter<string, dynamic>(d => d.EmployeeID));
         }
 
-        [ConditionalTheory(Skip = "Issue #14935. Cannot eval 'GroupBy([c].EmployeeID, [c])'")]
+        [ConditionalTheory(Skip = "Issue #17068")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_with_aggregate_through_navigation_property(bool isAsync)
         {
@@ -2658,7 +2658,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 elementSorter: e => e.max);
         }
 
-        [ConditionalTheory(Skip = "Issue #14935. Cannot eval 'GroupBy(new <>f__AnonymousType19`2(CustomerID = [o].CustomerID, OrderDate = [o].OrderDate), [o])'")]
+        [ConditionalTheory(Skip = "Issue #17068")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_anonymous_key_without_aggregate(bool isAsync)
         {
@@ -2683,7 +2683,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         #region GroupBySelectFirst
 
-        [ConditionalTheory(Skip = "Issue #14935. Cannot eval 'GroupBy(Property([e], \"Title\"), [e])'")]
+        [ConditionalTheory(Skip = "Issue #17068")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_Shadow(bool isAsync)
         {
@@ -2697,7 +2697,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                         .Select(g => EF.Property<string>(g.First(), "Title")));
         }
 
-        [ConditionalTheory(Skip = "Issue #14935. Cannot eval 'GroupBy(Property([e], \"Title\"), [e])'")]
+        [ConditionalTheory(Skip = "Issue #17068")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_Shadow2(bool isAsync)
         {
@@ -2711,7 +2711,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                         .Select(g => g.First()));
         }
 
-        [ConditionalTheory(Skip = "Issue #14935. Cannot eval 'GroupBy([e].EmployeeID, [e])'")]
+        [ConditionalTheory(Skip = "Issue #17068")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_Shadow3(bool isAsync)
         {
@@ -2723,7 +2723,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                         .Select(g => EF.Property<string>(g.First(), "Title")));
         }
 
-        [ConditionalTheory(Skip = "Issue #14935. Cannot eval 'GroupBy([c].City, [c])'")]
+        [ConditionalTheory(Skip = "Issue #17068")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_Select_First_GroupBy(bool isAsync)
         {
@@ -2757,7 +2757,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         #region GroupByEntityType
 
-        [ConditionalTheory(Skip = "Issue #14935. Cannot eval 'GroupBy([o].CustomerID, new ProjectedType() {Order = [o].OrderID, Customer = [o].CustomerID})'")]
+        [ConditionalTheory(Skip = "Issue #17068")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Select_GroupBy(bool isAsync)
         {
@@ -2773,7 +2773,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 elementSorter: g => g.Key + " " + g.Count());
         }
 
-        [ConditionalTheory(Skip = "Issue #14935. Cannot eval 'GroupBy([o].OrderID, new ProjectedType() {Order = [o].OrderID, Customer = [o].CustomerID})'")]
+        [ConditionalTheory(Skip = "Issue #17068")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Select_GroupBy_SelectMany(bool isAsync)
         {
@@ -2790,7 +2790,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 elementSorter: g => g.Order);
         }
 
-        [ConditionalTheory(Skip = "Issue #14935. Cannot eval 'GroupBy([c], [o])'")]
+        [ConditionalTheory(Skip = "Issue #17068")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Join_GroupBy_entity_ToList(bool isAsync)
         {
@@ -2811,7 +2811,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         #region DoubleGroupBy
 
-        [ConditionalTheory(Skip = "Issue #14935. Cannot eval 'GroupBy(new <>f__AnonymousType22`2(OrderID = [o].OrderID, OrderDate = [o].OrderDate), [o])'")]
+        [ConditionalTheory(Skip = "Issue #17068")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Double_GroupBy_with_aggregate(bool isAsync)
         {
@@ -2846,7 +2846,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 os => os.GroupBy(o => o.CustomerID).Select(g => g.Sum(gg => gg.OrderID)).CountAsync());
         }
 
-        [ConditionalTheory(Skip = "Issue #14935. Cannot eval 'GroupBy(new <>f__AnonymousType25`1(CustomerID = [o].CustomerID), [o])'")]
+        [ConditionalTheory(Skip = "Issue #17068")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task LongCount_after_client_GroupBy(bool isAsync)
         {

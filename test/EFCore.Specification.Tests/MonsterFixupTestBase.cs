@@ -519,8 +519,7 @@ namespace Microsoft.EntityFrameworkCore
                 var productReview2 = context.ProductReviews.Single(e => e.Review.StartsWith("Good"));
                 var productReview3 = context.ProductReviews.Single(e => e.Review.StartsWith("Eeky"));
 
-                // Issue #14935. Cannot eval 'where (Convert([e].Photo[0], Int32) == 101)'
-                // ToList() added.
+                // Issue #16428
                 var productPhotos = context.ProductPhotos.ToList();
                 var productPhoto1 = productPhotos.Single(e => e.Photo[0] == 101);
                 var productPhoto2 = productPhotos.Single(e => e.Photo[0] == 103);
@@ -836,8 +835,7 @@ namespace Microsoft.EntityFrameworkCore
                     new[] { "Better than Tarqies!", "Eeky says yes!", "Good with maple syrup." },
                     context.ProductReviews.Select(c => c.Review).OrderBy(n => n));
 
-                // Issue #14935. Cannot eval 'orderby {[c].Photo => First()}.ToString() asc'
-                // ToList() added.
+                // Issue #16428
                 Assert.Equal(
                     new[] { "101", "103", "105" },
                     context.ProductPhotos.ToList().Select(c => c.Photo.First().ToString()).OrderBy(n => n));
@@ -850,8 +848,7 @@ namespace Microsoft.EntityFrameworkCore
                     new[] { "Ants By Boris", "Trading As Trent" },
                     context.Suppliers.Select(c => c.Name).OrderBy(n => n));
 
-                // Issue #14935. Cannot eval 'from Byte l in [c].Logo'
-                // ToList() added.
+                // Issue #16428
                 Assert.Equal(
                     new[] { "201", "202" },
                     context.SupplierLogos.ToList().SelectMany(c => c.Logo).Select(l => l.ToString()).OrderBy(n => n));
@@ -1033,8 +1030,7 @@ namespace Microsoft.EntityFrameworkCore
                 Assert.Equal(product1.ProductId, productReview2.ProductId);
                 Assert.Equal(product2.ProductId, productReview3.ProductId);
 
-                // Issue #14935. Cannot eval 'where (Convert([e].Photo[0], Int32) == 101)'
-                // ToList() added.
+                // Issue #16428
                 var productPhotos = context.ProductPhotos.ToList();
                 var productPhoto1 = productPhotos.Single(e => e.Photo[0] == 101);
                 var productPhoto2 = productPhotos.Single(e => e.Photo[0] == 103);
@@ -1057,8 +1053,7 @@ namespace Microsoft.EntityFrameworkCore
                 var supplier1 = context.Suppliers.Single(e => e.Name.StartsWith("Trading"));
                 var supplier2 = context.Suppliers.Single(e => e.Name.StartsWith("Ants"));
 
-                // Issue #14935. Cannot eval 'where (Convert([e].Logo[0], Int32) == 201)'
-                // ToList() added.
+                // Issue #16428
                 var supplierLogo1 = context.SupplierLogos.ToList().Single(e => e.Logo[0] == 201);
 
                 Assert.Equal(supplier1.SupplierId, supplierLogo1.SupplierId);
@@ -1303,8 +1298,7 @@ namespace Microsoft.EntityFrameworkCore
 
                 Assert.True(product3.Reviews == null || product3.Reviews.Count == 0);
 
-                // Issue #14935. Cannot eval 'where (Convert([e].Photo[0], Int32) == 101)'
-                // ToList() added.
+                // Issue #16428
                 var productPhotos = context.ProductPhotos.ToList();
                 var productPhoto1 = productPhotos.Single(e => e.Photo[0] == 101);
                 var productPhoto2 = productPhotos.Single(e => e.Photo[0] == 103);
@@ -1338,8 +1332,7 @@ namespace Microsoft.EntityFrameworkCore
                 var supplier1 = context.Suppliers.Single(e => e.Name.StartsWith("Trading"));
                 var supplier2 = context.Suppliers.Single(e => e.Name.StartsWith("Ants"));
 
-                // Issue #14935. Cannot eval 'where (Convert([e].Logo[0], Int32) == 201)'
-                // ToList() added.
+                // Issue #16428
                 var supplierLogo1 = context.SupplierLogos.ToList().Single(e => e.Logo[0] == 201);
 
                 Assert.Same(supplierLogo1, supplier1.Logo);

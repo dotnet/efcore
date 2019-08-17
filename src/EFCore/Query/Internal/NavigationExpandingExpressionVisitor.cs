@@ -7,6 +7,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -510,7 +511,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                             return ProcessDefaultIfEmpty(source);
 
                         default:
-                            throw new NotImplementedException($"Unhandled method in navigation expansion: {method.Name}");
+                            throw new InvalidOperationException(CoreStrings.TranslationFailed(methodCallExpression.Print()));
                     }
                 }
                 else if (firstArgument is MaterializeCollectionNavigationExpression materializeCollectionNavigationExpression
@@ -535,7 +536,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     return new NavigationExpansionExpression(methodCallExpression, currentTree, currentTree, parameterName);
                 }
 
-                throw new NotImplementedException("NonNavSource");
+                throw new InvalidOperationException(CoreStrings.TranslationFailed(methodCallExpression.Print()));
             }
 
             if (method.IsGenericMethod
@@ -796,7 +797,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 return new NavigationExpansionExpression(newSource, currentTree, pendingSelector, parameterName);
             }
 
-            throw new InvalidOperationException("SelectMany's collectionSelector was not NavigationExpansionExpression");
+            throw new InvalidOperationException(CoreStrings.TranslationFailed(collectionSelector.Print()));
         }
 
         private void ApplyPendingOrderings(NavigationExpansionExpression source)

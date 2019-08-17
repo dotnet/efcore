@@ -1255,31 +1255,6 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
         }
 
         /// <summary>
-        ///     The LINQ expression '{expression}' could not be translated and will be evaluated locally.
-        /// </summary>
-        [Obsolete]
-        public static EventDefinition<object> LogClientEvalWarning([NotNull] IDiagnosticsLogger logger)
-        {
-            var definition = ((RelationalLoggingDefinitions)logger.Definitions).LogClientEvalWarning;
-            if (definition == null)
-            {
-                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
-                    ref ((RelationalLoggingDefinitions)logger.Definitions).LogClientEvalWarning,
-                    () => new EventDefinition<object>(
-                        logger.Options,
-                        RelationalEventId.QueryClientEvaluationWarning,
-                        LogLevel.Warning,
-                        "RelationalEventId.QueryClientEvaluationWarning",
-                        level => LoggerMessage.Define<object>(
-                            level,
-                            RelationalEventId.QueryClientEvaluationWarning,
-                            _resourceManager.GetString("LogClientEvalWarning"))));
-            }
-
-            return (EventDefinition<object>)definition;
-        }
-
-        /// <summary>
         ///     Creating DbCommand for '{executionType}'.
         /// </summary>
         public static EventDefinition<string> LogCommandCreating([NotNull] IDiagnosticsLogger logger)

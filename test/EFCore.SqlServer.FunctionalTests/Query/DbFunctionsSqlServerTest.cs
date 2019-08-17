@@ -166,7 +166,7 @@ WHERE (FREETEXT([c].[City], N'London')) AND (FREETEXT([c].[Title], N'Manager', L
             }
         }
 
-        [ConditionalFact(Skip = "Issue #14935. Cannot eval 'LastOrDefault()'")]
+        [ConditionalFact]
         [SqlServerCondition(SqlServerCondition.SupportsFullTextSearch)]
         public void FreeText_through_navigation()
         {
@@ -189,7 +189,7 @@ WHERE ((FREETEXT([c.Manager].[Title], N'President')) AND (FREETEXT([c].[Title], 
             }
         }
 
-        [ConditionalFact(Skip = "Issue #14935. Cannot eval 'LastOrDefault()'")]
+        [ConditionalFact]
         [SqlServerCondition(SqlServerCondition.SupportsFullTextSearch)]
         public void FreeText_through_navigation_with_language_terms()
         {
@@ -392,7 +392,7 @@ WHERE CONTAINS([c].[Title], N'NEAR((Sales, President), 1)', LANGUAGE 1033)");
             }
         }
 
-        [ConditionalFact(Skip = "Issue #14935. Cannot eval 'LastOrDefault()'")]
+        [ConditionalFact]
         [SqlServerCondition(SqlServerCondition.SupportsFullTextSearch)]
         public void Contains_through_navigation()
         {
@@ -571,7 +571,7 @@ WHERE DATEDIFF(NANOSECOND, GETDATE(), DATEADD(second, CAST(1.0E0 AS int), GETDAT
                     .Select(c => EF.Functions.IsDate(c.CustomerID))
                     .FirstOrDefault();
 
-                Assert.Equal(actual, false); 
+                Assert.Equal(actual, false);
 
                 AssertSql(
                     @"SELECT TOP(1) CAST(ISDATE([o].[CustomerID]) AS bit)
@@ -597,7 +597,7 @@ WHERE CAST(ISDATE([o].[CustomerID]) AS bit) <> CAST(1 AS bit)");
                     @"SELECT TOP(1) CAST(ISDATE(CONVERT(VARCHAR(100), [o].[OrderDate])) AS bit)
 FROM [Orders] AS [o]
 WHERE CAST(ISDATE(CONVERT(VARCHAR(100), [o].[OrderDate])) AS bit) = CAST(1 AS bit)");
-                
+
             }
         }
 

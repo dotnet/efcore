@@ -4,7 +4,6 @@
 using System;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
@@ -27,12 +26,9 @@ namespace Microsoft.EntityFrameworkCore.Query
             using (var context = CreateContext())
             {
                 Assert.Equal(
-                    CoreStrings.WarningAsErrorTemplate(
-                        RelationalEventId.QueryClientEvaluationWarning,
-                        RelationalResources.LogClientEvalWarning(new TestLogger<TestRelationalLoggingDefinitions>()).GenerateMessage("where [c].IsLondon"),
-                        "RelationalEventId.QueryClientEvaluationWarning"),
+                    CoreStrings.TranslationFailed("(c) => c.IsLondon"),
                     Assert.Throws<InvalidOperationException>(
-                            () => context.Customers.Where(c => c.IsLondon).ToList())
+                            () => context.Customers.Where((c) => c.IsLondon).ToList())
                         .Message);
             }
         }
@@ -43,12 +39,9 @@ namespace Microsoft.EntityFrameworkCore.Query
             using (var context = CreateContext())
             {
                 Assert.Equal(
-                    CoreStrings.WarningAsErrorTemplate(
-                        RelationalEventId.QueryClientEvaluationWarning,
-                        RelationalResources.LogClientEvalWarning(new TestLogger<TestRelationalLoggingDefinitions>()).GenerateMessage("orderby [c].IsLondon asc"),
-                        "RelationalEventId.QueryClientEvaluationWarning"),
+                    CoreStrings.TranslationFailed("(c) => c.IsLondon"),
                     Assert.Throws<InvalidOperationException>(
-                        () => context.Customers.OrderBy(c => c.IsLondon).ToList()).Message);
+                        () => context.Customers.OrderBy((c) => c.IsLondon).ToList()).Message);
             }
         }
 
@@ -58,13 +51,10 @@ namespace Microsoft.EntityFrameworkCore.Query
             using (var context = CreateContext())
             {
                 Assert.Equal(
-                    CoreStrings.WarningAsErrorTemplate(
-                        RelationalEventId.QueryClientEvaluationWarning,
-                        RelationalResources.LogClientEvalWarning(new TestLogger<TestRelationalLoggingDefinitions>()).GenerateMessage("orderby [c].IsLondon asc, ClientMethod([c]) asc"),
-                        "RelationalEventId.QueryClientEvaluationWarning"),
+                    CoreStrings.TranslationFailed("(c) => c.IsLondon"),
                     Assert.Throws<InvalidOperationException>(
                         () => context.Customers
-                            .OrderBy(c => c.IsLondon)
+                            .OrderBy((c) => c.IsLondon)
                             .ThenBy(c => ClientMethod(c))
                             .ToList()).Message);
             }
@@ -78,17 +68,15 @@ namespace Microsoft.EntityFrameworkCore.Query
             using (var context = CreateContext())
             {
                 Assert.Equal(
-                    CoreStrings.WarningAsErrorTemplate(
-                        RelationalEventId.QueryClientEvaluationWarning,
-                        RelationalResources.LogClientEvalWarning(new TestLogger<TestRelationalLoggingDefinitions>()).GenerateMessage(
-                            "where {from Customer c2 in value(Microsoft.EntityFrameworkCore.Query.Internal.EntityQueryable`1[Microsoft.EntityFrameworkCore.TestModels.Northwind.Customer]) where (([c1].CustomerID == [c2].CustomerID) AndAlso [c2].IsLondon) select [c2] => Any()}"),
-                        "RelationalEventId.QueryClientEvaluationWarning"),
-                    Assert.Throws<InvalidOperationException>(
-                        () => context.Customers
-                            .Where(
-                                c1 => context.Customers
-                                    .Any(c2 => c1.CustomerID == c2.CustomerID && c2.IsLondon))
-                            .ToList()).Message);
+                    CoreStrings.TranslationFailed(
+                        "(c0) => EntityShaperExpression:     EntityType: Customer    ValueBufferExpression:         ProjectionBindingExpression: EmptyProjectionMember    IsNullable: False.CustomerID == c0.CustomerID && c0.IsLondon"),
+                    RemoveNewLines(
+                        Assert.Throws<InvalidOperationException>(
+                            () => context.Customers
+                                .Where(
+                                    c1 => context.Customers
+                                        .Any(c2 => c1.CustomerID == c2.CustomerID && c2.IsLondon))
+                                .ToList()).Message));
             }
         }
 
@@ -98,12 +86,9 @@ namespace Microsoft.EntityFrameworkCore.Query
             using (var context = CreateContext())
             {
                 Assert.Equal(
-                    CoreStrings.WarningAsErrorTemplate(
-                        RelationalEventId.QueryClientEvaluationWarning,
-                        RelationalResources.LogClientEvalWarning(new TestLogger<TestRelationalLoggingDefinitions>()).GenerateMessage("All([c].IsLondon)"),
-                        "RelationalEventId.QueryClientEvaluationWarning"),
+                    CoreStrings.TranslationFailed("(c) => c.IsLondon"),
                     Assert.Throws<InvalidOperationException>(
-                        () => context.Customers.All(c => c.IsLondon)).Message);
+                        () => context.Customers.All((c) => c.IsLondon)).Message);
             }
         }
 
@@ -113,14 +98,11 @@ namespace Microsoft.EntityFrameworkCore.Query
             using (var context = CreateContext())
             {
                 Assert.Equal(
-                    CoreStrings.WarningAsErrorTemplate(
-                        RelationalEventId.QueryClientEvaluationWarning,
-                        RelationalResources.LogClientEvalWarning(new TestLogger<TestRelationalLoggingDefinitions>()).GenerateMessage("where [c].IsLondon"),
-                        "RelationalEventId.QueryClientEvaluationWarning"),
+                    CoreStrings.TranslationFailed("(c) => c.IsLondon"),
                     Assert.Throws<InvalidOperationException>(
                         () => context.Customers
                             .FromSqlRaw(NormalizeDelimetersInRawString("select * from [Customers]"))
-                            .Where(c => c.IsLondon)
+                            .Where((c) => c.IsLondon)
                             .ToList()).Message);
             }
         }
@@ -145,14 +127,11 @@ namespace Microsoft.EntityFrameworkCore.Query
             using (var context = CreateContext())
             {
                 Assert.Equal(
-                    CoreStrings.WarningAsErrorTemplate(
-                        RelationalEventId.QueryClientEvaluationWarning,
-                        RelationalResources.LogClientEvalWarning(new TestLogger<TestRelationalLoggingDefinitions>()).GenerateMessage("where [c].IsLondon"),
-                        "RelationalEventId.QueryClientEvaluationWarning"),
+                    CoreStrings.TranslationFailed("(c) => c.IsLondon"),
                     Assert.Throws<InvalidOperationException>(
                         () =>
                             (from c1 in context.Customers
-                                 .Where(c => c.IsLondon)
+                                 .Where((c) => c.IsLondon)
                                  .OrderBy(c => c.CustomerID)
                                  .Take(5)
                              select c1)
@@ -160,20 +139,20 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalFact(Skip = "issue #15312")]
+        [ConditionalFact]
         public virtual void Throws_when_select_many()
         {
             using (var context = CreateContext())
             {
                 Assert.Equal(
-                    CoreStrings.WarningAsErrorTemplate(
-                        RelationalEventId.QueryClientEvaluationWarning,
-                        RelationalResources.LogClientEvalWarning(new TestLogger<TestRelationalLoggingDefinitions>()).GenerateMessage("from Int32 i in value(System.Int32[])"),
-                        "RelationalEventId.QueryClientEvaluationWarning"),
+                    CoreStrings.TranslationFailed("(c1) => int[] { 1, 2, 3, }"),
                     Assert.Throws<InvalidOperationException>(
                         () =>
                             (from c1 in context.Customers
-                             from i in new[] { 1, 2, 3 }
+                             from i in new[]
+                             {
+                                 1, 2, 3
+                             }
                              select c1)
                             .ToList()).Message);
             }
@@ -185,18 +164,18 @@ namespace Microsoft.EntityFrameworkCore.Query
             using (var context = CreateContext())
             {
                 Assert.Equal(
-                    CoreStrings.WarningAsErrorTemplate(
-                        RelationalEventId.QueryClientEvaluationWarning,
-                        RelationalResources.LogClientEvalWarning(new TestLogger<TestRelationalLoggingDefinitions>()).GenerateMessage(
-                            "join UInt32 i in __p_0 on [e1].EmployeeID equals [i]"
-                        ),
-                        "RelationalEventId.QueryClientEvaluationWarning"),
-                    Assert.Throws<InvalidOperationException>(
-                        () =>
-                            (from e1 in context.Employees
-                             join i in new uint[] { 1, 2, 3 } on e1.EmployeeID equals i
-                             select e1)
-                            .ToList()).Message);
+                    CoreStrings.TranslationFailed(
+                        @"Join<Employee, uint, uint, Employee>(    outer: DbSet<Employee>,     inner: (Unhandled parameter: __p_0),     outerKeySelector: (e1) => e1.EmployeeID,     innerKeySelector: (i) => i,     resultSelector: (e1, i) => e1)"),
+                    RemoveNewLines(
+                        Assert.Throws<InvalidOperationException>(
+                            () =>
+                                (from e1 in context.Employees
+                                 join i in new uint[]
+                                 {
+                                     1, 2, 3
+                                 } on e1.EmployeeID equals i
+                                 select e1)
+                                .ToList()).Message));
             }
         }
 
@@ -206,31 +185,31 @@ namespace Microsoft.EntityFrameworkCore.Query
             using (var context = CreateContext())
             {
                 Assert.Equal(
-                    CoreStrings.WarningAsErrorTemplate(
-                        RelationalEventId.QueryClientEvaluationWarning,
-                        RelationalResources.LogClientEvalWarning(new TestLogger<TestRelationalLoggingDefinitions>()).GenerateMessage(
-                            "join UInt32 i in __p_0 on [e1].EmployeeID equals [i]"
-                        ),
-                        "RelationalEventId.QueryClientEvaluationWarning"),
-                    Assert.Throws<InvalidOperationException>(
-                        () =>
-                            (from e1 in context.Employees
-                             join i in new uint[] { 1, 2, 3 } on e1.EmployeeID equals i into g
-                             select e1)
-                            .ToList()).Message);
+                    CoreStrings.TranslationFailed(
+                        "GroupJoin<Employee, uint, uint, Employee>(    outer: DbSet<Employee>,     inner: (Unhandled parameter: __p_0),     outerKeySelector: (e1) => e1.EmployeeID,     innerKeySelector: (i) => i,     resultSelector: (e1, g) => e1)"),
+                    RemoveNewLines(
+                        Assert.Throws<InvalidOperationException>(
+                            () =>
+                                (from e1 in context.Employees
+                                 join i in new uint[]
+                                 {
+                                     1, 2, 3
+                                 } on e1.EmployeeID equals i into g
+                                 select e1)
+                                .ToList()).Message));
             }
         }
 
-        [ConditionalFact]
+        [ConditionalFact(Skip = "Issue #15249")]
         public virtual void Throws_when_group_by()
         {
             using (var context = CreateContext())
             {
+                context.Customers
+                    .GroupBy(c => c.CustomerID)
+                    .ToList();
                 Assert.Equal(
-                    CoreStrings.WarningAsErrorTemplate(
-                        RelationalEventId.QueryClientEvaluationWarning,
-                        RelationalResources.LogClientEvalWarning(new TestLogger<TestRelationalLoggingDefinitions>()).GenerateMessage("GroupBy([c].CustomerID, [c])"),
-                        "RelationalEventId.QueryClientEvaluationWarning"),
+                    CoreStrings.TranslationFailed("GroupBy([c].CustomerID, [c])"),
                     Assert.Throws<InvalidOperationException>(
                         () => context.Customers
                             .GroupBy(c => c.CustomerID)
@@ -244,12 +223,9 @@ namespace Microsoft.EntityFrameworkCore.Query
             using (var context = CreateContext())
             {
                 Assert.Equal(
-                    CoreStrings.WarningAsErrorTemplate(
-                        RelationalEventId.QueryClientEvaluationWarning,
-                        RelationalResources.LogClientEvalWarning(new TestLogger<TestRelationalLoggingDefinitions>()).GenerateMessage("where [c].IsLondon"),
-                        "RelationalEventId.QueryClientEvaluationWarning"),
+                    CoreStrings.TranslationFailed("(c) => c.IsLondon"),
                     Assert.Throws<InvalidOperationException>(
-                        () => context.Customers.First(c => c.IsLondon)).Message);
+                        () => context.Customers.First((c) => c.IsLondon)).Message);
             }
         }
 
@@ -259,12 +235,9 @@ namespace Microsoft.EntityFrameworkCore.Query
             using (var context = CreateContext())
             {
                 Assert.Equal(
-                    CoreStrings.WarningAsErrorTemplate(
-                        RelationalEventId.QueryClientEvaluationWarning,
-                        RelationalResources.LogClientEvalWarning(new TestLogger<TestRelationalLoggingDefinitions>()).GenerateMessage("where [c].IsLondon"),
-                        "RelationalEventId.QueryClientEvaluationWarning"),
+                    CoreStrings.TranslationFailed("(c) => c.IsLondon"),
                     Assert.Throws<InvalidOperationException>(
-                        () => context.Customers.Single(c => c.IsLondon)).Message);
+                        () => context.Customers.Single((c) => c.IsLondon)).Message);
             }
         }
 
@@ -274,12 +247,9 @@ namespace Microsoft.EntityFrameworkCore.Query
             using (var context = CreateContext())
             {
                 Assert.Equal(
-                    CoreStrings.WarningAsErrorTemplate(
-                        RelationalEventId.QueryClientEvaluationWarning,
-                        RelationalResources.LogClientEvalWarning(new TestLogger<TestRelationalLoggingDefinitions>()).GenerateMessage("where [c].IsLondon"),
-                        "RelationalEventId.QueryClientEvaluationWarning"),
+                    CoreStrings.TranslationFailed("(c) => c.IsLondon"),
                     Assert.Throws<InvalidOperationException>(
-                        () => context.Customers.FirstOrDefault(c => c.IsLondon)).Message);
+                        () => context.Customers.FirstOrDefault((c) => c.IsLondon)).Message);
             }
         }
 
@@ -289,14 +259,14 @@ namespace Microsoft.EntityFrameworkCore.Query
             using (var context = CreateContext())
             {
                 Assert.Equal(
-                    CoreStrings.WarningAsErrorTemplate(
-                        RelationalEventId.QueryClientEvaluationWarning,
-                        RelationalResources.LogClientEvalWarning(new TestLogger<TestRelationalLoggingDefinitions>()).GenerateMessage("where [c].IsLondon"),
-                        "RelationalEventId.QueryClientEvaluationWarning"),
+                    CoreStrings.TranslationFailed("(c) => c.IsLondon"),
                     Assert.Throws<InvalidOperationException>(
-                        () => context.Customers.SingleOrDefault(c => c.IsLondon)).Message);
+                        () => context.Customers.SingleOrDefault((c) => c.IsLondon)).Message);
             }
         }
+
+        private string RemoveNewLines(string message)
+            => message.Replace("\n", "").Replace("\r", "");
 
         private string NormalizeDelimetersInRawString(string sql)
             => Fixture.TestStore.NormalizeDelimetersInRawString(sql);
