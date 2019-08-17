@@ -15,13 +15,13 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
         {
         }
 
-        [ConditionalTheory(Skip = "Issue #14935")]
+        [ConditionalTheory(Skip = "Issue #17246")]
         public override Task Any_logs_concurrent_access_nonasync()
         {
             return base.Any_logs_concurrent_access_nonasync();
         }
 
-        [ConditionalTheory(Skip = "Issue #14935")]
+        [ConditionalTheory(Skip = "Issue #17246")]
         public override Task Any_logs_concurrent_access_async()
         {
             return base.Any_logs_concurrent_access_async();

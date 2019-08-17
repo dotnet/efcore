@@ -86,7 +86,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 928);
         }
 
-        [ConditionalTheory(Skip = "Issue #14935. Cannot eval 'join Employee e2 in {from Employee e in value(Microsoft.EntityFrameworkCore.Query.Internal.EntityQueryable`1[Microsoft.EntityFrameworkCore.TestModels.Northwind.Employee]) orderby [e].EmployeeID asc select [e] => Take(__p_0)} on [e1].EmployeeID equals GetEmployeeID([e2])'")]
+        [ConditionalTheory(Skip = "Issue #17068")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Client_Join_select_many(bool isAsync)
         {
@@ -296,7 +296,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     select c.CustomerID);
         }
 
-        [ConditionalTheory(Skip = "Issue #14935. Cannot eval 'join Order o in value(Microsoft.EntityFrameworkCore.Query.Internal.EntityQueryable`1[Microsoft.EntityFrameworkCore.TestModels.Northwind.Order]) on new Foo() {Bar = [c].CustomerID} equals new Foo() {Bar = [o].CustomerID}'")]
+        [ConditionalTheory(Skip = "Issue #17068")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Join_client_new_expression(bool isAsync)
         {
@@ -319,7 +319,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 e => e.c.CustomerID);
         }
 
-        [ConditionalTheory(Skip = "Issue #14935. Cannot eval 'join UInt32 id in __p_0 on [e].EmployeeID equals [id]'")]
+        [ConditionalTheory(Skip = "Issue #17068")]
         [MemberData(nameof(IsAsyncData))]
         public virtual async Task Join_local_collection_int_closure_is_cached_correctly(bool isAsync)
         {
@@ -342,7 +342,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     select e.EmployeeID);
         }
 
-        [ConditionalTheory(Skip = "Issue #14935. Cannot eval 'join Char id in __p_0 on [e].EmployeeID equals Convert([id], UInt32)'")]
+        [ConditionalTheory(Skip = "Issue #17068")]
         [MemberData(nameof(IsAsyncData))]
         public virtual async Task Join_local_string_closure_is_cached_correctly(bool isAsync)
         {
@@ -365,7 +365,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     select e.EmployeeID);
         }
 
-        [ConditionalTheory(Skip = "Issue #14935. Cannot eval 'join Byte id in __p_0 on [e].EmployeeID equals Convert([id], UInt32)'")]
+        [ConditionalTheory(Skip = "Issue #17068")]
         [MemberData(nameof(IsAsyncData))]
         public virtual async Task Join_local_bytes_closure_is_cached_correctly(bool isAsync)
         {
@@ -444,7 +444,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 91);
         }
 
-        [ConditionalTheory(Skip = "Issue #14935. Cannot eval 'Count()'")]
+        [ConditionalTheory(Skip = "Issue #17068")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupJoin_customers_orders_count(bool isAsync)
         {
@@ -462,7 +462,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 91);
         }
 
-        [ConditionalTheory(Skip = "Issue #14935. Cannot eval 'Count()'")]
+        [ConditionalTheory(Skip = "Issue #17068")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupJoin_customers_orders_count_preserves_ordering(bool isAsync)
         {
@@ -954,7 +954,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     select o != null ? (object)o.OrderID : null);
         }
 
-        [ConditionalTheory(Skip = "Issue #14935. Cannot eval 'FirstOrDefault()'")]
+        [ConditionalTheory(Skip = "Issue #17068")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupJoin_with_different_outer_elements_with_same_key(bool isAsync)
         {
@@ -973,7 +973,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 e => e.OrderID + " " + e.Name);
         }
 
-        [ConditionalTheory(Skip = "Issue #14935. Cannot eval 'FirstOrDefault()'")]
+        [ConditionalTheory(Skip = "Issue #17068")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupJoin_with_different_outer_elements_with_same_key_with_predicate(bool isAsync)
         {
@@ -992,7 +992,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 e => e.OrderID + " " + e.Name);
         }
 
-        [ConditionalTheory(Skip = "Issue #14935. Cannot eval 'FirstOrDefault()'")]
+        [ConditionalTheory(Skip = "Issue #17068")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupJoin_with_different_outer_elements_with_same_key_projected_from_another_entity(bool isAsync)
         {
@@ -1029,7 +1029,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 e => e.ContactName + " " + e.OrderID);
         }
 
-        [ConditionalTheory(Skip = "Issue #14935. Cannot eval 'where ([x].OrderID > 5)'")]
+        [ConditionalTheory(Skip = "Issue #17068")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupJoin_SelectMany_subquery_with_filter_orderby(bool isAsync)
         {
@@ -1066,7 +1066,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 830);
         }
 
-        [ConditionalTheory(Skip = "Issue #14935. Cannot eval 'where ([x].OrderID > 5)'")]
+        [ConditionalTheory(Skip = "Issue #17068")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupJoin_SelectMany_subquery_with_filter_orderby_and_DefaultIfEmpty(bool isAsync)
         {
@@ -1085,7 +1085,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 830);
         }
 
-        [ConditionalTheory(Skip = "Issue #14935. Cannot eval 'Count()'")]
+        [ConditionalTheory(Skip = "Issue #17068")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupJoin_with_order_by_key_descending1(bool isAsync)
         {
@@ -1100,7 +1100,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 assertOrder: true);
         }
 
-        [ConditionalTheory(Skip = "Issue #14935. Cannot eval 'Count()'")]
+        [ConditionalTheory(Skip = "Issue #17068")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupJoin_with_order_by_key_descending2(bool isAsync)
         {

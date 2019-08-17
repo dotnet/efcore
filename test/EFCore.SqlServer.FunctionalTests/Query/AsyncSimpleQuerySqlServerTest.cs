@@ -4,12 +4,10 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 using Microsoft.EntityFrameworkCore.TestUtilities;
-using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -26,6 +24,24 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             Fixture.TestSqlLoggerFactory.Clear();
             //Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
+        }
+
+        [ConditionalFact(Skip = "Issue#16314")]
+        public override Task Throws_on_concurrent_query_list()
+        {
+            return Task.CompletedTask;
+        }
+
+        [ConditionalFact(Skip = "Issue#16314")]
+        public override Task Concat_non_entity()
+        {
+            return Task.CompletedTask;
+        }
+
+        [ConditionalFact(Skip = "Issue#16314")]
+        public override Task Concat_simple()
+        {
+            return Task.CompletedTask;
         }
 
         [ConditionalFact(Skip = "Issue#16314")]
@@ -83,7 +99,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 () => Single_Predicate_Cancellation_test(Fixture.TestSqlLoggerFactory.CancelQuery()));
         }
 
-        [ConditionalFact(Skip = "Issue #14935. Cannot eval 'Except({from Customer c in value(Microsoft.EntityFrameworkCore.Query.Internal.EntityQueryable`1[Microsoft.EntityFrameworkCore.TestModels.Northwind.Customer]) where ([c].City == \"México D.F.\") select [c].CustomerID})'")]
+        [ConditionalFact]
         public async Task Concurrent_async_queries_are_serialized2()
         {
             using (var context = CreateContext())

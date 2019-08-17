@@ -110,18 +110,6 @@ FROM [Customers] AS [c]
 WHERE ([c].[CustomerID] = @__customerID) AND @__customerID IS NOT NULL");
         }
 
-        public override void Query_with_array_parameter()
-        {
-            base.Query_with_array_parameter();
-
-            AssertSql(
-                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
-FROM [Customers] AS [c]",
-                //
-                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
-FROM [Customers] AS [c]");
-        }
-
         public override void Query_with_contains()
         {
             base.Query_with_contains();

@@ -30,7 +30,7 @@ FROM root c
 WHERE (c[""Discriminator""] = ""Order"")");
         }
 
-        [ConditionalTheory(Skip = "Issue#14935")]
+        [ConditionalTheory(Skip = "Issue#17246")]
         public override async Task Projection_when_arithmetic_mixed(bool isAsync)
         {
             await base.Projection_when_arithmetic_mixed(isAsync);
@@ -41,6 +41,7 @@ FROM root c
 WHERE (c[""Discriminator""] = ""Order"")");
         }
 
+        [ConditionalTheory(Skip = "Issue #17246")]
         public override async Task Projection_when_arithmetic_mixed_subqueries(bool isAsync)
         {
             await base.Projection_when_arithmetic_mixed_subqueries(isAsync);
@@ -92,6 +93,7 @@ FROM root c
 WHERE ((c[""Discriminator""] = ""Employee"") AND (c[""EmployeeID""] = 1))");
         }
 
+        [ConditionalTheory(Skip = "Issue #17246")]
         public override async Task Select_bool_closure_with_order_by_property_with_cast_to_nullable(bool isAsync)
         {
             await base.Select_bool_closure_with_order_by_property_with_cast_to_nullable(isAsync);
@@ -102,7 +104,7 @@ FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
 
-        [ConditionalTheory(Skip = "Issue #14935")]
+        [ConditionalTheory(Skip = "Issue #17246")]
         public override async Task Select_bool_closure_with_order_parameter_with_cast_to_nullable(bool isAsync)
         {
             await base.Select_bool_closure_with_order_parameter_with_cast_to_nullable(isAsync);
@@ -268,7 +270,7 @@ FROM root c
 WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""City""] = ""London""))");
         }
 
-        [ConditionalTheory(Skip = "Issue #14935")]
+        [ConditionalTheory(Skip = "Issue #17246")]
         public override void Select_nested_collection_multi_level()
         {
             base.Select_nested_collection_multi_level();
@@ -279,7 +281,7 @@ FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
 
-        [ConditionalTheory(Skip = "Issue#14935")]
+        [ConditionalTheory(Skip = "Issue#17246")]
         public override void Select_nested_collection_multi_level2()
         {
             base.Select_nested_collection_multi_level2();
@@ -290,7 +292,7 @@ FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
 
-        [ConditionalTheory(Skip = "Issue#14935")]
+        [ConditionalTheory(Skip = "Issue#17246")]
         public override void Select_nested_collection_multi_level3()
         {
             base.Select_nested_collection_multi_level3();
@@ -301,7 +303,7 @@ FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
 
-        [ConditionalTheory(Skip = "Issue#14935")]
+        [ConditionalTheory(Skip = "Issue#17246")]
         public override void Select_nested_collection_multi_level4()
         {
             base.Select_nested_collection_multi_level4();
@@ -312,7 +314,7 @@ FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
 
-        [ConditionalTheory(Skip = "Issue#14935")]
+        [ConditionalTheory(Skip = "Issue#17246")]
         public override void Select_nested_collection_multi_level5()
         {
             using (var context = CreateContext())
@@ -343,7 +345,7 @@ FROM root c
 WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] = ""ALFKI""))");
         }
 
-        [ConditionalTheory(Skip = "Issue#14935")]
+        [ConditionalTheory(Skip = "Issue#17246")]
         public override void Select_nested_collection_multi_level6()
         {
             base.Select_nested_collection_multi_level6();
@@ -354,7 +356,7 @@ FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
 
-        [ConditionalTheory(Skip = "Issue#14935")]
+        [ConditionalTheory(Skip = "Issue#17246")]
         public override async Task Select_nested_collection_count_using_anonymous_type(bool isAsync)
         {
             await base.Select_nested_collection_count_using_anonymous_type(isAsync);
@@ -365,7 +367,7 @@ FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
 
-        [ConditionalTheory(Skip = "Issue#14935")]
+        [ConditionalTheory(Skip = "Issue#17246")]
         public override async Task New_date_time_in_anonymous_type_works(bool isAsync)
         {
             await base.New_date_time_in_anonymous_type_works(isAsync);
@@ -498,7 +500,7 @@ WHERE ((c[""Discriminator""] = ""Order"") AND (c[""CustomerID""] = ""ALFKI""))
 ORDER BY c[""OrderID""]");
         }
 
-        [ConditionalTheory(Skip = "Issue #14935")]
+        [ConditionalTheory(Skip = "Issue #17246")]
         public override async Task Project_single_element_from_collection_with_OrderBy_Distinct_and_FirstOrDefault_followed_by_projecting_length(
             bool isAsync)
         {
@@ -517,7 +519,7 @@ FROM root c
 WHERE ((c[""Discriminator""] = ""Order"") AND (c[""CustomerID""] = ""ALFKI""))");
         }
 
-        [ConditionalTheory(Skip = "Issue#14935")]
+        [ConditionalTheory(Skip = "Issue#17246")]
         public override async Task Projection_in_a_subquery_should_be_liftable(bool isAsync)
         {
             await base.Projection_in_a_subquery_should_be_liftable(isAsync);
@@ -538,7 +540,7 @@ FROM root c
 WHERE ((c[""Discriminator""] = ""Order"") AND (c[""OrderID""] < 10300))");
         }
 
-        [ConditionalTheory(Skip = "Issue #14935")]
+        [ConditionalTheory(Skip = "Issue #17246")]
         public override async Task Project_single_element_from_collection_with_OrderBy_Take_and_FirstOrDefault(bool isAsync)
         {
             await AssertQuery<Customer>(
@@ -552,7 +554,7 @@ FROM root c
 WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] = ""ALFKI""))");
         }
 
-        [ConditionalTheory(Skip = "Issue #14935")]
+        [ConditionalTheory(Skip = "Issue #17246")]
         public override async Task Project_single_element_from_collection_with_OrderBy_Skip_and_FirstOrDefault(bool isAsync)
         {
             await AssertQuery<Customer>(
@@ -566,7 +568,7 @@ FROM root c
 WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] = ""ALFKI""))");
         }
 
-        [ConditionalTheory(Skip = "Issue #14935")]
+        [ConditionalTheory(Skip = "Issue #17246")]
         public override async Task Project_single_element_from_collection_with_OrderBy_Distinct_and_FirstOrDefault(bool isAsync)
         {
             await AssertQuery<Customer>(
@@ -580,6 +582,7 @@ FROM root c
 WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] = ""ALFKI""))");
         }
 
+        [ConditionalTheory(Skip = "Issue #17246")]
         public override async Task Project_single_element_from_collection_with_OrderBy_Take_and_SingleOrDefault(bool isAsync)
         {
             await base.Project_single_element_from_collection_with_OrderBy_Take_and_SingleOrDefault(isAsync);
@@ -590,7 +593,7 @@ FROM root c
 WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] = ""ALFKI""))");
         }
 
-        [ConditionalTheory(Skip = "Issue #14935")]
+        [ConditionalTheory(Skip = "Issue #17246")]
         public override async Task Project_single_element_from_collection_with_OrderBy_Take_and_FirstOrDefault_with_parameter(bool isAsync)
         {
             await AssertQuery<Customer>(
@@ -604,7 +607,7 @@ FROM root c
 WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] = ""ALFKI""))");
         }
 
-        [ConditionalTheory(Skip = "Issue#14935")]
+        [ConditionalTheory(Skip = "Issue#17246")]
         public override async Task Project_single_element_from_collection_with_multiple_OrderBys_Take_and_FirstOrDefault(bool isAsync)
         {
             await AssertQuery<Customer>(
@@ -636,7 +639,7 @@ FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
 
-        [ConditionalTheory(Skip = "Issue#14935")]
+        [ConditionalTheory(Skip = "Issue#17246")]
         public override async Task Project_single_element_from_collection_with_multiple_OrderBys_Take_and_FirstOrDefault_2(bool isAsync)
         {
             await AssertQuery<Customer>(
@@ -654,7 +657,7 @@ FROM root c
 WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] = ""ALFKI""))");
         }
 
-        [ConditionalTheory(Skip = "Issue #14935")]
+        [ConditionalTheory(Skip = "Issue #17246")]
         public override async Task Project_single_element_from_collection_with_OrderBy_over_navigation_Take_and_FirstOrDefault(bool isAsync)
         {
             await AssertQueryScalar<Order>(
@@ -811,7 +814,7 @@ WHERE (c[""Discriminator""] = ""Customer"")
 ORDER BY c[""CustomerID""]");
         }
 
-        [ConditionalTheory(Skip = "Issue #14935")]
+        [ConditionalTheory(Skip = "Issue #17246")]
         public override async Task Anonymous_projection_with_repeated_property_being_ordered_2(bool isAsync)
         {
             await base.Anonymous_projection_with_repeated_property_being_ordered_2(isAsync);
@@ -842,13 +845,13 @@ FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
 
-        [ConditionalTheory(Skip = "Issue#14935")]
+        [ConditionalTheory(Skip = "Issue#17246")]
         public override Task Client_method_in_projection_requiring_materialization_1(bool isAsync)
         {
             return base.Client_method_in_projection_requiring_materialization_1(isAsync);
         }
 
-        [ConditionalTheory(Skip = "Issue#14935")]
+        [ConditionalTheory(Skip = "Issue#17246")]
         public override Task Client_method_in_projection_requiring_materialization_2(bool isAsync)
         {
             return base.Client_method_in_projection_requiring_materialization_2(isAsync);

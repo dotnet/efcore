@@ -6,6 +6,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -74,6 +75,11 @@ namespace Microsoft.EntityFrameworkCore.Query
                 sqlExpression = Translate(expression);
             }
 
+            if (sqlExpression == null)
+            {
+                throw new InvalidOperationException(CoreStrings.TranslationFailed(expression.Print()));
+            }
+
             var inputType = sqlExpression.Type.UnwrapNullableType();
             if (inputType == typeof(int)
                 || inputType == typeof(long))
@@ -131,6 +137,11 @@ namespace Microsoft.EntityFrameworkCore.Query
             if (!(expression is SqlExpression sqlExpression))
             {
                 sqlExpression = Translate(expression);
+            }
+
+            if (sqlExpression == null)
+            {
+                throw new InvalidOperationException(CoreStrings.TranslationFailed(expression.Print()));
             }
 
             var inputType = sqlExpression.Type.UnwrapNullableType();
@@ -267,7 +278,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     selectorLambda.Body);
             }
 
-            throw new InvalidOperationException();
+            throw new InvalidOperationException(CoreStrings.TranslationFailed(methodCallExpression.Print()));
         }
 
         protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)

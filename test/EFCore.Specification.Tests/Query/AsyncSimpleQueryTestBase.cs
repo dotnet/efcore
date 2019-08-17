@@ -9,7 +9,6 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 using Microsoft.EntityFrameworkCore.TestUtilities;
-using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
 using Xunit;
 
 // ReSharper disable InconsistentNaming
@@ -30,7 +29,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         protected NorthwindContext CreateContext() => Fixture.CreateContext();
 
-        [ConditionalFact(Skip = "Issue #14935. Cannot eval 'Microsoft.EntityFrameworkCore.Query.QueryClientEvaluationWarning: The LINQ expression 'GroupBy([o].CustomerID, [o])' could not be translated and will be evaluated locally.'")]
+        [ConditionalFact(Skip = "Issue #15249")]
         public virtual async Task GroupBy_tracking_after_dispose()
         {
             List<IGrouping<string, Order>> groups;
@@ -151,7 +150,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalFact(Skip = "Issue #14935. Cannot eval 'Average'")]
+        [ConditionalFact(Skip = "Issue#16318")]
         public virtual async Task Average_on_nav_subquery_in_projection()
         {
             using (var context = CreateContext())
@@ -203,7 +202,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalFact(Skip = "Issue #14935. Cannot eval 'join Customer y.Customer in value(Microsoft.EntityFrameworkCore.Query.Internal.EntityQueryable`1[Microsoft.EntityFrameworkCore.TestModels.Northwind.Customer]) on Property([y], \"CustomerID\") equals Property([y.Customer], \"CustomerID\")'")]
+        [ConditionalFact(Skip = "Issue #17019")]
         public virtual async Task Mixed_sync_async_query()
         {
             using (var context = CreateContext())
@@ -263,7 +262,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalFact(Skip = "Issue#17019")]
+        [ConditionalFact]
         public virtual async Task Throws_on_concurrent_query_list()
         {
             using (var context = CreateContext())
@@ -307,7 +306,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalFact(Skip = "Issue#17019")]
+        [ConditionalFact]
         public virtual async Task Throws_on_concurrent_query_first()
         {
             using (var context = CreateContext())
@@ -361,7 +360,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         // Set Operations
 
-        [ConditionalFact(Skip = "Issue #14935. Cannot eval 'Concat({value(Microsoft.EntityFrameworkCore.Query.Internal.EntityQueryable`1[Microsoft.EntityFrameworkCore.TestModels.Northwind.Customer])})'")]
+        [ConditionalFact]
         public virtual async Task Concat_dbset()
         {
             using (var context = CreateContext())
@@ -376,7 +375,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalFact(Skip = "Issue #14935. Cannot eval 'Concat({from Customer s in value(Microsoft.EntityFrameworkCore.Query.Internal.EntityQueryable`1[Microsoft.EntityFrameworkCore.TestModels.Northwind.Customer]) where ([s].ContactTitle == \"Owner\") select [s]})'")]
+        [ConditionalFact]
         public virtual async Task Concat_simple()
         {
             using (var context = CreateContext())
@@ -392,7 +391,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalFact(Skip = "Issue #14935. Cannot eval 'Concat({from Customer s in value(Microsoft.EntityFrameworkCore.Query.Internal.EntityQueryable`1[Microsoft.EntityFrameworkCore.TestModels.Northwind.Customer]) where ([s].ContactTitle == \"Owner\") select [s].CustomerID})'")]
+        [ConditionalFact]
         public virtual async Task Concat_non_entity()
         {
             using (var context = CreateContext())
@@ -410,7 +409,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalFact(Skip = "Issue #14935. Cannot eval 'Microsoft.EntityFrameworkCore.Query.QueryClientEvaluationWarning: The LINQ expression 'Except({from Customer c in value(Microsoft.EntityFrameworkCore.Query.Internal.EntityQueryable`1[Microsoft.EntityFrameworkCore.TestModels.Northwind.Customer]) where ([c].City == \"México D.F.\") select [c].CustomerID})'")]
+        [ConditionalFact]
         public virtual async Task Except_non_entity()
         {
             using (var context = CreateContext())
@@ -428,7 +427,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalFact(Skip = "Issue #14935. Cannot eval 'Intersect({from Customer s in value(Microsoft.EntityFrameworkCore.Query.Internal.EntityQueryable`1[Microsoft.EntityFrameworkCore.TestModels.Northwind.Customer]) where ([s].ContactTitle == \"Owner\") select [s].CustomerID})'")]
+        [ConditionalFact]
         public virtual async Task Intersect_non_entity()
         {
             using (var context = CreateContext())
@@ -446,7 +445,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalFact(Skip = "Issue #14935. Cannot eval 'Union({from Customer c in value(Microsoft.EntityFrameworkCore.Query.Internal.EntityQueryable`1[Microsoft.EntityFrameworkCore.TestModels.Northwind.Customer]) where ([c].City == \"México D.F.\") select [c].CustomerID})'")]
+        [ConditionalFact]
         public virtual async Task Union_non_entity()
         {
             using (var context = CreateContext())

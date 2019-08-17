@@ -14,6 +14,7 @@ using Xunit;
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore.Query
 {
+    // Issue #16963
     internal class QueryBugsInMemoryTest : IClassFixture<InMemoryFixture>
     {
         #region Bug9849

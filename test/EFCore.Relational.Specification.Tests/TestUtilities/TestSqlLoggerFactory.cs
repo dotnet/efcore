@@ -65,7 +65,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                 var logFile = currentDirectory.Substring(
                                   0,
                                   currentDirectory.LastIndexOf("\\artifacts\\", StringComparison.Ordinal) + 1)
-                              + "QueryBaseline.cs";
+                              + "QueryBaseline.txt";
 
                 var testInfo = testName + " : " + lineNumber + FileNewLine;
 

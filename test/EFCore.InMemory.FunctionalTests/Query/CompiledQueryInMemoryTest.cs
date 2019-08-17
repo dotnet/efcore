@@ -14,6 +14,14 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
         }
 
+        [ConditionalFact(Skip = "See issue #13857")]
+        public override void Query_with_array_parameter()
+        {
+        }
+
+        [ConditionalFact(Skip = "See issue #13857")]
+        public override Task Query_with_array_parameter_async() => null;
+
         [ConditionalFact(Skip = "See issue#13857")]
         public override void DbQuery_query()
         {

@@ -3,7 +3,7 @@
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    internal class QueryNoClientEvalSqlServerTest : QueryNoClientEvalTestBase<QueryNoClientEvalSqlServerFixture>
+    public class QueryNoClientEvalSqlServerTest : QueryNoClientEvalTestBase<QueryNoClientEvalSqlServerFixture>
     {
         public QueryNoClientEvalSqlServerTest(QueryNoClientEvalSqlServerFixture fixture)
             : base(fixture)

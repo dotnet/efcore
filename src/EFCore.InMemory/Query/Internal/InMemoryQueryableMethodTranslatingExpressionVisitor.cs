@@ -5,6 +5,8 @@ using System;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -338,7 +340,10 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             if (correlated)
             {
                 // TODO visit inner with outer parameter;
-                throw new NotImplementedException();
+                // See #17236
+                throw new InvalidOperationException(CoreStrings.TranslationFailed(
+                    collectionSelector.Print() + "; " + resultSelector.Print()));
+
             }
             else
             {

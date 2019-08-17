@@ -20,6 +20,7 @@ using Xunit;
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore.Query
 {
+    // Issue #15751
     internal class BadDataSqliteTest : IClassFixture<BadDataSqliteTest.BadDataSqliteFixture>
     {
         public BadDataSqliteTest(BadDataSqliteFixture fixture) => Fixture = fixture;

@@ -2527,32 +2527,6 @@ WHERE 1 IN (
 )");
         }
 
-        public override async Task Complex_query_with_optional_navigations_and_client_side_evaluation(bool isAsync)
-        {
-            await base.Complex_query_with_optional_navigations_and_client_side_evaluation(isAsync);
-
-            AssertSql(
-                @"SELECT [l1].[Id], [l1].[Date], [l1].[Name], [l1].[OneToMany_Optional_Self_Inverse1Id], [l1].[OneToMany_Required_Self_Inverse1Id], [l1].[OneToOne_Optional_Self1Id]
-FROM [LevelOne] AS [l1]
-WHERE [l1].[Id] < 3",
-                //
-                @"@_outer_Id='1'
-
-SELECT [l2.OneToOne_Optional_FK2.OneToOne_Optional_FK30].[Id], [l2.OneToOne_Optional_FK2.OneToOne_Optional_FK30].[Id]
-FROM [LevelTwo] AS [l20]
-LEFT JOIN [LevelThree] AS [l2.OneToOne_Optional_FK20] ON [l20].[Id] = [l2.OneToOne_Optional_FK20].[Level2_Optional_Id]
-LEFT JOIN [LevelFour] AS [l2.OneToOne_Optional_FK2.OneToOne_Optional_FK30] ON [l2.OneToOne_Optional_FK20].[Id] = [l2.OneToOne_Optional_FK2.OneToOne_Optional_FK30].[Level3_Optional_Id]
-WHERE @_outer_Id = [l20].[OneToMany_Optional_Inverse2Id]",
-                //
-                @"@_outer_Id='2'
-
-SELECT [l2.OneToOne_Optional_FK2.OneToOne_Optional_FK30].[Id], [l2.OneToOne_Optional_FK2.OneToOne_Optional_FK30].[Id]
-FROM [LevelTwo] AS [l20]
-LEFT JOIN [LevelThree] AS [l2.OneToOne_Optional_FK20] ON [l20].[Id] = [l2.OneToOne_Optional_FK20].[Level2_Optional_Id]
-LEFT JOIN [LevelFour] AS [l2.OneToOne_Optional_FK2.OneToOne_Optional_FK30] ON [l2.OneToOne_Optional_FK20].[Id] = [l2.OneToOne_Optional_FK2.OneToOne_Optional_FK30].[Level3_Optional_Id]
-WHERE @_outer_Id = [l20].[OneToMany_Optional_Inverse2Id]");
-        }
-
         public override async Task Required_navigation_on_a_subquery_with_First_in_projection(bool isAsync)
         {
             await base.Required_navigation_on_a_subquery_with_First_in_projection(isAsync);
@@ -3940,20 +3914,6 @@ ORDER BY [l1.OneToMany_Required1.OneToOne_Optional_FK24].[Id]",
                 //
                 @"SELECT [l1.OneToMany_Required1.OneToOne_Optional_FK2.OneToMany_Optional30].[Id], [l1.OneToMany_Required1.OneToOne_Optional_FK2.OneToMany_Optional30].[Level3_Optional_Id], [l1.OneToMany_Required1.OneToOne_Optional_FK2.OneToMany_Optional30].[Level3_Required_Id], [l1.OneToMany_Required1.OneToOne_Optional_FK2.OneToMany_Optional30].[Name], [l1.OneToMany_Required1.OneToOne_Optional_FK2.OneToMany_Optional30].[OneToMany_Optional_Inverse4Id], [l1.OneToMany_Required1.OneToOne_Optional_FK2.OneToMany_Optional30].[OneToMany_Optional_Self_Inverse4Id], [l1.OneToMany_Required1.OneToOne_Optional_FK2.OneToMany_Optional30].[OneToMany_Required_Inverse4Id], [l1.OneToMany_Required1.OneToOne_Optional_FK2.OneToMany_Optional30].[OneToMany_Required_Self_Inverse4Id], [l1.OneToMany_Required1.OneToOne_Optional_FK2.OneToMany_Optional30].[OneToOne_Optional_PK_Inverse4Id], [l1.OneToMany_Required1.OneToOne_Optional_FK2.OneToMany_Optional30].[OneToOne_Optional_Self4Id]
 FROM [LevelFour] AS [l1.OneToMany_Required1.OneToOne_Optional_FK2.OneToMany_Optional30]");
-        }
-
-        public override async Task SelectMany_subquery_with_custom_projection(bool isAsync)
-        {
-            await base.SelectMany_subquery_with_custom_projection(isAsync);
-
-            AssertSql(
-                @"@__p_0='1'
-
-SELECT TOP(@__p_0) [l].[Name]
-FROM [LevelOne] AS [l1]
-CROSS JOIN [LevelTwo] AS [l]
-WHERE [l1].[Id] = [l].[OneToMany_Optional_Inverse2Id]
-ORDER BY [l1].[Id]");
         }
 
         public override async Task Null_check_in_anonymous_type_projection_should_not_be_removed(bool isAsync)
