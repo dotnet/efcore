@@ -430,5 +430,11 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         #endregion
+
+        [ConditionalTheory(Skip = "Issue#16963")]
+        public override Task Projection_when_client_evald_subquery(bool isAsync)
+        {
+            return base.Projection_when_client_evald_subquery(isAsync);
+        }
     }
 }

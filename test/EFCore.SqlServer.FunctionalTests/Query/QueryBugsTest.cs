@@ -4741,7 +4741,7 @@ FROM [Prices] AS [p]");
 
         #region Bug12748
 
-        [ConditionalFact(Skip = "Issue#16318")]
+        [ConditionalFact]
         public virtual void Correlated_collection_correctly_associates_entities_with_byte_array_keys()
         {
             using (CreateDatabase12748())
