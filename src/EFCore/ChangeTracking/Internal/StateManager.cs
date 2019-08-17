@@ -1067,7 +1067,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
         private static bool KeyValuesEqual(IProperty property, object value, object currentValue)
             => (property.GetKeyValueComparer()
-                ?? property.GetTypeMapping().KeyComparer)
+                ?? property.FindTypeMapping()?.KeyComparer)
                ?.Equals(currentValue, value)
                ?? Equals(currentValue, value);
 

@@ -2328,7 +2328,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     {
                         if (propertyBase is IProperty property)
                         {
-                            valueConverter = property.GetTypeMapping().Converter
+                            valueConverter = property.FindTypeMapping()?.Converter
                                              ?? property.GetValueConverter();
                         }
 

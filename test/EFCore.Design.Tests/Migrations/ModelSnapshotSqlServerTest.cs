@@ -3642,7 +3642,7 @@ namespace RootNamespace
                 Activator.CreateInstance(factoryType),
                 new object[] { builder });
 
-            var modelFromSnapshot = new SnapshotModelProcessor(new TestOperationReporter()).Process(builder.Model);
+            var modelFromSnapshot = new SnapshotModelProcessor(new TestOperationReporter()).Process(builder.Model.FinalizeModel());
 
             assert(modelFromSnapshot, model);
         }
