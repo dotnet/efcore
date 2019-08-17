@@ -37,5 +37,17 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             return base.Query_backed_by_database_view();
         }
+
+        [ConditionalFact(Skip = "See issue#16963")]
+        public override Task ToArray_on_nav_subquery_in_projection()
+        {
+            return base.ToArray_on_nav_subquery_in_projection();
+        }
+
+        [ConditionalFact(Skip = "See issue#16963")]
+        public override Task ToArray_on_nav_subquery_in_projection_nested()
+        {
+            return base.ToArray_on_nav_subquery_in_projection_nested();
+        }
     }
 }

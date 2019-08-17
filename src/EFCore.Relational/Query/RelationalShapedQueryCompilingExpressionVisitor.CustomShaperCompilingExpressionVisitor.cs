@@ -85,27 +85,57 @@ namespace Microsoft.EntityFrameworkCore.Query
                 Func<QueryContext, DbDataReader, object[]> parentIdentifier,
                 Func<QueryContext, DbDataReader, object[]> outerIdentifier,
                 Func<QueryContext, DbDataReader, object[]> selfIdentifier,
-                Func<QueryContext, DbDataReader, TRelatedEntity, ResultCoordinator, TRelatedEntity> innerShaper)
+                Func<QueryContext, DbDataReader, ResultContext, ResultCoordinator, TRelatedEntity> innerShaper)
                 where TRelatedEntity : TElement
                 where TCollection : class, ICollection<TElement>
             {
                 var collectionMaterializationContext = resultCoordinator.Collections[collectionId];
-
                 if (collectionMaterializationContext.Collection is null)
                 {
-                    // nothing to include since no collection created
+                    // nothing to materialize since no collection created
+                    return;
+                }
+                void processCurrentElementRow()
+                {
+                    var previousResultReady = resultCoordinator.ResultReady;
+                    resultCoordinator.ResultReady = true;
+                    var element = innerShaper(
+                        queryContext, dbDataReader, collectionMaterializationContext.ResultContext, resultCoordinator);
+                    if (resultCoordinator.ResultReady)
+                    {
+                        // related element is materialized
+                        collectionMaterializationContext.ResultContext.Values = null;
+                        ((TCollection)collectionMaterializationContext.Collection).Add(element);
+                    }
+
+                    resultCoordinator.ResultReady &= previousResultReady;
+                }
+
+                void generateCurrentElementIfPending()
+                {
+                    if (collectionMaterializationContext.ResultContext.Values != null)
+                    {
+                        resultCoordinator.HasNext = false;
+                        processCurrentElementRow();
+                    }
+                    collectionMaterializationContext.UpdateSelfIdentifier(null);
+                }
+
+                if (resultCoordinator.HasNext == false)
+                {
+                    // Outer Enumerator has ended
+                    generateCurrentElementIfPending();
                     return;
                 }
 
                 if (!StructuralComparisons.StructuralEqualityComparer.Equals(
                     outerIdentifier(queryContext, dbDataReader), collectionMaterializationContext.OuterIdentifier))
                 {
-                    if (StructuralComparisons.StructuralEqualityComparer.Equals(
+                    // Outer changed so collection has ended. Materialize last element.
+                    generateCurrentElementIfPending();
+                    // If parent also changed then this row is now pointing to element of next collection
+                    if (!StructuralComparisons.StructuralEqualityComparer.Equals(
                         parentIdentifier(queryContext, dbDataReader), collectionMaterializationContext.ParentIdentifier))
-                    {
-                        resultCoordinator.ResultReady = false;
-                    }
-                    else
                     {
                         resultCoordinator.HasNext = true;
                     }
@@ -116,24 +146,40 @@ namespace Microsoft.EntityFrameworkCore.Query
                 var innerKey = selfIdentifier(queryContext, dbDataReader);
                 if (innerKey.Any(e => e == null))
                 {
-                    // If innerKey was null then return since no related data
+                    // No correlated element
                     return;
                 }
 
-                if (StructuralComparisons.StructuralEqualityComparer.Equals(
-                    innerKey, collectionMaterializationContext.SelfIdentifier))
+                if (collectionMaterializationContext.SelfIdentifier != null)
                 {
-                    // We don't need to materialize this entity but we may need to populate inner collections if any.
-                    innerShaper(queryContext, dbDataReader, (TRelatedEntity)collectionMaterializationContext.Current, resultCoordinator);
-
-                    return;
+                    if (StructuralComparisons.StructuralEqualityComparer.Equals(
+                        innerKey, collectionMaterializationContext.SelfIdentifier))
+                    {
+                        // repeated row for current element
+                        // If it is pending materialization then it may have nested elements
+                        if (collectionMaterializationContext.ResultContext.Values != null)
+                        {
+                            processCurrentElementRow();
+                        }
+                        resultCoordinator.ResultReady = false;
+                        return;
+                    }
+                    else
+                    {
+                        // Row for new element which is not first element
+                        // So materialize the element
+                        generateCurrentElementIfPending();
+                        resultCoordinator.HasNext = null;
+                        collectionMaterializationContext.UpdateSelfIdentifier(innerKey);
+                    }
+                }
+                else
+                {
+                    // First row for current element
+                    collectionMaterializationContext.UpdateSelfIdentifier(innerKey);
                 }
 
-                var relatedEntity = innerShaper(queryContext, dbDataReader, default, resultCoordinator);
-                collectionMaterializationContext.UpdateCurrent(relatedEntity, innerKey);
-
-                ((TCollection)collectionMaterializationContext.Collection).Add(relatedEntity);
-
+                processCurrentElementRow();
                 resultCoordinator.ResultReady = false;
             }
 
@@ -149,25 +195,63 @@ namespace Microsoft.EntityFrameworkCore.Query
                 Func<QueryContext, DbDataReader, object[]> parentIdentifier,
                 Func<QueryContext, DbDataReader, object[]> outerIdentifier,
                 Func<QueryContext, DbDataReader, object[]> selfIdentifier,
-                Func<QueryContext, DbDataReader, TIncludedEntity, ResultCoordinator, TIncludedEntity> innerShaper,
+                Func<QueryContext, DbDataReader, ResultContext, ResultCoordinator, TIncludedEntity> innerShaper,
                 INavigation inverseNavigation,
                 Action<TIncludingEntity, TIncludedEntity> fixup,
                 bool trackingQuery)
             {
                 var collectionMaterializationContext = resultCoordinator.Collections[collectionId];
-                var parentEntity = collectionMaterializationContext.Parent;
-
-                if (parentEntity is TIncludingEntity entity)
+                if (collectionMaterializationContext.Parent is TIncludingEntity entity)
                 {
+                    void processCurrentElementRow()
+                    {
+                        var previousResultReady = resultCoordinator.ResultReady;
+                        resultCoordinator.ResultReady = true;
+                        var relatedEntity = innerShaper(
+                            queryContext, dbDataReader, collectionMaterializationContext.ResultContext, resultCoordinator);
+                        if (resultCoordinator.ResultReady)
+                        {
+                            // related entity is materialized
+                            collectionMaterializationContext.ResultContext.Values = null;
+                            if (!trackingQuery)
+                            {
+                                fixup(entity, relatedEntity);
+                                if (inverseNavigation != null
+                                    && !inverseNavigation.IsCollection())
+                                {
+                                    SetIsLoadedNoTracking(relatedEntity, inverseNavigation);
+                                }
+                            }
+                        }
+
+                        resultCoordinator.ResultReady &= previousResultReady;
+                    }
+
+                    void generateCurrentElementIfPending()
+                    {
+                        if (collectionMaterializationContext.ResultContext.Values != null)
+                        {
+                            resultCoordinator.HasNext = false;
+                            processCurrentElementRow();
+                        }
+                        collectionMaterializationContext.UpdateSelfIdentifier(null);
+                    }
+
+                    if (resultCoordinator.HasNext == false)
+                    {
+                        // Outer Enumerator has ended
+                        generateCurrentElementIfPending();
+                        return;
+                    }
+
                     if (!StructuralComparisons.StructuralEqualityComparer.Equals(
                         outerIdentifier(queryContext, dbDataReader), collectionMaterializationContext.OuterIdentifier))
                     {
-                        if (StructuralComparisons.StructuralEqualityComparer.Equals(
+                        // Outer changed so collection has ended. Materialize last element.
+                        generateCurrentElementIfPending();
+                        // If parent also changed then this row is now pointing to element of next collection
+                        if (!StructuralComparisons.StructuralEqualityComparer.Equals(
                             parentIdentifier(queryContext, dbDataReader), collectionMaterializationContext.ParentIdentifier))
-                        {
-                            resultCoordinator.ResultReady = false;
-                        }
-                        else
                         {
                             resultCoordinator.HasNext = true;
                         }
@@ -182,29 +266,36 @@ namespace Microsoft.EntityFrameworkCore.Query
                         return;
                     }
 
-                    if (StructuralComparisons.StructuralEqualityComparer.Equals(
-                        innerKey, collectionMaterializationContext.SelfIdentifier))
+                    if (collectionMaterializationContext.SelfIdentifier != null)
                     {
-                        // We don't need to materialize this entity but we may need to populate inner collections if any.
-                        innerShaper(
-                            queryContext, dbDataReader, (TIncludedEntity)collectionMaterializationContext.Current, resultCoordinator);
-
-                        return;
-                    }
-
-                    var relatedEntity = innerShaper(queryContext, dbDataReader, default, resultCoordinator);
-                    collectionMaterializationContext.UpdateCurrent(relatedEntity, innerKey);
-
-                    if (!trackingQuery)
-                    {
-                        fixup(entity, relatedEntity);
-                        if (inverseNavigation != null
-                            && !inverseNavigation.IsCollection())
+                        if (StructuralComparisons.StructuralEqualityComparer.Equals(
+                            innerKey, collectionMaterializationContext.SelfIdentifier))
                         {
-                            SetIsLoadedNoTracking(relatedEntity, inverseNavigation);
+                            // repeated row for current element
+                            // If it is pending materialization then it may have nested elements
+                            if (collectionMaterializationContext.ResultContext.Values != null)
+                            {
+                                processCurrentElementRow();
+                            }
+                            resultCoordinator.ResultReady = false;
+                            return;
+                        }
+                        else
+                        {
+                            // Row for new element which is not first element
+                            // So materialize the element
+                            generateCurrentElementIfPending();
+                            resultCoordinator.HasNext = null;
+                            collectionMaterializationContext.UpdateSelfIdentifier(innerKey);
                         }
                     }
+                    else
+                    {
+                        // First row for current element
+                        collectionMaterializationContext.UpdateSelfIdentifier(innerKey);
+                    }
 
+                    processCurrentElementRow();
                     resultCoordinator.ResultReady = false;
                 }
             }

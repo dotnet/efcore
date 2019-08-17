@@ -19,7 +19,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             private readonly RelationalQueryContext _relationalQueryContext;
             private readonly SelectExpression _selectExpression;
-            private readonly Func<QueryContext, DbDataReader, T, int[], ResultCoordinator, T> _shaper;
+            private readonly Func<QueryContext, DbDataReader, ResultContext, int[], ResultCoordinator, T> _shaper;
             private readonly IQuerySqlGeneratorFactory _querySqlGeneratorFactory;
             private readonly Type _contextType;
             private readonly IDiagnosticsLogger<DbLoggerCategory.Query> _logger;
@@ -32,7 +32,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 ISqlExpressionFactory sqlExpressionFactory,
                 IParameterNameGeneratorFactory parameterNameGeneratorFactory,
                 SelectExpression selectExpression,
-                Func<QueryContext, DbDataReader, T, int[], ResultCoordinator, T> shaper,
+                Func<QueryContext, DbDataReader, ResultContext, int[], ResultCoordinator, T> shaper,
                 Type contextType,
                 IDiagnosticsLogger<DbLoggerCategory.Query> logger)
             {
@@ -56,7 +56,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 private ResultCoordinator _resultCoordinator;
                 private readonly RelationalQueryContext _relationalQueryContext;
                 private readonly SelectExpression _selectExpression;
-                private readonly Func<QueryContext, DbDataReader, T, int[], ResultCoordinator, T> _shaper;
+                private readonly Func<QueryContext, DbDataReader, ResultContext, int[], ResultCoordinator, T> _shaper;
                 private readonly IQuerySqlGeneratorFactory _querySqlGeneratorFactory;
                 private readonly Type _contextType;
                 private readonly IDiagnosticsLogger<DbLoggerCategory.Query> _logger;
@@ -147,15 +147,22 @@ namespace Microsoft.EntityFrameworkCore.Query
                                 {
                                     _resultCoordinator.ResultReady = true;
                                     _resultCoordinator.HasNext = null;
-                                    Current = _shaper(_relationalQueryContext, _dataReader.DbDataReader, Current, _indexMap, _resultCoordinator);
+                                    Current = _shaper(_relationalQueryContext, _dataReader.DbDataReader,
+                                        _resultCoordinator.ResultContext, _indexMap, _resultCoordinator);
                                     if (_resultCoordinator.ResultReady)
                                     {
+                                        // We generated a result so null out previously stored values
+                                        _resultCoordinator.ResultContext.Values = null;
                                         break;
                                     }
 
                                     if (!await _dataReader.ReadAsync())
                                     {
                                         _resultCoordinator.HasNext = false;
+                                        // Enumeration has ended, materialize last element
+                                        _resultCoordinator.ResultReady = true;
+                                        Current = _shaper(_relationalQueryContext, _dataReader.DbDataReader,
+                                            _resultCoordinator.ResultContext, _indexMap, _resultCoordinator);
 
                                         break;
                                     }
