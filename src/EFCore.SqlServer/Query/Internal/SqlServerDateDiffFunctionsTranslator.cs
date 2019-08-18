@@ -301,6 +301,30 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
                         nameof(SqlServerDbFunctionsExtensions.DateDiffNanosecond),
                         new[] { typeof(DbFunctions), typeof(TimeSpan?), typeof(TimeSpan?) }),
                     "NANOSECOND"
+                },
+                {
+                    typeof(SqlServerDbFunctionsExtensions).GetRuntimeMethod(
+                        nameof(SqlServerDbFunctionsExtensions.DateDiffWeek),
+                        new[] { typeof(DbFunctions), typeof(DateTime), typeof(DateTime) }),
+                    "WEEK"
+                },
+                {
+                    typeof(SqlServerDbFunctionsExtensions).GetRuntimeMethod(
+                        nameof(SqlServerDbFunctionsExtensions.DateDiffWeek),
+                        new[] { typeof(DbFunctions), typeof(DateTime?), typeof(DateTime?) }),
+                    "WEEK"
+                },
+                {
+                    typeof(SqlServerDbFunctionsExtensions).GetRuntimeMethod(
+                        nameof(SqlServerDbFunctionsExtensions.DateDiffWeek),
+                        new[] { typeof(DbFunctions), typeof(DateTimeOffset), typeof(DateTimeOffset) }),
+                    "WEEK"
+                },
+                {
+                    typeof(SqlServerDbFunctionsExtensions).GetRuntimeMethod(
+                        nameof(SqlServerDbFunctionsExtensions.DateDiffWeek),
+                        new[] { typeof(DbFunctions), typeof(DateTimeOffset?), typeof(DateTimeOffset?) }),
+                    "WEEK"
                 }
             };
 
