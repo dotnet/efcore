@@ -561,6 +561,23 @@ WHERE DATEDIFF(NANOSECOND, GETDATE(), DATEADD(second, CAST(1.0E0 AS int), GETDAT
         }
 
         [ConditionalFact]
+        public virtual void DateDiff_Week()
+        {
+            using (var context = CreateContext())
+            {
+                var count = context.Orders
+                    .Count(c => EF.Functions.DateDiffWeek(c.OrderDate, DateTime.Now) == 0);
+
+                Assert.Equal(0, count);
+
+                AssertSql(
+                    @"SELECT COUNT(*)
+FROM [Orders] AS [o]
+WHERE (DATEDIFF(WEEK, [o].[OrderDate], GETDATE()) = 0) AND DATEDIFF(WEEK, [o].[OrderDate], GETDATE()) IS NOT NULL");
+            }
+        }
+
+        [ConditionalFact]
         public virtual void IsDate_not_valid()
         {
             using (var context = CreateContext())
