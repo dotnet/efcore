@@ -3,9 +3,7 @@
 
 using System;
 using System.Collections.Generic;
-using System.Data.Common;
 using System.Diagnostics;
-using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
@@ -72,11 +70,6 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// </summary>
         protected virtual string AliasSeparator { get; } = " AS ";
 
-        /// <summary>
-        ///     The default single line comment prefix.
-        /// </summary>
-        protected virtual string SingleLineCommentToken { get; } = "--";
-
         protected virtual IRelationalCommandBuilder Sql => _relationalCommandBuilder;
 
         protected virtual void GenerateTagsHeaderComment(SelectExpression selectExpression)
@@ -85,16 +78,9 @@ namespace Microsoft.EntityFrameworkCore.Query
             {
                 foreach (var tag in selectExpression.Tags)
                 {
-                    using (var reader = new StringReader(tag))
-                    {
-                        string line;
-                        while ((line = reader.ReadLine()) != null)
-                        {
-                            _relationalCommandBuilder.Append(SingleLineCommentToken).Append(" ").AppendLine(line);
-                        }
-                    }
-
-                    _relationalCommandBuilder.AppendLine();
+                    _relationalCommandBuilder
+                        .AppendLines(_sqlGenerationHelper.GenerateComment(tag))
+                        .AppendLine();
                 }
             }
         }

@@ -9,7 +9,6 @@
       "src\\EFCore.Relational\\EFCore.Relational.csproj",
       "src\\EFCore.Sqlite.Core\\EFCore.Sqlite.Core.csproj",
       "src\\EFCore.Sqlite.NTS\\EFCore.Sqlite.NTS.csproj",
-      "src\\EFCore.Sqlite\\EFCore.Sqlite.csproj",
       "src\\EFCore\\EFCore.csproj",
       "src\\Microsoft.Data.Sqlite.Core\\Microsoft.Data.Sqlite.Core.csproj",
       "test\\EFCore.Analyzers.Tests\\EFCore.Analyzers.Test.csproj",

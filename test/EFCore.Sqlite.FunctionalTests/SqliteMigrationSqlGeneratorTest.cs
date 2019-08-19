@@ -564,56 +564,6 @@ CREATE UNIQUE INDEX ""IX_Person_FullName"" ON ""Person"" (""FullName"") WHERE ""
         }
 
         [ConditionalFact]
-        public virtual void CreateTableOperation_no_comments()
-        {
-            Generate(
-                new CreateTableOperation
-                {
-                    Name = "People",
-                    Columns =
-                    {
-                        new AddColumnOperation
-                        {
-                            Name = "Id",
-                            Table = "People",
-                            ClrType = typeof(int),
-                            IsNullable = false,
-                        },
-                        new AddColumnOperation
-                        {
-                            Name = "UncommentedColumn1",
-                            Table = "People",
-                            ClrType = typeof(string),
-                            IsNullable = false
-                        },
-                        new AddColumnOperation
-                        {
-                            Name = "UncommentedColumn2",
-                            Table = "People",
-                            ClrType = typeof(string),
-                            IsNullable = false
-                        },
-                        new AddColumnOperation
-                        {
-                            Name = "UncommentedName",
-                            Table = "People",
-                            ClrType = typeof(string),
-                            IsNullable = false,
-                        }
-                    }
-                });
-
-            AssertSql(
-                @"CREATE TABLE ""People"" (
-    ""Id"" INTEGER NOT NULL,
-    ""UncommentedColumn1"" TEXT NOT NULL,
-    ""UncommentedColumn2"" TEXT NOT NULL,
-    ""UncommentedName"" TEXT NOT NULL
-);
-");
-        }
-
-        [ConditionalFact]
         public virtual void CreateTableOperation_has_multi_line_comment()
         {
             Generate(

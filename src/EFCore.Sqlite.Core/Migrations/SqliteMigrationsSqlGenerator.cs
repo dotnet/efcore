@@ -358,8 +358,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 
                 using (builder.Indent())
                 {
-                    CreateComment(builder, operation.Comment);
-                    builder.AppendLine();
+                    builder
+                        .AppendLines(Dependencies.SqlGenerationHelper.GenerateComment(operation.Comment))
+                        .AppendLine();
                     CreateTableColumns(operation, model, builder);
                     CreateTableConstraints(operation, model, builder);
                     builder.AppendLine();
@@ -375,6 +376,12 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             }
         }
 
+        /// <summary>
+        ///     Generates a SQL fragment for the column definitions in an <see cref="CreateTableOperation" />.
+        /// </summary>
+        /// <param name="operation"> The operation. </param>
+        /// <param name="model"> The target model which may be <c>null</c> if the operations exist without a model. </param>
+        /// <param name="builder"> The command builder to use to add the SQL fragment. </param>
         protected override void CreateTableColumns(
             CreateTableOperation operation,
             IModel model,
@@ -409,7 +416,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 
                 if (!string.IsNullOrEmpty(column.Comment))
                 {
-                    CreateComment(builder, column.Comment);
+                    builder.AppendLines(Dependencies.SqlGenerationHelper.GenerateComment(column.Comment));
                 }
 
                 ColumnDefinition(column, model, builder);
@@ -418,14 +425,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 {
                     builder.AppendLine(",");
                 }
-            }
-        }
-
-        private void CreateComment(MigrationCommandListBuilder builder, string comment)
-        {
-            foreach (var line in comment.Split(Environment.NewLine).Select(l => $"-- {l}"))
-            {
-                builder.AppendLine(line);
             }
         }
 
