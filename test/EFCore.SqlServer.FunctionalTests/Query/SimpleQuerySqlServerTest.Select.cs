@@ -88,17 +88,10 @@ FROM [Customers] AS [c]");
             await base.Projection_when_client_evald_subquery(isAsync);
 
             AssertSql(
-                @"SELECT [c].[CustomerID]
+                @"SELECT [c].[CustomerID], [o].[CustomerID], [o].[OrderID]
 FROM [Customers] AS [c]
-ORDER BY [c].[CustomerID]",
-                //
-                @"SELECT [t].[CustomerID], [c.Orders].[CustomerID]
-FROM [Orders] AS [c.Orders]
-INNER JOIN (
-    SELECT [c0].[CustomerID]
-    FROM [Customers] AS [c0]
-) AS [t] ON [c.Orders].[CustomerID] = [t].[CustomerID]
-ORDER BY [t].[CustomerID]");
+LEFT JOIN [Orders] AS [o] ON [c].[CustomerID] = [o].[CustomerID]
+ORDER BY [c].[CustomerID], [o].[OrderID]");
         }
 
         public override async Task Project_to_object_array(bool isAsync)

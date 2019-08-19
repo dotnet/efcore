@@ -72,6 +72,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             ValidateFieldMapping(model, logger);
             ValidateKeylessTypes(model, logger);
             ValidateQueryFilters(model, logger);
+            ValidateDefiningQuery(model, logger);
             ValidateData(model, logger);
             LogShadowProperties(model, logger);
         }
@@ -811,7 +812,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                     if (entityType.FindPrimaryKey() != null)
                     {
                         throw new InvalidOperationException(
-                            CoreStrings.NonKeylessEntityTypeDefiningQuery(entityType.DisplayName()));
+                            CoreStrings.DefiningQueryWithKey(entityType.DisplayName()));
                     }
                 }
             }
@@ -828,13 +829,32 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
             foreach (var entityType in model.GetEntityTypes())
             {
-                if (entityType.GetQueryFilter() != null)
+                if (entityType.GetQueryFilter() != null
+                    && entityType.BaseType != null)
                 {
-                    if (entityType.BaseType != null)
-                    {
-                        throw new InvalidOperationException(
-                            CoreStrings.BadFilterDerivedType(entityType.GetQueryFilter(), entityType.DisplayName()));
-                    }
+                    throw new InvalidOperationException(
+                        CoreStrings.BadFilterDerivedType(entityType.GetQueryFilter(), entityType.DisplayName()));
+                }
+            }
+        }
+
+        /// <summary>
+        ///     Validates the mapping/configuration of defining queries in the model.
+        /// </summary>
+        /// <param name="model"> The model to validate. </param>
+        /// <param name="logger"> The logger to use. </param>
+        protected virtual void ValidateDefiningQuery(
+            [NotNull] IModel model, [NotNull] IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
+        {
+            Check.NotNull(model, nameof(model));
+
+            foreach (var entityType in model.GetEntityTypes())
+            {
+                if (entityType.GetDefiningQuery() != null
+                    && entityType.FindPrimaryKey() != null)
+                {
+                    throw new InvalidOperationException(
+                        CoreStrings.DefiningQueryWithKey(entityType.DisplayName()));
                 }
             }
         }

@@ -2150,7 +2150,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         protected virtual IEnumerable<string> GetSchemas([NotNull] IModel model)
-            => model.GetRootEntityTypes().Where(t => !t.MigrationsIgnored()).Select(t => t.GetSchema())
+            => model.GetRootEntityTypes().Where(t => !t.IsIgnoredByMigrations()).Select(t => t.GetSchema())
                 .Concat(model.GetSequences().Select(s => s.Schema))
                 .Where(s => !string.IsNullOrEmpty(s))
                 .Distinct();

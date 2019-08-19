@@ -55,7 +55,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 cs => cs.Select(c => c.Region));
         }
 
-        [ConditionalTheory(Skip = "Issue#16318")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Projection_when_client_evald_subquery(bool isAsync)
         {

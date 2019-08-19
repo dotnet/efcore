@@ -4320,7 +4320,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 assertOrder: true);
         }
 
-        [ConditionalTheory(Skip = "Issue#16318")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Correlated_collections_naked_navigation_with_ToArray(bool isAsync)
         {
@@ -4366,7 +4366,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 elementAsserter: CollectionAsserter<Weapon>(e => e.Id, (e, a) => Assert.Equal(e.Id, a.Id)));
         }
 
-        [ConditionalTheory(Skip = "Issue#16318")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Correlated_collections_basic_projection_explicit_to_array(bool isAsync)
         {
@@ -4399,7 +4399,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 elementAsserter: CollectionAsserter<Weapon>(elementAsserter: (e, a) => Assert.Equal(e.Id, a.Id)));
         }
 
-        [ConditionalTheory(Skip = "Issue#16318")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Correlated_collections_basic_projection_composite_key(bool isAsync)
         {
@@ -4666,7 +4666,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 });
         }
 
-        [ConditionalTheory(Skip = "Issue#16318")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Correlated_collections_similar_collection_projected_multiple_times(bool isAsync)
         {
@@ -4690,7 +4690,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 });
         }
 
-        [ConditionalTheory(Skip = "Issue#16318")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Correlated_collections_different_collections_projected(bool isAsync)
         {
@@ -6712,7 +6712,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 elementAsserter: CollectionAsserter<Gear>(e => e.Nickname, (e, a) => Assert.Equal(e.Nickname, a.Nickname)));
         }
 
-        [ConditionalTheory(Skip = "Issue#16318")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Cast_ordered_subquery_to_base_type_using_typed_ToArray(bool isAsync)
         {

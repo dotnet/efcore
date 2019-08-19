@@ -265,16 +265,13 @@ namespace Microsoft.EntityFrameworkCore
 
             public async Task<List<ConferenceDTO.SessionResponse>> GetSessions(string username)
             {
-                var sessions = await _db.Sessions.AsNoTracking()
+                return await _db.Sessions.AsNoTracking()
                     .Include(s => s.Track)
                     .Include(s => s.SessionSpeakers)
                     .ThenInclude(ss => ss.Speaker)
                     .Where(s => s.SessionAttendees.Any(sa => sa.Attendee.UserName == username))
-                    //.Select(m => m.MapSessionResponse())
+                    .Select(m => m.MapSessionResponse())
                     .ToListAsync();
-
-                // BUG: Working around EF Core 3.0 issue: https://github.com/aspnet/EntityFrameworkCore/issues/16318
-                return sessions.Select(s => s.MapSessionResponse()).ToList();
             }
 
             public async Task<ConferenceDTO.AttendeeResponse> Post(ConferenceDTO.Attendee input)
@@ -610,16 +607,12 @@ namespace Microsoft.EntityFrameworkCore
 
             public async Task<List<ConferenceDTO.SessionResponse>> Get()
             {
-                var sessions = await _db.Sessions.AsNoTracking()
+                return await _db.Sessions.AsNoTracking()
                     .Include(s => s.Track)
                     .Include(s => s.SessionSpeakers)
                     .ThenInclude(ss => ss.Speaker)
-                    //.Select(m => m.MapSessionResponse())
+                    .Select(m => m.MapSessionResponse())
                     .ToListAsync();
-
-                // BUG: Working around EF Core 3.0 issue: https://github.com/aspnet/EntityFrameworkCore/issues/16318
-                return sessions.Select(s => s.MapSessionResponse())
-                    .ToList();
             }
 
             public async Task<ConferenceDTO.SessionResponse> Get(int id)
@@ -746,14 +739,11 @@ namespace Microsoft.EntityFrameworkCore
 
             public async Task<List<ConferenceDTO.SpeakerResponse>> GetSpeakers()
             {
-                var speakers = await _db.Speakers.AsNoTracking()
+                return await _db.Speakers.AsNoTracking()
                     .Include(s => s.SessionSpeakers)
                     .ThenInclude(ss => ss.Session)
-                    //.Select(s => s.MapSpeakerResponse())
+                    .Select(s => s.MapSpeakerResponse())
                     .ToListAsync();
-
-                // BUG: Working around EF Core 3.0 issue: https://github.com/aspnet/EntityFrameworkCore/issues/16318
-                return speakers.Select(s => s.MapSpeakerResponse()).ToList();
             }
 
             public async Task<ConferenceDTO.SpeakerResponse> GetSpeaker(int id)

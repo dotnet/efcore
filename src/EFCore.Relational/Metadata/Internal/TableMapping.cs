@@ -155,7 +155,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public static IReadOnlyList<TableMapping> GetTableMappings([NotNull] IModel model)
         {
             var tables = new Dictionary<(string Schema, string TableName), List<IEntityType>>();
-            foreach (var entityType in model.GetEntityTypes().Where(et => !et.MigrationsIgnored()))
+            foreach (var entityType in model.GetEntityTypes().Where(et => !et.IsIgnoredByMigrations()))
             {
                 var fullName = (entityType.GetSchema(), entityType.GetTableName());
                 if (!tables.TryGetValue(fullName, out var mappedEntityTypes))

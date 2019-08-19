@@ -90,8 +90,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                         remappedLambdaBody.Type.IsValueType
                             ? Expression.Convert(remappedLambdaBody, typeof(object))
                             : remappedLambdaBody,
-                        QueryCompilationContext.QueryContextParameter),
-                    remappedLambdaBody.Type);
+                        QueryCompilationContext.QueryContextParameter));
             }
 
             return result;

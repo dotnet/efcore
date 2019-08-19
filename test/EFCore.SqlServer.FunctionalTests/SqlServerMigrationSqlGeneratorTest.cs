@@ -31,13 +31,13 @@ namespace Microsoft.EntityFrameworkCore
     CHECK (SSN > 0),
     FOREIGN KEY ([EmployerId]) REFERENCES [Companies] ([Id])
 );
-EXEC sp_addextendedproperty @name = N'Comment', @value = N'Table comment', @level0type = N'Schema', @level0name = N'dbo', @level1type = N'Table', @level1name = N'People';
-EXEC sp_addextendedproperty @name = N'Comment', @value = N'Employer ID comment', @level0type = N'Schema', @level0name = N'dbo', @level1type = N'Table', @level1name = N'People', @level2type = N'Column', @level2name = N'EmployerId';
+EXEC sp_addextendedproperty 'MS_Description', N'Table comment', 'SCHEMA', N'dbo', 'TABLE', N'People';
+EXEC sp_addextendedproperty 'MS_Description', N'Employer ID comment', 'SCHEMA', N'dbo', 'TABLE', N'People', 'COLUMN', N'EmployerId';
 ");
         }
 
         [ConditionalFact]
-        public void CreateTableOperation_default_schema_with_comment()
+        public void CreateTableOperation_default_schema_with_comments()
         {
             Generate(
                 new CreateTableOperation
@@ -53,18 +53,68 @@ EXEC sp_addextendedproperty @name = N'Comment', @value = N'Employer ID comment',
                             IsNullable = false,
                             Comment = "ID comment"
                         },
+                        new AddColumnOperation
+                        {
+                            Name = "Name",
+                            Table = "People",
+                            ClrType = typeof(string),
+                            IsNullable = false,
+                            Comment = "Name comment"
+                        },
                     },
                     Comment = "Table comment"
                 });
 
             AssertSql(
                 @"CREATE TABLE [People] (
-    [Id] int NOT NULL
+    [Id] int NOT NULL,
+    [Name] nvarchar(max) NOT NULL
 );
-DECLARE @schema AS nvarchar(max);
-SET @schema = SCHEMA_NAME();
-EXEC sp_addextendedproperty @name = N'Comment', @value = N'Table comment', @level0type = N'Schema', @level0name = @schema, @level1type = N'Table', @level1name = N'People';
-EXEC sp_addextendedproperty @name = N'Comment', @value = N'ID comment', @level0type = N'Schema', @level0name = @schema, @level1type = N'Table', @level1name = N'People', @level2type = N'Column', @level2name = N'Id';
+DECLARE @defaultSchema AS sysname;
+SET @defaultSchema = SCHEMA_NAME();
+EXEC sp_addextendedproperty 'MS_Description', N'Table comment', 'SCHEMA', @defaultSchema, 'TABLE', N'People';
+EXEC sp_addextendedproperty 'MS_Description', N'ID comment', 'SCHEMA', @defaultSchema, 'TABLE', N'People', 'COLUMN', N'Id';
+EXEC sp_addextendedproperty 'MS_Description', N'Name comment', 'SCHEMA', @defaultSchema, 'TABLE', N'People', 'COLUMN', N'Name';
+");
+        }
+
+        [ConditionalFact]
+        public void CreateTableOperation_default_schema_with_column_comments()
+        {
+            Generate(
+                new CreateTableOperation
+                {
+                    Name = "People",
+                    Columns =
+                    {
+                        new AddColumnOperation
+                        {
+                            Name = "Id",
+                            Table = "People",
+                            ClrType = typeof(int),
+                            IsNullable = false,
+                            Comment = "ID comment"
+                        },
+                        new AddColumnOperation
+                        {
+                            Name = "Name",
+                            Table = "People",
+                            ClrType = typeof(string),
+                            IsNullable = false,
+                            Comment = "Name comment"
+                        },
+                    }
+                });
+
+            AssertSql(
+                @"CREATE TABLE [People] (
+    [Id] int NOT NULL,
+    [Name] nvarchar(max) NOT NULL
+);
+DECLARE @defaultSchema AS sysname;
+SET @defaultSchema = SCHEMA_NAME();
+EXEC sp_addextendedproperty 'MS_Description', N'ID comment', 'SCHEMA', @defaultSchema, 'TABLE', N'People', 'COLUMN', N'Id';
+EXEC sp_addextendedproperty 'MS_Description', N'Name comment', 'SCHEMA', @defaultSchema, 'TABLE', N'People', 'COLUMN', N'Name';
 ");
         }
 
@@ -107,7 +157,7 @@ EXEC sp_addextendedproperty @name = N'Comment', @value = N'ID comment', @level0t
                 });
 
             AssertSql(
-                @"EXEC sp_addextendedproperty @name = N'Comment', @value = N'My Comment', @level0type = N'Schema', @level0name = N'dbo', @level1type = N'Table', @level1name = N'People';
+                @"EXEC sp_addextendedproperty 'MS_Description', N'My Comment', 'SCHEMA', N'dbo', 'TABLE', N'People';
 ");
         }
 
@@ -134,8 +184,8 @@ EXEC sp_addextendedproperty @name = N'Comment', @value = N'ID comment', @level0t
                 });
 
             AssertSql(
-                @"EXEC sp_dropextendedproperty @name = N'Comment', @level0type = N'Schema', @level0name = N'dbo', @level1type = N'Table', @level1name = N'People';
-EXEC sp_addextendedproperty @name = N'Comment', @value = N'My Comment 2', @level0type = N'Schema', @level0name = N'dbo', @level1type = N'Table', @level1name = N'People';
+                @"EXEC sp_dropextendedproperty 'MS_Description', 'SCHEMA', N'dbo', 'TABLE', N'People';
+EXEC sp_addextendedproperty 'MS_Description', N'My Comment 2', 'SCHEMA', N'dbo', 'TABLE', N'People';
 ");
         }
 
@@ -161,7 +211,7 @@ EXEC sp_addextendedproperty @name = N'Comment', @value = N'My Comment 2', @level
                 });
 
             AssertSql(
-                @"EXEC sp_dropextendedproperty @name = N'Comment', @level0type = N'Schema', @level0name = N'dbo', @level1type = N'Table', @level1name = N'People';
+                @"EXEC sp_dropextendedproperty 'MS_Description', 'SCHEMA', N'dbo', 'TABLE', N'People';
 ");
         }
 
@@ -407,9 +457,9 @@ EXEC sp_addextendedproperty @name = N'Comment', @value = N'My Comment 2', @level
 
             AssertSql(
                 @"ALTER TABLE [People] ADD [FullName] nvarchar(max) NOT NULL;
-DECLARE @schema AS nvarchar(max);
-SET @schema = SCHEMA_NAME();
-EXEC sp_addextendedproperty @name = N'Comment', @value = N'My comment', @level0type = N'Schema', @level0name = @schema, @level1type = N'Table', @level1name = N'People', @level2type = N'Column', @level2name = N'FullName';
+DECLARE @defaultSchema AS sysname;
+SET @defaultSchema = SCHEMA_NAME();
+EXEC sp_addextendedproperty 'MS_Description', N'My comment', 'SCHEMA', @defaultSchema, 'TABLE', N'People', 'COLUMN', N'FullName';
 ");
         }
 
@@ -428,7 +478,7 @@ EXEC sp_addextendedproperty @name = N'Comment', @value = N'My comment', @level0t
 
             AssertSql(
                 @"ALTER TABLE [my].[People] ADD [FullName] nvarchar(max) NOT NULL;
-EXEC sp_addextendedproperty @name = N'Comment', @value = N'My comment', @level0type = N'Schema', @level0name = N'my', @level1type = N'Table', @level1name = N'People', @level2type = N'Column', @level2name = N'FullName';
+EXEC sp_addextendedproperty 'MS_Description', N'My comment', 'SCHEMA', N'my', 'TABLE', N'People', 'COLUMN', N'FullName';
 ");
         }
 
@@ -1152,7 +1202,7 @@ INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [
 WHERE ([d].[parent_object_id] = OBJECT_ID(N'[dbo].[People]') AND [c].[name] = N'LuckyNumber');
 IF @var0 IS NOT NULL EXEC(N'ALTER TABLE [dbo].[People] DROP CONSTRAINT [' + @var0 + '];');
 ALTER TABLE [dbo].[People] ALTER COLUMN [LuckyNumber] int NOT NULL;
-EXEC sp_addextendedproperty @name = N'Comment', @value = N'My Comment', @level0type = N'Schema', @level0name = N'dbo', @level1type = N'Table', @level1name = N'People', @level2type = N'Column', @level2name = N'LuckyNumber';
+EXEC sp_addextendedproperty 'MS_Description', N'My Comment', 'SCHEMA', N'dbo', 'TABLE', N'People', 'COLUMN', N'LuckyNumber';
 ");
         }
 
@@ -1191,8 +1241,8 @@ INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [
 WHERE ([d].[parent_object_id] = OBJECT_ID(N'[dbo].[People]') AND [c].[name] = N'Name');
 IF @var0 IS NOT NULL EXEC(N'ALTER TABLE [dbo].[People] DROP CONSTRAINT [' + @var0 + '];');
 ALTER TABLE [dbo].[People] ALTER COLUMN [Name] nvarchar(max) NOT NULL;
-EXEC sp_dropextendedproperty @name = N'Comment', @level0type = N'Schema', @level0name = N'dbo', @level1type = N'Table', @level1name = N'People', @level2type = N'Column', @level2name = N'Name';
-EXEC sp_addextendedproperty @name = N'Comment', @value = N'My Comment 2', @level0type = N'Schema', @level0name = N'dbo', @level1type = N'Table', @level1name = N'People', @level2type = N'Column', @level2name = N'Name';
+EXEC sp_dropextendedproperty 'MS_Description', 'SCHEMA', N'dbo', 'TABLE', N'People', 'COLUMN', N'Name';
+EXEC sp_addextendedproperty 'MS_Description', N'My Comment 2', 'SCHEMA', N'dbo', 'TABLE', N'People', 'COLUMN', N'Name';
 ");
         }
 
@@ -1230,7 +1280,7 @@ INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [
 WHERE ([d].[parent_object_id] = OBJECT_ID(N'[dbo].[People]') AND [c].[name] = N'Name');
 IF @var0 IS NOT NULL EXEC(N'ALTER TABLE [dbo].[People] DROP CONSTRAINT [' + @var0 + '];');
 ALTER TABLE [dbo].[People] ALTER COLUMN [Name] nvarchar(max) NOT NULL;
-EXEC sp_dropextendedproperty @name = N'Comment', @level0type = N'Schema', @level0name = N'dbo', @level1type = N'Table', @level1name = N'People', @level2type = N'Column', @level2name = N'Name';
+EXEC sp_dropextendedproperty 'MS_Description', 'SCHEMA', N'dbo', 'TABLE', N'People', 'COLUMN', N'Name';
 ");
         }
 

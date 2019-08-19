@@ -65,12 +65,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             public string Name { get; }
             public Type ClrType { get; }
             public IEntityType BaseType { get; }
-            public bool IsKeyless { get; }
             public string DefiningNavigationName { get; }
             public IEntityType DefiningEntityType { get; }
             public LambdaExpression QueryFilter { get; }
-            public LambdaExpression DefiningQuery { get; }
-            public bool IsQueryType { get; }
             public IKey FindPrimaryKey() => throw new NotImplementedException();
             public IKey FindKey(IReadOnlyList<IProperty> properties) => throw new NotImplementedException();
             public IEnumerable<IKey> GetKeys() => throw new NotImplementedException();
