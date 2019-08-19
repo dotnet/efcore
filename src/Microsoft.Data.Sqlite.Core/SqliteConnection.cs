@@ -332,13 +332,17 @@ namespace Microsoft.Data.Sqlite
 
             Transaction?.Dispose();
 
-            // command.Dispose() removes itself from _commands
             for (var i = _commands.Count - 1; i >= 0; i--)
             {
                 var reference = _commands[i];
                 if (reference.TryGetTarget(out var command))
                 {
+                    // NB: Calls RemoveCommand()
                     command.Dispose();
+                }
+                else
+                {
+                    _commands.RemoveAt(i);
                 }
             }
 
@@ -397,8 +401,8 @@ namespace Microsoft.Data.Sqlite
         {
             for (var i = _commands.Count - 1; i >= 0; i--)
             {
-                if (!_commands[i].TryGetTarget(out var item)
-                    || item == command)
+                if (_commands[i].TryGetTarget(out var item)
+                    && item == command)
                 {
                     _commands.RemoveAt(i);
                 }
