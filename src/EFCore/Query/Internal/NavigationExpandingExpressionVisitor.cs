@@ -511,7 +511,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                             return ProcessDefaultIfEmpty(source);
 
                         default:
-                            throw new InvalidOperationException(CoreStrings.TranslationFailed(methodCallExpression.Print()));
+                            throw new InvalidOperationException(CoreStrings.QueryFailed(methodCallExpression.Print(), GetType().Name));
                     }
                 }
                 else if (firstArgument is MaterializeCollectionNavigationExpression materializeCollectionNavigationExpression
@@ -536,7 +536,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     return new NavigationExpansionExpression(methodCallExpression, currentTree, currentTree, parameterName);
                 }
 
-                throw new InvalidOperationException(CoreStrings.TranslationFailed(methodCallExpression.Print()));
+                throw new InvalidOperationException(CoreStrings.QueryFailed(methodCallExpression.Print(), GetType().Name));
             }
 
             if (method.IsGenericMethod
@@ -797,7 +797,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 return new NavigationExpansionExpression(newSource, currentTree, pendingSelector, parameterName);
             }
 
-            throw new InvalidOperationException(CoreStrings.TranslationFailed(collectionSelector.Print()));
+            throw new InvalidOperationException(CoreStrings.QueryFailed(collectionSelector.Print(), GetType().Name));
         }
 
         private void ApplyPendingOrderings(NavigationExpansionExpression source)

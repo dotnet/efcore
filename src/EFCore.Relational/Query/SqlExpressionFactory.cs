@@ -109,7 +109,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                     break;
 
                 default:
-                    throw new InvalidOperationException(CoreStrings.TranslationFailed(sqlUnaryExpression.Print()));
+                    throw new InvalidOperationException(
+                        $"The unary expression operator type {sqlUnaryExpression.OperatorType} is not supported.");
             }
 
             return new SqlUnaryExpression(
@@ -397,11 +398,12 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         public virtual InExpression In(SqlExpression item, SelectExpression subquery, bool negated)
         {
-            var typeMapping = subquery.Projection.Single().Expression.TypeMapping;
+            var sqlExpression = subquery.Projection.Single().Expression;
+            var typeMapping = sqlExpression.TypeMapping;
 
             if (typeMapping == null)
             {
-                throw new InvalidOperationException(CoreStrings.TranslationFailed(item.Print()));
+                throw new InvalidOperationException($"The subquery '{subquery.Print()}' references type '{sqlExpression.Type}' for which no type mapping could be found.");
             }
 
             item = ApplyTypeMapping(item, typeMapping);

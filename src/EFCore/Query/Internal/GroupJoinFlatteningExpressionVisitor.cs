@@ -183,31 +183,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                             .VerifyCollectionSelector(
                                 groupJoinResultSelectorBody, groupJoinResultSelector.Parameters[1]);
 
-                        if (correlatedCollectionSelector)
-                        {
-                            // See #17236
-                            throw new InvalidOperationException(CoreStrings.TranslationFailed(
-                                outerKeySelector.Print() + "; " + innerKeySelector.Print() + "; " + groupJoinResultSelector.Print()));
-
-                            //var outerParameter = outerKeySelector.Parameters[0];
-                            //var innerParameter = innerKeySelector.Parameters[0];
-                            //var correlationPredicate = Expression.Equal(
-                            //    outerKeySelector.Body,
-                            //    innerKeySelector.Body);
-
-                            //inner = Expression.Call(
-                            //    _whereMethodInfo.MakeGenericMethod(inner.Type.TryGetSequenceType()),
-                            //    inner,
-                            //    Expression.Quote(Expression.Lambda(correlationPredicate, innerParameter)));
-
-                            //inner = ReplacingExpressionVisitor.Replace(
-                            //        groupJoinResultSelector.Parameters[1],
-                            //        inner,
-                            //        groupJoinResultSelectorBody);
-
-                            //inner = Expression.Quote(Expression.Lambda(inner, outerParameter));
-                        }
-                        else
+                        if (!correlatedCollectionSelector)
                         {
                             inner = ReplacingExpressionVisitor.Replace(
                                 groupJoinResultSelector.Parameters[1],

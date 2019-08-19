@@ -530,7 +530,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     ? methodCallExpression.Update(null, new[] { newSource, Unwrap(Visit(arguments[1])) })
                     : arguments.Count == 3
                         ? methodCallExpression.Update(null, new[] { newSource, Unwrap(Visit(arguments[1])), Unwrap(Visit(arguments[2])) })
-                        : throw new InvalidOperationException(CoreStrings.TranslationFailed(methodCallExpression.Print()));
+                        : throw new InvalidOperationException(CoreStrings.QueryFailed(methodCallExpression.Print(), GetType().Name));
             }
 
             MethodCallExpression newMethodCall;
@@ -562,7 +562,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     : (Expression)newMethodCall;
             }
 
-            throw new InvalidOperationException(CoreStrings.TranslationFailed(methodCallExpression.Print()));
+            throw new InvalidOperationException(CoreStrings.QueryFailed(methodCallExpression.Print(), GetType().Name));
         }
 
         protected virtual Expression VisitJoinMethodCall(MethodCallExpression methodCallExpression)
