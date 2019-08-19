@@ -1631,6 +1631,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 filter, entityType);
 
         /// <summary>
+        ///     The entity type '{entityType}' cannot use 'ToQuery' to create a defining query because it also defines a primary key. Defining queries can only be used to back entity types without keys.
+        /// </summary>
+        public static string DefiningQueryWithKey([CanBeNull] object entityType)
+            => string.Format(
+                GetString("DefiningQueryWithKey", nameof(entityType)),
+                entityType);
+
+        /// <summary>
         ///     Converter for model type '{converterType}' cannot be used for '{entityType}.{propertyName}' because its type is '{propertyType}'.
         /// </summary>
         public static string ConverterPropertyMismatch([CanBeNull] object converterType, [CanBeNull] object entityType, [CanBeNull] object propertyName, [CanBeNull] object propertyType)
@@ -1968,14 +1976,6 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         public static string InvalidSetKeylessOperation([CanBeNull] object entityType)
             => string.Format(
                 GetString("InvalidSetKeylessOperation", nameof(entityType)),
-                entityType);
-
-        /// <summary>
-        ///     The entity type '{entityType}' cannot have a defining query because it has a primary key. Only keyless entity types can have a defining query.
-        /// </summary>
-        public static string NonKeylessEntityTypeDefiningQuery([CanBeNull] object entityType)
-            => string.Format(
-                GetString("NonKeylessEntityTypeDefiningQuery", nameof(entityType)),
                 entityType);
 
         /// <summary>

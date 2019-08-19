@@ -32,6 +32,15 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         }
 
         [ConditionalFact]
+        public virtual void Detects_defining_query_on_keyed_entity_type()
+        {
+            var modelBuilder = CreateConventionalModelBuilder();
+            modelBuilder.Entity<A>().ToQuery(() => new List<A>().AsQueryable());
+
+            VerifyError(CoreStrings.DefiningQueryWithKey("A"), modelBuilder.Model);
+        }
+
+        [ConditionalFact]
         public virtual void Detects_shadow_entities()
         {
             var model = CreateConventionlessModelBuilder().Model;
