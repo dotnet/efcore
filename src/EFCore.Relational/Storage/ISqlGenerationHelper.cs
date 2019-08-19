@@ -34,6 +34,11 @@ namespace Microsoft.EntityFrameworkCore.Storage
         string BatchTerminator { get; }
 
         /// <summary>
+        ///     The default single-line comment prefix.
+        /// </summary>
+        string SingleLineCommentToken { get; }
+
+        /// <summary>
         ///     Generates a valid parameter name for the given candidate name.
         /// </summary>
         /// <param name="name">
@@ -98,5 +103,12 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="name"> The identifier to delimit. </param>
         /// <param name="schema"> The schema of the identifier. </param>
         void DelimitIdentifier([NotNull] StringBuilder builder, [NotNull] string name, [CanBeNull] string schema);
+
+        /// <summary>
+        ///     Generates a SQL comment.
+        /// </summary>
+        /// <param name="text"> The comment text. </param>
+        /// <returns> The generated SQL. </returns>
+        string GenerateComment([NotNull] string text);
     }
 }

@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System.IO;
 using System.Text;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -42,6 +43,11 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     The terminator to be used for batches of SQL statements.
         /// </summary>
         public virtual string BatchTerminator => string.Empty;
+
+        /// <summary>
+        ///     The default single-line comment prefix.
+        /// </summary>
+        public virtual string SingleLineCommentToken => "--";
 
         /// <summary>
         ///     Generates a valid parameter name for the given candidate name.
@@ -158,6 +164,28 @@ namespace Microsoft.EntityFrameworkCore.Storage
             }
 
             DelimitIdentifier(builder, name);
+        }
+
+        /// <summary>
+        ///     Generates a SQL comment.
+        /// </summary>
+        /// <param name="text"> The comment text. </param>
+        /// <returns> The generated SQL. </returns>
+        public virtual string GenerateComment(string text)
+        {
+            Check.NotEmpty(text, nameof(text));
+
+            var builder = new StringBuilder();
+            using (var reader = new StringReader(text))
+            {
+                string line;
+                while ((line = reader.ReadLine()) != null)
+                {
+                    builder.Append(SingleLineCommentToken).Append(" ").AppendLine(line);
+                }
+            }
+
+            return builder.ToString();
         }
     }
 }

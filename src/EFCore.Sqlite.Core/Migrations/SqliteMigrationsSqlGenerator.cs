@@ -345,7 +345,87 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 }
             }
 
-            base.Generate(operation, model, builder, terminate);
+            if (string.IsNullOrEmpty(operation.Comment))
+            {
+                base.Generate(operation, model, builder, terminate);
+            }
+            else
+            {
+                builder
+                   .Append("CREATE TABLE ")
+                   .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(operation.Name, operation.Schema))
+                   .AppendLine(" (");
+
+                using (builder.Indent())
+                {
+                    builder
+                        .AppendLines(Dependencies.SqlGenerationHelper.GenerateComment(operation.Comment))
+                        .AppendLine();
+                    CreateTableColumns(operation, model, builder);
+                    CreateTableConstraints(operation, model, builder);
+                    builder.AppendLine();
+                }
+
+                builder.Append(")");
+
+                if (terminate)
+                {
+                    builder.AppendLine(Dependencies.SqlGenerationHelper.StatementTerminator);
+                    EndStatement(builder);
+                }
+            }
+        }
+
+        /// <summary>
+        ///     Generates a SQL fragment for the column definitions in an <see cref="CreateTableOperation" />.
+        /// </summary>
+        /// <param name="operation"> The operation. </param>
+        /// <param name="model"> The target model which may be <c>null</c> if the operations exist without a model. </param>
+        /// <param name="builder"> The command builder to use to add the SQL fragment. </param>
+        protected override void CreateTableColumns(
+            CreateTableOperation operation,
+            IModel model,
+            MigrationCommandListBuilder builder)
+        {
+            Check.NotNull(operation, nameof(operation));
+            Check.NotNull(builder, nameof(builder));
+
+            if (!operation.Columns.Any(c => !string.IsNullOrEmpty(c.Comment)))
+            {
+                base.CreateTableColumns(operation, model, builder);
+            }
+            else
+            {
+                CreateTableColumnsWithComments(operation, model, builder);
+            }
+        }
+
+        private void CreateTableColumnsWithComments(
+            CreateTableOperation operation,
+            IModel model,
+            MigrationCommandListBuilder builder)
+        {
+            for (var i = 0; i < operation.Columns.Count; i++)
+            {
+                var column = operation.Columns[i];
+
+                if (i > 0)
+                {
+                    builder.AppendLine();
+                }
+
+                if (!string.IsNullOrEmpty(column.Comment))
+                {
+                    builder.AppendLines(Dependencies.SqlGenerationHelper.GenerateComment(column.Comment));
+                }
+
+                ColumnDefinition(column, model, builder);
+
+                if (i != operation.Columns.Count - 1)
+                {
+                    builder.AppendLine(",");
+                }
+            }
         }
 
         /// <summary>
