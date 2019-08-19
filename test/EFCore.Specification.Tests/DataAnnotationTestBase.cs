@@ -762,7 +762,9 @@ namespace Microsoft.EntityFrameworkCore
 
             Validate(modelBuilder);
 
-            Assert.Equal(2, modelBuilder.Model.FindEntityType(typeof(CompositeKeyAttribute)).GetKeys().Single().Properties.Count);
+            var entityType = modelBuilder.Model.FindEntityType(typeof(CompositeKeyAttribute));
+            Assert.Equal(2, entityType.GetKeys().Single().Properties.Count);
+            Assert.Equal(2, entityType.GetProperties().Count());
 
             return modelBuilder;
         }
