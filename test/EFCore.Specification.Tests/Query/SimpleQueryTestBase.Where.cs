@@ -1233,7 +1233,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 (cs, es) =>
                     from c in cs
                     from e in es
-                    // ReSharper disable ArrangeRedundantParentheses
+                        // ReSharper disable ArrangeRedundantParentheses
 #pragma warning disable RCS1032 // Remove redundant parentheses.
                     where (c.City == "London" && c.Country == "UK")
                           && (e.City == "London" && e.Country == "UK")
@@ -2028,5 +2028,44 @@ namespace Microsoft.EntityFrameworkCore.Query
                 isAsync,
                 ps => ps.Where(p => p is Product ? false : true));
         }
+
+        [ConditionalTheory]  // issue #17172
+        [MemberData(nameof(IsAsyncData))]
+        public virtual async Task Enclosing_class_settable_member_generates_parameter(bool isAsync)
+        {
+            SettableProperty = 4;
+
+            await AssertQuery<Order>(
+                isAsync,
+                os => os.Where(o => o.OrderID == SettableProperty));
+
+            SettableProperty = 10;
+
+            await AssertQuery<Order>(
+               isAsync,
+               os => os.Where(o => o.OrderID == SettableProperty));
+        }
+
+        [ConditionalTheory]  // issue #17172
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Enclosing_class_readonly_member_generates_parameter(bool isAsync)
+        {
+            return AssertQuery<Order>(
+                isAsync,
+                os => os.Where(o => o.OrderID == ReadOnlyProperty));
+        }
+
+        [ConditionalTheory]  // issue #17172
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Enclosing_class_const_member_does_not_generate_parameter(bool isAsync)
+        {
+            return AssertQuery<Order>(
+                isAsync,
+                os => os.Where(o => o.OrderID == ConstantProperty));
+        }
+
+        private int SettableProperty { get; set; }
+        private int ReadOnlyProperty => 5;
+        private const int ConstantProperty = 1;
     }
 }

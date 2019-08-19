@@ -535,13 +535,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             protected override Expression VisitMember(MemberExpression memberExpression)
             {
-                if (memberExpression.Expression == null)
-                {
-                    // Static members which can change value
-                    _containsClosure
-                        = !(memberExpression.Member is FieldInfo fieldInfo && fieldInfo.IsInitOnly);
-                }
-
+                _containsClosure = memberExpression.Expression != null
+                    || !(memberExpression.Member is FieldInfo fieldInfo && fieldInfo.IsInitOnly);
                 return base.VisitMember(memberExpression);
             }
 
