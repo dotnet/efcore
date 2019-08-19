@@ -274,11 +274,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                 }
 
                 var referenceProperty = reference.MemberInfo;
-                if (referenceName != null
-                    && pointsToPrincipal
-                    && RelatedEntityType != foreignKey.DeclaringEntityType)
+                if (pointsToPrincipal)
                 {
-                    builder = referenceProperty == null && ReferenceMember == null
+                    builder = referenceProperty == null || ReferenceMember == null
                         ? builder.HasNavigations(
                             referenceName, ReferenceName,
                             (EntityType)DeclaringEntityType, (EntityType)RelatedEntityType, ConfigurationSource.Explicit)
@@ -286,29 +284,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                             referenceProperty, ReferenceMember,
                             (EntityType)DeclaringEntityType, (EntityType)RelatedEntityType, ConfigurationSource.Explicit);
                 }
-                else if (referenceName != null
-                         && !pointsToPrincipal
-                         && RelatedEntityType != foreignKey.PrincipalEntityType)
+                else
                 {
-                    builder = referenceProperty == null && ReferenceMember == null
+                    builder = referenceProperty == null || ReferenceMember == null
                         ? builder.HasNavigations(
                             ReferenceName, referenceName,
                             (EntityType)RelatedEntityType, (EntityType)DeclaringEntityType, ConfigurationSource.Explicit)
                         : builder.HasNavigations(
                             ReferenceMember, referenceProperty,
                             (EntityType)RelatedEntityType, (EntityType)DeclaringEntityType, ConfigurationSource.Explicit);
-                }
-                else
-                {
-                    builder = referenceProperty != null
-                        ? builder.HasNavigation(
-                            referenceProperty,
-                            pointsToPrincipal,
-                            ConfigurationSource.Explicit)
-                        : builder.HasNavigation(
-                            referenceName,
-                            pointsToPrincipal,
-                            ConfigurationSource.Explicit);
                 }
 
                 return batch.Run(builder);
