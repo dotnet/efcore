@@ -1704,8 +1704,8 @@ namespace Microsoft.EntityFrameworkCore.Query
             using (var context = CreateContext())
             {
                 Assert.Equal(
-                    CoreStrings.TranslationFailed(
-                        "AsQueryable<char>(NavigationTreeExpression    Value: EntityReferenceCustomer    Expression: (Unhandled parameter: c).CustomerID)"),
+                    CoreStrings.QueryFailed(
+                        "AsQueryable<char>(NavigationTreeExpression    Value: EntityReferenceCustomer    Expression: (Unhandled parameter: c).CustomerID)", "NavigationExpandingExpressionVisitor"),
                     RemoveNewLines(
                         Assert.Throws<InvalidOperationException>(
                             () => context.Customers.Select(c => c.CustomerID.FirstOrDefault()).ToList()).Message));

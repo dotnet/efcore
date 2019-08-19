@@ -302,8 +302,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         /// </summary>
         protected override ShapedQueryExpression TranslateGroupJoin(ShapedQueryExpression outer, ShapedQueryExpression inner, LambdaExpression outerKeySelector, LambdaExpression innerKeySelector, LambdaExpression resultSelector)
         {
-            throw new InvalidOperationException(CoreStrings.TranslationFailed(
-                outerKeySelector.Print() + "; " + innerKeySelector.Print() + "; " + resultSelector.Print()));
+            return null;
         }
 
         /// <summary>

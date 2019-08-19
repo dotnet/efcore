@@ -41,6 +41,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 expression);
 
         /// <summary>
+        ///     Processing of the LINQ expression '{expression}' by '{visitor}' failed. This may indicate either a bug or a limitation in EF Core. See https://go.microsoft.com/fwlink/?linkid=2101433 for more detailed information.
+        /// </summary>
+        public static string QueryFailed([CanBeNull] object expression, [CanBeNull] object visitor)
+            => string.Format(
+                GetString("QueryFailed", nameof(expression), nameof(visitor)),
+                expression, visitor);
+
+        /// <summary>
         ///     The model must be finalized before '{method}' can be used. Ensure that either 'OnModelCreating' has completed or, if using a stand-alone 'ModelBuilder', that 'FinalizeModel' has been called.
         /// </summary>
         public static string ModelNotFinalized([CanBeNull] object method)

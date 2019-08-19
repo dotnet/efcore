@@ -381,7 +381,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                     return _clientEval ? base.VisitExtension(includeExpression) : null;
 
                 default:
-                    throw new InvalidOperationException(CoreStrings.TranslationFailed(extensionExpression.Print()));
+                    throw new InvalidOperationException(CoreStrings.QueryFailed(extensionExpression.Print(), GetType().Name));
             }
         }
 

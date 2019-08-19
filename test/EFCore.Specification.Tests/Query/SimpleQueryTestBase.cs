@@ -2283,7 +2283,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         public virtual async Task SelectMany_mixed(bool isAsync)
         {
             Assert.Equal(
-                CoreStrings.TranslationFailed("(e1) => string[] { \"a\", \"b\", }"),
+                CoreStrings.QueryFailed("(e1) => string[] { \"a\", \"b\", }", "NavigationExpandingExpressionVisitor"),
                 RemoveNewLines(
                     (await Assert.ThrowsAsync<InvalidOperationException>(
                         () => AssertQuery<Employee, Customer>(
@@ -2767,7 +2767,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         public virtual async Task Default_if_empty_top_level_arg(bool isAsync)
         {
             Assert.Equal(
-                CoreStrings.TranslationFailed("DefaultIfEmpty<Employee>(    source: Where<Employee>(        source: DbSet<Employee>,         predicate: (c) => c.EmployeeID == 4294967295),     defaultValue: (Unhandled parameter: __p_0))"),
+                CoreStrings.QueryFailed("DefaultIfEmpty<Employee>(    source: Where<Employee>(        source: DbSet<Employee>,         predicate: (c) => c.EmployeeID == 4294967295),     defaultValue: (Unhandled parameter: __p_0))", "NavigationExpandingExpressionVisitor"),
                 RemoveNewLines(
                     (await Assert.ThrowsAsync<InvalidOperationException>(
                         () => AssertQuery<Employee>(
@@ -2783,7 +2783,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         public virtual async Task Default_if_empty_top_level_arg_followed_by_projecting_constant(bool isAsync)
         {
             Assert.Equal(
-                CoreStrings.TranslationFailed("DefaultIfEmpty<Employee>(    source: Where<Employee>(        source: DbSet<Employee>,         predicate: (c) => c.EmployeeID == 4294967295),     defaultValue: (Unhandled parameter: __p_0))"),
+                CoreStrings.QueryFailed("DefaultIfEmpty<Employee>(    source: Where<Employee>(        source: DbSet<Employee>,         predicate: (c) => c.EmployeeID == 4294967295),     defaultValue: (Unhandled parameter: __p_0))", "NavigationExpandingExpressionVisitor"),
                 RemoveNewLines(
                     (await Assert.ThrowsAsync<InvalidOperationException>(
                         () => AssertQueryScalar<Employee>(
