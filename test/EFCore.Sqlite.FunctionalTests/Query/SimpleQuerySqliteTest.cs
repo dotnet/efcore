@@ -1,6 +1,7 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.TestModels.Northwind;
@@ -20,155 +21,411 @@ namespace Microsoft.EntityFrameworkCore.Query
             //Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
         }
 
-        // Skip for SQLite. Issue #14935. Cannot eval 'Average()'
-        public override Task Average_with_coalesce(bool isAsync) => null;
+        // SQLite client-eval
+        public override async Task Sum_with_division_on_decimal(bool isAsync)
+        {
+            Assert.StartsWith(
+                "The LINQ expression",
+                (await Assert.ThrowsAsync<InvalidOperationException>(
+                    () => base.Sum_with_division_on_decimal(isAsync)))
+                .Message);
+        }
 
-        // Skip for SQLite. Issue #14935. Cannot eval 'Average()'
-        public override Task Average_with_division_on_decimal(bool isAsync) => null;
+        // SQLite client-eval
+        public override async Task Sum_with_division_on_decimal_no_significant_digits(bool isAsync)
+        {
+            Assert.StartsWith(
+                "The LINQ expression",
+                (await Assert.ThrowsAsync<InvalidOperationException>(
+                    () => base.Sum_with_division_on_decimal_no_significant_digits(isAsync)))
+                .Message);
+        }
 
-        // Skip for SQLite. Issue #14935. Cannot eval 'Average()'
-        public override Task Average_with_division_on_decimal_no_significant_digits(bool isAsync) => null;
-
-        // Skip for SQLite. Issue #14935. Cannot eval 'where (Convert(ToByte(ToByte(([o].OrderID % 1))), Int32) >= 0)'
-        public override Task Convert_ToByte(bool isAsync) => null;
-
-        // Skip for SQLite. Issue #14935. Cannot eval 'where (ToDecimal(ToByte(([o].OrderID % 1))) >= 0)'
-        public override Task Convert_ToDecimal(bool isAsync) => null;
-
-        // Skip for SQLite. Issue #14935. Cannot eval 'where (ToDouble(ToByte(([o].OrderID % 1))) >= 0)'
-        public override Task Convert_ToDouble(bool isAsync) => null;
-
-        // Skip for SQLite. Issue #14935. Cannot eval 'where (Convert(ToInt16(ToByte(([o].OrderID % 1))), Int32) >= 0)'
-        public override Task Convert_ToInt16(bool isAsync) => null;
-
-        // Skip for SQLite. Issue #14935. Cannot eval 'where (ToInt32(ToByte(([o].OrderID % 1))) >= 0)'
-        public override Task Convert_ToInt32(bool isAsync) => null;
-
-        // Skip for SQLite. Issue #14935. Cannot eval 'where (ToInt64(ToByte(([o].OrderID % 1))) >= 0)'
-        public override Task Convert_ToInt64(bool isAsync) => null;
-
-        // Skip for SQLite. Issue #14935. Cannot eval 'where (ToString(ToByte(([o].OrderID % 1))) != \"10\")'
-        public override Task Convert_ToString(bool isAsync) => null;
-
-        // Skip for SQLite. Issue #14935. Cannot eval 'from Order o in {from Order o in value(Microsoft.EntityFrameworkCore.Query.Internal.EntityQueryable`1[Microsoft.EntityFrameworkCore.TestModels.Northwind.Order]) where ([o].CustomerID == [c].CustomerID) select [o] => DefaultIfEmpty()}'
-        public override Task DefaultIfEmpty_in_subquery(bool isAsync) => null;
-
-        // Skip for SQLite. Issue #14935. Cannot eval 'from Order o1 in {from Order o in value(Microsoft.EntityFrameworkCore.Query.Internal.EntityQueryable`1[Microsoft.EntityFrameworkCore.TestModels.Northwind.Order]) where ([o].OrderID > 11000) select [o] => DefaultIfEmpty()}'
-        public override Task DefaultIfEmpty_in_subquery_nested(bool isAsync) => null;
-
-        // Skip for SQLite. Issue #14935. Cannot eval 'Max()'
-        public override Task Max_with_coalesce(bool isAsync) => null;
-
-        // Skip for SQLite. Issue #14935. Cannot eval 'Min()'
-        public override Task Min_with_coalesce(bool isAsync) => null;
-
-        // Skip for SQLite. Issue #14935. Cannot eval 'orderby Truncate(Convert([o].OrderID, Double)) asc'
-        public override Task Projecting_Math_Truncate_and_ordering_by_it_twice(bool isAsync) => null;
-
-        // Skip for SQLite. Issue #14935. Cannot eval 'orderby Truncate(Convert([o].OrderID, Double)) asc'
-        public override Task Projecting_Math_Truncate_and_ordering_by_it_twice2(bool isAsync) => null;
-
-        // Skip for SQLite. Issue #14935. Cannot eval 'orderby Truncate(Convert([o].OrderID, Double)) desc, Truncate(Convert([o].OrderID, Double)) asc'
-        public override Task Projecting_Math_Truncate_and_ordering_by_it_twice3(bool isAsync) => null;
-
-        // Skip for SQLite. Issue #14935. Cannot eval 'where Convert([o].EmployeeID, UInt32).ToString().Contains(\"10\")'
-        public override Task Query_expression_with_to_string_and_contains(bool isAsync) => null;
-
-        // TODO: Client Eval.
-        public override Task Select_math_truncate_int(bool isAsync) => null;
-
-        // Skip for SQLite. Issue #14935. Cannot eval 'from Order o in {from Order o in value(Microsoft.EntityFrameworkCore.Query.Internal.EntityQueryable`1[Microsoft.EntityFrameworkCore.TestModels.Northwind.Order]) where ([o].CustomerID == [c].CustomerID) select [o] => DefaultIfEmpty()}'
-        public override Task SelectMany_Joined_DefaultIfEmpty(bool isAsync) => null;
-
-        // Skip for SQLite. Issue #14935. Cannot eval 'from Order o in {from Order o in value(Microsoft.EntityFrameworkCore.Query.Internal.EntityQueryable`1[Microsoft.EntityFrameworkCore.TestModels.Northwind.Order]) where ([o].CustomerID == [c].CustomerID) select [o] => DefaultIfEmpty()}'
-        public override Task SelectMany_Joined_DefaultIfEmpty2(bool isAsync) => null;
-
-        // Skip for SQLite. Issue #14935. Cannot eval 'from Order o in {from Order o in value(Microsoft.EntityFrameworkCore.Query.Internal.EntityQueryable`1[Microsoft.EntityFrameworkCore.TestModels.Northwind.Order]) where ([o].CustomerID == [c].CustomerID) select [o] => Take(1000)}'
+        [ConditionalTheory(Skip = "Issue = #17238")]
         public override Task SelectMany_Joined_Take(bool isAsync) => null;
 
-        // Skip for SQLite. Issue #14935. Cannot eval 'Sum()'
-        public override Task Sum_with_division_on_decimal(bool isAsync) => null;
+        [ConditionalTheory(Skip = "Issue = #17239")]
+        public override Task Union_Take_Union_Take(bool isAsync) => null;
 
-        // Skip for SQLite. Issue #14935. Cannot eval 'Sum()'
-        public override Task Sum_with_division_on_decimal_no_significant_digits(bool isAsync) => null;
+        // SQLite client-eval
+        public override async Task Average_with_division_on_decimal(bool isAsync)
+        {
+            Assert.StartsWith(
+                "The LINQ expression",
+                (await Assert.ThrowsAsync<InvalidOperationException>(
+                    () => base.Average_with_division_on_decimal(isAsync)))
+                .Message);
+        }
 
-        // Sqlite does not support LIMIT on set operation operands, nor subqueries, so this is untranslatable.
-        public override Task Union_Take_Union_Take(bool isAsync) => Task.CompletedTask;
+        // SQLite client-eval
+        public override async Task Average_with_division_on_decimal_no_significant_digits(bool isAsync)
+        {
+            Assert.StartsWith(
+                "The LINQ expression",
+                (await Assert.ThrowsAsync<InvalidOperationException>(
+                    () => base.Average_with_division_on_decimal_no_significant_digits(isAsync)))
+                .Message);
+        }
 
-        // Skip for SQLite. Issue #14935. Cannot eval 'where (Convert([o].OrderDate, Nullable`1) == Convert(DateTimeOffset.Now, Nullable`1))'
-        public override Task Where_datetimeoffset_now_component(bool isAsync) => null;
+        // SQLite client-eval
+        public override async Task Convert_ToByte(bool isAsync)
+        {
+            Assert.StartsWith(
+                "The LINQ expression",
+                (await Assert.ThrowsAsync<InvalidOperationException>(
+                    () => base.Convert_ToByte(isAsync)))
+                .Message);
+        }
 
-        // Skip for SQLite. Issue #14935. Cannot eval 'where (Convert([o].OrderDate, Nullable`1) == Convert(DateTimeOffset.UtcNow, Nullable`1))'
-        public override Task Where_datetimeoffset_utcnow_component(bool isAsync) => null;
+        // SQLite client-eval
+        public override async Task Convert_ToDecimal(bool isAsync)
+        {
+            Assert.StartsWith(
+                "The LINQ expression",
+                (await Assert.ThrowsAsync<InvalidOperationException>(
+                    () => base.Convert_ToDecimal(isAsync)))
+                .Message);
+        }
 
-        // Skip for SQLite. Issue #14935. Cannot eval 'where (Pow(Convert([c].CustomerID.Length, Double), 2) == 25)'
-        public override Task Where_functions_nested(bool isAsync) => null;
+        // SQLite client-eval
+        public override async Task Convert_ToDouble(bool isAsync)
+        {
+            Assert.StartsWith(
+                "The LINQ expression",
+                (await Assert.ThrowsAsync<InvalidOperationException>(
+                    () => base.Convert_ToDouble(isAsync)))
+                .Message);
+        }
 
-        // Skip for SQLite. Issue #14935. Cannot eval 'where (NewGuid() != 00000000-0000-0000-0000-000000000000)'
-        public override Task Where_guid_newguid(bool isAsync) => null;
+        // SQLite client-eval
+        public override async Task Convert_ToInt16(bool isAsync)
+        {
+            Assert.StartsWith(
+                "The LINQ expression",
+                (await Assert.ThrowsAsync<InvalidOperationException>(
+                    () => base.Convert_ToInt16(isAsync)))
+                .Message);
+        }
 
-        // Skip for SQLite. Issue #14935. Cannot eval 'where (Abs([od].UnitPrice) > 10)'
-        public override Task Where_math_abs3(bool isAsync) => null;
+        // SQLite client-eval
+        public override async Task Convert_ToInt32(bool isAsync)
+        {
+            Assert.StartsWith(
+                "The LINQ expression",
+                (await Assert.ThrowsAsync<InvalidOperationException>(
+                    () => base.Convert_ToInt32(isAsync)))
+                .Message);
+        }
 
-        // Skip for SQLite. Issue #14935. Cannot eval 'where (Acos(Convert([od].Discount, Double)) > 1)'
-        public override Task Where_math_acos(bool isAsync) => null;
+        // SQLite client-eval
+        public override async Task Convert_ToInt64(bool isAsync)
+        {
+            Assert.StartsWith(
+                "The LINQ expression",
+                (await Assert.ThrowsAsync<InvalidOperationException>(
+                    () => base.Convert_ToInt64(isAsync)))
+                .Message);
+        }
 
-        // Skip for SQLite. Issue #14935. Cannot eval 'where (Asin(Convert([od].Discount, Double)) > 0)'
-        public override Task Where_math_asin(bool isAsync) => null;
+        // SQLite client-eval
+        public override async Task Convert_ToString(bool isAsync)
+        {
+            Assert.StartsWith(
+                "The LINQ expression",
+                (await Assert.ThrowsAsync<InvalidOperationException>(
+                    () => base.Convert_ToString(isAsync)))
+                .Message);
+        }
 
-        // Skip for SQLite. Issue #14935. Cannot eval 'where (Atan(Convert([od].Discount, Double)) > 0)'
-        public override Task Where_math_atan(bool isAsync) => null;
+        // SQLite client-eval
+        public override async Task Projecting_Math_Truncate_and_ordering_by_it_twice(bool isAsync)
+        {
+            Assert.StartsWith(
+                "The LINQ expression",
+                (await Assert.ThrowsAsync<InvalidOperationException>(
+                    () => base.Projecting_Math_Truncate_and_ordering_by_it_twice(isAsync)))
+                .Message);
+        }
 
-        // Skip for SQLite. Issue #14935. Cannot eval 'where (Atan2(Convert([od].Discount, Double), 1) > 0)'
-        public override Task Where_math_atan2(bool isAsync) => null;
+        // SQLite client-eval
+        public override async Task Projecting_Math_Truncate_and_ordering_by_it_twice2(bool isAsync)
+        {
+            Assert.StartsWith(
+                "The LINQ expression",
+                (await Assert.ThrowsAsync<InvalidOperationException>(
+                    () => base.Projecting_Math_Truncate_and_ordering_by_it_twice2(isAsync)))
+                .Message);
+        }
 
-        // Skip for SQLite. Issue #14935. Cannot eval 'where (Ceiling(Convert([od].Discount, Double)) > 0)'
-        public override Task Where_math_ceiling1(bool isAsync) => null;
+        // SQLite client-eval
+        public override async Task Projecting_Math_Truncate_and_ordering_by_it_twice3(bool isAsync)
+        {
+            Assert.StartsWith(
+                "The LINQ expression",
+                (await Assert.ThrowsAsync<InvalidOperationException>(
+                    () => base.Projecting_Math_Truncate_and_ordering_by_it_twice3(isAsync)))
+                .Message);
+        }
 
-        // Skip for SQLite. Issue #14935. Cannot eval 'where (Ceiling([od].UnitPrice) > 10)'
-        public override Task Where_math_ceiling2(bool isAsync) => null;
+        // SQLite client-eval
+        public override async Task Query_expression_with_to_string_and_contains(bool isAsync)
+        {
+            Assert.StartsWith(
+                "The LINQ expression",
+                (await Assert.ThrowsAsync<InvalidOperationException>(
+                    () => base.Query_expression_with_to_string_and_contains(isAsync)))
+                .Message);
+        }
 
-        // Skip for SQLite. Issue #14935. Cannot eval 'where (Cos(Convert([od].Discount, Double)) > 0)'
-        public override Task Where_math_cos(bool isAsync) => null;
+        // SQLite client-eval
+        public override async Task Where_datetimeoffset_now_component(bool isAsync)
+        {
+            Assert.StartsWith(
+                "The LINQ expression",
+                (await Assert.ThrowsAsync<InvalidOperationException>(
+                    () => base.Where_datetimeoffset_now_component(isAsync)))
+                .Message);
+        }
 
-        // Skip for SQLite. Issue #14935. Cannot eval 'where (Exp(Convert([od].Discount, Double)) > 1)'
-        public override Task Where_math_exp(bool isAsync) => null;
+        // SQLite client-eval
+        public override async Task Where_datetimeoffset_utcnow_component(bool isAsync)
+        {
+            Assert.StartsWith(
+                "The LINQ expression",
+                (await Assert.ThrowsAsync<InvalidOperationException>(
+                    () => base.Where_datetimeoffset_utcnow_component(isAsync)))
+                .Message);
+        }
 
-        // Skip for SQLite. Issue #14935. Cannot eval 'where (Floor([od].UnitPrice) > 10)'
-        public override Task Where_math_floor(bool isAsync) => null;
+        // SQLite client-eval
+        public override async Task Where_functions_nested(bool isAsync)
+        {
+            Assert.StartsWith(
+                "The LINQ expression",
+                (await Assert.ThrowsAsync<InvalidOperationException>(
+                    () => base.Where_functions_nested(isAsync)))
+                .Message);
+        }
 
-        // Skip for SQLite. Issue #14935. Cannot eval 'where (Log(Convert([od].Discount, Double)) < 0)'
-        public override Task Where_math_log(bool isAsync) => null;
+        // SQLite client-eval
+        public override async Task Where_guid_newguid(bool isAsync)
+        {
+            Assert.StartsWith(
+                "The LINQ expression",
+                (await Assert.ThrowsAsync<InvalidOperationException>(
+                    () => base.Where_guid_newguid(isAsync)))
+                .Message);
+        }
 
-        // Skip for SQLite. Issue #14935. Cannot eval 'where (Log(Convert([od].Discount, Double), 7) < 0)'
-        public override Task Where_math_log_new_base(bool isAsync) => null;
+        // SQLite client-eval
+        public override async Task Where_math_abs3(bool isAsync)
+        {
+            Assert.StartsWith(
+                "The LINQ expression",
+                (await Assert.ThrowsAsync<InvalidOperationException>(
+                    () => base.Where_math_abs3(isAsync)))
+                .Message);
+        }
 
-        // Skip for SQLite. Issue #14935. Cannot eval 'where (Log10(Convert([od].Discount, Double)) < 0)'
-        public override Task Where_math_log10(bool isAsync) => null;
+        // SQLite client-eval
+        public override async Task Where_math_acos(bool isAsync)
+        {
+            Assert.StartsWith(
+                "The LINQ expression",
+                (await Assert.ThrowsAsync<InvalidOperationException>(
+                    () => base.Where_math_acos(isAsync)))
+                .Message);
+        }
 
-        // Skip for SQLite. Issue #14935. Cannot eval 'where (Pow(Convert([od].Discount, Double), 2) > 0.05000000074505806)'
-        public override Task Where_math_power(bool isAsync) => null;
+        // SQLite client-eval
+        public override async Task Where_math_asin(bool isAsync)
+        {
+            Assert.StartsWith(
+                "The LINQ expression",
+                (await Assert.ThrowsAsync<InvalidOperationException>(
+                    () => base.Where_math_asin(isAsync)))
+                .Message);
+        }
 
-        // Skip for SQLite. Issue #14935. Cannot eval 'where (Round([od].UnitPrice) > 10'
-        public override Task Where_math_round(bool isAsync) => null;
+        // SQLite client-eval
+        public override async Task Where_math_atan(bool isAsync)
+        {
+            Assert.StartsWith(
+                "The LINQ expression",
+                (await Assert.ThrowsAsync<InvalidOperationException>(
+                    () => base.Where_math_atan(isAsync)))
+                .Message);
+        }
 
-        // Skip for SQLite. Issue #14935. Cannot eval 'where (Round([od].UnitPrice, 2) > 100)'
-        public override Task Where_math_round2(bool isAsync) => null;
+        // SQLite client-eval
+        public override async Task Where_math_atan2(bool isAsync)
+        {
+            Assert.StartsWith(
+                "The LINQ expression",
+                (await Assert.ThrowsAsync<InvalidOperationException>(
+                    () => base.Where_math_atan2(isAsync)))
+                .Message);
+        }
 
-        // Skip for SQLite. Issue #14935. Cannot eval 'where (Sign([od].Discount) > 0)'
-        public override Task Where_math_sign(bool isAsync) => null;
+        // SQLite client-eval
+        public override async Task Where_math_ceiling1(bool isAsync)
+        {
+            Assert.StartsWith(
+                "The LINQ expression",
+                (await Assert.ThrowsAsync<InvalidOperationException>(
+                    () => base.Where_math_ceiling1(isAsync)))
+                .Message);
+        }
 
-        // Skip for SQLite. Issue #14935. Cannot eval 'where (Sin(Convert([od].Discount, Double)) > 0'
-        public override Task Where_math_sin(bool isAsync) => null;
+        // SQLite client-eval
+        public override async Task Where_math_ceiling2(bool isAsync)
+        {
+            Assert.StartsWith(
+                "The LINQ expression",
+                (await Assert.ThrowsAsync<InvalidOperationException>(
+                    () => base.Where_math_ceiling2(isAsync)))
+                .Message);
+        }
 
-        // Skip for SQLite. Issue #14935. Cannot eval 'where (Sqrt(Convert([od].Discount, Double)) > 0)'
-        public override Task Where_math_sqrt(bool isAsync) => null;
+        // SQLite client-eval
+        public override async Task Where_math_cos(bool isAsync)
+        {
+            Assert.StartsWith(
+                "The LINQ expression",
+                (await Assert.ThrowsAsync<InvalidOperationException>(
+                    () => base.Where_math_cos(isAsync)))
+                .Message);
+        }
 
-        // Skip for SQLite. Issue #14935. Cannot eval 'where (Tan(Convert([od].Discount, Double)) > 0)'
-        public override Task Where_math_tan(bool isAsync) => null;
+        // SQLite client-eval
+        public override async Task Where_math_exp(bool isAsync)
+        {
+            Assert.StartsWith(
+                "The LINQ expression",
+                (await Assert.ThrowsAsync<InvalidOperationException>(
+                    () => base.Where_math_exp(isAsync)))
+                .Message);
+        }
 
-        // Skip for SQLite. Issue #14935. Cannot eval 'where (Truncate([od].UnitPrice) > 10)'
-        public override Task Where_math_truncate(bool isAsync) => null;
+        // SQLite client-eval
+        public override async Task Where_math_floor(bool isAsync)
+        {
+            Assert.StartsWith(
+                "The LINQ expression",
+                (await Assert.ThrowsAsync<InvalidOperationException>(
+                    () => base.Where_math_floor(isAsync)))
+                .Message);
+        }
+
+        // SQLite client-eval
+        public override async Task Where_math_log(bool isAsync)
+        {
+            Assert.StartsWith(
+                "The LINQ expression",
+                (await Assert.ThrowsAsync<InvalidOperationException>(
+                    () => base.Where_math_log(isAsync)))
+                .Message);
+        }
+
+        // SQLite client-eval
+        public override async Task Where_math_log_new_base(bool isAsync)
+        {
+            Assert.StartsWith(
+                "The LINQ expression",
+                (await Assert.ThrowsAsync<InvalidOperationException>(
+                    () => base.Where_math_log_new_base(isAsync)))
+                .Message);
+        }
+
+        // SQLite client-eval
+        public override async Task Where_math_log10(bool isAsync)
+        {
+            Assert.StartsWith(
+                "The LINQ expression",
+                (await Assert.ThrowsAsync<InvalidOperationException>(
+                    () => base.Where_math_log10(isAsync)))
+                .Message);
+        }
+
+        // SQLite client-eval
+        public override async Task Where_math_power(bool isAsync)
+        {
+            Assert.StartsWith(
+                "The LINQ expression",
+                (await Assert.ThrowsAsync<InvalidOperationException>(
+                    () => base.Where_math_power(isAsync)))
+                .Message);
+        }
+
+        // SQLite client-eval
+        public override async Task Where_math_round(bool isAsync)
+        {
+            Assert.StartsWith(
+                "The LINQ expression",
+                (await Assert.ThrowsAsync<InvalidOperationException>(
+                    () => base.Where_math_round(isAsync)))
+                .Message);
+        }
+
+        // SQLite client-eval
+        public override async Task Where_math_round2(bool isAsync)
+        {
+            Assert.StartsWith(
+                "The LINQ expression",
+                (await Assert.ThrowsAsync<InvalidOperationException>(
+                    () => base.Where_math_round2(isAsync)))
+                .Message);
+        }
+
+        // SQLite client-eval
+        public override async Task Where_math_sign(bool isAsync)
+        {
+            Assert.StartsWith(
+                "The LINQ expression",
+                (await Assert.ThrowsAsync<InvalidOperationException>(
+                    () => base.Where_math_sign(isAsync)))
+                .Message);
+        }
+
+        // SQLite client-eval
+        public override async Task Where_math_sin(bool isAsync)
+        {
+            Assert.StartsWith(
+                "The LINQ expression",
+                (await Assert.ThrowsAsync<InvalidOperationException>(
+                    () => base.Where_math_sin(isAsync)))
+                .Message);
+        }
+
+        // SQLite client-eval
+        public override async Task Where_math_sqrt(bool isAsync)
+        {
+            Assert.StartsWith(
+                "The LINQ expression",
+                (await Assert.ThrowsAsync<InvalidOperationException>(
+                    () => base.Where_math_sqrt(isAsync)))
+                .Message);
+        }
+
+        // SQLite client-eval
+        public override async Task Where_math_tan(bool isAsync)
+        {
+            Assert.StartsWith(
+                "The LINQ expression",
+                (await Assert.ThrowsAsync<InvalidOperationException>(
+                    () => base.Where_math_tan(isAsync)))
+                .Message);
+        }
+
+        // SQLite client-eval
+        public override async Task Where_math_truncate(bool isAsync)
+        {
+            Assert.StartsWith(
+                "The LINQ expression",
+                (await Assert.ThrowsAsync<InvalidOperationException>(
+                    () => base.Where_math_truncate(isAsync)))
+                .Message);
+        }
 
         public override void KeylessEntity_by_database_view()
         {
@@ -732,9 +989,6 @@ WHERE (trim(""c"".""ContactTitle"", 'O') = 'wner') AND trim(""c"".""ContactTitle
 FROM ""Customers"" AS ""c""
 WHERE (trim(""c"".""ContactTitle"", 'Or') = 'wne') AND trim(""c"".""ContactTitle"", 'Or') IS NOT NULL");
         }
-
-        // Skip for SQLite. Issue #14935. Cannot eval 'Sum()'
-        public override Task Sum_with_coalesce(bool isAsync) => null;
 
         public override async Task Select_datetime_year_component(bool isAsync)
         {

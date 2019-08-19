@@ -1,12 +1,13 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 using Microsoft.EntityFrameworkCore.TestUtilities;
-using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
 using Xunit;
 
 // ReSharper disable InconsistentNaming
@@ -296,7 +297,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalFact(Skip = "Issue #14935. Cannot eval 'Distinct()'")]
+        [ConditionalFact(Skip = "Issue #17068")]
         public virtual async Task Include_collection_on_group_join_clause_with_filter()
         {
             using (var context = CreateContext())
@@ -343,7 +344,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalFact(Skip = "Issue #14935. Cannot eval 'GroupBy([c].City, Result(_IncludeAsync(queryContext, [c], new [] {}, (queryContext, entity, included, ct) => { ... }, ct))))'")]
+        [ConditionalFact(Skip = "Issue #17068")]
         public virtual async Task Include_collection_when_groupby()
         {
             using (var context = CreateContext())
@@ -708,23 +709,18 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalFact(Skip = "Issue #14935. Cannot eval 'where [c].IsLondon'")]
+        [ConditionalFact]
         public virtual async Task Include_collection_with_client_filter()
         {
             using (var context = CreateContext())
             {
-                var customers
-                    = await context.Set<Customer>()
-                        .Include(c => c.Orders)
-                        .Where(c => c.IsLondon)
-                        .ToListAsync();
-
-                Assert.Equal(6, customers.Count);
-                Assert.Equal(46, customers.SelectMany(c => c.Orders).Count());
-                Assert.True(customers.SelectMany(c => c.Orders).All(o => o.Customer != null));
-                Assert.Equal(13, customers.First().Orders.Count); // AROUT
-                Assert.Equal(9, customers.Last().Orders.Count); // SEVES
-                Assert.Equal(6 + 46, context.ChangeTracker.Entries().Count());
+                Assert.Equal(
+                    CoreStrings.TranslationFailed("(c) => c.IsLondon"),
+                    (await Assert.ThrowsAsync<InvalidOperationException>(
+                        () => context.Set<Customer>()
+                            .Include(c => c.Orders)
+                            .Where(c => c.IsLondon)
+                            .ToListAsync())).Message);
             }
         }
 

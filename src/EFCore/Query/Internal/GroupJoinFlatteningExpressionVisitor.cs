@@ -5,6 +5,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Query.Internal
@@ -183,7 +185,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
                         if (correlatedCollectionSelector)
                         {
-                            throw new NotImplementedException();
+                            // See #17236
+                            throw new InvalidOperationException(CoreStrings.TranslationFailed(
+                                outerKeySelector.Print() + "; " + innerKeySelector.Print() + "; " + groupJoinResultSelector.Print()));
+
                             //var outerParameter = outerKeySelector.Parameters[0];
                             //var innerParameter = innerKeySelector.Parameters[0];
                             //var correlationPredicate = Expression.Equal(

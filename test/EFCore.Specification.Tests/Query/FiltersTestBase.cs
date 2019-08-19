@@ -4,6 +4,7 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 using Xunit;
 
@@ -46,10 +47,13 @@ namespace Microsoft.EntityFrameworkCore.Query
             Assert.Null(_context.Find<Customer>("ALFKI"));
         }
 
-        [ConditionalFact(Skip = "Issue #14935. Cannot eval 'where ClientMethod([p])'")] 
+        [ConditionalFact]
         public virtual void Client_eval()
         {
-            Assert.Equal(69, _context.Products.ToList().Count);
+            Assert.Equal(
+                CoreStrings.TranslationFailed("(p) => ClientMethod(p)"),
+                Assert.Throws<InvalidOperationException>(
+                    () => _context.Products.ToList()).Message);
         }
 
         [ConditionalFact]
@@ -127,16 +131,13 @@ namespace Microsoft.EntityFrameworkCore.Query
             Assert.True(results.All(o => o.Customer == null || o.CustomerID.StartsWith("B")));
         }
 
-        [ConditionalFact(Skip = "Issue #14935. Cannot eval 'where ClientMethod([p])'")]
+        [ConditionalFact]
         public virtual void Included_one_to_many_query_with_client_eval()
         {
-            var results = _context.Products.Include(p => p.OrderDetails).ToList();
-
-            Assert.Equal(69, results.Count);
-            Assert.True(
-                results.All(
-                    p => !p.OrderDetails.Any()
-                         || p.OrderDetails.All(od => od.Quantity > 50)));
+            Assert.Equal(
+                CoreStrings.TranslationFailed("(p) => ClientMethod(p)"),
+                Assert.Throws<InvalidOperationException>(
+                    () => _context.Products.Include(p => p.OrderDetails).ToList()).Message);
         }
 
         [ConditionalFact(Skip = "issue #15081")]

@@ -6,6 +6,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Query;
@@ -113,7 +114,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                     : Expression.Convert(result, type);
             }
 
-            throw new InvalidOperationException();
+            throw new InvalidOperationException(CoreStrings.TranslationFailed(source.Print()));
         }
 
         private Expression BindProperty(EntityProjectionExpression entityProjectionExpression, IProperty property)
@@ -299,7 +300,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                     Expression.Constant(parameterExpression.Name));
             }
 
-            throw new InvalidOperationException();
+            throw new InvalidOperationException(CoreStrings.TranslationFailed(parameterExpression.Print()));
         }
 
         private static readonly MethodInfo _getParameterValueMethodInfo

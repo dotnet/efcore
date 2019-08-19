@@ -14,6 +14,16 @@ namespace Microsoft.EntityFrameworkCore.Query
             //TestLoggerFactory.TestOutputHelper = testOutputHelper;
         }
 
+        [ConditionalFact(Skip = "See issue #13857")]
+        public override void Client_eval()
+        {
+        }
+
+        [ConditionalFact(Skip = "See issue #13857")]
+        public override void Included_one_to_many_query_with_client_eval()
+        {
+        }
+
         [ConditionalFact(Skip = "issue #16963")]
         public override void Include_query()
         {

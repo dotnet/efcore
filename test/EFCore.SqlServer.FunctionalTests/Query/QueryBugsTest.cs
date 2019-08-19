@@ -730,7 +730,7 @@ LEFT JOIN [Customer] AS [c] ON (([o].[CustomerFirstName] = [c].[FirstName]) AND 
 
         #region Bug7293
 
-        [ConditionalFact(Skip = "Issue #14935. Cannot eval 'where (new ProjectView() {Permissions = {from ProjectUser u in value(Microsoft.EntityFrameworkCore.Query.Internal.EntityQueryable`1[Microsoft.EntityFrameworkCore.Query.QueryBugsTest+ProjectUser]) join User u.User in value(Microsoft.EntityFrameworkCore.Query.Internal.EntityQueryable`1[Microsoft.EntityFrameworkCore.Query.QueryBugsTest+User]) on Property([u], \"UserId\") equals Property([u.User], \"Id\") where  ?= (Property([p], \"Id\") == Property([u], \"ProjectId\")) =? select new PermissionView() {UserName = [u.User].Name}}}.Id == __target_ProjectId_0)'")]
+        [ConditionalFact(Skip = "Issue #17068")]
         public void GroupJoin_expansion_when_optional_nav_in_projection()
         {
             using (CreateDatabase7293())
@@ -3277,7 +3277,7 @@ ORDER BY [t].[c], [t].[c0], [t].[Id], [t].[Id0], [o].[Id]");
 
         #region Bug9892
 
-        [ConditionalFact(Skip = "Issue #14935. Cannot eval 'join <>f__AnonymousType12`2 c in {from Child9892 x in value(Microsoft.EntityFrameworkCore.Query.Internal.EntityQueryable`1[Microsoft.EntityFrameworkCore.Query.QueryBugsTest+Child9892]) join OtherParent9892 x.OtherParent in value(Microsoft.EntityFrameworkCore.Query.Internal.EntityQueryable`1[Microsoft.EntityFrameworkCore.Query.QueryBugsTest+OtherParent9892]) on Property([x], \"OtherParentId\") equals Property([x.OtherParent], \"Id\") select new <>f__AnonymousType12`2(ParentId = [x].ParentId, OtherParent = [x.OtherParent].Name)} on [p].Id equals [c].ParentId'")]
+        [ConditionalFact(Skip = "Issue #17068")]
         public virtual void GroupJoin_to_parent_with_no_child_works_9892()
         {
             using (CreateDatabase9892())
@@ -3496,86 +3496,48 @@ LEFT JOIN [Configuration9468] AS [c] ON [c0].[ConfigurationId] = [c].[Id]");
 
         #region Bug10635
 
-        [ConditionalFact(Skip = "issue #14935")]
+        [ConditionalFact]
         public void Include_with_order_by_on_interface_key()
         {
             using (CreateDatabase10635())
             {
                 using (var context = new MyContext10635(_options))
                 {
-                    var query1 = context.Parents.Include(p => p.Children).OrderBy(p => ((IEntity10635)p).Id).ToList();
-
-                    AssertSql(
-                        @"SELECT [p].[Id], [p].[Name]
-FROM [Parents] AS [p]
-ORDER BY [p].[Id]",
-                        //
-                        @"SELECT [p.Children].[Id], [p.Children].[Name], [p.Children].[Parent10635Id], [p.Children].[ParentId]
-FROM [Children] AS [p.Children]
-INNER JOIN (
-    SELECT [p0].[Id]
-    FROM [Parents] AS [p0]
-) AS [t] ON [p.Children].[Parent10635Id] = [t].[Id]
-ORDER BY [t].[Id]");
-
-                    ClearLog();
+                    Assert.Equal(
+                        CoreStrings.TranslationFailed("(p) => ((IEntity10635)p).Id"),
+                        Assert.Throws<InvalidOperationException>(
+                            () => context.Parents.Include(p => p.Children).OrderBy(p => ((IEntity10635)p).Id).ToList()).Message);
 
                     var query2 = context.Parents.Include(p => p.Children).OrderBy(p => EF.Property<int>(p, "Id")).ToList();
 
                     AssertSql(
-                        @"SELECT [p].[Id], [p].[Name]
+                        @"SELECT [p].[Id], [p].[Name], [c].[Id], [c].[Name], [c].[Parent10635Id], [c].[ParentId]
 FROM [Parents] AS [p]
-ORDER BY [p].[Id]",
-                        //
-                        @"SELECT [p.Children].[Id], [p.Children].[Name], [p.Children].[Parent10635Id], [p.Children].[ParentId]
-FROM [Children] AS [p.Children]
-INNER JOIN (
-    SELECT [p0].[Id]
-    FROM [Parents] AS [p0]
-) AS [t] ON [p.Children].[Parent10635Id] = [t].[Id]
-ORDER BY [t].[Id]");
+LEFT JOIN [Children] AS [c] ON [p].[Id] = [c].[Parent10635Id]
+ORDER BY [p].[Id], [c].[Id]");
                 }
             }
         }
 
-        [ConditionalFact(Skip = "issue #14935")]
+        [ConditionalFact]
         public void Correlated_collection_with_order_by_on_interface_key()
         {
             using (CreateDatabase10635())
             {
                 using (var context = new MyContext10635(_options))
                 {
-                    var query1 = context.Parents.OrderBy(p => ((IEntity10635)p).Id).Select(p => p.Children.ToList()).ToList();
-
-                    AssertSql(
-                        @"SELECT [p].[Id]
-FROM [Parents] AS [p]
-ORDER BY [p].[Id]",
-                        //
-                        @"SELECT [p.Children].[Id], [p.Children].[Name], [p.Children].[Parent10635Id], [p.Children].[ParentId], [t].[Id]
-FROM [Children] AS [p.Children]
-INNER JOIN (
-    SELECT [p0].[Id]
-    FROM [Parents] AS [p0]
-) AS [t] ON [p.Children].[Parent10635Id] = [t].[Id]
-ORDER BY [t].[Id]");
-
-                    ClearLog();
+                    Assert.Equal(
+                        CoreStrings.TranslationFailed("(p) => ((IEntity10635)p).Id"),
+                        Assert.Throws<InvalidOperationException>(
+                            () => context.Parents.OrderBy(p => ((IEntity10635)p).Id).Select(p => p.Children.ToList()).ToList()).Message);
 
                     var query2 = context.Parents.OrderBy(p => EF.Property<int>(p, "Id")).Select(p => p.Children.ToList()).ToList();
 
                     AssertSql(
-                        @"SELECT [p].[Id]
+                        @"SELECT [p].[Id], [c].[Id], [c].[Name], [c].[Parent10635Id], [c].[ParentId]
 FROM [Parents] AS [p]
-ORDER BY [p].[Id]",
-                        //
-                        @"SELECT [p.Children].[Id], [p.Children].[Name], [p.Children].[Parent10635Id], [p.Children].[ParentId], [t].[Id]
-FROM [Children] AS [p.Children]
-INNER JOIN (
-    SELECT [p0].[Id]
-    FROM [Parents] AS [p0]
-) AS [t] ON [p.Children].[Parent10635Id] = [t].[Id]
-ORDER BY [t].[Id]");
+LEFT JOIN [Children] AS [c] ON [p].[Id] = [c].[Parent10635Id]
+ORDER BY [p].[Id], [c].[Id]");
                 }
             }
         }
@@ -4280,7 +4242,7 @@ WHERE ([t].[Name] <> N'Bar') OR [t].[Name] IS NULL");
 
         public static bool ClientMethod11923(int id) => true;
 
-        [ConditionalFact(Skip = "Issue #14935. Cannot eval 'First()'")]
+        [ConditionalFact(Skip = "Issue #17244")]
         public virtual void Collection_without_setter_materialized_correctly()
         {
             using (CreateDatabase11923())
@@ -4645,7 +4607,7 @@ FROM [Prices] AS [p]");
 
         #region Bug12582
 
-        [ConditionalFact(Skip = "Issue #14935. Cannot eval 'OfType<Microsoft.EntityFrameworkCore.Query.QueryBugsTest+IEmployee12582>()'")]
+        [ConditionalFact(Skip = "Issue #17244")]
         public virtual void Include_collection_with_OfType_base()
         {
             using (CreateDatabase12582())

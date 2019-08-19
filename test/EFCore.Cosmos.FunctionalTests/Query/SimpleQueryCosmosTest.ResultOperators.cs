@@ -12,7 +12,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 {
     public partial class SimpleQueryCosmosTest
     {
-        [ConditionalTheory(Skip = "Issue#14935")]
+        [ConditionalTheory(Skip = "Issue#17246")]
         public override void Select_All()
         {
             base.Select_All();
@@ -715,7 +715,7 @@ FROM root c
 WHERE (c[""Discriminator""] = ""Order"")");
         }
 
-        [ConditionalTheory(Skip = "Issue#14935")]
+        [ConditionalTheory(Skip = "Issue#17246")]
         public override async Task OrderBy_client_Take(bool isAsync)
         {
             await base.OrderBy_client_Take(isAsync);
@@ -826,7 +826,7 @@ WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] = ""ALFKI"")
 OFFSET 0 LIMIT 2");
         }
 
-        [ConditionalTheory(Skip = "Issue#14935")]
+        [ConditionalTheory(Skip = "Issue#17246")]
         public override async Task FirstOrDefault_inside_subquery_gets_server_evaluated(bool isAsync)
         {
             await base.FirstOrDefault_inside_subquery_gets_server_evaluated(isAsync);
@@ -837,7 +837,7 @@ FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
 
-        [ConditionalTheory(Skip = "Issue#14935")]
+        [ConditionalTheory(Skip = "Issue#17246")]
         public override async Task First_inside_subquery_gets_client_evaluated(bool isAsync)
         {
             await base.First_inside_subquery_gets_client_evaluated(isAsync);
@@ -860,6 +860,7 @@ ORDER BY c[""ContactName""] DESC
 OFFSET 0 LIMIT 1");
         }
 
+        [ConditionalTheory(Skip = "Issue #17246")]
         public override async Task Last_when_no_order_by(bool isAsync)
         {
             await base.Last_when_no_order_by(isAsync);
@@ -930,7 +931,7 @@ ORDER BY c[""ContactName""] DESC
 OFFSET 0 LIMIT 1");
         }
 
-        [ConditionalTheory(Skip = "Issue#14935")]
+        [ConditionalTheory(Skip = "Issue#17246")]
         public override async Task Contains_with_subquery(bool isAsync)
         {
             await base.Contains_with_subquery(isAsync);
@@ -955,7 +956,7 @@ FROM root c
 WHERE ((c[""Discriminator""] = ""Customer"") AND c[""CustomerID""] IN (""ABCDE""))");
         }
 
-        [ConditionalTheory(Skip = "Issue#14935")]
+        [ConditionalTheory(Skip = "Issue#17246")]
         public override async Task Contains_with_subquery_and_local_array_closure(bool isAsync)
         {
             await base.Contains_with_subquery_and_local_array_closure(isAsync);
@@ -1128,7 +1129,7 @@ FROM root c
 WHERE ((c[""Discriminator""] = ""Customer"") AND NOT((true = false)))");
         }
 
-        [ConditionalTheory(Skip = "Issue#14935")]
+        [ConditionalTheory(Skip = "Issue#17246")]
         public override async Task Contains_top_level(bool isAsync)
         {
             await base.Contains_top_level(isAsync);
@@ -1139,6 +1140,7 @@ FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
 
+        [ConditionalTheory(Skip = "Issue #17246")]
         public override async Task Contains_with_local_tuple_array_closure(bool isAsync)
         {
             await base.Contains_with_local_tuple_array_closure(isAsync);
@@ -1159,7 +1161,7 @@ FROM root c
 WHERE (c[""Discriminator""] = ""OrderDetail"")");
         }
 
-        [ConditionalFact(Skip = "Issue #14935")]
+        [ConditionalFact(Skip = "Issue #17246")]
         public override void OfType_Select()
         {
             base.OfType_Select();
@@ -1170,7 +1172,7 @@ FROM root c
 WHERE (c[""Discriminator""] = ""Order"")");
         }
 
-        [ConditionalFact(Skip = "Issue #14935")]
+        [ConditionalFact(Skip = "Issue #17246")]
         public override void OfType_Select_OfType_Select()
         {
             base.OfType_Select_OfType_Select();
@@ -1181,7 +1183,7 @@ FROM root c
 WHERE (c[""Discriminator""] = ""Order"")");
         }
 
-        [ConditionalTheory(Skip = "Issue#14935")]
+        [ConditionalTheory(Skip = "Issue#17246")]
         public override async Task Average_with_non_matching_types_in_projection_doesnt_produce_second_explicit_cast(bool isAsync)
         {
             await base.Average_with_non_matching_types_in_projection_doesnt_produce_second_explicit_cast(isAsync);
@@ -1192,7 +1194,7 @@ FROM root c
 WHERE (c[""Discriminator""] = ""Order"")");
         }
 
-        [ConditionalTheory(Skip = "Issue#14935")]
+        [ConditionalTheory(Skip = "Issue#17246")]
         public override async Task Max_with_non_matching_types_in_projection_introduces_explicit_cast(bool isAsync)
         {
             await base.Max_with_non_matching_types_in_projection_introduces_explicit_cast(isAsync);
@@ -1203,7 +1205,7 @@ FROM root c
 WHERE (c[""Discriminator""] = ""Order"")");
         }
 
-        [ConditionalTheory(Skip = "Issue#14935")]
+        [ConditionalTheory(Skip = "Issue#17246")]
         public override async Task Min_with_non_matching_types_in_projection_introduces_explicit_cast(bool isAsync)
         {
             await base.Min_with_non_matching_types_in_projection_introduces_explicit_cast(isAsync);
@@ -1214,7 +1216,7 @@ FROM root c
 WHERE (c[""Discriminator""] = ""Order"")");
         }
 
-        [ConditionalTheory(Skip = "Issue#14935")]
+        [ConditionalTheory(Skip = "Issue#17246")]
         public override async Task OrderBy_Take_Last_gives_correct_result(bool isAsync)
         {
             await base.OrderBy_Take_Last_gives_correct_result(isAsync);
@@ -1225,7 +1227,7 @@ FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
 
-        [ConditionalTheory(Skip = "Issue#14935")]
+        [ConditionalTheory(Skip = "Issue#17246")]
         public override async Task OrderBy_Skip_Last_gives_correct_result(bool isAsync)
         {
             await base.OrderBy_Skip_Last_gives_correct_result(isAsync);
@@ -1236,7 +1238,7 @@ FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
 
-        [ConditionalTheory(Skip = "Issue#14935 (Contains not implemented)")]
+        [ConditionalTheory(Skip = "Issue#17246 (Contains not implemented)")]
         public override void Contains_over_entityType_should_rewrite_to_identity_equality()
         {
             base.Contains_over_entityType_should_rewrite_to_identity_equality();
@@ -1247,7 +1249,7 @@ FROM root c
 WHERE ((c[""Discriminator""] = ""Order"") AND (c[""OrderID""] = 10248))");
         }
 
-        [ConditionalTheory(Skip = "Issue#14935 (Contains not implemented)")]
+        [ConditionalTheory(Skip = "Issue#17246 (Contains not implemented)")]
         public override async Task List_Contains_over_entityType_should_rewrite_to_identity_equality(bool isAsync)
         {
             await base.List_Contains_over_entityType_should_rewrite_to_identity_equality(isAsync);
@@ -1258,7 +1260,7 @@ FROM root c
 WHERE ((c[""Discriminator""] = ""Order"") AND (c[""OrderID""] = 10248))");
         }
 
-        [ConditionalTheory(Skip = "Issue#14935 (Contains not implemented)")]
+        [ConditionalTheory(Skip = "Issue#17246 (Contains not implemented)")]
         public override async Task List_Contains_with_constant_list(bool isAsync)
         {
             await base.List_Contains_with_constant_list(isAsync);
@@ -1269,7 +1271,7 @@ FROM root c
 WHERE ((c[""Discriminator""] = ""Order"") AND (c[""OrderID""] = 10248))");
         }
 
-        [ConditionalTheory(Skip = "Issue#14935 (Contains not implemented)")]
+        [ConditionalTheory(Skip = "Issue#17246 (Contains not implemented)")]
         public override async Task List_Contains_with_parameter_list(bool isAsync)
         {
             await base.List_Contains_with_parameter_list(isAsync);
@@ -1280,7 +1282,7 @@ FROM root c
 WHERE ((c[""Discriminator""] = ""Order"") AND (c[""OrderID""] = 10248))");
         }
 
-        [ConditionalTheory(Skip = "Issue#14935 (Contains not implemented)")]
+        [ConditionalTheory(Skip = "Issue#17246 (Contains not implemented)")]
         public override async Task Contains_with_parameter_list_value_type_id(bool isAsync)
         {
             await base.Contains_with_parameter_list_value_type_id(isAsync);
@@ -1291,7 +1293,7 @@ FROM root c
 WHERE ((c[""Discriminator""] = ""Order"") AND (c[""OrderID""] = 10248))");
         }
 
-        [ConditionalTheory(Skip = "Issue#14935 (Contains not implemented)")]
+        [ConditionalTheory(Skip = "Issue#17246 (Contains not implemented)")]
         public override async Task Contains_with_constant_list_value_type_id(bool isAsync)
         {
             await base.Contains_with_constant_list_value_type_id(isAsync);
@@ -1302,7 +1304,7 @@ FROM root c
 WHERE ((c[""Discriminator""] = ""Order"") AND (c[""OrderID""] = 10248))");
         }
 
-        [ConditionalTheory(Skip = "Issue#14935 (Contains not implemented)")]
+        [ConditionalTheory(Skip = "Issue#17246 (Contains not implemented)")]
         public override void Contains_over_entityType_with_null_should_rewrite_to_identity_equality()
         {
             base.Contains_over_entityType_with_null_should_rewrite_to_identity_equality();
@@ -1313,6 +1315,7 @@ FROM root c
 WHERE ((c[""Discriminator""] = ""Order"") AND (c[""OrderID""] = 10248))");
         }
 
+        [ConditionalFact(Skip = "Issue #17246")]
         public override void Contains_over_entityType_should_materialize_when_composite()
         {
             base.Contains_over_entityType_should_materialize_when_composite();
@@ -1335,6 +1338,7 @@ WHERE ((c[""Discriminator""] = ""OrderDetail"") AND ((c[""OrderID""] = 10248) AN
                 Fixture.TestSqlLoggerFactory.Log.Select(l => l.Message));
         }
 
+        [ConditionalTheory(Skip = "Issue #17246")]
         public override async Task Project_constant_Sum(bool isAsync)
         {
             await base.Project_constant_Sum(isAsync);
@@ -1433,7 +1437,7 @@ FROM root c
 WHERE (((c[""Discriminator""] = ""Customer"") AND (c[""City""] = ""México D.F."")) AND NOT(c[""CustomerID""] IN (""ABCDE"", ""ALFKI"", ""ANATR"")))");
         }
 
-        [ConditionalTheory(Skip = "Issue#14935")]
+        [ConditionalTheory(Skip = "Issue#17246")]
         public override async Task Cast_to_same_Type_Count_works(bool isAsync)
         {
             await base.Cast_to_same_Type_Count_works(isAsync);

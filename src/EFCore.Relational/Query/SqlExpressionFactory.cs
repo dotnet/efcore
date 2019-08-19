@@ -5,6 +5,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -104,7 +106,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     break;
 
                 default:
-                    throw new InvalidOperationException();
+                    throw new InvalidOperationException(CoreStrings.TranslationFailed(sqlUnaryExpression.Print()));
             }
 
             return new SqlUnaryExpression(
@@ -396,7 +398,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             if (typeMapping == null)
             {
-                throw new InvalidOperationException();
+                throw new InvalidOperationException(CoreStrings.TranslationFailed(item.Print()));
             }
 
             item = ApplyTypeMapping(item, typeMapping);

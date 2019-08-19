@@ -18,19 +18,38 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalTheory(Skip = "Issue #16963")]
-        public override Task Select_collection_navigation_simple(bool isAsync)
-            => Task.CompletedTask;
+        public override Task Where_subquery_on_navigation_client_eval(bool isAsync) => null;
 
         [ConditionalTheory(Skip = "Issue #16963")]
-        public override Task Select_collection_navigation_simple_followed_by_ordering_by_scalar(bool isAsync)
-            => Task.CompletedTask;
+        public override Task Select_Where_Navigation_Client(bool isAsync) => null;
 
         [ConditionalTheory(Skip = "Issue #16963")]
-        public override Task Select_collection_navigation_multi_part(bool isAsync)
-            => Task.CompletedTask;
+        public override Task Join_with_nav_in_predicate_in_subquery_when_client_eval(bool isAsync) => null;
 
         [ConditionalTheory(Skip = "Issue #16963")]
-        public override Task Select_collection_navigation_multi_part2(bool isAsync)
-            => Task.CompletedTask;
+        public override Task Join_with_nav_projected_in_subquery_when_client_eval(bool isAsync) => null;
+
+        [ConditionalTheory(Skip = "Issue #16963")]
+        public override Task Join_with_nav_in_orderby_in_subquery_when_client_eval(bool isAsync) => null;
+
+        [ConditionalTheory(Skip = "Issue #16963")]
+        public override Task Collection_select_nav_prop_all_client(bool isAsync) => null;
+
+        [ConditionalTheory(Skip = "Issue #16963")]
+        public override void Collection_where_nav_prop_all_client()
+        {
+        }
+
+        [ConditionalTheory(Skip = "Issue #16963")]
+        public override Task Select_collection_navigation_simple(bool isAsync) => null;
+
+        [ConditionalTheory(Skip = "Issue #16963")]
+        public override Task Select_collection_navigation_simple_followed_by_ordering_by_scalar(bool isAsync) => null;
+
+        [ConditionalTheory(Skip = "Issue #16963")]
+        public override Task Select_collection_navigation_multi_part(bool isAsync) => null;
+
+        [ConditionalTheory(Skip = "Issue #16963")]
+        public override Task Select_collection_navigation_multi_part2(bool isAsync) => null;
     }
 }

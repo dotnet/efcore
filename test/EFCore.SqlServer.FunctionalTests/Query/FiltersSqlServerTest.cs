@@ -29,15 +29,6 @@ FROM [Customers] AS [c]
 WHERE ((@__ef_filter__TenantPrefix_0 = N'') AND @__ef_filter__TenantPrefix_0 IS NOT NULL) OR ([c].[CompanyName] IS NOT NULL AND (@__ef_filter__TenantPrefix_0 IS NOT NULL AND (([c].[CompanyName] LIKE [c].[CompanyName] + N'%') AND (((LEFT([c].[CompanyName], LEN(@__ef_filter__TenantPrefix_0)) = @__ef_filter__TenantPrefix_0) AND (LEFT([c].[CompanyName], LEN(@__ef_filter__TenantPrefix_0)) IS NOT NULL AND @__ef_filter__TenantPrefix_0 IS NOT NULL)) OR (LEFT([c].[CompanyName], LEN(@__ef_filter__TenantPrefix_0)) IS NULL AND @__ef_filter__TenantPrefix_0 IS NULL)))))");
         }
 
-        public override void Client_eval()
-        {
-            base.Client_eval();
-
-            AssertSql(
-                @"SELECT [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[SupplierID], [p].[UnitPrice], [p].[UnitsInStock]
-FROM [Products] AS [p]");
-        }
-
         public override void Materialized_query()
         {
             base.Materialized_query();
@@ -189,25 +180,6 @@ INNER JOIN (
     WHERE [t].[CompanyName] IS NOT NULL
 ) AS [t0] ON [o0].[OrderID] = [t0].[OrderID]
 WHERE [o0].[Quantity] > @__ef_filter___quantity_0");
-        }
-
-        public override void Included_one_to_many_query_with_client_eval()
-        {
-            base.Included_one_to_many_query_with_client_eval();
-
-            AssertSql(
-                @"SELECT [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[SupplierID], [p].[UnitPrice], [p].[UnitsInStock]
-FROM [Products] AS [p]
-ORDER BY [p].[ProductID]",
-                //
-                @"SELECT [p1].[ProductID], [p1].[Discontinued], [p1].[ProductName], [p1].[SupplierID], [p1].[UnitPrice], [p1].[UnitsInStock]
-FROM [Products] AS [p1]",
-                //
-                @"@__ef_filter___quantity_0='50' (DbType = Int16)
-
-SELECT [od].[OrderID], [od].[ProductID], [od].[Discount], [od].[Quantity], [od].[UnitPrice]
-FROM [Order Details] AS [od]
-WHERE [od].[Quantity] > @__ef_filter___quantity_0");
         }
 
         public override void Navs_query()

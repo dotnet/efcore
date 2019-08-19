@@ -47,33 +47,6 @@ CROSS JOIN (
 ORDER BY [t0].[OrderID]");
         }
 
-        public override async Task Projection_when_arithmetic_mixed_subqueries(bool isAsync)
-        {
-            await base.Projection_when_arithmetic_mixed_subqueries(isAsync);
-
-            AssertSql(
-                @"@__p_0='3'
-
-SELECT [t].[OrderID], [t].[CustomerID], [t].[EmployeeID], [t].[OrderDate]
-FROM (
-    SELECT TOP(@__p_0) [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
-    FROM [Orders] AS [o]
-    ORDER BY [o].[OrderID]
-) AS [t]",
-                //
-                @"SELECT TOP(2) [e0].[EmployeeID], [e0].[City], [e0].[Country], [e0].[FirstName], [e0].[ReportsTo], [e0].[Title]
-FROM [Employees] AS [e0]
-ORDER BY [e0].[EmployeeID]",
-                //
-                @"SELECT TOP(2) [e0].[EmployeeID], [e0].[City], [e0].[Country], [e0].[FirstName], [e0].[ReportsTo], [e0].[Title]
-FROM [Employees] AS [e0]
-ORDER BY [e0].[EmployeeID]",
-                //
-                @"SELECT TOP(2) [e0].[EmployeeID], [e0].[City], [e0].[Country], [e0].[FirstName], [e0].[ReportsTo], [e0].[Title]
-FROM [Employees] AS [e0]
-ORDER BY [e0].[EmployeeID]");
-        }
-
         public override async Task Projection_when_null_value(bool isAsync)
         {
             await base.Projection_when_null_value(isAsync);
@@ -112,15 +85,6 @@ WHERE [e].[EmployeeID] = 1");
                 @"SELECT [e].[EmployeeID], [e].[ReportsTo]
 FROM [Employees] AS [e]
 WHERE [e].[EmployeeID] = 1");
-        }
-
-        public override async Task Select_bool_closure_with_order_by_property_with_cast_to_nullable(bool isAsync)
-        {
-            await base.Select_bool_closure_with_order_by_property_with_cast_to_nullable(isAsync);
-
-            AssertSql(
-                @"SELECT 1
-FROM [Customers] AS [c]");
         }
 
         public override async Task Select_bool_closure_with_order_parameter_with_cast_to_nullable(bool isAsync)
@@ -656,20 +620,17 @@ FROM [Customers] AS [c]");
             await base.Project_single_element_from_collection_with_OrderBy_Take_and_SingleOrDefault(isAsync);
 
             AssertSql(
-                @"SELECT [c].[CustomerID]
+                @"SELECT (
+    SELECT TOP(2) [t].[CustomerID]
+    FROM (
+        SELECT TOP(1) [o].[CustomerID], [o].[OrderID]
+        FROM [Orders] AS [o]
+        WHERE ([c].[CustomerID] = [o].[CustomerID]) AND [o].[CustomerID] IS NOT NULL
+        ORDER BY [o].[OrderID]
+    ) AS [t]
+    ORDER BY [t].[OrderID])
 FROM [Customers] AS [c]
-WHERE [c].[CustomerID] = N'ALFKI'",
-                //
-                @"@_outer_CustomerID='ALFKI' (Size = 5)
-
-SELECT TOP(2) [t0].[CustomerID]
-FROM (
-    SELECT TOP(1) [o0].[CustomerID], [o0].[OrderID]
-    FROM [Orders] AS [o0]
-    WHERE @_outer_CustomerID = [o0].[CustomerID]
-    ORDER BY [o0].[OrderID]
-) AS [t0]
-ORDER BY [t0].[OrderID]");
+WHERE [c].[CustomerID] = N'ALFKI'");
         }
 
         public override async Task Project_single_element_from_collection_with_OrderBy_Take_and_FirstOrDefault_with_parameter(bool isAsync)

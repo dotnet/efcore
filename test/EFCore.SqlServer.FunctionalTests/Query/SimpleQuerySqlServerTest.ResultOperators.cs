@@ -721,13 +721,13 @@ ORDER BY [od].[ProductID]");
             AssertSql(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE [c].[CustomerID] = N'ALFKI'",
-                //
-                @"@_outer_CustomerID='ALFKI' (Size = 5)
-
-SELECT TOP(1) [o0].[CustomerID]
-FROM [Orders] AS [o0]
-WHERE ([o0].[CustomerID] = N'ALFKI') AND (@_outer_CustomerID = [o0].[CustomerID])");
+WHERE ([c].[CustomerID] = N'ALFKI') AND (((
+    SELECT TOP(1) [o].[CustomerID]
+    FROM [Orders] AS [o]
+    WHERE (([c].[CustomerID] = [o].[CustomerID]) AND [o].[CustomerID] IS NOT NULL) AND (([o].[CustomerID] = N'ALFKI') AND [o].[CustomerID] IS NOT NULL)) = N'ALFKI') AND (
+    SELECT TOP(1) [o].[CustomerID]
+    FROM [Orders] AS [o]
+    WHERE (([c].[CustomerID] = [o].[CustomerID]) AND [o].[CustomerID] IS NOT NULL) AND (([o].[CustomerID] = N'ALFKI') AND [o].[CustomerID] IS NOT NULL)) IS NOT NULL)");
         }
 
         public override async Task Last(bool isAsync)
@@ -745,7 +745,7 @@ ORDER BY [c].[ContactName] DESC");
             await base.Last_when_no_order_by(isAsync);
 
             AssertSql(
-                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+                @"SELECT TOP(1) [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 WHERE [c].[CustomerID] = N'ALFKI'");
         }
@@ -1058,18 +1058,6 @@ WHERE CAST(1 AS bit) = CAST(1 AS bit)");
 //END");
         }
 
-        public override async Task Contains_with_local_tuple_array_closure(bool isAsync)
-        {
-            await base.Contains_with_local_tuple_array_closure(isAsync);
-
-            AssertSql(
-                @"SELECT [o].[OrderID], [o].[ProductID], [o].[Discount], [o].[Quantity], [o].[UnitPrice]
-FROM [Order Details] AS [o]",
-                //
-                @"SELECT [o].[OrderID], [o].[ProductID], [o].[Discount], [o].[Quantity], [o].[UnitPrice]
-FROM [Order Details] AS [o]");
-        }
-
         public override async Task Contains_with_local_anonymous_type_array_closure(bool isAsync)
         {
             await base.Contains_with_local_anonymous_type_array_closure(isAsync);
@@ -1263,20 +1251,6 @@ SELECT CASE
 END");
         }
 
-        public override void Contains_over_entityType_should_materialize_when_composite()
-        {
-            base.Contains_over_entityType_should_materialize_when_composite();
-
-            AssertSql(
-                @"SELECT TOP(1) [o].[OrderID], [o].[ProductID], [o].[Discount], [o].[Quantity], [o].[UnitPrice]
-FROM [Order Details] AS [o]
-WHERE ([o].[OrderID] = 10248) AND ([o].[ProductID] = 42)",
-                //
-                @"SELECT [o].[OrderID], [o].[ProductID], [o].[Discount], [o].[Quantity], [o].[UnitPrice]
-FROM [Order Details] AS [o]
-WHERE [o].[ProductID] = 42");
-        }
-
         public override void Paging_operation_on_string_doesnt_issue_warning()
         {
             base.Paging_operation_on_string_doesnt_issue_warning();
@@ -1294,7 +1268,7 @@ WHERE [o].[ProductID] = 42");
             await base.Project_constant_Sum(isAsync);
 
             AssertSql(
-                @"SELECT 1
+                @"SELECT SUM(1)
 FROM [Employees] AS [e]");
         }
 

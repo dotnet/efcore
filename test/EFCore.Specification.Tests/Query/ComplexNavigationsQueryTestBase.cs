@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.TestModels.ComplexNavigationsModel;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
@@ -1887,7 +1888,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 elementSorter: l1 => l1.Id);
         }
 
-        [ConditionalTheory(Skip = "Issue #14935. Cannot eval 'join Level3 l2.OneToOne_Required_PK2 in value(Microsoft.EntityFrameworkCore.Query.Internal.EntityQueryable`1[Microsoft.EntityFrameworkCore.TestModels.ComplexNavigationsModel.Level3]) on Property([l2], \"Id\") equals Property([l2.OneToOne_Required_PK2], \"Id\")'")]
+        [ConditionalTheory(Skip = "issue #15249")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Include_with_groupjoin_skip_and_take(bool isAsync)
         {
@@ -2287,7 +2288,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             );
         }
 
-        [ConditionalTheory(Skip = "Issue #14935. Cannot eval 'Any()'")]
+        [ConditionalTheory(Skip = "Issue #17068")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupJoin_on_subquery_and_set_operation_on_grouping_but_nothing_from_grouping_is_projected(bool isAsync)
         {
@@ -2309,7 +2310,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 (e, a) => Assert.Equal(e.Id, a.Id));
         }
 
-        [ConditionalTheory(Skip = "Issue #14935. Cannot eval 'Any()'")]
+        [ConditionalTheory(Skip = "Issue #17068")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupJoin_on_complex_subquery_and_set_operation_on_grouping_but_nothing_from_grouping_is_projected(bool isAsync)
         {
@@ -2331,7 +2332,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 (e, a) => Assert.Equal(e.Id, a.Id));
         }
 
-        [ConditionalTheory(Skip = "Issue #14935. Cannot eval 'join Level2 l2 in {from Level1 l1 in value(Microsoft.EntityFrameworkCore.Query.Internal.EntityQueryable`1[Microsoft.EntityFrameworkCore.TestModels.ComplexNavigationsModel.Level1]) join Level2 l1.OneToOne_Required_FK1 in value(Microsoft.EntityFrameworkCore.Query.Internal.EntityQueryable`1[Microsoft.EntityFrameworkCore.TestModels.ComplexNavigationsModel.Level2]) on Property([l1], \"Id\") equals Property([l1.OneToOne_Required_FK1], \"Level1_Required_Id\") into IEnumerable`1 l1.OneToOne_Required_FK1_group from Level2 l1.OneToOne_Required_FK1 in {[l1.OneToOne_Required_FK1_group] => DefaultIfEmpty()} select [l1.OneToOne_Required_FK1]} on Convert([l1].Id, Nullable`1) equals MaybeScalar([l2], () => [l2]?.Level1_Optional_Id)'")]
+        [ConditionalTheory(Skip = "Issue #17068")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Null_protection_logic_work_for_inner_key_access_of_manually_created_GroupJoin1(bool isAsync)
         {
@@ -3024,7 +3025,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 (e, a) => Assert.Equal(e.Id, a.Id));
         }
 
-        [ConditionalTheory(Skip = "Issue #14935. Cannot eval 'Distict()'")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task SelectMany_with_navigation_and_Distinct(bool isAsync)
         {
@@ -3445,7 +3446,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 (e, a) => Assert.Equal(e.Id, a.Id));
         }
 
-        [ConditionalTheory(Skip = "Issue #14935. Cannot eval 'where ([l1.OneToMany_Required1_groupItem].Id > 5)'")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task SelectMany_with_navigation_filter_paging_and_explicit_DefaultIfEmpty(bool isAsync)
         {
@@ -3513,11 +3514,12 @@ namespace Microsoft.EntityFrameworkCore.Query
                 elementAsserter: (e, a) => Assert.Equal(e.Id, a.Id));
         }
 
-        [ConditionalTheory(Skip = "Issue #14935. Cannot eval 'All(ClientMethod([l2.OneToOne_Optional_FK2.OneToOne_Optional_FK3]?.Id))'")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task Complex_query_with_optional_navigations_and_client_side_evaluation(bool isAsync)
+        public virtual async Task Complex_query_with_optional_navigations_and_client_side_evaluation(bool isAsync)
         {
-            return AssertQuery<Level1>(
+            var message = (await Assert.ThrowsAsync<InvalidOperationException>(
+                () => AssertQuery<Level1>(
                 isAsync,
                 l1s => l1s.Where(
                     l1 => l1.Id < 3 && !l1.OneToMany_Optional1.Select(l2 => l2.OneToOne_Optional_FK2.OneToOne_Optional_FK3.Id)
@@ -3530,10 +3532,12 @@ namespace Microsoft.EntityFrameworkCore.Query
                                       l2.OneToOne_Optional_FK2.OneToOne_Optional_FK3,
                                       () => l2.OneToOne_Optional_FK2.OneToOne_Optional_FK3.Id))).All(a => true)),
                 elementSorter: e => e.Id,
-                elementAsserter: (e, a) => Assert.Equal(e.Id, a.Id));
+                elementAsserter: (e, a) => Assert.Equal(e.Id, a.Id)))).Message;
+
+            Assert.Contains("ClientMethod((Nullable<int>)", message);
         }
 
-        [ConditionalTheory(Skip = "Issue #14935. Cannot eval 'First()'")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Required_navigation_on_a_subquery_with_First_in_projection(bool isAsync)
         {
@@ -3544,7 +3548,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     .Select(l2o => l2s.OrderBy(l2i => l2i.Id).First().OneToOne_Required_FK_Inverse2.Name));
         }
 
-        [ConditionalTheory(Skip = "Issue #14935. Cannot eval 'First()'")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Required_navigation_on_a_subquery_with_complex_projection_and_First(bool isAsync)
         {
@@ -3565,7 +3569,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                          }).First().Navigation.Name);
         }
 
-        [ConditionalTheory(Skip = "Issue #14935. Cannot eval 'First()'")]
+        [ConditionalTheory(Skip = "Issue #15832")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Required_navigation_on_a_subquery_with_First_in_predicate(bool isAsync)
         {
@@ -3849,7 +3853,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     select MaybeScalar<int>(subquery, () => subquery.Id));
         }
 
-        [ConditionalTheory(Skip = "Issue #14935. Cannot eval 'Any()'")]
+        [ConditionalTheory(Skip = "Issue #17068")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupJoin_with_complex_subquery_with_joins_with_reference_to_grouping1(bool isAsync)
         {
@@ -3869,7 +3873,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     select subquery.Id);
         }
 
-        [ConditionalTheory(Skip = "Issue #14935. Cannot eval 'DefaultIfEmpty()'")]
+        [ConditionalTheory(Skip = "Issue #17068")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupJoin_with_complex_subquery_with_joins_with_reference_to_grouping2(bool isAsync)
         {
@@ -3917,7 +3921,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     select Maybe(l2_outer, () => l2_outer.Name));
         }
 
-        [ConditionalTheory(Skip = "Issue #14935. Cannot eval 'join Level2 l2_outer in value(Microsoft.EntityFrameworkCore.Query.Internal.EntityQueryable`1[Microsoft.EntityFrameworkCore.TestModels.ComplexNavigationsModel.Level2]) on [x]?.Id equals [l2_outer].Level1_Optional_Id'")]
+        [ConditionalTheory(Skip = "Issue #17068")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupJoin_on_a_subquery_containing_another_GroupJoin_projecting_outer_with_client_method(bool isAsync)
         {
@@ -4089,7 +4093,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     select l1.Name);
         }
 
-        [ConditionalTheory(Skip = "Issue #14935. Cannot eval 'where ({from Level1 l1_inner in value(Microsoft.EntityFrameworkCore.Query.Internal.EntityQueryable`1[Microsoft.EntityFrameworkCore.TestModels.ComplexNavigationsModel.Level1]) join Level2 l2_inner in value(Microsoft.EntityFrameworkCore.Query.Internal.EntityQueryable`1[Microsoft.EntityFrameworkCore.TestModels.ComplexNavigationsModel.Level2]) on Convert([l1_inner].Id, Nullable`1) equals [l2_inner].Level1_Optional_Id into IEnumerable`1 grouping from Level2 l2_inner in {[grouping] => DefaultIfEmpty()} select ClientStringMethod([l1_inner].Name) => Count()} > 7)'")]
+        [ConditionalTheory(Skip = "Issue #17068")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupJoin_in_subquery_with_client_projection(bool isAsync)
         {
@@ -4105,7 +4109,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     select l1.Name);
         }
 
-        [ConditionalTheory(Skip = "Issue #14935. Cannot eval 'where ({from Level1 l1_inner in value(Microsoft.EntityFrameworkCore.Query.Internal.EntityQueryable`1[Microsoft.EntityFrameworkCore.TestModels.ComplexNavigationsModel.Level1]) join Level2 l2_inner in value(Microsoft.EntityFrameworkCore.Query.Internal.EntityQueryable`1[Microsoft.EntityFrameworkCore.TestModels.ComplexNavigationsModel.Level2]) on Convert([l1_inner].Id, Nullable`1) equals [l2_inner].Level1_Optional_Id into IEnumerable`1 grouping_inner from Level2 l2_inner in {[grouping_inner] => DefaultIfEmpty()} select ClientStringMethod([l1_inner].Name) => Count()} > 7)'")]
+        [ConditionalTheory(Skip = "Issue #17068")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupJoin_in_subquery_with_client_projection_nested1(bool isAsync)
         {
@@ -4126,7 +4130,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     select l1_outer.Name);
         }
 
-        [ConditionalTheory(Skip = "Issue #14935. Cannot eval 'where ({from Level1 l1_middle in value(Microsoft.EntityFrameworkCore.Query.Internal.EntityQueryable`1[Microsoft.EntityFrameworkCore.TestModels.ComplexNavigationsModel.Level1]) join Level2 l2_middle in value(Microsoft.EntityFrameworkCore.Query.Internal.EntityQueryable`1[Microsoft.EntityFrameworkCore.TestModels.ComplexNavigationsModel.Level2]) on Convert([l1_middle].Id, Nullable`1) equals [l2_middle].Level1_Optional_Id into IEnumerable`1 grouping_middle from Level2 l2_middle in {[grouping_middle] => DefaultIfEmpty()} where ({from Level1 l1_inner in value(Microsoft.EntityFrameworkCore.Query.Internal.EntityQueryable`1[Microsoft.EntityFrameworkCore.TestModels.ComplexNavigationsModel.Level1]) join Level2 l2_inner in value(Microsoft.EntityFrameworkCore.Query.Internal.EntityQueryable`1[Microsoft.EntityFrameworkCore.TestModels.ComplexNavigationsModel.Level2]) on Convert([l1_inner].Id, Nullable`1) equals [l2_inner].Level1_Optional_Id into IEnumerable`1 grouping_inner from Level2 l2_inner in {[grouping_inner] => DefaultIfEmpty()} select [l1_inner].Name => Count()} > 7) select ClientStringMethod([l1_middle].Name) => Count()} > 4)'")]
+        [ConditionalTheory(Skip = "Issue #17068")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupJoin_in_subquery_with_client_projection_nested2(bool isAsync)
         {
@@ -4151,7 +4155,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             return argument;
         }
 
-        [ConditionalTheory(Skip = "Issue #14935. Cannot eval 'DefaultIfEmpty()'")]
+        [ConditionalTheory(Skip = "Issue #17068")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupJoin_reference_to_group_in_OrderBy(bool isAsync)
         {
@@ -4185,7 +4189,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 elementAsserter: (e, a) => Assert.Equal(e.Id + " " + e.client, a.Id + " " + a.client));
         }
 
-        [ConditionalTheory(Skip = "Issue #14935. Cannot eval 'orderby ClientMethodNullableInt(Convert([l1].Id, Nullable`1)) asc, ClientMethodNullableInt(?[l2] | [l2]?.Id?) asc'")]
+        [ConditionalTheory(Skip = "Issue #17068")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupJoin_client_method_in_OrderBy(bool isAsync)
         {
@@ -4218,7 +4222,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     select l1.Id);
         }
 
-        [ConditionalTheory(Skip = "Issue #14935. Cannot eval 'where ([gg].Id > 0)'")]
+        [ConditionalTheory(Skip = "Issue #17068")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupJoin_with_subquery_on_inner(bool isAsync)
         {
@@ -4231,7 +4235,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     select l1.Id);
         }
 
-        [ConditionalTheory(Skip = "Issue #14935. Cannot eval 'where ([gg].Id > 0)'")]
+        [ConditionalTheory(Skip = "Issue #17068")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupJoin_with_subquery_on_inner_and_no_DefaultIfEmpty(bool isAsync)
         {
@@ -4451,7 +4455,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 elementAsserter: (e, a) => Assert.Equal(e.Id, a.Id));
         }
 
-        [ConditionalTheory(Skip = "Issue #14935. Cannot eval 'GroupBy([l2.OneToMany_Required_Self_Inverse2].Name, [l2])'")]
+        [ConditionalTheory(Skip = "Issue #17068")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Navigation_filter_navigation_grouping_ordering_by_group_key(bool isAsync)
         {
@@ -4658,7 +4662,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     .Select(l1 => l1.Id));
         }
 
-        [ConditionalTheory(Skip = "Issue #14935. Cannot eval 'First()'")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Select_subquery_with_client_eval_and_navigation1(bool isAsync)
         {
@@ -4667,7 +4671,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 l2s => l2s.Select(l2 => l2s.OrderBy(l => l.Id).First().OneToOne_Required_FK_Inverse2.Name));
         }
 
-        [ConditionalTheory(Skip = "Issue #14935. Cannot eval 'First()'")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Select_subquery_with_client_eval_and_navigation2(bool isAsync)
         {
@@ -4977,7 +4981,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalTheory(Skip = "Issue #14935. Cannot eval 'where ([l1.OneToMany_Required1_groupItem].Id > 5)'")]
+        [ConditionalTheory(Skip = "Issue #17229")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Select_optional_navigation_property_string_concat(bool isAsync)
         {
@@ -5094,7 +5098,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalTheory(Skip = "Issue #14935. Cannot eval 'GroupBy([l1].Name, _Include(queryContext, [l1], new [] {[l1.OneToOne_Optional_FK1]}, (queryContext, entity, included) => { ... }))'")]
+        [ConditionalTheory(Skip = "issue #15249")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Include_reference_with_groupby_in_subquery(bool isAsync)
         {
@@ -5110,7 +5114,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 });
         }
 
-        [ConditionalTheory(Skip = "Issue #14935. Cannot eval 'GroupBy([l1].Name, _Include(queryContext, [l1], new [] {}, (queryContext, entity, included) => { ... }))' could not be translated and will be evaluated locally.'")]
+        [ConditionalTheory(Skip = "issue #15249")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Include_collection_with_groupby_in_subquery(bool isAsync)
         {
@@ -5126,7 +5130,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 });
         }
 
-        [ConditionalTheory(Skip = "Issue #14935. Cannot eval 'GroupBy([l1].Name, _Include(queryContext, [l1], new [] {[l1.OneToOne_Optional_FK1]}, (queryContext, entity, included) => { ... }))'")]
+        [ConditionalTheory(Skip = "issue #15249")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Multi_include_with_groupby_in_subquery(bool isAsync)
         {
@@ -5145,7 +5149,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 expectedIncludes);
         }
 
-        [ConditionalTheory(Skip = "Issue #14935. Cannot eval 'GroupBy([l1].Name, _Include(queryContext, [l1], new [] {}, (queryContext, entity, included) => { ... }))'")]
+        [ConditionalTheory(Skip = "issue #15249")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Include_collection_with_groupby_in_subquery_and_filter_before_groupby(bool isAsync)
         {
@@ -5162,7 +5166,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 });
         }
 
-        [ConditionalTheory(Skip = "Issue #14935. Cannot eval 'GroupBy([l1].Name, _Include(queryContext, [l1], new [] {}, (queryContext, entity, included) => { ... }))'")]
+        [ConditionalTheory(Skip = "issue #15249")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Include_collection_with_groupby_in_subquery_and_filter_after_groupby(bool isAsync)
         {
@@ -5384,7 +5388,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 });
         }
 
-        [ConditionalTheory(Skip = "Issue #14935. Cannot eval 'Distinct()'")]
+        [ConditionalTheory(Skip = "issue #15249")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Include_after_SelectMany_and_reference_navigation_with_another_SelectMany_with_Distinct(bool isAsync)
         {
@@ -5408,9 +5412,9 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task SelectMany_subquery_with_custom_projection(bool isAsync)
+        public virtual async Task SelectMany_subquery_with_custom_projection(bool isAsync)
         {
-            return AssertQuery<Level1>(
+            await AssertQuery<Level1>(
                 isAsync,
                 l1s => l1s.OrderBy(l1 => l1.Id).SelectMany(
                     l1 => l1.OneToMany_Optional1.Select(

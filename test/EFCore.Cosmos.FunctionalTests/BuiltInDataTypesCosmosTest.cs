@@ -80,7 +80,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
 
         public override void Can_perform_query_with_max_length()
         {
-            // TODO: Better translation of sequential equality #14935
+            // TODO: Better translation of sequential equality #17246
         }
 
         public class BuiltInDataTypesCosmosFixture : BuiltInDataTypesFixtureBase

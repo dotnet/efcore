@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
 using Xunit;
@@ -632,14 +633,18 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 1);
         }
 
-        [ConditionalTheory(Skip = "Issue #14935. Cannot eval 'where [c].IsLondon'")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task Where_client(bool isAsync)
+        public virtual async Task Where_client(bool isAsync)
         {
-            return AssertQuery<Customer>(
-                isAsync,
-                cs => cs.Where(c => c.IsLondon),
-                entryCount: 6);
+            Assert.Equal(
+                CoreStrings.TranslationFailed("(c) => c.IsLondon"),
+                RemoveNewLines(
+                    (await Assert.ThrowsAsync<InvalidOperationException>(
+                        () => AssertQuery<Customer>(
+                            isAsync,
+                            cs => cs.Where(c => c.IsLondon),
+                            entryCount: 6))).Message));
         }
 
         [ConditionalTheory]
@@ -652,54 +657,76 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 91);
         }
 
-        [ConditionalTheory(Skip = "Issue #14935. Cannot eval 'where {from Customer c2 in value(Microsoft.EntityFrameworkCore.Query.Internal.EntityQueryable`1[Microsoft.EntityFrameworkCore.TestModels.Northwind.Customer]) where (([c1].CustomerID == [c2].CustomerID) AndAlso [c2].IsLondon) select [c2] => Any()}''")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task Where_subquery_correlated_client_eval(bool isAsync)
+        public virtual async Task Where_subquery_correlated_client_eval(bool isAsync)
         {
-            return AssertQuery<Customer>(
-                isAsync,
-                cs => cs.OrderBy(c1 => c1.CustomerID).Take(5).Where(c1 => cs.Any(c2 => c1.CustomerID == c2.CustomerID && c2.IsLondon)),
-                entryCount: 1);
+            Assert.Equal(
+                CoreStrings.TranslationFailed("(c0) => EntityShaperExpression:     EntityType: Customer    ValueBufferExpression:         ProjectionBindingExpression: EmptyProjectionMember    IsNullable: False.CustomerID == c0.CustomerID && c0.IsLondon"),
+                RemoveNewLines(
+                    (await Assert.ThrowsAsync<InvalidOperationException>(
+                        () => AssertQuery<Customer>(
+                            isAsync,
+                            cs => cs.OrderBy(c1 => c1.CustomerID).Take(5)
+                                .Where(c1 => cs.Any(c2 => c1.CustomerID == c2.CustomerID && c2.IsLondon)),
+                            entryCount: 1))).Message));
         }
 
-        [ConditionalTheory(Skip = "Issue #14935. Cannot eval 'where [c].IsLondon'")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task Where_client_and_server_top_level(bool isAsync)
+        public virtual async Task Where_client_and_server_top_level(bool isAsync)
         {
-            return AssertQuery<Customer>(
-                isAsync,
-                cs => cs.Where(c => c.IsLondon && c.CustomerID != "AROUT"),
-                entryCount: 5);
+            Assert.Equal(
+                CoreStrings.TranslationFailed("(c) => c.IsLondon && c.CustomerID != \"AROUT\""),
+                RemoveNewLines(
+                    (await Assert.ThrowsAsync<InvalidOperationException>(
+                        () => AssertQuery<Customer>(
+                            isAsync,
+                            cs => cs.Where(c => c.IsLondon && c.CustomerID != "AROUT"),
+                            entryCount: 5))).Message));
         }
 
-        [ConditionalTheory(Skip = "Issue #14935. Cannot eval 'where ([c].IsLondon OrElse ([c].CustomerID == \"ALFKI\"))'")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task Where_client_or_server_top_level(bool isAsync)
+        public virtual async Task Where_client_or_server_top_level(bool isAsync)
         {
-            return AssertQuery<Customer>(
-                isAsync,
-                cs => cs.Where(c => c.IsLondon || c.CustomerID == "ALFKI"),
-                entryCount: 7);
+            Assert.Equal(
+                CoreStrings.TranslationFailed("(c) => c.IsLondon || c.CustomerID == \"ALFKI\""),
+                RemoveNewLines(
+                    (await Assert.ThrowsAsync<InvalidOperationException>(
+                        () => AssertQuery<Customer>(
+                            isAsync,
+                            cs => cs.Where(c => c.IsLondon || c.CustomerID == "ALFKI"),
+                            entryCount: 7))).Message));
         }
 
-        [ConditionalTheory(Skip = "Issue #14935. Cannot eval 'where (([c].CustomerID != \"ALFKI\") == ([c].IsLondon AndAlso ([c].CustomerID != \"AROUT\")))'")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task Where_client_and_server_non_top_level(bool isAsync)
+        public virtual async Task Where_client_and_server_non_top_level(bool isAsync)
         {
-            return AssertQuery<Customer>(
-                isAsync,
-                cs => cs.Where(c => c.CustomerID != "ALFKI" == (c.IsLondon && c.CustomerID != "AROUT")),
-                entryCount: 6);
+            Assert.Equal(
+                CoreStrings.TranslationFailed("(c) => c.CustomerID != \"ALFKI\" == c.IsLondon && c.CustomerID != \"AROUT\""),
+                RemoveNewLines(
+                    (await Assert.ThrowsAsync<InvalidOperationException>(
+                        () => AssertQuery<Customer>(
+                            isAsync,
+                            cs => cs.Where(c => c.CustomerID != "ALFKI" == (c.IsLondon && c.CustomerID != "AROUT")),
+                            entryCount: 6))).Message));
         }
 
-        [ConditionalTheory(Skip = "Issue #14935. Cannot eval 'where (([c].CustomerID == \"MAUMAR\") OrElse (([c].CustomerID != \"AROUT\") AndAlso [c].IsLondon))'")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task Where_client_deep_inside_predicate_and_server_top_level(bool isAsync)
+        public virtual async Task Where_client_deep_inside_predicate_and_server_top_level(bool isAsync)
         {
-            return AssertQuery<Customer>(
-                isAsync,
-                cs => cs.Where(c => c.CustomerID != "ALFKI" && (c.CustomerID == "MAUMAR" || (c.CustomerID != "AROUT" && c.IsLondon))),
-                entryCount: 5);
+            Assert.Equal(
+                CoreStrings.TranslationFailed("(c) => c.CustomerID != \"ALFKI\" && c.CustomerID == \"MAUMAR\" || c.CustomerID != \"AROUT\" && c.IsLondon"),
+                RemoveNewLines(
+                    (await Assert.ThrowsAsync<InvalidOperationException>(
+                        () => AssertQuery<Customer>(
+                            isAsync,
+                            cs => cs.Where(
+                                c => c.CustomerID != "ALFKI" && (c.CustomerID == "MAUMAR" || (c.CustomerID != "AROUT" && c.IsLondon))),
+                            entryCount: 5))).Message));
         }
 
         [ConditionalTheory]
@@ -1299,13 +1326,17 @@ namespace Microsoft.EntityFrameworkCore.Query
                 ps => ps.Where(p => !p.Discontinued), entryCount: 69);
         }
 
-        [ConditionalTheory(Skip = "Issue #14935. Cannot eval 'where Not(ClientFunc([p].ProductID))'")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task Where_bool_client_side_negated(bool isAsync)
+        public virtual async Task Where_bool_client_side_negated(bool isAsync)
         {
-            return AssertQuery<Product>(
-                isAsync,
-                ps => ps.Where(p => !ClientFunc(p.ProductID) && p.Discontinued), entryCount: 8);
+            Assert.Equal(
+                CoreStrings.TranslationFailed("(p) => !(ClientFunc(p.ProductID)) && p.Discontinued"),
+                RemoveNewLines(
+                    (await Assert.ThrowsAsync<InvalidOperationException>(
+                        () => AssertQuery<Product>(
+                            isAsync,
+                            ps => ps.Where(p => !ClientFunc(p.ProductID) && p.Discontinued), entryCount: 8))).Message));
         }
 
         private static bool ClientFunc(int id)

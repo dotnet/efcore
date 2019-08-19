@@ -10,6 +10,7 @@ using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Infrastructure
@@ -25,6 +26,16 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
     /// </summary>
     public static class ExpressionExtensions
     {
+        /// <summary>
+        ///     Creates a printable string representation of the given expression.
+        /// </summary>
+        /// <param name="expression"> The expression. </param>
+        /// <param name="removeFormatting"> If true, then internal formatting is removed. </param>
+        /// <param name="characterLimit"> An optional limit to the number of characters included. </param>
+        /// <returns> The printable representation. </returns>
+        public static string Print([NotNull] this Expression expression, bool removeFormatting = false, int? characterLimit = null)
+            => new ExpressionPrinter().Print(Check.NotNull(expression, nameof(expression)), removeFormatting, characterLimit);
+
         /// <summary>
         ///     Creates a <see cref="MemberExpression"></see> that represents accessing either a field or a property.
         /// </summary>
@@ -77,13 +88,13 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             = typeof(Expression).Assembly.GetType("System.Linq.Expressions.AssignBinaryExpression");
 
         /// <summary>
-        /// If the given a method-call expression represents a call to <see cref="EF.Property{TProperty}"/>, then this
-        /// method extracts the entity expression and property name.
+        ///     If the given a method-call expression represents a call to <see cref="EF.Property{TProperty}" />, then this
+        ///     method extracts the entity expression and property name.
         /// </summary>
-        /// <param name="methodCallExpression"> The method-call expression for <see cref="EF.Property{TProperty}"/> </param>
+        /// <param name="methodCallExpression"> The method-call expression for <see cref="EF.Property{TProperty}" /> </param>
         /// <param name="entityExpression"> The extracted entity access expression. </param>
         /// <param name="propertyName"> The accessed property name. </param>
-        /// <returns> True if the method-call was for <see cref="EF.Property{TProperty}"/>; false otherwise. </returns>
+        /// <returns> True if the method-call was for <see cref="EF.Property{TProperty}" />; false otherwise. </returns>
         public static bool TryGetEFPropertyArguments(
             [NotNull] this MethodCallExpression methodCallExpression,
             out Expression entityExpression,
@@ -102,15 +113,15 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         }
 
         /// <summary>
-        /// <para>
-        /// Gets the <see cref="PropertyInfo"/> represented by a simple property-access expression.
-        /// </para>
-        /// <para>
-        /// This method is typically used to parse property access lambdas from fluent APIs.
-        /// </para>
+        ///     <para>
+        ///         Gets the <see cref="PropertyInfo" /> represented by a simple property-access expression.
+        ///     </para>
+        ///     <para>
+        ///         This method is typically used to parse property access lambdas from fluent APIs.
+        ///     </para>
         /// </summary>
         /// <param name="propertyAccessExpression"> The expression. </param>
-        /// <returns> The <see cref="PropertyInfo"/>. </returns>
+        /// <returns> The <see cref="PropertyInfo" />. </returns>
         public static PropertyInfo GetPropertyAccess([NotNull] this LambdaExpression propertyAccessExpression)
         {
             Debug.Assert(propertyAccessExpression.Parameters.Count == 1);
