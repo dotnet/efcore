@@ -95,7 +95,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         ///     A lambda must be provided, which will extract the parameter's value from the QueryContext every time
         ///     the query is executed.
         /// </summary>
-        public virtual ParameterExpression RegisterRuntimeParameter(string name, LambdaExpression valueExtractor, Type type)
+        public virtual ParameterExpression RegisterRuntimeParameter(string name, LambdaExpression valueExtractor)
         {
             if (valueExtractor.Parameters.Count != 1 || valueExtractor.Parameters[0] != QueryContextParameter)
             {
@@ -109,7 +109,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
 
             _runtimeParameters[name] = valueExtractor;
-            return Expression.Parameter(type, name);
+            return Expression.Parameter(valueExtractor.ReturnType, name);
         }
 
         private Expression InsertRuntimeParameters(Expression query)
@@ -121,7 +121,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                             QueryContextParameter,
                             _queryContextAddParameterMethodInfo,
                             Expression.Constant(kv.Key),
-                            Expression.Invoke(kv.Value, QueryContextParameter)))
+                            Expression.Convert(Expression.Invoke(kv.Value, QueryContextParameter), typeof(object))))
                     .Append(query));
 
         private static readonly MethodInfo _queryContextAddParameterMethodInfo

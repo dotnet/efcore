@@ -414,10 +414,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 );
 
                 var newParameterName = $"{RuntimeParameterPrefix}{listParam.Name.Substring(CompiledQueryCache.CompiledQueryParameterPrefix.Length)}_{keyProperty.Name}";
-                rewrittenSource = _queryCompilationContext.RegisterRuntimeParameter(
-                    newParameterName,
-                    lambda,
-                    typeof(List<>).MakeGenericType(keyProperty.ClrType.MakeNullable()));
+                rewrittenSource = _queryCompilationContext.RegisterRuntimeParameter(newParameterName, lambda);
             }
             else
             {
@@ -930,14 +927,14 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 // property from that
                 var lambda = Expression.Lambda(
                     Expression.Call(
-                        _parameterValueExtractor,
+                        _parameterValueExtractor.MakeGenericMethod(property.ClrType.MakeNullable()),
                         QueryCompilationContext.QueryContextParameter,
                         Expression.Constant(baseParameterExpression.Name, typeof(string)),
                         Expression.Constant(property, typeof(IProperty))),
                     QueryCompilationContext.QueryContextParameter);
 
                 var newParameterName = $"{RuntimeParameterPrefix}{baseParameterExpression.Name.Substring(CompiledQueryCache.CompiledQueryParameterPrefix.Length)}_{property.Name}";
-                return _queryCompilationContext.RegisterRuntimeParameter(newParameterName, lambda, property.ClrType.MakeNullable());
+                return _queryCompilationContext.RegisterRuntimeParameter(newParameterName, lambda);
             }
 
             return target.CreateEFPropertyExpression(property, true);
@@ -963,10 +960,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             }
         }
 
-        private static object ParameterValueExtractor(QueryContext context, string baseParameterName, IProperty property)
+        private static T ParameterValueExtractor<T>(QueryContext context, string baseParameterName, IProperty property)
         {
             var baseParameter = context.ParameterValues[baseParameterName];
-            return baseParameter == null ? null : property.GetGetter().GetClrValue(baseParameter);
+            return baseParameter == null ? (T)(object)null : (T)property.GetGetter().GetClrValue(baseParameter);
         }
 
         private static readonly MethodInfo _parameterValueExtractor
