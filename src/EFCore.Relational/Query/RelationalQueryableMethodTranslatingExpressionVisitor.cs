@@ -1172,43 +1172,34 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             Expression shaper = new ProjectionBindingExpression(source.QueryExpression, new ProjectionMember(), projection.Type);
 
-            if (throwOnNullResult
-                && resultType.IsNullableType())
+            if (throwOnNullResult)
             {
                 var resultVariable = Expression.Variable(projection.Type, "result");
+                var returnValueForNull = resultType.IsNullableType()
+                    ? (Expression)Expression.Constant(null, resultType)
+                    : Expression.Throw(
+                        Expression.New(
+                            typeof(InvalidOperationException).GetConstructors()
+                                .Single(ci => ci.GetParameters().Length == 1),
+                            Expression.Constant(CoreStrings.NoElements)),
+                        resultType);
 
                 shaper = Expression.Block(
                     new[] { resultVariable },
                     Expression.Assign(resultVariable, shaper),
                     Expression.Condition(
                         Expression.Equal(resultVariable, Expression.Default(projection.Type)),
-                        Expression.Constant(null, resultType),
+                        returnValueForNull,
                         resultType != resultVariable.Type
                             ? Expression.Convert(resultVariable, resultType)
                             : (Expression)resultVariable));
             }
-            else if (throwOnNullResult)
+            else
             {
-                var resultVariable = Expression.Variable(projection.Type, "result");
-
-                shaper = Expression.Block(
-                    new[] { resultVariable },
-                    Expression.Assign(resultVariable, shaper),
-                    Expression.Condition(
-                        Expression.Equal(resultVariable, Expression.Default(projection.Type)),
-                        Expression.Throw(
-                            Expression.New(
-                                typeof(InvalidOperationException).GetConstructors()
-                                    .Single(ci => ci.GetParameters().Length == 1),
-                                Expression.Constant(CoreStrings.NoElements)),
-                            resultType),
-                        resultType != resultVariable.Type
-                            ? Expression.Convert(resultVariable, resultType)
-                            : (Expression)resultVariable));
-            }
-            else if (resultType.IsNullableType())
-            {
-                shaper = Expression.Convert(shaper, resultType);
+                if (resultType.IsNullableType())
+                {
+                    shaper = Expression.Convert(shaper, resultType);
+                }
             }
 
             source.ShaperExpression = shaper;

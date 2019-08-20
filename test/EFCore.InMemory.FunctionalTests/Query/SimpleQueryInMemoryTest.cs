@@ -381,5 +381,11 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory(Skip = "Issue #16963")]
         public override Task Select_bool_closure_with_order_by_property_with_cast_to_nullable(bool isAsync) => null;
+
+        [ConditionalTheory(Skip = "Issue #16963")]
+        public override Task Project_single_element_from_collection_with_OrderBy_over_navigation_Take_and_FirstOrDefault_2(bool isAsync)
+        {
+            return base.Project_single_element_from_collection_with_OrderBy_over_navigation_Take_and_FirstOrDefault_2(isAsync);
+        }
     }
 }

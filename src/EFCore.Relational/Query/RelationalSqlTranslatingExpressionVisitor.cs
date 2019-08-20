@@ -316,6 +316,23 @@ namespace Microsoft.EntityFrameworkCore.Query
             var subqueryTranslation = _queryableMethodTranslatingExpressionVisitor.TranslateSubquery(methodCallExpression);
             if (subqueryTranslation != null)
             {
+                static bool IsAggregateResultWithCustomShaper(MethodInfo method)
+                {
+                    if (method.IsGenericMethod)
+                    {
+                        method = method.GetGenericMethodDefinition();
+                    }
+
+                    return QueryableMethods.IsAverageWithoutSelector(method)
+                        || QueryableMethods.IsAverageWithSelector(method)
+                        || method == QueryableMethods.MaxWithoutSelector
+                        || method == QueryableMethods.MaxWithSelector
+                        || method == QueryableMethods.MinWithoutSelector
+                        || method == QueryableMethods.MinWithSelector
+                        || QueryableMethods.IsSumWithoutSelector(method)
+                        || QueryableMethods.IsSumWithSelector(method);
+                }
+
                 if (subqueryTranslation.ResultCardinality == ResultCardinality.Enumerable)
                 {
                     return null;
@@ -324,7 +341,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 var subquery = (SelectExpression)subqueryTranslation.QueryExpression;
                 subquery.ApplyProjection();
 
-                if (subquery.Projection.Count != 1)
+                if (!(subqueryTranslation.ShaperExpression is ProjectionBindingExpression
+                    || IsAggregateResultWithCustomShaper(methodCallExpression.Method)))
                 {
                     return null;
                 }
