@@ -203,7 +203,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                     {
                         try
                         {
-                            return (DbContext)Activator.CreateInstance(context);
+                            return (DbContext)ActivatorUtilities.GetServiceOrCreateInstance(appServices, context);
                         }
                         catch (MissingMethodException ex)
                         {
