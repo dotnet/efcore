@@ -45,6 +45,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
             if (navigation.IsCollection())
             {
+                Dependencies.Logger.RequiredAttributeOnCollection(navigation.ForeignKey.DependentToPrincipal);
                 return;
             }
 
@@ -61,9 +62,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                     }
                 }
 
-                if (!navigation.ForeignKey.IsUnique
-                    || relationshipBuilder.Metadata.GetPrincipalEndConfigurationSource() != null)
+                if (relationshipBuilder.Metadata.GetPrincipalEndConfigurationSource() != null)
                 {
+                    Dependencies.Logger.RequiredAttributeOnDependent(navigation.ForeignKey.PrincipalToDependent);
                     return;
                 }
 
@@ -76,7 +77,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                     return;
                 }
 
-                Dependencies.Logger.RequiredAttributeOnDependent(newRelationshipBuilder.Metadata.DependentToPrincipal);
+                Dependencies.Logger.RequiredAttributeInverted(newRelationshipBuilder.Metadata.DependentToPrincipal);
                 relationshipBuilder = newRelationshipBuilder;
             }
 

@@ -153,7 +153,8 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             return source;
         }
 
-        protected override ShapedQueryExpression TranslateDefaultIfEmpty(ShapedQueryExpression source, Expression defaultValue) => throw new NotImplementedException();
+        protected override ShapedQueryExpression TranslateDefaultIfEmpty(ShapedQueryExpression source, Expression defaultValue)
+            => null;
 
         protected override ShapedQueryExpression TranslateDistinct(ShapedQueryExpression source)
         {
@@ -168,9 +169,11 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             return source;
         }
 
-        protected override ShapedQueryExpression TranslateElementAtOrDefault(ShapedQueryExpression source, Expression index, bool returnDefault) => throw new NotImplementedException();
+        protected override ShapedQueryExpression TranslateElementAtOrDefault(ShapedQueryExpression source, Expression index, bool returnDefault)
+            => null;
 
-        protected override ShapedQueryExpression TranslateExcept(ShapedQueryExpression source1, ShapedQueryExpression source2) => throw new NotImplementedException();
+        protected override ShapedQueryExpression TranslateExcept(ShapedQueryExpression source1, ShapedQueryExpression source2)
+            => null;
 
         protected override ShapedQueryExpression TranslateFirstOrDefault(ShapedQueryExpression source, LambdaExpression predicate, Type returnType, bool returnDefault)
         {
@@ -183,11 +186,14 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                     : InMemoryLinqOperatorProvider.FirstPredicate);
         }
 
-        protected override ShapedQueryExpression TranslateGroupBy(ShapedQueryExpression source, LambdaExpression keySelector, LambdaExpression elementSelector, LambdaExpression resultSelector) => throw new NotImplementedException();
+        protected override ShapedQueryExpression TranslateGroupBy(ShapedQueryExpression source, LambdaExpression keySelector, LambdaExpression elementSelector, LambdaExpression resultSelector)
+            => null;
 
-        protected override ShapedQueryExpression TranslateGroupJoin(ShapedQueryExpression outer, ShapedQueryExpression inner, LambdaExpression outerKeySelector, LambdaExpression innerKeySelector, LambdaExpression resultSelector) => throw new NotImplementedException();
+        protected override ShapedQueryExpression TranslateGroupJoin(ShapedQueryExpression outer, ShapedQueryExpression inner, LambdaExpression outerKeySelector, LambdaExpression innerKeySelector, LambdaExpression resultSelector)
+            => null;
 
-        protected override ShapedQueryExpression TranslateIntersect(ShapedQueryExpression source1, ShapedQueryExpression source2) => throw new NotImplementedException();
+        protected override ShapedQueryExpression TranslateIntersect(ShapedQueryExpression source1, ShapedQueryExpression source2)
+            => null;
 
         protected override ShapedQueryExpression TranslateJoin(ShapedQueryExpression outer, ShapedQueryExpression inner, LambdaExpression outerKeySelector, LambdaExpression innerKeySelector, LambdaExpression resultSelector)
         {
@@ -275,7 +281,8 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         protected override ShapedQueryExpression TranslateMin(ShapedQueryExpression source, LambdaExpression selector, Type resultType)
             => TranslateScalarAggregate(source, selector, nameof(Enumerable.Min));
 
-        protected override ShapedQueryExpression TranslateOfType(ShapedQueryExpression source, Type resultType) => throw new NotImplementedException();
+        protected override ShapedQueryExpression TranslateOfType(ShapedQueryExpression source, Type resultType)
+            => null;
 
         protected override ShapedQueryExpression TranslateOrderBy(ShapedQueryExpression source, LambdaExpression keySelector, bool ascending)
         {
@@ -293,7 +300,8 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             return source;
         }
 
-        protected override ShapedQueryExpression TranslateReverse(ShapedQueryExpression source) => throw new NotImplementedException();
+        protected override ShapedQueryExpression TranslateReverse(ShapedQueryExpression source)
+            => null;
 
         protected override ShapedQueryExpression TranslateSelect(ShapedQueryExpression source, LambdaExpression selector)
         {
@@ -356,7 +364,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                 }
             }
 
-            throw new NotImplementedException();
+            return null;
         }
 
         private class CorrelationFindingExpressionVisitor : ExpressionVisitor
@@ -384,7 +392,8 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             }
         }
 
-        protected override ShapedQueryExpression TranslateSelectMany(ShapedQueryExpression source, LambdaExpression selector) => throw new NotImplementedException();
+        protected override ShapedQueryExpression TranslateSelectMany(ShapedQueryExpression source, LambdaExpression selector)
+            => null;
 
         protected override ShapedQueryExpression TranslateSingleOrDefault(ShapedQueryExpression source, LambdaExpression predicate, Type returnType, bool returnDefault)
         {
@@ -410,7 +419,8 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             return source;
         }
 
-        protected override ShapedQueryExpression TranslateSkipWhile(ShapedQueryExpression source, LambdaExpression predicate) => throw new NotImplementedException();
+        protected override ShapedQueryExpression TranslateSkipWhile(ShapedQueryExpression source, LambdaExpression predicate)
+            => null;
 
         protected override ShapedQueryExpression TranslateSum(ShapedQueryExpression source, LambdaExpression selector, Type resultType)
             => TranslateScalarAggregate(source, selector, nameof(Enumerable.Sum));
@@ -428,7 +438,8 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             return source;
         }
 
-        protected override ShapedQueryExpression TranslateTakeWhile(ShapedQueryExpression source, LambdaExpression predicate) => throw new NotImplementedException();
+        protected override ShapedQueryExpression TranslateTakeWhile(ShapedQueryExpression source, LambdaExpression predicate)
+            => null;
 
         protected override ShapedQueryExpression TranslateThenBy(ShapedQueryExpression source, LambdaExpression keySelector, bool ascending)
         {
@@ -446,7 +457,8 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             return source;
         }
 
-        protected override ShapedQueryExpression TranslateUnion(ShapedQueryExpression source1, ShapedQueryExpression source2) => throw new NotImplementedException();
+        protected override ShapedQueryExpression TranslateUnion(ShapedQueryExpression source1, ShapedQueryExpression source2)
+            => null;
 
         protected override ShapedQueryExpression TranslateWhere(ShapedQueryExpression source, LambdaExpression predicate)
         {

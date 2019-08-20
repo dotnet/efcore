@@ -9,6 +9,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
@@ -119,7 +120,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                                         innerAccessExpression = _jObjectParameter;
                                         break;
                                     default:
-                                        throw new InvalidOperationException();
+                                        throw new InvalidOperationException(CoreStrings.QueryFailed(binaryExpression.Print(), GetType().Name));
                                 }
                             }
 
@@ -219,7 +220,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                                 objectArrayProjection = objectArrayProjectionExpression;
                                 break;
                             default:
-                                throw new InvalidOperationException();
+                                throw new InvalidOperationException(CoreStrings.QueryFailed(extensionExpression.Print(), GetType().Name));
                         }
 
                         var jArray = _projectionBindings[objectArrayProjection];
@@ -517,7 +518,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
             private int GetProjectionIndex(ProjectionBindingExpression projectionBindingExpression)
                 => projectionBindingExpression.ProjectionMember != null
                     ? (int)((ConstantExpression)_selectExpression.GetMappedProjection(projectionBindingExpression.ProjectionMember)).Value
-                    : projectionBindingExpression.Index ?? throw new InvalidOperationException();
+                    : projectionBindingExpression.Index
+                      ?? throw new InvalidOperationException(CoreStrings.QueryFailed(projectionBindingExpression.Print(), GetType().Name));
 
             private ProjectionExpression GetProjection(ProjectionBindingExpression projectionBindingExpression)
             {

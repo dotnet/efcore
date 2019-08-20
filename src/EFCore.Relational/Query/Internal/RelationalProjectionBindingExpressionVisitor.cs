@@ -286,7 +286,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         {
             if (projectionBindingExpression.QueryExpression != _selectExpression)
             {
-                throw new InvalidOperationException();
+                throw new InvalidOperationException(CoreStrings.QueryFailed(projectionBindingExpression.Print(), GetType().Name));
             }
         }
     }

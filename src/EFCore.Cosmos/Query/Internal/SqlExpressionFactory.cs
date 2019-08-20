@@ -5,7 +5,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Storage;
 
@@ -121,7 +123,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                     break;
 
                 default:
-                    throw new InvalidOperationException();
+                    throw new InvalidOperationException(CoreStrings.TranslationFailed(sqlUnaryExpression.Print()));
             }
 
             return new SqlUnaryExpression(
