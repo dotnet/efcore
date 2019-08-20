@@ -491,6 +491,11 @@ namespace Microsoft.EntityFrameworkCore.Query
             return Expression.Field(targetExpression, fieldInfo);
         }
 
+        public virtual ShapedQueryExpression TranslateSubquery(Expression expression)
+            => (ShapedQueryExpression)CreateSubqueryVisitor().Visit(expression);
+
+        protected abstract QueryableMethodTranslatingExpressionVisitor CreateSubqueryVisitor();
+
         protected abstract ShapedQueryExpression CreateShapedQueryExpression(Type elementType);
         protected abstract ShapedQueryExpression TranslateAll(ShapedQueryExpression source, LambdaExpression predicate);
         protected abstract ShapedQueryExpression TranslateAny(ShapedQueryExpression source, LambdaExpression predicate);
@@ -528,6 +533,5 @@ namespace Microsoft.EntityFrameworkCore.Query
         protected abstract ShapedQueryExpression TranslateThenBy(ShapedQueryExpression source, LambdaExpression keySelector, bool ascending);
         protected abstract ShapedQueryExpression TranslateUnion(ShapedQueryExpression source1, ShapedQueryExpression source2);
         protected abstract ShapedQueryExpression TranslateWhere(ShapedQueryExpression source, LambdaExpression predicate);
-        public abstract ShapedQueryExpression TranslateSubquery(Expression expression);
     }
 }
