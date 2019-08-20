@@ -29,25 +29,17 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             _model = model;
         }
 
-        public InMemoryQueryableMethodTranslatingExpressionVisitor(
-            QueryableMethodTranslatingExpressionVisitorDependencies dependencies,
-            IModel model,
-            InMemoryExpressionTranslatingExpressionVisitor expressionTranslator)
-            : base(dependencies, subquery: true)
+        protected InMemoryQueryableMethodTranslatingExpressionVisitor(
+            InMemoryQueryableMethodTranslatingExpressionVisitor parentVisitor)
+            : base(parentVisitor.Dependencies, subquery: true)
         {
-            _expressionTranslator = expressionTranslator;
-            _projectionBindingExpressionVisitor = new InMemoryProjectionBindingExpressionVisitor(this, expressionTranslator);
-            _model = model;
+            _expressionTranslator = parentVisitor._expressionTranslator;
+            _projectionBindingExpressionVisitor = new InMemoryProjectionBindingExpressionVisitor(this, _expressionTranslator);
+            _model = parentVisitor._model;
         }
 
-        public override ShapedQueryExpression TranslateSubquery(Expression expression)
-        {
-            return (ShapedQueryExpression)new InMemoryQueryableMethodTranslatingExpressionVisitor(
-                    Dependencies,
-                    _model,
-                    _expressionTranslator)
-                .Visit(expression);
-        }
+        protected override QueryableMethodTranslatingExpressionVisitor CreateSubqueryVisitor()
+            => new InMemoryQueryableMethodTranslatingExpressionVisitor(this);
 
         protected override ShapedQueryExpression CreateShapedQueryExpression(Type elementType)
         {
