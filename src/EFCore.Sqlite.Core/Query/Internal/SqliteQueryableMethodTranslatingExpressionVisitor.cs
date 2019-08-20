@@ -22,6 +22,15 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
         {
         }
 
+        protected SqliteQueryableMethodTranslatingExpressionVisitor(
+            SqliteQueryableMethodTranslatingExpressionVisitor parentVisitor)
+            : base(parentVisitor)
+        {
+        }
+
+        protected override QueryableMethodTranslatingExpressionVisitor CreateSubqueryVisitor()
+            => new SqliteQueryableMethodTranslatingExpressionVisitor(this);
+
         protected override ShapedQueryExpression TranslateOrderBy(ShapedQueryExpression source, LambdaExpression keySelector, bool ascending)
         {
             var translation = base.TranslateOrderBy(source, keySelector, ascending);

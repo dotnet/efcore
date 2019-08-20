@@ -44,20 +44,16 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         protected virtual RelationalQueryableMethodTranslatingExpressionVisitorDependencies RelationalDependencies { get; }
 
-        private RelationalQueryableMethodTranslatingExpressionVisitor(
-            QueryableMethodTranslatingExpressionVisitorDependencies dependencies,
-            RelationalQueryableMethodTranslatingExpressionVisitorDependencies relationalDependencies,
-            IModel model,
-            RelationalSqlTranslatingExpressionVisitor sqlTranslator,
-            WeakEntityExpandingExpressionVisitor weakEntityExpandingExpressionVisitor,
-            ISqlExpressionFactory sqlExpressionFactory)
-            : base(dependencies, subquery: true)
+        protected RelationalQueryableMethodTranslatingExpressionVisitor(
+            RelationalQueryableMethodTranslatingExpressionVisitor parentVisitor)
+            : base(parentVisitor.Dependencies, subquery: true)
         {
-            _model = model;
-            _sqlTranslator = sqlTranslator;
-            _weakEntityExpandingExpressionVisitor = weakEntityExpandingExpressionVisitor;
-            _projectionBindingExpressionVisitor = new RelationalProjectionBindingExpressionVisitor(this, sqlTranslator);
-            _sqlExpressionFactory = sqlExpressionFactory;
+            RelationalDependencies = parentVisitor.RelationalDependencies;
+            _model = parentVisitor._model;
+            _sqlTranslator = parentVisitor._sqlTranslator;
+            _weakEntityExpandingExpressionVisitor = parentVisitor._weakEntityExpandingExpressionVisitor;
+            _projectionBindingExpressionVisitor = new RelationalProjectionBindingExpressionVisitor(this, _sqlTranslator);
+            _sqlExpressionFactory = parentVisitor._sqlExpressionFactory;
         }
 
         protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
@@ -73,14 +69,8 @@ namespace Microsoft.EntityFrameworkCore.Query
             return base.VisitMethodCall(methodCallExpression);
         }
 
-        public override ShapedQueryExpression TranslateSubquery(Expression expression)
-            => (ShapedQueryExpression)new RelationalQueryableMethodTranslatingExpressionVisitor(
-                Dependencies,
-                RelationalDependencies,
-                _model,
-                _sqlTranslator,
-                _weakEntityExpandingExpressionVisitor,
-                _sqlExpressionFactory).Visit(expression);
+        protected override QueryableMethodTranslatingExpressionVisitor CreateSubqueryVisitor()
+            => new RelationalQueryableMethodTranslatingExpressionVisitor(this);
 
         protected override ShapedQueryExpression CreateShapedQueryExpression(Type elementType)
         {

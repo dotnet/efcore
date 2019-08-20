@@ -6965,7 +6965,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 gs => gs.Include(g => g.CityOfBirth).GroupBy(g => g.Rank).Select(g => g.Sum(gg => gg.SquadId)));
         }
 
-        [ConditionalTheory(Skip = "Issue #15249")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_Property_Include_Select_Count(bool isAsync)
         {
@@ -6974,7 +6974,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 gs => gs.Include(g => g.CityOfBirth).GroupBy(g => g.Rank).Select(g => g.Count()));
         }
 
-        [ConditionalTheory(Skip = "issue #15249")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_Property_Include_Select_LongCount(bool isAsync)
         {
@@ -6983,7 +6983,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 gs => gs.Include(g => g.CityOfBirth).GroupBy(g => g.Rank).Select(g => g.LongCount()));
         }
 
-        [ConditionalTheory(Skip = "issue #15249")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_Property_Include_Select_Max(bool isAsync)
         {
@@ -6992,7 +6992,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 gs => gs.Include(g => g.CityOfBirth).GroupBy(g => g.Rank).Select(g => g.Max(gg => gg.SquadId)));
         }
 
-        [ConditionalTheory(Skip = "issue #15249")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_Property_Include_Select_Min(bool isAsync)
         {
