@@ -1112,15 +1112,15 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         }
 
         /// <summary>
-        ///     Logs for the <see cref="CoreEventId.RequiredAttributeOnDependent" /> event.
+        ///     Logs for the <see cref="CoreEventId.RequiredAttributeInverted" /> event.
         /// </summary>
         /// <param name="diagnostics"> The diagnostics logger to use. </param>
         /// <param name="navigation"> The navigation property. </param>
-        public static void RequiredAttributeOnDependent(
+        public static void RequiredAttributeInverted(
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Model> diagnostics,
             [NotNull] INavigation navigation)
         {
-            var definition = CoreResources.LogRequiredAttributeOnDependent(diagnostics);
+            var definition = CoreResources.LogRequiredAttributeInverted(diagnostics);
 
             var warningBehavior = definition.GetLogBehavior(diagnostics);
             if (warningBehavior != WarningBehavior.Ignore)
@@ -1137,12 +1137,12 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                     definition.EventId.Name,
                     new NavigationEventData(
                         definition,
-                        RequiredAttributeOnDependent,
+                        RequiredAttributeInverted,
                         navigation));
             }
         }
 
-        private static string RequiredAttributeOnDependent(EventDefinitionBase definition, EventData payload)
+        private static string RequiredAttributeInverted(EventDefinitionBase definition, EventData payload)
         {
             var d = (EventDefinition<string, string>)definition;
             var p = (NavigationEventData)payload;
@@ -1150,15 +1150,15 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         }
 
         /// <summary>
-        ///     Logs for the <see cref="CoreEventId.NonNullableOnDependent" /> event.
+        ///     Logs for the <see cref="CoreEventId.NonNullableInverted" /> event.
         /// </summary>
         /// <param name="diagnostics"> The diagnostics logger to use. </param>
         /// <param name="navigation"> The navigation property. </param>
-        public static void NonNullableOnDependent(
+        public static void NonNullableInverted(
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Model> diagnostics,
             [NotNull] INavigation navigation)
         {
-            var definition = CoreResources.LogNonNullableOnDependent(diagnostics);
+            var definition = CoreResources.LogNonNullableInverted(diagnostics);
 
             var warningBehavior = definition.GetLogBehavior(diagnostics);
             if (warningBehavior != WarningBehavior.Ignore)
@@ -1175,12 +1175,12 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                     definition.EventId.Name,
                     new NavigationEventData(
                         definition,
-                        NonNullableOnDependent,
+                        NonNullableInverted,
                         navigation));
             }
         }
 
-        private static string NonNullableOnDependent(EventDefinitionBase definition, EventData payload)
+        private static string NonNullableInverted(EventDefinitionBase definition, EventData payload)
         {
             var d = (EventDefinition<string, string>)definition;
             var p = (NavigationEventData)payload;
@@ -1297,6 +1297,120 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 firstNavigation.Name,
                 secondNavigation.DeclaringType.DisplayName(),
                 secondNavigation.Name);
+        }
+
+        /// <summary>
+        ///     Logs for the <see cref="CoreEventId.RequiredAttributeOnDependent" /> event.
+        /// </summary>
+        /// <param name="diagnostics"> The diagnostics logger to use. </param>
+        /// <param name="navigation"> The navigation property. </param>
+        public static void RequiredAttributeOnDependent(
+            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Model> diagnostics,
+            [NotNull] INavigation navigation)
+        {
+            var definition = CoreResources.LogRequiredAttributeOnDependent(diagnostics);
+
+            var warningBehavior = definition.GetLogBehavior(diagnostics);
+            if (warningBehavior != WarningBehavior.Ignore)
+            {
+                definition.Log(
+                    diagnostics,
+                    warningBehavior,
+                    navigation.Name, navigation.DeclaringEntityType.DisplayName());
+            }
+
+            if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
+            {
+                diagnostics.DiagnosticSource.Write(
+                    definition.EventId.Name,
+                    new NavigationEventData(
+                        definition,
+                        RequiredAttributeOnDependent,
+                        navigation));
+            }
+        }
+
+        private static string RequiredAttributeOnDependent(EventDefinitionBase definition, EventData payload)
+        {
+            var d = (EventDefinition<string, string>)definition;
+            var p = (NavigationEventData)payload;
+            return d.GenerateMessage(p.Navigation.Name, p.Navigation.DeclaringEntityType.DisplayName());
+        }
+
+        /// <summary>
+        ///     Logs for the <see cref="CoreEventId.NonNullableReferenceOnDependent" /> event.
+        /// </summary>
+        /// <param name="diagnostics"> The diagnostics logger to use. </param>
+        /// <param name="navigation"> The navigation property. </param>
+        public static void NonNullableReferenceOnDependent(
+            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Model> diagnostics,
+            [NotNull] INavigation navigation)
+        {
+            var definition = CoreResources.LogNonNullableReferenceOnDependent(diagnostics);
+
+            var warningBehavior = definition.GetLogBehavior(diagnostics);
+            if (warningBehavior != WarningBehavior.Ignore)
+            {
+                definition.Log(
+                    diagnostics,
+                    warningBehavior,
+                    navigation.Name, navigation.DeclaringEntityType.DisplayName());
+            }
+
+            if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
+            {
+                diagnostics.DiagnosticSource.Write(
+                    definition.EventId.Name,
+                    new NavigationEventData(
+                        definition,
+                        NonNullableReferenceOnDependent,
+                        navigation));
+            }
+        }
+
+        private static string NonNullableReferenceOnDependent(EventDefinitionBase definition, EventData payload)
+        {
+            var d = (EventDefinition<string, string>)definition;
+            var p = (NavigationEventData)payload;
+            return d.GenerateMessage(p.Navigation.Name, p.Navigation.DeclaringEntityType.DisplayName());
+        }
+
+        /// <summary>
+        ///     Logs for the <see cref="CoreEventId.RequiredAttributeOnCollection" /> event.
+        /// </summary>
+        /// <param name="diagnostics"> The diagnostics logger to use. </param>
+        /// <param name="navigation"> The navigation property. </param>
+        public static void RequiredAttributeOnCollection(
+            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Model> diagnostics,
+            [NotNull] INavigation navigation)
+        {
+            var definition = CoreResources.LogRequiredAttributeOnCollection(diagnostics);
+
+            var warningBehavior = definition.GetLogBehavior(diagnostics);
+            if (warningBehavior != WarningBehavior.Ignore)
+            {
+                definition.Log(
+                    diagnostics,
+                    warningBehavior,
+                    navigation.Name, navigation.DeclaringEntityType.DisplayName());
+            }
+
+            if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
+            {
+                diagnostics.DiagnosticSource.Write(
+                    definition.EventId.Name,
+                    new NavigationEventData(
+                        definition,
+                        RequiredAttributeOnCollection,
+                        navigation));
+            }
+        }
+
+        private static string RequiredAttributeOnCollection(EventDefinitionBase definition, EventData payload)
+        {
+            var d = (EventDefinition<string, string>)definition;
+            var p = (NavigationEventData)payload;
+            return d.GenerateMessage(p.Navigation.Name, p.Navigation.DeclaringEntityType.DisplayName());
         }
 
         /// <summary>

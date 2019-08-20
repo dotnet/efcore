@@ -280,7 +280,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                 }
 
                 default:
-                    throw new InvalidOperationException();
+                    throw new InvalidOperationException(CoreStrings.QueryFailed(extensionExpression.Print(), GetType().Name));
             }
         }
 
