@@ -6,6 +6,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.Storage;
 
@@ -192,7 +194,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     : null;
             }
 
-            throw new InvalidOperationException();
+            throw new InvalidOperationException(
+                CoreStrings.QueryFailed(extensionExpression.Print(), GetType().Name));
         }
 
         protected override Expression VisitNew(NewExpression newExpression)

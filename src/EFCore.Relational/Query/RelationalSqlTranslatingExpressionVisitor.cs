@@ -300,7 +300,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 && methodCallExpression.Arguments.Count > 0
                 && methodCallExpression.Arguments[0] is GroupByShaperExpression groupByShaperExpression)
             {
-                return methodCallExpression.Method.Name switch
+                var translatedAggregate = methodCallExpression.Method.Name switch
                 {
                     nameof(Enumerable.Average) => TranslateAverage(GetSelector(methodCallExpression, groupByShaperExpression)),
                     nameof(Enumerable.Count) => TranslateCount(),
@@ -308,8 +308,15 @@ namespace Microsoft.EntityFrameworkCore.Query
                     nameof(Enumerable.Max) => TranslateMax(GetSelector(methodCallExpression, groupByShaperExpression)),
                     nameof(Enumerable.Min) => TranslateMin(GetSelector(methodCallExpression, groupByShaperExpression)),
                     nameof(Enumerable.Sum) => TranslateSum(GetSelector(methodCallExpression, groupByShaperExpression)),
-                    _ => throw new InvalidOperationException("Unknown aggregate operator encountered.")
+                    _ => null
                 };
+
+                if (translatedAggregate == null)
+                {
+                    throw new InvalidOperationException(CoreStrings.TranslationFailed(methodCallExpression.Print()));
+                }
+
+                return translatedAggregate;
             }
 
             // Subquery case
