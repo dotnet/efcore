@@ -1084,12 +1084,16 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task Last_when_no_order_by(bool isAsync)
+        public virtual async Task Last_when_no_order_by(bool isAsync)
         {
-            return AssertLast<Customer>(
-                isAsync,
-                cs => cs.Where(c => c.CustomerID == "ALFKI"),
-                entryCount: 1);
+            Assert.Equal(
+                CoreStrings.TranslationFailed(@"Last<object>(Select<Customer, object>(    source: Where<Customer>(        source: DbSet<Customer>,         predicate: (c) => c.CustomerID == ""ALFKI""),     selector: (c) => (object)c))"),
+                RemoveNewLines(
+                    (await Assert.ThrowsAsync<InvalidOperationException>(
+                        () => AssertLast<Customer>(
+                                        isAsync,
+                                        cs => cs.Where(c => c.CustomerID == "ALFKI"),
+                                        entryCount: 1))).Message));
         }
 
         [ConditionalTheory]
@@ -1492,7 +1496,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                                 o => ids.Contains(
                                     new
                                     {
-                                        Id1 = o.OrderID, Id2 = o.ProductID
+                                        Id1 = o.OrderID,
+                                        Id2 = o.ProductID
                                     })), entryCount: 1))).Message));
         }
 

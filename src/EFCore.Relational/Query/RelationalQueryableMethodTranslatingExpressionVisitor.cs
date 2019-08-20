@@ -25,6 +25,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         private readonly RelationalProjectionBindingExpressionVisitor _projectionBindingExpressionVisitor;
         private readonly IModel _model;
         private readonly ISqlExpressionFactory _sqlExpressionFactory;
+        private readonly bool _subquery;
 
         public RelationalQueryableMethodTranslatingExpressionVisitor(
             QueryableMethodTranslatingExpressionVisitorDependencies dependencies,
@@ -40,6 +41,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             _projectionBindingExpressionVisitor = new RelationalProjectionBindingExpressionVisitor(this, _sqlTranslator);
             _model = model;
             _sqlExpressionFactory = sqlExpressionFactory;
+            _subquery = false;
         }
 
         protected virtual RelationalQueryableMethodTranslatingExpressionVisitorDependencies RelationalDependencies { get; }
@@ -54,6 +56,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             _weakEntityExpandingExpressionVisitor = parentVisitor._weakEntityExpandingExpressionVisitor;
             _projectionBindingExpressionVisitor = new RelationalProjectionBindingExpressionVisitor(this, _sqlTranslator);
             _sqlExpressionFactory = parentVisitor._sqlExpressionFactory;
+            _subquery = true;
         }
 
         protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
@@ -555,12 +558,17 @@ namespace Microsoft.EntityFrameworkCore.Query
         protected override ShapedQueryExpression TranslateLastOrDefault(
             ShapedQueryExpression source, LambdaExpression predicate, Type returnType, bool returnDefault)
         {
+            var selectExpression = (SelectExpression)source.QueryExpression;
+            if (selectExpression.Orderings.Count == 0)
+            {
+                return null;
+            }
+
             if (predicate != null)
             {
                 source = TranslateWhere(source, predicate);
             }
 
-            var selectExpression = (SelectExpression)source.QueryExpression;
             selectExpression.ReverseOrderings();
             selectExpression.ApplyLimit(TranslateExpression(Expression.Constant(1)));
 
@@ -849,7 +857,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
 
             var selectExpression = (SelectExpression)source.QueryExpression;
-            selectExpression.ApplyLimit(TranslateExpression(Expression.Constant(2)));
+            selectExpression.ApplyLimit(TranslateExpression(Expression.Constant(_subquery ? 1 : 2)));
 
             if (source.ShaperExpression.Type != returnType)
             {
