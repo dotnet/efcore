@@ -6212,6 +6212,124 @@ FROM [Posts] AS [p]");
 
         #endregion
 
+        #region Bug17253
+
+        [ConditionalFact]
+        public virtual void Self_reference_in_query_filter_works()
+        {
+            using (CreateDatabase17253())
+            {
+                using (var context = new MyContext17253(_options))
+                {
+                    var query = context.EntitiesWithQueryFilterSelfReference.Where(e => e.Name != "Foo");
+                    var result = query.ToList();
+
+                    AssertSql(
+                        @"SELECT [e].[Id], [e].[Name]
+FROM [EntitiesWithQueryFilterSelfReference] AS [e]
+WHERE EXISTS (
+    SELECT 1
+    FROM [EntitiesWithQueryFilterSelfReference] AS [e0]) AND (([e].[Name] <> N'Foo') OR [e].[Name] IS NULL)");
+                }
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Self_reference_in_query_filter_works_when_nested()
+        {
+            using (CreateDatabase17253())
+            {
+                using (var context = new MyContext17253(_options))
+                {
+                    var query = context.EntitiesReferencingEntityWithQueryFilterSelfReference.Where(e => e.Name != "Foo");
+                    var result = query.ToList();
+
+                    AssertSql(
+                        @"SELECT [e].[Id], [e].[Name]
+FROM [EntitiesReferencingEntityWithQueryFilterSelfReference] AS [e]
+WHERE EXISTS (
+    SELECT 1
+    FROM [EntitiesWithQueryFilterSelfReference] AS [e0]
+    WHERE EXISTS (
+        SELECT 1
+        FROM [EntitiesWithQueryFilterSelfReference] AS [e1])) AND (([e].[Name] <> N'Foo') OR [e].[Name] IS NULL)");
+                }
+            }
+        }
+
+        public class MyContext17253 : DbContext
+        {
+            public DbSet<EntityWithQueryFilterSelfReference> EntitiesWithQueryFilterSelfReference { get; set; }
+            public DbSet<EntityReferencingEntityWithQueryFilterSelfReference> EntitiesReferencingEntityWithQueryFilterSelfReference { get; set; }
+
+            public DbSet<EntityWithQueryFilterCycle1> EntitiesWithQueryFilterCycle1 { get; set; }
+            public DbSet<EntityWithQueryFilterCycle2> EntitiesWithQueryFilterCycle2 { get; set; }
+            public DbSet<EntityWithQueryFilterCycle3> EntitiesWithQueryFilterCycle3 { get; set; }
+
+            public MyContext17253(DbContextOptions options) : base(options)
+            {
+            }
+
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
+            {
+                modelBuilder.Entity<EntityWithQueryFilterSelfReference>().HasQueryFilter(e => EntitiesWithQueryFilterSelfReference.Any());
+                modelBuilder.Entity<EntityReferencingEntityWithQueryFilterSelfReference>().HasQueryFilter(e => Set<EntityWithQueryFilterSelfReference>().Any());
+
+                modelBuilder.Entity<EntityWithQueryFilterCycle1>().HasQueryFilter(e => EntitiesWithQueryFilterCycle2.Any());
+                modelBuilder.Entity<EntityWithQueryFilterCycle2>().HasQueryFilter(e => Set<EntityWithQueryFilterCycle3>().Any());
+                modelBuilder.Entity<EntityWithQueryFilterCycle3>().HasQueryFilter(e => EntitiesWithQueryFilterCycle1.Any());
+            }
+        }
+
+        private SqlServerTestStore CreateDatabase17253()
+            => CreateTestStore(
+                () => new MyContext17253(_options),
+                context =>
+                {
+                    context.EntitiesWithQueryFilterSelfReference.Add(new EntityWithQueryFilterSelfReference { Name = "EntityWithQueryFilterSelfReference" });
+                    context.EntitiesReferencingEntityWithQueryFilterSelfReference.Add(new EntityReferencingEntityWithQueryFilterSelfReference { Name = "EntityReferencingEntityWithQueryFilterSelfReference" });
+
+                    context.EntitiesWithQueryFilterCycle1.Add(new EntityWithQueryFilterCycle1 { Name = "EntityWithQueryFilterCycle1_1" });
+                    context.EntitiesWithQueryFilterCycle2.Add(new EntityWithQueryFilterCycle2 { Name = "EntityWithQueryFilterCycle2_1" });
+                    context.EntitiesWithQueryFilterCycle3.Add(new EntityWithQueryFilterCycle3 { Name = "EntityWithQueryFilterCycle3_1" });
+
+                    context.SaveChanges();
+
+                    ClearLog();
+                });
+
+        public class EntityWithQueryFilterSelfReference
+        {
+            public int Id { get; set; }
+            public string Name { get; set; }
+        }
+
+        public class EntityReferencingEntityWithQueryFilterSelfReference
+        {
+            public int Id { get; set; }
+            public string Name { get; set; }
+        }
+
+        public class EntityWithQueryFilterCycle1
+        {
+            public int Id { get; set; }
+            public string Name { get; set; }
+        }
+
+        public class EntityWithQueryFilterCycle2
+        {
+            public int Id { get; set; }
+            public string Name { get; set; }
+        }
+
+        public class EntityWithQueryFilterCycle3
+        {
+            public int Id { get; set; }
+            public string Name { get; set; }
+        }
+
+        #endregion
+
         private DbContextOptions _options;
 
         private SqlServerTestStore CreateTestStore<TContext>(
