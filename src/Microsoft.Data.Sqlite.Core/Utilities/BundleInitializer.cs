@@ -35,6 +35,7 @@ namespace Microsoft.Data.Sqlite.Utilities
 
             public MyGetFunctionPointer()
             {
+                Environment.SetEnvironmentVariable("DYLD_LIBRARY_PATH", "/usr/local/opt/sqlite/lib" + Path.PathSeparator + Environment.GetEnvironmentVariable("DYLD_LIBRARY_PATH"));            
                 _dll = NativeLibrary.Load("sqlite3", typeof(SQLitePCL.raw).Assembly, null);
             }
 
