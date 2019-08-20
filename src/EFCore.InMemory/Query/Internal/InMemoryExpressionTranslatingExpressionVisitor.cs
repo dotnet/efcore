@@ -109,7 +109,11 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                     }
                 }
 
-                var result = BindProperty(entityProjection, entityType.FindProperty(propertyName));
+                var property = entityType.GetRootType().GetDerivedTypesInclusive()
+                    .Select(et => et.FindProperty(propertyName))
+                    .FirstOrDefault(p => p != null);
+
+                var result = BindProperty(entityProjection, property);
                 return result.Type == type
                     ? result
                     : Expression.Convert(result, type);
@@ -232,29 +236,36 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                 && Visit(typeBinaryExpression.Expression) is EntityProjectionExpression entityProjectionExpression)
             {
                 var entityType = entityProjectionExpression.EntityType;
+
                 if (entityType.GetAllBaseTypesInclusive().Any(et => et.ClrType == typeBinaryExpression.TypeOperand))
                 {
                     return Expression.Constant(true);
                 }
 
-                //var derivedType = entityType.GetDerivedTypes().SingleOrDefault(et => et.ClrType == typeBinaryExpression.TypeOperand);
-                //if (derivedType != null)
-                //{
-                //    var concreteEntityTypes = derivedType.GetConcreteDerivedTypesInclusive().ToList();
-                //    var discriminatorColumn = BindProperty(entityProjectionExpression, entityType.GetDiscriminatorProperty());
+                var derivedType = entityType.GetDerivedTypes().SingleOrDefault(et => et.ClrType == typeBinaryExpression.TypeOperand);
+                if (derivedType != null)
+                {
+                    var discriminatorProperty = entityType.GetDiscriminatorProperty();
+                    var boundProperty = BindProperty(entityProjectionExpression, discriminatorProperty);
 
-                //    return concreteEntityTypes.Count == 1
-                //        ? _sqlExpressionFactory.Equal(discriminatorColumn,
-                //            _sqlExpressionFactory.Constant(concreteEntityTypes[0].GetDiscriminatorValue()))
-                //        : (Expression)_sqlExpressionFactory.In(discriminatorColumn,
-                //            _sqlExpressionFactory.Constant(concreteEntityTypes.Select(et => et.GetDiscriminatorValue()).ToList()),
-                //            negated: false);
-                //}
+                    var equals = Expression.Equal(
+                        boundProperty,
+                        Expression.Constant(derivedType.GetDiscriminatorValue(), discriminatorProperty.ClrType));
 
-                //return _sqlExpressionFactory.Constant(false);
+                    foreach (var derivedDerivedType in derivedType.GetDerivedTypes())
+                    {
+                        equals = Expression.OrElse(
+                            equals,
+                            Expression.Equal(
+                                boundProperty,
+                                Expression.Constant(derivedDerivedType.GetDiscriminatorValue(), discriminatorProperty.ClrType)));
+                    }
+
+                    return equals;
+                }
             }
 
-            return null;
+            return Expression.Constant(false);
         }
 
         protected override Expression VisitExtension(Expression extensionExpression)
