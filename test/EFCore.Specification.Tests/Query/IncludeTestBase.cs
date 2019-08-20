@@ -371,25 +371,19 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalTheory(Skip = "Issue#15559")]
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Include_collection_with_last_no_orderby(bool useString)
         {
             using (var context = CreateContext())
             {
-                var customer
-                    = useString
-                        ? context.Set<Customer>()
-                            .Include("Orders")
-                            .Last()
-                        : context.Set<Customer>()
-                            .Include(c => c.Orders)
-                            .Last();
-
-                Assert.NotNull(customer);
-                Assert.Equal(7, customer.Orders.Count);
-                Assert.Equal(8, context.ChangeTracker.Entries().Count());
+                Assert.Equal(
+                    CoreStrings.TranslationFailed(@"Last<Customer>(Select<Customer, Customer>(    source: DbSet<Customer>,     selector: (c) => IncludeExpression(        c,         MaterializeCollectionNavigation(Navigation: Customer.Orders (<Orders>k__BackingField, List<Order>) Collection ToDependent Order Inverse: Customer PropertyAccessMode.Field, Where<Order>(            source: DbSet<Order>,             predicate: (o) => Property<string>(c, ""CustomerID"") == Property<string>(o, ""CustomerID""))), Orders)))"),
+                    RemoveNewLines(Assert.Throws<InvalidOperationException>(
+                        () => useString
+                            ? context.Set<Customer>().Include("Orders").Last()
+                            : context.Set<Customer>().Include(c => c.Orders).Last()).Message));
             }
         }
 
@@ -4326,6 +4320,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 Assert.False(context.Entry(orderDetail.Product).Collection(e => e.OrderDetails).IsLoaded);
             }
         }
+
+        private string RemoveNewLines(string message) => message.Replace("\n", "").Replace("\r", "");
 
         protected virtual void ClearLog()
         {

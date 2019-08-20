@@ -2035,8 +2035,28 @@ namespace Microsoft.EntityFrameworkCore.Query
             return AssertQuery<Employee>(
                 isAsync,
                 es =>
-                    from e1 in es.Take(3)
+                    from e1 in es
                     where es.SingleOrDefault(e2 => e2.EmployeeID == e1.ReportsTo) == new Employee()
+                    select e1,
+                es =>
+                    from e1 in es
+                    where es.FirstOrDefault(e2 => e2.EmployeeID == e1.ReportsTo) == new Employee()
+                    select e1);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Where_query_composition_entity_equality_one_element_Single(bool isAsync)
+        {
+            return AssertQuery<Employee>(
+                isAsync,
+                es =>
+                    from e1 in es
+                    where es.Single(e2 => e2.EmployeeID == e1.ReportsTo) == new Employee()
+                    select e1,
+                es =>
+                    from e1 in es
+                    where es.FirstOrDefault(e2 => e2.EmployeeID == e1.ReportsTo) == new Employee()
                     select e1);
         }
 
@@ -2054,27 +2074,50 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
+        public virtual Task Where_query_composition_entity_equality_one_element_First(bool isAsync)
+        {
+            return AssertQuery<Employee>(
+                isAsync,
+                es =>
+                    from e1 in es
+                    where es.First(e2 => e2.EmployeeID == e1.ReportsTo) == new Employee()
+                    select e1,
+                es =>
+                    from e1 in es
+                    where es.FirstOrDefault(e2 => e2.EmployeeID == e1.ReportsTo) == new Employee()
+                    select e1);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task Where_query_composition_entity_equality_no_elements_SingleOrDefault(bool isAsync)
         {
             return AssertQuery<Employee>(
                 isAsync,
                 es =>
-                    from e1 in es.Take(3)
+                    from e1 in es
                     where es.SingleOrDefault(e2 => e2.EmployeeID == 42) == new Employee()
+                    select e1,
+                es =>
+                    from e1 in es
+                    where es.FirstOrDefault(e2 => e2.EmployeeID == 42) == new Employee()
                     select e1);
         }
 
-        [ConditionalFact(Skip = "#15559")]
-        public virtual void Where_query_composition_entity_equality_no_elements_Single()
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Where_query_composition_entity_equality_no_elements_Single(bool isAsync)
         {
-            using (var ctx = CreateContext())
-            {
-                var query = from e1 in ctx.Set<Employee>().Take(5)
-                            where ctx.Set<Employee>().Single(e2 => e2.EmployeeID == 42) == new Employee()
-                            select e1;
-
-                Assert.Throws<InvalidOperationException>(() => query.ToList());
-            }
+            return AssertQuery<Employee>(
+                isAsync,
+                es =>
+                    from e1 in es
+                    where es.Single(e2 => e2.EmployeeID == 42) == new Employee()
+                    select e1,
+                es =>
+                    from e1 in es
+                    where es.FirstOrDefault(e2 => e2.EmployeeID == 42) == new Employee()
+                    select e1);
         }
 
         [ConditionalTheory]
@@ -2089,17 +2132,52 @@ namespace Microsoft.EntityFrameworkCore.Query
                     select e1);
         }
 
-        [ConditionalFact(Skip = "#15559")]
-        public virtual void Where_query_composition_entity_equality_multiple_elements_SingleOrDefault()
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Where_query_composition_entity_equality_no_elements_First(bool isAsync)
         {
-            using (var ctx = CreateContext())
-            {
-                var query = from e1 in ctx.Set<Employee>()
-                            where ctx.Set<Employee>().SingleOrDefault(e2 => e2.EmployeeID != e1.ReportsTo) == new Employee()
-                            select e1;
+            return AssertQuery<Employee>(
+                isAsync,
+                es =>
+                    from e1 in es
+                    where es.First(e2 => e2.EmployeeID == 42) == new Employee()
+                    select e1,
+                es =>
+                    from e1 in es
+                    where es.FirstOrDefault(e2 => e2.EmployeeID == 42) == new Employee()
+                    select e1);
+        }
 
-                Assert.Throws<InvalidOperationException>(() => query.ToList());
-            }
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Where_query_composition_entity_equality_multiple_elements_SingleOrDefault(bool isAsync)
+        {
+            return AssertQuery<Employee>(
+                isAsync,
+                es =>
+                    from e1 in es
+                    where es.SingleOrDefault(e2 => e2.EmployeeID != e1.ReportsTo) == new Employee()
+                    select e1,
+                es =>
+                    from e1 in es
+                    where es.FirstOrDefault(e2 => e2.EmployeeID != e1.ReportsTo) == new Employee()
+                    select e1);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Where_query_composition_entity_equality_multiple_elements_Single(bool isAsync)
+        {
+            return AssertQuery<Employee>(
+                isAsync,
+                es =>
+                    from e1 in es
+                    where es.Single(e2 => e2.EmployeeID != e1.ReportsTo) == new Employee()
+                    select e1,
+                es =>
+                    from e1 in es
+                    where es.FirstOrDefault(e2 => e2.EmployeeID != e1.ReportsTo) == new Employee()
+                    select e1);
         }
 
         [ConditionalTheory]
@@ -2108,6 +2186,22 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             return AssertQuery<Employee>(
                 isAsync,
+                es =>
+                    from e1 in es
+                    where es.FirstOrDefault(e2 => e2.EmployeeID != e1.ReportsTo) == new Employee()
+                    select e1);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Where_query_composition_entity_equality_multiple_elements_First(bool isAsync)
+        {
+            return AssertQuery<Employee>(
+                isAsync,
+                es =>
+                    from e1 in es
+                    where es.First(e2 => e2.EmployeeID != e1.ReportsTo) == new Employee()
+                    select e1,
                 es =>
                     from e1 in es
                     where es.FirstOrDefault(e2 => e2.EmployeeID != e1.ReportsTo) == new Employee()

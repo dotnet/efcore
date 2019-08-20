@@ -457,7 +457,7 @@ FROM (
     ORDER BY [e].[EmployeeID]
 ) AS [t]
 WHERE (
-    SELECT TOP(2) [e0].[EmployeeID]
+    SELECT TOP(1) [e0].[EmployeeID]
     FROM [Employees] AS [e0]
     WHERE ([e0].[EmployeeID] = [t].[ReportsTo]) AND [t].[ReportsTo] IS NOT NULL) IS NULL
 ORDER BY [t].[EmployeeID]");
@@ -479,7 +479,7 @@ FROM (
     OFFSET @__p_0 ROWS FETCH NEXT @__p_1 ROWS ONLY
 ) AS [t]
 WHERE (
-    SELECT TOP(2) [e0].[EmployeeID]
+    SELECT TOP(1) [e0].[EmployeeID]
     FROM [Employees] AS [e0]
     WHERE ([e0].[EmployeeID] = [t].[ReportsTo]) AND [t].[ReportsTo] IS NOT NULL) IS NOT NULL
 ORDER BY [t].[EmployeeID]");
@@ -490,20 +490,31 @@ ORDER BY [t].[EmployeeID]");
             await base.Where_query_composition_entity_equality_one_element_SingleOrDefault(isAsync);
 
             AssertSql(
-                @"@__p_0='3'
-
-SELECT [t].[EmployeeID], [t].[City], [t].[Country], [t].[FirstName], [t].[ReportsTo], [t].[Title]
-FROM (
-    SELECT TOP(@__p_0) [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
-    FROM [Employees] AS [e]
-) AS [t]
+                @"SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
+FROM [Employees] AS [e]
 WHERE ((
-    SELECT TOP(2) [e0].[EmployeeID]
+    SELECT TOP(1) [e0].[EmployeeID]
     FROM [Employees] AS [e0]
-    WHERE ([e0].[EmployeeID] = [t].[ReportsTo]) AND [t].[ReportsTo] IS NOT NULL) = 0) AND (
-    SELECT TOP(2) [e0].[EmployeeID]
+    WHERE ([e0].[EmployeeID] = [e].[ReportsTo]) AND [e].[ReportsTo] IS NOT NULL) = 0) AND (
+    SELECT TOP(1) [e0].[EmployeeID]
     FROM [Employees] AS [e0]
-    WHERE ([e0].[EmployeeID] = [t].[ReportsTo]) AND [t].[ReportsTo] IS NOT NULL) IS NOT NULL");
+    WHERE ([e0].[EmployeeID] = [e].[ReportsTo]) AND [e].[ReportsTo] IS NOT NULL) IS NOT NULL");
+        }
+
+        public override async Task Where_query_composition_entity_equality_one_element_Single(bool isAsync)
+        {
+            await base.Where_query_composition_entity_equality_one_element_Single(isAsync);
+
+            AssertSql(
+                @"SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
+FROM [Employees] AS [e]
+WHERE ((
+    SELECT TOP(1) [e0].[EmployeeID]
+    FROM [Employees] AS [e0]
+    WHERE ([e0].[EmployeeID] = [e].[ReportsTo]) AND [e].[ReportsTo] IS NOT NULL) = 0) AND (
+    SELECT TOP(1) [e0].[EmployeeID]
+    FROM [Employees] AS [e0]
+    WHERE ([e0].[EmployeeID] = [e].[ReportsTo]) AND [e].[ReportsTo] IS NOT NULL) IS NOT NULL");
         }
 
         public override async Task Where_query_composition_entity_equality_one_element_FirstOrDefault(bool isAsync)
@@ -522,23 +533,50 @@ WHERE ((
     WHERE ([e0].[EmployeeID] = [e].[ReportsTo]) AND [e].[ReportsTo] IS NOT NULL) IS NOT NULL");
         }
 
+        public override async Task Where_query_composition_entity_equality_one_element_First(bool isAsync)
+        {
+            await base.Where_query_composition_entity_equality_one_element_First(isAsync);
+
+            AssertSql(
+                @"SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
+FROM [Employees] AS [e]
+WHERE ((
+    SELECT TOP(1) [e0].[EmployeeID]
+    FROM [Employees] AS [e0]
+    WHERE ([e0].[EmployeeID] = [e].[ReportsTo]) AND [e].[ReportsTo] IS NOT NULL) = 0) AND (
+    SELECT TOP(1) [e0].[EmployeeID]
+    FROM [Employees] AS [e0]
+    WHERE ([e0].[EmployeeID] = [e].[ReportsTo]) AND [e].[ReportsTo] IS NOT NULL) IS NOT NULL");
+        }
+
         public override async Task Where_query_composition_entity_equality_no_elements_SingleOrDefault(bool isAsync)
         {
             await base.Where_query_composition_entity_equality_no_elements_SingleOrDefault(isAsync);
 
             AssertSql(
-                @"@__p_0='3'
-
-SELECT [t].[EmployeeID], [t].[City], [t].[Country], [t].[FirstName], [t].[ReportsTo], [t].[Title]
-FROM (
-    SELECT TOP(@__p_0) [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
-    FROM [Employees] AS [e]
-) AS [t]
+                @"SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
+FROM [Employees] AS [e]
 WHERE ((
-    SELECT TOP(2) [e0].[EmployeeID]
+    SELECT TOP(1) [e0].[EmployeeID]
     FROM [Employees] AS [e0]
     WHERE [e0].[EmployeeID] = 42) = 0) AND (
-    SELECT TOP(2) [e0].[EmployeeID]
+    SELECT TOP(1) [e0].[EmployeeID]
+    FROM [Employees] AS [e0]
+    WHERE [e0].[EmployeeID] = 42) IS NOT NULL");
+        }
+
+        public override async Task Where_query_composition_entity_equality_no_elements_Single(bool isAsync)
+        {
+            await base.Where_query_composition_entity_equality_no_elements_Single(isAsync);
+
+            AssertSql(
+                @"SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
+FROM [Employees] AS [e]
+WHERE ((
+    SELECT TOP(1) [e0].[EmployeeID]
+    FROM [Employees] AS [e0]
+    WHERE [e0].[EmployeeID] = 42) = 0) AND (
+    SELECT TOP(1) [e0].[EmployeeID]
     FROM [Employees] AS [e0]
     WHERE [e0].[EmployeeID] = 42) IS NOT NULL");
         }
@@ -559,9 +597,73 @@ WHERE ((
     WHERE [e0].[EmployeeID] = 42) IS NOT NULL");
         }
 
+        public override async Task Where_query_composition_entity_equality_no_elements_First(bool isAsync)
+        {
+            await base.Where_query_composition_entity_equality_no_elements_First(isAsync);
+
+            AssertSql(
+                @"SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
+FROM [Employees] AS [e]
+WHERE ((
+    SELECT TOP(1) [e0].[EmployeeID]
+    FROM [Employees] AS [e0]
+    WHERE [e0].[EmployeeID] = 42) = 0) AND (
+    SELECT TOP(1) [e0].[EmployeeID]
+    FROM [Employees] AS [e0]
+    WHERE [e0].[EmployeeID] = 42) IS NOT NULL");
+        }
+
+        public override async Task Where_query_composition_entity_equality_multiple_elements_SingleOrDefault(bool isAsync)
+        {
+            await base.Where_query_composition_entity_equality_multiple_elements_SingleOrDefault(isAsync);
+
+            AssertSql(
+                @"SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
+FROM [Employees] AS [e]
+WHERE ((
+    SELECT TOP(1) [e0].[EmployeeID]
+    FROM [Employees] AS [e0]
+    WHERE ([e0].[EmployeeID] <> [e].[ReportsTo]) OR [e].[ReportsTo] IS NULL) = 0) AND (
+    SELECT TOP(1) [e0].[EmployeeID]
+    FROM [Employees] AS [e0]
+    WHERE ([e0].[EmployeeID] <> [e].[ReportsTo]) OR [e].[ReportsTo] IS NULL) IS NOT NULL");
+        }
+
+        public override async Task Where_query_composition_entity_equality_multiple_elements_Single(bool isAsync)
+        {
+            await base.Where_query_composition_entity_equality_multiple_elements_Single(isAsync);
+
+            AssertSql(
+                @"SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
+FROM [Employees] AS [e]
+WHERE ((
+    SELECT TOP(1) [e0].[EmployeeID]
+    FROM [Employees] AS [e0]
+    WHERE ([e0].[EmployeeID] <> [e].[ReportsTo]) OR [e].[ReportsTo] IS NULL) = 0) AND (
+    SELECT TOP(1) [e0].[EmployeeID]
+    FROM [Employees] AS [e0]
+    WHERE ([e0].[EmployeeID] <> [e].[ReportsTo]) OR [e].[ReportsTo] IS NULL) IS NOT NULL");
+        }
+
         public override async Task Where_query_composition_entity_equality_multiple_elements_FirstOrDefault(bool isAsync)
         {
             await base.Where_query_composition_entity_equality_multiple_elements_FirstOrDefault(isAsync);
+
+            AssertSql(
+                @"SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
+FROM [Employees] AS [e]
+WHERE ((
+    SELECT TOP(1) [e0].[EmployeeID]
+    FROM [Employees] AS [e0]
+    WHERE ([e0].[EmployeeID] <> [e].[ReportsTo]) OR [e].[ReportsTo] IS NULL) = 0) AND (
+    SELECT TOP(1) [e0].[EmployeeID]
+    FROM [Employees] AS [e0]
+    WHERE ([e0].[EmployeeID] <> [e].[ReportsTo]) OR [e].[ReportsTo] IS NULL) IS NOT NULL");
+        }
+
+        public override async Task Where_query_composition_entity_equality_multiple_elements_First(bool isAsync)
+        {
+            await base.Where_query_composition_entity_equality_multiple_elements_First(isAsync);
 
             AssertSql(
                 @"SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
@@ -675,14 +777,14 @@ ORDER BY [o].[OrderID]");
 SELECT TOP(@__p_0) [o].[OrderID], [o].[ProductID], [o].[Discount], [o].[Quantity], [o].[UnitPrice]
 FROM [Order Details] AS [o]
 WHERE ([o].[OrderID] = 10344) AND (((
-    SELECT TOP(2) (
-        SELECT TOP(2) [c].[City]
+    SELECT TOP(1) (
+        SELECT TOP(1) [c].[City]
         FROM [Customers] AS [c]
         WHERE ([o0].[CustomerID] = [c].[CustomerID]) AND [o0].[CustomerID] IS NOT NULL)
     FROM [Orders] AS [o0]
     WHERE [o].[OrderID] = [o0].[OrderID]) = N'Seattle') AND (
-    SELECT TOP(2) (
-        SELECT TOP(2) [c].[City]
+    SELECT TOP(1) (
+        SELECT TOP(1) [c].[City]
         FROM [Customers] AS [c]
         WHERE ([o0].[CustomerID] = [c].[CustomerID]) AND [o0].[CustomerID] IS NOT NULL)
     FROM [Orders] AS [o0]
@@ -2961,7 +3063,7 @@ FROM [Orders] AS [o]");
                 @"@__p_0='3'
 
 SELECT [t].[OrderID] AS [OrderId], (
-    SELECT TOP(2) [c].[City]
+    SELECT TOP(1) [c].[City]
     FROM [Customers] AS [c]
     WHERE ([c].[CustomerID] = [t].[CustomerID]) AND [t].[CustomerID] IS NOT NULL) AS [City]
 FROM (
@@ -2970,7 +3072,7 @@ FROM (
     ORDER BY [o].[OrderID]
 ) AS [t]
 ORDER BY (
-    SELECT TOP(2) [c0].[City]
+    SELECT TOP(1) [c0].[City]
     FROM [Customers] AS [c0]
     WHERE ([c0].[CustomerID] = [t].[CustomerID]) AND [t].[CustomerID] IS NOT NULL)");
         }
@@ -2983,7 +3085,7 @@ ORDER BY (
                 @"@__p_0='3'
 
 SELECT [t].[OrderID] AS [OrderId], (
-    SELECT TOP(2) [c].[City]
+    SELECT TOP(1) [c].[City]
     FROM [Customers] AS [c]
     WHERE ([c].[CustomerID] = [t].[CustomerID]) AND [t].[CustomerID] IS NOT NULL) AS [City]
 FROM (
@@ -2992,7 +3094,7 @@ FROM (
     ORDER BY [o].[OrderID]
 ) AS [t]
 ORDER BY (
-    SELECT TOP(2) [c0].[City]
+    SELECT TOP(1) [c0].[City]
     FROM [Customers] AS [c0]
     WHERE ([c0].[CustomerID] = [t].[CustomerID]) AND [t].[CustomerID] IS NOT NULL)");
         }

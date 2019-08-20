@@ -769,7 +769,7 @@ WHERE [c0].[CustomerID] LIKE N'A%'");
 
             AssertSql(
                 @"SELECT (
-    SELECT TOP(2) [c].[City]
+    SELECT TOP(1) [c].[City]
     FROM [Orders] AS [o]
     LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]
     WHERE [o].[OrderID] = 10643)
