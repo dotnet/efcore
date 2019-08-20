@@ -6341,7 +6341,7 @@ GROUP BY [g].[Rank]");
             AssertSql(
                 @"SELECT COUNT(*)
 FROM [Gears] AS [g]
-WHERE [g].[Discriminator] IN (N'Officer', N'Gear')
+WHERE [g].[Discriminator] IN (N'Gear', N'Officer')
 GROUP BY [g].[Rank]");
         }
 
@@ -6352,7 +6352,7 @@ GROUP BY [g].[Rank]");
             AssertSql(
                 @"SELECT COUNT_BIG(*)
 FROM [Gears] AS [g]
-WHERE [g].[Discriminator] IN (N'Officer', N'Gear')
+WHERE [g].[Discriminator] IN (N'Gear', N'Officer')
 GROUP BY [g].[Rank]");
         }
 
@@ -6363,7 +6363,7 @@ GROUP BY [g].[Rank]");
             AssertSql(
                 @"SELECT MIN([g].[SquadId])
 FROM [Gears] AS [g]
-WHERE [g].[Discriminator] IN (N'Officer', N'Gear')
+WHERE [g].[Discriminator] IN (N'Gear', N'Officer')
 GROUP BY [g].[Rank]");
         }
 
@@ -6415,7 +6415,7 @@ ORDER BY [g].[Rank]");
             AssertSql(
                 @"SELECT MAX([g].[SquadId])
 FROM [Gears] AS [g]
-WHERE [g].[Discriminator] IN (N'Officer', N'Gear')
+WHERE [g].[Discriminator] IN (N'Gear', N'Officer')
 GROUP BY [g].[Rank]");
         }
 
