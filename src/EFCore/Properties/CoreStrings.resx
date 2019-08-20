@@ -1204,4 +1204,7 @@
   <data name="SetOperationWithDifferentIncludesInOperands" xml:space="preserve">
     <value>When performing a set operation, both operands must have the same Include operations.</value>
   </data>
+  <data name="IncludeOnEntityWithDefiningQueryNotSupported" xml:space="preserve">
+    <value>Include is not supported for entities with defining query. Entity type: '{entityType}'</value>
+  </data>
 </root>

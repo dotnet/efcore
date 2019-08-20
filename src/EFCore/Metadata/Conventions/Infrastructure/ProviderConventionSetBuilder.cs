@@ -175,6 +175,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure
             conventionSet.ModelFinalizedConventions.Add(servicePropertyDiscoveryConvention);
             conventionSet.ModelFinalizedConventions.Add(nonNullableReferencePropertyConvention);
             conventionSet.ModelFinalizedConventions.Add(nonNullableNavigationConvention);
+            conventionSet.ModelFinalizedConventions.Add(new QueryFilterDefiningQueryRewritingConvention(Dependencies));
             conventionSet.ModelFinalizedConventions.Add(new ValidatingConvention(Dependencies));
             // Don't add any more conventions to ModelFinalizedConventions after ValidatingConvention
 

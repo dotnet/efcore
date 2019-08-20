@@ -22,6 +22,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         private readonly ReducingExpressionVisitor _reducingExpressionVisitor;
         private readonly EntityReferenceOptionalMarkingExpressionVisitor _entityReferenceOptionalMarkingExpressionVisitor;
         private readonly ISet<string> _parameterNames = new HashSet<string>();
+        private readonly EnumerableToQueryableMethodConvertingExpressionVisitor _enumerableToQueryableMethodConvertingExpressionVisitor;
         private readonly ParameterExtractingExpressionVisitor _parameterExtractingExpressionVisitor;
         private readonly Dictionary<IEntityType, LambdaExpression> _parameterizedQueryFilterPredicateCache
             = new Dictionary<IEntityType, LambdaExpression>();
@@ -40,6 +41,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             _subqueryMemberPushdownExpressionVisitor = new SubqueryMemberPushdownExpressionVisitor();
             _reducingExpressionVisitor = new ReducingExpressionVisitor();
             _entityReferenceOptionalMarkingExpressionVisitor = new EntityReferenceOptionalMarkingExpressionVisitor();
+            _enumerableToQueryableMethodConvertingExpressionVisitor = new EnumerableToQueryableMethodConvertingExpressionVisitor();
             _parameterExtractingExpressionVisitor = new ParameterExtractingExpressionVisitor(
                 evaluatableExpressionFilter,
                 _parameters,
@@ -65,10 +67,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
         public virtual Expression Expand(Expression query)
         {
-            var result = Visit(query);
-            result = _pendingSelectorExpandingExpressionVisitor.Visit(result);
-            result = new IncludeApplyingExpressionVisitor(this, _queryCompilationContext.IsTracking).Visit(result);
-            result = Reduce(result);
+            var result = ExpandAndReduce(query, applyInclude: true);
 
             var dbContextOnQueryContextPropertyAccess =
                 Expression.Convert(
@@ -97,6 +96,20 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             return result;
         }
 
+        private Expression ExpandAndReduce(Expression query, bool applyInclude)
+        {
+            var result = Visit(query);
+            result = _pendingSelectorExpandingExpressionVisitor.Visit(result);
+            if (applyInclude)
+            {
+                result = new IncludeApplyingExpressionVisitor(this, _queryCompilationContext.IsTracking).Visit(result);
+            }
+
+            result = Reduce(result);
+
+            return result;
+        }
+
         private static readonly PropertyInfo _queryContextContextPropertyInfo
            = typeof(QueryContext)
                .GetTypeInfo()
@@ -106,7 +119,22 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         {
             if (constantExpression.IsEntityQueryable())
             {
-                var navigationExpansionExpression = CreateNavigationExpansionExpression(constantExpression);
+                var entityType = _queryCompilationContext.Model.FindEntityType(((IQueryable)constantExpression.Value).ElementType);
+                var definingQuery = entityType.GetDefiningQuery();
+                NavigationExpansionExpression navigationExpansionExpression;
+                if (definingQuery != null)
+                {
+                    var processedDefiningQueryBody = _parameterExtractingExpressionVisitor.ExtractParameters(definingQuery.Body);
+                    processedDefiningQueryBody = _enumerableToQueryableMethodConvertingExpressionVisitor.Visit(processedDefiningQueryBody);
+                    navigationExpansionExpression = (NavigationExpansionExpression)Visit(processedDefiningQueryBody);
+
+                    var expanded = ExpandAndReduce(navigationExpansionExpression, applyInclude: false);
+                    navigationExpansionExpression = CreateNavigationExpansionExpression(expanded, entityType);
+                }
+                else
+                {
+                    navigationExpansionExpression = CreateNavigationExpansionExpression(constantExpression, entityType);
+                }
 
                 return ApplyQueryFilter(navigationExpansionExpression);
             }
@@ -114,16 +142,15 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             return base.VisitConstant(constantExpression);
         }
 
-        private NavigationExpansionExpression CreateNavigationExpansionExpression(ConstantExpression constantExpression)
+        private NavigationExpansionExpression CreateNavigationExpansionExpression(Expression sourceExpression, IEntityType entityType)
         {
-            var entityType = _queryCompilationContext.Model.FindEntityType(((IQueryable)constantExpression.Value).ElementType);
             var entityReference = new EntityReference(entityType);
             PopulateEagerLoadedNavigations(entityReference.IncludePaths);
 
             var currentTree = new NavigationTreeExpression(entityReference);
             var parameterName = GetParameterName(entityType.ShortName()[0].ToString().ToLower());
 
-            return new NavigationExpansionExpression(constantExpression, currentTree, currentTree, parameterName);
+            return new NavigationExpansionExpression(sourceExpression, currentTree, currentTree, parameterName);
         }
 
         private Expression ApplyQueryFilter(NavigationExpansionExpression navigationExpansionExpression)
@@ -132,13 +159,14 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             {
                 var entityType = _queryCompilationContext.Model.FindEntityType(navigationExpansionExpression.Type.GetSequenceType());
                 var rootEntityType = entityType.GetRootType();
-                var queryFilterAnnotation = rootEntityType.FindAnnotation("QueryFilter");
-                if (queryFilterAnnotation != null)
+                var queryFilter = rootEntityType.GetQueryFilter();
+                if (queryFilter != null)
                 {
                     if (!_parameterizedQueryFilterPredicateCache.TryGetValue(rootEntityType, out var filterPredicate))
                     {
-                        filterPredicate = (LambdaExpression)queryFilterAnnotation.Value;
+                        filterPredicate = queryFilter;
                         filterPredicate = (LambdaExpression)_parameterExtractingExpressionVisitor.ExtractParameters(filterPredicate);
+                        filterPredicate = (LambdaExpression)_enumerableToQueryableMethodConvertingExpressionVisitor.Visit(filterPredicate);
                         _parameterizedQueryFilterPredicateCache[rootEntityType] = filterPredicate;
                     }
 
@@ -556,10 +584,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 && methodCallExpression.Arguments.Count == 3
                 && methodCallExpression.Arguments[0] is ConstantExpression constantExpression
                 && methodCallExpression.Arguments[1] is ConstantExpression
-                && methodCallExpression.Arguments[2] is ParameterExpression
+                && (methodCallExpression.Arguments[2] is ParameterExpression || methodCallExpression.Arguments[2] is ConstantExpression)
                 && constantExpression.IsEntityQueryable())
             {
-                var source = CreateNavigationExpansionExpression(constantExpression);
+                var entityType = _queryCompilationContext.Model.FindEntityType(((IQueryable)constantExpression.Value).ElementType);
+                var source = CreateNavigationExpansionExpression(constantExpression, entityType);
                 source.UpdateSource(
                     methodCallExpression.Update(
                         null,
@@ -623,6 +652,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             if (source.PendingSelector is NavigationTreeExpression navigationTree
                 && navigationTree.Value is EntityReference entityReferece)
             {
+                if (entityReferece.EntityType.GetDefiningQuery() != null)
+                {
+                    throw new InvalidOperationException(CoreStrings.IncludeOnEntityWithDefiningQueryNotSupported(entityReferece.EntityType.DisplayName()));
+                }
+
                 if (expression is ConstantExpression includeConstant
                     && includeConstant.Value is string navigationChain)
                 {

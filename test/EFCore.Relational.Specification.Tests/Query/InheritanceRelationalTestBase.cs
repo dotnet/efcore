@@ -36,10 +36,6 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalFact(Skip = "Issue #16323")]
-        public override void Can_query_all_animal_views()
-            => base.Can_query_all_animal_views();
-
         private string NormalizeDelimetersInRawString(string sql)
             => ((RelationalTestStore)Fixture.TestStore).NormalizeDelimetersInRawString(sql);
 

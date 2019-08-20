@@ -101,6 +101,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure
                 new DbFunctionTypeMappingConvention(Dependencies, RelationalDependencies),
                 typeof(ValidatingConvention));
 
+            ReplaceConvention(
+                conventionSet.ModelFinalizedConventions,
+                (QueryFilterDefiningQueryRewritingConvention)new RelationalQueryFilterDefiningQueryRewritingConvention(Dependencies, RelationalDependencies));
+
             return conventionSet;
         }
     }
