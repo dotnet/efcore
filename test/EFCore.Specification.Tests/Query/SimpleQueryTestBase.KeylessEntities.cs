@@ -1,13 +1,11 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System.Collections.Generic;
+using System;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.TestModels.Northwind;
-using Microsoft.EntityFrameworkCore.TestUtilities;
-using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
 using Xunit;
 
 // ReSharper disable InconsistentNaming
@@ -56,7 +54,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalFact(Skip = "issue #16323")]
+        [ConditionalFact]
         public virtual void KeylessEntity_with_nav_defining_query()
         {
             using (var context = CreateContext())
@@ -70,7 +68,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalTheory(Skip = "issue #16323")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task KeylessEntity_with_defining_query(bool isAsync)
         {
@@ -79,8 +77,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 ovs => ovs.Where(ov => ov.CustomerID == "ALFKI"));
         }
 
-        // also issue 12873
-        [ConditionalTheory(Skip = "issue #16323")]
+        [ConditionalTheory(Skip = "issue #12873")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task KeylessEntity_with_defining_query_and_correlated_collection(bool isAsync)
         {
@@ -107,38 +104,53 @@ namespace Microsoft.EntityFrameworkCore.Query
                 e => e.c.CustomerID);
         }
 
-        [ConditionalTheory(Skip = "issue #16323")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task KeylessEntity_with_included_nav(bool isAsync)
+        public virtual async Task KeylessEntity_with_included_nav(bool isAsync)
         {
-            return AssertIncludeQuery<OrderQuery>(
-                isAsync,
-                ovs => from ov in ovs.Include(ov => ov.Customer)
-                       where ov.CustomerID == "ALFKI"
-                       select ov,
-                new List<IExpectedInclude>
+            using (var ctx = CreateContext())
+            {
+                if (isAsync)
                 {
-                    new ExpectedInclude<OrderQuery>(ov => ov.Customer, "Customer")
-                });
+                    await Assert.ThrowsAsync<InvalidOperationException>(
+                        () => (from ov in ctx.Set<OrderQuery>().Include(ov => ov.Customer)
+                               where ov.CustomerID == "ALFKI"
+                               select ov).ToListAsync());
+                }
+                else
+                {
+                    await Assert.ThrowsAsync<InvalidOperationException>(
+                        () => Task.FromResult((from ov in ctx.Set<OrderQuery>().Include(ov => ov.Customer)
+                                               where ov.CustomerID == "ALFKI"
+                                               select ov).ToList()));
+                }
+            }
         }
 
-        [ConditionalTheory(Skip = "issue #16323")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task KeylessEntity_with_included_navs_multi_level(bool isAsync)
+        public virtual async Task KeylessEntity_with_included_navs_multi_level(bool isAsync)
         {
-            return AssertIncludeQuery<OrderQuery>(
-                isAsync,
-                ovs => from ov in ovs.Include(ov => ov.Customer.Orders)
-                       where ov.CustomerID == "ALFKI"
-                       select ov,
-                new List<IExpectedInclude>
+            using (var ctx = CreateContext())
+            {
+                if (isAsync)
                 {
-                    new ExpectedInclude<OrderQuery>(ov => ov.Customer, "Customer"),
-                    new ExpectedInclude<Customer>(c => c.Orders, "Orders")
-                });
+                    await Assert.ThrowsAsync<InvalidOperationException>(
+                        () => (from ov in ctx.Set<OrderQuery>().Include(ov => ov.Customer.Orders)
+                               where ov.CustomerID == "ALFKI"
+                               select ov).ToListAsync());
+                }
+                else
+                {
+                    await Assert.ThrowsAsync<InvalidOperationException>(
+                        () => Task.FromResult((from ov in ctx.Set<OrderQuery>().Include(ov => ov.Customer.Orders)
+                                               where ov.CustomerID == "ALFKI"
+                                               select ov).ToList()));
+                }
+            }
         }
 
-        [ConditionalTheory(Skip = "issue #16323")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task KeylessEntity_select_where_navigation(bool isAsync)
         {
@@ -149,7 +161,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                        select ov);
         }
 
-        [ConditionalTheory(Skip = "issue #16323")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task KeylessEntity_select_where_navigation_multi_level(bool isAsync)
         {

@@ -84,10 +84,11 @@ namespace Microsoft.EntityFrameworkCore.Query
                                 break;
 
                             case ConstantExpression constantExpression:
-                                var constantValues = (object[])constantExpression.Value;
-                                for (var i = 0; i < constantValues.Length; i++)
+                                var existingValues = (object[])constantExpression.Value;
+                                var constantValues = new object[existingValues.Length];
+                                for (var i = 0; i < existingValues.Length; i++)
                                 {
-                                    var value = constantValues[i];
+                                    var value = existingValues[i];
                                     if (value is DbParameter dbParameter)
                                     {
                                         var parameterName = _parameterNameGenerator.GenerateNext();

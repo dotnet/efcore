@@ -1309,18 +1309,6 @@ FROM (
         public override Task Project_single_element_from_collection_with_multiple_OrderBys_Take_and_FirstOrDefault_2(bool isAsync)
             => base.Project_single_element_from_collection_with_multiple_OrderBys_Take_and_FirstOrDefault_2(isAsync);
 
-        [ConditionalFact(Skip = "Issue #16323")]
-        public override void Auto_initialized_view_set()
-            => base.Auto_initialized_view_set();
-
-        [ConditionalTheory(Skip = "Issue #16323")]
-        public override Task KeylessEntity_simple(bool isAsync)
-            => base.KeylessEntity_simple(isAsync);
-
-        [ConditionalTheory(Skip = "Issue #16323")]
-        public override Task KeylessEntity_where_simple(bool isAsync)
-            => base.KeylessEntity_where_simple(isAsync);
-
         // Sqlite does not support lateral joins
         public override void Select_nested_collection_multi_level()
         {

@@ -59,8 +59,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             _generateContextAccessors = generateContextAccessors;
             if (_generateContextAccessors)
             {
-                _contextParameterReplacingExpressionVisitor
-                    = new ContextParameterReplacingExpressionVisitor(contextType);
+                _contextParameterReplacingExpressionVisitor = new ContextParameterReplacingExpressionVisitor(contextType);
             }
         }
 

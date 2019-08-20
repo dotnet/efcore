@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
@@ -138,21 +139,53 @@ FROM [Customers] AS [c]
 WHERE [c].[CustomerID] = N'ALFKI'");
         }
 
-        [ConditionalFact(Skip = "Issue #16323")]
-        public override Task DbQuery_query_async()
-            => base.DbQuery_query_async();
+        [ConditionalFact]
+        public override async Task DbQuery_query_async()
+        {
+            await base.DbQuery_query_async();
 
-        [ConditionalFact(Skip = "Issue #16323")]
+            AssertSql(
+                @"SELECT [c].[CustomerID] + N'' as [CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region] FROM [Customers] AS [c]",
+                //
+                @"SELECT [c].[CustomerID] + N'' as [CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region] FROM [Customers] AS [c]");
+        }
+
+        [ConditionalFact]
         public override void DbQuery_query_first()
-            => base.DbQuery_query_first();
+        {
+            base.DbQuery_query_first();
 
-        [ConditionalFact(Skip = "Issue #16323")]
-        public override Task DbQuery_query_first_async()
-            => base.DbQuery_query_first_async();
+            AssertSql(
+                @"SELECT TOP(1) [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle]
+FROM (
+    SELECT [c].[CustomerID] + N'' as [CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region] FROM [Customers] AS [c]
+) AS [c]
+ORDER BY [c].[CompanyName]");
+        }
 
-        [ConditionalFact(Skip = "Issue #16323")]
+        [ConditionalFact]
+        public override async Task DbQuery_query_first_async()
+        {
+            await base.DbQuery_query_first_async();
+
+            AssertSql(
+                @"SELECT TOP(1) [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle]
+FROM (
+    SELECT [c].[CustomerID] + N'' as [CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region] FROM [Customers] AS [c]
+) AS [c]
+ORDER BY [c].[CompanyName]");
+        }
+
+        [ConditionalFact]
         public override void DbQuery_query()
-            => base.DbQuery_query();
+        {
+            base.DbQuery_query();
+
+            AssertSql(
+                @"SELECT [c].[CustomerID] + N'' as [CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region] FROM [Customers] AS [c]",
+                //
+                @"SELECT [c].[CustomerID] + N'' as [CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region] FROM [Customers] AS [c]");
+        }
 
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);

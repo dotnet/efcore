@@ -17,7 +17,7 @@ namespace Microsoft.EntityFrameworkCore
     /// </summary>
     public static class RelationalQueryableExtensions
     {
-        private static readonly MethodInfo _fromSqlOnQueryableMethodInfo
+        internal static readonly MethodInfo FromSqlOnQueryableMethodInfo
             = typeof(RelationalQueryableExtensions)
                 .GetTypeInfo().GetDeclaredMethods(nameof(FromSqlOnQueryable))
                 .Single();
@@ -71,7 +71,7 @@ namespace Microsoft.EntityFrameworkCore
             return source.Provider.CreateQuery<TEntity>(
                 Expression.Call(
                     null,
-                    _fromSqlOnQueryableMethodInfo.MakeGenericMethod(typeof(TEntity)),
+                    FromSqlOnQueryableMethodInfo.MakeGenericMethod(typeof(TEntity)),
                     source.Expression,
                     Expression.Constant(sql.Format),
                     Expression.Constant(parameters)));
@@ -115,7 +115,7 @@ namespace Microsoft.EntityFrameworkCore
             return source.Provider.CreateQuery<TEntity>(
                 Expression.Call(
                     null,
-                    _fromSqlOnQueryableMethodInfo.MakeGenericMethod(typeof(TEntity)),
+                    FromSqlOnQueryableMethodInfo.MakeGenericMethod(typeof(TEntity)),
                     source.Expression,
                     Expression.Constant(sql.Format),
                     Expression.Constant(sql.GetArguments())));
@@ -164,7 +164,7 @@ namespace Microsoft.EntityFrameworkCore
             return queryableSource.Provider.CreateQuery<TEntity>(
                 Expression.Call(
                     null,
-                    _fromSqlOnQueryableMethodInfo.MakeGenericMethod(typeof(TEntity)),
+                    FromSqlOnQueryableMethodInfo.MakeGenericMethod(typeof(TEntity)),
                     queryableSource.Expression,
                     Expression.Constant(sql),
                     Expression.Constant(parameters)));
@@ -204,7 +204,7 @@ namespace Microsoft.EntityFrameworkCore
             return queryableSource.Provider.CreateQuery<TEntity>(
                 Expression.Call(
                     null,
-                    _fromSqlOnQueryableMethodInfo.MakeGenericMethod(typeof(TEntity)),
+                    FromSqlOnQueryableMethodInfo.MakeGenericMethod(typeof(TEntity)),
                     queryableSource.Expression,
                     Expression.Constant(sql.Format),
                     Expression.Constant(sql.GetArguments())));

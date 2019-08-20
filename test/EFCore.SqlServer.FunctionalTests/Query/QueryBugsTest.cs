@@ -5316,7 +5316,7 @@ ORDER BY [p].[Id], [t0].[Id]");
 
         #region Bug13346
 
-        [ConditionalFact(Skip = "Issue #16323")]
+        [ConditionalFact]
         public virtual void ToQuery_can_define_in_own_terms_using_FromSql()
         {
             using (CreateDatabase13346())

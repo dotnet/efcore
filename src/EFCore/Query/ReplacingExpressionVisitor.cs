@@ -58,8 +58,11 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             if (innerExpression is MemberInitExpression memberInitExpression)
             {
-                return ((MemberAssignment)memberInitExpression.Bindings
-                    .Single(mb => mb.Member == memberExpression.Member)).Expression;
+                var matchingBinding = memberInitExpression.Bindings.Where(mb => mb.Member == memberExpression.Member).SingleOrDefault();
+                if (matchingBinding != null)
+                {
+                    return ((MemberAssignment)matchingBinding).Expression;
+                }
             }
 
             return memberExpression.Update(innerExpression);
