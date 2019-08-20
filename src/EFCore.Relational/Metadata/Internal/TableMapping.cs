@@ -69,7 +69,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                      && (t.FindDeclaredPrimaryKey() == null || t.FindForeignKeys(t.FindDeclaredPrimaryKey().Properties)
                          .All(
                              fk => !fk.PrincipalKey.IsPrimaryKey()
-                                   || fk.PrincipalEntityType.RootType() == t
+                                   || fk.PrincipalEntityType.GetRootType() == t
                                    || t.GetTableName() != fk.PrincipalEntityType.GetTableName()
                                    || t.GetSchema() != fk.PrincipalEntityType.GetSchema())));
 

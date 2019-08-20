@@ -107,13 +107,11 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
 
             private object GetProjectionIndex(ProjectionBindingExpression projectionBindingExpression)
-            {
-                return projectionBindingExpression.ProjectionMember != null
+                => projectionBindingExpression.ProjectionMember != null
                     ? ((ConstantExpression)_selectExpression.GetMappedProjection(projectionBindingExpression.ProjectionMember)).Value
                     : (projectionBindingExpression.Index != null
                         ? (object)projectionBindingExpression.Index
                         : projectionBindingExpression.IndexMap);
-            }
 
             private static bool IsNullableProjection(ProjectionExpression projection)
                 => !(projection.Expression is ColumnExpression column) || column.IsNullable;

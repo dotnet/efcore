@@ -68,13 +68,24 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         }
 
         internal SelectExpression(IEntityType entityType)
-            : base(null)
-        {
-            var tableExpression = new TableExpression(
+            : this(entityType, new TableExpression(
                 entityType.GetTableName(),
                 entityType.GetSchema(),
-                entityType.GetTableName().ToLower().Substring(0, 1));
+                entityType.GetTableName().ToLower().Substring(0, 1)))
+        {
+        }
 
+        internal SelectExpression(IEntityType entityType, string sql, Expression arguments)
+            : this(entityType, new FromSqlExpression(
+                sql,
+                arguments,
+                entityType.GetTableName().ToLower().Substring(0, 1)))
+        {
+        }
+
+        private SelectExpression(IEntityType entityType, TableExpressionBase tableExpression)
+            : base(null)
+        {
             _tables.Add(tableExpression);
 
             var entityProjection = new EntityProjectionExpression(entityType, tableExpression, false);
@@ -89,31 +100,8 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             }
         }
 
-        internal SelectExpression(IEntityType entityType, string sql, Expression arguments)
-            : base(null)
-        {
-            var fromSqlExpression = new FromSqlExpression(
-                sql,
-                arguments,
-                entityType.GetTableName().ToLower().Substring(0, 1));
-
-            _tables.Add(fromSqlExpression);
-
-            var entityProjection = new EntityProjectionExpression(entityType, fromSqlExpression, false);
-            _projectionMapping[new ProjectionMember()] = entityProjection;
-
-            if (entityType.FindPrimaryKey() != null)
-            {
-                foreach (var property in entityType.FindPrimaryKey().Properties)
-                {
-                    _identifier.Add(entityProjection.BindProperty(property));
-                }
-            }
-        }
-
         public bool IsNonComposedFromSql()
-        {
-            return Limit == null
+            => Limit == null
                 && Offset == null
                 && !IsDistinct
                 && Predicate == null
@@ -123,7 +111,6 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                 && Tables.Count == 1
                 && Tables[0] is FromSqlExpression fromSql
                 && Projection.All(pe => pe.Expression is ColumnExpression column ? ReferenceEquals(column.Table, fromSql) : false);
-        }
 
         public void ApplyProjection()
         {
@@ -171,9 +158,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             => _projectionMapping[projectionMember];
 
         public int AddToProjection(SqlExpression sqlExpression)
-        {
-            return AddToProjection(sqlExpression, null);
-        }
+            => AddToProjection(sqlExpression, null);
 
         private int AddToProjection(SqlExpression sqlExpression, string alias)
         {
@@ -1108,29 +1093,19 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         }
 
         public void AddInnerJoin(SelectExpression innerSelectExpression, SqlExpression joinPredicate, Type transparentIdentifierType)
-        {
-            AddJoin(JoinType.InnerJoin, innerSelectExpression, transparentIdentifierType, joinPredicate);
-        }
+            => AddJoin(JoinType.InnerJoin, innerSelectExpression, transparentIdentifierType, joinPredicate);
 
         public void AddLeftJoin(SelectExpression innerSelectExpression, SqlExpression joinPredicate, Type transparentIdentifierType)
-        {
-            AddJoin(JoinType.LeftJoin, innerSelectExpression, transparentIdentifierType, joinPredicate);
-        }
+            => AddJoin(JoinType.LeftJoin, innerSelectExpression, transparentIdentifierType, joinPredicate);
 
         public void AddCrossJoin(SelectExpression innerSelectExpression, Type transparentIdentifierType)
-        {
-            AddJoin(JoinType.CrossJoin, innerSelectExpression, transparentIdentifierType);
-        }
+            => AddJoin(JoinType.CrossJoin, innerSelectExpression, transparentIdentifierType);
 
         public void AddInnerJoinLateral(SelectExpression innerSelectExpression, Type transparentIdentifierType)
-        {
-            AddJoin(JoinType.InnerJoinLateral, innerSelectExpression, transparentIdentifierType);
-        }
+            => AddJoin(JoinType.InnerJoinLateral, innerSelectExpression, transparentIdentifierType);
 
         public void AddLeftJoinLateral(SelectExpression innerSelectExpression, Type transparentIdentifierType)
-        {
-            AddJoin(JoinType.LeftJoinLateral, innerSelectExpression, transparentIdentifierType);
-        }
+            => AddJoin(JoinType.LeftJoinLateral, innerSelectExpression, transparentIdentifierType);
 
         private class SqlRemappingVisitor : ExpressionVisitor
         {

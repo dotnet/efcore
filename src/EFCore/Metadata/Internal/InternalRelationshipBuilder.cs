@@ -2551,8 +2551,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 navigationToPrincipal,
                 navigationToDependent,
                 dependentProperties,
-                principalProperties ?? principalEntityType.FindPrimaryKey()?.Properties);
-            matchingRelationships = matchingRelationships.Where(r => r.Metadata != Metadata).Distinct().ToList();
+                principalProperties ?? principalEntityType.FindPrimaryKey()?.Properties)
+                .Where(r => r.Metadata != Metadata)
+                .Distinct()
+                .ToList();
 
             var unresolvableRelationships = new List<InternalRelationshipBuilder>();
             var resolvableRelationships = new List<Tuple<InternalRelationshipBuilder, bool, Resolution, bool>>();
@@ -2803,7 +2805,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             // This workaround prevents the properties to be cleaned away before the new FK is created,
             // this should be replaced with reference counting
-            // Issue #214
+            // Issue #15898
             var temporaryProperties = dependentProperties?.Where(
                 p => p.GetConfigurationSource() == ConfigurationSource.Convention
                      && p.IsShadowProperty()).ToList();
@@ -2892,13 +2894,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     continue;
                 }
 
-                var navigationLessForeignKey = resolvableRelationship.Metadata;
-                if (navigationLessForeignKey.DependentToPrincipal == null
-                    && navigationLessForeignKey.PrincipalToDependent == null
-                    && navigationLessForeignKey.DeclaringEntityType.Builder.HasNoRelationship(
-                        navigationLessForeignKey, ConfigurationSource.Convention) != null)
+                var navigationlessForeignKey = resolvableRelationship.Metadata;
+                if (navigationlessForeignKey.DependentToPrincipal == null
+                    && navigationlessForeignKey.PrincipalToDependent == null
+                    && navigationlessForeignKey.DeclaringEntityType.Builder.HasNoRelationship(
+                        navigationlessForeignKey, ConfigurationSource.Convention) != null)
                 {
-                    removedForeignKeys.Add(navigationLessForeignKey);
+                    removedForeignKeys.Add(navigationlessForeignKey);
                 }
 
                 if (resolution.HasFlag(Resolution.ResetDependentProperties))

@@ -762,7 +762,9 @@ namespace Microsoft.EntityFrameworkCore
 
             Validate(modelBuilder);
 
-            Assert.Equal(2, modelBuilder.Model.FindEntityType(typeof(CompositeKeyAttribute)).GetKeys().Single().Properties.Count);
+            var entityType = modelBuilder.Model.FindEntityType(typeof(CompositeKeyAttribute));
+            Assert.Equal(2, entityType.GetKeys().Single().Properties.Count);
+            Assert.Equal(2, entityType.GetProperties().Count());
 
             return modelBuilder;
         }
@@ -949,7 +951,6 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [ConditionalFact]
-        // Regression test for Dev11 Bug 94993
         public virtual void Required_to_Required_and_ForeignKey()
         {
             var modelBuilder = CreateModelBuilder();
@@ -1296,6 +1297,70 @@ namespace Microsoft.EntityFrameworkCore
         public class ProfileDetails12
         {
             public int Id { get; set; }
+        }
+
+        [ConditionalFact]
+        public virtual void ForeignKeyAttribute_configures_relationships_when_inverse_on_derived()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            modelBuilder.Entity<Answer>();
+            modelBuilder.Entity<MultipleAnswers>()
+                .HasMany(m => m.Answers)
+                .WithOne(p => (MultipleAnswers)p.Answer)
+                .HasForeignKey(p => p.AnswerId);
+            modelBuilder.Entity<MultipleAnswersRepeating>()
+                .HasMany(m => m.Answers)
+                .WithOne(p => (MultipleAnswersRepeating)p.Answer)
+                .HasForeignKey(p => p.AnswerId);
+
+            modelBuilder.Entity<PartialAnswerBase>();
+            modelBuilder.Entity<PartialAnswer>();
+            modelBuilder.Entity<PartialAnswerRepeating>();
+
+            Validate(modelBuilder);
+
+            var fk1 = modelBuilder.Model.FindEntityType(typeof(PartialAnswer)).GetForeignKeys().Single();
+            Assert.Equal(nameof(PartialAnswer.Answer), fk1.DependentToPrincipal.Name);
+            Assert.Equal(nameof(MultipleAnswers.Answers), fk1.PrincipalToDependent.Name);
+            Assert.Equal(nameof(PartialAnswer.AnswerId), fk1.Properties.Single().Name);
+
+            var fk2 = modelBuilder.Model.FindEntityType(typeof(PartialAnswerRepeating)).GetForeignKeys().Single();
+            Assert.Equal(nameof(PartialAnswerRepeating.Answer), fk1.DependentToPrincipal.Name);
+            Assert.Equal(nameof(MultipleAnswersRepeating.Answers), fk1.PrincipalToDependent.Name);
+            Assert.Equal(nameof(PartialAnswerRepeating.AnswerId), fk1.Properties.Single().Name);
+        }
+
+        public abstract class Answer
+        {
+            public int Id { get; set; }
+        }
+
+        public class PartialAnswerBase
+        {
+            public int Id { get; set; }
+            public int AnswerId { get; set; }
+
+            [ForeignKey("AnswerId")]
+            public virtual Answer Answer { get; set; }
+        }
+
+        public class PartialAnswer : PartialAnswerBase
+        {
+        }
+
+        public class PartialAnswerRepeating : PartialAnswerBase
+        {
+        }
+
+        public class MultipleAnswers : Answer
+        {
+            public virtual ICollection<PartialAnswer> Answers { get; set; }
+        }
+
+        public class MultipleAnswersRepeating : Answer
+        {
+            public virtual ICollection<PartialAnswerRepeating> Answers { get; set; }
         }
 
         [ConditionalFact]

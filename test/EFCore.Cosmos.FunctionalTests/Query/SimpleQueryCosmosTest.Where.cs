@@ -592,13 +592,17 @@ WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""City""] = @__city_Nested_I
             await base.Where_new_instance_field_access_query_cache(isAsync);
 
             AssertSql(
-                @"SELECT c
+                @"@__InstanceFieldValue_0='London'
+
+SELECT c
 FROM root c
-WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""City""] = ""London""))",
+WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""City""] = @__InstanceFieldValue_0))",
                 //
-                @"SELECT c
+                @"@__InstanceFieldValue_0='Seattle'
+
+SELECT c
 FROM root c
-WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""City""] = ""Seattle""))");
+WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""City""] = @__InstanceFieldValue_0))");
         }
 
         public override async Task Where_new_instance_field_access_closure_via_query_cache(bool isAsync)

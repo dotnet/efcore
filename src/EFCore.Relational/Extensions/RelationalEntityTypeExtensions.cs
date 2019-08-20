@@ -23,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> The name of the table to which the entity type is mapped. </returns>
         public static string GetTableName([NotNull] this IEntityType entityType) =>
             entityType.BaseType != null
-                ? entityType.RootType().GetTableName()
+                ? entityType.GetRootType().GetTableName()
                 : (string)entityType[RelationalAnnotationNames.TableName]
                   ?? GetDefaultTableName(entityType);
 
@@ -87,7 +87,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> The database schema that contains the mapped table. </returns>
         public static string GetSchema([NotNull] this IEntityType entityType) =>
             entityType.BaseType != null
-                ? entityType.RootType().GetSchema()
+                ? entityType.GetRootType().GetSchema()
                 : (string)entityType[RelationalAnnotationNames.Schema]
                   ?? GetDefaultSchema(entityType);
 

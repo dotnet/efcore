@@ -42,6 +42,9 @@ namespace Microsoft.EntityFrameworkCore.TestModels.TransportationModel
                     eb.HasOne(e => e.Vehicle)
                         .WithOne(e => e.Operator)
                         .HasForeignKey<Operator>(e => e.VehicleName);
+                    eb.HasOne(e => e.Details)
+                        .WithOne()
+                        .HasForeignKey<OperatorDetails>(e => e.VehicleName);
                 });
             modelBuilder.Entity<LicensedOperator>();
 
@@ -64,6 +67,13 @@ namespace Microsoft.EntityFrameworkCore.TestModels.TransportationModel
                         .WithOne(e => e.SolidFuelTank)
                         .HasForeignKey<SolidFuelTank>(e => e.VehicleName);
                 });
+
+
+            modelBuilder.Entity<OperatorDetails>(
+                eb =>
+                {
+                    eb.HasKey(e => e.VehicleName);
+                });
         }
 
         public void Seed()
@@ -77,6 +87,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.TransportationModel
             var expected = CreateVehicles().OrderBy(v => v.Name).ToList();
             var actual = Vehicles
                 .Include(v => v.Operator)
+                .ThenInclude(v => v.Details)
                 .Include(v => ((PoweredVehicle)v).Engine)
                 .ThenInclude(e => (e as CombustionEngine).FuelTank)
                 .OrderBy(v => v.Name).ToList();
@@ -157,6 +168,15 @@ namespace Microsoft.EntityFrameworkCore.TestModels.TransportationModel
                             FuelType = "Reduced smoke Hydroxyl-Terminated Polybutadiene",
                             Capacity = "22 kg",
                             GrainGeometry = "Cylindrical",
+                            VehicleName = "AIM-9M Sidewinder"
+                        },
+                        VehicleName = "AIM-9M Sidewinder"
+                    },
+                    Operator = new Operator
+                    {
+                        Details = new OperatorDetails
+                        {
+                            Type = "Heat-seeking",
                             VehicleName = "AIM-9M Sidewinder"
                         },
                         VehicleName = "AIM-9M Sidewinder"

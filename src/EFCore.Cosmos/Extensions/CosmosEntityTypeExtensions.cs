@@ -21,7 +21,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> The name of the container to which the entity type is mapped. </returns>
         public static string GetCosmosContainer([NotNull] this IEntityType entityType) =>
             entityType.BaseType != null
-                ? entityType.RootType().GetCosmosContainer()
+                ? entityType.GetRootType().GetCosmosContainer()
                 : (string)entityType[CosmosAnnotationNames.ContainerName]
                   ?? GetCosmosDefaultContainer(entityType);
 

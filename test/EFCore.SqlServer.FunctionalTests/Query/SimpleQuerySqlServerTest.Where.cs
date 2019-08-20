@@ -287,13 +287,17 @@ WHERE (([c].[City] = @__city_Nested_InstancePropertyValue_0) AND ([c].[City] IS 
             await base.Where_new_instance_field_access_query_cache(isAsync);
 
             AssertSql(
-                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+                @"@__InstanceFieldValue_0='London' (Size = 4000)
+
+SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE ([c].[City] = N'London') AND [c].[City] IS NOT NULL",
+WHERE (([c].[City] = @__InstanceFieldValue_0) AND ([c].[City] IS NOT NULL AND @__InstanceFieldValue_0 IS NOT NULL)) OR ([c].[City] IS NULL AND @__InstanceFieldValue_0 IS NULL)",
                 //
-                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+                @"@__InstanceFieldValue_0='Seattle' (Size = 4000)
+
+SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE ([c].[City] = N'Seattle') AND [c].[City] IS NOT NULL");
+WHERE (([c].[City] = @__InstanceFieldValue_0) AND ([c].[City] IS NOT NULL AND @__InstanceFieldValue_0 IS NOT NULL)) OR ([c].[City] IS NULL AND @__InstanceFieldValue_0 IS NULL)");
         }
 
         public override async Task Where_new_instance_field_access_closure_via_query_cache(bool isAsync)
@@ -1693,6 +1697,46 @@ WHERE CASE
     WHEN CAST(1 AS bit) = CAST(1 AS bit) THEN CAST(0 AS bit)
     ELSE CAST(1 AS bit)
 END = CAST(1 AS bit)");
+        }
+
+        public override async Task Enclosing_class_settable_member_generates_parameter(bool isAsync)
+        {
+            await base.Enclosing_class_settable_member_generates_parameter(isAsync);
+
+            AssertSql(
+                @"@__SettableProperty_0='4'
+
+SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+WHERE ([o].[OrderID] = @__SettableProperty_0) AND @__SettableProperty_0 IS NOT NULL",
+                //
+                @"@__SettableProperty_0='10'
+
+SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+WHERE ([o].[OrderID] = @__SettableProperty_0) AND @__SettableProperty_0 IS NOT NULL");
+        }
+
+        public override async Task Enclosing_class_readonly_member_generates_parameter(bool isAsync)
+        {
+            await base.Enclosing_class_readonly_member_generates_parameter(isAsync);
+
+            AssertSql(
+                @"@__ReadOnlyProperty_0='5'
+
+SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+WHERE ([o].[OrderID] = @__ReadOnlyProperty_0) AND @__ReadOnlyProperty_0 IS NOT NULL");
+        }
+
+        public override async Task Enclosing_class_const_member_does_not_generate_parameter(bool isAsync)
+        {
+            await base.Enclosing_class_const_member_does_not_generate_parameter(isAsync);
+
+            AssertSql(
+                @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+WHERE [o].[OrderID] = 1");
         }
     }
 }

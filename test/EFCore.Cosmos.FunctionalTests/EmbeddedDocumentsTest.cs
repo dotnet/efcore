@@ -365,7 +365,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
                     eb =>
                     {
                         eb.HasKey(e => e.Name);
-                        eb.OwnsOne(v => v.Operator);
+                        eb.OwnsOne(v => v.Operator).OwnsOne(v => v.Details);
                     });
 
                 modelBuilder.Entity<Engine>(
