@@ -235,7 +235,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
                                     break;
                                 default:
-                                    throw new NotImplementedException();
+                                    throw new NotImplementedException($"Unhandled binding type: {memberBinding}");
                             }
                         }
 
@@ -285,7 +285,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                         break;
                     }
                     default:
-                        throw new NotImplementedException();
+                        throw new NotImplementedException($"Unhandled expression node type: {obj.NodeType}");
                 }
 
                 return hash.ToHashCode();
@@ -429,7 +429,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     case ExpressionType.Index:
                         return CompareIndex((IndexExpression)a, (IndexExpression)b);
                     default:
-                        throw new NotImplementedException();
+                        throw new NotImplementedException($"Unhandled expression node type: {a.NodeType}");
                 }
             }
 

@@ -3,6 +3,8 @@
 
 using System;
 using System.Linq.Expressions;
+using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 
 namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 {
@@ -17,7 +19,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         {
             if (selectExpression.Projection.Count != 1)
             {
-                throw new InvalidOperationException();
+                throw new InvalidOperationException(CoreStrings.TranslationFailed(selectExpression.Print()));
             }
 
             return selectExpression;

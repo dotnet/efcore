@@ -683,7 +683,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 // If the resultType is not part of hierarchy then we don't know how to materialize.
             }
 
-            throw new NotImplementedException();
+            return null;
         }
 
         protected override ShapedQueryExpression TranslateOrderBy(ShapedQueryExpression source, LambdaExpression keySelector, bool ascending)

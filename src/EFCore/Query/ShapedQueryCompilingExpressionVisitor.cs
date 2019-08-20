@@ -118,14 +118,14 @@ namespace Microsoft.EntityFrameworkCore.Query
             {
                 if (!await enumerator.MoveNextAsync())
                 {
-                    throw new InvalidOperationException();
+                    throw new InvalidOperationException("Enumerator failed to MoveNextAsync.");
                 }
 
                 var result = enumerator.Current;
 
                 if (await enumerator.MoveNextAsync())
                 {
-                    throw new InvalidOperationException();
+                    throw new InvalidOperationException("Enumerator failed to MoveNextAsync.");
                 }
 
                 return result;
@@ -147,7 +147,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                 if (await enumerator.MoveNextAsync())
                 {
-                    throw new InvalidOperationException();
+                    throw new InvalidOperationException("Enumerator failed to MoveNextAsync.");
                 }
 
                 return result;

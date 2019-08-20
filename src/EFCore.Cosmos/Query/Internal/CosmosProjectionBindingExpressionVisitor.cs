@@ -200,7 +200,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                     break;
 
                 default:
-                    throw new InvalidOperationException();
+                    throw new InvalidOperationException(CoreStrings.QueryFailed(memberExpression.Print(), GetType().Name));
             }
 
             var navigationProjection = innerEntityProjection.BindMember(
@@ -236,7 +236,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                 }
 
                 default:
-                    throw new InvalidOperationException();
+                    throw new InvalidOperationException(CoreStrings.QueryFailed(memberExpression.Print(), GetType().Name));
             }
         }
 
@@ -283,7 +283,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                         break;
 
                     default:
-                        throw new InvalidOperationException();
+                        throw new InvalidOperationException(CoreStrings.QueryFailed(methodCallExpression.Print(), GetType().Name));
                 }
 
                 var navigationProjection = innerEntityProjection.BindMember(
@@ -319,7 +319,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                     }
 
                     default:
-                        throw new InvalidOperationException();
+                        throw new InvalidOperationException(CoreStrings.QueryFailed(methodCallExpression.Print(), GetType().Name));
                 }
             }
 
@@ -491,7 +491,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         {
             if (projectionBindingExpression.QueryExpression != _selectExpression)
             {
-                throw new InvalidOperationException();
+                throw new InvalidOperationException(CoreStrings.QueryFailed(projectionBindingExpression.Print(), GetType().Name));
             }
         }
     }
