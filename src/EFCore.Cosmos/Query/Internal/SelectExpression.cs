@@ -335,7 +335,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
             if (Limit != null
                 || Offset != null)
             {
-                throw new InvalidOperationException();
+                throw new InvalidOperationException("Cosmos: Reverse without Limit or Offset.");
             }
 
             var existingOrderings = _orderings.ToArray();

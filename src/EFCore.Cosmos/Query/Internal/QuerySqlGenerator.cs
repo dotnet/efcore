@@ -8,6 +8,8 @@ using System.Linq.Expressions;
 using System.Text;
 using Microsoft.EntityFrameworkCore.Cosmos.Storage;
 using Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
+using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -228,7 +230,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                 }
                 else
                 {
-                    throw new InvalidOperationException();
+                    throw new InvalidOperationException(CoreStrings.QueryFailed(selectExpression.Print(), GetType().Name));
                 }
             }
 

@@ -5,6 +5,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Storage;
 
@@ -103,7 +105,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                                 //var result = _queryableMethodTranslatingExpressionVisitor.TranslateSubquery(methodCallExpression.Arguments[0]);
 
                                 //return _selectExpression.AddCollectionProjection(result, null, elementType);
-                                throw new NotImplementedException();
+                                throw new InvalidOperationException(CoreStrings.QueryFailed(methodCallExpression.Print(), GetType().Name));
                             }
 
                             var subquery = _queryableMethodTranslatingExpressionVisitor.TranslateSubquery(methodCallExpression);
@@ -114,7 +116,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                                 //{
                                 //    return _selectExpression.AddCollectionProjection(subquery, null, subquery.ShaperExpression.Type);
                                 //}
-                                throw new NotImplementedException();
+                                throw new InvalidOperationException(CoreStrings.QueryFailed(methodCallExpression.Print(), GetType().Name));
                             }
 
                             break;
@@ -177,7 +179,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                     : null;
             }
 
-            throw new InvalidOperationException();
+            throw new InvalidOperationException(CoreStrings.QueryFailed(extensionExpression.Print(), GetType().Name));
         }
 
         protected override Expression VisitNew(NewExpression newExpression)
@@ -268,7 +270,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         {
             if (projectionBindingExpression.QueryExpression != _queryExpression)
             {
-                throw new InvalidOperationException();
+                throw new InvalidOperationException(CoreStrings.QueryFailed(projectionBindingExpression.Print(), GetType().Name));
             }
         }
     }

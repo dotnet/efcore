@@ -6,6 +6,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Utilities;
 
@@ -215,6 +216,6 @@ namespace Microsoft.EntityFrameworkCore
             [NotParameterized] string sql,
             [NotNull] params object[] parameters)
             where TEntity : class
-        => throw new InvalidOperationException();
+        => throw new NotImplementedException();
     }
 }
