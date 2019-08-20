@@ -57,6 +57,31 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
+        protected CosmosQueryableMethodTranslatingExpressionVisitor(
+            CosmosQueryableMethodTranslatingExpressionVisitor parentVisitor)
+            : base(parentVisitor.Dependencies, subquery: true)
+        {
+            _model = parentVisitor._model;
+            _sqlExpressionFactory = parentVisitor._sqlExpressionFactory;
+            _sqlTranslator = parentVisitor._sqlTranslator;
+            _projectionBindingExpressionVisitor = new CosmosProjectionBindingExpressionVisitor(_sqlTranslator);
+        }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        protected override QueryableMethodTranslatingExpressionVisitor CreateSubqueryVisitor()
+            => new CosmosQueryableMethodTranslatingExpressionVisitor(this);
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         public override ShapedQueryExpression TranslateSubquery(Expression expression)
         {
             throw new InvalidOperationException(CoreStrings.TranslationFailed(expression.Print()));
@@ -727,7 +752,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
             return TranslateExpression(lambdaBody);
         }
 
-        private Expression RemapLambdaBody(Expression shaperBody, LambdaExpression lambdaExpression)
+        private static Expression RemapLambdaBody(Expression shaperBody, LambdaExpression lambdaExpression)
         {
             return ReplacingExpressionVisitor.Replace(lambdaExpression.Parameters.Single(), shaperBody, lambdaExpression.Body);
         }
