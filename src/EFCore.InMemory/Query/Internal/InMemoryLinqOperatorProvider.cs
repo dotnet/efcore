@@ -25,7 +25,8 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
 
         public static MethodInfo Join = GetMethod(nameof(Enumerable.Join), 4);
         public static MethodInfo GroupJoin = GetMethod(nameof(Enumerable.GroupJoin), 4);
-        public static MethodInfo DefaultIfEmptyWithArg = GetMethod(nameof(Enumerable.DefaultIfEmpty), 1);
+        public static MethodInfo DefaultIfEmptyWithoutArgument = GetMethod(nameof(Enumerable.DefaultIfEmpty));
+        public static MethodInfo DefaultIfEmptyWithArgument = GetMethod(nameof(Enumerable.DefaultIfEmpty), 1);
         public static MethodInfo SelectMany = GetMethods(nameof(Enumerable.SelectMany), 2)
             .Single(mi => mi.GetParameters()[1].ParameterType.GetGenericArguments().Length == 2);
         public static MethodInfo Contains = GetMethod(nameof(Enumerable.Contains), 1);

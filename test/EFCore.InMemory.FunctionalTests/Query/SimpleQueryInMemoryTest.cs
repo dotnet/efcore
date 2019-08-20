@@ -150,34 +150,14 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
         }
 
-        [ConditionalTheory(Skip = "Issue #16963")]
+        [ConditionalTheory(Skip = "Issue #16963 (SelectMany)")]
         public override Task DefaultIfEmpty_in_subquery(bool isAsync) => null;
 
-        [ConditionalTheory(Skip = "Issue #16963")]
+        [ConditionalTheory(Skip = "Issue #16963 (SelectMany)")]
         public override Task DefaultIfEmpty_in_subquery_nested(bool isAsync) => null;
 
-        [ConditionalTheory(Skip = "Issue #16963")]
+        [ConditionalTheory(Skip = "Issue #16963 (SelectMany)")]
         public override Task DefaultIfEmpty_in_subquery_not_correlated(bool isAsync) => null;
-
-        [ConditionalFact(Skip = "Issue #16963")]
-        public override void DefaultIfEmpty_without_group_join()
-        {
-        }
-
-        [ConditionalTheory(Skip = "Issue #16963")]
-        public override Task Default_if_empty_top_level(bool isAsync) => null;
-
-        [ConditionalTheory(Skip = "Issue #16963")]
-        public override Task Default_if_empty_top_level_followed_by_projecting_constant(bool isAsync) => null;
-
-        [ConditionalTheory(Skip = "Issue #16963")]
-        public override Task Default_if_empty_top_level_positive(bool isAsync) => null;
-
-        [ConditionalTheory(Skip = "Issue #16963")]
-        public override Task Default_if_empty_top_level_projection(bool isAsync) => null;
-
-        [ConditionalTheory(Skip = "Issue #16963")]
-        public override Task Join_with_default_if_empty_on_both_sources(bool isAsync) => null;
 
         [ConditionalFact(Skip = "Issue #16963")]
         public override void OfType_Select()
@@ -228,10 +208,10 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalTheory(Skip = "Issue #16963")]
         public override Task SelectMany_Joined(bool isAsync) => null;
 
-        [ConditionalTheory(Skip = "Issue #16963")]
+        [ConditionalTheory(Skip = "Issue #16963 (SelectMany)")]
         public override Task SelectMany_Joined_DefaultIfEmpty(bool isAsync) => null;
 
-        [ConditionalTheory(Skip = "Issue #16963")]
+        [ConditionalTheory(Skip = "Issue #16963 (SelectMany)")]
         public override Task SelectMany_Joined_DefaultIfEmpty2(bool isAsync) => null;
 
         [ConditionalTheory(Skip = "Issue #16963")]

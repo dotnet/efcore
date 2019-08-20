@@ -301,6 +301,39 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                 Constant(index),
                 Constant(property, typeof(IPropertyBase)));
 
+        public virtual void ApplyDefaultIfEmpty()
+        {
+            var nullableReadValueExpressionVisitor = new NullableReadValueExpressionVisitor();
+            var projectionMapping = new Dictionary<ProjectionMember, Expression>();
+            var index = 0;
+            foreach (var projection in _projectionMapping)
+            {
+                if (projection.Value is EntityProjectionExpression entityProjection)
+                {
+                    var readExpressionMap = GetAllPropertiesInHierarchy(entityProjection.EntityType)
+                        .ToDictionary(
+                            p => p,
+                            p => CreateReadValueExpression(
+                                nullableReadValueExpressionVisitor.Visit(entityProjection.BindProperty(p)).Type, index++, p));
+
+                    projectionMapping[projection.Key] = new EntityProjectionExpression(entityProjection.EntityType, readExpressionMap);
+                }
+                else
+                {
+                    projectionMapping[projection.Key] = CreateReadValueExpression(
+                        nullableReadValueExpressionVisitor.Visit(projection.Value).Type, index++, InferPropertyFromInner(projection.Value));
+                }
+            }
+
+            _projectionMapping = projectionMapping;
+
+            // Rewrite 0-arg DefaultOrEmpty to DefaultOrEmpty to a ValueBuffer containing all nulls
+            ServerQueryExpression = Call(
+                InMemoryLinqOperatorProvider.DefaultIfEmptyWithArgument.MakeGenericMethod(typeof(ValueBuffer)),
+                ServerQueryExpression,
+                New(_valueBufferConstructor, NewArrayInit(typeof(object), Enumerable.Repeat(Constant(null), index))));
+        }
+
         public virtual void AddInnerJoin(
             InMemoryQueryExpression innerQueryExpression,
             LambdaExpression outerKeySelector,
@@ -486,7 +519,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
 
             var collectionSelector = Lambda(
                 Call(
-                    InMemoryLinqOperatorProvider.DefaultIfEmptyWithArg.MakeGenericMethod(typeof(ValueBuffer)),
+                    InMemoryLinqOperatorProvider.DefaultIfEmptyWithArgument.MakeGenericMethod(typeof(ValueBuffer)),
                     collection,
                     New(
                         _valueBufferConstructor,

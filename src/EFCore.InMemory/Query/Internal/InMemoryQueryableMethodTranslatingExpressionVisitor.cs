@@ -161,7 +161,18 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             return source;
         }
 
-        protected override ShapedQueryExpression TranslateDefaultIfEmpty(ShapedQueryExpression source, Expression defaultValue) => throw new NotImplementedException();
+        protected override ShapedQueryExpression TranslateDefaultIfEmpty(ShapedQueryExpression source, Expression defaultValue)
+        {
+            if (defaultValue == null)
+            {
+                ((InMemoryQueryExpression)source.QueryExpression).ApplyDefaultIfEmpty();
+                source.ShaperExpression = MarkShaperNullable(source.ShaperExpression);
+
+                return source;
+            }
+
+            throw new InvalidOperationException(CoreStrings.TranslationFailed(defaultValue.Print()));
+        }
 
         protected override ShapedQueryExpression TranslateDistinct(ShapedQueryExpression source)
         {
@@ -319,9 +330,6 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             return source;
         }
 
-        private static readonly MethodInfo _defaultIfEmptyWithoutArgMethodInfo = typeof(Enumerable).GetTypeInfo()
-            .GetDeclaredMethods(nameof(Enumerable.DefaultIfEmpty)).Single(mi => mi.GetParameters().Length == 1);
-
         protected override ShapedQueryExpression TranslateSelectMany(
             ShapedQueryExpression source, LambdaExpression collectionSelector, LambdaExpression resultSelector)
         {
@@ -330,7 +338,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
 
             if (collectionSelectorBody is MethodCallExpression collectionEndingMethod
                 && collectionEndingMethod.Method.IsGenericMethod
-                && collectionEndingMethod.Method.GetGenericMethodDefinition() == _defaultIfEmptyWithoutArgMethodInfo)
+                && collectionEndingMethod.Method.GetGenericMethodDefinition() == InMemoryLinqOperatorProvider.DefaultIfEmptyWithoutArgument)
             {
                 //defaultIfEmpty = true;
                 collectionSelectorBody = collectionEndingMethod.Arguments[0];

@@ -109,9 +109,19 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                 }
 
                 var result = BindProperty(entityProjection, entityType.FindProperty(propertyName));
+
+                // If the entity projection is nullable (e.g. because of DefaultIfEmpty) but the member is a non-nullable value type,
+                // we coalesce to its default value.
+                if (IsNullableValueType(result.Type) && !IsNullableValueType(type))
+                {
+                    result = Expression.Coalesce(result, Expression.Default(result.Type.UnwrapNullableType()));
+                }
+
                 return result.Type == type
                     ? result
                     : Expression.Convert(result, type);
+
+                static bool IsNullableValueType(Type t) => t.IsGenericType && t.GetGenericTypeDefinition() == typeof(Nullable<>);
             }
 
             throw new InvalidOperationException(CoreStrings.TranslationFailed(source.Print()));
@@ -315,24 +325,37 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         protected override Expression VisitUnary(UnaryExpression unaryExpression)
         {
             var result = base.VisitUnary(unaryExpression);
+
             if (result is UnaryExpression outerUnary
-                && outerUnary.NodeType == ExpressionType.Convert
-                && outerUnary.Operand is UnaryExpression innerUnary
-                && innerUnary.NodeType == ExpressionType.Convert)
+                && outerUnary.NodeType == ExpressionType.Convert)
             {
-                var innerMostType = innerUnary.Operand.Type;
-                var intermediateType = innerUnary.Type;
                 var outerMostType = outerUnary.Type;
 
-                if (outerMostType == innerMostType
-                    && intermediateType == innerMostType.UnwrapNullableType())
+                if (outerUnary.Operand is UnaryExpression innerUnary
+                    && innerUnary.NodeType == ExpressionType.Convert)
                 {
-                    result = innerUnary.Operand;
+                    var innerMostType = innerUnary.Operand.Type;
+                    var intermediateType = innerUnary.Type;
+
+                    if (outerMostType == innerMostType
+                        && intermediateType == innerMostType.UnwrapNullableType())
+                    {
+                        return innerUnary.Operand;
+                    }
                 }
-                else if (outerMostType == typeof(object)
-                    && intermediateType == innerMostType.UnwrapNullableType())
+
+                // VisitMember introduces a coalesce to default for value-type members being accessed on nullable entities.
+                // However, if the member access was immediately wrapped by a Convert to object, we don't want the coalesce.
+                // See test GroupJoin_DefaultIfEmpty_Project
+                if (outerMostType == typeof(object)
+                    && outerUnary.Operand is BinaryExpression binary
+                    && binary.NodeType == ExpressionType.Coalesce
+                    && binary.Right is DefaultExpression
+                    // Only discard the coalesce if it was introduced when translating MemberExpression
+                    // (user may have explicitly introduced it)
+                    && unaryExpression.Operand is MemberExpression)
                 {
-                    result = Expression.Convert(innerUnary.Operand, typeof(object));
+                    return Expression.Convert(binary.Left, typeof(object));
                 }
             }
 

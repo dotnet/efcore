@@ -139,7 +139,6 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
 
                     return new ProjectionBindingExpression(_queryExpression, _projectionMembers.Peek(), expression.Type);
                 }
-
             }
 
             return base.Visit(expression);
