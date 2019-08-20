@@ -940,7 +940,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                         o => o.OrderDetails.OrderBy(od => od.Product.ProductName).Select(od => od.OrderID).Take(1).FirstOrDefault()));
         }
 
-        [ConditionalTheory(Skip = "Issue#10001")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Project_single_element_from_collection_with_OrderBy_over_navigation_Take_and_FirstOrDefault_2(bool isAsync)
         {
@@ -948,7 +948,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 isAsync,
                 os => os.Where(o => o.OrderID < 10250)
                     .Select(
-                        o => o.OrderDetails.OrderBy(od => od.Product.ProductName).Take(1).FirstOrDefault()));
+                        o => o.OrderDetails.OrderBy(od => od.Product.ProductName).Take(1).FirstOrDefault()),
+                entryCount: 2);
         }
 
         [ConditionalTheory]
