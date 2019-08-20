@@ -145,7 +145,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             var logEntry = ListLoggerFactory.Log.Single();
             Assert.Equal(LogLevel.Debug, logEntry.Level);
             Assert.Equal(
-                CoreResources.LogNonNullableOnDependent(new TestLogger<TestLoggingDefinitions>()).GenerateMessage(
+                CoreResources.LogNonNullableInverted(new TestLogger<TestLoggingDefinitions>()).GenerateMessage(
                     nameof(Principal.Dependent), nameof(Principal)), logEntry.Message);
         }
 

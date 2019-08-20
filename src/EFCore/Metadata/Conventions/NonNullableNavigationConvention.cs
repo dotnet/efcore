@@ -62,6 +62,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 if (!navigation.ForeignKey.IsUnique
                     || relationshipBuilder.Metadata.GetPrincipalEndConfigurationSource() != null)
                 {
+                    Dependencies.Logger.NonNullableReferenceOnDependent(navigation.ForeignKey.PrincipalToDependent);
                     return;
                 }
 
@@ -74,7 +75,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                     return;
                 }
 
-                Dependencies.Logger.NonNullableOnDependent(newRelationshipBuilder.Metadata.DependentToPrincipal);
+                Dependencies.Logger.NonNullableInverted(newRelationshipBuilder.Metadata.DependentToPrincipal);
                 relationshipBuilder = newRelationshipBuilder;
             }
 

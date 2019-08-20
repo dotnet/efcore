@@ -165,7 +165,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
             Assert.False(relationshipBuilder.Metadata.IsRequired);
 
-            Assert.Empty(ListLoggerFactory.Log);
+            var logEntry = ListLoggerFactory.Log.Single();
+            Assert.Equal(LogLevel.Debug, logEntry.Level);
+            Assert.Equal(
+                CoreResources.LogRequiredAttributeOnCollection(new TestLogger<TestLoggingDefinitions>()).GenerateMessage(
+                    nameof(Principal), nameof(Principal.Dependent)), logEntry.Message);
         }
 
         [ConditionalFact]
@@ -190,6 +194,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             RunConvention(relationshipBuilder, navigation);
 
             Assert.False(relationshipBuilder.Metadata.IsRequired);
+
+            var logEntry = ListLoggerFactory.Log.Single();
+            Assert.Equal(LogLevel.Debug, logEntry.Level);
+            Assert.Equal(
+                CoreResources.LogRequiredAttributeOnDependent(new TestLogger<TestLoggingDefinitions>()).GenerateMessage(
+                    nameof(Dependent), nameof(Dependent.Principal)), logEntry.Message);
         }
 
         [ConditionalFact]
@@ -220,7 +230,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             var logEntry = ListLoggerFactory.Log.Single();
             Assert.Equal(LogLevel.Debug, logEntry.Level);
             Assert.Equal(
-                CoreResources.LogRequiredAttributeOnDependent(new TestLogger<TestLoggingDefinitions>()).GenerateMessage(
+                CoreResources.LogRequiredAttributeInverted(new TestLogger<TestLoggingDefinitions>()).GenerateMessage(
                     nameof(Principal.Dependent), nameof(Principal)), logEntry.Message);
         }
 
