@@ -8,6 +8,7 @@ using System.Reflection;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Storage;
 
@@ -15,6 +16,8 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
 {
     public class InMemoryQueryableMethodTranslatingExpressionVisitor : QueryableMethodTranslatingExpressionVisitor
     {
+        private static readonly MethodInfo _efPropertyMethod = typeof(EF).GetTypeInfo().GetDeclaredMethod(nameof(EF.Property));
+
         private readonly InMemoryExpressionTranslatingExpressionVisitor _expressionTranslator;
         private readonly InMemoryProjectionBindingExpressionVisitor _projectionBindingExpressionVisitor;
         private readonly IModel _model;
@@ -105,7 +108,8 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             return source;
         }
 
-        protected override ShapedQueryExpression TranslateConcat(ShapedQueryExpression source1, ShapedQueryExpression source2) => throw new NotImplementedException();
+        protected override ShapedQueryExpression TranslateConcat(ShapedQueryExpression source1, ShapedQueryExpression source2)
+            => null;
 
         protected override ShapedQueryExpression TranslateContains(ShapedQueryExpression source, Expression item)
         {
@@ -282,7 +286,66 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             => TranslateScalarAggregate(source, selector, nameof(Enumerable.Min));
 
         protected override ShapedQueryExpression TranslateOfType(ShapedQueryExpression source, Type resultType)
-            => null;
+        {
+            if (source.ShaperExpression is EntityShaperExpression entityShaperExpression)
+            {
+                var entityType = entityShaperExpression.EntityType;
+                if (entityType.ClrType == resultType)
+                {
+                    return source;
+                }
+
+                var baseType = entityType.GetAllBaseTypes().SingleOrDefault(et => et.ClrType == resultType);
+                if (baseType != null)
+                {
+                    source.ShaperExpression = entityShaperExpression.WithEntityType(baseType);
+
+                    return source;
+                }
+
+                var derivedType = entityType.GetDerivedTypes().SingleOrDefault(et => et.ClrType == resultType);
+                if (derivedType != null)
+                {
+                    var inMemoryQueryExpression = (InMemoryQueryExpression)source.QueryExpression;
+                    var discriminatorProperty = entityType.GetDiscriminatorProperty();
+                    var parameter = Expression.Parameter(entityType.ClrType);
+
+                    var callEFProperty = Expression.Call(
+                        _efPropertyMethod.MakeGenericMethod(
+                            discriminatorProperty.ClrType),
+                        parameter,
+                        Expression.Constant(discriminatorProperty.Name));
+
+                    var equals = Expression.Equal(
+                        callEFProperty,
+                        Expression.Constant(derivedType.GetDiscriminatorValue(), discriminatorProperty.ClrType));
+
+                    foreach (var derivedDerivedType in derivedType.GetDerivedTypes())
+                    {
+                        equals = Expression.OrElse(
+                            equals,
+                            Expression.Equal(
+                                callEFProperty,
+                                Expression.Constant(derivedDerivedType.GetDiscriminatorValue(), discriminatorProperty.ClrType)));
+                    }
+
+                    var predicate = Expression.Lambda(
+                        equals,
+                        parameter);
+
+                    inMemoryQueryExpression.ServerQueryExpression = Expression.Call(
+                        InMemoryLinqOperatorProvider.Where.MakeGenericMethod(typeof(ValueBuffer)),
+                        inMemoryQueryExpression.ServerQueryExpression,
+                        TranslateLambdaExpression(source, predicate));
+
+                    source.ShaperExpression = entityShaperExpression.WithEntityType(derivedType);
+
+                    return source;
+                }
+            }
+
+            return null;
+        }
 
         protected override ShapedQueryExpression TranslateOrderBy(ShapedQueryExpression source, LambdaExpression keySelector, bool ascending)
         {
