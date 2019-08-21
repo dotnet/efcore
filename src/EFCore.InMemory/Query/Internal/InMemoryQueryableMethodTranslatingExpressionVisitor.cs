@@ -189,7 +189,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         {
             var inMemoryQueryExpression = (InMemoryQueryExpression)source.QueryExpression;
 
-            inMemoryQueryExpression.ApplyPendingSelector();
+            inMemoryQueryExpression.PushdownIntoSubquery();
             inMemoryQueryExpression.ServerQueryExpression
                 = Expression.Call(
                     InMemoryLinqOperatorProvider.Distinct.MakeGenericMethod(typeof(ValueBuffer)),

@@ -89,10 +89,16 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                             var translated = _queryableMethodTranslatingExpressionVisitor.TranslateSubquery(
                                 materializeCollectionNavigationExpression.Subquery);
 
-                            return new ProjectionBindingExpression(
-                                _queryExpression,
-                                _queryExpression.AddToProjection(translated),
-                                typeof(IEnumerable<>).MakeGenericType(materializeCollectionNavigationExpression.Navigation.GetTargetType().ClrType));
+                            var index = _queryExpression.AddSubqueryProjection(translated, out var innerShaper);
+
+                            return new CollectionShaperExpression(
+                                new ProjectionBindingExpression(
+                                    _queryExpression,
+                                    index,
+                                    typeof(IEnumerable<ValueBuffer>)),
+                                innerShaper,
+                                materializeCollectionNavigationExpression.Navigation,
+                                materializeCollectionNavigationExpression.Navigation.GetTargetType().ClrType);
 
                         case MethodCallExpression methodCallExpression:
                         {

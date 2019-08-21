@@ -216,8 +216,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                             if (!trackingQuery)
                             {
                                 fixup(entity, relatedEntity);
-                                if (inverseNavigation != null
-                                    && !inverseNavigation.IsCollection())
+                                if (inverseNavigation != null)
                                 {
                                     SetIsLoadedNoTracking(relatedEntity, inverseNavigation);
                                 }
