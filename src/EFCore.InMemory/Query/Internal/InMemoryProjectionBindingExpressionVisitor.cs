@@ -127,9 +127,17 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                     }
 
                     var translation = _expressionTranslatingExpressionVisitor.Translate(expression);
-                    return translation == null
-                        ? base.Visit(expression)
-                        : new ProjectionBindingExpression(_queryExpression, _queryExpression.AddToProjection(translation), expression.Type);
+                    if (translation == null)
+                    {
+                        return base.Visit(expression);
+                    }
+
+                    if (translation.Type != expression.Type)
+                    {
+                        translation = Expression.Convert(translation, expression.Type);
+                    }
+
+                    return new ProjectionBindingExpression(_queryExpression, _queryExpression.AddToProjection(translation), expression.Type);
                 }
                 else
                 {
@@ -137,6 +145,11 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                     if (translation == null)
                     {
                         return null;
+                    }
+
+                    if (translation.Type != expression.Type)
+                    {
+                        translation = Expression.Convert(translation, expression.Type);
                     }
 
                     _projectionMapping[_projectionMembers.Peek()] = translation;
