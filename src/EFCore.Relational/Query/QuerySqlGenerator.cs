@@ -762,5 +762,22 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             return scalarSubqueryExpression;
         }
+
+        protected override Expression VisitRowNumber(RowNumberExpression rowNumberExpression)
+        {
+            _relationalCommandBuilder.Append("ROW_NUMBER() OVER(");
+            if (rowNumberExpression.Partitions.Any())
+            {
+                _relationalCommandBuilder.Append("PARTITION BY ");
+                GenerateList(rowNumberExpression.Partitions, e => Visit(e));
+                _relationalCommandBuilder.Append(" ");
+            }
+
+            _relationalCommandBuilder.Append("ORDER BY ");
+            GenerateList(rowNumberExpression.Orderings, e => Visit(e));
+            _relationalCommandBuilder.Append(")");
+
+            return rowNumberExpression;
+        }
     }
 }

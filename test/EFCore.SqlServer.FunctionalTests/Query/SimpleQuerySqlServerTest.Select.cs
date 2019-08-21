@@ -723,33 +723,20 @@ WHERE [o0].[OrderID] < 10300");
             await base.Project_single_element_from_collection_with_OrderBy_over_navigation_Take_and_FirstOrDefault_2(isAsync);
 
             AssertSql(
-                @"SELECT [o].[OrderID]
-FROM [Orders] AS [o]
-WHERE [o].[OrderID] < 10250",
-                //
-                @"@_outer_OrderID='10248'
-
-SELECT TOP(1) [t].*
-FROM (
-    SELECT TOP(1) [od].[OrderID], [od].[ProductID], [od].[Discount], [od].[Quantity], [od].[UnitPrice], [od.Product].[ProductName]
-    FROM [Order Details] AS [od]
-    INNER JOIN [Products] AS [od.Product] ON [od].[ProductID] = [od.Product].[ProductID]
-    WHERE @_outer_OrderID = [od].[OrderID]
-    ORDER BY [od.Product].[ProductName]
-) AS [t]
-ORDER BY [t].[ProductName]",
-                //
-                @"@_outer_OrderID='10249'
-
-SELECT TOP(1) [t].*
-FROM (
-    SELECT TOP(1) [od].[OrderID], [od].[ProductID], [od].[Discount], [od].[Quantity], [od].[UnitPrice], [od.Product].[ProductName]
-    FROM [Order Details] AS [od]
-    INNER JOIN [Products] AS [od.Product] ON [od].[ProductID] = [od.Product].[ProductID]
-    WHERE @_outer_OrderID = [od].[OrderID]
-    ORDER BY [od.Product].[ProductName]
-) AS [t]
-ORDER BY [t].[ProductName]");
+                @"SELECT [t0].[OrderID], [t0].[ProductID], [t0].[Discount], [t0].[Quantity], [t0].[UnitPrice]
+FROM [Orders] AS [o0]
+OUTER APPLY (
+    SELECT TOP(1) [t].[OrderID], [t].[ProductID], [t].[Discount], [t].[Quantity], [t].[UnitPrice], [t].[ProductID0], [t].[ProductName]
+    FROM (
+        SELECT TOP(1) [o].[OrderID], [o].[ProductID], [o].[Discount], [o].[Quantity], [o].[UnitPrice], [p].[ProductID] AS [ProductID0], [p].[ProductName]
+        FROM [Order Details] AS [o]
+        INNER JOIN [Products] AS [p] ON [o].[ProductID] = [p].[ProductID]
+        WHERE [o0].[OrderID] = [o].[OrderID]
+        ORDER BY [p].[ProductName]
+    ) AS [t]
+    ORDER BY [t].[ProductName]
+) AS [t0]
+WHERE [o0].[OrderID] < 10250");
         }
 
         public override async Task Select_datetime_year_component(bool isAsync)

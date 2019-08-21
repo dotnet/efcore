@@ -120,6 +120,29 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                                 {
                                     return _selectExpression.AddCollectionProjection(subquery, null, subquery.ShaperExpression.Type);
                                 }
+
+                                static bool IsAggregateResultWithCustomShaper(MethodInfo method)
+                                {
+                                    if (method.IsGenericMethod)
+                                    {
+                                        method = method.GetGenericMethodDefinition();
+                                    }
+
+                                    return QueryableMethods.IsAverageWithoutSelector(method)
+                                        || QueryableMethods.IsAverageWithSelector(method)
+                                        || method == QueryableMethods.MaxWithoutSelector
+                                        || method == QueryableMethods.MaxWithSelector
+                                        || method == QueryableMethods.MinWithoutSelector
+                                        || method == QueryableMethods.MinWithSelector
+                                        || QueryableMethods.IsSumWithoutSelector(method)
+                                        || QueryableMethods.IsSumWithSelector(method);
+                                }
+
+                                if (!(subquery.ShaperExpression is ProjectionBindingExpression
+                                     || IsAggregateResultWithCustomShaper(methodCallExpression.Method)))
+                                {
+                                    return _selectExpression.AddSingleProjection(subquery);
+                                }
                             }
 
                             break;

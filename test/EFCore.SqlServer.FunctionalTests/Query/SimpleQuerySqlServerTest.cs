@@ -1922,13 +1922,16 @@ LEFT JOIN [Orders] AS [o] ON [c].[CustomerID] = [o].[CustomerID]");
             await base.SelectMany_Joined_Take(isAsync);
 
             AssertSql(
-                @"SELECT [c].[ContactName], [t].[OrderID], [t].[CustomerID], [t].[EmployeeID], [t].[OrderDate]
+                @"SELECT [c].[ContactName], [t0].[OrderID], [t0].[CustomerID], [t0].[EmployeeID], [t0].[OrderDate]
 FROM [Customers] AS [c]
-CROSS APPLY (
-    SELECT TOP(4) [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
-    FROM [Orders] AS [o]
-    WHERE ([o].[CustomerID] = [c].[CustomerID]) AND [o].[CustomerID] IS NOT NULL
-) AS [t]");
+INNER JOIN (
+    SELECT [t].[OrderID], [t].[CustomerID], [t].[EmployeeID], [t].[OrderDate]
+    FROM (
+        SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate], ROW_NUMBER() OVER(PARTITION BY [o].[CustomerID] ORDER BY [o].[OrderID]) AS [row]
+        FROM [Orders] AS [o]
+    ) AS [t]
+    WHERE [t].[row] <= 4
+) AS [t0] ON [c].[CustomerID] = [t0].[CustomerID]");
         }
 
         public override async Task Take_with_single(bool isAsync)

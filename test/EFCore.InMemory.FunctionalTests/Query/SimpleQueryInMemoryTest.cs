@@ -423,5 +423,11 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             return base.Last_when_no_order_by(isAsync);
         }
+
+        [ConditionalTheory(Skip = "Issue #16963")]
+        public override Task Project_single_element_from_collection_with_OrderBy_over_navigation_Take_and_FirstOrDefault_2(bool isAsync)
+        {
+            return base.Project_single_element_from_collection_with_OrderBy_over_navigation_Take_and_FirstOrDefault_2(isAsync);
+        }
     }
 }
