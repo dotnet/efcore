@@ -17,6 +17,7 @@ variables:
 trigger:
   - master
   - release/*
+  - feature/*
 
 pr: ['*']
 
