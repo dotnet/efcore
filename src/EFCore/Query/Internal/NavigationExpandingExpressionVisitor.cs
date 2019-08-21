@@ -893,37 +893,22 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             LambdaExpression elementSelector,
             LambdaExpression resultSelector)
         {
-            source = (NavigationExpansionExpression)_pendingSelectorExpandingExpressionVisitor.Visit(source);
-            var queryable = Reduce(source);
+            var keySelectorBody = ExpandNavigationsInLambdaExpression(source, keySelector);
             Expression result;
             if (elementSelector == null)
             {
-                if (resultSelector == null)
-                {
-                    result = Expression.Call(
-                        QueryableMethods.GroupByWithKeySelector.MakeGenericMethod(
-                            queryable.Type.TryGetSequenceType(), keySelector.ReturnType),
-                        queryable,
-                        Expression.Quote(keySelector));
-                }
-                else
-                {
-                    result = Expression.Call(
-                        QueryableMethods.GroupByWithKeyResultSelector.MakeGenericMethod(
-                            queryable.Type.TryGetSequenceType(), keySelector.ReturnType, resultSelector.ReturnType),
-                        queryable,
-                        Expression.Quote(keySelector),
-                        Expression.Quote(resultSelector));
-                }
-            }
-            else
-            {
+                source = (NavigationExpansionExpression)_pendingSelectorExpandingExpressionVisitor.Visit(source);
+                // TODO: Flow include in future
+                //source = (NavigationExpansionExpression)new IncludeApplyingExpressionVisitor(
+                //    this, _queryCompilationContext.IsTracking).Visit(source);
+                keySelector = GenerateLambda(keySelectorBody, source.CurrentParameter);
+                elementSelector = GenerateLambda(source.PendingSelector, source.CurrentParameter);
                 if (resultSelector == null)
                 {
                     result = Expression.Call(
                         QueryableMethods.GroupByWithKeyElementSelector.MakeGenericMethod(
-                            queryable.Type.TryGetSequenceType(), keySelector.ReturnType, elementSelector.ReturnType),
-                        queryable,
+                            source.CurrentParameter.Type, keySelector.ReturnType, elementSelector.ReturnType),
+                        source.Source,
                         Expression.Quote(keySelector),
                         Expression.Quote(elementSelector));
                 }
@@ -931,8 +916,36 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 {
                     result = Expression.Call(
                         QueryableMethods.GroupByWithKeyElementResultSelector.MakeGenericMethod(
-                            queryable.Type.TryGetSequenceType(), keySelector.ReturnType, elementSelector.ReturnType, resultSelector.ReturnType),
-                        queryable,
+                            source.CurrentParameter.Type, keySelector.ReturnType, elementSelector.ReturnType, resultSelector.ReturnType),
+                        source.Source,
+                        Expression.Quote(keySelector),
+                        Expression.Quote(elementSelector),
+                        Expression.Quote(resultSelector));
+                }
+            }
+            else
+            {
+                source = (NavigationExpansionExpression)ProcessSelect(source, elementSelector);
+                source = (NavigationExpansionExpression)_pendingSelectorExpandingExpressionVisitor.Visit(source);
+                source = (NavigationExpansionExpression)new IncludeApplyingExpressionVisitor(
+                    this, _queryCompilationContext.IsTracking).Visit(source);
+                keySelector = GenerateLambda(keySelectorBody, source.CurrentParameter);
+                elementSelector = GenerateLambda(source.PendingSelector, source.CurrentParameter);
+                if (resultSelector == null)
+                {
+                    result = Expression.Call(
+                        QueryableMethods.GroupByWithKeyElementSelector.MakeGenericMethod(
+                            source.CurrentParameter.Type, keySelector.ReturnType, elementSelector.ReturnType),
+                        source.Source,
+                        Expression.Quote(keySelector),
+                        Expression.Quote(elementSelector));
+                }
+                else
+                {
+                    result = Expression.Call(
+                        QueryableMethods.GroupByWithKeyElementResultSelector.MakeGenericMethod(
+                            source.CurrentParameter.Type, keySelector.ReturnType, elementSelector.ReturnType, resultSelector.ReturnType),
+                        source.Source,
                         Expression.Quote(keySelector),
                         Expression.Quote(elementSelector),
                         Expression.Quote(resultSelector));

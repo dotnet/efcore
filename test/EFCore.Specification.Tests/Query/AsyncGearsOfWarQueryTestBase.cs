@@ -21,7 +21,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         protected GearsOfWarContext CreateContext() => Fixture.CreateContext();
 
-        [ConditionalFact(Skip = "Issue #15249")]
+        [ConditionalFact(Skip = "Issue#17068")]
         public virtual async Task Include_with_group_by_on_entity_qsre()
         {
             using (var ctx = CreateContext())
@@ -39,7 +39,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalFact(Skip = "Issue #15249")]
+        [ConditionalFact(Skip = "Issue#17068")]
         public virtual async Task Include_with_group_by_on_entity_qsre_with_composite_key()
         {
             using (var ctx = CreateContext())
@@ -57,7 +57,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalFact(Skip = "Issue #15249")]
+        [ConditionalFact(Skip = "Issue#17068")]
         public virtual async Task Include_with_group_by_on_entity_navigation()
         {
             using (var ctx = CreateContext())
@@ -75,7 +75,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalFact(Skip = "Issue #15249")]
+        [ConditionalFact(Skip = "Issue#17068")]
         public virtual async Task Include_groupby_constant()
         {
             using (var ctx = CreateContext())
