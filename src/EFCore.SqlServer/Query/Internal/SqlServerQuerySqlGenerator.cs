@@ -67,21 +67,5 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
 
             return base.VisitSqlFunction(sqlFunctionExpression);
         }
-
-        protected override Expression VisitInnerJoinLateral(InnerJoinLateralExpression innerJoinLateralExpression)
-        {
-            Sql.Append("CROSS APPLY ");
-            Visit(innerJoinLateralExpression.Table);
-
-            return innerJoinLateralExpression;
-        }
-
-        protected override Expression VisitLeftJoinLateral(LeftJoinLateralExpression leftJoinLateralExpression)
-        {
-            Sql.Append("OUTER APPLY ");
-            Visit(leftJoinLateralExpression.Table);
-
-            return leftJoinLateralExpression;
-        }
     }
 }

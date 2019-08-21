@@ -5,9 +5,9 @@ using System.Linq.Expressions;
 
 namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 {
-    public class InnerJoinLateralExpression : JoinExpressionBase
+    public class OuterApplyExpression : JoinExpressionBase
     {
-        public InnerJoinLateralExpression(TableExpressionBase table)
+        public OuterApplyExpression(TableExpressionBase table)
             : base(table)
         {
         }
@@ -15,25 +15,25 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         protected override Expression VisitChildren(ExpressionVisitor visitor)
             => Update((TableExpressionBase)visitor.Visit(Table));
 
-        public virtual InnerJoinLateralExpression Update(TableExpressionBase table)
+        public virtual OuterApplyExpression Update(TableExpressionBase table)
             => table != Table
-                ? new InnerJoinLateralExpression(table)
+                ? new OuterApplyExpression(table)
                 : this;
 
         public override void Print(ExpressionPrinter expressionPrinter)
         {
-            expressionPrinter.Append("INNER JOIN LATERAL ");
+            expressionPrinter.Append("OUTER APPLY ");
             expressionPrinter.Visit(Table);
         }
 
         public override bool Equals(object obj)
             => obj != null
             && (ReferenceEquals(this, obj)
-                || obj is InnerJoinLateralExpression innerJoinLateralExpression
-                    && Equals(innerJoinLateralExpression));
+                || obj is OuterApplyExpression outerApplyExpression
+                    && Equals(outerApplyExpression));
 
-        private bool Equals(InnerJoinLateralExpression innerJoinLateralExpression)
-            => base.Equals(innerJoinLateralExpression);
+        private bool Equals(OuterApplyExpression outerApplyExpression)
+            => base.Equals(outerApplyExpression);
 
         public override int GetHashCode() => base.GetHashCode();
     }
