@@ -559,9 +559,9 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             }
         }
 
-        private ColumnExpression GenerateOuterColumn(SqlExpression projection)
+        private ColumnExpression GenerateOuterColumn(SqlExpression projection, string alias = null)
         {
-            var index = AddToProjection(projection);
+            var index = AddToProjection(projection, alias);
             return new ColumnExpression(_projection[index], this);
         }
 
@@ -1009,6 +1009,22 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             }
         }
 
+        private void GetPartitions(SqlExpression sqlExpression, List<SqlExpression> partitions)
+        {
+            if (sqlExpression is SqlBinaryExpression sqlBinaryExpression)
+            {
+                if (sqlBinaryExpression.OperatorType == ExpressionType.Equal)
+                {
+                    partitions.Add(sqlBinaryExpression.Right);
+                }
+                else if (sqlBinaryExpression.OperatorType == ExpressionType.AndAlso)
+                {
+                    GetPartitions(sqlBinaryExpression.Left, partitions);
+                    GetPartitions(sqlBinaryExpression.Right, partitions);
+                }
+            }
+        }
+
         private enum JoinType
         {
             InnerJoin,
@@ -1027,6 +1043,10 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             // Try to convert lateral join to normal join
             if (joinType == JoinType.InnerJoinLateral || joinType == JoinType.LeftJoinLateral)
             {
+                // Doing for limit only since limit + offset may need sum
+                var limit = innerSelectExpression.Limit;
+                innerSelectExpression.Limit = null;
+
                 joinPredicate = TryExtractJoinKey(innerSelectExpression);
                 if (joinPredicate != null)
                 {
@@ -1035,13 +1055,41 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                     if (containsOuterReference)
                     {
                         innerSelectExpression.ApplyPredicate(joinPredicate);
+                        innerSelectExpression.ApplyLimit(limit);
                     }
                     else
                     {
+                        if (limit != null)
+                        {
+                            var partitions = new List<SqlExpression>();
+                            GetPartitions(joinPredicate, partitions);
+                            var orderings = innerSelectExpression.Orderings.Any()
+                                ? innerSelectExpression.Orderings
+                                : innerSelectExpression._identifier.Select(e => new OrderingExpression(e, true));
+                            var rowNumberExpression = new RowNumberExpression(partitions, orderings.ToList(), limit.TypeMapping);
+                            innerSelectExpression.ClearOrdering();
+
+                            var projectionMappings = innerSelectExpression.PushdownIntoSubquery();
+                            var subquery = (SelectExpression)innerSelectExpression.Tables[0];
+
+                            joinPredicate = new SqlRemappingVisitor(
+                                projectionMappings, subquery)
+                                .Remap(joinPredicate);
+
+                            var outerColumn = subquery.GenerateOuterColumn(rowNumberExpression, "row");
+                            var predicate = new SqlBinaryExpression(
+                                ExpressionType.LessThanOrEqual, outerColumn, limit, typeof(bool), joinPredicate.TypeMapping);
+                            innerSelectExpression.ApplyPredicate(predicate);
+                        }
+
                         AddJoin(joinType == JoinType.InnerJoinLateral ? JoinType.InnerJoin : JoinType.LeftJoin,
                             innerSelectExpression, transparentIdentifierType, joinPredicate);
                         return;
                     }
+                }
+                else
+                {
+                    innerSelectExpression.ApplyLimit(limit);
                 }
             }
 

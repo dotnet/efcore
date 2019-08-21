@@ -3,7 +3,6 @@
 
 using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
-using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
@@ -52,6 +51,9 @@ namespace Microsoft.EntityFrameworkCore.Query
                 case ProjectionExpression projectionExpression:
                     return VisitProjection(projectionExpression);
 
+                case RowNumberExpression rowNumberExpression:
+                    return VisitRowNumber(rowNumberExpression);
+
                 case SelectExpression selectExpression:
                     return VisitSelect(selectExpression);
 
@@ -83,6 +85,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             return base.VisitExtension(extensionExpression);
         }
 
+        protected abstract Expression VisitRowNumber(RowNumberExpression rowNumberExpression);
         protected abstract Expression VisitExists(ExistsExpression existsExpression);
         protected abstract Expression VisitIn(InExpression inExpression);
         protected abstract Expression VisitCrossJoin(CrossJoinExpression crossJoinExpression);
