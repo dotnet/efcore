@@ -122,6 +122,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         public override int GetHashCode()
         {
             var hash = new HashCode();
+            hash.Add(base.GetHashCode());
             hash.Add(Operand);
             for (var i = 0; i < WhenClauses.Count; i++)
             {

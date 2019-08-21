@@ -361,5 +361,31 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
 
             return ApplyConversion(scalarSubqueryExpression.Update(subquery), condition: false);
         }
+
+        protected override Expression VisitRowNumber(RowNumberExpression rowNumberExpression)
+        {
+            var parentSearchCondition = _isSearchCondition;
+            _isSearchCondition = false;
+            var changed = false;
+            var partitions = new List<SqlExpression>();
+            foreach (var partition in rowNumberExpression.Partitions)
+            {
+                var newPartition = (SqlExpression)Visit(partition);
+                changed |= newPartition != partition;
+                partitions.Add(newPartition);
+            }
+
+            var orderings = new List<OrderingExpression>();
+            foreach (var ordering in rowNumberExpression.Orderings)
+            {
+                var newOrdering = (OrderingExpression)Visit(ordering);
+                changed |= newOrdering != ordering;
+                orderings.Add(newOrdering);
+            }
+
+            _isSearchCondition = parentSearchCondition;
+
+            return ApplyConversion(rowNumberExpression.Update(partitions, orderings), condition: false);
+        }
     }
 }
