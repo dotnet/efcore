@@ -183,9 +183,8 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         protected override ShapedQueryExpression TranslateConcat(ShapedQueryExpression source1, ShapedQueryExpression source2)
         {
-            var operand1 = (SelectExpression)source1.QueryExpression;
-            var operand2 = (SelectExpression)source2.QueryExpression;
-            source1.ShaperExpression = operand1.ApplySetOperation(SetOperationType.UnionAll, operand2, source1.ShaperExpression);
+            ((SelectExpression)source1.QueryExpression).ApplyUnion((SelectExpression)source2.QueryExpression, distinct: false);
+
             return source1;
         }
 
@@ -262,9 +261,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         protected override ShapedQueryExpression TranslateExcept(ShapedQueryExpression source1, ShapedQueryExpression source2)
         {
-            var operand1 = (SelectExpression)source1.QueryExpression;
-            var operand2 = (SelectExpression)source2.QueryExpression;
-            source1.ShaperExpression = operand1.ApplySetOperation(SetOperationType.Except, operand2, source1.ShaperExpression);
+            ((SelectExpression)source1.QueryExpression).ApplyExcept((SelectExpression)source2.QueryExpression, distinct: true);
             return source1;
         }
 
@@ -444,9 +441,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         protected override ShapedQueryExpression TranslateIntersect(ShapedQueryExpression source1, ShapedQueryExpression source2)
         {
-            var operand1 = (SelectExpression)source1.QueryExpression;
-            var operand2 = (SelectExpression)source2.QueryExpression;
-            source1.ShaperExpression = operand1.ApplySetOperation(SetOperationType.Intersect, operand2, source1.ShaperExpression);
+            ((SelectExpression)source1.QueryExpression).ApplyIntersect((SelectExpression)source2.QueryExpression, distinct: true);
             return source1;
         }
 
@@ -937,9 +932,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         protected override ShapedQueryExpression TranslateUnion(ShapedQueryExpression source1, ShapedQueryExpression source2)
         {
-            var operand1 = (SelectExpression)source1.QueryExpression;
-            var operand2 = (SelectExpression)source2.QueryExpression;
-            source1.ShaperExpression = operand1.ApplySetOperation(SetOperationType.Union, operand2, source1.ShaperExpression);
+            ((SelectExpression)source1.QueryExpression).ApplyUnion((SelectExpression)source2.QueryExpression, distinct: true);
             return source1;
         }
 

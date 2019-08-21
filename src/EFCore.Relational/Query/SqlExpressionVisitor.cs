@@ -80,12 +80,24 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                 case TableExpression tableExpression:
                     return VisitTable(tableExpression);
+
+                case ExceptExpression exceptExpression:
+                    return VisitExcept(exceptExpression);
+
+                case IntersectExpression intersectExpression:
+                    return VisitIntersect(intersectExpression);
+
+                case UnionExpression unionExpression:
+                    return VisitUnion(unionExpression);
             }
 
             return base.VisitExtension(extensionExpression);
         }
 
         protected abstract Expression VisitRowNumber(RowNumberExpression rowNumberExpression);
+        protected abstract Expression VisitExcept(ExceptExpression exceptExpression);
+        protected abstract Expression VisitIntersect(IntersectExpression intersectExpression);
+        protected abstract Expression VisitUnion(UnionExpression unionExpression);
         protected abstract Expression VisitExists(ExistsExpression existsExpression);
         protected abstract Expression VisitIn(InExpression inExpression);
         protected abstract Expression VisitCrossJoin(CrossJoinExpression crossJoinExpression);

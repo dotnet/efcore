@@ -500,7 +500,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                                 var otherSelectExpression = new SelectExpression(entityType);
 
                                 AddInnerJoin(otherSelectExpression, otherFk, sharingTypes, skipInnerJoins: false);
-                                selectExpression.ApplySetOperation(SetOperationType.Union, otherSelectExpression, null);
+                                selectExpression.ApplyUnion(otherSelectExpression, distinct: true);
                             }
                         }
                     }
@@ -629,7 +629,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                         AddInnerJoin(otherSelectExpression, referencingFk,
                                         sameTable ? sharingTypes : null,
                                         skipInnerJoins: sameTable);
-                        selectExpression.ApplySetOperation(SetOperationType.Union, otherSelectExpression, null);
+                        selectExpression.ApplyUnion(otherSelectExpression, distinct: true);
                     }
                 }
             }

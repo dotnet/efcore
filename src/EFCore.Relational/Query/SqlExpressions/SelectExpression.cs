@@ -42,17 +42,6 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             Tags = tags;
         }
 
-        /// <summary>
-        /// Marks this <see cref="SelectExpression"/> as representing an SQL set operation, such as a UNION.
-        /// For regular SQL SELECT expressions, contains <c>None</c>.
-        /// </summary>
-        public SetOperationType SetOperationType { get; private set; }
-
-        /// <summary>
-        /// Returns whether this <see cref="SelectExpression"/> represents an SQL set operation, such as a UNION.
-        /// </summary>
-        public bool IsSetOperation => SetOperationType != SetOperationType.None;
-
         internal SelectExpression(
             string alias,
             List<ProjectionExpression> projections,
@@ -202,7 +191,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 
         public void PrepareForAggregate()
         {
-            if (IsDistinct || Limit != null || Offset != null || IsSetOperation || GroupBy.Count > 0)
+            if (IsDistinct || Limit != null || Offset != null || GroupBy.Count > 0)
             {
                 PushdownIntoSubquery();
             }
@@ -216,7 +205,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                 return;
             }
 
-            if (Limit != null || Offset != null || IsSetOperation)
+            if (Limit != null || Offset != null)
             {
                 expression = new SqlRemappingVisitor(PushdownIntoSubquery(), (SelectExpression)Tables[0]).Remap(expression);
             }
@@ -293,8 +282,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 
         public void ApplyOrdering(OrderingExpression orderingExpression)
         {
-            // TODO: We should not be pushing down set operations, see #16244
-            if (IsDistinct || Limit != null || Offset != null || IsSetOperation)
+            if (IsDistinct || Limit != null || Offset != null)
             {
                 orderingExpression = orderingExpression.Update(
                     new SqlRemappingVisitor(PushdownIntoSubquery(), (SelectExpression)Tables[0])
@@ -315,8 +303,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 
         public void ApplyLimit(SqlExpression sqlExpression)
         {
-            // TODO: We should not be pushing down set operations, see #16244
-            if (Limit != null || IsSetOperation)
+            if (Limit != null)
             {
                 PushdownIntoSubquery();
             }
@@ -326,8 +313,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 
         public void ApplyOffset(SqlExpression sqlExpression)
         {
-            // TODO: We should not be pushing down set operations, see #16244
-            if (Limit != null || Offset != null || IsSetOperation)
+            if (Limit != null || Offset != null)
             {
                 PushdownIntoSubquery();
             }
@@ -358,7 +344,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 
         public void ApplyDistinct()
         {
-            if (Limit != null || Offset != null || IsSetOperation)
+            if (Limit != null || Offset != null)
             {
                 PushdownIntoSubquery();
             }
@@ -421,32 +407,33 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             _orderings.Clear();
         }
 
-        /// <summary>
-        ///     Applies a set operation (e.g. Union, Intersect) on this query, pushing it down and <paramref name="otherSelectExpression"/>
-        ///     down to be the set operands.
-        /// </summary>
-        /// <param name="setOperationType"> The type of set operation to be applied. </param>
-        /// <param name="otherSelectExpression"> The other expression to participate as an operate in the operation (along with this one). </param>
-        /// <param name="shaperExpression"> The shaper expression currently in use. </param>
-        /// <returns>
-        ///     A shaper expression to be used. This will be the same as <paramref name="shaperExpression"/>, unless the set operation
-        ///     modified the return type (i.e. upcast to common ancestor).
-        /// </returns>
-        public Expression ApplySetOperation(
-            SetOperationType setOperationType,
-            SelectExpression otherSelectExpression,
-            Expression shaperExpression)
+        private enum SetOperationType
+        {
+            Except,
+            Intersect,
+            Union
+        }
+
+        public void ApplyExcept(SelectExpression source2, bool distinct)
+            => ApplySetOperation(SetOperationType.Except, source2, distinct);
+        public void ApplyIntersect(SelectExpression source2, bool distinct)
+            => ApplySetOperation(SetOperationType.Intersect, source2, distinct);
+        public void ApplyUnion(SelectExpression source2, bool distinct)
+            => ApplySetOperation(SetOperationType.Union, source2, distinct);
+
+        private void ApplySetOperation(SetOperationType setOperationType, SelectExpression select2, bool distinct)
         {
             // TODO: throw if there are pending collection joins
             // TODO: What happens when applying set operations on 2 queries with one of them being grouping
-            var select1 = new SelectExpression(null, new List<ProjectionExpression>(), _tables.ToList(), _groupBy.ToList(), _orderings.ToList())
+
+            var select1 = new SelectExpression(
+                null, new List<ProjectionExpression>(), _tables.ToList(), _groupBy.ToList(), _orderings.ToList())
             {
                 IsDistinct = IsDistinct,
                 Predicate = Predicate,
                 Having = Having,
                 Offset = Offset,
-                Limit = Limit,
-                SetOperationType = SetOperationType
+                Limit = Limit
             };
 
             select1._projectionMapping = new Dictionary<ProjectionMember, Expression>(_projectionMapping);
@@ -455,18 +442,26 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             select1._identifier.AddRange(_identifier);
             _identifier.Clear();
 
-            var select2 = otherSelectExpression;
-
-            if (_projection.Any())
+            var setExpression = (SetOperationBase)(setOperationType switch
             {
-                throw new InvalidOperationException("Can't process set operations after client evaluation, consider moving the operation before the last Select() call (see issue #16243)");
+                SetOperationType.Except => new ExceptExpression("t", select1, select2, distinct),
+                SetOperationType.Intersect => new IntersectExpression("t", select1, select2, distinct),
+                SetOperationType.Union => new UnionExpression("t", select1, select2, distinct),
+                _ => throw new InvalidOperationException($"Invalid {nameof(setOperationType)}: {setOperationType}")
+            });
+
+            if (_projection.Any() || select2._projection.Any())
+            {
+                throw new InvalidOperationException(
+                    "Can't process set operations after client evaluation, consider moving the operation" +
+                    " before the last Select() call (see issue #16243)");
             }
             else
             {
                 if (select1._projectionMapping.Count != select2._projectionMapping.Count)
                 {
                     // Should not be possible after compiler checks
-                    throw new Exception("Different projection mapping count in set operation");
+                    throw new InvalidOperationException("Different projection mapping count in set operation");
                 }
 
                 foreach (var joinedMapping in select1._projectionMapping.Join(
@@ -492,10 +487,14 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                             throw new InvalidOperationException("Set operations over different store types are currently unsupported");
                         }
 
-                        var alias = joinedMapping.Key.Last?.Name;
-                        select1.AddToProjection(innerColumn1, alias);
-                        select2.AddToProjection(innerColumn2, alias);
-                        _projectionMapping[joinedMapping.Key] = innerColumn1;
+                        var alias = generateUniqueAlias(joinedMapping.Key.Last?.Name
+                            ?? (innerColumn1 as ColumnExpression)?.Name
+                            ?? "c");
+
+                        var innerProjection = new ProjectionExpression(innerColumn1, alias);
+                        select1._projection.Add(innerProjection);
+                        select2._projection.Add(new ProjectionExpression(innerColumn2, alias));
+                        _projectionMapping[joinedMapping.Key] = new ColumnExpression(innerProjection, setExpression);
                         continue;
                     }
 
@@ -508,54 +507,59 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             IsDistinct = false;
             Predicate = null;
             Having = null;
+            _groupBy.Clear();
             _orderings.Clear();
             _tables.Clear();
-            _tables.Add(select1);
-            _tables.Add(otherSelectExpression);
-            SetOperationType = setOperationType;
-
-            return shaperExpression;
+            _tables.Add(setExpression);
 
             void handleEntityMapping(
                 ProjectionMember projectionMember,
                 SelectExpression select1, EntityProjectionExpression projection1,
                 SelectExpression select2, EntityProjectionExpression projection2)
             {
-                var propertyExpressions = new Dictionary<IProperty, ColumnExpression>();
-
-                if (projection1.EntityType == projection2.EntityType)
+                if (projection1.EntityType != projection2.EntityType)
                 {
-                    foreach (var property in GetAllPropertiesInHierarchy(projection1.EntityType))
-                    {
-                        propertyExpressions[property] = addSetOperationColumnProjections(
-                            property,
-                            select1, projection1.BindProperty(property),
-                            select2, projection2.BindProperty(property));
-                    }
-
-                    _projectionMapping[projectionMember] = new EntityProjectionExpression(projection1.EntityType, propertyExpressions);
-                    return;
+                    throw new InvalidOperationException("Set operations over different entity types are currently unsupported (see #16298)");
                 }
 
-                throw new InvalidOperationException("Set operations over different entity types are currently unsupported (see #16298)");
+                var propertyExpressions = new Dictionary<IProperty, ColumnExpression>();
+                foreach (var property in GetAllPropertiesInHierarchy(projection1.EntityType))
+                {
+                    propertyExpressions[property] = addSetOperationColumnProjections(
+                        select1, projection1.BindProperty(property),
+                        select2, projection2.BindProperty(property));
+                }
+
+                _projectionMapping[projectionMember] = new EntityProjectionExpression(projection1.EntityType, propertyExpressions);
             }
 
             ColumnExpression addSetOperationColumnProjections(
-                IProperty property,
                 SelectExpression select1, ColumnExpression column1,
                 SelectExpression select2, ColumnExpression column2)
             {
-                var columnName = column1.Name;
-
-                select1._projection.Add(new ProjectionExpression(column1, columnName));
-                select2._projection.Add(new ProjectionExpression(column2, columnName));
-
+                var alias = generateUniqueAlias(column1.Name);
+                var innerProjection = new ProjectionExpression(column1, alias);
+                select1._projection.Add(innerProjection);
+                select2._projection.Add(new ProjectionExpression(column2, alias));
+                var outerProjection = new ColumnExpression(innerProjection, setExpression);
                 if (select1._identifier.Contains(column1))
                 {
-                    _identifier.Add(column1);
+                    _identifier.Add(outerProjection);
                 }
 
-                return column1;
+                return outerProjection;
+            }
+
+            string generateUniqueAlias(string baseAlias)
+            {
+                var currentAlias = baseAlias ?? "";
+                var counter = 0;
+                while (select1._projection.Any(pe => string.Equals(pe.Alias, currentAlias, StringComparison.OrdinalIgnoreCase)))
+                {
+                    currentAlias = $"{baseAlias}{counter++}";
+                }
+
+                return currentAlias;
             }
         }
 
@@ -575,7 +579,6 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                 Having = Having,
                 Offset = Offset,
                 Limit = Limit,
-                SetOperationType = SetOperationType
             };
 
             var projectionMap = new Dictionary<SqlExpression, ColumnExpression>();
@@ -700,7 +703,6 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             IsDistinct = false;
             Predicate = null;
             Having = null;
-            SetOperationType = SetOperationType.None;
             _tables.Clear();
             _tables.Add(subquery);
             _groupBy.Clear();
@@ -964,12 +966,8 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             return null;
         }
 
-        // We treat a set operation as a transparent wrapper over its left operand (the ColumnExpression projection mappings
-        // found on a set operation SelectExpression are actually those of its left operand).
         private bool ContainsTableReference(TableExpressionBase table)
-            => IsSetOperation
-                ? ((SelectExpression)Tables[0]).ContainsTableReference(table)
-                : Tables.Any(te => ReferenceEquals(te is JoinExpressionBase jeb ? jeb.Table : te, table));
+            => Tables.Any(te => ReferenceEquals(te is JoinExpressionBase jeb ? jeb.Table : te, table));
 
         private class SelectExpressionCorrelationFindingExpressionVisitor : ExpressionVisitor
         {
@@ -1094,7 +1092,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             }
 
             // Verify what are the cases of pushdown for inner & outer both sides
-            if (Limit != null || Offset != null || IsDistinct || IsSetOperation || GroupBy.Count > 1)
+            if (Limit != null || Offset != null || IsDistinct || GroupBy.Count > 1)
             {
                 var sqlRemappingVisitor = new SqlRemappingVisitor(PushdownIntoSubquery(), (SelectExpression)Tables[0]);
                 innerSelectExpression = sqlRemappingVisitor.Remap(innerSelectExpression);
@@ -1338,7 +1336,6 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                         Offset = offset,
                         Limit = limit,
                         IsDistinct = IsDistinct,
-                        SetOperationType = SetOperationType
                     };
 
                     newSelectExpression._identifier.AddRange(_identifier);
@@ -1360,11 +1357,6 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         private bool Equals(SelectExpression selectExpression)
         {
             if (!base.Equals(selectExpression))
-            {
-                return false;
-            }
-
-            if (SetOperationType != selectExpression.SetOperationType)
             {
                 return false;
             }
@@ -1461,7 +1453,6 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                 Offset = offset,
                 Limit = limit,
                 IsDistinct = distinct,
-                SetOperationType = SetOperationType
             };
         }
 
@@ -1469,8 +1460,6 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         {
             var hash = new HashCode();
             hash.Add(base.GetHashCode());
-
-            hash.Add(SetOperationType);
 
             foreach (var projectionMapping in _projectionMapping)
             {
@@ -1520,69 +1509,59 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             expressionPrinter.AppendLine();
             IDisposable indent = null;
 
-            if (IsSetOperation)
+            if (Alias != null)
             {
-                expressionPrinter.Visit(Tables[0]);
-                expressionPrinter.AppendLine()
-                    .AppendLine(SetOperationType.ToString().ToUpperInvariant());
-                expressionPrinter.Visit(Tables[1]);
+                expressionPrinter.AppendLine("(");
+                indent = expressionPrinter.Indent();
+            }
+
+            expressionPrinter.Append("SELECT ");
+
+            if (IsDistinct)
+            {
+                expressionPrinter.Append("DISTINCT ");
+            }
+
+            if (Limit != null
+                && Offset == null)
+            {
+                expressionPrinter.Append("TOP(");
+                expressionPrinter.Visit(Limit);
+                expressionPrinter.Append(") ");
+            }
+
+            if (Projection.Any())
+            {
+                expressionPrinter.VisitList(Projection);
             }
             else
             {
-                if (Alias != null)
-                {
-                    expressionPrinter.AppendLine("(");
-                    indent = expressionPrinter.Indent();
-                }
+                expressionPrinter.Append("1");
+            }
 
-                expressionPrinter.Append("SELECT ");
+            if (Tables.Any())
+            {
+                expressionPrinter.AppendLine().Append("FROM ");
 
-                if (IsDistinct)
-                {
-                    expressionPrinter.Append("DISTINCT ");
-                }
+                expressionPrinter.VisitList(Tables, p => p.AppendLine());
+            }
 
-                if (Limit != null
-                    && Offset == null)
-                {
-                    expressionPrinter.Append("TOP(");
-                    expressionPrinter.Visit(Limit);
-                    expressionPrinter.Append(") ");
-                }
+            if (Predicate != null)
+            {
+                expressionPrinter.AppendLine().Append("WHERE ");
+                expressionPrinter.Visit(Predicate);
+            }
 
-                if (Projection.Any())
-                {
-                    expressionPrinter.VisitList(Projection);
-                }
-                else
-                {
-                    expressionPrinter.Append("1");
-                }
+            if (GroupBy.Any())
+            {
+                expressionPrinter.AppendLine().Append("GROUP BY ");
+                expressionPrinter.VisitList(GroupBy);
+            }
 
-                if (Tables.Any())
-                {
-                    expressionPrinter.AppendLine().Append("FROM ");
-
-                    expressionPrinter.VisitList(Tables, p => p.AppendLine());
-                }
-
-                if (Predicate != null)
-                {
-                    expressionPrinter.AppendLine().Append("WHERE ");
-                    expressionPrinter.Visit(Predicate);
-                }
-
-                if (GroupBy.Any())
-                {
-                    expressionPrinter.AppendLine().Append("GROUP BY ");
-                    expressionPrinter.VisitList(GroupBy);
-                }
-
-                if (Having != null)
-                {
-                    expressionPrinter.AppendLine().Append("HAVING ");
-                    expressionPrinter.Visit(Having);
-                }
+            if (Having != null)
+            {
+                expressionPrinter.AppendLine().Append("HAVING ");
+                expressionPrinter.Visit(Having);
             }
 
             if (Orderings.Any())
@@ -1615,37 +1594,6 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                 expressionPrinter.AppendLine().Append(") AS " + Alias);
             }
         }
-    }
-
-    /// <summary>
-    /// Marks a <see cref="SelectExpression"/> as representing an SQL set operation, such as a UNION.
-    /// </summary>
-    public enum SetOperationType
-    {
-        /// <summary>
-        /// Represents a regular SQL SELECT expression that isn't a set operation.
-        /// </summary>
-        None = 0,
-
-        /// <summary>
-        /// Represents an SQL UNION set operation.
-        /// </summary>
-        Union = 1,
-
-        /// <summary>
-        /// Represents an SQL UNION ALL set operation.
-        /// </summary>
-        UnionAll = 2,
-
-        /// <summary>
-        /// Represents an SQL INTERSECT set operation.
-        /// </summary>
-        Intersect = 3,
-
-        /// <summary>
-        /// Represents an SQL EXCEPT set operation.
-        /// </summary>
-        Except = 4
     }
 }
 

@@ -1615,7 +1615,7 @@ FROM (
     FROM [Gears] AS [g]
     WHERE [g].[Discriminator] IN (N'Gear', N'Officer')
     UNION ALL
-    SELECT [g0].[FullName]
+    SELECT [g0].[FullName] AS [Nickname]
     FROM [Gears] AS [g0]
     WHERE [g0].[Discriminator] IN (N'Gear', N'Officer')
 ) AS [t]");
@@ -1628,11 +1628,11 @@ FROM (
             AssertSql(
                 @"SELECT COUNT(*)
 FROM (
-    SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOrBirthName], [g].[Discriminator], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank]
+    SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOrBirthName], [g].[Discriminator], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank], [g].[Nickname] AS [Name]
     FROM [Gears] AS [g]
     WHERE [g].[Discriminator] IN (N'Gear', N'Officer')
     UNION ALL
-    SELECT [g0].[Nickname], [g0].[SquadId], [g0].[AssignedCityName], [g0].[CityOrBirthName], [g0].[Discriminator], [g0].[FullName], [g0].[HasSoulPatch], [g0].[LeaderNickname], [g0].[LeaderSquadId], [g0].[Rank]
+    SELECT [g0].[Nickname], [g0].[SquadId], [g0].[AssignedCityName], [g0].[CityOrBirthName], [g0].[Discriminator], [g0].[FullName], [g0].[HasSoulPatch], [g0].[LeaderNickname], [g0].[LeaderSquadId], [g0].[Rank], [g0].[FullName] AS [Name]
     FROM [Gears] AS [g0]
     WHERE [g0].[Discriminator] IN (N'Gear', N'Officer')
 ) AS [t]");

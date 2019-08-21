@@ -92,8 +92,32 @@ namespace Microsoft.EntityFrameworkCore.Query
             return sqlFragmentExpression;
         }
 
+        private bool IsNonComposedSetOperation(SelectExpression selectExpression)
+            => selectExpression.Offset == null
+                && selectExpression.Limit == null
+                && !selectExpression.IsDistinct
+                && selectExpression.Predicate == null
+                && selectExpression.Having == null
+                && selectExpression.Orderings.Count == 0
+                && selectExpression.GroupBy.Count == 0
+                && selectExpression.Tables.Count == 1
+                && selectExpression.Tables[0] is SetOperationBase setOperation
+                && selectExpression.Projection.Count == setOperation.Source1.Projection.Count
+                && selectExpression.Projection.Select((pe, index) => pe.Expression is ColumnExpression column
+                    && column.Table.Equals(setOperation)
+                    && string.Equals(column.Name, setOperation.Source1.Projection[index].Alias, StringComparison.OrdinalIgnoreCase))
+                    .All(e => e);
+
         protected override Expression VisitSelect(SelectExpression selectExpression)
         {
+            if (IsNonComposedSetOperation(selectExpression))
+            {
+                // Naked set operation
+                GenerateSetOperation((SetOperationBase)selectExpression.Tables[0]);
+
+                return selectExpression;
+            }
+
             IDisposable subQueryIndent = null;
 
             if (selectExpression.Alias != null)
@@ -102,28 +126,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                 subQueryIndent = _relationalCommandBuilder.Indent();
             }
 
-            if (selectExpression.IsSetOperation)
-            {
-                GenerateSetOperation(selectExpression);
-            }
-            else
-            {
-                GenerateSelect(selectExpression);
-            }
-
-            if (selectExpression.Alias != null)
-            {
-                subQueryIndent.Dispose();
-
-                _relationalCommandBuilder.AppendLine()
-                    .Append(")" + AliasSeparator + _sqlGenerationHelper.DelimitIdentifier(selectExpression.Alias));
-            }
-
-            return selectExpression;
-        }
-
-        protected virtual void GenerateSelect(SelectExpression selectExpression)
-        {
             _relationalCommandBuilder.Append("SELECT ");
 
             if (selectExpression.IsDistinct)
@@ -172,54 +174,16 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             GenerateOrderings(selectExpression);
             GenerateLimitOffset(selectExpression);
-        }
 
-        protected virtual void GenerateSetOperation(SelectExpression setOperationExpression)
-        {
-            Debug.Assert(setOperationExpression.Tables.Count == 2,
-                $"{nameof(SelectExpression)} with {setOperationExpression.Tables.Count} tables, must be 2");
-
-            static string GenerateSetOperationType(SetOperationType setOperationType)
-                => setOperationType switch
-                {
-                    SetOperationType.Union => "UNION",
-                    SetOperationType.UnionAll => "UNION ALL",
-                    SetOperationType.Intersect => "INTERSECT",
-                    SetOperationType.Except => "EXCEPT",
-                    _ => throw new InvalidOperationException($"Invalid {nameof(SetOperationType)}: {setOperationType}")
-                };
-
-            GenerateSetOperationOperand(setOperationExpression, (SelectExpression)setOperationExpression.Tables[0]);
-
-            _relationalCommandBuilder
-                .AppendLine()
-                .AppendLine(GenerateSetOperationType(setOperationExpression.SetOperationType));
-
-            GenerateSetOperationOperand(setOperationExpression, (SelectExpression)setOperationExpression.Tables[1]);
-
-            GenerateOrderings(setOperationExpression);
-            GenerateLimitOffset(setOperationExpression);
-        }
-
-        protected virtual void GenerateSetOperationOperand(
-            SelectExpression setOperationExpression,
-            SelectExpression operandExpression)
-        {
-            // INTERSECT has higher precedence over UNION and EXCEPT, but otherwise evaluation is left-to-right.
-            // To preserve meaning, add parentheses whenever a set operation is nested within a different set operation.
-            if (operandExpression.IsSetOperation
-                && operandExpression.SetOperationType != setOperationExpression.SetOperationType)
+            if (selectExpression.Alias != null)
             {
-                _relationalCommandBuilder.AppendLine("(");
-                using (_relationalCommandBuilder.Indent())
-                {
-                    Visit(operandExpression);
-                }
-                _relationalCommandBuilder.AppendLine().Append(")");
-                return;
+                subQueryIndent.Dispose();
+
+                _relationalCommandBuilder.AppendLine()
+                    .Append(")" + AliasSeparator + _sqlGenerationHelper.DelimitIdentifier(selectExpression.Alias));
             }
 
-            Visit(operandExpression);
+            return selectExpression;
         }
 
         protected override Expression VisitProjection(ProjectionExpression projectionExpression)
@@ -621,9 +585,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         protected virtual string GenerateOperator(SqlBinaryExpression binaryExpression)
-        {
-            return _operatorMap[binaryExpression.OperatorType];
-        }
+            => _operatorMap[binaryExpression.OperatorType];
 
         protected virtual void GenerateTop(SelectExpression selectExpression)
         {
@@ -657,8 +619,6 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         protected virtual void GenerateLimitOffset(SelectExpression selectExpression)
         {
-            // The below implements ISO SQL:2008
-
             if (selectExpression.Offset != null)
             {
                 _relationalCommandBuilder.AppendLine()
@@ -778,6 +738,76 @@ namespace Microsoft.EntityFrameworkCore.Query
             _relationalCommandBuilder.Append(")");
 
             return rowNumberExpression;
+        }
+
+        protected virtual void GenerateSetOperation(SetOperationBase setOperation)
+        {
+            string getSetOperation() => setOperation switch
+            {
+                ExceptExpression _ => "EXCEPT",
+                IntersectExpression _ => "INTERSECT",
+                UnionExpression _ => "UNION",
+                _ => throw new InvalidOperationException("Unknown SetOperationType."),
+            };
+
+            GenerateSetOperationOperand(setOperation, setOperation.Source1);
+            _relationalCommandBuilder.AppendLine();
+            _relationalCommandBuilder.AppendLine($"{getSetOperation()}{(setOperation.IsDistinct ? "" : " ALL")}");
+            GenerateSetOperationOperand(setOperation, setOperation.Source2);
+        }
+
+        protected virtual void GenerateSetOperationOperand(SetOperationBase setOperation, SelectExpression operand)
+        {
+            // INTERSECT has higher precedence over UNION and EXCEPT, but otherwise evaluation is left-to-right.
+            // To preserve meaning, add parentheses whenever a set operation is nested within a different set operation.
+            if (IsNonComposedSetOperation(operand)
+                && operand.Tables[0].GetType() != setOperation.GetType())
+            {
+                _relationalCommandBuilder.AppendLine("(");
+                using (_relationalCommandBuilder.Indent())
+                {
+                    Visit(operand);
+                }
+                _relationalCommandBuilder.AppendLine().Append(")");
+            }
+            else
+            {
+                Visit(operand);
+            }
+        }
+
+        private void GenerateSetOperationHelper(SetOperationBase setOperation)
+        {
+            _relationalCommandBuilder.AppendLine("(");
+            using (_relationalCommandBuilder.Indent())
+            {
+                GenerateSetOperation(setOperation);
+            }
+            _relationalCommandBuilder.AppendLine()
+                .Append(")")
+                .Append(AliasSeparator)
+                .Append(_sqlGenerationHelper.DelimitIdentifier(setOperation.Alias));
+        }
+
+        protected override Expression VisitExcept(ExceptExpression exceptExpression)
+        {
+            GenerateSetOperationHelper(exceptExpression);
+
+            return exceptExpression;
+        }
+
+        protected override Expression VisitIntersect(IntersectExpression intersectExpression)
+        {
+            GenerateSetOperationHelper(intersectExpression);
+
+            return intersectExpression;
+        }
+
+        protected override Expression VisitUnion(UnionExpression unionExpression)
+        {
+            GenerateSetOperationHelper(unionExpression);
+
+            return unionExpression;
         }
     }
 }
