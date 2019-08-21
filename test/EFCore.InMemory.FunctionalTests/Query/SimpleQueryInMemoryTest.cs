@@ -2,7 +2,10 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Dynamic;
+using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
@@ -201,5 +204,11 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         #endregion
+
+        [ConditionalTheory(Skip = "issue #17386")]
+        public override Task Where_equals_on_null_nullable_int_types(bool isAsync)
+        {
+            return base.Where_equals_on_null_nullable_int_types(isAsync);
+        }
     }
 }
