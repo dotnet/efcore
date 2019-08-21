@@ -740,16 +740,6 @@ FROM [Customers] AS [c]
 ORDER BY [c].[ContactName] DESC");
         }
 
-        public override async Task Last_when_no_order_by(bool isAsync)
-        {
-            await base.Last_when_no_order_by(isAsync);
-
-            AssertSql(
-                @"SELECT TOP(1) [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
-FROM [Customers] AS [c]
-WHERE [c].[CustomerID] = N'ALFKI'");
-        }
-
         public override async Task Last_Predicate(bool isAsync)
         {
             await base.Last_Predicate(isAsync);

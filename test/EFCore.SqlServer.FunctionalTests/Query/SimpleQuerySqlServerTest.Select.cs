@@ -621,7 +621,7 @@ FROM [Customers] AS [c]");
 
             AssertSql(
                 @"SELECT (
-    SELECT TOP(2) [t].[CustomerID]
+    SELECT TOP(1) [t].[CustomerID]
     FROM (
         SELECT TOP(1) [o].[CustomerID], [o].[OrderID]
         FROM [Orders] AS [o]

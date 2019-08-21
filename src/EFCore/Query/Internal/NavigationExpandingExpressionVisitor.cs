@@ -126,6 +126,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 {
                     var processedDefiningQueryBody = _parameterExtractingExpressionVisitor.ExtractParameters(definingQuery.Body);
                     processedDefiningQueryBody = _enumerableToQueryableMethodConvertingExpressionVisitor.Visit(processedDefiningQueryBody);
+                    processedDefiningQueryBody = new SelfReferenceEntityQueryableRewritingExpressionVisitor(this, entityType).Visit(processedDefiningQueryBody);
+
                     navigationExpansionExpression = (NavigationExpansionExpression)Visit(processedDefiningQueryBody);
 
                     var expanded = ExpandAndReduce(navigationExpansionExpression, applyInclude: false);
@@ -170,6 +172,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                         _parameterizedQueryFilterPredicateCache[rootEntityType] = filterPredicate;
                     }
 
+                    filterPredicate = (LambdaExpression)new SelfReferenceEntityQueryableRewritingExpressionVisitor(this, entityType).Visit(filterPredicate);
                     var sequenceType = navigationExpansionExpression.Type.GetSequenceType();
 
                     // if we are constructing EntityQueryable of a derived type, we need to re-map filter predicate to the correct derived type

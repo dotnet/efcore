@@ -615,5 +615,33 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 return base.Visit(expression);
             }
         }
+
+        private class SelfReferenceEntityQueryableRewritingExpressionVisitor : ExpressionVisitor
+        {
+            private readonly NavigationExpandingExpressionVisitor _navigationExpandingExpressionVisitor;
+            private readonly IEntityType _entityType;
+
+            public SelfReferenceEntityQueryableRewritingExpressionVisitor(
+                NavigationExpandingExpressionVisitor navigationExpandingExpressionVisitor,
+                IEntityType entityType)
+            {
+                _navigationExpandingExpressionVisitor = navigationExpandingExpressionVisitor;
+                _entityType = entityType;
+            }
+
+            protected override Expression VisitConstant(ConstantExpression constantExpression)
+            {
+                if (constantExpression.IsEntityQueryable())
+                {
+                    var entityType = _navigationExpandingExpressionVisitor._queryCompilationContext.Model.FindEntityType(((IQueryable)constantExpression.Value).ElementType);
+                    if (entityType == _entityType)
+                    {
+                        return _navigationExpandingExpressionVisitor.CreateNavigationExpansionExpression(constantExpression, entityType);
+                    }
+                }
+
+                return base.VisitConstant(constantExpression);
+            }
+        }
     }
 }

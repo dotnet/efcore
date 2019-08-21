@@ -347,6 +347,12 @@ FROM root c
 WHERE (c[""Discriminator""] = ""Employee"")");
         }
 
+        [ConditionalTheory(Skip = "Issue #17246")]
+        public override Task Where_query_composition_entity_equality_one_element_Single(bool isAsync)
+        {
+            return base.Where_query_composition_entity_equality_one_element_Single(isAsync);
+        }
+
         [ConditionalTheory(Skip = "Issue#17246")]
         public override async Task Where_query_composition_entity_equality_one_element_FirstOrDefault(bool isAsync)
         {
@@ -356,6 +362,12 @@ WHERE (c[""Discriminator""] = ""Employee"")");
                 @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Employee"")");
+        }
+
+        [ConditionalTheory(Skip = "Issue #17246")]
+        public override Task Where_query_composition_entity_equality_one_element_First(bool isAsync)
+        {
+            return base.Where_query_composition_entity_equality_one_element_First(isAsync);
         }
 
         [ConditionalTheory(Skip = "Issue #17246")]
@@ -369,6 +381,12 @@ FROM root c
 WHERE (c[""Discriminator""] = ""Employee"")");
         }
 
+        [ConditionalTheory(Skip = "Issue #17246")]
+        public override Task Where_query_composition_entity_equality_no_elements_Single(bool isAsync)
+        {
+            return base.Where_query_composition_entity_equality_no_elements_Single(isAsync);
+        }
+
         [ConditionalTheory(Skip = "Issue#17246")]
         public override async Task Where_query_composition_entity_equality_no_elements_FirstOrDefault(bool isAsync)
         {
@@ -380,6 +398,24 @@ FROM root c
 WHERE (c[""Discriminator""] = ""Employee"")");
         }
 
+        [ConditionalTheory(Skip = "Issue #17246")]
+        public override Task Where_query_composition_entity_equality_no_elements_First(bool isAsync)
+        {
+            return base.Where_query_composition_entity_equality_no_elements_First(isAsync);
+        }
+
+        [ConditionalTheory(Skip = "Issue #17246")]
+        public override Task Where_query_composition_entity_equality_multiple_elements_SingleOrDefault(bool isAsync)
+        {
+            return base.Where_query_composition_entity_equality_multiple_elements_SingleOrDefault(isAsync);
+        }
+
+        [ConditionalTheory(Skip = "Issue #17246")]
+        public override Task Where_query_composition_entity_equality_multiple_elements_Single(bool isAsync)
+        {
+            return base.Where_query_composition_entity_equality_multiple_elements_Single(isAsync);
+        }
+
         [ConditionalTheory(Skip = "Issue#17246")]
         public override async Task Where_query_composition_entity_equality_multiple_elements_FirstOrDefault(bool isAsync)
         {
@@ -389,6 +425,12 @@ WHERE (c[""Discriminator""] = ""Employee"")");
                 @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Employee"")");
+        }
+
+        [ConditionalTheory(Skip = "Issue #17246")]
+        public override Task Where_query_composition_entity_equality_multiple_elements_First(bool isAsync)
+        {
+            return base.Where_query_composition_entity_equality_multiple_elements_First(isAsync);
         }
 
         [ConditionalTheory(Skip = "Issue #17246")]

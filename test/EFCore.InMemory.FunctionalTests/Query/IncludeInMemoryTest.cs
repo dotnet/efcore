@@ -18,5 +18,11 @@ namespace Microsoft.EntityFrameworkCore.Query
         public override void Include_collection_with_client_filter(bool useString)
         {
         }
+
+        [ConditionalTheory(Skip = "Issue #16963")]
+        public override void Include_collection_with_last_no_orderby(bool useString)
+        {
+            base.Include_collection_with_last_no_orderby(useString);
+        }
     }
 }

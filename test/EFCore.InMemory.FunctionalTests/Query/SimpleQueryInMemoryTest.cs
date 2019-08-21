@@ -381,5 +381,47 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory(Skip = "Issue #16963")]
         public override Task Select_bool_closure_with_order_by_property_with_cast_to_nullable(bool isAsync) => null;
+
+        [ConditionalTheory(Skip = "Issue #16963")]
+        public override Task Where_query_composition_entity_equality_one_element_Single(bool isAsync)
+        {
+            return base.Where_query_composition_entity_equality_one_element_Single(isAsync);
+        }
+
+        [ConditionalTheory(Skip = "Issue #16963")]
+        public override Task Where_query_composition_entity_equality_one_element_First(bool isAsync)
+        {
+            return base.Where_query_composition_entity_equality_one_element_First(isAsync);
+        }
+
+        [ConditionalTheory(Skip = "Issue #16963")]
+        public override Task Where_query_composition_entity_equality_no_elements_Single(bool isAsync)
+        {
+            return base.Where_query_composition_entity_equality_no_elements_Single(isAsync);
+        }
+
+        [ConditionalTheory(Skip = "Issue #16963")]
+        public override Task Where_query_composition_entity_equality_no_elements_First(bool isAsync)
+        {
+            return base.Where_query_composition_entity_equality_no_elements_First(isAsync);
+        }
+
+        [ConditionalTheory(Skip = "Issue #16963")]
+        public override Task Where_query_composition_entity_equality_multiple_elements_SingleOrDefault(bool isAsync)
+        {
+            return base.Where_query_composition_entity_equality_multiple_elements_SingleOrDefault(isAsync);
+        }
+
+        [ConditionalTheory(Skip = "Issue #16963")]
+        public override Task Where_query_composition_entity_equality_multiple_elements_Single(bool isAsync)
+        {
+            return base.Where_query_composition_entity_equality_multiple_elements_Single(isAsync);
+        }
+
+        [ConditionalTheory(Skip = "Issue #16963")]
+        public override Task Last_when_no_order_by(bool isAsync)
+        {
+            return base.Last_when_no_order_by(isAsync);
+        }
     }
 }

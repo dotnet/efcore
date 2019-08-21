@@ -83,25 +83,6 @@ LEFT JOIN [Orders] AS [o] ON [t].[CustomerID] = [o].[CustomerID]
 ORDER BY [t].[CompanyName] DESC, [t].[CustomerID], [o].[OrderID]");
         }
 
-        public override void Include_collection_with_last_no_orderby(bool useString)
-        {
-            base.Include_collection_with_last_no_orderby(useString);
-
-            AssertSql(
-                @"SELECT TOP(1) [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
-FROM [Customers] AS [c]
-ORDER BY [c].[CustomerID] DESC",
-                //
-                @"SELECT [c.Orders].[OrderID], [c.Orders].[CustomerID], [c.Orders].[EmployeeID], [c.Orders].[OrderDate]
-FROM [Orders] AS [c.Orders]
-INNER JOIN (
-    SELECT TOP(1) [c0].[CustomerID]
-    FROM [Customers] AS [c0]
-    ORDER BY [c0].[CustomerID] DESC
-) AS [t] ON [c.Orders].[CustomerID] = [t].[CustomerID]
-ORDER BY [t].[CustomerID] DESC");
-        }
-
         public override void Include_collection_skip_no_order_by(bool useString)
         {
             base.Include_collection_skip_no_order_by(useString);
