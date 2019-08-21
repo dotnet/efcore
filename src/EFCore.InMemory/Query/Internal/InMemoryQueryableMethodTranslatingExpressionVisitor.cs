@@ -64,7 +64,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         protected override ShapedQueryExpression TranslateAll(ShapedQueryExpression source, LambdaExpression predicate)
         {
             var inMemoryQueryExpression = (InMemoryQueryExpression)source.QueryExpression;
-            predicate = TranslateLambdaExpression(source, predicate);
+            predicate = TranslateLambdaExpression(source, predicate, adjustNullability: true);
             if (predicate == null)
             {
                 return null;
@@ -93,7 +93,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             }
             else
             {
-                predicate = TranslateLambdaExpression(source, predicate);
+                predicate = TranslateLambdaExpression(source, predicate, adjustNullability: true);
                 if (predicate == null)
                 {
                     return null;
@@ -131,17 +131,23 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         protected override ShapedQueryExpression TranslateContains(ShapedQueryExpression source, Expression item)
         {
             var inMemoryQueryExpression = (InMemoryQueryExpression)source.QueryExpression;
+            var itemType = item.Type;
             item = TranslateExpression(item);
             if (item == null)
             {
                 return null;
             }
 
+            if (item.Type != itemType)
+            {
+                item = Expression.Convert(item, itemType);
+            }
+
             inMemoryQueryExpression.ServerQueryExpression =
                 Expression.Call(
-                    InMemoryLinqOperatorProvider.Contains.MakeGenericMethod(item.Type),
+                    InMemoryLinqOperatorProvider.Contains.MakeGenericMethod(itemType),
                     Expression.Call(
-                        InMemoryLinqOperatorProvider.Select.MakeGenericMethod(typeof(ValueBuffer), item.Type),
+                        InMemoryLinqOperatorProvider.Select.MakeGenericMethod(typeof(ValueBuffer), itemType),
                         inMemoryQueryExpression.ServerQueryExpression,
                         Expression.Lambda(
                             inMemoryQueryExpression.GetMappedProjection(new ProjectionMember()), inMemoryQueryExpression.ValueBufferParameter)),
@@ -165,7 +171,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             }
             else
             {
-                predicate = TranslateLambdaExpression(source, predicate);
+                predicate = TranslateLambdaExpression(source, predicate, adjustNullability: true);
                 if (predicate == null)
                 {
                     return null;
@@ -234,6 +240,10 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                 return null;
             }
 
+            var unifyNullabilityResult = UnifyNullability(outerKeySelector, innerKeySelector);
+            outerKeySelector = unifyNullabilityResult.lambda1;
+            innerKeySelector = unifyNullabilityResult.lambda2;
+
             var transparentIdentifierType = TransparentIdentifierFactory.Create(
                 resultSelector.Parameters[0].Type,
                 resultSelector.Parameters[1].Type);
@@ -250,6 +260,27 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                 inner.ShaperExpression,
                 transparentIdentifierType);
         }
+
+        private (LambdaExpression lambda1, LambdaExpression lambda2) UnifyNullability(LambdaExpression lambda1, LambdaExpression lambda2)
+        {
+            if (lambda1.Body.Type != lambda2.Body.Type)
+            {
+                if (IsNullableVersionOfAnotherType(lambda1.Body.Type, lambda2.Body.Type))
+                {
+                    lambda2 = Expression.Lambda(Expression.Convert(lambda2.Body, lambda1.Body.Type), lambda2.Parameters);
+                }
+                else if (IsNullableVersionOfAnotherType(lambda2.Body.Type, lambda1.Body.Type))
+                {
+                    lambda1 = Expression.Lambda(Expression.Convert(lambda1.Body, lambda2.Body.Type), lambda1.Parameters);
+                }
+            }
+
+            return (lambda1, lambda2);
+        }
+
+        // TODO: DRY
+        private bool IsNullableVersionOfAnotherType(Type maybeNullableType, Type nonNullableType)
+            => maybeNullableType.IsNullableType() && !nonNullableType.IsNullableType() && maybeNullableType.UnwrapNullableType() == nonNullableType;
 
         protected override ShapedQueryExpression TranslateLastOrDefault(ShapedQueryExpression source, LambdaExpression predicate, Type returnType, bool returnDefault)
         {
@@ -270,6 +301,10 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             {
                 return null;
             }
+
+            var unifyNullabilityResult = UnifyNullability(outerKeySelector, innerKeySelector);
+            outerKeySelector = unifyNullabilityResult.lambda1;
+            innerKeySelector = unifyNullabilityResult.lambda2;
 
             var transparentIdentifierType = TransparentIdentifierFactory.Create(
                 resultSelector.Parameters[0].Type,
@@ -301,7 +336,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             }
             else
             {
-                predicate = TranslateLambdaExpression(source, predicate);
+                predicate = TranslateLambdaExpression(source, predicate, adjustNullability: true);
                 if (predicate == null)
                 {
                     return null;
@@ -369,8 +404,8 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                                 Expression.Constant(derivedDerivedType.GetDiscriminatorValue(), discriminatorProperty.ClrType)));
                     }
 
-                    var predicate = TranslateLambdaExpression(source, Expression.Lambda(equals, parameter));
-                    if (predicate == null)
+                    var discriminatorPredicate = TranslateLambdaExpression(source, Expression.Lambda(equals, parameter));
+                    if (discriminatorPredicate == null)
                     {
                         return null;
                     }
@@ -378,7 +413,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                     inMemoryQueryExpression.ServerQueryExpression = Expression.Call(
                         InMemoryLinqOperatorProvider.Where.MakeGenericMethod(typeof(ValueBuffer)),
                         inMemoryQueryExpression.ServerQueryExpression,
-                        predicate);
+                        discriminatorPredicate);
 
                     var projectionBindingExpression = (ProjectionBindingExpression)entityShaperExpression.ValueBufferExpression;
                     var projectionMember = projectionBindingExpression.ProjectionMember;
@@ -587,7 +622,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         protected override ShapedQueryExpression TranslateWhere(ShapedQueryExpression source, LambdaExpression predicate)
         {
             var inMemoryQueryExpression = (InMemoryQueryExpression)source.QueryExpression;
-            predicate = TranslateLambdaExpression(source, predicate);
+            predicate = TranslateLambdaExpression(source, predicate, adjustNullability: true);
             if (predicate == null)
             {
                 return null;
@@ -607,9 +642,20 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         }
 
         private LambdaExpression TranslateLambdaExpression(
-            ShapedQueryExpression shapedQueryExpression, LambdaExpression lambdaExpression)
+            ShapedQueryExpression shapedQueryExpression,
+            LambdaExpression lambdaExpression,
+            bool adjustNullability = false)
         {
             var lambdaBody = TranslateExpression(RemapLambdaBody(shapedQueryExpression, lambdaExpression));
+
+            if (lambdaBody != null && adjustNullability)
+            {
+                lambdaBody = lambdaBody.Type == typeof(bool?)
+                    ? Expression.Equal(
+                        lambdaBody,
+                        Expression.Constant(true, typeof(bool?)))
+                    : lambdaBody;
+            }
 
             return lambdaBody != null
                 ? Expression.Lambda(lambdaBody,
@@ -628,6 +674,8 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         {
             var inMemoryQueryExpression = (InMemoryQueryExpression)source.QueryExpression;
 
+            var selectorBodyType = selector?.Body.Type;
+
             selector = selector == null
                 || selector.Body == selector.Parameters[0]
                 ? Expression.Lambda(
@@ -638,6 +686,11 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             if (selector == null)
             {
                 return null;
+            }
+
+            if (selectorBodyType != null && selector.Body.Type != selectorBodyType)
+            {
+                selector = Expression.Lambda(Expression.Convert(selector.Body, selectorBodyType), selector.Parameters);
             }
 
             inMemoryQueryExpression.ServerQueryExpression

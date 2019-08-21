@@ -244,5 +244,11 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         #endregion
+
+        [ConditionalTheory(Skip = "issue #17386")]
+        public override Task Where_equals_on_null_nullable_int_types(bool isAsync)
+        {
+            return base.Where_equals_on_null_nullable_int_types(isAsync);
+        }
     }
 }
