@@ -715,7 +715,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             var innerSelectExpression = (SelectExpression)shapedQueryExpression.QueryExpression;
             innerSelectExpression.ApplyProjection();
             var projectionCount = innerSelectExpression.Projection.Count;
-            AddLeftJoinLateral(innerSelectExpression, null);
+            AddOuterApply(innerSelectExpression, null);
 
             // Joined SelectExpression may different based on left join or outer apply
             // And it will always be SelectExpression because of presence of Take(1)
@@ -786,7 +786,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             }
 
             var joinExpression = joinPredicate == null
-                ? (TableExpressionBase)new LeftJoinLateralExpression(innerSelectExpression.Tables.Single())
+                ? (TableExpressionBase)new OuterApplyExpression(innerSelectExpression.Tables.Single())
                 : new LeftJoinExpression(innerSelectExpression.Tables.Single(), joinPredicate);
             _tables.Add(joinExpression);
 
@@ -1028,8 +1028,8 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             InnerJoin,
             LeftJoin,
             CrossJoin,
-            InnerJoinLateral,
-            LeftJoinLateral
+            CrossApply,
+            OuterApply
         }
 
         private void AddJoin(
@@ -1038,8 +1038,8 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             Type transparentIdentifierType,
             SqlExpression joinPredicate = null)
         {
-            // Try to convert lateral join to normal join
-            if (joinType == JoinType.InnerJoinLateral || joinType == JoinType.LeftJoinLateral)
+            // Try to convert Apply to normal join
+            if (joinType == JoinType.CrossApply || joinType == JoinType.OuterApply)
             {
                 // Doing for limit only since limit + offset may need sum
                 var limit = innerSelectExpression.Limit;
@@ -1080,7 +1080,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                             innerSelectExpression.ApplyPredicate(predicate);
                         }
 
-                        AddJoin(joinType == JoinType.InnerJoinLateral ? JoinType.InnerJoin : JoinType.LeftJoin,
+                        AddJoin(joinType == JoinType.CrossApply ? JoinType.InnerJoin : JoinType.LeftJoin,
                             innerSelectExpression, transparentIdentifierType, joinPredicate);
                         return;
                     }
@@ -1122,8 +1122,8 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                 JoinType.InnerJoin => new InnerJoinExpression(innerTable, joinPredicate),
                 JoinType.LeftJoin => new LeftJoinExpression(innerTable, joinPredicate),
                 JoinType.CrossJoin => new CrossJoinExpression(innerTable),
-                JoinType.InnerJoinLateral => new InnerJoinLateralExpression(innerTable),
-                JoinType.LeftJoinLateral => new LeftJoinLateralExpression(innerTable),
+                JoinType.CrossApply => new CrossApplyExpression(innerTable),
+                JoinType.OuterApply => new OuterApplyExpression(innerTable),
                 _ => throw new InvalidOperationException($"Invalid {nameof(joinType)}: {joinType}")
             });
 
@@ -1139,7 +1139,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                 }
 
                 var innerMemberInfo = transparentIdentifierType.GetTypeInfo().GetDeclaredField("Inner");
-                var innerNullable = joinType == JoinType.LeftJoin || joinType == JoinType.LeftJoinLateral;
+                var innerNullable = joinType == JoinType.LeftJoin || joinType == JoinType.OuterApply;
                 foreach (var projection in innerSelectExpression._projectionMapping)
                 {
                     var projectionToAdd = projection.Value;
@@ -1170,11 +1170,11 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         public void AddCrossJoin(SelectExpression innerSelectExpression, Type transparentIdentifierType)
             => AddJoin(JoinType.CrossJoin, innerSelectExpression, transparentIdentifierType);
 
-        public void AddInnerJoinLateral(SelectExpression innerSelectExpression, Type transparentIdentifierType)
-            => AddJoin(JoinType.InnerJoinLateral, innerSelectExpression, transparentIdentifierType);
+        public void AddCrossApply(SelectExpression innerSelectExpression, Type transparentIdentifierType)
+            => AddJoin(JoinType.CrossApply, innerSelectExpression, transparentIdentifierType);
 
-        public void AddLeftJoinLateral(SelectExpression innerSelectExpression, Type transparentIdentifierType)
-            => AddJoin(JoinType.LeftJoinLateral, innerSelectExpression, transparentIdentifierType);
+        public void AddOuterApply(SelectExpression innerSelectExpression, Type transparentIdentifierType)
+            => AddJoin(JoinType.OuterApply, innerSelectExpression, transparentIdentifierType);
 
         private class SqlRemappingVisitor : ExpressionVisitor
         {

@@ -140,7 +140,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         private string RemoveNewLines(string message)
             => message.Replace("\n", "").Replace("\r", "");
 
-        // Sqlite does not support lateral joins
+        // Sqlite does not support cross/outer apply
         public override Task Correlated_collections_inner_subquery_predicate_references_outer_qsre(bool isAsync) => null;
 
         public override Task Correlated_collections_inner_subquery_selector_references_outer_qsre(bool isAsync) => null;

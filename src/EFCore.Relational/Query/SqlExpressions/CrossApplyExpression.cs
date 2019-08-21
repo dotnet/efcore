@@ -5,9 +5,9 @@ using System.Linq.Expressions;
 
 namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 {
-    public class LeftJoinLateralExpression : JoinExpressionBase
+    public class CrossApplyExpression : JoinExpressionBase
     {
-        public LeftJoinLateralExpression(TableExpressionBase table)
+        public CrossApplyExpression(TableExpressionBase table)
             : base(table)
         {
         }
@@ -15,25 +15,25 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         protected override Expression VisitChildren(ExpressionVisitor visitor)
             => Update((TableExpressionBase)visitor.Visit(Table));
 
-        public virtual LeftJoinLateralExpression Update(TableExpressionBase table)
+        public virtual CrossApplyExpression Update(TableExpressionBase table)
             => table != Table
-                ? new LeftJoinLateralExpression(table)
+                ? new CrossApplyExpression(table)
                 : this;
 
         public override void Print(ExpressionPrinter expressionPrinter)
         {
-            expressionPrinter.Append("LEFT JOIN LATERAL ");
+            expressionPrinter.Append("CROSS APPLY ");
             expressionPrinter.Visit(Table);
         }
 
         public override bool Equals(object obj)
             => obj != null
             && (ReferenceEquals(this, obj)
-                || obj is LeftJoinLateralExpression leftJoinLateralExpression
-                    && Equals(leftJoinLateralExpression));
+                || obj is CrossApplyExpression crossApplyExpression
+                    && Equals(crossApplyExpression));
 
-        private bool Equals(LeftJoinLateralExpression leftJoinLateralExpression)
-            => base.Equals(leftJoinLateralExpression);
+        private bool Equals(CrossApplyExpression crossApplyExpression)
+            => base.Equals(crossApplyExpression);
 
         public override int GetHashCode() => base.GetHashCode();
     }

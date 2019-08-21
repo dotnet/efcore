@@ -1309,7 +1309,7 @@ FROM (
         public override Task Project_single_element_from_collection_with_multiple_OrderBys_Take_and_FirstOrDefault_2(bool isAsync)
             => base.Project_single_element_from_collection_with_multiple_OrderBys_Take_and_FirstOrDefault_2(isAsync);
 
-        // Sqlite does not support lateral joins
+        // Sqlite does not support cross/outer apply
         public override void Select_nested_collection_multi_level()
         {
         }
