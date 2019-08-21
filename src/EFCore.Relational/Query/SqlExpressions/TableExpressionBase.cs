@@ -33,14 +33,6 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         private bool Equals(TableExpressionBase tableExpressionBase)
             => string.Equals(Alias, tableExpressionBase.Alias);
 
-        public override int GetHashCode()
-        {
-            unchecked
-            {
-                var hashCode = (Alias?.GetHashCode() ?? 0);
-
-                return hashCode;
-            }
-        }
+        public override int GetHashCode() => HashCode.Combine(Alias);
     }
 }

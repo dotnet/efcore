@@ -387,5 +387,38 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
 
             return ApplyConversion(rowNumberExpression.Update(partitions, orderings), condition: false);
         }
+
+        protected override Expression VisitExcept(ExceptExpression exceptExpression)
+        {
+            var parentSearchCondition = _isSearchCondition;
+            _isSearchCondition = false;
+            var source1 = (SelectExpression)Visit(exceptExpression.Source1);
+            var source2 = (SelectExpression)Visit(exceptExpression.Source2);
+            _isSearchCondition = parentSearchCondition;
+
+            return exceptExpression.Update(source1, source2);
+        }
+
+        protected override Expression VisitIntersect(IntersectExpression intersectExpression)
+        {
+            var parentSearchCondition = _isSearchCondition;
+            _isSearchCondition = false;
+            var source1 = (SelectExpression)Visit(intersectExpression.Source1);
+            var source2 = (SelectExpression)Visit(intersectExpression.Source2);
+            _isSearchCondition = parentSearchCondition;
+
+            return intersectExpression.Update(source1, source2);
+        }
+
+        protected override Expression VisitUnion(UnionExpression unionExpression)
+        {
+            var parentSearchCondition = _isSearchCondition;
+            _isSearchCondition = false;
+            var source1 = (SelectExpression)Visit(unionExpression.Source1);
+            var source2 = (SelectExpression)Visit(unionExpression.Source2);
+            _isSearchCondition = parentSearchCondition;
+
+            return unionExpression.Update(source1, source2);
+        }
     }
 }
