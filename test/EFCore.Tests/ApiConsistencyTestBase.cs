@@ -4,11 +4,18 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+using Microsoft.EntityFrameworkCore.ValueGeneration;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
@@ -17,6 +24,16 @@ namespace Microsoft.EntityFrameworkCore
 {
     public abstract class ApiConsistencyTestBase
     {
+        private readonly Dictionary<Type, Type> _mutableMetadataTypes = new Dictionary<Type, Type>();
+
+        public ApiConsistencyTestBase()
+        {
+            foreach (var typeTuple in MetadataTypes)
+            {
+                _mutableMetadataTypes[typeTuple.Value.Mutable] = typeTuple.Value.Convention;
+            }
+        }
+
         protected const BindingFlags PublicInstance
             = BindingFlags.Instance | BindingFlags.Public;
 
@@ -40,6 +57,173 @@ namespace Microsoft.EntityFrameworkCore
             Assert.False(
                 voidMethods.Count > 0,
                 "\r\n-- Missing fluent returns --\r\n" + string.Join(Environment.NewLine, voidMethods));
+        }
+
+        protected virtual Dictionary<Type, (Type Mutable, Type Convention)> MetadataTypes
+            => new Dictionary<Type, (Type, Type)>();
+
+        private static readonly HashSet<Type> _ignoredMetadataReturnTypes = new HashSet<Type>()
+            {
+                typeof(bool),
+                typeof(bool?),
+                typeof(int),
+                typeof(int?),
+                typeof(string),
+                typeof(object),
+                typeof(Type),
+                typeof(DeleteBehavior),
+                typeof(ValueGenerated),
+                typeof(PropertyAccessMode),
+                typeof(PropertySaveBehavior),
+                typeof(ChangeTrackingStrategy),
+                typeof(ValueComparer),
+                typeof(ValueConverter),
+                typeof(Func<IProperty, IEntityType, ValueGenerator>),
+                typeof(IClrCollectionAccessor),
+                typeof(IClrPropertyGetter),
+                typeof(IClrPropertySetter),
+                typeof(LambdaExpression),
+                typeof(ServiceParameterBinding),
+                typeof(PropertyInfo),
+                typeof(FieldInfo),
+                typeof(MemberInfo),
+                typeof(CoreTypeMapping),
+                typeof(IAnnotation),
+                typeof(IEnumerable<IAnnotation>),
+                typeof(IEnumerable<IDictionary<string, object>>)
+            };
+
+        protected virtual HashSet<Type> IgnoredMetadataReturnTypes => _ignoredMetadataReturnTypes;
+
+        [ConditionalFact]
+        public void Mutable_metadata_types_have_matching_methods()
+        {
+            var errors =
+                MetadataTypes.Select(typeTuple =>
+                    from readonlyMethod in typeTuple.Key.GetMethods(PublicInstance | BindingFlags.Static)
+                    where readonlyMethod.Name != "get_Item"
+                        && readonlyMethod.Name != "FindRuntimeEntityType"
+                        && readonlyMethod.Name != "GetConcreteDerivedTypesInclusive"
+                        && readonlyMethod.Name != "GetClosestCommonParent"
+                        && readonlyMethod.Name != "LeastDerivedType"
+                        && readonlyMethod.Name != "GetAllBaseTypesInclusive"
+                        && readonlyMethod.Name != "GetAllBaseTypesInclusiveAscending"
+                    join mutableMethod in typeTuple.Value.Mutable.GetMethods(PublicInstance | BindingFlags.Static)
+                        on readonlyMethod.Name equals mutableMethod.Name into mutableGroup
+                    from mutableMethod in mutableGroup.DefaultIfEmpty()
+                    select (readonlyMethod, mutableMethod))
+                .SelectMany(m => m.Select(MatchMutable))
+                .Where(e => e != null)
+                .ToList();
+
+            Assert.False(
+                errors.Count > 0,
+                "\r\n-- Mismatches: --\r\n" + string.Join(Environment.NewLine, errors));
+        }
+
+        private string MatchMutable((MethodInfo Readonly, MethodInfo Mutable) methodTuple)
+        {
+            var (readonlyMethod, mutableMethod) = methodTuple;
+
+            if (IgnoredMetadataReturnTypes.Contains(readonlyMethod.ReturnType))
+            {
+                return null;
+            }
+
+            if (mutableMethod == null)
+            {
+                return $"No IMutable equivalent of {readonlyMethod.DeclaringType.Name}.{readonlyMethod.Name}";
+            }
+
+            if (readonlyMethod.ReturnType != null)
+            {
+                (Type Mutable, Type Convention) expectedReturnTypes;
+                if (MetadataTypes.TryGetValue(readonlyMethod.ReturnType, out expectedReturnTypes))
+                {
+                    if (mutableMethod.ReturnType != expectedReturnTypes.Mutable)
+                    {
+                        return $"{mutableMethod.DeclaringType.Name}.{mutableMethod.Name} expected to have {expectedReturnTypes.Mutable} return type";
+                    }
+                }
+                else
+                {
+                    var sequenceType = readonlyMethod.ReturnType.TryGetSequenceType();
+                    if (sequenceType != null
+                        && MetadataTypes.TryGetValue(sequenceType, out expectedReturnTypes))
+                    {
+                        if (mutableMethod.ReturnType.TryGetSequenceType() != expectedReturnTypes.Mutable)
+                        {
+                            return $"{mutableMethod.DeclaringType.Name}.{mutableMethod.Name} expected to have a return type that derives from IEnumerable<{expectedReturnTypes.Mutable}>.";
+                        }
+                    }
+                }
+            }
+
+            return null;
+        }
+
+        [ConditionalFact]
+        public void Convention_metadata_types_have_matching_methods()
+        {
+            var errors =
+                MetadataTypes.Select(typeTuple =>
+                    from mutableMethod in typeTuple.Value.Mutable.GetMethods(PublicInstance | BindingFlags.Static)
+                    where !mutableMethod.Name.StartsWith("set_")
+                        && mutableMethod.Name != "get_Item"
+                        && mutableMethod.Name != "RemoveIgnored"
+                        && mutableMethod.Name != "GetContainingPrimaryKey"
+                    join conventionMethod in typeTuple.Value.Convention.GetMethods(PublicInstance | BindingFlags.Static)
+                        on mutableMethod.Name equals conventionMethod.Name into conventionGroup
+                    from conventionMethod in conventionGroup.DefaultIfEmpty()
+                    select (mutableMethod, conventionMethod))
+                .SelectMany(m => m.Select(MatchConvention))
+                .Where(e => e != null)
+                .ToList();
+
+            Assert.False(
+                errors.Count > 0,
+                "\r\n-- Mismatches: --\r\n" + string.Join(Environment.NewLine, errors));
+        }
+
+        private string MatchConvention((MethodInfo Mutable, MethodInfo Convention) methodTuple)
+        {
+            var (mutableMethod, conventionMethod) = methodTuple;
+
+            if (IgnoredMetadataReturnTypes.Contains(mutableMethod.ReturnType))
+            {
+                return null;
+            }
+
+            if (conventionMethod == null)
+            {
+                return $"No IConvention equivalent of {mutableMethod.DeclaringType.Name}.{mutableMethod.Name}";
+            }
+
+            if (mutableMethod.ReturnType != null)
+            {
+                Type expectedReturnType;
+                if (_mutableMetadataTypes.TryGetValue(mutableMethod.ReturnType, out expectedReturnType))
+                {
+                    if (conventionMethod.ReturnType != expectedReturnType)
+                    {
+                        return $"{conventionMethod.DeclaringType.Name}.{conventionMethod.Name} expected to have {expectedReturnType} return type";
+                    }
+                }
+                else
+                {
+                    var sequenceType = mutableMethod.ReturnType.TryGetSequenceType();
+                    if (sequenceType != null
+                        && _mutableMetadataTypes.TryGetValue(sequenceType, out expectedReturnType))
+                    {
+                        if (conventionMethod.ReturnType.TryGetSequenceType() != expectedReturnType)
+                        {
+                            return $"{conventionMethod.DeclaringType.Name}.{conventionMethod.Name} expected to have a return type that derives from IEnumerable<{expectedReturnType}>.";
+                        }
+                    }
+                }
+            }
+
+            return null;
         }
 
         [ConditionalFact]

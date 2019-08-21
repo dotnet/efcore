@@ -30,6 +30,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         new IMutableEntityType BaseType { get; [param: CanBeNull] set; }
 
         /// <summary>
+        ///     Gets the defining entity type.
+        /// </summary>
+        new IMutableEntityType DefiningEntityType { get; }
+
+        /// <summary>
         ///     Gets or sets a value indicating whether the entity type has no keys.
         ///     If set to <c>true</c> it will only be usable for queries.
         /// </summary>

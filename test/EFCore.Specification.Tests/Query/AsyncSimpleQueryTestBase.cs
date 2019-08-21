@@ -29,7 +29,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         protected NorthwindContext CreateContext() => Fixture.CreateContext();
 
-        [ConditionalFact(Skip = "Issue #15249")]
+        [ConditionalFact(Skip = "Issue#17068")]
         public virtual async Task GroupBy_tracking_after_dispose()
         {
             List<IGrouping<string, Order>> groups;

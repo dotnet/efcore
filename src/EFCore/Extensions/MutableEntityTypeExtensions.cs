@@ -25,6 +25,17 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>
         ///     The root base type. If the given entity type is not a derived type, then the same entity type is returned.
         /// </returns>
+        public static IMutableEntityType GetRootType([NotNull] this IMutableEntityType entityType)
+            => (IMutableEntityType)((IEntityType)entityType).GetRootType();
+
+        /// <summary>
+        ///     Gets the root base type for a given entity type.
+        /// </summary>
+        /// <param name="entityType"> The type to find the root of. </param>
+        /// <returns>
+        ///     The root base type. If the given entity type is not a derived type, then the same entity type is returned.
+        /// </returns>
+        [Obsolete("Use GetRootType")]
         public static IMutableEntityType RootType([NotNull] this IMutableEntityType entityType)
             => (IMutableEntityType)((IEntityType)entityType).GetRootType();
 
@@ -498,25 +509,6 @@ namespace Microsoft.EntityFrameworkCore
             => ((EntityType)entityType).RemoveIndex(properties);
 
         /// <summary>
-        ///     <para>
-        ///         Sets the <see cref="PropertyAccessMode" /> to use for properties of all entity types
-        ///         in this model.
-        ///     </para>
-        ///     <para>
-        ///         Note that individual entity types can override this access mode, and individual properties of
-        ///         entity types can override the access mode set on the entity type. The value set here will
-        ///         be used for any property for which no override has been specified.
-        ///     </para>
-        /// </summary>
-        /// <param name="entityType"> The entity type to set the access mode for. </param>
-        /// <param name="propertyAccessMode"> The <see cref="PropertyAccessMode" />, or <c>null</c> to clear the mode set.</param>
-        public static void SetPropertyAccessMode(
-            [NotNull] this IConventionEntityType entityType,
-            PropertyAccessMode? propertyAccessMode)
-            => Check.NotNull(entityType, nameof(entityType)).AsEntityType()
-                .SetPropertyAccessMode(propertyAccessMode, ConfigurationSource.Explicit);
-
-        /// <summary>
         ///     Sets the change tracking strategy to use for this entity type. This strategy indicates how the
         ///     context detects changes to properties for an instance of the entity type.
         /// </summary>
@@ -549,6 +541,13 @@ namespace Microsoft.EntityFrameworkCore
             [CanBeNull] LambdaExpression definingQuery)
             => Check.NotNull(entityType, nameof(entityType)).AsEntityType()
                 .SetDefiningQuery(definingQuery, ConfigurationSource.Explicit);
+
+        /// <summary>
+        ///     Returns the <see cref="IMutableProperty" /> that will be used for storing a discriminator value.
+        /// </summary>
+        /// <param name="entityType"> The entity type to get the discriminator property for. </param>
+        public static IMutableProperty GetDiscriminatorProperty([NotNull] this IMutableEntityType entityType)
+            => (IMutableProperty)((IEntityType)entityType).GetDiscriminatorProperty();
 
         /// <summary>
         ///     Sets the <see cref="IProperty" /> that will be used for storing a discriminator value.

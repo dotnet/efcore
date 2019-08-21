@@ -125,14 +125,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
         private static bool ShouldUniquify(IConventionEntityType entityType, ICollection<IConventionEntityType> entityTypes)
         {
-            var rootType = entityType.RootType();
+            var rootType = entityType.GetRootType();
             var pkProperty = entityType.FindPrimaryKey()?.Properties[0];
             var rootSharedTableType = pkProperty?.FindSharedTableRootPrimaryKeyProperty()?.DeclaringEntityType;
 
             foreach (var otherEntityType in entityTypes)
             {
                 if (rootSharedTableType == otherEntityType
-                    || rootType == otherEntityType.RootType())
+                    || rootType == otherEntityType.GetRootType())
                 {
                     return false;
                 }

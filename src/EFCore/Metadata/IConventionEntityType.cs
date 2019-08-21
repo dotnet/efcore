@@ -42,6 +42,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         new IConventionEntityType BaseType { get; }
 
         /// <summary>
+        ///     Gets the defining entity type.
+        /// </summary>
+        new IConventionEntityType DefiningEntityType { get; }
+
+        /// <summary>
         ///     Gets a value indicating whether the entity type has no keys.
         ///     If <c>true</c> it will only be usable for queries.
         /// </summary>
