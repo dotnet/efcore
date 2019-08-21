@@ -1092,7 +1092,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             }
 
             // Verify what are the cases of pushdown for inner & outer both sides
-            if (Limit != null || Offset != null || IsDistinct || GroupBy.Count > 1)
+            if (Limit != null || Offset != null || IsDistinct || GroupBy.Count > 0)
             {
                 var sqlRemappingVisitor = new SqlRemappingVisitor(PushdownIntoSubquery(), (SelectExpression)Tables[0]);
                 innerSelectExpression = sqlRemappingVisitor.Remap(innerSelectExpression);
@@ -1105,7 +1105,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                 || innerSelectExpression.IsDistinct
                 || innerSelectExpression.Predicate != null
                 || innerSelectExpression.Tables.Count > 1
-                || innerSelectExpression.GroupBy.Count > 1)
+                || innerSelectExpression.GroupBy.Count > 0)
             {
                 joinPredicate = new SqlRemappingVisitor(
                     innerSelectExpression.PushdownIntoSubquery(), (SelectExpression)innerSelectExpression.Tables[0])

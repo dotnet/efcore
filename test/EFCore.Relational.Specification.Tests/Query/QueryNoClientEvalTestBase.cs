@@ -200,7 +200,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalFact(Skip = "Issue #15249")]
+        [ConditionalFact(Skip = "Issue#17068")]
         public virtual void Throws_when_group_by()
         {
             using (var context = CreateContext())
