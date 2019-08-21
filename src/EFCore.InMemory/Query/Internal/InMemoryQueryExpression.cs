@@ -13,7 +13,7 @@ using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
 {
-    public partial class InMemoryQueryExpression : Expression
+    public partial class InMemoryQueryExpression : Expression, IPrintableExpression
     {
         private static readonly ConstructorInfo _valueBufferConstructor
             = typeof(ValueBuffer).GetConstructors().Single(ci => ci.GetParameters().Length == 1);
@@ -749,6 +749,31 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                 resultSelector);
 
             _projectionMapping = projectionMapping;
+        }
+
+        public virtual void Print(ExpressionPrinter expressionPrinter)
+        {
+            expressionPrinter.AppendLine(nameof(InMemoryQueryExpression) + ": ");
+            using (expressionPrinter.Indent())
+            {
+                expressionPrinter.AppendLine(nameof(ServerQueryExpression) + ": ");
+                using (expressionPrinter.Indent())
+                {
+                    expressionPrinter.Visit(ServerQueryExpression);
+                }
+
+                expressionPrinter.AppendLine("ProjectionMapping:");
+                using (expressionPrinter.Indent())
+                {
+                    foreach (var projectionMapping in _projectionMapping)
+                    {
+                        expressionPrinter.Append("Member: " + projectionMapping.Key + " Projection: ");
+                        expressionPrinter.Visit(projectionMapping.Value);
+                    }
+                }
+
+                expressionPrinter.AppendLine();
+            }
         }
 
         private class NullableReadValueExpressionVisitor : ExpressionVisitor
