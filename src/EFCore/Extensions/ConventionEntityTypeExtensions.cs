@@ -26,6 +26,17 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>
         ///     The root base type. If the given entity type is not a derived type, then the same entity type is returned.
         /// </returns>
+        public static IConventionEntityType GetRootType([NotNull] this IConventionEntityType entityType)
+            => (IConventionEntityType)((IEntityType)entityType).GetRootType();
+
+        /// <summary>
+        ///     Gets the root base type for a given entity type.
+        /// </summary>
+        /// <param name="entityType"> The type to find the root of. </param>
+        /// <returns>
+        ///     The root base type. If the given entity type is not a derived type, then the same entity type is returned.
+        /// </returns>
+        [Obsolete("Use GetRootType")]
         public static IConventionEntityType RootType([NotNull] this IConventionEntityType entityType)
             => (IConventionEntityType)((IEntityType)entityType).GetRootType();
 
@@ -215,7 +226,6 @@ namespace Microsoft.EntityFrameworkCore
             [NotNull] this IConventionEntityType entityType,
             [NotNull] IReadOnlyList<IConventionProperty> properties)
             => ((EntityType)entityType).RemoveKey(properties);
-
 
         /// <summary>
         ///     <para>
@@ -610,6 +620,13 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> The configuration source for <see cref="EntityTypeExtensions.GetDefiningQuery" />. </returns>
         public static ConfigurationSource? GetDefiningQueryConfigurationSource([NotNull] this IConventionEntityType entityType)
             => entityType.FindAnnotation(CoreAnnotationNames.DefiningQuery)?.GetConfigurationSource();
+
+        /// <summary>
+        ///     Returns the <see cref="IConventionProperty" /> that will be used for storing a discriminator value.
+        /// </summary>
+        /// <param name="entityType"> The entity type to get the discriminator property for. </param>
+        public static IConventionProperty GetDiscriminatorProperty([NotNull] this IConventionEntityType entityType)
+            => (IConventionProperty)((IEntityType)entityType).GetDiscriminatorProperty();
 
         /// <summary>
         ///     Sets the <see cref="IProperty" /> that will be used for storing a discriminator value.

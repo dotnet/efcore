@@ -309,7 +309,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
             return crossJoinExpression.Update(table);
         }
 
-        protected override Expression VisitInnerJoinLateral(InnerJoinLateralExpression crossApplyExpression)
+        protected override Expression VisitCrossApply(CrossApplyExpression crossApplyExpression)
         {
             var parentSearchCondition = _isSearchCondition;
             _isSearchCondition = false;
@@ -319,7 +319,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
             return crossApplyExpression.Update(table);
         }
 
-        protected override Expression VisitLeftJoinLateral(LeftJoinLateralExpression outerApplyExpression)
+        protected override Expression VisitOuterApply(OuterApplyExpression outerApplyExpression)
         {
             var parentSearchCondition = _isSearchCondition;
             _isSearchCondition = false;

@@ -51,9 +51,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             b.BaseType = a;
             c.BaseType = b;
 
-            Assert.Same(a, a.RootType());
-            Assert.Same(a, b.RootType());
-            Assert.Same(a, c.RootType());
+            Assert.Same(a, a.GetRootType());
+            Assert.Same(a, b.GetRootType());
+            Assert.Same(a, c.GetRootType());
         }
 
         [ConditionalFact]

@@ -530,6 +530,11 @@ namespace Microsoft.EntityFrameworkCore.Query
                         Expression.Constant(((LambdaExpression)Visit(collectionShaper.InnerShaper)).Compile()));
                 }
 
+                if (extensionExpression is GroupByShaperExpression)
+                {
+                    throw new InvalidOperationException("Client side GroupBy is not supported.");
+                }
+
                 return base.VisitExtension(extensionExpression);
             }
 

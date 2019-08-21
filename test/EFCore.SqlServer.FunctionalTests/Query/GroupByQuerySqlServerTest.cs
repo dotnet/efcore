@@ -922,10 +922,10 @@ GROUP BY [c].[CustomerID]");
             await base.GroupBy_required_navigation_member_Aggregate(isAsync);
 
             AssertSql(
-                @"SELECT [od.Order].[CustomerID] AS [CustomerId], COUNT(*) AS [Count]
-FROM [Order Details] AS [od]
-INNER JOIN [Orders] AS [od.Order] ON [od].[OrderID] = [od.Order].[OrderID]
-GROUP BY [od.Order].[CustomerID]");
+                @"SELECT [o].[CustomerID] AS [CustomerId], COUNT(*) AS [Count]
+FROM [Order Details] AS [o0]
+INNER JOIN [Orders] AS [o] ON [o0].[OrderID] = [o].[OrderID]
+GROUP BY [o].[CustomerID]");
         }
 
         public override async Task Join_complex_GroupBy_Aggregate(bool isAsync)
@@ -1015,10 +1015,10 @@ GROUP BY [o].[OrderID]");
             await base.GroupBy_optional_navigation_member_Aggregate(isAsync);
 
             AssertSql(
-                @"SELECT [o.Customer].[Country], COUNT(*) AS [Count]
+                @"SELECT [c].[Country], COUNT(*) AS [Count]
 FROM [Orders] AS [o]
-LEFT JOIN [Customers] AS [o.Customer] ON [o].[CustomerID] = [o.Customer].[CustomerID]
-GROUP BY [o.Customer].[Country]");
+LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]
+GROUP BY [c].[Country]");
         }
 
         public override async Task GroupJoin_complex_GroupBy_Aggregate(bool isAsync)
@@ -1065,11 +1065,11 @@ GROUP BY [o].[CustomerID]");
             await base.GroupBy_multi_navigation_members_Aggregate(isAsync);
 
             AssertSql(
-                @"SELECT [od.Order].[CustomerID], [od.Product].[ProductName], COUNT(*) AS [Count]
-FROM [Order Details] AS [od]
-INNER JOIN [Products] AS [od.Product] ON [od].[ProductID] = [od.Product].[ProductID]
-INNER JOIN [Orders] AS [od.Order] ON [od].[OrderID] = [od.Order].[OrderID]
-GROUP BY [od.Order].[CustomerID], [od.Product].[ProductName]");
+                @"SELECT [o].[CustomerID], [p].[ProductName], COUNT(*) AS [Count]
+FROM [Order Details] AS [o0]
+INNER JOIN [Orders] AS [o] ON [o0].[OrderID] = [o].[OrderID]
+INNER JOIN [Products] AS [p] ON [o0].[ProductID] = [p].[ProductID]
+GROUP BY [o].[CustomerID], [p].[ProductName]");
         }
 
         public override async Task Union_simple_groupby(bool isAsync)
@@ -1106,9 +1106,10 @@ GROUP BY [o].[CustomerID]");
             await base.GroupBy_principal_key_property_optimization(isAsync);
 
             AssertSql(
-                @"SELECT [o].[CustomerID] AS [Key], COUNT(*) AS [Count]
+                @"SELECT [c].[CustomerID] AS [Key], COUNT(*) AS [Count]
 FROM [Orders] AS [o]
-GROUP BY [o].[CustomerID]");
+LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]
+GROUP BY [c].[CustomerID]");
         }
 
         public override async Task GroupBy_OrderBy_key(bool isAsync)
@@ -1268,34 +1269,31 @@ ORDER BY COUNT(*), [o].[CustomerID]");
             await base.GroupBy_Aggregate_Join(isAsync);
 
             AssertSql(
-                @"SELECT [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate]
-FROM [Orders] AS [o0]",
-                //
-                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
-FROM [Customers] AS [c]",
-                //
-                @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
-FROM [Orders] AS [o]
-ORDER BY [o].[CustomerID]");
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM (
+    SELECT [o0].[CustomerID], MAX([o0].[OrderID]) AS [c]
+    FROM [Orders] AS [o0]
+    GROUP BY [o0].[CustomerID]
+    HAVING COUNT(*) > 5
+) AS [t]
+INNER JOIN [Customers] AS [c] ON [t].[CustomerID] = [c].[CustomerID]
+INNER JOIN [Orders] AS [o] ON [t].[c] = [o].[OrderID]");
         }
 
         public override async Task Join_GroupBy_Aggregate_multijoins(bool isAsync)
         {
             await base.Join_GroupBy_Aggregate_multijoins(isAsync);
 
-            // This could be lifted. Blocked by bug #10812
             AssertSql(
-                @"SELECT [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate]
-FROM [Orders] AS [o0]",
-                //
-                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [t].[CustomerID], [t].[LastOrderID]
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Customers] AS [c]
 INNER JOIN (
-    SELECT [o].[CustomerID], MAX([o].[OrderID]) AS [LastOrderID]
-    FROM [Orders] AS [o]
-    GROUP BY [o].[CustomerID]
+    SELECT [o0].[CustomerID], MAX([o0].[OrderID]) AS [c]
+    FROM [Orders] AS [o0]
+    GROUP BY [o0].[CustomerID]
     HAVING COUNT(*) > 5
-) AS [t] ON [c].[CustomerID] = [t].[CustomerID]");
+) AS [t] ON [c].[CustomerID] = [t].[CustomerID]
+INNER JOIN [Orders] AS [o] ON [t].[c] = [o].[OrderID]");
         }
 
         public override async Task Join_GroupBy_Aggregate_single_join(bool isAsync)
@@ -1303,10 +1301,10 @@ INNER JOIN (
             await base.Join_GroupBy_Aggregate_single_join(isAsync);
 
             AssertSql(
-                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [t].[CustomerID], [t].[LastOrderID]
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [t].[c] AS [LastOrderID]
 FROM [Customers] AS [c]
 INNER JOIN (
-    SELECT [o].[CustomerID], MAX([o].[OrderID]) AS [LastOrderID]
+    SELECT [o].[CustomerID], MAX([o].[OrderID]) AS [c]
     FROM [Orders] AS [o]
     GROUP BY [o].[CustomerID]
     HAVING COUNT(*) > 5
@@ -1318,10 +1316,10 @@ INNER JOIN (
             await base.Join_GroupBy_Aggregate_with_another_join(isAsync);
 
             AssertSql(
-                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [t].[CustomerID], [t].[LastOrderID], [o0].[OrderID]
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [t].[c] AS [LastOrderID], [o0].[OrderID]
 FROM [Customers] AS [c]
 INNER JOIN (
-    SELECT [o].[CustomerID], MAX([o].[OrderID]) AS [LastOrderID]
+    SELECT [o].[CustomerID], MAX([o].[OrderID]) AS [c]
     FROM [Orders] AS [o]
     GROUP BY [o].[CustomerID]
     HAVING COUNT(*) > 5
@@ -1334,17 +1332,18 @@ INNER JOIN [Orders] AS [o0] ON [c].[CustomerID] = [o0].[CustomerID]");
             await base.Join_GroupBy_Aggregate_in_subquery(isAsync);
 
             AssertSql(
-                @"SELECT [c0].[CustomerID], [c0].[Address], [c0].[City], [c0].[CompanyName], [c0].[ContactName], [c0].[ContactTitle], [c0].[Country], [c0].[Fax], [c0].[Phone], [c0].[PostalCode], [c0].[Region], [t0].[CustomerID], [t0].[LastOrderID]
-FROM [Customers] AS [c0]
-INNER JOIN (
-    SELECT [o1].[CustomerID], MAX([o1].[OrderID]) AS [LastOrderID]
-    FROM [Orders] AS [o1]
-    GROUP BY [o1].[CustomerID]
-    HAVING COUNT(*) > 5
-) AS [t0] ON [c0].[CustomerID] = [t0].[CustomerID]",
-                //
-                @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+                @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate], [t0].[CustomerID], [t0].[Address], [t0].[City], [t0].[CompanyName], [t0].[ContactName], [t0].[ContactTitle], [t0].[Country], [t0].[Fax], [t0].[Phone], [t0].[PostalCode], [t0].[Region]
 FROM [Orders] AS [o]
+INNER JOIN (
+    SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [t].[CustomerID] AS [CustomerID0], [t].[c]
+    FROM [Customers] AS [c]
+    INNER JOIN (
+        SELECT [o0].[CustomerID], MAX([o0].[OrderID]) AS [c]
+        FROM [Orders] AS [o0]
+        GROUP BY [o0].[CustomerID]
+        HAVING COUNT(*) > 5
+    ) AS [t] ON [c].[CustomerID] = [t].[CustomerID]
+) AS [t0] ON [o].[CustomerID] = [t0].[CustomerID]
 WHERE [o].[OrderID] < 10400");
         }
 
@@ -1353,14 +1352,14 @@ WHERE [o].[OrderID] < 10400");
             await base.Join_GroupBy_Aggregate_on_key(isAsync);
 
             AssertSql(
-                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [t].[Key], [t].[LastOrderID]
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [t].[c] AS [LastOrderID]
 FROM [Customers] AS [c]
 INNER JOIN (
-    SELECT [o].[CustomerID] AS [Key], MAX([o].[OrderID]) AS [LastOrderID]
+    SELECT [o].[CustomerID], MAX([o].[OrderID]) AS [c]
     FROM [Orders] AS [o]
     GROUP BY [o].[CustomerID]
     HAVING COUNT(*) > 5
-) AS [t] ON [c].[CustomerID] = [t].[Key]");
+) AS [t] ON [c].[CustomerID] = [t].[CustomerID]");
         }
 
         public override async Task GroupBy_with_result_selector(bool isAsync)
