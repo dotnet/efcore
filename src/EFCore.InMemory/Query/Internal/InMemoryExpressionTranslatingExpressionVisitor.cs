@@ -145,7 +145,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                     return null;
                 }
 
-                subquery.ApplyServerProjection();
+                subquery.ApplyProjection();
                 if (subquery.Projection.Count != 1)
                 {
                     return null;

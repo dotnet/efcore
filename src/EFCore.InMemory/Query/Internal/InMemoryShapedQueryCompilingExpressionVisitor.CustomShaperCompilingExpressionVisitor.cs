@@ -9,6 +9,7 @@ using System.Reflection;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Query;
+using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
 {
@@ -72,8 +73,9 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
 
             private static void IncludeCollection<TEntity, TIncludingEntity, TIncludedEntity>(
                 QueryContext queryContext,
+                IEnumerable<ValueBuffer> innerValueBuffers,
+                Func<QueryContext, ValueBuffer, TIncludedEntity> innerShaper,
                 TEntity entity,
-                IEnumerable<TIncludedEntity> relatedEntities,
                 INavigation navigation,
                 INavigation inverseNavigation,
                 Action<TIncludingEntity, TIncludedEntity> fixup,
@@ -89,16 +91,18 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
 
                     if (trackingQuery)
                     {
-                        foreach (var relatedEntity in relatedEntities)
-                        {
-                            collectionAccessor.Add(includingEntity, relatedEntity, forMaterialization: true);
-                        }
-
-                        queryContext.SetNavigationIsLoaded(includingEntity, navigation);
+                        queryContext.SetNavigationIsLoaded(entity, navigation);
                     }
                     else
                     {
-                        foreach (var relatedEntity in relatedEntities)
+                        SetIsLoadedNoTracking(entity, navigation);
+                    }
+
+                    foreach (var valueBuffer in innerValueBuffers)
+                    {
+                        var relatedEntity = innerShaper(queryContext, valueBuffer);
+
+                        if (!trackingQuery)
                         {
                             fixup(includingEntity, relatedEntity);
                             if (inverseNavigation != null)
@@ -106,8 +110,6 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                                 SetIsLoadedNoTracking(relatedEntity, inverseNavigation);
                             }
                         }
-
-                        SetIsLoadedNoTracking(includingEntity, navigation);
                     }
                 }
             }
@@ -136,12 +138,13 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
 
                     if (includeExpression.Navigation.IsCollection())
                     {
+                        var collectionShaperExpression = (CollectionShaperExpression)includeExpression.NavigationExpression;
                         return Expression.Call(
                             _includeCollectionMethodInfo.MakeGenericMethod(entityClrType, includingClrType, relatedEntityClrType),
                             QueryCompilationContext.QueryContextParameter,
-                            // We don't need to visit entityExpression since it is supposed to be a parameterExpression only
+                            collectionShaperExpression.Projection,
+                            Expression.Constant(((LambdaExpression)Visit(collectionShaperExpression.InnerShaper)).Compile()),
                             includeExpression.EntityExpression,
-                            includeExpression.NavigationExpression,
                             Expression.Constant(includeExpression.Navigation),
                             Expression.Constant(inverseNavigation, typeof(INavigation)),
                             Expression.Constant(
@@ -153,7 +156,6 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                     return Expression.Call(
                         _includeReferenceMethodInfo.MakeGenericMethod(entityClrType, includingClrType, relatedEntityClrType),
                         QueryCompilationContext.QueryContextParameter,
-                        // We don't need to visit entityExpression since it is supposed to be a parameterExpression only
                         includeExpression.EntityExpression,
                         includeExpression.NavigationExpression,
                         Expression.Constant(includeExpression.Navigation),
