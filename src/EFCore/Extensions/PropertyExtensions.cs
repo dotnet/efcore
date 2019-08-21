@@ -59,14 +59,6 @@ namespace Microsoft.EntityFrameworkCore
             => property.FindTypeMapping();
 
         /// <summary>
-        ///     Gets the <see cref="ConfigurationSource" /> for <see cref="FindTypeMapping(IProperty)" />.
-        /// </summary>
-        /// <param name="property"> The property. </param>
-        /// <returns> The <see cref="ConfigurationSource" /> for <see cref="FindTypeMapping(IProperty)" />. </returns>
-        public static ConfigurationSource? GetTypeMappingConfigurationSource([NotNull] this IConventionProperty property)
-            => property.FindAnnotation(CoreAnnotationNames.TypeMapping)?.GetConfigurationSource();
-
-        /// <summary>
         ///     Finds the first principal property that the given property is constrained by
         ///     if the given property is part of a foreign key.
         /// </summary>

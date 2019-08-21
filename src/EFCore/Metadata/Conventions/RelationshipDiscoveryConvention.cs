@@ -419,7 +419,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 return relationshipCandidates;
             }
 
-            var relationshipCandidatesByRoot = relationshipCandidates.GroupBy(r => r.TargetTypeBuilder.Metadata.RootType())
+            var relationshipCandidatesByRoot = relationshipCandidates.GroupBy(r => r.TargetTypeBuilder.Metadata.GetRootType())
                 .ToDictionary(g => g.Key, g => g.ToList());
             foreach (var relationshipCandidatesHierarchy in relationshipCandidatesByRoot.Values)
             {

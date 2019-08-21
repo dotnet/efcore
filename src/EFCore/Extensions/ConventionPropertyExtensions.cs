@@ -73,6 +73,14 @@ namespace Microsoft.EntityFrameworkCore
             => ((Property)property).GetContainingKeys();
 
         /// <summary>
+        ///     Gets the <see cref="ConfigurationSource" /> for <see cref="PropertyExtensions.FindTypeMapping(IProperty)" />.
+        /// </summary>
+        /// <param name="property"> The property. </param>
+        /// <returns> The <see cref="ConfigurationSource" /> for <see cref="PropertyExtensions.FindTypeMapping(IProperty)" />. </returns>
+        public static ConfigurationSource? GetTypeMappingConfigurationSource([NotNull] this IConventionProperty property)
+            => property.FindAnnotation(CoreAnnotationNames.TypeMapping)?.GetConfigurationSource();
+
+        /// <summary>
         ///     Sets the maximum length of data that is allowed in this property. For example, if the property is a <see cref="string" /> '
         ///     then this is the maximum number of characters.
         /// </summary>

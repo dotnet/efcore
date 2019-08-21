@@ -3356,7 +3356,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual InternalPropertyBuilder GetOrCreateDiscriminatorProperty(Type type, string name, bool fromDataAnnotation)
         {
-            var discriminatorProperty = Metadata.GetDiscriminatorProperty();
+            var discriminatorProperty = ((IEntityType)Metadata).GetDiscriminatorProperty();
             if ((name != null && discriminatorProperty?.Name != name)
                 || (type != null && discriminatorProperty?.ClrType != type))
             {
@@ -3415,7 +3415,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
         private void RemoveUnusedDiscriminatorProperty(Property newDiscriminatorProperty, ConfigurationSource configurationSource)
         {
-            var oldDiscriminatorProperty = Metadata.GetDiscriminatorProperty() as Property;
+            var oldDiscriminatorProperty = ((IEntityType)Metadata).GetDiscriminatorProperty() as Property;
             if (oldDiscriminatorProperty?.Builder != null
                 && oldDiscriminatorProperty != newDiscriminatorProperty)
             {
@@ -4039,7 +4039,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         bool IConventionEntityTypeBuilder.CanSetDiscriminator(string name, bool fromDataAnnotation)
             => CanSetDiscriminator(
-                Metadata.GetDiscriminatorProperty(), name, discriminatorType: null,
+                ((IEntityType)Metadata).GetDiscriminatorProperty(), name, discriminatorType: null,
                 fromDataAnnotation);
 
         /// <summary>
@@ -4049,7 +4049,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         bool IConventionEntityTypeBuilder.CanSetDiscriminator(Type type, bool fromDataAnnotation)
-            => CanSetDiscriminator(Metadata.GetDiscriminatorProperty(), name: null, type, fromDataAnnotation);
+            => CanSetDiscriminator(((IEntityType)Metadata).GetDiscriminatorProperty(), name: null, type, fromDataAnnotation);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -4058,6 +4058,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         bool IConventionEntityTypeBuilder.CanSetDiscriminator(Type type, string name, bool fromDataAnnotation)
-            => CanSetDiscriminator(Metadata.GetDiscriminatorProperty(), name, type, fromDataAnnotation);
+            => CanSetDiscriminator(((IEntityType)Metadata).GetDiscriminatorProperty(), name, type, fromDataAnnotation);
     }
 }

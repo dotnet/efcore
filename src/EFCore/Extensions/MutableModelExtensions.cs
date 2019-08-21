@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -40,6 +41,26 @@ namespace Microsoft.EntityFrameworkCore
             [NotNull] string definingNavigationName,
             [NotNull] IMutableEntityType definingEntityType)
             => (IMutableEntityType)((IModel)model).FindEntityType(type, definingNavigationName, definingEntityType);
+
+        /// <summary>
+        ///     Gets the entity types matching the given type.
+        /// </summary>
+        /// <param name="model"> The model to find the entity type in. </param>
+        /// <param name="type"> The type of the entity type to find. </param>
+        /// <returns> The entity types found. </returns>
+        [DebuggerStepThrough]
+        public static IReadOnlyCollection<IMutableEntityType> GetEntityTypes([NotNull] this IMutableModel model, [NotNull] Type type)
+            => ((Model)model).GetEntityTypes(type);
+
+        /// <summary>
+        ///     Gets the entity types matching the given name.
+        /// </summary>
+        /// <param name="model"> The model to find the entity type in. </param>
+        /// <param name="name"> The name of the entity type to find. </param>
+        /// <returns> The entity types found. </returns>
+        [DebuggerStepThrough]
+        public static IReadOnlyCollection<IMutableEntityType> GetEntityTypes([NotNull] this IMutableModel model, [NotNull] string name)
+            => ((Model)model).GetEntityTypes(name);
 
         /// <summary>
         ///     Removes an entity type from the model.
@@ -223,6 +244,6 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="model"> The model to finalize. </param>
         /// <returns> The finalized <see cref="IModel" />. </returns>
-        public static IModel FinalizeModel([NotNull] this IMutableModel model) => model.AsModel().FinalizeModel();
+        public static IModel FinalizeModel([NotNull] this IMutableModel model) => (Model)model.FinalizeModel();
     }
 }

@@ -16,16 +16,6 @@ namespace Microsoft.EntityFrameworkCore
     public static class NavigationExtensions
     {
         /// <summary>
-        ///     Creates a new <see cref="MemberIdentity" /> for the given navigation property.
-        /// </summary>
-        /// <param name="navigation"> The navigation property. </param>
-        /// <returns> The new <see cref="MemberIdentity" />. </returns>
-        public static MemberIdentity CreateMemberIdentity([CanBeNull] this INavigation navigation)
-            => navigation?.GetIdentifyingMemberInfo() == null
-                ? MemberIdentity.Create(navigation?.Name)
-                : MemberIdentity.Create(navigation.GetIdentifyingMemberInfo());
-
-        /// <summary>
         ///     Gets the <see cref="IClrCollectionAccessor" /> for this navigation property, which must be a collection
         ///     navigation.
         /// </summary>
