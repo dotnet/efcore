@@ -30,11 +30,10 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     Creates a printable string representation of the given expression.
         /// </summary>
         /// <param name="expression"> The expression. </param>
-        /// <param name="removeFormatting"> If true, then internal formatting is removed. </param>
         /// <param name="characterLimit"> An optional limit to the number of characters included. </param>
         /// <returns> The printable representation. </returns>
-        public static string Print([NotNull] this Expression expression, bool removeFormatting = false, int? characterLimit = null)
-            => new ExpressionPrinter().Print(Check.NotNull(expression, nameof(expression)), removeFormatting, characterLimit);
+        public static string Print([NotNull] this Expression expression, int? characterLimit = null)
+            => new ExpressionPrinter().Print(Check.NotNull(expression, nameof(expression)), characterLimit);
 
         /// <summary>
         ///     Creates a <see cref="MemberExpression"></see> that represents accessing either a field or a property.

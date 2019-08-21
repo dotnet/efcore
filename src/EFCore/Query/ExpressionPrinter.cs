@@ -51,8 +51,6 @@ namespace Microsoft.EntityFrameworkCore.Query
             _encounteredParameters = new List<ParameterExpression>();
         }
 
-        private bool RemoveFormatting { get; set; }
-
         private int? CharacterLimit { get; set; }
 
         private bool GenerateUniqueParameterIds { get; set; }
@@ -105,30 +103,22 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         private void AppendLine([NotNull] string message)
         {
-            if (RemoveFormatting)
-            {
-                _stringBuilder.Append(string.IsNullOrEmpty(message) ? " " : message);
-            }
-
             _stringBuilder.AppendLine(message);
         }
 
         public virtual string Print(
             Expression expression,
-            bool removeFormatting = false,
             int? characterLimit = null)
-            => PrintCore(expression, removeFormatting, characterLimit, generateUniqueParameterIds: false);
+            => PrintCore(expression, characterLimit, generateUniqueParameterIds: false);
 
         public virtual string PrintDebug(
             Expression expression,
-            bool removeFormatting = false,
             int? characterLimit = null,
             bool generateUniqueParameterIds = true)
-            => PrintCore(expression, removeFormatting, characterLimit, generateUniqueParameterIds);
+            => PrintCore(expression, characterLimit, generateUniqueParameterIds);
 
         protected virtual string PrintCore(
             Expression expression,
-            bool removeFormatting,
             int? characterLimit,
             bool generateUniqueParameterIds)
         {
@@ -137,7 +127,6 @@ namespace Microsoft.EntityFrameworkCore.Query
             _namelessParameters.Clear();
             _encounteredParameters.Clear();
 
-            RemoveFormatting = removeFormatting;
             CharacterLimit = characterLimit;
             GenerateUniqueParameterIds = generateUniqueParameterIds;
 
