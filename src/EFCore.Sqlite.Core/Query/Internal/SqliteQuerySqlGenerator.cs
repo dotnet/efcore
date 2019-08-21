@@ -45,21 +45,10 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
             }
         }
 
-        protected override void GenerateSetOperationOperand(
-            SelectExpression setOperationExpression,
-            SelectExpression operandExpression)
+        protected override void GenerateSetOperationOperand(SetOperationBase setOperation, SelectExpression operand)
         {
             // Sqlite doesn't support parentheses around set operation operands
-
-            IDisposable indent = null;
-            if (!operandExpression.IsSetOperation)
-            {
-                indent = Sql.Indent();
-            }
-
-            Visit(operandExpression);
-
-            indent?.Dispose();
+            Visit(operand);
         }
     }
 }
