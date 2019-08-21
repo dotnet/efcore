@@ -301,6 +301,6 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="model"> The model to finalize. </param>
         /// <returns> The finalized <see cref="IModel" />. </returns>
-        public static IModel FinalizeModel([NotNull] this IConventionModel model) => (Model)model.FinalizeModel();
+        public static IModel FinalizeModel([NotNull] this IConventionModel model) => ((Model)model).FinalizeModel();
     }
 }
