@@ -56,13 +56,6 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <returns> True if the expression can be evaluated; false otherwise. </returns>
         public override bool IsEvaluatableExpression(Expression expression, IModel model)
         {
-#pragma warning disable 618
-            if (!IsEvaluatableExpression(expression))
-#pragma warning restore 618
-            {
-                return false;
-            }
-
             if (expression is MethodCallExpression methodCallExpression
                 && model.FindDbFunction(methodCallExpression.Method) != null)
             {
@@ -71,12 +64,5 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             return base.IsEvaluatableExpression(expression, model);
         }
-        /// <summary>
-        ///     Checks whether the given expression can be evaluated.
-        /// </summary>
-        /// <param name="expression"> The expression. </param>
-        /// <returns> True if the expression can be evaluated; false otherwise. </returns>
-        [Obsolete("Remove once Npgsql provioder is updated to not use this.")]
-        public virtual bool IsEvaluatableExpression(Expression expression) => true;
     }
 }
