@@ -5,10 +5,11 @@ using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Query;
 
 namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
 {
-    public class EntityProjectionExpression : Expression
+    public class EntityProjectionExpression : Expression, IPrintableExpression
     {
         private readonly IDictionary<IProperty, Expression> _readExpressionMap;
 
@@ -49,6 +50,20 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             }
 
             return _readExpressionMap[property];
+        }
+
+        public virtual void Print(ExpressionPrinter expressionPrinter)
+        {
+            expressionPrinter.AppendLine(nameof(EntityProjectionExpression) + ":");
+            using (expressionPrinter.Indent())
+            {
+                foreach (var readExpressionMapEntry in _readExpressionMap)
+                {
+                    expressionPrinter.Append(readExpressionMapEntry.Key + " -> ");
+                    expressionPrinter.Visit(readExpressionMapEntry.Value);
+                    expressionPrinter.AppendLine();
+                }
+            }
         }
     }
 }
