@@ -250,14 +250,15 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 1);
         }
 
-        [ConditionalTheory(Skip = "Issue#10001")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Take_Select_Navigation(bool isAsync)
         {
             return AssertQuery<Customer>(
                 isAsync,
                 cs => cs.OrderBy(c => c.CustomerID).Take(2)
-                    .Select(c => c.Orders.OrderBy(o => o.OrderID).FirstOrDefault()));
+                    .Select(c => c.Orders.OrderBy(o => o.OrderID).FirstOrDefault()),
+                entryCount: 2);
         }
 
         [ConditionalTheory]
@@ -279,7 +280,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     .Select(c => c.Orders.OrderBy(o => o.OrderID).Select(o => o.CustomerID).FirstOrDefault()));
         }
 
-        [ConditionalTheory(Skip = "Issue#10001")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Select_collection_FirstOrDefault_project_anonymous_type(bool isAsync)
         {
@@ -295,16 +296,17 @@ namespace Microsoft.EntityFrameworkCore.Query
                 assertOrder: true);
         }
 
-        [ConditionalTheory(Skip = "Issue#10001")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Select_collection_FirstOrDefault_project_entity(bool isAsync)
         {
             return AssertQuery<Customer>(
                 isAsync,
-                cs => cs.OrderBy(c => c.CustomerID).Take(2).Select(c => c.Orders.OrderBy(o => o.OrderID).FirstOrDefault()));
+                cs => cs.OrderBy(c => c.CustomerID).Take(2).Select(c => c.Orders.OrderBy(o => o.OrderID).FirstOrDefault()),
+                entryCount: 2);
         }
 
-        [ConditionalTheory(Skip = "Issue#10001")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Skip_Select_Navigation(bool isAsync)
         {
@@ -313,6 +315,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 cs => cs.OrderBy(c => c.CustomerID)
                     .Skip(20)
                     .Select(c => c.Orders.OrderBy(o => o.OrderID).FirstOrDefault()),
+                entryCount: 69,
                 assertOrder: true);
         }
 
@@ -962,7 +965,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalTheory(Skip = "Issue#10001")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Collection_select_nav_prop_first_or_default(bool isAsync)
         {
@@ -980,10 +983,11 @@ namespace Microsoft.EntityFrameworkCore.Query
                       {
                           First = (c.Orders ?? new List<Order>()).FirstOrDefault()
                       },
-                assertOrder: true);
+                assertOrder: true,
+                entryCount: 89);
         }
 
-        [ConditionalTheory(Skip = "Issue#10001")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Collection_select_nav_prop_first_or_default_then_nav_prop(bool isAsync)
         {
@@ -1008,7 +1012,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                               : null
                       },
                 elementSorter: e => e.Customer?.CustomerID,
-                elementAsserter: (e, a) => Assert.Equal(e.Customer?.CustomerID, a.Customer?.CustomerID));
+                elementAsserter: (e, a) => Assert.Equal(e.Customer?.CustomerID, a.Customer?.CustomerID),
+                entryCount: 1);
         }
 
         [ConditionalTheory]
@@ -1316,7 +1321,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 elementSorter: e => e.CustomerID);
         }
 
-        [ConditionalTheory(Skip = "Issue#10001")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Project_single_entity_value_subquery_works(bool isAsync)
         {
@@ -1330,7 +1335,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                           c.CustomerID,
                           Order = c.Orders.OrderBy(o => o.OrderID).FirstOrDefault()
                       },
-                elementSorter: e => e.CustomerID);
+                elementSorter: e => e.CustomerID,
+                entryCount: 4);
         }
 
         [ConditionalTheory]

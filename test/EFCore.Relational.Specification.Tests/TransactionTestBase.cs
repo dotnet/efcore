@@ -51,7 +51,7 @@ namespace Microsoft.EntityFrameworkCore
                     });
 
 
-                context.Entry(context.Set<TransactionCustomer>().Last()).State = EntityState.Added;
+                context.Entry(context.Set<TransactionCustomer>().OrderBy(c => c.Id).Last()).State = EntityState.Added;
 
                 Assert.Throws<DbUpdateException>(() => context.SaveChanges());
 
@@ -176,7 +176,7 @@ namespace Microsoft.EntityFrameworkCore
                             Name = "Bobble"
                         });
 
-                    context.Entry(context.Set<TransactionCustomer>().Last()).State = EntityState.Added;
+                    context.Entry(context.Set<TransactionCustomer>().OrderBy(c => c.Id).Last()).State = EntityState.Added;
 
                     if (async)
                     {
@@ -250,7 +250,7 @@ namespace Microsoft.EntityFrameworkCore
                             Name = "Bobble"
                         });
 
-                    context.Entry(context.Set<TransactionCustomer>().Last()).State = EntityState.Added;
+                    context.Entry(context.Set<TransactionCustomer>().OrderBy(c => c.Id).Last()).State = EntityState.Added;
 
                     context.Database.AutoTransactionsEnabled = true;
                 }
@@ -302,7 +302,7 @@ namespace Microsoft.EntityFrameworkCore
                             Name = "Bobble"
                         });
 
-                    context.Entry(context.Set<TransactionCustomer>().Last()).State = EntityState.Added;
+                    context.Entry(context.Set<TransactionCustomer>().OrderBy(c => c.Id).Last()).State = EntityState.Added;
 
                     if (async)
                     {
@@ -347,7 +347,7 @@ namespace Microsoft.EntityFrameworkCore
                             Name = "Bobble"
                         });
 
-                    context.Entry(context.Set<TransactionCustomer>().Last()).State = EntityState.Added;
+                    context.Entry(context.Set<TransactionCustomer>().OrderBy(c => c.Id).Last()).State = EntityState.Added;
 
                     if (async)
                     {
@@ -421,7 +421,7 @@ namespace Microsoft.EntityFrameworkCore
                             Name = "Bobble"
                         });
 
-                    context.Entry(context.Set<TransactionCustomer>().Last()).State = EntityState.Added;
+                    context.Entry(context.Set<TransactionCustomer>().OrderBy(c => c.Id).Last()).State = EntityState.Added;
 
                     if (async)
                     {
@@ -464,7 +464,7 @@ namespace Microsoft.EntityFrameworkCore
                             Name = "Bobble"
                         });
 
-                    context.Entry(context.Set<TransactionCustomer>().Last()).State = EntityState.Added;
+                    context.Entry(context.Set<TransactionCustomer>().OrderBy(c => c.Id).Last()).State = EntityState.Added;
 
                     using (new TransactionScope(TransactionScopeOption.Suppress))
                     {
@@ -501,7 +501,7 @@ namespace Microsoft.EntityFrameworkCore
                             Name = "Bobble"
                         });
 
-                    context.Entry(context.Set<TransactionCustomer>().Last()).State = EntityState.Added;
+                    context.Entry(context.Set<TransactionCustomer>().OrderBy(c => c.Id).Last()).State = EntityState.Added;
                 }
 
                 using (var transaction = new CommittableTransaction(TimeSpan.FromMinutes(10)))

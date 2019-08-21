@@ -25,6 +25,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         private readonly RelationalProjectionBindingExpressionVisitor _projectionBindingExpressionVisitor;
         private readonly IModel _model;
         private readonly ISqlExpressionFactory _sqlExpressionFactory;
+        private readonly bool _subquery;
 
         public RelationalQueryableMethodTranslatingExpressionVisitor(
             QueryableMethodTranslatingExpressionVisitorDependencies dependencies,
@@ -40,6 +41,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             _projectionBindingExpressionVisitor = new RelationalProjectionBindingExpressionVisitor(this, _sqlTranslator);
             _model = model;
             _sqlExpressionFactory = sqlExpressionFactory;
+            _subquery = false;
         }
 
         protected virtual RelationalQueryableMethodTranslatingExpressionVisitorDependencies RelationalDependencies { get; }
@@ -54,6 +56,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             _weakEntityExpandingExpressionVisitor = parentVisitor._weakEntityExpandingExpressionVisitor;
             _projectionBindingExpressionVisitor = new RelationalProjectionBindingExpressionVisitor(this, _sqlTranslator);
             _sqlExpressionFactory = parentVisitor._sqlExpressionFactory;
+            _subquery = true;
         }
 
         protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
@@ -180,9 +183,8 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         protected override ShapedQueryExpression TranslateConcat(ShapedQueryExpression source1, ShapedQueryExpression source2)
         {
-            var operand1 = (SelectExpression)source1.QueryExpression;
-            var operand2 = (SelectExpression)source2.QueryExpression;
-            source1.ShaperExpression = operand1.ApplySetOperation(SetOperationType.UnionAll, operand2, source1.ShaperExpression);
+            ((SelectExpression)source1.QueryExpression).ApplyUnion((SelectExpression)source2.QueryExpression, distinct: false);
+
             return source1;
         }
 
@@ -259,9 +261,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         protected override ShapedQueryExpression TranslateExcept(ShapedQueryExpression source1, ShapedQueryExpression source2)
         {
-            var operand1 = (SelectExpression)source1.QueryExpression;
-            var operand2 = (SelectExpression)source2.QueryExpression;
-            source1.ShaperExpression = operand1.ApplySetOperation(SetOperationType.Except, operand2, source1.ShaperExpression);
+            ((SelectExpression)source1.QueryExpression).ApplyExcept((SelectExpression)source2.QueryExpression, distinct: true);
             return source1;
         }
 
@@ -441,9 +441,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         protected override ShapedQueryExpression TranslateIntersect(ShapedQueryExpression source1, ShapedQueryExpression source2)
         {
-            var operand1 = (SelectExpression)source1.QueryExpression;
-            var operand2 = (SelectExpression)source2.QueryExpression;
-            source1.ShaperExpression = operand1.ApplySetOperation(SetOperationType.Intersect, operand2, source1.ShaperExpression);
+            ((SelectExpression)source1.QueryExpression).ApplyIntersect((SelectExpression)source2.QueryExpression, distinct: true);
             return source1;
         }
 
@@ -555,12 +553,17 @@ namespace Microsoft.EntityFrameworkCore.Query
         protected override ShapedQueryExpression TranslateLastOrDefault(
             ShapedQueryExpression source, LambdaExpression predicate, Type returnType, bool returnDefault)
         {
+            var selectExpression = (SelectExpression)source.QueryExpression;
+            if (selectExpression.Orderings.Count == 0)
+            {
+                return null;
+            }
+
             if (predicate != null)
             {
                 source = TranslateWhere(source, predicate);
             }
 
-            var selectExpression = (SelectExpression)source.QueryExpression;
             selectExpression.ReverseOrderings();
             selectExpression.ApplyLimit(TranslateExpression(Expression.Constant(1)));
 
@@ -849,7 +852,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
 
             var selectExpression = (SelectExpression)source.QueryExpression;
-            selectExpression.ApplyLimit(TranslateExpression(Expression.Constant(2)));
+            selectExpression.ApplyLimit(TranslateExpression(Expression.Constant(_subquery ? 1 : 2)));
 
             if (source.ShaperExpression.Type != returnType)
             {
@@ -929,9 +932,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         protected override ShapedQueryExpression TranslateUnion(ShapedQueryExpression source1, ShapedQueryExpression source2)
         {
-            var operand1 = (SelectExpression)source1.QueryExpression;
-            var operand2 = (SelectExpression)source2.QueryExpression;
-            source1.ShaperExpression = operand1.ApplySetOperation(SetOperationType.Union, operand2, source1.ShaperExpression);
+            ((SelectExpression)source1.QueryExpression).ApplyUnion((SelectExpression)source2.QueryExpression, distinct: true);
             return source1;
         }
 
@@ -1172,43 +1173,34 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             Expression shaper = new ProjectionBindingExpression(source.QueryExpression, new ProjectionMember(), projection.Type);
 
-            if (throwOnNullResult
-                && resultType.IsNullableType())
+            if (throwOnNullResult)
             {
                 var resultVariable = Expression.Variable(projection.Type, "result");
+                var returnValueForNull = resultType.IsNullableType()
+                    ? (Expression)Expression.Constant(null, resultType)
+                    : Expression.Throw(
+                        Expression.New(
+                            typeof(InvalidOperationException).GetConstructors()
+                                .Single(ci => ci.GetParameters().Length == 1),
+                            Expression.Constant(CoreStrings.NoElements)),
+                        resultType);
 
                 shaper = Expression.Block(
                     new[] { resultVariable },
                     Expression.Assign(resultVariable, shaper),
                     Expression.Condition(
                         Expression.Equal(resultVariable, Expression.Default(projection.Type)),
-                        Expression.Constant(null, resultType),
+                        returnValueForNull,
                         resultType != resultVariable.Type
                             ? Expression.Convert(resultVariable, resultType)
                             : (Expression)resultVariable));
             }
-            else if (throwOnNullResult)
+            else
             {
-                var resultVariable = Expression.Variable(projection.Type, "result");
-
-                shaper = Expression.Block(
-                    new[] { resultVariable },
-                    Expression.Assign(resultVariable, shaper),
-                    Expression.Condition(
-                        Expression.Equal(resultVariable, Expression.Default(projection.Type)),
-                        Expression.Throw(
-                            Expression.New(
-                                typeof(InvalidOperationException).GetConstructors()
-                                    .Single(ci => ci.GetParameters().Length == 1),
-                                Expression.Constant(CoreStrings.NoElements)),
-                            resultType),
-                        resultType != resultVariable.Type
-                            ? Expression.Convert(resultVariable, resultType)
-                            : (Expression)resultVariable));
-            }
-            else if (resultType.IsNullableType())
-            {
-                shaper = Expression.Convert(shaper, resultType);
+                if (resultType.IsNullableType())
+                {
+                    shaper = Expression.Convert(shaper, resultType);
+                }
             }
 
             source.ShaperExpression = shaper;

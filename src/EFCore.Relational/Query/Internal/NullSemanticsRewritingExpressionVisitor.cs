@@ -73,9 +73,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
         private ColumnExpression VisitColumnExpression(ColumnExpression columnExpression)
         {
+            var newTable = (TableExpressionBase)Visit(columnExpression.Table);
             _isNullable = columnExpression.IsNullable;
 
-            return columnExpression;
+            return columnExpression.Update(newTable);
         }
 
         private SqlParameterExpression VisitSqlParameterExpression(SqlParameterExpression sqlParameterExpression)

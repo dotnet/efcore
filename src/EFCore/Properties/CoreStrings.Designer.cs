@@ -3409,54 +3409,6 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
         /// <summary>
         ///     The navigation property '{navigation}' has a RequiredAttribute causing the entity type '{entityType}' to be configured as the dependent side in the corresponding relationship.
         /// </summary>
-        public static EventDefinition<string, string> LogRequiredAttributeOnDependent([NotNull] IDiagnosticsLogger logger)
-        {
-            var definition = ((LoggingDefinitions)logger.Definitions).LogRequiredAttributeOnDependent;
-            if (definition == null)
-            {
-                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
-                    ref ((LoggingDefinitions)logger.Definitions).LogRequiredAttributeOnDependent,
-                    () => new EventDefinition<string, string>(
-                        logger.Options,
-                        CoreEventId.RequiredAttributeOnDependent,
-                        LogLevel.Debug,
-                        "CoreEventId.RequiredAttributeOnDependent",
-                        level => LoggerMessage.Define<string, string>(
-                            level,
-                            CoreEventId.RequiredAttributeOnDependent,
-                            _resourceManager.GetString("LogRequiredAttributeOnDependent"))));
-            }
-
-            return (EventDefinition<string, string>)definition;
-        }
-
-        /// <summary>
-        ///     The navigation property '{navigation}' is non-nullable, causing the entity type '{entityType}' to be configured as the dependent side in the corresponding relationship.
-        /// </summary>
-        public static EventDefinition<string, string> LogNonNullableReferenceOnDependent([NotNull] IDiagnosticsLogger logger)
-        {
-            var definition = ((LoggingDefinitions)logger.Definitions).LogNonNullableReferenceOnDependent;
-            if (definition == null)
-            {
-                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
-                    ref ((LoggingDefinitions)logger.Definitions).LogNonNullableReferenceOnDependent,
-                    () => new EventDefinition<string, string>(
-                        logger.Options,
-                        CoreEventId.NonNullableReferenceOnDependent,
-                        LogLevel.Debug,
-                        "CoreEventId.NonNullableReferenceOnDependent",
-                        level => LoggerMessage.Define<string, string>(
-                            level,
-                            CoreEventId.NonNullableReferenceOnDependent,
-                            _resourceManager.GetString("LogNonNullableReferenceOnDependent"))));
-            }
-
-            return (EventDefinition<string, string>)definition;
-        }
-
-        /// <summary>
-        ///     The navigation property '{navigation}' has a RequiredAttribute causing the entity type '{entityType}' to be configured as the dependent side in the corresponding relationship.
-        /// </summary>
         public static EventDefinition<string, string> LogRequiredAttributeInverted([NotNull] IDiagnosticsLogger logger)
         {
             var definition = ((LoggingDefinitions)logger.Definitions).LogRequiredAttributeInverted;
@@ -3483,11 +3435,11 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
         /// </summary>
         public static EventDefinition<string, string> LogNonNullableInverted([NotNull] IDiagnosticsLogger logger)
         {
-            var definition = ((LoggingDefinitions)logger.Definitions).LogNonNullableReferenceOnDependent;
+            var definition = ((LoggingDefinitions)logger.Definitions).LogNonNullableInverted;
             if (definition == null)
             {
                 definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
-                    ref ((LoggingDefinitions)logger.Definitions).LogNonNullableReferenceOnDependent,
+                    ref ((LoggingDefinitions)logger.Definitions).LogNonNullableInverted,
                     () => new EventDefinition<string, string>(
                         logger.Options,
                         CoreEventId.NonNullableInverted,
@@ -3548,30 +3500,6 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
             }
 
             return (EventDefinition<string, string, string, string>)definition;
-        }
-
-        /// <summary>
-        ///     The navigation property '{navigation}' has a RequiredAttribute causing the entity type '{entityType}' to be configured as the dependent side in the corresponding relationship.
-        /// </summary>
-        public static EventDefinition<string, string> LogRequiredAttributeOnCollection([NotNull] IDiagnosticsLogger logger)
-        {
-            var definition = ((LoggingDefinitions)logger.Definitions).LogRequiredAttributeOnCollection;
-            if (definition == null)
-            {
-                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
-                    ref ((LoggingDefinitions)logger.Definitions).LogRequiredAttributeOnCollection,
-                    () => new EventDefinition<string, string>(
-                        logger.Options,
-                        CoreEventId.RequiredAttributeOnCollection,
-                        LogLevel.Debug,
-                        "CoreEventId.RequiredAttributeOnCollection",
-                        level => LoggerMessage.Define<string, string>(
-                            level,
-                            CoreEventId.RequiredAttributeOnCollection,
-                            _resourceManager.GetString("LogRequiredAttributeOnCollection"))));
-            }
-
-            return (EventDefinition<string, string>)definition;
         }
 
         /// <summary>
@@ -3833,6 +3761,78 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
                             level,
                             CoreEventId.RedundantForeignKeyWarning,
                             _resourceManager.GetString("LogRedundantForeignKey"))));
+            }
+
+            return (EventDefinition<string, string>)definition;
+        }
+
+        /// <summary>
+        ///     The RequiredAttribute on '{principalEntityType}.{principalNavigation}' was ignored because it is a collection. RequiredAttribute should only be specified on reference navigations pointing to the principal side of the relationship.
+        /// </summary>
+        public static EventDefinition<string, string> LogRequiredAttributeOnCollection([NotNull] IDiagnosticsLogger logger)
+        {
+            var definition = ((LoggingDefinitions)logger.Definitions).LogRequiredAttributeOnCollection;
+            if (definition == null)
+            {
+                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                    ref ((LoggingDefinitions)logger.Definitions).LogRequiredAttributeOnCollection,
+                    () => new EventDefinition<string, string>(
+                        logger.Options,
+                        CoreEventId.RequiredAttributeOnCollection,
+                        LogLevel.Debug,
+                        "CoreEventId.RequiredAttributeOnCollection",
+                        level => LoggerMessage.Define<string, string>(
+                            level,
+                            CoreEventId.RequiredAttributeOnCollection,
+                            _resourceManager.GetString("LogRequiredAttributeOnCollection"))));
+            }
+
+            return (EventDefinition<string, string>)definition;
+        }
+
+        /// <summary>
+        ///     The RequiredAttribute on '{principalEntityType}.{principalNavigation}' was ignored because it is pointing to the dependent entity. RequiredAttribute should only be specified on the navigation pointing to the principal side of the relationship. To change the dependent side configure the foreign key properties.
+        /// </summary>
+        public static EventDefinition<string, string> LogRequiredAttributeOnDependent([NotNull] IDiagnosticsLogger logger)
+        {
+            var definition = ((LoggingDefinitions)logger.Definitions).LogRequiredAttributeOnDependent;
+            if (definition == null)
+            {
+                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                    ref ((LoggingDefinitions)logger.Definitions).LogRequiredAttributeOnDependent,
+                    () => new EventDefinition<string, string>(
+                        logger.Options,
+                        CoreEventId.RequiredAttributeOnDependent,
+                        LogLevel.Debug,
+                        "CoreEventId.RequiredAttributeOnDependent",
+                        level => LoggerMessage.Define<string, string>(
+                            level,
+                            CoreEventId.RequiredAttributeOnDependent,
+                            _resourceManager.GetString("LogRequiredAttributeOnDependent"))));
+            }
+
+            return (EventDefinition<string, string>)definition;
+        }
+
+        /// <summary>
+        ///     '{principalEntityType}.{principalNavigation}' may still be null at runtime despite being declared as non-nullable since only the navigation to principal can be configured as required.
+        /// </summary>
+        public static EventDefinition<string, string> LogNonNullableReferenceOnDependent([NotNull] IDiagnosticsLogger logger)
+        {
+            var definition = ((LoggingDefinitions)logger.Definitions).LogNonNullableReferenceOnDependent;
+            if (definition == null)
+            {
+                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                    ref ((LoggingDefinitions)logger.Definitions).LogNonNullableReferenceOnDependent,
+                    () => new EventDefinition<string, string>(
+                        logger.Options,
+                        CoreEventId.NonNullableReferenceOnDependent,
+                        LogLevel.Debug,
+                        "CoreEventId.NonNullableReferenceOnDependent",
+                        level => LoggerMessage.Define<string, string>(
+                            level,
+                            CoreEventId.NonNullableReferenceOnDependent,
+                            _resourceManager.GetString("LogNonNullableReferenceOnDependent"))));
             }
 
             return (EventDefinition<string, string>)definition;

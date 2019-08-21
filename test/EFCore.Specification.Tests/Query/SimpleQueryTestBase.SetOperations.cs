@@ -353,7 +353,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                         .GroupBy(c => c.CustomerID)
                         .Select(g => new { CustomerID = g.Key, Count = g.Count() })));
 
-        [ConditionalTheory]
+        [ConditionalTheory(Skip = "Issue#17339")]
         [MemberData(nameof(GetSetOperandTestCases))]
         public virtual Task Union_over_different_projection_types(bool isAsync, string leftType, string rightType)
         {

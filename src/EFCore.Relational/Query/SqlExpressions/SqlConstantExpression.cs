@@ -2,6 +2,8 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Linq;
+using System.Collections;
 using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore.Storage;
 
@@ -35,9 +37,36 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 
         private bool Equals(SqlConstantExpression sqlConstantExpression)
             => base.Equals(sqlConstantExpression)
-            && (Value == null
-                ? sqlConstantExpression.Value == null
-                : Value.Equals(sqlConstantExpression.Value));
+            && ValueEquals(Value, sqlConstantExpression.Value);
+
+        private bool ValueEquals(object value1, object value2)
+        {
+            if (value1 == null)
+            {
+                return value2 == null;
+            }
+
+            if (value1 is IList list1
+                && value2 is IList list2)
+            {
+                if (list1.Count != list2.Count)
+                {
+                    return false;
+                }
+
+                for (var i = 0; i < list1.Count; i++)
+                {
+                    if (!ValueEquals(list1[i], list2[i]))
+                    {
+                        return false;
+                    }
+                }
+
+                return true;
+            }
+
+            return value1.Equals(value2);
+        }
 
         public override int GetHashCode() => HashCode.Combine(base.GetHashCode(), Value);
     }

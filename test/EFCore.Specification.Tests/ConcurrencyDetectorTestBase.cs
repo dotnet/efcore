@@ -98,7 +98,7 @@ namespace Microsoft.EntityFrameworkCore
             return ConcurrencyDetectorTest(
                 c =>
                 {
-                    var result = c.Products.Last();
+                    var result = c.Products.OrderBy(p => p.ProductID).Last();
                     return Task.FromResult(false);
                 });
         }
@@ -106,7 +106,7 @@ namespace Microsoft.EntityFrameworkCore
         [ConditionalFact]
         public virtual Task Last_logs_concurrent_access_async()
         {
-            return ConcurrencyDetectorTest(c => c.Products.LastAsync());
+            return ConcurrencyDetectorTest(c => c.Products.OrderBy(p => p.ProductID).LastAsync());
         }
 
         [ConditionalFact]

@@ -1461,7 +1461,7 @@ ORDER BY [g].[Nickname]");
                 @"SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOrBirthName], [g].[Discriminator], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank]
 FROM [Gears] AS [g]
 WHERE [g].[Discriminator] IN (N'Gear', N'Officer') AND (([g].[HasSoulPatch] = CAST(1 AS bit)) AND ((
-    SELECT TOP(2) [t].[IsAutomatic]
+    SELECT TOP(1) [t].[IsAutomatic]
     FROM (
         SELECT DISTINCT [w].[Id], [w].[AmmunitionType], [w].[IsAutomatic], [w].[Name], [w].[OwnerFullName], [w].[SynergyWithId]
         FROM [Weapons] AS [w]
@@ -1478,7 +1478,7 @@ ORDER BY [g].[Nickname]");
                 @"SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOrBirthName], [g].[Discriminator], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank]
 FROM [Gears] AS [g]
 WHERE [g].[Discriminator] IN (N'Gear', N'Officer') AND (([g].[HasSoulPatch] = CAST(1 AS bit)) AND ((
-    SELECT DISTINCT TOP(2) [w].[IsAutomatic]
+    SELECT DISTINCT TOP(1) [w].[IsAutomatic]
     FROM [Weapons] AS [w]
     WHERE (([g].[FullName] = [w].[OwnerFullName]) AND [w].[OwnerFullName] IS NOT NULL) AND (CHARINDEX(N'Lancer', [w].[Name]) > 0)) = CAST(1 AS bit)))
 ORDER BY [g].[Nickname]");
@@ -1492,7 +1492,7 @@ ORDER BY [g].[Nickname]");
                 @"SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOrBirthName], [g].[Discriminator], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank]
 FROM [Gears] AS [g]
 WHERE [g].[Discriminator] IN (N'Gear', N'Officer') AND (([g].[HasSoulPatch] = CAST(1 AS bit)) AND ((
-    SELECT TOP(2) [t].[IsAutomatic]
+    SELECT TOP(1) [t].[IsAutomatic]
     FROM (
         SELECT DISTINCT [w].[Id], [w].[AmmunitionType], [w].[IsAutomatic], [w].[Name], [w].[OwnerFullName], [w].[SynergyWithId]
         FROM [Weapons] AS [w]
@@ -1615,7 +1615,7 @@ FROM (
     FROM [Gears] AS [g]
     WHERE [g].[Discriminator] IN (N'Gear', N'Officer')
     UNION ALL
-    SELECT [g0].[FullName]
+    SELECT [g0].[FullName] AS [Nickname]
     FROM [Gears] AS [g0]
     WHERE [g0].[Discriminator] IN (N'Gear', N'Officer')
 ) AS [t]");
@@ -1628,11 +1628,11 @@ FROM (
             AssertSql(
                 @"SELECT COUNT(*)
 FROM (
-    SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOrBirthName], [g].[Discriminator], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank]
+    SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOrBirthName], [g].[Discriminator], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank], [g].[Nickname] AS [Name]
     FROM [Gears] AS [g]
     WHERE [g].[Discriminator] IN (N'Gear', N'Officer')
     UNION ALL
-    SELECT [g0].[Nickname], [g0].[SquadId], [g0].[AssignedCityName], [g0].[CityOrBirthName], [g0].[Discriminator], [g0].[FullName], [g0].[HasSoulPatch], [g0].[LeaderNickname], [g0].[LeaderSquadId], [g0].[Rank]
+    SELECT [g0].[Nickname], [g0].[SquadId], [g0].[AssignedCityName], [g0].[CityOrBirthName], [g0].[Discriminator], [g0].[FullName], [g0].[HasSoulPatch], [g0].[LeaderNickname], [g0].[LeaderSquadId], [g0].[Rank], [g0].[FullName] AS [Name]
     FROM [Gears] AS [g0]
     WHERE [g0].[Discriminator] IN (N'Gear', N'Officer')
 ) AS [t]");
@@ -6044,7 +6044,7 @@ WHERE [g].[Discriminator] IN (N'Gear', N'Officer')");
 
             AssertSql(
                 @"SELECT (
-    SELECT TOP(2) [t].[IsAutomatic]
+    SELECT TOP(1) [t].[IsAutomatic]
     FROM (
         SELECT DISTINCT [w].[Id], [w].[AmmunitionType], [w].[IsAutomatic], [w].[Name], [w].[OwnerFullName], [w].[SynergyWithId]
         FROM [Weapons] AS [w]
@@ -6060,7 +6060,7 @@ WHERE [g].[Discriminator] IN (N'Gear', N'Officer') AND ([g].[HasSoulPatch] = CAS
 
             AssertSql(
                 @"SELECT (
-    SELECT DISTINCT TOP(2) [w].[IsAutomatic]
+    SELECT DISTINCT TOP(1) [w].[IsAutomatic]
     FROM [Weapons] AS [w]
     WHERE (([g].[FullName] = [w].[OwnerFullName]) AND [w].[OwnerFullName] IS NOT NULL) AND (CHARINDEX(N'Lancer', [w].[Name]) > 0))
 FROM [Gears] AS [g]
@@ -6073,7 +6073,7 @@ WHERE [g].[Discriminator] IN (N'Gear', N'Officer') AND ([g].[HasSoulPatch] = CAS
 
             AssertSql(
                 @"SELECT (
-    SELECT TOP(2) [t].[IsAutomatic]
+    SELECT TOP(1) [t].[IsAutomatic]
     FROM (
         SELECT DISTINCT [w].[Id], [w].[AmmunitionType], [w].[IsAutomatic], [w].[Name], [w].[OwnerFullName], [w].[SynergyWithId]
         FROM [Weapons] AS [w]
@@ -6089,7 +6089,7 @@ WHERE [g].[Discriminator] IN (N'Gear', N'Officer') AND ([g].[HasSoulPatch] = CAS
 
             AssertSql(
                 @"SELECT (
-    SELECT TOP(2) [t].[IsAutomatic]
+    SELECT TOP(1) [t].[IsAutomatic]
     FROM (
         SELECT DISTINCT [w].[Id], [w].[AmmunitionType], [w].[IsAutomatic], [w].[Name], [w].[OwnerFullName], [w].[SynergyWithId]
         FROM [Weapons] AS [w]
@@ -6105,7 +6105,7 @@ WHERE [g].[Discriminator] IN (N'Gear', N'Officer') AND ([g].[HasSoulPatch] = CAS
 
             AssertSql(
                 @"SELECT (
-    SELECT DISTINCT TOP(2) [w].[IsAutomatic]
+    SELECT DISTINCT TOP(1) [w].[IsAutomatic]
     FROM [Weapons] AS [w]
     WHERE (([g].[FullName] = [w].[OwnerFullName]) AND [w].[OwnerFullName] IS NOT NULL) AND (([w].[Name] = N'BFG') AND [w].[Name] IS NOT NULL))
 FROM [Gears] AS [g]
@@ -6118,7 +6118,7 @@ WHERE [g].[Discriminator] IN (N'Gear', N'Officer') AND ([g].[HasSoulPatch] = CAS
 
             AssertSql(
                 @"SELECT (
-    SELECT TOP(2) [t].[IsAutomatic]
+    SELECT TOP(1) [t].[IsAutomatic]
     FROM (
         SELECT DISTINCT [w].[Id], [w].[AmmunitionType], [w].[IsAutomatic], [w].[Name], [w].[OwnerFullName], [w].[SynergyWithId]
         FROM [Weapons] AS [w]
