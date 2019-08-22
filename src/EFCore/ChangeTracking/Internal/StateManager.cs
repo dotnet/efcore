@@ -538,6 +538,14 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 foreach (var keyValuePair in _referencedUntrackedEntities.Value.ToList())
                 {
                     var untrackedEntityType = _model.FindRuntimeEntityType(keyValuePair.Key.GetType());
+                    if (untrackedEntityType == null)
+                    {
+                        // untrackedEntityType = null -> maybe it is an OwnedType, which is used in multiple entities! Find the navigation pair of current entry.EntityType and find untrackedEntityType by concrete navigation.
+                        var navigationPair = keyValuePair.Value.Where(n => n.Item2.EntityType == entityType).FirstOrDefault();
+                        if (navigationPair == null)
+                            continue;
+                        untrackedEntityType = _model.FindEntityType(keyValuePair.Key.GetType(), navigationPair.Item1.Name, navigationPair.Item2.EntityType);
+                    }
                     if (navigations.Any(n => n.GetTargetType().IsAssignableFrom(untrackedEntityType))
                         || untrackedEntityType.GetNavigations().Any(n => n.GetTargetType().IsAssignableFrom(entityType)))
                     {
