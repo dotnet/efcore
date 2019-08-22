@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Dependencies>
   <ProductDependencies>
-    <Dependency Name="Microsoft.CSharp" Version="4.6.0-preview9.19409.17" CoherentParentDependency="Microsoft.NETCore.App.Runtime.win-x64">
+    <Dependency Name="Microsoft.CSharp" Version="4.6.0-preview9.19421.4" CoherentParentDependency="Microsoft.NETCore.App.Runtime.win-x64">
       <Uri>https://github.com/dotnet/corefx</Uri>
-      <Sha>b82d2bc44424c8a99a1f0fc13202bdfd43e6f9f5</Sha>
+      <Sha>8f95b1e7953e3fbff7f101d0ca6830fd9e37fd99</Sha>
     </Dependency>
     <Dependency Name="Microsoft.DotNet.PlatformAbstractions" Version="3.0.0-rc1-19420-08" CoherentParentDependency="Microsoft.Extensions.Logging">
       <Uri>https://github.com/dotnet/core-setup</Uri>
@@ -53,17 +53,17 @@
       <Uri>https://github.com/dotnet/core-setup</Uri>
       <Sha>f385116c74c1513e7e241f0586675486e9b25115</Sha>
     </Dependency>
-    <Dependency Name="System.Collections.Immutable" Version="1.6.0-preview9.19409.17" CoherentParentDependency="Microsoft.NETCore.App.Runtime.win-x64">
+    <Dependency Name="System.Collections.Immutable" Version="1.6.0-preview9.19421.4" CoherentParentDependency="Microsoft.NETCore.App.Runtime.win-x64">
       <Uri>https://github.com/dotnet/corefx</Uri>
-      <Sha>b82d2bc44424c8a99a1f0fc13202bdfd43e6f9f5</Sha>
+      <Sha>8f95b1e7953e3fbff7f101d0ca6830fd9e37fd99</Sha>
     </Dependency>
-    <Dependency Name="System.ComponentModel.Annotations" Version="4.6.0-preview9.19409.17" CoherentParentDependency="Microsoft.NETCore.App.Runtime.win-x64">
+    <Dependency Name="System.ComponentModel.Annotations" Version="4.6.0-preview9.19421.4" CoherentParentDependency="Microsoft.NETCore.App.Runtime.win-x64">
       <Uri>https://github.com/dotnet/corefx</Uri>
-      <Sha>b82d2bc44424c8a99a1f0fc13202bdfd43e6f9f5</Sha>
+      <Sha>8f95b1e7953e3fbff7f101d0ca6830fd9e37fd99</Sha>
     </Dependency>
-    <Dependency Name="System.Diagnostics.DiagnosticSource" Version="4.6.0-preview9.19409.17" CoherentParentDependency="Microsoft.NETCore.App.Runtime.win-x64">
+    <Dependency Name="System.Diagnostics.DiagnosticSource" Version="4.6.0-preview9.19421.4" CoherentParentDependency="Microsoft.NETCore.App.Runtime.win-x64">
       <Uri>https://github.com/dotnet/corefx</Uri>
-      <Sha>b82d2bc44424c8a99a1f0fc13202bdfd43e6f9f5</Sha>
+      <Sha>8f95b1e7953e3fbff7f101d0ca6830fd9e37fd99</Sha>
     </Dependency>
   </ProductDependencies>
   <ToolsetDependencies>
@@ -71,9 +71,9 @@
       <Uri>https://github.com/dotnet/arcade</Uri>
       <Sha>0e36c2410b72166a1b9a67142e652225e22feada</Sha>
     </Dependency>
-    <Dependency Name="Microsoft.Net.Compilers.Toolset" Version="3.3.0-beta3-19415-01" CoherentParentDependency="Microsoft.Extensions.Logging">
+    <Dependency Name="Microsoft.Net.Compilers.Toolset" Version="3.3.1-beta3-19421-04" CoherentParentDependency="Microsoft.Extensions.Logging">
       <Uri>https://github.com/dotnet/roslyn</Uri>
-      <Sha>f5ba9f2c61a2fe853dc4913888d40df221539147</Sha>
+      <Sha>807f6d9c1f62e66aa907513ccf0fa5b2372748f6</Sha>
     </Dependency>
   </ToolsetDependencies>
 </Dependencies>
