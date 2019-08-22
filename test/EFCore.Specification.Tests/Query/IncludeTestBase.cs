@@ -11,7 +11,6 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 using Microsoft.EntityFrameworkCore.TestUtilities;
-using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
 using Xunit;
 
 // ReSharper disable InconsistentNaming
@@ -3188,6 +3187,41 @@ namespace Microsoft.EntityFrameworkCore.Query
                         ordersLoaded: true,
                         orderDetailsLoaded: false,
                         productLoaded: false);
+                }
+            }
+        }
+
+        [ConditionalTheory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual void Include_collection_with_multiple_conditional_order_by(bool useString)
+        {
+            using (var context = CreateContext())
+            {
+                var orders
+                    = useString
+                        ? context.Orders
+                            .Include("OrderDetails")
+                            .OrderBy(o => o.OrderID > 0)
+                            .ThenBy(o => o.Customer != null ? o.Customer.City : String.Empty)
+                            .Take(5)
+                            .ToList()
+                        : context.Orders
+                            .Include(c => c.OrderDetails)
+                            .OrderBy(o => o.OrderID > 0)
+                            .ThenBy(o => o.Customer != null ? o.Customer.City : String.Empty)
+                            .Take(5)
+                            .ToList();
+
+                foreach (var order in orders)
+                {
+                    CheckIsLoaded(
+                        context,
+                        order,
+                        orderDetailsLoaded: true,
+                        productLoaded: false,
+                        customerLoaded: false,
+                        ordersLoaded: false);
                 }
             }
         }
