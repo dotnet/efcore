@@ -14,7 +14,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
         }
 
-        [ConditionalFact(Skip = "Issue#16963")]
+        [ConditionalFact(Skip = "Issue#16963 Group By")]
         public override Task GroupBy_Select_sum()
         {
             return base.GroupBy_Select_sum();
