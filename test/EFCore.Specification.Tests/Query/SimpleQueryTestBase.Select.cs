@@ -1259,7 +1259,8 @@ namespace Microsoft.EntityFrameworkCore.Query
             return AssertQuery<Customer, Order>(
                 isAsync,
                 (cs, os) => from c in cs
-                            from o in os.Where(o => c.CustomerID == o.CustomerID).OrderBy(o => c.City).Take(2)
+                            from o in os.Where(o => c.CustomerID == o.CustomerID)
+                                .OrderBy(o => c.City).ThenBy(o => o.OrderID).Take(2)
                             select new
                             {
                                 c,
@@ -1291,7 +1292,8 @@ namespace Microsoft.EntityFrameworkCore.Query
             return AssertQuery<Customer, Order>(
                 isAsync,
                 (cs, os) => from c in cs
-                            from o in os.Where(o => c.CustomerID == o.CustomerID).OrderBy(o => c.City).Take(2).DefaultIfEmpty()
+                            from o in os.Where(o => c.CustomerID == o.CustomerID)
+                                .OrderBy(o => c.City).ThenBy(o => o.OrderID).Take(2).DefaultIfEmpty()
                             select new
                             {
                                 c,
