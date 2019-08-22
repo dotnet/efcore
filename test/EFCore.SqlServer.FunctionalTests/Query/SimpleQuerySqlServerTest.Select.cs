@@ -974,7 +974,7 @@ CROSS APPLY (
     SELECT TOP(2) [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate], [c].[City]
     FROM [Orders] AS [o]
     WHERE ([c].[CustomerID] = [o].[CustomerID]) AND [o].[CustomerID] IS NOT NULL
-    ORDER BY [c].[City]
+    ORDER BY [c].[City], [o].[OrderID]
 ) AS [t]");
         }
 
@@ -1003,7 +1003,7 @@ OUTER APPLY (
     SELECT TOP(2) [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate], [c].[City]
     FROM [Orders] AS [o]
     WHERE ([c].[CustomerID] = [o].[CustomerID]) AND [o].[CustomerID] IS NOT NULL
-    ORDER BY [c].[City]
+    ORDER BY [c].[City], [o].[OrderID]
 ) AS [t]");
         }
     }
