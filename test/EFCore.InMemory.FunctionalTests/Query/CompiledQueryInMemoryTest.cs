@@ -14,36 +14,12 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
         }
 
-        [ConditionalFact(Skip = "See issue #13857")]
+        [ConditionalFact(Skip = "See issue #17386")]
         public override void Query_with_array_parameter()
         {
         }
 
-        [ConditionalFact(Skip = "See issue #13857")]
+        [ConditionalFact(Skip = "See issue #17386")]
         public override Task Query_with_array_parameter_async() => null;
-
-        [ConditionalFact(Skip = "See issue#13857")]
-        public override void DbQuery_query()
-        {
-            base.DbQuery_query();
-        }
-
-        [ConditionalFact(Skip = "See issue#13857")]
-        public override Task DbQuery_query_async()
-        {
-            return base.DbQuery_query_async();
-        }
-
-        [ConditionalFact(Skip = "See issue#13857")]
-        public override void DbQuery_query_first()
-        {
-            base.DbQuery_query_first();
-        }
-
-        [ConditionalFact(Skip = "See issue#13857")]
-        public override Task DbQuery_query_first_async()
-        {
-            return base.DbQuery_query_first_async();
-        }
     }
 }
