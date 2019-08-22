@@ -75,17 +75,17 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                 case IncludeExpression includeExpression:
                 {
                     var entity = Visit(includeExpression.EntityExpression);
-                    if (includeExpression.NavigationExpression is CollectionShaperExpression collectionShaperExpression)
+                    if (includeExpression.NavigationExpression is CollectionShaperExpression collectionShaper)
                     {
-                        var innerLambda = (LambdaExpression)collectionShaperExpression.InnerShaper;
+                        var innerLambda = (LambdaExpression)collectionShaper.InnerShaper;
                         var innerShaper = new ShaperExpressionProcessingExpressionVisitor(null, innerLambda.Parameters[0])
                             .Inject(innerLambda.Body);
 
                         _expressions.Add(
                             includeExpression.Update(
                                 entity,
-                                collectionShaperExpression.Update(
-                                    Visit(collectionShaperExpression.Projection),
+                                collectionShaper.Update(
+                                    Visit(collectionShaper.Projection),
                                     innerShaper)));
                     }
                     else
@@ -97,6 +97,27 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                     }
 
                     return entity;
+                }
+
+                case CollectionShaperExpression collectionShaperExpression:
+                {
+                    var key = GenerateKey((ProjectionBindingExpression)collectionShaperExpression.Projection);
+                    if (!_mapping.TryGetValue(key, out var variable))
+                    {
+                        var projection = Visit(collectionShaperExpression.Projection);
+
+                        variable = Expression.Parameter(collectionShaperExpression.Type);
+                        _variables.Add(variable);
+
+                        var innerLambda = (LambdaExpression)collectionShaperExpression.InnerShaper;
+                        var innerShaper = new ShaperExpressionProcessingExpressionVisitor(null, innerLambda.Parameters[0])
+                            .Inject(innerLambda.Body);
+
+                        _expressions.Add(Expression.Assign(variable, collectionShaperExpression.Update(projection, innerShaper)));
+                        _mapping[key] = variable;
+                    }
+
+                    return variable;
                 }
             }
 

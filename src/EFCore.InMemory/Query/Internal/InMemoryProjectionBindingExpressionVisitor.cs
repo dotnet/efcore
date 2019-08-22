@@ -7,6 +7,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Storage;
 
@@ -85,20 +86,11 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                             return expression;
 
                         case MaterializeCollectionNavigationExpression materializeCollectionNavigationExpression:
-
-                            var translated = _queryableMethodTranslatingExpressionVisitor.TranslateSubquery(
-                                materializeCollectionNavigationExpression.Subquery);
-
-                            var index = _queryExpression.AddSubqueryProjection(translated, out var innerShaper);
-
-                            return new CollectionShaperExpression(
-                                new ProjectionBindingExpression(
-                                    _queryExpression,
-                                    index,
-                                    typeof(IEnumerable<ValueBuffer>)),
-                                innerShaper,
+                            return AddCollectionProjection(
+                                _queryableMethodTranslatingExpressionVisitor.TranslateSubquery(
+                                    materializeCollectionNavigationExpression.Subquery),
                                 materializeCollectionNavigationExpression.Navigation,
-                                materializeCollectionNavigationExpression.Navigation.GetTargetType().ClrType);
+                                null);
 
                         case MethodCallExpression methodCallExpression:
                         {
@@ -106,29 +98,27 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                                 && methodCallExpression.Method.DeclaringType == typeof(Enumerable)
                                 && methodCallExpression.Method.Name == nameof(Enumerable.ToList))
                             {
-                                //var elementType = methodCallExpression.Method.GetGenericArguments()[0];
-
-                                //var result = _queryableMethodTranslatingExpressionVisitor.TranslateSubquery(methodCallExpression.Arguments[0]);
-
-                                //return _selectExpression.AddCollectionProjection(result, null, elementType);
-                                throw new InvalidOperationException(CoreStrings.QueryFailed(methodCallExpression.Print(), GetType().Name));
+                                return AddCollectionProjection(
+                                    _queryableMethodTranslatingExpressionVisitor.TranslateSubquery(
+                                        methodCallExpression.Arguments[0]),
+                                    null,
+                                    methodCallExpression.Method.GetGenericArguments()[0]);
                             }
 
                             var subquery = _queryableMethodTranslatingExpressionVisitor.TranslateSubquery(methodCallExpression);
-
                             if (subquery != null)
                             {
-                                //if (subquery.ResultType == ResultType.Enumerable)
-                                //{
-                                //    return _selectExpression.AddCollectionProjection(subquery, null, subquery.ShaperExpression.Type);
-                                //}
+                                if (subquery.ResultCardinality == ResultCardinality.Enumerable)
+                                {
+                                    return AddCollectionProjection(subquery, null, subquery.ShaperExpression.Type);
+                                }
+
                                 throw new InvalidOperationException(CoreStrings.QueryFailed(methodCallExpression.Print(), GetType().Name));
                             }
 
                             break;
                         }
                     }
-
 
                     var translation = _expressionTranslatingExpressionVisitor.Translate(expression);
                     return translation == null
@@ -152,6 +142,19 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
 
             return base.Visit(expression);
         }
+
+        private CollectionShaperExpression AddCollectionProjection(
+            ShapedQueryExpression subquery, INavigation navigation, Type elementType)
+            => new CollectionShaperExpression(
+                new ProjectionBindingExpression(
+                    _queryExpression,
+                    _queryExpression.AddSubqueryProjection(
+                        subquery,
+                        out var innerShaper),
+                    typeof(IEnumerable<ValueBuffer>)),
+                innerShaper,
+                navigation,
+                elementType);
 
         protected override Expression VisitExtension(Expression extensionExpression)
         {

@@ -635,11 +635,11 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
 
             inMemoryQueryExpression.ServerQueryExpression
                 = Expression.Call(
-                        InMemoryLinqOperatorProvider
-                            .GetAggregateMethod(methodName, selector.ReturnType, parameterCount: 1)
-                            .MakeGenericMethod(typeof(ValueBuffer)),
-                        inMemoryQueryExpression.ServerQueryExpression,
-                        selector);
+                    InMemoryLinqOperatorProvider
+                        .GetAggregateMethod(methodName, selector.ReturnType, parameterCount: 1)
+                        .MakeGenericMethod(typeof(ValueBuffer)),
+                    inMemoryQueryExpression.ServerQueryExpression,
+                    selector);
 
             source.ShaperExpression = inMemoryQueryExpression.GetSingleScalarProjection();
 

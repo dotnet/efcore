@@ -19,7 +19,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             Projection = projection;
             InnerShaper = innerShaper;
             Navigation = navigation;
-            ElementType = elementType;
+            ElementType = elementType ?? navigation.ClrType.TryGetSequenceType();
         }
 
         protected override Expression VisitChildren(ExpressionVisitor visitor)
