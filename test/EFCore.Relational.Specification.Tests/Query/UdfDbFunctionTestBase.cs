@@ -614,11 +614,11 @@ namespace Microsoft.EntityFrameworkCore.Query
             using (var context = CreateContext())
             {
                 Assert.Equal(
-                    CoreStrings.TranslationFailed("(c) => 2 == AddOneStatic(c.Id)"),
-                    Assert.Throws<InvalidOperationException>(
+                    CoreStrings.TranslationFailed("Where<Customer>(    source: DbSet<Customer>,     predicate: (c) => 2 == AddOneStatic(c.Id))"),
+                    RemoveNewLines(Assert.Throws<InvalidOperationException>(
                         () => (from c in context.Customers
                                where 2 == UDFSqlContext.AddOneStatic(c.Id)
-                               select c.Id).Single()).Message);
+                               select c.Id).Single()).Message));
             }
         }
 
@@ -628,11 +628,11 @@ namespace Microsoft.EntityFrameworkCore.Query
             using (var context = CreateContext())
             {
                 Assert.Equal(
-                    CoreStrings.TranslationFailed("(c) => AddOneStatic(c.Id)"),
-                    Assert.Throws<InvalidOperationException>(
+                    CoreStrings.TranslationFailed("OrderBy<Customer, int>(    source: DbSet<Customer>,     keySelector: (c) => AddOneStatic(c.Id))"),
+                    RemoveNewLines(Assert.Throws<InvalidOperationException>(
                         () => (from c in context.Customers
                                orderby UDFSqlContext.AddOneStatic(c.Id)
-                               select c.Id).ToList()).Message);
+                               select c.Id).ToList()).Message));
             }
         }
 
@@ -657,11 +657,11 @@ namespace Microsoft.EntityFrameworkCore.Query
             {
                 Assert.Equal(
                     CoreStrings.TranslationFailed(
-                        "(c) => 2 == AddOneStatic(Abs(CustomerOrderCountWithClientStatic(c.Id)))"),
-                    Assert.Throws<InvalidOperationException>(
+                        "Where<Customer>(    source: DbSet<Customer>,     predicate: (c) => 2 == AddOneStatic(Abs(CustomerOrderCountWithClientStatic(c.Id))))"),
+                    RemoveNewLines(Assert.Throws<InvalidOperationException>(
                         () => (from c in context.Customers
                                where 2 == UDFSqlContext.AddOneStatic(Math.Abs(UDFSqlContext.CustomerOrderCountWithClientStatic(c.Id)))
-                               select c.Id).Single()).Message);
+                               select c.Id).Single()).Message));
             }
         }
 
@@ -672,11 +672,11 @@ namespace Microsoft.EntityFrameworkCore.Query
             {
                 Assert.Equal(
                     CoreStrings.TranslationFailed(
-                        "(c) => 2 == AddOneStatic(CustomerOrderCountWithClientStatic(Abs(c.Id)))"),
-                    Assert.Throws<InvalidOperationException>(
+                        "Where<Customer>(    source: DbSet<Customer>,     predicate: (c) => 2 == AddOneStatic(CustomerOrderCountWithClientStatic(Abs(c.Id))))"),
+                    RemoveNewLines(Assert.Throws<InvalidOperationException>(
                         () => (from c in context.Customers
                                where 2 == UDFSqlContext.AddOneStatic(UDFSqlContext.CustomerOrderCountWithClientStatic(Math.Abs(c.Id)))
-                               select c.Id).Single()).Message);
+                               select c.Id).Single()).Message));
             }
         }
 
@@ -687,11 +687,11 @@ namespace Microsoft.EntityFrameworkCore.Query
             {
                 Assert.Equal(
                     CoreStrings.TranslationFailed(
-                        "(c) => 2 == Abs(AddOneStatic(CustomerOrderCountWithClientStatic(c.Id)))"),
-                    Assert.Throws<InvalidOperationException>(
+                        "Where<Customer>(    source: DbSet<Customer>,     predicate: (c) => 2 == Abs(AddOneStatic(CustomerOrderCountWithClientStatic(c.Id))))"),
+                    RemoveNewLines(Assert.Throws<InvalidOperationException>(
                         () => (from c in context.Customers
                                where 2 == Math.Abs(UDFSqlContext.AddOneStatic(UDFSqlContext.CustomerOrderCountWithClientStatic(c.Id)))
-                               select c.Id).Single()).Message);
+                               select c.Id).Single()).Message));
             }
         }
 
@@ -702,11 +702,11 @@ namespace Microsoft.EntityFrameworkCore.Query
             {
                 Assert.Equal(
                     CoreStrings.TranslationFailed(
-                        "(c) => 1 == Abs(CustomerOrderCountWithClientStatic(AddOneStatic(c.Id)))"),
-                    Assert.Throws<InvalidOperationException>(
+                        "Where<Customer>(    source: DbSet<Customer>,     predicate: (c) => 1 == Abs(CustomerOrderCountWithClientStatic(AddOneStatic(c.Id))))"),
+                    RemoveNewLines(Assert.Throws<InvalidOperationException>(
                         () => (from c in context.Customers
                                where 1 == Math.Abs(UDFSqlContext.CustomerOrderCountWithClientStatic(UDFSqlContext.AddOneStatic(c.Id)))
-                               select c.Id).Single()).Message);
+                               select c.Id).Single()).Message));
             }
         }
 
@@ -717,11 +717,11 @@ namespace Microsoft.EntityFrameworkCore.Query
             {
                 Assert.Equal(
                     CoreStrings.TranslationFailed(
-                        "(c) => 1 == CustomerOrderCountWithClientStatic(Abs(AddOneStatic(c.Id)))"),
-                    Assert.Throws<InvalidOperationException>(
+                        "Where<Customer>(    source: DbSet<Customer>,     predicate: (c) => 1 == CustomerOrderCountWithClientStatic(Abs(AddOneStatic(c.Id))))"),
+                    RemoveNewLines(Assert.Throws<InvalidOperationException>(
                         () => (from c in context.Customers
                                where 1 == UDFSqlContext.CustomerOrderCountWithClientStatic(Math.Abs(UDFSqlContext.AddOneStatic(c.Id)))
-                               select c.Id).Single()).Message);
+                               select c.Id).Single()).Message));
             }
         }
 
@@ -732,11 +732,11 @@ namespace Microsoft.EntityFrameworkCore.Query
             {
                 Assert.Equal(
                     CoreStrings.TranslationFailed(
-                        "(c) => 1 == CustomerOrderCountWithClientStatic(AddOneStatic(Abs(c.Id)))"),
-                    Assert.Throws<InvalidOperationException>(
+                        "Where<Customer>(    source: DbSet<Customer>,     predicate: (c) => 1 == CustomerOrderCountWithClientStatic(AddOneStatic(Abs(c.Id))))"),
+                    RemoveNewLines(Assert.Throws<InvalidOperationException>(
                         () => (from c in context.Customers
                                where 1 == UDFSqlContext.CustomerOrderCountWithClientStatic(UDFSqlContext.AddOneStatic(Math.Abs(c.Id)))
-                               select c.Id).Single()).Message);
+                               select c.Id).Single()).Message));
             }
         }
 
@@ -746,11 +746,11 @@ namespace Microsoft.EntityFrameworkCore.Query
             using (var context = CreateContext())
             {
                 Assert.Equal(
-                    CoreStrings.TranslationFailed("(c) => 3 == AddOneStatic(Abs(c.Id))"),
-                    Assert.Throws<InvalidOperationException>(
+                    CoreStrings.TranslationFailed("Where<Customer>(    source: DbSet<Customer>,     predicate: (c) => 3 == AddOneStatic(Abs(c.Id)))"),
+                    RemoveNewLines(Assert.Throws<InvalidOperationException>(
                         () => (from c in context.Customers
                                where 3 == UDFSqlContext.AddOneStatic(Math.Abs(c.Id))
-                               select c.Id).Single()).Message);
+                               select c.Id).Single()).Message));
             }
         }
 
@@ -760,11 +760,11 @@ namespace Microsoft.EntityFrameworkCore.Query
             using (var context = CreateContext())
             {
                 Assert.Equal(
-                    CoreStrings.TranslationFailed("(c) => 2 == AddOneStatic(CustomerOrderCountWithClientStatic(c.Id))"),
-                    Assert.Throws<InvalidOperationException>(
+                    CoreStrings.TranslationFailed("Where<Customer>(    source: DbSet<Customer>,     predicate: (c) => 2 == AddOneStatic(CustomerOrderCountWithClientStatic(c.Id)))"),
+                    RemoveNewLines(Assert.Throws<InvalidOperationException>(
                         () => (from c in context.Customers
                                where 2 == UDFSqlContext.AddOneStatic(UDFSqlContext.CustomerOrderCountWithClientStatic(c.Id))
-                               select c.Id).Single()).Message);
+                               select c.Id).Single()).Message));
             }
         }
 
@@ -774,11 +774,11 @@ namespace Microsoft.EntityFrameworkCore.Query
             using (var context = CreateContext())
             {
                 Assert.Equal(
-                    CoreStrings.TranslationFailed("(c) => 3 == Abs(AddOneStatic(c.Id))"),
-                    Assert.Throws<InvalidOperationException>(
+                    CoreStrings.TranslationFailed("Where<Customer>(    source: DbSet<Customer>,     predicate: (c) => 3 == Abs(AddOneStatic(c.Id)))"),
+                    RemoveNewLines(Assert.Throws<InvalidOperationException>(
                         () => (from c in context.Customers
                                where 3 == Math.Abs(UDFSqlContext.AddOneStatic(c.Id))
-                               select c.Id).Single()).Message);
+                               select c.Id).Single()).Message));
             }
         }
 
@@ -801,11 +801,11 @@ namespace Microsoft.EntityFrameworkCore.Query
             using (var context = CreateContext())
             {
                 Assert.Equal(
-                    CoreStrings.TranslationFailed("(c) => 2 == CustomerOrderCountWithClientStatic(AddOneStatic(c.Id))"),
-                    Assert.Throws<InvalidOperationException>(
+                    CoreStrings.TranslationFailed("Where<Customer>(    source: DbSet<Customer>,     predicate: (c) => 2 == CustomerOrderCountWithClientStatic(AddOneStatic(c.Id)))"),
+                    RemoveNewLines(Assert.Throws<InvalidOperationException>(
                         () => (from c in context.Customers
                                where 2 == UDFSqlContext.CustomerOrderCountWithClientStatic(UDFSqlContext.AddOneStatic(c.Id))
-                               select c.Id).Single()).Message);
+                               select c.Id).Single()).Message));
             }
         }
 
@@ -1134,11 +1134,11 @@ namespace Microsoft.EntityFrameworkCore.Query
             using (var context = CreateContext())
             {
                 Assert.Equal(
-                    CoreStrings.TranslationFailed("(c) => 2 == (Unhandled parameter: __context_0).AddOneInstance(c.Id)"),
-                    Assert.Throws<InvalidOperationException>(
+                    CoreStrings.TranslationFailed("Where<Customer>(    source: DbSet<Customer>,     predicate: (c) => 2 == (Unhandled parameter: __context_0).AddOneInstance(c.Id))"),
+                    RemoveNewLines(Assert.Throws<InvalidOperationException>(
                         () => (from c in context.Customers
                                where 2 == context.AddOneInstance(c.Id)
-                               select c.Id).Single()).Message);
+                               select c.Id).Single()).Message));
             }
         }
 
@@ -1148,11 +1148,11 @@ namespace Microsoft.EntityFrameworkCore.Query
             using (var context = CreateContext())
             {
                 Assert.Equal(
-                    CoreStrings.TranslationFailed("(c) => (Unhandled parameter: __context_0).AddOneInstance(c.Id)"),
-                    Assert.Throws<InvalidOperationException>(
+                    CoreStrings.TranslationFailed("OrderBy<Customer, int>(    source: DbSet<Customer>,     keySelector: (c) => (Unhandled parameter: __context_0).AddOneInstance(c.Id))"),
+                    RemoveNewLines(Assert.Throws<InvalidOperationException>(
                         () => (from c in context.Customers
                                orderby context.AddOneInstance(c.Id)
-                               select c.Id).ToList()).Message);
+                               select c.Id).ToList()).Message));
             }
         }
 
@@ -1177,11 +1177,11 @@ namespace Microsoft.EntityFrameworkCore.Query
             {
                 Assert.Equal(
                     CoreStrings.TranslationFailed(
-                        "(c) => 2 == (Unhandled parameter: __context_0).AddOneInstance(Abs((Unhandled parameter: __context_0).CustomerOrderCountWithClientInstance(c.Id)))"),
-                    Assert.Throws<InvalidOperationException>(
+                        "Where<Customer>(    source: DbSet<Customer>,     predicate: (c) => 2 == (Unhandled parameter: __context_0).AddOneInstance(Abs((Unhandled parameter: __context_0).CustomerOrderCountWithClientInstance(c.Id))))"),
+                    RemoveNewLines(Assert.Throws<InvalidOperationException>(
                         () => (from c in context.Customers
                                where 2 == context.AddOneInstance(Math.Abs(context.CustomerOrderCountWithClientInstance(c.Id)))
-                               select c.Id).Single()).Message);
+                               select c.Id).Single()).Message));
             }
         }
 
@@ -1192,11 +1192,11 @@ namespace Microsoft.EntityFrameworkCore.Query
             {
                 Assert.Equal(
                     CoreStrings.TranslationFailed(
-                        "(c) => 2 == (Unhandled parameter: __context_0).AddOneInstance((Unhandled parameter: __context_0).CustomerOrderCountWithClientInstance(Abs(c.Id)))"),
-                    Assert.Throws<InvalidOperationException>(
+                        "Where<Customer>(    source: DbSet<Customer>,     predicate: (c) => 2 == (Unhandled parameter: __context_0).AddOneInstance((Unhandled parameter: __context_0).CustomerOrderCountWithClientInstance(Abs(c.Id))))"),
+                    RemoveNewLines(Assert.Throws<InvalidOperationException>(
                         () => (from c in context.Customers
                                where 2 == context.AddOneInstance(context.CustomerOrderCountWithClientInstance(Math.Abs(c.Id)))
-                               select c.Id).Single()).Message);
+                               select c.Id).Single()).Message));
             }
         }
 
@@ -1206,11 +1206,11 @@ namespace Microsoft.EntityFrameworkCore.Query
             using (var context = CreateContext())
             {
                 Assert.Equal(
-                    CoreStrings.TranslationFailed("(c) => 2 == Abs((Unhandled parameter: __context_0).AddOneInstance((Unhandled parameter: __context_0).CustomerOrderCountWithClientInstance(c.Id)))"),
-                    Assert.Throws<InvalidOperationException>(
+                    CoreStrings.TranslationFailed("Where<Customer>(    source: DbSet<Customer>,     predicate: (c) => 2 == Abs((Unhandled parameter: __context_0).AddOneInstance((Unhandled parameter: __context_0).CustomerOrderCountWithClientInstance(c.Id))))"),
+                    RemoveNewLines(Assert.Throws<InvalidOperationException>(
                         () => (from c in context.Customers
                                where 2 == Math.Abs(context.AddOneInstance(context.CustomerOrderCountWithClientInstance(c.Id)))
-                               select c.Id).Single()).Message);
+                               select c.Id).Single()).Message));
             }
         }
 
@@ -1221,11 +1221,11 @@ namespace Microsoft.EntityFrameworkCore.Query
             {
                 Assert.Equal(
                     CoreStrings.TranslationFailed(
-                        "(c) => 1 == Abs((Unhandled parameter: __context_0).CustomerOrderCountWithClientInstance((Unhandled parameter: __context_0).AddOneInstance(c.Id)))"),
-                    Assert.Throws<InvalidOperationException>(
+                        "Where<Customer>(    source: DbSet<Customer>,     predicate: (c) => 1 == Abs((Unhandled parameter: __context_0).CustomerOrderCountWithClientInstance((Unhandled parameter: __context_0).AddOneInstance(c.Id))))"),
+                    RemoveNewLines(Assert.Throws<InvalidOperationException>(
                         () => (from c in context.Customers
                                where 1 == Math.Abs(context.CustomerOrderCountWithClientInstance(context.AddOneInstance(c.Id)))
-                               select c.Id).Single()).Message);
+                               select c.Id).Single()).Message));
             }
         }
 
@@ -1236,11 +1236,11 @@ namespace Microsoft.EntityFrameworkCore.Query
             {
                 Assert.Equal(
                     CoreStrings.TranslationFailed(
-                        "(c) => 1 == (Unhandled parameter: __context_0).CustomerOrderCountWithClientInstance(Abs((Unhandled parameter: __context_0).AddOneInstance(c.Id)))"),
-                    Assert.Throws<InvalidOperationException>(
+                        "Where<Customer>(    source: DbSet<Customer>,     predicate: (c) => 1 == (Unhandled parameter: __context_0).CustomerOrderCountWithClientInstance(Abs((Unhandled parameter: __context_0).AddOneInstance(c.Id))))"),
+                    RemoveNewLines(Assert.Throws<InvalidOperationException>(
                         () => (from c in context.Customers
                                where 1 == context.CustomerOrderCountWithClientInstance(Math.Abs(context.AddOneInstance(c.Id)))
-                               select c.Id).Single()).Message);
+                               select c.Id).Single()).Message));
             }
         }
 
@@ -1251,11 +1251,11 @@ namespace Microsoft.EntityFrameworkCore.Query
             {
                 Assert.Equal(
                     CoreStrings.TranslationFailed(
-                        "(c) => 1 == (Unhandled parameter: __context_0).CustomerOrderCountWithClientInstance((Unhandled parameter: __context_0).AddOneInstance(Abs(c.Id)))"),
-                    Assert.Throws<InvalidOperationException>(
+                        "Where<Customer>(    source: DbSet<Customer>,     predicate: (c) => 1 == (Unhandled parameter: __context_0).CustomerOrderCountWithClientInstance((Unhandled parameter: __context_0).AddOneInstance(Abs(c.Id))))"),
+                    RemoveNewLines(Assert.Throws<InvalidOperationException>(
                         () => (from c in context.Customers
                                where 1 == context.CustomerOrderCountWithClientInstance(context.AddOneInstance(Math.Abs(c.Id)))
-                               select c.Id).Single()).Message);
+                               select c.Id).Single()).Message));
             }
         }
 
@@ -1266,11 +1266,11 @@ namespace Microsoft.EntityFrameworkCore.Query
             {
                 Assert.Equal(
                     CoreStrings.TranslationFailed(
-                        "(c) => 3 == (Unhandled parameter: __context_0).AddOneInstance(Abs(c.Id))"),
-                    Assert.Throws<InvalidOperationException>(
+                        "Where<Customer>(    source: DbSet<Customer>,     predicate: (c) => 3 == (Unhandled parameter: __context_0).AddOneInstance(Abs(c.Id)))"),
+                    RemoveNewLines(Assert.Throws<InvalidOperationException>(
                         () => (from c in context.Customers
                                where 3 == context.AddOneInstance(Math.Abs(c.Id))
-                               select c.Id).Single()).Message);
+                               select c.Id).Single()).Message));
             }
         }
 
@@ -1281,11 +1281,11 @@ namespace Microsoft.EntityFrameworkCore.Query
             {
                 Assert.Equal(
                     CoreStrings.TranslationFailed(
-                        "(c) => 2 == (Unhandled parameter: __context_0).AddOneInstance((Unhandled parameter: __context_0).CustomerOrderCountWithClientInstance(c.Id))"),
-                    Assert.Throws<InvalidOperationException>(
+                        "Where<Customer>(    source: DbSet<Customer>,     predicate: (c) => 2 == (Unhandled parameter: __context_0).AddOneInstance((Unhandled parameter: __context_0).CustomerOrderCountWithClientInstance(c.Id)))"),
+                    RemoveNewLines(Assert.Throws<InvalidOperationException>(
                         () => (from c in context.Customers
                                where 2 == context.AddOneInstance(context.CustomerOrderCountWithClientInstance(c.Id))
-                               select c.Id).Single()).Message);
+                               select c.Id).Single()).Message));
             }
         }
 
@@ -1295,11 +1295,11 @@ namespace Microsoft.EntityFrameworkCore.Query
             using (var context = CreateContext())
             {
                 Assert.Equal(
-                    CoreStrings.TranslationFailed("(c) => 3 == Abs((Unhandled parameter: __context_0).AddOneInstance(c.Id))"),
-                    Assert.Throws<InvalidOperationException>(
+                    CoreStrings.TranslationFailed("Where<Customer>(    source: DbSet<Customer>,     predicate: (c) => 3 == Abs((Unhandled parameter: __context_0).AddOneInstance(c.Id)))"),
+                    RemoveNewLines(Assert.Throws<InvalidOperationException>(
                         () => (from c in context.Customers
                                where 3 == Math.Abs(context.AddOneInstance(c.Id))
-                               select c.Id).Single()).Message);
+                               select c.Id).Single()).Message));
             }
         }
 
@@ -1331,11 +1331,11 @@ namespace Microsoft.EntityFrameworkCore.Query
             {
                 Assert.Equal(
                     CoreStrings.TranslationFailed(
-                        "(c) => 2 == (Unhandled parameter: __context_0).CustomerOrderCountWithClientInstance((Unhandled parameter: __context_0).AddOneInstance(c.Id))"),
-                    Assert.Throws<InvalidOperationException>(
+                        "Where<Customer>(    source: DbSet<Customer>,     predicate: (c) => 2 == (Unhandled parameter: __context_0).CustomerOrderCountWithClientInstance((Unhandled parameter: __context_0).AddOneInstance(c.Id)))"),
+                    RemoveNewLines(Assert.Throws<InvalidOperationException>(
                         () => (from c in context.Customers
                                where 2 == context.CustomerOrderCountWithClientInstance(context.AddOneInstance(c.Id))
-                               select c.Id).Single()).Message);
+                               select c.Id).Single()).Message));
             }
         }
 
@@ -1355,5 +1355,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         #endregion
 
         #endregion
+
+        private string RemoveNewLines(string message)
+            => message.Replace("\n", "").Replace("\r", "");
     }
 }
