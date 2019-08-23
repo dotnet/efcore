@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -35,6 +36,10 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             private static readonly MethodInfo _materializeCollectionMethodInfo
                 = typeof(CustomShaperCompilingExpressionVisitor).GetTypeInfo()
                     .GetDeclaredMethod(nameof(MaterializeCollection));
+
+            private static readonly MethodInfo _materializeSingleResultMethodInfo
+                = typeof(CustomShaperCompilingExpressionVisitor).GetTypeInfo()
+                    .GetDeclaredMethod(nameof(MaterializeSingleResult));
 
             private static void SetIsLoadedNoTracking(object entity, INavigation navigation)
                 => ((ILazyLoader)(navigation
@@ -144,6 +149,14 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                 return collection;
             }
 
+            private static TResult MaterializeSingleResult<TResult>(
+                QueryContext queryContext,
+                ValueBuffer valueBuffer,
+                Func<QueryContext, ValueBuffer, TResult> innerShaper)
+                => valueBuffer.IsEmpty
+                    ? default
+                    : innerShaper(queryContext, valueBuffer);
+
             protected override Expression VisitExtension(Expression extensionExpression)
             {
                 if (extensionExpression is IncludeExpression includeExpression)
@@ -201,6 +214,15 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                         Expression.Constant(
                             collectionShaperExpression.Navigation?.GetCollectionAccessor(),
                             typeof(IClrCollectionAccessor)));
+                }
+
+                if (extensionExpression is SingleResultShaperExpression singleResultShaperExpression)
+                {
+                    return Expression.Call(
+                        _materializeSingleResultMethodInfo.MakeGenericMethod(singleResultShaperExpression.Type),
+                        QueryCompilationContext.QueryContextParameter,
+                        singleResultShaperExpression.Projection,
+                        Expression.Constant(((LambdaExpression)Visit(singleResultShaperExpression.InnerShaper)).Compile()));
                 }
 
                 return base.VisitExtension(extensionExpression);

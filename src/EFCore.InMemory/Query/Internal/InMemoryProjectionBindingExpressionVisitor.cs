@@ -113,7 +113,13 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                                     return AddCollectionProjection(subquery, null, subquery.ShaperExpression.Type);
                                 }
 
-                                throw new InvalidOperationException(CoreStrings.QueryFailed(methodCallExpression.Print(), GetType().Name));
+                                return new SingleResultShaperExpression(
+                                    new ProjectionBindingExpression(
+                                        _queryExpression,
+                                        _queryExpression.AddSubqueryProjection(subquery, out var innerShaper),
+                                        typeof(ValueBuffer)),
+                                    innerShaper,
+                                    subquery.ShaperExpression.Type);
                             }
 
                             break;

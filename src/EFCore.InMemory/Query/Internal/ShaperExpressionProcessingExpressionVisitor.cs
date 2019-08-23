@@ -119,6 +119,27 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
 
                     return variable;
                 }
+
+                case SingleResultShaperExpression singleResultShaperExpression:
+                {
+                    var key = GenerateKey((ProjectionBindingExpression)singleResultShaperExpression.Projection);
+                    if (!_mapping.TryGetValue(key, out var variable))
+                    {
+                        var projection = Visit(singleResultShaperExpression.Projection);
+
+                        variable = Expression.Parameter(singleResultShaperExpression.Type);
+                        _variables.Add(variable);
+
+                        var innerLambda = (LambdaExpression)singleResultShaperExpression.InnerShaper;
+                        var innerShaper = new ShaperExpressionProcessingExpressionVisitor(null, innerLambda.Parameters[0])
+                            .Inject(innerLambda.Body);
+
+                        _expressions.Add(Expression.Assign(variable, singleResultShaperExpression.Update(projection, innerShaper)));
+                        _mapping[key] = variable;
+                    }
+
+                    return variable;
+                }
             }
 
             return base.VisitExtension(extensionExpression);
