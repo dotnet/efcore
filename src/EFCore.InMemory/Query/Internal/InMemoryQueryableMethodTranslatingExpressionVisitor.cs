@@ -212,8 +212,8 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                 predicate,
                 returnType,
                 returnDefault
-                    ? InMemoryLinqOperatorProvider.FirstOrDefaultPredicate
-                    : InMemoryLinqOperatorProvider.FirstPredicate);
+                    ? InMemoryLinqOperatorProvider.FirstOrDefault
+                    : InMemoryLinqOperatorProvider.First);
         }
 
         protected override ShapedQueryExpression TranslateGroupBy(ShapedQueryExpression source, LambdaExpression keySelector, LambdaExpression elementSelector, LambdaExpression resultSelector)
@@ -258,8 +258,8 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                 predicate,
                 returnType,
                 returnDefault
-                    ? InMemoryLinqOperatorProvider.LastOrDefaultPredicate
-                    : InMemoryLinqOperatorProvider.LastPredicate);
+                    ? InMemoryLinqOperatorProvider.LastOrDefault
+                    : InMemoryLinqOperatorProvider.Last);
         }
 
         protected override ShapedQueryExpression TranslateLeftJoin(ShapedQueryExpression outer, ShapedQueryExpression inner, LambdaExpression outerKeySelector, LambdaExpression innerKeySelector, LambdaExpression resultSelector)
@@ -521,8 +521,8 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                 predicate,
                 returnType,
                 returnDefault
-                    ? InMemoryLinqOperatorProvider.SingleOrDefaultPredicate
-                    : InMemoryLinqOperatorProvider.SinglePredicate);
+                    ? InMemoryLinqOperatorProvider.SingleOrDefault
+                    : InMemoryLinqOperatorProvider.Single);
         }
 
         protected override ShapedQueryExpression TranslateSkip(ShapedQueryExpression source, Expression count)
@@ -662,20 +662,19 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         {
             var inMemoryQueryExpression = (InMemoryQueryExpression)source.QueryExpression;
 
-            predicate = predicate == null
-                ? Expression.Lambda(Expression.Constant(true), Expression.Parameter(typeof(ValueBuffer)))
-                : TranslateLambdaExpression(source, predicate);
-
-            if (predicate == null)
+            if (predicate != null)
             {
-                return null;
+                source = TranslateWhere(source, predicate);
+                if (source == null)
+                {
+                    return null;
+                }
             }
 
             inMemoryQueryExpression.ServerQueryExpression =
                 Expression.Call(
                     method.MakeGenericMethod(typeof(ValueBuffer)),
-                    inMemoryQueryExpression.ServerQueryExpression,
-                    predicate);
+                    inMemoryQueryExpression.ServerQueryExpression);
 
             inMemoryQueryExpression.ConvertToEnumerable();
 

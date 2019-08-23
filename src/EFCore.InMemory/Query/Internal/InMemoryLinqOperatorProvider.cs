@@ -52,6 +52,13 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         public static MethodInfo SinglePredicate = GetMethod(nameof(Enumerable.Single), 1);
         public static MethodInfo SingleOrDefaultPredicate = GetMethod(nameof(Enumerable.SingleOrDefault), 1);
 
+        public static MethodInfo First = GetMethod(nameof(Enumerable.First), 0);
+        public static MethodInfo FirstOrDefault = GetMethod(nameof(Enumerable.FirstOrDefault), 0);
+        public static MethodInfo Last = GetMethod(nameof(Enumerable.Last), 0);
+        public static MethodInfo LastOrDefault = GetMethod(nameof(Enumerable.LastOrDefault), 0);
+        public static MethodInfo Single = GetMethod(nameof(Enumerable.Single), 0);
+        public static MethodInfo SingleOrDefault = GetMethod(nameof(Enumerable.SingleOrDefault), 0);
+
         public static MethodInfo GetAggregateMethod(string methodName, Type elementType, int parameterCount = 0)
         {
             Check.NotEmpty(methodName, nameof(methodName));
