@@ -14,49 +14,49 @@ namespace Microsoft.EntityFrameworkCore
         {
         }
 
-        [ConditionalFact(Skip = "Issue#16963")]
+        [ConditionalFact(Skip = "Issue#16963 Owned")]
         public override void Can_build_monster_model_and_seed_data_using_all_navigations()
         {
             base.Can_build_monster_model_and_seed_data_using_all_navigations();
         }
 
-        [ConditionalFact(Skip = "Issue#16963")]
+        [ConditionalFact(Skip = "Issue#16963 Owned")]
         public override void Can_build_monster_model_and_seed_data_using_dependent_navigations()
         {
             base.Can_build_monster_model_and_seed_data_using_dependent_navigations();
         }
 
-        [ConditionalFact(Skip = "Issue#16963")]
+        [ConditionalFact(Skip = "Issue#16963 Owned")]
         public override void Can_build_monster_model_and_seed_data_using_FKs()
         {
             base.Can_build_monster_model_and_seed_data_using_FKs();
         }
 
-        [ConditionalFact(Skip = "Issue#16963")]
+        [ConditionalFact(Skip = "Issue#16963 Owned")]
         public override void Can_build_monster_model_and_seed_data_using_navigations_with_deferred_add()
         {
             base.Can_build_monster_model_and_seed_data_using_navigations_with_deferred_add();
         }
 
-        [ConditionalFact(Skip = "Issue#16963")]
+        [ConditionalFact(Skip = "Issue#16963 Owned")]
         public override void Can_build_monster_model_and_seed_data_using_principal_navigations()
         {
             base.Can_build_monster_model_and_seed_data_using_principal_navigations();
         }
 
-        [ConditionalFact(Skip = "Issue#16963")]
+        [ConditionalFact(Skip = "Issue#16963 Owned")]
         public override void One_to_one_fixup_happens_when_FKs_change_test()
         {
             base.One_to_one_fixup_happens_when_FKs_change_test();
         }
 
-        [ConditionalFact(Skip = "Issue#16963")]
+        [ConditionalFact(Skip = "Issue#16963 Owned")]
         public override void One_to_one_fixup_happens_when_reference_change_test()
         {
             base.One_to_one_fixup_happens_when_reference_change_test();
         }
 
-        [ConditionalFact(Skip = "Issue#16963")]
+        [ConditionalFact(Skip = "Issue#16963 Owned")]
         public override void Composite_fixup_happens_when_FKs_change_test()
         {
             base.Composite_fixup_happens_when_FKs_change_test();

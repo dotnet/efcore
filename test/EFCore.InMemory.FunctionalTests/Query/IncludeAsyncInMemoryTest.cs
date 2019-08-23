@@ -12,8 +12,5 @@ namespace Microsoft.EntityFrameworkCore.Query
             : base(fixture)
         {
         }
-
-        [ConditionalFact(Skip = "Issue #16963")]
-        public override Task Include_collection_with_client_filter() => null;
     }
 }

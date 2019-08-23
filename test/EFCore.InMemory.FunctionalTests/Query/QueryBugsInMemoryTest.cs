@@ -14,8 +14,7 @@ using Xunit;
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    // Issue #16963
-    internal class QueryBugsInMemoryTest : IClassFixture<InMemoryFixture>
+    public class QueryBugsInMemoryTest : IClassFixture<InMemoryFixture>
     {
         #region Bug9849
 
@@ -151,7 +150,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         #region Bug3595
 
-        [ConditionalFact]
+        [ConditionalFact(Skip = "Issue#16963 groupBy")]
         public void GroupBy_with_uninitialized_datetime_projection_3595()
         {
             using (CreateScratch<Context3595>(Seed3595, "3595"))

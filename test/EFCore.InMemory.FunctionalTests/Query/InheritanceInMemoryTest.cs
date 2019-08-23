@@ -14,12 +14,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             //TestLoggerFactory.TestOutputHelper = testOutputHelper;
         }
 
-        [ConditionalFact(Skip = "Issue #16963")]
-        public override void Subquery_OfType()
-        {
-        }
-
-        [ConditionalFact(Skip = "See issue#13857")] // Defining query
+        [ConditionalFact(Skip = "See issue#16963 Cannot compose when using client method in defining query")] // Defining query
         public override void Can_query_all_animal_views()
         {
         }
