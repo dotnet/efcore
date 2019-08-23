@@ -17,45 +17,6 @@ namespace Microsoft.EntityFrameworkCore.Query
             //TestLoggerFactory.TestOutputHelper = testOutputHelper;
         }
 
-        #region SingleResultProjection
-
-        public override Task Collection_select_nav_prop_first_or_default(bool isAsync)
-        {
-            return Task.CompletedTask;
-        }
-
-        public override Task Collection_select_nav_prop_first_or_default_then_nav_prop(bool isAsync)
-        {
-            return Task.CompletedTask;
-        }
-
-        public override Task Project_single_entity_value_subquery_works(bool isAsync)
-        {
-            return Task.CompletedTask;
-        }
-
-        public override Task Select_collection_FirstOrDefault_project_anonymous_type(bool isAsync)
-        {
-            return Task.CompletedTask;
-        }
-
-        public override Task Select_collection_FirstOrDefault_project_entity(bool isAsync)
-        {
-            return Task.CompletedTask;
-        }
-
-        public override Task Skip_Select_Navigation(bool isAsync)
-        {
-            return Task.CompletedTask;
-        }
-
-        public override Task Take_Select_Navigation(bool isAsync)
-        {
-            return Task.CompletedTask;
-        }
-
-        #endregion
-
         [ConditionalTheory(Skip = "Issue#17386")]
         public override Task Where_subquery_on_navigation_client_eval(bool isAsync)
         {
