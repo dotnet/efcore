@@ -3,6 +3,8 @@
 
 using System.Collections.Generic;
 using System.Linq.Expressions;
+using System.Reflection;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -38,6 +40,14 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                         newExpression.Arguments[1]);
 
                     return Expression.MakeBinary(ExpressionType.Assign, binaryExpression.Left, updatedExpression);
+                }
+
+                if (binaryExpression.NodeType == ExpressionType.Assign
+                    && binaryExpression.Left is MemberExpression memberExpression
+                    && memberExpression.Member is FieldInfo fieldInfo
+                    && fieldInfo.IsInitOnly)
+                {
+                    return memberExpression.Assign(Visit(binaryExpression.Right));
                 }
 
                 return base.VisitBinary(binaryExpression);
