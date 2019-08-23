@@ -131,13 +131,23 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         {
             var subquery = (InMemoryQueryExpression)shapedQueryExpression.QueryExpression;
             subquery.ApplyProjection();
+            var serverQueryExpression = subquery.ServerQueryExpression;
+
+            if (serverQueryExpression is MethodCallExpression selectMethodCall
+                && selectMethodCall.Arguments[0].Type == typeof(ResultEnumerable))
+            {
+                var terminatingMethodCall = (MethodCallExpression)((LambdaExpression)((NewExpression)selectMethodCall.Arguments[0]).Arguments[0]).Body;
+                selectMethodCall = selectMethodCall.Update(
+                    null, new[] { terminatingMethodCall.Arguments[0], selectMethodCall.Arguments[1] });
+                serverQueryExpression = terminatingMethodCall.Update(null, new[] { selectMethodCall });
+            }
 
             innerShaper = new ShaperRemappingExpressionVisitor(subquery._projectionMapping)
                 .Visit(shapedQueryExpression.ShaperExpression);
 
             innerShaper = Lambda(innerShaper, subquery.ValueBufferParameter);
 
-            return AddToProjection(subquery.ServerQueryExpression);
+            return AddToProjection(serverQueryExpression);
         }
 
         private class ShaperRemappingExpressionVisitor : ExpressionVisitor

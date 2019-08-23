@@ -445,13 +445,6 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         #endregion
 
-        #region SingleResultProjection
-        public override Task Project_single_element_from_collection_with_OrderBy_over_navigation_Take_and_FirstOrDefault_2(bool isAsync)
-        {
-            return Task.CompletedTask;
-        }
-        #endregion
-
         #region NullableError
 
         public override Task Project_single_element_from_collection_with_OrderBy_Distinct_and_FirstOrDefault_followed_by_projecting_length(bool isAsync)
