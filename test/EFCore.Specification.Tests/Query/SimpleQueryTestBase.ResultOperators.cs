@@ -696,7 +696,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             Assert.Equal(
                 CoreStrings.TranslationFailed(
-                    "(o) => ClientEvalPredicate(o)"),
+                    "Where<Order>(    source: DbSet<Order>,     predicate: (o) => ClientEvalPredicate(o))"),
                 RemoveNewLines(
                     (await Assert.ThrowsAsync<InvalidOperationException>(
                         () => AssertCount<Order>(
@@ -719,7 +719,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             Assert.Equal(
                 CoreStrings.TranslationFailed(
-                    "(o) => ClientEvalPredicate(o)"),
+                    "Where<Order>(    source: OrderBy<Order, int>(        source: DbSet<Order>,         keySelector: (o) => 42),     predicate: (o) => ClientEvalPredicate(o))"),
                 RemoveNewLines(
                     (await Assert.ThrowsAsync<InvalidOperationException>(
                         () => AssertCount<Order>(
@@ -733,7 +733,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             Assert.Equal(
                 CoreStrings.TranslationFailed(
-                    "(o) => ClientEvalPredicate(o)"),
+                    "Where<Order>(    source: OrderBy<Order, int>(        source: DbSet<Order>,         keySelector: (o) => o.OrderID),     predicate: (o) => ClientEvalPredicate(o))"),
                 RemoveNewLines(
                     (await Assert.ThrowsAsync<InvalidOperationException>(
                         () => AssertCount<Order>(
@@ -747,7 +747,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             Assert.Equal(
                 CoreStrings.TranslationFailed(
-                    "(o) => ClientEvalPredicate(o)"),
+                    "Count<Order>(    source: OrderBy<Order, int>(        source: DbSet<Order>,         keySelector: (o) => 42),     predicate: (o) => ClientEvalPredicate(o))"),
                 RemoveNewLines(
                     (await Assert.ThrowsAsync<InvalidOperationException>(
                         () => AssertCount<Order, Order>(
@@ -762,7 +762,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             Assert.Equal(
                 CoreStrings.TranslationFailed(
-                    "(o) => ClientEvalPredicate(o)"),
+                    "Count<Order>(    source: OrderBy<Order, int>(        source: DbSet<Order>,         keySelector: (o) => o.OrderID),     predicate: (o) => ClientEvalPredicate(o))"),
                 RemoveNewLines(
                     (await Assert.ThrowsAsync<InvalidOperationException>(
                         () => AssertCount<Order, Order>(
@@ -777,7 +777,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             Assert.Equal(
                 CoreStrings.TranslationFailed(
-                    "(o) => ClientEvalPredicate(o)"),
+                    "Where<Order>(    source: OrderBy<Order, int>(        source: DbSet<Order>,         keySelector: (o) => 42),     predicate: (o) => ClientEvalPredicate(o))"),
                 RemoveNewLines(
                     (await Assert.ThrowsAsync<InvalidOperationException>(
                         () => AssertCount<Order, Order>(
@@ -792,7 +792,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             Assert.Equal(
                 CoreStrings.TranslationFailed(
-                    "(o) => ClientEvalPredicate(o)"),
+                    "Where<Order>(    source: OrderBy<Order, int>(        source: DbSet<Order>,         keySelector: (o) => o.OrderID),     predicate: (o) => ClientEvalPredicate(o))"),
                 RemoveNewLines(
                     (await Assert.ThrowsAsync<InvalidOperationException>(
                         () => AssertCount<Order, Order>(
@@ -1459,7 +1459,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             Assert.Equal(
                 CoreStrings.TranslationFailed(
-                    "(o) => Contains<Tuple<int, int>>(    source: (Unhandled parameter: __ids_0),     value: new Tuple<int, int>(        o.OrderID,         o.ProductID    ))"),
+                    "Where<OrderDetail>(    source: DbSet<OrderDetail>,     predicate: (o) => Contains<Tuple<int, int>>(        source: (Unhandled parameter: __ids_0),         value: new Tuple<int, int>(            o.OrderID,             o.ProductID        )))"),
                 RemoveNewLines(
                     (await Assert.ThrowsAsync<InvalidOperationException>(
                         () => AssertQuery<OrderDetail>(

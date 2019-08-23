@@ -63,12 +63,17 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         protected override ShapedQueryExpression TranslateAll(ShapedQueryExpression source, LambdaExpression predicate)
         {
             var inMemoryQueryExpression = (InMemoryQueryExpression)source.QueryExpression;
+            predicate = TranslateLambdaExpression(source, predicate);
+            if (predicate == null)
+            {
+                return null;
+            }
 
             inMemoryQueryExpression.ServerQueryExpression =
                 Expression.Call(
                     InMemoryLinqOperatorProvider.All.MakeGenericMethod(typeof(ValueBuffer)),
                     inMemoryQueryExpression.ServerQueryExpression,
-                    TranslateLambdaExpression(source, predicate));
+                    predicate);
 
             source.ShaperExpression = inMemoryQueryExpression.GetSingleScalarProjection();
 
@@ -79,14 +84,25 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         {
             var inMemoryQueryExpression = (InMemoryQueryExpression)source.QueryExpression;
 
-            inMemoryQueryExpression.ServerQueryExpression = predicate == null
-                ? Expression.Call(
+            if (predicate == null)
+            {
+                inMemoryQueryExpression.ServerQueryExpression = Expression.Call(
                     InMemoryLinqOperatorProvider.Any.MakeGenericMethod(typeof(ValueBuffer)),
-                    inMemoryQueryExpression.ServerQueryExpression)
-                : Expression.Call(
+                    inMemoryQueryExpression.ServerQueryExpression);
+            }
+            else
+            {
+                predicate = TranslateLambdaExpression(source, predicate);
+                if (predicate == null)
+                {
+                    return null;
+                }
+
+                inMemoryQueryExpression.ServerQueryExpression = Expression.Call(
                     InMemoryLinqOperatorProvider.AnyPredicate.MakeGenericMethod(typeof(ValueBuffer)),
                     inMemoryQueryExpression.ServerQueryExpression,
-                    TranslateLambdaExpression(source, predicate));
+                    predicate);
+            }
 
             source.ShaperExpression = inMemoryQueryExpression.GetSingleScalarProjection();
 
@@ -114,8 +130,11 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         protected override ShapedQueryExpression TranslateContains(ShapedQueryExpression source, Expression item)
         {
             var inMemoryQueryExpression = (InMemoryQueryExpression)source.QueryExpression;
-
             item = TranslateExpression(item);
+            if (item == null)
+            {
+                return null;
+            }
 
             inMemoryQueryExpression.ServerQueryExpression =
                 Expression.Call(
@@ -145,11 +164,17 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             }
             else
             {
+                predicate = TranslateLambdaExpression(source, predicate);
+                if (predicate == null)
+                {
+                    return null;
+                }
+
                 inMemoryQueryExpression.ServerQueryExpression =
                     Expression.Call(
                         InMemoryLinqOperatorProvider.CountPredicate.MakeGenericMethod(typeof(ValueBuffer)),
                         inMemoryQueryExpression.ServerQueryExpression,
-                        TranslateLambdaExpression(source, predicate));
+                        predicate);
             }
 
             source.ShaperExpression = inMemoryQueryExpression.GetSingleScalarProjection();
@@ -203,6 +228,10 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         {
             outerKeySelector = TranslateLambdaExpression(outer, outerKeySelector);
             innerKeySelector = TranslateLambdaExpression(inner, innerKeySelector);
+            if (outerKeySelector == null || innerKeySelector == null)
+            {
+                return null;
+            }
 
             var transparentIdentifierType = TransparentIdentifierFactory.Create(
                 resultSelector.Parameters[0].Type,
@@ -236,6 +265,10 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         {
             outerKeySelector = TranslateLambdaExpression(outer, outerKeySelector);
             innerKeySelector = TranslateLambdaExpression(inner, innerKeySelector);
+            if (outerKeySelector == null || innerKeySelector == null)
+            {
+                return null;
+            }
 
             var transparentIdentifierType = TransparentIdentifierFactory.Create(
                 resultSelector.Parameters[0].Type,
@@ -267,11 +300,17 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             }
             else
             {
+                predicate = TranslateLambdaExpression(source, predicate);
+                if (predicate == null)
+                {
+                    return null;
+                }
+
                 inMemoryQueryExpression.ServerQueryExpression =
                     Expression.Call(
                         InMemoryLinqOperatorProvider.LongCountPredicate.MakeGenericMethod(typeof(ValueBuffer)),
                         inMemoryQueryExpression.ServerQueryExpression,
-                        TranslateLambdaExpression(source, predicate));
+                        predicate);
             }
 
             source.ShaperExpression = inMemoryQueryExpression.GetSingleScalarProjection();
@@ -329,14 +368,16 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                                 Expression.Constant(derivedDerivedType.GetDiscriminatorValue(), discriminatorProperty.ClrType)));
                     }
 
-                    var predicate = Expression.Lambda(
-                        equals,
-                        parameter);
+                    var predicate = TranslateLambdaExpression(source, Expression.Lambda(equals, parameter));
+                    if (predicate == null)
+                    {
+                        return null;
+                    }
 
                     inMemoryQueryExpression.ServerQueryExpression = Expression.Call(
                         InMemoryLinqOperatorProvider.Where.MakeGenericMethod(typeof(ValueBuffer)),
                         inMemoryQueryExpression.ServerQueryExpression,
-                        TranslateLambdaExpression(source, predicate));
+                        predicate);
 
                     source.ShaperExpression = entityShaperExpression.WithEntityType(derivedType);
 
@@ -352,6 +393,10 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             var inMemoryQueryExpression = (InMemoryQueryExpression)source.QueryExpression;
 
             keySelector = TranslateLambdaExpression(source, keySelector);
+            if (keySelector == null)
+            {
+                return null;
+            }
 
             inMemoryQueryExpression.ServerQueryExpression
                 = Expression.Call(
@@ -472,12 +517,17 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         protected override ShapedQueryExpression TranslateSkip(ShapedQueryExpression source, Expression count)
         {
             var inMemoryQueryExpression = (InMemoryQueryExpression)source.QueryExpression;
+            count = TranslateExpression(count);
+            if (count == null)
+            {
+                return null;
+            }
 
             inMemoryQueryExpression.ServerQueryExpression
                 = Expression.Call(
                     InMemoryLinqOperatorProvider.Skip.MakeGenericMethod(typeof(ValueBuffer)),
                     inMemoryQueryExpression.ServerQueryExpression,
-                    TranslateExpression(count));
+                    count);
 
             return source;
         }
@@ -491,12 +541,17 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         protected override ShapedQueryExpression TranslateTake(ShapedQueryExpression source, Expression count)
         {
             var inMemoryQueryExpression = (InMemoryQueryExpression)source.QueryExpression;
+            count = TranslateExpression(count);
+            if (count == null)
+            {
+                return null;
+            }
 
             inMemoryQueryExpression.ServerQueryExpression
                 = Expression.Call(
                     InMemoryLinqOperatorProvider.Take.MakeGenericMethod(typeof(ValueBuffer)),
                     inMemoryQueryExpression.ServerQueryExpression,
-                    TranslateExpression(count));
+                    count);
 
             return source;
         }
@@ -507,8 +562,11 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         protected override ShapedQueryExpression TranslateThenBy(ShapedQueryExpression source, LambdaExpression keySelector, bool ascending)
         {
             var inMemoryQueryExpression = (InMemoryQueryExpression)source.QueryExpression;
-
             keySelector = TranslateLambdaExpression(source, keySelector);
+            if (keySelector == null)
+            {
+                return null;
+            }
 
             inMemoryQueryExpression.ServerQueryExpression
                 = Expression.Call(
@@ -526,10 +584,16 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         protected override ShapedQueryExpression TranslateWhere(ShapedQueryExpression source, LambdaExpression predicate)
         {
             var inMemoryQueryExpression = (InMemoryQueryExpression)source.QueryExpression;
+            predicate = TranslateLambdaExpression(source, predicate);
+            if (predicate == null)
+            {
+                return null;
+            }
+
             inMemoryQueryExpression.ServerQueryExpression = Expression.Call(
                 InMemoryLinqOperatorProvider.Where.MakeGenericMethod(typeof(ValueBuffer)),
                 inMemoryQueryExpression.ServerQueryExpression,
-                TranslateLambdaExpression(source, predicate));
+                predicate);
 
             return source;
         }
@@ -544,9 +608,12 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         {
             var lambdaBody = ReplacingExpressionVisitor.Replace(
                 lambdaExpression.Parameters.Single(), shapedQueryExpression.ShaperExpression, lambdaExpression.Body);
+            lambdaBody = TranslateExpression(lambdaBody);
 
-            return Expression.Lambda(TranslateExpression(lambdaBody),
-                ((InMemoryQueryExpression)shapedQueryExpression.QueryExpression).ValueBufferParameter);
+            return lambdaBody != null
+                ? Expression.Lambda(lambdaBody,
+                    ((InMemoryQueryExpression)shapedQueryExpression.QueryExpression).ValueBufferParameter)
+                : null;
         }
 
         private ShapedQueryExpression TranslateScalarAggregate(
@@ -560,6 +627,11 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                     inMemoryQueryExpression.GetMappedProjection(new ProjectionMember()),
                     inMemoryQueryExpression.ValueBufferParameter)
                 : TranslateLambdaExpression(source, selector);
+
+            if (selector == null)
+            {
+                return null;
+            }
 
             inMemoryQueryExpression.ServerQueryExpression
                 = Expression.Call(
@@ -582,6 +654,11 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             predicate = predicate == null
                 ? Expression.Lambda(Expression.Constant(true), Expression.Parameter(typeof(ValueBuffer)))
                 : TranslateLambdaExpression(source, predicate);
+
+            if (predicate == null)
+            {
+                return null;
+            }
 
             inMemoryQueryExpression.ServerQueryExpression =
                 Expression.Call(

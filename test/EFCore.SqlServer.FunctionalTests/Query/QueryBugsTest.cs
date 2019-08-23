@@ -3524,9 +3524,9 @@ LEFT JOIN [Configuration9468] AS [c] ON [c0].[ConfigurationId] = [c].[Id]");
                 using (var context = new MyContext10635(_options))
                 {
                     Assert.Equal(
-                        CoreStrings.TranslationFailed("(p) => ((IEntity10635)p).Id"),
+                        CoreStrings.TranslationFailed("OrderBy<Parent10635, int>(    source: DbSet<Parent10635>,     keySelector: (p) => ((IEntity10635)p).Id)"),
                         Assert.Throws<InvalidOperationException>(
-                            () => context.Parents.Include(p => p.Children).OrderBy(p => ((IEntity10635)p).Id).ToList()).Message);
+                            () => context.Parents.Include(p => p.Children).OrderBy(p => ((IEntity10635)p).Id).ToList()).Message.Replace("\r", "").Replace("\n", ""));
 
                     var query2 = context.Parents.Include(p => p.Children).OrderBy(p => EF.Property<int>(p, "Id")).ToList();
 
@@ -3547,9 +3547,9 @@ ORDER BY [p].[Id], [c].[Id]");
                 using (var context = new MyContext10635(_options))
                 {
                     Assert.Equal(
-                        CoreStrings.TranslationFailed("(p) => ((IEntity10635)p).Id"),
+                        CoreStrings.TranslationFailed("OrderBy<Parent10635, int>(    source: DbSet<Parent10635>,     keySelector: (p) => ((IEntity10635)p).Id)"),
                         Assert.Throws<InvalidOperationException>(
-                            () => context.Parents.OrderBy(p => ((IEntity10635)p).Id).Select(p => p.Children.ToList()).ToList()).Message);
+                            () => context.Parents.OrderBy(p => ((IEntity10635)p).Id).Select(p => p.Children.ToList()).ToList()).Message.Replace("\r", "").Replace("\n", ""));
 
                     var query2 = context.Parents.OrderBy(p => EF.Property<int>(p, "Id")).Select(p => p.Children.ToList()).ToList();
 

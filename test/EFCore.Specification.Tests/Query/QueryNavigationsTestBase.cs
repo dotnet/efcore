@@ -47,7 +47,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             Assert.Equal(
                 CoreStrings.TranslationFailed(
-                    "(c) => c.CustomerID; (o) => ClientProjection<Order>(    t: o.Outer,     _: o.Inner).CustomerID; (c, o) => new TransparentIdentifier<Customer, TransparentIdentifier<Order, Customer>>(    Outer = c,     Inner = o)"),
+                    "Join<Customer, TransparentIdentifier<Order, Customer>, string, TransparentIdentifier<Customer, TransparentIdentifier<Order, Customer>>>(    outer: DbSet<Customer>,     inner: LeftJoin<Order, Customer, string, TransparentIdentifier<Order, Customer>>(        outer: DbSet<Order>,         inner: DbSet<Customer>,         outerKeySelector: (o) => Property<string>(o, \"CustomerID\"),         innerKeySelector: (c0) => Property<string>(c0, \"CustomerID\"),         resultSelector: (o, i) => new TransparentIdentifier<Order, Customer>(            Outer = o,             Inner = i        )),     outerKeySelector: (c) => c.CustomerID,     innerKeySelector: (o) => ClientProjection<Order>(        t: o.Outer,         _: o.Inner).CustomerID,     resultSelector: (c, o) => new TransparentIdentifier<Customer, TransparentIdentifier<Order, Customer>>(        Outer = c,         Inner = o    ))"),
                 RemoveNewLines(
                     (await Assert.ThrowsAsync<InvalidOperationException>(
                         () => AssertQuery<Customer, Order, OrderDetail>(
@@ -81,7 +81,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         public virtual async Task Join_with_nav_in_predicate_in_subquery_when_client_eval(bool isAsync)
         {
             Assert.Equal(
-                CoreStrings.TranslationFailed("(o) => ClientPredicate<Order>(    t: o.Outer,     _: o.Inner)"),
+                CoreStrings.TranslationFailed("Where<TransparentIdentifier<Order, Customer>>(    source: LeftJoin<Order, Customer, string, TransparentIdentifier<Order, Customer>>(        outer: DbSet<Order>,         inner: DbSet<Customer>,         outerKeySelector: (o) => Property<string>(o, \"CustomerID\"),         innerKeySelector: (c0) => Property<string>(c0, \"CustomerID\"),         resultSelector: (o, i) => new TransparentIdentifier<Order, Customer>(            Outer = o,             Inner = i        )),     predicate: (o) => ClientPredicate<Order>(        t: o.Outer,         _: o.Inner))"),
                 RemoveNewLines(
                     (await Assert.ThrowsAsync<InvalidOperationException>(
                         () => AssertQuery<Customer, Order, OrderDetail>(
@@ -113,7 +113,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         public virtual async Task Join_with_nav_in_orderby_in_subquery_when_client_eval(bool isAsync)
         {
             Assert.Equal(
-                CoreStrings.TranslationFailed("(o) => ClientOrderBy<Order>(    t: o.Outer,     _: o.Inner)"),
+                CoreStrings.TranslationFailed("OrderBy<TransparentIdentifier<Order, Customer>, int>(    source: LeftJoin<Order, Customer, string, TransparentIdentifier<Order, Customer>>(        outer: DbSet<Order>,         inner: DbSet<Customer>,         outerKeySelector: (o) => Property<string>(o, \"CustomerID\"),         innerKeySelector: (c0) => Property<string>(c0, \"CustomerID\"),         resultSelector: (o, i) => new TransparentIdentifier<Order, Customer>(            Outer = o,             Inner = i        )),     keySelector: (o) => ClientOrderBy<Order>(        t: o.Outer,         _: o.Inner))"),
                 RemoveNewLines((await Assert.ThrowsAsync<InvalidOperationException>(
                     () => AssertQuery<Customer, Order, OrderDetail>(
                         isAsync,
@@ -226,7 +226,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             Assert.Equal(
                 CoreStrings.TranslationFailed(
-                    "(o) => o.Inner.IsLondon"),
+                    "Where<TransparentIdentifier<Order, Customer>>(    source: LeftJoin<Order, Customer, string, TransparentIdentifier<Order, Customer>>(        outer: DbSet<Order>,         inner: DbSet<Customer>,         outerKeySelector: (o) => Property<string>(o, \"CustomerID\"),         innerKeySelector: (c) => Property<string>(c, \"CustomerID\"),         resultSelector: (o, i) => new TransparentIdentifier<Order, Customer>(            Outer = o,             Inner = i        )),     predicate: (o) => o.Inner.IsLondon)"),
                 RemoveNewLines(
                     (await Assert.ThrowsAsync<InvalidOperationException>(
                         () => AssertQuery<Order>(
@@ -741,8 +741,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         public virtual async Task Collection_select_nav_prop_all_client(bool isAsync)
         {
             Assert.Equal(
-                CoreStrings.TranslationFailed("(o0) => o0.ShipCity == \"London\""),
-                (await Assert.ThrowsAsync<InvalidOperationException>(
+                CoreStrings.TranslationFailed("All<Order>(    source: Where<Order>(        source: DbSet<Order>,         predicate: (o0) => Property<string>(EntityShaperExpression:             EntityType: Customer            ValueBufferExpression:                 ProjectionBindingExpression: EmptyProjectionMember            IsNullable: False        , \"CustomerID\") == Property<string>(o0, \"CustomerID\")),     predicate: (o0) => o0.ShipCity == \"London\")"),
+                RemoveNewLines((await Assert.ThrowsAsync<InvalidOperationException>(
                     () => AssertQuery<Customer>(
                         isAsync,
                         cs => from c in cs
@@ -757,7 +757,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                               {
                                   All = (c.Orders ?? new List<Order>()).All(o => false)
                               },
-                        assertOrder: true))).Message);
+                        assertOrder: true))).Message));
         }
 
         [ConditionalTheory]
@@ -782,7 +782,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             {
                 Assert.Equal(
                     CoreStrings.TranslationFailed(
-                        "(o) => o.ShipCity == \"London\""),
+                        "All<Order>(    source: Where<Order>(        source: DbSet<Order>,         predicate: (o) => Property<string>(EntityShaperExpression:             EntityType: Customer            ValueBufferExpression:                 ProjectionBindingExpression: EmptyProjectionMember            IsNullable: False        , \"CustomerID\") == Property<string>(o, \"CustomerID\")),     predicate: (o) => o.ShipCity == \"London\")"),
                     RemoveNewLines(
                         Assert.Throws<InvalidOperationException>(
                             () => (from c in context.Set<Customer>()
@@ -1149,7 +1149,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             Assert.Equal(
                 CoreStrings.TranslationFailed(
-                    "(o) => ClientMethod(o.OrderID)"),
+                    "OrderByDescending<Order, int>(    source: DbSet<Order>,     keySelector: (o) => ClientMethod(o.OrderID))"),
                 RemoveNewLines(
                     (await Assert.ThrowsAsync<InvalidOperationException>(
                         () => AssertQuery<Customer, Order>(

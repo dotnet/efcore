@@ -1129,7 +1129,7 @@ LIMIT 1");
                         .Average(e => e.TestNullableDecimal));
                 Assert.Equal(
                     CoreStrings.TranslationFailed(
-                        "Projection Mapping:    EmptyProjectionMember -> [EntityProjectionExpression]SELECT 1FROM BuiltInNullableDataTypes AS bWHERE b.PartitionId == 202"),
+                        "Average<BuiltInNullableDataTypes>(    source: Where<BuiltInNullableDataTypes>(        source: DbSet<BuiltInNullableDataTypes>,         predicate: (b) => b.PartitionId == 202),     selector: (b) => b.TestNullableDecimal)"),
                     RemoveNewLines(ex.Message));
             }
         }
@@ -1162,7 +1162,8 @@ LIMIT 1");
                         .Where(e => e.PartitionId == 203)
                         .Sum(e => e.TestDecimal));
                 Assert.Equal(
-                    CoreStrings.TranslationFailed("Projection Mapping:    EmptyProjectionMember -> [EntityProjectionExpression]SELECT 1FROM BuiltInDataTypes AS bWHERE b.PartitionId == 203"),
+                    CoreStrings.TranslationFailed(
+                        "Sum<BuiltInDataTypes>(    source: Where<BuiltInDataTypes>(        source: DbSet<BuiltInDataTypes>,         predicate: (b) => b.PartitionId == 203),     selector: (b) => b.TestDecimal)"),
                     RemoveNewLines(ex.Message));
             }
         }
