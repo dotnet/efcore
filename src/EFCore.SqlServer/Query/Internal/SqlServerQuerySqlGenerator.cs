@@ -63,7 +63,6 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
                     sqlFunctionExpression.TypeMapping);
             }
 
-
             return base.VisitSqlFunction(sqlFunctionExpression);
         }
     }

@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -31,6 +31,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         private class EntityProjectionFindingExpressionVisitor : ExpressionVisitor
         {
             private bool _found;
+
             public bool Find(Expression expression)
             {
                 _found = false;
@@ -171,35 +172,33 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                         ? result
                         : Expression.Convert(result, methodCallExpression.Type);
                 }
-                else
+
+                var selector = (LambdaExpression)selectMethod.Arguments[1];
+                var readValueExpression = ((NewArrayExpression)((NewExpression)selector.Body).Arguments[0]).Expressions[0];
+                if (readValueExpression is UnaryExpression unaryExpression2
+                    && unaryExpression2.NodeType == ExpressionType.Convert
+                    && unaryExpression2.Type == typeof(object))
                 {
-                    var selector = (LambdaExpression)selectMethod.Arguments[1];
-                    var readValueExpression = ((NewArrayExpression)((NewExpression)selector.Body).Arguments[0]).Expressions[0];
-                    if (readValueExpression is UnaryExpression unaryExpression2
-                        && unaryExpression2.NodeType == ExpressionType.Convert
-                        && unaryExpression2.Type == typeof(object))
-                    {
-                        readValueExpression = unaryExpression2.Operand;
-                    }
-
-                    var valueBufferVariable = Expression.Variable(typeof(ValueBuffer));
-                    var replacedReadExpression = ReplacingExpressionVisitor.Replace(
-                        selector.Parameters[0],
-                        valueBufferVariable,
-                        readValueExpression);
-
-                    replacedReadExpression = replacedReadExpression.Type == methodCallExpression.Type
-                        ? replacedReadExpression
-                        : Expression.Convert(replacedReadExpression, methodCallExpression.Type);
-
-                    return Expression.Block(
-                        variables: new[] { valueBufferVariable },
-                        Expression.Assign(valueBufferVariable, resultFunc),
-                        Expression.Condition(
-                            Expression.MakeMemberAccess(valueBufferVariable, _valueBufferIsEmpty),
-                            Expression.Default(methodCallExpression.Type),
-                            replacedReadExpression));
+                    readValueExpression = unaryExpression2.Operand;
                 }
+
+                var valueBufferVariable = Expression.Variable(typeof(ValueBuffer));
+                var replacedReadExpression = ReplacingExpressionVisitor.Replace(
+                    selector.Parameters[0],
+                    valueBufferVariable,
+                    readValueExpression);
+
+                replacedReadExpression = replacedReadExpression.Type == methodCallExpression.Type
+                    ? replacedReadExpression
+                    : Expression.Convert(replacedReadExpression, methodCallExpression.Type);
+
+                return Expression.Block(
+                    variables: new[] { valueBufferVariable },
+                    Expression.Assign(valueBufferVariable, resultFunc),
+                    Expression.Condition(
+                        Expression.MakeMemberAccess(valueBufferVariable, _valueBufferIsEmpty),
+                        Expression.Default(methodCallExpression.Type),
+                        replacedReadExpression));
             }
 
             // MethodCall translators
@@ -217,6 +216,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                 {
                     return null;
                 }
+
                 arguments[i] = argument;
             }
 
@@ -330,7 +330,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                     result = innerUnary.Operand;
                 }
                 else if (outerMostType == typeof(object)
-                    && intermediateType == innerMostType.UnwrapNullableType())
+                         && intermediateType == innerMostType.UnwrapNullableType())
                 {
                     result = Expression.Convert(innerUnary.Operand, typeof(object));
                 }
@@ -343,5 +343,4 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         private bool TranslationFailed(Expression original, Expression translation)
             => original != null && (translation == null || translation is EntityProjectionExpression);
     }
-
 }

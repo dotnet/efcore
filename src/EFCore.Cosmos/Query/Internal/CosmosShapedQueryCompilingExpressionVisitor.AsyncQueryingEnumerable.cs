@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -81,14 +81,14 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                             if (_enumerator == null)
                             {
                                 var selectExpression = (SelectExpression)new InExpressionValuesExpandingExpressionVisitor(
-                                   _sqlExpressionFactory, _cosmosQueryContext.ParameterValues).Visit(_selectExpression);
+                                    _sqlExpressionFactory, _cosmosQueryContext.ParameterValues).Visit(_selectExpression);
 
                                 _enumerator = _cosmosQueryContext.CosmosClient
                                     .ExecuteSqlQueryAsync(
                                         _selectExpression.Container,
-                                        _querySqlGeneratorFactory.Create().GetSqlQuery(selectExpression, _cosmosQueryContext.ParameterValues))
+                                        _querySqlGeneratorFactory.Create().GetSqlQuery(
+                                            selectExpression, _cosmosQueryContext.ParameterValues))
                                     .GetAsyncEnumerator(_cancellationToken);
-
                             }
 
                             var hasNext = await _enumerator.MoveNextAsync();

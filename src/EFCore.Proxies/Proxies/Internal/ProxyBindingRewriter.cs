@@ -85,11 +85,12 @@ namespace Microsoft.EntityFrameworkCore.Proxies.Internal
                         {
                             serviceProperty = entityType.AddServiceProperty(_lazyLoaderProperty);
                             serviceProperty.SetParameterBinding(
-                                (ServiceParameterBinding)new LazyLoaderParameterBindingFactory(_lazyLoaderParameterBindingFactoryDependencies)
+                                (ServiceParameterBinding)new LazyLoaderParameterBindingFactory(
+                                        _lazyLoaderParameterBindingFactoryDependencies)
                                     .Bind(
-                                    entityType,
-                                    typeof(ILazyLoader),
-                                    nameof(IProxyLazyLoader.LazyLoader)));
+                                        entityType,
+                                        typeof(ILazyLoader),
+                                        nameof(IProxyLazyLoader.LazyLoader)));
                         }
 
                         // WARNING: This code is EF internal; it should not be copied. See #10789 #14554

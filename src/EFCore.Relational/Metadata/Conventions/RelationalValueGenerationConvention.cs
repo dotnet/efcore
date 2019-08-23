@@ -8,9 +8,9 @@ using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 {
     /// <summary>
-    ///     A convention that configures store value generation as <see cref="ValueGenerated.OnAdd"/> on properties that are
+    ///     A convention that configures store value generation as <see cref="ValueGenerated.OnAdd" /> on properties that are
     ///     part of the primary key and not part of any foreign keys or were configured to have a database default value.
-    ///     It also configures properties as <see cref="ValueGenerated.OnAddOrUpdate"/> if they were configured as computed columns.
+    ///     It also configures properties as <see cref="ValueGenerated.OnAddOrUpdate" /> if they were configured as computed columns.
     /// </summary>
     public class RelationalValueGenerationConvention : ValueGenerationConvention, IPropertyAnnotationChangedConvention
     {

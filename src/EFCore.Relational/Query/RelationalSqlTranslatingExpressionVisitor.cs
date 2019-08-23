@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -90,10 +90,10 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             return inputType == typeof(float)
                 ? _sqlExpressionFactory.Convert(
-                        _sqlExpressionFactory.Function(
-                            "AVG", new[] { sqlExpression }, typeof(double)),
-                        sqlExpression.Type,
-                        sqlExpression.TypeMapping)
+                    _sqlExpressionFactory.Function(
+                        "AVG", new[] { sqlExpression }, typeof(double)),
+                    sqlExpression.Type,
+                    sqlExpression.TypeMapping)
                 : (SqlExpression)_sqlExpressionFactory.Function(
                     "AVG", new[] { sqlExpression }, sqlExpression.Type, sqlExpression.TypeMapping);
         }
@@ -148,9 +148,9 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             return inputType == typeof(float)
                 ? _sqlExpressionFactory.Convert(
-                        _sqlExpressionFactory.Function("SUM", new[] { sqlExpression }, typeof(double)),
-                        inputType,
-                        sqlExpression.TypeMapping)
+                    _sqlExpressionFactory.Function("SUM", new[] { sqlExpression }, typeof(double)),
+                    inputType,
+                    sqlExpression.TypeMapping)
                 : (SqlExpression)_sqlExpressionFactory.Function(
                     "SUM", new[] { sqlExpression }, inputType, sqlExpression.TypeMapping);
         }
@@ -177,9 +177,9 @@ namespace Microsoft.EntityFrameworkCore.Query
             var innerExpression = Visit(memberExpression.Expression);
 
             if ((innerExpression is EntityProjectionExpression
-                || (innerExpression is UnaryExpression innerUnaryExpression
-                    && innerUnaryExpression.NodeType == ExpressionType.Convert
-                    && innerUnaryExpression.Operand is EntityProjectionExpression))
+                 || (innerExpression is UnaryExpression innerUnaryExpression
+                     && innerUnaryExpression.NodeType == ExpressionType.Convert
+                     && innerUnaryExpression.Operand is EntityProjectionExpression))
                 && TryBindMember(innerExpression, MemberIdentity.Create(memberExpression.Member), out var result))
             {
                 return result;
@@ -249,9 +249,11 @@ namespace Microsoft.EntityFrameworkCore.Query
                     var discriminatorColumn = entityProjectionExpression.BindProperty(entityType.GetDiscriminatorProperty());
 
                     return concreteEntityTypes.Count == 1
-                        ? _sqlExpressionFactory.Equal(discriminatorColumn,
+                        ? _sqlExpressionFactory.Equal(
+                            discriminatorColumn,
                             _sqlExpressionFactory.Constant(concreteEntityTypes[0].GetDiscriminatorValue()))
-                        : (Expression)_sqlExpressionFactory.In(discriminatorColumn,
+                        : (Expression)_sqlExpressionFactory.In(
+                            discriminatorColumn,
                             _sqlExpressionFactory.Constant(concreteEntityTypes.Select(et => et.GetDiscriminatorValue()).ToList()),
                             negated: false);
                 }
@@ -331,13 +333,13 @@ namespace Microsoft.EntityFrameworkCore.Query
                     }
 
                     return QueryableMethods.IsAverageWithoutSelector(method)
-                        || QueryableMethods.IsAverageWithSelector(method)
-                        || method == QueryableMethods.MaxWithoutSelector
-                        || method == QueryableMethods.MaxWithSelector
-                        || method == QueryableMethods.MinWithoutSelector
-                        || method == QueryableMethods.MinWithSelector
-                        || QueryableMethods.IsSumWithoutSelector(method)
-                        || QueryableMethods.IsSumWithSelector(method);
+                           || QueryableMethods.IsAverageWithSelector(method)
+                           || method == QueryableMethods.MaxWithoutSelector
+                           || method == QueryableMethods.MaxWithSelector
+                           || method == QueryableMethods.MinWithoutSelector
+                           || method == QueryableMethods.MinWithSelector
+                           || QueryableMethods.IsSumWithoutSelector(method)
+                           || QueryableMethods.IsSumWithSelector(method);
                 }
 
                 if (subqueryTranslation.ResultCardinality == ResultCardinality.Enumerable)
@@ -349,7 +351,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 subquery.ApplyProjection();
 
                 if (!(subqueryTranslation.ShaperExpression is ProjectionBindingExpression
-                    || IsAggregateResultWithCustomShaper(methodCallExpression.Method)))
+                      || IsAggregateResultWithCustomShaper(methodCallExpression.Method)))
                 {
                     return null;
                 }
@@ -382,6 +384,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 {
                     return null;
                 }
+
                 arguments[i] = sqlArgument;
             }
 
@@ -400,6 +403,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     {
                         innerType = Enum.GetUnderlyingType(innerType);
                     }
+
                     var convertedType = unaryExpression.Type.UnwrapNullableType();
 
                     if (innerType == convertedType
@@ -436,22 +440,22 @@ namespace Microsoft.EntityFrameworkCore.Query
             var rightExpressions = ((NewArrayExpression)((NewExpression)binaryExpression.Right).Arguments[0]).Expressions;
 
             return leftExpressions.Zip(
-                rightExpressions,
-                (l, r) =>
-                {
-                    l = removeObjectConvert(l);
-                    r = removeObjectConvert(r);
-                    if (l.Type.IsNullableType())
+                    rightExpressions,
+                    (l, r) =>
                     {
-                        r = r.Type.IsNullableType() ? r : Expression.Convert(r, l.Type);
-                    }
-                    else if (r.Type.IsNullableType())
-                    {
-                        l = l.Type.IsNullableType() ? l : Expression.Convert(l, r.Type);
-                    }
+                        l = removeObjectConvert(l);
+                        r = removeObjectConvert(r);
+                        if (l.Type.IsNullableType())
+                        {
+                            r = r.Type.IsNullableType() ? r : Expression.Convert(r, l.Type);
+                        }
+                        else if (r.Type.IsNullableType())
+                        {
+                            l = l.Type.IsNullableType() ? l : Expression.Convert(l, r.Type);
+                        }
 
-                    return Expression.Equal(l, r);
-                })
+                        return Expression.Equal(l, r);
+                    })
                 .Aggregate((a, b) => Expression.AndAlso(a, b));
         }
 
@@ -502,8 +506,8 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                 case MemberInitExpression memberInitExpression:
                     return CanEvaluate(memberInitExpression.NewExpression)
-                        && memberInitExpression.Bindings.All(
-                            mb => mb is MemberAssignment memberAssignment && CanEvaluate(memberAssignment.Expression));
+                           && memberInitExpression.Bindings.All(
+                               mb => mb is MemberAssignment memberAssignment && CanEvaluate(memberAssignment.Expression));
 
                 default:
                     return false;
@@ -592,7 +596,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 case ExpressionType.Convert:
                     // Object convert needs to be converted to explicit cast when mismatching types
                     if (operand.Type.IsInterface
-                            && unaryExpression.Type.GetInterfaces().Any(e => e == operand.Type)
+                        && unaryExpression.Type.GetInterfaces().Any(e => e == operand.Type)
                         || unaryExpression.Type.UnwrapNullableType() == operand.Type.UnwrapNullableType()
                         || unaryExpression.Type.UnwrapNullableType() == typeof(Enum))
                     {
@@ -617,7 +621,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         [DebuggerStepThrough]
         private bool TranslationFailed(Expression original, Expression translation, out SqlExpression castTranslation)
         {
-            if (original != null && !(translation is SqlExpression))
+            if (original != null
+                && !(translation is SqlExpression))
             {
                 castTranslation = null;
                 return true;

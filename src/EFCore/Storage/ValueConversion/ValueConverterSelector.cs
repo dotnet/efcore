@@ -19,9 +19,9 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
     ///         to a type that the database provider supports.
     ///     </para>
     ///     <para>
-    ///         The service lifetime is <see cref="ServiceLifetime.Singleton"/>. This means a single instance
-    ///         is used by many <see cref="DbContext"/> instances. The implementation must be thread-safe.
-    ///         This service cannot depend on services registered as <see cref="ServiceLifetime.Scoped"/>.
+    ///         The service lifetime is <see cref="ServiceLifetime.Singleton" />. This means a single instance
+    ///         is used by many <see cref="DbContext" /> instances. The implementation must be thread-safe.
+    ///         This service cannot depend on services registered as <see cref="ServiceLifetime.Scoped" />.
     ///     </para>
     /// </summary>
     public class ValueConverterSelector : IValueConverterSelector
@@ -31,13 +31,32 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
 
         private static readonly Type[] _signedPreferred = { typeof(sbyte), typeof(short), typeof(int), typeof(long), typeof(decimal) };
 
-        private static readonly Type[] _unsignedPreferred = { typeof(byte), typeof(short), typeof(ushort), typeof(int), typeof(uint), typeof(long), typeof(ulong), typeof(decimal) };
+        private static readonly Type[] _unsignedPreferred =
+        {
+            typeof(byte), typeof(short), typeof(ushort), typeof(int), typeof(uint), typeof(long), typeof(ulong), typeof(decimal)
+        };
 
         private static readonly Type[] _floatingPreferred = { typeof(float), typeof(double), typeof(decimal) };
 
-        private static readonly Type[] _charPreferred = { typeof(char), typeof(int), typeof(ushort), typeof(uint), typeof(long), typeof(ulong), typeof(decimal) };
+        private static readonly Type[] _charPreferred =
+        {
+            typeof(char), typeof(int), typeof(ushort), typeof(uint), typeof(long), typeof(ulong), typeof(decimal)
+        };
 
-        private static readonly Type[] _numerics = { typeof(int), typeof(long), typeof(short), typeof(byte), typeof(ulong), typeof(uint), typeof(ushort), typeof(sbyte), typeof(decimal), typeof(double), typeof(float) };
+        private static readonly Type[] _numerics =
+        {
+            typeof(int),
+            typeof(long),
+            typeof(short),
+            typeof(byte),
+            typeof(ulong),
+            typeof(uint),
+            typeof(ushort),
+            typeof(sbyte),
+            typeof(decimal),
+            typeof(double),
+            typeof(float)
+        };
 
         /// <summary>
         ///     Initializes a new instance of the <see cref="ValueConverterSelector" /> class.
@@ -397,10 +416,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
             Type converterType,
             Func<Type, Type, IEnumerable<ValueConverterInfo>> afterPreferred)
         {
-            var usedTypes = new List<Type>
-            {
-                modelType
-            }; // List not hash because few members
+            var usedTypes = new List<Type> { modelType }; // List not hash because few members
             var underlyingModelType = modelType.UnwrapEnumType();
 
             if (modelType.IsEnum)

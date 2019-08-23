@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -12,6 +12,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
     public class TableAliasUniquifyingExpressionVisitor : ExpressionVisitor
     {
         private readonly ISet<string> _usedAliases = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
         private readonly ISet<TableExpressionBase> _visitedTableExpressionBases
             = new HashSet<TableExpressionBase>(ReferenceEqualityComparer.Instance);
 
