@@ -19,110 +19,110 @@ namespace Microsoft.EntityFrameworkCore.Query
         public override async Task Where_datetimeoffset_date_component(bool isAsync)
         {
             Assert.Equal(
-                CoreStrings.TranslationFailed("(m) => m.Timeline.Date > (Unhandled parameter: __Date_0)"),
-                (await Assert.ThrowsAsync<InvalidOperationException>(
+                CoreStrings.TranslationFailed("Where<Mission>(    source: DbSet<Mission>,     predicate: (m) => m.Timeline.Date > (Unhandled parameter: __Date_0))"),
+                RemoveNewLines((await Assert.ThrowsAsync<InvalidOperationException>(
                     () => base.Where_datetimeoffset_date_component(isAsync)))
-                .Message);
+                .Message));
         }
 
         // SQLite client-eval
         public override async Task Where_datetimeoffset_day_component(bool isAsync)
         {
             Assert.Equal(
-                CoreStrings.TranslationFailed("(m) => m.Timeline.Day == 2"),
-                (await Assert.ThrowsAsync<InvalidOperationException>(
+                CoreStrings.TranslationFailed("Where<Mission>(    source: DbSet<Mission>,     predicate: (m) => m.Timeline.Day == 2)"),
+                RemoveNewLines((await Assert.ThrowsAsync<InvalidOperationException>(
                     () => base.Where_datetimeoffset_day_component(isAsync)))
-                .Message);
+                .Message));
         }
 
         // SQLite client-eval
         public override async Task Where_datetimeoffset_dayofyear_component(bool isAsync)
         {
             Assert.Equal(
-                CoreStrings.TranslationFailed("(m) => m.Timeline.DayOfYear == 2"),
-                (await Assert.ThrowsAsync<InvalidOperationException>(
+                CoreStrings.TranslationFailed("Where<Mission>(    source: DbSet<Mission>,     predicate: (m) => m.Timeline.DayOfYear == 2)"),
+                RemoveNewLines((await Assert.ThrowsAsync<InvalidOperationException>(
                     () => base.Where_datetimeoffset_dayofyear_component(isAsync)))
-                .Message);
+                .Message));
         }
 
         // SQLite client-eval
         public override async Task Where_datetimeoffset_hour_component(bool isAsync)
         {
             Assert.Equal(
-                CoreStrings.TranslationFailed("(m) => m.Timeline.Hour == 10"),
-                (await Assert.ThrowsAsync<InvalidOperationException>(
+                CoreStrings.TranslationFailed("Where<Mission>(    source: DbSet<Mission>,     predicate: (m) => m.Timeline.Hour == 10)"),
+                RemoveNewLines((await Assert.ThrowsAsync<InvalidOperationException>(
                     () => base.Where_datetimeoffset_hour_component(isAsync)))
-                .Message);
+                .Message));
         }
 
         // SQLite client-eval
         public override async Task Where_datetimeoffset_millisecond_component(bool isAsync)
         {
             Assert.Equal(
-                CoreStrings.TranslationFailed("(m) => m.Timeline.Millisecond == 0"),
-                (await Assert.ThrowsAsync<InvalidOperationException>(
+                CoreStrings.TranslationFailed("Where<Mission>(    source: DbSet<Mission>,     predicate: (m) => m.Timeline.Millisecond == 0)"),
+                RemoveNewLines((await Assert.ThrowsAsync<InvalidOperationException>(
                     () => base.Where_datetimeoffset_millisecond_component(isAsync)))
-                .Message);
+                .Message));
         }
 
         // SQLite client-eval
         public override async Task Where_datetimeoffset_minute_component(bool isAsync)
         {
             Assert.Equal(
-                CoreStrings.TranslationFailed("(m) => m.Timeline.Minute == 0"),
-                (await Assert.ThrowsAsync<InvalidOperationException>(
+                CoreStrings.TranslationFailed("Where<Mission>(    source: DbSet<Mission>,     predicate: (m) => m.Timeline.Minute == 0)"),
+                RemoveNewLines((await Assert.ThrowsAsync<InvalidOperationException>(
                     () => base.Where_datetimeoffset_minute_component(isAsync)))
-                .Message);
+                .Message));
         }
 
         // SQLite client-eval
         public override async Task Where_datetimeoffset_month_component(bool isAsync)
         {
             Assert.Equal(
-                CoreStrings.TranslationFailed("(m) => m.Timeline.Month == 1"),
-                (await Assert.ThrowsAsync<InvalidOperationException>(
+                CoreStrings.TranslationFailed("Where<Mission>(    source: DbSet<Mission>,     predicate: (m) => m.Timeline.Month == 1)"),
+                RemoveNewLines((await Assert.ThrowsAsync<InvalidOperationException>(
                     () => base.Where_datetimeoffset_month_component(isAsync)))
-                .Message);
+                .Message));
         }
 
         // SQLite client-eval
         public override async Task Where_datetimeoffset_now(bool isAsync)
         {
             Assert.Equal(
-                CoreStrings.TranslationFailed("(m) => m.Timeline != DateTimeOffset.Now"),
-                (await Assert.ThrowsAsync<InvalidOperationException>(
+                CoreStrings.TranslationFailed("Where<Mission>(    source: DbSet<Mission>,     predicate: (m) => m.Timeline != DateTimeOffset.Now)"),
+                RemoveNewLines((await Assert.ThrowsAsync<InvalidOperationException>(
                     () => base.Where_datetimeoffset_now(isAsync)))
-                .Message);
+                .Message));
         }
 
         // SQLite client-eval
         public override async Task Where_datetimeoffset_second_component(bool isAsync)
         {
             Assert.Equal(
-                CoreStrings.TranslationFailed("(m) => m.Timeline.Second == 0"),
-                (await Assert.ThrowsAsync<InvalidOperationException>(
+                CoreStrings.TranslationFailed("Where<Mission>(    source: DbSet<Mission>,     predicate: (m) => m.Timeline.Second == 0)"),
+                RemoveNewLines((await Assert.ThrowsAsync<InvalidOperationException>(
                     () => base.Where_datetimeoffset_second_component(isAsync)))
-                .Message);
+                .Message));
         }
 
         // SQLite client-eval
         public override async Task Where_datetimeoffset_utcnow(bool isAsync)
         {
             Assert.Equal(
-                CoreStrings.TranslationFailed("(m) => m.Timeline != DateTimeOffset.UtcNow"),
-                (await Assert.ThrowsAsync<InvalidOperationException>(
+                CoreStrings.TranslationFailed("Where<Mission>(    source: DbSet<Mission>,     predicate: (m) => m.Timeline != DateTimeOffset.UtcNow)"),
+                RemoveNewLines((await Assert.ThrowsAsync<InvalidOperationException>(
                     () => base.Where_datetimeoffset_utcnow(isAsync)))
-                .Message);
+                .Message));
         }
 
         // SQLite client-eval
         public override async Task Where_datetimeoffset_year_component(bool isAsync)
         {
             Assert.Equal(
-                CoreStrings.TranslationFailed("(m) => m.Timeline.Year == 2"),
-                (await Assert.ThrowsAsync<InvalidOperationException>(
+                CoreStrings.TranslationFailed("Where<Mission>(    source: DbSet<Mission>,     predicate: (m) => m.Timeline.Year == 2)"),
+                RemoveNewLines((await Assert.ThrowsAsync<InvalidOperationException>(
                     () => base.Where_datetimeoffset_year_component(isAsync)))
-                .Message);
+                .Message));
         }
 
         // SQLite client-eval
@@ -130,7 +130,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             Assert.Equal(
                 CoreStrings.TranslationFailed(
-                    "(m) => (Unhandled parameter: __start_0) <= (DateTimeOffset)m.Timeline.Date && m.Timeline < (Unhandled parameter: __end_1) && Contains<DateTimeOffset>(    source: (Unhandled parameter: __dates_2),     value: m.Timeline)"),
+                    "Where<Mission>(    source: DbSet<Mission>,     predicate: (m) => (Unhandled parameter: __start_0) <= (DateTimeOffset)m.Timeline.Date && m.Timeline < (Unhandled parameter: __end_1) && Contains<DateTimeOffset>(        source: (Unhandled parameter: __dates_2),         value: m.Timeline))"),
                 RemoveNewLines(
                     (await Assert.ThrowsAsync<InvalidOperationException>(
                         () => base.DateTimeOffset_Contains_Less_than_Greater_than(isAsync)))

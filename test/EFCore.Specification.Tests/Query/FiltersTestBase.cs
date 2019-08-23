@@ -51,9 +51,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         public virtual void Client_eval()
         {
             Assert.Equal(
-                CoreStrings.TranslationFailed("(p) => ClientMethod(p)"),
-                Assert.Throws<InvalidOperationException>(
-                    () => _context.Products.ToList()).Message);
+                CoreStrings.TranslationFailed("Where<Product>(    source: DbSet<Product>,     predicate: (p) => ClientMethod(p))"),
+                RemoveNewLines(Assert.Throws<InvalidOperationException>(
+                    () => _context.Products.ToList()).Message));
         }
 
         [ConditionalFact]
@@ -135,9 +135,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         public virtual void Included_one_to_many_query_with_client_eval()
         {
             Assert.Equal(
-                CoreStrings.TranslationFailed("(p) => ClientMethod(p)"),
-                Assert.Throws<InvalidOperationException>(
-                    () => _context.Products.Include(p => p.OrderDetails).ToList()).Message);
+                CoreStrings.TranslationFailed("Where<Product>(    source: DbSet<Product>,     predicate: (p) => ClientMethod(p))"),
+                RemoveNewLines(Assert.Throws<InvalidOperationException>(
+                    () => _context.Products.Include(p => p.OrderDetails).ToList()).Message));
         }
 
         [ConditionalFact(Skip = "issue #15081")]
@@ -171,5 +171,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         protected NorthwindContext CreateContext() => Fixture.CreateContext();
 
         public void Dispose() => _context.Dispose();
+
+        private string RemoveNewLines(string message)
+            => message.Replace("\n", "").Replace("\r", "");
     }
 }

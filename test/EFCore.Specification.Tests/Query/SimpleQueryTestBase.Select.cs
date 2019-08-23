@@ -136,7 +136,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             var boolean = false;
 
             Assert.Equal(
-                CoreStrings.TranslationFailed("(c) => (Nullable<bool>)(Unhandled parameter: __p_0).f"),
+                CoreStrings.TranslationFailed("OrderBy<Customer, Nullable<bool>>(    source: DbSet<Customer>,     keySelector: (c) => (Nullable<bool>)(Unhandled parameter: __p_0).f)"),
                 RemoveNewLines(
                     (await Assert.ThrowsAsync<InvalidOperationException>(
                         () => AssertQuery<Customer>(

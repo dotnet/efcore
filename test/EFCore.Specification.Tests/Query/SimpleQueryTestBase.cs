@@ -675,7 +675,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         public virtual async Task Queryable_reprojection(bool isAsync)
         {
             Assert.Equal(
-                CoreStrings.TranslationFailed("(c) => c.IsLondon"),
+                CoreStrings.TranslationFailed("Where<Customer>(    source: DbSet<Customer>,     predicate: (c) => c.IsLondon)"),
                 RemoveNewLines(
                     (await Assert.ThrowsAsync<InvalidOperationException>(
                         () => AssertQuery<Customer>(
@@ -1235,7 +1235,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         public virtual async Task All_client(bool isAsync)
         {
             Assert.Equal(
-                CoreStrings.TranslationFailed("(c) => c.IsLondon"),
+                CoreStrings.TranslationFailed("All<Customer>(    source: DbSet<Customer>,     predicate: (c) => c.IsLondon)"),
                 RemoveNewLines(
                     (await Assert.ThrowsAsync<InvalidOperationException>(
                         () => AssertAll<Customer, Customer>(
@@ -1249,7 +1249,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         public virtual async Task All_client_and_server_top_level(bool isAsync)
         {
             Assert.Equal(
-                CoreStrings.TranslationFailed("(c) => c.CustomerID != \"Foo\" && c.IsLondon"),
+                CoreStrings.TranslationFailed("All<Customer>(    source: DbSet<Customer>,     predicate: (c) => c.CustomerID != \"Foo\" && c.IsLondon)"),
                 RemoveNewLines(
                     (await Assert.ThrowsAsync<InvalidOperationException>(
                         () => AssertAll<Customer, Customer>(
@@ -1263,7 +1263,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         public virtual async Task All_client_or_server_top_level(bool isAsync)
         {
             Assert.Equal(
-                CoreStrings.TranslationFailed("(c) => c.CustomerID != \"Foo\" || c.IsLondon"),
+                CoreStrings.TranslationFailed("All<Customer>(    source: DbSet<Customer>,     predicate: (c) => c.CustomerID != \"Foo\" || c.IsLondon)"),
                 RemoveNewLines(
                     (await Assert.ThrowsAsync<InvalidOperationException>(
                         () => AssertAll<Customer, Customer>(
@@ -1393,7 +1393,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         public virtual async Task First_client_predicate(bool isAsync)
         {
             Assert.Equal(
-                CoreStrings.TranslationFailed("(c) => c.IsLondon"),
+                CoreStrings.TranslationFailed("Where<Customer>(    source: OrderBy<Customer, string>(        source: DbSet<Customer>,         keySelector: (c) => c.CustomerID),     predicate: (c) => c.IsLondon)"),
                 RemoveNewLines(
                     (await Assert.ThrowsAsync<InvalidOperationException>(
                         () => AssertFirst<Customer, Customer>(
@@ -2267,7 +2267,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         public virtual async Task Where_query_composition3(bool isAsync)
         {
             Assert.Equal(
-                CoreStrings.TranslationFailed("(c0) => c0.IsLondon"),
+                CoreStrings.TranslationFailed("Where<Customer>(    source: OrderBy<Customer, string>(        source: DbSet<Customer>,         keySelector: (c0) => c0.CustomerID),     predicate: (c0) => c0.IsLondon)"),
                 RemoveNewLines(
                     (await Assert.ThrowsAsync<InvalidOperationException>(
                         () => AssertQuery<Customer>(
@@ -2284,7 +2284,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         public virtual async Task Where_query_composition4(bool isAsync)
         {
             Assert.Equal(
-                CoreStrings.TranslationFailed("(c1) => c1.IsLondon"),
+                CoreStrings.TranslationFailed("OrderBy<Customer, bool>(    source: DbSet<Customer>,     keySelector: (c1) => c1.IsLondon)"),
                 RemoveNewLines(
                     (await Assert.ThrowsAsync<InvalidOperationException>(
                         () => AssertQuery<Customer>(
@@ -2307,7 +2307,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             Assert.Equal(
                 CoreStrings.TranslationFailed(
-                    "(c) => c.IsLondon == First<bool>(Select<Customer, bool>(    source: OrderBy<Customer, string>(        source: DbSet<Customer>,         keySelector: (c0) => c0.CustomerID),     selector: (c0) => c0.IsLondon))"),
+                    "Where<Customer>(    source: DbSet<Customer>,     predicate: (c) => c.IsLondon == First<bool>(Select<Customer, bool>(        source: OrderBy<Customer, string>(            source: DbSet<Customer>,             keySelector: (c0) => c0.CustomerID),         selector: (c0) => c0.IsLondon)))"),
                 RemoveNewLines(
                     (await Assert.ThrowsAsync<InvalidOperationException>(
                         () => AssertQuery<Customer>(
@@ -2324,7 +2324,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         public virtual async Task Where_query_composition6(bool isAsync)
         {
             Assert.Equal(
-                CoreStrings.TranslationFailed("(c) => c.IsLondon == First<bool>(Select<Customer, bool>(    source: OrderBy<Customer, string>(        source: DbSet<Customer>,         keySelector: (c0) => c0.CustomerID),     selector: (c0) => c0.IsLondon))"),
+                CoreStrings.TranslationFailed("Where<Customer>(    source: DbSet<Customer>,     predicate: (c) => c.IsLondon == First<bool>(Select<Customer, bool>(        source: OrderBy<Customer, string>(            source: DbSet<Customer>,             keySelector: (c0) => c0.CustomerID),         selector: (c0) => c0.IsLondon)))"),
                 RemoveNewLines(
                     (await Assert.ThrowsAsync<InvalidOperationException>(
                         () => AssertQuery<Customer>(
@@ -3081,7 +3081,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         public virtual async Task OrderBy_client_mixed(bool isAsync)
         {
             Assert.Equal(
-                CoreStrings.TranslationFailed("(c) => c.IsLondon"),
+                CoreStrings.TranslationFailed("OrderBy<Customer, bool>(    source: DbSet<Customer>,     keySelector: (c) => c.IsLondon)"),
                 RemoveNewLines(
                     (await Assert.ThrowsAsync<InvalidOperationException>(
                         () => AssertQuery<Customer>(
@@ -3096,7 +3096,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         public virtual async Task OrderBy_multiple_queries(bool isAsync)
         {
             Assert.Equal(
-                CoreStrings.TranslationFailed("(c) => new Foo{ Bar = c.CustomerID }; (o) => new Foo{ Bar = o.CustomerID }; (c, o) => new TransparentIdentifier<Customer, Order>(    Outer = c,     Inner = o)"),
+                CoreStrings.TranslationFailed("Join<Customer, Order, Foo, TransparentIdentifier<Customer, Order>>(    outer: DbSet<Customer>,     inner: DbSet<Order>,     outerKeySelector: (c) => new Foo{ Bar = c.CustomerID }    ,     innerKeySelector: (o) => new Foo{ Bar = o.CustomerID }    ,     resultSelector: (c, o) => new TransparentIdentifier<Customer, Order>(        Outer = c,         Inner = o    ))"),
                 RemoveNewLines(
                     (await Assert.ThrowsAsync<InvalidOperationException>(
                         () => AssertQuery<Customer, Order>(
@@ -4011,7 +4011,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             using (var context = CreateContext())
             {
                 Assert.Equal(
-                    CoreStrings.TranslationFailed("(o) => o.OrderID > new Random().Next()"),
+                    CoreStrings.TranslationFailed("Where<Order>(    source: DbSet<Order>,     predicate: (o) => o.OrderID > new Random().Next())"),
                     RemoveNewLines(
                         Assert.Throws<InvalidOperationException>(
                             () => context.Orders
@@ -4026,7 +4026,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             using (var context = CreateContext())
             {
                 Assert.Equal(
-                    CoreStrings.TranslationFailed("(o) => o.OrderID > new Random().Next(5)"),
+                    CoreStrings.TranslationFailed("Where<Order>(    source: DbSet<Order>,     predicate: (o) => o.OrderID > new Random().Next(5))"),
                     RemoveNewLines(
                         Assert.Throws<InvalidOperationException>(
                             () => context.Orders
@@ -4041,7 +4041,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             using (var context = CreateContext())
             {
                 Assert.Equal(
-                    CoreStrings.TranslationFailed("(o) => o.OrderID > new Random().Next(    minValue: 0,     maxValue: 10)"),
+                    CoreStrings.TranslationFailed("Where<Order>(    source: DbSet<Order>,     predicate: (o) => o.OrderID > new Random().Next(        minValue: 0,         maxValue: 10))"),
                     RemoveNewLines(
                         Assert.Throws<InvalidOperationException>(
                             () => context.Orders
@@ -4056,7 +4056,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             using (var context = CreateContext())
             {
                 Assert.Equal(
-                    CoreStrings.TranslationFailed("(o) => o.OrderID > new Random(15).Next()"),
+                    CoreStrings.TranslationFailed("Where<Order>(    source: DbSet<Order>,     predicate: (o) => o.OrderID > new Random(15).Next())"),
                     RemoveNewLines(
                         Assert.Throws<InvalidOperationException>(
                             () => context.Orders
@@ -4071,7 +4071,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             using (var context = CreateContext())
             {
                 Assert.Equal(
-                    CoreStrings.TranslationFailed("(o) => o.OrderID > new Random(15).Next(5)"),
+                    CoreStrings.TranslationFailed("Where<Order>(    source: DbSet<Order>,     predicate: (o) => o.OrderID > new Random(15).Next(5))"),
                     RemoveNewLines(
                         Assert.Throws<InvalidOperationException>(
                             () => context.Orders
@@ -4086,7 +4086,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             using (var context = CreateContext())
             {
                 Assert.Equal(
-                    CoreStrings.TranslationFailed("(o) => o.OrderID > new Random(15).Next(    minValue: 0,     maxValue: 10)"),
+                    CoreStrings.TranslationFailed("Where<Order>(    source: DbSet<Order>,     predicate: (o) => o.OrderID > new Random(15).Next(        minValue: 0,         maxValue: 10))"),
                     RemoveNewLines(
                         Assert.Throws<InvalidOperationException>(
                             () => context.Orders
@@ -6097,7 +6097,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         public virtual async Task SelectMany_after_client_method(bool isAsync)
         {
             Assert.Equal(
-                CoreStrings.TranslationFailed("(c) => ClientOrderBy(c)"),
+                CoreStrings.TranslationFailed("OrderBy<Customer, string>(    source: DbSet<Customer>,     keySelector: (c) => ClientOrderBy(c))"),
                 RemoveNewLines(
                     (await Assert.ThrowsAsync<InvalidOperationException>(
                         () => AssertQueryScalar<Customer>(
