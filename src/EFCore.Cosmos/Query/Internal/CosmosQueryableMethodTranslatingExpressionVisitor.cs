@@ -115,10 +115,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        protected override ShapedQueryExpression TranslateAll(ShapedQueryExpression source, LambdaExpression predicate)
-        {
-            throw new InvalidOperationException(CoreStrings.TranslationFailed(predicate.Print()));
-        }
+        protected override ShapedQueryExpression TranslateAll(ShapedQueryExpression source, LambdaExpression predicate) => null;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -126,10 +123,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        protected override ShapedQueryExpression TranslateAny(ShapedQueryExpression source, LambdaExpression predicate)
-        {
-            throw new InvalidOperationException(CoreStrings.TranslationFailed(predicate.Print()));
-        }
+        protected override ShapedQueryExpression TranslateAny(ShapedQueryExpression source, LambdaExpression predicate) => null;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -144,7 +138,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                 || selectExpression.Limit != null
                 || selectExpression.Offset != null)
             {
-                throw new InvalidOperationException(CoreStrings.TranslationFailed(selector.Print()));
+                return null;
             }
 
             if (selector != null)
@@ -185,8 +179,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         /// </summary>
         protected override ShapedQueryExpression TranslateConcat(ShapedQueryExpression source1, ShapedQueryExpression source2)
         {
-            throw new InvalidOperationException(CoreStrings.TranslationFailed(
-                source1.Print() + "; " + source2.Print()));
+            return null;
         }
 
         /// <summary>
@@ -197,7 +190,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         /// </summary>
         protected override ShapedQueryExpression TranslateContains(ShapedQueryExpression source, Expression item)
         {
-            throw new InvalidOperationException(CoreStrings.TranslationFailed(item.Print()));
+            return null;
         }
 
         /// <summary>
@@ -213,12 +206,16 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                 || selectExpression.Limit != null
                 || selectExpression.Offset != null)
             {
-                throw new InvalidOperationException(CoreStrings.TranslationFailed(predicate.Print()));
+                return null;
             }
 
             if (predicate != null)
             {
                 source = TranslateWhere(source, predicate);
+                if (source == null)
+                {
+                    return null;
+                }
             }
 
             var translation = _sqlExpressionFactory.ApplyDefaultTypeMapping(
@@ -244,7 +241,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         /// </summary>
         protected override ShapedQueryExpression TranslateDefaultIfEmpty(ShapedQueryExpression source, Expression defaultValue)
         {
-            throw new InvalidOperationException(CoreStrings.TranslationFailed(defaultValue.Print()));
+            return null;
         }
 
         /// <summary>
@@ -268,7 +265,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         /// </summary>
         protected override ShapedQueryExpression TranslateElementAtOrDefault(ShapedQueryExpression source, Expression index, bool returnDefault)
         {
-            throw new InvalidOperationException(CoreStrings.TranslationFailed(index.Print()));
+            return null;
         }
 
         /// <summary>
@@ -279,8 +276,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         /// </summary>
         protected override ShapedQueryExpression TranslateExcept(ShapedQueryExpression source1, ShapedQueryExpression source2)
         {
-            throw new InvalidOperationException(CoreStrings.TranslationFailed(
-                source1.Print() + "; " + source2.Print()));
+            return null;
         }
 
         /// <summary>
@@ -294,6 +290,10 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
             if (predicate != null)
             {
                 source = TranslateWhere(source, predicate);
+                if (source == null)
+                {
+                    return null;
+                }
             }
 
             var selectExpression = (SelectExpression)source.QueryExpression;
@@ -315,8 +315,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         /// </summary>
         protected override ShapedQueryExpression TranslateGroupBy(ShapedQueryExpression source, LambdaExpression keySelector, LambdaExpression elementSelector, LambdaExpression resultSelector)
         {
-            throw new InvalidOperationException(CoreStrings.TranslationFailed(
-                keySelector.Print() + "; " + elementSelector.Print() + "; " + resultSelector.Print()));
+            return null;
         }
 
         /// <summary>
@@ -338,8 +337,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         /// </summary>
         protected override ShapedQueryExpression TranslateIntersect(ShapedQueryExpression source1, ShapedQueryExpression source2)
         {
-            throw new InvalidOperationException(CoreStrings.TranslationFailed(
-                source1.Print() + "; " + source2.Print()));
+            return null;
         }
 
         /// <summary>
@@ -350,8 +348,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         /// </summary>
         protected override ShapedQueryExpression TranslateJoin(ShapedQueryExpression outer, ShapedQueryExpression inner, LambdaExpression outerKeySelector, LambdaExpression innerKeySelector, LambdaExpression resultSelector)
         {
-            throw new InvalidOperationException(CoreStrings.TranslationFailed(
-                outerKeySelector.Print() + "; " + innerKeySelector.Print() + "; " + resultSelector.Print()));
+            return null;
         }
 
         /// <summary>
@@ -365,6 +362,10 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
             if (predicate != null)
             {
                 source = TranslateWhere(source, predicate);
+                if (source == null)
+                {
+                    return null;
+                }
             }
 
             var selectExpression = (SelectExpression)source.QueryExpression;
@@ -387,8 +388,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         /// </summary>
         protected override ShapedQueryExpression TranslateLeftJoin(ShapedQueryExpression outer, ShapedQueryExpression inner, LambdaExpression outerKeySelector, LambdaExpression innerKeySelector, LambdaExpression resultSelector)
         {
-            throw new InvalidOperationException(CoreStrings.TranslationFailed(
-                outerKeySelector.Print() + "; " + innerKeySelector.Print() + "; " + resultSelector.Print()));
+            return null;
         }
 
         /// <summary>
@@ -404,12 +404,16 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                 || selectExpression.Limit != null
                 || selectExpression.Offset != null)
             {
-                throw new InvalidOperationException(CoreStrings.TranslationFailed(predicate.Print()));
+                return null;
             }
 
             if (predicate != null)
             {
                 source = TranslateWhere(source, predicate);
+                if (source == null)
+                {
+                    return null;
+                }
             }
 
             var translation = _sqlExpressionFactory.ApplyDefaultTypeMapping(
@@ -439,7 +443,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                 || selectExpression.Limit != null
                 || selectExpression.Offset != null)
             {
-                throw new InvalidOperationException(CoreStrings.TranslationFailed(selector.Print()));
+                return null;
             }
 
             if (selector != null)
@@ -467,7 +471,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                 || selectExpression.Limit != null
                 || selectExpression.Offset != null)
             {
-                throw new InvalidOperationException(CoreStrings.TranslationFailed(selector.Print()));
+                return null;
             }
 
             if (selector != null)
@@ -490,7 +494,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         /// </summary>
         protected override ShapedQueryExpression TranslateOfType(ShapedQueryExpression source, Type resultType)
         {
-            throw new InvalidOperationException(CoreStrings.TranslationFailed(source.Print()));
+            return null;
         }
 
         /// <summary>
@@ -509,7 +513,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                 return source;
             }
 
-            throw new InvalidOperationException(CoreStrings.TranslationFailed(keySelector.Print()));
+            return null;
         }
 
         /// <summary>
@@ -520,7 +524,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         /// </summary>
         protected override ShapedQueryExpression TranslateReverse(ShapedQueryExpression source)
         {
-            throw new InvalidOperationException(CoreStrings.TranslationFailed(source.Print()));
+            return null;
         }
 
         /// <summary>
@@ -539,7 +543,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
             var selectExpression = (SelectExpression)source.QueryExpression;
             if (selectExpression.IsDistinct)
             {
-                throw new InvalidOperationException(CoreStrings.TranslationFailed(selector.Print()));
+                return null;
             }
 
             var newSelectorBody = ReplacingExpressionVisitor.Replace(selector.Parameters.Single(), source.ShaperExpression, selector.Body);
@@ -558,8 +562,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         /// </summary>
         protected override ShapedQueryExpression TranslateSelectMany(ShapedQueryExpression source, LambdaExpression collectionSelector, LambdaExpression resultSelector)
         {
-            throw new InvalidOperationException(CoreStrings.TranslationFailed(
-                collectionSelector.Print() + "; " + resultSelector.Print()));
+            return null;
         }
 
         /// <summary>
@@ -570,7 +573,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         /// </summary>
         protected override ShapedQueryExpression TranslateSelectMany(ShapedQueryExpression source, LambdaExpression selector)
         {
-            throw new InvalidOperationException(CoreStrings.TranslationFailed(selector.Print()));
+            return null;
         }
 
         /// <summary>
@@ -584,6 +587,10 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
             if (predicate != null)
             {
                 source = TranslateWhere(source, predicate);
+                if (source == null)
+                {
+                    return null;
+                }
             }
 
             var selectExpression = (SelectExpression)source.QueryExpression;
@@ -615,7 +622,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                 return source;
             }
 
-            throw new InvalidOperationException(CoreStrings.TranslationFailed(count.Print()));
+            return null;
         }
 
         /// <summary>
@@ -626,7 +633,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         /// </summary>
         protected override ShapedQueryExpression TranslateSkipWhile(ShapedQueryExpression source, LambdaExpression predicate)
         {
-            throw new InvalidOperationException(CoreStrings.TranslationFailed(predicate.Print()));
+            return null;
         }
 
         /// <summary>
@@ -642,7 +649,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                 || selectExpression.Limit != null
                 || selectExpression.Offset != null)
             {
-                throw new InvalidOperationException(CoreStrings.TranslationFailed(selector.Print()));
+                return null;
             }
 
             if (selector != null)
@@ -677,7 +684,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                 return source;
             }
 
-            throw new InvalidOperationException(CoreStrings.TranslationFailed(count.Print()));
+            return null;
         }
 
         /// <summary>
@@ -688,7 +695,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         /// </summary>
         protected override ShapedQueryExpression TranslateTakeWhile(ShapedQueryExpression source, LambdaExpression predicate)
         {
-            throw new InvalidOperationException(CoreStrings.TranslationFailed(predicate.Print()));
+            return null;
         }
 
         /// <summary>
@@ -707,7 +714,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                 return source;
             }
 
-            throw new InvalidOperationException(CoreStrings.TranslationFailed(keySelector.Print()));
+            return null;
         }
 
         /// <summary>
@@ -718,8 +725,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         /// </summary>
         protected override ShapedQueryExpression TranslateUnion(ShapedQueryExpression source1, ShapedQueryExpression source2)
         {
-            throw new InvalidOperationException(CoreStrings.TranslationFailed(
-                source1.Print() + "; " + source2.Print()));
+            return null;
         }
 
         /// <summary>
@@ -738,7 +744,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                 return source;
             }
 
-            throw new InvalidOperationException(CoreStrings.TranslationFailed(predicate.Print()));
+            return null;
         }
 
         private SqlExpression TranslateExpression(Expression expression)
