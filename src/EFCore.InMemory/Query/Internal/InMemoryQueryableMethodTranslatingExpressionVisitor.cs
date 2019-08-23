@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -378,6 +379,16 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                         InMemoryLinqOperatorProvider.Where.MakeGenericMethod(typeof(ValueBuffer)),
                         inMemoryQueryExpression.ServerQueryExpression,
                         predicate);
+
+                    var projectionBindingExpression = (ProjectionBindingExpression)entityShaperExpression.ValueBufferExpression;
+                    var projectionMember = projectionBindingExpression.ProjectionMember;
+                    var entityProjection = (EntityProjectionExpression)inMemoryQueryExpression.GetMappedProjection(projectionMember);
+
+                    inMemoryQueryExpression.ReplaceProjectionMapping(
+                        new Dictionary<ProjectionMember, Expression>
+                        {
+                            { projectionMember, entityProjection.UpdateEntityType(derivedType)}
+                        });
 
                     source.ShaperExpression = entityShaperExpression.WithEntityType(derivedType);
 

@@ -66,23 +66,54 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                 : result;
         }
 
+        protected override Expression VisitBinary(BinaryExpression binaryExpression)
+        {
+            var left = Visit(binaryExpression.Left);
+            var right = Visit(binaryExpression.Right);
+            if (left == null || right == null)
+            {
+                return null;
+            }
+
+            return binaryExpression.Update(left, binaryExpression.Conversion, right);
+        }
+
+        protected override Expression VisitConditional(ConditionalExpression conditionalExpression)
+        {
+            var test = Visit(conditionalExpression.Test);
+            var ifTrue = Visit(conditionalExpression.IfTrue);
+            var ifFalse = Visit(conditionalExpression.IfFalse);
+            if (test == null || ifTrue == null || ifFalse == null)
+            {
+                return null;
+            }
+
+            return conditionalExpression.Update(test, ifTrue, ifFalse);
+        }
+
         protected override Expression VisitMember(MemberExpression memberExpression)
         {
             var innerExpression = Visit(memberExpression.Expression);
+            if (memberExpression.Expression != null && innerExpression == null)
+            {
+                return null;
+            }
 
-            if (innerExpression is EntityProjectionExpression
+            if ((innerExpression is EntityProjectionExpression
                 || (innerExpression is UnaryExpression innerUnaryExpression
                     && innerUnaryExpression.NodeType == ExpressionType.Convert
                     && innerUnaryExpression.Operand is EntityProjectionExpression))
+                && TryBindMember(innerExpression, MemberIdentity.Create(memberExpression.Member), memberExpression.Type, out var result))
             {
-                return BindProperty(innerExpression, memberExpression.Member.GetSimpleMemberName(), memberExpression.Type);
+                return result;
             }
 
             return memberExpression.Update(innerExpression);
         }
 
-        private Expression BindProperty(Expression source, string propertyName, Type type)
+        private bool TryBindMember(Expression source, MemberIdentity memberIdentity, Type type, out Expression result)
         {
+            result = null;
             Type convertedType = null;
             if (source is UnaryExpression unaryExpression
                 && unaryExpression.NodeType == ExpressionType.Convert)
@@ -104,21 +135,29 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
 
                     if (entityType == null)
                     {
-                        return null;
+                        return false;
                     }
                 }
 
-                var property = entityType.GetRootType().GetDerivedTypesInclusive()
-                    .Select(et => et.FindProperty(propertyName))
-                    .FirstOrDefault(p => p != null);
+                var property = memberIdentity.MemberInfo != null
+                    ? entityType.FindProperty(memberIdentity.MemberInfo)
+                    : entityType.FindProperty(memberIdentity.Name);
+                // If unmapped property return null
+                if (property == null)
+                {
+                    return false;
+                }
 
-                var result = BindProperty(entityProjection, property);
-                return result.Type == type
-                    ? result
-                    : Expression.Convert(result, type);
+                result = BindProperty(entityProjection, property);
+                if (result.Type != type)
+                {
+                    result = Expression.Convert(result, type);
+                }
+
+                return true;
             }
 
-            throw new InvalidOperationException(CoreStrings.TranslationFailed(source.Print()));
+            return false;
         }
 
         private Expression BindProperty(EntityProjectionExpression entityProjectionExpression, IProperty property)
@@ -131,7 +170,12 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             // EF.Property case
             if (methodCallExpression.TryGetEFPropertyArguments(out var source, out var propertyName))
             {
-                return BindProperty(Visit(source), propertyName, methodCallExpression.Type);
+                if (TryBindMember(Visit(source), MemberIdentity.Create(propertyName), methodCallExpression.Type, out var result))
+                {
+                    return result;
+                }
+
+                throw new InvalidOperationException("EF.Property called with wrong property name.");
             }
 
             // Subquery case

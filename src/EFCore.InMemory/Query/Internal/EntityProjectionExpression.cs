@@ -23,6 +23,22 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         public override Type Type => EntityType.ClrType;
         public sealed override ExpressionType NodeType => ExpressionType.Extension;
 
+        public virtual EntityProjectionExpression UpdateEntityType(IEntityType derivedType)
+        {
+            var readExpressionMap = new Dictionary<IProperty, Expression>();
+            foreach (var kvp in _readExpressionMap)
+            {
+                var property = kvp.Key;
+                if (derivedType.IsAssignableFrom(property.DeclaringEntityType)
+                    || property.DeclaringEntityType.IsAssignableFrom(derivedType))
+                {
+                    readExpressionMap[property] = kvp.Value;
+                }
+            }
+
+            return new EntityProjectionExpression(derivedType, readExpressionMap);
+        }
+
         public virtual Expression BindProperty(IProperty property)
         {
             if (!EntityType.IsAssignableFrom(property.DeclaringEntityType)
