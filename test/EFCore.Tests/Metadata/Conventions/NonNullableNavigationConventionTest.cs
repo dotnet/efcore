@@ -141,7 +141,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             Assert.Equal(nameof(Principal), navigation.ForeignKey.DeclaringEntityType.DisplayName());
             Assert.True(navigation.ForeignKey.IsRequired);
 
-
             var logEntry = ListLoggerFactory.Log.Single();
             Assert.Equal(LogLevel.Debug, logEntry.Level);
             Assert.Equal(

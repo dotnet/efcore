@@ -23,13 +23,14 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 var model = modelBuilder.Model;
 
                 modelBuilder.Entity<Customer>()
-                    .OwnsOne(c => c.Details, db =>
-                    {
-                        db.WithOwner(d => d.Customer)
-                          .HasPrincipalKey(c => c.AlternateKey);
-                        db.Property(d => d.CustomerId);
-                        db.HasIndex(d => d.CustomerId);
-                    });
+                    .OwnsOne(
+                        c => c.Details, db =>
+                        {
+                            db.WithOwner(d => d.Customer)
+                                .HasPrincipalKey(c => c.AlternateKey);
+                            db.Property(d => d.CustomerId);
+                            db.HasIndex(d => d.CustomerId);
+                        });
 
                 modelBuilder.FinalizeModel();
 
@@ -395,10 +396,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                         ob.HasKey(o => o.OrderId);
                         ob.OwnsOne(o => o.Details)
                             .HasData(
-                                new OrderDetails
-                                {
-                                    OrderId = -1
-                                });
+                                new OrderDetails { OrderId = -1 });
                     });
 
                 modelBuilder.FinalizeModel();
@@ -432,11 +430,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                     {
                         ob.HasKey(o => o.OrderId);
                         ob.HasData(
-                            new Order
-                            {
-                                OrderId = -2,
-                                CustomerId = -1
-                            });
+                            new Order { OrderId = -2, CustomerId = -1 });
                         ob.OwnsMany(o => o.Products)
                             .HasKey(p => p.Id);
                     });
@@ -688,8 +682,8 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                     b => b.Label, lb =>
                     {
                         lb.WithOwner()
-                          .HasForeignKey("BookLabelId")
-                          .HasAnnotation("Foo", "Bar");
+                            .HasForeignKey("BookLabelId")
+                            .HasAnnotation("Foo", "Bar");
                     });
                 modelBuilder.Entity<Book>()
                     .OwnsOne(b => b.AlternateLabel)
@@ -822,7 +816,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
                 Assert.Equal(
                     CoreStrings.AmbiguousForeignKeyPropertyCandidates(
-                        nameof(BookLabel) +"." + nameof(BookLabel.Book),
+                        nameof(BookLabel) + "." + nameof(BookLabel.Book),
                         nameof(Book) + "." + nameof(Book.Label),
                         nameof(BookLabel),
                         nameof(Book) + "." + nameof(Book.AlternateLabel),
@@ -1115,8 +1109,9 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
                 Assert.Equal(
                     CoreStrings.ClashingNonOwnedEntityType(nameof(CustomerDetails)),
-                    Assert.Throws<InvalidOperationException>(() =>
-                        modelBuilder.Entity<SpecialCustomer>().OwnsOne(c => c.Details)).Message);
+                    Assert.Throws<InvalidOperationException>(
+                        () =>
+                            modelBuilder.Entity<SpecialCustomer>().OwnsOne(c => c.Details)).Message);
             }
 
             [ConditionalFact]
@@ -1129,8 +1124,9 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
                 Assert.Equal(
                     CoreStrings.ClashingOwnedEntityType(nameof(CustomerDetails)),
-                    Assert.Throws<InvalidOperationException>(() =>
-                        modelBuilder.Entity<SpecialCustomer>().HasOne(c => c.Details)).Message);
+                    Assert.Throws<InvalidOperationException>(
+                        () =>
+                            modelBuilder.Entity<SpecialCustomer>().HasOne(c => c.Details)).Message);
             }
 
             [ConditionalFact]

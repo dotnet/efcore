@@ -2,11 +2,8 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
@@ -79,11 +76,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     .FromSqlRaw(TenMostExpensiveProductsSproc, GetTenMostExpensiveProductsParameters())
                     .Select(
                         mep =>
-                            new MostExpensiveProduct
-                            {
-                                TenMostExpensiveProducts = "Foo",
-                                UnitPrice = mep.UnitPrice
-                            });
+                            new MostExpensiveProduct { TenMostExpensiveProducts = "Foo", UnitPrice = mep.UnitPrice });
                 try
                 {
                     var _ = async
@@ -114,11 +107,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 var actual = (async ? await query.ToListAsync() : query.ToList())
                     .Select(
                         mep =>
-                            new MostExpensiveProduct
-                            {
-                                TenMostExpensiveProducts = "Foo",
-                                UnitPrice = mep.UnitPrice
-                            }).ToArray();
+                            new MostExpensiveProduct { TenMostExpensiveProducts = "Foo", UnitPrice = mep.UnitPrice }).ToArray();
 
                 Assert.Equal(10, actual.Length);
                 Assert.True(actual.All(mep => mep.TenMostExpensiveProducts == "Foo"));
@@ -255,7 +244,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                 Assert.Equal(21, actual.Last().Total);
             }
         }
-
 
         [ConditionalTheory]
         [InlineData(false)]
@@ -394,10 +382,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                             from b in context.Set<MostExpensiveProduct>()
                                 .FromSqlRaw(TenMostExpensiveProductsSproc, GetTenMostExpensiveProductsParameters())
                             where a.TenMostExpensiveProducts == b.TenMostExpensiveProducts
-                            select new
-                            {
-                                a, b
-                            };
+                            select new { a, b };
 
                 try
                 {
@@ -434,10 +419,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 var actual = (from a in results1
                               from b in results2
                               where a.TenMostExpensiveProducts == b.TenMostExpensiveProducts
-                              select new
-                              {
-                                  a, b
-                              }).ToArray();
+                              select new { a, b }).ToArray();
 
                 Assert.Equal(10, actual.Length);
             }
@@ -455,10 +437,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                             from p in context.Set<Product>()
                                 .FromSqlRaw(NormalizeDelimetersInRawString("SELECT * FROM [Products]"))
                             where mep.TenMostExpensiveProducts == p.ProductName
-                            select new
-                            {
-                                mep, p
-                            };
+                            select new { mep, p };
 
                 try
                 {
@@ -475,7 +454,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                 }
             }
         }
-
 
         [ConditionalTheory]
         [InlineData(false)]
@@ -495,10 +473,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 var actual = (from mep in results1
                               from p in results2
                               where mep.TenMostExpensiveProducts == p.ProductName
-                              select new
-                              {
-                                  mep, p
-                              }).ToArray();
+                              select new { mep, p }).ToArray();
 
                 Assert.Equal(10, actual.Length);
             }
@@ -515,10 +490,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                             from mep in context.Set<MostExpensiveProduct>()
                                 .FromSqlRaw(TenMostExpensiveProductsSproc, GetTenMostExpensiveProductsParameters())
                             where mep.TenMostExpensiveProducts == p.ProductName
-                            select new
-                            {
-                                mep, p
-                            };
+                            select new { mep, p };
 
                 try
                 {
@@ -554,10 +526,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 var actual = (from p in results1
                               from mep in results2
                               where mep.TenMostExpensiveProducts == p.ProductName
-                              select new
-                              {
-                                  mep, p
-                              }).ToArray();
+                              select new { mep, p }).ToArray();
 
                 Assert.Equal(10, actual.Length);
             }

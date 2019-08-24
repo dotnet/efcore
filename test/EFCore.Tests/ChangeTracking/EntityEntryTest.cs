@@ -21,10 +21,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
                 Assert.True(context.Entry(new NotStoreGenerated()).IsKeySet);
                 Assert.True(
                     context.Entry(
-                        new NotStoreGenerated
-                        {
-                            Id = 1
-                        }).IsKeySet);
+                        new NotStoreGenerated { Id = 1 }).IsKeySet);
             }
         }
 
@@ -36,23 +33,13 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
                 Assert.True(context.Entry(new CompositeNotStoreGenerated()).IsKeySet);
                 Assert.True(
                     context.Entry(
-                        new CompositeNotStoreGenerated
-                        {
-                            Id1 = 1
-                        }).IsKeySet);
+                        new CompositeNotStoreGenerated { Id1 = 1 }).IsKeySet);
                 Assert.True(
                     context.Entry(
-                        new CompositeNotStoreGenerated
-                        {
-                            Id2 = true
-                        }).IsKeySet);
+                        new CompositeNotStoreGenerated { Id2 = true }).IsKeySet);
                 Assert.True(
                     context.Entry(
-                        new CompositeNotStoreGenerated
-                        {
-                            Id1 = 1,
-                            Id2 = true
-                        }).IsKeySet);
+                        new CompositeNotStoreGenerated { Id1 = 1, Id2 = true }).IsKeySet);
             }
         }
 
@@ -64,10 +51,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
                 Assert.False(context.Entry(new StoreGenerated()).IsKeySet);
                 Assert.True(
                     context.Entry(
-                        new StoreGenerated
-                        {
-                            Id = 1
-                        }).IsKeySet);
+                        new StoreGenerated { Id = 1 }).IsKeySet);
             }
         }
 
@@ -79,23 +63,13 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
                 Assert.False(context.Entry(new CompositeStoreGenerated()).IsKeySet);
                 Assert.False(
                     context.Entry(
-                        new CompositeStoreGenerated
-                        {
-                            Id1 = 1
-                        }).IsKeySet);
+                        new CompositeStoreGenerated { Id1 = 1 }).IsKeySet);
                 Assert.True(
                     context.Entry(
-                        new CompositeStoreGenerated
-                        {
-                            Id2 = true
-                        }).IsKeySet);
+                        new CompositeStoreGenerated { Id2 = true }).IsKeySet);
                 Assert.True(
                     context.Entry(
-                        new CompositeStoreGenerated
-                        {
-                            Id1 = 1,
-                            Id2 = true
-                        }).IsKeySet);
+                        new CompositeStoreGenerated { Id1 = 1, Id2 = true }).IsKeySet);
             }
         }
 
@@ -107,10 +81,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
                 Assert.False(context.Entry(new Dependent()).IsKeySet);
                 Assert.True(
                     context.Entry(
-                        new Dependent
-                        {
-                            Id = 1
-                        }).IsKeySet);
+                        new Dependent { Id = 1 }).IsKeySet);
             }
         }
 
@@ -168,21 +139,13 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
                 modelBuilder.Entity<NotStoreGenerated>().Property(e => e.Id).ValueGeneratedNever();
 
                 modelBuilder.Entity<CompositeNotStoreGenerated>().HasKey(
-                    e => new
-                    {
-                        e.Id1,
-                        e.Id2
-                    });
+                    e => new { e.Id1, e.Id2 });
 
                 modelBuilder.Entity<CompositeStoreGenerated>(
                     b =>
                     {
                         b.HasKey(
-                            e => new
-                            {
-                                e.Id1,
-                                e.Id2
-                            });
+                            e => new { e.Id1, e.Id2 });
                         b.Property(e => e.Id2).ValueGeneratedOnAdd();
                     });
             }
@@ -193,10 +156,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         {
             using (var context = new FreezerContext())
             {
-                var entity = new Chunky
-                {
-                    Id = 808
-                };
+                var entity = new Chunky { Id = 808 };
                 context.Attach(entity);
 
                 Assert.Equal(1, context.ChangeTracker.Entries().Count());
@@ -829,11 +789,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
                     .Where(e => e.IsModified).Select(e => e.Metadata.Name).ToList();
 
                 Assert.Equal(
-                    new List<string>
-                    {
-                        "GarciaId",
-                        "Nonkey"
-                    }, modified);
+                    new List<string> { "GarciaId", "Nonkey" }, modified);
             }
         }
 
@@ -854,23 +810,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
                     context.Attach(new Chunky()).Members.Select(e => e.Metadata.Name).ToList());
 
                 Assert.Equal(
-                    new List<string>
-                    {
-                        "Id",
-                        "Garcia",
-                        "Baked",
-                        "Monkeys"
-                    },
+                    new List<string> { "Id", "Garcia", "Baked", "Monkeys" },
                     context.Attach(new Cherry()).Members.Select(e => e.Metadata.Name).ToList());
 
                 Assert.Equal(
-                    new List<string>
-                    {
-                        "Id",
-                        "Baked",
-                        "GarciaId",
-                        "Garcia"
-                    },
+                    new List<string> { "Id", "Baked", "GarciaId", "Garcia" },
                     context.Attach(new Half()).Members.Select(e => e.Metadata.Name).ToList());
             }
         }
@@ -881,30 +825,15 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             using (var context = new FreezerContext())
             {
                 Assert.Equal(
-                    new List<string>
-                    {
-                        "Id",
-                        "GarciaId",
-                        "Monkey",
-                        "Nonkey"
-                    },
+                    new List<string> { "Id", "GarciaId", "Monkey", "Nonkey" },
                     context.Attach(new Chunky()).Properties.Select(e => e.Metadata.Name).ToList());
 
                 Assert.Equal(
-                    new List<string>
-                    {
-                        "Id",
-                        "Garcia"
-                    },
+                    new List<string> { "Id", "Garcia" },
                     context.Attach(new Cherry()).Properties.Select(e => e.Metadata.Name).ToList());
 
                 Assert.Equal(
-                    new List<string>
-                    {
-                        "Id",
-                        "Baked",
-                        "GarciaId"
-                    },
+                    new List<string> { "Id", "Baked", "GarciaId" },
                     context.Attach(new Half()).Properties.Select(e => e.Metadata.Name).ToList());
             }
         }
@@ -915,25 +844,15 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             using (var context = new FreezerContext())
             {
                 Assert.Equal(
-                    new List<string>
-                    {
-                        "Garcia"
-                    },
+                    new List<string> { "Garcia" },
                     context.Attach(new Chunky()).Navigations.Select(e => e.Metadata.Name).ToList());
 
                 Assert.Equal(
-                    new List<string>
-                    {
-                        "Baked",
-                        "Monkeys"
-                    },
+                    new List<string> { "Baked", "Monkeys" },
                     context.Attach(new Cherry()).Navigations.Select(e => e.Metadata.Name).ToList());
 
                 Assert.Equal(
-                    new List<string>
-                    {
-                        "Garcia"
-                    },
+                    new List<string> { "Garcia" },
                     context.Attach(new Half()).Navigations.Select(e => e.Metadata.Name).ToList());
             }
         }
@@ -944,24 +863,15 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             using (var context = new FreezerContext())
             {
                 Assert.Equal(
-                    new List<string>
-                    {
-                        "Garcia"
-                    },
+                    new List<string> { "Garcia" },
                     context.Attach(new Chunky()).References.Select(e => e.Metadata.Name).ToList());
 
                 Assert.Equal(
-                    new List<string>
-                    {
-                        "Baked"
-                    },
+                    new List<string> { "Baked" },
                     context.Attach(new Cherry()).References.Select(e => e.Metadata.Name).ToList());
 
                 Assert.Equal(
-                    new List<string>
-                    {
-                        "Garcia"
-                    },
+                    new List<string> { "Garcia" },
                     context.Attach(new Half()).References.Select(e => e.Metadata.Name).ToList());
             }
         }
@@ -974,10 +884,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
                 Assert.Empty(context.Attach(new Chunky()).Collections.Select(e => e.Metadata.Name).ToList());
 
                 Assert.Equal(
-                    new List<string>
-                    {
-                        "Monkeys"
-                    },
+                    new List<string> { "Monkeys" },
                     context.Attach(new Cherry()).Collections.Select(e => e.Metadata.Name).ToList());
 
                 Assert.Empty(context.Attach(new Half()).Collections.Select(e => e.Metadata.Name).ToList());

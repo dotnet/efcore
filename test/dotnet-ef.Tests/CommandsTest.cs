@@ -28,10 +28,7 @@ namespace Microsoft.EntityFrameworkCore.Tools
 
         private static IEnumerable<CommandLineApplication> GetCommands()
         {
-            var app = new CommandLineApplication
-            {
-                Name = "dotnet ef"
-            };
+            var app = new CommandLineApplication { Name = "dotnet ef" };
 
             new EFCommand().Configure(app);
 

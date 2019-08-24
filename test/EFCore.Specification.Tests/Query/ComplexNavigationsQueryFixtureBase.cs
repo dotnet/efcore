@@ -34,8 +34,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             var entityAsserters = new Dictionary<Type, Action<dynamic, dynamic>>
             {
                 {
-                    typeof(Level1),
-                    (e, a) =>
+                    typeof(Level1), (e, a) =>
                     {
                         Assert.Equal(e == null, a == null);
 
@@ -48,8 +47,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     }
                 },
                 {
-                    typeof(Level2),
-                    (e, a) =>
+                    typeof(Level2), (e, a) =>
                     {
                         Assert.Equal(e == null, a == null);
 
@@ -64,8 +62,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     }
                 },
                 {
-                    typeof(Level3),
-                    (e, a) =>
+                    typeof(Level3), (e, a) =>
                     {
                         Assert.Equal(e == null, a == null);
 
@@ -79,8 +76,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     }
                 },
                 {
-                    typeof(Level4),
-                    (e, a) =>
+                    typeof(Level4), (e, a) =>
                     {
                         Assert.Equal(e == null, a == null);
 
@@ -94,8 +90,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     }
                 },
                 {
-                    typeof(InheritanceBase1),
-                    (e, a) =>
+                    typeof(InheritanceBase1), (e, a) =>
                     {
                         Assert.Equal(e == null, a == null);
 
@@ -107,8 +102,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     }
                 },
                 {
-                    typeof(InheritanceBase2),
-                    (e, a) =>
+                    typeof(InheritanceBase2), (e, a) =>
                     {
                         Assert.Equal(e == null, a == null);
 
@@ -120,8 +114,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     }
                 },
                 {
-                    typeof(InheritanceDerived1),
-                    (e, a) =>
+                    typeof(InheritanceDerived1), (e, a) =>
                     {
                         Assert.Equal(e == null, a == null);
 
@@ -133,8 +126,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     }
                 },
                 {
-                    typeof(InheritanceDerived2),
-                    (e, a) =>
+                    typeof(InheritanceDerived2), (e, a) =>
                     {
                         Assert.Equal(e == null, a == null);
 
@@ -146,8 +138,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     }
                 },
                 {
-                    typeof(InheritanceLeaf1),
-                    (e, a) =>
+                    typeof(InheritanceLeaf1), (e, a) =>
                     {
                         Assert.Equal(e == null, a == null);
 
@@ -159,8 +150,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     }
                 },
                 {
-                    typeof(InheritanceLeaf2),
-                    (e, a) =>
+                    typeof(InheritanceLeaf2), (e, a) =>
                     {
                         Assert.Equal(e == null, a == null);
 

@@ -36,9 +36,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         where TSomeDependentEntity : class, new()
         where TSomeMoreDependentEntity : class, new()
         where TRoot : class, IRoot, new()
-        where TFirstDependent: class, IFirstDependent, new()
+        where TFirstDependent : class, IFirstDependent, new()
         where TCompositeRoot : class, ICompositeRoot, new()
-        where TCompositeFirstDependent: class, ICompositeFirstDependent, new()
+        where TCompositeFirstDependent : class, ICompositeFirstDependent, new()
         where TSecondDependent : class, ISecondDependent, new()
         where TSomeCompositeEntityBase : class, new()
         where TCompositeSecondDependent : class, ICompositeSecondDependent, new()
@@ -476,15 +476,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 var entityType = context.Model.FindEntityType(typeof(TSomeEntity));
 
                 var entry = stateManager.CreateEntry(
-                    new Dictionary<string, object>
-                    {
-                        {
-                            "Id", 1
-                        },
-                        {
-                            "Name", "Kool"
-                        }
-                    },
+                    new Dictionary<string, object> { { "Id", 1 }, { "Name", "Kool" } },
                     entityType
                 );
 
@@ -505,15 +497,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 var entityType = context.Model.FindEntityType(typeof(TSomeEntity));
 
                 var entry = stateManager.CreateEntry(
-                    new Dictionary<string, object>
-                    {
-                        {
-                            "Id", 1
-                        },
-                        {
-                            "Name", "Kool"
-                        }
-                    },
+                    new Dictionary<string, object> { { "Id", 1 }, { "Name", "Kool" } },
                     entityType
                 );
 
@@ -537,10 +521,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 entry[nonKeyProperty] = "Magic Tree House";
 
                 Assert.Equal(
-                    new object[]
-                    {
-                        77, "SomeEntity", 1, "Magic Tree House"
-                    },
+                    new object[] { 77, "SomeEntity", 1, "Magic Tree House" },
                     CreateValueBuffer(entry));
             }
         }

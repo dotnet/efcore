@@ -257,8 +257,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var accessor = new ClrCollectionAccessorFactory().Create(navigation);
 
             var entity = new MyEntity(initialize: false);
-            var value = new MyEntityWithCustomComparer
-                { Id = 1 };
+            var value = new MyEntityWithCustomComparer { Id = 1 };
 
             Assert.False(accessor.Contains(entity, value));
 

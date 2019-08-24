@@ -62,7 +62,8 @@ WHERE ([c].[City] = N'London') AND [c].[City] IS NOT NULL
 EXCEPT
 SELECT [c0].[CustomerID], [c0].[Address], [c0].[City], [c0].[CompanyName], [c0].[ContactName], [c0].[ContactTitle], [c0].[Country], [c0].[Fax], [c0].[Phone], [c0].[PostalCode], [c0].[Region]
 FROM [Customers] AS [c0]
-WHERE CHARINDEX(N'Thomas', [c0].[ContactName]) > 0");        }
+WHERE CHARINDEX(N'Thomas', [c0].[ContactName]) > 0");
+        }
 
         public override async Task Union_OrderBy_Skip_Take(bool isAsync)
         {
@@ -203,7 +204,8 @@ ORDER BY [t1].[CustomerID]");
         {
             await base.Select_Union(isAsync);
 
-            AssertSql(@"SELECT [c].[Address]
+            AssertSql(
+                @"SELECT [c].[Address]
 FROM [Customers] AS [c]
 WHERE ([c].[City] = N'Berlin') AND [c].[City] IS NOT NULL
 UNION
@@ -216,7 +218,8 @@ WHERE ([c0].[City] = N'London') AND [c0].[City] IS NOT NULL");
         {
             await base.Union_Select(isAsync);
 
-            AssertSql(@"SELECT [t].[Address]
+            AssertSql(
+                @"SELECT [t].[Address]
 FROM (
     SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
     FROM [Customers] AS [c]

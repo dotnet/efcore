@@ -63,10 +63,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.AspNetIdentity
                 b =>
                 {
                     b.HasKey(
-                        r => new
-                        {
-                            r.UserId, r.RoleId
-                        });
+                        r => new { r.UserId, r.RoleId });
                 });
         }
     }

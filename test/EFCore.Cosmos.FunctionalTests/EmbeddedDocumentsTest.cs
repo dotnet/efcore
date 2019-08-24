@@ -198,14 +198,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
                             Id = 3,
                             Addresses = new[]
                             {
-                                new Address
-                                {
-                                    Street = "First", City = "City"
-                                },
-                                new Address
-                                {
-                                    Street = "Second", City = "City"
-                                }
+                                new Address { Street = "First", City = "City" }, new Address { Street = "Second", City = "City" }
                             }
                         });
 
@@ -229,12 +222,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
                 using (var context = CreateContext())
                 {
                     context.Add(
-                        new LicensedOperator
-                        {
-                            Name = "Jack Jackson",
-                            LicenseType = "Class A CDC",
-                            VehicleName = "Fuel transport"
-                        });
+                        new LicensedOperator { Name = "Jack Jackson", LicenseType = "Class A CDC", VehicleName = "Fuel transport" });
 
                     Assert.Equal(
                         CosmosStrings.OrphanedNestedDocumentSensitive(
@@ -253,17 +241,11 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
                 {
                     var bike = context.Vehicles.Single(v => v.Name == "Trek Pro Fit Madone 6 Series");
 
-                    bike.Operator = new Operator
-                    {
-                        Name = "Chris Horner"
-                    };
+                    bike.Operator = new Operator { Name = "Chris Horner" };
 
                     context.ChangeTracker.DetectChanges();
 
-                    bike.Operator = new LicensedOperator
-                    {
-                        Name = "repairman"
-                    };
+                    bike.Operator = new LicensedOperator { Name = "repairman" };
 
                     TestSqlLoggerFactory.Clear();
                     context.SaveChanges();
@@ -286,12 +268,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
                 {
                     var bike = context.Vehicles.Single(v => v.Name == "Trek Pro Fit Madone 6 Series");
 
-                    var newBike = new Vehicle
-                    {
-                        Name = "Trek Pro Fit Madone 6 Series",
-                        Operator = bike.Operator,
-                        SeatingCapacity = 2
-                    };
+                    var newBike = new Vehicle { Name = "Trek Pro Fit Madone 6 Series", Operator = bike.Operator, SeatingCapacity = 2 };
 
                     var oldEntry = context.Remove(bike);
                     var newEntry = context.Add(newBike);
@@ -355,7 +332,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
 
         protected class EmbeddedTransportationContext : TransportationContext
         {
-            public EmbeddedTransportationContext(DbContextOptions options) : base(options)
+            public EmbeddedTransportationContext(DbContextOptions options)
+                : base(options)
             {
             }
 
@@ -394,10 +372,11 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
                 modelBuilder.Ignore<SolidRocket>();
 
                 modelBuilder.Entity<Person>(
-                    eb => eb.OwnsMany(v => v.Addresses, b =>
-                    {
-                        b.ToJsonProperty("Stored Addresses");
-                    }));
+                    eb => eb.OwnsMany(
+                        v => v.Addresses, b =>
+                        {
+                            b.ToJsonProperty("Stored Addresses");
+                        }));
             }
         }
 

@@ -38,11 +38,7 @@ namespace Microsoft.EntityFrameworkCore
                 var query = context
                     .Set<EmailTemplate>()
                     .Select(
-                        t => new EmailTemplateDto
-                        {
-                            Id = t.Id,
-                            TemplateType = (EmailTemplateTypeDto)t.TemplateType
-                        })
+                        t => new EmailTemplateDto { Id = t.Id, TemplateType = (EmailTemplateTypeDto)t.TemplateType })
                     .Where(t => t.TemplateType == templateType);
 
                 var results = async
@@ -64,11 +60,7 @@ namespace Microsoft.EntityFrameworkCore
                 var query = context
                     .Set<EmailTemplate>()
                     .Select(
-                        t => new EmailTemplateDto
-                        {
-                            Id = t.Id,
-                            TemplateType = (EmailTemplateTypeDto)t.TemplateType
-                        })
+                        t => new EmailTemplateDto { Id = t.Id, TemplateType = (EmailTemplateTypeDto)t.TemplateType })
                     .Where(t => t.TemplateType == EmailTemplateTypeDto.PasswordResetRequest);
 
                 var results = async
@@ -513,10 +505,7 @@ namespace Microsoft.EntityFrameworkCore
             where TEntity : BuiltInDataTypesBase, new()
         {
             var entityEntry = set.Add(
-                new TEntity
-                {
-                    Id = 11
-                });
+                new TEntity { Id = 11 });
 
             entityEntry.CurrentValues.SetValues(
                 new BuiltInDataTypes
@@ -886,10 +875,7 @@ namespace Microsoft.EntityFrameworkCore
             where TEntity : BuiltInNullableDataTypesBase, new()
         {
             var entityEntry = set.Add(
-                new TEntity
-                {
-                    Id = 11
-                });
+                new TEntity { Id = 11 });
 
             entityEntry.CurrentValues.SetValues(
                 new BuiltInNullableDataTypes
@@ -995,8 +981,8 @@ namespace Microsoft.EntityFrameworkCore
                         entity,
                         context.Set<BuiltInNullableDataTypes>().Where(
                             e => e.Id == 12
-                                && -e.TestNullableDouble + -1.23456789 < 1E-5
-                                && -e.TestNullableDouble + -1.23456789 > -1E-5).ToList().Single());
+                                 && -e.TestNullableDouble + -1.23456789 < 1E-5
+                                 && -e.TestNullableDouble + -1.23456789 > -1E-5).ToList().Single());
                 }
 
                 Assert.Same(
@@ -1155,10 +1141,7 @@ namespace Microsoft.EntityFrameworkCore
             using (var context = CreateContext())
             {
                 context.Set<BuiltInNullableDataTypes>().Add(
-                    new BuiltInNullableDataTypes
-                    {
-                        Id = 711
-                    });
+                    new BuiltInNullableDataTypes { Id = 711 });
 
                 Assert.Equal(1, context.SaveChanges());
             }
@@ -1442,38 +1425,14 @@ namespace Microsoft.EntityFrameworkCore
             using (var context = CreateContext())
             {
                 context.Set<BinaryKeyDataType>().AddRange(
-                    new BinaryKeyDataType
-                    {
-                        Id = new byte[] { 1, 2, 3 },
-                        Ex = "X1"
-                    },
-                    new BinaryKeyDataType
-                    {
-                        Id = new byte[] { 1, 2, 3, 4 },
-                        Ex = "X3"
-                    },
-                    new BinaryKeyDataType
-                    {
-                        Id = new byte[] { 1, 2, 3, 4, 5 },
-                        Ex = "X2"
-                    });
+                    new BinaryKeyDataType { Id = new byte[] { 1, 2, 3 }, Ex = "X1" },
+                    new BinaryKeyDataType { Id = new byte[] { 1, 2, 3, 4 }, Ex = "X3" },
+                    new BinaryKeyDataType { Id = new byte[] { 1, 2, 3, 4, 5 }, Ex = "X2" });
 
                 context.Set<BinaryForeignKeyDataType>().AddRange(
-                    new BinaryForeignKeyDataType
-                    {
-                        Id = 77,
-                        BinaryKeyDataTypeId = new byte[] { 1, 2, 3, 4 }
-                    },
-                    new BinaryForeignKeyDataType
-                    {
-                        Id = 777,
-                        BinaryKeyDataTypeId = new byte[] { 1, 2, 3 }
-                    },
-                    new BinaryForeignKeyDataType
-                    {
-                        Id = 7777,
-                        BinaryKeyDataTypeId = new byte[] { 1, 2, 3, 4, 5 }
-                    });
+                    new BinaryForeignKeyDataType { Id = 77, BinaryKeyDataTypeId = new byte[] { 1, 2, 3, 4 } },
+                    new BinaryForeignKeyDataType { Id = 777, BinaryKeyDataTypeId = new byte[] { 1, 2, 3 } },
+                    new BinaryForeignKeyDataType { Id = 7777, BinaryKeyDataTypeId = new byte[] { 1, 2, 3, 4, 5 } });
 
                 Assert.Equal(6, context.SaveChanges());
             }
@@ -1505,15 +1464,9 @@ namespace Microsoft.EntityFrameworkCore
                 entity2.Ex = "Xx3";
                 entity1.Ex = "Xx7";
 
-                entity1.Dependents.Single().BinaryKeyDataTypeId = new byte[]
-                {
-                    1, 2, 3, 4, 5
-                };
+                entity1.Dependents.Single().BinaryKeyDataTypeId = new byte[] { 1, 2, 3, 4, 5 };
 
-                entity2.Dependents.Single().BinaryKeyDataTypeId = new byte[]
-                {
-                    1, 2, 3, 4, 5
-                };
+                entity2.Dependents.Single().BinaryKeyDataTypeId = new byte[] { 1, 2, 3, 4, 5 };
 
                 context.SaveChanges();
             }
@@ -1540,10 +1493,7 @@ namespace Microsoft.EntityFrameworkCore
             using (var context = CreateContext())
             {
                 context.Set<BinaryForeignKeyDataType>().Add(
-                    new BinaryForeignKeyDataType
-                    {
-                        Id = 78
-                    });
+                    new BinaryForeignKeyDataType { Id = 78 });
 
                 Assert.Equal(1, context.SaveChanges());
             }
@@ -1562,17 +1512,10 @@ namespace Microsoft.EntityFrameworkCore
             using (var context = CreateContext())
             {
                 var principal = context.Set<StringKeyDataType>().Add(
-                    new StringKeyDataType
-                    {
-                        Id = "Gumball!"
-                    }).Entity;
+                    new StringKeyDataType { Id = "Gumball!" }).Entity;
 
                 var dependent = context.Set<StringForeignKeyDataType>().Add(
-                    new StringForeignKeyDataType
-                    {
-                        Id = 77,
-                        StringKeyDataTypeId = "Gumball!"
-                    }).Entity;
+                    new StringForeignKeyDataType { Id = 77, StringKeyDataTypeId = "Gumball!" }).Entity;
 
                 Assert.Same(principal, dependent.Principal);
 
@@ -1598,10 +1541,7 @@ namespace Microsoft.EntityFrameworkCore
             using (var context = CreateContext())
             {
                 context.Set<StringForeignKeyDataType>().Add(
-                    new StringForeignKeyDataType
-                    {
-                        Id = 78
-                    });
+                    new StringForeignKeyDataType { Id = 78 });
 
                 Assert.Equal(1, context.SaveChanges());
             }
@@ -1700,11 +1640,7 @@ namespace Microsoft.EntityFrameworkCore
             using (var context = CreateContext())
             {
                 context.Set<BuiltInNullableDataTypes>().Add(
-                    new BuiltInNullableDataTypes
-                    {
-                        Id = 100,
-                        PartitionId = 100
-                    });
+                    new BuiltInNullableDataTypes { Id = 100, PartitionId = 100 });
 
                 Assert.Equal(1, context.SaveChanges());
             }
@@ -1760,7 +1696,8 @@ namespace Microsoft.EntityFrameworkCore
                         TestNullableDouble = -1.23456789,
                         TestNullableDecimal = -1234567890.01M,
                         TestNullableDateTime = DateTime.Parse("01/01/2000 12:34:56"),
-                        TestNullableDateTimeOffset = new DateTimeOffset(DateTime.Parse("01/01/2000 12:34:56"), TimeSpan.FromHours(-8.0)),
+                        TestNullableDateTimeOffset =
+                            new DateTimeOffset(DateTime.Parse("01/01/2000 12:34:56"), TimeSpan.FromHours(-8.0)),
                         TestNullableTimeSpan = new TimeSpan(0, 10, 9, 8, 7),
                         TestNullableSingle = -1.234F,
                         TestNullableBoolean = false,
@@ -1873,7 +1810,9 @@ namespace Microsoft.EntityFrameworkCore
                 AssertEqualIfMapped(entityType, -1.23456789, () => dt.Double);
                 AssertEqualIfMapped(entityType, -1234567890.01M, () => dt.Decimal);
                 AssertEqualIfMapped(entityType, DateTime.Parse("01/01/2000 12:34:56"), () => dt.DateTime);
-                AssertEqualIfMapped(entityType, new DateTimeOffset(DateTime.Parse("01/01/2000 12:34:56"), TimeSpan.FromHours(-8.0)), () => dt.DateTimeOffset);
+                AssertEqualIfMapped(
+                    entityType, new DateTimeOffset(DateTime.Parse("01/01/2000 12:34:56"), TimeSpan.FromHours(-8.0)),
+                    () => dt.DateTimeOffset);
                 AssertEqualIfMapped(entityType, new TimeSpan(0, 10, 9, 8, 7), () => dt.TimeSpan);
                 AssertEqualIfMapped(entityType, -1.234F, () => dt.Single);
                 AssertEqualIfMapped(entityType, false, () => dt.Boolean);
@@ -1944,7 +1883,9 @@ namespace Microsoft.EntityFrameworkCore
                 AssertEqualIfMapped(entityType, -1.23456789, () => dt.Double);
                 AssertEqualIfMapped(entityType, -1234567890.01M, () => dt.Decimal);
                 AssertEqualIfMapped(entityType, DateTime.Parse("01/01/2000 12:34:56"), () => dt.DateTime);
-                AssertEqualIfMapped(entityType, new DateTimeOffset(DateTime.Parse("01/01/2000 12:34:56"), TimeSpan.FromHours(-8.0)), () => dt.DateTimeOffset);
+                AssertEqualIfMapped(
+                    entityType, new DateTimeOffset(DateTime.Parse("01/01/2000 12:34:56"), TimeSpan.FromHours(-8.0)),
+                    () => dt.DateTimeOffset);
                 AssertEqualIfMapped(entityType, new TimeSpan(0, 10, 9, 8, 7), () => dt.TimeSpan);
                 AssertEqualIfMapped(entityType, -1.234F, () => dt.Single);
                 AssertEqualIfMapped(entityType, false, () => dt.Boolean);
@@ -2016,7 +1957,9 @@ namespace Microsoft.EntityFrameworkCore
                 AssertEqualIfMapped(entityType, -1.23456789, () => dt.Double);
                 AssertEqualIfMapped(entityType, -1234567890.01M, () => dt.Decimal);
                 AssertEqualIfMapped(entityType, DateTime.Parse("01/01/2000 12:34:56"), () => dt.DateTime);
-                AssertEqualIfMapped(entityType, new DateTimeOffset(DateTime.Parse("01/01/2000 12:34:56"), TimeSpan.FromHours(-8.0)), () => dt.DateTimeOffset);
+                AssertEqualIfMapped(
+                    entityType, new DateTimeOffset(DateTime.Parse("01/01/2000 12:34:56"), TimeSpan.FromHours(-8.0)),
+                    () => dt.DateTimeOffset);
                 AssertEqualIfMapped(entityType, new TimeSpan(0, 10, 9, 8, 7), () => dt.TimeSpan);
                 AssertEqualIfMapped(entityType, -1.234F, () => dt.Single);
                 AssertEqualIfMapped(entityType, false, () => dt.Boolean);
@@ -2175,99 +2118,102 @@ namespace Microsoft.EntityFrameworkCore
                     });
 
                 modelBuilder.Entity<ObjectBackedDataTypes>()
-                    .HasData(new ObjectBackedDataTypes
-                    {
-                        Id = 13,
-                        PartitionId = 1,
-                        String = "string",
-                        Bytes = new byte[] { 4, 20 },
-                        Int16 = -1234,
-                        Int32 = -123456789,
-                        Int64 = -1234567890123456789L,
-                        Double = -1.23456789,
-                        Decimal = -1234567890.01M,
-                        DateTime = new DateTime(1973, 9,3),
-                        DateTimeOffset = new DateTimeOffset(new DateTime(), TimeSpan.FromHours(-8.0)),
-                        TimeSpan = new TimeSpan(0, 10, 9, 8, 7),
-                        Single = -1.234F,
-                        Boolean = true,
-                        Byte = 255,
-                        UnsignedInt16 = 1234,
-                        UnsignedInt32 = 1234565789U,
-                        UnsignedInt64 = 1234567890123456789UL,
-                        Character = 'a',
-                        SignedByte = -128,
-                        Enum64 = Enum64.SomeValue,
-                        Enum32 = Enum32.SomeValue,
-                        Enum16 = Enum16.SomeValue,
-                        Enum8 = Enum8.SomeValue,
-                        EnumU64 = EnumU64.SomeValue,
-                        EnumU32 = EnumU32.SomeValue,
-                        EnumU16 = EnumU16.SomeValue,
-                        EnumS8 = EnumS8.SomeValue
-                    });
+                    .HasData(
+                        new ObjectBackedDataTypes
+                        {
+                            Id = 13,
+                            PartitionId = 1,
+                            String = "string",
+                            Bytes = new byte[] { 4, 20 },
+                            Int16 = -1234,
+                            Int32 = -123456789,
+                            Int64 = -1234567890123456789L,
+                            Double = -1.23456789,
+                            Decimal = -1234567890.01M,
+                            DateTime = new DateTime(1973, 9, 3),
+                            DateTimeOffset = new DateTimeOffset(new DateTime(), TimeSpan.FromHours(-8.0)),
+                            TimeSpan = new TimeSpan(0, 10, 9, 8, 7),
+                            Single = -1.234F,
+                            Boolean = true,
+                            Byte = 255,
+                            UnsignedInt16 = 1234,
+                            UnsignedInt32 = 1234565789U,
+                            UnsignedInt64 = 1234567890123456789UL,
+                            Character = 'a',
+                            SignedByte = -128,
+                            Enum64 = Enum64.SomeValue,
+                            Enum32 = Enum32.SomeValue,
+                            Enum16 = Enum16.SomeValue,
+                            Enum8 = Enum8.SomeValue,
+                            EnumU64 = EnumU64.SomeValue,
+                            EnumU32 = EnumU32.SomeValue,
+                            EnumU16 = EnumU16.SomeValue,
+                            EnumS8 = EnumS8.SomeValue
+                        });
 
                 modelBuilder.Entity<NullableBackedDataTypes>()
-                    .HasData(new NullableBackedDataTypes
-                    {
-                        Id = 13,
-                        PartitionId = 1,
-                        Int16 = -1234,
-                        Int32 = -123456789,
-                        Int64 = -1234567890123456789L,
-                        Double = -1.23456789,
-                        Decimal = -1234567890.01M,
-                        DateTime = new DateTime(1973, 9,3),
-                        DateTimeOffset = new DateTimeOffset(new DateTime(), TimeSpan.FromHours(-8.0)),
-                        TimeSpan = new TimeSpan(0, 10, 9, 8, 7),
-                        Single = -1.234F,
-                        Boolean = true,
-                        Byte = 255,
-                        UnsignedInt16 = 1234,
-                        UnsignedInt32 = 1234565789U,
-                        UnsignedInt64 = 1234567890123456789UL,
-                        Character = 'a',
-                        SignedByte = -128,
-                        Enum64 = Enum64.SomeValue,
-                        Enum32 = Enum32.SomeValue,
-                        Enum16 = Enum16.SomeValue,
-                        Enum8 = Enum8.SomeValue,
-                        EnumU64 = EnumU64.SomeValue,
-                        EnumU32 = EnumU32.SomeValue,
-                        EnumU16 = EnumU16.SomeValue,
-                        EnumS8 = EnumS8.SomeValue
-                    });
+                    .HasData(
+                        new NullableBackedDataTypes
+                        {
+                            Id = 13,
+                            PartitionId = 1,
+                            Int16 = -1234,
+                            Int32 = -123456789,
+                            Int64 = -1234567890123456789L,
+                            Double = -1.23456789,
+                            Decimal = -1234567890.01M,
+                            DateTime = new DateTime(1973, 9, 3),
+                            DateTimeOffset = new DateTimeOffset(new DateTime(), TimeSpan.FromHours(-8.0)),
+                            TimeSpan = new TimeSpan(0, 10, 9, 8, 7),
+                            Single = -1.234F,
+                            Boolean = true,
+                            Byte = 255,
+                            UnsignedInt16 = 1234,
+                            UnsignedInt32 = 1234565789U,
+                            UnsignedInt64 = 1234567890123456789UL,
+                            Character = 'a',
+                            SignedByte = -128,
+                            Enum64 = Enum64.SomeValue,
+                            Enum32 = Enum32.SomeValue,
+                            Enum16 = Enum16.SomeValue,
+                            Enum8 = Enum8.SomeValue,
+                            EnumU64 = EnumU64.SomeValue,
+                            EnumU32 = EnumU32.SomeValue,
+                            EnumU16 = EnumU16.SomeValue,
+                            EnumS8 = EnumS8.SomeValue
+                        });
 
                 modelBuilder.Entity<NonNullableBackedDataTypes>()
-                    .HasData(new NonNullableBackedDataTypes
-                    {
-                        Id = 13,
-                        PartitionId = 1,
-                        Int16 = -1234,
-                        Int32 = -123456789,
-                        Int64 = -1234567890123456789L,
-                        Double = -1.23456789,
-                        Decimal = -1234567890.01M,
-                        DateTime = new DateTime(1973, 9,3),
-                        DateTimeOffset = new DateTimeOffset(new DateTime(), TimeSpan.FromHours(-8.0)),
-                        TimeSpan = new TimeSpan(0, 10, 9, 8, 7),
-                        Single = -1.234F,
-                        Boolean = true,
-                        Byte = 255,
-                        UnsignedInt16 = 1234,
-                        UnsignedInt32 = 1234565789U,
-                        UnsignedInt64 = 1234567890123456789UL,
-                        Character = 'a',
-                        SignedByte = -128,
-                        Enum64 = Enum64.SomeValue,
-                        Enum32 = Enum32.SomeValue,
-                        Enum16 = Enum16.SomeValue,
-                        Enum8 = Enum8.SomeValue,
-                        EnumU64 = EnumU64.SomeValue,
-                        EnumU32 = EnumU32.SomeValue,
-                        EnumU16 = EnumU16.SomeValue,
-                        EnumS8 = EnumS8.SomeValue
-                    });
+                    .HasData(
+                        new NonNullableBackedDataTypes
+                        {
+                            Id = 13,
+                            PartitionId = 1,
+                            Int16 = -1234,
+                            Int32 = -123456789,
+                            Int64 = -1234567890123456789L,
+                            Double = -1.23456789,
+                            Decimal = -1234567890.01M,
+                            DateTime = new DateTime(1973, 9, 3),
+                            DateTimeOffset = new DateTimeOffset(new DateTime(), TimeSpan.FromHours(-8.0)),
+                            TimeSpan = new TimeSpan(0, 10, 9, 8, 7),
+                            Single = -1.234F,
+                            Boolean = true,
+                            Byte = 255,
+                            UnsignedInt16 = 1234,
+                            UnsignedInt32 = 1234565789U,
+                            UnsignedInt64 = 1234567890123456789UL,
+                            Character = 'a',
+                            SignedByte = -128,
+                            Enum64 = Enum64.SomeValue,
+                            Enum32 = Enum32.SomeValue,
+                            Enum16 = Enum16.SomeValue,
+                            Enum8 = Enum8.SomeValue,
+                            EnumU64 = EnumU64.SomeValue,
+                            EnumU32 = EnumU32.SomeValue,
+                            EnumU16 = EnumU16.SomeValue,
+                            EnumS8 = EnumS8.SomeValue
+                        });
             }
 
             protected static void MakeRequired<TEntity>(ModelBuilder modelBuilder)
@@ -2492,6 +2438,7 @@ namespace Microsoft.EntityFrameworkCore
             PasswordResetRequest = 0,
             EmailConfirmation = 1
         }
+
         protected class ObjectBackedDataTypes
         {
             private object _string;
@@ -2523,6 +2470,7 @@ namespace Microsoft.EntityFrameworkCore
 
             [DatabaseGenerated(DatabaseGeneratedOption.None)]
             public int Id { get; set; }
+
             public int PartitionId { get; set; }
 
             public string String
@@ -2711,6 +2659,7 @@ namespace Microsoft.EntityFrameworkCore
 
             [DatabaseGenerated(DatabaseGeneratedOption.None)]
             public int Id { get; set; }
+
             public int PartitionId { get; set; }
 
             public short Int16
@@ -2887,6 +2836,7 @@ namespace Microsoft.EntityFrameworkCore
 
             [DatabaseGenerated(DatabaseGeneratedOption.None)]
             public int Id { get; set; }
+
             public int PartitionId { get; set; }
 
             public short? Int16

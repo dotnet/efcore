@@ -43,7 +43,6 @@ FROM [Orders] AS [o]
 LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]");
         }
 
-
         public override void Include_when_result_operator(bool useString)
         {
             base.Include_when_result_operator(useString);

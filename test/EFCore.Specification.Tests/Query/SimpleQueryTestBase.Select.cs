@@ -39,11 +39,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             return AssertQuery<Order>(
                 isAsync,
                 os => os.Select(
-                    o => new
-                    {
-                        A = o.OrderID / (o.OrderID / 2),
-                        B = o.OrderID / o.OrderID / 2
-                    }),
+                    o => new { A = o.OrderID / (o.OrderID / 2), B = o.OrderID / o.OrderID / 2 }),
                 e => e.A + " " + e.B);
         }
 
@@ -111,10 +107,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             await AssertQuery<Customer>(
                 isAsync,
                 cs => cs.Select(
-                    c => new
-                    {
-                        f = boolean
-                    }),
+                    c => new { f = boolean }),
                 e => e.f);
 
             boolean = true;
@@ -122,10 +115,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             await AssertQuery<Customer>(
                 isAsync,
                 cs => cs.Select(
-                    c => new
-                    {
-                        f = boolean
-                    }),
+                    c => new { f = boolean }),
                 e => e.f);
         }
 
@@ -142,10 +132,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                         () => AssertQuery<Customer>(
                             isAsync,
                             cs => cs.Select(
-                                c => new
-                                {
-                                    f = boolean
-                                }).OrderBy(e => (bool?)e.f),
+                                c => new { f = boolean }).OrderBy(e => (bool?)e.f),
                             assertOrder: true))).Message));
         }
 
@@ -177,10 +164,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             return AssertQuery<Customer>(
                 isAsync,
                 cs => cs.Select(
-                    c => new
-                    {
-                        c.City
-                    }),
+                    c => new { c.City }),
                 e => e.City);
         }
 
@@ -191,11 +175,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             return AssertQuery<Customer>(
                 isAsync,
                 cs => cs.Select(
-                    c => new
-                    {
-                        c.City,
-                        c.Phone
-                    }),
+                    c => new { c.City, c.Phone }),
                 e => e.Phone);
         }
 
@@ -206,12 +186,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             return AssertQuery<Customer>(
                 isAsync,
                 cs => cs.Select(
-                    c => new
-                    {
-                        c.City,
-                        c.Phone,
-                        c.Country
-                    }),
+                    c => new { c.City, c.Phone, c.Country }),
                 e => e.Phone);
         }
 
@@ -222,11 +197,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             return AssertQuery<Customer>(
                 isAsync,
                 cs => cs.Select(
-                    c => new
-                    {
-                        c.CustomerID,
-                        ConstantTrue = true
-                    }),
+                    c => new { c.CustomerID, ConstantTrue = true }),
                 e => e.CustomerID);
         }
 
@@ -237,11 +208,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             return AssertQuery<Customer>(
                 isAsync,
                 cs => cs.Select(
-                    c => new
-                    {
-                        c.CustomerID,
-                        Expression = c.CustomerID.Length + 5
-                    }),
+                    c => new { c.CustomerID, Expression = c.CustomerID.Length + 5 }),
                 e => e.CustomerID);
         }
 
@@ -252,11 +219,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             return AssertQuery<Product>(
                 isAsync,
                 ps => ps.Select(
-                    p => new
-                    {
-                        p.ProductID,
-                        IsAvailable = p.UnitsInStock > 0
-                    }),
+                    p => new { p.ProductID, IsAvailable = p.UnitsInStock > 0 }),
                 e => e.ProductID);
         }
 
@@ -287,11 +250,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             return AssertQuery<Customer>(
                 isAsync,
                 cs => cs.Select(
-                    c => new
-                    {
-                        c.City,
-                        c
-                    }),
+                    c => new { c.City, c }),
                 e => e.c.CustomerID,
                 entryCount: 91);
         }
@@ -303,14 +262,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             return AssertQuery<Customer>(
                 isAsync,
                 cs => cs.Select(
-                    c => new
-                    {
-                        c.City,
-                        Country = new
-                        {
-                            c.Country
-                        }
-                    }),
+                    c => new { c.City, Country = new { c.Country } }),
                 e => e.City);
         }
 
@@ -321,9 +273,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             return AssertQuery<Customer>(
                 isAsync,
                 cs => cs.Select(
-                    c => new
-                    {
-                    }),
+                    c => new { }),
                 e => 1);
         }
 
@@ -334,10 +284,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             return AssertQuery<Customer>(
                 isAsync,
                 cs => cs.Select(
-                    c => new
-                    {
-                        X = 10
-                    }),
+                    c => new { X = 10 }),
                 e => e.X);
         }
 
@@ -447,10 +394,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                                 .Where(o => o.OrderID < 10500)
                                 .Take(3)
                                 .Select(
-                                    o => new
-                                    {
-                                        Date = o.OrderDate
-                                    })
+                                    o => new { Date = o.OrderDate })
                         })
                     .ToList();
 
@@ -590,10 +534,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 isAsync,
                 cs => cs.Where(c => c.CustomerID.StartsWith("A"))
                     .Select(
-                        c => new
-                        {
-                            c.Orders.Count
-                        }),
+                        c => new { c.Orders.Count }),
                 e => e.Count);
         }
 
@@ -633,10 +574,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 isAsync,
                 cs => from c in cs
                       where c.CustomerID.StartsWith("A")
-                      select new
-                      {
-                          A = new DateTime()
-                      },
+                      select new { A = new DateTime() },
                 e => e.A);
         }
 
@@ -780,12 +718,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     .Where(o => o.CustomerID == "ALFKI")
                     .OrderBy(o => o.OrderID)
                     .Select(
-                        o => new
-                        {
-                            LongOrder = (long)o.OrderID,
-                            ShortOrder = (short)o.OrderID,
-                            Order = o.OrderID
-                        }),
+                        o => new { LongOrder = (long)o.OrderID, ShortOrder = (short)o.OrderID, Order = o.OrderID }),
                 assertOrder: true);
         }
 
@@ -861,7 +794,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 cs => cs.Select(
                     c => c.Orders.OrderBy(o => o.OrderID).Select(o => o.CustomerID).Distinct().FirstOrDefault()).Select(e => e.Length),
                 cs => cs.Select(
-                    c => c.Orders.OrderBy(o => o.OrderID).Select(o => o.CustomerID).Distinct().FirstOrDefault()).Select(e => e == null ? 0 : e.Length));
+                        c => c.Orders.OrderBy(o => o.OrderID).Select(o => o.CustomerID).Distinct().FirstOrDefault())
+                    .Select(e => e == null ? 0 : e.Length));
         }
 
         [ConditionalTheory]
@@ -1085,11 +1019,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             return AssertQueryScalar<Order>(
                 isAsync,
                 os => os.Select(
-                        o => new
-                        {
-                            A = o.CustomerID,
-                            B = o.OrderDate
-                        })
+                        o => new { A = o.CustomerID, B = o.OrderDate })
                     .AsNoTracking() // Just to cause a subquery
                     .Select(e => e.B));
         }
@@ -1102,11 +1032,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 isAsync,
                 cs => from c in cs
                       orderby c.CustomerID
-                      select new
-                      {
-                          A = c.CustomerID,
-                          B = c.CustomerID
-                      });
+                      select new { A = c.CustomerID, B = c.CustomerID });
         }
 
         [ConditionalTheory]
@@ -1117,11 +1043,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 isAsync,
                 os => from o in os
                       orderby o.CustomerID
-                      select new
-                      {
-                          A = o.Customer.CustomerID,
-                          B = o.CustomerID
-                      });
+                      select new { A = o.Customer.CustomerID, B = o.CustomerID });
         }
 
         [ConditionalTheory]
@@ -1148,8 +1070,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                             from o in grouping.DefaultIfEmpty()
                             select o != null ? o.OrderDate.Value : new DateTime(1753, 1, 1));
         }
-
-
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
@@ -1188,13 +1108,14 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             return AssertQuery<Order>(
                 isAsync,
-                os => os.Select(o => new
-                {
-                    One = o.CustomerID,
-                    Two = o.CustomerID == "ALFKI"
-                        ? new MyStruct { X = o.OrderID, Y = o.CustomerID.Length }
-                        : (MyStruct?)null
-                }),
+                os => os.Select(
+                    o => new
+                    {
+                        One = o.CustomerID,
+                        Two = o.CustomerID == "ALFKI"
+                            ? new MyStruct { X = o.OrderID, Y = o.CustomerID.Length }
+                            : (MyStruct?)null
+                    }),
                 elementSorter: e => e.One + " " + e.Two?.X);
         }
 
@@ -1244,11 +1165,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 isAsync,
                 (cs, os) => from c in cs
                             from o in os.Where(o => c.CustomerID == o.CustomerID).Select(o => c.City)
-                            select new
-                            {
-                                c,
-                                o
-                            },
+                            select new { c, o },
                 entryCount: 89);
         }
 
@@ -1261,11 +1178,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 (cs, os) => from c in cs
                             from o in os.Where(o => c.CustomerID == o.CustomerID)
                                 .OrderBy(o => c.City).ThenBy(o => o.OrderID).Take(2)
-                            select new
-                            {
-                                c,
-                                o
-                            },
+                            select new { c, o },
                 entryCount: 266);
         }
 
@@ -1277,11 +1190,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 isAsync,
                 (cs, os) => from c in cs
                             from o in os.Where(o => c.CustomerID == o.CustomerID).Select(o => c.City).DefaultIfEmpty()
-                            select new
-                            {
-                                c,
-                                o
-                            },
+                            select new { c, o },
                 entryCount: 91);
         }
 
@@ -1294,11 +1203,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 (cs, os) => from c in cs
                             from o in os.Where(o => c.CustomerID == o.CustomerID)
                                 .OrderBy(o => c.City).ThenBy(o => o.OrderID).Take(2).DefaultIfEmpty()
-                            select new
-                            {
-                                c,
-                                o
-                            },
+                            select new { c, o },
                 entryCount: 268);
         }
     }

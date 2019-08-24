@@ -103,10 +103,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
 
                 Assert.Null(collection.CurrentValue);
 
-                collection.CurrentValue = new List<Chunky>
-                {
-                    chunky
-                };
+                collection.CurrentValue = new List<Chunky> { chunky };
 
                 Assert.Same(cherry, chunky.Garcia);
                 Assert.Same(chunky, cherry.Monkeys.Single());
@@ -128,14 +125,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             using (var context = new FreezerContext())
             {
                 var cherry = new Cherry();
-                var chunky = new Chunky
-                {
-                    Garcia = cherry
-                };
-                cherry.Monkeys = new List<Chunky>
-                {
-                    chunky
-                };
+                var chunky = new Chunky { Garcia = cherry };
+                cherry.Monkeys = new List<Chunky> { chunky };
                 context.AttachRange(cherry, chunky);
 
                 var reference = context.Entry(chunky).Navigation("Garcia");
@@ -159,19 +150,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             using (var context = new FreezerContext())
             {
                 var cherry = new Cherry();
-                var chunky1 = new Chunky
-                {
-                    Garcia = cherry
-                };
-                var chunky2 = new Chunky
-                {
-                    Garcia = cherry
-                };
-                cherry.Monkeys = new List<Chunky>
-                {
-                    chunky1,
-                    chunky2
-                };
+                var chunky1 = new Chunky { Garcia = cherry };
+                var chunky2 = new Chunky { Garcia = cherry };
+                cherry.Monkeys = new List<Chunky> { chunky1, chunky2 };
                 context.AttachRange(cherry, chunky1, chunky2);
 
                 var collection = context.Entry(cherry).Navigation("Monkeys");

@@ -98,11 +98,7 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.Initialization
                     using (var context = AdventureWorksFixture.CreateContext())
                     {
                         context.Currency.Add(
-                            new Currency
-                            {
-                                CurrencyCode = "TMP",
-                                Name = "Temporary"
-                            });
+                            new Currency { CurrencyCode = "TMP", Name = "Temporary" });
 
                         using (context.Database.BeginTransaction())
                         {

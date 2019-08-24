@@ -249,10 +249,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 5,
                 9
             };
-            var obbl = new ObservableBackedBindingList<ListElement>(oc)
-            {
-                item
-            };
+            var obbl = new ObservableBackedBindingList<ListElement>(oc) { item };
 
             Assert.Equal(7, oc.Count);
             Assert.Equal(2, oc.Count(i => ReferenceEquals(i, item)));
@@ -499,10 +496,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 5,
                 9
             };
-            var obbl = new ObservableBackedBindingList<ListElement>(oc)
-            {
-                item
-            };
+            var obbl = new ObservableBackedBindingList<ListElement>(oc) { item };
 
             Assert.Equal(6, oc.Count);
             Assert.Equal(1, oc.Count(i => ReferenceEquals(i, item)));
