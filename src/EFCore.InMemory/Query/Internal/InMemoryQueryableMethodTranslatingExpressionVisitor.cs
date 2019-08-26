@@ -438,81 +438,73 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             return source;
         }
 
-        private static readonly MethodInfo _defaultIfEmptyWithoutArgMethodInfo = typeof(Enumerable).GetTypeInfo()
-            .GetDeclaredMethods(nameof(Enumerable.DefaultIfEmpty)).Single(mi => mi.GetParameters().Length == 1);
-
         protected override ShapedQueryExpression TranslateSelectMany(
             ShapedQueryExpression source, LambdaExpression collectionSelector, LambdaExpression resultSelector)
         {
-            var collectionSelectorBody = collectionSelector.Body;
-            //var defaultIfEmpty = false;
+            var defaultIfEmpty = new DefaultIfEmptyFindingExpressionVisitor().IsOptional(collectionSelector);
+            var collectionSelectorBody = RemapLambdaBody(source, collectionSelector);
 
-            if (collectionSelectorBody is MethodCallExpression collectionEndingMethod
-                && collectionEndingMethod.Method.IsGenericMethod
-                && collectionEndingMethod.Method.GetGenericMethodDefinition() == _defaultIfEmptyWithoutArgMethodInfo)
+            if (Visit(collectionSelectorBody) is ShapedQueryExpression inner)
             {
-                //defaultIfEmpty = true;
-                collectionSelectorBody = collectionEndingMethod.Arguments[0];
-            }
+                var transparentIdentifierType = TransparentIdentifierFactory.Create(
+                    resultSelector.Parameters[0].Type,
+                    resultSelector.Parameters[1].Type);
 
-            var correlated = new CorrelationFindingExpressionVisitor().IsCorrelated(collectionSelectorBody, collectionSelector.Parameters[0]);
-            if (correlated)
-            {
-                // TODO visit inner with outer parameter;
-                // See #17236
-                throw new InvalidOperationException(CoreStrings.TranslationFailed(
-                    collectionSelector.Print() + "; " + resultSelector.Print()));
+                var innerShaperExpression = defaultIfEmpty
+                    ? MarkShaperNullable(inner.ShaperExpression)
+                    : inner.ShaperExpression;
 
-            }
-            else
-            {
-                if (Visit(collectionSelectorBody) is ShapedQueryExpression inner)
-                {
-                    var transparentIdentifierType = TransparentIdentifierFactory.Create(
-                        resultSelector.Parameters[0].Type,
-                        resultSelector.Parameters[1].Type);
+                ((InMemoryQueryExpression)source.QueryExpression).AddSelectMany(
+                    (InMemoryQueryExpression)inner.QueryExpression, transparentIdentifierType, defaultIfEmpty);
 
-                    ((InMemoryQueryExpression)source.QueryExpression).AddCrossJoin(
-                        (InMemoryQueryExpression)inner.QueryExpression, transparentIdentifierType);
-
-                    return TranslateResultSelectorForJoin(
-                        source,
-                        resultSelector,
-                        inner.ShaperExpression,
-                        transparentIdentifierType);
-                }
+                return TranslateResultSelectorForJoin(
+                    source,
+                    resultSelector,
+                    innerShaperExpression,
+                    transparentIdentifierType);
             }
 
             return null;
         }
 
-        private class CorrelationFindingExpressionVisitor : ExpressionVisitor
+        private class DefaultIfEmptyFindingExpressionVisitor : ExpressionVisitor
         {
-            private ParameterExpression _outerParameter;
-            private bool _isCorrelated;
-            public bool IsCorrelated(Expression tree, ParameterExpression outerParameter)
+            private bool _defaultIfEmpty;
+
+            public bool IsOptional(LambdaExpression lambdaExpression)
             {
-                _isCorrelated = false;
-                _outerParameter = outerParameter;
+                _defaultIfEmpty = false;
 
-                Visit(tree);
+                Visit(lambdaExpression.Body);
 
-                return _isCorrelated;
+                return _defaultIfEmpty;
             }
 
-            protected override Expression VisitParameter(ParameterExpression parameterExpression)
+            protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
             {
-                if (parameterExpression == _outerParameter)
+                if (methodCallExpression.Method.IsGenericMethod
+                    && methodCallExpression.Method.GetGenericMethodDefinition() == QueryableMethods.DefaultIfEmptyWithoutArgument)
                 {
-                    _isCorrelated = true;
+                    _defaultIfEmpty = true;
                 }
 
-                return base.VisitParameter(parameterExpression);
+                return base.VisitMethodCall(methodCallExpression);
             }
         }
 
         protected override ShapedQueryExpression TranslateSelectMany(ShapedQueryExpression source, LambdaExpression selector)
-            => null;
+        {
+            var innerParameter = Expression.Parameter(selector.ReturnType.TryGetSequenceType(), "i");
+            var resultSelector = Expression.Lambda(
+                innerParameter,
+                new[]
+                {
+                    Expression.Parameter(source.Type.TryGetSequenceType()),
+                    innerParameter
+                });
+
+            return TranslateSelectMany(source, selector, resultSelector);
+        }
 
         protected override ShapedQueryExpression TranslateSingleOrDefault(ShapedQueryExpression source, LambdaExpression predicate, Type returnType, bool returnDefault)
         {
@@ -617,14 +609,18 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         private LambdaExpression TranslateLambdaExpression(
             ShapedQueryExpression shapedQueryExpression, LambdaExpression lambdaExpression)
         {
-            var lambdaBody = ReplacingExpressionVisitor.Replace(
-                lambdaExpression.Parameters.Single(), shapedQueryExpression.ShaperExpression, lambdaExpression.Body);
-            lambdaBody = TranslateExpression(lambdaBody);
+            var lambdaBody = TranslateExpression(RemapLambdaBody(shapedQueryExpression, lambdaExpression));
 
             return lambdaBody != null
                 ? Expression.Lambda(lambdaBody,
                     ((InMemoryQueryExpression)shapedQueryExpression.QueryExpression).ValueBufferParameter)
                 : null;
+        }
+
+        private static Expression RemapLambdaBody(ShapedQueryExpression shapedQueryExpression, LambdaExpression lambdaExpression)
+        {
+            return ReplacingExpressionVisitor.Replace(
+                lambdaExpression.Parameters.Single(), shapedQueryExpression.ShaperExpression, lambdaExpression.Body);
         }
 
         private ShapedQueryExpression TranslateScalarAggregate(
