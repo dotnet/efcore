@@ -373,16 +373,6 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         #region SelectMany
 
-        public override Task Multiple_select_many_with_predicate(bool isAsync)
-        {
-            return Task.CompletedTask;
-        }
-
-        public override Task SelectMany_Joined(bool isAsync)
-        {
-            return Task.CompletedTask;
-        }
-
         public override Task SelectMany_Joined_DefaultIfEmpty(bool isAsync)
         {
             return Task.CompletedTask;
@@ -393,52 +383,12 @@ namespace Microsoft.EntityFrameworkCore.Query
             return Task.CompletedTask;
         }
 
-        public override Task SelectMany_Joined_Take(bool isAsync)
-        {
-            return Task.CompletedTask;
-        }
-
-        public override Task SelectMany_correlated_subquery_simple(bool isAsync)
-        {
-            return Task.CompletedTask;
-        }
-
-        public override Task SelectMany_correlated_with_outer_1(bool isAsync)
-        {
-            return Task.CompletedTask;
-        }
-
-        public override Task SelectMany_correlated_with_outer_2(bool isAsync)
-        {
-            return Task.CompletedTask;
-        }
-
         public override Task SelectMany_correlated_with_outer_3(bool isAsync)
         {
             return Task.CompletedTask;
         }
 
         public override Task SelectMany_correlated_with_outer_4(bool isAsync)
-        {
-            return Task.CompletedTask;
-        }
-
-        public override Task SelectMany_without_result_selector_collection_navigation_composed(bool isAsync)
-        {
-            return Task.CompletedTask;
-        }
-
-        public override Task SelectMany_without_result_selector_naked_collection_navigation(bool isAsync)
-        {
-            return Task.CompletedTask;
-        }
-
-        public override Task Select_DTO_with_member_init_distinct_in_subquery_translated_to_server(bool isAsync)
-        {
-            return Task.CompletedTask;
-        }
-
-        public override Task Select_DTO_with_member_init_distinct_in_subquery_translated_to_server_2(bool isAsync)
         {
             return Task.CompletedTask;
         }
