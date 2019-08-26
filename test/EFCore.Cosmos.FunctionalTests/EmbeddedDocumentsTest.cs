@@ -83,7 +83,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
         [ConditionalFact]
         public virtual async Task Can_add_collection_dependent_to_owner()
         {
-            await using (var testDatabase = CreateTestStore())
+            await using (var testDatabase = CreateTestStore(seed: false))
             {
                 Address existingAddress1Person2;
                 Address existingAddress1Person3;
@@ -170,6 +170,57 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
         }
 
         [ConditionalFact]
+        public virtual async Task Can_use_non_int_keys_for_embedded_entities()
+        {
+            await using (var testDatabase = CreateTestStore(
+                modelBuilder =>
+                {
+                    modelBuilder.Entity<Vehicle>(
+                        eb =>
+                        {
+                            eb.OwnsOne(v => v.Operator).OwnsOne(v => v.Details);
+                        });
+
+                    modelBuilder.Entity<Person>(
+                        eb => eb.OwnsMany(
+                            v => v.Addresses, b =>
+                            {
+                                b.Property<Guid>("Id");
+                            }));
+                }, seed: false))
+            {
+                Address address;
+                Guid addressGuid;
+                await using (var context = CreateContext())
+                {
+                    context.Database.EnsureCreated();
+                    var person = new Person { Id = 1 };
+                    address = new Address { Street = "Second", City = "Village" };
+                    person.Addresses.Add(address);
+                    context.Add(person);
+
+                    var addressEntry = context.Entry(address);
+                    addressGuid = (Guid)addressEntry.Property("Id").CurrentValue;
+
+                    await context.SaveChangesAsync();
+                }
+
+                await using (var context = CreateContext())
+                {
+                    var people = await context.Set<Person>().OrderBy(o => o.Id).ToListAsync();
+                    var addresses = people[0].Addresses.ToList();
+                    Assert.Equal(1, addresses.Count);
+
+                    Assert.Equal(address.Street, addresses[0].Street);
+                    Assert.Equal(address.City, addresses[0].City);
+
+                    var addressEntry = context.Entry(addresses[0]);
+                    Assert.Equal(addressGuid, (Guid)addressEntry.Property("Id").CurrentValue);
+                }
+            }
+        }
+
+        [ConditionalFact]
         public virtual async Task Can_query_just_nested_reference()
         {
             await using (var testDatabase = CreateTestStore())
@@ -188,7 +239,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
         [ConditionalFact]
         public virtual async Task Can_query_just_nested_collection()
         {
-            await using (var testDatabase = CreateTestStore())
+            await using (var testDatabase = CreateTestStore(seed: false))
             {
                 using (var context = CreateContext())
                 {
@@ -217,7 +268,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
         [ConditionalFact]
         public virtual async Task Inserting_dependent_without_principal_throws()
         {
-            await using (var testDatabase = CreateTestStore())
+            await using (var testDatabase = CreateTestStore(seed: false))
             {
                 using (var context = CreateContext())
                 {
@@ -299,7 +350,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
         protected void AssertContainsSql(params string[] expected)
             => TestSqlLoggerFactory.AssertBaseline(expected, assertOrder: false);
 
-        protected TestStore CreateTestStore(Action<ModelBuilder> onModelCreating = null)
+        protected TestStore CreateTestStore(Action<ModelBuilder> onModelCreating = null, bool seed = true)
         {
             TestStore = TestStoreFactory.Create(DatabaseName);
 
@@ -308,7 +359,14 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
                 .AddSingleton<ILoggerFactory>(TestSqlLoggerFactory)
                 .BuildServiceProvider(validateScopes: true);
 
-            TestStore.Initialize(ServiceProvider, CreateContext, c => ((TransportationContext)c).Seed());
+
+            TestStore.Initialize(ServiceProvider, CreateContext, c =>
+            {
+                if (seed)
+                {
+                    ((TransportationContext)c).Seed();
+                }
+            });
 
             TestSqlLoggerFactory.Clear();
 
@@ -383,7 +441,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
         private class Person
         {
             public int Id { get; set; }
-            public ICollection<Address> Addresses { get; set; }
+            public ICollection<Address> Addresses { get; set; } = new HashSet<Address>();
         }
 
         public class Address
