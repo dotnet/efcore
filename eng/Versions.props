@@ -16,9 +16,9 @@
     <MicrosoftCodeAnalysisCSharpPackageVersion>2.8.0</MicrosoftCodeAnalysisCSharpPackageVersion>
     <MicrosoftCodeAnalysisCSharpWorkspacesPackageVersion>2.8.0</MicrosoftCodeAnalysisCSharpWorkspacesPackageVersion>
     <mod_spatialitePackageVersion>4.3.0.1</mod_spatialitePackageVersion>
-    <NetTopologySuitePackageVersion>2.0.0-pre001</NetTopologySuitePackageVersion>
-    <NetTopologySuiteIOSpatiaLitePackageVersion>2.0.0-pre001</NetTopologySuiteIOSpatiaLitePackageVersion>
-    <NetTopologySuiteIOSqlServerBytesPackageVersion>2.0.0-pre001</NetTopologySuiteIOSqlServerBytesPackageVersion>
+    <NetTopologySuitePackageVersion>2.0.0</NetTopologySuitePackageVersion>
+    <NetTopologySuiteIOSpatiaLitePackageVersion>2.0.0</NetTopologySuiteIOSpatiaLitePackageVersion>
+    <NetTopologySuiteIOSqlServerBytesPackageVersion>2.0.0</NetTopologySuiteIOSqlServerBytesPackageVersion>
     <SQLitePCLRawBundleESqlite3PackageVersion>2.0.0</SQLitePCLRawBundleESqlite3PackageVersion>
     <SQLitePCLRawBundleESqlcipherPackageVersion>2.0.0</SQLitePCLRawBundleESqlcipherPackageVersion>
     <SQLitePCLRawCorePackageVersion>2.0.0</SQLitePCLRawCorePackageVersion>
