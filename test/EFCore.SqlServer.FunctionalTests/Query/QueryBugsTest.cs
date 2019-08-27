@@ -3523,12 +3523,7 @@ LEFT JOIN [Configuration9468] AS [c] ON [c0].[ConfigurationId] = [c].[Id]");
             {
                 using (var context = new MyContext10635(_options))
                 {
-                    Assert.Equal(
-                        CoreStrings.TranslationFailed("(p) => ((IEntity10635)p).Id"),
-                        Assert.Throws<InvalidOperationException>(
-                            () => context.Parents.Include(p => p.Children).OrderBy(p => ((IEntity10635)p).Id).ToList()).Message);
-
-                    var query2 = context.Parents.Include(p => p.Children).OrderBy(p => EF.Property<int>(p, "Id")).ToList();
+                    var query = context.Parents.Include(p => p.Children).OrderBy(p => ((IEntity10635)p).Id).ToList();
 
                     AssertSql(
                         @"SELECT [p].[Id], [p].[Name], [c].[Id], [c].[Name], [c].[Parent10635Id], [c].[ParentId]
@@ -3546,12 +3541,7 @@ ORDER BY [p].[Id], [c].[Id]");
             {
                 using (var context = new MyContext10635(_options))
                 {
-                    Assert.Equal(
-                        CoreStrings.TranslationFailed("(p) => ((IEntity10635)p).Id"),
-                        Assert.Throws<InvalidOperationException>(
-                            () => context.Parents.OrderBy(p => ((IEntity10635)p).Id).Select(p => p.Children.ToList()).ToList()).Message);
-
-                    var query2 = context.Parents.OrderBy(p => EF.Property<int>(p, "Id")).Select(p => p.Children.ToList()).ToList();
+                    var query = context.Parents.OrderBy(p => ((IEntity10635)p).Id).Select(p => p.Children.ToList()).ToList();
 
                     AssertSql(
                         @"SELECT [p].[Id], [c].[Id], [c].[Name], [c].[Parent10635Id], [c].[ParentId]
@@ -6326,6 +6316,134 @@ WHERE EXISTS (
         {
             public int Id { get; set; }
             public string Name { get; set; }
+        }
+
+        #endregion
+
+        #region Bug17276_17099_16759
+
+        [ConditionalFact]
+        public virtual void Expression_tree_constructed_via_interface_works_17276()
+        {
+            using (CreateDatabase17276())
+            {
+                using (var context = new MyContext17276(_options))
+                {
+                    var query = List17276(context.RemovableEntities);
+
+                    AssertSql(
+                        @"SELECT [r].[Id], [r].[IsRemoved], [r].[Removed], [r].[RemovedByUser]
+FROM [RemovableEntities] AS [r]
+WHERE [r].[IsRemoved] <> CAST(1 AS bit)");
+                }
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Expression_tree_constructed_via_interface_for_navigation_works_17099()
+        {
+            using (CreateDatabase17276())
+            {
+                using (var context = new MyContext17276(_options))
+                {
+                    var query = context.Parents
+                        .Where(p => EF.Property<bool>(EF.Property<IRemovable17276>(p, "RemovableEntity"), "IsRemoved"))
+                        .ToList();
+
+                    AssertSql(
+                        @"SELECT [p].[Id], [p].[RemovableEntityId]
+FROM [Parents] AS [p]
+LEFT JOIN [RemovableEntities] AS [r] ON [p].[RemovableEntityId] = [r].[Id]
+WHERE [r].[IsRemoved] = CAST(1 AS bit)");
+                }
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Expression_tree_constructed_via_interface_works_16759()
+        {
+            using (CreateDatabase17276())
+            {
+                using (var context = new MyContext17276(_options))
+                {
+                    var specification = new Specification17276<Parent17276>(1);
+                    var entities = context.Set<Parent17276>().Where(specification.Criteria).ToList();
+
+                    AssertSql(
+                        @"@__id_0='1'
+
+SELECT [p].[Id], [p].[RemovableEntityId]
+FROM [Parents] AS [p]
+WHERE ([p].[Id] = @__id_0) AND @__id_0 IS NOT NULL");
+                }
+            }
+        }
+
+        public class MyContext17276 : DbContext
+        {
+            public DbSet<RemovableEntity17276> RemovableEntities { get; set; }
+            public DbSet<Parent17276> Parents { get; set; }
+            public MyContext17276(DbContextOptions options) : base(options)
+            {
+            }
+
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
+            {
+            }
+        }
+
+        private SqlServerTestStore CreateDatabase17276()
+            => CreateTestStore(
+                () => new MyContext17276(_options),
+                context =>
+                {
+                    context.SaveChanges();
+
+                    ClearLog();
+                });
+
+        public static List<T> List17276<T>(IQueryable<T> query) where T : IRemovable17276
+        {
+            return query.Where(x => !x.IsRemoved).ToList();
+        }
+
+        public interface IRemovable17276
+        {
+            bool IsRemoved { get; set; }
+
+            string RemovedByUser { get; set; }
+
+            DateTime? Removed { get; set; }
+        }
+
+        public class RemovableEntity17276 : IRemovable17276
+        {
+            public int Id { get; set; }
+            public bool IsRemoved { get; set; }
+            public string RemovedByUser { get; set; }
+            public DateTime? Removed { get; set; }
+        }
+
+        public class Parent17276 : IHasId17276<int>
+        {
+            public int Id { get; set; }
+            public RemovableEntity17276 RemovableEntity { get; set; }
+        }
+
+        public interface IHasId17276<out T>
+        {
+            T Id { get; }
+        }
+
+        public class Specification17276<T>
+            where T : IHasId17276<int>
+        {
+            public Expression<Func<T, bool>> Criteria { get; }
+
+            public Specification17276(int id)
+            {
+                Criteria = t => t.Id == id;
+            }
         }
 
         #endregion

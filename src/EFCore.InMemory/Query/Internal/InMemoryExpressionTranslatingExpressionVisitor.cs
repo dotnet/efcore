@@ -97,11 +97,12 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             if (source is EntityProjectionExpression entityProjection)
             {
                 var entityType = entityProjection.EntityType;
-                if (convertedType != null)
+                if (convertedType != null
+                    && !(convertedType.IsInterface
+                         && convertedType.IsAssignableFrom(entityType.ClrType)))
                 {
                     entityType = entityType.GetRootType().GetDerivedTypesInclusive()
                         .FirstOrDefault(et => et.ClrType == convertedType);
-
                     if (entityType == null)
                     {
                         return null;
