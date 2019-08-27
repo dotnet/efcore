@@ -3,6 +3,7 @@
 
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
 
@@ -398,7 +399,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
                 Assert.NotSame(bookOwnership1.DeclaringEntityType, bookOwnership2.DeclaringEntityType);
                 Assert.Equal(1, bookOwnership1.DeclaringEntityType.GetForeignKeys().Count());
-                Assert.Equal(1, bookOwnership1.DeclaringEntityType.GetForeignKeys().Count());
+                Assert.Equal(1, bookOwnership2.DeclaringEntityType.GetForeignKeys().Count());
 
                 Assert.NotSame(bookLabel1Ownership1.DeclaringEntityType, bookLabel2Ownership1.DeclaringEntityType);
                 Assert.NotSame(bookLabel1Ownership2.DeclaringEntityType, bookLabel2Ownership2.DeclaringEntityType);
@@ -406,14 +407,30 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Equal(1, bookLabel1Ownership2.DeclaringEntityType.GetForeignKeys().Count());
                 Assert.Equal(1, bookLabel2Ownership1.DeclaringEntityType.GetForeignKeys().Count());
                 Assert.Equal(1, bookLabel2Ownership2.DeclaringEntityType.GetForeignKeys().Count());
-                Assert.Equal(1, bookLabel1Ownership1.DeclaringEntityType.GetForeignKeys().Count());
-                Assert.Equal(1, bookLabel1Ownership2.DeclaringEntityType.GetForeignKeys().Count());
-                Assert.Equal(1, bookLabel2Ownership1.DeclaringEntityType.GetForeignKeys().Count());
-                Assert.Equal(1, bookLabel2Ownership2.DeclaringEntityType.GetForeignKeys().Count());
+
+                Assert.NotSame(bookLabel1Ownership11.DeclaringEntityType, bookLabel2Ownership11.DeclaringEntityType);
+                Assert.NotSame(bookLabel1Ownership21.DeclaringEntityType, bookLabel2Ownership21.DeclaringEntityType);
+                Assert.Equal(1, bookLabel1Ownership11.DeclaringEntityType.GetForeignKeys().Count());
+                Assert.Equal(1, bookLabel1Ownership21.DeclaringEntityType.GetForeignKeys().Count());
+                Assert.Equal(1, bookLabel2Ownership11.DeclaringEntityType.GetForeignKeys().Count());
+                Assert.Equal(1, bookLabel2Ownership21.DeclaringEntityType.GetForeignKeys().Count());
 
                 Assert.Equal(2, model.GetEntityTypes().Count(e => e.ClrType == typeof(BookLabel)));
                 Assert.Equal(4, model.GetEntityTypes().Count(e => e.ClrType == typeof(AnotherBookLabel)));
                 Assert.Equal(4, model.GetEntityTypes().Count(e => e.ClrType == typeof(SpecialBookLabel)));
+
+                Assert.Equal(ValueGenerated.Never, bookOwnership1.DeclaringEntityType.FindPrimaryKey().Properties.Single().ValueGenerated);
+                Assert.Equal(ValueGenerated.Never, bookOwnership2.DeclaringEntityType.FindPrimaryKey().Properties.Single().ValueGenerated);
+
+                Assert.Equal(ValueGenerated.Never, bookLabel1Ownership1.DeclaringEntityType.FindPrimaryKey().Properties.Single().ValueGenerated);
+                Assert.Equal(ValueGenerated.Never, bookLabel1Ownership2.DeclaringEntityType.FindPrimaryKey().Properties.Single().ValueGenerated);
+                Assert.Equal(ValueGenerated.Never, bookLabel2Ownership1.DeclaringEntityType.FindPrimaryKey().Properties.Single().ValueGenerated);
+                Assert.Equal(ValueGenerated.Never, bookLabel2Ownership2.DeclaringEntityType.FindPrimaryKey().Properties.Single().ValueGenerated);
+
+                Assert.Equal(ValueGenerated.Never, bookLabel1Ownership11.DeclaringEntityType.FindPrimaryKey().Properties.Single().ValueGenerated);
+                Assert.Equal(ValueGenerated.Never, bookLabel1Ownership21.DeclaringEntityType.FindPrimaryKey().Properties.Single().ValueGenerated);
+                Assert.Equal(ValueGenerated.Never, bookLabel2Ownership11.DeclaringEntityType.FindPrimaryKey().Properties.Single().ValueGenerated);
+                Assert.Equal(ValueGenerated.Never, bookLabel2Ownership21.DeclaringEntityType.FindPrimaryKey().Properties.Single().ValueGenerated);
             }
 
             [ConditionalFact]

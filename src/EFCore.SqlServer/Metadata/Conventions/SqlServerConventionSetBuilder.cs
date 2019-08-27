@@ -55,10 +55,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
             ValueGenerationConvention valueGenerationConvention =
                 new SqlServerValueGenerationConvention(Dependencies, RelationalDependencies);
+            var sqlServerIndexConvention = new SqlServerIndexConvention(Dependencies, RelationalDependencies, _sqlGenerationHelper);
             ReplaceConvention(conventionSet.EntityTypeBaseTypeChangedConventions, valueGenerationConvention);
+            conventionSet.EntityTypeBaseTypeChangedConventions.Add(sqlServerIndexConvention);
 
             var sqlServerInMemoryTablesConvention = new SqlServerMemoryOptimizedTablesConvention(Dependencies, RelationalDependencies);
             conventionSet.EntityTypeAnnotationChangedConventions.Add(sqlServerInMemoryTablesConvention);
+            ReplaceConvention(conventionSet.EntityTypeAnnotationChangedConventions, (RelationalValueGenerationConvention)valueGenerationConvention);
 
             ReplaceConvention(conventionSet.EntityTypePrimaryKeyChangedConventions, valueGenerationConvention);
 
@@ -67,15 +70,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             ReplaceConvention(conventionSet.ForeignKeyAddedConventions, valueGenerationConvention);
 
             ReplaceConvention(conventionSet.ForeignKeyRemovedConventions, valueGenerationConvention);
-
-            var sqlServerIndexConvention = new SqlServerIndexConvention(Dependencies, RelationalDependencies, _sqlGenerationHelper);
-
-            conventionSet.EntityTypeBaseTypeChangedConventions.Add(sqlServerIndexConvention);
-
-            ConventionSet.AddBefore(
-                conventionSet.ModelFinalizedConventions,
-                valueGenerationStrategyConvention,
-                typeof(ValidatingConvention));
 
             conventionSet.IndexAddedConventions.Add(sqlServerInMemoryTablesConvention);
             conventionSet.IndexAddedConventions.Add(sqlServerIndexConvention);
@@ -93,6 +87,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             ReplaceConvention(
                 conventionSet.PropertyAnnotationChangedConventions, (RelationalValueGenerationConvention)valueGenerationConvention);
 
+            ConventionSet.AddBefore(
+                conventionSet.ModelFinalizedConventions,
+                valueGenerationStrategyConvention,
+                typeof(ValidatingConvention));
             ReplaceConvention(conventionSet.ModelFinalizedConventions, storeGenerationConvention);
 
             return conventionSet;
