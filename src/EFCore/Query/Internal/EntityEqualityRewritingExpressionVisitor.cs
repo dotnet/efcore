@@ -1085,16 +1085,15 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             }
 
             public EntityReferenceExpression(Expression underlying, IEntityType entityType)
-                : this(underlying, entityType, null, false)
+                : this(underlying, entityType, subqueryTraversed: false)
             {
             }
 
             private EntityReferenceExpression(
-                Expression underlying, IEntityType entityType, INavigation lastNavigation, bool subqueryTraversed)
+                Expression underlying, IEntityType entityType, bool subqueryTraversed)
             {
                 Underlying = underlying;
                 EntityType = entityType;
-                _lastNavigation = lastNavigation;
                 SubqueryTraversed = subqueryTraversed;
             }
 
@@ -1126,6 +1125,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                             destinationExpression,
                             navigation.GetTargetType(),
                             navigation,
+                            null,
                             SubqueryTraversed)
                         : destinationExpression;
                 }
@@ -1146,7 +1146,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             }
 
             public EntityReferenceExpression Update(Expression newUnderlying)
-                => new EntityReferenceExpression(newUnderlying, EntityType, _lastNavigation, DtoType, SubqueryTraversed);
+                => new EntityReferenceExpression(newUnderlying, EntityType, null, DtoType, SubqueryTraversed);
 
             protected override Expression VisitChildren(ExpressionVisitor visitor)
                 => Update(visitor.Visit(Underlying));
