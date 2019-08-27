@@ -124,6 +124,13 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
 
             if (source is EntityProjectionExpression entityProjectionExpression)
             {
+                if (convertedType != null
+                    && convertedType.IsInterface
+                    && convertedType.IsAssignableFrom(entityProjectionExpression.Type))
+                {
+                    convertedType = entityProjectionExpression.Type;
+                }
+
                 expression = member.MemberInfo != null
                     ? entityProjectionExpression.BindMember(member.MemberInfo, convertedType, clientEval: false, out _)
                     : entityProjectionExpression.BindMember(member.Name, convertedType, clientEval: false, out _);

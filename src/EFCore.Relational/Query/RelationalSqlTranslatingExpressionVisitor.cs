@@ -207,11 +207,12 @@ namespace Microsoft.EntityFrameworkCore.Query
             if (source is EntityProjectionExpression entityProjectionExpression)
             {
                 var entityType = entityProjectionExpression.EntityType;
-                if (convertedType != null)
+                if (convertedType != null
+                    && !(convertedType.IsInterface
+                         && convertedType.IsAssignableFrom(entityType.ClrType)))
                 {
                     entityType = entityType.GetRootType().GetDerivedTypesInclusive()
                         .FirstOrDefault(et => et.ClrType == convertedType);
-
                     if (entityType == null)
                     {
                         return false;
