@@ -248,6 +248,22 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
+        public virtual Task GroupBy_aggregate_projecting_conditional_expression(bool isAsync)
+        {
+            return AssertQuery<Order>(
+                isAsync,
+                os => os.GroupBy(o => o.OrderDate).Select(
+                    g =>
+                        new
+                        {
+                            Key = g.Key,
+                            SomeValue = g.Count() == 0 ? 1 : g.Sum(o => o.OrderID % 2 == 0 ? 1 : 0) / g.Count()
+                        }),
+                e => e.SomeValue);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_aggregate_projecting_conditional_expression_based_on_group_key(bool isAsync)
         {
             return AssertQuery<Order>(
