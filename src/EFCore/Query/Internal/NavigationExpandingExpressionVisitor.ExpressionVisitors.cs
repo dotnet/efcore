@@ -103,9 +103,12 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 if (UnwrapEntityReference(innerExpression) is EntityReference entityReference)
                 {
                     var entityType = entityReference.EntityType;
-                    if (convertedType != null)
+                    if (convertedType != null
+                        && !(convertedType.IsInterface
+                             && convertedType.IsAssignableFrom(entityType.ClrType)))
                     {
-                        entityType = entityType.GetTypesInHierarchy().FirstOrDefault(et => et.ClrType == convertedType);
+                        entityType = entityType.GetTypesInHierarchy()
+                            .FirstOrDefault(et => et.ClrType == convertedType);
                         if (entityType == null)
                         {
                             return null;
