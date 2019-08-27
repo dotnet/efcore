@@ -126,7 +126,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         }
 
         protected override ShapedQueryExpression TranslateConcat(ShapedQueryExpression source1, ShapedQueryExpression source2)
-            => null;
+            => TranslateSetOperation(InMemoryLinqOperatorProvider.Concat, source1, source2);
 
         protected override ShapedQueryExpression TranslateContains(ShapedQueryExpression source, Expression item)
         {
@@ -203,7 +203,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             => null;
 
         protected override ShapedQueryExpression TranslateExcept(ShapedQueryExpression source1, ShapedQueryExpression source2)
-            => null;
+            => TranslateSetOperation(InMemoryLinqOperatorProvider.Except, source1, source2);
 
         protected override ShapedQueryExpression TranslateFirstOrDefault(ShapedQueryExpression source, LambdaExpression predicate, Type returnType, bool returnDefault)
         {
@@ -223,7 +223,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             => null;
 
         protected override ShapedQueryExpression TranslateIntersect(ShapedQueryExpression source1, ShapedQueryExpression source2)
-            => null;
+            => TranslateSetOperation(InMemoryLinqOperatorProvider.Intersect, source1, source2);
 
         protected override ShapedQueryExpression TranslateJoin(ShapedQueryExpression outer, ShapedQueryExpression inner, LambdaExpression outerKeySelector, LambdaExpression innerKeySelector, LambdaExpression resultSelector)
         {
@@ -582,7 +582,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         }
 
         protected override ShapedQueryExpression TranslateUnion(ShapedQueryExpression source1, ShapedQueryExpression source2)
-            => null;
+            => TranslateSetOperation(InMemoryLinqOperatorProvider.Union, source1, source2);
 
         protected override ShapedQueryExpression TranslateWhere(ShapedQueryExpression source, LambdaExpression predicate)
         {
@@ -680,6 +680,27 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             }
 
             return source;
+        }
+
+        private ShapedQueryExpression TranslateSetOperation(
+            MethodInfo setOperationMethodInfo,
+            ShapedQueryExpression source1,
+            ShapedQueryExpression source2)
+        {
+            var inMemoryQueryExpression1 = (InMemoryQueryExpression)source1.QueryExpression;
+            var inMemoryQueryExpression2 = (InMemoryQueryExpression)source2.QueryExpression;
+
+            // Apply any pending selectors, ensuring that the shape of both expressions is identical
+            // prior to applying the set operation.
+            inMemoryQueryExpression1.PushdownIntoSubquery();
+            inMemoryQueryExpression2.PushdownIntoSubquery();
+
+            inMemoryQueryExpression1.ServerQueryExpression = Expression.Call(
+                setOperationMethodInfo.MakeGenericMethod(typeof(ValueBuffer)),
+                inMemoryQueryExpression1.ServerQueryExpression,
+                inMemoryQueryExpression2.ServerQueryExpression);
+
+            return source1;
         }
     }
 }

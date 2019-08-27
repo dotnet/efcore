@@ -59,6 +59,11 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         public static MethodInfo Single = GetMethod(nameof(Enumerable.Single), 0);
         public static MethodInfo SingleOrDefault = GetMethod(nameof(Enumerable.SingleOrDefault), 0);
 
+        public static MethodInfo Concat = GetMethod(nameof(Enumerable.Concat), 1);
+        public static MethodInfo Except = GetMethod(nameof(Enumerable.Except), 1);
+        public static MethodInfo Intersect = GetMethod(nameof(Enumerable.Intersect), 1);
+        public static MethodInfo Union = GetMethod(nameof(Enumerable.Union), 1);
+
         public static MethodInfo GetAggregateMethod(string methodName, Type elementType, int parameterCount = 0)
         {
             Check.NotEmpty(methodName, nameof(methodName));
