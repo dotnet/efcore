@@ -11,10 +11,7 @@ namespace Microsoft.EntityFrameworkCore
 {
     public class ApiConsistencyTest : ApiConsistencyTestBase
     {
-        private static readonly Type[] _fluentApiTypes =
-        {
-            typeof(DesignTimeServiceCollectionExtensions)
-        };
+        private static readonly Type[] _fluentApiTypes = { typeof(DesignTimeServiceCollectionExtensions) };
 
         protected override IEnumerable<Type> FluentApiTypes => _fluentApiTypes;
 

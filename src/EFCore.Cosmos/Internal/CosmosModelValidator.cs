@@ -102,11 +102,12 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
                     }
 
                     var keyType = nextPartitionKeyProperty.GetTypeMapping().Converter?.ProviderClrType
-                        ?? nextPartitionKeyProperty.ClrType;
+                                  ?? nextPartitionKeyProperty.ClrType;
                     if (keyType != typeof(string))
                     {
-                        throw new InvalidOperationException(CosmosStrings.PartitionKeyNonStringStoreType(
-                            partitionKeyPropertyName, entityType.DisplayName(), keyType.ShortDisplayName()));
+                        throw new InvalidOperationException(
+                            CosmosStrings.PartitionKeyNonStringStoreType(
+                                partitionKeyPropertyName, entityType.DisplayName(), keyType.ShortDisplayName()));
                     }
 
                     if (partitionKey == null)
@@ -115,6 +116,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
                         {
                             throw new InvalidOperationException(CosmosStrings.NoPartitionKey(firstEntityType.DisplayName(), container));
                         }
+
                         partitionKey = nextPartitionKeyProperty;
                     }
                     else if (partitionKey.GetCosmosPropertyName() != nextPartitionKeyProperty.GetCosmosPropertyName())

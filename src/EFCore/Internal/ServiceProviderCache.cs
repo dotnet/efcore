@@ -21,8 +21,9 @@ namespace Microsoft.EntityFrameworkCore.Internal
     /// </summary>
     public class ServiceProviderCache
     {
-        private readonly ConcurrentDictionary<long, (IServiceProvider ServiceProvider, IDictionary<string, string> DebugInfo)> _configurations
-            = new ConcurrentDictionary<long, (IServiceProvider, IDictionary<string, string>)>();
+        private readonly ConcurrentDictionary<long, (IServiceProvider ServiceProvider, IDictionary<string, string> DebugInfo)>
+            _configurations
+                = new ConcurrentDictionary<long, (IServiceProvider, IDictionary<string, string>)>();
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -87,7 +88,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                     {
                         if (replacedServices.TryGetValue(descriptor.ServiceType, out var replacementType))
                         {
-                            ((IList<ServiceDescriptor>) updatedServices).Add(
+                            ((IList<ServiceDescriptor>)updatedServices).Add(
                                 new ServiceDescriptor(descriptor.ServiceType, replacementType, descriptor.Lifetime));
                         }
                     }

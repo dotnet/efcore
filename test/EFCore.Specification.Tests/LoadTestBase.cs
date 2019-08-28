@@ -275,11 +275,7 @@ namespace Microsoft.EntityFrameworkCore
                 var changeDetector = (ChangeDetectorProxy)context.GetService<IChangeDetector>();
 
                 var child = context.Attach(
-                    new Child(context.GetService<ILazyLoader>().Load)
-                    {
-                        Id = 767,
-                        ParentId = null
-                    }).Entity;
+                    new Child(context.GetService<ILazyLoader>().Load) { Id = 767, ParentId = null }).Entity;
 
                 ClearLog();
 
@@ -316,11 +312,7 @@ namespace Microsoft.EntityFrameworkCore
                 var changeDetector = (ChangeDetectorProxy)context.GetService<IChangeDetector>();
 
                 var single = context.Attach(
-                    new Single(context.GetService<ILazyLoader>().Load)
-                    {
-                        Id = 767,
-                        ParentId = null
-                    }).Entity;
+                    new Single(context.GetService<ILazyLoader>().Load) { Id = 767, ParentId = null }).Entity;
 
                 ClearLog();
 
@@ -358,11 +350,7 @@ namespace Microsoft.EntityFrameworkCore
                 var changeDetector = (ChangeDetectorProxy)context.GetService<IChangeDetector>();
 
                 var parent = context.Attach(
-                    new Parent(context.GetService<ILazyLoader>().Load)
-                    {
-                        Id = 767,
-                        AlternateId = "NewRoot"
-                    }).Entity;
+                    new Parent(context.GetService<ILazyLoader>().Load) { Id = 767, AlternateId = "NewRoot" }).Entity;
 
                 ClearLog();
 
@@ -399,11 +387,7 @@ namespace Microsoft.EntityFrameworkCore
                 var changeDetector = (ChangeDetectorProxy)context.GetService<IChangeDetector>();
 
                 var child = context.Attach(
-                    new Child(context.GetService<ILazyLoader>().Load)
-                    {
-                        Id = 767,
-                        ParentId = 787
-                    }).Entity;
+                    new Child(context.GetService<ILazyLoader>().Load) { Id = 767, ParentId = 787 }).Entity;
 
                 ClearLog();
 
@@ -440,11 +424,7 @@ namespace Microsoft.EntityFrameworkCore
                 var changeDetector = (ChangeDetectorProxy)context.GetService<IChangeDetector>();
 
                 var single = context.Attach(
-                    new Single(context.GetService<ILazyLoader>().Load)
-                    {
-                        Id = 767,
-                        ParentId = 787
-                    }).Entity;
+                    new Single(context.GetService<ILazyLoader>().Load) { Id = 767, ParentId = 787 }).Entity;
 
                 ClearLog();
 
@@ -482,11 +462,7 @@ namespace Microsoft.EntityFrameworkCore
                 var changeDetector = (ChangeDetectorProxy)context.GetService<IChangeDetector>();
 
                 var parent = context.Attach(
-                    new Parent(context.GetService<ILazyLoader>().Load)
-                    {
-                        Id = 767,
-                        AlternateId = "NewRoot"
-                    }).Entity;
+                    new Parent(context.GetService<ILazyLoader>().Load) { Id = 767, AlternateId = "NewRoot" }).Entity;
 
                 ClearLog();
 
@@ -890,11 +866,7 @@ namespace Microsoft.EntityFrameworkCore
             using (var context = CreateContext(lazyLoadingEnabled: true))
             {
                 var child = context.Attach(
-                    new ChildAk(context.GetService<ILazyLoader>().Load)
-                    {
-                        Id = 767,
-                        ParentId = null
-                    }).Entity;
+                    new ChildAk(context.GetService<ILazyLoader>().Load) { Id = 767, ParentId = null }).Entity;
 
                 ClearLog();
 
@@ -925,11 +897,7 @@ namespace Microsoft.EntityFrameworkCore
             using (var context = CreateContext(lazyLoadingEnabled: true))
             {
                 var single = context.Attach(
-                    new SingleAk(context.GetService<ILazyLoader>().Load)
-                    {
-                        Id = 767,
-                        ParentId = null
-                    }).Entity;
+                    new SingleAk(context.GetService<ILazyLoader>().Load) { Id = 767, ParentId = null }).Entity;
 
                 ClearLog();
 
@@ -1095,10 +1063,7 @@ namespace Microsoft.EntityFrameworkCore
             using (var context = CreateContext(lazyLoadingEnabled: true))
             {
                 var child = context.Attach(
-                    new ChildShadowFk(context.GetService<ILazyLoader>().Load)
-                    {
-                        Id = 767
-                    }).Entity;
+                    new ChildShadowFk(context.GetService<ILazyLoader>().Load) { Id = 767 }).Entity;
 
                 ClearLog();
 
@@ -1129,10 +1094,7 @@ namespace Microsoft.EntityFrameworkCore
             using (var context = CreateContext(lazyLoadingEnabled: true))
             {
                 var single = context.Attach(
-                    new SingleShadowFk(context.GetService<ILazyLoader>().Load)
-                    {
-                        Id = 767
-                    }).Entity;
+                    new SingleShadowFk(context.GetService<ILazyLoader>().Load) { Id = 767 }).Entity;
 
                 ClearLog();
 
@@ -1298,11 +1260,7 @@ namespace Microsoft.EntityFrameworkCore
             using (var context = CreateContext(lazyLoadingEnabled: true))
             {
                 var child = context.Attach(
-                    new ChildCompositeKey(context.GetService<ILazyLoader>().Load)
-                    {
-                        Id = 767,
-                        ParentId = 567
-                    }).Entity;
+                    new ChildCompositeKey(context.GetService<ILazyLoader>().Load) { Id = 767, ParentId = 567 }).Entity;
 
                 ClearLog();
 
@@ -1333,11 +1291,7 @@ namespace Microsoft.EntityFrameworkCore
             using (var context = CreateContext(lazyLoadingEnabled: true))
             {
                 var single = context.Attach(
-                    new SingleCompositeKey(context.GetService<ILazyLoader>().Load)
-                    {
-                        Id = 767,
-                        ParentAlternateId = "Boot"
-                    }).Entity;
+                    new SingleCompositeKey(context.GetService<ILazyLoader>().Load) { Id = 767, ParentAlternateId = "Boot" }).Entity;
 
                 ClearLog();
 
@@ -1377,7 +1331,8 @@ namespace Microsoft.EntityFrameworkCore
                 Assert.Equal(
                     CoreStrings.WarningAsErrorTemplate(
                         CoreEventId.DetachedLazyLoadingWarning.ToString(),
-                        CoreResources.LogDetachedLazyLoading(new TestLogger<TestLoggingDefinitions>()).GenerateMessage(nameof(Parent.Children), "Parent"),
+                        CoreResources.LogDetachedLazyLoading(new TestLogger<TestLoggingDefinitions>())
+                            .GenerateMessage(nameof(Parent.Children), "Parent"),
                         "CoreEventId.DetachedLazyLoadingWarning"),
                     Assert.Throws<InvalidOperationException>(
                         () => parent.Children).Message);
@@ -1401,7 +1356,8 @@ namespace Microsoft.EntityFrameworkCore
                 Assert.Equal(
                     CoreStrings.WarningAsErrorTemplate(
                         CoreEventId.DetachedLazyLoadingWarning.ToString(),
-                        CoreResources.LogDetachedLazyLoading(new TestLogger<TestLoggingDefinitions>()).GenerateMessage(nameof(Child.Parent), "Child"),
+                        CoreResources.LogDetachedLazyLoading(new TestLogger<TestLoggingDefinitions>())
+                            .GenerateMessage(nameof(Child.Parent), "Child"),
                         "CoreEventId.DetachedLazyLoadingWarning"),
                     Assert.Throws<InvalidOperationException>(
                         () => child.Parent).Message);
@@ -1425,7 +1381,8 @@ namespace Microsoft.EntityFrameworkCore
                 Assert.Equal(
                     CoreStrings.WarningAsErrorTemplate(
                         CoreEventId.DetachedLazyLoadingWarning.ToString(),
-                        CoreResources.LogDetachedLazyLoading(new TestLogger<TestLoggingDefinitions>()).GenerateMessage(nameof(Parent.Single), "Parent"),
+                        CoreResources.LogDetachedLazyLoading(new TestLogger<TestLoggingDefinitions>())
+                            .GenerateMessage(nameof(Parent.Single), "Parent"),
                         "CoreEventId.DetachedLazyLoadingWarning"),
                     Assert.Throws<InvalidOperationException>(
                         () => parent.Single).Message);
@@ -2026,11 +1983,7 @@ namespace Microsoft.EntityFrameworkCore
             using (var context = CreateContext())
             {
                 var child = context.Attach(
-                    new Child
-                    {
-                        Id = 767,
-                        ParentId = null
-                    }).Entity;
+                    new Child { Id = 767, ParentId = null }).Entity;
 
                 ClearLog();
 
@@ -2070,11 +2023,7 @@ namespace Microsoft.EntityFrameworkCore
             using (var context = CreateContext())
             {
                 var single = context.Attach(
-                    new Single
-                    {
-                        Id = 767,
-                        ParentId = null
-                    }).Entity;
+                    new Single { Id = 767, ParentId = null }).Entity;
 
                 ClearLog();
 
@@ -2115,11 +2064,7 @@ namespace Microsoft.EntityFrameworkCore
             using (var context = CreateContext())
             {
                 var child = context.Attach(
-                    new Child
-                    {
-                        Id = 767,
-                        ParentId = null
-                    }).Entity;
+                    new Child { Id = 767, ParentId = null }).Entity;
 
                 ClearLog();
 
@@ -2156,11 +2101,7 @@ namespace Microsoft.EntityFrameworkCore
             using (var context = CreateContext())
             {
                 var single = context.Attach(
-                    new Single
-                    {
-                        Id = 767,
-                        ParentId = null
-                    }).Entity;
+                    new Single { Id = 767, ParentId = null }).Entity;
 
                 ClearLog();
 
@@ -2197,11 +2138,7 @@ namespace Microsoft.EntityFrameworkCore
             using (var context = CreateContext())
             {
                 var parent = context.Attach(
-                    new Parent
-                    {
-                        Id = 767,
-                        AlternateId = "NewRoot"
-                    }).Entity;
+                    new Parent { Id = 767, AlternateId = "NewRoot" }).Entity;
 
                 ClearLog();
 
@@ -2241,11 +2178,7 @@ namespace Microsoft.EntityFrameworkCore
             using (var context = CreateContext())
             {
                 var child = context.Attach(
-                    new Child
-                    {
-                        Id = 767,
-                        ParentId = 787
-                    }).Entity;
+                    new Child { Id = 767, ParentId = 787 }).Entity;
 
                 ClearLog();
 
@@ -2285,11 +2218,7 @@ namespace Microsoft.EntityFrameworkCore
             using (var context = CreateContext())
             {
                 var single = context.Attach(
-                    new Single
-                    {
-                        Id = 767,
-                        ParentId = 787
-                    }).Entity;
+                    new Single { Id = 767, ParentId = 787 }).Entity;
 
                 ClearLog();
 
@@ -2330,11 +2259,7 @@ namespace Microsoft.EntityFrameworkCore
             using (var context = CreateContext())
             {
                 var parent = context.Attach(
-                    new Parent
-                    {
-                        Id = 767,
-                        AlternateId = "NewRoot"
-                    }).Entity;
+                    new Parent { Id = 767, AlternateId = "NewRoot" }).Entity;
 
                 ClearLog();
 
@@ -2375,11 +2300,7 @@ namespace Microsoft.EntityFrameworkCore
             using (var context = CreateContext())
             {
                 var parent = context.Attach(
-                    new Parent
-                    {
-                        Id = 767,
-                        AlternateId = "NewRoot"
-                    }).Entity;
+                    new Parent { Id = 767, AlternateId = "NewRoot" }).Entity;
 
                 ClearLog();
 
@@ -2416,11 +2337,7 @@ namespace Microsoft.EntityFrameworkCore
             using (var context = CreateContext())
             {
                 var child = context.Attach(
-                    new Child
-                    {
-                        Id = 767,
-                        ParentId = 787
-                    }).Entity;
+                    new Child { Id = 767, ParentId = 787 }).Entity;
 
                 ClearLog();
 
@@ -2457,11 +2374,7 @@ namespace Microsoft.EntityFrameworkCore
             using (var context = CreateContext())
             {
                 var single = context.Attach(
-                    new Single
-                    {
-                        Id = 767,
-                        ParentId = 787
-                    }).Entity;
+                    new Single { Id = 767, ParentId = 787 }).Entity;
 
                 ClearLog();
 
@@ -2498,11 +2411,7 @@ namespace Microsoft.EntityFrameworkCore
             using (var context = CreateContext())
             {
                 var parent = context.Attach(
-                    new Parent
-                    {
-                        Id = 767,
-                        AlternateId = "NewRoot"
-                    }).Entity;
+                    new Parent { Id = 767, AlternateId = "NewRoot" }).Entity;
 
                 ClearLog();
 
@@ -2641,7 +2550,8 @@ namespace Microsoft.EntityFrameworkCore
         [InlineData(EntityState.Modified, false, CascadeTiming.OnSaveChanges)]
         [InlineData(EntityState.Deleted, true, CascadeTiming.OnSaveChanges)]
         [InlineData(EntityState.Deleted, false, CascadeTiming.OnSaveChanges)]
-        public virtual async Task Load_one_to_one_reference_to_principal_already_loaded(EntityState state, bool async, CascadeTiming deleteOrphansTiming)
+        public virtual async Task Load_one_to_one_reference_to_principal_already_loaded(
+            EntityState state, bool async, CascadeTiming deleteOrphansTiming)
         {
             using (var context = CreateContext())
             {
@@ -2692,7 +2602,8 @@ namespace Microsoft.EntityFrameworkCore
         [InlineData(EntityState.Modified, false, CascadeTiming.OnSaveChanges)]
         [InlineData(EntityState.Deleted, true, CascadeTiming.OnSaveChanges)]
         [InlineData(EntityState.Deleted, false, CascadeTiming.OnSaveChanges)]
-        public virtual async Task Load_one_to_one_reference_to_dependent_already_loaded(EntityState state, bool async, CascadeTiming deleteOrphansTiming)
+        public virtual async Task Load_one_to_one_reference_to_dependent_already_loaded(
+            EntityState state, bool async, CascadeTiming deleteOrphansTiming)
         {
             using (var context = CreateContext())
             {
@@ -2838,7 +2749,8 @@ namespace Microsoft.EntityFrameworkCore
         [InlineData(EntityState.Modified, false, CascadeTiming.OnSaveChanges)]
         [InlineData(EntityState.Deleted, true, CascadeTiming.OnSaveChanges)]
         [InlineData(EntityState.Deleted, false, CascadeTiming.OnSaveChanges)]
-        public virtual async Task Load_collection_using_Query_already_loaded(EntityState state, bool async, CascadeTiming deleteOrphansTiming)
+        public virtual async Task Load_collection_using_Query_already_loaded(
+            EntityState state, bool async, CascadeTiming deleteOrphansTiming)
         {
             using (var context = CreateContext())
             {
@@ -2958,7 +2870,8 @@ namespace Microsoft.EntityFrameworkCore
         [InlineData(EntityState.Modified, false, CascadeTiming.OnSaveChanges)]
         [InlineData(EntityState.Deleted, true, CascadeTiming.OnSaveChanges)]
         [InlineData(EntityState.Deleted, false, CascadeTiming.OnSaveChanges)]
-        public virtual async Task Load_one_to_one_reference_to_dependent_using_Query_already_loaded(EntityState state, bool async, CascadeTiming deleteOrphansTiming)
+        public virtual async Task Load_one_to_one_reference_to_dependent_using_Query_already_loaded(
+            EntityState state, bool async, CascadeTiming deleteOrphansTiming)
         {
             using (var context = CreateContext())
             {
@@ -3399,11 +3312,7 @@ namespace Microsoft.EntityFrameworkCore
             using (var context = CreateContext())
             {
                 var parent = context.Attach(
-                    new Parent
-                    {
-                        Id = 767,
-                        AlternateId = "NewRoot"
-                    }).Entity;
+                    new Parent { Id = 767, AlternateId = "NewRoot" }).Entity;
 
                 ClearLog();
 
@@ -3443,11 +3352,7 @@ namespace Microsoft.EntityFrameworkCore
             using (var context = CreateContext())
             {
                 var child = context.Attach(
-                    new Child
-                    {
-                        Id = 767,
-                        ParentId = 787
-                    }).Entity;
+                    new Child { Id = 767, ParentId = 787 }).Entity;
 
                 ClearLog();
 
@@ -3487,11 +3392,7 @@ namespace Microsoft.EntityFrameworkCore
             using (var context = CreateContext())
             {
                 var single = context.Attach(
-                    new Single
-                    {
-                        Id = 767,
-                        ParentId = 787
-                    }).Entity;
+                    new Single { Id = 767, ParentId = 787 }).Entity;
 
                 ClearLog();
 
@@ -3532,11 +3433,7 @@ namespace Microsoft.EntityFrameworkCore
             using (var context = CreateContext())
             {
                 var parent = context.Attach(
-                    new Parent
-                    {
-                        Id = 767,
-                        AlternateId = "NewRoot"
-                    }).Entity;
+                    new Parent { Id = 767, AlternateId = "NewRoot" }).Entity;
 
                 ClearLog();
 
@@ -3577,11 +3474,7 @@ namespace Microsoft.EntityFrameworkCore
             using (var context = CreateContext())
             {
                 var parent = context.Attach(
-                    new Parent
-                    {
-                        Id = 767,
-                        AlternateId = "NewRoot"
-                    }).Entity;
+                    new Parent { Id = 767, AlternateId = "NewRoot" }).Entity;
 
                 ClearLog();
 
@@ -3619,11 +3512,7 @@ namespace Microsoft.EntityFrameworkCore
             using (var context = CreateContext())
             {
                 var child = context.Attach(
-                    new Child
-                    {
-                        Id = 767,
-                        ParentId = 787
-                    }).Entity;
+                    new Child { Id = 767, ParentId = 787 }).Entity;
 
                 ClearLog();
 
@@ -3661,11 +3550,7 @@ namespace Microsoft.EntityFrameworkCore
             using (var context = CreateContext())
             {
                 var single = context.Attach(
-                    new Single
-                    {
-                        Id = 767,
-                        ParentId = 787
-                    }).Entity;
+                    new Single { Id = 767, ParentId = 787 }).Entity;
 
                 ClearLog();
 
@@ -3703,11 +3588,7 @@ namespace Microsoft.EntityFrameworkCore
             using (var context = CreateContext())
             {
                 var parent = context.Attach(
-                    new Parent
-                    {
-                        Id = 767,
-                        AlternateId = "NewRoot"
-                    }).Entity;
+                    new Parent { Id = 767, AlternateId = "NewRoot" }).Entity;
 
                 ClearLog();
 
@@ -3890,7 +3771,8 @@ namespace Microsoft.EntityFrameworkCore
         [InlineData(EntityState.Modified, false, CascadeTiming.OnSaveChanges)]
         [InlineData(EntityState.Deleted, true, CascadeTiming.OnSaveChanges)]
         [InlineData(EntityState.Deleted, false, CascadeTiming.OnSaveChanges)]
-        public virtual async Task Load_one_to_one_reference_to_dependent_already_loaded_untyped(EntityState state, bool async, CascadeTiming deleteOrphansTiming)
+        public virtual async Task Load_one_to_one_reference_to_dependent_already_loaded_untyped(
+            EntityState state, bool async, CascadeTiming deleteOrphansTiming)
         {
             using (var context = CreateContext())
             {
@@ -3950,7 +3832,8 @@ namespace Microsoft.EntityFrameworkCore
         [InlineData(EntityState.Modified, false, CascadeTiming.OnSaveChanges)]
         [InlineData(EntityState.Deleted, true, CascadeTiming.OnSaveChanges)]
         [InlineData(EntityState.Deleted, false, CascadeTiming.OnSaveChanges)]
-        public virtual async Task Load_collection_using_Query_already_loaded_untyped(EntityState state, bool async, CascadeTiming deleteOrphansTiming)
+        public virtual async Task Load_collection_using_Query_already_loaded_untyped(
+            EntityState state, bool async, CascadeTiming deleteOrphansTiming)
         {
             using (var context = CreateContext())
             {
@@ -4073,7 +3956,8 @@ namespace Microsoft.EntityFrameworkCore
         [InlineData(EntityState.Modified, false, CascadeTiming.OnSaveChanges)]
         [InlineData(EntityState.Deleted, true, CascadeTiming.OnSaveChanges)]
         [InlineData(EntityState.Deleted, false, CascadeTiming.OnSaveChanges)]
-        public virtual async Task Load_one_to_one_reference_to_dependent_using_Query_already_loaded_untyped(EntityState state, bool async, CascadeTiming deleteOrphansTiming)
+        public virtual async Task Load_one_to_one_reference_to_dependent_using_Query_already_loaded_untyped(
+            EntityState state, bool async, CascadeTiming deleteOrphansTiming)
         {
             using (var context = CreateContext())
             {
@@ -4439,11 +4323,7 @@ namespace Microsoft.EntityFrameworkCore
             using (var context = CreateContext())
             {
                 var child = context.Attach(
-                    new ChildAk
-                    {
-                        Id = 767,
-                        ParentId = null
-                    }).Entity;
+                    new ChildAk { Id = 767, ParentId = null }).Entity;
 
                 ClearLog();
 
@@ -4483,11 +4363,7 @@ namespace Microsoft.EntityFrameworkCore
             using (var context = CreateContext())
             {
                 var single = context.Attach(
-                    new SingleAk
-                    {
-                        Id = 767,
-                        ParentId = null
-                    }).Entity;
+                    new SingleAk { Id = 767, ParentId = null }).Entity;
 
                 ClearLog();
 
@@ -4528,11 +4404,7 @@ namespace Microsoft.EntityFrameworkCore
             using (var context = CreateContext())
             {
                 var child = context.Attach(
-                    new ChildAk
-                    {
-                        Id = 767,
-                        ParentId = null
-                    }).Entity;
+                    new ChildAk { Id = 767, ParentId = null }).Entity;
 
                 ClearLog();
 
@@ -4569,11 +4441,7 @@ namespace Microsoft.EntityFrameworkCore
             using (var context = CreateContext())
             {
                 var single = context.Attach(
-                    new SingleAk
-                    {
-                        Id = 767,
-                        ParentId = null
-                    }).Entity;
+                    new SingleAk { Id = 767, ParentId = null }).Entity;
 
                 ClearLog();
 
@@ -4929,10 +4797,7 @@ namespace Microsoft.EntityFrameworkCore
             using (var context = CreateContext())
             {
                 var child = context.Attach(
-                    new ChildShadowFk
-                    {
-                        Id = 767
-                    }).Entity;
+                    new ChildShadowFk { Id = 767 }).Entity;
 
                 ClearLog();
 
@@ -4972,10 +4837,7 @@ namespace Microsoft.EntityFrameworkCore
             using (var context = CreateContext())
             {
                 var single = context.Attach(
-                    new SingleShadowFk
-                    {
-                        Id = 767
-                    }).Entity;
+                    new SingleShadowFk { Id = 767 }).Entity;
 
                 ClearLog();
 
@@ -5016,10 +4878,7 @@ namespace Microsoft.EntityFrameworkCore
             using (var context = CreateContext())
             {
                 var child = context.Attach(
-                    new ChildShadowFk
-                    {
-                        Id = 767
-                    }).Entity;
+                    new ChildShadowFk { Id = 767 }).Entity;
 
                 ClearLog();
 
@@ -5056,10 +4915,7 @@ namespace Microsoft.EntityFrameworkCore
             using (var context = CreateContext())
             {
                 var single = context.Attach(
-                    new SingleShadowFk
-                    {
-                        Id = 767
-                    }).Entity;
+                    new SingleShadowFk { Id = 767 }).Entity;
 
                 ClearLog();
 
@@ -5415,11 +5271,7 @@ namespace Microsoft.EntityFrameworkCore
             using (var context = CreateContext())
             {
                 var child = context.Attach(
-                    new ChildCompositeKey
-                    {
-                        Id = 767,
-                        ParentId = 567
-                    }).Entity;
+                    new ChildCompositeKey { Id = 767, ParentId = 567 }).Entity;
 
                 ClearLog();
 
@@ -5459,11 +5311,7 @@ namespace Microsoft.EntityFrameworkCore
             using (var context = CreateContext())
             {
                 var single = context.Attach(
-                    new SingleCompositeKey
-                    {
-                        Id = 767,
-                        ParentAlternateId = "Boot"
-                    }).Entity;
+                    new SingleCompositeKey { Id = 767, ParentAlternateId = "Boot" }).Entity;
 
                 ClearLog();
 
@@ -5504,11 +5352,7 @@ namespace Microsoft.EntityFrameworkCore
             using (var context = CreateContext())
             {
                 var child = context.Attach(
-                    new ChildCompositeKey
-                    {
-                        Id = 767,
-                        ParentAlternateId = "Boot"
-                    }).Entity;
+                    new ChildCompositeKey { Id = 767, ParentAlternateId = "Boot" }).Entity;
 
                 ClearLog();
 
@@ -5545,11 +5389,7 @@ namespace Microsoft.EntityFrameworkCore
             using (var context = CreateContext())
             {
                 var single = context.Attach(
-                    new SingleCompositeKey
-                    {
-                        Id = 767,
-                        ParentId = 567
-                    }).Entity;
+                    new SingleCompositeKey { Id = 767, ParentId = 567 }).Entity;
 
                 ClearLog();
 
@@ -6672,32 +6512,16 @@ namespace Microsoft.EntityFrameworkCore
                         b.HasMany(e => e.ChildrenCompositeKey)
                             .WithOne(e => e.Parent)
                             .HasPrincipalKey(
-                                e => new
-                                {
-                                    e.AlternateId,
-                                    e.Id
-                                })
+                                e => new { e.AlternateId, e.Id })
                             .HasForeignKey(
-                                e => new
-                                {
-                                    e.ParentAlternateId,
-                                    e.ParentId
-                                });
+                                e => new { e.ParentAlternateId, e.ParentId });
 
                         b.HasOne<SingleCompositeKey>(nameof(Parent.SingleCompositeKey))
                             .WithOne(e => e.Parent)
                             .HasPrincipalKey<Parent>(
-                                e => new
-                                {
-                                    e.AlternateId,
-                                    e.Id
-                                })
+                                e => new { e.AlternateId, e.Id })
                             .HasForeignKey<SingleCompositeKey>(
-                                e => new
-                                {
-                                    e.ParentAlternateId,
-                                    e.ParentId
-                                });
+                                e => new { e.ParentAlternateId, e.ParentId });
                     });
 
                 modelBuilder.Entity<RootClass>();
@@ -6716,77 +6540,22 @@ namespace Microsoft.EntityFrameworkCore
                     {
                         Id = 707,
                         AlternateId = "Root",
-                        Children = new List<Child>
-                        {
-                            new Child
-                            {
-                                Id = 11
-                            },
-                            new Child
-                            {
-                                Id = 12
-                            }
-                        },
-                        SinglePkToPk = new SinglePkToPk
-                        {
-                            Id = 707
-                        },
-                        Single = new Single
-                        {
-                            Id = 21
-                        },
-                        ChildrenAk = new List<ChildAk>
-                        {
-                            new ChildAk
-                            {
-                                Id = 31
-                            },
-                            new ChildAk
-                            {
-                                Id = 32
-                            }
-                        },
-                        SingleAk = new SingleAk
-                        {
-                            Id = 42
-                        },
-                        ChildrenShadowFk = new List<ChildShadowFk>
-                        {
-                            new ChildShadowFk
-                            {
-                                Id = 51
-                            },
-                            new ChildShadowFk
-                            {
-                                Id = 52
-                            }
-                        },
-                        SingleShadowFk = new SingleShadowFk
-                        {
-                            Id = 62
-                        },
+                        Children = new List<Child> { new Child { Id = 11 }, new Child { Id = 12 } },
+                        SinglePkToPk = new SinglePkToPk { Id = 707 },
+                        Single = new Single { Id = 21 },
+                        ChildrenAk = new List<ChildAk> { new ChildAk { Id = 31 }, new ChildAk { Id = 32 } },
+                        SingleAk = new SingleAk { Id = 42 },
+                        ChildrenShadowFk = new List<ChildShadowFk> { new ChildShadowFk { Id = 51 }, new ChildShadowFk { Id = 52 } },
+                        SingleShadowFk = new SingleShadowFk { Id = 62 },
                         ChildrenCompositeKey = new List<ChildCompositeKey>
                         {
-                            new ChildCompositeKey
-                            {
-                                Id = 51
-                            },
-                            new ChildCompositeKey
-                            {
-                                Id = 52
-                            }
+                            new ChildCompositeKey { Id = 51 }, new ChildCompositeKey { Id = 52 }
                         },
-                        SingleCompositeKey = new SingleCompositeKey
-                        {
-                            Id = 62
-                        }
+                        SingleCompositeKey = new SingleCompositeKey { Id = 62 }
                     });
 
                 context.Add(
-                    new SimpleProduct
-                    {
-                        Deposit = new Deposit()
-                    });
+                    new SimpleProduct { Deposit = new Deposit() });
 
                 context.SaveChanges();
             }

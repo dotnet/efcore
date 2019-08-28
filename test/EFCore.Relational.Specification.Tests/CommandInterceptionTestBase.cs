@@ -1364,7 +1364,7 @@ namespace Microsoft.EntityFrameworkCore
             var injectedInterceptor1 = new MutatingReaderCommandInterceptor();
             var injectedInterceptor2 = new ResultReplacingReaderCommandInterceptor();
 
-            using (var context = CreateContext(null,injectedInterceptor1, injectedInterceptor2))
+            using (var context = CreateContext(null, injectedInterceptor1, injectedInterceptor2))
             {
                 await TestCompoisteQueryInterceptors(context, injectedInterceptor2, injectedInterceptor1, async);
             }
@@ -1402,10 +1402,7 @@ namespace Microsoft.EntityFrameworkCore
         public virtual async Task Intercept_query_with_explicitly_composed_app_interceptor(bool async)
         {
             using (var context = CreateContext(
-                new IInterceptor[]
-                {
-                    new MutatingReaderCommandInterceptor(), new ResultReplacingReaderCommandInterceptor()
-                }))
+                new IInterceptor[] { new MutatingReaderCommandInterceptor(), new ResultReplacingReaderCommandInterceptor() }))
             {
                 var results = async
                     ? await context.Set<Singularity>().ToListAsync()
@@ -1436,10 +1433,7 @@ namespace Microsoft.EntityFrameworkCore
         public virtual async Task Intercept_scalar_with_explicitly_composed_app_interceptor(bool async)
         {
             using (var context = CreateContext(
-                new IInterceptor[]
-                {
-                    new MutatingScalarCommandInterceptor(), new ResultReplacingScalarCommandInterceptor()
-                }))
+                new IInterceptor[] { new MutatingScalarCommandInterceptor(), new ResultReplacingScalarCommandInterceptor() }))
             {
                 await TestCompositeScalarInterceptors(context, async);
             }
@@ -1451,10 +1445,7 @@ namespace Microsoft.EntityFrameworkCore
         public virtual async Task Intercept_non_query_with_explicitly_composed_app_interceptor(bool async)
         {
             using (var context = CreateContext(
-                new IInterceptor[]
-                {
-                    new MutatingNonQueryCommandInterceptor(), new ResultReplacingNonQueryCommandInterceptor()
-                }))
+                new IInterceptor[] { new MutatingNonQueryCommandInterceptor(), new ResultReplacingNonQueryCommandInterceptor() }))
             {
                 await TestCompositeNonQueryInterceptors(context, async);
             }
@@ -1470,42 +1461,51 @@ namespace Microsoft.EntityFrameworkCore
             public override int ExecuteNonQuery() => _command.ExecuteNonQuery();
             public override object ExecuteScalar() => _command.ExecuteScalar();
             public override void Prepare() => _command.Prepare();
+
             public override string CommandText
             {
                 get => _command.CommandText;
                 set => _command.CommandText = value;
             }
+
             public override int CommandTimeout
             {
                 get => _command.CommandTimeout;
                 set => _command.CommandTimeout = value;
             }
+
             public override CommandType CommandType
             {
                 get => _command.CommandType;
                 set => _command.CommandType = value;
             }
+
             public override UpdateRowSource UpdatedRowSource
             {
                 get => _command.UpdatedRowSource;
                 set => _command.UpdatedRowSource = value;
             }
+
             protected override DbConnection DbConnection
             {
                 get => _command.Connection;
                 set => _command.Connection = value;
             }
+
             protected override DbParameterCollection DbParameterCollection => _command.Parameters;
+
             protected override DbTransaction DbTransaction
             {
                 get => _command.Transaction;
                 set => _command.Transaction = value;
             }
+
             public override bool DesignTimeVisible
             {
                 get => _command.DesignTimeVisible;
                 set => _command.DesignTimeVisible = value;
             }
+
             protected override DbParameter CreateDbParameter() => _command.CreateParameter();
             protected override DbDataReader ExecuteDbDataReader(CommandBehavior behavior) => _command.ExecuteReader();
         }
@@ -1514,15 +1514,9 @@ namespace Microsoft.EntityFrameworkCore
         {
             private int _index;
 
-            private readonly int[] _ints =
-            {
-                977, 988, 999
-            };
+            private readonly int[] _ints = { 977, 988, 999 };
 
-            private readonly string[] _strings =
-            {
-                "<977>", "<988>", "<999>"
-            };
+            private readonly string[] _strings = { "<977>", "<988>", "<999>" };
 
             public override bool Read()
                 => _index++ < _ints.Length;

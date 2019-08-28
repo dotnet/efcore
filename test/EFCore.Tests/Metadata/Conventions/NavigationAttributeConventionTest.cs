@@ -344,9 +344,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 nav => nav.Name == nameof(AmbiguousDependent.AnotherAmbiguousPrincipal));
 
             var convention = new InversePropertyAttributeConvention(CreateDependencies(CreateLogger()));
-            convention.ProcessEntityTypeAdded(dependentEntityTypeBuilder,
+            convention.ProcessEntityTypeAdded(
+                dependentEntityTypeBuilder,
                 new ConventionContext<IConventionEntityTypeBuilder>(
-                dependentEntityTypeBuilder.Metadata.Model.ConventionDispatcher));
+                    dependentEntityTypeBuilder.Metadata.Model.ConventionDispatcher));
 
             Assert.DoesNotContain(
                 principalEntityTypeBuilder.Metadata.GetNavigations(),
@@ -388,9 +389,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             Assert.Contains(dependentEntityTypeBuilder.Metadata.GetNavigations(), nav => nav.Name == nameof(Dependent.Principal));
 
             var convention = new InversePropertyAttributeConvention(CreateDependencies(CreateLogger()));
-            convention.ProcessEntityTypeAdded(dependentEntityTypeBuilder,
+            convention.ProcessEntityTypeAdded(
+                dependentEntityTypeBuilder,
                 new ConventionContext<IConventionEntityTypeBuilder>(
-                dependentEntityTypeBuilder.Metadata.Model.ConventionDispatcher));
+                    dependentEntityTypeBuilder.Metadata.Model.ConventionDispatcher));
 
             var logEntry = ListLoggerFactory.Log.Single();
             Assert.Equal(LogLevel.Warning, logEntry.Level);
@@ -421,17 +423,19 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             Assert.DoesNotContain(dependentEntityTypeBuilder.Metadata.GetNavigations(), nav => nav.Name == nameof(Dependent.Principal));
 
             var convention = new InversePropertyAttributeConvention(CreateDependencies(CreateLogger()));
-            convention.ProcessEntityTypeAdded(dependentEntityTypeBuilder,
+            convention.ProcessEntityTypeAdded(
+                dependentEntityTypeBuilder,
                 new ConventionContext<IConventionEntityTypeBuilder>(
-                dependentEntityTypeBuilder.Metadata.Model.ConventionDispatcher));
+                    dependentEntityTypeBuilder.Metadata.Model.ConventionDispatcher));
 
             Assert.Contains(principalEntityTypeBuilder.Metadata.GetNavigations(), nav => nav.Name == nameof(Principal.Dependents));
             Assert.DoesNotContain(principalEntityTypeBuilder.Metadata.GetNavigations(), nav => nav.Name == nameof(Principal.Dependent));
             Assert.DoesNotContain(dependentEntityTypeBuilder.Metadata.GetNavigations(), nav => nav.Name == nameof(Dependent.Principal));
 
-            convention.ProcessModelFinalized(dependentEntityTypeBuilder.ModelBuilder,
+            convention.ProcessModelFinalized(
+                dependentEntityTypeBuilder.ModelBuilder,
                 new ConventionContext<IConventionModelBuilder>(
-                dependentEntityTypeBuilder.Metadata.Model.ConventionDispatcher));
+                    dependentEntityTypeBuilder.Metadata.Model.ConventionDispatcher));
 
             var logEntry = ListLoggerFactory.Log.Single();
             Assert.Equal(LogLevel.Warning, logEntry.Level);
@@ -506,10 +510,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                     ConfigurationSource.Convention)
                 .HasForeignKey(
                     dependentEntityTypeBuilder.GetOrCreateProperties(
-                        new List<PropertyInfo>
-                        {
-                            Dependent.PrincipalIdProperty
-                        }, ConfigurationSource.Convention),
+                        new List<PropertyInfo> { Dependent.PrincipalIdProperty }, ConfigurationSource.Convention),
                     ConfigurationSource.Convention);
 
             Assert.Equal("PrincipalId", relationshipBuilder.Metadata.Properties.First().Name);
@@ -533,10 +534,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                     ConfigurationSource.Convention)
                 .HasForeignKey(
                     dependentEntityTypeBuilder.GetOrCreateProperties(
-                        new List<PropertyInfo>
-                        {
-                            Dependent.PrincipalIdProperty
-                        }, ConfigurationSource.Convention),
+                        new List<PropertyInfo> { Dependent.PrincipalIdProperty }, ConfigurationSource.Convention),
                     ConfigurationSource.Explicit);
 
             Assert.Equal("PrincipalId", relationshipBuilder.Metadata.Properties.First().Name);
@@ -560,10 +558,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                     ConfigurationSource.Convention)
                 .HasForeignKey(
                     dependentEntityTypeBuilder.GetOrCreateProperties(
-                        new List<PropertyInfo>
-                        {
-                            Dependent.PrincipalIdProperty
-                        }, ConfigurationSource.Convention),
+                        new List<PropertyInfo> { Dependent.PrincipalIdProperty }, ConfigurationSource.Convention),
                     ConfigurationSource.Convention);
 
             Assert.Equal("PrincipalId", relationshipBuilder.Metadata.Properties.First().Name);
@@ -587,10 +582,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                     ConfigurationSource.Convention)
                 .HasForeignKey(
                     dependentEntityTypeBuilder.GetOrCreateProperties(
-                        new List<PropertyInfo>
-                        {
-                            Dependent.PrincipalIdProperty
-                        }, ConfigurationSource.Convention),
+                        new List<PropertyInfo> { Dependent.PrincipalIdProperty }, ConfigurationSource.Convention),
                     ConfigurationSource.Convention);
 
             Assert.Equal("PrincipalId", relationshipBuilder.Metadata.Properties.First().Name);
@@ -614,10 +606,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                     ConfigurationSource.Convention)
                 .HasForeignKey(
                     dependentEntityTypeBuilder.GetOrCreateProperties(
-                        new List<PropertyInfo>
-                        {
-                            Dependent.PrincipalIdProperty
-                        }, ConfigurationSource.Convention),
+                        new List<PropertyInfo> { Dependent.PrincipalIdProperty }, ConfigurationSource.Convention),
                     ConfigurationSource.Convention);
 
             Assert.Equal("PrincipalId", relationshipBuilder.Metadata.Properties.First().Name);
@@ -641,10 +630,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                     ConfigurationSource.Convention)
                 .HasForeignKey(
                     dependentEntityTypeBuilder.GetOrCreateProperties(
-                        new List<PropertyInfo>
-                        {
-                            DependentField.PrincipalIdProperty
-                        }, ConfigurationSource.Convention),
+                        new List<PropertyInfo> { DependentField.PrincipalIdProperty }, ConfigurationSource.Convention),
                     ConfigurationSource.Convention);
 
             Assert.Equal("PrincipalFieldId", relationshipBuilder.Metadata.Properties.First().Name);
@@ -668,10 +654,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                     ConfigurationSource.Convention)
                 .HasForeignKey(
                     dependentEntityTypeBuilder.GetOrCreateProperties(
-                        new List<PropertyInfo>
-                        {
-                            Principal.DependentIdProperty
-                        }, ConfigurationSource.Convention),
+                        new List<PropertyInfo> { Principal.DependentIdProperty }, ConfigurationSource.Convention),
                     ConfigurationSource.Convention);
 
             Assert.Equal("DependentId", relationshipBuilder.Metadata.Properties.First().Name);
@@ -699,10 +682,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                     ConfigurationSource.Convention)
                 .HasForeignKey(
                     dependentEntityTypeBuilder.GetOrCreateProperties(
-                        new List<PropertyInfo>
-                        {
-                            Dependent.PrincipalIdProperty
-                        }, ConfigurationSource.Convention),
+                        new List<PropertyInfo> { Dependent.PrincipalIdProperty }, ConfigurationSource.Convention),
                     ConfigurationSource.Convention);
 
             Assert.Equal("PrincipalId", relationshipBuilder.Metadata.Properties.First().Name);
@@ -904,7 +884,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         }
 
         private static ProviderConventionSetBuilderDependencies CreateDependencies(DiagnosticsLogger<DbLoggerCategory.Model> logger)
-            => InMemoryTestHelpers.Instance.CreateContextServices().GetRequiredService<ProviderConventionSetBuilderDependencies>().With(logger);
+            => InMemoryTestHelpers.Instance.CreateContextServices().GetRequiredService<ProviderConventionSetBuilderDependencies>()
+                .With(logger);
 
         private DiagnosticsLogger<DbLoggerCategory.Model> CreateLogger()
         {

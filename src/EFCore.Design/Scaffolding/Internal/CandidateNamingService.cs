@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -76,7 +76,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
             return allForeignKeysBetweenDependentAndPrincipal?.Count() > 1
                 ? foreignKey.DeclaringEntityType.ShortName()
-                       + dependentEndNavigationPropertyName
+                  + dependentEndNavigationPropertyName
                 : foreignKey.DeclaringEntityType.ShortName();
         }
 
@@ -157,8 +157,8 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         private static string StripId(string commonPrefix)
         {
             return commonPrefix.Length > 2
-                && commonPrefix.EndsWith("id", StringComparison.OrdinalIgnoreCase)
-                ? commonPrefix[0..^2]
+                   && commonPrefix.EndsWith("id", StringComparison.OrdinalIgnoreCase)
+                ? commonPrefix[..^2]
                 : commonPrefix;
         }
     }

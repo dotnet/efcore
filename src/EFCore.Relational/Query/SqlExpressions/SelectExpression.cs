@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -15,6 +15,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
     {
         private IDictionary<ProjectionMember, Expression> _projectionMapping = new Dictionary<ProjectionMember, Expression>();
         private readonly List<ProjectionExpression> _projection = new List<ProjectionExpression>();
+
         private readonly IDictionary<EntityProjectionExpression, IDictionary<IProperty, int>> _entityProjectionCache
             = new Dictionary<EntityProjectionExpression, IDictionary<IProperty, int>>();
 
@@ -57,18 +58,20 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         }
 
         internal SelectExpression(IEntityType entityType)
-            : this(entityType, new TableExpression(
-                entityType.GetTableName(),
-                entityType.GetSchema(),
-                entityType.GetTableName().ToLower().Substring(0, 1)))
+            : this(
+                entityType, new TableExpression(
+                    entityType.GetTableName(),
+                    entityType.GetSchema(),
+                    entityType.GetTableName().ToLower().Substring(0, 1)))
         {
         }
 
         internal SelectExpression(IEntityType entityType, string sql, Expression arguments)
-            : this(entityType, new FromSqlExpression(
-                sql,
-                arguments,
-                entityType.GetTableName().ToLower().Substring(0, 1)))
+            : this(
+                entityType, new FromSqlExpression(
+                    sql,
+                    arguments,
+                    entityType.GetTableName().ToLower().Substring(0, 1)))
         {
         }
 
@@ -91,15 +94,15 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 
         public bool IsNonComposedFromSql()
             => Limit == null
-                && Offset == null
-                && !IsDistinct
-                && Predicate == null
-                && GroupBy.Count == 0
-                && Having == null
-                && Orderings.Count == 0
-                && Tables.Count == 1
-                && Tables[0] is FromSqlExpression fromSql
-                && Projection.All(pe => pe.Expression is ColumnExpression column ? ReferenceEquals(column.Table, fromSql) : false);
+               && Offset == null
+               && !IsDistinct
+               && Predicate == null
+               && GroupBy.Count == 0
+               && Having == null
+               && Orderings.Count == 0
+               && Tables.Count == 1
+               && Tables[0] is FromSqlExpression fromSql
+               && Projection.All(pe => pe.Expression is ColumnExpression column ? ReferenceEquals(column.Table, fromSql) : false);
 
         public void ApplyProjection()
         {
@@ -119,12 +122,14 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                     {
                         map[property] = AddToProjection(entityProjection.BindProperty(property));
                     }
+
                     result[keyValuePair.Key] = Constant(map);
                 }
                 else
                 {
-                    result[keyValuePair.Key] = Constant(AddToProjection(
-                        (SqlExpression)keyValuePair.Value, keyValuePair.Key.Last?.Name));
+                    result[keyValuePair.Key] = Constant(
+                        AddToProjection(
+                            (SqlExpression)keyValuePair.Value, keyValuePair.Key.Last?.Name));
                 }
             }
 
@@ -159,7 +164,8 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 
             var baseAlias = alias ?? (sqlExpression as ColumnExpression)?.Name ?? (Alias != null ? "c" : null);
             var currentAlias = baseAlias ?? "";
-            if (Alias != null && baseAlias != null)
+            if (Alias != null
+                && baseAlias != null)
             {
                 var counter = 0;
                 while (_projection.Any(pe => string.Equals(pe.Alias, currentAlias, StringComparison.OrdinalIgnoreCase)))
@@ -191,7 +197,10 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 
         public void PrepareForAggregate()
         {
-            if (IsDistinct || Limit != null || Offset != null || GroupBy.Count > 0)
+            if (IsDistinct
+                || Limit != null
+                || Offset != null
+                || GroupBy.Count > 0)
             {
                 PushdownIntoSubquery();
             }
@@ -205,7 +214,8 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                 return;
             }
 
-            if (Limit != null || Offset != null)
+            if (Limit != null
+                || Offset != null)
             {
                 expression = new SqlRemappingVisitor(PushdownIntoSubquery(), (SelectExpression)Tables[0]).Remap(expression);
             }
@@ -251,6 +261,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                     {
                         _groupBy.Add(sqlExpression);
                     }
+
                     break;
 
                 case NewExpression newExpression:
@@ -258,6 +269,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                     {
                         AppendGroupBy(argument);
                     }
+
                     break;
 
                 case MemberInitExpression memberInitExpression:
@@ -266,11 +278,12 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                     {
                         AppendGroupBy(((MemberAssignment)argument).Expression);
                     }
+
                     break;
 
                 case UnaryExpression unaryExpression
-                when unaryExpression.NodeType == ExpressionType.Convert
-                    || unaryExpression.NodeType == ExpressionType.ConvertChecked:
+                    when unaryExpression.NodeType == ExpressionType.Convert
+                         || unaryExpression.NodeType == ExpressionType.ConvertChecked:
                     AppendGroupBy(unaryExpression.Operand);
                     break;
 
@@ -279,14 +292,15 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             }
         }
 
-
         public void ApplyOrdering(OrderingExpression orderingExpression)
         {
-            if (IsDistinct || Limit != null || Offset != null)
+            if (IsDistinct
+                || Limit != null
+                || Offset != null)
             {
                 orderingExpression = orderingExpression.Update(
                     new SqlRemappingVisitor(PushdownIntoSubquery(), (SelectExpression)Tables[0])
-                    .Remap(orderingExpression.Expression));
+                        .Remap(orderingExpression.Expression));
             }
 
             _orderings.Clear();
@@ -313,7 +327,8 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 
         public void ApplyOffset(SqlExpression sqlExpression)
         {
-            if (Limit != null || Offset != null)
+            if (Limit != null
+                || Offset != null)
             {
                 PushdownIntoSubquery();
             }
@@ -344,7 +359,8 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 
         public void ApplyDistinct()
         {
-            if (Limit != null || Offset != null)
+            if (Limit != null
+                || Offset != null)
             {
                 PushdownIntoSubquery();
             }
@@ -416,8 +432,10 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 
         public void ApplyExcept(SelectExpression source2, bool distinct)
             => ApplySetOperation(SetOperationType.Except, source2, distinct);
+
         public void ApplyIntersect(SelectExpression source2, bool distinct)
             => ApplySetOperation(SetOperationType.Intersect, source2, distinct);
+
         public void ApplyUnion(SelectExpression source2, bool distinct)
             => ApplySetOperation(SetOperationType.Union, source2, distinct);
 
@@ -450,56 +468,57 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                 _ => throw new InvalidOperationException($"Invalid {nameof(setOperationType)}: {setOperationType}")
             });
 
-            if (_projection.Any() || select2._projection.Any())
+            if (_projection.Any()
+                || select2._projection.Any())
             {
                 throw new InvalidOperationException(
                     "Can't process set operations after client evaluation, consider moving the operation" +
                     " before the last Select() call (see issue #16243)");
             }
-            else
+
+            if (select1._projectionMapping.Count != select2._projectionMapping.Count)
             {
-                if (select1._projectionMapping.Count != select2._projectionMapping.Count)
+                // Should not be possible after compiler checks
+                throw new InvalidOperationException("Different projection mapping count in set operation");
+            }
+
+            foreach (var joinedMapping in select1._projectionMapping.Join(
+                select2._projectionMapping,
+                kv => kv.Key,
+                kv => kv.Key,
+                (kv1, kv2) => (kv1.Key, Value1: kv1.Value, Value2: kv2.Value)))
+            {
+                if (joinedMapping.Value1 is EntityProjectionExpression entityProjection1
+                    && joinedMapping.Value2 is EntityProjectionExpression entityProjection2)
                 {
-                    // Should not be possible after compiler checks
-                    throw new InvalidOperationException("Different projection mapping count in set operation");
+                    handleEntityMapping(joinedMapping.Key, select1, entityProjection1, select2, entityProjection2);
+                    continue;
                 }
 
-                foreach (var joinedMapping in select1._projectionMapping.Join(
-                    select2._projectionMapping,
-                    kv => kv.Key,
-                    kv => kv.Key,
-                    (kv1, kv2) => (kv1.Key, Value1: kv1.Value, Value2: kv2.Value)))
+                if (joinedMapping.Value1 is SqlExpression innerColumn1
+                    && joinedMapping.Value2 is SqlExpression innerColumn2)
                 {
-                    if (joinedMapping.Value1 is EntityProjectionExpression entityProjection1
-                        && joinedMapping.Value2 is EntityProjectionExpression entityProjection2)
+                    // For now, make sure that both sides output the same store type, otherwise the query may fail.
+                    // TODO: with #15586 we'll be able to also allow different store types which are implicitly convertible to one another.
+                    if (innerColumn1.TypeMapping.StoreType != innerColumn2.TypeMapping.StoreType)
                     {
-                        handleEntityMapping(joinedMapping.Key, select1, entityProjection1, select2, entityProjection2);
-                        continue;
+                        throw new InvalidOperationException("Set operations over different store types are currently unsupported");
                     }
 
-                    if (joinedMapping.Value1 is SqlExpression innerColumn1
-                        && joinedMapping.Value2 is SqlExpression innerColumn2)
-                    {
-                        // For now, make sure that both sides output the same store type, otherwise the query may fail.
-                        // TODO: with #15586 we'll be able to also allow different store types which are implicitly convertible to one another.
-                        if (innerColumn1.TypeMapping.StoreType != innerColumn2.TypeMapping.StoreType)
-                        {
-                            throw new InvalidOperationException("Set operations over different store types are currently unsupported");
-                        }
+                    var alias = generateUniqueAlias(
+                        joinedMapping.Key.Last?.Name
+                        ?? (innerColumn1 as ColumnExpression)?.Name
+                        ?? "c");
 
-                        var alias = generateUniqueAlias(joinedMapping.Key.Last?.Name
-                            ?? (innerColumn1 as ColumnExpression)?.Name
-                            ?? "c");
-
-                        var innerProjection = new ProjectionExpression(innerColumn1, alias);
-                        select1._projection.Add(innerProjection);
-                        select2._projection.Add(new ProjectionExpression(innerColumn2, alias));
-                        _projectionMapping[joinedMapping.Key] = new ColumnExpression(innerProjection, setExpression);
-                        continue;
-                    }
-
-                    throw new InvalidOperationException($"Non-matching or unknown projection mapping type in set operation ({joinedMapping.Value1.GetType().Name} and {joinedMapping.Value2.GetType().Name})");
+                    var innerProjection = new ProjectionExpression(innerColumn1, alias);
+                    select1._projection.Add(innerProjection);
+                    select2._projection.Add(new ProjectionExpression(innerColumn2, alias));
+                    _projectionMapping[joinedMapping.Key] = new ColumnExpression(innerProjection, setExpression);
+                    continue;
                 }
+
+                throw new InvalidOperationException(
+                    $"Non-matching or unknown projection mapping type in set operation ({joinedMapping.Value1.GetType().Name} and {joinedMapping.Value2.GetType().Name})");
             }
 
             Offset = null;
@@ -519,7 +538,8 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             {
                 if (projection1.EntityType != projection2.EntityType)
                 {
-                    throw new InvalidOperationException("Set operations over different entity types are currently unsupported (see #16298)");
+                    throw new InvalidOperationException(
+                        "Set operations over different entity types are currently unsupported (see #16298)");
                 }
 
                 var propertyExpressions = new Dictionary<IProperty, ColumnExpression>();
@@ -578,7 +598,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                 Predicate = Predicate,
                 Having = Having,
                 Offset = Offset,
-                Limit = Limit,
+                Limit = Limit
             };
 
             var projectionMap = new Dictionary<SqlExpression, ColumnExpression>();
@@ -597,7 +617,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                 var newEntityProjection = new EntityProjectionExpression(entityProjection.EntityType, propertyExpressions);
                 // Also lift nested entity projections
                 foreach (var navigation in entityProjection.EntityType.GetTypesInHierarchy()
-                            .SelectMany(EntityTypeExtensions.GetDeclaredNavigations))
+                    .SelectMany(EntityTypeExtensions.GetDeclaredNavigations))
                 {
                     var boundEntityShaperExpression = entityProjection.BindNavigation(navigation);
                     if (boundEntityShaperExpression != null)
@@ -650,7 +670,8 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                 {
                     _identifier.Add(outerColumn);
                 }
-                else if (!IsDistinct && GroupBy.Count == 0)
+                else if (!IsDistinct
+                         && GroupBy.Count == 0)
                 {
                     outerColumn = subquery.GenerateOuterColumn(identifier);
                     _identifier.Add(outerColumn);
@@ -666,7 +687,8 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                 {
                     _childIdentifiers.Add(outerColumn);
                 }
-                else if (!IsDistinct && GroupBy.Count == 0)
+                else if (!IsDistinct
+                         && GroupBy.Count == 0)
                 {
                     outerColumn = subquery.GenerateOuterColumn(identifier);
                     _childIdentifiers.Add(outerColumn);
@@ -693,7 +715,8 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                 }
             }
 
-            if (subquery.Offset == null && subquery.Limit == null)
+            if (subquery.Offset == null
+                && subquery.Limit == null)
             {
                 subquery.ClearOrdering();
             }
@@ -780,7 +803,8 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                 || innerSelectExpression.Tables.Count > 1
                 || innerSelectExpression.GroupBy.Count > 1)
             {
-                var sqlRemappingVisitor = new SqlRemappingVisitor(innerSelectExpression.PushdownIntoSubquery(),
+                var sqlRemappingVisitor = new SqlRemappingVisitor(
+                    innerSelectExpression.PushdownIntoSubquery(),
                     (SelectExpression)innerSelectExpression.Tables[0]);
                 joinPredicate = sqlRemappingVisitor.Remap(joinPredicate);
             }
@@ -829,8 +853,8 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 
                 updatedExpressions.Add(
                     projectionBindingExpression.Type.IsValueType
-                    ? Convert(projectionBindingExpression, typeof(object))
-                    : (Expression)projectionBindingExpression);
+                        ? Convert(projectionBindingExpression, typeof(object))
+                        : (Expression)projectionBindingExpression);
             }
 
             return NewArrayInit(
@@ -904,7 +928,8 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             return null;
         }
 
-        private SqlExpression TryExtractJoinKey(SelectExpression selectExpression, SqlExpression predicate, out SqlExpression updatedPredicate)
+        private SqlExpression TryExtractJoinKey(
+            SelectExpression selectExpression, SqlExpression predicate, out SqlExpression updatedPredicate)
         {
             if (predicate is SqlBinaryExpression sqlBinaryExpression)
             {
@@ -1039,7 +1064,8 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             SqlExpression joinPredicate = null)
         {
             // Try to convert Apply to normal join
-            if (joinType == JoinType.CrossApply || joinType == JoinType.OuterApply)
+            if (joinType == JoinType.CrossApply
+                || joinType == JoinType.OuterApply)
             {
                 // Doing for limit only since limit + offset may need sum
                 var limit = innerSelectExpression.Limit;
@@ -1071,7 +1097,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                             var subquery = (SelectExpression)innerSelectExpression.Tables[0];
 
                             joinPredicate = new SqlRemappingVisitor(
-                                projectionMappings, subquery)
+                                    projectionMappings, subquery)
                                 .Remap(joinPredicate);
 
                             var outerColumn = subquery.GenerateOuterColumn(rowNumberExpression, "row");
@@ -1080,7 +1106,8 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                             innerSelectExpression.ApplyPredicate(predicate);
                         }
 
-                        AddJoin(joinType == JoinType.CrossApply ? JoinType.InnerJoin : JoinType.LeftJoin,
+                        AddJoin(
+                            joinType == JoinType.CrossApply ? JoinType.InnerJoin : JoinType.LeftJoin,
                             innerSelectExpression, transparentIdentifierType, joinPredicate);
                         return;
                     }
@@ -1092,7 +1119,10 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             }
 
             // Verify what are the cases of pushdown for inner & outer both sides
-            if (Limit != null || Offset != null || IsDistinct || GroupBy.Count > 0)
+            if (Limit != null
+                || Offset != null
+                || IsDistinct
+                || GroupBy.Count > 0)
             {
                 var sqlRemappingVisitor = new SqlRemappingVisitor(PushdownIntoSubquery(), (SelectExpression)Tables[0]);
                 innerSelectExpression = sqlRemappingVisitor.Remap(innerSelectExpression);
@@ -1108,7 +1138,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                 || innerSelectExpression.GroupBy.Count > 0)
             {
                 joinPredicate = new SqlRemappingVisitor(
-                    innerSelectExpression.PushdownIntoSubquery(), (SelectExpression)innerSelectExpression.Tables[0])
+                        innerSelectExpression.PushdownIntoSubquery(), (SelectExpression)innerSelectExpression.Tables[0])
                     .Remap(joinPredicate);
             }
 
@@ -1116,6 +1146,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             {
                 _identifier.AddRange(innerSelectExpression._identifier);
             }
+
             var innerTable = innerSelectExpression.Tables.Single();
             var joinTable = (TableExpressionBase)(joinType switch
             {
@@ -1154,6 +1185,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                             projectionToAdd = column.MakeNullable();
                         }
                     }
+
                     projectionMapping[projection.Key.Prepend(innerMemberInfo)] = projectionToAdd;
                 }
 
@@ -1195,11 +1227,11 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                 switch (expression)
                 {
                     case SqlExpression sqlExpression
-                    when _mappings.TryGetValue(sqlExpression, out var outer):
+                        when _mappings.TryGetValue(sqlExpression, out var outer):
                         return outer;
 
                     case ColumnExpression columnExpression
-                    when _subquery.ContainsTableReference(columnExpression.Table):
+                        when _subquery.ContainsTableReference(columnExpression.Table):
                         var index = _subquery.AddToProjection(columnExpression);
                         var projectionExpression = _subquery._projection[index];
                         return new ColumnExpression(projectionExpression, _subquery);
@@ -1243,8 +1275,9 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 
                 var groupBy = _groupBy.ToList();
                 _groupBy.Clear();
-                _groupBy.AddRange(GroupBy.Select(e => (SqlExpression)visitor.Visit(e))
-                    .Where(e => !(e is SqlConstantExpression || e is SqlParameterExpression)));
+                _groupBy.AddRange(
+                    GroupBy.Select(e => (SqlExpression)visitor.Visit(e))
+                        .Where(e => !(e is SqlConstantExpression || e is SqlParameterExpression)));
 
                 Having = (SqlExpression)visitor.Visit(Having);
 
@@ -1303,7 +1336,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                     var newGroupingKey = (SqlExpression)visitor.Visit(groupingKey);
                     changed |= newGroupingKey != groupingKey;
                     if (!(newGroupingKey is SqlConstantExpression
-                        || newGroupingKey is SqlParameterExpression))
+                          || newGroupingKey is SqlParameterExpression))
                     {
                         groupBy.Add(newGroupingKey);
                     }
@@ -1335,7 +1368,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                         Having = havingExpression,
                         Offset = offset,
                         Limit = limit,
-                        IsDistinct = IsDistinct,
+                        IsDistinct = IsDistinct
                     };
 
                     newSelectExpression._identifier.AddRange(_identifier);
@@ -1350,9 +1383,9 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 
         public override bool Equals(object obj)
             => obj != null
-            && (ReferenceEquals(this, obj)
-                || obj is SelectExpression selectExpression
-                    && Equals(selectExpression));
+               && (ReferenceEquals(this, obj)
+                   || obj is SelectExpression selectExpression
+                   && Equals(selectExpression));
 
         private bool Equals(SelectExpression selectExpression)
         {
@@ -1385,7 +1418,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             }
 
             if (!(Predicate == null && selectExpression.Predicate == null
-                || Predicate != null && Predicate.Equals(selectExpression.Predicate)))
+                  || Predicate != null && Predicate.Equals(selectExpression.Predicate)))
             {
                 return false;
             }
@@ -1401,7 +1434,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             }
 
             if (!(Having == null && selectExpression.Having == null
-                || Having != null && Predicate.Equals(selectExpression.Having)))
+                  || Having != null && Predicate.Equals(selectExpression.Having)))
             {
                 return false;
             }
@@ -1412,13 +1445,13 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             }
 
             if (!(Offset == null && selectExpression.Offset == null
-                || Offset != null && Offset.Equals(selectExpression.Offset)))
+                  || Offset != null && Offset.Equals(selectExpression.Offset)))
             {
                 return false;
             }
 
             if (!(Limit == null && selectExpression.Limit == null
-                || Limit != null && Limit.Equals(selectExpression.Limit)))
+                  || Limit != null && Limit.Equals(selectExpression.Limit)))
             {
                 return false;
             }
@@ -1452,7 +1485,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                 Having = havingExpression,
                 Offset = offset,
                 Limit = limit,
-                IsDistinct = distinct,
+                IsDistinct = distinct
             };
         }
 
@@ -1596,4 +1629,3 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         }
     }
 }
-

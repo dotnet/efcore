@@ -30,7 +30,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
 
             return errors;
-
         }
 
         /// <summary>

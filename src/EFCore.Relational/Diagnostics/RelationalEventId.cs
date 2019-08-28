@@ -155,7 +155,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
 
         /// <summary>
         ///     <para>
-        ///         A <see cref="DbCommand"/> is being created.
+        ///         A <see cref="DbCommand" /> is being created.
         ///     </para>
         ///     <para>
         ///         This event is in the <see cref="DbLoggerCategory.Database.Command" /> category.
@@ -168,7 +168,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
 
         /// <summary>
         ///     <para>
-        ///         A <see cref="DbCommand"/> has been created.
+        ///         A <see cref="DbCommand" /> has been created.
         ///     </para>
         ///     <para>
         ///         This event is in the <see cref="DbLoggerCategory.Database.Command" /> category.
@@ -522,7 +522,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///         This event uses the <see cref="ExpressionEventData" /> payload when used with a <see cref="DiagnosticSource" />.
         ///     </para>
         /// </summary>
-        public static readonly EventId QueryPossibleUnintendedUseOfEqualsWarning = MakeQueryId(Id.QueryPossibleUnintendedUseOfEqualsWarning);
+        public static readonly EventId QueryPossibleUnintendedUseOfEqualsWarning =
+            MakeQueryId(Id.QueryPossibleUnintendedUseOfEqualsWarning);
 
         /// <summary>
         ///     <para>
@@ -532,7 +533,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///         This event is in the <see cref="DbLoggerCategory.Query" /> category.
         ///     </para>
         /// </summary>
-        public static readonly EventId QueryPossibleExceptionWithAggregateOperatorWarning = MakeQueryId(Id.QueryPossibleExceptionWithAggregateOperatorWarning);
+        public static readonly EventId QueryPossibleExceptionWithAggregateOperatorWarning =
+            MakeQueryId(Id.QueryPossibleExceptionWithAggregateOperatorWarning);
 
         private static readonly string _validationPrefix = DbLoggerCategory.Model.Validation.Name + ".";
         private static EventId MakeValidationId(Id id) => new EventId((int)id, _validationPrefix + id);

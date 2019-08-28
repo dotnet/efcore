@@ -11,7 +11,6 @@ using Microsoft.EntityFrameworkCore.InMemory.Internal;
 using Microsoft.EntityFrameworkCore.InMemory.Metadata.Conventions;
 using Microsoft.EntityFrameworkCore.InMemory.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -76,11 +75,7 @@ namespace Microsoft.EntityFrameworkCore
         public async Task Save_changes_adds_new_objects_to_store()
         {
             var serviceProvider = InMemoryTestHelpers.Instance.CreateContextServices(CreateModel());
-            var customer = new Customer
-            {
-                Id = 42,
-                Name = "Unikorn"
-            };
+            var customer = new Customer { Id = 42, Name = "Unikorn" };
             var entityEntry = serviceProvider.GetRequiredService<IStateManager>().GetOrCreateEntry(customer);
             entityEntry.SetEntityState(EntityState.Added);
 
@@ -97,11 +92,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             var serviceProvider = InMemoryTestHelpers.Instance.CreateContextServices(CreateModel());
 
-            var customer = new Customer
-            {
-                Id = 42,
-                Name = "Unikorn"
-            };
+            var customer = new Customer { Id = 42, Name = "Unikorn" };
             var entityEntry = serviceProvider.GetRequiredService<IStateManager>().GetOrCreateEntry(customer);
             entityEntry.SetEntityState(EntityState.Added);
 
@@ -125,11 +116,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             var serviceProvider = InMemoryTestHelpers.Instance.CreateContextServices(CreateModel());
 
-            var customer = new Customer
-            {
-                Id = 42,
-                Name = "Unikorn"
-            };
+            var customer = new Customer { Id = 42, Name = "Unikorn" };
             var entityEntry = serviceProvider.GetRequiredService<IStateManager>().GetOrCreateEntry(customer);
             entityEntry.SetEntityState(EntityState.Added);
 
@@ -158,11 +145,7 @@ namespace Microsoft.EntityFrameworkCore
 
             var scopedServices = InMemoryTestHelpers.Instance.CreateContextServices(serviceCollection, CreateModel());
 
-            var customer = new Customer
-            {
-                Id = 42,
-                Name = "Unikorn"
-            };
+            var customer = new Customer { Id = 42, Name = "Unikorn" };
             var entityEntry = scopedServices.GetRequiredService<IStateManager>().GetOrCreateEntry(customer);
             entityEntry.SetEntityState(EntityState.Added);
 

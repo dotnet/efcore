@@ -3,7 +3,6 @@
 
 using System.Linq;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.TestModels.Inheritance;
 using Microsoft.EntityFrameworkCore.TestUtilities;
@@ -154,10 +153,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     = context.Set<Animal>()
                         .OfType<Bird>()
                         .Select(
-                            b => new
-                            {
-                                b.EagleId
-                            })
+                            b => new { b.EagleId })
                         .ToList();
 
                 Assert.Equal(2, animals.Count);
@@ -381,11 +377,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 var birds
                     = context.Set<Bird>()
                         .Select(
-                            b => new
-                            {
-                                b.IsFlightless,
-                                Discriminator = EF.Property<string>(b, "Discriminator")
-                            })
+                            b => new { b.IsFlightless, Discriminator = EF.Property<string>(b, "Discriminator") })
                         .ToArray();
 
                 Assert.Equal(2, birds.Length);
@@ -401,10 +393,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     = context.Set<Animal>()
                         .Where(b => "Kiwi" == EF.Property<string>(b, "Discriminator"))
                         .Select(
-                            k => new
-                            {
-                                Predator = EF.Property<string>((Bird)k, "EagleId")
-                            })
+                            k => new { Predator = EF.Property<string>((Bird)k, "EagleId") })
                         .ToArray();
 
                 Assert.Equal(1, predators.Length);
@@ -436,10 +425,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 {
                     var kiwi = new Kiwi
                     {
-                        Species = "Apteryx owenii",
-                        Name = "Little spotted kiwi",
-                        IsFlightless = true,
-                        FoundOn = Island.North
+                        Species = "Apteryx owenii", Name = "Little spotted kiwi", IsFlightless = true, FoundOn = Island.North
                     };
 
                     var nz = context.Set<Country>().Single(c => c.Id == 1);
@@ -505,8 +491,9 @@ namespace Microsoft.EntityFrameworkCore.Query
             {
                 context.Set<Animal>()
                     .OfType<Kiwi>()
-                    .Union(context.Set<Animal>()
-                        .OfType<Kiwi>())
+                    .Union(
+                        context.Set<Animal>()
+                            .OfType<Kiwi>())
                     .Where(o => o.FoundOn == Island.North)
                     .ToList();
             }
@@ -532,7 +519,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             {
                 context.Set<Bird>()
                     .Take(5)
-                    .Distinct()  // Causes pushdown
+                    .Distinct() // Causes pushdown
                     .OfType<Kiwi>()
                     .ToList();
             }
@@ -559,10 +546,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                 var eagle = new Eagle
                 {
-                    Species = "Haliaeetus leucocephalus",
-                    Name = "Bald eagle",
-                    Group = EagleGroup.Booted,
-                    EagleId = kiwi.Species
+                    Species = "Haliaeetus leucocephalus", Name = "Bald eagle", Group = EagleGroup.Booted, EagleId = kiwi.Species
                 };
 
                 context.Add(eagle);

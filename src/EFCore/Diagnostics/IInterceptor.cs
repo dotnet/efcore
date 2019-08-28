@@ -16,7 +16,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
     ///         to register application interceptors.
     ///     </para>
     ///     <para>
-    ///         Extensions can also register multiple <see cref="IInterceptor"/>s in the internal service provider.
+    ///         Extensions can also register multiple <see cref="IInterceptor" />s in the internal service provider.
     ///         If both injected and application interceptors are found, then the injected interceptors are run in the
     ///         order that they are resolved from the service provider, and then the application interceptors are run
     ///         in the order that they were added to the context.

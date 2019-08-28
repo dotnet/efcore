@@ -316,7 +316,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 throw new InvalidOperationException(
                     CoreStrings.ExecutionStrategyExistingTransaction(
                         GetType().Name,
-                        nameof(DbContext) + "." + nameof(DbContext.Database) + "." + nameof(DatabaseFacade.CreateExecutionStrategy) + "()"));
+                        nameof(DbContext) + "." + nameof(DbContext.Database) + "." + nameof(DatabaseFacade.CreateExecutionStrategy)
+                        + "()"));
             }
 
             ExceptionsEncountered.Clear();

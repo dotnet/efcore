@@ -33,10 +33,7 @@ namespace Microsoft.EntityFrameworkCore
             }
 
             entities.Add(
-                new Darwin
-                {
-                    Id = 1777
-                });
+                new Darwin { Id = 1777 });
 
             for (var i = 0; i < 2; i++)
             {

@@ -607,7 +607,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     CoreStrings.StoreGenValue(property.Name, EntityType.DisplayName()));
             }
 
-            SetProperty(property, value, isMaterialization: false, setModified: true, isCascadeDelete: false, CurrentValueType.StoreGenerated);
+            SetProperty(
+                property, value, isMaterialization: false, setModified: true, isCascadeDelete: false, CurrentValueType.StoreGenerated);
         }
 
         /// <summary>
@@ -698,7 +699,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         /// </summary>
         public virtual TProperty GetRelationshipSnapshotValue<TProperty>([NotNull] IPropertyBase propertyBase)
             => ((Func<InternalEntityEntry, TProperty>)propertyBase.GetPropertyAccessors().RelationshipSnapshotGetter)(
-                    this);
+                this);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -1332,8 +1333,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 }
             }
 
-            var cascadeFk = fks.FirstOrDefault(fk => fk.DeleteBehavior == DeleteBehavior.Cascade
-                                                     || fk.DeleteBehavior == DeleteBehavior.ClientCascade);
+            var cascadeFk = fks.FirstOrDefault(
+                fk => fk.DeleteBehavior == DeleteBehavior.Cascade
+                      || fk.DeleteBehavior == DeleteBehavior.ClientCascade);
             if (cascadeFk != null
                 && (force
                     || (!isCascadeDelete

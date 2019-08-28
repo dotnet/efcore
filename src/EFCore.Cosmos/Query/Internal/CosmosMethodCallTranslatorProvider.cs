@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
@@ -32,10 +32,11 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
             _plugins.AddRange(plugins.SelectMany(p => p.Translators));
 
             _translators.AddRange(
-                new IMethodCallTranslator[] {
+                new IMethodCallTranslator[]
+                {
                     new EqualsTranslator(sqlExpressionFactory),
                     //new StringMethodTranslator(sqlExpressionFactory),
-                    new ContainsTranslator(sqlExpressionFactory),
+                    new ContainsTranslator(sqlExpressionFactory)
                     //new LikeTranslator(sqlExpressionFactory),
                     //new EnumHasFlagTranslator(sqlExpressionFactory),
                     //new GetValueOrDefaultTranslator(sqlExpressionFactory),
@@ -49,7 +50,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual SqlExpression Translate(IModel model, SqlExpression instance, MethodInfo method, IReadOnlyList<SqlExpression> arguments)
+        public virtual SqlExpression Translate(
+            IModel model, SqlExpression instance, MethodInfo method, IReadOnlyList<SqlExpression> arguments)
         {
             // TODO: UDF support. See issue#15338
             //var dbFunction = model.FindDbFunction(method);

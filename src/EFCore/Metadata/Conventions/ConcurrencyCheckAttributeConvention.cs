@@ -10,7 +10,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 {
     /// <summary>
-    ///     A convention that configures a property as a concurrency token if it has the <see cref="ConcurrencyCheckAttribute"/>.
+    ///     A convention that configures a property as a concurrency token if it has the <see cref="ConcurrencyCheckAttribute" />.
     /// </summary>
     public class ConcurrencyCheckAttributeConvention : PropertyAttributeConventionBase<ConcurrencyCheckAttribute>
     {
