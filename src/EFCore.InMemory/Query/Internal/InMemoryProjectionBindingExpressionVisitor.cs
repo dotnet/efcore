@@ -250,7 +250,6 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                 }
 
                 newBindings[i] = VisitMemberBinding(memberInitExpression.Bindings[i]);
-
                 if (newBindings[i] == null)
                 {
                     return null;

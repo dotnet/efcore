@@ -982,9 +982,8 @@ LIMIT 1");
 
                 Assert.Equal(
                     CoreStrings.TranslationFailed(
-                        "Min<BuiltInNullableDataTypes>(\n    source: GroupBy(\n    KeySelector: 1, \n    ElementSelector:EntityShaperExpression: \n        EntityType: BuiltInNullableDataTypes\n        ValueBufferExpression: \n            ProjectionBindingExpression: EmptyProjectionMember\n        IsNullable: False\n    )\n    , \n    selector: (e) => e.TestNullableDecimal)"),
-                    ex.Message,
-                    ignoreLineEndingDifferences: true);
+                        "Min<BuiltInNullableDataTypes>(    source: GroupByShaperExpression:    KeySelector: 1,     ElementSelector:EntityShaperExpression:         EntityType: BuiltInNullableDataTypes        ValueBufferExpression:             ProjectionBindingExpression: EmptyProjectionMember        IsNullable: False    ,     selector: (e) => e.TestNullableDecimal)"),
+                    RemoveNewLines(ex.Message));
 
                 ex = Assert.Throws<InvalidOperationException>(
                     () => query
@@ -993,9 +992,8 @@ LIMIT 1");
 
                 Assert.Equal(
                     CoreStrings.TranslationFailed(
-                        "Min<BuiltInNullableDataTypes, Nullable<DateTimeOffset>>(\n    source: GroupBy(\n    KeySelector: 1, \n    ElementSelector:EntityShaperExpression: \n        EntityType: BuiltInNullableDataTypes\n        ValueBufferExpression: \n            ProjectionBindingExpression: EmptyProjectionMember\n        IsNullable: False\n    )\n    , \n    selector: (e) => e.TestNullableDateTimeOffset)"),
-                    ex.Message,
-                    ignoreLineEndingDifferences: true);
+                        "Min<BuiltInNullableDataTypes, Nullable<DateTimeOffset>>(    source: GroupByShaperExpression:    KeySelector: 1,     ElementSelector:EntityShaperExpression:         EntityType: BuiltInNullableDataTypes        ValueBufferExpression:             ProjectionBindingExpression: EmptyProjectionMember        IsNullable: False    ,     selector: (e) => e.TestNullableDateTimeOffset)"),
+                    RemoveNewLines(ex.Message));
 
                 ex = Assert.Throws<InvalidOperationException>(
                     () => query
@@ -1004,9 +1002,8 @@ LIMIT 1");
 
                 Assert.Equal(
                     CoreStrings.TranslationFailed(
-                        "Min<BuiltInNullableDataTypes, Nullable<TimeSpan>>(\n    source: GroupBy(\n    KeySelector: 1, \n    ElementSelector:EntityShaperExpression: \n        EntityType: BuiltInNullableDataTypes\n        ValueBufferExpression: \n            ProjectionBindingExpression: EmptyProjectionMember\n        IsNullable: False\n    )\n    , \n    selector: (e) => e.TestNullableTimeSpan)"),
-                    ex.Message,
-                    ignoreLineEndingDifferences: true);
+                        "Min<BuiltInNullableDataTypes, Nullable<TimeSpan>>(    source: GroupByShaperExpression:    KeySelector: 1,     ElementSelector:EntityShaperExpression:         EntityType: BuiltInNullableDataTypes        ValueBufferExpression:             ProjectionBindingExpression: EmptyProjectionMember        IsNullable: False    ,     selector: (e) => e.TestNullableTimeSpan)"),
+                    RemoveNewLines(ex.Message));
 
                 ex = Assert.Throws<InvalidOperationException>(
                     () => query
@@ -1015,9 +1012,8 @@ LIMIT 1");
 
                 Assert.Equal(
                     CoreStrings.TranslationFailed(
-                        "Min<BuiltInNullableDataTypes, Nullable<ulong>>(\n    source: GroupBy(\n    KeySelector: 1, \n    ElementSelector:EntityShaperExpression: \n        EntityType: BuiltInNullableDataTypes\n        ValueBufferExpression: \n            ProjectionBindingExpression: EmptyProjectionMember\n        IsNullable: False\n    )\n    , \n    selector: (e) => e.TestNullableUnsignedInt64)"),
-                    ex.Message,
-                    ignoreLineEndingDifferences: true);
+                        "Min<BuiltInNullableDataTypes, Nullable<ulong>>(    source: GroupByShaperExpression:    KeySelector: 1,     ElementSelector:EntityShaperExpression:         EntityType: BuiltInNullableDataTypes        ValueBufferExpression:             ProjectionBindingExpression: EmptyProjectionMember        IsNullable: False    ,     selector: (e) => e.TestNullableUnsignedInt64)"),
+                    RemoveNewLines(ex.Message));
             }
         }
 
@@ -1061,9 +1057,8 @@ LIMIT 1");
 
                 Assert.Equal(
                     CoreStrings.TranslationFailed(
-                        "Max<BuiltInNullableDataTypes>(\n    source: GroupBy(\n    KeySelector: 1, \n    ElementSelector:EntityShaperExpression: \n        EntityType: BuiltInNullableDataTypes\n        ValueBufferExpression: \n            ProjectionBindingExpression: EmptyProjectionMember\n        IsNullable: False\n    )\n    , \n    selector: (e) => e.TestNullableDecimal)"),
-                    ex.Message,
-                    ignoreLineEndingDifferences: true);
+                        "Max<BuiltInNullableDataTypes>(    source: GroupByShaperExpression:    KeySelector: 1,     ElementSelector:EntityShaperExpression:         EntityType: BuiltInNullableDataTypes        ValueBufferExpression:             ProjectionBindingExpression: EmptyProjectionMember        IsNullable: False    ,     selector: (e) => e.TestNullableDecimal)"),
+                    RemoveNewLines(ex.Message));
 
                 ex = Assert.Throws<InvalidOperationException>(
                     () => query
@@ -1072,9 +1067,8 @@ LIMIT 1");
 
                 Assert.Equal(
                     CoreStrings.TranslationFailed(
-                        "Max<BuiltInNullableDataTypes, Nullable<DateTimeOffset>>(\n    source: GroupBy(\n    KeySelector: 1, \n    ElementSelector:EntityShaperExpression: \n        EntityType: BuiltInNullableDataTypes\n        ValueBufferExpression: \n            ProjectionBindingExpression: EmptyProjectionMember\n        IsNullable: False\n    )\n    , \n    selector: (e) => e.TestNullableDateTimeOffset)"),
-                    ex.Message,
-                    ignoreLineEndingDifferences: true);
+                        "Max<BuiltInNullableDataTypes, Nullable<DateTimeOffset>>(    source: GroupByShaperExpression:    KeySelector: 1,     ElementSelector:EntityShaperExpression:         EntityType: BuiltInNullableDataTypes        ValueBufferExpression:             ProjectionBindingExpression: EmptyProjectionMember        IsNullable: False    ,     selector: (e) => e.TestNullableDateTimeOffset)"),
+                    RemoveNewLines(ex.Message));
 
                 ex = Assert.Throws<InvalidOperationException>(
                     () => query
@@ -1083,9 +1077,8 @@ LIMIT 1");
 
                 Assert.Equal(
                     CoreStrings.TranslationFailed(
-                        "Max<BuiltInNullableDataTypes, Nullable<TimeSpan>>(\n    source: GroupBy(\n    KeySelector: 1, \n    ElementSelector:EntityShaperExpression: \n        EntityType: BuiltInNullableDataTypes\n        ValueBufferExpression: \n            ProjectionBindingExpression: EmptyProjectionMember\n        IsNullable: False\n    )\n    , \n    selector: (e) => e.TestNullableTimeSpan)"),
-                    ex.Message,
-                    ignoreLineEndingDifferences: true);
+                        "Max<BuiltInNullableDataTypes, Nullable<TimeSpan>>(    source: GroupByShaperExpression:    KeySelector: 1,     ElementSelector:EntityShaperExpression:         EntityType: BuiltInNullableDataTypes        ValueBufferExpression:             ProjectionBindingExpression: EmptyProjectionMember        IsNullable: False    ,     selector: (e) => e.TestNullableTimeSpan)"),
+                    RemoveNewLines(ex.Message));
 
                 ex = Assert.Throws<InvalidOperationException>(
                     () => query
@@ -1094,9 +1087,8 @@ LIMIT 1");
 
                 Assert.Equal(
                     CoreStrings.TranslationFailed(
-                        "Max<BuiltInNullableDataTypes, Nullable<ulong>>(\n    source: GroupBy(\n    KeySelector: 1, \n    ElementSelector:EntityShaperExpression: \n        EntityType: BuiltInNullableDataTypes\n        ValueBufferExpression: \n            ProjectionBindingExpression: EmptyProjectionMember\n        IsNullable: False\n    )\n    , \n    selector: (e) => e.TestNullableUnsignedInt64)"),
-                    ex.Message,
-                    ignoreLineEndingDifferences: true);
+                        "Max<BuiltInNullableDataTypes, Nullable<ulong>>(    source: GroupByShaperExpression:    KeySelector: 1,     ElementSelector:EntityShaperExpression:         EntityType: BuiltInNullableDataTypes        ValueBufferExpression:             ProjectionBindingExpression: EmptyProjectionMember        IsNullable: False    ,     selector: (e) => e.TestNullableUnsignedInt64)"),
+                    RemoveNewLines(ex.Message));
             }
         }
 
