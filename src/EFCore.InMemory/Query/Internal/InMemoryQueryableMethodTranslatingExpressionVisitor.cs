@@ -184,7 +184,17 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         }
 
         protected override ShapedQueryExpression TranslateDefaultIfEmpty(ShapedQueryExpression source, Expression defaultValue)
-            => null;
+        {
+            if (defaultValue == null)
+            {
+                ((InMemoryQueryExpression)source.QueryExpression).ApplyDefaultIfEmpty();
+                source.ShaperExpression = MarkShaperNullable(source.ShaperExpression);
+
+                return source;
+            }
+
+            return null;
+        }
 
         protected override ShapedQueryExpression TranslateDistinct(ShapedQueryExpression source)
         {
