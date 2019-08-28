@@ -1219,4 +1219,7 @@
     <value>'{principalEntityType}.{principalNavigation}' may still be null at runtime despite being declared as non-nullable since only the navigation to principal can be configured as required.</value>
     <comment>Debug CoreEventId.NonNullableReferenceOnDependent string string</comment>
   </data>
+  <data name="ClashingNonOwnedDerivedEntityType" xml:space="preserve">
+    <value>The type '{entityType}' cannot be marked as owned because the derived entity type - '{derivedType}' has been configured as non-owned.</value>
+  </data>
 </root>

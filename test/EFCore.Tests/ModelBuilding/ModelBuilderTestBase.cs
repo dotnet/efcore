@@ -157,12 +157,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public abstract TestModelBuilder Ignore<TEntity>()
                 where TEntity : class;
 
-            public virtual TestModelBuilder FinalizeModel()
-            {
-                ModelBuilder.FinalizeModel();
-
-                return this;
-            }
+            public virtual IModel FinalizeModel() => ModelBuilder.FinalizeModel();
 
             public virtual string GetDisplayName(Type entityType) => entityType.Name;
 
