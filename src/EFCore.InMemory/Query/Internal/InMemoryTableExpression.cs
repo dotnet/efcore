@@ -27,5 +27,4 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             return this;
         }
     }
-
 }

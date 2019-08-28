@@ -32,7 +32,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
 
                     _materializationContextBindings[parameterExpression]
                         = ((IDictionary<IProperty, int>)GetProjectionIndex(queryExpression, projectionBindingExpression),
-                            ((InMemoryQueryExpression)projectionBindingExpression.QueryExpression).ValueBufferParameter);
+                            ((InMemoryQueryExpression)projectionBindingExpression.QueryExpression).CurrentParameter);
 
                     var updatedExpression = Expression.New(
                         newExpression.Constructor,
@@ -79,7 +79,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                 {
                     var queryExpression = (InMemoryQueryExpression)projectionBindingExpression.QueryExpression;
                     var projectionIndex = (int)GetProjectionIndex(queryExpression, projectionBindingExpression);
-                    var valueBuffer = queryExpression.ValueBufferParameter;
+                    var valueBuffer = queryExpression.CurrentParameter;
 
                     return Expression.Call(
                         EntityMaterializerSource.TryReadValueMethod.MakeGenericMethod(projectionBindingExpression.Type),

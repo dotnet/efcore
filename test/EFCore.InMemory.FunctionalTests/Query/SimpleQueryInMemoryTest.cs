@@ -87,12 +87,6 @@ namespace Microsoft.EntityFrameworkCore.Query
             base.Client_code_using_instance_method_throws();
         }
 
-        [ConditionalTheory(Skip = "Issue#16963 (GroupBy)")]
-        public override Task GroupBy_Select_Union(bool isAsync)
-        {
-            return Task.CompletedTask;
-        }
-
         [ConditionalTheory(Skip = "Issue#17386")]
         public override Task Contains_with_local_tuple_array_closure(bool isAsync)
         {

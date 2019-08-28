@@ -50,7 +50,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             var inMemoryQueryExpression = (InMemoryQueryExpression)shapedQueryExpression.QueryExpression;
 
             var shaper = new ShaperExpressionProcessingExpressionVisitor(
-                inMemoryQueryExpression, inMemoryQueryExpression.ValueBufferParameter)
+                inMemoryQueryExpression, inMemoryQueryExpression.CurrentParameter)
                 .Inject(shapedQueryExpression.ShaperExpression);
 
             shaper = InjectEntityMaterializers(shaper);
