@@ -252,7 +252,61 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             }
         }
 
-        private IPropertyBase InferPropertyFromInner(Expression expression)
+        public virtual void ApplyDefaultIfEmpty()
+        {
+            if (_valueBufferSlots.Count != 0)
+            {
+                throw new InvalidOperationException("Cannot Apply DefaultIfEmpty after ClientProjection.");
+            }
+
+            var result = new Dictionary<ProjectionMember, Expression>();
+            foreach (var keyValuePair in _projectionMapping)
+            {
+                if (keyValuePair.Value is EntityProjectionExpression entityProjection)
+                {
+                    var map = new Dictionary<IProperty, Expression>();
+                    foreach (var property in GetAllPropertiesInHierarchy(entityProjection.EntityType))
+                    {
+                        var index = AddToProjection(entityProjection.BindProperty(property));
+                        map[property] = CreateReadValueExpression(property.ClrType.MakeNullable(), index, property);
+                    }
+                    result[keyValuePair.Key] = new EntityProjectionExpression(entityProjection.EntityType, map);
+                }
+                else
+                {
+                    var index = AddToProjection(keyValuePair.Value);
+                    result[keyValuePair.Key] = CreateReadValueExpression(
+                        keyValuePair.Value.Type.MakeNullable(), index, InferPropertyFromInner(keyValuePair.Value));
+                }
+            }
+
+            _projectionMapping = result;
+
+            var selectorLambda = Lambda(
+                New(
+                    _valueBufferConstructor,
+                    NewArrayInit(
+                        typeof(object),
+                        _valueBufferSlots
+                            .Select(e => e.Type.IsValueType ? Convert(e, typeof(object)) : e))),
+                CurrentParameter);
+
+            _groupingParameter = null;
+
+            ServerQueryExpression = Call(
+                InMemoryLinqOperatorProvider.Select.MakeGenericMethod(ServerQueryExpression.Type.TryGetSequenceType(), typeof(ValueBuffer)),
+                ServerQueryExpression,
+                selectorLambda);
+
+            ServerQueryExpression = Call(
+                InMemoryLinqOperatorProvider.DefaultIfEmptyWithArgument.MakeGenericMethod(typeof(ValueBuffer)),
+                ServerQueryExpression,
+                New(_valueBufferConstructor, NewArrayInit(typeof(object), Enumerable.Repeat(Constant(null), _valueBufferSlots.Count))));
+
+            _valueBufferSlots.Clear();
+        }
+
+        private static IPropertyBase InferPropertyFromInner(Expression expression)
         {
             if (expression is MethodCallExpression methodCallExpression
                 && methodCallExpression.Method.IsGenericMethod

@@ -159,53 +159,6 @@ namespace Microsoft.EntityFrameworkCore.Query
             return base.Projection_when_arithmetic_mixed_subqueries(isAsync);
         }
 
-        #region DefaultIfEmpty
-
-        public override Task DefaultIfEmpty_in_subquery(bool isAsync)
-        {
-            return Task.CompletedTask;
-        }
-
-        public override Task DefaultIfEmpty_in_subquery_nested(bool isAsync)
-        {
-            return Task.CompletedTask;
-        }
-
-        public override Task DefaultIfEmpty_in_subquery_not_correlated(bool isAsync)
-        {
-            return Task.CompletedTask;
-        }
-
-        public override void DefaultIfEmpty_without_group_join()
-        {
-        }
-
-        public override Task Default_if_empty_top_level(bool isAsync)
-        {
-            return Task.CompletedTask;
-        }
-
-        public override Task Default_if_empty_top_level_followed_by_projecting_constant(bool isAsync)
-        {
-            return Task.CompletedTask;
-        }
-
-        public override Task Default_if_empty_top_level_positive(bool isAsync)
-        {
-            return Task.CompletedTask;
-        }
-
-        public override Task Default_if_empty_top_level_projection(bool isAsync)
-        {
-            return Task.CompletedTask;
-        }
-
-        public override Task Join_with_default_if_empty_on_both_sources(bool isAsync)
-        {
-            return Task.CompletedTask;
-        }
-        #endregion
-
         #region SelectMany
 
         public override Task SelectMany_Joined_DefaultIfEmpty(bool isAsync)
@@ -233,6 +186,16 @@ namespace Microsoft.EntityFrameworkCore.Query
         #region NullableError
 
         public override Task Project_single_element_from_collection_with_OrderBy_Distinct_and_FirstOrDefault_followed_by_projecting_length(bool isAsync)
+        {
+            return Task.CompletedTask;
+        }
+
+        public override Task DefaultIfEmpty_in_subquery_nested(bool isAsync)
+        {
+            return Task.CompletedTask;
+        }
+
+        public override Task Default_if_empty_top_level_projection(bool isAsync)
         {
             return Task.CompletedTask;
         }
