@@ -13,41 +13,5 @@ namespace Microsoft.EntityFrameworkCore.Query
             : base(fixture)
         {
         }
-
-        [ConditionalFact(Skip = "Issue #16963 Set Operation")]
-        public override Task Concat_dbset()
-        {
-            return Task.CompletedTask;
-        }
-
-        [ConditionalFact(Skip = "Issue #16963 Set Operation")]
-        public override Task Concat_simple()
-        {
-            return Task.CompletedTask;
-        }
-
-        [ConditionalFact(Skip = "Issue #16963 Set Operation")]
-        public override Task Concat_non_entity()
-        {
-            return Task.CompletedTask;
-        }
-
-        [ConditionalFact(Skip = "Issue #16963 Set Operation")]
-        public override Task Except_non_entity()
-        {
-            return Task.CompletedTask;
-        }
-
-        [ConditionalFact(Skip = "Issue #16963 Set Operation")]
-        public override Task Intersect_non_entity()
-        {
-            return Task.CompletedTask;
-        }
-
-        [ConditionalFact(Skip = "Issue #16963 Set Operation")]
-        public override Task Union_non_entity()
-        {
-            return Task.CompletedTask;
-        }
     }
 }

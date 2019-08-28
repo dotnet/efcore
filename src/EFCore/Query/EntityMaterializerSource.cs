@@ -52,7 +52,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static TValue TryReadValue<TValue>(
             in ValueBuffer valueBuffer, int index, IPropertyBase property)
-            => (TValue)valueBuffer[index];
+            => valueBuffer[index] is TValue value ? value : default;
 
         public virtual Expression CreateMaterializeExpression(
             IEntityType entityType,
