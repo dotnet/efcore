@@ -7528,7 +7528,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 5);
         }
 
-
         protected GearsOfWarContext CreateContext() => Fixture.CreateContext();
 
         protected virtual void ClearLog()

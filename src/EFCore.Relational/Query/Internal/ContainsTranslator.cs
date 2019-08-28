@@ -32,6 +32,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             }
 
             if (method.DeclaringType.GetInterfaces().Contains(typeof(IList))
+                || method.DeclaringType.IsGenericType
+                && method.DeclaringType.GetGenericTypeDefinition() == typeof(ICollection<>)
                 && string.Equals(method.Name, nameof(IList.Contains)))
             {
                 return _sqlExpressionFactory.In(arguments[0], instance, false);
