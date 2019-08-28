@@ -8,6 +8,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -161,13 +162,38 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             return false;
         }
 
-        private Expression BindProperty(EntityProjectionExpression entityProjectionExpression, IProperty property)
+        private static Expression BindProperty(EntityProjectionExpression entityProjectionExpression, IProperty property)
         {
             return entityProjectionExpression.BindProperty(property);
         }
 
+        private static Expression GetSelector(MethodCallExpression methodCallExpression, GroupByShaperExpression groupByShaperExpression)
+        {
+            if (methodCallExpression.Arguments.Count == 1)
+            {
+                return groupByShaperExpression.ElementSelector;
+            }
+
+            if (methodCallExpression.Arguments.Count == 2)
+            {
+                var selectorLambda = methodCallExpression.Arguments[1].UnwrapLambdaFromQuote();
+                return ReplacingExpressionVisitor.Replace(
+                    selectorLambda.Parameters[0],
+                    groupByShaperExpression.ElementSelector,
+                    selectorLambda.Body);
+            }
+
+            throw new InvalidOperationException(CoreStrings.TranslationFailed(methodCallExpression.Print()));
+        }
+
         protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
         {
+            if (methodCallExpression.Method.IsGenericMethod
+                && methodCallExpression.Method.GetGenericMethodDefinition() == EntityMaterializerSource.TryReadValueMethod)
+            {
+                return methodCallExpression;
+            }
+
             // EF.Property case
             if (methodCallExpression.TryGetEFPropertyArguments(out var source, out var propertyName))
             {
@@ -177,6 +203,52 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                 }
 
                 throw new InvalidOperationException("EF.Property called with wrong property name.");
+            }
+
+            // GroupBy Aggregate case
+            if (methodCallExpression.Object == null
+                && methodCallExpression.Method.DeclaringType == typeof(Enumerable)
+                && methodCallExpression.Arguments.Count > 0
+                && methodCallExpression.Arguments[0] is InMemoryGroupByShaperExpression groupByShaperExpression)
+            {
+                switch (methodCallExpression.Method.Name)
+                {
+                    case nameof(Enumerable.Average):
+                    case nameof(Enumerable.Max):
+                    case nameof(Enumerable.Min):
+                    case nameof(Enumerable.Sum):
+                        var translation = Translate(GetSelector(methodCallExpression, groupByShaperExpression));
+                        var selector = Expression.Lambda(translation, groupByShaperExpression.ValueBufferParameter);
+                        MethodInfo getMethod()
+                            => methodCallExpression.Method.Name switch
+                            {
+                                nameof(Enumerable.Average) => InMemoryLinqOperatorProvider.GetAverageWithSelector(selector.ReturnType),
+                                nameof(Enumerable.Max) => InMemoryLinqOperatorProvider.GetMaxWithSelector(selector.ReturnType),
+                                nameof(Enumerable.Min) => InMemoryLinqOperatorProvider.GetMinWithSelector(selector.ReturnType),
+                                nameof(Enumerable.Sum) => InMemoryLinqOperatorProvider.GetSumWithSelector(selector.ReturnType),
+                                _ => throw new InvalidOperationException("Invalid Aggregate Operator encountered."),
+                            };
+                        var method = getMethod();
+                        method = method.GetGenericArguments().Length == 2
+                            ? method.MakeGenericMethod(typeof(ValueBuffer), selector.ReturnType)
+                            : method.MakeGenericMethod(typeof(ValueBuffer));
+
+                        return Expression.Call(method,
+                            groupByShaperExpression.GroupingParameter,
+                            selector);
+
+                    case nameof(Enumerable.Count):
+                        return Expression.Call(
+                            InMemoryLinqOperatorProvider.CountWithoutPredicate.MakeGenericMethod(typeof(ValueBuffer)),
+                            groupByShaperExpression.GroupingParameter);
+                    case nameof(Enumerable.LongCount):
+                        return Expression.Call(
+                            InMemoryLinqOperatorProvider.LongCountWithoutPredicate.MakeGenericMethod(typeof(ValueBuffer)),
+                            groupByShaperExpression.GroupingParameter);
+
+                    default:
+                        throw new InvalidOperationException(CoreStrings.TranslationFailed(methodCallExpression.Print()));
+                }
             }
 
             // Subquery case

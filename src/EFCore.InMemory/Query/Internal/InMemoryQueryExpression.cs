@@ -23,18 +23,20 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         private readonly List<Expression> _valueBufferSlots = new List<Expression>();
         private readonly IDictionary<EntityProjectionExpression, IDictionary<IProperty, int>> _entityProjectionCache
             = new Dictionary<EntityProjectionExpression, IDictionary<IProperty, int>>();
+        private readonly ParameterExpression _valueBufferParameter;
 
         private IDictionary<ProjectionMember, Expression> _projectionMapping = new Dictionary<ProjectionMember, Expression>();
+        private ParameterExpression _groupingParameter;
 
         public virtual IReadOnlyList<Expression> Projection => _valueBufferSlots;
         public virtual Expression ServerQueryExpression { get; set; }
-        public virtual ParameterExpression ValueBufferParameter { get; }
+        public virtual ParameterExpression CurrentParameter => _groupingParameter ?? _valueBufferParameter;
         public override Type Type => typeof(IEnumerable<ValueBuffer>);
         public sealed override ExpressionType NodeType => ExpressionType.Extension;
 
         public InMemoryQueryExpression(IEntityType entityType)
         {
-            ValueBufferParameter = Parameter(typeof(ValueBuffer), "valueBuffer");
+            _valueBufferParameter = Parameter(typeof(ValueBuffer), "valueBuffer");
             ServerQueryExpression = new InMemoryTableExpression(entityType);
             var readExpressionMap = new Dictionary<IProperty, Expression>();
             foreach (var property in entityType.GetAllBaseTypesInclusive().SelectMany(et => et.GetDeclaredProperties()))
@@ -47,7 +49,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                 readExpressionMap[property] = Condition(
                     LessThan(
                         Constant(property.GetIndex()),
-                        MakeMemberAccess(ValueBufferParameter,
+                        MakeMemberAccess(_valueBufferParameter,
                             _valueBufferCountMemberInfo)),
                     CreateReadValueExpression(typeof(object), property.GetIndex(), property),
                     Default(typeof(object)));
@@ -145,7 +147,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             innerShaper = new ShaperRemappingExpressionVisitor(subquery._projectionMapping)
                 .Visit(shapedQueryExpression.ShaperExpression);
 
-            innerShaper = Lambda(innerShaper, subquery.ValueBufferParameter);
+            innerShaper = Lambda(innerShaper, subquery.CurrentParameter);
 
             return AddToProjection(serverQueryExpression);
         }
@@ -225,12 +227,13 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                     NewArrayInit(
                         typeof(object),
                         _valueBufferSlots
-                            .Select(e => e.Type.IsValueType ? Convert(e, typeof(object)) : e)
-                            .ToArray())),
-                ValueBufferParameter);
+                            .Select(e => e.Type.IsValueType ? Convert(e, typeof(object)) : e))),
+                CurrentParameter);
+
+            _groupingParameter = null;
 
             ServerQueryExpression = Call(
-                InMemoryLinqOperatorProvider.Select.MakeGenericMethod(typeof(ValueBuffer), typeof(ValueBuffer)),
+                InMemoryLinqOperatorProvider.Select.MakeGenericMethod(ServerQueryExpression.Type.TryGetSequenceType(), typeof(ValueBuffer)),
                 ServerQueryExpression,
                 selectorLambda);
 
@@ -294,7 +297,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                         _valueBufferSlots
                             .Select(e => e.Type.IsValueType ? Convert(e, typeof(object)) : e)
                             .ToArray())),
-                ValueBufferParameter);
+                CurrentParameter);
 
             ServerQueryExpression = Call(
                 InMemoryLinqOperatorProvider.Select.MakeGenericMethod(typeof(ValueBuffer), typeof(ValueBuffer)),
@@ -302,15 +305,92 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                 selectorLambda);
         }
 
-        private Expression CreateReadValueExpression(
-            Type type,
-            int index,
-            IPropertyBase property)
+        public virtual InMemoryGroupByShaperExpression ApplyGrouping(Expression groupingKey, Expression shaperExpression)
+        {
+            PushdownIntoSubquery();
+
+            var selectMethod = (MethodCallExpression)ServerQueryExpression;
+            var groupBySource = selectMethod.Arguments[0];
+            var elementSelector = selectMethod.Arguments[1];
+            _groupingParameter = Parameter(typeof(IGrouping<ValueBuffer, ValueBuffer>), "grouping");
+            var groupingKeyAccessExpression = PropertyOrField(_groupingParameter, nameof(IGrouping<int, int>.Key));
+            var groupingKeyExpressions = new List<Expression>();
+            groupingKey = GetGroupingKey(groupingKey, groupingKeyExpressions, groupingKeyAccessExpression);
+            var keySelector = Lambda(
+                New(
+                    _valueBufferConstructor,
+                    NewArrayInit(
+                        typeof(object),
+                        groupingKeyExpressions.Select(e => e.Type.IsValueType ? Convert(e, typeof(object)) : e))),
+                _valueBufferParameter);
+
+            ServerQueryExpression = Call(
+                    InMemoryLinqOperatorProvider.GroupByWithKeyElementSelector.MakeGenericMethod(
+                        typeof(ValueBuffer), typeof(ValueBuffer), typeof(ValueBuffer)),
+                    selectMethod.Arguments[0],
+                    keySelector,
+                    selectMethod.Arguments[1]);
+
+            return new InMemoryGroupByShaperExpression(
+                groupingKey,
+                shaperExpression,
+                _groupingParameter,
+                _valueBufferParameter);
+        }
+
+        private Expression GetGroupingKey(Expression key, List<Expression> groupingExpressions, Expression groupingKeyAccessExpression)
+        {
+            switch (key)
+            {
+                case NewExpression newExpression:
+                    var arguments = new Expression[newExpression.Arguments.Count];
+                    for (var i = 0; i < arguments.Length; i++)
+                    {
+                        arguments[i] = GetGroupingKey(newExpression.Arguments[i], groupingExpressions, groupingKeyAccessExpression);
+                    }
+                    return newExpression.Update(arguments);
+
+                case MemberInitExpression memberInitExpression:
+                    if (memberInitExpression.Bindings.Any(mb => !(mb is MemberAssignment)))
+                    {
+                        goto default;
+                    }
+
+                    var updatedNewExpression = (NewExpression)GetGroupingKey(
+                        memberInitExpression.NewExpression, groupingExpressions, groupingKeyAccessExpression);
+                    var memberBindings = new MemberAssignment[memberInitExpression.Bindings.Count];
+                    for (var i = 0; i < memberBindings.Length; i++)
+                    {
+                        var memberAssignment = (MemberAssignment)memberInitExpression.Bindings[i];
+                        memberBindings[i] = memberAssignment.Update(
+                            GetGroupingKey(
+                                memberAssignment.Expression,
+                                groupingExpressions,
+                                groupingKeyAccessExpression));
+                    }
+                    return memberInitExpression.Update(updatedNewExpression, memberBindings);
+
+                default:
+                    var index = groupingExpressions.Count;
+                    groupingExpressions.Add(key);
+                    return CreateReadValueExpression(
+                        groupingKeyAccessExpression,
+                        key.Type,
+                        index,
+                        InferPropertyFromInner(key));
+            }
+        }
+
+        private static Expression CreateReadValueExpression(
+            Expression valueBufferParameter, Type type, int index, IPropertyBase property)
             => Call(
                 EntityMaterializerSource.TryReadValueMethod.MakeGenericMethod(type),
-                ValueBufferParameter,
+                valueBufferParameter,
                 Constant(index),
                 Constant(property, typeof(IPropertyBase)));
+
+        private Expression CreateReadValueExpression(Type type, int index, IPropertyBase property)
+            => CreateReadValueExpression(_valueBufferParameter, type, index, property);
 
         public virtual void AddInnerJoin(
             InMemoryQueryExpression innerQueryExpression,
@@ -325,8 +405,8 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             var replacingVisitor = new ReplacingExpressionVisitor(
                     new Dictionary<Expression, Expression>
                     {
-                        { ValueBufferParameter, outerParameter },
-                        { innerQueryExpression.ValueBufferParameter, innerParameter }
+                        { CurrentParameter, outerParameter },
+                        { innerQueryExpression.CurrentParameter, innerParameter }
                     });
 
             var index = 0;
@@ -438,8 +518,8 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             var replacingVisitor = new ReplacingExpressionVisitor(
                     new Dictionary<Expression, Expression>
                     {
-                        { ValueBufferParameter, MakeMemberAccess(outerParameter, outerMemberInfo) },
-                        { innerQueryExpression.ValueBufferParameter, innerParameter }
+                        { CurrentParameter, MakeMemberAccess(outerParameter, outerMemberInfo) },
+                        { innerQueryExpression.CurrentParameter, innerParameter }
                     });
 
             var index = 0;
@@ -497,7 +577,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
 
             var collectionSelector = Lambda(
                 Call(
-                    InMemoryLinqOperatorProvider.DefaultIfEmptyWithArg.MakeGenericMethod(typeof(ValueBuffer)),
+                    InMemoryLinqOperatorProvider.DefaultIfEmptyWithArgument.MakeGenericMethod(typeof(ValueBuffer)),
                     collection,
                     New(
                         _valueBufferConstructor,
@@ -518,7 +598,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                 innerParameter);
 
             ServerQueryExpression = Call(
-                InMemoryLinqOperatorProvider.SelectMany.MakeGenericMethod(
+                InMemoryLinqOperatorProvider.SelectManyWithCollectionSelector.MakeGenericMethod(
                     groupTransparentIdentifierType, typeof(ValueBuffer), typeof(ValueBuffer)),
                 groupJoinExpression,
                 collectionSelector,
@@ -536,8 +616,8 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             var replacingVisitor = new ReplacingExpressionVisitor(
                     new Dictionary<Expression, Expression>
                     {
-                        { ValueBufferParameter, outerParameter },
-                        { innerQueryExpression.ValueBufferParameter, innerParameter }
+                        { CurrentParameter, outerParameter },
+                        { innerQueryExpression.CurrentParameter, innerParameter }
                     });
 
             var index = 0;
@@ -608,10 +688,10 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                 innerParameter);
 
             ServerQueryExpression = Call(
-                InMemoryLinqOperatorProvider.SelectMany.MakeGenericMethod(
+                InMemoryLinqOperatorProvider.SelectManyWithCollectionSelector.MakeGenericMethod(
                     typeof(ValueBuffer), typeof(ValueBuffer), typeof(ValueBuffer)),
                 ServerQueryExpression,
-                Lambda(innerQueryExpression.ServerQueryExpression, ValueBufferParameter),
+                Lambda(innerQueryExpression.ServerQueryExpression, CurrentParameter),
                 resultSelector);
 
             _projectionMapping = projectionMapping;

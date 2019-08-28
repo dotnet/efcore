@@ -150,7 +150,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         #region Bug3595
 
-        [ConditionalFact(Skip = "Issue#16963 groupBy")]
+        [ConditionalFact]
         public void GroupBy_with_uninitialized_datetime_projection_3595()
         {
             using (CreateScratch<Context3595>(Seed3595, "3595"))

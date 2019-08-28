@@ -8,7 +8,7 @@ using Xunit.Abstractions;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    internal class GroupByQueryInMemoryTest : GroupByQueryTestBase<NorthwindQueryInMemoryFixture<NoopModelCustomizer>>
+    public class GroupByQueryInMemoryTest : GroupByQueryTestBase<NorthwindQueryInMemoryFixture<NoopModelCustomizer>>
     {
         public GroupByQueryInMemoryTest(
             NorthwindQueryInMemoryFixture<NoopModelCustomizer> fixture,
@@ -17,12 +17,6 @@ namespace Microsoft.EntityFrameworkCore.Query
             : base(fixture)
         {
             //TestLoggerFactory.TestOutputHelper = testOutputHelper;
-        }
-
-        [ConditionalTheory(Skip = "See issue #9591")]
-        public override Task Select_Distinct_GroupBy(bool isAsync)
-        {
-            return base.Select_Distinct_GroupBy(isAsync);
         }
     }
 }

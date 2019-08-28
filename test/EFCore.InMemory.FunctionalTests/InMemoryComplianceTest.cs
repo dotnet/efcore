@@ -20,7 +20,6 @@ namespace Microsoft.EntityFrameworkCore
             // Remaining Issue #16963 3.0 query tests:
             typeof(ComplexNavigationsWeakQueryTestBase<>),
             typeof(OwnedQueryTestBase<>),
-            typeof(GroupByQueryTestBase<>),
             typeof(ComplexNavigationsQueryTestBase<>),
             typeof(GearsOfWarQueryTestBase<>),
             typeof(SpatialQueryTestBase<>)
