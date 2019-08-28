@@ -1318,12 +1318,12 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Equal(nameof(PartialAnswerRepeating.AnswerId), fk1.Properties.Single().Name);
         }
 
-        public abstract class Answer
+        private abstract class Answer
         {
             public int Id { get; set; }
         }
 
-        public class PartialAnswerBase
+        private class PartialAnswerBase
         {
             public int Id { get; set; }
             public int AnswerId { get; set; }
@@ -1332,20 +1332,20 @@ namespace Microsoft.EntityFrameworkCore
             public virtual Answer Answer { get; set; }
         }
 
-        public class PartialAnswer : PartialAnswerBase
+        private class PartialAnswer : PartialAnswerBase
         {
         }
 
-        public class PartialAnswerRepeating : PartialAnswerBase
+        private class PartialAnswerRepeating : PartialAnswerBase
         {
         }
 
-        public class MultipleAnswers : Answer
+        private class MultipleAnswers : Answer
         {
             public virtual ICollection<PartialAnswer> Answers { get; set; }
         }
 
-        public class MultipleAnswersRepeating : Answer
+        private class MultipleAnswersRepeating : Answer
         {
             public virtual ICollection<PartialAnswerRepeating> Answers { get; set; }
         }
@@ -1839,6 +1839,51 @@ namespace Microsoft.EntityFrameworkCore
         {
             [InverseProperty(nameof(Blog7698.ASpecialPostNav))]
             public Blog7698 BlogInverseNav { get; set; }
+        }
+
+        [ConditionalFact]
+        public virtual void InversePropertyAttribute_pointing_to_same_nav_on_base_causes_ambiguity()
+        {
+            var modelBuilder = CreateModelBuilder();
+            modelBuilder.Entity<MultipleAnswersInverse>();
+            modelBuilder.Entity<MultipleAnswersRepeatingInverse>();
+
+            Assert.Equal(
+                CoreStrings.WarningAsErrorTemplate(
+                    CoreEventId.MultipleInversePropertiesSameTargetWarning,
+                CoreResources.LogMultipleInversePropertiesSameTarget(new TestLogger<TestLoggingDefinitions>())
+                    .GenerateMessage(
+                    $"{nameof(MultipleAnswersRepeatingInverse)}.{nameof(MultipleAnswersRepeatingInverse.Answers)},"
+                    + $" {nameof(MultipleAnswersInverse)}.{nameof(MultipleAnswersInverse.Answers)}",
+                         nameof(PartialAnswerInverse.Answer)),
+                "CoreEventId.MultipleInversePropertiesSameTargetWarning"),
+                Assert.Throws<InvalidOperationException>(() => modelBuilder.FinalizeModel()).Message);
+        }
+
+        private class PartialAnswerInverse
+        {
+            public int Id { get; set; }
+            public int AnswerId { get; set; }
+            public virtual AnswerBaseInverse Answer { get; set; }
+        }
+
+        private class PartialAnswerRepeatingInverse : PartialAnswerInverse { }
+
+        private abstract class AnswerBaseInverse
+        {
+            public int Id { get; set; }
+        }
+
+        private class MultipleAnswersInverse : AnswerBaseInverse
+        {
+            [InverseProperty("Answer")]
+            public virtual ICollection<PartialAnswerInverse> Answers { get; set; }
+        }
+
+        private class MultipleAnswersRepeatingInverse : AnswerBaseInverse
+        {
+            [InverseProperty("Answer")]
+            public virtual IEnumerable<PartialAnswerRepeatingInverse> Answers { get; set; }
         }
 
         [ConditionalFact]

@@ -782,7 +782,7 @@
     <value>Cannot create a relationship between '{newPrincipalEntityType}.{newPrincipalNavigation}' and '{newDependentEntityType}.{newDependentNavigation}', because there already is a relationship between '{existingPrincipalEntityType}.{existingPrincipalNavigation}' and '{existingDependentEntityType}.{existingDependentNavigation}'. Navigation properties can only participate in a single relationship.</value>
   </data>
   <data name="WarningAsErrorTemplate" xml:space="preserve">
-    <value>Error generated for warning '{eventName}: {message}'. This exception can be suppressed or logged by passing event ID '{eventId}' to the 'ConfigureWarnings' method in 'DbContext.OnConfiguring' or 'AddDbContext'.</value>
+    <value>Error generated for warning '{eventName}': {message} This exception can be suppressed or logged by passing event ID '{eventId}' to the 'ConfigureWarnings' method in 'DbContext.OnConfiguring' or 'AddDbContext'.</value>
   </data>
   <data name="ContextDisposed" xml:space="preserve">
     <value>Cannot access a disposed object. A common cause of this error is disposing a context that was resolved from dependency injection and then later trying to use the same context instance elsewhere in your application. This may occur if you are calling Dispose() on the context, or wrapping the context in a using statement. If you are using dependency injection, you should let the dependency injection container take care of disposing context instances.</value>
