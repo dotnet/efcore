@@ -532,12 +532,15 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 GenerateKey(builderName, primaryKey, stringBuilder, primary: true);
             }
 
-            foreach (var key in keys.Where(
-                key => key != primaryKey
-                       && (!key.GetReferencingForeignKeys().Any()
-                           || key.GetAnnotations().Any())))
+            if (primaryKey?.DeclaringEntityType.IsOwned() != true)
             {
-                GenerateKey(builderName, key, stringBuilder);
+                foreach (var key in keys.Where(
+                    key => key != primaryKey
+                           && (!key.GetReferencingForeignKeys().Any()
+                               || key.GetAnnotations().Any())))
+                {
+                    GenerateKey(builderName, key, stringBuilder);
+                }
             }
         }
 
