@@ -6834,6 +6834,11 @@ FROM [Weapons] AS [w]
 LEFT JOIN [Weapons] AS [w0] ON [w].[SynergyWithId] = [w0].[Id]");
         }
 
+        public override void Contains_is_translated_from_both_generic_and_non_generic_IList_implementations()
+        {
+            base.Contains_is_translated_from_both_generic_and_non_generic_IList_implementations();
+        }
+
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 

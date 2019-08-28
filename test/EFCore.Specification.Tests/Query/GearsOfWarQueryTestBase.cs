@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Runtime.InteropServices.ComTypes;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Internal;
@@ -7497,6 +7498,26 @@ namespace Microsoft.EntityFrameworkCore.Query
             return AssertQuery<Weapon>(
                 isAsync,
                 ws => ws.Select(w => w.SynergyWithId.HasValue ? $"SynergyWithOwner: {w.SynergyWith.OwnerFullName}" : string.Empty));
+        }
+
+        [ConditionalFact]  // issue #17342
+        public virtual void Contains_is_translated_from_both_generic_and_non_generic_IList_implementations()
+        {
+            var cityNames1 = new List<string>
+            {
+                "Ephyra"
+            } as IList<string>;
+
+            var cityNames2 = new List<string>
+            {
+                "Ephyra"
+            };
+
+            using (var ctx = CreateContext())
+            {
+                var query1 = ctx.Cities.Where(t => cityNames1.Contains(t.Name)).ToList();
+                var query2 = ctx.Cities.Where(t => cityNames2.Contains(t.Name)).ToList();
+            }
         }
 
         protected GearsOfWarContext CreateContext() => Fixture.CreateContext();

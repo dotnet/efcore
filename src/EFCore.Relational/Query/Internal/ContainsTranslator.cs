@@ -30,7 +30,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             {
                 return _sqlExpressionFactory.In(arguments[1], arguments[0], false);
             }
-            else if (method.DeclaringType.GetInterfaces().Contains(typeof(IList))
+            else if ((method.DeclaringType.GetInterfaces().Contains(typeof(IList)) || method.DeclaringType.IsGenericType &&
+                    method.DeclaringType.GetGenericTypeDefinition() == typeof(ICollection<>))
                 && string.Equals(method.Name, nameof(IList.Contains)))
             {
                 return _sqlExpressionFactory.In(arguments[0], instance, false);
