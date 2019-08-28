@@ -13,7 +13,6 @@ using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
-using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
@@ -290,7 +289,7 @@ namespace Microsoft.EntityFrameworkCore
                 {
                     if (createDatabase)
                     {
-                        testDatabase.Initialize(null, (Func<DbContext>)null, null, null);
+                        testDatabase.Initialize(null, (Func<DbContext>)null);
                     }
                     else
                     {
@@ -765,11 +764,7 @@ namespace Microsoft.EntityFrameworkCore
                     b =>
                     {
                         b.HasKey(
-                            e => new
-                            {
-                                e.Key1,
-                                e.Key2
-                            });
+                            e => new { e.Key1, e.Key2 });
                         b.Property(e => e.AndRow).IsConcurrencyToken().ValueGeneratedOnAddOrUpdate();
                     });
             }

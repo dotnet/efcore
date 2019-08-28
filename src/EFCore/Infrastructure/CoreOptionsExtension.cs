@@ -82,7 +82,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         }
 
         /// <summary>
-        ///    Information/metadata about the extension.
+        ///     Information/metadata about the extension.
         /// </summary>
         public virtual DbContextOptionsExtensionInfo Info
             => _info ??= new ExtensionInfo(this);

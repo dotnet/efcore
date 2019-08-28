@@ -274,10 +274,11 @@ namespace Microsoft.EntityFrameworkCore
             var serviceProvider = new ServiceCollection()
                 .AddEntityFrameworkInMemoryDatabase()
                 .AddEntityFrameworkProxies()
-                .AddDbContext<JammieDodgerContext>((p, b) =>
-                    b.UseInMemoryDatabase("Jammie")
-                        .UseInternalServiceProvider(p)
-                        .UseLazyLoadingProxies())
+                .AddDbContext<JammieDodgerContext>(
+                    (p, b) =>
+                        b.UseInMemoryDatabase("Jammie")
+                            .UseInternalServiceProvider(p)
+                            .UseLazyLoadingProxies())
                 .BuildServiceProvider();
 
             using (var scope = serviceProvider.CreateScope())
@@ -297,7 +298,8 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Equal(
                 CoreStrings.WarningAsErrorTemplate(
                     CoreEventId.LazyLoadOnDisposedContextWarning.ToString(),
-                    CoreResources.LogLazyLoadOnDisposedContext(new TestLogger<TestLoggingDefinitions>()).GenerateMessage("Texts", "PhoneProxy"),
+                    CoreResources.LogLazyLoadOnDisposedContext(new TestLogger<TestLoggingDefinitions>())
+                        .GenerateMessage("Texts", "PhoneProxy"),
                     "CoreEventId.LazyLoadOnDisposedContextWarning"),
                 Assert.Throws<InvalidOperationException>(
                     () => phone.Texts).Message);
@@ -426,10 +428,11 @@ namespace Microsoft.EntityFrameworkCore
             protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
                 => optionsBuilder
                     .UseLazyLoadingProxies()
-                    .UseInternalServiceProvider(new ServiceCollection()
-                        .AddEntityFrameworkInMemoryDatabase()
-                        .AddEntityFrameworkProxies()
-                        .BuildServiceProvider())
+                    .UseInternalServiceProvider(
+                        new ServiceCollection()
+                            .AddEntityFrameworkInMemoryDatabase()
+                            .AddEntityFrameworkProxies()
+                            .BuildServiceProvider())
                     .UseInMemoryDatabase(Guid.NewGuid().ToString());
         }
 
@@ -502,10 +505,11 @@ namespace Microsoft.EntityFrameworkCore
         {
             protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
                 => optionsBuilder
-                    .UseInternalServiceProvider(new ServiceCollection()
-                        .AddEntityFrameworkInMemoryDatabase()
-                        .AddEntityFrameworkProxies()
-                        .BuildServiceProvider())
+                    .UseInternalServiceProvider(
+                        new ServiceCollection()
+                            .AddEntityFrameworkInMemoryDatabase()
+                            .AddEntityFrameworkProxies()
+                            .BuildServiceProvider())
                     .UseInMemoryDatabase(Guid.NewGuid().ToString());
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -517,10 +521,11 @@ namespace Microsoft.EntityFrameworkCore
             protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
                 => optionsBuilder
                     .UseLazyLoadingProxies(false)
-                    .UseInternalServiceProvider(new ServiceCollection()
-                        .AddEntityFrameworkInMemoryDatabase()
-                        .AddEntityFrameworkProxies()
-                        .BuildServiceProvider())
+                    .UseInternalServiceProvider(
+                        new ServiceCollection()
+                            .AddEntityFrameworkInMemoryDatabase()
+                            .AddEntityFrameworkProxies()
+                            .BuildServiceProvider())
                     .UseInMemoryDatabase(Guid.NewGuid().ToString());
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)

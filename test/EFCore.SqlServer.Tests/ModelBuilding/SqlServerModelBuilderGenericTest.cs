@@ -296,7 +296,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                             {
                                 tb.Ignore(l => l.Book);
                                 tb.WithOwner()
-                                  .HasConstraintName("AlternateLabelFK");
+                                    .HasConstraintName("AlternateLabelFK");
                                 tb.ToTable("TT", "TS");
                                 tb.IsMemoryOptimized();
                                 tb.OwnsOne(
@@ -480,7 +480,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 entityBuilder.Property(d => d.CustomerId);
                 entityBuilder.HasIndex(d => d.CustomerId);
                 entityBuilder.WithOwner(d => d.Customer)
-                             .HasPrincipalKey(c => c.AlternateKey);
+                    .HasPrincipalKey(c => c.AlternateKey);
 
                 modelBuilder.FinalizeModel();
 

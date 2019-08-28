@@ -8,7 +8,7 @@ using JetBrains.Annotations;
 namespace Microsoft.EntityFrameworkCore.Infrastructure
 {
     /// <summary>
-    ///    Information/metadata for an <see cref="IDbContextOptionsExtension"/>.
+    ///     Information/metadata for an <see cref="IDbContextOptionsExtension" />.
     /// </summary>
     public abstract class DbContextOptionsExtensionInfo
     {

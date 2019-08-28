@@ -9,7 +9,6 @@ using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 
@@ -68,11 +67,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.Northwind
                 customer.Orders.Add(order);
 
                 orderQueries.Add(
-                    new OrderQuery
-                    {
-                        CustomerID = order.CustomerID,
-                        Customer = order.Customer
-                    });
+                    new OrderQuery { CustomerID = order.CustomerID, Customer = order.Customer });
             }
 
             _orderQueries = orderQueries.ToArray();

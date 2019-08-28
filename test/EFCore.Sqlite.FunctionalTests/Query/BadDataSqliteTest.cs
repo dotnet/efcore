@@ -4,11 +4,11 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Data;
 using System.Data.Common;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Transactions;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -385,13 +385,13 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             public bool Close() => true;
 
-            public Task<bool> CloseAsync() => Task.FromResult<bool>(true);
+            public Task<bool> CloseAsync() => Task.FromResult(true);
 
             public bool IsMultipleActiveResultSetsEnabled { get; }
-            public IDbContextTransaction BeginTransaction(System.Data.IsolationLevel isolationLevel) => throw new NotImplementedException();
+            public IDbContextTransaction BeginTransaction(IsolationLevel isolationLevel) => throw new NotImplementedException();
 
             public Task<IDbContextTransaction> BeginTransactionAsync(
-                System.Data.IsolationLevel isolationLevel, CancellationToken cancellationToken = default) => throw new NotImplementedException();
+                IsolationLevel isolationLevel, CancellationToken cancellationToken = default) => throw new NotImplementedException();
 
             public IDbContextTransaction UseTransaction(DbTransaction transaction) => throw new NotImplementedException();
 

@@ -6,7 +6,6 @@ using System.Linq;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Sqlite.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.TestUtilities;
@@ -50,11 +49,7 @@ LIMIT 1");
             using (var context = CreateContext())
             {
                 context.Set<BuiltInNullableDataTypes>().Add(
-                    new BuiltInNullableDataTypes
-                    {
-                        Id = 14,
-                        TestNullableDecimal = 3m
-                    });
+                    new BuiltInNullableDataTypes { Id = 14, TestNullableDecimal = 3m });
 
                 Assert.Equal(1, context.SaveChanges());
             }
@@ -149,10 +144,7 @@ LIMIT 1");
             using (var context = CreateContext())
             {
                 context.Set<MappedNullableDataTypes>().Add(
-                    new MappedNullableDataTypes
-                    {
-                        Id = 78
-                    });
+                    new MappedNullableDataTypes { Id = 78 });
 
                 Assert.Equal(1, context.SaveChanges());
             }
@@ -200,12 +192,7 @@ LIMIT 1");
         }
 
         private static MappedSizedDataTypes CreateMappedSizedDataTypes(int id)
-            => new MappedSizedDataTypes
-            {
-                Id = id,
-                Nvarchar = "Into",
-                Binary = new byte[] { 10, 11, 12, 13 }
-            };
+            => new MappedSizedDataTypes { Id = id, Nvarchar = "Into", Binary = new byte[] { 10, 11, 12, 13 } };
 
         [ConditionalFact]
         public virtual void Can_insert_and_read_back_nulls_for_all_mapped_sized_data_types()
@@ -213,10 +200,7 @@ LIMIT 1");
             using (var context = CreateContext())
             {
                 context.Set<MappedSizedDataTypes>().Add(
-                    new MappedSizedDataTypes
-                    {
-                        Id = 78
-                    });
+                    new MappedSizedDataTypes { Id = 78 });
 
                 Assert.Equal(1, context.SaveChanges());
             }
@@ -279,11 +263,7 @@ LIMIT 1");
             using (var context = CreateContext())
             {
                 context.Set<MappedPrecisionAndScaledDataTypes>().Add(
-                    new MappedPrecisionAndScaledDataTypes
-                    {
-                        Id = 77,
-                        Decimal = 101.1m
-                    });
+                    new MappedPrecisionAndScaledDataTypes { Id = 77, Decimal = 101.1m });
 
                 Assert.Equal(1, context.SaveChanges());
             }
@@ -379,10 +359,7 @@ LIMIT 1");
             using (var context = CreateContext())
             {
                 context.Set<MappedNullableDataTypesWithIdentity>().Add(
-                    new MappedNullableDataTypesWithIdentity
-                    {
-                        AltId = 78
-                    });
+                    new MappedNullableDataTypesWithIdentity { AltId = 78 });
 
                 Assert.Equal(1, context.SaveChanges());
             }
@@ -431,12 +408,7 @@ LIMIT 1");
         }
 
         private static MappedSizedDataTypesWithIdentity CreateMappedSizedDataTypesWithIdentity(int id)
-            => new MappedSizedDataTypesWithIdentity
-            {
-                AltId = id,
-                Nvarchar = "Into",
-                Binary = new byte[] { 10, 11, 12, 13 }
-            };
+            => new MappedSizedDataTypesWithIdentity { AltId = id, Nvarchar = "Into", Binary = new byte[] { 10, 11, 12, 13 } };
 
         [ConditionalFact]
         public virtual void Can_insert_and_read_back_nulls_for_all_mapped_sized_data_types_with_Identity()
@@ -444,10 +416,7 @@ LIMIT 1");
             using (var context = CreateContext())
             {
                 context.Set<MappedSizedDataTypesWithIdentity>().Add(
-                    new MappedSizedDataTypesWithIdentity
-                    {
-                        AltId = 78
-                    });
+                    new MappedSizedDataTypesWithIdentity { AltId = 78 });
 
                 Assert.Equal(1, context.SaveChanges());
             }
@@ -510,11 +479,7 @@ LIMIT 1");
             using (var context = CreateContext())
             {
                 context.Set<MappedPrecisionAndScaledDataTypesWithIdentity>().Add(
-                    new MappedPrecisionAndScaledDataTypesWithIdentity
-                    {
-                        AltId = 77,
-                        Decimal = 101.1m
-                    });
+                    new MappedPrecisionAndScaledDataTypesWithIdentity { AltId = 77, Decimal = 101.1m });
 
                 Assert.Equal(1, context.SaveChanges());
             }
@@ -573,20 +538,11 @@ LIMIT 1");
             using (var context = CreateContext())
             {
                 context.Set<MappedNullableDataTypes>().Add(
-                    new MappedNullableDataTypes
-                    {
-                        Id = 278
-                    });
+                    new MappedNullableDataTypes { Id = 278 });
                 context.Set<MappedNullableDataTypes>().Add(
-                    new MappedNullableDataTypes
-                    {
-                        Id = 279
-                    });
+                    new MappedNullableDataTypes { Id = 279 });
                 context.Set<MappedNullableDataTypes>().Add(
-                    new MappedNullableDataTypes
-                    {
-                        Id = 280
-                    });
+                    new MappedNullableDataTypes { Id = 280 });
 
                 Assert.Equal(3, context.SaveChanges());
             }
@@ -627,20 +583,11 @@ LIMIT 1");
             using (var context = CreateContext())
             {
                 context.Set<MappedSizedDataTypes>().Add(
-                    new MappedSizedDataTypes
-                    {
-                        Id = 278
-                    });
+                    new MappedSizedDataTypes { Id = 278 });
                 context.Set<MappedSizedDataTypes>().Add(
-                    new MappedSizedDataTypes
-                    {
-                        Id = 279
-                    });
+                    new MappedSizedDataTypes { Id = 279 });
                 context.Set<MappedSizedDataTypes>().Add(
-                    new MappedSizedDataTypes
-                    {
-                        Id = 280
-                    });
+                    new MappedSizedDataTypes { Id = 280 });
 
                 Assert.Equal(3, context.SaveChanges());
             }
@@ -683,23 +630,11 @@ LIMIT 1");
             using (var context = CreateContext())
             {
                 context.Set<MappedPrecisionAndScaledDataTypes>().Add(
-                    new MappedPrecisionAndScaledDataTypes
-                    {
-                        Id = 177,
-                        Decimal = 101.1m
-                    });
+                    new MappedPrecisionAndScaledDataTypes { Id = 177, Decimal = 101.1m });
                 context.Set<MappedPrecisionAndScaledDataTypes>().Add(
-                    new MappedPrecisionAndScaledDataTypes
-                    {
-                        Id = 178,
-                        Decimal = 101.1m
-                    });
+                    new MappedPrecisionAndScaledDataTypes { Id = 178, Decimal = 101.1m });
                 context.Set<MappedPrecisionAndScaledDataTypes>().Add(
-                    new MappedPrecisionAndScaledDataTypes
-                    {
-                        Id = 179,
-                        Decimal = 101.1m
-                    });
+                    new MappedPrecisionAndScaledDataTypes { Id = 179, Decimal = 101.1m });
 
                 Assert.Equal(3, context.SaveChanges());
             }
@@ -769,20 +704,11 @@ LIMIT 1");
             using (var context = CreateContext())
             {
                 context.Set<MappedNullableDataTypesWithIdentity>().Add(
-                    new MappedNullableDataTypesWithIdentity
-                    {
-                        AltId = 278
-                    });
+                    new MappedNullableDataTypesWithIdentity { AltId = 278 });
                 context.Set<MappedNullableDataTypesWithIdentity>().Add(
-                    new MappedNullableDataTypesWithIdentity
-                    {
-                        AltId = 279
-                    });
+                    new MappedNullableDataTypesWithIdentity { AltId = 279 });
                 context.Set<MappedNullableDataTypesWithIdentity>().Add(
-                    new MappedNullableDataTypesWithIdentity
-                    {
-                        AltId = 280
-                    });
+                    new MappedNullableDataTypesWithIdentity { AltId = 280 });
 
                 Assert.Equal(3, context.SaveChanges());
             }
@@ -826,20 +752,11 @@ LIMIT 1");
             using (var context = CreateContext())
             {
                 context.Set<MappedSizedDataTypesWithIdentity>().Add(
-                    new MappedSizedDataTypesWithIdentity
-                    {
-                        AltId = 278
-                    });
+                    new MappedSizedDataTypesWithIdentity { AltId = 278 });
                 context.Set<MappedSizedDataTypesWithIdentity>().Add(
-                    new MappedSizedDataTypesWithIdentity
-                    {
-                        AltId = 279
-                    });
+                    new MappedSizedDataTypesWithIdentity { AltId = 279 });
                 context.Set<MappedSizedDataTypesWithIdentity>().Add(
-                    new MappedSizedDataTypesWithIdentity
-                    {
-                        AltId = 280
-                    });
+                    new MappedSizedDataTypesWithIdentity { AltId = 280 });
 
                 Assert.Equal(3, context.SaveChanges());
             }
@@ -885,23 +802,11 @@ LIMIT 1");
             using (var context = CreateContext())
             {
                 context.Set<MappedPrecisionAndScaledDataTypesWithIdentity>().Add(
-                    new MappedPrecisionAndScaledDataTypesWithIdentity
-                    {
-                        AltId = 177,
-                        Decimal = 101.1m
-                    });
+                    new MappedPrecisionAndScaledDataTypesWithIdentity { AltId = 177, Decimal = 101.1m });
                 context.Set<MappedPrecisionAndScaledDataTypesWithIdentity>().Add(
-                    new MappedPrecisionAndScaledDataTypesWithIdentity
-                    {
-                        AltId = 178,
-                        Decimal = 101.1m
-                    });
+                    new MappedPrecisionAndScaledDataTypesWithIdentity { AltId = 178, Decimal = 101.1m });
                 context.Set<MappedPrecisionAndScaledDataTypesWithIdentity>().Add(
-                    new MappedPrecisionAndScaledDataTypesWithIdentity
-                    {
-                        AltId = 179,
-                        Decimal = 101.1m
-                    });
+                    new MappedPrecisionAndScaledDataTypesWithIdentity { AltId = 179, Decimal = 101.1m });
 
                 Assert.Equal(3, context.SaveChanges());
             }
@@ -961,7 +866,6 @@ LIMIT 1");
                 {
                     Id = 202,
                     PartitionId = 200,
-
                     TestNullableDecimal = 10.000000000000001m,
                     TestNullableDateTimeOffset = new DateTimeOffset(2018, 1, 1, 11, 0, 0, TimeSpan.FromHours(-2)),
                     TestNullableTimeSpan = TimeSpan.FromDays(10),
@@ -1106,20 +1010,10 @@ LIMIT 1");
             using (var context = CreateContext())
             {
                 context.Add(
-                    new BuiltInNullableDataTypes
-                    {
-                        Id = 205,
-                        PartitionId = 202,
-                        TestNullableDecimal = 1.000000000000003m
-                    });
+                    new BuiltInNullableDataTypes { Id = 205, PartitionId = 202, TestNullableDecimal = 1.000000000000003m });
 
                 context.Add(
-                    new BuiltInNullableDataTypes
-                    {
-                        Id = 206,
-                        PartitionId = 202,
-                        TestNullableDecimal = 1.000000000000001m
-                    });
+                    new BuiltInNullableDataTypes { Id = 206, PartitionId = 202, TestNullableDecimal = 1.000000000000001m });
 
                 context.SaveChanges();
 
@@ -1140,20 +1034,10 @@ LIMIT 1");
             using (var context = CreateContext())
             {
                 context.Add(
-                    new BuiltInDataTypes
-                    {
-                        Id = 205,
-                        PartitionId = 203,
-                        TestDecimal = 1.000000000000001m
-                    });
+                    new BuiltInDataTypes { Id = 205, PartitionId = 203, TestDecimal = 1.000000000000001m });
 
                 context.Add(
-                    new BuiltInDataTypes
-                    {
-                        Id = 206,
-                        PartitionId = 203,
-                        TestDecimal = 1.000000000000001m
-                    });
+                    new BuiltInDataTypes { Id = 206, PartitionId = 203, TestDecimal = 1.000000000000001m });
 
                 context.SaveChanges();
 
@@ -1162,7 +1046,8 @@ LIMIT 1");
                         .Where(e => e.PartitionId == 203)
                         .Sum(e => e.TestDecimal));
                 Assert.Equal(
-                    CoreStrings.TranslationFailed("Projection Mapping:    EmptyProjectionMember -> [EntityProjectionExpression]SELECT 1FROM BuiltInDataTypes AS bWHERE b.PartitionId == 203"),
+                    CoreStrings.TranslationFailed(
+                        "Projection Mapping:    EmptyProjectionMember -> [EntityProjectionExpression]SELECT 1FROM BuiltInDataTypes AS bWHERE b.PartitionId == 203"),
                     RemoveNewLines(ex.Message));
             }
         }
@@ -1178,22 +1063,14 @@ LIMIT 1");
                 context.Add(
                     new BuiltInDataTypes
                     {
-                        Id = 207,
-                        PartitionId = 204,
-                        TestDecimal = 1.000000000000001m,
-                        TestTimeSpan = TimeSpan.FromMinutes(1)
+                        Id = 207, PartitionId = 204, TestDecimal = 1.000000000000001m, TestTimeSpan = TimeSpan.FromMinutes(1)
                     });
 
                 context.SaveChanges();
 
                 var result = context.Set<BuiltInDataTypes>()
                     .Select(
-                        e => new BuiltInDataTypes
-                        {
-                            Id = e.Id,
-                            TestDecimal = -e.TestDecimal,
-                            TestTimeSpan = -e.TestTimeSpan
-                        })
+                        e => new BuiltInDataTypes { Id = e.Id, TestDecimal = -e.TestDecimal, TestTimeSpan = -e.TestTimeSpan })
                     .First(e => e.Id == 207);
 
                 Assert.Equal(-1.000000000000001m, result.TestDecimal);
@@ -1312,7 +1189,8 @@ LIMIT 1");
                             e.Id,
                             TestDecimal = e.TestDecimal < 10m,
                             TestDateTime = e.TestDateTime < new DateTime(2018, 10, 10, 0, 0, 0),
-                            TestDateTimeOffset = e.TestDateTimeOffset < new DateTimeOffset(2018, 1, 1, 11, 0, 0, TimeSpan.FromHours(-2)),
+                            TestDateTimeOffset =
+                                e.TestDateTimeOffset < new DateTimeOffset(2018, 1, 1, 11, 0, 0, TimeSpan.FromHours(-2)),
                             TestTimeSpan = e.TestTimeSpan < new TimeSpan(10, 0, 0, 0),
                             TestUnsignedInt64 = e.TestUnsignedInt64 < ulong.MaxValue,
                             TestCharacter = e.TestCharacter < 'B'
@@ -1355,7 +1233,8 @@ LIMIT 1");
                             e.Id,
                             TestDecimal = e.TestDecimal <= 10m,
                             TestDateTime = e.TestDateTime <= new DateTime(2018, 10, 10, 0, 0, 0),
-                            TestDateTimeOffset = e.TestDateTimeOffset <= new DateTimeOffset(2018, 1, 1, 11, 0, 0, TimeSpan.FromHours(-2)),
+                            TestDateTimeOffset =
+                                e.TestDateTimeOffset <= new DateTimeOffset(2018, 1, 1, 11, 0, 0, TimeSpan.FromHours(-2)),
                             TestTimeSpan = e.TestTimeSpan <= new TimeSpan(10, 0, 0, 0),
                             TestUnsignedInt64 = e.TestUnsignedInt64 <= ulong.MaxValue,
                             TestCharacter = e.TestCharacter <= 'B'
@@ -1398,7 +1277,8 @@ LIMIT 1");
                             e.Id,
                             TestDecimal = e.TestDecimal > 10m,
                             TestDateTime = e.TestDateTime > new DateTime(2018, 10, 10, 0, 0, 0),
-                            TestDateTimeOffset = e.TestDateTimeOffset > new DateTimeOffset(2018, 1, 1, 11, 0, 0, TimeSpan.FromHours(-2)),
+                            TestDateTimeOffset =
+                                e.TestDateTimeOffset > new DateTimeOffset(2018, 1, 1, 11, 0, 0, TimeSpan.FromHours(-2)),
                             TestTimeSpan = e.TestTimeSpan > new TimeSpan(10, 0, 0, 0),
                             TestUnsignedInt64 = e.TestUnsignedInt64 > ulong.MaxValue,
                             TestCharacter = e.TestCharacter > 'B'
@@ -1441,7 +1321,8 @@ LIMIT 1");
                             e.Id,
                             TestDecimal = e.TestDecimal >= 10m,
                             TestDateTime = e.TestDateTime >= new DateTime(2018, 10, 10, 0, 0, 0),
-                            TestDateTimeOffset = e.TestDateTimeOffset >= new DateTimeOffset(2018, 1, 1, 11, 0, 0, TimeSpan.FromHours(-2)),
+                            TestDateTimeOffset =
+                                e.TestDateTimeOffset >= new DateTimeOffset(2018, 1, 1, 11, 0, 0, TimeSpan.FromHours(-2)),
                             TestTimeSpan = e.TestTimeSpan >= new TimeSpan(10, 0, 0, 0),
                             TestUnsignedInt64 = e.TestUnsignedInt64 >= ulong.MaxValue,
                             TestCharacter = e.TestCharacter >= 'B'
@@ -1537,10 +1418,7 @@ LIMIT 1");
                 context.Add(
                     new BuiltInDataTypes
                     {
-                        Id = 216,
-                        PartitionId = 204,
-                        TestDecimal = 3.000000000000003m,
-                        TestUnsignedInt64 = 10000000000000000001
+                        Id = 216, PartitionId = 204, TestDecimal = 3.000000000000003m, TestUnsignedInt64 = 10000000000000000001
                     });
 
                 context.SaveChanges();
@@ -1580,7 +1458,6 @@ LIMIT 1");
                 {
                     Id = 218,
                     PartitionId = 205,
-
                     TestNullableDecimal = 10.000000000000001m,
                     TestNullableDateTimeOffset = new DateTimeOffset(2018, 1, 1, 11, 0, 0, TimeSpan.FromHours(-2)),
                     TestNullableTimeSpan = TimeSpan.FromDays(10),

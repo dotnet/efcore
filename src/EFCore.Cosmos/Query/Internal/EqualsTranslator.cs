@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -48,13 +48,14 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                 right = RemoveObjectConvert(arguments[0]);
             }
             else if (method.Name == nameof(object.Equals)
-                && arguments.Count == 2)
+                     && arguments.Count == 2)
             {
                 left = RemoveObjectConvert(arguments[0]);
                 right = RemoveObjectConvert(arguments[1]);
             }
 
-            if (left != null && right != null)
+            if (left != null
+                && right != null)
             {
                 return left.Type.UnwrapNullableType() == right.Type.UnwrapNullableType()
                     ? (SqlExpression)_sqlExpressionFactory.Equal(left, right)

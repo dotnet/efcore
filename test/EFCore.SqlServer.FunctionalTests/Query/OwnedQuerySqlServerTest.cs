@@ -824,7 +824,7 @@ WHERE [o0].[Discriminator] IN (N'OwnedPerson', N'Branch', N'LeafB', N'LeafA')");
             base.Navigation_rewrite_on_owned_reference_followed_by_regular_entity();
 
             AssertSql(
-               @"SELECT [p].[Id], [p].[StarId]
+                @"SELECT [p].[Id], [p].[StarId]
 FROM [OwnedPerson] AS [o]
 LEFT JOIN (
     SELECT [o0].[Id], [t].[Id] AS [Id0]

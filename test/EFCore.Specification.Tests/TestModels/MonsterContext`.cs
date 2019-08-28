@@ -128,11 +128,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels
             modelBuilder.Entity<TSuspiciousActivity>();
             modelBuilder.Entity<TLastLogin>().HasKey(e => e.Username);
             modelBuilder.Entity<TMessage>().HasKey(
-                e => new
-                {
-                    e.MessageId,
-                    e.FromUsername
-                });
+                e => new { e.MessageId, e.FromUsername });
 
             modelBuilder.Entity<TOrderNote>().HasKey(e => e.NoteId);
 
@@ -190,11 +186,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels
                 b =>
                 {
                     b.HasKey(
-                        e => new
-                        {
-                            e.OrderId,
-                            e.ProductId
-                        });
+                        e => new { e.OrderId, e.ProductId });
 
                     b.HasOne(e => (TProduct)e.Product).WithMany().HasForeignKey(e => e.ProductId);
                 });
@@ -244,50 +236,26 @@ namespace Microsoft.EntityFrameworkCore.TestModels
                 b =>
                 {
                     b.HasKey(
-                        e => new
-                        {
-                            e.PhotoId,
-                            e.ProductId
-                        });
+                        e => new { e.PhotoId, e.ProductId });
 
                     b.HasMany(e => (IEnumerable<TProductWebFeature>)e.Features).WithOne(e => (TProductPhoto)e.Photo)
                         .HasForeignKey(
-                            e => new
-                            {
-                                e.PhotoId,
-                                e.ProductId
-                            })
+                            e => new { e.PhotoId, e.ProductId })
                         .HasPrincipalKey(
-                            e => new
-                            {
-                                e.PhotoId,
-                                e.ProductId
-                            });
+                            e => new { e.PhotoId, e.ProductId });
                 });
 
             modelBuilder.Entity<TProductReview>(
                 b =>
                 {
                     b.HasKey(
-                        e => new
-                        {
-                            e.ReviewId,
-                            e.ProductId
-                        });
+                        e => new { e.ReviewId, e.ProductId });
 
                     b.HasMany(e => (IEnumerable<TProductWebFeature>)e.Features).WithOne(e => (TProductReview)e.Review)
                         .HasForeignKey(
-                            e => new
-                            {
-                                e.ReviewId,
-                                e.ProductId
-                            })
+                            e => new { e.ReviewId, e.ProductId })
                         .HasPrincipalKey(
-                            e => new
-                            {
-                                e.ReviewId,
-                                e.ProductId
-                            });
+                            e => new { e.ReviewId, e.ProductId });
                 });
 
             modelBuilder.Entity<TLogin>(
@@ -316,11 +284,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels
                 b =>
                 {
                     b.HasKey(
-                        e => new
-                        {
-                            e.ResetNo,
-                            e.Username
-                        });
+                        e => new { e.ResetNo, e.Username });
 
                     b.HasOne(e => (TLogin)e.Login).WithMany()
                         .HasForeignKey(e => e.Username)
@@ -402,65 +366,25 @@ namespace Microsoft.EntityFrameworkCore.TestModels
         public override void SeedUsingFKs()
         {
             var customer0 = Add(
-                new TCustomer
-                {
-                    Name = "Eeky Bear"
-                }).Entity;
+                new TCustomer { Name = "Eeky Bear" }).Entity;
             var customer1 = Add(
-                new TCustomer
-                {
-                    Name = "Sheila Koalie"
-                }).Entity;
+                new TCustomer { Name = "Sheila Koalie" }).Entity;
             var customer3 = Add(
-                new TCustomer
-                {
-                    Name = "Tarquin Tiger"
-                }).Entity;
+                new TCustomer { Name = "Tarquin Tiger" }).Entity;
 
             var customer2 = Add(
-                new TCustomer
-                {
-                    Name = "Sue Pandy",
-                    HusbandId = Entry(customer0).Property(e => e.CustomerId).CurrentValue
-                }).Entity;
+                new TCustomer { Name = "Sue Pandy", HusbandId = Entry(customer0).Property(e => e.CustomerId).CurrentValue }).Entity;
 
             var product1 = Add(
-                new TProduct
-                {
-                    Description = "Mrs Koalie's Famous Waffles",
-                    BaseConcurrency = "Pounds Sterling"
-                }).Entity;
+                new TProduct { Description = "Mrs Koalie's Famous Waffles", BaseConcurrency = "Pounds Sterling" }).Entity;
             var product2 = Add(
-                new TProduct
-                {
-                    Description = "Chocolate Donuts",
-                    BaseConcurrency = "US Dollars"
-                }).Entity;
+                new TProduct { Description = "Chocolate Donuts", BaseConcurrency = "US Dollars" }).Entity;
             var product3 = Add(
-                new TProduct
-                {
-                    Description = "Assorted Dog Treats",
-                    BaseConcurrency = "Stuffy Money"
-                }).Entity;
+                new TProduct { Description = "Assorted Dog Treats", BaseConcurrency = "Stuffy Money" }).Entity;
 
-            product1.Dimensions = new TDimensions
-            {
-                Depth = 3,
-                Width = 3,
-                Height = 0.5M
-            };
-            product2.Dimensions = new TDimensions
-            {
-                Depth = 2,
-                Width = 2,
-                Height = 1
-            };
-            product3.Dimensions = new TDimensions
-            {
-                Depth = 3,
-                Width = 1,
-                Height = 4
-            };
+            product1.Dimensions = new TDimensions { Depth = 3, Width = 3, Height = 0.5M };
+            product2.Dimensions = new TDimensions { Depth = 2, Width = 2, Height = 1 };
+            product3.Dimensions = new TDimensions { Depth = 3, Width = 1, Height = 4 };
 
             var barcode1 = Add(
                 new TBarcode
@@ -485,17 +409,9 @@ namespace Microsoft.EntityFrameworkCore.TestModels
                 }).Entity;
 
             var barcodeDetails1 = Add(
-                new TBarcodeDetail
-                {
-                    Code = Entry(barcode1).Property(e => e.Code).CurrentValue,
-                    RegisteredTo = "Eeky Bear"
-                }).Entity;
+                new TBarcodeDetail { Code = Entry(barcode1).Property(e => e.Code).CurrentValue, RegisteredTo = "Eeky Bear" }).Entity;
             var barcodeDetails2 = Add(
-                new TBarcodeDetail
-                {
-                    Code = Entry(barcode2).Property(e => e.Code).CurrentValue,
-                    RegisteredTo = "Trent"
-                }).Entity;
+                new TBarcodeDetail { Code = Entry(barcode2).Property(e => e.Code).CurrentValue, RegisteredTo = "Trent" }).Entity;
 
             var incorrectScan1 = Add(
                 new TIncorrectScan
@@ -565,36 +481,31 @@ namespace Microsoft.EntityFrameworkCore.TestModels
             var suspiciousActivity1 = Add(
                 new TSuspiciousActivity
                 {
-                    Activity = "Pig prints on keyboard",
-                    Username = Entry(login3).Property(e => e.Username).CurrentValue
+                    Activity = "Pig prints on keyboard", Username = Entry(login3).Property(e => e.Username).CurrentValue
                 }).Entity;
             var suspiciousActivity2 = Add(
                 new TSuspiciousActivity
                 {
-                    Activity = "Crumbs in the cupboard",
-                    Username = Entry(login3).Property(e => e.Username).CurrentValue
+                    Activity = "Crumbs in the cupboard", Username = Entry(login3).Property(e => e.Username).CurrentValue
                 }).Entity;
             var suspiciousActivity3 = Add(
                 new TSuspiciousActivity
                 {
-                    Activity = "Donuts gone missing",
-                    Username = Entry(login3).Property(e => e.Username).CurrentValue
+                    Activity = "Donuts gone missing", Username = Entry(login3).Property(e => e.Username).CurrentValue
                 }).Entity;
 
             var rsaToken1 = Add(
-                new TRsaToken
-                {
-                    Issued = DateTime.Now,
-                    Serial = "1234",
-                    Username = Entry(login1).Property(e => e.Username).CurrentValue
-                }).Entity;
+                    new TRsaToken
+                        {
+                            Issued = DateTime.Now, Serial = "1234", Username = Entry(login1).Property(e => e.Username).CurrentValue
+                        })
+                .Entity;
             var rsaToken2 = Add(
-                new TRsaToken
-                {
-                    Issued = DateTime.Now,
-                    Serial = "2234",
-                    Username = Entry(login2).Property(e => e.Username).CurrentValue
-                }).Entity;
+                    new TRsaToken
+                        {
+                            Issued = DateTime.Now, Serial = "2234", Username = Entry(login2).Property(e => e.Username).CurrentValue
+                        })
+                .Entity;
 
             var smartCard1 = Add(
                 new TSmartCard
@@ -623,23 +534,17 @@ namespace Microsoft.EntityFrameworkCore.TestModels
             var pageView1 = Add(
                 new TPageView
                 {
-                    PageUrl = "somePage1",
-                    Username = Entry(login1).Property(e => e.Username).CurrentValue,
-                    Viewed = DateTime.Now
+                    PageUrl = "somePage1", Username = Entry(login1).Property(e => e.Username).CurrentValue, Viewed = DateTime.Now
                 }).Entity;
             var pageView2 = Add(
                 new TPageView
                 {
-                    PageUrl = "somePage2",
-                    Username = Entry(login1).Property(e => e.Username).CurrentValue,
-                    Viewed = DateTime.Now
+                    PageUrl = "somePage2", Username = Entry(login1).Property(e => e.Username).CurrentValue, Viewed = DateTime.Now
                 }).Entity;
             var pageView3 = Add(
                 new TPageView
                 {
-                    PageUrl = "somePage3",
-                    Username = Entry(login1).Property(e => e.Username).CurrentValue,
-                    Viewed = DateTime.Now
+                    PageUrl = "somePage3", Username = Entry(login1).Property(e => e.Username).CurrentValue, Viewed = DateTime.Now
                 }).Entity;
 
             var lastLogin1 = Add(
@@ -713,23 +618,11 @@ namespace Microsoft.EntityFrameworkCore.TestModels
                 }).Entity;
 
             var orderNote1 = Add(
-                new TOrderNote
-                {
-                    Note = "Must have tea!",
-                    OrderId = Entry(order1).Property(e => e.AlternateId).CurrentValue
-                }).Entity;
+                new TOrderNote { Note = "Must have tea!", OrderId = Entry(order1).Property(e => e.AlternateId).CurrentValue }).Entity;
             var orderNote2 = Add(
-                new TOrderNote
-                {
-                    Note = "And donuts!",
-                    OrderId = Entry(order1).Property(e => e.AlternateId).CurrentValue
-                }).Entity;
+                new TOrderNote { Note = "And donuts!", OrderId = Entry(order1).Property(e => e.AlternateId).CurrentValue }).Entity;
             var orderNote3 = Add(
-                new TOrderNote
-                {
-                    Note = "But no coffee. :-(",
-                    OrderId = Entry(order1).Property(e => e.AlternateId).CurrentValue
-                }).Entity;
+                new TOrderNote { Note = "But no coffee. :-(", OrderId = Entry(order1).Property(e => e.AlternateId).CurrentValue }).Entity;
 
             var orderQualityCheck1 = Add(
                 new TOrderQualityCheck
@@ -799,53 +692,47 @@ namespace Microsoft.EntityFrameworkCore.TestModels
             var productDetail1 = Add(
                 new TProductDetail
                 {
-                    Details = "A Waffle Cart specialty!",
-                    ProductId = Entry(product1).Property(e => e.ProductId).CurrentValue
+                    Details = "A Waffle Cart specialty!", ProductId = Entry(product1).Property(e => e.ProductId).CurrentValue
                 }).Entity;
             var productDetail2 = Add(
                 new TProductDetail
                 {
-                    Details = "Eeky Bear's favorite!",
-                    ProductId = Entry(product2).Property(e => e.ProductId).CurrentValue
+                    Details = "Eeky Bear's favorite!", ProductId = Entry(product2).Property(e => e.ProductId).CurrentValue
                 }).Entity;
 
             var productReview1 = Add(
-                new TProductReview
-                {
-                    ProductId = Entry(product1).Property(e => e.ProductId).CurrentValue,
-                    Review = "Better than Tarqies!"
-                }).Entity;
+                    new TProductReview
+                        {
+                            ProductId = Entry(product1).Property(e => e.ProductId).CurrentValue, Review = "Better than Tarqies!"
+                        })
+                .Entity;
             var productReview2 = Add(
                 new TProductReview
                 {
-                    ProductId = Entry(product1).Property(e => e.ProductId).CurrentValue,
-                    Review = "Good with maple syrup."
+                    ProductId = Entry(product1).Property(e => e.ProductId).CurrentValue, Review = "Good with maple syrup."
                 }).Entity;
             var productReview3 = Add(
-                new TProductReview
-                {
-                    ProductId = Entry(product2).Property(e => e.ProductId).CurrentValue,
-                    Review = "Eeky says yes!"
-                }).Entity;
+                    new TProductReview { ProductId = Entry(product2).Property(e => e.ProductId).CurrentValue, Review = "Eeky says yes!" })
+                .Entity;
 
             var productPhoto1 = Add(
-                new TProductPhoto
-                {
-                    ProductId = Entry(product1).Property(e => e.ProductId).CurrentValue,
-                    Photo = new byte[] { 101, 102 }
-                }).Entity;
+                    new TProductPhoto
+                        {
+                            ProductId = Entry(product1).Property(e => e.ProductId).CurrentValue, Photo = new byte[] { 101, 102 }
+                        })
+                .Entity;
             var productPhoto2 = Add(
-                new TProductPhoto
-                {
-                    ProductId = Entry(product1).Property(e => e.ProductId).CurrentValue,
-                    Photo = new byte[] { 103, 104 }
-                }).Entity;
+                    new TProductPhoto
+                        {
+                            ProductId = Entry(product1).Property(e => e.ProductId).CurrentValue, Photo = new byte[] { 103, 104 }
+                        })
+                .Entity;
             var productPhoto3 = Add(
-                new TProductPhoto
-                {
-                    ProductId = Entry(product3).Property(e => e.ProductId).CurrentValue,
-                    Photo = new byte[] { 105, 106 }
-                }).Entity;
+                    new TProductPhoto
+                        {
+                            ProductId = Entry(product3).Property(e => e.ProductId).CurrentValue, Photo = new byte[] { 105, 106 }
+                        })
+                .Entity;
 
             var productWebFeature1 = Add(
                 new TProductWebFeature
@@ -865,65 +752,48 @@ namespace Microsoft.EntityFrameworkCore.TestModels
                 }).Entity;
 
             var supplier1 = Add(
-                new TSupplier
-                {
-                    Name = "Trading As Trent"
-                }).Entity;
+                new TSupplier { Name = "Trading As Trent" }).Entity;
             var supplier2 = Add(
-                new TSupplier
-                {
-                    Name = "Ants By Boris"
-                }).Entity;
+                new TSupplier { Name = "Ants By Boris" }).Entity;
 
             var supplierLogo1 = Add(
                 new TSupplierLogo
                 {
-                    SupplierId = Entry(supplier1).Property(e => e.SupplierId).CurrentValue,
-                    Logo = new byte[] { 201, 202 }
+                    SupplierId = Entry(supplier1).Property(e => e.SupplierId).CurrentValue, Logo = new byte[] { 201, 202 }
                 }).Entity;
 
             var supplierInfo1 = Add(
                 new TSupplierInfo
                 {
-                    SupplierId = Entry(supplier1).Property(e => e.SupplierId).CurrentValue,
-                    Information = "Seems a bit dodgy."
+                    SupplierId = Entry(supplier1).Property(e => e.SupplierId).CurrentValue, Information = "Seems a bit dodgy."
                 }).Entity;
             var supplierInfo2 = Add(
-                new TSupplierInfo
-                {
-                    SupplierId = Entry(supplier1).Property(e => e.SupplierId).CurrentValue,
-                    Information = "Orange fur?"
-                }).Entity;
+                    new TSupplierInfo
+                        {
+                            SupplierId = Entry(supplier1).Property(e => e.SupplierId).CurrentValue, Information = "Orange fur?"
+                        })
+                .Entity;
             var supplierInfo3 = Add(
                 new TSupplierInfo
                 {
-                    SupplierId = Entry(supplier2).Property(e => e.SupplierId).CurrentValue,
-                    Information = "Very expensive!"
+                    SupplierId = Entry(supplier2).Property(e => e.SupplierId).CurrentValue, Information = "Very expensive!"
                 }).Entity;
 
             var customerInfo1 = Add(
                 new TCustomerInfo
                 {
-                    CustomerInfoId = Entry(customer1).Property(e => e.CustomerId).CurrentValue,
-                    Information = "Really likes tea."
+                    CustomerInfoId = Entry(customer1).Property(e => e.CustomerId).CurrentValue, Information = "Really likes tea."
                 }).Entity;
             var customerInfo2 = Add(
                 new TCustomerInfo
                 {
-                    CustomerInfoId = Entry(customer2).Property(e => e.CustomerId).CurrentValue,
-                    Information = "Mrs Bossy Pants!"
+                    CustomerInfoId = Entry(customer2).Property(e => e.CustomerId).CurrentValue, Information = "Mrs Bossy Pants!"
                 }).Entity;
 
             var computer1 = Add(
-                new TComputer
-                {
-                    Name = "markash420"
-                }).Entity;
+                new TComputer { Name = "markash420" }).Entity;
             var computer2 = Add(
-                new TComputer
-                {
-                    Name = "unicorns420"
-                }).Entity;
+                new TComputer { Name = "unicorns420" }).Entity;
 
             var computerDetail1 = Add(
                 new TComputerDetail
@@ -948,17 +818,9 @@ namespace Microsoft.EntityFrameworkCore.TestModels
                 }).Entity;
 
             var driver1 = Add(
-                new TDriver
-                {
-                    BirthDate = new DateTime(2006, 9, 19),
-                    Name = "Eeky Bear"
-                }).Entity;
+                new TDriver { BirthDate = new DateTime(2006, 9, 19), Name = "Eeky Bear" }).Entity;
             var driver2 = Add(
-                new TDriver
-                {
-                    BirthDate = new DateTime(2007, 9, 19),
-                    Name = "Splash Bear"
-                }).Entity;
+                new TDriver { BirthDate = new DateTime(2007, 9, 19), Name = "Splash Bear" }).Entity;
 
             var license1 = Add(
                 new TLicense
@@ -988,91 +850,39 @@ namespace Microsoft.EntityFrameworkCore.TestModels
         public override void SeedUsingNavigations(bool dependentNavs, bool principalNavs)
         {
             var customer0 = Add(
-                new TCustomer
-                {
-                    Name = "Eeky Bear"
-                }).Entity;
+                new TCustomer { Name = "Eeky Bear" }).Entity;
             var customer1 = Add(
-                new TCustomer
-                {
-                    Name = "Sheila Koalie"
-                }).Entity;
+                new TCustomer { Name = "Sheila Koalie" }).Entity;
             var customer3 = Add(
-                new TCustomer
-                {
-                    Name = "Tarquin Tiger"
-                }).Entity;
+                new TCustomer { Name = "Tarquin Tiger" }).Entity;
 
             var customer2 = Add(
-                new TCustomer
-                {
-                    Name = "Sue Pandy",
-                    Husband = dependentNavs ? customer0 : null
-                }).Entity;
+                new TCustomer { Name = "Sue Pandy", Husband = dependentNavs ? customer0 : null }).Entity;
             if (principalNavs)
             {
                 customer0.Wife = customer2;
             }
 
             var product1 = Add(
-                new TProduct
-                {
-                    Description = "Mrs Koalie's Famous Waffles",
-                    BaseConcurrency = "Pounds Sterling"
-                }).Entity;
+                new TProduct { Description = "Mrs Koalie's Famous Waffles", BaseConcurrency = "Pounds Sterling" }).Entity;
             var product2 = Add(
-                new TProduct
-                {
-                    Description = "Chocolate Donuts",
-                    BaseConcurrency = "US Dollars"
-                }).Entity;
+                new TProduct { Description = "Chocolate Donuts", BaseConcurrency = "US Dollars" }).Entity;
             var product3 = Add(
-                new TProduct
-                {
-                    Description = "Assorted Dog Treats",
-                    BaseConcurrency = "Stuffy Money"
-                }).Entity;
+                new TProduct { Description = "Assorted Dog Treats", BaseConcurrency = "Stuffy Money" }).Entity;
 
-            product1.Dimensions = new TDimensions
-            {
-                Depth = 3,
-                Width = 3,
-                Height = 0.5M
-            };
-            product2.Dimensions = new TDimensions
-            {
-                Depth = 2,
-                Width = 2,
-                Height = 1
-            };
-            product3.Dimensions = new TDimensions
-            {
-                Depth = 3,
-                Width = 1,
-                Height = 4
-            };
+            product1.Dimensions = new TDimensions { Depth = 3, Width = 3, Height = 0.5M };
+            product2.Dimensions = new TDimensions { Depth = 2, Width = 2, Height = 1 };
+            product3.Dimensions = new TDimensions { Depth = 3, Width = 1, Height = 4 };
 
             var barcode1 = Add(
-                new TBarcode
-                {
-                    Code = new byte[] { 1, 2, 3, 4 },
-                    Product = dependentNavs ? product1 : null,
-                    Text = "Barcode 1 2 3 4"
-                }).Entity;
+                    new TBarcode { Code = new byte[] { 1, 2, 3, 4 }, Product = dependentNavs ? product1 : null, Text = "Barcode 1 2 3 4" })
+                .Entity;
             var barcode2 = Add(
-                new TBarcode
-                {
-                    Code = new byte[] { 2, 2, 3, 4 },
-                    Product = dependentNavs ? product2 : null,
-                    Text = "Barcode 2 2 3 4"
-                }).Entity;
+                    new TBarcode { Code = new byte[] { 2, 2, 3, 4 }, Product = dependentNavs ? product2 : null, Text = "Barcode 2 2 3 4" })
+                .Entity;
             var barcode3 = Add(
-                new TBarcode
-                {
-                    Code = new byte[] { 3, 2, 3, 4 },
-                    Product = dependentNavs ? product3 : null,
-                    Text = "Barcode 3 2 3 4"
-                }).Entity;
+                    new TBarcode { Code = new byte[] { 3, 2, 3, 4 }, Product = dependentNavs ? product3 : null, Text = "Barcode 3 2 3 4" })
+                .Entity;
             if (principalNavs)
             {
                 product1.InitializeCollections();
@@ -1084,17 +894,9 @@ namespace Microsoft.EntityFrameworkCore.TestModels
             }
 
             var barcodeDetails1 = Add(
-                new TBarcodeDetail
-                {
-                    Code = barcode1.Code,
-                    RegisteredTo = "Eeky Bear"
-                }).Entity;
+                new TBarcodeDetail { Code = barcode1.Code, RegisteredTo = "Eeky Bear" }).Entity;
             var barcodeDetails2 = Add(
-                new TBarcodeDetail
-                {
-                    Code = barcode2.Code,
-                    RegisteredTo = "Trent"
-                }).Entity;
+                new TBarcodeDetail { Code = barcode2.Code, RegisteredTo = "Trent" }).Entity;
             if (principalNavs)
             {
                 barcode1.Detail = barcodeDetails1;
@@ -1148,37 +950,23 @@ namespace Microsoft.EntityFrameworkCore.TestModels
                 }).Entity;
 
             var resolution = Add(
-                new TResolution
-                {
-                    Complaint = dependentNavs ? complaint2 : null,
-                    Details = "Destroyed all coffee in Redmond area."
-                }).Entity;
+                    new TResolution { Complaint = dependentNavs ? complaint2 : null, Details = "Destroyed all coffee in Redmond area." })
+                .Entity;
             if (principalNavs)
             {
                 complaint2.Resolution = resolution;
             }
 
             var login1 = Add(
-                new TLogin
-                {
-                    Customer = dependentNavs ? customer1 : null,
-                    Username = "MrsKoalie73",
-                    AlternateUsername = "Sheila"
-                }).Entity;
+                new TLogin { Customer = dependentNavs ? customer1 : null, Username = "MrsKoalie73", AlternateUsername = "Sheila" }).Entity;
             var login2 = Add(
-                new TLogin
-                {
-                    Customer = dependentNavs ? customer2 : null,
-                    Username = "MrsBossyPants",
-                    AlternateUsername = "Sue"
-                }).Entity;
+                new TLogin { Customer = dependentNavs ? customer2 : null, Username = "MrsBossyPants", AlternateUsername = "Sue" }).Entity;
             var login3 = Add(
-                new TLogin
-                {
-                    Customer = dependentNavs ? customer3 : null,
-                    Username = "TheStripedMenace",
-                    AlternateUsername = "Tarquin"
-                }).Entity;
+                    new TLogin
+                        {
+                            Customer = dependentNavs ? customer3 : null, Username = "TheStripedMenace", AlternateUsername = "Tarquin"
+                        })
+                .Entity;
             if (principalNavs)
             {
                 customer1.InitializeCollections();
@@ -1192,36 +980,23 @@ namespace Microsoft.EntityFrameworkCore.TestModels
             var suspiciousActivity1 = Add(
                 new TSuspiciousActivity
                 {
-                    Activity = "Pig prints on keyboard",
-                    Username = Entry(login3).Property(e => e.Username).CurrentValue
+                    Activity = "Pig prints on keyboard", Username = Entry(login3).Property(e => e.Username).CurrentValue
                 }).Entity;
             var suspiciousActivity2 = Add(
                 new TSuspiciousActivity
                 {
-                    Activity = "Crumbs in the cupboard",
-                    Username = Entry(login3).Property(e => e.Username).CurrentValue
+                    Activity = "Crumbs in the cupboard", Username = Entry(login3).Property(e => e.Username).CurrentValue
                 }).Entity;
             var suspiciousActivity3 = Add(
                 new TSuspiciousActivity
                 {
-                    Activity = "Donuts gone missing",
-                    Username = Entry(login3).Property(e => e.Username).CurrentValue
+                    Activity = "Donuts gone missing", Username = Entry(login3).Property(e => e.Username).CurrentValue
                 }).Entity;
 
             var rsaToken1 = Add(
-                new TRsaToken
-                {
-                    Issued = DateTime.Now,
-                    Serial = "1234",
-                    Login = login1
-                }).Entity;
+                new TRsaToken { Issued = DateTime.Now, Serial = "1234", Login = login1 }).Entity;
             var rsaToken2 = Add(
-                new TRsaToken
-                {
-                    Issued = DateTime.Now,
-                    Serial = "2234",
-                    Login = login2
-                }).Entity;
+                new TRsaToken { Issued = DateTime.Now, Serial = "2234", Login = login2 }).Entity;
 
             var smartCard1 = Add(
                 new TSmartCard
@@ -1239,35 +1014,14 @@ namespace Microsoft.EntityFrameworkCore.TestModels
                 }).Entity;
 
             var reset1 = Add(
-                new TPasswordReset
-                {
-                    EmailedTo = "trent@example.com",
-                    ResetNo = 1,
-                    TempPassword = "Rent-A-Mole",
-                    Login = login3
-                }).Entity;
+                new TPasswordReset { EmailedTo = "trent@example.com", ResetNo = 1, TempPassword = "Rent-A-Mole", Login = login3 }).Entity;
 
             var pageView1 = Add(
-                new TPageView
-                {
-                    PageUrl = "somePage1",
-                    Login = login1,
-                    Viewed = DateTime.Now
-                }).Entity;
+                new TPageView { PageUrl = "somePage1", Login = login1, Viewed = DateTime.Now }).Entity;
             var pageView2 = Add(
-                new TPageView
-                {
-                    PageUrl = "somePage2",
-                    Login = login1,
-                    Viewed = DateTime.Now
-                }).Entity;
+                new TPageView { PageUrl = "somePage2", Login = login1, Viewed = DateTime.Now }).Entity;
             var pageView3 = Add(
-                new TPageView
-                {
-                    PageUrl = "somePage3",
-                    Login = login1,
-                    Viewed = DateTime.Now
-                }).Entity;
+                new TPageView { PageUrl = "somePage3", Login = login1, Viewed = DateTime.Now }).Entity;
 
             var lastLogin1 = Add(
                 new TLastLogin
@@ -1348,26 +1102,14 @@ namespace Microsoft.EntityFrameworkCore.TestModels
             }
 
             var order1 = Add(
-                new TAnOrder
-                {
-                    Customer = dependentNavs ? customer1 : null,
-                    Login = dependentNavs ? login1 : null,
-                    AlternateId = 77
-                }).Entity;
+                    new TAnOrder { Customer = dependentNavs ? customer1 : null, Login = dependentNavs ? login1 : null, AlternateId = 77 })
+                .Entity;
             var order2 = Add(
-                new TAnOrder
-                {
-                    Customer = dependentNavs ? customer2 : null,
-                    Login = dependentNavs ? login2 : null,
-                    AlternateId = 78
-                }).Entity;
+                    new TAnOrder { Customer = dependentNavs ? customer2 : null, Login = dependentNavs ? login2 : null, AlternateId = 78 })
+                .Entity;
             var order3 = Add(
-                new TAnOrder
-                {
-                    Customer = dependentNavs ? customer3 : null,
-                    Login = dependentNavs ? login3 : null,
-                    AlternateId = 79
-                }).Entity;
+                    new TAnOrder { Customer = dependentNavs ? customer3 : null, Login = dependentNavs ? login3 : null, AlternateId = 79 })
+                .Entity;
             if (principalNavs)
             {
                 customer1.Orders.Add(order1);
@@ -1380,23 +1122,11 @@ namespace Microsoft.EntityFrameworkCore.TestModels
             }
 
             var orderNote1 = Add(
-                new TOrderNote
-                {
-                    Note = "Must have tea!",
-                    Order = dependentNavs ? order1 : null
-                }).Entity;
+                new TOrderNote { Note = "Must have tea!", Order = dependentNavs ? order1 : null }).Entity;
             var orderNote2 = Add(
-                new TOrderNote
-                {
-                    Note = "And donuts!",
-                    Order = dependentNavs ? order1 : null
-                }).Entity;
+                new TOrderNote { Note = "And donuts!", Order = dependentNavs ? order1 : null }).Entity;
             var orderNote3 = Add(
-                new TOrderNote
-                {
-                    Note = "But no coffee. :-(",
-                    Order = dependentNavs ? order1 : null
-                }).Entity;
+                new TOrderNote { Note = "But no coffee. :-(", Order = dependentNavs ? order1 : null }).Entity;
             if (principalNavs)
             {
                 order1.InitializeCollections();
@@ -1406,69 +1136,24 @@ namespace Microsoft.EntityFrameworkCore.TestModels
             }
 
             var orderQualityCheck1 = Add(
-                new TOrderQualityCheck
-                {
-                    Order = order1,
-                    CheckedBy = "Eeky Bear",
-                    CheckedDateTime = DateTime.Now
-                }).Entity;
+                new TOrderQualityCheck { Order = order1, CheckedBy = "Eeky Bear", CheckedDateTime = DateTime.Now }).Entity;
             var orderQualityCheck2 = Add(
-                new TOrderQualityCheck
-                {
-                    Order = order2,
-                    CheckedBy = "Eeky Bear",
-                    CheckedDateTime = DateTime.Now
-                }).Entity;
+                new TOrderQualityCheck { Order = order2, CheckedBy = "Eeky Bear", CheckedDateTime = DateTime.Now }).Entity;
             var orderQualityCheck3 = Add(
-                new TOrderQualityCheck
-                {
-                    Order = order3,
-                    CheckedBy = "Eeky Bear",
-                    CheckedDateTime = DateTime.Now
-                }).Entity;
+                new TOrderQualityCheck { Order = order3, CheckedBy = "Eeky Bear", CheckedDateTime = DateTime.Now }).Entity;
 
             var orderLine1 = Add(
-                new TOrderLine
-                {
-                    Order = order1,
-                    Product = product1,
-                    Quantity = 7
-                }).Entity;
+                new TOrderLine { Order = order1, Product = product1, Quantity = 7 }).Entity;
             var orderLine2 = Add(
-                new TOrderLine
-                {
-                    Order = order1,
-                    Product = product2,
-                    Quantity = 1
-                }).Entity;
+                new TOrderLine { Order = order1, Product = product2, Quantity = 1 }).Entity;
             var orderLine3 = Add(
-                new TOrderLine
-                {
-                    Order = order2,
-                    Product = product3,
-                    Quantity = 2
-                }).Entity;
+                new TOrderLine { Order = order2, Product = product3, Quantity = 2 }).Entity;
             var orderLine4 = Add(
-                new TOrderLine
-                {
-                    Order = order2,
-                    Product = product2,
-                    Quantity = 3
-                }).Entity;
+                new TOrderLine { Order = order2, Product = product2, Quantity = 3 }).Entity;
             var orderLine5 = Add(
-                new TOrderLine
-                {
-                    Order = order2,
-                    Product = product1,
-                    Quantity = 4
-                }).Entity;
+                new TOrderLine { Order = order2, Product = product1, Quantity = 4 }).Entity;
             var orderLine6 = Add(
-                new TOrderLine
-                {
-                    Order = order3,
-                    Product = product2,
-                    Quantity = 5
-                }).Entity;
+                new TOrderLine { Order = order3, Product = product2, Quantity = 5 }).Entity;
             if (principalNavs)
             {
                 order1.OrderLines.Add(orderLine1);
@@ -1482,17 +1167,9 @@ namespace Microsoft.EntityFrameworkCore.TestModels
             }
 
             var productDetail1 = Add(
-                new TProductDetail
-                {
-                    Details = "A Waffle Cart specialty!",
-                    Product = product1
-                }).Entity;
+                new TProductDetail { Details = "A Waffle Cart specialty!", Product = product1 }).Entity;
             var productDetail2 = Add(
-                new TProductDetail
-                {
-                    Details = "Eeky Bear's favorite!",
-                    Product = product2
-                }).Entity;
+                new TProductDetail { Details = "Eeky Bear's favorite!", Product = product2 }).Entity;
             if (principalNavs)
             {
                 product1.Detail = productDetail1;
@@ -1500,23 +1177,11 @@ namespace Microsoft.EntityFrameworkCore.TestModels
             }
 
             var productReview1 = Add(
-                new TProductReview
-                {
-                    Product = dependentNavs ? product1 : null,
-                    Review = "Better than Tarqies!"
-                }).Entity;
+                new TProductReview { Product = dependentNavs ? product1 : null, Review = "Better than Tarqies!" }).Entity;
             var productReview2 = Add(
-                new TProductReview
-                {
-                    Product = dependentNavs ? product1 : null,
-                    Review = "Good with maple syrup."
-                }).Entity;
+                new TProductReview { Product = dependentNavs ? product1 : null, Review = "Good with maple syrup." }).Entity;
             var productReview3 = Add(
-                new TProductReview
-                {
-                    Product = dependentNavs ? product2 : null,
-                    Review = "Eeky says yes!"
-                }).Entity;
+                new TProductReview { Product = dependentNavs ? product2 : null, Review = "Eeky says yes!" }).Entity;
             if (principalNavs)
             {
                 product1.Reviews.Add(productReview1);
@@ -1525,23 +1190,23 @@ namespace Microsoft.EntityFrameworkCore.TestModels
             }
 
             var productPhoto1 = Add(
-                new TProductPhoto
-                {
-                    ProductId = Entry(product1).Property(e => e.ProductId).CurrentValue,
-                    Photo = new byte[] { 101, 102 }
-                }).Entity;
+                    new TProductPhoto
+                        {
+                            ProductId = Entry(product1).Property(e => e.ProductId).CurrentValue, Photo = new byte[] { 101, 102 }
+                        })
+                .Entity;
             var productPhoto2 = Add(
-                new TProductPhoto
-                {
-                    ProductId = Entry(product1).Property(e => e.ProductId).CurrentValue,
-                    Photo = new byte[] { 103, 104 }
-                }).Entity;
+                    new TProductPhoto
+                        {
+                            ProductId = Entry(product1).Property(e => e.ProductId).CurrentValue, Photo = new byte[] { 103, 104 }
+                        })
+                .Entity;
             var productPhoto3 = Add(
-                new TProductPhoto
-                {
-                    ProductId = Entry(product3).Property(e => e.ProductId).CurrentValue,
-                    Photo = new byte[] { 105, 106 }
-                }).Entity;
+                    new TProductPhoto
+                        {
+                            ProductId = Entry(product3).Property(e => e.ProductId).CurrentValue, Photo = new byte[] { 105, 106 }
+                        })
+                .Entity;
             if (principalNavs)
             {
                 product1.Photos.Add(productPhoto1);
@@ -1579,15 +1244,9 @@ namespace Microsoft.EntityFrameworkCore.TestModels
             }
 
             var supplier1 = Add(
-                new TSupplier
-                {
-                    Name = "Trading As Trent"
-                }).Entity;
+                new TSupplier { Name = "Trading As Trent" }).Entity;
             var supplier2 = Add(
-                new TSupplier
-                {
-                    Name = "Ants By Boris"
-                }).Entity;
+                new TSupplier { Name = "Ants By Boris" }).Entity;
 
             var supplierLogo1 = Add(
                 new TSupplierLogo
@@ -1601,35 +1260,21 @@ namespace Microsoft.EntityFrameworkCore.TestModels
             }
 
             var supplierInfo1 = Add(
-                new TSupplierInfo
-                {
-                    Supplier = supplier1,
-                    Information = "Seems a bit dodgy."
-                }).Entity;
+                new TSupplierInfo { Supplier = supplier1, Information = "Seems a bit dodgy." }).Entity;
             var supplierInfo2 = Add(
-                new TSupplierInfo
-                {
-                    Supplier = supplier1,
-                    Information = "Orange fur?"
-                }).Entity;
+                new TSupplierInfo { Supplier = supplier1, Information = "Orange fur?" }).Entity;
             var supplierInfo3 = Add(
-                new TSupplierInfo
-                {
-                    Supplier = supplier2,
-                    Information = "Very expensive!"
-                }).Entity;
+                new TSupplierInfo { Supplier = supplier2, Information = "Very expensive!" }).Entity;
 
             var customerInfo1 = Add(
                 new TCustomerInfo
                 {
-                    CustomerInfoId = Entry(customer1).Property(e => e.CustomerId).CurrentValue,
-                    Information = "Really likes tea."
+                    CustomerInfoId = Entry(customer1).Property(e => e.CustomerId).CurrentValue, Information = "Really likes tea."
                 }).Entity;
             var customerInfo2 = Add(
                 new TCustomerInfo
                 {
-                    CustomerInfoId = Entry(customer2).Property(e => e.CustomerId).CurrentValue,
-                    Information = "Mrs Bossy Pants!"
+                    CustomerInfoId = Entry(customer2).Property(e => e.CustomerId).CurrentValue, Information = "Mrs Bossy Pants!"
                 }).Entity;
             if (principalNavs)
             {
@@ -1638,15 +1283,9 @@ namespace Microsoft.EntityFrameworkCore.TestModels
             }
 
             var computer1 = Add(
-                new TComputer
-                {
-                    Name = "markash420"
-                }).Entity;
+                new TComputer { Name = "markash420" }).Entity;
             var computer2 = Add(
-                new TComputer
-                {
-                    Name = "unicorns420"
-                }).Entity;
+                new TComputer { Name = "unicorns420" }).Entity;
 
             var computerDetail1 = Add(
                 new TComputerDetail
@@ -1679,17 +1318,9 @@ namespace Microsoft.EntityFrameworkCore.TestModels
             }
 
             var driver1 = Add(
-                new TDriver
-                {
-                    BirthDate = new DateTime(2006, 9, 19),
-                    Name = "Eeky Bear"
-                }).Entity;
+                new TDriver { BirthDate = new DateTime(2006, 9, 19), Name = "Eeky Bear" }).Entity;
             var driver2 = Add(
-                new TDriver
-                {
-                    BirthDate = new DateTime(2007, 9, 19),
-                    Name = "Splash Bear"
-                }).Entity;
+                new TDriver { BirthDate = new DateTime(2007, 9, 19), Name = "Splash Bear" }).Entity;
 
             var license1 = Add(
                 new TLicense
@@ -1734,83 +1365,31 @@ namespace Microsoft.EntityFrameworkCore.TestModels
             }
 
             var customer0 = toAdd[0].AddEx(
-                new TCustomer
-                {
-                    Name = "Eeky Bear"
-                });
+                new TCustomer { Name = "Eeky Bear" });
             var customer1 = toAdd[0].AddEx(
-                new TCustomer
-                {
-                    Name = "Sheila Koalie"
-                });
+                new TCustomer { Name = "Sheila Koalie" });
             var customer3 = toAdd[0].AddEx(
-                new TCustomer
-                {
-                    Name = "Tarquin Tiger"
-                });
+                new TCustomer { Name = "Tarquin Tiger" });
             var customer2 = toAdd[0].AddEx(
-                new TCustomer
-                {
-                    Name = "Sue Pandy",
-                    Husband = customer0
-                });
+                new TCustomer { Name = "Sue Pandy", Husband = customer0 });
 
             var product1 = toAdd[0].AddEx(
-                new TProduct
-                {
-                    Description = "Mrs Koalie's Famous Waffles",
-                    BaseConcurrency = "Pounds Sterling"
-                });
+                new TProduct { Description = "Mrs Koalie's Famous Waffles", BaseConcurrency = "Pounds Sterling" });
             var product2 = toAdd[0].AddEx(
-                new TProduct
-                {
-                    Description = "Chocolate Donuts",
-                    BaseConcurrency = "US Dollars"
-                });
+                new TProduct { Description = "Chocolate Donuts", BaseConcurrency = "US Dollars" });
             var product3 = toAdd[0].AddEx(
-                new TProduct
-                {
-                    Description = "Assorted Dog Treats",
-                    BaseConcurrency = "Stuffy Money"
-                });
+                new TProduct { Description = "Assorted Dog Treats", BaseConcurrency = "Stuffy Money" });
 
-            product1.Dimensions = new TDimensions
-            {
-                Depth = 3,
-                Width = 3,
-                Height = 0.5M
-            };
-            product2.Dimensions = new TDimensions
-            {
-                Depth = 2,
-                Width = 2,
-                Height = 1
-            };
-            product3.Dimensions = new TDimensions
-            {
-                Depth = 3,
-                Width = 1,
-                Height = 4
-            };
+            product1.Dimensions = new TDimensions { Depth = 3, Width = 3, Height = 0.5M };
+            product2.Dimensions = new TDimensions { Depth = 2, Width = 2, Height = 1 };
+            product3.Dimensions = new TDimensions { Depth = 3, Width = 1, Height = 4 };
 
             var barcode1 = toAdd[1].AddEx(
-                new TBarcode
-                {
-                    Code = new byte[] { 1, 2, 3, 4 },
-                    Text = "Barcode 1 2 3 4"
-                });
+                new TBarcode { Code = new byte[] { 1, 2, 3, 4 }, Text = "Barcode 1 2 3 4" });
             var barcode2 = toAdd[1].AddEx(
-                new TBarcode
-                {
-                    Code = new byte[] { 2, 2, 3, 4 },
-                    Text = "Barcode 2 2 3 4"
-                });
+                new TBarcode { Code = new byte[] { 2, 2, 3, 4 }, Text = "Barcode 2 2 3 4" });
             var barcode3 = toAdd[1].AddEx(
-                new TBarcode
-                {
-                    Code = new byte[] { 3, 2, 3, 4 },
-                    Text = "Barcode 3 2 3 4"
-                });
+                new TBarcode { Code = new byte[] { 3, 2, 3, 4 }, Text = "Barcode 3 2 3 4" });
 
             product1.InitializeCollections();
             product1.Barcodes.Add(barcode1);
@@ -1820,15 +1399,9 @@ namespace Microsoft.EntityFrameworkCore.TestModels
             product3.Barcodes.Add(barcode3);
 
             var barcodeDetails1 = toAdd[1].AddEx(
-                new TBarcodeDetail
-                {
-                    RegisteredTo = "Eeky Bear"
-                });
+                new TBarcodeDetail { RegisteredTo = "Eeky Bear" });
             var barcodeDetails2 = toAdd[1].AddEx(
-                new TBarcodeDetail
-                {
-                    RegisteredTo = "Trent"
-                });
+                new TBarcodeDetail { RegisteredTo = "Trent" });
 
             barcode1.Detail = barcodeDetails1;
             barcode2.Detail = barcodeDetails2;
@@ -1836,9 +1409,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels
             var incorrectScan1 = toAdd[1].AddEx(
                 new TIncorrectScan
                 {
-                    ScanDate = new DateTime(2014, 5, 28, 19, 9, 6),
-                    Details = "Treats not Donuts",
-                    ActualBarcode = barcode3
+                    ScanDate = new DateTime(2014, 5, 28, 19, 9, 6), Details = "Treats not Donuts", ActualBarcode = barcode3
                 });
             barcode2.InitializeCollections();
             barcode2.BadScans.Add(incorrectScan1);
@@ -1846,9 +1417,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels
             var incorrectScan2 = toAdd[1].AddEx(
                 new TIncorrectScan
                 {
-                    ScanDate = new DateTime(2014, 5, 28, 19, 15, 31),
-                    Details = "Wot no waffles?",
-                    ActualBarcode = barcode2
+                    ScanDate = new DateTime(2014, 5, 28, 19, 15, 31), Details = "Wot no waffles?", ActualBarcode = barcode2
                 });
             barcode1.InitializeCollections();
             barcode1.BadScans.Add(incorrectScan2);
@@ -1872,30 +1441,15 @@ namespace Microsoft.EntityFrameworkCore.TestModels
                 });
 
             var resolution = toAdd[2].AddEx(
-                new TResolution
-                {
-                    Details = "Destroyed all coffee in Redmond area."
-                });
+                new TResolution { Details = "Destroyed all coffee in Redmond area." });
             complaint2.Resolution = resolution;
 
             var login1 = toAdd[1].AddEx(
-                new TLogin
-                {
-                    Username = "MrsKoalie73",
-                    AlternateUsername = "Sheila"
-                });
+                new TLogin { Username = "MrsKoalie73", AlternateUsername = "Sheila" });
             var login2 = toAdd[1].AddEx(
-                new TLogin
-                {
-                    Username = "MrsBossyPants",
-                    AlternateUsername = "Sue"
-                });
+                new TLogin { Username = "MrsBossyPants", AlternateUsername = "Sue" });
             var login3 = toAdd[1].AddEx(
-                new TLogin
-                {
-                    Username = "TheStripedMenace",
-                    AlternateUsername = "Tarquin"
-                });
+                new TLogin { Username = "TheStripedMenace", AlternateUsername = "Tarquin" });
 
             customer1.InitializeCollections();
             customer1.Logins.Add(login1);
@@ -1907,36 +1461,23 @@ namespace Microsoft.EntityFrameworkCore.TestModels
             var suspiciousActivity1 = toAdd[2].AddEx(
                 new TSuspiciousActivity
                 {
-                    Activity = "Pig prints on keyboard",
-                    Username = Entry(login3).Property(e => e.Username).CurrentValue
+                    Activity = "Pig prints on keyboard", Username = Entry(login3).Property(e => e.Username).CurrentValue
                 });
             var suspiciousActivity2 = toAdd[2].AddEx(
                 new TSuspiciousActivity
                 {
-                    Activity = "Crumbs in the cupboard",
-                    Username = Entry(login3).Property(e => e.Username).CurrentValue
+                    Activity = "Crumbs in the cupboard", Username = Entry(login3).Property(e => e.Username).CurrentValue
                 });
             var suspiciousActivity3 = toAdd[2].AddEx(
                 new TSuspiciousActivity
                 {
-                    Activity = "Donuts gone missing",
-                    Username = Entry(login3).Property(e => e.Username).CurrentValue
+                    Activity = "Donuts gone missing", Username = Entry(login3).Property(e => e.Username).CurrentValue
                 });
 
             var rsaToken1 = toAdd[2].AddEx(
-                new TRsaToken
-                {
-                    Issued = DateTime.Now,
-                    Serial = "1234",
-                    Login = login1
-                });
+                new TRsaToken { Issued = DateTime.Now, Serial = "1234", Login = login1 });
             var rsaToken2 = toAdd[2].AddEx(
-                new TRsaToken
-                {
-                    Issued = DateTime.Now,
-                    Serial = "2234",
-                    Login = login2
-                });
+                new TRsaToken { Issued = DateTime.Now, Serial = "2234", Login = login2 });
 
             var smartCard1 = toAdd[2].AddEx(
                 new TSmartCard
@@ -1954,52 +1495,23 @@ namespace Microsoft.EntityFrameworkCore.TestModels
                 });
 
             var reset1 = toAdd[2].AddEx(
-                new TPasswordReset
-                {
-                    EmailedTo = "trent@example.com",
-                    ResetNo = 1,
-                    TempPassword = "Rent-A-Mole",
-                    Login = login3
-                });
+                new TPasswordReset { EmailedTo = "trent@example.com", ResetNo = 1, TempPassword = "Rent-A-Mole", Login = login3 });
 
             var pageView1 = toAdd[1].AddEx(
-                new TPageView
-                {
-                    PageUrl = "somePage1",
-                    Login = login1,
-                    Viewed = DateTime.Now
-                });
+                new TPageView { PageUrl = "somePage1", Login = login1, Viewed = DateTime.Now });
             var pageView2 = toAdd[1].AddEx(
-                new TPageView
-                {
-                    PageUrl = "somePage2",
-                    Login = login1,
-                    Viewed = DateTime.Now
-                });
+                new TPageView { PageUrl = "somePage2", Login = login1, Viewed = DateTime.Now });
             var pageView3 = toAdd[1].AddEx(
-                new TPageView
-                {
-                    PageUrl = "somePage3",
-                    Login = login1,
-                    Viewed = DateTime.Now
-                });
+                new TPageView { PageUrl = "somePage3", Login = login1, Viewed = DateTime.Now });
 
             var lastLogin1 = toAdd[2].AddEx(
-                new TLastLogin
-                {
-                    LoggedIn = new DateTime(2014, 5, 27, 10, 22, 26),
-                    LoggedOut = new DateTime(2014, 5, 27, 11, 22, 26)
-                });
+                new TLastLogin { LoggedIn = new DateTime(2014, 5, 27, 10, 22, 26), LoggedOut = new DateTime(2014, 5, 27, 11, 22, 26) });
 
             login1.LastLogin = lastLogin1;
             smartCard1.LastLogin = lastLogin1;
 
             var lastLogin2 = toAdd[2].AddEx(
-                new TLastLogin
-                {
-                    LoggedIn = new DateTime(2014, 5, 27, 12, 22, 26),
-                    LoggedOut = new DateTime(2014, 5, 27, 13, 22, 26)
-                });
+                new TLastLogin { LoggedIn = new DateTime(2014, 5, 27, 12, 22, 26), LoggedOut = new DateTime(2014, 5, 27, 13, 22, 26) });
 
             login2.LastLogin = lastLogin2;
             smartCard2.LastLogin = lastLogin2;
@@ -2043,26 +1555,11 @@ namespace Microsoft.EntityFrameworkCore.TestModels
             login2.ReceivedMessages.Add(message3);
 
             var order1 = toAdd[2].AddEx(
-                new TAnOrder
-                {
-                    Customer = customer1,
-                    Login = login1,
-                    AlternateId = 77
-                });
+                new TAnOrder { Customer = customer1, Login = login1, AlternateId = 77 });
             var order2 = toAdd[2].AddEx(
-                new TAnOrder
-                {
-                    Customer = customer2,
-                    Login = login2,
-                    AlternateId = 78
-                });
+                new TAnOrder { Customer = customer2, Login = login2, AlternateId = 78 });
             var order3 = toAdd[2].AddEx(
-                new TAnOrder
-                {
-                    Customer = customer3,
-                    Login = login3,
-                    AlternateId = 79
-                });
+                new TAnOrder { Customer = customer3, Login = login3, AlternateId = 79 });
 
             customer1.Orders.Add(order1);
             customer2.Orders.Add(order2);
@@ -2074,20 +1571,11 @@ namespace Microsoft.EntityFrameworkCore.TestModels
             login3.Orders.Add(order3);
 
             var orderNote1 = toAdd[2].AddEx(
-                new TOrderNote
-                {
-                    Note = "Must have tea!"
-                });
+                new TOrderNote { Note = "Must have tea!" });
             var orderNote2 = toAdd[2].AddEx(
-                new TOrderNote
-                {
-                    Note = "And donuts!"
-                });
+                new TOrderNote { Note = "And donuts!" });
             var orderNote3 = toAdd[2].AddEx(
-                new TOrderNote
-                {
-                    Note = "But no coffee. :-("
-                });
+                new TOrderNote { Note = "But no coffee. :-(" });
 
             order1.InitializeCollections();
             order1.Notes.Add(orderNote1);
@@ -2095,63 +1583,24 @@ namespace Microsoft.EntityFrameworkCore.TestModels
             order1.Notes.Add(orderNote3);
 
             var orderQualityCheck1 = toAdd[2].AddEx(
-                new TOrderQualityCheck
-                {
-                    Order = order1,
-                    CheckedBy = "Eeky Bear",
-                    CheckedDateTime = DateTime.Now
-                });
+                new TOrderQualityCheck { Order = order1, CheckedBy = "Eeky Bear", CheckedDateTime = DateTime.Now });
             var orderQualityCheck2 = toAdd[2].AddEx(
-                new TOrderQualityCheck
-                {
-                    Order = order2,
-                    CheckedBy = "Eeky Bear",
-                    CheckedDateTime = DateTime.Now
-                });
+                new TOrderQualityCheck { Order = order2, CheckedBy = "Eeky Bear", CheckedDateTime = DateTime.Now });
             var orderQualityCheck3 = toAdd[2].AddEx(
-                new TOrderQualityCheck
-                {
-                    Order = order3,
-                    CheckedBy = "Eeky Bear",
-                    CheckedDateTime = DateTime.Now
-                });
+                new TOrderQualityCheck { Order = order3, CheckedBy = "Eeky Bear", CheckedDateTime = DateTime.Now });
 
             var orderLine1 = toAdd[3].AddEx(
-                new TOrderLine
-                {
-                    Product = product1,
-                    Quantity = 7
-                });
+                new TOrderLine { Product = product1, Quantity = 7 });
             var orderLine2 = toAdd[3].AddEx(
-                new TOrderLine
-                {
-                    Product = product2,
-                    Quantity = 1
-                });
+                new TOrderLine { Product = product2, Quantity = 1 });
             var orderLine3 = toAdd[3].AddEx(
-                new TOrderLine
-                {
-                    Product = product3,
-                    Quantity = 2
-                });
+                new TOrderLine { Product = product3, Quantity = 2 });
             var orderLine4 = toAdd[3].AddEx(
-                new TOrderLine
-                {
-                    Product = product2,
-                    Quantity = 3
-                });
+                new TOrderLine { Product = product2, Quantity = 3 });
             var orderLine5 = toAdd[3].AddEx(
-                new TOrderLine
-                {
-                    Product = product1,
-                    Quantity = 4
-                });
+                new TOrderLine { Product = product1, Quantity = 4 });
             var orderLine6 = toAdd[3].AddEx(
-                new TOrderLine
-                {
-                    Product = product2,
-                    Quantity = 5
-                });
+                new TOrderLine { Product = product2, Quantity = 5 });
 
             order1.OrderLines.Add(orderLine1);
             order1.OrderLines.Add(orderLine2);
@@ -2163,64 +1612,37 @@ namespace Microsoft.EntityFrameworkCore.TestModels
             order3.OrderLines.Add(orderLine6);
 
             var productDetail1 = toAdd[0].AddEx(
-                new TProductDetail
-                {
-                    Details = "A Waffle Cart specialty!"
-                });
+                new TProductDetail { Details = "A Waffle Cart specialty!" });
             var productDetail2 = toAdd[0].AddEx(
-                new TProductDetail
-                {
-                    Details = "Eeky Bear's favorite!"
-                });
+                new TProductDetail { Details = "Eeky Bear's favorite!" });
 
             product1.Detail = productDetail1;
             product2.Detail = productDetail2;
 
             var productReview1 = toAdd[0].AddEx(
-                new TProductReview
-                {
-                    Review = "Better than Tarqies!"
-                });
+                new TProductReview { Review = "Better than Tarqies!" });
             var productReview2 = toAdd[0].AddEx(
-                new TProductReview
-                {
-                    Review = "Good with maple syrup."
-                });
+                new TProductReview { Review = "Good with maple syrup." });
             var productReview3 = toAdd[0].AddEx(
-                new TProductReview
-                {
-                    Review = "Eeky says yes!"
-                });
+                new TProductReview { Review = "Eeky says yes!" });
 
             product1.Reviews.Add(productReview1);
             product1.Reviews.Add(productReview2);
             product2.Reviews.Add(productReview3);
 
             var productPhoto1 = toAdd[0].AddEx(
-                new TProductPhoto
-                {
-                    Photo = new byte[] { 101, 102 }
-                });
+                new TProductPhoto { Photo = new byte[] { 101, 102 } });
             var productPhoto2 = toAdd[0].AddEx(
-                new TProductPhoto
-                {
-                    Photo = new byte[] { 103, 104 }
-                });
+                new TProductPhoto { Photo = new byte[] { 103, 104 } });
             var productPhoto3 = toAdd[0].AddEx(
-                new TProductPhoto
-                {
-                    Photo = new byte[] { 105, 106 }
-                });
+                new TProductPhoto { Photo = new byte[] { 105, 106 } });
 
             product1.Photos.Add(productPhoto1);
             product1.Photos.Add(productPhoto2);
             product3.Photos.Add(productPhoto3);
 
             var productWebFeature1 = toAdd[0].AddEx(
-                new TProductWebFeature
-                {
-                    Heading = "Waffle Style"
-                });
+                new TProductWebFeature { Heading = "Waffle Style" });
 
             productPhoto1.InitializeCollections();
             productPhoto1.Features.Add(productWebFeature1);
@@ -2228,76 +1650,40 @@ namespace Microsoft.EntityFrameworkCore.TestModels
             productReview1.Features.Add(productWebFeature1);
 
             var productWebFeature2 = toAdd[0].AddEx(
-                new TProductWebFeature
-                {
-                    Heading = "What does the waffle say?"
-                });
+                new TProductWebFeature { Heading = "What does the waffle say?" });
 
             productReview3.InitializeCollections();
             productReview3.Features.Add(productWebFeature2);
 
             var supplier1 = toAdd[0].AddEx(
-                new TSupplier
-                {
-                    Name = "Trading As Trent"
-                });
+                new TSupplier { Name = "Trading As Trent" });
             var supplier2 = toAdd[0].AddEx(
-                new TSupplier
-                {
-                    Name = "Ants By Boris"
-                });
+                new TSupplier { Name = "Ants By Boris" });
 
             var supplierLogo1 = toAdd[0].AddEx(
-                new TSupplierLogo
-                {
-                    Logo = new byte[] { 201, 202 }
-                });
+                new TSupplierLogo { Logo = new byte[] { 201, 202 } });
 
             supplier1.Logo = supplierLogo1;
 
             var supplierInfo1 = toAdd[0].AddEx(
-                new TSupplierInfo
-                {
-                    Supplier = supplier1,
-                    Information = "Seems a bit dodgy."
-                });
+                new TSupplierInfo { Supplier = supplier1, Information = "Seems a bit dodgy." });
             var supplierInfo2 = toAdd[0].AddEx(
-                new TSupplierInfo
-                {
-                    Supplier = supplier1,
-                    Information = "Orange fur?"
-                });
+                new TSupplierInfo { Supplier = supplier1, Information = "Orange fur?" });
             var supplierInfo3 = toAdd[0].AddEx(
-                new TSupplierInfo
-                {
-                    Supplier = supplier2,
-                    Information = "Very expensive!"
-                });
+                new TSupplierInfo { Supplier = supplier2, Information = "Very expensive!" });
 
             var customerInfo1 = toAdd[0].AddEx(
-                new TCustomerInfo
-                {
-                    Information = "Really likes tea."
-                });
+                new TCustomerInfo { Information = "Really likes tea." });
             var customerInfo2 = toAdd[0].AddEx(
-                new TCustomerInfo
-                {
-                    Information = "Mrs Bossy Pants!"
-                });
+                new TCustomerInfo { Information = "Mrs Bossy Pants!" });
 
             customer1.Info = customerInfo1;
             customer2.Info = customerInfo2;
 
             var computer1 = toAdd[0].AddEx(
-                new TComputer
-                {
-                    Name = "markash420"
-                });
+                new TComputer { Name = "markash420" });
             var computer2 = toAdd[0].AddEx(
-                new TComputer
-                {
-                    Name = "unicorns420"
-                });
+                new TComputer { Name = "unicorns420" });
 
             var computerDetail1 = toAdd[0].AddEx(
                 new TComputerDetail
@@ -2324,17 +1710,9 @@ namespace Microsoft.EntityFrameworkCore.TestModels
             computer2.ComputerDetail = computerDetail2;
 
             var driver1 = toAdd[0].AddEx(
-                new TDriver
-                {
-                    BirthDate = new DateTime(2006, 9, 19),
-                    Name = "Eeky Bear"
-                });
+                new TDriver { BirthDate = new DateTime(2006, 9, 19), Name = "Eeky Bear" });
             var driver2 = toAdd[0].AddEx(
-                new TDriver
-                {
-                    BirthDate = new DateTime(2007, 9, 19),
-                    Name = "Splash Bear"
-                });
+                new TDriver { BirthDate = new DateTime(2007, 9, 19), Name = "Splash Bear" });
 
             var license1 = toAdd[1].AddEx(
                 new TLicense

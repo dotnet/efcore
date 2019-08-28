@@ -270,10 +270,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             var configBuilder = new ConfigurationBuilder()
                 .AddInMemoryCollection(
-                    new Dictionary<string, string>
-                    {
-                        { key, SqlServerNorthwindTestStoreFactory.NorthwindConnectionString }
-                    });
+                    new Dictionary<string, string> { { key, SqlServerNorthwindTestStoreFactory.NorthwindConnectionString } });
 
             var serviceProvider
                 = new ServiceCollection()

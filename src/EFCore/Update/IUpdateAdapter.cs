@@ -12,7 +12,7 @@ namespace Microsoft.EntityFrameworkCore.Update
     /// <summary>
     ///     <para>
     ///         Providers tracking capabilities for seed data stored in the model using
-    ///         <see cref="EntityTypeBuilder.HasData(object[])"/>.
+    ///         <see cref="EntityTypeBuilder.HasData(object[])" />.
     ///     </para>
     ///     <para>
     ///         This interface is typically used by database providers (and other extensions). It is generally
@@ -75,12 +75,12 @@ namespace Microsoft.EntityFrameworkCore.Update
         IUpdateEntry TryGetEntry([NotNull] IKey key, [NotNull] object[] keyValues);
 
         /// <summary>
-        ///    All the entries currently being tracked.
+        ///     All the entries currently being tracked.
         /// </summary>
         IEnumerable<IUpdateEntry> Entries { get; }
 
         /// <summary>
-        ///    Causes the underlying tracker to detect changes made to the tracked entities.
+        ///     Causes the underlying tracker to detect changes made to the tracked entities.
         /// </summary>
         void DetectChanges();
 
@@ -96,8 +96,8 @@ namespace Microsoft.EntityFrameworkCore.Update
         ///         to manually force the deletes to have at a time controlled by the application.
         ///     </para>
         ///     <para>
-        ///         If <see cref="ChangeTracker.AutoDetectChangesEnabled"/> is <code>true</code> then this method
-        ///         will call <see cref="DetectChanges"/>.
+        ///         If <see cref="ChangeTracker.AutoDetectChangesEnabled" /> is <code>true</code> then this method
+        ///         will call <see cref="DetectChanges" />.
         ///     </para>
         /// </summary>
         void CascadeChanges();

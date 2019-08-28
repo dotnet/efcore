@@ -135,11 +135,7 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.Query
             var query = _context.Products
                 .GroupBy(p => p.ActualStockLevel)
                 .Select(
-                    g => new
-                    {
-                        ActualStockLevel = g.Key,
-                        Products = g
-                    });
+                    g => new { ActualStockLevel = g.Key, Products = g });
 
             if (Async)
             {

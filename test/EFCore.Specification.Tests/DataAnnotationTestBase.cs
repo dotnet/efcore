@@ -754,11 +754,7 @@ namespace Microsoft.EntityFrameworkCore
             var modelBuilder = CreateModelBuilder();
 
             modelBuilder.Entity<CompositeKeyAttribute>().HasKey(
-                c => new
-                {
-                    c.IdRow,
-                    c.Name
-                });
+                c => new { c.IdRow, c.Name });
 
             Validate(modelBuilder);
 
@@ -786,11 +782,7 @@ namespace Microsoft.EntityFrameworkCore
             var modelBuilder = CreateModelBuilder();
 
             modelBuilder.Entity<GeneratedEntity>().HasAlternateKey(
-                e => new
-                {
-                    e.Identity,
-                    e.Version
-                });
+                e => new { e.Identity, e.Version });
 
             var entity = modelBuilder.Model.FindEntityType(typeof(GeneratedEntity));
 
@@ -827,12 +819,7 @@ namespace Microsoft.EntityFrameworkCore
             var modelBuilder = CreateModelBuilder();
 
             modelBuilder.Entity<GeneratedEntityNonInteger>().HasAlternateKey(
-                e => new
-                {
-                    e.String,
-                    e.DateTime,
-                    e.Guid
-                });
+                e => new { e.String, e.DateTime, e.Guid });
 
             var entity = modelBuilder.Model.FindEntityType(typeof(GeneratedEntityNonInteger));
 
@@ -1423,14 +1410,8 @@ namespace Microsoft.EntityFrameworkCore
                         {
                             RequiredColumn = "Third",
                             RowVersion = new Guid("00000000-0000-0000-0000-000000000003"),
-                            Details = new Details
-                            {
-                                Name = "Third Name"
-                            },
-                            AdditionalDetails = new Details
-                            {
-                                Name = "Third Additional Name"
-                            }
+                            Details = new Details { Name = "Third Name" },
+                            AdditionalDetails = new Details { Name = "Third Additional Name" }
                         });
 
                     context.SaveChanges();
@@ -1449,14 +1430,8 @@ namespace Microsoft.EntityFrameworkCore
                             RequiredColumn = "ValidString",
                             RowVersion = new Guid("00000000-0000-0000-0000-000000000001"),
                             MaxLengthProperty = "Short",
-                            Details = new Details
-                            {
-                                Name = "Third Name"
-                            },
-                            AdditionalDetails = new Details
-                            {
-                                Name = "Third Additional Name"
-                            }
+                            Details = new Details { Name = "Third Name" },
+                            AdditionalDetails = new Details { Name = "Third Additional Name" }
                         });
 
                     context.SaveChanges();
@@ -1471,14 +1446,8 @@ namespace Microsoft.EntityFrameworkCore
                             RequiredColumn = "ValidString",
                             RowVersion = new Guid("00000000-0000-0000-0000-000000000002"),
                             MaxLengthProperty = "VeryVeryVeryVeryVeryVeryLongString",
-                            Details = new Details
-                            {
-                                Name = "Third Name"
-                            },
-                            AdditionalDetails = new Details
-                            {
-                                Name = "Third Additional Name"
-                            }
+                            Details = new Details { Name = "Third Name" },
+                            AdditionalDetails = new Details { Name = "Third Additional Name" }
                         });
 
                     Assert.Equal(
@@ -1946,8 +1915,9 @@ namespace Microsoft.EntityFrameworkCore
             var logEntry = Fixture.ListLoggerFactory.Log.Single();
             Assert.Equal(LogLevel.Warning, logEntry.Level);
             Assert.Equal(
-                CoreResources.LogConflictingForeignKeyAttributesOnNavigationAndProperty(new TestLogger<TestLoggingDefinitions>()).GenerateMessage(
-                    nameof(Author), nameof(Author.AuthorDetails), nameof(AuthorDetails), nameof(AuthorDetails.AuthorId)),
+                CoreResources.LogConflictingForeignKeyAttributesOnNavigationAndProperty(new TestLogger<TestLoggingDefinitions>())
+                    .GenerateMessage(
+                        nameof(Author), nameof(Author.AuthorDetails), nameof(AuthorDetails), nameof(AuthorDetails.AuthorId)),
                 logEntry.Message);
         }
 
@@ -2088,10 +2058,7 @@ namespace Microsoft.EntityFrameworkCore
                 context =>
                 {
                     context.Set<BookDetails>().Add(
-                        new BookDetails
-                        {
-                            AnotherBookId = 1
-                        });
+                        new BookDetails { AnotherBookId = 1 });
 
                     context.SaveChanges();
                 });
@@ -2130,14 +2097,8 @@ namespace Microsoft.EntityFrameworkCore
                         {
                             RequiredColumn = "ValidString",
                             RowVersion = new Guid("00000000-0000-0000-0000-000000000001"),
-                            Details = new Details
-                            {
-                                Name = "One"
-                            },
-                            AdditionalDetails = new Details
-                            {
-                                Name = "Two"
-                            }
+                            Details = new Details { Name = "One" },
+                            AdditionalDetails = new Details { Name = "Two" }
                         });
 
                     context.SaveChanges();
@@ -2151,14 +2112,8 @@ namespace Microsoft.EntityFrameworkCore
                         {
                             RequiredColumn = null,
                             RowVersion = new Guid("00000000-0000-0000-0000-000000000002"),
-                            Details = new Details
-                            {
-                                Name = "One"
-                            },
-                            AdditionalDetails = new Details
-                            {
-                                Name = "Two"
-                            }
+                            Details = new Details { Name = "One" },
+                            AdditionalDetails = new Details { Name = "Two" }
                         });
 
                     Assert.Equal(
@@ -2174,10 +2129,7 @@ namespace Microsoft.EntityFrameworkCore
                 context =>
                 {
                     context.Set<Two>().Add(
-                        new Two
-                        {
-                            Data = "ValidString"
-                        });
+                        new Two { Data = "ValidString" });
 
                     context.SaveChanges();
                 });
@@ -2186,10 +2138,7 @@ namespace Microsoft.EntityFrameworkCore
                 context =>
                 {
                     context.Set<Two>().Add(
-                        new Two
-                        {
-                            Data = "ValidButLongString"
-                        });
+                        new Two { Data = "ValidButLongString" });
 
                     Assert.Equal(
                         "An error occurred while updating the entries. See the inner exception for details.",
@@ -2299,50 +2248,25 @@ namespace Microsoft.EntityFrameworkCore
                     {
                         RequiredColumn = "First",
                         RowVersion = new Guid("00000001-0000-0000-0000-000000000001"),
-                        Details = new Details
-                        {
-                            Name = "First Name"
-                        },
-                        AdditionalDetails = new Details
-                        {
-                            Name = "First Additional Name"
-                        }
+                        Details = new Details { Name = "First Name" },
+                        AdditionalDetails = new Details { Name = "First Additional Name" }
                     });
                 context.Set<One>().Add(
                     new One
                     {
                         RequiredColumn = "Second",
                         RowVersion = new Guid("00000001-0000-0000-0000-000000000001"),
-                        Details = new Details
-                        {
-                            Name = "Second Name"
-                        },
-                        AdditionalDetails = new Details
-                        {
-                            Name = "Second Additional Name"
-                        }
+                        Details = new Details { Name = "Second Name" },
+                        AdditionalDetails = new Details { Name = "Second Additional Name" }
                     });
 
                 context.Set<Two>().Add(
-                    new Two
-                    {
-                        Data = "First"
-                    });
+                    new Two { Data = "First" });
                 context.Set<Two>().Add(
-                    new Two
-                    {
-                        Data = "Second"
-                    });
+                    new Two { Data = "Second" });
 
                 context.Set<Book>().Add(
-                    new Book
-                    {
-                        Id = 1,
-                        AdditionalDetails = new Details
-                        {
-                            Name = "Book Name"
-                        }
-                    });
+                    new Book { Id = 1, AdditionalDetails = new Details { Name = "Book Name" } });
 
                 context.SaveChanges();
             }

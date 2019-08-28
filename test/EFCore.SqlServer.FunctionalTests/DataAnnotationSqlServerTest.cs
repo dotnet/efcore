@@ -39,7 +39,8 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Equal(
                 CoreStrings.WarningAsErrorTemplate(
                     RelationalEventId.ModelValidationKeyDefaultValueWarning,
-                    RelationalResources.LogKeyHasDefaultValue(new TestLogger<SqlServerLoggingDefinitions>()).GenerateMessage(nameof(Login1.UserName), nameof(Login1)),
+                    RelationalResources.LogKeyHasDefaultValue(new TestLogger<SqlServerLoggingDefinitions>())
+                        .GenerateMessage(nameof(Login1.UserName), nameof(Login1)),
                     "RelationalEventId.ModelValidationKeyDefaultValueWarning"),
                 Assert.Throws<InvalidOperationException>(() => Validate(modelBuilder)).Message);
 
@@ -342,6 +343,7 @@ WHERE @@ROWCOUNT = 1 AND [Id] = scope_identity();");
         }
 
         private static readonly string _eol = Environment.NewLine;
+
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 

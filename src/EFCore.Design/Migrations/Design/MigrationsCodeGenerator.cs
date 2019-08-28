@@ -244,17 +244,12 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
 
             var ignoredAnnotationTypes = new List<string>
             {
-                RelationalAnnotationNames.DbFunction,
-                RelationalAnnotationNames.SequencePrefix
+                RelationalAnnotationNames.DbFunction, RelationalAnnotationNames.SequencePrefix
             };
 
             return items.SelectMany(
                 i => i.GetAnnotations().Select(
-                        a => new
-                        {
-                            Annotatable = i,
-                            Annotation = a
-                        })
+                        a => new { Annotatable = i, Annotation = a })
                     .Where(
                         a => a.Annotation.Value != null
                              && !ignoredAnnotations.Contains(a.Annotation.Name)

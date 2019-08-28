@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -132,7 +132,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
                 return methodCallExpression.Update(Visit(methodCallExpression.Object), arguments);
             }
-            else if (methodCallExpression.Method.DeclaringType.IsGenericType
+
+            if (methodCallExpression.Method.DeclaringType.IsGenericType
                 && methodCallExpression.Method.DeclaringType.GetGenericTypeDefinition() == typeof(List<>)
                 && string.Equals(nameof(List<int>.Contains), methodCallExpression.Method.Name))
             {
@@ -157,9 +158,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
         private static bool ClientSource(Expression expression)
             => expression is ConstantExpression
-                || expression is MemberInitExpression
-                || expression is NewExpression
-                || expression is ParameterExpression;
+               || expression is MemberInitExpression
+               || expression is NewExpression
+               || expression is ParameterExpression;
 
         private static bool CanConvertEnumerableToQueryable(Type enumerableType, Type queryableType)
         {

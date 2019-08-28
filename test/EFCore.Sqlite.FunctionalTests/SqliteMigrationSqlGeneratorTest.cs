@@ -20,22 +20,11 @@ namespace Microsoft.EntityFrameworkCore
             Generate(
                 new CreateTableOperation
                 {
-                    Name = "Pie",
-                    Columns =
-                    {
-                        new AddColumnOperation
-                        {
-                            ClrType = typeof(int),
-                            Name = "FlavorId",
-                            ColumnType = "INT"
-                        }
-                    }
-                }, new AddForeignKeyOperation
+                    Name = "Pie", Columns = { new AddColumnOperation { ClrType = typeof(int), Name = "FlavorId", ColumnType = "INT" } }
+                },
+                new AddForeignKeyOperation
                 {
-                    Table = "Pie",
-                    PrincipalTable = "Flavor",
-                    Columns = new[] { "FlavorId" },
-                    PrincipalColumns = new[] { "Id" }
+                    Table = "Pie", PrincipalTable = "Flavor", Columns = new[] { "FlavorId" }, PrincipalColumns = new[] { "Id" }
                 });
 
             AssertSql(
@@ -77,13 +66,7 @@ namespace Microsoft.EntityFrameworkCore
         [InlineData(false, "PK_Id")]
         public void CreateTableOperation_with_annotations(bool autoincrement, string pkName)
         {
-            var addIdColumn = new AddColumnOperation
-            {
-                Name = "Id",
-                ClrType = typeof(long),
-                ColumnType = "INTEGER",
-                IsNullable = false
-            };
+            var addIdColumn = new AddColumnOperation { Name = "Id", ClrType = typeof(long), ColumnType = "INTEGER", IsNullable = false };
             if (autoincrement)
             {
                 addIdColumn.AddAnnotation(SqliteAnnotationNames.Autoincrement, true);
@@ -98,38 +81,20 @@ namespace Microsoft.EntityFrameworkCore
                         addIdColumn,
                         new AddColumnOperation
                         {
-                            Name = "EmployerId",
-                            ClrType = typeof(int),
-                            ColumnType = "int",
-                            IsNullable = true
+                            Name = "EmployerId", ClrType = typeof(int), ColumnType = "int", IsNullable = true
                         },
                         new AddColumnOperation
                         {
-                            Name = "SSN",
-                            ClrType = typeof(string),
-                            ColumnType = "char(11)",
-                            IsNullable = true
+                            Name = "SSN", ClrType = typeof(string), ColumnType = "char(11)", IsNullable = true
                         }
                     },
-                    PrimaryKey = new AddPrimaryKeyOperation
-                    {
-                        Name = pkName,
-                        Columns = new[] { "Id" }
-                    },
-                    UniqueConstraints =
-                    {
-                        new AddUniqueConstraintOperation
-                        {
-                            Columns = new[] { "SSN" }
-                        }
-                    },
+                    PrimaryKey = new AddPrimaryKeyOperation { Name = pkName, Columns = new[] { "Id" } },
+                    UniqueConstraints = { new AddUniqueConstraintOperation { Columns = new[] { "SSN" } } },
                     ForeignKeys =
                     {
                         new AddForeignKeyOperation
                         {
-                            Columns = new[] { "EmployerId" },
-                            PrincipalTable = "Companies",
-                            PrincipalColumns = new[] { "Id" }
+                            Columns = new[] { "EmployerId" }, PrincipalTable = "Companies", PrincipalColumns = new[] { "Id" }
                         }
                     }
                 });
@@ -157,7 +122,8 @@ namespace Microsoft.EntityFrameworkCore
         {
             base.AddColumnOperation_with_defaultValue();
 
-            AssertSql(@"ALTER TABLE ""People"" ADD ""Name"" varchar(30) NOT NULL DEFAULT 'John Doe';
+            AssertSql(
+                @"ALTER TABLE ""People"" ADD ""Name"" varchar(30) NOT NULL DEFAULT 'John Doe';
 ");
         }
 
@@ -165,7 +131,8 @@ namespace Microsoft.EntityFrameworkCore
         {
             base.AddColumnOperation_without_column_type();
 
-            AssertSql(@"ALTER TABLE ""People"" ADD ""Alias"" TEXT NOT NULL;
+            AssertSql(
+                @"ALTER TABLE ""People"" ADD ""Alias"" TEXT NOT NULL;
 ");
         }
 
@@ -183,7 +150,8 @@ namespace Microsoft.EntityFrameworkCore
                     DefaultValueSql = "10"
                 });
 
-            AssertSql(@"ALTER TABLE ""People"" ADD ""Age"" int NULL DEFAULT (10);
+            AssertSql(
+                @"ALTER TABLE ""People"" ADD ""Age"" int NULL DEFAULT (10);
 ");
         }
 
@@ -192,7 +160,8 @@ namespace Microsoft.EntityFrameworkCore
             base.AddColumnOperation_with_maxLength();
 
             // See issue #3698
-            AssertSql(@"ALTER TABLE ""Person"" ADD ""Name"" TEXT NULL;
+            AssertSql(
+                @"ALTER TABLE ""Person"" ADD ""Name"" TEXT NULL;
 ");
         }
 
@@ -201,7 +170,8 @@ namespace Microsoft.EntityFrameworkCore
             base.AddColumnOperation_with_maxLength_overridden();
 
             // See issue #3698
-            AssertSql(@"ALTER TABLE ""Person"" ADD ""Name"" TEXT NULL;
+            AssertSql(
+                @"ALTER TABLE ""Person"" ADD ""Name"" TEXT NULL;
 ");
         }
 
@@ -210,7 +180,8 @@ namespace Microsoft.EntityFrameworkCore
             base.AddColumnOperation_with_maxLength_on_derived();
 
             // See issue #3698
-            AssertSql(@"ALTER TABLE ""Person"" ADD ""Name"" TEXT NULL;
+            AssertSql(
+                @"ALTER TABLE ""Person"" ADD ""Name"" TEXT NULL;
 ");
         }
 
@@ -218,7 +189,8 @@ namespace Microsoft.EntityFrameworkCore
         {
             base.AddColumnOperation_with_shared_column();
 
-            AssertSql(@"ALTER TABLE ""Base"" ADD ""Foo"" TEXT NULL;
+            AssertSql(
+                @"ALTER TABLE ""Base"" ADD ""Foo"" TEXT NULL;
 ");
         }
 
@@ -345,14 +317,10 @@ namespace Microsoft.EntityFrameworkCore
         public virtual void RenameColumnOperation()
         {
             Generate(
-                new RenameColumnOperation
-                {
-                    Table = "People",
-                    Name = "Name",
-                    NewName = "FullName"
-                });
+                new RenameColumnOperation { Table = "People", Name = "Name", NewName = "FullName" });
 
-            AssertSql(@"ALTER TABLE ""People"" RENAME COLUMN ""Name"" TO ""FullName"";
+            AssertSql(
+                @"ALTER TABLE ""People"" RENAME COLUMN ""Name"" TO ""FullName"";
 ");
         }
 
@@ -368,12 +336,7 @@ namespace Microsoft.EntityFrameworkCore
                         x.HasKey("FullName");
                         x.HasIndex("FullName").IsUnique().HasFilter(@"""Id"" > 2");
                     }),
-                new RenameIndexOperation
-                {
-                    Table = "Person",
-                    Name = "IX_Person_Name",
-                    NewName = "IX_Person_FullName"
-                });
+                new RenameIndexOperation { Table = "Person", Name = "IX_Person_Name", NewName = "IX_Person_FullName" });
 
             AssertSql(
                 @"DROP INDEX ""IX_Person_Name"";
@@ -401,7 +364,8 @@ CREATE UNIQUE INDEX ""IX_Person_FullName"" ON ""Person"" (""FullName"") WHERE ""
         {
             base.RenameTableOperation_legacy();
 
-            AssertSql(@"ALTER TABLE ""People"" RENAME TO ""Person"";
+            AssertSql(
+                @"ALTER TABLE ""People"" RENAME TO ""Person"";
 ");
         }
 
@@ -409,7 +373,8 @@ CREATE UNIQUE INDEX ""IX_Person_FullName"" ON ""Person"" (""FullName"") WHERE ""
         {
             base.RenameTableOperation();
 
-            AssertSql(@"ALTER TABLE ""People"" RENAME TO ""Person"";
+            AssertSql(
+                @"ALTER TABLE ""People"" RENAME TO ""Person"";
 ");
         }
 
@@ -447,7 +412,8 @@ CREATE UNIQUE INDEX ""IX_Person_FullName"" ON ""Person"" (""FullName"") WHERE ""
         {
             base.DropIndexOperation();
 
-            AssertSql(@"DROP INDEX ""IX_People_Name"";
+            AssertSql(
+                @"DROP INDEX ""IX_People_Name"";
 ");
         }
 
@@ -493,10 +459,7 @@ CREATE UNIQUE INDEX ""IX_Person_FullName"" ON ""Person"" (""FullName"") WHERE ""
                             ["Autoincrement"] = true
                         }
                     },
-                    PrimaryKey = new AddPrimaryKeyOperation
-                    {
-                        Columns = new[] { "Id" }
-                    }
+                    PrimaryKey = new AddPrimaryKeyOperation { Columns = new[] { "Id" } }
                 });
 
             AssertSql(
@@ -525,17 +488,11 @@ CREATE UNIQUE INDEX ""IX_Person_FullName"" ON ""Person"" (""FullName"") WHERE ""
                         },
                         new AddColumnOperation
                         {
-                            Name = "UncommentedColumn1",
-                            Table = "People",
-                            ClrType = typeof(string),
-                            IsNullable = false
+                            Name = "UncommentedColumn1", Table = "People", ClrType = typeof(string), IsNullable = false
                         },
                         new AddColumnOperation
                         {
-                            Name = "UncommentedColumn2",
-                            Table = "People",
-                            ClrType = typeof(string),
-                            IsNullable = false
+                            Name = "UncommentedColumn2", Table = "People", ClrType = typeof(string), IsNullable = false
                         },
                         new AddColumnOperation
                         {
@@ -582,8 +539,7 @@ CREATE UNIQUE INDEX ""IX_Person_FullName"" ON ""Person"" (""FullName"") WHERE ""
 comment.
 More information can
 be found in the docs."
-
-                        },
+                        }
                     }
                 });
 
@@ -616,7 +572,7 @@ that continues onto another line",
                             ClrType = typeof(int),
                             IsNullable = false,
                             Comment = "My Comment"
-                        },
+                        }
                     }
                 });
 

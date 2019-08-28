@@ -292,7 +292,7 @@ namespace Microsoft.EntityFrameworkCore
             var viewDefinition = entityType.FindAnnotation(RelationalAnnotationNames.ViewDefinition);
 
             return (viewDefinition != null && viewDefinition.Value == null)
-                || entityType.GetDefiningQuery() != null;
+                   || entityType.GetDefiningQuery() != null;
         }
     }
 }

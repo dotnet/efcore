@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -26,6 +26,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
             { typeof(DateTime).GetRuntimeMethod(nameof(DateTime.AddMinutes), new[] { typeof(double) }), " minutes" },
             { typeof(DateTime).GetRuntimeMethod(nameof(DateTime.AddSeconds), new[] { typeof(double) }), " seconds" }
         };
+
         private readonly ISqlExpressionFactory _sqlExpressionFactory;
 
         public SqliteDateTimeAddTranslator(ISqlExpressionFactory sqlExpressionFactory)
@@ -78,7 +79,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
                                     method.ReturnType,
                                     "%Y-%m-%d %H:%M:%f",
                                     instance,
-                                    new [] { modifier }),
+                                    new[] { modifier }),
                                 _sqlExpressionFactory.Constant("0")
                             },
                             method.ReturnType),

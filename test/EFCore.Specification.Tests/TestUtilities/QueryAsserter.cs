@@ -315,7 +315,8 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                 && (type.GetGenericTypeDefinition() == typeof(IOrderedEnumerable<>)
                     || type.GetGenericTypeDefinition() == typeof(IOrderedQueryable<>)))
             {
-                throw new InvalidOperationException("Query result is OrderedQueryable - you need to set AssertQuery option: 'assertOrder' to 'true'. If the resulting order is non-deterministic by design, add identity projection to the top of the query to disable this check.");
+                throw new InvalidOperationException(
+                    "Query result is OrderedQueryable - you need to set AssertQuery option: 'assertOrder' to 'true'. If the resulting order is non-deterministic by design, add identity projection to the top of the query to disable this check.");
             }
 
             if (assertOrder && elementSorter != null)
@@ -717,8 +718,8 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
         // NB: Using Nullable<> instead of ? to work around dotnet/roslyn#31676
         public override async Task AssertQueryScalar<TItem1, TResult>(
-            Func<IQueryable<TItem1>, IQueryable<Nullable<TResult>>> actualQuery,
-            Func<IQueryable<TItem1>, IQueryable<Nullable<TResult>>> expectedQuery,
+            Func<IQueryable<TItem1>, IQueryable<TResult?>> actualQuery,
+            Func<IQueryable<TItem1>, IQueryable<TResult?>> expectedQuery,
             bool assertOrder,
             bool isAsync,
             string testMethodName)
@@ -772,8 +773,8 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
         // NB: Using Nullable<> instead of ? to work around dotnet/roslyn#31676
         public override async Task AssertQueryScalar<TItem1, TItem2, TResult>(
-            Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<Nullable<TResult>>> actualQuery,
-            Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<Nullable<TResult>>> expectedQuery,
+            Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<TResult?>> actualQuery,
+            Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<TResult?>> expectedQuery,
             bool assertOrder,
             bool isAsync,
             string testMethodName)

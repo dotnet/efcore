@@ -48,10 +48,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             Assert.Equal(
                 7, new ClrPropertyGetterFactory().Create(idProperty).GetClrValue(
-                    new Customer
-                    {
-                        Id = 7
-                    }));
+                    new Customer { Id = 7 }));
         }
 
         [ConditionalFact]
@@ -59,10 +56,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         {
             Assert.Equal(
                 7, new ClrPropertyGetterFactory().Create(typeof(Customer).GetAnyProperty("Id")).GetClrValue(
-                    new Customer
-                    {
-                        Id = 7
-                    }));
+                    new Customer { Id = 7 }));
         }
 
         [ConditionalFact]
@@ -76,11 +70,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Equal(
                 new Fuel(1.0),
                 new ClrPropertyGetterFactory().Create(fuelProperty).GetClrValue(
-                    new Customer
-                    {
-                        Id = 7,
-                        Fuel = new Fuel(1.0)
-                    }));
+                    new Customer { Id = 7, Fuel = new Fuel(1.0) }));
         }
 
         [ConditionalFact]
@@ -89,11 +79,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Equal(
                 new Fuel(1.0),
                 new ClrPropertyGetterFactory().Create(typeof(Customer).GetAnyProperty("Fuel")).GetClrValue(
-                    new Customer
-                    {
-                        Id = 7,
-                        Fuel = new Fuel(1.0)
-                    }));
+                    new Customer { Id = 7, Fuel = new Fuel(1.0) }));
         }
 
         private class Customer

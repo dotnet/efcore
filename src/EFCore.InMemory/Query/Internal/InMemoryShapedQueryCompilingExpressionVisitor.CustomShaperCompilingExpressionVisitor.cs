@@ -188,7 +188,6 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                         inverseNavigation.IsCollection()
                             ? AddToCollectionNavigation(relatedEntityParameter, entityParameter, inverseNavigation)
                             : AssignReferenceNavigation(relatedEntityParameter, entityParameter, inverseNavigation));
-
                 }
 
                 return Expression.Lambda(Expression.Block(typeof(void), expressions), entityParameter, relatedEntityParameter);

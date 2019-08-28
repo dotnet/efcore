@@ -39,11 +39,15 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
 
                 var (level, _, message, _, _) = _loggerFactory.Log.Single(e => e.Id.Id == CoreEventId.DetectChangesStarting.Id);
                 Assert.Equal(LogLevel.Debug, level);
-                Assert.Equal(CoreResources.LogDetectChangesStarting(new TestLogger<TestLoggingDefinitions>()).GenerateMessage(nameof(LikeAZooContext)), message);
+                Assert.Equal(
+                    CoreResources.LogDetectChangesStarting(new TestLogger<TestLoggingDefinitions>())
+                        .GenerateMessage(nameof(LikeAZooContext)), message);
 
                 (level, _, message, _, _) = _loggerFactory.Log.Single(e => e.Id.Id == CoreEventId.DetectChangesCompleted.Id);
                 Assert.Equal(LogLevel.Debug, level);
-                Assert.Equal(CoreResources.LogDetectChangesCompleted(new TestLogger<TestLoggingDefinitions>()).GenerateMessage(nameof(LikeAZooContext)), message);
+                Assert.Equal(
+                    CoreResources.LogDetectChangesCompleted(new TestLogger<TestLoggingDefinitions>())
+                        .GenerateMessage(nameof(LikeAZooContext)), message);
             }
         }
 
@@ -69,7 +73,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
                     sensitive
                         ? CoreResources.LogPropertyChangeDetectedSensitive(new TestLogger<TestLoggingDefinitions>()).GenerateMessage(
                             nameof(Cat), nameof(Cat.Name), "Smokey", "Smoke-a-doke", "{Id: 1}")
-                        : CoreResources.LogPropertyChangeDetected(new TestLogger<TestLoggingDefinitions>()).GenerateMessage(nameof(Cat), nameof(Cat.Name)),
+                        : CoreResources.LogPropertyChangeDetected(new TestLogger<TestLoggingDefinitions>())
+                            .GenerateMessage(nameof(Cat), nameof(Cat.Name)),
                     message);
 
                 _loggerFactory.Log.Clear();
@@ -102,8 +107,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
                 Assert.Equal(LogLevel.Debug, level);
                 Assert.Equal(
                     sensitive
-                        ? CoreResources.LogForeignKeyChangeDetectedSensitive(new TestLogger<TestLoggingDefinitions>()).GenerateMessage(nameof(Hat), nameof(Hat.CatId), 1, 2, "{Id: 77}")
-                        : CoreResources.LogForeignKeyChangeDetected(new TestLogger<TestLoggingDefinitions>()).GenerateMessage(nameof(Hat), nameof(Hat.CatId)),
+                        ? CoreResources.LogForeignKeyChangeDetectedSensitive(new TestLogger<TestLoggingDefinitions>())
+                            .GenerateMessage(nameof(Hat), nameof(Hat.CatId), 1, 2, "{Id: 77}")
+                        : CoreResources.LogForeignKeyChangeDetected(new TestLogger<TestLoggingDefinitions>())
+                            .GenerateMessage(nameof(Hat), nameof(Hat.CatId)),
                     message);
 
                 _loggerFactory.Log.Clear();
@@ -115,8 +122,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
                 Assert.Equal(LogLevel.Debug, level);
                 Assert.Equal(
                     sensitive
-                        ? CoreResources.LogForeignKeyChangeDetectedSensitive(new TestLogger<TestLoggingDefinitions>()).GenerateMessage(nameof(Hat), nameof(Hat.CatId), 2, 1, "{Id: 77}")
-                        : CoreResources.LogForeignKeyChangeDetected(new TestLogger<TestLoggingDefinitions>()).GenerateMessage(nameof(Hat), nameof(Hat.CatId)),
+                        ? CoreResources.LogForeignKeyChangeDetectedSensitive(new TestLogger<TestLoggingDefinitions>())
+                            .GenerateMessage(nameof(Hat), nameof(Hat.CatId), 2, 1, "{Id: 77}")
+                        : CoreResources.LogForeignKeyChangeDetected(new TestLogger<TestLoggingDefinitions>())
+                            .GenerateMessage(nameof(Hat), nameof(Hat.CatId)),
                     message);
             }
         }
@@ -142,8 +151,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
                 Assert.Equal(LogLevel.Debug, level);
                 Assert.Equal(
                     sensitive
-                        ? CoreResources.LogCollectionChangeDetectedSensitive(new TestLogger<TestLoggingDefinitions>()).GenerateMessage(0, 1, nameof(Cat), nameof(Cat.Hats), "{Id: 1}")
-                        : CoreResources.LogCollectionChangeDetected(new TestLogger<TestLoggingDefinitions>()).GenerateMessage(0, 1, nameof(Cat), nameof(Cat.Hats)),
+                        ? CoreResources.LogCollectionChangeDetectedSensitive(new TestLogger<TestLoggingDefinitions>())
+                            .GenerateMessage(0, 1, nameof(Cat), nameof(Cat.Hats), "{Id: 1}")
+                        : CoreResources.LogCollectionChangeDetected(new TestLogger<TestLoggingDefinitions>())
+                            .GenerateMessage(0, 1, nameof(Cat), nameof(Cat.Hats)),
                     message);
 
                 _loggerFactory.Log.Clear();
@@ -155,8 +166,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
                 Assert.Equal(LogLevel.Debug, level);
                 Assert.Equal(
                     sensitive
-                        ? CoreResources.LogCollectionChangeDetectedSensitive(new TestLogger<TestLoggingDefinitions>()).GenerateMessage(1, 0, nameof(Cat), nameof(Cat.Hats), "{Id: 1}")
-                        : CoreResources.LogCollectionChangeDetected(new TestLogger<TestLoggingDefinitions>()).GenerateMessage(1, 0, nameof(Cat), nameof(Cat.Hats)),
+                        ? CoreResources.LogCollectionChangeDetectedSensitive(new TestLogger<TestLoggingDefinitions>())
+                            .GenerateMessage(1, 0, nameof(Cat), nameof(Cat.Hats), "{Id: 1}")
+                        : CoreResources.LogCollectionChangeDetected(new TestLogger<TestLoggingDefinitions>())
+                            .GenerateMessage(1, 0, nameof(Cat), nameof(Cat.Hats)),
                     message);
             }
         }
@@ -182,8 +195,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
                 Assert.Equal(LogLevel.Debug, level);
                 Assert.Equal(
                     sensitive
-                        ? CoreResources.LogReferenceChangeDetectedSensitive(new TestLogger<TestLoggingDefinitions>()).GenerateMessage(nameof(Hat), nameof(Hat.Cat), "{Id: 77}")
-                        : CoreResources.LogReferenceChangeDetected(new TestLogger<TestLoggingDefinitions>()).GenerateMessage(nameof(Hat), nameof(Hat.Cat)),
+                        ? CoreResources.LogReferenceChangeDetectedSensitive(new TestLogger<TestLoggingDefinitions>())
+                            .GenerateMessage(nameof(Hat), nameof(Hat.Cat), "{Id: 77}")
+                        : CoreResources.LogReferenceChangeDetected(new TestLogger<TestLoggingDefinitions>())
+                            .GenerateMessage(nameof(Hat), nameof(Hat.Cat)),
                     message);
 
                 _loggerFactory.Log.Clear();
@@ -195,8 +210,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
                 Assert.Equal(LogLevel.Debug, level);
                 Assert.Equal(
                     sensitive
-                        ? CoreResources.LogReferenceChangeDetectedSensitive(new TestLogger<TestLoggingDefinitions>()).GenerateMessage(nameof(Hat), nameof(Hat.Cat), "{Id: 77}")
-                        : CoreResources.LogReferenceChangeDetected(new TestLogger<TestLoggingDefinitions>()).GenerateMessage(nameof(Hat), nameof(Hat.Cat)),
+                        ? CoreResources.LogReferenceChangeDetectedSensitive(new TestLogger<TestLoggingDefinitions>())
+                            .GenerateMessage(nameof(Hat), nameof(Hat.Cat), "{Id: 77}")
+                        : CoreResources.LogReferenceChangeDetected(new TestLogger<TestLoggingDefinitions>())
+                            .GenerateMessage(nameof(Hat), nameof(Hat.Cat)),
                     message);
             }
         }
@@ -217,8 +234,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
                 Assert.Equal(LogLevel.Debug, level);
                 Assert.Equal(
                     sensitive
-                        ? CoreResources.LogStartedTrackingSensitive(new TestLogger<TestLoggingDefinitions>()).GenerateMessage(nameof(LikeAZooContextSensitive), nameof(Cat), "{Id: 1}")
-                        : CoreResources.LogStartedTracking(new TestLogger<TestLoggingDefinitions>()).GenerateMessage(nameof(LikeAZooContext), nameof(Cat)),
+                        ? CoreResources.LogStartedTrackingSensitive(new TestLogger<TestLoggingDefinitions>()).GenerateMessage(
+                            nameof(LikeAZooContextSensitive), nameof(Cat), "{Id: 1}")
+                        : CoreResources.LogStartedTracking(new TestLogger<TestLoggingDefinitions>())
+                            .GenerateMessage(nameof(LikeAZooContext), nameof(Cat)),
                     message);
             }
         }
@@ -237,8 +256,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
                 Assert.Equal(LogLevel.Debug, level);
                 Assert.Equal(
                     sensitive
-                        ? CoreResources.LogStartedTrackingSensitive(new TestLogger<TestLoggingDefinitions>()).GenerateMessage(nameof(LikeAZooContextSensitive), nameof(Hat), "{Id: 88}")
-                        : CoreResources.LogStartedTracking(new TestLogger<TestLoggingDefinitions>()).GenerateMessage(nameof(LikeAZooContext), nameof(Hat)),
+                        ? CoreResources.LogStartedTrackingSensitive(new TestLogger<TestLoggingDefinitions>()).GenerateMessage(
+                            nameof(LikeAZooContextSensitive), nameof(Hat), "{Id: 88}")
+                        : CoreResources.LogStartedTracking(new TestLogger<TestLoggingDefinitions>())
+                            .GenerateMessage(nameof(LikeAZooContext), nameof(Hat)),
                     message);
             }
         }
@@ -308,7 +329,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
                         sensitive
                             ? CoreResources.LogTempValueGeneratedSensitive(new TestLogger<TestLoggingDefinitions>()).GenerateMessage(
                                 nameof(LikeAZooContextSensitive), 1, nameof(Hat.Id), nameof(Hat))
-                            : CoreResources.LogTempValueGenerated(new TestLogger<TestLoggingDefinitions>()).GenerateMessage(nameof(LikeAZooContext), nameof(Hat.Id), nameof(Hat)),
+                            : CoreResources.LogTempValueGenerated(new TestLogger<TestLoggingDefinitions>()).GenerateMessage(
+                                nameof(LikeAZooContext), nameof(Hat.Id), nameof(Hat)),
                         message);
                 }
                 else
@@ -317,7 +339,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
                         sensitive
                             ? CoreResources.LogValueGeneratedSensitive(new TestLogger<TestLoggingDefinitions>()).GenerateMessage(
                                 nameof(LikeAZooContextSensitive), 1, nameof(Hat.Id), nameof(Hat))
-                            : CoreResources.LogValueGenerated(new TestLogger<TestLoggingDefinitions>()).GenerateMessage(nameof(LikeAZooContext), nameof(Hat.Id), nameof(Hat)),
+                            : CoreResources.LogValueGenerated(new TestLogger<TestLoggingDefinitions>()).GenerateMessage(
+                                nameof(LikeAZooContext), nameof(Hat.Id), nameof(Hat)),
                         message);
                 }
             }
@@ -412,8 +435,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
 
                 void CaptureMessages()
                 {
-                    (cascadeDeleteLevel, _, cascadeDeleteMessage, _, _) = _loggerFactory.Log.FirstOrDefault(e => e.Id.Id == CoreEventId.CascadeDelete.Id);
-                    (_, _, deleteOrphansMessage, _, _) = _loggerFactory.Log.FirstOrDefault(e => e.Id.Id == CoreEventId.CascadeDeleteOrphan.Id);
+                    (cascadeDeleteLevel, _, cascadeDeleteMessage, _, _) =
+                        _loggerFactory.Log.FirstOrDefault(e => e.Id.Id == CoreEventId.CascadeDelete.Id);
+                    (_, _, deleteOrphansMessage, _, _) =
+                        _loggerFactory.Log.FirstOrDefault(e => e.Id.Id == CoreEventId.CascadeDeleteOrphan.Id);
                 }
 
                 void ClearMessages()
@@ -464,8 +489,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
                     Assert.Equal(LogLevel.Debug, cascadeDeleteLevel);
                     Assert.Equal(
                         sensitive
-                            ? CoreResources.LogCascadeDeleteSensitive(new TestLogger<TestLoggingDefinitions>()).GenerateMessage(nameof(Hat), "{Id: 77}", EntityState.Deleted, nameof(Cat), "{Id: 1}")
-                            : CoreResources.LogCascadeDelete(new TestLogger<TestLoggingDefinitions>()).GenerateMessage(nameof(Hat), EntityState.Deleted, nameof(Cat)),
+                            ? CoreResources.LogCascadeDeleteSensitive(new TestLogger<TestLoggingDefinitions>()).GenerateMessage(
+                                nameof(Hat), "{Id: 77}", EntityState.Deleted, nameof(Cat), "{Id: 1}")
+                            : CoreResources.LogCascadeDelete(new TestLogger<TestLoggingDefinitions>()).GenerateMessage(
+                                nameof(Hat), EntityState.Deleted, nameof(Cat)),
                         cascadeDeleteMessage);
                 }
             }
@@ -532,7 +559,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
                 void CaptureMessages()
                 {
                     (_, _, cascadeDeleteMessage, _, _) = _loggerFactory.Log.FirstOrDefault(e => e.Id.Id == CoreEventId.CascadeDelete.Id);
-                    (deleteOrphansLevel, _, deleteOrphansMessage, _, _) = _loggerFactory.Log.FirstOrDefault(e => e.Id.Id == CoreEventId.CascadeDeleteOrphan.Id);
+                    (deleteOrphansLevel, _, deleteOrphansMessage, _, _) =
+                        _loggerFactory.Log.FirstOrDefault(e => e.Id.Id == CoreEventId.CascadeDeleteOrphan.Id);
                 }
 
                 void ClearMessages()
@@ -586,8 +614,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
                     Assert.Equal(LogLevel.Debug, deleteOrphansLevel);
                     Assert.Equal(
                         sensitive
-                            ? CoreResources.LogCascadeDeleteOrphanSensitive(new TestLogger<TestLoggingDefinitions>()).GenerateMessage(nameof(Hat), "{Id: 77}", EntityState.Deleted, nameof(Cat))
-                            : CoreResources.LogCascadeDeleteOrphan(new TestLogger<TestLoggingDefinitions>()).GenerateMessage(nameof(Hat), EntityState.Deleted, nameof(Cat)),
+                            ? CoreResources.LogCascadeDeleteOrphanSensitive(new TestLogger<TestLoggingDefinitions>()).GenerateMessage(
+                                nameof(Hat), "{Id: 77}", EntityState.Deleted, nameof(Cat))
+                            : CoreResources.LogCascadeDeleteOrphan(new TestLogger<TestLoggingDefinitions>())
+                                .GenerateMessage(nameof(Hat), EntityState.Deleted, nameof(Cat)),
                         deleteOrphansMessage);
                 }
             }
@@ -619,11 +649,15 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
 
                 var (level, _, message, _, _) = _loggerFactory.Log.Single(e => e.Id.Id == CoreEventId.SaveChangesStarting.Id);
                 Assert.Equal(LogLevel.Debug, level);
-                Assert.Equal(CoreResources.LogSaveChangesStarting(new TestLogger<TestLoggingDefinitions>()).GenerateMessage(nameof(LikeAZooContext)), message);
+                Assert.Equal(
+                    CoreResources.LogSaveChangesStarting(new TestLogger<TestLoggingDefinitions>()).GenerateMessage(nameof(LikeAZooContext)),
+                    message);
 
                 (level, _, message, _, _) = _loggerFactory.Log.Single(e => e.Id.Id == CoreEventId.SaveChangesCompleted.Id);
                 Assert.Equal(LogLevel.Debug, level);
-                Assert.Equal(CoreResources.LogSaveChangesCompleted(new TestLogger<TestLoggingDefinitions>()).GenerateMessage(nameof(LikeAZooContext), 1), message);
+                Assert.Equal(
+                    CoreResources.LogSaveChangesCompleted(new TestLogger<TestLoggingDefinitions>())
+                        .GenerateMessage(nameof(LikeAZooContext), 1), message);
             }
         }
 
@@ -639,7 +673,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
 
             var (level, _, message, _, _) = _loggerFactory.Log.Single(e => e.Id.Id == CoreEventId.ContextDisposed.Id);
             Assert.Equal(LogLevel.Debug, level);
-            Assert.Equal(CoreResources.LogContextDisposed(new TestLogger<TestLoggingDefinitions>()).GenerateMessage(nameof(LikeAZooContext)), message);
+            Assert.Equal(
+                CoreResources.LogContextDisposed(new TestLogger<TestLoggingDefinitions>()).GenerateMessage(nameof(LikeAZooContext)),
+                message);
         }
 
         [ConditionalFact]
@@ -885,10 +921,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
                 RegisterEvents(context, tracked, changed);
 
                 var cat = context.Attach(
-                    new Cat(3)
-                    {
-                        Name = "Achilles"
-                    }).Entity;
+                    new Cat(3) { Name = "Achilles" }).Entity;
 
                 Assert.Equal(1, tracked.Count);
                 Assert.Equal(0, changed.Count);
@@ -1150,11 +1183,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             {
                 var product = new Product();
                 var order = new Order();
-                var orderDetails = new OrderDetails
-                {
-                    Order = order,
-                    Product = product
-                };
+                var orderDetails = new OrderDetails { Order = order, Product = product };
 
                 context.Add(orderDetails);
                 if (saveEntities)
@@ -1295,12 +1324,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             {
                 var category = new NullbileCategory
                 {
-                    Products = new List<NullbileProduct>
-                    {
-                        new NullbileProduct(),
-                        new NullbileProduct(),
-                        new NullbileProduct()
-                    }
+                    Products = new List<NullbileProduct> { new NullbileProduct(), new NullbileProduct(), new NullbileProduct() }
                 };
 
                 if (setKeys)
@@ -1372,10 +1396,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         {
             using (var context = new EarlyLearningCenter())
             {
-                var category = new NullbileCategory
-                {
-                    Info = new NullbileCategoryInfo()
-                };
+                var category = new NullbileCategory { Info = new NullbileCategoryInfo() };
 
                 if (setKeys)
                 {
@@ -1399,11 +1420,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
                         });
 
                     Assert.Equal(
-                        new List<string>
-                        {
-                            "<None> -----> NullbileCategory:1",
-                            "NullbileCategory:1 ---Info--> NullbileCategoryInfo:1"
-                        },
+                        new List<string> { "<None> -----> NullbileCategory:1", "NullbileCategory:1 ---Info--> NullbileCategoryInfo:1" },
                         traversal);
                 }
 
@@ -1430,14 +1447,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         {
             using (var context = new EarlyLearningCenter())
             {
-                var sweet = new Sweet
-                {
-                    Dreams = new Dreams
-                    {
-                        Are = new AreMade(),
-                        Made = new AreMade()
-                    }
-                };
+                var sweet = new Sweet { Dreams = new Dreams { Are = new AreMade(), Made = new AreMade() } };
 
                 if (setPrincipalKey)
                 {
@@ -1516,15 +1526,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         {
             using (var context = new EarlyLearningCenter())
             {
-                var dreams = new Dreams
-                {
-                    Sweet = new Sweet
-                    {
-                        Id = 1
-                    },
-                    Are = new AreMade(),
-                    Made = new AreMade()
-                };
+                var dreams = new Dreams { Sweet = new Sweet { Id = 1 }, Are = new AreMade(), Made = new AreMade() };
 
                 if (setDependentKey)
                 {
@@ -1589,22 +1591,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             {
                 var category = new Category
                 {
-                    Id = 1,
-                    Products = new List<Product>
-                    {
-                        new Product
-                        {
-                            Id = 1
-                        },
-                        new Product
-                        {
-                            Id = 2
-                        },
-                        new Product
-                        {
-                            Id = 3
-                        }
-                    }
+                    Id = 1, Products = new List<Product> { new Product { Id = 1 }, new Product { Id = 2 }, new Product { Id = 3 } }
                 };
 
                 var traversal = new List<string>();
@@ -1648,14 +1635,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         {
             using (var context = new EarlyLearningCenter())
             {
-                var product = new Product
-                {
-                    Id = 1,
-                    Category = new Category
-                    {
-                        Id = 1
-                    }
-                };
+                var product = new Product { Id = 1, Category = new Category { Id = 1 } };
 
                 var traversal = new List<string>();
 
@@ -1667,11 +1647,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
                     });
 
                 Assert.Equal(
-                    new List<string>
-                    {
-                        "<None> -----> Product:1",
-                        "Product:1 ---Category--> Category:1"
-                    },
+                    new List<string> { "<None> -----> Product:1", "Product:1 ---Category--> Category:1" },
                     traversal);
 
                 Assert.Equal(2, context.ChangeTracker.Entries().Count());
@@ -1689,18 +1665,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         {
             using (var context = new EarlyLearningCenter())
             {
-                var product = new Product
-                {
-                    Id = 1,
-                    Details = new ProductDetails
-                    {
-                        Id = 1,
-                        Tag = new ProductDetailsTag
-                        {
-                            Id = 1
-                        }
-                    }
-                };
+                var product = new Product { Id = 1, Details = new ProductDetails { Id = 1, Tag = new ProductDetailsTag { Id = 1 } } };
 
                 var traversal = new List<string>();
 
@@ -1736,18 +1701,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         {
             using (var context = new EarlyLearningCenter())
             {
-                var tag = new ProductDetailsTag
-                {
-                    Id = 1,
-                    Details = new ProductDetails
-                    {
-                        Id = 1,
-                        Product = new Product
-                        {
-                            Id = 1
-                        }
-                    }
-                };
+                var tag = new ProductDetailsTag { Id = 1, Details = new ProductDetails { Id = 1, Product = new Product { Id = 1 } } };
 
                 var traversal = new List<string>();
 
@@ -1783,18 +1737,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         {
             using (var context = new EarlyLearningCenter())
             {
-                var details = new ProductDetails
-                {
-                    Id = 1,
-                    Product = new Product
-                    {
-                        Id = 1
-                    },
-                    Tag = new ProductDetailsTag
-                    {
-                        Id = 1
-                    }
-                };
+                var details = new ProductDetails { Id = 1, Product = new Product { Id = 1 }, Tag = new ProductDetailsTag { Id = 1 } };
 
                 var traversal = new List<string>();
 
@@ -1831,27 +1774,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             using (var context = new EarlyLearningCenter())
             {
                 var existingProduct = context.Attach(
-                    new Product
-                    {
-                        Id = 2,
-                        CategoryId = 1
-                    }).Entity;
+                    new Product { Id = 2, CategoryId = 1 }).Entity;
 
                 var category = new Category
                 {
-                    Id = 1,
-                    Products = new List<Product>
-                    {
-                        new Product
-                        {
-                            Id = 1
-                        },
-                        existingProduct,
-                        new Product
-                        {
-                            Id = 3
-                        }
-                    }
+                    Id = 1, Products = new List<Product> { new Product { Id = 1 }, existingProduct, new Product { Id = 3 } }
                 };
 
                 var traversal = new List<string>();
@@ -1866,9 +1793,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
                 Assert.Equal(
                     new List<string>
                     {
-                        "<None> -----> Category:1",
-                        "Category:1 ---Products--> Product:1",
-                        "Category:1 ---Products--> Product:3"
+                        "<None> -----> Category:1", "Category:1 ---Products--> Product:1", "Category:1 ---Products--> Product:3"
                     },
                     traversal);
 
@@ -1899,33 +1824,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
                     Id = 1,
                     Products = new List<Product>
                     {
-                        new Product
-                        {
-                            Id = 1,
-                            CategoryId = 1,
-                            Details = new ProductDetails
-                            {
-                                Id = 1
-                            }
-                        },
-                        new Product
-                        {
-                            Id = 2,
-                            CategoryId = 1,
-                            Details = new ProductDetails
-                            {
-                                Id = 2
-                            }
-                        },
-                        new Product
-                        {
-                            Id = 3,
-                            CategoryId = 1,
-                            Details = new ProductDetails
-                            {
-                                Id = 3
-                            }
-                        }
+                        new Product { Id = 1, CategoryId = 1, Details = new ProductDetails { Id = 1 } },
+                        new Product { Id = 2, CategoryId = 1, Details = new ProductDetails { Id = 2 } },
+                        new Product { Id = 3, CategoryId = 1, Details = new ProductDetails { Id = 3 } }
                     }
                 };
 
@@ -1983,14 +1884,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         {
             using (var context = new EarlyLearningCenter())
             {
-                var details = new ProductDetails
-                {
-                    Id = 1,
-                    Product = new Product
-                    {
-                        Id = 1
-                    }
-                };
+                var details = new ProductDetails { Id = 1, Product = new Product { Id = 1 } };
                 details.Product.Details = details;
 
                 var traversal = new List<string>();
@@ -1998,10 +1892,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
                 context.ChangeTracker.TrackGraph(details, e => traversal.Add(NodeString(e)));
 
                 Assert.Equal(
-                    new List<string>
-                    {
-                        "<None> -----> ProductDetails:1"
-                    },
+                    new List<string> { "<None> -----> ProductDetails:1" },
                     traversal);
 
                 Assert.Equal(0, context.ChangeTracker.Entries().Count(e => e.State != EntityState.Detached));
@@ -2063,21 +1954,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
                     Id = 77,
                     Products = new List<Product>
                     {
-                        new Product
-                        {
-                            Id = 77,
-                            CategoryId = expectModified ? 0 : 77
-                        },
-                        new Product
-                        {
-                            Id = 0,
-                            CategoryId = expectModified ? 0 : 77
-                        },
-                        new Product
-                        {
-                            Id = 78,
-                            CategoryId = expectModified ? 0 : 77
-                        }
+                        new Product { Id = 77, CategoryId = expectModified ? 0 : 77 },
+                        new Product { Id = 0, CategoryId = expectModified ? 0 : 77 },
+                        new Product { Id = 78, CategoryId = expectModified ? 0 : 77 }
                     }
                 };
 
@@ -2118,21 +1997,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
                     Id = 77,
                     Products = new List<Product>
                     {
-                        new Product
-                        {
-                            Id = 77,
-                            CategoryId = 77
-                        },
-                        new Product
-                        {
-                            Id = 0,
-                            CategoryId = 77
-                        },
-                        new Product
-                        {
-                            Id = 78,
-                            CategoryId = 77
-                        }
+                        new Product { Id = 77, CategoryId = 77 },
+                        new Product { Id = 0, CategoryId = 77 },
+                        new Product { Id = 78, CategoryId = 77 }
                     }
                 };
 
@@ -2187,15 +2054,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         {
             using (var context = new EarlyLearningCenter())
             {
-                var dreams = new Dreams
-                {
-                    Sweet = new Sweet
-                    {
-                        Id = 1
-                    },
-                    Are = new AreMade(),
-                    Made = new AreMade()
-                };
+                var dreams = new Dreams { Sweet = new Sweet { Id = 1 }, Are = new AreMade(), Made = new AreMade() };
 
                 context.Entry(dreams.Sweet).State = EntityState.Unchanged;
 
@@ -2263,33 +2122,29 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         {
             using (var context = new EarlyLearningCenter())
             {
-                var dreams = new Dreams
-                {
-                    Sweet = new Sweet
-                    {
-                        Id = 1
-                    },
-                    Are = new OfThis()
-                };
+                var dreams = new Dreams { Sweet = new Sweet { Id = 1 }, Are = new OfThis() };
 
                 context.Entry(dreams.Sweet).State = EntityState.Unchanged;
 
                 if (useAdd)
                 {
-                    Assert.Equal(CoreStrings.TrackingTypeMismatch(nameof(OfThis), "Dreams.Are#AreMade"),
+                    Assert.Equal(
+                        CoreStrings.TrackingTypeMismatch(nameof(OfThis), "Dreams.Are#AreMade"),
                         Assert.Throws<InvalidOperationException>(() => context.Add(dreams)).Message);
                 }
                 else
                 {
-                    Assert.Equal(CoreStrings.TrackingTypeMismatch(nameof(OfThis), "Dreams.Are#AreMade"),
-                        Assert.Throws<InvalidOperationException>(() =>
-                            context.ChangeTracker.TrackGraph(
-                                dreams, e =>
-                                {
-                                    e.Entry.State = e.Entry.IsKeySet && !e.Entry.Metadata.IsOwned()
-                                        ? EntityState.Unchanged
-                                        : EntityState.Added;
-                                })).Message);
+                    Assert.Equal(
+                        CoreStrings.TrackingTypeMismatch(nameof(OfThis), "Dreams.Are#AreMade"),
+                        Assert.Throws<InvalidOperationException>(
+                            () =>
+                                context.ChangeTracker.TrackGraph(
+                                    dreams, e =>
+                                    {
+                                        e.Entry.State = e.Entry.IsKeySet && !e.Entry.Metadata.IsOwned()
+                                            ? EntityState.Unchanged
+                                            : EntityState.Added;
+                                    })).Message);
                 }
             }
         }
@@ -2299,14 +2154,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         {
             using (var context = new EarlyLearningCenter())
             {
-                var dreams = new Dreams
-                {
-                    Sweet = new Sweet
-                    {
-                        Id = 1
-                    },
-                    OfThis = new OfThis()
-                };
+                var dreams = new Dreams { Sweet = new Sweet { Id = 1 }, OfThis = new OfThis() };
 
                 context.Entry(dreams.Sweet).State = EntityState.Unchanged;
                 context.Add(dreams);
@@ -2314,7 +2162,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
                 dreams.Are = dreams.OfThis;
                 dreams.OfThis = null;
 
-                Assert.Equal(CoreStrings.TrackingTypeMismatch(nameof(OfThis), "Dreams.Are#AreMade"),
+                Assert.Equal(
+                    CoreStrings.TrackingTypeMismatch(nameof(OfThis), "Dreams.Are#AreMade"),
                     Assert.Throws<InvalidOperationException>(() => context.Entry(dreams)).Message);
             }
         }
@@ -2326,23 +2175,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             {
                 var product1 = new Product
                 {
-                    Details = new ProductDetails
-                    {
-                        Tag = new ProductDetailsTag
-                        {
-                            TagDetails = new ProductDetailsTagDetails()
-                        }
-                    }
+                    Details = new ProductDetails { Tag = new ProductDetailsTag { TagDetails = new ProductDetailsTagDetails() } }
                 };
                 var product2 = new Product
                 {
-                    Details = new ProductDetails
-                    {
-                        Tag = new ProductDetailsTag
-                        {
-                            TagDetails = new ProductDetailsTagDetails()
-                        }
-                    }
+                    Details = new ProductDetails { Tag = new ProductDetailsTag { TagDetails = new ProductDetailsTagDetails() } }
                 };
 
                 context.Add(product1);
@@ -2365,24 +2202,12 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             {
                 var tagDetails1 = new ProductDetailsTagDetails
                 {
-                    Tag = new ProductDetailsTag
-                    {
-                        Details = new ProductDetails
-                        {
-                            Product = new Product()
-                        }
-                    }
+                    Tag = new ProductDetailsTag { Details = new ProductDetails { Product = new Product() } }
                 };
 
                 var tagDetails2 = new ProductDetailsTagDetails
                 {
-                    Tag = new ProductDetailsTag
-                    {
-                        Details = new ProductDetails
-                        {
-                            Product = new Product()
-                        }
-                    }
+                    Tag = new ProductDetailsTag { Details = new ProductDetails { Product = new Product() } }
                 };
 
                 context.Add(tagDetails1);
@@ -2405,24 +2230,12 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             {
                 var tagDetails1 = new ProductDetailsTagDetails
                 {
-                    Tag = new ProductDetailsTag
-                    {
-                        Details = new ProductDetails
-                        {
-                            Product = new Product()
-                        }
-                    }
+                    Tag = new ProductDetailsTag { Details = new ProductDetails { Product = new Product() } }
                 };
 
                 var tagDetails2 = new ProductDetailsTagDetails
                 {
-                    Tag = new ProductDetailsTag
-                    {
-                        Details = new ProductDetails
-                        {
-                            Product = new Product()
-                        }
-                    }
+                    Tag = new ProductDetailsTag { Details = new ProductDetails { Product = new Product() } }
                 };
 
                 context.Add(tagDetails1);
@@ -2445,24 +2258,12 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             {
                 var tagDetails1 = new ProductDetailsTagDetails
                 {
-                    Tag = new ProductDetailsTag
-                    {
-                        Details = new ProductDetails
-                        {
-                            Product = new Product()
-                        }
-                    }
+                    Tag = new ProductDetailsTag { Details = new ProductDetails { Product = new Product() } }
                 };
 
                 var tagDetails2 = new ProductDetailsTagDetails
                 {
-                    Tag = new ProductDetailsTag
-                    {
-                        Details = new ProductDetails
-                        {
-                            Product = new Product()
-                        }
-                    }
+                    Tag = new ProductDetailsTag { Details = new ProductDetails { Product = new Product() } }
                 };
 
                 context.Add(tagDetails1.Tag);
@@ -2485,23 +2286,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             {
                 var product1 = new Product
                 {
-                    Details = new ProductDetails
-                    {
-                        Tag = new ProductDetailsTag
-                        {
-                            TagDetails = new ProductDetailsTagDetails()
-                        }
-                    }
+                    Details = new ProductDetails { Tag = new ProductDetailsTag { TagDetails = new ProductDetailsTagDetails() } }
                 };
                 var product2 = new Product
                 {
-                    Details = new ProductDetails
-                    {
-                        Tag = new ProductDetailsTag
-                        {
-                            TagDetails = new ProductDetailsTagDetails()
-                        }
-                    }
+                    Details = new ProductDetails { Tag = new ProductDetailsTag { TagDetails = new ProductDetailsTagDetails() } }
                 };
 
                 context.Add(product1.Details);
@@ -2650,26 +2439,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
                 var order1 = new Order();
                 var order2 = new Order();
 
-                var orderDetails1a = new OrderDetails
-                {
-                    Order = order1,
-                    Product = product1
-                };
-                var orderDetails1b = new OrderDetails
-                {
-                    Order = order1,
-                    Product = product2
-                };
-                var orderDetails2a = new OrderDetails
-                {
-                    Order = order2,
-                    Product = product1
-                };
-                var orderDetails2b = new OrderDetails
-                {
-                    Order = order2,
-                    Product = product2
-                };
+                var orderDetails1a = new OrderDetails { Order = order1, Product = product1 };
+                var orderDetails1b = new OrderDetails { Order = order1, Product = product2 };
+                var orderDetails2a = new OrderDetails { Order = order2, Product = product1 };
+                var orderDetails2b = new OrderDetails { Order = order2, Product = product2 };
 
                 context.Add(product1);
                 context.Add(order1);
@@ -2695,26 +2468,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
                 var order1 = new Order();
                 var order2 = new Order();
 
-                var orderDetails1a = new OrderDetails
-                {
-                    Order = order1,
-                    Product = product1
-                };
-                var orderDetails1b = new OrderDetails
-                {
-                    Order = order1,
-                    Product = product2
-                };
-                var orderDetails2a = new OrderDetails
-                {
-                    Order = order2,
-                    Product = product1
-                };
-                var orderDetails2b = new OrderDetails
-                {
-                    Order = order2,
-                    Product = product2
-                };
+                var orderDetails1a = new OrderDetails { Order = order1, Product = product1 };
+                var orderDetails1b = new OrderDetails { Order = order1, Product = product2 };
+                var orderDetails2a = new OrderDetails { Order = order2, Product = product1 };
+                var orderDetails2b = new OrderDetails { Order = order2, Product = product2 };
 
                 context.Add(orderDetails1a);
                 context.Add(orderDetails2a);
@@ -2797,11 +2554,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             using (var context = new EarlyLearningCenter())
             {
                 var entry = context.Attach(
-                    new Product
-                    {
-                        Id = 1,
-                        CategoryId = 66
-                    });
+                    new Product { Id = 1, CategoryId = 66 });
 
                 entry.Entity.CategoryId = 77;
 
@@ -2830,11 +2583,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
                 context.ChangeTracker.AutoDetectChangesEnabled = false;
 
                 var entry = context.Attach(
-                    new Product
-                    {
-                        Id = 1,
-                        CategoryId = 66
-                    });
+                    new Product { Id = 1, CategoryId = 66 });
 
                 entry.Entity.CategoryId = 77;
 
@@ -2861,11 +2610,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
                 context.ChangeTracker.AutoDetectChangesEnabled = false;
 
                 var entry = context.Attach(
-                    new Product
-                    {
-                        Id = 1,
-                        CategoryId = 66
-                    });
+                    new Product { Id = 1, CategoryId = 66 });
 
                 entry.Entity.CategoryId = 77;
 
@@ -2909,33 +2654,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
                     Id = 1,
                     Products = new List<Product>
                     {
-                        new Product
-                        {
-                            Id = 1,
-                            CategoryId = 1,
-                            Details = new ProductDetails
-                            {
-                                Id = 1
-                            }
-                        },
-                        new Product
-                        {
-                            Id = 2,
-                            CategoryId = 1,
-                            Details = new ProductDetails
-                            {
-                                Id = 2
-                            }
-                        },
-                        new Product
-                        {
-                            Id = 3,
-                            CategoryId = 1,
-                            Details = new ProductDetails
-                            {
-                                Id = 3
-                            }
-                        }
+                        new Product { Id = 1, CategoryId = 1, Details = new ProductDetails { Id = 1 } },
+                        new Product { Id = 2, CategoryId = 1, Details = new ProductDetails { Id = 2 } },
+                        new Product { Id = 3, CategoryId = 1, Details = new ProductDetails { Id = 3 } }
                     }
                 };
 
@@ -2986,33 +2707,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
                     Id = 1,
                     Products = new List<Product>
                     {
-                        new Product
-                        {
-                            Id = 1,
-                            CategoryId = 1,
-                            Details = new ProductDetails
-                            {
-                                Id = 1
-                            }
-                        },
-                        new Product
-                        {
-                            Id = 2,
-                            CategoryId = 1,
-                            Details = new ProductDetails
-                            {
-                                Id = 2
-                            }
-                        },
-                        new Product
-                        {
-                            Id = 3,
-                            CategoryId = 1,
-                            Details = new ProductDetails
-                            {
-                                Id = 3
-                            }
-                        }
+                        new Product { Id = 1, CategoryId = 1, Details = new ProductDetails { Id = 1 } },
+                        new Product { Id = 2, CategoryId = 1, Details = new ProductDetails { Id = 2 } },
+                        new Product { Id = 3, CategoryId = 1, Details = new ProductDetails { Id = 3 } }
                     }
                 };
 
@@ -3162,14 +2859,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         }
 
         private static Product CreateSimpleGraph(int id)
-            => new Product
-            {
-                Id = id,
-                Category = new Category
-                {
-                    Id = id
-                }
-            };
+            => new Product { Id = id, Category = new Category { Id = id } };
 
         private class ChangeDetectorProxy : ChangeDetector
         {
@@ -3384,11 +3074,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
                     b =>
                     {
                         b.HasKey(
-                            e => new
-                            {
-                                e.OrderId,
-                                e.ProductId
-                            });
+                            e => new { e.OrderId, e.ProductId });
                         b.HasOne(e => e.Order).WithMany(e => e.OrderDetails).HasForeignKey(e => e.OrderId);
                         b.HasOne(e => e.Product).WithMany(e => e.OrderDetails).HasForeignKey(e => e.ProductId);
                     });

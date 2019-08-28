@@ -37,7 +37,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
         }
 
-         // InMemory can mimic throw behavior for subquery
+        // InMemory can mimic throw behavior for subquery
         public override void Average_no_data_subquery()
         {
         }
@@ -190,7 +190,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalTheory(Skip = "Issue#16575")]
-        public override Task Project_single_element_from_collection_with_OrderBy_Distinct_and_FirstOrDefault_followed_by_projecting_length(bool isAsync) => null;
+        public override Task Project_single_element_from_collection_with_OrderBy_Distinct_and_FirstOrDefault_followed_by_projecting_length(
+            bool isAsync) => null;
 
         [ConditionalTheory(Skip = "Issue #16963")]
         public override Task KeylessEntity_with_included_nav(bool isAsync) => null;
@@ -329,7 +330,6 @@ namespace Microsoft.EntityFrameworkCore.Query
         public override void Random_next_is_not_funcletized_6()
         {
         }
-
 
         [ConditionalTheory(Skip = "Issue#16963")]
         public override Task Projection_when_client_evald_subquery(bool isAsync)
