@@ -78,11 +78,11 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                 return null;
             }
 
-            if (TypeNullabilityChanged(newLeft.Type, binaryExpression.Left.Type)
-                || TypeNullabilityChanged(newRight.Type, binaryExpression.Right.Type))
+            if (IsConvertedToNullable(newLeft, binaryExpression.Left)
+                || IsConvertedToNullable(newRight, binaryExpression.Right))
             {
-                newLeft = MakeNullable(newLeft);
-                newRight = MakeNullable(newRight);
+                newLeft = ConvertToNullable(newLeft);
+                newRight = ConvertToNullable(newRight);
             }
 
             return Expression.MakeBinary(
@@ -93,11 +93,6 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                 binaryExpression.Method,
                 binaryExpression.Conversion);
         }
-
-        private static Expression MakeNullable(Expression expression)
-            => !expression.Type.IsNullableType()
-            ? Expression.Convert(expression, expression.Type.MakeNullable())
-            : expression;
 
         protected override Expression VisitConditional(ConditionalExpression conditionalExpression)
         {
@@ -115,11 +110,11 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                 test = Expression.Equal(test, Expression.Constant(true, typeof(bool?)));
             }
 
-            if (TypeNullabilityChanged(ifTrue.Type, conditionalExpression.IfTrue.Type)
-                || TypeNullabilityChanged(ifFalse.Type, conditionalExpression.IfFalse.Type))
+            if (IsConvertedToNullable(ifTrue, conditionalExpression.IfTrue)
+                || IsConvertedToNullable(ifFalse, conditionalExpression.IfFalse))
             {
-                ifTrue = MakeNullable(ifTrue);
-                ifFalse = MakeNullable(ifFalse);
+                ifTrue = ConvertToNullable(ifTrue);
+                ifFalse = ConvertToNullable(ifFalse);
             }
 
             return Expression.Condition(test, ifTrue, ifFalse);
@@ -142,12 +137,17 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                 return result;
             }
 
+            static bool shouldApplyNullProtectionForMemberAccess(Type callerType, string memberName)
+                => !(callerType.IsGenericType
+                    && callerType.GetGenericTypeDefinition() == typeof(Nullable<>)
+                    && (memberName == nameof(Nullable<int>.Value) || memberName == nameof(Nullable<int>.HasValue)));
+
             var updatedMemberExpression = (Expression)memberExpression.Update(innerExpression);
             if (innerExpression != null
                 && innerExpression.Type.IsNullableType()
-                && ShouldApplyNullProtectionForMemberAccess(innerExpression.Type, memberExpression.Member.Name))
+                && shouldApplyNullProtectionForMemberAccess(innerExpression.Type, memberExpression.Member.Name))
             {
-                updatedMemberExpression = MakeNullable(updatedMemberExpression);
+                updatedMemberExpression = ConvertToNullable(updatedMemberExpression);
 
                 return Expression.Condition(
                     Expression.Equal(innerExpression, Expression.Default(innerExpression.Type)),
@@ -157,11 +157,6 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
 
             return updatedMemberExpression;
         }
-
-        private bool ShouldApplyNullProtectionForMemberAccess(Type callerType, string memberName)
-            => !(callerType.IsGenericType
-                && callerType.GetGenericTypeDefinition() == typeof(Nullable<>)
-                && (memberName == nameof(Nullable<int>.Value) || memberName == nameof(Nullable<int>.HasValue)));
 
         private bool TryBindMember(Expression source, MemberIdentity memberIdentity, Type type, out Expression result)
         {
@@ -204,7 +199,10 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                 result = BindProperty(entityProjection, property);
 
                 // if the result type change was just nullability change e.g from int to int? we want to preserve the new type for null propagation
-                if (result.Type != type && !TypeNullabilityChanged(result.Type, type))
+                if (result.Type != type
+                    && !(result.Type.IsNullableType()
+                        && !type.IsNullableType()
+                        && result.Type.UnwrapNullableType() == type))
                 {
                     result = Expression.Convert(result, type);
                 }
@@ -215,13 +213,23 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             return false;
         }
 
-        private bool TypeNullabilityChanged(Type maybeNullableType, Type nonNullableType)
-            => maybeNullableType.IsNullableType() && !nonNullableType.IsNullableType() && maybeNullableType.UnwrapNullableType() == nonNullableType;
+        private static bool IsConvertedToNullable(Expression result, Expression original)
+            => result.Type.IsNullableType()
+            && !original.Type.IsNullableType()
+            && result.Type.UnwrapNullableType() == original.Type;
+
+        private static Expression ConvertToNullable(Expression expression)
+            => !expression.Type.IsNullableType()
+            ? Expression.Convert(expression, expression.Type.MakeNullable())
+            : expression;
+
+        private static Expression ConvertToNonNullable(Expression expression)
+            => expression.Type.IsNullableType()
+            ? Expression.Convert(expression, expression.Type.UnwrapNullableType())
+            : expression;
 
         private static Expression BindProperty(EntityProjectionExpression entityProjectionExpression, IProperty property)
-        {
-            return entityProjectionExpression.BindProperty(property);
-        }
+            => entityProjectionExpression.BindProperty(property);
 
         private static Expression GetSelector(MethodCallExpression methodCallExpression, GroupByShaperExpression groupByShaperExpression)
         {
@@ -387,7 +395,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             }
 
             var arguments = new Expression[methodCallExpression.Arguments.Count];
-            var  parameterTypes = methodCallExpression.Method.GetParameters().Select(p => p.ParameterType).ToArray();
+            var parameterTypes = methodCallExpression.Method.GetParameters().Select(p => p.ParameterType).ToArray();
             for (var i = 0; i < arguments.Length; i++)
             {
                 var argument = Visit(methodCallExpression.Arguments[i]);
@@ -398,10 +406,10 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
 
                 // if the nullability of arguments change, we have no easy/reliable way to adjust the actual methodInfo to match the new type,
                 // so we are forced to cast back to the original type
-                if (argument.Type != methodCallExpression.Arguments[i].Type
+                if (IsConvertedToNullable(argument, methodCallExpression.Arguments[i])
                     && !parameterTypes[i].IsAssignableFrom(argument.Type))
                 {
-                    argument = Expression.Convert(argument, methodCallExpression.Arguments[i].Type);
+                    argument = ConvertToNonNullable(argument);
                 }
 
                 arguments[i] = argument;
@@ -413,11 +421,11 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                 && @object.Type.IsNullableType()
                 && !(methodCallExpression.Method.Name == nameof(Nullable<int>.GetValueOrDefault)))
             {
-                var result =  (Expression)methodCallExpression.Update(
+                var result = (Expression)methodCallExpression.Update(
                     Expression.Convert(@object, methodCallExpression.Object.Type),
                     arguments);
 
-                result = MakeNullable(result);
+                result = ConvertToNullable(result);
                 result = Expression.Condition(
                     Expression.Equal(@object, Expression.Constant(null, @object.Type)),
                     Expression.Constant(null, result.Type),
@@ -475,9 +483,9 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             foreach (var argument in newExpression.Arguments)
             {
                 var newArgument = Visit(argument);
-                if (newArgument.Type != argument.Type)
+                if (IsConvertedToNullable(newArgument, argument))
                 {
-                    newArgument = Expression.Convert(newArgument, argument.Type);
+                    newArgument = ConvertToNonNullable(newArgument);
                 }
 
                 newArguments.Add(newArgument);
@@ -492,9 +500,9 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             foreach (var expression in newArrayExpression.Expressions)
             {
                 var newExpression = Visit(expression);
-                if (newExpression.Type != expression.Type)
+                if (IsConvertedToNullable(newExpression, expression))
                 {
-                    newExpression = Expression.Convert(newExpression, expression.Type);
+                    newExpression = ConvertToNonNullable(newExpression);
                 }
 
                 newExpressions.Add(newExpression);
@@ -503,32 +511,15 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             return newArrayExpression.Update(newExpressions);
         }
 
-        protected override Expression VisitMemberInit(MemberInitExpression memberInitExpression)
+        protected override MemberAssignment VisitMemberAssignment(MemberAssignment memberAssignment)
         {
-            var newExpression = (NewExpression)Visit(memberInitExpression.NewExpression);
-            var bindings = new List<MemberBinding>();
-            foreach (var binding in memberInitExpression.Bindings)
+            var expression = Visit(memberAssignment.Expression);
+            if (IsConvertedToNullable(expression, memberAssignment.Expression))
             {
-                switch (binding)
-                {
-                    case MemberAssignment memberAssignment:
-                        var expression = Visit(memberAssignment.Expression);
-                        if (expression.Type != memberAssignment.Expression.Type)
-                        {
-                            expression = Expression.Convert(expression, memberAssignment.Expression.Type);
-                        }
-
-                        bindings.Add(Expression.Bind(memberAssignment.Member, expression));
-                        break;
-
-                    default:
-                        // TODO: MemberMemberBinding and MemberListBinding
-                        bindings.Add(binding);
-                        break;
-                }
+                expression = ConvertToNonNullable(expression);
             }
 
-            return memberInitExpression.Update(newExpression, bindings);
+            return memberAssignment.Update(expression);
         }
 
         protected override Expression VisitExtension(Expression extensionExpression)

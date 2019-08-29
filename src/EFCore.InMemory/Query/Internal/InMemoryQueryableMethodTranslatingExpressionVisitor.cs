@@ -6,8 +6,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Query;
@@ -131,23 +129,17 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         protected override ShapedQueryExpression TranslateContains(ShapedQueryExpression source, Expression item)
         {
             var inMemoryQueryExpression = (InMemoryQueryExpression)source.QueryExpression;
-            var itemType = item.Type;
-            item = TranslateExpression(item);
+            item = TranslateExpression(item, preserveType: true);
             if (item == null)
             {
                 return null;
             }
 
-            if (item.Type != itemType)
-            {
-                item = Expression.Convert(item, itemType);
-            }
-
             inMemoryQueryExpression.ServerQueryExpression =
                 Expression.Call(
-                    InMemoryLinqOperatorProvider.Contains.MakeGenericMethod(itemType),
+                    InMemoryLinqOperatorProvider.Contains.MakeGenericMethod(item.Type),
                     Expression.Call(
-                        InMemoryLinqOperatorProvider.Select.MakeGenericMethod(inMemoryQueryExpression.CurrentParameter.Type, itemType),
+                        InMemoryLinqOperatorProvider.Select.MakeGenericMethod(inMemoryQueryExpression.CurrentParameter.Type, item.Type),
                         inMemoryQueryExpression.ServerQueryExpression,
                         Expression.Lambda(
                             inMemoryQueryExpression.GetMappedProjection(new ProjectionMember()), inMemoryQueryExpression.CurrentParameter)),
@@ -349,9 +341,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                 return null;
             }
 
-            var unifyNullabilityResult = UnifyNullability(outerKeySelector, innerKeySelector);
-            outerKeySelector = unifyNullabilityResult.lambda1;
-            innerKeySelector = unifyNullabilityResult.lambda2;
+            (outerKeySelector, innerKeySelector) = AlignKeySelectorTypes(outerKeySelector, innerKeySelector);
 
             var transparentIdentifierType = TransparentIdentifierFactory.Create(
                 resultSelector.Parameters[0].Type,
@@ -370,26 +360,30 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                 transparentIdentifierType);
         }
 
-        private (LambdaExpression lambda1, LambdaExpression lambda2) UnifyNullability(LambdaExpression lambda1, LambdaExpression lambda2)
+        private (LambdaExpression OuterKeySelector, LambdaExpression InnerKeySelector)
+            AlignKeySelectorTypes(LambdaExpression outerKeySelector, LambdaExpression innerKeySelector)
         {
-            if (lambda1.Body.Type != lambda2.Body.Type)
+            static bool isConvertedToNullable(Expression outer, Expression inner)
+                => outer.Type.IsNullableType()
+                && !inner.Type.IsNullableType()
+                && outer.Type.UnwrapNullableType() == inner.Type;
+
+            if (outerKeySelector.Body.Type != innerKeySelector.Body.Type)
             {
-                if (TypeNullabilityChanged(lambda1.Body.Type, lambda2.Body.Type))
+                if (isConvertedToNullable(outerKeySelector.Body, innerKeySelector.Body))
                 {
-                    lambda2 = Expression.Lambda(Expression.Convert(lambda2.Body, lambda1.Body.Type), lambda2.Parameters);
+                    innerKeySelector = Expression.Lambda(
+                        Expression.Convert(innerKeySelector.Body, outerKeySelector.Body.Type), innerKeySelector.Parameters);
                 }
-                else if (TypeNullabilityChanged(lambda2.Body.Type, lambda1.Body.Type))
+                else if (isConvertedToNullable(innerKeySelector.Body, outerKeySelector.Body))
                 {
-                    lambda1 = Expression.Lambda(Expression.Convert(lambda1.Body, lambda2.Body.Type), lambda1.Parameters);
+                    outerKeySelector = Expression.Lambda(
+                        Expression.Convert(outerKeySelector.Body, innerKeySelector.Body.Type), outerKeySelector.Parameters);
                 }
             }
 
-            return (lambda1, lambda2);
+            return (outerKeySelector, innerKeySelector);
         }
-
-        // TODO: DRY
-        private bool TypeNullabilityChanged(Type maybeNullableType, Type nonNullableType)
-            => maybeNullableType.IsNullableType() && !nonNullableType.IsNullableType() && maybeNullableType.UnwrapNullableType() == nonNullableType;
 
         protected override ShapedQueryExpression TranslateLastOrDefault(ShapedQueryExpression source, LambdaExpression predicate, Type returnType, bool returnDefault)
         {
@@ -411,9 +405,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                 return null;
             }
 
-            var unifyNullabilityResult = UnifyNullability(outerKeySelector, innerKeySelector);
-            outerKeySelector = unifyNullabilityResult.lambda1;
-            innerKeySelector = unifyNullabilityResult.lambda2;
+            (outerKeySelector, innerKeySelector) = AlignKeySelectorTypes(outerKeySelector, innerKeySelector);
 
             var transparentIdentifierType = TransparentIdentifierFactory.Create(
                 resultSelector.Parameters[0].Type,
@@ -752,9 +744,19 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             return source;
         }
 
-        private Expression TranslateExpression(Expression expression)
+        private Expression TranslateExpression(Expression expression, bool preserveType = false)
         {
-            return _expressionTranslator.Translate(expression);
+            var result = _expressionTranslator.Translate(expression);
+
+            if (expression != null && result != null
+                && preserveType && expression.Type != result.Type)
+            {
+                result = expression.Type == typeof(bool)
+                    ? Expression.Equal(result, Expression.Constant(true, result.Type))
+                    : (Expression)Expression.Convert(result, expression.Type);
+            }
+
+            return result;
         }
 
         private LambdaExpression TranslateLambdaExpression(
@@ -762,16 +764,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             LambdaExpression lambdaExpression,
             bool preserveType = false)
         {
-            var lambdaBody = TranslateExpression(RemapLambdaBody(shapedQueryExpression, lambdaExpression));
-
-            if (lambdaBody != null && preserveType)
-            {
-                lambdaBody = lambdaBody.Type == typeof(bool?)
-                    ? Expression.Equal(
-                        lambdaBody,
-                        Expression.Constant(true, typeof(bool?)))
-                    : lambdaBody;
-            }
+            var lambdaBody = TranslateExpression(RemapLambdaBody(shapedQueryExpression, lambdaExpression), preserveType);
 
             return lambdaBody != null
                 ? Expression.Lambda(lambdaBody,
@@ -790,23 +783,16 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         {
             var inMemoryQueryExpression = (InMemoryQueryExpression)source.QueryExpression;
 
-            var selectorBodyType = selector?.Body.Type;
-
             selector = selector == null
                 || selector.Body == selector.Parameters[0]
                 ? Expression.Lambda(
                     inMemoryQueryExpression.GetMappedProjection(new ProjectionMember()),
                     inMemoryQueryExpression.CurrentParameter)
-                : TranslateLambdaExpression(source, selector);
+                : TranslateLambdaExpression(source, selector, preserveType: true);
 
             if (selector == null)
             {
                 return null;
-            }
-
-            if (selectorBodyType != null && selector.Body.Type != selectorBodyType)
-            {
-                selector = Expression.Lambda(Expression.Convert(selector.Body, selectorBodyType), selector.Parameters);
             }
 
             MethodInfo getMethod()
