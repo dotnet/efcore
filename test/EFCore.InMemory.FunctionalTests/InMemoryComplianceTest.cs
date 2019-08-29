@@ -20,9 +20,6 @@ namespace Microsoft.EntityFrameworkCore
             // Remaining Issue #16963 3.0 query tests:
             typeof(ComplexNavigationsWeakQueryTestBase<>),
             typeof(OwnedQueryTestBase<>),
-            typeof(ComplexNavigationsQueryTestBase<>),
-            typeof(GearsOfWarQueryTestBase<>),
-            typeof(SpatialQueryTestBase<>)
         };
 
         protected override Assembly TargetAssembly { get; } = typeof(InMemoryComplianceTest).Assembly;

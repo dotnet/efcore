@@ -893,7 +893,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             }
         }
 
-        [ConditionalFact(Skip = "Issue #16963")]
+        [ConditionalFact(Skip = "Issue #16963 Owned")]
         public void Query_ownership_navigations()
         {
             Seed();
@@ -944,7 +944,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             }
         }
 
-        [ConditionalFact(Skip = "Issue #16963")]
+        [ConditionalFact(Skip = "Issue #16963 Owned")]
         public void Query_owned_foreign_key()
         {
             Seed();
@@ -961,7 +961,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             }
         }
 
-        [ConditionalFact(Skip = "Issue #16963")]
+        [ConditionalFact(Skip = "Issue #16963 Owned")]
         public void Query_subowned_foreign_key()
         {
             Seed();
@@ -978,7 +978,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             }
         }
 
-        [ConditionalFact(Skip = "Issue #16963")]
+        [ConditionalFact(Skip = "Issue #16963 Owned")]
         public void Query_owned()
         {
             Seed();
@@ -999,7 +999,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             }
         }
 
-        [ConditionalFact(Skip = "Issue #16963")]
+        [ConditionalFact(Skip = "Issue #16963 Owned")]
         public void Query_subowned()
         {
             Seed();
