@@ -51,8 +51,8 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                         Constant(property.GetIndex()),
                         MakeMemberAccess(_valueBufferParameter,
                             _valueBufferCountMemberInfo)),
-                    CreateReadValueExpression(typeof(object), property.GetIndex(), property),
-                    Default(typeof(object)));
+                    CreateReadValueExpression(property.ClrType, property.GetIndex(), property),
+                    Default(property.ClrType));
             }
 
             var entityProjection = new EntityProjectionExpression(entityType, readExpressionMap);
@@ -256,7 +256,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         {
             if (_valueBufferSlots.Count != 0)
             {
-                throw new InvalidOperationException("Cannot Apply DefaultIfEmpty after ClientProjection.");
+                throw new InvalidOperationException("Cannot apply DefaultIfEmpty after a client-evaluated projection.");
             }
 
             var result = new Dictionary<ProjectionMember, Expression>();

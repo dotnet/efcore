@@ -108,9 +108,20 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         private static Dictionary<Type, MethodInfo> SumWithoutSelectorMethods { get; }
         private static Dictionary<Type, MethodInfo> SumWithSelectorMethods { get; }
 
-        private static bool IsFunc(Type type, int funcGenericArgs = 2)
+        private static Type GetFuncType(int funcGenericArguments)
+        {
+            return funcGenericArguments switch
+            {
+                1 => typeof(Func<>),
+                2 => typeof(Func<,>),
+                3 => typeof(Func<,,>),
+                4 => typeof(Func<,,,>),
+                _ => throw new InvalidOperationException("Invalid number of arguments for Func"),
+            };
+        }
+        private static bool IsFunc(Type type, int funcGenericArguments = 2)
             => type.IsGenericType
-               && type.GetGenericArguments().Length == funcGenericArgs;
+                && type.GetGenericTypeDefinition() == GetFuncType(funcGenericArguments);
 
         static InMemoryLinqOperatorProvider()
         {
