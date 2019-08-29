@@ -1738,5 +1738,33 @@ WHERE ([o].[OrderID] = @__ReadOnlyProperty_0) AND @__ReadOnlyProperty_0 IS NOT N
 FROM [Orders] AS [o]
 WHERE [o].[OrderID] = 1");
         }
+
+        public override async Task Project_non_nullable_value_after_FirstOrDefault_on_empty_collection(bool isAsync)
+        {
+            await base.Project_non_nullable_value_after_FirstOrDefault_on_empty_collection(isAsync);
+
+            AssertSql(
+                @"SELECT (
+    SELECT TOP(1) CAST(LEN([o].[CustomerID]) AS int)
+    FROM [Orders] AS [o]
+    WHERE ([o].[CustomerID] = N'John Doe') AND [o].[CustomerID] IS NOT NULL)
+FROM [Customers] AS [c]");
+        }
+
+        public override async Task Filter_non_nullable_value_after_FirstOrDefault_on_empty_collection(bool isAsync)
+        {
+            await base.Filter_non_nullable_value_after_FirstOrDefault_on_empty_collection(isAsync);
+
+            AssertSql(
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE ((
+    SELECT TOP(1) CAST(LEN([o].[CustomerID]) AS int)
+    FROM [Orders] AS [o]
+    WHERE ([o].[CustomerID] = N'John Doe') AND [o].[CustomerID] IS NOT NULL) = 0) AND (
+    SELECT TOP(1) CAST(LEN([o].[CustomerID]) AS int)
+    FROM [Orders] AS [o]
+    WHERE ([o].[CustomerID] = N'John Doe') AND [o].[CustomerID] IS NOT NULL) IS NOT NULL");
+        }
     }
 }

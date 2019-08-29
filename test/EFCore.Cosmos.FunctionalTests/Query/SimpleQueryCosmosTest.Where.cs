@@ -1882,5 +1882,11 @@ WHERE ((c[""Discriminator""] = ""Order"") AND @__p_0)");
         {
             return base.Where_is_conditional(isAsync);
         }
+
+        [ConditionalTheory(Skip = "Issue#17246")]
+        public override Task Filter_non_nullable_value_after_FirstOrDefault_on_empty_collection(bool isAsync)
+        {
+            return base.Filter_non_nullable_value_after_FirstOrDefault_on_empty_collection(isAsync);
+        }
     }
 }
