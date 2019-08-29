@@ -14,9 +14,10 @@ namespace Microsoft.EntityFrameworkCore.Query
             //TestLoggerFactory.TestOutputHelper = testOutputHelper;
         }
 
-        [ConditionalFact(Skip = "See issue#16963 Cannot compose when using client method in defining query")] // Defining query
+        [ConditionalFact(Skip = "Issue#17504")]
         public override void Can_query_all_animal_views()
         {
+            base.Can_query_all_animal_views();
         }
 
         protected override bool EnforcesFkConstraints => false;
