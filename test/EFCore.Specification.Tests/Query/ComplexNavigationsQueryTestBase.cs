@@ -4762,6 +4762,29 @@ namespace Microsoft.EntityFrameworkCore.Query
                 });
         }
 
+        [ConditionalTheory(Skip = "issue #17531")]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Project_collection_navigation_nested_with_take(bool isAsync)
+        {
+            return AssertQuery<Level1>(
+                isAsync,
+                l1s => from l1 in l1s
+                       select l1.OneToOne_Optional_FK1.OneToMany_Optional2.Take(50),
+                l1s => from l1 in l1s
+                       select Maybe(l1.OneToOne_Optional_FK1, () => l1.OneToOne_Optional_FK1.OneToMany_Optional2.Take(50)),
+                elementSorter: e => e != null ? e.Count : 0,
+                elementAsserter: (e, a) =>
+                {
+                    var actualCollection = new List<Level3>();
+                    foreach (var actualElement in a)
+                    {
+                        actualCollection.Add(actualElement);
+                    }
+
+                    Assert.Equal(((IEnumerable<Level3>)e)?.Count() ?? 0, actualCollection.Count);
+                });
+        }
+
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Project_collection_navigation_using_ef_property(bool isAsync)

@@ -6038,6 +6038,34 @@ FROM [Gears] AS [g]
 WHERE [g].[Discriminator] IN (N'Gear', N'Officer')");
         }
 
+        public override async Task Select_subquery_boolean_empty_with_pushdown_without_convert_to_nullable1(bool isAsync)
+        {
+            await base.Select_subquery_boolean_empty_with_pushdown_without_convert_to_nullable1(isAsync);
+
+            AssertSql(
+                @"SELECT (
+    SELECT TOP(1) [w].[IsAutomatic]
+    FROM [Weapons] AS [w]
+    WHERE (([g].[FullName] = [w].[OwnerFullName]) AND [w].[OwnerFullName] IS NOT NULL) AND (([w].[Name] = N'BFG') AND [w].[Name] IS NOT NULL)
+    ORDER BY [w].[Id])
+FROM [Gears] AS [g]
+WHERE [g].[Discriminator] IN (N'Gear', N'Officer')");
+        }
+
+        public override async Task Select_subquery_boolean_empty_with_pushdown_without_convert_to_nullable2(bool isAsync)
+        {
+            await base.Select_subquery_boolean_empty_with_pushdown_without_convert_to_nullable2(isAsync);
+
+            AssertSql(
+                @"SELECT (
+    SELECT TOP(1) [w].[Id]
+    FROM [Weapons] AS [w]
+    WHERE (([g].[FullName] = [w].[OwnerFullName]) AND [w].[OwnerFullName] IS NOT NULL) AND (([w].[Name] = N'BFG') AND [w].[Name] IS NOT NULL)
+    ORDER BY [w].[Id])
+FROM [Gears] AS [g]
+WHERE [g].[Discriminator] IN (N'Gear', N'Officer')");
+        }
+
         public override async Task Select_subquery_distinct_singleordefault_boolean1(bool isAsync)
         {
             await base.Select_subquery_distinct_singleordefault_boolean1(isAsync);
