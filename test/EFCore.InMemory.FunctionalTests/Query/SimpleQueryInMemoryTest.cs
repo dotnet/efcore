@@ -2,10 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Dynamic;
-using System.Linq;
-using System.Runtime.InteropServices.WindowsRuntime;
-using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
@@ -164,16 +160,6 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         #region SelectMany
 
-        public override Task SelectMany_Joined_DefaultIfEmpty(bool isAsync)
-        {
-            return Task.CompletedTask;
-        }
-
-        public override Task SelectMany_Joined_DefaultIfEmpty2(bool isAsync)
-        {
-            return Task.CompletedTask;
-        }
-
         public override Task SelectMany_correlated_with_outer_3(bool isAsync)
         {
             return Task.CompletedTask;
@@ -186,24 +172,11 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         #endregion
 
-        #region NullableError
-
-        public override Task Project_single_element_from_collection_with_OrderBy_Distinct_and_FirstOrDefault_followed_by_projecting_length(bool isAsync)
-        {
-            return Task.CompletedTask;
-        }
-
+        [ConditionalTheory(Skip = "Issue #17531")]
         public override Task DefaultIfEmpty_in_subquery_nested(bool isAsync)
         {
-            return Task.CompletedTask;
+            return base.DefaultIfEmpty_in_subquery_nested(isAsync);
         }
-
-        public override Task Default_if_empty_top_level_projection(bool isAsync)
-        {
-            return Task.CompletedTask;
-        }
-
-        #endregion
 
         [ConditionalTheory(Skip = "issue #17386")]
         public override Task Where_equals_on_null_nullable_int_types(bool isAsync)

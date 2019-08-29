@@ -2098,5 +2098,15 @@ namespace Microsoft.EntityFrameworkCore.Query
         private int SettableProperty { get; set; }
         private int ReadOnlyProperty => 5;
         private const int ConstantProperty = 1;
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Filter_non_nullable_value_after_FirstOrDefault_on_empty_collection(bool isAsync)
+        {
+            return AssertQuery<Customer, Order>(
+                isAsync,
+                (cs, os) => cs.Where(c => os.Where(o => o.CustomerID == "John Doe").Select(o => o.CustomerID).FirstOrDefault().Length == 0),
+                (cs, os) => cs.Where(c => false));
+        }
     }
 }

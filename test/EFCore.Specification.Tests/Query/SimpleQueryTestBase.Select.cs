@@ -1299,5 +1299,15 @@ namespace Microsoft.EntityFrameworkCore.Query
                             },
                 entryCount: 268);
         }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Project_non_nullable_value_after_FirstOrDefault_on_empty_collection(bool isAsync)
+        {
+            return AssertQueryScalar<Customer, Order, int>(
+                isAsync,
+                (cs, os) => cs.Select(c => os.Where(o => o.CustomerID == "John Doe").Select(o => o.CustomerID).FirstOrDefault().Length),
+                (cs, os) => cs.Select(c => 0));
+        }
     }
 }

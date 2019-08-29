@@ -136,7 +136,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
 
                     if (translation.Type != expression.Type)
                     {
-                        translation = Expression.Convert(translation, expression.Type);
+                        translation = NullSafeConvert(translation, expression.Type);
                     }
 
                     return new ProjectionBindingExpression(_queryExpression, _queryExpression.AddToProjection(translation), expression.Type);
@@ -151,18 +151,22 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
 
                     if (translation.Type != expression.Type)
                     {
-                        translation = Expression.Convert(translation, expression.Type);
+                        translation = NullSafeConvert(translation, expression.Type);
                     }
 
                     _projectionMapping[_projectionMembers.Peek()] = translation;
 
                     return new ProjectionBindingExpression(_queryExpression, _projectionMembers.Peek(), expression.Type);
                 }
-
             }
 
             return base.Visit(expression);
         }
+
+        private Expression NullSafeConvert(Expression expression, Type convertTo)
+            => expression.Type.IsNullableType() && !convertTo.IsNullableType() && expression.Type.UnwrapNullableType() == convertTo
+                ? (Expression)Expression.Coalesce(expression, Expression.Default(convertTo))
+                : Expression.Convert(expression, convertTo);
 
         private CollectionShaperExpression AddCollectionProjection(
             ShapedQueryExpression subquery, INavigation navigation, Type elementType)

@@ -587,6 +587,12 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                 return newOperand;
             }
 
+            if (unaryExpression.NodeType == ExpressionType.Convert
+                && IsConvertedToNullable(newOperand, unaryExpression))
+            {
+                return newOperand;
+            }
+
             var result = (Expression)Expression.MakeUnary(unaryExpression.NodeType, newOperand, unaryExpression.Type);
             if (result is UnaryExpression outerUnary
                 && outerUnary.NodeType == ExpressionType.Convert
