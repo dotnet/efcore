@@ -5,7 +5,7 @@ using Xunit.Abstractions;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    // issue #16963
+    // issue #16963 Weak
     internal class ComplexNavigationsWeakQueryInMemoryTest :
         ComplexNavigationsWeakQueryTestBase<ComplexNavigationsWeakQueryInMemoryFixture>
     {
