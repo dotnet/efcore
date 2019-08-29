@@ -1130,6 +1130,75 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             }
 
             [ConditionalFact]
+            public virtual void Deriving_from_owned_type_throws()
+            {
+                var modelBuilder = CreateModelBuilder();
+
+                modelBuilder.Entity<Book>()
+                    .Ignore(b => b.AlternateLabel)
+                    .Ignore(b => b.Details)
+                    .OwnsOne(b => b.Label, lb =>
+                    {
+                        lb.Ignore(l => l.AnotherBookLabel);
+                        lb.Ignore(l => l.SpecialBookLabel);
+                    });
+
+                Assert.Equal(
+                    CoreStrings.ClashingOwnedEntityType(nameof(AnotherBookLabel)),
+                    Assert.Throws<InvalidOperationException>(
+                        () => modelBuilder.Entity<AnotherBookLabel>()).Message);
+            }
+
+            [ConditionalFact]
+            public virtual void Configuring_base_type_as_owned_throws()
+            {
+                var modelBuilder = CreateModelBuilder();
+
+                modelBuilder.Entity<AnotherBookLabel>();
+
+                modelBuilder.Entity<Book>()
+                    .Ignore(b => b.AlternateLabel)
+                    .Ignore(b => b.Details);
+
+                Assert.Equal(
+                    CoreStrings.ClashingNonOwnedDerivedEntityType(nameof(BookLabel), nameof(AnotherBookLabel)),
+                    Assert.Throws<InvalidOperationException>(
+                        () =>
+                            modelBuilder.Entity<Book>().OwnsOne(c => c.Label)).Message);
+            }
+
+            [ConditionalFact]
+            public virtual void CLR_base_type_can_be_owned_when_not_in_hierarchy()
+            {
+                var modelBuilder = CreateModelBuilder();
+
+                modelBuilder.Entity<AnotherBookLabel>()
+                    .HasBaseType(null)
+                    .Ignore(l => l.Book)
+                    .Ignore(l => l.SpecialBookLabel)
+                    .Ignore(l => l.AnotherBookLabel);
+
+                modelBuilder.Entity<Book>()
+                    .Ignore(b => b.AlternateLabel)
+                    .Ignore(b => b.Details)
+                    .OwnsOne(c => c.Label, lb =>
+                        {
+                            lb.Ignore(l => l.AnotherBookLabel);
+                            lb.Ignore(l => l.SpecialBookLabel);
+                        });
+
+                var model = modelBuilder.FinalizeModel();
+
+                var bookLabelOwnership = model.FindEntityType(typeof(Book)).FindNavigation(nameof(Book.Label))
+                    .ForeignKey;
+
+                Assert.True(bookLabelOwnership.IsOwnership);
+                Assert.Equal(nameof(BookLabel.Book), bookLabelOwnership.DependentToPrincipal.Name);
+
+                Assert.Null(model.FindEntityType(typeof(AnotherBookLabel)).BaseType);
+            }
+
+            [ConditionalFact]
             public virtual void OwnedType_can_derive_from_Collection()
             {
                 var modelBuilder = CreateModelBuilder();
