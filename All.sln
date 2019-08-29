@@ -97,33 +97,33 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.Data.Sqlite", "sr
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.Data.Sqlite.Tests", "test\Microsoft.Data.Sqlite.Tests\Microsoft.Data.Sqlite.Tests.csproj", "{51DAD0D5-5564-4FB7-B34C-98814C900DF9}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AggregateFunctionSample", "samples\AggregateFunctionSample\AggregateFunctionSample.csproj", "{EF003077-32BC-441A-99FC-B4B280A060E3}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AggregateFunctionSample", "samples\Microsoft.Data.Sqlite\AggregateFunctionSample\AggregateFunctionSample.csproj", "{EF003077-32BC-441A-99FC-B4B280A060E3}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AsyncSample", "samples\AsyncSample\AsyncSample.csproj", "{79D051E8-EDF2-4FC7-B13A-C04DA77A9D1C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AsyncSample", "samples\Microsoft.Data.Sqlite\AsyncSample\AsyncSample.csproj", "{79D051E8-EDF2-4FC7-B13A-C04DA77A9D1C}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BatchingSample", "samples\BatchingSample\BatchingSample.csproj", "{F4094438-0996-433E-89A5-4B8F3A8332C4}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BatchingSample", "samples\Microsoft.Data.Sqlite\BatchingSample\BatchingSample.csproj", "{F4094438-0996-433E-89A5-4B8F3A8332C4}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BulkInsertSample", "samples\BulkInsertSample\BulkInsertSample.csproj", "{2284C34A-D422-41E8-8D08-B7E6CC5C8CA0}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BulkInsertSample", "samples\Microsoft.Data.Sqlite\BulkInsertSample\BulkInsertSample.csproj", "{2284C34A-D422-41E8-8D08-B7E6CC5C8CA0}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CollationSample", "samples\CollationSample\CollationSample.csproj", "{2319B693-E041-44DB-AC1B-AA68853758C3}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CollationSample", "samples\Microsoft.Data.Sqlite\CollationSample\CollationSample.csproj", "{2319B693-E041-44DB-AC1B-AA68853758C3}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DateAndTimeSample", "samples\DateAndTimeSample\DateAndTimeSample.csproj", "{4120E4F6-6686-4DF1-B49A-6D355E214416}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DateAndTimeSample", "samples\Microsoft.Data.Sqlite\DateAndTimeSample\DateAndTimeSample.csproj", "{4120E4F6-6686-4DF1-B49A-6D355E214416}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DirtyReadSample", "samples\DirtyReadSample\DirtyReadSample.csproj", "{BB3E70F9-B0F9-4006-948F-1E3D69BA7952}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DirtyReadSample", "samples\Microsoft.Data.Sqlite\DirtyReadSample\DirtyReadSample.csproj", "{BB3E70F9-B0F9-4006-948F-1E3D69BA7952}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EncryptionSample", "samples\EncryptionSample\EncryptionSample.csproj", "{739759ED-E5AF-4D0E-A4A9-1308B106D4D8}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EncryptionSample", "samples\Microsoft.Data.Sqlite\EncryptionSample\EncryptionSample.csproj", "{739759ED-E5AF-4D0E-A4A9-1308B106D4D8}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "InMemorySample", "samples\InMemorySample\InMemorySample.csproj", "{29224BE5-041E-4B6C-B226-42BD01F7865B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "InMemorySample", "samples\Microsoft.Data.Sqlite\InMemorySample\InMemorySample.csproj", "{29224BE5-041E-4B6C-B226-42BD01F7865B}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "InteropSample", "samples\InteropSample\InteropSample.csproj", "{50031A6D-3B6D-4792-B4CE-59028F1D76AB}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "InteropSample", "samples\Microsoft.Data.Sqlite\InteropSample\InteropSample.csproj", "{50031A6D-3B6D-4792-B4CE-59028F1D76AB}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RegularExpressionSample", "samples\RegularExpressionSample\RegularExpressionSample.csproj", "{60CFB41F-D7AB-49C6-83F7-632AE9A143B7}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RegularExpressionSample", "samples\Microsoft.Data.Sqlite\RegularExpressionSample\RegularExpressionSample.csproj", "{60CFB41F-D7AB-49C6-83F7-632AE9A143B7}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ResultMetadataSample", "samples\ResultMetadataSample\ResultMetadataSample.csproj", "{FE9D2BEB-BA71-4770-9738-8F9F2CD31D41}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ResultMetadataSample", "samples\Microsoft.Data.Sqlite\ResultMetadataSample\ResultMetadataSample.csproj", "{FE9D2BEB-BA71-4770-9738-8F9F2CD31D41}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ScalarFunctionSample", "samples\ScalarFunctionSample\ScalarFunctionSample.csproj", "{DE3D06F2-AE6F-4405-95AC-3647F5878F72}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ScalarFunctionSample", "samples\Microsoft.Data.Sqlite\ScalarFunctionSample\ScalarFunctionSample.csproj", "{DE3D06F2-AE6F-4405-95AC-3647F5878F72}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "StreamingSample", "samples\StreamingSample\StreamingSample.csproj", "{9C26C322-4FE2-42DC-A14E-0E1D0DCEE533}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "StreamingSample", "samples\Microsoft.Data.Sqlite\StreamingSample\StreamingSample.csproj", "{9C26C322-4FE2-42DC-A14E-0E1D0DCEE533}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "benchmark", "benchmark", "{293B4F79-3CB9-402A-A74C-B8108C41A7CF}"
 EndProject
