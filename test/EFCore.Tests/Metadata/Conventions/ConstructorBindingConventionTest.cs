@@ -389,11 +389,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             var constructorBinding = GetBinding<BlogConflict>(
                 e => e[CoreAnnotationNames.ConstructorBinding] = new ConstructorBinding(
                     typeof(BlogConflict).GetConstructor(
-                        new[]
-                        {
-                            typeof(string),
-                            typeof(int)
-                        }),
+                        new[] { typeof(string), typeof(int) }),
                     new[]
                     {
                         new PropertyParameterBinding(e.FindProperty(nameof(Blog.Title))),

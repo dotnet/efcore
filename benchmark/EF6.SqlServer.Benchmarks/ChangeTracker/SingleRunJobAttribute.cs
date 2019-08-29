@@ -13,10 +13,11 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.ChangeTracker
     {
         public SingleRunJobAttribute()
         {
-            Config = ManualConfig.CreateEmpty().With(new Job()
-                .WithWarmupCount(1)
-                .WithIterationCount(1)
-                .With(RunStrategy.Monitoring));
+            Config = ManualConfig.CreateEmpty().With(
+                new Job()
+                    .WithWarmupCount(1)
+                    .WithIterationCount(1)
+                    .With(RunStrategy.Monitoring));
         }
 
         public IConfig Config { get; }

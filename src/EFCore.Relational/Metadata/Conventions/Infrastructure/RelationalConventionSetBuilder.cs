@@ -59,7 +59,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure
         {
             var conventionSet = base.CreateConventionSet();
 
-            ValueGenerationConvention valueGenerationConvention = new RelationalValueGenerationConvention(Dependencies, RelationalDependencies);
+            ValueGenerationConvention valueGenerationConvention =
+                new RelationalValueGenerationConvention(Dependencies, RelationalDependencies);
 
             ReplaceConvention(conventionSet.EntityTypeBaseTypeChangedConventions, valueGenerationConvention);
             ReplaceConvention(conventionSet.EntityTypePrimaryKeyChangedConventions, valueGenerationConvention);
@@ -103,7 +104,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure
 
             ReplaceConvention(
                 conventionSet.ModelFinalizedConventions,
-                (QueryFilterDefiningQueryRewritingConvention)new RelationalQueryFilterDefiningQueryRewritingConvention(Dependencies, RelationalDependencies));
+                (QueryFilterDefiningQueryRewritingConvention)new RelationalQueryFilterDefiningQueryRewritingConvention(
+                    Dependencies, RelationalDependencies));
 
             return conventionSet;
         }

@@ -133,10 +133,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             var propertyBuilder = entityTypeBuilder.Property(typeof(int), "MyPrimaryKey", ConfigurationSource.Explicit);
 
             entityTypeBuilder.PrimaryKey(
-                new List<string>
-                {
-                    "Id"
-                }, ConfigurationSource.Convention);
+                new List<string> { "Id" }, ConfigurationSource.Convention);
 
             RunConvention(propertyBuilder);
 
@@ -151,10 +148,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             var propertyBuilder = entityTypeBuilder.Property(typeof(int), "MyPrimaryKey", ConfigurationSource.Explicit);
 
             entityTypeBuilder.PrimaryKey(
-                new List<string>
-                {
-                    "Id"
-                }, ConfigurationSource.Explicit);
+                new List<string> { "Id" }, ConfigurationSource.Explicit);
 
             RunConvention(propertyBuilder);
 
@@ -235,11 +229,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             derivedEntityTypeBuilder.HasBaseType(baseEntityTypeBuilder.Metadata, ConfigurationSource.Explicit);
 
             baseEntityTypeBuilder.PrimaryKey(
-                new List<string>
-                {
-                    "Id",
-                    "Name"
-                }, ConfigurationSource.Explicit);
+                new List<string> { "Id", "Name" }, ConfigurationSource.Explicit);
 
             Validate(derivedEntityTypeBuilder);
 
@@ -683,11 +673,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
             protected internal override void OnModelCreating(ModelBuilder modelBuilder)
                 => modelBuilder.Entity<B>().HasKey(
-                    e => new
-                    {
-                        e.MyPrimaryKey,
-                        e.Id
-                    });
+                    e => new { e.MyPrimaryKey, e.Id });
         }
     }
 }

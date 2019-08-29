@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Threading.Tasks;
-using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
@@ -600,9 +599,11 @@ FROM [Customers] AS [c]");
 FROM [Customers] AS [c]");
         }
 
-        public override async Task Project_single_element_from_collection_with_OrderBy_Distinct_and_FirstOrDefault_followed_by_projecting_length(bool isAsync)
+        public override async Task
+            Project_single_element_from_collection_with_OrderBy_Distinct_and_FirstOrDefault_followed_by_projecting_length(bool isAsync)
         {
-            await base.Project_single_element_from_collection_with_OrderBy_Distinct_and_FirstOrDefault_followed_by_projecting_length(isAsync);
+            await base.Project_single_element_from_collection_with_OrderBy_Distinct_and_FirstOrDefault_followed_by_projecting_length(
+                isAsync);
 
             AssertSql(
                 @"SELECT (
@@ -974,7 +975,7 @@ CROSS APPLY (
     SELECT TOP(2) [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate], [c].[City]
     FROM [Orders] AS [o]
     WHERE ([c].[CustomerID] = [o].[CustomerID]) AND [o].[CustomerID] IS NOT NULL
-    ORDER BY [c].[City]
+    ORDER BY [c].[City], [o].[OrderID]
 ) AS [t]");
         }
 
@@ -1003,7 +1004,7 @@ OUTER APPLY (
     SELECT TOP(2) [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate], [c].[City]
     FROM [Orders] AS [o]
     WHERE ([c].[CustomerID] = [o].[CustomerID]) AND [o].[CustomerID] IS NOT NULL
-    ORDER BY [c].[City]
+    ORDER BY [c].[City], [o].[OrderID]
 ) AS [t]");
         }
     }

@@ -35,7 +35,7 @@ namespace Microsoft.EntityFrameworkCore.Update
         public virtual void AppendDeleteOperation_creates_full_delete_command_text_with_concurrency_check()
         {
             var stringBuilder = new StringBuilder();
-            var command = CreateDeleteCommand(concurrencyToken: true);
+            var command = CreateDeleteCommand();
 
             CreateSqlGenerator().AppendDeleteOperation(stringBuilder, command, 0);
 
@@ -51,7 +51,7 @@ namespace Microsoft.EntityFrameworkCore.Update
         public virtual void AppendInsertOperation_appends_insert_and_select_and_where_if_store_generated_columns_exist()
         {
             var stringBuilder = new StringBuilder();
-            var command = CreateInsertCommand(identityKey: true, isComputed: true);
+            var command = CreateInsertCommand();
 
             CreateSqlGenerator().AppendInsertOperation(stringBuilder, command, 0);
 
@@ -95,7 +95,7 @@ namespace Microsoft.EntityFrameworkCore.Update
         public virtual void AppendInsertOperation_appends_insert_and_select_store_generated_columns_but_no_identity()
         {
             var stringBuilder = new StringBuilder();
-            var command = CreateInsertCommand(false, isComputed: true);
+            var command = CreateInsertCommand(false);
 
             CreateSqlGenerator().AppendInsertOperation(stringBuilder, command, 0);
 
@@ -196,7 +196,7 @@ namespace Microsoft.EntityFrameworkCore.Update
         public virtual void AppendUpdateOperation_appends_update_and_select_if_store_generated_columns_exist()
         {
             var stringBuilder = new StringBuilder();
-            var command = CreateUpdateCommand(isComputed: true, concurrencyToken: true);
+            var command = CreateUpdateCommand();
 
             CreateSqlGenerator().AppendUpdateOperation(stringBuilder, command, 0);
 
@@ -240,7 +240,7 @@ namespace Microsoft.EntityFrameworkCore.Update
         public virtual void AppendUpdateOperation_appends_where_for_concurrency_token()
         {
             var stringBuilder = new StringBuilder();
-            var command = CreateUpdateCommand(false, concurrencyToken: true);
+            var command = CreateUpdateCommand(false);
 
             CreateSqlGenerator().AppendUpdateOperation(stringBuilder, command, 0);
 
@@ -375,7 +375,7 @@ namespace Microsoft.EntityFrameworkCore.Update
                     entry, computedProperty, generator.GenerateNext, isComputed, false, false, false,
                     false, true),
                 new ColumnModification(
-                    entry, concurrencyProperty,  generator.GenerateNext, false, true, false,
+                    entry, concurrencyProperty, generator.GenerateNext, false, true, false,
                     concurrencyToken, concurrencyToken, true)
             };
 

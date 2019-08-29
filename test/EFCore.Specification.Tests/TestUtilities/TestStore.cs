@@ -46,7 +46,8 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         }
 
         public TestStore Initialize(
-            IServiceProvider serviceProvider, Func<TestStore, DbContext> createContext, Action<DbContext> seed = null, Action<DbContext> clean = null)
+            IServiceProvider serviceProvider, Func<TestStore, DbContext> createContext, Action<DbContext> seed = null,
+            Action<DbContext> clean = null)
             => Initialize(serviceProvider, () => createContext(this), seed, clean);
 
         protected virtual void Initialize(Func<DbContext> createContext, Action<DbContext> seed, Action<DbContext> clean)

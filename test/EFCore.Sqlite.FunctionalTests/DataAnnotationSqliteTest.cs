@@ -148,7 +148,6 @@ SELECT changes();",
 UPDATE ""Sample"" SET ""Name"" = @p0, ""RowVersion"" = @p1
 WHERE ""UniqueNo"" = @p2 AND ""RowVersion"" = @p3;
 SELECT changes();");
-
         }
 
         public override void DatabaseGeneratedAttribute_autogenerates_values_when_set_to_identity()

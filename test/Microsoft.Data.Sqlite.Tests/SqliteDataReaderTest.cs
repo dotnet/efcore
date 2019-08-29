@@ -1551,7 +1551,8 @@ namespace Microsoft.Data.Sqlite
                 connection.Open();
                 connection.ExecuteNonQuery("CREATE TABLE Test(Value);");
 
-                var reader = connection.ExecuteReader(@"
+                var reader = connection.ExecuteReader(
+                    @"
                     SELECT 1;
                     INSERT INTO Test VALUES(1);
                     SELECT 1;
@@ -1761,7 +1762,8 @@ namespace Microsoft.Data.Sqlite
                 connection.ExecuteNonQuery("CREATE TABLE Test(Value);");
                 connection.CreateFunction<string, long>("throw", message => throw new Exception(message));
 
-                var reader = connection.ExecuteReader(@"
+                var reader = connection.ExecuteReader(
+                    @"
                     SELECT 1;
                     INSERT INTO Test VALUES (1);");
                 ((IDisposable)reader).Dispose();
@@ -1780,7 +1782,8 @@ namespace Microsoft.Data.Sqlite
                 connection.ExecuteNonQuery("CREATE TABLE Test(Value);");
                 connection.CreateFunction<string, long>("throw", message => throw new Exception(message));
 
-                var reader = connection.ExecuteReader(@"
+                var reader = connection.ExecuteReader(
+                    @"
                     SELECT 1;
                     SELECT throw('An error');
                     INSERT INTO Test VALUES (1);");

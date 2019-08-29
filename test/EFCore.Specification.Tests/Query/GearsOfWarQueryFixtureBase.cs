@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.TestModels.GearsOfWarModel;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
@@ -36,8 +35,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             var entityAsserters = new Dictionary<Type, Action<dynamic, dynamic>>
             {
                 {
-                    typeof(City),
-                    (e, a) =>
+                    typeof(City), (e, a) =>
                     {
                         Assert.Equal(e == null, a == null);
 
@@ -50,8 +48,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     }
                 },
                 {
-                    typeof(CogTag),
-                    (e, a) =>
+                    typeof(CogTag), (e, a) =>
                     {
                         Assert.Equal(e == null, a == null);
 
@@ -65,8 +62,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     }
                 },
                 {
-                    typeof(Faction),
-                    (e, a) =>
+                    typeof(Faction), (e, a) =>
                     {
                         Assert.Equal(e == null, a == null);
 
@@ -79,8 +75,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     }
                 },
                 {
-                    typeof(Gear),
-                    (e, a) =>
+                    typeof(Gear), (e, a) =>
                     {
                         Assert.Equal(e == null, a == null);
 
@@ -98,8 +93,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     }
                 },
                 {
-                    typeof(LocustCommander),
-                    (e, a) =>
+                    typeof(LocustCommander), (e, a) =>
                     {
                         Assert.Equal(e == null, a == null);
 
@@ -113,8 +107,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     }
                 },
                 {
-                    typeof(LocustHorde),
-                    (e, a) =>
+                    typeof(LocustHorde), (e, a) =>
                     {
                         Assert.Equal(e == null, a == null);
 
@@ -129,8 +122,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     }
                 },
                 {
-                    typeof(LocustLeader),
-                    (e, a) =>
+                    typeof(LocustLeader), (e, a) =>
                     {
                         Assert.Equal(e == null, a == null);
 
@@ -142,8 +134,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     }
                 },
                 {
-                    typeof(Mission),
-                    (e, a) =>
+                    typeof(Mission), (e, a) =>
                     {
                         Assert.Equal(e == null, a == null);
 
@@ -157,8 +148,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     }
                 },
                 {
-                    typeof(Officer),
-                    (e, a) =>
+                    typeof(Officer), (e, a) =>
                     {
                         Assert.Equal(e == null, a == null);
 
@@ -176,8 +166,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     }
                 },
                 {
-                    typeof(Squad),
-                    (e, a) =>
+                    typeof(Squad), (e, a) =>
                     {
                         Assert.Equal(e == null, a == null);
 
@@ -189,8 +178,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     }
                 },
                 {
-                    typeof(SquadMission),
-                    (e, a) =>
+                    typeof(SquadMission), (e, a) =>
                     {
                         Assert.Equal(e == null, a == null);
 
@@ -202,8 +190,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     }
                 },
                 {
-                    typeof(Weapon),
-                    (e, a) =>
+                    typeof(Weapon), (e, a) =>
                     {
                         Assert.Equal(e == null, a == null);
 
@@ -236,28 +223,16 @@ namespace Microsoft.EntityFrameworkCore.Query
                 b =>
                 {
                     b.HasKey(
-                        g => new
-                        {
-                            g.Nickname,
-                            g.SquadId
-                        });
+                        g => new { g.Nickname, g.SquadId });
 
                     b.HasOne(g => g.CityOfBirth).WithMany(c => c.BornGears).HasForeignKey(g => g.CityOrBirthName).IsRequired();
                     b.HasOne(g => g.Tag).WithOne(t => t.Gear).HasForeignKey<CogTag>(
-                        t => new
-                        {
-                            t.GearNickName,
-                            t.GearSquadId
-                        });
+                        t => new { t.GearNickName, t.GearSquadId });
                     b.HasOne(g => g.AssignedCity).WithMany(c => c.StationedGears).IsRequired(false);
                 });
 
             modelBuilder.Entity<Officer>().HasMany(o => o.Reports).WithOne().HasForeignKey(
-                o => new
-                {
-                    o.LeaderNickname,
-                    o.LeaderSquadId
-                });
+                o => new { o.LeaderNickname, o.LeaderSquadId });
 
             modelBuilder.Entity<Squad>(
                 b =>
@@ -281,11 +256,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 b =>
                 {
                     b.HasKey(
-                        sm => new
-                        {
-                            sm.SquadId,
-                            sm.MissionId
-                        });
+                        sm => new { sm.SquadId, sm.MissionId });
                     b.HasOne(sm => sm.Mission).WithMany(m => m.ParticipatingSquads).HasForeignKey(sm => sm.MissionId);
                     b.HasOne(sm => sm.Squad).WithMany(s => s.Missions).HasForeignKey(sm => sm.SquadId);
                 });
@@ -301,11 +272,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             modelBuilder.Entity<LocustLeader>().HasKey(l => l.Name);
             modelBuilder.Entity<LocustCommander>().HasBaseType<LocustLeader>();
             modelBuilder.Entity<LocustCommander>().HasOne(c => c.DefeatedBy).WithOne().HasForeignKey<LocustCommander>(
-                c => new
-                {
-                    c.DefeatedByNickname,
-                    c.DefeatedBySquadId
-                });
+                c => new { c.DefeatedByNickname, c.DefeatedBySquadId });
 
             modelBuilder.Entity<LocustHighCommand>().HasKey(l => l.Id);
             modelBuilder.Entity<LocustHighCommand>().Property(l => l.Id).ValueGeneratedNever();

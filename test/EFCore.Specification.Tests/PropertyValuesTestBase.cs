@@ -1264,7 +1264,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateContext())
             {
-                var office = new Office { Number = "35"};
+                var office = new Office { Number = "35" };
                 var mailRoom = new MailRoom { id = 36 };
                 var building = Building.Create(Guid.NewGuid(), "Bag End", 77);
 
@@ -1428,10 +1428,7 @@ namespace Microsoft.EntityFrameworkCore
 
                 var newBuilding = new BuildingDto
                 {
-                    BuildingId = new Guid(building.BuildingId.ToString()),
-                    Name = "Values End",
-                    Value = building.Value,
-                    Shadow1 = 777
+                    BuildingId = new Guid(building.BuildingId.ToString()), Name = "Values End", Value = building.Value, Shadow1 = 777
                 };
 
                 buildingValues.SetValues(newBuilding);
@@ -1468,12 +1465,7 @@ namespace Microsoft.EntityFrameworkCore
                 var building = context.Set<Building>().Single(b => b.Name == "Building One");
                 var buildingValues = getPropertyValues(context.Entry(building));
 
-                var newBuilding = new BuildingDtoNoKey
-                {
-                    Name = "Values End",
-                    Value = building.Value,
-                    Shadow2 = "Cheese"
-                };
+                var newBuilding = new BuildingDtoNoKey { Name = "Values End", Value = building.Value, Shadow2 = "Cheese" };
 
                 buildingValues.SetValues(newBuilding);
 
@@ -2233,12 +2225,7 @@ namespace Microsoft.EntityFrameworkCore
             }
 
             public static Building Create(Guid buildingId, string name, decimal value)
-                => new Building
-                {
-                    BuildingId = buildingId,
-                    Name = name,
-                    Value = value
-                };
+                => new Building { BuildingId = buildingId, Name = name, Value = value };
 
             public Guid BuildingId { get; set; }
             public string Name { get; set; }
@@ -2398,11 +2385,7 @@ namespace Microsoft.EntityFrameworkCore
                     .HasForeignKey(m => m.BuildingId);
 
                 modelBuilder.Entity<Office>().HasKey(
-                    o => new
-                    {
-                        o.Number,
-                        o.BuildingId
-                    });
+                    o => new { o.Number, o.BuildingId });
 
                 modelBuilder.Ignore<UnMappedOffice>();
 
@@ -2443,26 +2426,10 @@ namespace Microsoft.EntityFrameworkCore
 
                 var offices = new List<Office>
                 {
-                    new Office
-                    {
-                        BuildingId = buildings[0].BuildingId,
-                        Number = "1/1221"
-                    },
-                    new Office
-                    {
-                        BuildingId = buildings[0].BuildingId,
-                        Number = "1/1223"
-                    },
-                    new Office
-                    {
-                        BuildingId = buildings[0].BuildingId,
-                        Number = "2/1458"
-                    },
-                    new Office
-                    {
-                        BuildingId = buildings[0].BuildingId,
-                        Number = "2/1789"
-                    }
+                    new Office { BuildingId = buildings[0].BuildingId, Number = "1/1221" },
+                    new Office { BuildingId = buildings[0].BuildingId, Number = "1/1223" },
+                    new Office { BuildingId = buildings[0].BuildingId, Number = "2/1458" },
+                    new Office { BuildingId = buildings[0].BuildingId, Number = "2/1789" }
                 };
 
                 foreach (var office in offices)
@@ -2490,10 +2457,7 @@ namespace Microsoft.EntityFrameworkCore
                     },
                     new PastEmployee
                     {
-                        EmployeeId = 3,
-                        FirstName = "John",
-                        LastName = "Doe",
-                        TerminationDate = new DateTime(2006, 1, 23)
+                        EmployeeId = 3, FirstName = "John", LastName = "Doe", TerminationDate = new DateTime(2006, 1, 23)
                     }
                 };
 
@@ -2516,24 +2480,9 @@ namespace Microsoft.EntityFrameworkCore
 
                 var whiteboards = new List<Whiteboard>
                 {
-                    new Whiteboard
-                    {
-                        AssetTag = "WB1973",
-                        iD = new byte[] { 1, 9, 7, 3 },
-                        Office = offices[0]
-                    },
-                    new Whiteboard
-                    {
-                        AssetTag = "WB1977",
-                        iD = new byte[] { 1, 9, 7, 7 },
-                        Office = offices[0]
-                    },
-                    new Whiteboard
-                    {
-                        AssetTag = "WB1970",
-                        iD = new byte[] { 1, 9, 7, 0 },
-                        Office = offices[2]
-                    }
+                    new Whiteboard { AssetTag = "WB1973", iD = new byte[] { 1, 9, 7, 3 }, Office = offices[0] },
+                    new Whiteboard { AssetTag = "WB1977", iD = new byte[] { 1, 9, 7, 7 }, Office = offices[0] },
+                    new Whiteboard { AssetTag = "WB1970", iD = new byte[] { 1, 9, 7, 0 }, Office = offices[2] }
                 };
 
                 foreach (var whiteboard in whiteboards)

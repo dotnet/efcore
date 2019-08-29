@@ -427,11 +427,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                 .Message);
         }
 
-        public override void KeylessEntity_by_database_view()
-        {
-            // Not present on SQLite
-        }
-
         public override async Task Take_Skip(bool isAsync)
         {
             await base.Take_Skip(isAsync);
@@ -1321,7 +1316,6 @@ FROM (
         public override Task SelectMany_correlated_with_outer_3(bool isAsync) => null;
 
         public override Task SelectMany_correlated_with_outer_4(bool isAsync) => null;
-
 
         [ConditionalTheory(Skip = "Issue#17324")]
         public override Task Project_single_element_from_collection_with_OrderBy_over_navigation_Take_and_FirstOrDefault_2(bool isAsync)

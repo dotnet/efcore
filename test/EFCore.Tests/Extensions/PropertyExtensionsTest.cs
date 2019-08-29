@@ -308,11 +308,7 @@ namespace Microsoft.EntityFrameworkCore
                     b =>
                     {
                         b.HasKey(
-                            e => new
-                            {
-                                e.Id1,
-                                e.Id2
-                            });
+                            e => new { e.Id1, e.Id2 });
                         b.HasOne(e => e.TagDetails)
                             .WithOne(e => e.Tag)
                             .HasPrincipalKey<ProductDetailsTag>(e => e.Id2)
@@ -324,20 +320,12 @@ namespace Microsoft.EntityFrameworkCore
                     b =>
                     {
                         b.HasKey(
-                            e => new
-                            {
-                                e.Id1,
-                                e.Id2
-                            });
+                            e => new { e.Id1, e.Id2 });
                         b.Property(e => e.Id2).ValueGeneratedOnAdd();
                         b.HasOne(e => e.Tag)
                             .WithOne(e => e.Details)
                             .HasForeignKey<ProductDetailsTag>(
-                                e => new
-                                {
-                                    e.Id1,
-                                    e.Id2
-                                });
+                                e => new { e.Id1, e.Id2 });
                     });
 
             modelBuilder
@@ -345,20 +333,13 @@ namespace Microsoft.EntityFrameworkCore
                 .HasOne(e => e.Details)
                 .WithOne(e => e.Product)
                 .HasForeignKey<ProductDetails>(
-                    e => new
-                    {
-                        e.Id1
-                    });
+                    e => new { e.Id1 });
 
             modelBuilder.Entity<OrderDetails>(
                 b =>
                 {
                     b.HasKey(
-                        e => new
-                        {
-                            e.OrderId,
-                            e.ProductId
-                        });
+                        e => new { e.OrderId, e.ProductId });
                     b.HasOne(e => e.Order)
                         .WithMany(e => e.OrderDetails)
                         .HasForeignKey(e => e.OrderId);

@@ -17,7 +17,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Internal;
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 {
     /// <summary>
-    ///     A convention that configures the inverse navigation property based on the <see cref="InversePropertyAttribute"/>
+    ///     A convention that configures the inverse navigation property based on the <see cref="InversePropertyAttribute" />
     ///     specified on the other navigation property.
     /// </summary>
     public class InversePropertyAttributeConvention :
@@ -49,7 +49,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             => Process(entityTypeBuilder, navigationMemberInfo, targetClrType, attribute);
 
         private void Process(
-            IConventionEntityTypeBuilder entityTypeBuilder, MemberInfo navigationMemberInfo, Type targetClrType, InversePropertyAttribute attribute)
+            IConventionEntityTypeBuilder entityTypeBuilder, MemberInfo navigationMemberInfo, Type targetClrType,
+            InversePropertyAttribute attribute)
         {
             if (!entityTypeBuilder.CanAddNavigation(
                 navigationMemberInfo.GetSimpleMemberName(), fromDataAnnotation: true))
@@ -383,13 +384,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
         /// <summary>
         ///     Returns a value indication whether the given navigation has ambiguous inverse navigations with
-        ///     <see cref="InversePropertyAttribute"/>.
+        ///     <see cref="InversePropertyAttribute" />.
         /// </summary>
         /// <param name="entityType"> The entity type. </param>
         /// <param name="navigation"> The navigation. </param>
         /// <param name="targetEntityType"> Target entity type. </param>
         /// <returns>
-        ///     <c>true</c> if the given navigation has ambiguous inverse navigations with <see cref="InversePropertyAttribute"/>.
+        ///     <c>true</c> if the given navigation has ambiguous inverse navigations with <see cref="InversePropertyAttribute" />.
         /// </returns>
         public static bool IsAmbiguous(
             [NotNull] IConventionEntityType entityType, [NotNull] MemberInfo navigation, [NotNull] IConventionEntityType targetEntityType)
@@ -545,7 +546,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         }
 
         private static IConventionEntityType FindActualEntityType(IConventionEntityType entityType)
-            => ((Model)entityType.Model).FindActualEntityType((EntityType) entityType);
+            => ((Model)entityType.Model).FindActualEntityType((EntityType)entityType);
 
         private static Dictionary<MemberInfo, List<(MemberInfo, IConventionEntityType)>> GetInverseNavigations(
             IConventionAnnotatable entityType)

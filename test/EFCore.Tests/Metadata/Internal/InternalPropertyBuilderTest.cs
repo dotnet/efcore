@@ -9,6 +9,7 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.EntityFrameworkCore.ValueGeneration;
 using Xunit;
+
 // ReSharper disable InconsistentNaming
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal

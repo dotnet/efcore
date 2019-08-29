@@ -68,7 +68,6 @@ namespace Microsoft.EntityFrameworkCore.TestModels.TransportationModel
                         .HasForeignKey<SolidFuelTank>(e => e.VehicleName);
                 });
 
-
             modelBuilder.Entity<OperatorDetails>(
                 eb =>
                 {
@@ -102,11 +101,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.TransportationModel
                 {
                     Name = "Trek Pro Fit Madone 6 Series",
                     SeatingCapacity = 1,
-                    Operator = new Operator
-                    {
-                        Name = "Lance Armstrong",
-                        VehicleName = "Trek Pro Fit Madone 6 Series"
-                    }
+                    Operator = new Operator { Name = "Lance Armstrong", VehicleName = "Trek Pro Fit Madone 6 Series" }
                 },
                 new PoweredVehicle
                 {
@@ -114,9 +109,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.TransportationModel
                     SeatingCapacity = 34,
                     Operator = new LicensedOperator
                     {
-                        Name = "Albert Williams",
-                        LicenseType = "Muni Transit",
-                        VehicleName = "1984 California Car"
+                        Name = "Albert Williams", LicenseType = "Muni Transit", VehicleName = "1984 California Car"
                     }
                 },
                 new PoweredVehicle
@@ -130,9 +123,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.TransportationModel
                     },
                     Operator = new LicensedOperator
                     {
-                        Name = "Elon Musk",
-                        LicenseType = "Driver",
-                        VehicleName = "P85 2012 Tesla Model S Performance Edition"
+                        Name = "Elon Musk", LicenseType = "Driver", VehicleName = "P85 2012 Tesla Model S Performance Edition"
                     }
                 },
                 new PoweredVehicle
@@ -152,9 +143,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.TransportationModel
                     },
                     Operator = new LicensedOperator
                     {
-                        Name = "William J. Knight",
-                        LicenseType = "Air Force Test Pilot",
-                        VehicleName = "North American X-15A-2"
+                        Name = "William J. Knight", LicenseType = "Air Force Test Pilot", VehicleName = "North American X-15A-2"
                     }
                 },
                 new PoweredVehicle
@@ -174,11 +163,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.TransportationModel
                     },
                     Operator = new Operator
                     {
-                        Details = new OperatorDetails
-                        {
-                            Type = "Heat-seeking",
-                            VehicleName = "AIM-9M Sidewinder"
-                        },
+                        Details = new OperatorDetails { Type = "Heat-seeking", VehicleName = "AIM-9M Sidewinder" },
                         VehicleName = "AIM-9M Sidewinder"
                     }
                 }

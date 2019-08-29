@@ -48,11 +48,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
             ((IConventionEntityType)entityType).SetCosmosPartitionKeyPropertyName("pk");
             Assert.Equal("pk", entityType.GetCosmosPartitionKeyPropertyName());
-            Assert.Equal(ConfigurationSource.Convention, ((IConventionEntityType)entityType).GetCosmosPartitionKeyPropertyNameConfigurationSource());
+            Assert.Equal(
+                ConfigurationSource.Convention, ((IConventionEntityType)entityType).GetCosmosPartitionKeyPropertyNameConfigurationSource());
 
             entityType.SetCosmosPartitionKeyPropertyName("pk");
             Assert.Equal("pk", entityType.GetCosmosPartitionKeyPropertyName());
-            Assert.Equal(ConfigurationSource.Explicit, ((IConventionEntityType)entityType).GetCosmosPartitionKeyPropertyNameConfigurationSource());
+            Assert.Equal(
+                ConfigurationSource.Explicit, ((IConventionEntityType)entityType).GetCosmosPartitionKeyPropertyNameConfigurationSource());
 
             entityType.SetCosmosPartitionKeyPropertyName(null);
             Assert.Null(entityType.GetCosmosPartitionKeyPropertyName());

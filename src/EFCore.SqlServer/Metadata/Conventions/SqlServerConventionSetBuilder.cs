@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using JetBrains.Annotations;
@@ -53,7 +53,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             conventionSet.ModelInitializedConventions.Add(
                 new RelationalMaxIdentifierLengthConvention(128, Dependencies, RelationalDependencies));
 
-            ValueGenerationConvention valueGenerationConvention = new SqlServerValueGenerationConvention(Dependencies, RelationalDependencies);
+            ValueGenerationConvention valueGenerationConvention =
+                new SqlServerValueGenerationConvention(Dependencies, RelationalDependencies);
             ReplaceConvention(conventionSet.EntityTypeBaseTypeChangedConventions, valueGenerationConvention);
 
             var sqlServerInMemoryTablesConvention = new SqlServerMemoryOptimizedTablesConvention(Dependencies, RelationalDependencies);

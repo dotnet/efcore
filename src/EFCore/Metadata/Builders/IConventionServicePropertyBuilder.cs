@@ -71,7 +71,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     The same builder instance if the configuration was applied,
         ///     <c>null</c> otherwise.
         /// </returns>
-        IConventionServicePropertyBuilder HasParameterBinding([CanBeNull] ServiceParameterBinding parameterBinding, bool fromDataAnnotation = false);
+        IConventionServicePropertyBuilder HasParameterBinding(
+            [CanBeNull] ServiceParameterBinding parameterBinding, bool fromDataAnnotation = false);
 
         /// <summary>
         ///     Returns a value indicating whether the <see cref="ServiceParameterBinding" /> can be set for this property.

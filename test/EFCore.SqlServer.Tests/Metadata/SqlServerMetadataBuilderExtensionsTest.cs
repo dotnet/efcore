@@ -22,17 +22,20 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         {
             var builder = CreateBuilder();
 
-            Assert.NotNull(builder
-                .HasValueGenerationStrategy(SqlServerValueGenerationStrategy.SequenceHiLo));
+            Assert.NotNull(
+                builder
+                    .HasValueGenerationStrategy(SqlServerValueGenerationStrategy.SequenceHiLo));
             Assert.Equal(SqlServerValueGenerationStrategy.SequenceHiLo, builder.Metadata.GetValueGenerationStrategy());
 
-            Assert.NotNull(builder
+            Assert.NotNull(
+                builder
                     .HasValueGenerationStrategy(SqlServerValueGenerationStrategy.IdentityColumn, fromDataAnnotation: true));
             Assert.Equal(
                 SqlServerValueGenerationStrategy.IdentityColumn, builder.Metadata.GetValueGenerationStrategy());
 
-            Assert.Null(builder
-                .HasValueGenerationStrategy(SqlServerValueGenerationStrategy.SequenceHiLo));
+            Assert.Null(
+                builder
+                    .HasValueGenerationStrategy(SqlServerValueGenerationStrategy.SequenceHiLo));
             Assert.Equal(SqlServerValueGenerationStrategy.IdentityColumn, builder.Metadata.GetValueGenerationStrategy());
 
             Assert.Equal(
@@ -158,6 +161,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             {
                 Assert.NotNull(indexBuilder.IsClustered(true));
             }
+
             Assert.True(indexBuilder.Metadata.IsClustered());
 
             if (obsolete)
@@ -170,8 +174,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             {
                 Assert.NotNull(indexBuilder.IsClustered(false, fromDataAnnotation: true));
             }
-            Assert.False(indexBuilder.Metadata.IsClustered());
 
+            Assert.False(indexBuilder.Metadata.IsClustered());
 
             if (obsolete)
             {
@@ -183,6 +187,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             {
                 Assert.Null(indexBuilder.IsClustered(true));
             }
+
             Assert.False(indexBuilder.Metadata.IsClustered());
 
             Assert.Equal(

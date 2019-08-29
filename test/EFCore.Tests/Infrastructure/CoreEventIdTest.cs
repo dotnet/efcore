@@ -26,7 +26,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             var entityType = new Model(new ConventionSet()).AddEntityType(typeof(object), ConfigurationSource.Convention);
             var property = entityType.AddProperty("A", typeof(int), ConfigurationSource.Convention, ConfigurationSource.Convention);
             var otherEntityType = new EntityType(typeof(object), entityType.Model, ConfigurationSource.Convention);
-            var otherProperty = otherEntityType.AddProperty("A", typeof(int), ConfigurationSource.Convention, ConfigurationSource.Convention);
+            var otherProperty = otherEntityType.AddProperty(
+                "A", typeof(int), ConfigurationSource.Convention, ConfigurationSource.Convention);
             var otherKey = otherEntityType.AddKey(otherProperty, ConfigurationSource.Convention);
             var foreignKey = new ForeignKey(new[] { property }, otherKey, entityType, otherEntityType, ConfigurationSource.Convention);
             var navigation = new Navigation("N", propertyInfo, null, foreignKey);
@@ -49,7 +50,10 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 { typeof(IServiceProvider), () => new FakeServiceProvider() },
                 { typeof(ICollection<IServiceProvider>), () => new List<IServiceProvider>() },
                 { typeof(IReadOnlyList<IPropertyBase>), () => new[] { property } },
-                { typeof(IEnumerable<Tuple<MemberInfo, Type>>), () => new[] { new Tuple<MemberInfo, Type>(propertyInfo, typeof(object)) } },
+                {
+                    typeof(IEnumerable<Tuple<MemberInfo, Type>>),
+                    () => new[] { new Tuple<MemberInfo, Type>(propertyInfo, typeof(object)) }
+                },
                 { typeof(MemberInfo), () => propertyInfo },
                 { typeof(IReadOnlyList<Exception>), () => new[] { new Exception() } },
                 { typeof(IProperty), () => property },
