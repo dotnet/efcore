@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Reflection;
@@ -124,6 +125,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 
         private class EntityWithTwoProperties
         {
+            [Key]
             public int Id { get; set; }
             public int AlternateId { get; set; }
             public EntityWithOneProperty EntityWithOneProperty { get; set; }

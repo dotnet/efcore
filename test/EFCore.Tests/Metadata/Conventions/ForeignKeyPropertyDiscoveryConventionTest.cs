@@ -431,13 +431,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         public void Matches_PK_name_properties_if_subset_of_dependent_PK()
         {
             var dependentTypeBuilder = DependentType.Builder;
-            dependentTypeBuilder.PrimaryKey(new[] { DependentEntity.PrincipalEntityPeEKaYProperty }, ConfigurationSource.Explicit);
             var pkProperty = dependentTypeBuilder.Property(
                     DependentEntity.IDProperty, ConfigurationSource.Convention)
                 .IsRequired(true, ConfigurationSource.Convention)
                 .Metadata;
             var fkProperty = dependentTypeBuilder.Property(
-                    DependentEntity.PeEKaYProperty, ConfigurationSource.Convention)
+                    DependentEntity.PrincipalEntityPeEKaYProperty, ConfigurationSource.Convention)
                 .Metadata;
 
             dependentTypeBuilder.PrimaryKey(new[] { pkProperty, fkProperty }, ConfigurationSource.Explicit);

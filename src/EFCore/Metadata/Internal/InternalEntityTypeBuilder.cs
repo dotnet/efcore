@@ -114,7 +114,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
                     if (previousPrimaryKey?.Builder != null)
                     {
-                        RemoveKeyIfUnused(previousPrimaryKey);
+                        RemoveKeyIfUnused(previousPrimaryKey, configurationSource);
                     }
                 }
             }
@@ -1530,13 +1530,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     detachedRelationships.AddRange(
                         key.GetReferencingForeignKeys().ToList()
                             .Select(DetachRelationship));
-                    var removed = HasNoKey(key, configurationSource);
+                    var removed = key.DeclaringEntityType.Builder.HasNoKey(key, configurationSource);
                     Debug.Assert(removed != null);
                 }
 
                 foreach (var index in property.GetContainingIndexes().ToList())
                 {
-                    var removed = HasNoIndex(index, configurationSource);
+                    var removed = index.DeclaringEntityType.Builder.HasNoIndex(index, configurationSource);
                     Debug.Assert(removed != null);
                 }
 
@@ -1706,7 +1706,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             return new EntityType.Snapshot(entityType, detachedProperties, detachedIndexes, detachedKeys, detachedRelationships);
         }
 
-        private void RemoveKeyIfUnused(Key key)
+        private void RemoveKeyIfUnused(Key key, ConfigurationSource configurationSource = ConfigurationSource.Convention)
         {
             if (Metadata.FindPrimaryKey() == key)
             {
@@ -1718,7 +1718,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 return;
             }
 
-            HasNoKey(key, ConfigurationSource.Convention);
+            HasNoKey(key, configurationSource);
         }
 
         /// <summary>
