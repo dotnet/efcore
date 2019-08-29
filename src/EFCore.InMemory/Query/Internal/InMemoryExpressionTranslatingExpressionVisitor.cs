@@ -79,7 +79,9 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                 return BindProperty(innerExpression, memberExpression.Member.GetSimpleMemberName(), memberExpression.Type);
             }
 
-            return memberExpression.Update(innerExpression);
+            return TranslationFailed(memberExpression.Expression, innerExpression)
+                ? null
+                : memberExpression.Update(innerExpression);
         }
 
         private Expression BindProperty(Expression source, string propertyName, Type type)
@@ -110,18 +112,13 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                     }
                 }
 
-                var result = BindProperty(entityProjection, entityType.FindProperty(propertyName));
+                var result = entityProjection.BindProperty(entityType.FindProperty(propertyName));
                 return result.Type == type
                     ? result
                     : Expression.Convert(result, type);
             }
 
             throw new InvalidOperationException(CoreStrings.TranslationFailed(source.Print()));
-        }
-
-        private Expression BindProperty(EntityProjectionExpression entityProjectionExpression, IProperty property)
-        {
-            return entityProjectionExpression.BindProperty(property);
         }
 
         protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
@@ -268,8 +265,10 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                     return Visit(entityShaperExpression.ValueBufferExpression);
 
                 case ProjectionBindingExpression projectionBindingExpression:
-                    return ((InMemoryQueryExpression)projectionBindingExpression.QueryExpression)
-                        .GetMappedProjection(projectionBindingExpression.ProjectionMember);
+                    return projectionBindingExpression.ProjectionMember != null
+                        ? ((InMemoryQueryExpression)projectionBindingExpression.QueryExpression)
+                            .GetMappedProjection(projectionBindingExpression.ProjectionMember)
+                        : null;
 
                 case NullConditionalExpression nullConditionalExpression:
                 {

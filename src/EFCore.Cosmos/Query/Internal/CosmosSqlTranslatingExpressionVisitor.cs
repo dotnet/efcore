@@ -471,8 +471,10 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                     return Visit(entityShaperExpression.ValueBufferExpression);
 
                 case ProjectionBindingExpression projectionBindingExpression:
-                    var selectExpression = (SelectExpression)projectionBindingExpression.QueryExpression;
-                    return selectExpression.GetMappedProjection(projectionBindingExpression.ProjectionMember);
+                    return projectionBindingExpression.ProjectionMember != null
+                        ? ((SelectExpression)projectionBindingExpression.QueryExpression)
+                            .GetMappedProjection(projectionBindingExpression.ProjectionMember)
+                        : null;
 
                 case NullConditionalExpression nullConditionalExpression:
                     return Visit(nullConditionalExpression.AccessOperation);

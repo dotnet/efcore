@@ -548,8 +548,10 @@ namespace Microsoft.EntityFrameworkCore.Query
                     return Visit(entityShaperExpression.ValueBufferExpression);
 
                 case ProjectionBindingExpression projectionBindingExpression:
-                    var selectExpression = (SelectExpression)projectionBindingExpression.QueryExpression;
-                    return selectExpression.GetMappedProjection(projectionBindingExpression.ProjectionMember);
+                    return projectionBindingExpression.ProjectionMember != null
+                        ? ((SelectExpression)projectionBindingExpression.QueryExpression)
+                            .GetMappedProjection(projectionBindingExpression.ProjectionMember)
+                        : null;
 
                 default:
                     return null;
