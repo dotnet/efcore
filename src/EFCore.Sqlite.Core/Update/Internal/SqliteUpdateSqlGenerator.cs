@@ -48,7 +48,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Update.Internal
             Check.NotNull(commandStringBuilder, nameof(commandStringBuilder));
             Check.NotNull(columnModification, nameof(columnModification));
 
-            SqlGenerationHelper.DelimitIdentifier(commandStringBuilder, columnModification.ColumnName);
+            SqlGenerationHelper.DelimitIdentifier(commandStringBuilder, "rowid");
             commandStringBuilder.Append(" = ")
                 .Append("last_insert_rowid()");
         }

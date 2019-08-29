@@ -69,7 +69,7 @@ namespace Microsoft.EntityFrameworkCore.Update
                 "SELECT " + OpenDelimiter + "Id" + CloseDelimiter + ", " + OpenDelimiter + "Computed" + CloseDelimiter + ""
                 + Environment.NewLine +
                 "FROM " + SchemaPrefix + OpenDelimiter + "Ducks" + CloseDelimiter + "" + Environment.NewLine +
-                "WHERE " + RowsAffected + " = 1 AND " + OpenDelimiter + "Id" + CloseDelimiter + " = " + Identity + ";" + Environment.NewLine
+                "WHERE " + RowsAffected + " = 1 AND " + GetIdentityWhereCondition("Id") + ";" + Environment.NewLine
                 + Environment.NewLine,
                 stringBuilder.ToString());
         }
@@ -138,7 +138,7 @@ namespace Microsoft.EntityFrameworkCore.Update
                 "VALUES (@p0, @p1, @p2);" + Environment.NewLine +
                 "SELECT " + OpenDelimiter + "Id" + CloseDelimiter + "" + Environment.NewLine +
                 "FROM " + SchemaPrefix + OpenDelimiter + "Ducks" + CloseDelimiter + "" + Environment.NewLine +
-                "WHERE " + RowsAffected + " = 1 AND " + OpenDelimiter + "Id" + CloseDelimiter + " = " + Identity + ";" + Environment.NewLine
+                "WHERE " + RowsAffected + " = 1 AND " + GetIdentityWhereCondition("Id") + ";" + Environment.NewLine
                 + Environment.NewLine,
                 stringBuilder.ToString());
         }
@@ -163,7 +163,7 @@ namespace Microsoft.EntityFrameworkCore.Update
                 "SELECT " + OpenDelimiter + "Id" + CloseDelimiter + ", " + OpenDelimiter + "Computed" + CloseDelimiter + ""
                 + Environment.NewLine +
                 "FROM " + SchemaPrefix + OpenDelimiter + "Ducks" + CloseDelimiter + "" + Environment.NewLine +
-                "WHERE " + RowsAffected + " = 1 AND " + OpenDelimiter + "Id" + CloseDelimiter + " = " + Identity + ";" + Environment.NewLine
+                "WHERE " + RowsAffected + " = 1 AND " + GetIdentityWhereCondition("Id") + ";" + Environment.NewLine
                 + Environment.NewLine,
                 stringBuilder.ToString());
         }
@@ -187,7 +187,7 @@ namespace Microsoft.EntityFrameworkCore.Update
                 "DEFAULT VALUES;" + Environment.NewLine +
                 "SELECT " + OpenDelimiter + "Id" + CloseDelimiter + "" + Environment.NewLine +
                 "FROM " + SchemaPrefix + OpenDelimiter + "Ducks" + CloseDelimiter + "" + Environment.NewLine +
-                "WHERE " + RowsAffected + " = 1 AND " + OpenDelimiter + "Id" + CloseDelimiter + " = " + Identity + ";" + Environment.NewLine
+                "WHERE " + RowsAffected + " = 1 AND " + GetIdentityWhereCondition("Id") + ";" + Environment.NewLine
                 + Environment.NewLine,
                 stringBuilder.ToString());
         }
@@ -303,7 +303,7 @@ namespace Microsoft.EntityFrameworkCore.Update
 
         protected abstract string RowsAffected { get; }
 
-        protected abstract string Identity { get; }
+        protected virtual string Identity => throw new NotImplementedException();
 
         protected virtual string OpenDelimiter => "\"";
 
@@ -313,6 +313,9 @@ namespace Microsoft.EntityFrameworkCore.Update
 
         protected virtual string SchemaPrefix =>
             string.IsNullOrEmpty(Schema) ? string.Empty : OpenDelimiter + Schema + CloseDelimiter + ".";
+
+        protected virtual string GetIdentityWhereCondition(string columnName)
+            => OpenDelimiter + columnName + CloseDelimiter + " = " + Identity;
 
         protected ModificationCommand CreateInsertCommand(bool identityKey = true, bool isComputed = true, bool defaultsOnly = false)
         {
