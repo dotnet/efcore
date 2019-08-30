@@ -98,7 +98,8 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             {
                 codeOptions.SuppressConnectionStringWarning = true;
             }
-            else if (codeOptions.ConnectionString == null)
+
+            if (codeOptions.ConnectionString == null)
             {
                 codeOptions.ConnectionString = connectionString;
             }

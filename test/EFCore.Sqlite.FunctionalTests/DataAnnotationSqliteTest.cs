@@ -165,7 +165,7 @@ INSERT INTO ""Sample"" (""MaxLengthProperty"", ""Name"", ""RowVersion"", ""Addit
 VALUES (@p0, @p1, @p2, @p3, @p4);
 SELECT ""UniqueNo""
 FROM ""Sample""
-WHERE changes() = 1 AND ""UniqueNo"" = last_insert_rowid();");
+WHERE changes() = 1 AND ""rowid"" = last_insert_rowid();");
         }
 
         // Sqlite does not support length
@@ -189,7 +189,7 @@ INSERT INTO ""BookDetails"" (""AdditionalBookDetailsId"", ""AnotherBookId"")
 VALUES (@p0, @p1);
 SELECT ""Id""
 FROM ""BookDetails""
-WHERE changes() = 1 AND ""Id"" = last_insert_rowid();",
+WHERE changes() = 1 AND ""rowid"" = last_insert_rowid();",
                 //
                 @"@p0=''
 @p1='' (Nullable = false)
@@ -198,7 +198,7 @@ INSERT INTO ""BookDetails"" (""AdditionalBookDetailsId"", ""AnotherBookId"")
 VALUES (@p0, @p1);
 SELECT ""Id""
 FROM ""BookDetails""
-WHERE changes() = 1 AND ""Id"" = last_insert_rowid();");
+WHERE changes() = 1 AND ""rowid"" = last_insert_rowid();");
         }
 
         public override void RequiredAttribute_for_property_throws_while_inserting_null_value()
@@ -216,7 +216,7 @@ INSERT INTO ""Sample"" (""MaxLengthProperty"", ""Name"", ""RowVersion"", ""Addit
 VALUES (@p0, @p1, @p2, @p3, @p4);
 SELECT ""UniqueNo""
 FROM ""Sample""
-WHERE changes() = 1 AND ""UniqueNo"" = last_insert_rowid();",
+WHERE changes() = 1 AND ""rowid"" = last_insert_rowid();",
                 //
                 @"@p0=''
 @p1='' (Nullable = false)
@@ -228,7 +228,7 @@ INSERT INTO ""Sample"" (""MaxLengthProperty"", ""Name"", ""RowVersion"", ""Addit
 VALUES (@p0, @p1, @p2, @p3, @p4);
 SELECT ""UniqueNo""
 FROM ""Sample""
-WHERE changes() = 1 AND ""UniqueNo"" = last_insert_rowid();");
+WHERE changes() = 1 AND ""rowid"" = last_insert_rowid();");
         }
 
         // Sqlite does not support length
