@@ -24,12 +24,6 @@ namespace Microsoft.EntityFrameworkCore.Query
             return base.Complex_query_with_optional_navigations_and_client_side_evaluation(isAsync);
         }
 
-        [ConditionalTheory(Skip = "Issue#16963 Too Many Results")]
-        public override Task Complex_navigations_with_predicate_projected_into_anonymous_type(bool isAsync)
-        {
-            return base.Complex_navigations_with_predicate_projected_into_anonymous_type(isAsync);
-        }
-
         [ConditionalTheory(Skip = "issue #16963 TooManyResults")]
         public override Task SelectMany_with_nested_navigations_and_explicit_DefaultIfEmpty_followed_by_Select_required_navigation_using_different_navs(bool isAsync)
         {
@@ -85,33 +79,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalTheory(Skip = "issue #16963 Test")]
-        public override Task Include10(bool isAsync)
-        {
-            return base.Include10(isAsync);
-        }
-
-        [ConditionalTheory(Skip = "issue #16963 Test")]
-        public override Task Include11(bool isAsync)
-        {
-            return base.Include11(isAsync);
-        }
-
-        [ConditionalTheory(Skip = "issue #16963 Test")]
         public override Task Include18_3_3(bool isAsync)
         {
             return base.Include18_3_3(isAsync);
-        }
-
-        [ConditionalTheory(Skip = "issue #16963 Test")]
-        public override Task Multiple_include_with_multiple_optional_navigations(bool isAsync)
-        {
-            return base.Multiple_include_with_multiple_optional_navigations(isAsync);
-        }
-
-        [ConditionalTheory(Skip = "issue #16963 Test")]
-        public override Task Order_by_key_of_anonymous_type_projected_navigation_doesnt_get_optimized_into_FK_access_subquery(bool isAsync)
-        {
-            return base.Order_by_key_of_anonymous_type_projected_navigation_doesnt_get_optimized_into_FK_access_subquery(isAsync);
         }
 
         [ConditionalTheory(Skip = "issue #16963 Test")]
