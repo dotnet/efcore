@@ -15,7 +15,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
 {
     public class InMemoryProjectionBindingExpressionVisitor : ExpressionVisitor
     {
-        private readonly QueryableMethodTranslatingExpressionVisitor _queryableMethodTranslatingExpressionVisitor;
+        private readonly InMemoryQueryableMethodTranslatingExpressionVisitor _queryableMethodTranslatingExpressionVisitor;
         private readonly InMemoryExpressionTranslatingExpressionVisitor _expressionTranslatingExpressionVisitor;
 
         private InMemoryQueryExpression _queryExpression;
@@ -25,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         private readonly Stack<ProjectionMember> _projectionMembers = new Stack<ProjectionMember>();
 
         public InMemoryProjectionBindingExpressionVisitor(
-            QueryableMethodTranslatingExpressionVisitor queryableMethodTranslatingExpressionVisitor,
+            InMemoryQueryableMethodTranslatingExpressionVisitor queryableMethodTranslatingExpressionVisitor,
             InMemoryExpressionTranslatingExpressionVisitor expressionTranslatingExpressionVisitor)
         {
             _queryableMethodTranslatingExpressionVisitor = queryableMethodTranslatingExpressionVisitor;
@@ -39,13 +39,15 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
 
             _projectionMembers.Push(new ProjectionMember());
 
-            var result = Visit(expression);
+            var expandedExpression = _queryableMethodTranslatingExpressionVisitor.ExpandWeakEntities(_queryExpression, expression);
+            var result = Visit(expandedExpression);
 
             if (result == null)
             {
                 _clientEval = true;
 
-                result = Visit(expression);
+                expandedExpression = _queryableMethodTranslatingExpressionVisitor.ExpandWeakEntities(_queryExpression, expression);
+                result = Visit(expandedExpression);
 
                 _projectionMapping.Clear();
             }
@@ -179,21 +181,26 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         {
             if (extensionExpression is EntityShaperExpression entityShaperExpression)
             {
-                var projectionBindingExpression = (ProjectionBindingExpression)entityShaperExpression.ValueBufferExpression;
-                VerifyQueryExpression(projectionBindingExpression);
-
-                if (_clientEval)
+                EntityProjectionExpression entityProjectionExpression;
+                if (entityShaperExpression.ValueBufferExpression is ProjectionBindingExpression projectionBindingExpression)
                 {
-                    var entityProjection = (EntityProjectionExpression)_queryExpression.GetMappedProjection(
+                    VerifyQueryExpression(projectionBindingExpression);
+                    entityProjectionExpression = (EntityProjectionExpression)_queryExpression.GetMappedProjection(
                         projectionBindingExpression.ProjectionMember);
-
-                    return entityShaperExpression.Update(
-                        new ProjectionBindingExpression(_queryExpression, _queryExpression.AddToProjection(entityProjection)));
                 }
                 else
                 {
-                    _projectionMapping[_projectionMembers.Peek()]
-                        = _queryExpression.GetMappedProjection(projectionBindingExpression.ProjectionMember);
+                    entityProjectionExpression = (EntityProjectionExpression)entityShaperExpression.ValueBufferExpression;
+                }
+
+                if (_clientEval)
+                {
+                    return entityShaperExpression.Update(
+                        new ProjectionBindingExpression(_queryExpression, _queryExpression.AddToProjection(entityProjectionExpression)));
+                }
+                else
+                {
+                    _projectionMapping[_projectionMembers.Peek()] = entityProjectionExpression;
 
                     return entityShaperExpression.Update(
                         new ProjectionBindingExpression(_queryExpression, _projectionMembers.Peek(), typeof(ValueBuffer)));

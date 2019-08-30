@@ -17,9 +17,6 @@ namespace Microsoft.EntityFrameworkCore
             typeof(OptimisticConcurrencyTestBase<>),
             typeof(StoreGeneratedTestBase<>),
             typeof(ConferencePlannerTestBase<>),
-            // Remaining Issue #16963 3.0 query tests:
-            typeof(ComplexNavigationsWeakQueryTestBase<>),
-            typeof(OwnedQueryTestBase<>),
         };
 
         protected override Assembly TargetAssembly { get; } = typeof(InMemoryComplianceTest).Assembly;

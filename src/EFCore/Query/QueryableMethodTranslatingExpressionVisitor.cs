@@ -33,6 +33,11 @@ namespace Microsoft.EntityFrameworkCore.Query
                 ? CreateShapedQueryExpression(((IQueryable)constantExpression.Value).ElementType)
                 : base.VisitConstant(constantExpression);
 
+        protected override Expression VisitExtension(Expression expression)
+            => expression is ShapedQueryExpression
+                ? expression
+                : base.VisitExtension(expression);
+
         protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
         {
             ShapedQueryExpression CheckTranslated(ShapedQueryExpression translated)
