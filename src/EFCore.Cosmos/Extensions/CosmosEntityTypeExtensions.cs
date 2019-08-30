@@ -26,8 +26,10 @@ namespace Microsoft.EntityFrameworkCore
                   ?? GetCosmosDefaultContainer(entityType);
 
         private static string GetCosmosDefaultContainer(IEntityType entityType)
-            => entityType.Model.GetCosmosDefaultContainer()
-               ?? entityType.ShortName();
+            => entityType.IsOwned()
+               ? null
+               : entityType.Model.GetCosmosDefaultContainer()
+                  ?? entityType.ShortName();
 
         /// <summary>
         ///     Sets the name of the container to which the entity type is mapped.

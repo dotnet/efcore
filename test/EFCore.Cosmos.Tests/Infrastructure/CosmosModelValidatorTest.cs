@@ -142,6 +142,13 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             public int Id { get; set; }
             public string PartitionId { get; set; }
             public Customer Customer { get; set; }
+            public OrderDetails OrderDetails { get; set; }
+        }
+
+        [Owned]
+        private class OrderDetails
+        {
+            public string ShippingAddress { get; set; }
         }
     }
 }
