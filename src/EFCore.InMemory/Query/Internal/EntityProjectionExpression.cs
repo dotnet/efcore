@@ -12,6 +12,8 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
     public class EntityProjectionExpression : Expression, IPrintableExpression
     {
         private readonly IDictionary<IProperty, Expression> _readExpressionMap;
+        private readonly IDictionary<INavigation, EntityShaperExpression> _navigationExpressionsCache
+            = new Dictionary<INavigation, EntityShaperExpression>();
 
         public EntityProjectionExpression(
             IEntityType entityType, IDictionary<IProperty, Expression> readExpressionMap)
@@ -50,6 +52,34 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             }
 
             return _readExpressionMap[property];
+        }
+
+        public virtual void AddNavigationBinding(INavigation navigation, EntityShaperExpression entityShaper)
+        {
+            if (!EntityType.IsAssignableFrom(navigation.DeclaringEntityType)
+                && !navigation.DeclaringEntityType.IsAssignableFrom(EntityType))
+            {
+                throw new InvalidOperationException(
+                    $"Called EntityProjectionExpression.AddNavigationBinding() with incorrect INavigation. " +
+                    $"EntityType:{EntityType.DisplayName()}, Property:{navigation.Name}");
+            }
+
+            _navigationExpressionsCache[navigation] = entityShaper;
+        }
+
+        public virtual EntityShaperExpression BindNavigation(INavigation navigation)
+        {
+            if (!EntityType.IsAssignableFrom(navigation.DeclaringEntityType)
+                && !navigation.DeclaringEntityType.IsAssignableFrom(EntityType))
+            {
+                throw new InvalidOperationException(
+                    $"Called EntityProjectionExpression.BindNavigation() with incorrect INavigation. " +
+                    $"EntityType:{EntityType.DisplayName()}, Property:{navigation.Name}");
+            }
+
+            return _navigationExpressionsCache.TryGetValue(navigation, out var expression)
+                ? expression
+                : null;
         }
 
         public virtual void Print(ExpressionPrinter expressionPrinter)
