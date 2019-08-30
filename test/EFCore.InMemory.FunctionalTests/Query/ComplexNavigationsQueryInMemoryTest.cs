@@ -76,12 +76,6 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalTheory(Skip = "issue #16963 Test")]
-        public override Task Join_flattening_bug_4539(bool isAsync)
-        {
-            return base.Join_flattening_bug_4539(isAsync);
-        }
-
-        [ConditionalTheory(Skip = "issue #16963 Test")]
         public override Task Include18_3_3(bool isAsync)
         {
             return base.Include18_3_3(isAsync);
