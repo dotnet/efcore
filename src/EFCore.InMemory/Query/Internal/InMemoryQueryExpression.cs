@@ -751,6 +751,152 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             _projectionMapping = projectionMapping;
         }
 
+        public virtual EntityShaperExpression AddNavigationToWeakEntityType(
+            EntityProjectionExpression entityProjectionExpression,
+            INavigation navigation,
+            InMemoryQueryExpression innerQueryExpression,
+            LambdaExpression outerKeySelector,
+            LambdaExpression innerKeySelector)
+        {
+            // GroupJoin phase
+            var groupTransparentIdentifierType = TransparentIdentifierFactory.Create(
+                typeof(ValueBuffer), typeof(IEnumerable<ValueBuffer>));
+            var outerParameter = Parameter(typeof(ValueBuffer), "outer");
+            var innerParameter = Parameter(typeof(IEnumerable<ValueBuffer>), "inner");
+            var outerMemberInfo = groupTransparentIdentifierType.GetTypeInfo().GetDeclaredField("Outer");
+            var innerMemberInfo = groupTransparentIdentifierType.GetTypeInfo().GetDeclaredField("Inner");
+            var resultSelector = Lambda(
+                New(
+                    groupTransparentIdentifierType.GetTypeInfo().DeclaredConstructors.Single(),
+                    new[] { outerParameter, innerParameter },
+                    new[] { outerMemberInfo, innerMemberInfo }),
+                outerParameter,
+                innerParameter);
+
+            var groupJoinExpression = Call(
+                InMemoryLinqOperatorProvider.GroupJoin.MakeGenericMethod(
+                    typeof(ValueBuffer), typeof(ValueBuffer), outerKeySelector.ReturnType, groupTransparentIdentifierType),
+                ServerQueryExpression,
+                innerQueryExpression.ServerQueryExpression,
+                outerKeySelector,
+                innerKeySelector,
+                resultSelector);
+
+            // SelectMany phase
+            var collectionParameter = Parameter(groupTransparentIdentifierType, "collection");
+            var collection = MakeMemberAccess(collectionParameter, innerMemberInfo);
+            outerParameter = Parameter(groupTransparentIdentifierType, "outer");
+            innerParameter = Parameter(typeof(ValueBuffer), "inner");
+
+            var resultValueBufferExpressions = new List<Expression>();
+            var projectionMapping = new Dictionary<ProjectionMember, Expression>();
+            var replacingVisitor = new ReplacingExpressionVisitor(
+                new Dictionary<Expression, Expression>
+                {
+                    { CurrentParameter, MakeMemberAccess(outerParameter, outerMemberInfo) },
+                    { innerQueryExpression.CurrentParameter, innerParameter }
+                });
+            var index = 0;
+
+            EntityProjectionExpression copyEntityProjectionToOuter(EntityProjectionExpression entityProjection)
+            {
+                var readExpressionMap = new Dictionary<IProperty, Expression>();
+                foreach (var property in GetAllPropertiesInHierarchy(entityProjection.EntityType))
+                {
+                    var replacedExpression = replacingVisitor.Visit(entityProjection.BindProperty(property));
+                    resultValueBufferExpressions.Add(replacedExpression);
+                    readExpressionMap[property] = CreateReadValueExpression(replacedExpression.Type, index++, property);
+                }
+
+                var newEntityProjection = new EntityProjectionExpression(entityProjection.EntityType, readExpressionMap);
+                if (ReferenceEquals(entityProjectionExpression, entityProjection))
+                {
+                    entityProjectionExpression = newEntityProjection;
+                }
+
+                // Also lift nested entity projections
+                foreach (var navigation in entityProjection.EntityType.GetTypesInHierarchy()
+                            .SelectMany(EntityTypeExtensions.GetDeclaredNavigations))
+                {
+                    var boundEntityShaperExpression = entityProjection.BindNavigation(navigation);
+                    if (boundEntityShaperExpression != null)
+                    {
+                        var innerEntityProjection = (EntityProjectionExpression)boundEntityShaperExpression.ValueBufferExpression;
+                        var newInnerEntityProjection = copyEntityProjectionToOuter(innerEntityProjection);
+                        boundEntityShaperExpression = boundEntityShaperExpression.Update(newInnerEntityProjection);
+                        newEntityProjection.AddNavigationBinding(navigation, boundEntityShaperExpression);
+                    }
+                }
+
+                return newEntityProjection;
+            }
+
+            foreach (var projection in _projectionMapping)
+            {
+                if (projection.Value is EntityProjectionExpression entityProjection)
+                {
+                    projectionMapping[projection.Key] = copyEntityProjectionToOuter(entityProjection);
+                }
+                else
+                {
+                    var replacedExpression = replacingVisitor.Visit(projection.Value);
+                    resultValueBufferExpressions.Add(replacedExpression);
+                    projectionMapping[projection.Key]
+                        = CreateReadValueExpression(replacedExpression.Type, index++, InferPropertyFromInner(projection.Value));
+                }
+            }
+
+            _projectionMapping = projectionMapping;
+
+            var outerIndex = index;
+            var nullableReadValueExpressionVisitor = new NullableReadValueExpressionVisitor();
+            var innerEntityProjection = (EntityProjectionExpression)innerQueryExpression.GetMappedProjection(new ProjectionMember());
+
+            var innerReadExpressionMap = new Dictionary<IProperty, Expression>();
+            foreach (var property in GetAllPropertiesInHierarchy(innerEntityProjection.EntityType))
+            {
+                var replacedExpression = replacingVisitor.Visit(innerEntityProjection.BindProperty(property));
+                replacedExpression = nullableReadValueExpressionVisitor.Visit(replacedExpression);
+                resultValueBufferExpressions.Add(replacedExpression);
+                innerReadExpressionMap[property] = CreateReadValueExpression(replacedExpression.Type, index++, property);
+            }
+            innerEntityProjection = new EntityProjectionExpression(innerEntityProjection.EntityType, innerReadExpressionMap);
+
+            var collectionSelector = Lambda(
+                Call(
+                    InMemoryLinqOperatorProvider.DefaultIfEmptyWithArgument.MakeGenericMethod(typeof(ValueBuffer)),
+                    collection,
+                    New(
+                        _valueBufferConstructor,
+                        NewArrayInit(
+                            typeof(object),
+                            Enumerable.Range(0, index - outerIndex).Select(i => Constant(null))))),
+                collectionParameter);
+
+            resultSelector = Lambda(
+                New(
+                    _valueBufferConstructor,
+                    NewArrayInit(
+                        typeof(object),
+                        resultValueBufferExpressions
+                            .Select(e => e.Type.IsValueType ? Convert(e, typeof(object)) : e)
+                            .ToArray())),
+                outerParameter,
+                innerParameter);
+
+            ServerQueryExpression = Call(
+                InMemoryLinqOperatorProvider.SelectManyWithCollectionSelector.MakeGenericMethod(
+                    groupTransparentIdentifierType, typeof(ValueBuffer), typeof(ValueBuffer)),
+                groupJoinExpression,
+                collectionSelector,
+                resultSelector);
+
+            var entityShaper = new EntityShaperExpression(innerEntityProjection.EntityType, innerEntityProjection, nullable: true);
+            entityProjectionExpression.AddNavigationBinding(navigation, entityShaper);
+
+            return entityShaper;
+        }
+
         public virtual void Print(ExpressionPrinter expressionPrinter)
         {
             expressionPrinter.AppendLine(nameof(InMemoryQueryExpression) + ": ");
