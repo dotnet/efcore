@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -141,7 +141,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
             var result = new Dictionary<ProjectionMember, Expression>();
             foreach (var keyValuePair in _projectionMapping)
             {
-                result[keyValuePair.Key] = Constant(AddToProjection(
+                result[keyValuePair.Key] = Constant(
+                    AddToProjection(
                         keyValuePair.Value,
                         keyValuePair.Key.Last?.Name));
             }
@@ -186,7 +187,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual int AddToProjection(ObjectArrayProjectionExpression objectArrayProjection) => AddToProjection(objectArrayProjection, null);
+        public virtual int AddToProjection(ObjectArrayProjectionExpression objectArrayProjection) =>
+            AddToProjection(objectArrayProjection, null);
 
         private int AddToProjection(Expression expression, string alias)
         {
@@ -197,8 +199,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
             }
 
             var baseAlias = alias
-                ?? (expression as IAccessExpression)?.Name
-                ?? "c";
+                            ?? (expression as IAccessExpression)?.Name
+                            ?? "c";
 
             var currentAlias = baseAlias;
             var counter = 0;

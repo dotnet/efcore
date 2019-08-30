@@ -12,14 +12,16 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
     {
         private static bool IsExpressionOfFunc(Type type, int funcGenericArgs = 2)
             => type.IsGenericType
-                && type.GetGenericArguments().Length == funcGenericArgs;
+               && type.GetGenericArguments().Length == funcGenericArgs;
 
         private static readonly MethodInfo _allMethodInfo = typeof(Enumerable).GetTypeInfo()
             .GetDeclaredMethods(nameof(Enumerable.All))
             .Single(mi => mi.GetParameters().Length == 2 && IsExpressionOfFunc(mi.GetParameters()[1].ParameterType));
+
         private static readonly MethodInfo _anyWithPredicateMethodInfo = typeof(Enumerable).GetTypeInfo()
             .GetDeclaredMethods(nameof(Enumerable.Any))
             .Single(mi => mi.GetParameters().Length == 2 && IsExpressionOfFunc(mi.GetParameters()[1].ParameterType));
+
         private static readonly MethodInfo _containsMethodInfo = typeof(Enumerable).GetTypeInfo()
             .GetDeclaredMethods(nameof(Enumerable.Contains))
             .Single(mi => mi.GetParameters().Length == 2);
@@ -37,7 +39,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             {
                 var nonParameterExpression = left is ParameterExpression ? right : left;
 
-                if (methodInfo.Equals(_anyWithPredicateMethodInfo) && !negated)
+                if (methodInfo.Equals(_anyWithPredicateMethodInfo)
+                    && !negated)
                 {
                     var containsMethod = _containsMethodInfo.MakeGenericMethod(methodCallExpression.Method.GetGenericArguments()[0]);
                     return Expression.Call(null, containsMethod, methodCallExpression.Arguments[0], nonParameterExpression);
@@ -76,13 +79,15 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     return true;
 
                 case MethodCallExpression methodCallExpression
-                when methodCallExpression.Method.Name == nameof(object.Equals):
+                    when methodCallExpression.Method.Name == nameof(object.Equals):
                     negated = false;
-                    if (methodCallExpression.Arguments.Count == 1 && methodCallExpression.Object.Type == methodCallExpression.Arguments[0].Type)
+                    if (methodCallExpression.Arguments.Count == 1
+                        && methodCallExpression.Object.Type == methodCallExpression.Arguments[0].Type)
                     {
                         (left, right) = (methodCallExpression.Object, methodCallExpression.Arguments[0]);
                     }
-                    else if (methodCallExpression.Arguments.Count == 2 && methodCallExpression.Arguments[0].Type == methodCallExpression.Arguments[1].Type)
+                    else if (methodCallExpression.Arguments.Count == 2
+                             && methodCallExpression.Arguments[0].Type == methodCallExpression.Arguments[1].Type)
                     {
                         (left, right) = (methodCallExpression.Arguments[0], methodCallExpression.Arguments[1]);
                     }
@@ -90,7 +95,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     return true;
 
                 case UnaryExpression unaryExpression
-                when unaryExpression.NodeType == ExpressionType.Not:
+                    when unaryExpression.NodeType == ExpressionType.Not:
                     var result = TryExtractEqualityOperands(unaryExpression.Operand, out left, out right, out negated);
                     negated = !negated;
                     return result;

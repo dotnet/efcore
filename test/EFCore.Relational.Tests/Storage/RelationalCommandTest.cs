@@ -364,48 +364,42 @@ namespace Microsoft.EntityFrameworkCore.Storage
                         (connection, command, parameterValues, logger)
                             => command.ExecuteNonQuery(
                                 new RelationalCommandParameterObject(connection, parameterValues, null, logger))),
-                    DbCommandMethod.ExecuteNonQuery,
-                    false
+                    DbCommandMethod.ExecuteNonQuery, false
                 },
                 {
                     new CommandAction(
                         (connection, command, parameterValues, logger)
                             => command.ExecuteScalar(
                                 new RelationalCommandParameterObject(connection, parameterValues, null, logger))),
-                    DbCommandMethod.ExecuteScalar,
-                    false
+                    DbCommandMethod.ExecuteScalar, false
                 },
                 {
                     new CommandAction(
                         (connection, command, parameterValues, logger)
                             => command.ExecuteReader(
                                 new RelationalCommandParameterObject(connection, parameterValues, null, logger))),
-                    DbCommandMethod.ExecuteReader,
-                    false
+                    DbCommandMethod.ExecuteReader, false
                 },
                 {
                     new CommandFunc(
                         (connection, command, parameterValues, logger)
                             => command.ExecuteNonQueryAsync(
                                 new RelationalCommandParameterObject(connection, parameterValues, null, logger))),
-                    DbCommandMethod.ExecuteNonQuery,
-                    true
+                    DbCommandMethod.ExecuteNonQuery, true
                 },
                 {
                     new CommandFunc(
                         (connection, command, parameterValues, logger)
                             => command.ExecuteScalarAsync(
                                 new RelationalCommandParameterObject(connection, parameterValues, null, logger))),
-                    DbCommandMethod.ExecuteScalar,
-                    true
+                    DbCommandMethod.ExecuteScalar, true
                 },
                 {
                     new CommandFunc(
                         (connection, command, parameterValues, logger)
                             => command.ExecuteReaderAsync(
                                 new RelationalCommandParameterObject(connection, parameterValues, null, logger))),
-                    DbCommandMethod.ExecuteReader,
-                    true
+                    DbCommandMethod.ExecuteReader, true
                 }
             };
 
@@ -464,11 +458,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                     new TypeMappedRelationalParameter("ThirdInvariant", "ThirdParameter", RelationalTypeMapping.NullMapping, null)
                 });
 
-            var parameterValues = new Dictionary<string, object>
-            {
-                { "FirstInvariant", 17 },
-                { "SecondInvariant", 18L }
-            };
+            var parameterValues = new Dictionary<string, object> { { "FirstInvariant", 17 }, { "SecondInvariant", 18L } };
 
             if (async)
             {
@@ -509,9 +499,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
             var parameterValues = new Dictionary<string, object>
             {
-                { "FirstInvariant", 17 },
-                { "SecondInvariant", 18L },
-                { "ThirdInvariant", null }
+                { "FirstInvariant", 17 }, { "SecondInvariant", 18L }, { "ThirdInvariant", null }
             };
 
             if (async)
@@ -565,12 +553,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
                 TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>());
 
-            var dbParameter = new FakeDbParameter
-            {
-                ParameterName = "FirstParameter",
-                Value = 17,
-                DbType = DbType.Int32
-            };
+            var dbParameter = new FakeDbParameter { ParameterName = "FirstParameter", Value = 17, DbType = DbType.Int32 };
 
             var relationalCommand = CreateRelationalCommand(
                 parameters: new[]
@@ -582,9 +565,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
             var parameterValues = new Dictionary<string, object>
             {
-                { "FirstInvariant", dbParameter },
-                { "SecondInvariant", 18L },
-                { "ThirdInvariant", null }
+                { "FirstInvariant", dbParameter }, { "SecondInvariant", 18L }, { "ThirdInvariant", null }
             };
 
             if (async)
@@ -646,10 +627,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                         })
                 });
 
-            var parameterValues = new Dictionary<string, object>
-            {
-                { "CompositeInvariant", new object[] { 17, 18L, null } }
-            };
+            var parameterValues = new Dictionary<string, object> { { "CompositeInvariant", new object[] { 17, 18L, null } } };
 
             if (async)
             {
@@ -713,10 +691,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                         })
                 });
 
-            var parameterValues = new Dictionary<string, object>
-            {
-                { "CompositeInvariant", new object[] { 17, 18L } }
-            };
+            var parameterValues = new Dictionary<string, object> { { "CompositeInvariant", new object[] { 17, 18L } } };
 
             if (async)
             {
@@ -758,10 +733,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                         })
                 });
 
-            var parameterValues = new Dictionary<string, object>
-            {
-                { "CompositeInvariant", 17 }
-            };
+            var parameterValues = new Dictionary<string, object> { { "CompositeInvariant", 17 } };
 
             if (async)
             {
@@ -942,13 +914,11 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 commandText: "Logged Command",
                 parameters: new[]
                 {
-                    new TypeMappedRelationalParameter("FirstInvariant", "FirstParameter", new IntTypeMapping("int", DbType.Int32), false)
+                    new TypeMappedRelationalParameter(
+                        "FirstInvariant", "FirstParameter", new IntTypeMapping("int", DbType.Int32), false)
                 });
 
-            var parameterValues = new Dictionary<string, object>
-            {
-                { "FirstInvariant", 17 }
-            };
+            var parameterValues = new Dictionary<string, object> { { "FirstInvariant", 17 } };
 
             if (async)
             {
@@ -1000,13 +970,11 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 commandText: "Logged Command",
                 parameters: new[]
                 {
-                    new TypeMappedRelationalParameter("FirstInvariant", "FirstParameter", new IntTypeMapping("int", DbType.Int32), false)
+                    new TypeMappedRelationalParameter(
+                        "FirstInvariant", "FirstParameter", new IntTypeMapping("int", DbType.Int32), false)
                 });
 
-            var parameterValues = new Dictionary<string, object>
-            {
-                { "FirstInvariant", 17 }
-            };
+            var parameterValues = new Dictionary<string, object> { { "FirstInvariant", 17 } };
 
             if (async)
             {
@@ -1021,7 +989,9 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.Equal(LogLevel.Debug, logFactory.Log[0].Level);
             Assert.Equal(LogLevel.Debug, logFactory.Log[1].Level);
             Assert.Equal(LogLevel.Warning, logFactory.Log[2].Level);
-            Assert.Equal(CoreResources.LogSensitiveDataLoggingEnabled(new TestLogger<TestRelationalLoggingDefinitions>()).GenerateMessage(), logFactory.Log[2].Message);
+            Assert.Equal(
+                CoreResources.LogSensitiveDataLoggingEnabled(new TestLogger<TestRelationalLoggingDefinitions>()).GenerateMessage(),
+                logFactory.Log[2].Message);
 
             Assert.Equal(LogLevel.Information, logFactory.Log[3].Level);
             Assert.Equal(LogLevel.Debug, logFactory.Log[4].Level);
@@ -1057,13 +1027,11 @@ namespace Microsoft.EntityFrameworkCore.Storage
             var relationalCommand = CreateRelationalCommand(
                 parameters: new[]
                 {
-                    new TypeMappedRelationalParameter("FirstInvariant", "FirstParameter", new IntTypeMapping("int", DbType.Int32), false)
+                    new TypeMappedRelationalParameter(
+                        "FirstInvariant", "FirstParameter", new IntTypeMapping("int", DbType.Int32), false)
                 });
 
-            var parameterValues = new Dictionary<string, object>
-            {
-                { "FirstInvariant", 17 }
-            };
+            var parameterValues = new Dictionary<string, object> { { "FirstInvariant", 17 } };
 
             if (async)
             {
@@ -1129,13 +1097,11 @@ namespace Microsoft.EntityFrameworkCore.Storage
             var relationalCommand = CreateRelationalCommand(
                 parameters: new[]
                 {
-                    new TypeMappedRelationalParameter("FirstInvariant", "FirstParameter", new IntTypeMapping("int", DbType.Int32), false)
+                    new TypeMappedRelationalParameter(
+                        "FirstInvariant", "FirstParameter", new IntTypeMapping("int", DbType.Int32), false)
                 });
 
-            var parameterValues = new Dictionary<string, object>
-            {
-                { "FirstInvariant", 17 }
-            };
+            var parameterValues = new Dictionary<string, object> { { "FirstInvariant", 17 } };
 
             if (async)
             {

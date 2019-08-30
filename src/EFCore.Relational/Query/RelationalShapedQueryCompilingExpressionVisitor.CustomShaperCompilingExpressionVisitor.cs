@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -95,6 +95,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     // nothing to materialize since no collection created
                     return;
                 }
+
                 void processCurrentElementRow()
                 {
                     var previousResultReady = resultCoordinator.ResultReady;
@@ -118,6 +119,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                         resultCoordinator.HasNext = false;
                         processCurrentElementRow();
                     }
+
                     collectionMaterializationContext.UpdateSelfIdentifier(null);
                 }
 
@@ -161,17 +163,16 @@ namespace Microsoft.EntityFrameworkCore.Query
                         {
                             processCurrentElementRow();
                         }
+
                         resultCoordinator.ResultReady = false;
                         return;
                     }
-                    else
-                    {
-                        // Row for new element which is not first element
-                        // So materialize the element
-                        generateCurrentElementIfPending();
-                        resultCoordinator.HasNext = null;
-                        collectionMaterializationContext.UpdateSelfIdentifier(innerKey);
-                    }
+
+                    // Row for new element which is not first element
+                    // So materialize the element
+                    generateCurrentElementIfPending();
+                    resultCoordinator.HasNext = null;
+                    collectionMaterializationContext.UpdateSelfIdentifier(innerKey);
                 }
                 else
                 {
@@ -234,6 +235,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                             resultCoordinator.HasNext = false;
                             processCurrentElementRow();
                         }
+
                         collectionMaterializationContext.UpdateSelfIdentifier(null);
                     }
 
@@ -277,17 +279,16 @@ namespace Microsoft.EntityFrameworkCore.Query
                             {
                                 processCurrentElementRow();
                             }
+
                             resultCoordinator.ResultReady = false;
                             return;
                         }
-                        else
-                        {
-                            // Row for new element which is not first element
-                            // So materialize the element
-                            generateCurrentElementIfPending();
-                            resultCoordinator.HasNext = null;
-                            collectionMaterializationContext.UpdateSelfIdentifier(innerKey);
-                        }
+
+                        // Row for new element which is not first element
+                        // So materialize the element
+                        generateCurrentElementIfPending();
+                        resultCoordinator.HasNext = null;
+                        collectionMaterializationContext.UpdateSelfIdentifier(innerKey);
                     }
                     else
                     {
@@ -559,7 +560,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                         inverseNavigation.IsCollection()
                             ? AddToCollectionNavigation(relatedEntityParameter, entityParameter, inverseNavigation)
                             : AssignReferenceNavigation(relatedEntityParameter, entityParameter, inverseNavigation));
-
                 }
 
                 return Expression.Lambda(Expression.Block(typeof(void), expressions), entityParameter, relatedEntityParameter);

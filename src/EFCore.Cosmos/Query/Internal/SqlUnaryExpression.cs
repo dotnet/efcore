@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -20,9 +20,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
     {
         private static readonly ISet<ExpressionType> _allowedOperators = new HashSet<ExpressionType>
         {
-            ExpressionType.Not,
-            ExpressionType.Negate,
-            ExpressionType.UnaryPlus,
+            ExpressionType.Not, ExpressionType.Negate, ExpressionType.UnaryPlus
         };
 
         private static ExpressionType VerifyOperator(ExpressionType operatorType)
@@ -86,7 +84,6 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         /// </summary>
         public override void Print(ExpressionPrinter expressionPrinter)
         {
-
             expressionPrinter.Append(OperatorType);
             expressionPrinter.Append("(");
             expressionPrinter.Visit(Operand);
@@ -101,14 +98,14 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         /// </summary>
         public override bool Equals(object obj)
             => obj != null
-            && (ReferenceEquals(this, obj)
-                || obj is SqlUnaryExpression sqlUnaryExpression
-                    && Equals(sqlUnaryExpression));
+               && (ReferenceEquals(this, obj)
+                   || obj is SqlUnaryExpression sqlUnaryExpression
+                   && Equals(sqlUnaryExpression));
 
         private bool Equals(SqlUnaryExpression sqlUnaryExpression)
             => base.Equals(sqlUnaryExpression)
-            && OperatorType == sqlUnaryExpression.OperatorType
-            && Operand.Equals(sqlUnaryExpression.Operand);
+               && OperatorType == sqlUnaryExpression.OperatorType
+               && Operand.Equals(sqlUnaryExpression.Operand);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

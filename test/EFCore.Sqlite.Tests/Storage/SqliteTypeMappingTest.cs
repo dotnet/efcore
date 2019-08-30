@@ -59,10 +59,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                     context.Database.EnsureCreated();
 
                     context.Add(
-                        new NoTiny
-                        {
-                            TinyState = TinyState.Two
-                        });
+                        new NoTiny { TinyState = TinyState.Two });
                     context.SaveChanges();
                 }
 

@@ -3,9 +3,9 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.Extensions.DependencyModel;
-using System.Linq;
 using IOPath = System.IO.Path;
 
 namespace Microsoft.EntityFrameworkCore.TestUtilities

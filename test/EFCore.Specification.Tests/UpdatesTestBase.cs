@@ -32,16 +32,8 @@ namespace Microsoft.EntityFrameworkCore
                 context =>
                 {
                     context.AFewBytes.AddRange(
-                        new AFewBytes
-                        {
-                            Id = id1,
-                            Bytes = bytes
-                        },
-                        new AFewBytes
-                        {
-                            Id = id2,
-                            Bytes = bytes
-                        });
+                        new AFewBytes { Id = id1, Bytes = bytes },
+                        new AFewBytes { Id = id2, Bytes = bytes });
 
                     context.SaveChanges();
                 },
@@ -81,11 +73,7 @@ namespace Microsoft.EntityFrameworkCore
                 context =>
                 {
                     var entry = context.Products.Attach(
-                        new Product
-                        {
-                            Id = productId,
-                            Price = 1.49M
-                        });
+                        new Product { Id = productId, Price = 1.49M });
 
                     entry.Property(c => c.Price).CurrentValue = 1.99M;
                     entry.Property(p => p.Price).IsModified = true;
@@ -111,11 +99,7 @@ namespace Microsoft.EntityFrameworkCore
                 context =>
                 {
                     var entry = context.Products.Attach(
-                        new Product
-                        {
-                            Id = new Guid("3d1302c5-4cf8-4043-9758-de9398f6fe10"),
-                            Name = "Apple Fritter"
-                        });
+                        new Product { Id = new Guid("3d1302c5-4cf8-4043-9758-de9398f6fe10"), Name = "Apple Fritter" });
 
                     entry.Property(c => c.Name).IsModified = true;
 
@@ -137,9 +121,7 @@ namespace Microsoft.EntityFrameworkCore
                     var entry = context.Products.Attach(
                         new Product
                         {
-                            Id = productId,
-                            Name = "Apple Fritter",
-                            Price = 3.49M // Not the same as the value stored in the database
+                            Id = productId, Name = "Apple Fritter", Price = 3.49M // Not the same as the value stored in the database
                         });
 
                     entry.Property(c => c.Name).IsModified = true;
@@ -160,24 +142,14 @@ namespace Microsoft.EntityFrameworkCore
                 context =>
                 {
                     context.Add(
-                        new ProductWithBytes
-                        {
-                            Id = productId,
-                            Name = "MegaChips",
-                            Bytes = new byte[] { 1, 2, 3, 4, 5, 6, 7, 8 }
-                        });
+                        new ProductWithBytes { Id = productId, Name = "MegaChips", Bytes = new byte[] { 1, 2, 3, 4, 5, 6, 7, 8 } });
 
                     context.SaveChanges();
                 },
                 context =>
                 {
                     var entry = context.ProductWithBytes.Attach(
-                        new ProductWithBytes
-                        {
-                            Id = productId,
-                            Name = "MegaChips",
-                            Bytes = new byte[] { 8, 7, 6, 5, 4, 3, 2, 1 }
-                        });
+                        new ProductWithBytes { Id = productId, Name = "MegaChips", Bytes = new byte[] { 8, 7, 6, 5, 4, 3, 2, 1 } });
 
                     entry.Entity.Name = "GigaChips";
 
@@ -196,24 +168,14 @@ namespace Microsoft.EntityFrameworkCore
                 context =>
                 {
                     context.Add(
-                        new ProductWithBytes
-                        {
-                            Id = productId,
-                            Name = "MegaChips",
-                            Bytes = new byte[] { 1, 2, 3, 4, 5, 6, 7, 8 }
-                        });
+                        new ProductWithBytes { Id = productId, Name = "MegaChips", Bytes = new byte[] { 1, 2, 3, 4, 5, 6, 7, 8 } });
 
                     context.SaveChanges();
                 },
                 context =>
                 {
                     var entry = context.ProductWithBytes.Attach(
-                        new ProductWithBytes
-                        {
-                            Id = productId,
-                            Name = "MegaChips",
-                            Bytes = new byte[] { 1, 2, 3, 4, 5, 6, 7, 8 }
-                        });
+                        new ProductWithBytes { Id = productId, Name = "MegaChips", Bytes = new byte[] { 1, 2, 3, 4, 5, 6, 7, 8 } });
 
                     entry.Entity.Name = "GigaChips";
 
@@ -231,24 +193,14 @@ namespace Microsoft.EntityFrameworkCore
                 context =>
                 {
                     context.Add(
-                        new ProductWithBytes
-                        {
-                            Id = productId,
-                            Name = "MegaChips",
-                            Bytes = new byte[] { 1, 2, 3, 4, 5, 6, 7, 8 }
-                        });
+                        new ProductWithBytes { Id = productId, Name = "MegaChips", Bytes = new byte[] { 1, 2, 3, 4, 5, 6, 7, 8 } });
 
                     context.SaveChanges();
                 },
                 context =>
                 {
                     var entry = context.ProductWithBytes.Attach(
-                        new ProductWithBytes
-                        {
-                            Id = productId,
-                            Name = "MegaChips",
-                            Bytes = new byte[] { 8, 7, 6, 5, 4, 3, 2, 1 }
-                        });
+                        new ProductWithBytes { Id = productId, Name = "MegaChips", Bytes = new byte[] { 8, 7, 6, 5, 4, 3, 2, 1 } });
 
                     entry.State = EntityState.Deleted;
 
@@ -267,24 +219,14 @@ namespace Microsoft.EntityFrameworkCore
                 context =>
                 {
                     context.Add(
-                        new ProductWithBytes
-                        {
-                            Id = productId,
-                            Name = "MegaChips",
-                            Bytes = new byte[] { 1, 2, 3, 4, 5, 6, 7, 8 }
-                        });
+                        new ProductWithBytes { Id = productId, Name = "MegaChips", Bytes = new byte[] { 1, 2, 3, 4, 5, 6, 7, 8 } });
 
                     context.SaveChanges();
                 },
                 context =>
                 {
                     var entry = context.ProductWithBytes.Attach(
-                        new ProductWithBytes
-                        {
-                            Id = productId,
-                            Name = "MegaChips",
-                            Bytes = new byte[] { 1, 2, 3, 4, 5, 6, 7, 8 }
-                        });
+                        new ProductWithBytes { Id = productId, Name = "MegaChips", Bytes = new byte[] { 1, 2, 3, 4, 5, 6, 7, 8 } });
 
                     entry.State = EntityState.Deleted;
 
@@ -302,11 +244,7 @@ namespace Microsoft.EntityFrameworkCore
                 context =>
                 {
                     context.Products.Remove(
-                        new Product
-                        {
-                            Id = productId,
-                            Price = 1.49M
-                        });
+                        new Product { Id = productId, Price = 1.49M });
 
                     context.SaveChanges();
                 },
@@ -325,10 +263,7 @@ namespace Microsoft.EntityFrameworkCore
                 context =>
                 {
                     context.Products.Remove(
-                        new Product
-                        {
-                            Id = new Guid("3d1302c5-4cf8-4043-9758-de9398f6fe10")
-                        });
+                        new Product { Id = new Guid("3d1302c5-4cf8-4043-9758-de9398f6fe10") });
 
                     Assert.Equal(
                         UpdateConcurrencyMessage,
@@ -348,8 +283,7 @@ namespace Microsoft.EntityFrameworkCore
                     context.Products.Remove(
                         new Product
                         {
-                            Id = productId,
-                            Price = 3.49M // Not the same as the value stored in the database
+                            Id = productId, Price = 3.49M // Not the same as the value stored in the database
                         });
 
                     Assert.Equal(
@@ -370,12 +304,7 @@ namespace Microsoft.EntityFrameworkCore
 
                     Assert.Equal(2, products.Count);
 
-                    var newCategory = new Category
-                    {
-                        Id = category.Id,
-                        PrincipalId = category.PrincipalId,
-                        Name = "New Category"
-                    };
+                    var newCategory = new Category { Id = category.Id, PrincipalId = category.PrincipalId, Name = "New Category" };
                     context.Remove(category);
                     context.Add(newCategory);
 
@@ -403,28 +332,13 @@ namespace Microsoft.EntityFrameworkCore
                     var productId2 = new Guid("0edc9136-7eed-463b-9b97-bdb9648ab877");
 
                     var entry1 = stateManager.GetOrCreateEntry(
-                        new Category
-                        {
-                            Id = 77,
-                            PrincipalId = 777
-                        });
+                        new Category { Id = 77, PrincipalId = 777 });
                     var entry2 = stateManager.GetOrCreateEntry(
-                        new Category
-                        {
-                            Id = 78,
-                            PrincipalId = 778
-                        });
+                        new Category { Id = 78, PrincipalId = 778 });
                     var entry3 = stateManager.GetOrCreateEntry(
-                        new Product
-                        {
-                            Id = productId1
-                        });
+                        new Product { Id = productId1 });
                     var entry4 = stateManager.GetOrCreateEntry(
-                        new Product
-                        {
-                            Id = productId2,
-                            Price = 2.49M
-                        });
+                        new Product { Id = productId2, Price = 2.49M });
 
                     entry1.SetEntityState(EntityState.Added);
                     entry2.SetEntityState(EntityState.Modified);
@@ -457,28 +371,13 @@ namespace Microsoft.EntityFrameworkCore
                     var productId2 = new Guid("0edc9136-7eed-463b-9b97-bdb9648ab877");
 
                     var entry1 = stateManager.GetOrCreateEntry(
-                        new Category
-                        {
-                            Id = 77,
-                            PrincipalId = 777
-                        });
+                        new Category { Id = 77, PrincipalId = 777 });
                     var entry2 = stateManager.GetOrCreateEntry(
-                        new Category
-                        {
-                            Id = 78,
-                            PrincipalId = 778
-                        });
+                        new Category { Id = 78, PrincipalId = 778 });
                     var entry3 = stateManager.GetOrCreateEntry(
-                        new Product
-                        {
-                            Id = productId1
-                        });
+                        new Product { Id = productId1 });
                     var entry4 = stateManager.GetOrCreateEntry(
-                        new Product
-                        {
-                            Id = productId2,
-                            Price = 2.49M
-                        });
+                        new Product { Id = productId2, Price = 2.49M });
 
                     entry1.SetEntityState(EntityState.Added);
                     entry2.SetEntityState(EntityState.Modified);
@@ -513,28 +412,13 @@ namespace Microsoft.EntityFrameworkCore
                     var productId2 = new Guid("0edc9136-7eed-463b-9b97-bdb9648ab877");
 
                     var entry1 = stateManager.GetOrCreateEntry(
-                        new Category
-                        {
-                            Id = 77,
-                            PrincipalId = 777
-                        });
+                        new Category { Id = 77, PrincipalId = 777 });
                     var entry2 = stateManager.GetOrCreateEntry(
-                        new Category
-                        {
-                            Id = 78,
-                            PrincipalId = 778
-                        });
+                        new Category { Id = 78, PrincipalId = 778 });
                     var entry3 = stateManager.GetOrCreateEntry(
-                        new Product
-                        {
-                            Id = productId1
-                        });
+                        new Product { Id = productId1 });
                     var entry4 = stateManager.GetOrCreateEntry(
-                        new Product
-                        {
-                            Id = productId2,
-                            Price = 2.49M
-                        });
+                        new Product { Id = productId2, Price = 2.49M });
 
                     entry1.SetEntityState(EntityState.Added);
                     entry2.SetEntityState(EntityState.Modified);
@@ -567,28 +451,13 @@ namespace Microsoft.EntityFrameworkCore
                     var productId2 = new Guid("0edc9136-7eed-463b-9b97-bdb9648ab877");
 
                     var entry1 = stateManager.GetOrCreateEntry(
-                        new Category
-                        {
-                            Id = 77,
-                            PrincipalId = 777
-                        });
+                        new Category { Id = 77, PrincipalId = 777 });
                     var entry2 = stateManager.GetOrCreateEntry(
-                        new Category
-                        {
-                            Id = 78,
-                            PrincipalId = 778
-                        });
+                        new Category { Id = 78, PrincipalId = 778 });
                     var entry3 = stateManager.GetOrCreateEntry(
-                        new Product
-                        {
-                            Id = productId1
-                        });
+                        new Product { Id = productId1 });
                     var entry4 = stateManager.GetOrCreateEntry(
-                        new Product
-                        {
-                            Id = productId2,
-                            Price = 2.49M
-                        });
+                        new Product { Id = productId2, Price = 2.49M });
 
                     entry1.SetEntityState(EntityState.Added);
                     entry2.SetEntityState(EntityState.Modified);

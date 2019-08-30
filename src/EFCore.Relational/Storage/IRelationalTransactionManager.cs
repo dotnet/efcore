@@ -19,8 +19,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
     ///         not used in application code.
     ///     </para>
     ///     <para>
-    ///         The service lifetime is <see cref="ServiceLifetime.Scoped"/>. This means that each
-    ///         <see cref="DbContext"/> instance will use its own instance of this service.
+    ///         The service lifetime is <see cref="ServiceLifetime.Scoped" />. This means that each
+    ///         <see cref="DbContext" /> instance will use its own instance of this service.
     ///         The implementation may depend on other services registered with any lifetime.
     ///         The implementation does not need to be thread-safe.
     ///     </para>
@@ -55,8 +55,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="transaction"> The transaction to be used. </param>
         /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
         /// <returns> An instance of <see cref="IDbTransaction" /> that wraps the provided transaction. </returns>
-        Task<IDbContextTransaction> UseTransactionAsync([CanBeNull]
-            DbTransaction transaction,
+        Task<IDbContextTransaction> UseTransactionAsync(
+            [CanBeNull] DbTransaction transaction,
             CancellationToken cancellationToken = default);
     }
 }

@@ -10,7 +10,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 {
     /// <summary>
-    ///     A convention that configures properties as required if they have the <see cref="RequiredAttribute"/> applied.
+    ///     A convention that configures properties as required if they have the <see cref="RequiredAttribute" /> applied.
     /// </summary>
     public class RequiredPropertyAttributeConvention : PropertyAttributeConventionBase<RequiredAttribute>
     {

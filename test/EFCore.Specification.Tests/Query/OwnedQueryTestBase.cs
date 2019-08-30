@@ -151,10 +151,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                         .OrderBy(p => p.Id)
                         .Take(5)
                         .Select(
-                            op => new
-                            {
-                                op
-                            })
+                            op => new { op })
                         .ToList();
 
                 Assert.Equal(4, people.Count);
@@ -247,7 +244,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             using (var ctx = CreateContext())
             {
-                Assert.Equal(CoreStrings.InvalidSetTypeWeak(nameof(OwnedAddress)),
+                Assert.Equal(
+                    CoreStrings.InvalidSetTypeWeak(nameof(OwnedAddress)),
                     Assert.Throws<InvalidOperationException>(() => ctx.Set<OwnedAddress>().ToList()).Message);
             }
         }
@@ -293,7 +291,12 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             using (var ctx = CreateContext())
             {
-                var query = ctx.Set<OwnedPerson>().Select(p => new { Count = p.Orders.Where(o => o.Client.PersonAddress.Country.Planet.Star.Id != 42).Count(), p.PersonAddress.Country.Planet });
+                var query = ctx.Set<OwnedPerson>().Select(
+                    p => new
+                    {
+                        Count = p.Orders.Where(o => o.Client.PersonAddress.Country.Planet.Star.Id != 42).Count(),
+                        p.PersonAddress.Country.Planet
+                    });
                 var result = query.ToList();
 
                 Assert.Equal(4, result.Count);
@@ -404,7 +407,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Navigation_rewrite_on_owned_reference_followed_by_regular_entity_and_another_reference_in_predicate_and_projection()
+        public virtual void
+            Navigation_rewrite_on_owned_reference_followed_by_regular_entity_and_another_reference_in_predicate_and_projection()
         {
             using (var ctx = CreateContext())
             {
@@ -432,7 +436,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                 Assert.Equal(1, result[0].Orders.Count);
             }
         }
-
 
         [ConditionalFact]
         public virtual void Query_loads_reference_nav_automatically_in_projection()
@@ -476,54 +479,23 @@ namespace Microsoft.EntityFrameworkCore.Query
                     eb =>
                     {
                         eb.HasData(
-                            new OwnedPerson
-                            {
-                                Id = 1
-                            });
+                            new OwnedPerson { Id = 1 });
 
                         eb.OwnsOne(
                             p => p.PersonAddress, ab =>
                             {
                                 ab.HasData(
-                                    new
-                                    {
-                                        OwnedPersonId = 1
-                                    }, new
-                                    {
-                                        OwnedPersonId = 2
-                                    }, new
-                                    {
-                                        OwnedPersonId = 3
-                                    }, new
-                                    {
-                                        OwnedPersonId = 4
-                                    });
+                                    new { OwnedPersonId = 1 }, new { OwnedPersonId = 2 }, new { OwnedPersonId = 3 },
+                                    new { OwnedPersonId = 4 });
 
                                 ab.OwnsOne(
                                     a => a.Country, cb =>
                                     {
                                         cb.HasData(
-                                            new
-                                            {
-                                                OwnedAddressOwnedPersonId = 1,
-                                                PlanetId = 1,
-                                                Name = "USA"
-                                            }, new
-                                            {
-                                                OwnedAddressOwnedPersonId = 2,
-                                                PlanetId = 1,
-                                                Name = "USA"
-                                            }, new
-                                            {
-                                                OwnedAddressOwnedPersonId = 3,
-                                                PlanetId = 1,
-                                                Name = "USA"
-                                            }, new
-                                            {
-                                                OwnedAddressOwnedPersonId = 4,
-                                                PlanetId = 1,
-                                                Name = "USA"
-                                            });
+                                            new { OwnedAddressOwnedPersonId = 1, PlanetId = 1, Name = "USA" },
+                                            new { OwnedAddressOwnedPersonId = 2, PlanetId = 1, Name = "USA" },
+                                            new { OwnedAddressOwnedPersonId = 3, PlanetId = 1, Name = "USA" },
+                                            new { OwnedAddressOwnedPersonId = 4, PlanetId = 1, Name = "USA" });
 
                                         cb.HasOne(cc => cc.Planet).WithMany().HasForeignKey(ee => ee.PlanetId)
                                             .OnDelete(DeleteBehavior.Restrict);
@@ -534,31 +506,11 @@ namespace Microsoft.EntityFrameworkCore.Query
                             p => p.Orders, ob =>
                             {
                                 ob.HasData(
-                                    new
-                                    {
-                                        Id = -10,
-                                        ClientId = 1
-                                    },
-                                    new
-                                    {
-                                        Id = -11,
-                                        ClientId = 1
-                                    },
-                                    new
-                                    {
-                                        Id = -20,
-                                        ClientId = 2
-                                    },
-                                    new
-                                    {
-                                        Id = -30,
-                                        ClientId = 3
-                                    },
-                                    new
-                                    {
-                                        Id = -40,
-                                        ClientId = 4
-                                    }
+                                    new { Id = -10, ClientId = 1 },
+                                    new { Id = -11, ClientId = 1 },
+                                    new { Id = -20, ClientId = 2 },
+                                    new { Id = -30, ClientId = 3 },
+                                    new { Id = -40, ClientId = 4 }
                                 );
                             });
                     });
@@ -567,38 +519,20 @@ namespace Microsoft.EntityFrameworkCore.Query
                     eb =>
                     {
                         eb.HasData(
-                            new Branch
-                            {
-                                Id = 2
-                            });
+                            new Branch { Id = 2 });
 
                         eb.OwnsOne(
                             p => p.BranchAddress, ab =>
                             {
                                 ab.HasData(
-                                    new
-                                    {
-                                        BranchId = 2
-                                    }, new
-                                    {
-                                        BranchId = 3
-                                    });
+                                    new { BranchId = 2 }, new { BranchId = 3 });
 
                                 ab.OwnsOne(
                                     a => a.Country, cb =>
                                     {
                                         cb.HasData(
-                                            new
-                                            {
-                                                OwnedAddressBranchId = 2,
-                                                PlanetId = 1,
-                                                Name = "Canada"
-                                            }, new
-                                            {
-                                                OwnedAddressBranchId = 3,
-                                                PlanetId = 1,
-                                                Name = "Canada"
-                                            });
+                                            new { OwnedAddressBranchId = 2, PlanetId = 1, Name = "Canada" },
+                                            new { OwnedAddressBranchId = 3, PlanetId = 1, Name = "Canada" });
                                     });
                             });
                     });
@@ -607,19 +541,13 @@ namespace Microsoft.EntityFrameworkCore.Query
                     eb =>
                     {
                         eb.HasData(
-                            new LeafA
-                            {
-                                Id = 3
-                            });
+                            new LeafA { Id = 3 });
 
                         eb.OwnsOne(
                             p => p.LeafAAddress, ab =>
                             {
                                 ab.HasData(
-                                    new
-                                    {
-                                        LeafAId = 3
-                                    });
+                                    new { LeafAId = 3 });
 
                                 ab.OwnsOne(
                                     a => a.Country, cb =>
@@ -628,12 +556,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                                             .OnDelete(DeleteBehavior.Restrict);
 
                                         cb.HasData(
-                                            new
-                                            {
-                                                OwnedAddressLeafAId = 3,
-                                                PlanetId = 1,
-                                                Name = "Mexico"
-                                            });
+                                            new { OwnedAddressLeafAId = 3, PlanetId = 1, Name = "Mexico" });
                                     });
                             });
                     });
@@ -642,19 +565,13 @@ namespace Microsoft.EntityFrameworkCore.Query
                     eb =>
                     {
                         eb.HasData(
-                            new LeafB
-                            {
-                                Id = 4
-                            });
+                            new LeafB { Id = 4 });
 
                         eb.OwnsOne(
                             p => p.LeafBAddress, ab =>
                             {
                                 ab.HasData(
-                                    new
-                                    {
-                                        LeafBId = 4
-                                    });
+                                    new { LeafBId = 4 });
 
                                 ab.OwnsOne(
                                     a => a.Country, cb =>
@@ -663,12 +580,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                                             .OnDelete(DeleteBehavior.Restrict);
 
                                         cb.HasData(
-                                            new
-                                            {
-                                                OwnedAddressLeafBId = 4,
-                                                PlanetId = 1,
-                                                Name = "Panama"
-                                            });
+                                            new { OwnedAddressLeafBId = 4, PlanetId = 1, Name = "Panama" });
                                     });
                             });
                     });
@@ -696,26 +608,13 @@ namespace Microsoft.EntityFrameworkCore.Query
                     {
                         b.OwnsOne(
                             e => e.Throned, b => b.HasData(
-                                new
-                                {
-                                    BartonId = 1,
-                                    Property = "Property"
-                                }));
+                                new { BartonId = 1, Property = "Property" }));
                         b.HasData(
-                            new Barton
-                            {
-                                Id = 1,
-                                Simple = "Simple"
-                            });
-
+                            new Barton { Id = 1, Simple = "Simple" });
                     });
 
                 modelBuilder.Entity<Fink>().HasData(
-                    new
-                    {
-                        Id = 1,
-                        BartonId = 1
-                    });
+                    new { Id = 1, BartonId = 1 });
             }
 
             public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)

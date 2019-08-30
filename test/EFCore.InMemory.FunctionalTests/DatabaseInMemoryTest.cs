@@ -4,7 +4,6 @@
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.TestUtilities;
-using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Xunit;
@@ -39,11 +38,7 @@ namespace Microsoft.EntityFrameworkCore
                 .UseInMemoryDatabase(nameof(DatabaseInMemoryTest))
                 .Options;
 
-            var customer = new Customer
-            {
-                Id = 42,
-                Name = "Theon"
-            };
+            var customer = new Customer { Id = 42, Name = "Theon" };
 
             using (var context = new DbContext(options))
             {
@@ -119,11 +114,7 @@ namespace Microsoft.EntityFrameworkCore
             using (var db = new SimpleContext())
             {
                 db.Artists.Add(
-                    new SimpleContext.Artist
-                    {
-                        ArtistId = "JDId",
-                        Name = "John Doe"
-                    });
+                    new SimpleContext.Artist { ArtistId = "JDId", Name = "John Doe" });
                 await db.SaveChangesAsync();
             }
 

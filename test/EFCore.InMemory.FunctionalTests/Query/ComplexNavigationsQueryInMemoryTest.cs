@@ -90,7 +90,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalTheory(Skip = "issue #16963")]
-        public override Task SelectMany_with_nested_navigations_explicit_DefaultIfEmpty_and_additional_joins_outside_of_SelectMany3(bool isAsync)
+        public override Task SelectMany_with_nested_navigations_explicit_DefaultIfEmpty_and_additional_joins_outside_of_SelectMany3(
+            bool isAsync)
         {
             return base.SelectMany_with_nested_navigations_explicit_DefaultIfEmpty_and_additional_joins_outside_of_SelectMany3(isAsync);
         }
@@ -156,7 +157,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalTheory(Skip = "issue #16963")]
-        public override Task SelectMany_with_nested_navigations_explicit_DefaultIfEmpty_and_additional_joins_outside_of_SelectMany4(bool isAsync)
+        public override Task SelectMany_with_nested_navigations_explicit_DefaultIfEmpty_and_additional_joins_outside_of_SelectMany4(
+            bool isAsync)
         {
             return base.SelectMany_with_nested_navigations_explicit_DefaultIfEmpty_and_additional_joins_outside_of_SelectMany4(isAsync);
         }
@@ -174,9 +176,11 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalTheory(Skip = "issue #16963")]
-        public override Task Optional_navigation_inside_nested_method_call_translated_to_join_keeps_original_nullability_also_for_arguments(bool isAsync)
+        public override Task Optional_navigation_inside_nested_method_call_translated_to_join_keeps_original_nullability_also_for_arguments(
+            bool isAsync)
         {
-            return base.Optional_navigation_inside_nested_method_call_translated_to_join_keeps_original_nullability_also_for_arguments(isAsync);
+            return base.Optional_navigation_inside_nested_method_call_translated_to_join_keeps_original_nullability_also_for_arguments(
+                isAsync);
         }
     }
 }

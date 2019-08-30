@@ -28,15 +28,15 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities.Xunit
             var skipReasons = new List<string>();
             var attributes =
                 _assemblyAttributes.GetOrAdd(
-                    assembly.Name,
-                    a => assembly.GetCustomAttributes(typeof(ITestCondition)).ToList())
-                .Concat(
-                    _typeAttributes.GetOrAdd(
-                        type.Name,
-                        t => type.GetCustomAttributes(typeof(ITestCondition)).ToList()))
-                .Concat(method.GetCustomAttributes(typeof(ITestCondition)))
-                .OfType<ReflectionAttributeInfo>()
-                .Select(attributeInfo => (ITestCondition)attributeInfo.Attribute);
+                        assembly.Name,
+                        a => assembly.GetCustomAttributes(typeof(ITestCondition)).ToList())
+                    .Concat(
+                        _typeAttributes.GetOrAdd(
+                            type.Name,
+                            t => type.GetCustomAttributes(typeof(ITestCondition)).ToList()))
+                    .Concat(method.GetCustomAttributes(typeof(ITestCondition)))
+                    .OfType<ReflectionAttributeInfo>()
+                    .Select(attributeInfo => (ITestCondition)attributeInfo.Attribute);
 
             foreach (var attribute in attributes)
             {
@@ -48,7 +48,8 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities.Xunit
 
             if (skipReasons.Count > 0)
             {
-                messageBus.QueueMessage(new TestSkipped(new XunitTest(testCase, testCase.DisplayName), string.Join(Environment.NewLine, skipReasons)));
+                messageBus.QueueMessage(
+                    new TestSkipped(new XunitTest(testCase, testCase.DisplayName), string.Join(Environment.NewLine, skipReasons)));
                 return true;
             }
 

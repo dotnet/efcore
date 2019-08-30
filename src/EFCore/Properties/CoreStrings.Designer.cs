@@ -2198,6 +2198,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 GetString("IncludeOnEntityWithDefiningQueryNotSupported", nameof(entityType)),
                 entityType);
 
+        /// <summary>
+        ///     The type '{entityType}' cannot be marked as owned because the derived entity type - '{derivedType}' has been configured as non-owned.
+        /// </summary>
+        public static string ClashingNonOwnedDerivedEntityType([CanBeNull] object entityType, [CanBeNull] object derivedType)
+            => string.Format(
+                GetString("ClashingNonOwnedDerivedEntityType", nameof(entityType), nameof(derivedType)),
+                entityType, derivedType);
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);

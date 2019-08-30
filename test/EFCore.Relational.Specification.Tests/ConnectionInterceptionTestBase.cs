@@ -132,14 +132,8 @@ namespace Microsoft.EntityFrameworkCore
             var interceptor3 = new ConnectionInterceptor();
             var interceptor4 = new ConnectionOverridingInterceptor();
             using (var context = CreateContext(
-                new IInterceptor[]
-                {
-                    new NoOpConnectionInterceptor(), interceptor1, interceptor2
-                },
-                new IInterceptor[]
-                {
-                    interceptor3, interceptor4, new NoOpConnectionInterceptor()
-                }))
+                new IInterceptor[] { new NoOpConnectionInterceptor(), interceptor1, interceptor2 },
+                new IInterceptor[] { interceptor3, interceptor4, new NoOpConnectionInterceptor() }))
             {
                 // Test infrastructure uses an open connection, so close it first.
                 var connection = context.Database.GetDbConnection();

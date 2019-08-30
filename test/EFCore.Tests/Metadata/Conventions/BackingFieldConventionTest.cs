@@ -337,6 +337,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 set { m_Eclipse = value; }
             }
         }
+
         private class TheDarkerSideOfTheMoon
         {
             private readonly string m_SpeakToMe;
@@ -421,7 +422,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
             public int OnTheRun
             {
-                get { return (int)m_onTheRun; }
+                get { return m_onTheRun; }
                 set { m_onTheRun = value; }
             }
         }

@@ -1,9 +1,8 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -77,11 +76,14 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         public static bool IsSumWithoutSelector(MethodInfo methodInfo)
             => SumWithoutSelectorMethods.Values.Contains(methodInfo);
+
         public static bool IsSumWithSelector(MethodInfo methodInfo)
             => methodInfo.IsGenericMethod
                && SumWithSelectorMethods.Values.Contains(methodInfo.GetGenericMethodDefinition());
+
         public static bool IsAverageWithoutSelector(MethodInfo methodInfo)
             => AverageWithoutSelectorMethods.Values.Contains(methodInfo);
+
         public static bool IsAverageWithSelector(MethodInfo methodInfo)
             => methodInfo.IsGenericMethod
                && AverageWithSelectorMethods.Values.Contains(methodInfo.GetGenericMethodDefinition());
@@ -115,11 +117,13 @@ namespace Microsoft.EntityFrameworkCore.Query
                 mi => mi.Name == nameof(Queryable.OfType) && mi.GetParameters().Length == 1);
 
             All = queryableMethods.Single(
-                mi => mi.Name == nameof(Queryable.All) && mi.GetParameters().Length == 2 && IsExpressionOfFunc(mi.GetParameters()[1].ParameterType));
+                mi => mi.Name == nameof(Queryable.All) && mi.GetParameters().Length == 2
+                                                       && IsExpressionOfFunc(mi.GetParameters()[1].ParameterType));
             AnyWithoutPredicate = queryableMethods.Single(
                 mi => mi.Name == nameof(Queryable.Any) && mi.GetParameters().Length == 1);
             AnyWithPredicate = queryableMethods.Single(
-                mi => mi.Name == nameof(Queryable.Any) && mi.GetParameters().Length == 2 && IsExpressionOfFunc(mi.GetParameters()[1].ParameterType));
+                mi => mi.Name == nameof(Queryable.Any) && mi.GetParameters().Length == 2
+                                                       && IsExpressionOfFunc(mi.GetParameters()[1].ParameterType));
             Contains = queryableMethods.Single(
                 mi => mi.Name == nameof(Queryable.Contains) && mi.GetParameters().Length == 2);
 
@@ -135,17 +139,21 @@ namespace Microsoft.EntityFrameworkCore.Query
             CountWithoutPredicate = queryableMethods.Single(
                 mi => mi.Name == nameof(Queryable.Count) && mi.GetParameters().Length == 1);
             CountWithPredicate = queryableMethods.Single(
-                mi => mi.Name == nameof(Queryable.Count) && mi.GetParameters().Length == 2 && IsExpressionOfFunc(mi.GetParameters()[1].ParameterType));
+                mi => mi.Name == nameof(Queryable.Count) && mi.GetParameters().Length == 2
+                                                         && IsExpressionOfFunc(mi.GetParameters()[1].ParameterType));
             LongCountWithoutPredicate = queryableMethods.Single(
                 mi => mi.Name == nameof(Queryable.LongCount) && mi.GetParameters().Length == 1);
             LongCountWithPredicate = queryableMethods.Single(
-                mi => mi.Name == nameof(Queryable.LongCount) && mi.GetParameters().Length == 2 && IsExpressionOfFunc(mi.GetParameters()[1].ParameterType));
+                mi => mi.Name == nameof(Queryable.LongCount) && mi.GetParameters().Length == 2
+                                                             && IsExpressionOfFunc(mi.GetParameters()[1].ParameterType));
             MinWithSelector = queryableMethods.Single(
-                mi => mi.Name == nameof(Queryable.Min) && mi.GetParameters().Length == 2 && IsExpressionOfFunc(mi.GetParameters()[1].ParameterType));
+                mi => mi.Name == nameof(Queryable.Min) && mi.GetParameters().Length == 2
+                                                       && IsExpressionOfFunc(mi.GetParameters()[1].ParameterType));
             MinWithoutSelector = queryableMethods.Single(
                 mi => mi.Name == nameof(Queryable.Min) && mi.GetParameters().Length == 1);
             MaxWithSelector = queryableMethods.Single(
-                mi => mi.Name == nameof(Queryable.Max) && mi.GetParameters().Length == 2 && IsExpressionOfFunc(mi.GetParameters()[1].ParameterType));
+                mi => mi.Name == nameof(Queryable.Max) && mi.GetParameters().Length == 2
+                                                       && IsExpressionOfFunc(mi.GetParameters()[1].ParameterType));
             MaxWithoutSelector = queryableMethods.Single(
                 mi => mi.Name == nameof(Queryable.Max) && mi.GetParameters().Length == 1);
 
@@ -156,52 +164,66 @@ namespace Microsoft.EntityFrameworkCore.Query
             FirstWithoutPredicate = queryableMethods.Single(
                 mi => mi.Name == nameof(Queryable.First) && mi.GetParameters().Length == 1);
             FirstWithPredicate = queryableMethods.Single(
-                mi => mi.Name == nameof(Queryable.First) && mi.GetParameters().Length == 2 && IsExpressionOfFunc(mi.GetParameters()[1].ParameterType));
+                mi => mi.Name == nameof(Queryable.First) && mi.GetParameters().Length == 2
+                                                         && IsExpressionOfFunc(mi.GetParameters()[1].ParameterType));
             FirstOrDefaultWithoutPredicate = queryableMethods.Single(
                 mi => mi.Name == nameof(Queryable.FirstOrDefault) && mi.GetParameters().Length == 1);
             FirstOrDefaultWithPredicate = queryableMethods.Single(
-                mi => mi.Name == nameof(Queryable.FirstOrDefault) && mi.GetParameters().Length == 2 && IsExpressionOfFunc(mi.GetParameters()[1].ParameterType));
+                mi => mi.Name == nameof(Queryable.FirstOrDefault) && mi.GetParameters().Length == 2
+                                                                  && IsExpressionOfFunc(mi.GetParameters()[1].ParameterType));
             SingleWithoutPredicate = queryableMethods.Single(
                 mi => mi.Name == nameof(Queryable.Single) && mi.GetParameters().Length == 1);
             SingleWithPredicate = queryableMethods.Single(
-                mi => mi.Name == nameof(Queryable.Single) && mi.GetParameters().Length == 2 && IsExpressionOfFunc(mi.GetParameters()[1].ParameterType));
+                mi => mi.Name == nameof(Queryable.Single) && mi.GetParameters().Length == 2
+                                                          && IsExpressionOfFunc(mi.GetParameters()[1].ParameterType));
             SingleOrDefaultWithoutPredicate = queryableMethods.Single(
                 mi => mi.Name == nameof(Queryable.SingleOrDefault) && mi.GetParameters().Length == 1);
             SingleOrDefaultWithPredicate = queryableMethods.Single(
-                mi => mi.Name == nameof(Queryable.SingleOrDefault) && mi.GetParameters().Length == 2 && IsExpressionOfFunc(mi.GetParameters()[1].ParameterType));
+                mi => mi.Name == nameof(Queryable.SingleOrDefault) && mi.GetParameters().Length == 2
+                                                                   && IsExpressionOfFunc(mi.GetParameters()[1].ParameterType));
             LastWithoutPredicate = queryableMethods.Single(
                 mi => mi.Name == nameof(Queryable.Last) && mi.GetParameters().Length == 1);
             LastWithPredicate = queryableMethods.Single(
-                mi => mi.Name == nameof(Queryable.Last) && mi.GetParameters().Length == 2 && IsExpressionOfFunc(mi.GetParameters()[1].ParameterType));
+                mi => mi.Name == nameof(Queryable.Last) && mi.GetParameters().Length == 2
+                                                        && IsExpressionOfFunc(mi.GetParameters()[1].ParameterType));
             LastOrDefaultWithoutPredicate = queryableMethods.Single(
                 mi => mi.Name == nameof(Queryable.LastOrDefault) && mi.GetParameters().Length == 1);
             LastOrDefaultWithPredicate = queryableMethods.Single(
-                mi => mi.Name == nameof(Queryable.LastOrDefault) && mi.GetParameters().Length == 2 && IsExpressionOfFunc(mi.GetParameters()[1].ParameterType));
+                mi => mi.Name == nameof(Queryable.LastOrDefault) && mi.GetParameters().Length == 2
+                                                                 && IsExpressionOfFunc(mi.GetParameters()[1].ParameterType));
 
             Distinct = queryableMethods.Single(
                 mi => mi.Name == nameof(Queryable.Distinct) && mi.GetParameters().Length == 1);
             Reverse = queryableMethods.Single(
                 mi => mi.Name == nameof(Queryable.Reverse) && mi.GetParameters().Length == 1);
             Where = queryableMethods.Single(
-                mi => mi.Name == nameof(Queryable.Where) && mi.GetParameters().Length == 2 && IsExpressionOfFunc(mi.GetParameters()[1].ParameterType));
+                mi => mi.Name == nameof(Queryable.Where) && mi.GetParameters().Length == 2
+                                                         && IsExpressionOfFunc(mi.GetParameters()[1].ParameterType));
             Select = queryableMethods.Single(
-                mi => mi.Name == nameof(Queryable.Select) && mi.GetParameters().Length == 2 && IsExpressionOfFunc(mi.GetParameters()[1].ParameterType));
+                mi => mi.Name == nameof(Queryable.Select) && mi.GetParameters().Length == 2
+                                                          && IsExpressionOfFunc(mi.GetParameters()[1].ParameterType));
             Skip = queryableMethods.Single(
                 mi => mi.Name == nameof(Queryable.Skip) && mi.GetParameters().Length == 2);
             Take = queryableMethods.Single(
                 mi => mi.Name == nameof(Queryable.Take) && mi.GetParameters().Length == 2);
             SkipWhile = queryableMethods.Single(
-                mi => mi.Name == nameof(Queryable.SkipWhile) && mi.GetParameters().Length == 2 && IsExpressionOfFunc(mi.GetParameters()[1].ParameterType));
+                mi => mi.Name == nameof(Queryable.SkipWhile) && mi.GetParameters().Length == 2
+                                                             && IsExpressionOfFunc(mi.GetParameters()[1].ParameterType));
             TakeWhile = queryableMethods.Single(
-                mi => mi.Name == nameof(Queryable.TakeWhile) && mi.GetParameters().Length == 2 && IsExpressionOfFunc(mi.GetParameters()[1].ParameterType));
+                mi => mi.Name == nameof(Queryable.TakeWhile) && mi.GetParameters().Length == 2
+                                                             && IsExpressionOfFunc(mi.GetParameters()[1].ParameterType));
             OrderBy = queryableMethods.Single(
-                mi => mi.Name == nameof(Queryable.OrderBy) && mi.GetParameters().Length == 2 && IsExpressionOfFunc(mi.GetParameters()[1].ParameterType));
+                mi => mi.Name == nameof(Queryable.OrderBy) && mi.GetParameters().Length == 2
+                                                           && IsExpressionOfFunc(mi.GetParameters()[1].ParameterType));
             OrderByDescending = queryableMethods.Single(
-                mi => mi.Name == nameof(Queryable.OrderByDescending) && mi.GetParameters().Length == 2 && IsExpressionOfFunc(mi.GetParameters()[1].ParameterType));
+                mi => mi.Name == nameof(Queryable.OrderByDescending) && mi.GetParameters().Length == 2
+                                                                     && IsExpressionOfFunc(mi.GetParameters()[1].ParameterType));
             ThenBy = queryableMethods.Single(
-                mi => mi.Name == nameof(Queryable.ThenBy) && mi.GetParameters().Length == 2 && IsExpressionOfFunc(mi.GetParameters()[1].ParameterType));
+                mi => mi.Name == nameof(Queryable.ThenBy) && mi.GetParameters().Length == 2
+                                                          && IsExpressionOfFunc(mi.GetParameters()[1].ParameterType));
             ThenByDescending = queryableMethods.Single(
-                mi => mi.Name == nameof(Queryable.ThenByDescending) && mi.GetParameters().Length == 2 && IsExpressionOfFunc(mi.GetParameters()[1].ParameterType));
+                mi => mi.Name == nameof(Queryable.ThenByDescending) && mi.GetParameters().Length == 2
+                                                                    && IsExpressionOfFunc(mi.GetParameters()[1].ParameterType));
             DefaultIfEmptyWithoutArgument = queryableMethods.Single(
                 mi => mi.Name == nameof(Queryable.DefaultIfEmpty) && mi.GetParameters().Length == 1);
             DefaultIfEmptyWithArgument = queryableMethods.Single(
@@ -212,18 +234,28 @@ namespace Microsoft.EntityFrameworkCore.Query
             GroupJoin = queryableMethods.Single(
                 mi => mi.Name == nameof(Queryable.GroupJoin) && mi.GetParameters().Length == 5);
             SelectManyWithCollectionSelector = queryableMethods.Single(
-                mi => mi.Name == nameof(Queryable.SelectMany) && mi.GetParameters().Length == 3 && IsExpressionOfFunc(mi.GetParameters()[1].ParameterType));
+                mi => mi.Name == nameof(Queryable.SelectMany) && mi.GetParameters().Length == 3
+                                                              && IsExpressionOfFunc(mi.GetParameters()[1].ParameterType));
             SelectManyWithoutCollectionSelector = queryableMethods.Single(
-                mi => mi.Name == nameof(Queryable.SelectMany) && mi.GetParameters().Length == 2 && IsExpressionOfFunc(mi.GetParameters()[1].ParameterType));
+                mi => mi.Name == nameof(Queryable.SelectMany) && mi.GetParameters().Length == 2
+                                                              && IsExpressionOfFunc(mi.GetParameters()[1].ParameterType));
 
             GroupByWithKeySelector = queryableMethods.Single(
-                mi => mi.Name == nameof(Queryable.GroupBy) && mi.GetParameters().Length == 2 && IsExpressionOfFunc(mi.GetParameters()[1].ParameterType));
+                mi => mi.Name == nameof(Queryable.GroupBy) && mi.GetParameters().Length == 2
+                                                           && IsExpressionOfFunc(mi.GetParameters()[1].ParameterType));
             GroupByWithKeyElementSelector = queryableMethods.Single(
-                mi => mi.Name == nameof(Queryable.GroupBy) && mi.GetParameters().Length == 3 && IsExpressionOfFunc(mi.GetParameters()[1].ParameterType) && IsExpressionOfFunc(mi.GetParameters()[2].ParameterType));
+                mi => mi.Name == nameof(Queryable.GroupBy) && mi.GetParameters().Length == 3
+                                                           && IsExpressionOfFunc(mi.GetParameters()[1].ParameterType)
+                                                           && IsExpressionOfFunc(mi.GetParameters()[2].ParameterType));
             GroupByWithKeyElementResultSelector = queryableMethods.Single(
-                mi => mi.Name == nameof(Queryable.GroupBy) && mi.GetParameters().Length == 4 && IsExpressionOfFunc(mi.GetParameters()[1].ParameterType) && IsExpressionOfFunc(mi.GetParameters()[2].ParameterType) && IsExpressionOfFunc(mi.GetParameters()[3].ParameterType, 3));
+                mi => mi.Name == nameof(Queryable.GroupBy) && mi.GetParameters().Length == 4
+                                                           && IsExpressionOfFunc(mi.GetParameters()[1].ParameterType)
+                                                           && IsExpressionOfFunc(mi.GetParameters()[2].ParameterType) && IsExpressionOfFunc(
+                                                               mi.GetParameters()[3].ParameterType, 3));
             GroupByWithKeyResultSelector = queryableMethods.Single(
-                mi => mi.Name == nameof(Queryable.GroupBy) && mi.GetParameters().Length == 3 && IsExpressionOfFunc(mi.GetParameters()[1].ParameterType) && IsExpressionOfFunc(mi.GetParameters()[2].ParameterType, 3));
+                mi => mi.Name == nameof(Queryable.GroupBy) && mi.GetParameters().Length == 3
+                                                           && IsExpressionOfFunc(mi.GetParameters()[1].ParameterType) && IsExpressionOfFunc(
+                                                               mi.GetParameters()[2].ParameterType, 3));
 
             MethodInfo GetSumOrAverageWithoutSelector<T>(string methodName)
                 => queryableMethods.Single(
