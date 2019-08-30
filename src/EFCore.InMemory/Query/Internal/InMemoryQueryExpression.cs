@@ -472,8 +472,9 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                     var readExpressionMap = new Dictionary<IProperty, Expression>();
                     foreach (var property in GetAllPropertiesInHierarchy(entityProjection.EntityType))
                     {
-                        resultValueBufferExpressions.Add(replacingVisitor.Visit(entityProjection.BindProperty(property)));
-                        readExpressionMap[property] = CreateReadValueExpression(property.ClrType, index++, property);
+                        var replacedExpression = replacingVisitor.Visit(entityProjection.BindProperty(property));
+                        resultValueBufferExpressions.Add(replacedExpression);
+                        readExpressionMap[property] = CreateReadValueExpression(replacedExpression.Type, index++, property);
                     }
                     projectionMapping[projection.Key.Prepend(outerMemberInfo)]
                         = new EntityProjectionExpression(entityProjection.EntityType, readExpressionMap);
@@ -494,8 +495,9 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                     var readExpressionMap = new Dictionary<IProperty, Expression>();
                     foreach (var property in GetAllPropertiesInHierarchy(entityProjection.EntityType))
                     {
-                        resultValueBufferExpressions.Add(replacingVisitor.Visit(entityProjection.BindProperty(property)));
-                        readExpressionMap[property] = CreateReadValueExpression(property.ClrType, index++, property);
+                        var replacedExpression = replacingVisitor.Visit(entityProjection.BindProperty(property));
+                        resultValueBufferExpressions.Add(replacedExpression);
+                        readExpressionMap[property] = CreateReadValueExpression(replacedExpression.Type, index++, property);
                     }
                     projectionMapping[projection.Key.Prepend(innerMemberInfo)]
                         = new EntityProjectionExpression(entityProjection.EntityType, readExpressionMap);
@@ -683,8 +685,9 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                     var readExpressionMap = new Dictionary<IProperty, Expression>();
                     foreach (var property in GetAllPropertiesInHierarchy(entityProjection.EntityType))
                     {
-                        resultValueBufferExpressions.Add(replacingVisitor.Visit(entityProjection.BindProperty(property)));
-                        readExpressionMap[property] = CreateReadValueExpression(property.ClrType, index++, property);
+                        var replacedExpression = replacingVisitor.Visit(entityProjection.BindProperty(property));
+                        resultValueBufferExpressions.Add(replacedExpression);
+                        readExpressionMap[property] = CreateReadValueExpression(replacedExpression.Type, index++, property);
                     }
                     projectionMapping[projection.Key.Prepend(outerMemberInfo)]
                         = new EntityProjectionExpression(entityProjection.EntityType, readExpressionMap);
