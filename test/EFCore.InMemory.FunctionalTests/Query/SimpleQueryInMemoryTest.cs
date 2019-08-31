@@ -158,19 +158,11 @@ namespace Microsoft.EntityFrameworkCore.Query
             return base.Projection_when_arithmetic_mixed_subqueries(isAsync);
         }
 
-        #region SelectMany
-
+        [ConditionalTheory(Skip = "Issue#17536")]
         public override Task SelectMany_correlated_with_outer_3(bool isAsync)
         {
-            return Task.CompletedTask;
+            return base.SelectMany_correlated_with_outer_3(isAsync);
         }
-
-        public override Task SelectMany_correlated_with_outer_4(bool isAsync)
-        {
-            return Task.CompletedTask;
-        }
-
-        #endregion
 
         [ConditionalTheory(Skip = "Issue #17531")]
         public override Task DefaultIfEmpty_in_subquery_nested(bool isAsync)
