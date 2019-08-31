@@ -205,8 +205,9 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                         var map = new Dictionary<IProperty, Expression>();
                         foreach (var property in GetAllPropertiesInHierarchy(entityProjection.EntityType))
                         {
-                            var index = AddToProjection(entityProjection.BindProperty(property));
-                            map[property] = CreateReadValueExpression(property.ClrType, index, property);
+                            var expressionToAdd = entityProjection.BindProperty(property);
+                            var index = AddToProjection(expressionToAdd);
+                            map[property] = CreateReadValueExpression(expressionToAdd.Type, index, property);
                         }
                         result[keyValuePair.Key] = new EntityProjectionExpression(entityProjection.EntityType, map);
                     }
@@ -267,8 +268,9 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                     var map = new Dictionary<IProperty, Expression>();
                     foreach (var property in GetAllPropertiesInHierarchy(entityProjection.EntityType))
                     {
-                        var index = AddToProjection(entityProjection.BindProperty(property));
-                        map[property] = CreateReadValueExpression(property.ClrType.MakeNullable(), index, property);
+                        var expressionToAdd = entityProjection.BindProperty(property);
+                        var index = AddToProjection(expressionToAdd);
+                        map[property] = CreateReadValueExpression(expressionToAdd.Type.MakeNullable(), index, property);
                     }
                     result[keyValuePair.Key] = new EntityProjectionExpression(entityProjection.EntityType, map);
                 }
