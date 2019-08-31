@@ -74,11 +74,5 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             return base.SelectMany_nested_navigation_property_required(isAsync);
         }
-
-        [ConditionalTheory(Skip = "issue #16963 Test")]
-        public override Task Include18_3_3(bool isAsync)
-        {
-            return base.Include18_3_3(isAsync);
-        }
     }
 }
