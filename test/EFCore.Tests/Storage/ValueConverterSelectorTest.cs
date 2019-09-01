@@ -281,9 +281,17 @@ namespace Microsoft.EntityFrameworkCore.Storage
         {
             var types = new[]
             {
-                typeof(int), typeof(short), typeof(long), typeof(sbyte),
-                typeof(uint), typeof(ushort), typeof(ulong), typeof(byte),
-                typeof(decimal), typeof(double), typeof(float)
+                typeof(int),
+                typeof(short),
+                typeof(long),
+                typeof(sbyte),
+                typeof(uint),
+                typeof(ushort),
+                typeof(ulong),
+                typeof(byte),
+                typeof(decimal),
+                typeof(double),
+                typeof(float)
             };
 
             foreach (var fromType in types)

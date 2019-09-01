@@ -294,14 +294,17 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     {
                         return _unchangedReferenceMap.Values;
                     }
+
                     if (returnAdded)
                     {
                         return _addedReferenceMap.Values;
                     }
+
                     if (returnModified)
                     {
                         return _modifiedReferenceMap.Values;
                     }
+
                     if (returnDeleted)
                     {
                         return _deletedReferenceMap.Values;

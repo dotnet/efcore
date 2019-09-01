@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -18,6 +18,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         {
             private readonly List<(MethodInfo OrderingMethod, Expression KeySelector)> _pendingOrderings
                 = new List<(MethodInfo OrderingMethod, Expression KeySelector)>();
+
             private readonly string _parameterName;
             private NavigationTreeNode _currentTree;
 
@@ -32,6 +33,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             public virtual Expression Source { get; private set; }
             public virtual ParameterExpression CurrentParameter => CurrentTree.CurrentParameter;
+
             public virtual NavigationTreeNode CurrentTree
             {
                 get => _currentTree;
@@ -41,6 +43,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     _currentTree.SetParameter(_parameterName);
                 }
             }
+
             public virtual Expression PendingSelector { get; private set; }
             public virtual MethodInfo CardinalityReducingGenericMethodInfo { get; private set; }
             public virtual Type SourceElementType => CurrentParameter.Type;
@@ -66,6 +69,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 _pendingOrderings.Clear();
                 _pendingOrderings.Add((orderingMethod, keySelector));
             }
+
             public virtual void AppendPendingOrdering(MethodInfo orderingMethod, Expression keySelector)
             {
                 _pendingOrderings.Add((orderingMethod, keySelector));
@@ -102,6 +106,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             }
 
             public override ExpressionType NodeType => ExpressionType.Extension;
+
             public override Type Type => CardinalityReducingGenericMethodInfo == null
                 ? typeof(IQueryable<>).MakeGenericType(PendingSelector.Type)
                 : PendingSelector.Type;
@@ -114,13 +119,16 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             {
                 Value = value;
             }
+
             public virtual Expression Value { get; private set; }
+
             protected override Expression VisitChildren(ExpressionVisitor visitor)
             {
                 Value = visitor.Visit(Value);
 
                 return this;
             }
+
             public override Type Type => Value.Type;
 
             public virtual void Print(ExpressionPrinter expressionPrinter)
@@ -146,6 +154,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             }
 
             public virtual IEntityType EntityType { get; }
+
             public virtual IDictionary<INavigation, Expression> NavigationMap { get; }
                 = new Dictionary<INavigation, Expression>();
 
@@ -162,10 +171,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             public virtual EntityReference Clone()
             {
-                var result = new EntityReference(EntityType)
-                {
-                    IsOptional = IsOptional
-                };
+                var result = new EntityReference(EntityType) { IsOptional = IsOptional };
                 result.IncludePaths = IncludePaths.Clone(result);
 
                 return result;
@@ -193,7 +199,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 if (IncludePaths.Count > 0)
                 {
                     // TODO: fully render nested structure of include tree
-                    expressionPrinter.Append(" | IncludePaths: " + string.Join(" ", IncludePaths.Select(ip => ip.Value.Count() > 0 ? ip.Key.Name + "->..." : ip.Key.Name)));
+                    expressionPrinter.Append(
+                        " | IncludePaths: " + string.Join(
+                            " ", IncludePaths.Select(ip => ip.Value.Count() > 0 ? ip.Key.Name + "->..." : ip.Key.Name)));
                 }
             }
 
@@ -227,6 +235,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     CurrentParameter = null;
                 }
             }
+
             public virtual NavigationTreeNode Left { get; }
             public virtual NavigationTreeNode Right { get; }
             public virtual ParameterExpression CurrentParameter { get; private set; }
@@ -241,6 +250,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             public override ExpressionType NodeType => ExpressionType.Extension;
             public override Type Type => TransparentIdentifierFactory.Create(Left.Type, Right.Type);
+
             public virtual Expression GetExpression()
             {
                 if (Parent == null)
@@ -330,9 +340,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             public override bool Equals(object obj)
                 => obj != null
-                && (ReferenceEquals(this, obj)
-                    || obj is IncludeTreeNode includeTreeNode
-                        && Equals(includeTreeNode));
+                   && (ReferenceEquals(this, obj)
+                       || obj is IncludeTreeNode includeTreeNode
+                       && Equals(includeTreeNode));
 
             private bool Equals(IncludeTreeNode includeTreeNode)
             {

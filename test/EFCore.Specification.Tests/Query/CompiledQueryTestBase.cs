@@ -213,14 +213,16 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             using (var context = CreateContext())
             {
-                Assert.Equal("Unsupported Binary operator type specified.",
+                Assert.Equal(
+                    "Unsupported Binary operator type specified.",
                     Assert.Throws<InvalidOperationException>(
                         () => query(context, new[] { "ALFKI" }).First().CustomerID).Message);
             }
 
             using (var context = CreateContext())
             {
-                Assert.Equal("Unsupported Binary operator type specified.",
+                Assert.Equal(
+                    "Unsupported Binary operator type specified.",
                     Assert.Throws<InvalidOperationException>(
                         () => query(context, new[] { "ANATR" }).First().CustomerID).Message);
             }
@@ -477,14 +479,16 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             using (var context = CreateContext())
             {
-                Assert.Equal("Unsupported Binary operator type specified.",
+                Assert.Equal(
+                    "Unsupported Binary operator type specified.",
                     (await Assert.ThrowsAsync<InvalidOperationException>(
                         () => query(context, new[] { "ALFKI" }).ToListAsync())).Message);
             }
 
             using (var context = CreateContext())
             {
-                Assert.Equal("Unsupported Binary operator type specified.",
+                Assert.Equal(
+                    "Unsupported Binary operator type specified.",
                     (await Assert.ThrowsAsync<InvalidOperationException>(
                         () => query(context, new[] { "ANATR" }).ToListAsync())).Message);
             }

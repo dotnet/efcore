@@ -65,6 +65,5 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities.FakeProvider
             {
             }
         }
-
     }
 }

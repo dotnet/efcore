@@ -198,9 +198,9 @@ namespace Microsoft.EntityFrameworkCore.Update
                 else
                 {
                     Entry.SetStoreGeneratedValue(Property, value);
-                    if(_sharedColumnModifications != null)
+                    if (_sharedColumnModifications != null)
                     {
-                        foreach(var sharedModification in _sharedColumnModifications)
+                        foreach (var sharedModification in _sharedColumnModifications)
                         {
                             sharedModification.Value = value;
                         }
@@ -243,8 +243,9 @@ namespace Microsoft.EntityFrameworkCore.Update
                         new[] { modification.Property }.Format(),
                         new[] { Property }.FormatColumns()));
             }
-            else if (UseOriginalValueParameter
-                     && !StructuralComparisons.StructuralEqualityComparer.Equals(OriginalValue, modification.OriginalValue))
+
+            if (UseOriginalValueParameter
+                && !StructuralComparisons.StructuralEqualityComparer.Equals(OriginalValue, modification.OriginalValue))
             {
                 if (_sensitiveLoggingEnabled)
                 {

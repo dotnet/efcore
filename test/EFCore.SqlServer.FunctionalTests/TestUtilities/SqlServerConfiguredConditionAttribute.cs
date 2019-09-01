@@ -12,7 +12,8 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
     public sealed class SqlServerConfiguredConditionAttribute : Attribute, ITestCondition
     {
         public ValueTask<bool> IsMetAsync()
-            => new ValueTask<bool>(TestEnvironment.IsConfigured && (RuntimeInformation.IsOSPlatform(OSPlatform.Windows) || !TestEnvironment.IsLocalDb));
+            => new ValueTask<bool>(
+                TestEnvironment.IsConfigured && (RuntimeInformation.IsOSPlatform(OSPlatform.Windows) || !TestEnvironment.IsLocalDb));
 
         public string SkipReason => TestEnvironment.IsLocalDb
             ? "LocalDb is not accessible on this platform. An external SQL Server must be configured."

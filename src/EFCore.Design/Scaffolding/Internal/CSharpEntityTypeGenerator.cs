@@ -341,8 +341,8 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                     if (navigation.ForeignKey.Properties.Count > 1)
                     {
                         foreignKeyAttribute.AddParameter(
-                              _code.Literal(
-                                  string.Join(",", navigation.ForeignKey.Properties.Select(p => p.Name))));
+                            _code.Literal(
+                                string.Join(",", navigation.ForeignKey.Properties.Select(p => p.Name))));
                     }
                     else
                     {
@@ -400,7 +400,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
             private static string StripAttribute([NotNull] string attributeName)
                 => attributeName.EndsWith("Attribute", StringComparison.Ordinal)
-                    ? attributeName[0..^9]
+                    ? attributeName[..^9]
                     : attributeName;
         }
     }

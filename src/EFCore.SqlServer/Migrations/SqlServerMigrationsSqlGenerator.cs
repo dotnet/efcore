@@ -27,8 +27,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
     ///         SQL Server-specific implementation of <see cref="MigrationsSqlGenerator" />.
     ///     </para>
     ///     <para>
-    ///         The service lifetime is <see cref="ServiceLifetime.Scoped"/>. This means that each
-    ///         <see cref="DbContext"/> instance will use its own instance of this service.
+    ///         The service lifetime is <see cref="ServiceLifetime.Scoped" />. This means that each
+    ///         <see cref="DbContext" /> instance will use its own instance of this service.
     ///         The implementation may depend on other services registered with any lifetime.
     ///         The implementation does not need to be thread-safe.
     ///     </para>
@@ -41,7 +41,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         private int _variableCounter;
 
         /// <summary>
-        ///     Creates a new <see cref="SqlServerMigrationsSqlGenerator"/> instance.
+        ///     Creates a new <see cref="SqlServerMigrationsSqlGenerator" /> instance.
         /// </summary>
         /// <param name="dependencies"> Parameter object containing dependencies for this service. </param>
         /// <param name="migrationsAnnotations"> Provider-specific Migrations annotations to use. </param>
@@ -117,9 +117,11 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             MigrationCommandListBuilder builder,
             bool terminate)
         {
-            if (!terminate && operation.Comment != null)
+            if (!terminate
+                && operation.Comment != null)
             {
-                throw new ArgumentException($"When generating migrations SQL for {nameof(AddColumnOperation)}, can't produce unterminated SQL with comments");
+                throw new ArgumentException(
+                    $"When generating migrations SQL for {nameof(AddColumnOperation)}, can't produce unterminated SQL with comments");
             }
 
             if (IsIdentity(operation))
@@ -137,7 +139,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 
                 if (operation.Comment != null)
                 {
-                    AddDescription(builder, operation.Comment,
+                    AddDescription(
+                        builder, operation.Comment,
                         operation.Schema,
                         operation.Table,
                         operation.Name);
@@ -217,9 +220,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             {
                 var dropColumnOperation = new DropColumnOperation
                 {
-                    Schema = operation.Schema,
-                    Table = operation.Table,
-                    Name = operation.Name
+                    Schema = operation.Schema, Table = operation.Table, Name = operation.Name
                 };
                 if (property != null)
                 {
@@ -314,7 +315,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             definitionOperation.AddAnnotations(
                 operation.GetAnnotations().Where(
                     a => a.Name != SqlServerAnnotationNames.ValueGenerationStrategy
-                        && a.Name != SqlServerAnnotationNames.Identity));
+                         && a.Name != SqlServerAnnotationNames.Identity));
 
             ColumnDefinition(
                 operation.Schema,
@@ -345,7 +346,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 var dropDescription = operation.OldColumn.Comment != null;
                 if (dropDescription)
                 {
-                    DropDescription(builder,
+                    DropDescription(
+                        builder,
                         operation.Schema,
                         operation.Table,
                         operation.Name);
@@ -353,7 +355,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 
                 if (operation.Comment != null)
                 {
-                    AddDescription(builder, operation.Comment,
+                    AddDescription(
+                        builder, operation.Comment,
                         operation.Schema,
                         operation.Table,
                         operation.Name,
@@ -472,9 +475,11 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             MigrationCommandListBuilder builder,
             bool terminate = true)
         {
-            if (!terminate && operation.Comment != null)
+            if (!terminate
+                && operation.Comment != null)
             {
-                throw new ArgumentException($"When generating migrations SQL for {nameof(CreateTableOperation)}, can't produce unterminated SQL with comments");
+                throw new ArgumentException(
+                    $"When generating migrations SQL for {nameof(CreateTableOperation)}, can't produce unterminated SQL with comments");
             }
 
             base.Generate(operation, model, builder, terminate: false);
@@ -505,7 +510,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 
             foreach (var column in operation.Columns.Where(c => c.Comment != null))
             {
-                AddDescription(builder, column.Comment,
+                AddDescription(
+                    builder, column.Comment,
                     operation.Schema,
                     operation.Name,
                     column.Name,
@@ -946,8 +952,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                         .IncrementIndent().AppendLine("SET @path = '\\' + @db_name;").DecrementIndent()
                         .AppendLine()
                         .AppendLine("DECLARE @filename NVARCHAR(MAX) = right(@path, charindex('\\', reverse(@path)) - 1);")
-                        .AppendLine("SET @filename = REPLACE(left(@filename, len(@filename) - charindex('.', reverse(@filename))), '''', '''''') + N'_MOD';")
-                        .AppendLine("DECLARE @new_path NVARCHAR(MAX) = REPLACE(CAST(SERVERPROPERTY('InstanceDefaultDataPath') AS NVARCHAR(MAX)), '''', '''''') + @filename;")
+                        .AppendLine(
+                            "SET @filename = REPLACE(left(@filename, len(@filename) - charindex('.', reverse(@filename))), '''', '''''') + N'_MOD';")
+                        .AppendLine(
+                            "DECLARE @new_path NVARCHAR(MAX) = REPLACE(CAST(SERVERPROPERTY('InstanceDefaultDataPath') AS NVARCHAR(MAX)), '''', '''''') + @filename;")
                         .AppendLine()
                         .AppendLine("EXEC(N'");
 
@@ -998,7 +1006,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 var dropDescription = operation.OldTable.Comment != null;
                 if (dropDescription)
                 {
-                    DropDescription(builder,  operation.Schema, operation.Name);
+                    DropDescription(builder, operation.Schema, operation.Name);
                 }
 
                 if (operation.Comment != null)
@@ -1331,7 +1339,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 
             var identity = operation[SqlServerAnnotationNames.Identity] as string;
             if (identity != null
-                || operation[SqlServerAnnotationNames.ValueGenerationStrategy] as SqlServerValueGenerationStrategy? == SqlServerValueGenerationStrategy.IdentityColumn)
+                || operation[SqlServerAnnotationNames.ValueGenerationStrategy] as SqlServerValueGenerationStrategy?
+                == SqlServerValueGenerationStrategy.IdentityColumn)
             {
                 builder.Append(" IDENTITY");
 
@@ -1559,7 +1568,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 .Append(variable)
                 .AppendLine(" = [d].[name]")
                 .AppendLine("FROM [sys].[default_constraints] [d]")
-                .AppendLine("INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]")
+                .AppendLine(
+                    "INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]")
                 .Append("WHERE ([d].[parent_object_id] = OBJECT_ID(")
                 .Append(
                     stringTypeMapping.GenerateSqlLiteral(
@@ -1602,7 +1612,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 
             var createIndexOperations = _operations.SkipWhile(o => o != currentOperation).Skip(1)
                 .OfType<CreateIndexOperation>().ToList();
-            foreach (var index in property.DeclaringEntityType.GetIndexes().Concat(property.DeclaringEntityType.GetDerivedTypes().SelectMany(et => et.GetDeclaredIndexes())))
+            foreach (var index in property.DeclaringEntityType.GetIndexes()
+                .Concat(property.DeclaringEntityType.GetDerivedTypes().SelectMany(et => et.GetDeclaredIndexes())))
             {
                 var indexName = index.GetName();
                 if (createIndexOperations.Any(o => o.Name == indexName))
@@ -1714,6 +1725,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     builder.Append("SET @defaultSchema = SCHEMA_NAME()")
                         .AppendLine(Dependencies.SqlGenerationHelper.StatementTerminator);
                 }
+
                 schemaLiteral = "@defaultSchema";
             }
             else
@@ -1772,6 +1784,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     builder.Append("SET @defaultSchema = SCHEMA_NAME()")
                         .AppendLine(Dependencies.SqlGenerationHelper.StatementTerminator);
                 }
+
                 schemaLiteral = "@defaultSchema";
             }
             else
@@ -1818,6 +1831,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 
         private static bool IsIdentity(ColumnOperation operation)
             => operation[SqlServerAnnotationNames.Identity] != null
-                || operation[SqlServerAnnotationNames.ValueGenerationStrategy] as SqlServerValueGenerationStrategy? == SqlServerValueGenerationStrategy.IdentityColumn;
+               || operation[SqlServerAnnotationNames.ValueGenerationStrategy] as SqlServerValueGenerationStrategy?
+               == SqlServerValueGenerationStrategy.IdentityColumn;
     }
 }

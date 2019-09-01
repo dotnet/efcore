@@ -754,11 +754,7 @@ namespace Microsoft.EntityFrameworkCore
             var modelBuilder = CreateModelBuilder();
 
             modelBuilder.Entity<CompositeKeyAttribute>().HasKey(
-                c => new
-                {
-                    c.IdRow,
-                    c.Name
-                });
+                c => new { c.IdRow, c.Name });
 
             Validate(modelBuilder);
 
@@ -786,11 +782,7 @@ namespace Microsoft.EntityFrameworkCore
             var modelBuilder = CreateModelBuilder();
 
             modelBuilder.Entity<GeneratedEntity>().HasAlternateKey(
-                e => new
-                {
-                    e.Identity,
-                    e.Version
-                });
+                e => new { e.Identity, e.Version });
 
             var entity = modelBuilder.Model.FindEntityType(typeof(GeneratedEntity));
 
@@ -827,12 +819,7 @@ namespace Microsoft.EntityFrameworkCore
             var modelBuilder = CreateModelBuilder();
 
             modelBuilder.Entity<GeneratedEntityNonInteger>().HasAlternateKey(
-                e => new
-                {
-                    e.String,
-                    e.DateTime,
-                    e.Guid
-                });
+                e => new { e.String, e.DateTime, e.Guid });
 
             var entity = modelBuilder.Model.FindEntityType(typeof(GeneratedEntityNonInteger));
 
@@ -1331,12 +1318,12 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Equal(nameof(PartialAnswerRepeating.AnswerId), fk1.Properties.Single().Name);
         }
 
-        public abstract class Answer
+        private abstract class Answer
         {
             public int Id { get; set; }
         }
 
-        public class PartialAnswerBase
+        private class PartialAnswerBase
         {
             public int Id { get; set; }
             public int AnswerId { get; set; }
@@ -1345,20 +1332,20 @@ namespace Microsoft.EntityFrameworkCore
             public virtual Answer Answer { get; set; }
         }
 
-        public class PartialAnswer : PartialAnswerBase
+        private class PartialAnswer : PartialAnswerBase
         {
         }
 
-        public class PartialAnswerRepeating : PartialAnswerBase
+        private class PartialAnswerRepeating : PartialAnswerBase
         {
         }
 
-        public class MultipleAnswers : Answer
+        private class MultipleAnswers : Answer
         {
             public virtual ICollection<PartialAnswer> Answers { get; set; }
         }
 
-        public class MultipleAnswersRepeating : Answer
+        private class MultipleAnswersRepeating : Answer
         {
             public virtual ICollection<PartialAnswerRepeating> Answers { get; set; }
         }
@@ -1423,14 +1410,8 @@ namespace Microsoft.EntityFrameworkCore
                         {
                             RequiredColumn = "Third",
                             RowVersion = new Guid("00000000-0000-0000-0000-000000000003"),
-                            Details = new Details
-                            {
-                                Name = "Third Name"
-                            },
-                            AdditionalDetails = new Details
-                            {
-                                Name = "Third Additional Name"
-                            }
+                            Details = new Details { Name = "Third Name" },
+                            AdditionalDetails = new Details { Name = "Third Additional Name" }
                         });
 
                     context.SaveChanges();
@@ -1449,14 +1430,8 @@ namespace Microsoft.EntityFrameworkCore
                             RequiredColumn = "ValidString",
                             RowVersion = new Guid("00000000-0000-0000-0000-000000000001"),
                             MaxLengthProperty = "Short",
-                            Details = new Details
-                            {
-                                Name = "Third Name"
-                            },
-                            AdditionalDetails = new Details
-                            {
-                                Name = "Third Additional Name"
-                            }
+                            Details = new Details { Name = "Third Name" },
+                            AdditionalDetails = new Details { Name = "Third Additional Name" }
                         });
 
                     context.SaveChanges();
@@ -1471,14 +1446,8 @@ namespace Microsoft.EntityFrameworkCore
                             RequiredColumn = "ValidString",
                             RowVersion = new Guid("00000000-0000-0000-0000-000000000002"),
                             MaxLengthProperty = "VeryVeryVeryVeryVeryVeryLongString",
-                            Details = new Details
-                            {
-                                Name = "Third Name"
-                            },
-                            AdditionalDetails = new Details
-                            {
-                                Name = "Third Additional Name"
-                            }
+                            Details = new Details { Name = "Third Name" },
+                            AdditionalDetails = new Details { Name = "Third Additional Name" }
                         });
 
                     Assert.Equal(
@@ -1873,6 +1842,51 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [ConditionalFact]
+        public virtual void InversePropertyAttribute_pointing_to_same_nav_on_base_causes_ambiguity()
+        {
+            var modelBuilder = CreateModelBuilder();
+            modelBuilder.Entity<MultipleAnswersInverse>();
+            modelBuilder.Entity<MultipleAnswersRepeatingInverse>();
+
+            Assert.Equal(
+                CoreStrings.WarningAsErrorTemplate(
+                    CoreEventId.MultipleInversePropertiesSameTargetWarning,
+                CoreResources.LogMultipleInversePropertiesSameTarget(new TestLogger<TestLoggingDefinitions>())
+                    .GenerateMessage(
+                    $"{nameof(MultipleAnswersRepeatingInverse)}.{nameof(MultipleAnswersRepeatingInverse.Answers)},"
+                    + $" {nameof(MultipleAnswersInverse)}.{nameof(MultipleAnswersInverse.Answers)}",
+                         nameof(PartialAnswerInverse.Answer)),
+                "CoreEventId.MultipleInversePropertiesSameTargetWarning"),
+                Assert.Throws<InvalidOperationException>(() => modelBuilder.FinalizeModel()).Message);
+        }
+
+        private class PartialAnswerInverse
+        {
+            public int Id { get; set; }
+            public int AnswerId { get; set; }
+            public virtual AnswerBaseInverse Answer { get; set; }
+        }
+
+        private class PartialAnswerRepeatingInverse : PartialAnswerInverse { }
+
+        private abstract class AnswerBaseInverse
+        {
+            public int Id { get; set; }
+        }
+
+        private class MultipleAnswersInverse : AnswerBaseInverse
+        {
+            [InverseProperty("Answer")]
+            public virtual ICollection<PartialAnswerInverse> Answers { get; set; }
+        }
+
+        private class MultipleAnswersRepeatingInverse : AnswerBaseInverse
+        {
+            [InverseProperty("Answer")]
+            public virtual IEnumerable<PartialAnswerRepeatingInverse> Answers { get; set; }
+        }
+
+        [ConditionalFact]
         public virtual void ForeignKeyAttribute_creates_two_relationships_if_applied_on_property_on_both_side()
         {
             var modelBuilder = CreateModelBuilder();
@@ -1946,8 +1960,9 @@ namespace Microsoft.EntityFrameworkCore
             var logEntry = Fixture.ListLoggerFactory.Log.Single();
             Assert.Equal(LogLevel.Warning, logEntry.Level);
             Assert.Equal(
-                CoreResources.LogConflictingForeignKeyAttributesOnNavigationAndProperty(new TestLogger<TestLoggingDefinitions>()).GenerateMessage(
-                    nameof(Author), nameof(Author.AuthorDetails), nameof(AuthorDetails), nameof(AuthorDetails.AuthorId)),
+                CoreResources.LogConflictingForeignKeyAttributesOnNavigationAndProperty(new TestLogger<TestLoggingDefinitions>())
+                    .GenerateMessage(
+                        nameof(Author), nameof(Author.AuthorDetails), nameof(AuthorDetails), nameof(AuthorDetails.AuthorId)),
                 logEntry.Message);
         }
 
@@ -2088,10 +2103,7 @@ namespace Microsoft.EntityFrameworkCore
                 context =>
                 {
                     context.Set<BookDetails>().Add(
-                        new BookDetails
-                        {
-                            AnotherBookId = 1
-                        });
+                        new BookDetails { AnotherBookId = 1 });
 
                     context.SaveChanges();
                 });
@@ -2130,14 +2142,8 @@ namespace Microsoft.EntityFrameworkCore
                         {
                             RequiredColumn = "ValidString",
                             RowVersion = new Guid("00000000-0000-0000-0000-000000000001"),
-                            Details = new Details
-                            {
-                                Name = "One"
-                            },
-                            AdditionalDetails = new Details
-                            {
-                                Name = "Two"
-                            }
+                            Details = new Details { Name = "One" },
+                            AdditionalDetails = new Details { Name = "Two" }
                         });
 
                     context.SaveChanges();
@@ -2151,14 +2157,8 @@ namespace Microsoft.EntityFrameworkCore
                         {
                             RequiredColumn = null,
                             RowVersion = new Guid("00000000-0000-0000-0000-000000000002"),
-                            Details = new Details
-                            {
-                                Name = "One"
-                            },
-                            AdditionalDetails = new Details
-                            {
-                                Name = "Two"
-                            }
+                            Details = new Details { Name = "One" },
+                            AdditionalDetails = new Details { Name = "Two" }
                         });
 
                     Assert.Equal(
@@ -2174,10 +2174,7 @@ namespace Microsoft.EntityFrameworkCore
                 context =>
                 {
                     context.Set<Two>().Add(
-                        new Two
-                        {
-                            Data = "ValidString"
-                        });
+                        new Two { Data = "ValidString" });
 
                     context.SaveChanges();
                 });
@@ -2186,10 +2183,7 @@ namespace Microsoft.EntityFrameworkCore
                 context =>
                 {
                     context.Set<Two>().Add(
-                        new Two
-                        {
-                            Data = "ValidButLongString"
-                        });
+                        new Two { Data = "ValidButLongString" });
 
                     Assert.Equal(
                         "An error occurred while updating the entries. See the inner exception for details.",
@@ -2299,50 +2293,25 @@ namespace Microsoft.EntityFrameworkCore
                     {
                         RequiredColumn = "First",
                         RowVersion = new Guid("00000001-0000-0000-0000-000000000001"),
-                        Details = new Details
-                        {
-                            Name = "First Name"
-                        },
-                        AdditionalDetails = new Details
-                        {
-                            Name = "First Additional Name"
-                        }
+                        Details = new Details { Name = "First Name" },
+                        AdditionalDetails = new Details { Name = "First Additional Name" }
                     });
                 context.Set<One>().Add(
                     new One
                     {
                         RequiredColumn = "Second",
                         RowVersion = new Guid("00000001-0000-0000-0000-000000000001"),
-                        Details = new Details
-                        {
-                            Name = "Second Name"
-                        },
-                        AdditionalDetails = new Details
-                        {
-                            Name = "Second Additional Name"
-                        }
+                        Details = new Details { Name = "Second Name" },
+                        AdditionalDetails = new Details { Name = "Second Additional Name" }
                     });
 
                 context.Set<Two>().Add(
-                    new Two
-                    {
-                        Data = "First"
-                    });
+                    new Two { Data = "First" });
                 context.Set<Two>().Add(
-                    new Two
-                    {
-                        Data = "Second"
-                    });
+                    new Two { Data = "Second" });
 
                 context.Set<Book>().Add(
-                    new Book
-                    {
-                        Id = 1,
-                        AdditionalDetails = new Details
-                        {
-                            Name = "Book Name"
-                        }
-                    });
+                    new Book { Id = 1, AdditionalDetails = new Details { Name = "Book Name" } });
 
                 context.SaveChanges();
             }

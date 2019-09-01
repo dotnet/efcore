@@ -74,8 +74,10 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             modelBuilder.Entity<Order>().ToContainer("Orders").HasPartitionKey(c => c.PartitionId);
 
             var model = modelBuilder.Model;
-            VerifyError(CosmosStrings.PartitionKeyStoreNameMismatch(
-                nameof(Customer.PartitionId), typeof(Customer).Name, "pk", nameof(Order.PartitionId), typeof(Order).Name, nameof(Order.PartitionId)), model);
+            VerifyError(
+                CosmosStrings.PartitionKeyStoreNameMismatch(
+                    nameof(Customer.PartitionId), typeof(Customer).Name, "pk", nameof(Order.PartitionId), typeof(Order).Name,
+                    nameof(Order.PartitionId)), model);
         }
 
         [ConditionalFact]
@@ -87,8 +89,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 .Property(c => c.PartitionId).HasConversion<int>();
 
             var model = modelBuilder.Model;
-            VerifyError(CosmosStrings.PartitionKeyNonStringStoreType(
-                nameof(Customer.PartitionId), typeof(Order).Name, "int"), model);
+            VerifyError(
+                CosmosStrings.PartitionKeyNonStringStoreType(
+                    nameof(Customer.PartitionId), typeof(Order).Name, "int"), model);
         }
 
         [ConditionalFact]

@@ -142,10 +142,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                     continue;
                 }
 
-                var navigations = new List<PropertyInfo>
-                {
-                    navigationPropertyInfo
-                };
+                var navigations = new List<PropertyInfo> { navigationPropertyInfo };
                 var inverseNavigationCandidates = new List<PropertyInfo>();
 
                 if (!entityType.IsKeyless)
@@ -223,7 +220,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             return candidates;
         }
 
-
         private static IReadOnlyList<RelationshipCandidate> RemoveIncompatibleWithExistingRelationships(
             IReadOnlyList<RelationshipCandidate> relationshipCandidates,
             IConventionEntityTypeBuilder entityTypeBuilder)
@@ -281,10 +277,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                         filteredRelationshipCandidates.Add(
                             new RelationshipCandidate(
                                 targetEntityTypeBuilder,
-                                new List<PropertyInfo>
-                                {
-                                    navigationProperty
-                                },
+                                new List<PropertyInfo> { navigationProperty },
                                 new List<PropertyInfo>()));
 
                         if (relationshipCandidate.TargetTypeBuilder.Metadata == entityTypeBuilder.Metadata
@@ -321,14 +314,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                         filteredRelationshipCandidates.Add(
                             new RelationshipCandidate(
                                 targetEntityTypeBuilder,
-                                new List<PropertyInfo>
-                                {
-                                    navigationProperty
-                                },
-                                new List<PropertyInfo>
-                                {
-                                    compatibleInverse
-                                })
+                                new List<PropertyInfo> { navigationProperty },
+                                new List<PropertyInfo> { compatibleInverse })
                         );
 
                         if (relationshipCandidate.TargetTypeBuilder.Metadata == entityTypeBuilder.Metadata
@@ -574,17 +561,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                     {
                         Dependencies.Logger.MultipleNavigationProperties(
                             relationshipCandidate.NavigationProperties.Count == 0
-                                ? new[]
-                                {
-                                    new Tuple<MemberInfo, Type>(null, targetEntityType.ClrType)
-                                }
+                                ? new[] { new Tuple<MemberInfo, Type>(null, targetEntityType.ClrType) }
                                 : relationshipCandidate.NavigationProperties.Select(
                                     n => new Tuple<MemberInfo, Type>(n, entityType.ClrType)),
                             relationshipCandidate.InverseProperties.Count == 0
-                                ? new[]
-                                {
-                                    new Tuple<MemberInfo, Type>(null, targetEntityType.ClrType)
-                                }
+                                ? new[] { new Tuple<MemberInfo, Type>(null, targetEntityType.ClrType) }
                                 : relationshipCandidate.InverseProperties.Select(
                                     n => new Tuple<MemberInfo, Type>(n, targetEntityType.ClrType)));
                     }

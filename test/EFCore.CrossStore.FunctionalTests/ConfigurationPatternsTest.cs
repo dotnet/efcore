@@ -5,7 +5,6 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.TestUtilities;
-using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
@@ -267,11 +266,7 @@ namespace Microsoft.EntityFrameworkCore
                 {
                     Assert.Equal(0, context0.ChangeTracker.Entries().Count());
                     var blog0 = context0.Add(
-                        new Blog
-                        {
-                            Id = 1,
-                            Name = "Giddyup"
-                        }).Entity;
+                        new Blog { Id = 1, Name = "Giddyup" }).Entity;
                     Assert.Same(blog0, context0.ChangeTracker.Entries().Select(e => e.Entity).Single());
                     await context0.SaveChangesAsync();
 

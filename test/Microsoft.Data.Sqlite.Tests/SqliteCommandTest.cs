@@ -9,7 +9,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Data.Sqlite.Properties;
 using Xunit;
-
 using static SQLitePCL.raw;
 
 namespace Microsoft.Data.Sqlite
@@ -886,7 +885,8 @@ namespace Microsoft.Data.Sqlite
             using (var connection = new SqliteConnection("Data Source=:memory:"))
             {
                 connection.Open();
-                connection.ExecuteNonQuery(@"
+                connection.ExecuteNonQuery(
+                    @"
                     CREATE TABLE Test(Value);
                     INSERT INTO Test VALUES(1), (2);");
 

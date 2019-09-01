@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using JetBrains.Annotations;
@@ -17,7 +17,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         new IConventionDbFunction Function { get; }
 
         /// <summary>
-        ///     The <see cref="IConventionDbFunctionParameterBuilder"/> for building a by-convention function parameter.
+        ///     The <see cref="IConventionDbFunctionParameterBuilder" /> for building a by-convention function parameter.
         /// </summary>
         IConventionDbFunctionParameterBuilder Builder { get; }
 

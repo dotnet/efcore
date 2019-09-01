@@ -448,10 +448,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         {
             if (key == null)
             {
-                var line = new List<string>
-                {
-                    $".{nameof(EntityTypeBuilder.HasNoKey)}()"
-                };
+                var line = new List<string> { $".{nameof(EntityTypeBuilder.HasNoKey)}()" };
 
                 AppendMultiLineFluentApi(entityType, line);
 
@@ -482,10 +479,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 }
             }
 
-            var lines = new List<string>
-            {
-                $".{nameof(EntityTypeBuilder.HasKey)}(e => {GenerateLambdaToKey(key.Properties, "e")})"
-            };
+            var lines = new List<string> { $".{nameof(EntityTypeBuilder.HasKey)}(e => {GenerateLambdaToKey(key.Properties, "e")})" };
 
             if (explicitName)
             {
@@ -548,10 +542,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
         private void GenerateIndex(IIndex index)
         {
-            var lines = new List<string>
-            {
-                $".{nameof(EntityTypeBuilder.HasIndex)}(e => {GenerateLambdaToKey(index.Properties, "e")})"
-            };
+            var lines = new List<string> { $".{nameof(EntityTypeBuilder.HasIndex)}(e => {GenerateLambdaToKey(index.Properties, "e")})" };
 
             var annotations = index.GetAnnotations().ToList();
 
@@ -603,10 +594,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
         private void GenerateProperty(IProperty property, bool useDataAnnotations)
         {
-            var lines = new List<string>
-            {
-                $".{nameof(EntityTypeBuilder.Property)}(e => e.{property.Name})"
-            };
+            var lines = new List<string> { $".{nameof(EntityTypeBuilder.Property)}(e => e.{property.Name})" };
 
             var annotations = property.GetAnnotations().ToList();
 
@@ -765,10 +753,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 case 1:
                     return;
                 case 2:
-                    lines = new List<string>
-                    {
-                        lines[0] + lines[1]
-                    };
+                    lines = new List<string> { lines[0] + lines[1] };
                     break;
             }
 
@@ -782,9 +767,10 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
             var lines = new List<string>
             {
-                $".{nameof(EntityTypeBuilder.HasOne)}(" + (foreignKey.DependentToPrincipal != null ? $"d => d.{foreignKey.DependentToPrincipal.Name}" : null) + ")",
+                $".{nameof(EntityTypeBuilder.HasOne)}("
+                + (foreignKey.DependentToPrincipal != null ? $"d => d.{foreignKey.DependentToPrincipal.Name}" : null) + ")",
                 $".{(foreignKey.IsUnique ? nameof(ReferenceNavigationBuilder.WithOne) : nameof(ReferenceNavigationBuilder.WithMany))}"
-                + $"(" + (foreignKey.PrincipalToDependent != null ? $"p => p.{foreignKey.PrincipalToDependent.Name}" : null) + ")"
+                + "(" + (foreignKey.PrincipalToDependent != null ? $"p => p.{foreignKey.PrincipalToDependent.Name}" : null) + ")"
             };
 
             if (!foreignKey.PrincipalKey.IsPrimaryKey())
@@ -792,13 +778,13 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 canUseDataAnnotations = false;
                 lines.Add(
                     $".{nameof(ReferenceReferenceBuilder.HasPrincipalKey)}"
-                    + (foreignKey.IsUnique ? $"<{((ITypeBase)foreignKey.PrincipalEntityType).DisplayName()}>" : "")
+                    + (foreignKey.IsUnique ? $"<{foreignKey.PrincipalEntityType.DisplayName()}>" : "")
                     + $"(p => {GenerateLambdaToKey(foreignKey.PrincipalKey.Properties, "p")})");
             }
 
             lines.Add(
                 $".{nameof(ReferenceReferenceBuilder.HasForeignKey)}"
-                + (foreignKey.IsUnique ? $"<{((ITypeBase)foreignKey.DeclaringEntityType).DisplayName()}>" : "")
+                + (foreignKey.IsUnique ? $"<{foreignKey.DeclaringEntityType.DisplayName()}>" : "")
                 + $"(d => {GenerateLambdaToKey(foreignKey.Properties, "d")})");
 
             var defaultOnDeleteAction = foreignKey.IsRequired
@@ -817,7 +803,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             {
                 canUseDataAnnotations = false;
                 lines.Add(
-                    $".HasConstraintName" +
+                    ".HasConstraintName" +
                     $"({_code.Literal(foreignKey.GetConstraintName())})");
                 RemoveAnnotation(ref annotations, RelationalAnnotationNames.Name);
             }
@@ -869,10 +855,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 parameters += $", {_code.Literal(sequence.Schema)}";
             }
 
-            var lines = new List<string>
-            {
-                $"modelBuilder.{methodName}({parameters})"
-            };
+            var lines = new List<string> { $"modelBuilder.{methodName}({parameters})" };
 
             if (sequence.StartValue != Sequence.DefaultStartValue)
             {
@@ -901,10 +884,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
             if (lines.Count == 2)
             {
-                lines = new List<string>
-                {
-                    lines[0] + lines[1]
-                };
+                lines = new List<string> { lines[0] + lines[1] };
             }
 
             _sb.AppendLine();
@@ -929,8 +909,8 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             return properties.Count <= 0
                 ? ""
                 : properties.Count == 1
-                ? $"{lambdaIdentifier}.{properties[0].Name}"
-                : $"new {{ {string.Join(", ", properties.Select(p => lambdaIdentifier + "." + p.Name))} }}";
+                    ? $"{lambdaIdentifier}.{properties[0].Name}"
+                    : $"new {{ {string.Join(", ", properties.Select(p => lambdaIdentifier + "." + p.Name))} }}";
         }
 
         private static void RemoveAnnotation(ref List<IAnnotation> annotations, string annotationName)

@@ -202,6 +202,22 @@ FROM [Orders] AS [o]
 GROUP BY [o].[CustomerID]");
         }
 
+        public override async Task GroupBy_aggregate_projecting_conditional_expression(bool isAsync)
+        {
+            await base.GroupBy_aggregate_projecting_conditional_expression(isAsync);
+
+            AssertSql(
+                @"SELECT [o].[OrderDate] AS [Key], CASE
+    WHEN COUNT(*) = 0 THEN 1
+    ELSE SUM(CASE
+        WHEN ([o].[OrderID] % 2) = 0 THEN 1
+        ELSE 0
+    END) / COUNT(*)
+END AS [SomeValue]
+FROM [Orders] AS [o]
+GROUP BY [o].[OrderDate]");
+        }
+
         public override async Task GroupBy_aggregate_projecting_conditional_expression_based_on_group_key(bool isAsync)
         {
             await base.GroupBy_aggregate_projecting_conditional_expression_based_on_group_key(isAsync);

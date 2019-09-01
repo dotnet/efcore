@@ -170,7 +170,7 @@ WHERE (c[""Discriminator""] = ""Customer"")");
             await base.Select_anonymous_constant_in_expression(isAsync);
 
             AssertSql(
-                 @"SELECT c[""CustomerID""]
+                @"SELECT c[""CustomerID""]
 FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
@@ -501,10 +501,12 @@ ORDER BY c[""OrderID""]");
         }
 
         [ConditionalTheory(Skip = "Issue #17246")]
-        public override async Task Project_single_element_from_collection_with_OrderBy_Distinct_and_FirstOrDefault_followed_by_projecting_length(
-            bool isAsync)
+        public override async Task
+            Project_single_element_from_collection_with_OrderBy_Distinct_and_FirstOrDefault_followed_by_projecting_length(
+                bool isAsync)
         {
-            await base.Project_single_element_from_collection_with_OrderBy_Distinct_and_FirstOrDefault_followed_by_projecting_length(isAsync);
+            await base.Project_single_element_from_collection_with_OrderBy_Distinct_and_FirstOrDefault_followed_by_projecting_length(
+                isAsync);
 
             AssertSql("");
         }

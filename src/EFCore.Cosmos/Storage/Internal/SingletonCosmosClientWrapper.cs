@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -44,8 +44,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
             _key = options.AccountKey;
             var configuration = new CosmosClientOptions
             {
-                ApplicationName = _userAgent,
-                ConnectionMode = options.ConnectionMode ?? ConnectionMode.Direct
+                ApplicationName = _userAgent, ConnectionMode = options.ConnectionMode ?? ConnectionMode.Direct
             };
 
             if (options.Region != null)

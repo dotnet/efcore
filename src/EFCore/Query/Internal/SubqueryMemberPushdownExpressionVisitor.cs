@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -13,32 +13,32 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
     public class SubqueryMemberPushdownExpressionVisitor : ExpressionVisitor
     {
         private static readonly List<MethodInfo> _supportedMethods = new List<MethodInfo>
-            {
-                QueryableMethods.FirstWithPredicate,
-                QueryableMethods.FirstWithoutPredicate,
-                QueryableMethods.FirstOrDefaultWithPredicate,
-                QueryableMethods.FirstOrDefaultWithoutPredicate,
-                QueryableMethods.SingleWithPredicate,
-                QueryableMethods.SingleWithoutPredicate,
-                QueryableMethods.SingleOrDefaultWithPredicate,
-                QueryableMethods.SingleOrDefaultWithoutPredicate,
-                QueryableMethods.LastWithPredicate,
-                QueryableMethods.LastWithoutPredicate,
-                QueryableMethods.LastOrDefaultWithPredicate,
-                QueryableMethods.LastOrDefaultWithoutPredicate,
-                //QueryableMethodProvider.ElementAtMethodInfo,
-                //QueryableMethodProvider.ElementAtOrDefaultMethodInfo
-            };
+        {
+            QueryableMethods.FirstWithPredicate,
+            QueryableMethods.FirstWithoutPredicate,
+            QueryableMethods.FirstOrDefaultWithPredicate,
+            QueryableMethods.FirstOrDefaultWithoutPredicate,
+            QueryableMethods.SingleWithPredicate,
+            QueryableMethods.SingleWithoutPredicate,
+            QueryableMethods.SingleOrDefaultWithPredicate,
+            QueryableMethods.SingleOrDefaultWithoutPredicate,
+            QueryableMethods.LastWithPredicate,
+            QueryableMethods.LastWithoutPredicate,
+            QueryableMethods.LastOrDefaultWithPredicate,
+            QueryableMethods.LastOrDefaultWithoutPredicate
+            //QueryableMethodProvider.ElementAtMethodInfo,
+            //QueryableMethodProvider.ElementAtOrDefaultMethodInfo
+        };
 
         private static readonly IDictionary<MethodInfo, MethodInfo> _predicateLessMethodInfo = new Dictionary<MethodInfo, MethodInfo>
-            {
-                { QueryableMethods.FirstWithPredicate, QueryableMethods.FirstWithoutPredicate },
-                { QueryableMethods.FirstOrDefaultWithPredicate, QueryableMethods.FirstOrDefaultWithoutPredicate },
-                { QueryableMethods.SingleWithPredicate, QueryableMethods.SingleWithoutPredicate },
-                { QueryableMethods.SingleOrDefaultWithPredicate, QueryableMethods.SingleOrDefaultWithoutPredicate },
-                { QueryableMethods.LastWithPredicate, QueryableMethods.LastWithoutPredicate },
-                { QueryableMethods.LastOrDefaultWithPredicate, QueryableMethods.LastOrDefaultWithoutPredicate },
-            };
+        {
+            { QueryableMethods.FirstWithPredicate, QueryableMethods.FirstWithoutPredicate },
+            { QueryableMethods.FirstOrDefaultWithPredicate, QueryableMethods.FirstOrDefaultWithoutPredicate },
+            { QueryableMethods.SingleWithPredicate, QueryableMethods.SingleWithoutPredicate },
+            { QueryableMethods.SingleOrDefaultWithPredicate, QueryableMethods.SingleOrDefaultWithoutPredicate },
+            { QueryableMethods.LastWithPredicate, QueryableMethods.LastWithoutPredicate },
+            { QueryableMethods.LastOrDefaultWithPredicate, QueryableMethods.LastOrDefaultWithoutPredicate }
+        };
 
         protected override Expression VisitMember(MemberExpression memberExpression)
         {
@@ -53,8 +53,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     {
                         var memberAccessExpression = Expression.MakeMemberAccess(target, memberExpression.Member);
                         return nullable && !memberAccessExpression.Type.IsNullableType()
-                        ? Expression.Convert(memberAccessExpression, memberAccessExpression.Type.MakeNullable())
-                        : (Expression)memberAccessExpression;
+                            ? Expression.Convert(memberAccessExpression, memberAccessExpression.Type.MakeNullable())
+                            : (Expression)memberAccessExpression;
                     },
                     memberExpression.Type);
             }

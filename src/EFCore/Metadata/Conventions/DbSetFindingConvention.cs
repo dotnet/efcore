@@ -8,8 +8,8 @@ using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 {
     /// <summary>
-    ///     A convention that adds entity types based on the <see cref="DbSet{TEntity}"/> properties defined on the
-    ///     derived <see cref="DbContext"/> class.
+    ///     A convention that adds entity types based on the <see cref="DbSet{TEntity}" /> properties defined on the
+    ///     derived <see cref="DbContext" /> class.
     /// </summary>
     public class DbSetFindingConvention : IModelInitializedConvention
     {
@@ -32,7 +32,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// </summary>
         /// <param name="modelBuilder"> The builder for the model. </param>
         /// <param name="context"> Additional information associated with convention execution. </param>
-        public virtual void ProcessModelInitialized(IConventionModelBuilder modelBuilder, IConventionContext<IConventionModelBuilder> context)
+        public virtual void ProcessModelInitialized(
+            IConventionModelBuilder modelBuilder, IConventionContext<IConventionModelBuilder> context)
         {
             foreach (var setInfo in Dependencies.SetFinder.FindSets(Dependencies.ContextType))
             {
