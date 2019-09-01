@@ -59,15 +59,9 @@ namespace Microsoft.EntityFrameworkCore
                 for (var i = 0; i < 10; i++)
                 {
                     context.Add(
-                        new Pegasus
-                        {
-                            Name = "Rainbow Dash " + i
-                        });
+                        new Pegasus { Name = "Rainbow Dash " + i });
                     context.Add(
-                        new Pegasus
-                        {
-                            Name = "Fluttershy " + i
-                        });
+                        new Pegasus { Name = "Fluttershy " + i });
                 }
 
                 context.SaveChanges();
@@ -135,22 +129,13 @@ namespace Microsoft.EntityFrameworkCore
                     for (var i = 0; i < 29; i++)
                     {
                         context1.Add(
-                            new Pegasus
-                            {
-                                Name = "Rainbow Dash " + i
-                            });
+                            new Pegasus { Name = "Rainbow Dash " + i });
 
                         context2.Add(
-                            new Pegasus
-                            {
-                                Name = "Fluttershy " + i
-                            });
+                            new Pegasus { Name = "Fluttershy " + i });
 
                         context1.Add(
-                            new Pegasus
-                            {
-                                Name = "Fluttershy " + i
-                            });
+                            new Pegasus { Name = "Fluttershy " + i });
                     }
 
                     context1.SaveChanges();
@@ -201,15 +186,9 @@ namespace Microsoft.EntityFrameworkCore
                 for (var i = 0; i < 10; i++)
                 {
                     await context.AddAsync(
-                        new Pegasus
-                        {
-                            Name = "Rainbow Dash " + i
-                        });
+                        new Pegasus { Name = "Rainbow Dash " + i });
                     await context.AddAsync(
-                        new Pegasus
-                        {
-                            Name = "Fluttershy " + i
-                        });
+                        new Pegasus { Name = "Fluttershy " + i });
                 }
 
                 await context.SaveChangesAsync();
@@ -304,17 +283,9 @@ namespace Microsoft.EntityFrameworkCore
                 for (var i = 1; i < 11; i++)
                 {
                     context.Add(
-                        new Pegasus
-                        {
-                            Name = "Rainbow Dash " + i,
-                            Identifier = i * 100 + idOffset
-                        });
+                        new Pegasus { Name = "Rainbow Dash " + i, Identifier = i * 100 + idOffset });
                     context.Add(
-                        new Pegasus
-                        {
-                            Name = "Fluttershy " + i,
-                            Identifier = i * 100 + idOffset + 1
-                        });
+                        new Pegasus { Name = "Fluttershy " + i, Identifier = i * 100 + idOffset + 1 });
                 }
 
                 context.SaveChanges();
@@ -419,15 +390,9 @@ namespace Microsoft.EntityFrameworkCore
                 for (var i = 0; i < 10; i++)
                 {
                     context.Add(
-                        new Unicon
-                        {
-                            Name = "Twilight Sparkle " + i
-                        });
+                        new Unicon { Name = "Twilight Sparkle " + i });
                     context.Add(
-                        new Unicon
-                        {
-                            Name = "Rarity " + i
-                        });
+                        new Unicon { Name = "Rarity " + i });
                 }
 
                 context.SaveChanges();

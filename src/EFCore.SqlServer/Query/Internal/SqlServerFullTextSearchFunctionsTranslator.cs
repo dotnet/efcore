@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -38,11 +38,12 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
         private static readonly IDictionary<MethodInfo, string> _functionMapping
             = new Dictionary<MethodInfo, string>
             {
-                {_freeTextMethodInfo, FreeTextFunctionName },
-                {_freeTextMethodInfoWithLanguage, FreeTextFunctionName },
-                {_containsMethodInfo, ContainsFunctionName },
-                {_containsMethodInfoWithLanguage, ContainsFunctionName },
+                { _freeTextMethodInfo, FreeTextFunctionName },
+                { _freeTextMethodInfoWithLanguage, FreeTextFunctionName },
+                { _containsMethodInfo, ContainsFunctionName },
+                { _containsMethodInfoWithLanguage, ContainsFunctionName }
             };
+
         private readonly ISqlExpressionFactory _sqlExpressionFactory;
 
         public SqlServerFullTextSearchFunctionsTranslator(
@@ -64,11 +65,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
                 var typeMapping = propertyReference.TypeMapping;
                 var freeText = _sqlExpressionFactory.ApplyTypeMapping(arguments[2], typeMapping);
 
-                var functionArguments = new List<SqlExpression>
-                {
-                    propertyReference,
-                    freeText
-                };
+                var functionArguments = new List<SqlExpression> { propertyReference, freeText };
 
                 if (arguments.Count == 4)
                 {

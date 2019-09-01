@@ -291,7 +291,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 typeof(MultipleNavigationsSecond), ConfigurationSource.Convention);
 
             entityBuilderFirst.HasRelationship(
-                entityBuilderSecond.Metadata, MultipleNavigationsFirst.CollectionNavigationProperty, null, ConfigurationSource.DataAnnotation);
+                entityBuilderSecond.Metadata, MultipleNavigationsFirst.CollectionNavigationProperty, null,
+                ConfigurationSource.DataAnnotation);
 
             Assert.Same(entityBuilderFirst, RunConvention(entityBuilderFirst));
 
@@ -357,7 +358,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 typeof(MultipleNavigationsSecond), ConfigurationSource.Convention);
 
             entityBuilderFirst.HasRelationship(
-                entityBuilderSecond.Metadata, MultipleNavigationsFirst.CollectionNavigationProperty, null, ConfigurationSource.DataAnnotation);
+                entityBuilderSecond.Metadata, MultipleNavigationsFirst.CollectionNavigationProperty, null,
+                ConfigurationSource.DataAnnotation);
 
             Assert.Same(entityBuilderSecond, RunConvention(entityBuilderSecond));
 
@@ -1116,7 +1118,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         private void Cleanup(InternalModelBuilder modelBuilder)
         {
             new ModelCleanupConvention(CreateDependencies())
-                .ProcessModelFinalized(modelBuilder,
+                .ProcessModelFinalized(
+                    modelBuilder,
                     new ConventionContext<IConventionModelBuilder>(modelBuilder.Metadata.ConventionDispatcher));
         }
 

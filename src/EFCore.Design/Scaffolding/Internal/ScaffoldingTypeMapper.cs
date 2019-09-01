@@ -80,7 +80,9 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                         size: mapping.Size,
                         fixedLength: false);
 
-                    scaffoldFixedLength = fixedLengthMapping.IsFixedLength != byteArrayMapping.IsFixedLength ? (bool?)byteArrayMapping.IsFixedLength : null;
+                    scaffoldFixedLength = fixedLengthMapping.IsFixedLength != byteArrayMapping.IsFixedLength
+                        ? (bool?)byteArrayMapping.IsFixedLength
+                        : null;
 
                     // Check for size
                     var sizedMapping = _typeMappingSource.FindMapping(
@@ -128,7 +130,9 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                         size: mapping.Size,
                         fixedLength: false);
 
-                    scaffoldFixedLength = fixedLengthMapping.IsFixedLength != stringMapping.IsFixedLength ? (bool?)stringMapping.IsFixedLength : null;
+                    scaffoldFixedLength = fixedLengthMapping.IsFixedLength != stringMapping.IsFixedLength
+                        ? (bool?)stringMapping.IsFixedLength
+                        : null;
 
                     // Check for size
                     var sizedMapping = _typeMappingSource.FindMapping(

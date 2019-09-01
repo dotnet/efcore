@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -105,7 +105,8 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             return source;
         }
 
-        protected override ShapedQueryExpression TranslateConcat(ShapedQueryExpression source1, ShapedQueryExpression source2) => throw new NotImplementedException();
+        protected override ShapedQueryExpression TranslateConcat(ShapedQueryExpression source1, ShapedQueryExpression source2) =>
+            throw new NotImplementedException();
 
         protected override ShapedQueryExpression TranslateContains(ShapedQueryExpression source, Expression item)
         {
@@ -120,7 +121,8 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                         InMemoryLinqOperatorProvider.Select.MakeGenericMethod(typeof(ValueBuffer), item.Type),
                         inMemoryQueryExpression.ServerQueryExpression,
                         Expression.Lambda(
-                            inMemoryQueryExpression.GetMappedProjection(new ProjectionMember()), inMemoryQueryExpression.ValueBufferParameter)),
+                            inMemoryQueryExpression.GetMappedProjection(new ProjectionMember()),
+                            inMemoryQueryExpression.ValueBufferParameter)),
                     item);
 
             source.ShaperExpression = inMemoryQueryExpression.GetSingleScalarProjection();
@@ -169,13 +171,15 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             return source;
         }
 
-        protected override ShapedQueryExpression TranslateElementAtOrDefault(ShapedQueryExpression source, Expression index, bool returnDefault)
+        protected override ShapedQueryExpression TranslateElementAtOrDefault(
+            ShapedQueryExpression source, Expression index, bool returnDefault)
             => null;
 
         protected override ShapedQueryExpression TranslateExcept(ShapedQueryExpression source1, ShapedQueryExpression source2)
             => null;
 
-        protected override ShapedQueryExpression TranslateFirstOrDefault(ShapedQueryExpression source, LambdaExpression predicate, Type returnType, bool returnDefault)
+        protected override ShapedQueryExpression TranslateFirstOrDefault(
+            ShapedQueryExpression source, LambdaExpression predicate, Type returnType, bool returnDefault)
         {
             return TranslateSingleResultOperator(
                 source,
@@ -186,16 +190,21 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                     : InMemoryLinqOperatorProvider.FirstPredicate);
         }
 
-        protected override ShapedQueryExpression TranslateGroupBy(ShapedQueryExpression source, LambdaExpression keySelector, LambdaExpression elementSelector, LambdaExpression resultSelector)
+        protected override ShapedQueryExpression TranslateGroupBy(
+            ShapedQueryExpression source, LambdaExpression keySelector, LambdaExpression elementSelector, LambdaExpression resultSelector)
             => null;
 
-        protected override ShapedQueryExpression TranslateGroupJoin(ShapedQueryExpression outer, ShapedQueryExpression inner, LambdaExpression outerKeySelector, LambdaExpression innerKeySelector, LambdaExpression resultSelector)
+        protected override ShapedQueryExpression TranslateGroupJoin(
+            ShapedQueryExpression outer, ShapedQueryExpression inner, LambdaExpression outerKeySelector, LambdaExpression innerKeySelector,
+            LambdaExpression resultSelector)
             => null;
 
         protected override ShapedQueryExpression TranslateIntersect(ShapedQueryExpression source1, ShapedQueryExpression source2)
             => null;
 
-        protected override ShapedQueryExpression TranslateJoin(ShapedQueryExpression outer, ShapedQueryExpression inner, LambdaExpression outerKeySelector, LambdaExpression innerKeySelector, LambdaExpression resultSelector)
+        protected override ShapedQueryExpression TranslateJoin(
+            ShapedQueryExpression outer, ShapedQueryExpression inner, LambdaExpression outerKeySelector, LambdaExpression innerKeySelector,
+            LambdaExpression resultSelector)
         {
             outerKeySelector = TranslateLambdaExpression(outer, outerKeySelector);
             innerKeySelector = TranslateLambdaExpression(inner, innerKeySelector);
@@ -217,7 +226,8 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                 transparentIdentifierType);
         }
 
-        protected override ShapedQueryExpression TranslateLastOrDefault(ShapedQueryExpression source, LambdaExpression predicate, Type returnType, bool returnDefault)
+        protected override ShapedQueryExpression TranslateLastOrDefault(
+            ShapedQueryExpression source, LambdaExpression predicate, Type returnType, bool returnDefault)
         {
             return TranslateSingleResultOperator(
                 source,
@@ -228,7 +238,9 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                     : InMemoryLinqOperatorProvider.LastPredicate);
         }
 
-        protected override ShapedQueryExpression TranslateLeftJoin(ShapedQueryExpression outer, ShapedQueryExpression inner, LambdaExpression outerKeySelector, LambdaExpression innerKeySelector, LambdaExpression resultSelector)
+        protected override ShapedQueryExpression TranslateLeftJoin(
+            ShapedQueryExpression outer, ShapedQueryExpression inner, LambdaExpression outerKeySelector, LambdaExpression innerKeySelector,
+            LambdaExpression resultSelector)
         {
             outerKeySelector = TranslateLambdaExpression(outer, outerKeySelector);
             innerKeySelector = TranslateLambdaExpression(inner, innerKeySelector);
@@ -284,7 +296,8 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         protected override ShapedQueryExpression TranslateOfType(ShapedQueryExpression source, Type resultType)
             => null;
 
-        protected override ShapedQueryExpression TranslateOrderBy(ShapedQueryExpression source, LambdaExpression keySelector, bool ascending)
+        protected override ShapedQueryExpression TranslateOrderBy(
+            ShapedQueryExpression source, LambdaExpression keySelector, bool ascending)
         {
             var inMemoryQueryExpression = (InMemoryQueryExpression)source.QueryExpression;
 
@@ -293,7 +306,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             inMemoryQueryExpression.ServerQueryExpression
                 = Expression.Call(
                     (ascending ? InMemoryLinqOperatorProvider.OrderBy : InMemoryLinqOperatorProvider.OrderByDescending)
-                        .MakeGenericMethod(typeof(ValueBuffer), keySelector.ReturnType),
+                    .MakeGenericMethod(typeof(ValueBuffer), keySelector.ReturnType),
                     inMemoryQueryExpression.ServerQueryExpression,
                     keySelector);
 
@@ -336,32 +349,31 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                 collectionSelectorBody = collectionEndingMethod.Arguments[0];
             }
 
-            var correlated = new CorrelationFindingExpressionVisitor().IsCorrelated(collectionSelectorBody, collectionSelector.Parameters[0]);
+            var correlated = new CorrelationFindingExpressionVisitor().IsCorrelated(
+                collectionSelectorBody, collectionSelector.Parameters[0]);
             if (correlated)
             {
                 // TODO visit inner with outer parameter;
                 // See #17236
-                throw new InvalidOperationException(CoreStrings.TranslationFailed(
-                    collectionSelector.Print() + "; " + resultSelector.Print()));
-
+                throw new InvalidOperationException(
+                    CoreStrings.TranslationFailed(
+                        collectionSelector.Print() + "; " + resultSelector.Print()));
             }
-            else
+
+            if (Visit(collectionSelectorBody) is ShapedQueryExpression inner)
             {
-                if (Visit(collectionSelectorBody) is ShapedQueryExpression inner)
-                {
-                    var transparentIdentifierType = TransparentIdentifierFactory.Create(
-                        resultSelector.Parameters[0].Type,
-                        resultSelector.Parameters[1].Type);
+                var transparentIdentifierType = TransparentIdentifierFactory.Create(
+                    resultSelector.Parameters[0].Type,
+                    resultSelector.Parameters[1].Type);
 
-                    ((InMemoryQueryExpression)source.QueryExpression).AddCrossJoin(
-                        (InMemoryQueryExpression)inner.QueryExpression, transparentIdentifierType);
+                ((InMemoryQueryExpression)source.QueryExpression).AddCrossJoin(
+                    (InMemoryQueryExpression)inner.QueryExpression, transparentIdentifierType);
 
-                    return TranslateResultSelectorForJoin(
-                        source,
-                        resultSelector,
-                        inner.ShaperExpression,
-                        transparentIdentifierType);
-                }
+                return TranslateResultSelectorForJoin(
+                    source,
+                    resultSelector,
+                    inner.ShaperExpression,
+                    transparentIdentifierType);
             }
 
             return null;
@@ -371,6 +383,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         {
             private ParameterExpression _outerParameter;
             private bool _isCorrelated;
+
             public bool IsCorrelated(Expression tree, ParameterExpression outerParameter)
             {
                 _isCorrelated = false;
@@ -395,7 +408,8 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         protected override ShapedQueryExpression TranslateSelectMany(ShapedQueryExpression source, LambdaExpression selector)
             => null;
 
-        protected override ShapedQueryExpression TranslateSingleOrDefault(ShapedQueryExpression source, LambdaExpression predicate, Type returnType, bool returnDefault)
+        protected override ShapedQueryExpression TranslateSingleOrDefault(
+            ShapedQueryExpression source, LambdaExpression predicate, Type returnType, bool returnDefault)
         {
             return TranslateSingleResultOperator(
                 source,
@@ -450,7 +464,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             inMemoryQueryExpression.ServerQueryExpression
                 = Expression.Call(
                     (ascending ? InMemoryLinqOperatorProvider.ThenBy : InMemoryLinqOperatorProvider.ThenByDescending)
-                        .MakeGenericMethod(typeof(ValueBuffer), keySelector.ReturnType),
+                    .MakeGenericMethod(typeof(ValueBuffer), keySelector.ReturnType),
                     inMemoryQueryExpression.ServerQueryExpression,
                     keySelector);
 
@@ -482,7 +496,8 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             var lambdaBody = ReplacingExpressionVisitor.Replace(
                 lambdaExpression.Parameters.Single(), shapedQueryExpression.ShaperExpression, lambdaExpression.Body);
 
-            return Expression.Lambda(TranslateExpression(lambdaBody),
+            return Expression.Lambda(
+                TranslateExpression(lambdaBody),
                 ((InMemoryQueryExpression)shapedQueryExpression.QueryExpression).ValueBufferParameter);
         }
 
@@ -492,7 +507,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             var inMemoryQueryExpression = (InMemoryQueryExpression)source.QueryExpression;
 
             selector = selector == null
-                || selector.Body == selector.Parameters[0]
+                       || selector.Body == selector.Parameters[0]
                 ? Expression.Lambda(
                     inMemoryQueryExpression.GetMappedProjection(new ProjectionMember()),
                     inMemoryQueryExpression.ValueBufferParameter)
@@ -500,11 +515,11 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
 
             inMemoryQueryExpression.ServerQueryExpression
                 = Expression.Call(
-                        InMemoryLinqOperatorProvider
-                            .GetAggregateMethod(methodName, selector.ReturnType, parameterCount: 1)
-                            .MakeGenericMethod(typeof(ValueBuffer)),
-                        inMemoryQueryExpression.ServerQueryExpression,
-                        selector);
+                    InMemoryLinqOperatorProvider
+                        .GetAggregateMethod(methodName, selector.ReturnType, parameterCount: 1)
+                        .MakeGenericMethod(typeof(ValueBuffer)),
+                    inMemoryQueryExpression.ServerQueryExpression,
+                    selector);
 
             source.ShaperExpression = inMemoryQueryExpression.GetSingleScalarProjection();
 

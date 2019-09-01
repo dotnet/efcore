@@ -179,12 +179,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             }
 
             return collection.MemberInfo == null || ReferenceMember == null
-                    ? builder.HasNavigations(
-                        ReferenceName, collection.Name,
-                        (EntityType)RelatedEntityType, (EntityType)DeclaringEntityType, ConfigurationSource.Explicit)
-                    : builder.HasNavigations(
-                        ReferenceMember, collection.MemberInfo,
-                        (EntityType)RelatedEntityType, (EntityType)DeclaringEntityType, ConfigurationSource.Explicit);
+                ? builder.HasNavigations(
+                    ReferenceName, collection.Name,
+                    (EntityType)RelatedEntityType, (EntityType)DeclaringEntityType, ConfigurationSource.Explicit)
+                : builder.HasNavigations(
+                    ReferenceMember, collection.MemberInfo,
+                    (EntityType)RelatedEntityType, (EntityType)DeclaringEntityType, ConfigurationSource.Explicit);
         }
 
         /// <summary>

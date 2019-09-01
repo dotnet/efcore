@@ -9,7 +9,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 {
     /// <summary>
-    ///     A convention that configures the table name and schema for entity types based on the applied <see cref="TableAttribute"/>.
+    ///     A convention that configures the table name and schema for entity types based on the applied <see cref="TableAttribute" />.
     /// </summary>
     public class RelationalTableAttributeConvention : EntityTypeAttributeConventionBase<TableAttribute>
     {

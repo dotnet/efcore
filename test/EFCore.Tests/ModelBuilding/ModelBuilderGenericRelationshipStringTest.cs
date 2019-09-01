@@ -7,7 +7,6 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 
@@ -246,22 +245,29 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
             public override TestOwnedNavigationBuilder<TDependentEntity, TNewDependentEntity> OwnsOne<TNewDependentEntity>(
                 Expression<Func<TDependentEntity, TNewDependentEntity>> navigationExpression)
-                => Wrap(OwnedNavigationBuilder.OwnsOne<TNewDependentEntity>(navigationExpression?.GetPropertyAccess().GetSimpleMemberName()));
+                => Wrap(
+                    OwnedNavigationBuilder.OwnsOne<TNewDependentEntity>(navigationExpression?.GetPropertyAccess().GetSimpleMemberName()));
 
             public override TestOwnedNavigationBuilder<TEntity, TDependentEntity> OwnsOne<TNewDependentEntity>(
                 Expression<Func<TDependentEntity, TNewDependentEntity>> navigationExpression,
                 Action<TestOwnedNavigationBuilder<TDependentEntity, TNewDependentEntity>> buildAction)
-                => Wrap(OwnedNavigationBuilder.OwnsOne<TNewDependentEntity>(navigationExpression?.GetPropertyAccess().GetSimpleMemberName(),
-                    r => buildAction(Wrap(r))));
+                => Wrap(
+                    OwnedNavigationBuilder.OwnsOne<TNewDependentEntity>(
+                        navigationExpression?.GetPropertyAccess().GetSimpleMemberName(),
+                        r => buildAction(Wrap(r))));
 
-            public override TestOwnedNavigationBuilder<TDependentEntity, TNewDependentEntity> OwnsMany<TNewDependentEntity>(Expression<Func<TDependentEntity, IEnumerable<TNewDependentEntity>>> navigationExpression)
-                => Wrap(OwnedNavigationBuilder.OwnsMany<TNewDependentEntity>(navigationExpression?.GetPropertyAccess().GetSimpleMemberName()));
+            public override TestOwnedNavigationBuilder<TDependentEntity, TNewDependentEntity> OwnsMany<TNewDependentEntity>(
+                Expression<Func<TDependentEntity, IEnumerable<TNewDependentEntity>>> navigationExpression)
+                => Wrap(
+                    OwnedNavigationBuilder.OwnsMany<TNewDependentEntity>(navigationExpression?.GetPropertyAccess().GetSimpleMemberName()));
 
             public override TestOwnedNavigationBuilder<TEntity, TDependentEntity> OwnsMany<TNewDependentEntity>(
                 Expression<Func<TDependentEntity, IEnumerable<TNewDependentEntity>>> navigationExpression,
                 Action<TestOwnedNavigationBuilder<TDependentEntity, TNewDependentEntity>> buildAction)
-                => Wrap(OwnedNavigationBuilder.OwnsMany<TNewDependentEntity>(navigationExpression?.GetPropertyAccess().GetSimpleMemberName(),
-                    r => buildAction(Wrap(r))));
+                => Wrap(
+                    OwnedNavigationBuilder.OwnsMany<TNewDependentEntity>(
+                        navigationExpression?.GetPropertyAccess().GetSimpleMemberName(),
+                        r => buildAction(Wrap(r))));
 
             public override TestReferenceNavigationBuilder<TDependentEntity, TNewRelatedEntity> HasOne<TNewRelatedEntity>(
                 Expression<Func<TDependentEntity, TNewRelatedEntity>> navigationExpression = null)

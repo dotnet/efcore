@@ -144,12 +144,30 @@ namespace Microsoft.EntityFrameworkCore.Storage
         {
             var types = new[]
             {
-                typeof(sbyte), typeof(short), typeof(int), typeof(long),
-                typeof(byte), typeof(ushort), typeof(uint), typeof(ulong),
-                typeof(char), typeof(double), typeof(float), typeof(decimal),
-                typeof(sbyte?), typeof(short?), typeof(int?), typeof(long?),
-                typeof(byte?), typeof(ushort?), typeof(uint?), typeof(ulong?),
-                typeof(char?), typeof(double?), typeof(float?), typeof(decimal?)
+                typeof(sbyte),
+                typeof(short),
+                typeof(int),
+                typeof(long),
+                typeof(byte),
+                typeof(ushort),
+                typeof(uint),
+                typeof(ulong),
+                typeof(char),
+                typeof(double),
+                typeof(float),
+                typeof(decimal),
+                typeof(sbyte?),
+                typeof(short?),
+                typeof(int?),
+                typeof(long?),
+                typeof(byte?),
+                typeof(ushort?),
+                typeof(uint?),
+                typeof(ulong?),
+                typeof(char?),
+                typeof(double?),
+                typeof(float?),
+                typeof(decimal?)
             };
 
             foreach (var fromType in types)

@@ -25,34 +25,10 @@ namespace Microsoft.EntityFrameworkCore
             using (var context = CreateContext())
             {
                 context.AddRange(
-                    new Person
-                    {
-                        Id = 1,
-                        Name = "Lewis"
-                    },
-                    new Person
-                    {
-                        Id = 2,
-                        Name = "Seb",
-                        SSN = new SocialSecurityNumber
-                        {
-                            Number = 111111111
-                        }
-                    },
-                    new Person
-                    {
-                        Id = 3,
-                        Name = "Kimi",
-                        SSN = new SocialSecurityNumber
-                        {
-                            Number = 222222222
-                        }
-                    },
-                    new Person
-                    {
-                        Id = 4,
-                        Name = "Valtteri"
-                    });
+                    new Person { Id = 1, Name = "Lewis" },
+                    new Person { Id = 2, Name = "Seb", SSN = new SocialSecurityNumber { Number = 111111111 } },
+                    new Person { Id = 3, Name = "Kimi", SSN = new SocialSecurityNumber { Number = 222222222 } },
+                    new Person { Id = 4, Name = "Valtteri" });
 
                 context.SaveChanges();
             }
@@ -78,15 +54,7 @@ namespace Microsoft.EntityFrameworkCore
                 context.Remove(drivers[0]);
 
                 context.Add(
-                    new Person
-                    {
-                        Id = 5,
-                        Name = "Charles",
-                        SSN = new SocialSecurityNumber
-                        {
-                            Number = 222222222
-                        }
-                    });
+                    new Person { Id = 5, Name = "Charles", SSN = new SocialSecurityNumber { Number = 222222222 } });
 
                 context.SaveChanges();
             }
@@ -134,14 +102,11 @@ namespace Microsoft.EntityFrameworkCore
             using (var context = CreateContext())
             {
                 var principal = context.Add(
-                    new NullablePrincipal
-                    {
-                        Id = 1,
-                        Dependents = new List<NonNullableDependent>
-                        {
-                            new NonNullableDependent{Id = 1}
-                        }
-                    }).Entity;
+                        new NullablePrincipal
+                            {
+                                Id = 1, Dependents = new List<NonNullableDependent> { new NonNullableDependent { Id = 1 } }
+                            })
+                    .Entity;
 
                 var pkEntry = context.Entry(principal).Property(e => e.Id);
                 var fkEntry = context.Entry(principal.Dependents.Single()).Property(e => e.PrincipalId);
@@ -273,17 +238,10 @@ namespace Microsoft.EntityFrameworkCore
             using (var context = CreateContext())
             {
                 var principal = context.Set<StringKeyDataType>().Add(
-                    new StringKeyDataType
-                    {
-                        Id = "Gumball!!"
-                    }).Entity;
+                    new StringKeyDataType { Id = "Gumball!!" }).Entity;
 
                 var dependent = context.Set<StringForeignKeyDataType>().Add(
-                    new StringForeignKeyDataType
-                    {
-                        Id = 7767,
-                        StringKeyDataTypeId = "gumball!!"
-                    }).Entity;
+                    new StringForeignKeyDataType { Id = 7767, StringKeyDataTypeId = "gumball!!" }).Entity;
 
                 Assert.Same(principal, dependent.Principal);
 
@@ -321,15 +279,7 @@ namespace Microsoft.EntityFrameworkCore
             using (var context = CreateContext())
             {
                 context.Set<StringListDataType>().Add(
-                    new StringListDataType
-                    {
-                        Id = 1,
-                        Strings = new List<string>
-                        {
-                            "Gum",
-                            "Taffy"
-                        }
-                    });
+                    new StringListDataType { Id = 1, Strings = new List<string> { "Gum", "Taffy" } });
 
                 Assert.Equal(1, context.SaveChanges());
             }
@@ -357,24 +307,22 @@ namespace Microsoft.EntityFrameworkCore
             {
                 base.OnModelCreating(modelBuilder, context);
 
-                modelBuilder.Entity<Person>(b =>
-                {
-                    b.Property(p => p.SSN)
-                    .HasConversion(
-                        ssn => ssn.HasValue
-                            ? ssn.Value.Number
-                            : new int?(),
-                        i => i.HasValue
-                            ? new SocialSecurityNumber
-                            {
-                                Number = i.Value
-                            }
-                            : new SocialSecurityNumber?());
+                modelBuilder.Entity<Person>(
+                    b =>
+                    {
+                        b.Property(p => p.SSN)
+                            .HasConversion(
+                                ssn => ssn.HasValue
+                                    ? ssn.Value.Number
+                                    : new int?(),
+                                i => i.HasValue
+                                    ? new SocialSecurityNumber { Number = i.Value }
+                                    : new SocialSecurityNumber?());
 
-                    b.Property(p => p.Id).ValueGeneratedNever();
-                    b.HasIndex(p => p.SSN)
-                    .IsUnique();
-                });
+                        b.Property(p => p.Id).ValueGeneratedNever();
+                        b.HasIndex(p => p.SSN)
+                            .IsUnique();
+                    });
 
                 modelBuilder.Entity<NullablePrincipal>(
                     b =>

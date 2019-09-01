@@ -16,7 +16,8 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.Models.Orders
         private readonly int _ordersPerCustomer;
         private readonly int _linesPerOrder;
 
-        public OrdersFixture(string databaseName, int productCount, int customerCount,
+        public OrdersFixture(
+            string databaseName, int productCount, int customerCount,
             int ordersPerCustomer, int linesPerOrder, Action<DbContext> seedAction = null)
         {
             _connectionString = SqlServerBenchmarkEnvironment.CreateConnectionString(databaseName);
@@ -58,10 +59,10 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.Models.Orders
         private bool IsDatabaseCorrect(OrdersContext context)
         {
             return context.Database.CompatibleWithModel(throwIfNoMetadata: true)
-                && _productCount == context.Products.Count()
-                && _customerCount == context.Customers.Count()
-                && (_customerCount * _ordersPerCustomer == context.Orders.Count())
-                && (_customerCount * _ordersPerCustomer * _linesPerOrder == context.OrderLines.Count());
+                   && _productCount == context.Products.Count()
+                   && _customerCount == context.Customers.Count()
+                   && (_customerCount * _ordersPerCustomer == context.Orders.Count())
+                   && (_customerCount * _ordersPerCustomer * _linesPerOrder == context.OrderLines.Count());
         }
 
         private void InsertSeedData()

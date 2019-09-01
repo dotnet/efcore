@@ -463,10 +463,7 @@ WHERE (DATEDIFF(NANOSECOND, [m].[TimeSpanAsTime], @__timeSpan_1) = 0) AND DATEDI
             using (var context = CreateContext())
             {
                 context.Set<MappedNullableDataTypes>().Add(
-                    new MappedNullableDataTypes
-                    {
-                        Int = 911
-                    });
+                    new MappedNullableDataTypes { Int = 911 });
 
                 Assert.Equal(1, context.SaveChanges());
             }
@@ -1422,10 +1419,7 @@ WHERE (DATEDIFF(NANOSECOND, [m].[TimeSpanAsTime], @__timeSpan_1) = 0) AND DATEDI
         private static MappedPrecisionAndScaledDataTypes CreateMappedPrecisionAndScaledDataTypes(int id)
             => new MappedPrecisionAndScaledDataTypes
             {
-                Id = id,
-                DecimalAsDecimal52 = 101.1m,
-                DecimalAsDec52 = 102.2m,
-                DecimalAsNumeric52 = 103.3m
+                Id = id, DecimalAsDecimal52 = 101.1m, DecimalAsDec52 = 102.2m, DecimalAsNumeric52 = 103.3m
             };
 
         [ConditionalFact]
@@ -2185,10 +2179,7 @@ WHERE (DATEDIFF(NANOSECOND, [m].[TimeSpanAsTime], @__timeSpan_1) = 0) AND DATEDI
         private static MappedPrecisionAndScaledDataTypesWithIdentity CreateMappedPrecisionAndScaledDataTypesWithIdentity(int id)
             => new MappedPrecisionAndScaledDataTypesWithIdentity
             {
-                Int = id,
-                DecimalAsDecimal52 = 101.1m,
-                DecimalAsDec52 = 102.2m,
-                DecimalAsNumeric52 = 103.3m
+                Int = id, DecimalAsDecimal52 = 101.1m, DecimalAsDec52 = 102.2m, DecimalAsNumeric52 = 103.3m
             };
 
         [ConditionalFact]

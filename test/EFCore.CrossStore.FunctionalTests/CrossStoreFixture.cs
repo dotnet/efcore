@@ -24,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore
             return testStoreFactory.GetOrCreate(StoreName)
                 .Initialize(
                     AddServices(testStoreFactory.AddProviderServices(new ServiceCollection()))
-                        .BuildServiceProvider(validateScopes: true), CreateContext, c => { }, null);
+                        .BuildServiceProvider(validateScopes: true), CreateContext, c => { });
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)

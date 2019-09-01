@@ -66,11 +66,7 @@ namespace Microsoft.EntityFrameworkCore.SqlAzure.Model
                 entity =>
                 {
                     entity.HasKey(
-                            e => new
-                            {
-                                e.CustomerID,
-                                e.AddressID
-                            })
+                            e => new { e.CustomerID, e.AddressID })
                         .HasName("PK_CustomerAddress_CustomerID_AddressID");
 
                     entity.HasIndex(e => e.rowguid)
@@ -174,12 +170,7 @@ namespace Microsoft.EntityFrameworkCore.SqlAzure.Model
                 entity =>
                 {
                     entity.HasKey(
-                            e => new
-                            {
-                                e.ProductModelID,
-                                e.ProductDescriptionID,
-                                e.Culture
-                            })
+                            e => new { e.ProductModelID, e.ProductDescriptionID, e.Culture })
                         .HasName("PK_ProductModelProductDescription_ProductModelID_ProductDescriptionID_Culture");
 
                     entity.HasIndex(e => e.rowguid)
@@ -199,11 +190,7 @@ namespace Microsoft.EntityFrameworkCore.SqlAzure.Model
                 entity =>
                 {
                     entity.HasKey(
-                            e => new
-                            {
-                                e.SalesOrderID,
-                                e.SalesOrderDetailID
-                            })
+                            e => new { e.SalesOrderID, e.SalesOrderDetailID })
                         .HasName("PK_SalesOrderDetail_SalesOrderID_SalesOrderDetailID");
 
                     entity.HasIndex(e => e.ProductID)

@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -20,14 +20,17 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
 
         public static MethodInfo Where = GetMethods(nameof(Enumerable.Where), 1)
             .Single(mi => mi.GetParameters()[1].ParameterType.GetGenericArguments().Length == 2);
+
         public static MethodInfo Select = GetMethods(nameof(Enumerable.Select), 1)
             .Single(mi => mi.GetParameters()[1].ParameterType.GetGenericArguments().Length == 2);
 
         public static MethodInfo Join = GetMethod(nameof(Enumerable.Join), 4);
         public static MethodInfo GroupJoin = GetMethod(nameof(Enumerable.GroupJoin), 4);
         public static MethodInfo DefaultIfEmptyWithArg = GetMethod(nameof(Enumerable.DefaultIfEmpty), 1);
+
         public static MethodInfo SelectMany = GetMethods(nameof(Enumerable.SelectMany), 2)
             .Single(mi => mi.GetParameters()[1].ParameterType.GetGenericArguments().Length == 2);
+
         public static MethodInfo Contains = GetMethod(nameof(Enumerable.Contains), 1);
 
         public static MethodInfo OrderBy = GetMethod(nameof(Enumerable.OrderBy), 1);
@@ -67,5 +70,4 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             //    .MakeGenericMethod(elementType);
         }
     }
-
 }

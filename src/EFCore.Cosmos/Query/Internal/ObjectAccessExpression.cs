@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -123,9 +123,9 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         /// </summary>
         public override bool Equals(object obj)
             => obj != null
-            && (ReferenceEquals(this, obj)
-                || obj is ObjectAccessExpression objectAccessExpression
-                    && Equals(objectAccessExpression));
+               && (ReferenceEquals(this, obj)
+                   || obj is ObjectAccessExpression objectAccessExpression
+                   && Equals(objectAccessExpression));
 
         private bool Equals(ObjectAccessExpression objectAccessExpression)
             => Navigation == objectAccessExpression.Navigation

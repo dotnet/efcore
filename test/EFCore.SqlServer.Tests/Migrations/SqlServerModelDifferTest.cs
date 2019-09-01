@@ -353,10 +353,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                         x.Property<int>("Id");
                         x.Property<int>("SequenceId");
                         x.HasData(
-                            new
-                            {
-                                Id = 42
-                            });
+                            new { Id = 42 });
                     }),
                 _ => { },
                 target => target.Entity(
@@ -366,10 +363,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                         x.ToTable("Firefly", "dbo");
                         x.Property<int>("SequenceId").UseHiLo(schema: "dbo");
                         x.HasData(
-                            new
-                            {
-                                Id = 43
-                            });
+                            new { Id = 43 });
                     }),
                 upOps => Assert.Collection(
                     upOps,
@@ -503,31 +497,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                         x.Property<int>("Value1");
                         x.Property<string>("Value2");
                         x.HasData(
-                            new
-                            {
-                                Id = 99999,
-                                Value1 = 0,
-                                Value2 = ""
-                            }, // deleted
-                            new
-                            {
-                                Id = 42,
-                                Value1 = 32,
-                                Value2 = "equal",
-                                InvalidProperty = "is ignored"
-                            }, // modified
-                            new
-                            {
-                                Id = 8,
-                                Value1 = 100,
-                                Value2 = "equal"
-                            }, // unchanged
-                            new
-                            {
-                                Id = 24,
-                                Value1 = 72,
-                                Value2 = "not equal1"
-                            }); // modified
+                            new { Id = 99999, Value1 = 0, Value2 = "" }, // deleted
+                            new { Id = 42, Value1 = 32, Value2 = "equal", InvalidProperty = "is ignored" }, // modified
+                            new { Id = 8, Value1 = 100, Value2 = "equal" }, // unchanged
+                            new { Id = 24, Value1 = 72, Value2 = "not equal1" }); // modified
                     }),
                 target => target.Entity(
                     "EntityWithTwoProperties",
@@ -537,37 +510,11 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                         x.Property<int>("Value1");
                         x.Property<string>("Value2");
                         x.HasData(
-                            new
-                            {
-                                Id = 11111,
-                                Value1 = 0,
-                                Value2 = ""
-                            }, // added
-                            new
-                            {
-                                Id = 11112,
-                                Value1 = 1,
-                                Value2 = "new"
-                            }, // added
-                            new
-                            {
-                                Id = 42,
-                                Value1 = 27,
-                                Value2 = "equal",
-                                InvalidProperty = "is ignored here too"
-                            }, // modified
-                            new
-                            {
-                                Id = 8,
-                                Value1 = 100,
-                                Value2 = "equal"
-                            }, // unchanged
-                            new
-                            {
-                                Id = 24,
-                                Value1 = 99,
-                                Value2 = "not equal2"
-                            }); // modified
+                            new { Id = 11111, Value1 = 0, Value2 = "" }, // added
+                            new { Id = 11112, Value1 = 1, Value2 = "new" }, // added
+                            new { Id = 42, Value1 = 27, Value2 = "equal", InvalidProperty = "is ignored here too" }, // modified
+                            new { Id = 8, Value1 = 100, Value2 = "equal" }, // unchanged
+                            new { Id = 24, Value1 = 99, Value2 = "not equal2" }); // modified
                     }),
                 upOps => Assert.Collection(
                     upOps,

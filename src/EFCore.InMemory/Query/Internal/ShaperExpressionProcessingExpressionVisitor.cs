@@ -28,8 +28,9 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
 
             if (_expressions.All(e => e.NodeType == ExpressionType.Assign))
             {
-                result = new ReplacingExpressionVisitor(_expressions.Cast<BinaryExpression>()
-                    .ToDictionary(e => e.Left, e => e.Right)).Visit(result);
+                result = new ReplacingExpressionVisitor(
+                    _expressions.Cast<BinaryExpression>()
+                        .ToDictionary(e => e.Left, e => e.Right)).Visit(result);
             }
             else
             {

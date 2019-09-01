@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -66,9 +66,9 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         public override bool Equals(object obj)
             => obj != null
-            && (ReferenceEquals(this, obj)
-                || obj is ProjectionBindingExpression projectionBindingExpression
-                    && Equals(projectionBindingExpression));
+               && (ReferenceEquals(this, obj)
+                   || obj is ProjectionBindingExpression projectionBindingExpression
+                   && Equals(projectionBindingExpression));
 
         private bool Equals(ProjectionBindingExpression projectionBindingExpression)
             => QueryExpression.Equals(projectionBindingExpression.QueryExpression)

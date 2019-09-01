@@ -25,8 +25,8 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
     ///         doing so can result in application failures when updating to a new Entity Framework Core release.
     ///     </para>
     ///     <para>
-    ///         The service lifetime is <see cref="ServiceLifetime.Scoped"/>. This means that each
-    ///         <see cref="DbContext"/> instance will use its own instance of this service.
+    ///         The service lifetime is <see cref="ServiceLifetime.Scoped" />. This means that each
+    ///         <see cref="DbContext" /> instance will use its own instance of this service.
     ///         The implementation may depend on other services registered with any lifetime.
     ///         The implementation does not need to be thread-safe.
     ///     </para>
@@ -40,7 +40,8 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
         private readonly int _minBatchSize;
         private readonly bool _sensitiveLoggingEnabled;
 
-        private IReadOnlyDictionary<(string Schema, string Name), SharedTableEntryMapFactory<ModificationCommand>> _sharedTableEntryMapFactories;
+        private IReadOnlyDictionary<(string Schema, string Name), SharedTableEntryMapFactory<ModificationCommand>>
+            _sharedTableEntryMapFactories;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -140,7 +141,8 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
             }
         }
 
-        private ModificationCommandBatch StartNewBatch(ParameterNameGenerator parameterNameGenerator, ModificationCommand modificationCommand)
+        private ModificationCommandBatch StartNewBatch(
+            ParameterNameGenerator parameterNameGenerator, ModificationCommand modificationCommand)
         {
             parameterNameGenerator.Reset();
             var batch = _modificationCommandBatchFactory.Create();
@@ -579,7 +581,8 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
                             if (command.EntityState == EntityState.Deleted
                                 || foreignKeyValueColumnModifications.Any())
                             {
-                                var dependentKeyValue = keyValueIndexFactory.CreateDependentKeyValueFromOriginalValues((InternalEntityEntry)entry, foreignKey);
+                                var dependentKeyValue =
+                                    keyValueIndexFactory.CreateDependentKeyValueFromOriginalValues((InternalEntityEntry)entry, foreignKey);
 
                                 if (dependentKeyValue != null)
                                 {
@@ -718,7 +721,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
                         if (valueFactory.TryCreateFromOriginalValues(
                             (InternalEntityEntry)entry, out var indexValue))
                         {
-                            predecessorsMap ??=                                               new Dictionary<IIndex, Dictionary<object[], ModificationCommand>>();
+                            predecessorsMap ??= new Dictionary<IIndex, Dictionary<object[], ModificationCommand>>();
                             if (!predecessorsMap.TryGetValue(index, out var predecessorCommands))
                             {
                                 predecessorCommands =

@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
@@ -28,8 +28,9 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
                 ExpressionType.Subtract,
                 ExpressionType.Multiply,
                 ExpressionType.Divide,
-                ExpressionType.Modulo,
+                ExpressionType.Modulo
             };
+
         // TODO: Possibly make this protected in base
         private readonly ISqlExpressionFactory _sqlExpressionFactory;
 
@@ -52,9 +53,9 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
             }
 
             return visitedExpression is SqlBinaryExpression sqlBinary
-                && _arithmeticOperatorTypes.Contains(sqlBinary.OperatorType)
-                && (_dateTimeDataTypes.Contains(GetProviderType(sqlBinary.Left))
-                    || _dateTimeDataTypes.Contains(GetProviderType(sqlBinary.Right)))
+                   && _arithmeticOperatorTypes.Contains(sqlBinary.OperatorType)
+                   && (_dateTimeDataTypes.Contains(GetProviderType(sqlBinary.Left))
+                       || _dateTimeDataTypes.Contains(GetProviderType(sqlBinary.Right)))
                 ? null
                 : visitedExpression;
         }
