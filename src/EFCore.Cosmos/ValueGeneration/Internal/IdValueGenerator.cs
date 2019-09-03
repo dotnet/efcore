@@ -46,7 +46,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.ValueGeneration.Internal
                 builder.Append("|");
             }
 
-            var partitionKey = entityType.GetCosmosPartitionKeyPropertyName() ?? CosmosClientWrapper.DefaultPartitionKey;
+            var partitionKey = entityType.GetPartitionKeyPropertyName() ?? CosmosClientWrapper.DefaultPartitionKey;
             foreach (var property in pk.Properties)
             {
                 if (property.Name == partitionKey)

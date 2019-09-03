@@ -56,7 +56,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
             var containers = new Dictionary<string, List<IEntityType>>();
             foreach (var entityType in model.GetEntityTypes().Where(et => et.FindPrimaryKey() != null))
             {
-                var container = entityType.GetCosmosContainer();
+                var container = entityType.GetContainer();
 
                 if (!containers.TryGetValue(container, out var mappedTypes))
                 {
@@ -91,7 +91,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
             IEntityType firstEntityType = null;
             foreach (var entityType in mappedTypes)
             {
-                var partitionKeyPropertyName = entityType.GetCosmosPartitionKeyPropertyName();
+                var partitionKeyPropertyName = entityType.GetPartitionKeyPropertyName();
                 if (partitionKeyPropertyName != null)
                 {
                     var nextPartitionKeyProperty = entityType.FindProperty(partitionKeyPropertyName);
@@ -117,12 +117,12 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
                         }
                         partitionKey = nextPartitionKeyProperty;
                     }
-                    else if (partitionKey.GetCosmosPropertyName() != nextPartitionKeyProperty.GetCosmosPropertyName())
+                    else if (partitionKey.GetPropertyName() != nextPartitionKeyProperty.GetPropertyName())
                     {
                         throw new InvalidOperationException(
                             CosmosStrings.PartitionKeyStoreNameMismatch(
-                                partitionKey.Name, firstEntityType.DisplayName(), partitionKey.GetCosmosPropertyName(),
-                                nextPartitionKeyProperty.Name, entityType.DisplayName(), nextPartitionKeyProperty.GetCosmosPropertyName()));
+                                partitionKey.Name, firstEntityType.DisplayName(), partitionKey.GetPropertyName(),
+                                nextPartitionKeyProperty.Name, entityType.DisplayName(), nextPartitionKeyProperty.GetPropertyName()));
                     }
                 }
                 else if (partitionKey != null)
@@ -141,7 +141,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
                 }
 
                 if (entityType.ClrType?.IsInstantiable() == true
-                    && entityType.GetCosmosContainingPropertyName() == null)
+                    && entityType.GetContainingPropertyName() == null)
                 {
                     if (entityType.GetDiscriminatorProperty() == null)
                     {

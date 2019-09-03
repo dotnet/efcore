@@ -29,7 +29,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
             var targetType = navigation.GetTargetType();
             Type = typeof(IEnumerable<>).MakeGenericType(targetType.ClrType);
 
-            Name = targetType.GetCosmosContainingPropertyName();
+            Name = targetType.GetContainingPropertyName();
             if (Name == null)
             {
                 throw new InvalidOperationException(

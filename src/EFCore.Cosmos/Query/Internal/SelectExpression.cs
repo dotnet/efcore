@@ -33,7 +33,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         /// </summary>
         public SelectExpression(IEntityType entityType)
         {
-            Container = entityType.GetCosmosContainer();
+            Container = entityType.GetContainer();
             FromExpression = new RootReferenceExpression(entityType, RootAlias);
             _projectionMapping[new ProjectionMember()] = new EntityProjectionExpression(entityType, FromExpression);
         }

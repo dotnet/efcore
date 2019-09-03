@@ -204,7 +204,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
                     {
                         document = documentSource.CreateDocument(entry);
 
-                        document[entityType.GetDiscriminatorProperty().GetCosmosPropertyName()] =
+                        document[entityType.GetDiscriminatorProperty().GetPropertyName()] =
                             JToken.FromObject(entityType.GetDiscriminatorValue(), CosmosClientWrapper.Serializer);
                     }
 
@@ -255,7 +255,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
                     {
                         document = documentSource.CreateDocument(entry);
 
-                        document[entityType.GetDiscriminatorProperty().GetCosmosPropertyName()] =
+                        document[entityType.GetDiscriminatorProperty().GetPropertyName()] =
                             JToken.FromObject(entityType.GetDiscriminatorValue(), CosmosClientWrapper.Serializer);
                     }
 
@@ -313,7 +313,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
         private static string GetPartitionKey(IUpdateEntry entry)
         {
             object partitionKey = null;
-            var partitionKeyPropertyName = entry.EntityType.GetCosmosPartitionKeyPropertyName();
+            var partitionKeyPropertyName = entry.EntityType.GetPartitionKeyPropertyName();
             if (partitionKeyPropertyName != null)
             {
                 var partitionKeyProperty = entry.EntityType.FindProperty(partitionKeyPropertyName);

@@ -25,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         public KeyAccessExpression(IProperty property, Expression accessExpression)
             : base(property.ClrType, property.GetTypeMapping())
         {
-            Name = property.GetCosmosPropertyName();
+            Name = property.GetPropertyName();
             Property = property;
             AccessExpression = accessExpression;
         }
