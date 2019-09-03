@@ -1738,5 +1738,15 @@ WHERE ([o].[OrderID] = @__ReadOnlyProperty_0) AND @__ReadOnlyProperty_0 IS NOT N
 FROM [Orders] AS [o]
 WHERE [o].[OrderID] = 1");
         }
+
+        public override async Task Generic_Ilist_contains_translates_to_server(bool isAsync)
+        {
+            await base.Generic_Ilist_contains_translates_to_server(isAsync);
+
+            AssertSql(
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE [c].[City] IN (N'Seattle')");
+        }
     }
 }
