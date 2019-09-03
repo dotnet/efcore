@@ -84,7 +84,7 @@ namespace Microsoft.EntityFrameworkCore
                 ChangeTracker.LazyLoadingEnabled = false;
                 Database.AutoTransactionsEnabled = false;
                 ChangeTracker.CascadeDeleteTiming = CascadeTiming.Never;
-                ChangeTracker.DeleteOrphansTiming= CascadeTiming.Never;
+                ChangeTracker.DeleteOrphansTiming = CascadeTiming.Never;
             }
 
             protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -388,7 +388,7 @@ namespace Microsoft.EntityFrameworkCore
             context1.ChangeTracker.LazyLoadingEnabled = true;
             context1.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
             context1.ChangeTracker.CascadeDeleteTiming = CascadeTiming.Immediate;
-            context1.ChangeTracker.DeleteOrphansTiming= CascadeTiming.Immediate;
+            context1.ChangeTracker.DeleteOrphansTiming = CascadeTiming.Immediate;
             context1.Database.AutoTransactionsEnabled = true;
 
             serviceScope.Dispose();
@@ -425,7 +425,7 @@ namespace Microsoft.EntityFrameworkCore
             context1.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
             context1.Database.AutoTransactionsEnabled = false;
             context1.ChangeTracker.CascadeDeleteTiming = CascadeTiming.Immediate;
-            context1.ChangeTracker.DeleteOrphansTiming= CascadeTiming.Immediate;
+            context1.ChangeTracker.DeleteOrphansTiming = CascadeTiming.Immediate;
 
             serviceScope.Dispose();
 

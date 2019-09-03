@@ -7,7 +7,6 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.TestModels.Northwind;
-using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
 using Xunit;
 
 // ReSharper disable InconsistentNaming
@@ -782,10 +781,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             return AssertQuery<Order>(
                 isAsync,
                 os => os.Where(o => o.OrderID < 10250).Select(
-                    o => new
-                    {
-                        A = Math.Round((double)o.OrderID)
-                    }),
+                    o => new { A = Math.Round((double)o.OrderID) }),
                 e => e.A);
         }
 
@@ -796,10 +792,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             return AssertQuery<Order>(
                 isAsync,
                 os => os.Where(o => o.OrderID < 10250).Select(
-                    o => new
-                    {
-                        A = Math.Truncate((double)o.OrderID)
-                    }),
+                    o => new { A = Math.Truncate((double)o.OrderID) }),
                 e => e.A);
         }
 
@@ -1280,11 +1273,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             {
                 var query = context.Set<Customer>()
                     .Select(
-                        c => new
-                        {
-                            Id = c.CustomerID,
-                            Value = string.IsNullOrEmpty(c.Region)
-                        })
+                        c => new { Id = c.CustomerID, Value = string.IsNullOrEmpty(c.Region) })
                     .ToList();
 
                 Assert.Equal(91, query.Count);
@@ -1298,11 +1287,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             {
                 var query = context.Set<Customer>()
                     .Select(
-                        c => new
-                        {
-                            Id = c.CustomerID,
-                            Value = !string.IsNullOrEmpty(c.Region)
-                        })
+                        c => new { Id = c.CustomerID, Value = !string.IsNullOrEmpty(c.Region) })
                     .ToList();
 
                 Assert.Equal(91, query.Count);

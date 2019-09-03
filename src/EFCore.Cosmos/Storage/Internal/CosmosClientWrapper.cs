@@ -32,8 +32,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
     ///         doing so can result in application failures when updating to a new Entity Framework Core release.
     ///     </para>
     ///     <para>
-    ///         The service lifetime is <see cref="ServiceLifetime.Scoped"/>. This means that each
-    ///         <see cref="DbContext"/> instance will use its own instance of this service.
+    ///         The service lifetime is <see cref="ServiceLifetime.Scoped" />. This means that each
+    ///         <see cref="DbContext" /> instance will use its own instance of this service.
     ///         The implementation may depend on other services registered with any lifetime.
     ///         The implementation does not need to be thread-safe.
     ///     </para>
@@ -222,10 +222,10 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
             CancellationToken cancellationToken = default)
         {
             var response = await Client.GetDatabase(_databaseId).CreateContainerIfNotExistsAsync(
-                new ContainerProperties(parameters.ContainerId, "/" + parameters.PartitionKey)
-                {
-                    PartitionKeyDefinitionVersion = PartitionKeyDefinitionVersion.V2
-                }, cancellationToken: cancellationToken)
+                    new ContainerProperties(parameters.ContainerId, "/" + parameters.PartitionKey)
+                    {
+                        PartitionKeyDefinitionVersion = PartitionKeyDefinitionVersion.V2
+                    }, cancellationToken: cancellationToken)
                 .ConfigureAwait(false);
 
             return response.StatusCode == HttpStatusCode.Created;
@@ -333,7 +333,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
                 var container = Client.GetDatabase(_databaseId).GetContainer(parameters.ContainerId);
                 var partitionKey = CreatePartitionKey(parameters.PartitionKey);
                 using (var response = await container.ReplaceItemStreamAsync(
-                     stream, parameters.ItemId, partitionKey, null, cancellationToken))
+                    stream, parameters.ItemId, partitionKey, null, cancellationToken))
                 {
                     return response.StatusCode == HttpStatusCode.OK;
                 }
@@ -391,7 +391,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
         {
             var items = Client.GetDatabase(_databaseId).GetContainer(parameters.ContainerId);
             var partitionKey = CreatePartitionKey(parameters.PartitionKey);
-            using (var response = await items.DeleteItemStreamAsync(parameters.DocumentId, partitionKey, cancellationToken: cancellationToken))
+            using (var response = await items.DeleteItemStreamAsync(
+                parameters.DocumentId, partitionKey, cancellationToken: cancellationToken))
             {
                 return response.StatusCode == HttpStatusCode.NoContent;
             }
@@ -399,8 +400,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
 
         private PartitionKey CreatePartitionKey(string partitionKey)
             => partitionKey == null
-                    ? PartitionKey.None
-                    : new PartitionKey(partitionKey);
+                ? PartitionKey.None
+                : new PartitionKey(partitionKey);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -521,8 +522,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
                             }
                         }
 
-                        ObjectFound:
-                        ;
+                        ObjectFound: ;
                     }
 
                     while (_jsonReader.Read())
@@ -600,7 +600,6 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
 
                 public JObject Current { get; private set; }
 
-
                 [MethodImpl(MethodImplOptions.AggressiveInlining)]
                 public async ValueTask<bool> MoveNextAsync()
                 {
@@ -638,8 +637,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
                             }
                         }
 
-                        ObjectFound:
-                        ;
+                        ObjectFound: ;
                     }
 
                     while (_jsonReader.Read())

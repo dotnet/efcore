@@ -190,6 +190,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 Dispatcher._immediateConventionScope.OnForeignKeyRemoved(node.EntityTypeBuilder, node.ForeignKey);
                 return null;
             }
+
             public override OnForeignKeyPropertiesChangedNode VisitOnForeignKeyPropertiesChanged(OnForeignKeyPropertiesChangedNode node)
             {
                 Dispatcher._immediateConventionScope.OnForeignKeyPropertiesChanged(
@@ -216,7 +217,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 return null;
             }
 
-            public override OnForeignKeyPrincipalEndChangedNode VisitOnForeignKeyPrincipalEndChanged(OnForeignKeyPrincipalEndChangedNode node)
+            public override OnForeignKeyPrincipalEndChangedNode VisitOnForeignKeyPrincipalEndChanged(
+                OnForeignKeyPrincipalEndChangedNode node)
             {
                 Dispatcher._immediateConventionScope.OnForeignKeyPrincipalEndChanged(node.RelationshipBuilder);
                 return null;

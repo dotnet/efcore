@@ -34,4 +34,3 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ConferencePlanner
         public DbSet<Attendee> Attendees { get; set; }
     }
 }
-

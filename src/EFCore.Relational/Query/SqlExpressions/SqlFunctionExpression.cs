@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -15,7 +15,8 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             string name,
             Type type,
             RelationalTypeMapping typeMapping)
-            => new SqlFunctionExpression(instance: null, schema: null, name, niladic: true, arguments: null, builtIn: true, type, typeMapping);
+            => new SqlFunctionExpression(
+                instance: null, schema: null, name, niladic: true, arguments: null, builtIn: true, type, typeMapping);
 
         public static SqlFunctionExpression CreateNiladic(
             string schema,
@@ -148,17 +149,17 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 
         public override bool Equals(object obj)
             => obj != null
-            && (ReferenceEquals(this, obj)
-                || obj is SqlFunctionExpression sqlFunctionExpression
-                    && Equals(sqlFunctionExpression));
+               && (ReferenceEquals(this, obj)
+                   || obj is SqlFunctionExpression sqlFunctionExpression
+                   && Equals(sqlFunctionExpression));
 
         private bool Equals(SqlFunctionExpression sqlFunctionExpression)
             => base.Equals(sqlFunctionExpression)
-            && string.Equals(Name, sqlFunctionExpression.Name)
-            && string.Equals(Schema, sqlFunctionExpression.Schema)
-            && ((Instance == null && sqlFunctionExpression.Instance == null)
-                || (Instance != null && Instance.Equals(sqlFunctionExpression.Instance)))
-            && Arguments.SequenceEqual(sqlFunctionExpression.Arguments);
+               && string.Equals(Name, sqlFunctionExpression.Name)
+               && string.Equals(Schema, sqlFunctionExpression.Schema)
+               && ((Instance == null && sqlFunctionExpression.Instance == null)
+                   || (Instance != null && Instance.Equals(sqlFunctionExpression.Instance)))
+               && Arguments.SequenceEqual(sqlFunctionExpression.Arguments);
 
         public override int GetHashCode()
         {
@@ -172,6 +173,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             {
                 hash.Add(Arguments[i]);
             }
+
             return hash.ToHashCode();
         }
     }

@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections;
@@ -48,8 +48,9 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                                 inValues.Add(value);
                             }
+							
+                            break;
                         }
-                        break;
 
                         case SqlParameterExpression sqlParameter:
                         {
@@ -65,8 +66,9 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                                 inValues.Add(value);
                             }
+							
+                            break;
                         }
-                        break;
                     }
 
                     var updatedInExpression = inValues.Count > 0
@@ -82,16 +84,19 @@ namespace Microsoft.EntityFrameworkCore.Query
                             : _sqlExpressionFactory.IsNull(inExpression.Item)
                         : null;
 
-                    if (updatedInExpression != null && nullCheckExpression != null)
+                    if (updatedInExpression != null
+                        && nullCheckExpression != null)
                     {
                         return inExpression.IsNegated
                             ? _sqlExpressionFactory.AndAlso(updatedInExpression, nullCheckExpression)
                             : _sqlExpressionFactory.OrElse(updatedInExpression, nullCheckExpression);
                     }
 
-                    if (updatedInExpression == null && nullCheckExpression == null)
+                    if (updatedInExpression == null
+                        && nullCheckExpression == null)
                     {
-                        return _sqlExpressionFactory.Equal(_sqlExpressionFactory.Constant(true), _sqlExpressionFactory.Constant(inExpression.IsNegated));
+                        return _sqlExpressionFactory.Equal(
+                            _sqlExpressionFactory.Constant(true), _sqlExpressionFactory.Constant(inExpression.IsNegated));
                     }
 
                     return (SqlExpression)updatedInExpression ?? nullCheckExpression;

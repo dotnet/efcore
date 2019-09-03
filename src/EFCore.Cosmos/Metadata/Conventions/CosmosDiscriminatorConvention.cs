@@ -54,7 +54,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             return false;
         }
 
-
         /// <summary>
         ///     Called after the base type of an entity type changes.
         /// </summary>

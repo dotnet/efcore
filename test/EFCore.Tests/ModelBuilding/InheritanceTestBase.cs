@@ -79,11 +79,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 var modelBuilder = CreateModelBuilder();
 
                 modelBuilder.Entity<SelfRefManyToOneDerived>().HasData(
-                    new SelfRefManyToOneDerived
-                    {
-                        Id = 1,
-                        SelfRefId = 1
-                    });
+                    new SelfRefManyToOneDerived { Id = 1, SelfRefId = 1 });
                 modelBuilder.Entity<SelfRefManyToOne>();
 
                 modelBuilder.FinalizeModel();
@@ -509,31 +505,17 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
                 principalEntityBuilder.HasMany(c => c.Orders).WithOne(o => o.Customer)
                     .HasForeignKey(
-                        o => new
-                        {
-                            o.CustomerId,
-                            o.AnotherCustomerId
-                        })
+                        o => new { o.CustomerId, o.AnotherCustomerId })
                     .HasPrincipalKey(
-                        c => new
-                        {
-                            c.Id,
-                            c.AlternateKey
-                        });
+                        c => new { c.Id, c.AlternateKey });
 
                 Assert.Empty(derivedDependentEntityType.GetDeclaredIndexes());
 
                 derivedPrincipalEntityBuilder.HasMany<BackOrder>().WithOne()
                     .HasForeignKey(
-                        o => new
-                        {
-                            o.CustomerId
-                        })
+                        o => new { o.CustomerId })
                     .HasPrincipalKey(
-                        c => new
-                        {
-                            c.Id
-                        });
+                        c => new { c.Id });
 
                 var fk = dependentEntityType.GetForeignKeys().Single();
                 Assert.Equal(1, dependentEntityType.GetIndexes().Count());
@@ -567,15 +549,9 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
                 principalEntityBuilder.HasOne<Order>().WithOne()
                     .HasPrincipalKey<Customer>(
-                        c => new
-                        {
-                            c.Id
-                        })
+                        c => new { c.Id })
                     .HasForeignKey<Order>(
-                        o => new
-                        {
-                            o.CustomerId
-                        });
+                        o => new { o.CustomerId });
 
                 modelBuilder.FinalizeModel();
 
@@ -606,24 +582,14 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 var derivedDependentEntityBuilder = modelBuilder.Entity<BackOrder>();
 
                 dependentEntityBuilder.HasIndex(
-                        o => new
-                        {
-                            o.CustomerId,
-                            o.AnotherCustomerId
-                        })
+                        o => new { o.CustomerId, o.AnotherCustomerId })
                     .IsUnique();
 
                 derivedPrincipalEntityBuilder.HasMany<BackOrder>().WithOne()
                     .HasPrincipalKey(
-                        c => new
-                        {
-                            c.Id
-                        })
+                        c => new { c.Id })
                     .HasForeignKey(
-                        o => new
-                        {
-                            o.CustomerId
-                        });
+                        o => new { o.CustomerId });
 
                 var dependentEntityType = dependentEntityBuilder.Metadata;
                 var derivedDependentEntityType = derivedDependentEntityBuilder.Metadata;

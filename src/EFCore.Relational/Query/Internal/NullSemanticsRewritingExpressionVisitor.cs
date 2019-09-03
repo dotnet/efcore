@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -12,7 +12,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
     {
         private readonly ISqlExpressionFactory _sqlExpressionFactory;
 
-        private bool _isNullable = false;
+        private bool _isNullable;
 
         public NullSemanticsRewritingExpressionVisitor(ISqlExpressionFactory sqlExpressionFactory)
         {
@@ -234,7 +234,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
                 if (sqlBinaryExpression.OperatorType == ExpressionType.Equal)
                 {
-                    if (!leftNullable && !rightNullable)
+                    if (!leftNullable
+                        && !rightNullable)
                     {
                         // a == b <=> !a == !b -> a == b
                         // !a == b <=> a == !b -> a != b
@@ -273,7 +274,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
                 if (sqlBinaryExpression.OperatorType == ExpressionType.NotEqual)
                 {
-                    if (!leftNullable && !rightNullable)
+                    if (!leftNullable
+                        && !rightNullable)
                     {
                         // a != b <=> !a != !b -> a != b
                         // !a != b <=> a != !b -> a == b

@@ -28,10 +28,7 @@ namespace Microsoft.EntityFrameworkCore
                 {
                     entities.Add(
                         context.Add(
-                            new SomeEntity
-                            {
-                                Name = _names[i]
-                            }).Entity);
+                            new SomeEntity { Name = _names[i] }).Entity);
                 }
 
                 Assert.Equal(entities.Select(e => e.Id), entities.OrderBy(e => ToCounter(e.Id)).Select(e => e.Id));
@@ -61,11 +58,7 @@ namespace Microsoft.EntityFrameworkCore
                         b =>
                         {
                             b.HasAlternateKey(
-                                e => new
-                                {
-                                    e.SpecialId,
-                                    e.SpecialString
-                                });
+                                e => new { e.SpecialId, e.SpecialString });
                             b.Property(e => e.SpecialId)
                                 .HasAnnotation("SpecialGuid", true)
                                 .ValueGeneratedOnAdd();
@@ -85,10 +78,7 @@ namespace Microsoft.EntityFrameworkCore
                 {
                     entities.Add(
                         context.Add(
-                            new SomeEntity
-                            {
-                                Name = _names[i]
-                            }).Entity);
+                            new SomeEntity { Name = _names[i] }).Entity);
                 }
 
                 Assert.Equal(entities.Select(e => e.Id), entities.OrderBy(e => ToCounter(e.Id)).Select(e => e.Id));
@@ -132,10 +122,7 @@ namespace Microsoft.EntityFrameworkCore
                 {
                     entities.Add(
                         context.Add(
-                            new SomeEntity
-                            {
-                                Name = _names[i]
-                            }).Entity);
+                            new SomeEntity { Name = _names[i] }).Entity);
                 }
 
                 Assert.Equal(entities.Select(e => e.Id), entities.OrderBy(e => ToCounter(e.Id)).Select(e => e.Id));
@@ -188,8 +175,14 @@ namespace Microsoft.EntityFrameworkCore
 
         private readonly string[] _names =
         {
-            "Jamie Vardy", "Danny Drinkwater", "Andy King", "Riyad Mahrez",
-            "Kasper Schmeichel", "Wes Morgan", "Robert Huth", "Leonardo Ulloa"
+            "Jamie Vardy",
+            "Danny Drinkwater",
+            "Andy King",
+            "Riyad Mahrez",
+            "Kasper Schmeichel",
+            "Wes Morgan",
+            "Robert Huth",
+            "Leonardo Ulloa"
         };
 
         private static long ToCounter(Guid guid)
@@ -233,8 +226,14 @@ namespace Microsoft.EntityFrameworkCore
         {
             public static Guid[] SpecialGuids { get; } =
             {
-                Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(),
-                Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid()
+                Guid.NewGuid(),
+                Guid.NewGuid(),
+                Guid.NewGuid(),
+                Guid.NewGuid(),
+                Guid.NewGuid(),
+                Guid.NewGuid(),
+                Guid.NewGuid(),
+                Guid.NewGuid()
             };
 
             private int _counter = -1;

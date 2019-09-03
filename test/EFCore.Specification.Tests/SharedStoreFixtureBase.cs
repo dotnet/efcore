@@ -127,7 +127,7 @@ namespace Microsoft.EntityFrameworkCore
 
         // Called after DisposeAsync
         public virtual void Dispose()
-        {            
+        {
         }
 
         public virtual Task DisposeAsync() => TestStore.DisposeAsync();

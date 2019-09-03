@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -30,7 +30,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             ExpressionType.Equal,
             ExpressionType.NotEqual,
             //ExpressionType.ExclusiveOr,
-            ExpressionType.Coalesce,
+            ExpressionType.Coalesce
             //ExpressionType.ArrayIndex,
             //ExpressionType.RightShift,
             //ExpressionType.LeftShift,
@@ -111,21 +111,21 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         private bool RequiresBrackets(SqlExpression expression)
         {
             return expression is SqlBinaryExpression sqlBinary
-                && sqlBinary.OperatorType != ExpressionType.Coalesce
-                || expression is LikeExpression;
+                   && sqlBinary.OperatorType != ExpressionType.Coalesce
+                   || expression is LikeExpression;
         }
 
         public override bool Equals(object obj)
             => obj != null
-            && (ReferenceEquals(this, obj)
-                || obj is SqlBinaryExpression sqlBinaryExpression
-                    && Equals(sqlBinaryExpression));
+               && (ReferenceEquals(this, obj)
+                   || obj is SqlBinaryExpression sqlBinaryExpression
+                   && Equals(sqlBinaryExpression));
 
         private bool Equals(SqlBinaryExpression sqlBinaryExpression)
             => base.Equals(sqlBinaryExpression)
-            && OperatorType == sqlBinaryExpression.OperatorType
-            && Left.Equals(sqlBinaryExpression.Left)
-            && Right.Equals(sqlBinaryExpression.Right);
+               && OperatorType == sqlBinaryExpression.OperatorType
+               && Left.Equals(sqlBinaryExpression.Left)
+               && Right.Equals(sqlBinaryExpression.Right);
 
         public override int GetHashCode() => HashCode.Combine(base.GetHashCode(), OperatorType, Left, Right);
     }

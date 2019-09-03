@@ -10,7 +10,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.TransportationModel
         public string VehicleName { get; set; }
         public string Name { get; set; }
         public Vehicle Vehicle { get; set; }
-        public OperatorDetails Details { get; set; }        
+        public OperatorDetails Details { get; set; }
 
         public override bool Equals(object obj)
             => obj is Operator other

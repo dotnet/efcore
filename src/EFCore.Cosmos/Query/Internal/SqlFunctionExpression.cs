@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -116,14 +116,14 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         /// </summary>
         public override bool Equals(object obj)
             => obj != null
-            && (ReferenceEquals(this, obj)
-                || obj is SqlFunctionExpression sqlFunctionExpression
-                    && Equals(sqlFunctionExpression));
+               && (ReferenceEquals(this, obj)
+                   || obj is SqlFunctionExpression sqlFunctionExpression
+                   && Equals(sqlFunctionExpression));
 
         private bool Equals(SqlFunctionExpression sqlFunctionExpression)
             => base.Equals(sqlFunctionExpression)
-            && string.Equals(Name, sqlFunctionExpression.Name)
-            && Arguments.SequenceEqual(sqlFunctionExpression.Arguments);
+               && string.Equals(Name, sqlFunctionExpression.Name)
+               && Arguments.SequenceEqual(sqlFunctionExpression.Arguments);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -140,6 +140,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
             {
                 hash.Add(Arguments[i]);
             }
+
             return hash.ToHashCode();
         }
     }

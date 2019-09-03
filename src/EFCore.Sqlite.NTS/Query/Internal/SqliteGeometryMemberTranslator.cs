@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -69,10 +69,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
                         {
                             _sqlExpressionFactory.Function(
                                 "GeometryType",
-                                new []
-                                {
-                                    instance,
-                                },
+                                new[] { instance },
                                 returnType),
                             _sqlExpressionFactory.Constant(" ZM")
                         },
@@ -81,9 +78,11 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
                     new CaseWhenClause(_sqlExpressionFactory.Constant("LINESTRING"), _sqlExpressionFactory.Constant("LineString")),
                     new CaseWhenClause(_sqlExpressionFactory.Constant("POLYGON"), _sqlExpressionFactory.Constant("Polygon")),
                     new CaseWhenClause(_sqlExpressionFactory.Constant("MULTIPOINT"), _sqlExpressionFactory.Constant("MultiPoint")),
-                    new CaseWhenClause(_sqlExpressionFactory.Constant("MULTILINESTRING"), _sqlExpressionFactory.Constant("MultiLineString")),
+                    new CaseWhenClause(
+                        _sqlExpressionFactory.Constant("MULTILINESTRING"), _sqlExpressionFactory.Constant("MultiLineString")),
                     new CaseWhenClause(_sqlExpressionFactory.Constant("MULTIPOLYGON"), _sqlExpressionFactory.Constant("MultiPolygon")),
-                    new CaseWhenClause(_sqlExpressionFactory.Constant("GEOMETRYCOLLECTION"), _sqlExpressionFactory.Constant("GeometryCollection")));
+                    new CaseWhenClause(
+                        _sqlExpressionFactory.Constant("GEOMETRYCOLLECTION"), _sqlExpressionFactory.Constant("GeometryCollection")));
             }
 
             if (Equals(member, _ogcGeometryType))
@@ -95,21 +94,24 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
                         {
                             _sqlExpressionFactory.Function(
                                 "GeometryType",
-                                new []
-                                {
-                                    instance,
-                                },
+                                new[] { instance },
                                 typeof(string)),
                             _sqlExpressionFactory.Constant(" ZM")
                         },
                         typeof(string)),
                     new CaseWhenClause(_sqlExpressionFactory.Constant("POINT"), _sqlExpressionFactory.Constant(OgcGeometryType.Point)),
-                    new CaseWhenClause(_sqlExpressionFactory.Constant("LINESTRING"), _sqlExpressionFactory.Constant(OgcGeometryType.LineString)),
+                    new CaseWhenClause(
+                        _sqlExpressionFactory.Constant("LINESTRING"), _sqlExpressionFactory.Constant(OgcGeometryType.LineString)),
                     new CaseWhenClause(_sqlExpressionFactory.Constant("POLYGON"), _sqlExpressionFactory.Constant(OgcGeometryType.Polygon)),
-                    new CaseWhenClause(_sqlExpressionFactory.Constant("MULTIPOINT"), _sqlExpressionFactory.Constant(OgcGeometryType.MultiPoint)),
-                    new CaseWhenClause(_sqlExpressionFactory.Constant("MULTILINESTRING"), _sqlExpressionFactory.Constant(OgcGeometryType.MultiLineString)),
-                    new CaseWhenClause(_sqlExpressionFactory.Constant("MULTIPOLYGON"), _sqlExpressionFactory.Constant(OgcGeometryType.MultiPolygon)),
-                    new CaseWhenClause(_sqlExpressionFactory.Constant("GEOMETRYCOLLECTION"), _sqlExpressionFactory.Constant(OgcGeometryType.GeometryCollection)));
+                    new CaseWhenClause(
+                        _sqlExpressionFactory.Constant("MULTIPOINT"), _sqlExpressionFactory.Constant(OgcGeometryType.MultiPoint)),
+                    new CaseWhenClause(
+                        _sqlExpressionFactory.Constant("MULTILINESTRING"), _sqlExpressionFactory.Constant(OgcGeometryType.MultiLineString)),
+                    new CaseWhenClause(
+                        _sqlExpressionFactory.Constant("MULTIPOLYGON"), _sqlExpressionFactory.Constant(OgcGeometryType.MultiPolygon)),
+                    new CaseWhenClause(
+                        _sqlExpressionFactory.Constant("GEOMETRYCOLLECTION"),
+                        _sqlExpressionFactory.Constant(OgcGeometryType.GeometryCollection)));
             }
 
             return null;

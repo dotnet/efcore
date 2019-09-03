@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -19,8 +19,10 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
 
         private InMemoryQueryExpression _queryExpression;
         private bool _clientEval;
+
         private readonly IDictionary<ProjectionMember, Expression> _projectionMapping
             = new Dictionary<ProjectionMember, Expression>();
+
         private readonly Stack<ProjectionMember> _projectionMembers = new Stack<ProjectionMember>();
 
         public InMemoryProjectionBindingExpressionVisitor(
@@ -92,7 +94,8 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                             return new ProjectionBindingExpression(
                                 _queryExpression,
                                 _queryExpression.AddToProjection(translated),
-                                typeof(IEnumerable<>).MakeGenericType(materializeCollectionNavigationExpression.Navigation.GetTargetType().ClrType));
+                                typeof(IEnumerable<>).MakeGenericType(
+                                    materializeCollectionNavigationExpression.Navigation.GetTargetType().ClrType));
 
                         case MethodCallExpression methodCallExpression:
                         {
@@ -123,7 +126,6 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                         }
                     }
 
-
                     var translation = _expressionTranslatingExpressionVisitor.Translate(expression);
                     return translation == null
                         ? base.Visit(expression)
@@ -141,7 +143,6 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
 
                     return new ProjectionBindingExpression(_queryExpression, _projectionMembers.Peek(), expression.Type);
                 }
-
             }
 
             return base.Visit(expression);
@@ -162,14 +163,12 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                     return entityShaperExpression.Update(
                         new ProjectionBindingExpression(_queryExpression, _queryExpression.AddToProjection(entityProjection)));
                 }
-                else
-                {
-                    _projectionMapping[_projectionMembers.Peek()]
-                        = _queryExpression.GetMappedProjection(projectionBindingExpression.ProjectionMember);
 
-                    return entityShaperExpression.Update(
-                        new ProjectionBindingExpression(_queryExpression, _projectionMembers.Peek(), typeof(ValueBuffer)));
-                }
+                _projectionMapping[_projectionMembers.Peek()]
+                    = _queryExpression.GetMappedProjection(projectionBindingExpression.ProjectionMember);
+
+                return entityShaperExpression.Update(
+                    new ProjectionBindingExpression(_queryExpression, _projectionMembers.Peek(), typeof(ValueBuffer)));
             }
 
             if (extensionExpression is IncludeExpression includeExpression)
@@ -211,6 +210,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                     {
                         return null;
                     }
+
                     _projectionMembers.Pop();
                 }
             }

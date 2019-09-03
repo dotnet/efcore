@@ -7,7 +7,6 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.TestModels.SpatialModel;
 using Microsoft.EntityFrameworkCore.TestUtilities;
-using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
 using NetTopologySuite.Geometries;
 using Xunit;
 
@@ -26,11 +25,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var db = Fixture.CreateContext())
             {
-                var entity = new PointEntity
-                {
-                    Id = Guid.NewGuid(),
-                    Point = new Point(0, 0)
-                };
+                var entity = new PointEntity { Id = Guid.NewGuid(), Point = new Point(0, 0) };
                 db.Attach(entity);
 
                 entity.Point.X = 1;
@@ -44,11 +39,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var db = Fixture.CreateContext())
             {
-                var entity = new PointEntity
-                {
-                    Id = Guid.NewGuid(),
-                    Point = new Point(0, 0)
-                };
+                var entity = new PointEntity { Id = Guid.NewGuid(), Point = new Point(0, 0) };
                 db.Attach(entity);
 
                 entity.Point = new Point(0, 0);
@@ -77,16 +68,8 @@ namespace Microsoft.EntityFrameworkCore
                 context =>
                 {
                     context.AddRange(
-                        new PointEntity
-                        {
-                            Id = id1,
-                            Point = point
-                        },
-                        new PolygonEntity
-                        {
-                            Id = id2,
-                            Polygon = polygon
-                        });
+                        new PointEntity { Id = id1, Point = point },
+                        new PolygonEntity { Id = id2, Polygon = polygon });
 
                     context.SaveChanges();
                 },
@@ -124,14 +107,14 @@ namespace Microsoft.EntityFrameworkCore
             using (var db = Fixture.CreateContext())
             {
                 (from e in db.Set<PointEntity>()
-                select new
-                {
-                    e.Id,
-                    e.Point,
-                    Point.Empty,
-                    DateTime.UtcNow,
-                    Guid = Guid.NewGuid()
-                }).FirstOrDefault();
+                 select new
+                 {
+                     e.Id,
+                     e.Point,
+                     Point.Empty,
+                     DateTime.UtcNow,
+                     Guid = Guid.NewGuid()
+                 }).FirstOrDefault();
             }
         }
 

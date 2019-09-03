@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -15,39 +15,51 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
     {
         private static readonly MethodInfo _indexOfMethodInfo
             = typeof(string).GetRuntimeMethod(nameof(string.IndexOf), new[] { typeof(string) });
+
         private static readonly MethodInfo _replaceMethodInfo
             = typeof(string).GetRuntimeMethod(nameof(string.Replace), new[] { typeof(string), typeof(string) });
+
         private static readonly MethodInfo _toLowerMethodInfo
             = typeof(string).GetRuntimeMethod(nameof(string.ToLower), Array.Empty<Type>());
+
         private static readonly MethodInfo _toUpperMethodInfo
             = typeof(string).GetRuntimeMethod(nameof(string.ToUpper), Array.Empty<Type>());
+
         private static readonly MethodInfo _substringMethodInfo
             = typeof(string).GetRuntimeMethod(nameof(string.Substring), new[] { typeof(int), typeof(int) });
+
         private static readonly MethodInfo _isNullOrWhiteSpaceMethodInfo
             = typeof(string).GetRuntimeMethod(nameof(string.IsNullOrWhiteSpace), new[] { typeof(string) });
 
         // Method defined in netcoreapp2.0 only
         private static readonly MethodInfo _trimStartMethodInfoWithoutArgs
             = typeof(string).GetRuntimeMethod(nameof(string.TrimStart), Array.Empty<Type>());
+
         private static readonly MethodInfo _trimEndMethodInfoWithoutArgs
             = typeof(string).GetRuntimeMethod(nameof(string.TrimEnd), Array.Empty<Type>());
+
         private static readonly MethodInfo _trimMethodInfoWithoutArgs
             = typeof(string).GetRuntimeMethod(nameof(string.Trim), Array.Empty<Type>());
 
         // Method defined in netstandard2.0
         private static readonly MethodInfo _trimStartMethodInfoWithCharArrayArg
             = typeof(string).GetRuntimeMethod(nameof(string.TrimStart), new[] { typeof(char[]) });
+
         private static readonly MethodInfo _trimEndMethodInfoWithCharArrayArg
             = typeof(string).GetRuntimeMethod(nameof(string.TrimEnd), new[] { typeof(char[]) });
+
         private static readonly MethodInfo _trimMethodInfoWithCharArrayArg
             = typeof(string).GetRuntimeMethod(nameof(string.Trim), new[] { typeof(char[]) });
 
         private static readonly MethodInfo _startsWithMethodInfo
             = typeof(string).GetRuntimeMethod(nameof(string.StartsWith), new[] { typeof(string) });
+
         private static readonly MethodInfo _containsMethodInfo
             = typeof(string).GetRuntimeMethod(nameof(string.Contains), new[] { typeof(string) });
+
         private static readonly MethodInfo _endsWithMethodInfo
             = typeof(string).GetRuntimeMethod(nameof(string.EndsWith), new[] { typeof(string) });
+
         private readonly ISqlExpressionFactory _sqlExpressionFactory;
 
         private const char LikeEscapeChar = '\\';
@@ -68,11 +80,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
                 var charIndexExpression = _sqlExpressionFactory.Subtract(
                     _sqlExpressionFactory.Function(
                         "CHARINDEX",
-                        new[]
-                        {
-                            argument,
-                            _sqlExpressionFactory.ApplyTypeMapping(instance, stringTypeMapping)
-                        },
+                        new[] { argument, _sqlExpressionFactory.ApplyTypeMapping(instance, stringTypeMapping) },
                         method.ReturnType),
                     _sqlExpressionFactory.Constant(1));
 
@@ -100,12 +108,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
 
                 return _sqlExpressionFactory.Function(
                     "REPLACE",
-                    new[]
-                    {
-                        instance,
-                        firstArgument,
-                        secondArgument
-                    },
+                    new[] { instance, firstArgument, secondArgument },
                     method.ReturnType,
                     stringTypeMapping);
             }
@@ -145,13 +148,11 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
                     _sqlExpressionFactory.Equal(
                         _sqlExpressionFactory.Function(
                             "LTRIM",
-                            new[] {
+                            new[]
+                            {
                                 _sqlExpressionFactory.Function(
                                     "RTRIM",
-                                    new[]
-                                    {
-                                        argument
-                                    },
+                                    new[] { argument },
                                     argument.Type,
                                     argument.TypeMapping)
                             },
@@ -167,10 +168,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
             {
                 return _sqlExpressionFactory.Function(
                     "LTRIM",
-                    new[]
-                    {
-                        instance
-                    },
+                    new[] { instance },
                     instance.Type,
                     instance.TypeMapping);
             }
@@ -182,10 +180,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
             {
                 return _sqlExpressionFactory.Function(
                     "RTRIM",
-                    new[]
-                    {
-                        instance
-                    },
+                    new[] { instance },
                     instance.Type,
                     instance.TypeMapping);
             }
@@ -201,10 +196,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
                     {
                         _sqlExpressionFactory.Function(
                             "RTRIM",
-                            new []
-                            {
-                                instance
-                            },
+                            new[] { instance },
                             instance.Type,
                             instance.TypeMapping)
                     },
@@ -229,11 +221,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
                     return _sqlExpressionFactory.GreaterThan(
                         _sqlExpressionFactory.Function(
                             "CHARINDEX",
-                            new[]
-                            {
-                        pattern,
-                        instance
-                            },
+                            new[] { pattern, instance },
                             typeof(int)),
                         _sqlExpressionFactory.Constant(0));
                 }
@@ -245,11 +233,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
                     _sqlExpressionFactory.GreaterThan(
                         _sqlExpressionFactory.Function(
                             "CHARINDEX",
-                            new[]
-                            {
-                                pattern,
-                                instance
-                            },
+                            new[] { pattern, instance },
                             typeof(int)),
                         _sqlExpressionFactory.Constant(0)));
             }
@@ -292,11 +276,11 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
                             startsWith
                                 ? EscapeLikePattern(constantString) + '%'
                                 : '%' + EscapeLikePattern(constantString)),
-                        _sqlExpressionFactory.Constant(LikeEscapeChar.ToString()))  // SQL Server has no char mapping, avoid value conversion warning)
+                        _sqlExpressionFactory.Constant(
+                            LikeEscapeChar.ToString())) // SQL Server has no char mapping, avoid value conversion warning)
                     : _sqlExpressionFactory.Like(
                         instance,
-                        _sqlExpressionFactory.Constant(startsWith ? constantString + '%' : '%' + constantString),
-                        null);
+                        _sqlExpressionFactory.Constant(startsWith ? constantString + '%' : '%' + constantString));
             }
 
             // The pattern is non-constant, we use LEFT or RIGHT to extract substring and compare.
@@ -313,10 +297,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
                     _sqlExpressionFactory.Equal(
                         _sqlExpressionFactory.Function(
                             "LEFT",
-                            new[] {
-                                instance,
-                                _sqlExpressionFactory.Function("LEN", new[] { pattern }, typeof(int))
-                            },
+                            new[] { instance, _sqlExpressionFactory.Function("LEN", new[] { pattern }, typeof(int)) },
                             typeof(string),
                             stringTypeMapping),
                         pattern));
@@ -325,10 +306,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
             return _sqlExpressionFactory.Equal(
                 _sqlExpressionFactory.Function(
                     "RIGHT",
-                    new[] {
-                        instance,
-                        _sqlExpressionFactory.Function("LEN", new[] { pattern }, typeof(int))
-                    },
+                    new[] { instance, _sqlExpressionFactory.Function("LEN", new[] { pattern }, typeof(int)) },
                     typeof(string),
                     stringTypeMapping),
                 pattern);
@@ -343,7 +321,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
             for (var i = 0; i < pattern.Length; i++)
             {
                 var c = pattern[i];
-                if (IsLikeWildChar(c) || c == LikeEscapeChar)
+                if (IsLikeWildChar(c)
+                    || c == LikeEscapeChar)
                 {
                     builder.Append(LikeEscapeChar);
                 }

@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -24,7 +24,8 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
             if (Equals(member, _isClosed))
             {
                 return _sqlExpressionFactory.Case(
-                    new[] {
+                    new[]
+                    {
                         new CaseWhenClause(
                             _sqlExpressionFactory.IsNotNull(instance),
                             _sqlExpressionFactory.Function(

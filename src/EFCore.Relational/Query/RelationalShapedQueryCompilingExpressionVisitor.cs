@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -41,10 +41,10 @@ namespace Microsoft.EntityFrameworkCore.Query
             var indexMapParameter = Expression.Parameter(typeof(int[]), "indexMap");
 
             var shaper = new ShaperExpressionProcessingExpressionVisitor(
-                selectExpression,
-                dataReaderParameter,
-                resultCoordinatorParameter,
-                indexMapParameter)
+                    selectExpression,
+                    dataReaderParameter,
+                    resultCoordinatorParameter,
+                    indexMapParameter)
                 .Inject(shapedQueryExpression.ShaperExpression);
 
             shaper = InjectEntityMaterializers(shaper);
@@ -52,7 +52,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             shaper = new RelationalProjectionBindingRemovingExpressionVisitor(selectExpression, dataReaderParameter)
                 .Visit(shaper);
             shaper = new CustomShaperCompilingExpressionVisitor(
-                dataReaderParameter, resultCoordinatorParameter, IsTracking)
+                    dataReaderParameter, resultCoordinatorParameter, IsTracking)
                 .Visit(shaper);
 
             if (selectExpression.IsNonComposedFromSql())
@@ -93,10 +93,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     var indexArgument = methodCallExpression.Arguments[0];
                     return methodCallExpression.Update(
                         methodCallExpression.Object,
-                        new[]
-                        {
-                            Expression.ArrayIndex(_indexMapParameter, indexArgument),
-                        });
+                        new[] { Expression.ArrayIndex(_indexMapParameter, indexArgument) });
                 }
 
                 return base.VisitMethodCall(methodCallExpression);

@@ -415,7 +415,7 @@ namespace Microsoft.EntityFrameworkCore
                 if (constraint.Sql == sql)
                 {
                     ((CheckConstraint)constraint).UpdateConfigurationSource(
-                         fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+                        fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
                     return entityTypeBuilder;
                 }
 
@@ -533,6 +533,5 @@ namespace Microsoft.EntityFrameworkCore
                 RelationalAnnotationNames.Comment,
                 comment,
                 fromDataAnnotation);
-
     }
 }

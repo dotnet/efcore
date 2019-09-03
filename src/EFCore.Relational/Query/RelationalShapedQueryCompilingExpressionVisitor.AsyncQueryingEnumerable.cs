@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -90,8 +90,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                             if (_dataReader == null)
                             {
                                 var selectExpression = new ParameterValueBasedSelectExpressionOptimizer(
-                                    _sqlExpressionFactory,
-                                    _parameterNameGeneratorFactory)
+                                        _sqlExpressionFactory,
+                                        _parameterNameGeneratorFactory)
                                     .Optimize(_selectExpression, _relationalQueryContext.ParameterValues);
 
                                 var relationalCommand = _querySqlGeneratorFactory.Create().GetCommand(selectExpression);
@@ -137,7 +137,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                                 _resultCoordinator = new ResultCoordinator();
                             }
 
-
                             var hasNext = _resultCoordinator.HasNext ?? await _dataReader.ReadAsync();
                             Current = default;
 
@@ -147,7 +146,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                                 {
                                     _resultCoordinator.ResultReady = true;
                                     _resultCoordinator.HasNext = null;
-                                    Current = _shaper(_relationalQueryContext, _dataReader.DbDataReader,
+                                    Current = _shaper(
+                                        _relationalQueryContext, _dataReader.DbDataReader,
                                         _resultCoordinator.ResultContext, _indexMap, _resultCoordinator);
                                     if (_resultCoordinator.ResultReady)
                                     {
@@ -161,7 +161,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                                         _resultCoordinator.HasNext = false;
                                         // Enumeration has ended, materialize last element
                                         _resultCoordinator.ResultReady = true;
-                                        Current = _shaper(_relationalQueryContext, _dataReader.DbDataReader,
+                                        Current = _shaper(
+                                            _relationalQueryContext, _dataReader.DbDataReader,
                                             _resultCoordinator.ResultContext, _indexMap, _resultCoordinator);
 
                                         break;

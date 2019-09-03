@@ -23,9 +23,23 @@ namespace Microsoft.EntityFrameworkCore.TestModels.UpdatesModel
         public short? ProfileId12 { get; set; }
         public int? ProfileId13 { get; set; }
         public long? ProfileId14 { get; set; }
-        public int ExtraPropertyWithAnExtremelyLongAndOverlyConvolutedNameThatIsUsedToVerifyThatTheStoreIdentifierGenerationLengthLimitIsWorkingCorrectly { get; set; }
-        public string ExtraPropertyWithAnExtremelyLongAndOverlyConvolutedNameThatIsUsedToVerifyThatTheStoreIdentifierGenerationLengthLimitIsWorkingCorrectlyWhenTruncatedNamesCollide { get; set; }
 
-        public virtual LoginEntityTypeWithAnExtremelyLongAndOverlyConvolutedNameThatIsUsedToVerifyThatTheStoreIdentifierGenerationLengthLimitIsWorkingCorrectly Login { get; set; }
+        public int
+            ExtraPropertyWithAnExtremelyLongAndOverlyConvolutedNameThatIsUsedToVerifyThatTheStoreIdentifierGenerationLengthLimitIsWorkingCorrectly
+        {
+            get;
+            set;
+        }
+
+        public string
+            ExtraPropertyWithAnExtremelyLongAndOverlyConvolutedNameThatIsUsedToVerifyThatTheStoreIdentifierGenerationLengthLimitIsWorkingCorrectlyWhenTruncatedNamesCollide
+        {
+            get;
+            set;
+        }
+
+        public virtual
+            LoginEntityTypeWithAnExtremelyLongAndOverlyConvolutedNameThatIsUsedToVerifyThatTheStoreIdentifierGenerationLengthLimitIsWorkingCorrectly
+            Login { get; set; }
     }
 }
