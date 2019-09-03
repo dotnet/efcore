@@ -1206,5 +1206,16 @@ namespace Microsoft.EntityFrameworkCore.Query
                             select new { c, o },
                 entryCount: 268);
         }
+
+        [ConditionalTheory] //Issue#6061
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task FirstOrDefault_over_empty_collection_of_value_type_returns_correct_results(bool isAsync)
+        {
+            return AssertQuery<Customer>(
+                isAsync,
+                cs => from c in cs
+                      where c.CustomerID.Equals("FISSA")
+                      select new { c.CustomerID, OrderId = c.Orders.OrderBy(o => o.OrderID).Select(o => o.OrderID).FirstOrDefault() });
+        }
     }
 }

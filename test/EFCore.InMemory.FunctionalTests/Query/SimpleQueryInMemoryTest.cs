@@ -281,6 +281,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         public override Task SelectMany_correlated_with_outer_4(bool isAsync) => null;
 
         [ConditionalTheory(Skip = "Issue #16963")]
+        public override Task FirstOrDefault_over_empty_collection_of_value_type_returns_correct_results(bool isAsync) => null;
+
+        [ConditionalTheory(Skip = "Issue #16963")]
         public override Task All_client(bool isAsync) => null;
 
         [ConditionalTheory(Skip = "Issue #16963")]
