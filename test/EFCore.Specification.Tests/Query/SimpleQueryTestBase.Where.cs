@@ -1996,6 +1996,21 @@ namespace Microsoft.EntityFrameworkCore.Query
                 os => os.Where(o => o.OrderID == ConstantProperty));
         }
 
+        [ConditionalTheory] // issue #17342
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Generic_Ilist_contains_translates_to_server(bool isAsync)
+        {
+            var cities = new List<string>
+            {
+                "Seattle"
+            } as IList<string>;
+
+            return AssertQuery<Customer>(
+                isAsync,
+                cs => cs.Where(c => cities.Contains(c.City)),
+                entryCount: 1);
+        }
+
         private int SettableProperty { get; set; }
         private int ReadOnlyProperty => 5;
         private const int ConstantProperty = 1;
