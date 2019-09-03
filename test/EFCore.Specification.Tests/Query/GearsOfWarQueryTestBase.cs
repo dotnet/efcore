@@ -3469,13 +3469,14 @@ namespace Microsoft.EntityFrameworkCore.Query
                           from v in Veterans(g.Reports)
                           select new
                           {
-                              g = g.Nickname, v = v.Nickname
+                              g = g.Nickname,
+                              v = v.Nickname
                           },
                     elementSorter: e => e.g + e.v))).Message;
 
-                Assert.Equal(
-                    CoreStrings.QueryFailed("(g) => Veterans(g.Reports)", "NavigationExpandingExpressionVisitor"),
-                    RemoveNewLines(message));
+            Assert.Equal(
+                CoreStrings.QueryFailed("(g) => Veterans(g.Reports)", "NavigationExpandingExpressionVisitor"),
+                RemoveNewLines(message));
         }
 
         private string RemoveNewLines(string message)
@@ -7498,6 +7499,35 @@ namespace Microsoft.EntityFrameworkCore.Query
                 isAsync,
                 ws => ws.Select(w => w.SynergyWithId.HasValue ? $"SynergyWithOwner: {w.SynergyWith.OwnerFullName}" : string.Empty));
         }
+
+        [ConditionalTheory]  // issue #5008
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Left_join_projection_using_coalesce_tracking(bool isAsync)
+        {
+            return AssertQuery<Gear>(
+                isAsync,
+                gs => from g1 in gs.AsTracking()
+                      join g2 in gs
+                        on g1.LeaderNickname equals g2.Nickname into grouping
+                      from g2 in grouping.DefaultIfEmpty()
+                      select g2 ?? g1,
+                entryCount: 5);
+        }
+
+        [ConditionalTheory]  // issue #5008
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Left_join_projection_using_conditional_tracking(bool isAsync)
+        {
+            return AssertQuery<Gear>(
+                isAsync,
+                gs => from g1 in gs.AsTracking()
+                      join g2 in gs
+                        on g1.LeaderNickname equals g2.Nickname into grouping
+                      from g2 in grouping.DefaultIfEmpty()
+                      select g2 == null ? g1 : g2,
+                entryCount: 5);
+        }
+
 
         protected GearsOfWarContext CreateContext() => Fixture.CreateContext();
 
