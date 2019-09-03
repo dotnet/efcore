@@ -1276,7 +1276,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                 var groupBy = _groupBy.ToList();
                 _groupBy.Clear();
                 _groupBy.AddRange(
-                    GroupBy.Select(e => (SqlExpression)visitor.Visit(e))
+                    groupBy.Select(e => (SqlExpression)visitor.Visit(e))
                         .Where(e => !(e is SqlConstantExpression || e is SqlParameterExpression)));
 
                 Having = (SqlExpression)visitor.Visit(Having);
