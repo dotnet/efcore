@@ -1227,5 +1227,36 @@ namespace Microsoft.EntityFrameworkCore.Query
                 (cs, os) => cs.Select(c => os.Where(o => o.CustomerID == "John Doe").Select(o => o.CustomerID).FirstOrDefault().Length),
                 (cs, os) => cs.Select(c => 0));
         }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Member_binding_after_ctor_arguments_fails_with_client_eval(bool isAsync)
+        {
+            return AssertQuery<Customer>(
+                isAsync,
+                cs => cs.Select(c => new CustomerListItem(c.CustomerID, c.City)).OrderBy(c => c.City),
+                assertOrder: true);
+        }
+
+        protected class CustomerListItem
+        {
+            public CustomerListItem(string id, string city)
+            {
+                Id = id;
+                City = city;
+            }
+
+            public string Id { get; }
+            public string City { get; }
+
+            public override bool Equals(object obj)
+                => obj != null
+                    && (ReferenceEquals(this, obj)
+                        || obj is CustomerListItem customerListItem
+                            && Id == customerListItem.Id
+                            && City == customerListItem.City);
+
+            public override int GetHashCode() => HashCode.Combine(Id, City);
+        }
     }
 }
