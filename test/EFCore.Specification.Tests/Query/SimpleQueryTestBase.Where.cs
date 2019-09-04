@@ -2022,5 +2022,26 @@ namespace Microsoft.EntityFrameworkCore.Query
                 (cs, os) => cs.Where(c => os.Where(o => o.CustomerID == "John Doe").Select(o => o.CustomerID).FirstOrDefault().Length == 0),
                 (cs, os) => cs.Where(c => false));
         }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Like_with_non_string_column_using_ToString(bool isAsync)
+        {
+            return AssertQuery<Order>(
+                isAsync,
+                os => os.Where(o => EF.Functions.Like(o.OrderID.ToString(), "%20%")),
+                entryCount: 8);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Like_with_non_string_column_using_double_cast(bool isAsync)
+        {
+            return AssertQuery<Order>(
+                isAsync,
+                os => os.Where(o => EF.Functions.Like((string)(object)o.OrderID, "%20%")),
+                os => os.Where(o => EF.Functions.Like(o.OrderID.ToString(), "%20%")),
+                entryCount: 8);
+        }
     }
 }

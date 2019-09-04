@@ -1884,5 +1884,17 @@ WHERE ((c[""Discriminator""] = ""Order"") AND @__p_0)");
         {
             return base.Filter_non_nullable_value_after_FirstOrDefault_on_empty_collection(isAsync);
         }
+
+        [ConditionalTheory(Skip = "Issue #17246")]
+        public override Task Like_with_non_string_column_using_ToString(bool isAsync)
+        {
+            return base.Like_with_non_string_column_using_ToString(isAsync);
+        }
+
+        [ConditionalTheory(Skip = "Issue #17246")]
+        public override Task Like_with_non_string_column_using_double_cast(bool isAsync)
+        {
+            return base.Like_with_non_string_column_using_double_cast(isAsync);
+        }
     }
 }
