@@ -53,9 +53,13 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
             var created = _cosmosClient.CreateDatabaseIfNotExists();
             foreach (var entityType in _model.GetEntityTypes())
             {
-                created |= _cosmosClient.CreateContainerIfNotExists(
-                    entityType.GetCosmosContainer(),
-                    GetCosmosPartitionKeyStoreName(entityType));
+                var containerName = entityType.GetCosmosContainer();
+                if (containerName != null)
+                {
+                    created |= _cosmosClient.CreateContainerIfNotExists(
+                        containerName,
+                        GetCosmosPartitionKeyStoreName(entityType));
+                }
             }
 
             if (created)

@@ -14,7 +14,7 @@ namespace Microsoft.EntityFrameworkCore
         {
         }
 
-        [ConditionalFact(Skip = "Issue#16963")]
+        [ConditionalFact(Skip = "Issue#14042")]
         public override void Mutation_of_tracked_values_does_not_mutate_values_in_store()
         {
             base.Mutation_of_tracked_values_does_not_mutate_values_in_store();

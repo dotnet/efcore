@@ -35,6 +35,11 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
             ShapedQueryExpression source, LambdaExpression keySelector, bool ascending)
         {
             var translation = base.TranslateOrderBy(source, keySelector, ascending);
+            if (translation == null)
+            {
+                return null;
+            }
+
             var orderingExpression = ((SelectExpression)translation.QueryExpression).Orderings.Last();
             var orderingExpressionType = GetProviderType(orderingExpression.Expression);
             if (orderingExpressionType == typeof(DateTimeOffset)
@@ -52,6 +57,11 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
         protected override ShapedQueryExpression TranslateThenBy(ShapedQueryExpression source, LambdaExpression keySelector, bool ascending)
         {
             var translation = base.TranslateThenBy(source, keySelector, ascending);
+            if (translation == null)
+            {
+                return null;
+            }
+
             var orderingExpression = ((SelectExpression)translation.QueryExpression).Orderings.Last();
             var orderingExpressionType = GetProviderType(orderingExpression.Expression);
             if (orderingExpressionType == typeof(DateTimeOffset)

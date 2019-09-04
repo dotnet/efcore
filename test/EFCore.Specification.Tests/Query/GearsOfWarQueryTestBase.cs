@@ -1328,7 +1328,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 assertOrder: true))).Message;
 
             Assert.Equal(
-                CoreStrings.TranslationFailed("(g) => g.LeaderNickname != null ? new { HasSoulPatch = g.HasSoulPatch } : null == null"),
+                CoreStrings.TranslationFailed("Where<Gear>(    source: OrderBy<Gear, string>(        source: DbSet<Gear>,         keySelector: (g) => g.Nickname),     predicate: (g) => g.LeaderNickname != null ? new { HasSoulPatch = g.HasSoulPatch } : null == null)"),
                 RemoveNewLines(message));
         }
 
@@ -1370,7 +1370,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                       select g.Nickname))).Message;
 
             Assert.Equal(
-                CoreStrings.TranslationFailed("(g) => new { Name = g.LeaderNickname } ?? new { Name = g.FullName } != null"),
+                CoreStrings.TranslationFailed("Where<Gear>(    source: DbSet<Gear>,     predicate: (g) => new { Name = g.LeaderNickname } ?? new { Name = g.FullName } != null)"),
                 RemoveNewLines(message));
         }
 
@@ -1804,7 +1804,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                       select t))).Message;
 
             Assert.Equal(
-                CoreStrings.TranslationFailed("(c) => Property<string>(c.Inner, \"Nickname\") != null && c.Inner.IsMarcus"),
+                CoreStrings.TranslationFailed("Where<TransparentIdentifier<CogTag, Gear>>(    source: LeftJoin<CogTag, Gear, AnonymousObject, TransparentIdentifier<CogTag, Gear>>(        outer: DbSet<CogTag>,         inner: DbSet<Gear>,         outerKeySelector: (c) => new AnonymousObject(new object[]        {             (object)Property<string>(c, \"GearNickName\"),             (object)Property<Nullable<int>>(c, \"GearSquadId\")         }),         innerKeySelector: (g) => new AnonymousObject(new object[]        {             (object)Property<string>(g, \"Nickname\"),             (object)Property<Nullable<int>>(g, \"SquadId\")         }),         resultSelector: (o, i) => new TransparentIdentifier<CogTag, Gear>(            Outer = o,             Inner = i        )),     predicate: (c) => Property<string>(c.Inner, \"Nickname\") != null && c.Inner.IsMarcus)"),
                 RemoveNewLines(message));
         }
 
@@ -3083,7 +3083,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 elementAsserter: (e, a) => Assert.Equal(e.Nickname, a.Nickname)))).Message;
 
             Assert.Equal(
-                CoreStrings.TranslationFailed("(g) => ClientEquals(    first: g.Inner.Note,     second: (Unhandled parameter: __prm_0))"),
+                CoreStrings.TranslationFailed("Where<TransparentIdentifier<Gear, CogTag>>(    source: LeftJoin<Gear, CogTag, AnonymousObject, TransparentIdentifier<Gear, CogTag>>(        outer: DbSet<Gear>,         inner: DbSet<CogTag>,         outerKeySelector: (g) => new AnonymousObject(new object[]        {             (object)Property<string>(g, \"Nickname\"),             (object)Property<Nullable<int>>(g, \"SquadId\")         }),         innerKeySelector: (c) => new AnonymousObject(new object[]        {             (object)Property<string>(c, \"GearNickName\"),             (object)Property<Nullable<int>>(c, \"GearSquadId\")         }),         resultSelector: (o, i) => new TransparentIdentifier<Gear, CogTag>(            Outer = o,             Inner = i        )),     predicate: (g) => ClientEquals(        first: g.Inner.Note,         second: (Unhandled parameter: __prm_0)))"),
                 RemoveNewLines(message));
         }
 
@@ -3417,7 +3417,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                       select g.Nickname))).Message;
 
             Assert.Equal(
-                CoreStrings.TranslationFailed("(g) => g.HasSoulPatch && FavoriteWeapon(MaterializeCollectionNavigation(Navigation: Gear.Weapons (<Weapons>k__BackingField, ICollection<Weapon>) Collection ToDependent Weapon Inverse: Owner, Where<Weapon>(    source: DbSet<Weapon>,     predicate: (w) => Property<string>(g, \"FullName\") == Property<string>(w, \"OwnerFullName\")))).Name == \"Marcus' Lancer\""),
+                CoreStrings.TranslationFailed("Where<Gear>(    source: DbSet<Gear>,     predicate: (g) => g.HasSoulPatch && FavoriteWeapon(MaterializeCollectionNavigation(Navigation: Gear.Weapons (<Weapons>k__BackingField, ICollection<Weapon>) Collection ToDependent Weapon Inverse: Owner, Where<Weapon>(        source: DbSet<Weapon>,         predicate: (w) => Property<string>(g, \"FullName\") == Property<string>(w, \"OwnerFullName\")))).Name == \"Marcus' Lancer\")"),
                 RemoveNewLines(message));
         }
 
@@ -3436,7 +3436,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                       select g.Nickname))).Message;
 
             Assert.Equal(
-                CoreStrings.TranslationFailed("(g) => !(g.HasSoulPatch) && FavoriteWeapon(MaterializeCollectionNavigation(Navigation: Gear.Weapons (<Weapons>k__BackingField, ICollection<Weapon>) Collection ToDependent Weapon Inverse: Owner, Where<Weapon>(    source: DbSet<Weapon>,     predicate: (w) => Property<string>(g, \"FullName\") == Property<string>(w, \"OwnerFullName\")))).Name == \"Cole's Gnasher\""),
+                CoreStrings.TranslationFailed("Where<Gear>(    source: DbSet<Gear>,     predicate: (g) => !(g.HasSoulPatch) && FavoriteWeapon(MaterializeCollectionNavigation(Navigation: Gear.Weapons (<Weapons>k__BackingField, ICollection<Weapon>) Collection ToDependent Weapon Inverse: Owner, Where<Weapon>(        source: DbSet<Weapon>,         predicate: (w) => Property<string>(g, \"FullName\") == Property<string>(w, \"OwnerFullName\")))).Name == \"Cole's Gnasher\")"),
                 RemoveNewLines(message));
         }
 
@@ -3454,7 +3454,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 assertOrder: true))).Message;
 
             Assert.Equal(
-                CoreStrings.TranslationFailed("(g) => FavoriteWeapon(MaterializeCollectionNavigation(Navigation: Gear.Weapons (<Weapons>k__BackingField, ICollection<Weapon>) Collection ToDependent Weapon Inverse: Owner, Where<Weapon>(    source: DbSet<Weapon>,     predicate: (w) => Property<string>(g, \"FullName\") == Property<string>(w, \"OwnerFullName\")))).Name"),
+                CoreStrings.TranslationFailed("OrderByDescending<Gear, string>(    source: Where<Gear>(        source: DbSet<Gear>,         predicate: (g) => !(g.HasSoulPatch)),     keySelector: (g) => FavoriteWeapon(MaterializeCollectionNavigation(Navigation: Gear.Weapons (<Weapons>k__BackingField, ICollection<Weapon>) Collection ToDependent Weapon Inverse: Owner, Where<Weapon>(        source: DbSet<Weapon>,         predicate: (w) => Property<string>(g, \"FullName\") == Property<string>(w, \"OwnerFullName\")))).Name)"),
                 RemoveNewLines(message));
         }
 
@@ -3469,13 +3469,14 @@ namespace Microsoft.EntityFrameworkCore.Query
                           from v in Veterans(g.Reports)
                           select new
                           {
-                              g = g.Nickname, v = v.Nickname
+                              g = g.Nickname,
+                              v = v.Nickname
                           },
                     elementSorter: e => e.g + e.v))).Message;
 
-                Assert.Equal(
-                    CoreStrings.QueryFailed("(g) => Veterans(g.Reports)", "NavigationExpandingExpressionVisitor"),
-                    RemoveNewLines(message));
+            Assert.Equal(
+                CoreStrings.QueryFailed("(g) => Veterans(g.Reports)", "NavigationExpandingExpressionVisitor"),
+                RemoveNewLines(message));
         }
 
         private string RemoveNewLines(string message)
@@ -6496,7 +6497,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 }))).Message;
 
             Assert.Equal(
-                CoreStrings.TranslationFailed("(g) => null"),
+                CoreStrings.TranslationFailed("OrderByDescending<Gear, MyDTO>(    source: DbSet<Gear>,     keySelector: (g) => null)"),
                 RemoveNewLines(message));
         }
 
@@ -6692,6 +6693,26 @@ namespace Microsoft.EntityFrameworkCore.Query
                 isAsync,
                 gs => gs.Select(g => (bool?)g.Weapons.Where(w => w.Name == "BFG").OrderBy(w => w.Id).FirstOrDefault().IsAutomatic),
                 gs => gs.Select(g => (bool?)null));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Select_subquery_boolean_empty_with_pushdown_without_convert_to_nullable1(bool isAsync)
+        {
+            return AssertQueryScalar<Gear>(
+                isAsync,
+                gs => gs.Select(g => g.Weapons.Where(w => w.Name == "BFG").OrderBy(w => w.Id).FirstOrDefault().IsAutomatic),
+                gs => gs.Select(g => false));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Select_subquery_boolean_empty_with_pushdown_without_convert_to_nullable2(bool isAsync)
+        {
+            return AssertQueryScalar<Gear>(
+                isAsync,
+                gs => gs.Select(g => g.Weapons.Where(w => w.Name == "BFG").OrderBy(w => w.Id).FirstOrDefault().Id),
+                gs => gs.Select(g => 0));
         }
 
         [ConditionalTheory]
@@ -7213,7 +7234,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 ms => ms.Where(m => ((DateTimeOffset?)m.Timeline).GetValueOrDefault() == defaultValue)))).Message;
 
             Assert.Equal(
-                CoreStrings.TranslationFailed("(m) => (Nullable<DateTimeOffset>)m.Timeline.GetValueOrDefault() == (Unhandled parameter: __defaultValue_0)"),
+                CoreStrings.TranslationFailed("Where<Mission>(    source: DbSet<Mission>,     predicate: (m) => (Nullable<DateTimeOffset>)m.Timeline.GetValueOrDefault() == (Unhandled parameter: __defaultValue_0))"),
                 RemoveNewLines(message));
         }
 
@@ -7497,6 +7518,34 @@ namespace Microsoft.EntityFrameworkCore.Query
             return AssertQuery<Weapon>(
                 isAsync,
                 ws => ws.Select(w => w.SynergyWithId.HasValue ? $"SynergyWithOwner: {w.SynergyWith.OwnerFullName}" : string.Empty));
+        }
+
+        [ConditionalTheory]  // issue #5008
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Left_join_projection_using_coalesce_tracking(bool isAsync)
+        {
+            return AssertQuery<Gear>(
+                isAsync,
+                gs => from g1 in gs.AsTracking()
+                      join g2 in gs
+                        on g1.LeaderNickname equals g2.Nickname into grouping
+                      from g2 in grouping.DefaultIfEmpty()
+                      select g2 ?? g1,
+                entryCount: 5);
+        }
+
+        [ConditionalTheory]  // issue #5008
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Left_join_projection_using_conditional_tracking(bool isAsync)
+        {
+            return AssertQuery<Gear>(
+                isAsync,
+                gs => from g1 in gs.AsTracking()
+                      join g2 in gs
+                        on g1.LeaderNickname equals g2.Nickname into grouping
+                      from g2 in grouping.DefaultIfEmpty()
+                      select g2 == null ? g1 : g2,
+                entryCount: 5);
         }
 
         protected GearsOfWarContext CreateContext() => Fixture.CreateContext();

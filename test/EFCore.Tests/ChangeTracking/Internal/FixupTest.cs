@@ -2257,7 +2257,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             }
         }
 
-        [ConditionalFact(Skip = "issue #16963 - using InMemory Include query")] // Issue #6067
+        [ConditionalFact] // Issue #6067
         public void Collection_nav_props_remain_fixed_up_after_manual_fixup_and_DetectChanges()
         {
             using (var context = new FixupContext())

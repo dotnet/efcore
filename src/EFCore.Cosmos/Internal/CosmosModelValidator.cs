@@ -57,6 +57,10 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
             foreach (var entityType in model.GetEntityTypes().Where(et => et.FindPrimaryKey() != null))
             {
                 var container = entityType.GetCosmosContainer();
+                if (container == null)
+                {
+                    continue;
+                }
 
                 if (!containers.TryGetValue(container, out var mappedTypes))
                 {

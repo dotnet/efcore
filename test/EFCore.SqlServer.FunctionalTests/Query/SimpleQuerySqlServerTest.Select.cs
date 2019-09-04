@@ -1007,5 +1007,19 @@ OUTER APPLY (
     ORDER BY [c].[City], [o].[OrderID]
 ) AS [t]");
         }
+
+        public override async Task FirstOrDefault_over_empty_collection_of_value_type_returns_correct_results(bool isAsync)
+        {
+            await base.FirstOrDefault_over_empty_collection_of_value_type_returns_correct_results(isAsync);
+
+            AssertSql(
+                @"SELECT [c].[CustomerID], (
+    SELECT TOP(1) [o].[OrderID]
+    FROM [Orders] AS [o]
+    WHERE ([c].[CustomerID] = [o].[CustomerID]) AND [o].[CustomerID] IS NOT NULL
+    ORDER BY [o].[OrderID]) AS [OrderId]
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] = N'FISSA'");
+        }
     }
 }

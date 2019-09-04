@@ -6036,6 +6036,34 @@ FROM [Gears] AS [g]
 WHERE [g].[Discriminator] IN (N'Gear', N'Officer')");
         }
 
+        public override async Task Select_subquery_boolean_empty_with_pushdown_without_convert_to_nullable1(bool isAsync)
+        {
+            await base.Select_subquery_boolean_empty_with_pushdown_without_convert_to_nullable1(isAsync);
+
+            AssertSql(
+                @"SELECT (
+    SELECT TOP(1) [w].[IsAutomatic]
+    FROM [Weapons] AS [w]
+    WHERE (([g].[FullName] = [w].[OwnerFullName]) AND [w].[OwnerFullName] IS NOT NULL) AND (([w].[Name] = N'BFG') AND [w].[Name] IS NOT NULL)
+    ORDER BY [w].[Id])
+FROM [Gears] AS [g]
+WHERE [g].[Discriminator] IN (N'Gear', N'Officer')");
+        }
+
+        public override async Task Select_subquery_boolean_empty_with_pushdown_without_convert_to_nullable2(bool isAsync)
+        {
+            await base.Select_subquery_boolean_empty_with_pushdown_without_convert_to_nullable2(isAsync);
+
+            AssertSql(
+                @"SELECT (
+    SELECT TOP(1) [w].[Id]
+    FROM [Weapons] AS [w]
+    WHERE (([g].[FullName] = [w].[OwnerFullName]) AND [w].[OwnerFullName] IS NOT NULL) AND (([w].[Name] = N'BFG') AND [w].[Name] IS NOT NULL)
+    ORDER BY [w].[Id])
+FROM [Gears] AS [g]
+WHERE [g].[Discriminator] IN (N'Gear', N'Officer')");
+        }
+
         public override async Task Select_subquery_distinct_singleordefault_boolean1(bool isAsync)
         {
             await base.Select_subquery_distinct_singleordefault_boolean1(isAsync);
@@ -6832,6 +6860,39 @@ WHERE ((@__start_0 <= CAST(CONVERT(date, [m].[Timeline]) AS datetimeoffset)) AND
 END, [w0].[OwnerFullName]
 FROM [Weapons] AS [w]
 LEFT JOIN [Weapons] AS [w0] ON [w].[SynergyWithId] = [w0].[Id]");
+        }
+
+        public override async Task Left_join_projection_using_coalesce_tracking(bool isAsync)
+        {
+            await base.Left_join_projection_using_coalesce_tracking(isAsync);
+
+            AssertSql(
+                @"SELECT [t].[Nickname], [t].[SquadId], [t].[AssignedCityName], [t].[CityOrBirthName], [t].[Discriminator], [t].[FullName], [t].[HasSoulPatch], [t].[LeaderNickname], [t].[LeaderSquadId], [t].[Rank], [g0].[Nickname], [g0].[SquadId], [g0].[AssignedCityName], [g0].[CityOrBirthName], [g0].[Discriminator], [g0].[FullName], [g0].[HasSoulPatch], [g0].[LeaderNickname], [g0].[LeaderSquadId], [g0].[Rank]
+FROM [Gears] AS [g0]
+LEFT JOIN (
+    SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOrBirthName], [g].[Discriminator], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank]
+    FROM [Gears] AS [g]
+    WHERE [g].[Discriminator] IN (N'Gear', N'Officer')
+) AS [t] ON [g0].[LeaderNickname] = [t].[Nickname]
+WHERE [g0].[Discriminator] IN (N'Gear', N'Officer')");
+        }
+
+        public override async Task Left_join_projection_using_conditional_tracking(bool isAsync)
+        {
+            await base.Left_join_projection_using_conditional_tracking(isAsync);
+
+            AssertSql(
+                @"SELECT CASE
+    WHEN [t].[Nickname] IS NULL THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
+END, [g0].[Nickname], [g0].[SquadId], [g0].[AssignedCityName], [g0].[CityOrBirthName], [g0].[Discriminator], [g0].[FullName], [g0].[HasSoulPatch], [g0].[LeaderNickname], [g0].[LeaderSquadId], [g0].[Rank], [t].[Nickname], [t].[SquadId], [t].[AssignedCityName], [t].[CityOrBirthName], [t].[Discriminator], [t].[FullName], [t].[HasSoulPatch], [t].[LeaderNickname], [t].[LeaderSquadId], [t].[Rank]
+FROM [Gears] AS [g0]
+LEFT JOIN (
+    SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOrBirthName], [g].[Discriminator], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank]
+    FROM [Gears] AS [g]
+    WHERE [g].[Discriminator] IN (N'Gear', N'Officer')
+) AS [t] ON [g0].[LeaderNickname] = [t].[Nickname]
+WHERE [g0].[Discriminator] IN (N'Gear', N'Officer')");
         }
 
         private void AssertSql(params string[] expected)

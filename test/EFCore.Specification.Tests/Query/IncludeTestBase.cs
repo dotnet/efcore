@@ -1906,7 +1906,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             using (var context = CreateContext())
             {
                 Assert.Equal(
-                    CoreStrings.TranslationFailed("(c) => c.IsLondon"),
+                    CoreStrings.TranslationFailed("Where<Customer>(    source: DbSet<Customer>,     predicate: (c) => c.IsLondon)"),
                     Assert.Throws<InvalidOperationException>(
                         () => useString
                             ? context.Set<Customer>()
@@ -1916,7 +1916,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                             : context.Set<Customer>()
                                 .Include(c => c.Orders)
                                 .Where(c => c.IsLondon)
-                                .ToList()).Message);
+                                .ToList()).Message.Replace("\r", "").Replace("\n", ""));
             }
         }
 

@@ -15,7 +15,6 @@ using Xunit;
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    // Issue #16963
     public class QueryLoggingSqlServerTest : IClassFixture<IncludeSqlServerFixture>
     {
         private static readonly string _eol = Environment.NewLine;
@@ -66,93 +65,58 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        //[ConditionalFact]
-        //public virtual void Query_with_ignored_include_should_log_warning()
-        //{
-        //    using (var context = CreateContext())
-        //    {
-        //        var customers
-        //            = context.Customers
-        //                .Include(c => c.Orders)
-        //                .Select(c => c.CustomerID)
-        //                .ToList();
+        [ConditionalFact(Skip = "Issue#17498")]
+        public virtual void Query_with_ignored_include_should_log_warning()
+        {
+            using (var context = CreateContext())
+            {
+                var customers
+                    = context.Customers
+                        .Include(c => c.Orders)
+                        .Select(c => c.CustomerID)
+                        .ToList();
 
-        //        Assert.NotNull(customers);
-        //        Assert.Contains(
-        //            CoreResources.LogIgnoredInclude(new TestLogger<SqlServerLoggingDefinitions>()).GenerateMessage("[c].Orders"), Fixture.TestSqlLoggerFactory.Log.Select(l => l.Message));
-        //    }
-        //}
-
-        //[ConditionalFact]
-        //public virtual void Include_navigation()
-        //{
-        //    using (var context = CreateContext())
-        //    {
-        //        var customers
-        //            = context.Set<Customer>()
-        //                .Include(c => c.Orders)
-        //                .ToList();
-
-        //        Assert.NotNull(customers);
-
-        //        Assert.Equal(
-        //            "Compiling query model: " + _eol +
-        //            "'(from Customer c in DbSet<Customer>" + _eol +
-        //            @"select [c]).Include(""Orders"")'"
-        //            ,
-        //            Fixture.TestSqlLoggerFactory.Log[0].Message);
-        //        Assert.Equal(
-        //            "Including navigation: '[c].Orders'"
-        //            ,
-        //            Fixture.TestSqlLoggerFactory.Log[1].Message);
-        //        Assert.StartsWith(
-        //            "Optimized query model: " + _eol +
-        //            "'from Customer c in DbSet<Customer>" + _eol +
-        //            @"order by EF.Property(?[c]?, ""CustomerID"") asc" + _eol +
-        //            "select Customer _Include("
-        //            ,
-        //            Fixture.TestSqlLoggerFactory.Log[2].Message);
-        //    }
-        //}
-
+                Assert.NotNull(customers);
+                Assert.Contains(
 #pragma warning disable CS0612 // Type or member is obsolete
-        [ConditionalFact(Skip = "Issue #17245")]
-        public virtual void Concat_Include_collection_ignored()
-        {
-            using (var context = CreateContext())
-            {
-                var orders = context.Orders
-                    .Where(o => o.OrderID < 10250)
-                    .Concat(context.Orders.Where(o => o.CustomerID == "ALFKI"))
-                    .Include(o => o.OrderDetails)
-                    .ToList();
-
-                Assert.NotNull(orders);
-                Assert.Contains(
-                    CoreResources.LogIgnoredInclude(new TestLogger<SqlServerLoggingDefinitions>()).GenerateMessage("[o].OrderDetails"),
-                    Fixture.TestSqlLoggerFactory.Log.Select(l => l.Message));
+                    CoreResources.LogIgnoredInclude(new TestLogger<SqlServerLoggingDefinitions>()).GenerateMessage("[c].Orders"), Fixture.TestSqlLoggerFactory.Log.Select(l => l.Message));
+#pragma warning restore CS0612 // Type or member is obsolete
             }
         }
 
-        [ConditionalFact(Skip = "Issue #17245")]
-        public virtual void Union_Include_collection_ignored()
+        [ConditionalFact(Skip = "Issue#17498")]
+        public virtual void Include_navigation()
         {
             using (var context = CreateContext())
             {
-                var orders = context.Orders
-                    .Where(o => o.OrderID < 10250)
-                    .Union(context.Orders.Where(o => o.CustomerID == "ALFKI"))
-                    .Include(o => o.OrderDetails)
-                    .ToList();
+                var customers
+                    = context.Set<Customer>()
+                        .Include(c => c.Orders)
+                        .ToList();
 
-                Assert.NotNull(orders);
-                Assert.Contains(
-                    CoreResources.LogIgnoredInclude(new TestLogger<SqlServerLoggingDefinitions>()).GenerateMessage("[o].OrderDetails"),
-                    Fixture.TestSqlLoggerFactory.Log.Select(l => l.Message));
+                Assert.NotNull(customers);
+
+                Assert.Equal(
+                    "Compiling query model: " + _eol +
+                    "'(from Customer c in DbSet<Customer>" + _eol +
+                    @"select [c]).Include(""Orders"")'"
+                    ,
+                    Fixture.TestSqlLoggerFactory.Log[0].Message);
+                Assert.Equal(
+                    "Including navigation: '[c].Orders'"
+                    ,
+                    Fixture.TestSqlLoggerFactory.Log[1].Message);
+                Assert.StartsWith(
+                    "Optimized query model: " + _eol +
+                    "'from Customer c in DbSet<Customer>" + _eol +
+                    @"order by EF.Property(?[c]?, ""CustomerID"") asc" + _eol +
+                    "select Customer _Include("
+                    ,
+                    Fixture.TestSqlLoggerFactory.Log[2].Message);
             }
         }
 
-        [ConditionalFact(Skip = "Issue #17068")]
+        [ConditionalFact(Skip = "Issue #16752")]
         public virtual void GroupBy_Include_collection_ignored()
         {
             using (var context = CreateContext())
@@ -165,12 +129,13 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                 Assert.NotNull(orders);
                 Assert.Contains(
+#pragma warning disable CS0612 // Type or member is obsolete
                     CoreResources.LogIgnoredInclude(new TestLogger<SqlServerLoggingDefinitions>()).GenerateMessage(
+#pragma warning restore CS0612 // Type or member is obsolete
                         "{from Order o in [g] orderby [o].OrderID asc select [o] => FirstOrDefault()}.OrderDetails"),
                     Fixture.TestSqlLoggerFactory.Log.Select(l => l.Message));
             }
         }
-#pragma warning restore CS0612 // Type or member is obsolete
 
         [ConditionalFact]
         public void SelectExpression_does_not_use_an_old_logger()

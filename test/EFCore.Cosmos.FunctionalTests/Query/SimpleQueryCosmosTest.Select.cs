@@ -859,5 +859,11 @@ WHERE (c[""Discriminator""] = ""Customer"")");
         {
             return base.Client_method_in_projection_requiring_materialization_2(isAsync);
         }
+
+        [ConditionalTheory(Skip = "Issue#17246")]
+        public override Task Project_non_nullable_value_after_FirstOrDefault_on_empty_collection(bool isAsync)
+        {
+            return base.Project_non_nullable_value_after_FirstOrDefault_on_empty_collection(isAsync);
+        }
     }
 }

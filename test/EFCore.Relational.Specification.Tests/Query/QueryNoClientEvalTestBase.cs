@@ -12,7 +12,6 @@ using Xunit;
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore.Query
 {
-#pragma warning disable CS0612 // Type or member is obsolete
     public abstract class QueryNoClientEvalTestBase<TFixture> : IClassFixture<TFixture>
         where TFixture : NorthwindQueryRelationalFixture<NoopModelCustomizer>, new()
     {
@@ -26,10 +25,10 @@ namespace Microsoft.EntityFrameworkCore.Query
             using (var context = CreateContext())
             {
                 Assert.Equal(
-                    CoreStrings.TranslationFailed("(c) => c.IsLondon"),
-                    Assert.Throws<InvalidOperationException>(
+                    CoreStrings.TranslationFailed("Where<Customer>(    source: DbSet<Customer>,     predicate: (c) => c.IsLondon)"),
+                    RemoveNewLines(Assert.Throws<InvalidOperationException>(
                             () => context.Customers.Where(c => c.IsLondon).ToList())
-                        .Message);
+                        .Message));
             }
         }
 
@@ -39,9 +38,9 @@ namespace Microsoft.EntityFrameworkCore.Query
             using (var context = CreateContext())
             {
                 Assert.Equal(
-                    CoreStrings.TranslationFailed("(c) => c.IsLondon"),
-                    Assert.Throws<InvalidOperationException>(
-                        () => context.Customers.OrderBy(c => c.IsLondon).ToList()).Message);
+                    CoreStrings.TranslationFailed("OrderBy<Customer, bool>(    source: DbSet<Customer>,     keySelector: (c) => c.IsLondon)"),
+                    RemoveNewLines(Assert.Throws<InvalidOperationException>(
+                        () => context.Customers.OrderBy(c => c.IsLondon).ToList()).Message));
             }
         }
 
@@ -51,12 +50,12 @@ namespace Microsoft.EntityFrameworkCore.Query
             using (var context = CreateContext())
             {
                 Assert.Equal(
-                    CoreStrings.TranslationFailed("(c) => c.IsLondon"),
-                    Assert.Throws<InvalidOperationException>(
+                    CoreStrings.TranslationFailed("OrderBy<Customer, bool>(    source: DbSet<Customer>,     keySelector: (c) => c.IsLondon)"),
+                    RemoveNewLines(Assert.Throws<InvalidOperationException>(
                         () => context.Customers
                             .OrderBy(c => c.IsLondon)
                             .ThenBy(c => ClientMethod(c))
-                            .ToList()).Message);
+                            .ToList()).Message));
             }
         }
 
@@ -69,7 +68,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             {
                 Assert.Equal(
                     CoreStrings.TranslationFailed(
-                        "(c0) => EntityShaperExpression:     EntityType: Customer    ValueBufferExpression:         ProjectionBindingExpression: EmptyProjectionMember    IsNullable: False.CustomerID == c0.CustomerID && c0.IsLondon"),
+                        "Any<Customer>(    source: DbSet<Customer>,     predicate: (c0) => EntityShaperExpression:         EntityType: Customer        ValueBufferExpression:             ProjectionBindingExpression: EmptyProjectionMember        IsNullable: False    .CustomerID == c0.CustomerID && c0.IsLondon)"),
                     RemoveNewLines(
                         Assert.Throws<InvalidOperationException>(
                             () => context.Customers
@@ -86,9 +85,9 @@ namespace Microsoft.EntityFrameworkCore.Query
             using (var context = CreateContext())
             {
                 Assert.Equal(
-                    CoreStrings.TranslationFailed("(c) => c.IsLondon"),
-                    Assert.Throws<InvalidOperationException>(
-                        () => context.Customers.All(c => c.IsLondon)).Message);
+                    CoreStrings.TranslationFailed("All<Customer>(    source: DbSet<Customer>,     predicate: (c) => c.IsLondon)"),
+                    RemoveNewLines(Assert.Throws<InvalidOperationException>(
+                        () => context.Customers.All(c => c.IsLondon)).Message));
             }
         }
 
@@ -98,12 +97,12 @@ namespace Microsoft.EntityFrameworkCore.Query
             using (var context = CreateContext())
             {
                 Assert.Equal(
-                    CoreStrings.TranslationFailed("(c) => c.IsLondon"),
-                    Assert.Throws<InvalidOperationException>(
+                    CoreStrings.TranslationFailed("Where<Customer>(    source: FromSqlOnQueryable<Customer>(        source: DbSet<Customer>,         sql: \"select * from \"Customers\"\",         parameters: (Unhandled parameter: __p_0)),     predicate: (c) => c.IsLondon)"),
+                    RemoveNewLines(Assert.Throws<InvalidOperationException>(
                         () => context.Customers
                             .FromSqlRaw(NormalizeDelimetersInRawString("select * from [Customers]"))
                             .Where(c => c.IsLondon)
-                            .ToList()).Message);
+                            .ToList()).Message));
             }
         }
 
@@ -127,15 +126,15 @@ namespace Microsoft.EntityFrameworkCore.Query
             using (var context = CreateContext())
             {
                 Assert.Equal(
-                    CoreStrings.TranslationFailed("(c) => c.IsLondon"),
-                    Assert.Throws<InvalidOperationException>(
+                    CoreStrings.TranslationFailed("Where<Customer>(    source: DbSet<Customer>,     predicate: (c) => c.IsLondon)"),
+                    RemoveNewLines(Assert.Throws<InvalidOperationException>(
                         () =>
                             (from c1 in context.Customers
                                  .Where(c => c.IsLondon)
                                  .OrderBy(c => c.CustomerID)
                                  .Take(5)
                              select c1)
-                            .ToList()).Message);
+                            .ToList()).Message));
             }
         }
 
@@ -146,12 +145,12 @@ namespace Microsoft.EntityFrameworkCore.Query
             {
                 Assert.Equal(
                     CoreStrings.QueryFailed("(c1) => int[] { 1, 2, 3, }", "NavigationExpandingExpressionVisitor"),
-                    Assert.Throws<InvalidOperationException>(
+                    RemoveNewLines(Assert.Throws<InvalidOperationException>(
                         () =>
                             (from c1 in context.Customers
                              from i in new[] { 1, 2, 3 }
                              select c1)
-                            .ToList()).Message);
+                            .ToList()).Message));
             }
         }
 
@@ -203,10 +202,10 @@ namespace Microsoft.EntityFrameworkCore.Query
                     .ToList();
                 Assert.Equal(
                     CoreStrings.TranslationFailed("GroupBy([c].CustomerID, [c])"),
-                    Assert.Throws<InvalidOperationException>(
+                    RemoveNewLines(Assert.Throws<InvalidOperationException>(
                         () => context.Customers
                             .GroupBy(c => c.CustomerID)
-                            .ToList()).Message);
+                            .ToList()).Message));
             }
         }
 
@@ -216,9 +215,9 @@ namespace Microsoft.EntityFrameworkCore.Query
             using (var context = CreateContext())
             {
                 Assert.Equal(
-                    CoreStrings.TranslationFailed("(c) => c.IsLondon"),
-                    Assert.Throws<InvalidOperationException>(
-                        () => context.Customers.First(c => c.IsLondon)).Message);
+                    CoreStrings.TranslationFailed("Where<Customer>(    source: DbSet<Customer>,     predicate: (c) => c.IsLondon)"),
+                    RemoveNewLines(Assert.Throws<InvalidOperationException>(
+                        () => context.Customers.First(c => c.IsLondon)).Message));
             }
         }
 
@@ -228,9 +227,9 @@ namespace Microsoft.EntityFrameworkCore.Query
             using (var context = CreateContext())
             {
                 Assert.Equal(
-                    CoreStrings.TranslationFailed("(c) => c.IsLondon"),
-                    Assert.Throws<InvalidOperationException>(
-                        () => context.Customers.Single(c => c.IsLondon)).Message);
+                    CoreStrings.TranslationFailed("Where<Customer>(    source: DbSet<Customer>,     predicate: (c) => c.IsLondon)"),
+                    RemoveNewLines(Assert.Throws<InvalidOperationException>(
+                        () => context.Customers.Single(c => c.IsLondon)).Message));
             }
         }
 
@@ -240,9 +239,9 @@ namespace Microsoft.EntityFrameworkCore.Query
             using (var context = CreateContext())
             {
                 Assert.Equal(
-                    CoreStrings.TranslationFailed("(c) => c.IsLondon"),
-                    Assert.Throws<InvalidOperationException>(
-                        () => context.Customers.FirstOrDefault(c => c.IsLondon)).Message);
+                    CoreStrings.TranslationFailed("Where<Customer>(    source: DbSet<Customer>,     predicate: (c) => c.IsLondon)"),
+                    RemoveNewLines(Assert.Throws<InvalidOperationException>(
+                        () => context.Customers.FirstOrDefault(c => c.IsLondon)).Message));
             }
         }
 
@@ -252,9 +251,9 @@ namespace Microsoft.EntityFrameworkCore.Query
             using (var context = CreateContext())
             {
                 Assert.Equal(
-                    CoreStrings.TranslationFailed("(c) => c.IsLondon"),
-                    Assert.Throws<InvalidOperationException>(
-                        () => context.Customers.SingleOrDefault(c => c.IsLondon)).Message);
+                    CoreStrings.TranslationFailed("Where<Customer>(    source: DbSet<Customer>,     predicate: (c) => c.IsLondon)"),
+                    RemoveNewLines(Assert.Throws<InvalidOperationException>(
+                        () => context.Customers.SingleOrDefault(c => c.IsLondon)).Message));
             }
         }
 
@@ -269,5 +268,4 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         protected NorthwindContext CreateContext() => Fixture.CreateContext();
     }
-#pragma warning restore CS0612 // Type or member is obsolete
 }

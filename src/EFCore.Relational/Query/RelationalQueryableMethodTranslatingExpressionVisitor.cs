@@ -105,26 +105,25 @@ namespace Microsoft.EntityFrameworkCore.Query
         protected override ShapedQueryExpression TranslateAll(ShapedQueryExpression source, LambdaExpression predicate)
         {
             var translation = TranslateLambdaExpression(source, predicate);
-
-            if (translation != null)
+            if (translation == null)
             {
-                var selectExpression = (SelectExpression)source.QueryExpression;
-                selectExpression.ApplyPredicate(_sqlExpressionFactory.Not(translation));
-                selectExpression.ReplaceProjectionMapping(new Dictionary<ProjectionMember, Expression>());
-                if (selectExpression.Limit == null
-                    && selectExpression.Offset == null)
-                {
-                    selectExpression.ClearOrdering();
-                }
-
-                translation = _sqlExpressionFactory.Exists(selectExpression, true);
-                source.QueryExpression = _sqlExpressionFactory.Select(translation);
-                source.ShaperExpression = new ProjectionBindingExpression(source.QueryExpression, new ProjectionMember(), typeof(bool));
-
-                return source;
+                return null;
             }
 
-            throw new InvalidOperationException(CoreStrings.TranslationFailed(predicate.Print()));
+            var selectExpression = (SelectExpression)source.QueryExpression;
+            selectExpression.ApplyPredicate(_sqlExpressionFactory.Not(translation));
+            selectExpression.ReplaceProjectionMapping(new Dictionary<ProjectionMember, Expression>());
+            if (selectExpression.Limit == null
+                && selectExpression.Offset == null)
+            {
+                selectExpression.ClearOrdering();
+            }
+
+            translation = _sqlExpressionFactory.Exists(selectExpression, true);
+            source.QueryExpression = _sqlExpressionFactory.Select(translation);
+            source.ShaperExpression = new ProjectionBindingExpression(source.QueryExpression, new ProjectionMember(), typeof(bool));
+
+            return source;
         }
 
         protected override ShapedQueryExpression TranslateAny(ShapedQueryExpression source, LambdaExpression predicate)
@@ -132,6 +131,10 @@ namespace Microsoft.EntityFrameworkCore.Query
             if (predicate != null)
             {
                 source = TranslateWhere(source, predicate);
+                if (source == null)
+                {
+                    return null;
+                }
             }
 
             var selectExpression = (SelectExpression)source.QueryExpression;
@@ -160,23 +163,17 @@ namespace Microsoft.EntityFrameworkCore.Query
                 : RemapLambdaBody(source, selector);
 
             var projection = _sqlTranslator.TranslateAverage(newSelector);
-
-            if (projection == null)
-            {
-                throw new InvalidOperationException(CoreStrings.TranslationFailed(selectExpression.Print()));
-            }
-
-            return AggregateResultShaper(source, projection, throwOnNullResult: true, resultType);
+            return projection != null
+                ? AggregateResultShaper(source, projection, throwOnNullResult: true, resultType)
+                : null;
         }
 
         protected override ShapedQueryExpression TranslateCast(ShapedQueryExpression source, Type resultType)
         {
-            if (source.ShaperExpression.Type == resultType)
+            if (source.ShaperExpression.Type != resultType)
             {
-                return source;
+                source.ShaperExpression = Expression.Convert(source.ShaperExpression, resultType);
             }
-
-            source.ShaperExpression = Expression.Convert(source.ShaperExpression, resultType);
 
             return source;
         }
@@ -192,24 +189,23 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             var selectExpression = (SelectExpression)source.QueryExpression;
             var translation = TranslateExpression(item);
-
-            if (translation != null)
+            if (translation == null)
             {
-                if (selectExpression.Limit == null
-                    && selectExpression.Offset == null)
-                {
-                    selectExpression.ClearOrdering();
-                }
-
-                selectExpression.ApplyProjection();
-                translation = _sqlExpressionFactory.In(translation, selectExpression, false);
-                source.QueryExpression = _sqlExpressionFactory.Select(translation);
-                source.ShaperExpression = new ProjectionBindingExpression(source.QueryExpression, new ProjectionMember(), typeof(bool));
-
-                return source;
+                return null;
             }
 
-            throw new InvalidOperationException(CoreStrings.TranslationFailed(item.Print()));
+            if (selectExpression.Limit == null
+                && selectExpression.Offset == null)
+            {
+                selectExpression.ClearOrdering();
+            }
+
+            selectExpression.ApplyProjection();
+            translation = _sqlExpressionFactory.In(translation, selectExpression, false);
+            source.QueryExpression = _sqlExpressionFactory.Select(translation);
+            source.ShaperExpression = new ProjectionBindingExpression(source.QueryExpression, new ProjectionMember(), typeof(bool));
+
+            return source;
         }
 
         protected override ShapedQueryExpression TranslateCount(ShapedQueryExpression source, LambdaExpression predicate)
@@ -220,9 +216,17 @@ namespace Microsoft.EntityFrameworkCore.Query
             if (predicate != null)
             {
                 source = TranslateWhere(source, predicate);
+                if (source == null)
+                {
+                    return null;
+                }
             }
 
             var translation = _sqlTranslator.TranslateCount();
+            if (translation == null)
+            {
+                return null;
+            }
 
             var projectionMapping = new Dictionary<ProjectionMember, Expression> { { new ProjectionMember(), translation } };
 
@@ -243,7 +247,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 return source;
             }
 
-            throw new InvalidOperationException(CoreStrings.TranslationFailed(defaultValue.Print()));
+            return null;
         }
 
         protected override ShapedQueryExpression TranslateDistinct(ShapedQueryExpression source)
@@ -253,9 +257,8 @@ namespace Microsoft.EntityFrameworkCore.Query
             return source;
         }
 
-        protected override ShapedQueryExpression TranslateElementAtOrDefault(
-            ShapedQueryExpression source, Expression index, bool returnDefault)
-            => throw new InvalidOperationException(CoreStrings.TranslationFailed(index.Print()));
+        protected override ShapedQueryExpression TranslateElementAtOrDefault(ShapedQueryExpression source, Expression index, bool returnDefault)
+            => null;
 
         protected override ShapedQueryExpression TranslateExcept(ShapedQueryExpression source1, ShapedQueryExpression source2)
         {
@@ -269,6 +272,10 @@ namespace Microsoft.EntityFrameworkCore.Query
             if (predicate != null)
             {
                 source = TranslateWhere(source, predicate);
+                if (source == null)
+                {
+                    return null;
+                }
             }
 
             var selectExpression = (SelectExpression)source.QueryExpression;
@@ -330,9 +337,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 return source;
             }
 
-            throw new InvalidOperationException(
-                CoreStrings.TranslationFailed(
-                    keySelector.Print() + "; " + elementSelector.Print() + "; " + resultSelector.Print()));
+            return null;
         }
 
         private Expression TranslateGroupingKey(Expression expression)
@@ -381,10 +386,9 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                 default:
                     var translation = _sqlTranslator.Translate(expression);
-
                     if (translation == null)
                     {
-                        throw new InvalidOperationException(CoreStrings.TranslationFailed(expression.Print()));
+                        return null;
                     }
 
                     return translation.Type == expression.Type
@@ -437,10 +441,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             //        innerTransparentIdentifierType);
             //}
 
-            // See #17236
-            throw new InvalidOperationException(
-                CoreStrings.TranslationFailed(
-                    outerKeySelector.Print() + "; " + innerKeySelector.Print() + "; " + resultSelector.Print()));
+            return null;
         }
 
         protected override ShapedQueryExpression TranslateIntersect(ShapedQueryExpression source1, ShapedQueryExpression source2)
@@ -473,14 +474,14 @@ namespace Microsoft.EntityFrameworkCore.Query
                     transparentIdentifierType);
             }
 
-            // See #17236
-            throw new InvalidOperationException(
-                CoreStrings.TranslationFailed(
-                    outerKeySelector.Print() + "; " + innerKeySelector.Print() + "; " + resultSelector.Print()));
+            return null;
         }
 
         protected override ShapedQueryExpression TranslateLeftJoin(
-            ShapedQueryExpression outer, ShapedQueryExpression inner, LambdaExpression outerKeySelector, LambdaExpression innerKeySelector,
+            ShapedQueryExpression outer,
+            ShapedQueryExpression inner,
+            LambdaExpression outerKeySelector,
+            LambdaExpression innerKeySelector,
             LambdaExpression resultSelector)
         {
             var joinPredicate = CreateJoinPredicate(outer, outerKeySelector, inner, innerKeySelector);
@@ -500,10 +501,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     transparentIdentifierType);
             }
 
-            // See #17236
-            throw new InvalidOperationException(
-                CoreStrings.TranslationFailed(
-                    outerKeySelector.Print() + "; " + innerKeySelector.Print() + "; " + resultSelector.Print()));
+            return null;
         }
 
         private SqlBinaryExpression CreateJoinPredicate(
@@ -570,6 +568,10 @@ namespace Microsoft.EntityFrameworkCore.Query
             if (predicate != null)
             {
                 source = TranslateWhere(source, predicate);
+                if (source == null)
+                {
+                    return null;
+                }
             }
 
             selectExpression.ReverseOrderings();
@@ -591,10 +593,22 @@ namespace Microsoft.EntityFrameworkCore.Query
             if (predicate != null)
             {
                 source = TranslateWhere(source, predicate);
+                if (source == null)
+                {
+                    return null;
+                }
             }
 
             var translation = _sqlTranslator.TranslateLongCount();
-            var projectionMapping = new Dictionary<ProjectionMember, Expression> { { new ProjectionMember(), translation } };
+            if (translation == null)
+            {
+                return null;
+            }
+
+            var projectionMapping = new Dictionary<ProjectionMember, Expression>
+            {
+                { new ProjectionMember(), translation }
+            };
 
             selectExpression.ClearOrdering();
             selectExpression.ReplaceProjectionMapping(projectionMapping);
@@ -701,18 +715,18 @@ namespace Microsoft.EntityFrameworkCore.Query
             ShapedQueryExpression source, LambdaExpression keySelector, bool ascending)
         {
             var translation = TranslateLambdaExpression(source, keySelector);
-            if (translation != null)
+            if (translation == null)
             {
-                ((SelectExpression)source.QueryExpression).ApplyOrdering(new OrderingExpression(translation, ascending));
-
-                return source;
+                return null;
             }
 
-            throw new InvalidOperationException(CoreStrings.TranslationFailed(keySelector.Print()));
+            ((SelectExpression)source.QueryExpression).ApplyOrdering(new OrderingExpression(translation, ascending));
+
+            return source;
         }
 
         protected override ShapedQueryExpression TranslateReverse(ShapedQueryExpression source)
-            => throw new InvalidOperationException(CoreStrings.TranslationFailed(source.Print()));
+            => null;
 
         protected override ShapedQueryExpression TranslateSelect(ShapedQueryExpression source, LambdaExpression selector)
         {
@@ -775,6 +789,10 @@ namespace Microsoft.EntityFrameworkCore.Query
                     if (defaultIfEmpty)
                     {
                         inner = TranslateDefaultIfEmpty(inner, null);
+                        if (inner == null)
+                        {
+                            return null;
+                        }
                     }
 
                     var transparentIdentifierType = TransparentIdentifierFactory.Create(
@@ -792,10 +810,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 }
             }
 
-            // See #17236
-            throw new InvalidOperationException(
-                CoreStrings.TranslationFailed(
-                    collectionSelector.Print() + "; " + resultSelector.Print()));
+            return null;
         }
 
         private class CorrelationFindingExpressionVisitor : ExpressionVisitor
@@ -855,6 +870,10 @@ namespace Microsoft.EntityFrameworkCore.Query
             if (predicate != null)
             {
                 source = TranslateWhere(source, predicate);
+                if (source == null)
+                {
+                    return null;
+                }
             }
 
             var selectExpression = (SelectExpression)source.QueryExpression;
@@ -872,19 +891,18 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             var selectExpression = (SelectExpression)source.QueryExpression;
             var translation = TranslateExpression(count);
-
-            if (translation != null)
+            if (translation == null)
             {
-                selectExpression.ApplyOffset(translation);
-
-                return source;
+                return null;
             }
 
-            throw new InvalidOperationException(CoreStrings.TranslationFailed(count.Print()));
+            selectExpression.ApplyOffset(translation);
+
+            return source;
         }
 
         protected override ShapedQueryExpression TranslateSkipWhile(ShapedQueryExpression source, LambdaExpression predicate)
-            => throw new InvalidOperationException(CoreStrings.TranslationFailed(predicate.Print()));
+            => null;
 
         protected override ShapedQueryExpression TranslateSum(ShapedQueryExpression source, LambdaExpression selector, Type resultType)
         {
@@ -896,44 +914,39 @@ namespace Microsoft.EntityFrameworkCore.Query
                 : RemapLambdaBody(source, selector);
 
             var projection = _sqlTranslator.TranslateSum(newSelector);
-
-            if (projection == null)
-            {
-                throw new InvalidOperationException(CoreStrings.TranslationFailed(selectExpression.Print()));
-            }
-
-            return AggregateResultShaper(source, projection, throwOnNullResult: false, resultType);
+            return projection != null
+                ? AggregateResultShaper(source, projection, throwOnNullResult: false, resultType)
+                : null;
         }
 
         protected override ShapedQueryExpression TranslateTake(ShapedQueryExpression source, Expression count)
         {
             var selectExpression = (SelectExpression)source.QueryExpression;
             var translation = TranslateExpression(count);
-
-            if (translation != null)
+            if (translation == null)
             {
-                selectExpression.ApplyLimit(translation);
-
-                return source;
+                return null;
             }
 
-            throw new InvalidOperationException(CoreStrings.TranslationFailed(count.Print()));
+            selectExpression.ApplyLimit(translation);
+
+            return source;
         }
 
         protected override ShapedQueryExpression TranslateTakeWhile(ShapedQueryExpression source, LambdaExpression predicate)
-            => throw new InvalidOperationException(CoreStrings.TranslationFailed(predicate.Print()));
+            => null;
 
         protected override ShapedQueryExpression TranslateThenBy(ShapedQueryExpression source, LambdaExpression keySelector, bool ascending)
         {
             var translation = TranslateLambdaExpression(source, keySelector);
-            if (translation != null)
+            if (translation == null)
             {
-                ((SelectExpression)source.QueryExpression).AppendOrdering(new OrderingExpression(translation, ascending));
-
-                return source;
+                return null;
             }
 
-            throw new InvalidOperationException(CoreStrings.TranslationFailed(keySelector.Print()));
+            ((SelectExpression)source.QueryExpression).AppendOrdering(new OrderingExpression(translation, ascending));
+
+            return source;
         }
 
         protected override ShapedQueryExpression TranslateUnion(ShapedQueryExpression source1, ShapedQueryExpression source2)
@@ -945,28 +958,21 @@ namespace Microsoft.EntityFrameworkCore.Query
         protected override ShapedQueryExpression TranslateWhere(ShapedQueryExpression source, LambdaExpression predicate)
         {
             var translation = TranslateLambdaExpression(source, predicate);
-            if (translation != null)
+            if (translation == null)
             {
-                ((SelectExpression)source.QueryExpression).ApplyPredicate(translation);
-
-                return source;
+                return null;
             }
 
-            throw new InvalidOperationException(CoreStrings.TranslationFailed(predicate.Print()));
+            ((SelectExpression)source.QueryExpression).ApplyPredicate(translation);
+
+            return source;
         }
 
-        private SqlExpression TranslateExpression(Expression expression)
-        {
-            return _sqlTranslator.Translate(expression);
-        }
+        private SqlExpression TranslateExpression(Expression expression) => _sqlTranslator.Translate(expression);
 
         private SqlExpression TranslateLambdaExpression(
             ShapedQueryExpression shapedQueryExpression, LambdaExpression lambdaExpression)
-        {
-            var lambdaBody = RemapLambdaBody(shapedQueryExpression, lambdaExpression);
-
-            return TranslateExpression(lambdaBody);
-        }
+            => TranslateExpression(RemapLambdaBody(shapedQueryExpression, lambdaExpression));
 
         private Expression RemapLambdaBody(ShapedQueryExpression shapedQueryExpression, LambdaExpression lambdaExpression)
         {
@@ -977,11 +983,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         internal Expression ExpandWeakEntities(SelectExpression selectExpression, Expression lambdaBody)
-        {
-            return _weakEntityExpandingExpressionVisitor.Expand(selectExpression, lambdaBody);
-        }
+            => _weakEntityExpandingExpressionVisitor.Expand(selectExpression, lambdaBody);
 
-        public class WeakEntityExpandingExpressionVisitor : ExpressionVisitor
+        private class WeakEntityExpandingExpressionVisitor : ExpressionVisitor
         {
             private SelectExpression _selectExpression;
             private readonly RelationalSqlTranslatingExpressionVisitor _sqlTranslator;
@@ -1169,6 +1173,11 @@ namespace Microsoft.EntityFrameworkCore.Query
         private ShapedQueryExpression AggregateResultShaper(
             ShapedQueryExpression source, Expression projection, bool throwOnNullResult, Type resultType)
         {
+            if (projection == null)
+            {
+                return null;
+            }
+
             var selectExpression = (SelectExpression)source.QueryExpression;
             selectExpression.ReplaceProjectionMapping(
                 new Dictionary<ProjectionMember, Expression> { { new ProjectionMember(), projection } });

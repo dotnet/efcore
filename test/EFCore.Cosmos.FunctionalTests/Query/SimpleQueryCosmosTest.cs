@@ -4092,6 +4092,12 @@ WHERE (c[""Discriminator""] = ""Customer"")");
             return base.SelectMany_correlated_with_outer_4(isAsync);
         }
 
+        [ConditionalTheory(Skip = "Issue#17246")]
+        public override Task FirstOrDefault_over_empty_collection_of_value_type_returns_correct_results(bool isAsync)
+        {
+            return base.FirstOrDefault_over_empty_collection_of_value_type_returns_correct_results(isAsync);
+        }
+
         [ConditionalTheory(Skip = "Issue #17246")]
         public override Task All_client(bool isAsync) => null;
 

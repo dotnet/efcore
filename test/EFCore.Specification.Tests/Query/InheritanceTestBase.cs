@@ -89,6 +89,18 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
+        public virtual void Can_use_backwards_is_animal()
+        {
+            using (var context = CreateContext())
+            {
+                // ReSharper disable once IsExpressionAlwaysTrue
+                var kiwis = context.Set<Kiwi>().Where(a => a is Animal).ToList();
+
+                Assert.Equal(1, kiwis.Count);
+            }
+        }
+
+        [ConditionalFact]
         public virtual void Can_use_is_kiwi_with_other_predicate()
         {
             using (var context = CreateContext())
@@ -180,6 +192,19 @@ namespace Microsoft.EntityFrameworkCore.Query
             using (var context = CreateContext())
             {
                 var animals = context.Set<Animal>().OfType<Kiwi>().ToList();
+
+                Assert.Equal(1, animals.Count);
+                Assert.IsType<Kiwi>(animals[0]);
+                Assert.Equal(1, context.ChangeTracker.Entries().Count());
+            }
+        }
+
+        [ConditionalFact(Skip = "17364")]
+        public virtual void Can_use_backwards_of_type_animal()
+        {
+            using (var context = CreateContext())
+            {
+                var animals = context.Set<Kiwi>().OfType<Animal>().ToList();
 
                 Assert.Equal(1, animals.Count);
                 Assert.IsType<Kiwi>(animals[0]);

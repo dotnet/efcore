@@ -3,12 +3,14 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Query;
+using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
 {
@@ -30,6 +32,22 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             private static readonly MethodInfo _includeCollectionMethodInfo
                 = typeof(CustomShaperCompilingExpressionVisitor).GetTypeInfo()
                     .GetDeclaredMethod(nameof(IncludeCollection));
+
+            private static readonly MethodInfo _materializeCollectionMethodInfo
+                = typeof(CustomShaperCompilingExpressionVisitor).GetTypeInfo()
+                    .GetDeclaredMethod(nameof(MaterializeCollection));
+
+            private static readonly MethodInfo _materializeSingleResultMethodInfo
+                = typeof(CustomShaperCompilingExpressionVisitor).GetTypeInfo()
+                    .GetDeclaredMethod(nameof(MaterializeSingleResult));
+
+            private static void SetIsLoadedNoTracking(object entity, INavigation navigation)
+                => ((ILazyLoader)(navigation
+                            .DeclaringEntityType
+                            .GetServiceProperties()
+                            .FirstOrDefault(p => p.ClrType == typeof(ILazyLoader)))
+                        ?.GetGetter().GetClrValue(entity))
+                    ?.SetLoaded(entity, navigation.Name);
 
             private static void IncludeReference<TEntity, TIncludingEntity, TIncludedEntity>(
                 QueryContext queryContext,
@@ -72,8 +90,9 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
 
             private static void IncludeCollection<TEntity, TIncludingEntity, TIncludedEntity>(
                 QueryContext queryContext,
+                IEnumerable<ValueBuffer> innerValueBuffers,
+                Func<QueryContext, ValueBuffer, TIncludedEntity> innerShaper,
                 TEntity entity,
-                IEnumerable<TIncludedEntity> relatedEntities,
                 INavigation navigation,
                 INavigation inverseNavigation,
                 Action<TIncludingEntity, TIncludedEntity> fixup,
@@ -89,16 +108,18 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
 
                     if (trackingQuery)
                     {
-                        foreach (var relatedEntity in relatedEntities)
-                        {
-                            collectionAccessor.Add(includingEntity, relatedEntity, forMaterialization: true);
-                        }
-
-                        queryContext.SetNavigationIsLoaded(includingEntity, navigation);
+                        queryContext.SetNavigationIsLoaded(entity, navigation);
                     }
                     else
                     {
-                        foreach (var relatedEntity in relatedEntities)
+                        SetIsLoadedNoTracking(entity, navigation);
+                    }
+
+                    foreach (var valueBuffer in innerValueBuffers)
+                    {
+                        var relatedEntity = innerShaper(queryContext, valueBuffer);
+
+                        if (!trackingQuery)
                         {
                             fixup(includingEntity, relatedEntity);
                             if (inverseNavigation != null)
@@ -106,19 +127,35 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                                 SetIsLoadedNoTracking(relatedEntity, inverseNavigation);
                             }
                         }
-
-                        SetIsLoadedNoTracking(includingEntity, navigation);
                     }
                 }
             }
 
-            private static void SetIsLoadedNoTracking(object entity, INavigation navigation)
-                => ((ILazyLoader)(navigation
-                            .DeclaringEntityType
-                            .GetServiceProperties()
-                            .FirstOrDefault(p => p.ClrType == typeof(ILazyLoader)))
-                        ?.GetGetter().GetClrValue(entity))
-                    ?.SetLoaded(entity, navigation.Name);
+            private static TCollection MaterializeCollection<TElement, TCollection>(
+                QueryContext queryContext,
+                IEnumerable<ValueBuffer> innerValueBuffers,
+                Func<QueryContext, ValueBuffer, TElement> innerShaper,
+                IClrCollectionAccessor clrCollectionAccessor)
+                where TCollection : class, ICollection<TElement>
+            {
+                var collection = (TCollection)(clrCollectionAccessor?.Create() ?? new List<TElement>());
+
+                foreach (var valueBuffer in innerValueBuffers)
+                {
+                    var element = innerShaper(queryContext, valueBuffer);
+                    collection.Add(element);
+                }
+
+                return collection;
+            }
+
+            private static TResult MaterializeSingleResult<TResult>(
+                QueryContext queryContext,
+                ValueBuffer valueBuffer,
+                Func<QueryContext, ValueBuffer, TResult> innerShaper)
+                => valueBuffer.IsEmpty
+                    ? default
+                    : innerShaper(queryContext, valueBuffer);
 
             protected override Expression VisitExtension(Expression extensionExpression)
             {
@@ -136,12 +173,13 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
 
                     if (includeExpression.Navigation.IsCollection())
                     {
+                        var collectionShaper = (CollectionShaperExpression)includeExpression.NavigationExpression;
                         return Expression.Call(
                             _includeCollectionMethodInfo.MakeGenericMethod(entityClrType, includingClrType, relatedEntityClrType),
                             QueryCompilationContext.QueryContextParameter,
-                            // We don't need to visit entityExpression since it is supposed to be a parameterExpression only
+                            collectionShaper.Projection,
+                            Expression.Constant(((LambdaExpression)Visit(collectionShaper.InnerShaper)).Compile()),
                             includeExpression.EntityExpression,
-                            includeExpression.NavigationExpression,
                             Expression.Constant(includeExpression.Navigation),
                             Expression.Constant(inverseNavigation, typeof(INavigation)),
                             Expression.Constant(
@@ -153,7 +191,6 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                     return Expression.Call(
                         _includeReferenceMethodInfo.MakeGenericMethod(entityClrType, includingClrType, relatedEntityClrType),
                         QueryCompilationContext.QueryContextParameter,
-                        // We don't need to visit entityExpression since it is supposed to be a parameterExpression only
                         includeExpression.EntityExpression,
                         includeExpression.NavigationExpression,
                         Expression.Constant(includeExpression.Navigation),
@@ -162,6 +199,30 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                             GenerateFixup(
                                 includingClrType, relatedEntityClrType, includeExpression.Navigation, inverseNavigation).Compile()),
                         Expression.Constant(_tracking));
+                }
+
+                if (extensionExpression is CollectionShaperExpression collectionShaperExpression)
+                {
+                    var elementType = collectionShaperExpression.ElementType;
+                    var collectionType = collectionShaperExpression.Type;
+
+                    return Expression.Call(
+                        _materializeCollectionMethodInfo.MakeGenericMethod(elementType, collectionType),
+                        QueryCompilationContext.QueryContextParameter,
+                        collectionShaperExpression.Projection,
+                        Expression.Constant(((LambdaExpression)Visit(collectionShaperExpression.InnerShaper)).Compile()),
+                        Expression.Constant(
+                            collectionShaperExpression.Navigation?.GetCollectionAccessor(),
+                            typeof(IClrCollectionAccessor)));
+                }
+
+                if (extensionExpression is SingleResultShaperExpression singleResultShaperExpression)
+                {
+                    return Expression.Call(
+                        _materializeSingleResultMethodInfo.MakeGenericMethod(singleResultShaperExpression.Type),
+                        QueryCompilationContext.QueryContextParameter,
+                        singleResultShaperExpression.Projection,
+                        Expression.Constant(((LambdaExpression)Visit(singleResultShaperExpression.InnerShaper)).Compile()));
                 }
 
                 return base.VisitExtension(extensionExpression);

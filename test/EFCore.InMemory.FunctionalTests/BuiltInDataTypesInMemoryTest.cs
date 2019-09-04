@@ -15,12 +15,6 @@ namespace Microsoft.EntityFrameworkCore
         {
         }
 
-        [ConditionalFact(Skip = "Issue#16963")]
-        public override void Can_insert_and_read_back_with_string_key()
-        {
-            base.Can_insert_and_read_back_with_string_key();
-        }
-
         public class BuiltInDataTypesInMemoryFixture : BuiltInDataTypesFixtureBase
         {
             protected override ITestStoreFactory TestStoreFactory => InMemoryTestStoreFactory.Instance;

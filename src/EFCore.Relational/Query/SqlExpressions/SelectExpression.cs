@@ -1276,7 +1276,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                 var groupBy = _groupBy.ToList();
                 _groupBy.Clear();
                 _groupBy.AddRange(
-                    GroupBy.Select(e => (SqlExpression)visitor.Visit(e))
+                    groupBy.Select(e => (SqlExpression)visitor.Visit(e))
                         .Where(e => !(e is SqlConstantExpression || e is SqlParameterExpression)));
 
                 Having = (SqlExpression)visitor.Visit(Having);
@@ -1294,63 +1294,126 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             {
                 var changed = false;
 
-                var projections = new List<ProjectionExpression>();
-                IDictionary<ProjectionMember, Expression> projectionMapping;
-                if (Projection.Any())
+                var newProjections = _projection;
+                var newProjectionMapping = _projectionMapping;
+                if (_projection.Any())
                 {
-                    projectionMapping = _projectionMapping;
-                    foreach (var item in Projection)
+                    for (var i = 0; i < _projection.Count; i++)
                     {
+                        var item = _projection[i];
                         var projection = (ProjectionExpression)visitor.Visit(item);
-                        projections.Add(projection);
+                        if (projection != item
+                            && newProjections == _projection)
+                        {
+                            newProjections = new List<ProjectionExpression>(_projection.Count);
+                            for (var j = 0; j < i; j++)
+                            {
+                                newProjections.Add(_projection[j]);
+                            }
+                            changed = true;
+                        }
 
-                        changed |= projection != item;
+                        if (newProjections != _projection)
+                        {
+                            newProjections.Add(projection);
+                        }
                     }
                 }
                 else
                 {
-                    projectionMapping = new Dictionary<ProjectionMember, Expression>();
                     foreach (var mapping in _projectionMapping)
                     {
                         var newProjection = visitor.Visit(mapping.Value);
-                        changed |= newProjection != mapping.Value;
+                        if (newProjection != mapping.Value
+                            && newProjectionMapping == _projectionMapping)
+                        {
+                            newProjectionMapping = new Dictionary<ProjectionMember, Expression>(_projectionMapping);
+                            changed = true;
+                        }
 
-                        projectionMapping[mapping.Key] = newProjection;
+                        if (newProjectionMapping != _projectionMapping)
+                        {
+                            newProjectionMapping[mapping.Key] = newProjection;
+                        }
                     }
                 }
 
-                var tables = new List<TableExpressionBase>();
-                foreach (var table in _tables)
+                var newTables = _tables;
+                for (var i = 0; i < _tables.Count; i++)
                 {
+                    var table = _tables[i];
                     var newTable = (TableExpressionBase)visitor.Visit(table);
-                    changed |= newTable != table;
-                    tables.Add(newTable);
+                    if (newTable != table
+                        && newTables == _tables)
+                    {
+                        newTables = new List<TableExpressionBase>(_tables.Count);
+                        for (var j = 0; j < i; j++)
+                        {
+                            newTables.Add(_tables[j]);
+                        }
+                        changed = true;
+                    }
+
+                    if (newTables != _tables)
+                    {
+                        newTables.Add(newTable);
+                    }
                 }
 
                 var predicate = (SqlExpression)visitor.Visit(Predicate);
                 changed |= predicate != Predicate;
 
-                var groupBy = new List<SqlExpression>();
-                foreach (var groupingKey in _groupBy)
+                var newGroupBy = _groupBy;
+                for (var i = 0; i < _groupBy.Count; i++)
                 {
+                    var groupingKey = _groupBy[i];
                     var newGroupingKey = (SqlExpression)visitor.Visit(groupingKey);
-                    changed |= newGroupingKey != groupingKey;
-                    if (!(newGroupingKey is SqlConstantExpression
-                          || newGroupingKey is SqlParameterExpression))
+                    if (newGroupingKey != groupingKey
+                        || newGroupingKey is SqlConstantExpression
+                        || newGroupingKey is SqlParameterExpression)
                     {
-                        groupBy.Add(newGroupingKey);
+                        if (newGroupBy == _groupBy)
+                        {
+                            newGroupBy = new List<SqlExpression>(_groupBy.Count);
+                            for (var j = 0; j < i; j++)
+                            {
+                                newGroupBy.Add(_groupBy[j]);
+                            }
+                        }
+                        changed = true;
+                    }
+
+                    if (newGroupBy != _groupBy &&
+                        !(newGroupingKey is SqlConstantExpression
+                        || newGroupingKey is SqlParameterExpression))
+                    {
+                        newGroupBy.Add(newGroupingKey);
                     }
                 }
 
                 var havingExpression = (SqlExpression)visitor.Visit(Having);
                 changed |= havingExpression != Having;
 
-                var orderings = new List<OrderingExpression>();
-                foreach (var ordering in _orderings)
+                var newOrderings = _orderings;
+                for (var i = 0; i < _orderings.Count; i++)
                 {
-                    var orderingExpression = (SqlExpression)visitor.Visit(ordering.Expression);
-                    changed |= orderingExpression != ordering.Expression;
-                    orderings.Add(ordering.Update(orderingExpression));
+                    var ordering = _orderings[i];
+                    var newOrdering = (OrderingExpression)visitor.Visit(ordering);
+                    if (newOrdering != ordering
+                        && newOrderings == _orderings)
+                    {
+                        newOrderings = new List<OrderingExpression>(_orderings.Count);
+                        for (var j = 0; j < i; j++)
+                        {
+                            newOrderings.Add(_orderings[j]);
+                        }
+                        changed = true;
+                    }
+
+                    if (newOrderings != _orderings)
+                    {
+                        newOrderings.Add(newOrdering);
+                    }
                 }
 
                 var offset = (SqlExpression)visitor.Visit(Offset);
@@ -1361,9 +1424,9 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 
                 if (changed)
                 {
-                    var newSelectExpression = new SelectExpression(Alias, projections, tables, groupBy, orderings)
+                    var newSelectExpression = new SelectExpression(Alias, newProjections, newTables, newGroupBy, newOrderings)
                     {
-                        _projectionMapping = projectionMapping,
+                        _projectionMapping = newProjectionMapping,
                         Predicate = predicate,
                         Having = havingExpression,
                         Offset = offset,

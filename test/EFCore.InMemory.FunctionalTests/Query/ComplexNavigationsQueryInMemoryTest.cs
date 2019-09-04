@@ -7,7 +7,7 @@ using Xunit.Abstractions;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    internal class ComplexNavigationsQueryInMemoryTest : ComplexNavigationsQueryTestBase<ComplexNavigationsQueryInMemoryFixture>
+    public class ComplexNavigationsQueryInMemoryTest : ComplexNavigationsQueryTestBase<ComplexNavigationsQueryInMemoryFixture>
     {
         public ComplexNavigationsQueryInMemoryTest(ComplexNavigationsQueryInMemoryFixture fixture, ITestOutputHelper testOutputHelper)
             : base(fixture)
@@ -15,172 +15,64 @@ namespace Microsoft.EntityFrameworkCore.Query
             //TestLoggerFactory.TestOutputHelper = testOutputHelper;
         }
 
-        [ConditionalTheory(Skip = "issue #4311")]
-        public override Task Nested_group_join_with_take(bool IsAsync)
+        [ConditionalTheory(Skip = "issue #17531")]
+        public override Task SelectMany_with_nested_navigations_and_explicit_DefaultIfEmpty_followed_by_Select_required_navigation_using_different_navs(bool isAsync)
         {
-            return base.Nested_group_join_with_take(IsAsync);
+            return base.SelectMany_with_nested_navigations_and_explicit_DefaultIfEmpty_followed_by_Select_required_navigation_using_different_navs(isAsync);
         }
 
-        [ConditionalTheory(Skip = "issue #9591")]
-        public override Task Multi_include_with_groupby_in_subquery(bool IsAsync)
+        [ConditionalTheory(Skip = "issue #17531")]
+        public override Task SelectMany_with_nested_navigation_and_explicit_DefaultIfEmpty(bool isAsync)
         {
-            return base.Multi_include_with_groupby_in_subquery(IsAsync);
+            return base.SelectMany_with_nested_navigation_and_explicit_DefaultIfEmpty(isAsync);
         }
 
-        [ConditionalTheory(Skip = "issue #13561")]
-        public override Task
-            Complex_SelectMany_with_nested_navigations_and_explicit_DefaultIfEmpty_with_other_query_operators_composed_on_top(bool isAsync)
+        [ConditionalTheory(Skip = "issue #17531")]
+        public override Task SelectMany_with_nested_navigation_filter_and_explicit_DefaultIfEmpty(bool isAsync)
         {
-            return base.Complex_SelectMany_with_nested_navigations_and_explicit_DefaultIfEmpty_with_other_query_operators_composed_on_top(
-                isAsync);
+            return base.SelectMany_with_nested_navigation_filter_and_explicit_DefaultIfEmpty(isAsync);
         }
 
-        [ConditionalTheory(Skip = "issue #16963")]
-        public override Task Multiple_SelectMany_with_nested_navigations_and_explicit_DefaultIfEmpty_joined_together(bool isAsync)
+        [ConditionalTheory(Skip = "issue #17386")]
+        public override Task Complex_query_with_optional_navigations_and_client_side_evaluation(bool isAsync)
         {
-            return base.Multiple_SelectMany_with_nested_navigations_and_explicit_DefaultIfEmpty_joined_together(isAsync);
+            return base.Complex_query_with_optional_navigations_and_client_side_evaluation(isAsync);
         }
 
-        [ConditionalTheory(Skip = "issue #16963")]
-        public override Task Key_equality_using_property_method_nested(bool isAsync)
+        [ConditionalTheory(Skip = "issue #17531")]
+        public override Task Project_collection_navigation_nested(bool isAsync)
         {
-            return base.Key_equality_using_property_method_nested(isAsync);
+            return base.Project_collection_navigation_nested(isAsync);
         }
 
-        [ConditionalTheory(Skip = "issue #16963")]
-        public override Task Key_equality_using_property_method_required(bool isAsync)
+        [ConditionalTheory(Skip = "issue #17531")]
+        public override Task Project_collection_navigation_nested_anonymous(bool isAsync)
         {
-            return base.Key_equality_using_property_method_required(isAsync);
+            return base.Project_collection_navigation_nested_anonymous(isAsync);
         }
 
-        [ConditionalTheory(Skip = "issue #16963")]
-        public override Task Key_equality_when_sentinel_ef_property(bool isAsync)
+        [ConditionalTheory(Skip = "issue #17531")]
+        public override Task Project_collection_navigation_using_ef_property(bool isAsync)
         {
-            return base.Key_equality_when_sentinel_ef_property(isAsync);
+            return base.Project_collection_navigation_using_ef_property(isAsync);
         }
 
-        [ConditionalTheory(Skip = "issue #16963")]
-        public override Task Navigation_inside_method_call_translated_to_join(bool isAsync)
+        [ConditionalTheory(Skip = "issue #17531")]
+        public override Task Project_navigation_and_collection(bool isAsync)
         {
-            return base.Navigation_inside_method_call_translated_to_join(isAsync);
+            return base.Project_navigation_and_collection(isAsync);
         }
 
-        [ConditionalTheory(Skip = "issue #16963")]
-        public override Task Entity_equality_empty(bool isAsync)
+        [ConditionalTheory(Skip = "issue #17531")]
+        public override Task SelectMany_nested_navigation_property_optional_and_projection(bool isAsync)
         {
-            return base.Entity_equality_empty(isAsync);
+            return base.SelectMany_nested_navigation_property_optional_and_projection(isAsync);
         }
 
-        [ConditionalTheory(Skip = "issue #16963")]
-        public override Task Optional_navigation_inside_property_method_translated_to_join(bool isAsync)
+        [ConditionalTheory(Skip = "issue #17531")]
+        public override Task SelectMany_nested_navigation_property_required(bool isAsync)
         {
-            return base.Optional_navigation_inside_property_method_translated_to_join(isAsync);
-        }
-
-        [ConditionalTheory(Skip = "issue #16963")]
-        public override Task Navigation_key_access_optional_comparison(bool isAsync)
-        {
-            return base.Navigation_key_access_optional_comparison(isAsync);
-        }
-
-        [ConditionalTheory(Skip = "issue #16963")]
-        public override Task Optional_navigation_inside_method_call_translated_to_join(bool isAsync)
-        {
-            return base.Optional_navigation_inside_method_call_translated_to_join(isAsync);
-        }
-
-        [ConditionalTheory(Skip = "issue #16963")]
-        public override Task SelectMany_with_nested_navigations_explicit_DefaultIfEmpty_and_additional_joins_outside_of_SelectMany3(
-            bool isAsync)
-        {
-            return base.SelectMany_with_nested_navigations_explicit_DefaultIfEmpty_and_additional_joins_outside_of_SelectMany3(isAsync);
-        }
-
-        [ConditionalTheory(Skip = "issue #16963")]
-        public override Task Optional_navigation_inside_method_call_translated_to_join_keeps_original_nullability(bool isAsync)
-        {
-            return base.Optional_navigation_inside_method_call_translated_to_join_keeps_original_nullability(isAsync);
-        }
-
-        [ConditionalTheory(Skip = "issue #16963")]
-        public override Task Key_equality_two_conditions_on_same_navigation(bool isAsync)
-        {
-            return base.Key_equality_two_conditions_on_same_navigation(isAsync);
-        }
-
-        [ConditionalTheory(Skip = "issue #16963")]
-        public override Task Method_call_on_optional_navigation_translates_to_null_conditional_properly_for_arguments(bool isAsync)
-        {
-            return base.Method_call_on_optional_navigation_translates_to_null_conditional_properly_for_arguments(isAsync);
-        }
-
-        [ConditionalTheory(Skip = "issue #16963")]
-        public override Task Optional_navigation_propagates_nullability_to_manually_created_left_join1(bool isAsync)
-        {
-            return base.Optional_navigation_propagates_nullability_to_manually_created_left_join1(isAsync);
-        }
-
-        [ConditionalTheory(Skip = "issue #16963")]
-        public override Task Key_equality_using_property_method_and_member_expression1(bool isAsync)
-        {
-            return base.Key_equality_using_property_method_and_member_expression1(isAsync);
-        }
-
-        [ConditionalTheory(Skip = "issue #16963")]
-        public override Task Key_equality_using_property_method_and_member_expression2(bool isAsync)
-        {
-            return base.Key_equality_using_property_method_and_member_expression2(isAsync);
-        }
-
-        [ConditionalTheory(Skip = "issue #16963")]
-        public override Task Complex_navigations_with_predicate_projected_into_anonymous_type(bool isAsync)
-        {
-            return base.Complex_navigations_with_predicate_projected_into_anonymous_type(isAsync);
-        }
-
-        [ConditionalTheory(Skip = "issue #16963")]
-        public override Task Optional_navigation_inside_nested_method_call_translated_to_join(bool isAsync)
-        {
-            return base.Optional_navigation_inside_nested_method_call_translated_to_join(isAsync);
-        }
-
-        [ConditionalTheory(Skip = "issue #16963")]
-        public override Task Join_navigation_in_outer_selector_translated_to_extra_join_nested2(bool isAsync)
-        {
-            return base.Join_navigation_in_outer_selector_translated_to_extra_join_nested2(isAsync);
-        }
-
-        [ConditionalTheory(Skip = "issue #16963")]
-        public override Task Join_navigation_in_outer_selector_translated_to_extra_join(bool isAsync)
-        {
-            return base.Join_navigation_in_outer_selector_translated_to_extra_join(isAsync);
-        }
-
-        [ConditionalTheory(Skip = "issue #16963")]
-        public override Task SelectMany_with_nested_navigations_explicit_DefaultIfEmpty_and_additional_joins_outside_of_SelectMany4(
-            bool isAsync)
-        {
-            return base.SelectMany_with_nested_navigations_explicit_DefaultIfEmpty_and_additional_joins_outside_of_SelectMany4(isAsync);
-        }
-
-        [ConditionalTheory(Skip = "issue #16963")]
-        public override Task Join_navigation_in_outer_selector_translated_to_extra_join_nested(bool isAsync)
-        {
-            return base.Join_navigation_in_outer_selector_translated_to_extra_join_nested(isAsync);
-        }
-
-        [ConditionalTheory(Skip = "issue #16963")]
-        public override Task Optional_navigation_inside_nested_method_call_translated_to_join_keeps_original_nullability(bool isAsync)
-        {
-            return base.Optional_navigation_inside_nested_method_call_translated_to_join_keeps_original_nullability(isAsync);
-        }
-
-        [ConditionalTheory(Skip = "issue #16963")]
-        public override Task Optional_navigation_inside_nested_method_call_translated_to_join_keeps_original_nullability_also_for_arguments(
-            bool isAsync)
-        {
-            return base.Optional_navigation_inside_nested_method_call_translated_to_join_keeps_original_nullability_also_for_arguments(
-                isAsync);
+            return base.SelectMany_nested_navigation_property_required(isAsync);
         }
     }
 }
