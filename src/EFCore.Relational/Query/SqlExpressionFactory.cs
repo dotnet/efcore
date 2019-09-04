@@ -24,9 +24,21 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         public virtual SqlExpression ApplyDefaultTypeMapping(SqlExpression sqlExpression)
-            => sqlExpression == null || sqlExpression.TypeMapping != null
-                ? sqlExpression
-                : ApplyTypeMapping(sqlExpression, _typeMappingSource.FindMapping(sqlExpression.Type));
+        {
+            if (sqlExpression == null || sqlExpression.TypeMapping != null)
+            {
+                return sqlExpression;
+            }
+
+            if (sqlExpression is SqlUnaryExpression sqlUnaryExpression
+                && sqlUnaryExpression.OperatorType == ExpressionType.Convert
+                && sqlUnaryExpression.Type == typeof(object))
+            {
+                return sqlUnaryExpression.Operand;
+            }
+
+            return ApplyTypeMapping(sqlExpression, _typeMappingSource.FindMapping(sqlExpression.Type));
+        }
 
         public virtual SqlExpression ApplyTypeMapping(SqlExpression sqlExpression, RelationalTypeMapping typeMapping)
         {
@@ -52,9 +64,12 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         private SqlExpression ApplyTypeMappingOnLike(LikeExpression likeExpression)
         {
-            var inferredTypeMapping = ExpressionExtensions.InferTypeMapping(
-                                          likeExpression.Match, likeExpression.Pattern, likeExpression.EscapeChar)
-                                      ?? _typeMappingSource.FindMapping(likeExpression.Match.Type);
+            var inferredTypeMapping = (likeExpression.EscapeChar == null
+                ? ExpressionExtensions.InferTypeMapping(
+                    likeExpression.Match, likeExpression.Pattern)
+                : ExpressionExtensions.InferTypeMapping(
+                    likeExpression.Match, likeExpression.Pattern, likeExpression.EscapeChar))
+                ?? _typeMappingSource.FindMapping(likeExpression.Match.Type);
 
             return new LikeExpression(
                 ApplyTypeMapping(likeExpression.Match, inferredTypeMapping),
