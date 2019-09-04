@@ -3,7 +3,7 @@
   <metadata>
     $CommonMetadataElements$
     <dependencies>
-      <group targetFramework=".NETStandard1.3" />
+      <group targetFramework=".NETStandard2.0" />
     </dependencies>
   </metadata>
 
