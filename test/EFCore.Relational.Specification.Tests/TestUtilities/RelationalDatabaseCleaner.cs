@@ -1,8 +1,11 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
+using System.Text.RegularExpressions;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
@@ -83,9 +86,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                     var customSql = BuildCustomSql(databaseModel);
                     if (!string.IsNullOrWhiteSpace(customSql))
                     {
-                        sqlBuilder.Build(customSql).ExecuteNonQuery(
-                            new RelationalCommandParameterObject(
-                                connection,null, null,null));
+                        ExecuteScript(connection, sqlBuilder, customSql);
                     }
 
                     if (operations.Count > 0)
@@ -97,8 +98,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                     customSql = BuildCustomEndingSql(databaseModel);
                     if (!string.IsNullOrWhiteSpace(customSql))
                     {
-                        sqlBuilder.Build(customSql).ExecuteNonQuery(
-                            new RelationalCommandParameterObject(connection, null, null, null));
+                        ExecuteScript(connection, sqlBuilder, customSql);
                     }
                 }
                 finally
@@ -108,6 +108,31 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             }
 
             creator.CreateTables();
+        }
+
+        private static void ExecuteScript(IRelationalConnection connection, IRawSqlCommandBuilder sqlBuilder, string customSql)
+        {
+            var batches = Regex.Split(
+                Regex.Replace(
+                    customSql,
+                    @"\\\r?\n",
+                    string.Empty,
+                    default,
+                    TimeSpan.FromMilliseconds(1000.0)),
+                @"^\s*(GO[ \t]+[0-9]+|GO)(?:\s+|$)",
+                RegexOptions.IgnoreCase | RegexOptions.Multiline,
+                TimeSpan.FromMilliseconds(1000.0));
+            for (var i = 0; i < batches.Length; i++)
+            {
+                if (batches[i].StartsWith("GO", StringComparison.OrdinalIgnoreCase)
+                    || string.IsNullOrWhiteSpace(batches[i]))
+                {
+                    continue;
+                }
+
+                sqlBuilder.Build(batches[i])
+                    .ExecuteNonQuery(new RelationalCommandParameterObject(connection, null, null, null));
+            }
         }
 
         protected virtual MigrationOperation Drop(DatabaseSequence sequence)

@@ -20,7 +20,7 @@ using Xunit;
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore
 {
-    [SqlServerCondition(SqlServerCondition.IsNotSqlAzure)]
+    [SqlServerCondition(SqlServerCondition.IsNotSqlAzure | SqlServerCondition.IsNotCI)]
     public class MigrationsSqlServerTest : MigrationsTestBase<MigrationsSqlServerFixture>
     {
         public MigrationsSqlServerTest(MigrationsSqlServerFixture fixture)

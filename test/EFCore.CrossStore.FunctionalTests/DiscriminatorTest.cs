@@ -10,7 +10,7 @@ namespace Microsoft.EntityFrameworkCore
 {
     public class DiscriminatorTest
     {
-        [ConditionalFact(Skip = "Tasklist#21")]
+        [ConditionalFact]
         public void Can_save_entities_with_discriminators()
         {
             using (var context = new Context4285())
@@ -38,7 +38,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [ConditionalFact(Skip = "Tasklist#21")]
+        [ConditionalFact]
         public void Can_save_entities_with_int_discriminators()
         {
             using (var context = new Context4285())
@@ -66,7 +66,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        private class BaseProduct
+        private abstract class BaseProduct
         {
             public Guid Id { get; set; }
         }
@@ -81,7 +81,7 @@ namespace Microsoft.EntityFrameworkCore
             public string SomeName2 { get; set; }
         }
 
-        private class BaseIntProduct
+        private abstract class BaseIntProduct
         {
             public Guid Id { get; set; }
         }

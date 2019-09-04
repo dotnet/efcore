@@ -109,7 +109,9 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             {
                 if (ExecuteScalar<int>(master, $"SELECT COUNT(*) FROM sys.databases WHERE name = N'{Name}'") > 0)
                 {
-                    if (_scriptPath != null)
+                    // Only reseed scripted databases during CI runs
+                    if (_scriptPath != null
+                        && !TestEnvironment.IsCI)
                     {
                         return false;
                     }
