@@ -5,12 +5,29 @@ namespace Microsoft.EntityFrameworkCore.TestModels
 {
     public class CrossStoreContext : DbContext
     {
+        public CrossStoreContext()
+            : base()
+        {
+        }
+
         public CrossStoreContext(DbContextOptions options)
             : base(options)
         {
         }
 
         public virtual DbSet<SimpleEntity> SimpleEntities { get; set; }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<SimpleEntity>(
+                eb =>
+                {
+                    eb.ToTable("RelationalSimpleEntity");
+                    eb.Property(typeof(string), SimpleEntity.ShadowPropertyName);
+                    eb.HasKey(e => e.Id);
+                    eb.Property(e => e.Id).UseIdentityColumn();
+                });
+        }
 
         public static void RemoveAllEntities(CrossStoreContext context)
             => context.SimpleEntities.RemoveRange(context.SimpleEntities);
