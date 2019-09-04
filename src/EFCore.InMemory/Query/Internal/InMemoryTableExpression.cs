@@ -5,11 +5,12 @@ using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
 {
-    public class InMemoryTableExpression : Expression
+    public class InMemoryTableExpression : Expression, IPrintableExpression
     {
         public InMemoryTableExpression(IEntityType entityType)
         {
@@ -25,6 +26,11 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         protected override Expression VisitChildren(ExpressionVisitor visitor)
         {
             return this;
+        }
+
+        public virtual void Print(ExpressionPrinter expressionPrinter)
+        {
+            expressionPrinter.Append(nameof(InMemoryTableExpression) + ": Entity: " + EntityType.DisplayName());
         }
     }
 }

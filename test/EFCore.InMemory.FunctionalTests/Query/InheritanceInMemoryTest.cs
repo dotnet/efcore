@@ -16,72 +16,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             //TestLoggerFactory.TestOutputHelper = testOutputHelper;
         }
 
-        [ConditionalFact(Skip = "Issue #16963")]
-        public override void Can_use_is_kiwi()
-        {
-        }
-
-        [ConditionalFact(Skip = "Issue #16963")]
-        public override void Can_use_is_kiwi_with_other_predicate()
-        {
-        }
-
-        [ConditionalFact(Skip = "Issue #16963")]
-        public override void Subquery_OfType()
-        {
-        }
-
-        [ConditionalFact(Skip = "Issue #16963")]
-        public override void Discriminator_used_when_projection_over_of_type()
-        {
-        }
-
-        [ConditionalFact(Skip = "Issue #16963")]
-        public override void Can_use_of_type_animal()
-        {
-        }
-
-        [ConditionalFact(Skip = "Issue #16963")]
-        public override void Can_use_of_type_bird()
-        {
-        }
-
-        [ConditionalFact(Skip = "Issue #16963")]
-        public override void Can_use_of_type_bird_first()
-        {
-        }
-
-        [ConditionalFact(Skip = "Issue #16963")]
-        public override void Can_use_of_type_bird_predicate()
-        {
-        }
-
-        [ConditionalFact(Skip = "Issue #16963")]
-        public override void Can_use_of_type_bird_with_projection()
-        {
-        }
-
-        [ConditionalFact(Skip = "Issue #16963")]
-        public override void Can_use_of_type_kiwi()
-        {
-        }
-
-        [ConditionalFact(Skip = "Issue #16963")]
-        public override void Can_use_of_type_kiwi_where_north_on_derived_property()
-        {
-        }
-
-        [ConditionalFact(Skip = "Issue #16963")]
-        public override void Can_use_of_type_kiwi_where_south_on_derived_property()
-        {
-        }
-
-        [ConditionalFact(Skip = "Issue #16963")]
-        public override void Can_use_of_type_rose()
-        {
-        }
-
-        [ConditionalFact(Skip = "Issue #16963")]
+        [ConditionalFact(Skip = "Issue#17504")]
         public override void Can_query_all_animal_views()
         {
             Assert.Equal(

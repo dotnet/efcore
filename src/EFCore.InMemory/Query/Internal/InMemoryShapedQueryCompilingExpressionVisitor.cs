@@ -32,7 +32,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             switch (extensionExpression)
             {
                 case InMemoryQueryExpression inMemoryQueryExpression:
-                    inMemoryQueryExpression.ApplyServerProjection();
+                    inMemoryQueryExpression.ApplyProjection();
                     return Visit(inMemoryQueryExpression.ServerQueryExpression);
 
                 case InMemoryTableExpression inMemoryTableExpression:
@@ -49,14 +49,15 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         {
             var inMemoryQueryExpression = (InMemoryQueryExpression)shapedQueryExpression.QueryExpression;
 
-            var shaper = new ShaperExpressionProcessingExpressionVisitor(inMemoryQueryExpression)
+            var shaper = new ShaperExpressionProcessingExpressionVisitor(
+                inMemoryQueryExpression, inMemoryQueryExpression.CurrentParameter)
                 .Inject(shapedQueryExpression.ShaperExpression);
 
             shaper = InjectEntityMaterializers(shaper);
 
             var innerEnumerable = Visit(inMemoryQueryExpression);
 
-            shaper = new InMemoryProjectionBindingRemovingExpressionVisitor(inMemoryQueryExpression).Visit(shaper);
+            shaper = new InMemoryProjectionBindingRemovingExpressionVisitor().Visit(shaper);
 
             shaper = new CustomShaperCompilingExpressionVisitor(IsTracking).Visit(shaper);
 

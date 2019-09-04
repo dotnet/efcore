@@ -591,7 +591,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         public virtual async Task Where_client(bool isAsync)
         {
             Assert.Equal(
-                CoreStrings.TranslationFailed("(c) => c.IsLondon"),
+                CoreStrings.TranslationFailed("Where<Customer>(    source: DbSet<Customer>,     predicate: (c) => c.IsLondon)"),
                 RemoveNewLines(
                     (await Assert.ThrowsAsync<InvalidOperationException>(
                         () => AssertQuery<Customer>(
@@ -615,8 +615,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         public virtual async Task Where_subquery_correlated_client_eval(bool isAsync)
         {
             Assert.Equal(
-                CoreStrings.TranslationFailed(
-                    "(c0) => EntityShaperExpression:     EntityType: Customer    ValueBufferExpression:         ProjectionBindingExpression: EmptyProjectionMember    IsNullable: False.CustomerID == c0.CustomerID && c0.IsLondon"),
+                CoreStrings.TranslationFailed("Any<Customer>(    source: DbSet<Customer>,     predicate: (c0) => EntityShaperExpression:         EntityType: Customer        ValueBufferExpression:             ProjectionBindingExpression: EmptyProjectionMember        IsNullable: False    .CustomerID == c0.CustomerID && c0.IsLondon)"),
                 RemoveNewLines(
                     (await Assert.ThrowsAsync<InvalidOperationException>(
                         () => AssertQuery<Customer>(
@@ -631,7 +630,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         public virtual async Task Where_client_and_server_top_level(bool isAsync)
         {
             Assert.Equal(
-                CoreStrings.TranslationFailed("(c) => c.IsLondon && c.CustomerID != \"AROUT\""),
+                CoreStrings.TranslationFailed("Where<Customer>(    source: DbSet<Customer>,     predicate: (c) => c.IsLondon && c.CustomerID != \"AROUT\")"),
                 RemoveNewLines(
                     (await Assert.ThrowsAsync<InvalidOperationException>(
                         () => AssertQuery<Customer>(
@@ -645,7 +644,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         public virtual async Task Where_client_or_server_top_level(bool isAsync)
         {
             Assert.Equal(
-                CoreStrings.TranslationFailed("(c) => c.IsLondon || c.CustomerID == \"ALFKI\""),
+                CoreStrings.TranslationFailed("Where<Customer>(    source: DbSet<Customer>,     predicate: (c) => c.IsLondon || c.CustomerID == \"ALFKI\")"),
                 RemoveNewLines(
                     (await Assert.ThrowsAsync<InvalidOperationException>(
                         () => AssertQuery<Customer>(
@@ -659,7 +658,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         public virtual async Task Where_client_and_server_non_top_level(bool isAsync)
         {
             Assert.Equal(
-                CoreStrings.TranslationFailed("(c) => c.CustomerID != \"ALFKI\" == c.IsLondon && c.CustomerID != \"AROUT\""),
+                CoreStrings.TranslationFailed("Where<Customer>(    source: DbSet<Customer>,     predicate: (c) => c.CustomerID != \"ALFKI\" == c.IsLondon && c.CustomerID != \"AROUT\")"),
                 RemoveNewLines(
                     (await Assert.ThrowsAsync<InvalidOperationException>(
                         () => AssertQuery<Customer>(
@@ -673,8 +672,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         public virtual async Task Where_client_deep_inside_predicate_and_server_top_level(bool isAsync)
         {
             Assert.Equal(
-                CoreStrings.TranslationFailed(
-                    "(c) => c.CustomerID != \"ALFKI\" && c.CustomerID == \"MAUMAR\" || c.CustomerID != \"AROUT\" && c.IsLondon"),
+                CoreStrings.TranslationFailed("Where<Customer>(    source: DbSet<Customer>,     predicate: (c) => c.CustomerID != \"ALFKI\" && c.CustomerID == \"MAUMAR\" || c.CustomerID != \"AROUT\" && c.IsLondon)"),
                 RemoveNewLines(
                     (await Assert.ThrowsAsync<InvalidOperationException>(
                         () => AssertQuery<Customer>(
@@ -1259,7 +1257,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         public virtual async Task Where_bool_client_side_negated(bool isAsync)
         {
             Assert.Equal(
-                CoreStrings.TranslationFailed("(p) => !(ClientFunc(p.ProductID)) && p.Discontinued"),
+                CoreStrings.TranslationFailed("Where<Product>(    source: DbSet<Product>,     predicate: (p) => !(ClientFunc(p.ProductID)) && p.Discontinued)"),
                 RemoveNewLines(
                     (await Assert.ThrowsAsync<InvalidOperationException>(
                         () => AssertQuery<Product>(
@@ -2014,5 +2012,15 @@ namespace Microsoft.EntityFrameworkCore.Query
         private int SettableProperty { get; set; }
         private int ReadOnlyProperty => 5;
         private const int ConstantProperty = 1;
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Filter_non_nullable_value_after_FirstOrDefault_on_empty_collection(bool isAsync)
+        {
+            return AssertQuery<Customer, Order>(
+                isAsync,
+                (cs, os) => cs.Where(c => os.Where(o => o.CustomerID == "John Doe").Select(o => o.CustomerID).FirstOrDefault().Length == 0),
+                (cs, os) => cs.Where(c => false));
+        }
     }
 }

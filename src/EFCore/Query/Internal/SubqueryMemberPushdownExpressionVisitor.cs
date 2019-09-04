@@ -52,6 +52,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     (target, nullable) =>
                     {
                         var memberAccessExpression = Expression.MakeMemberAccess(target, memberExpression.Member);
+
                         return nullable && !memberAccessExpression.Type.IsNullableType()
                             ? Expression.Convert(memberAccessExpression, memberAccessExpression.Type.MakeNullable())
                             : (Expression)memberAccessExpression;

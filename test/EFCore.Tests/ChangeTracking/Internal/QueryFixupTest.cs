@@ -860,7 +860,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             }
         }
 
-        [ConditionalFact(Skip = "Issue #16963")]
+        [ConditionalFact]
         public void Query_ownership_navigations()
         {
             Seed();
@@ -911,7 +911,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             }
         }
 
-        [ConditionalFact(Skip = "Issue #16963")]
+        [ConditionalFact]
         public void Query_owned_foreign_key()
         {
             Seed();
@@ -928,7 +928,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             }
         }
 
-        [ConditionalFact(Skip = "Issue #16963")]
+        [ConditionalFact]
         public void Query_subowned_foreign_key()
         {
             Seed();
@@ -945,14 +945,14 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             }
         }
 
-        [ConditionalFact(Skip = "Issue #16963")]
+        [ConditionalFact]
         public void Query_owned()
         {
             Seed();
 
             using (var context = new QueryFixupContext())
             {
-                var owned = context.Set<Order>().Select(o => o.OrderDetails).Single();
+                var owned = context.Set<Order>().Single().OrderDetails;
                 var principal = context.Set<Order>().AsNoTracking().Single();
 
                 AssertFixup(
@@ -966,7 +966,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             }
         }
 
-        [ConditionalFact(Skip = "Issue #16963")]
+        [ConditionalFact(Skip = "Issue #16752")]
         public void Query_subowned()
         {
             Seed();

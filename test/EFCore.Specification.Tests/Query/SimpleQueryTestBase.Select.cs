@@ -126,7 +126,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             var boolean = false;
 
             Assert.Equal(
-                CoreStrings.TranslationFailed("(c) => (Nullable<bool>)(Unhandled parameter: __p_0).f"),
+                CoreStrings.TranslationFailed("OrderBy<Customer, Nullable<bool>>(    source: DbSet<Customer>,     keySelector: (c) => (Nullable<bool>)(Unhandled parameter: __p_0).f)"),
                 RemoveNewLines(
                     (await Assert.ThrowsAsync<InvalidOperationException>(
                         () => AssertQuery<Customer>(
@@ -1216,6 +1216,16 @@ namespace Microsoft.EntityFrameworkCore.Query
                 cs => from c in cs
                       where c.CustomerID.Equals("FISSA")
                       select new { c.CustomerID, OrderId = c.Orders.OrderBy(o => o.OrderID).Select(o => o.OrderID).FirstOrDefault() });
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Project_non_nullable_value_after_FirstOrDefault_on_empty_collection(bool isAsync)
+        {
+            return AssertQueryScalar<Customer, Order, int>(
+                isAsync,
+                (cs, os) => cs.Select(c => os.Where(o => o.CustomerID == "John Doe").Select(o => o.CustomerID).FirstOrDefault().Length),
+                (cs, os) => cs.Select(c => 0));
         }
     }
 }
