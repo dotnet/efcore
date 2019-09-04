@@ -22,7 +22,6 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         private readonly List<TableExpressionBase> _tables = new List<TableExpressionBase>();
         private readonly List<SqlExpression> _groupBy = new List<SqlExpression>();
         private readonly List<OrderingExpression> _orderings = new List<OrderingExpression>();
-
         private readonly List<SqlExpression> _identifier = new List<SqlExpression>();
         private readonly List<SqlExpression> _childIdentifiers = new List<SqlExpression>();
         private readonly List<SelectExpression> _pendingCollections = new List<SelectExpression>();
@@ -1244,10 +1243,33 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 
         protected override Expression VisitChildren(ExpressionVisitor visitor)
         {
+            // If we're visiting this expression a second time, the result of the previous visitation will be stored
+            // here - simply return it to avoid full double visitation.
+            if (VisitedExpression != null)
+            {
+                return VisitedExpression;
+            }
+
+            // TODO: Only needed with nested visitors
+            var previousTableVisitedExpressions = new TableExpressionBase[_tables.Count];
+
             // We have to do in-place mutation till we have applied pending collections because of shaper references
             // This is pseudo finalization phase for select expression.
             if (_pendingCollections.Any(e => e != null))
             {
+                var tables = _tables.ToList();
+                _tables.Clear();
+                for (var i = 0; i < tables.Count; i++)
+                {
+                    var table = tables[i];
+                    var newTable = VisitTable(table, i);
+                    _tables.Add(newTable);
+                    if (table is SelectExpression subqueryExpression)
+                    {
+                        subqueryExpression.VisitedExpression = newTable;
+                    }
+                }
+
                 if (Projection.Any())
                 {
                     var projections = _projection.ToList();
@@ -1267,10 +1289,6 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                     _projectionMapping = projectionMapping;
                 }
 
-                var tables = _tables.ToList();
-                _tables.Clear();
-                _tables.AddRange(tables.Select(e => (TableExpressionBase)visitor.Visit(e)));
-
                 Predicate = (SqlExpression)visitor.Visit(Predicate);
 
                 var groupBy = _groupBy.ToList();
@@ -1288,11 +1306,53 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                 Offset = (SqlExpression)visitor.Visit(Offset);
                 Limit = (SqlExpression)visitor.Visit(Limit);
 
+                // Restore the previous VisitedExpression references for nested visitors
+                for (var i = 0; i < _tables.Count; i++)
+                {
+                    UnwrapJoin(_tables[i]).VisitedExpression = previousTableVisitedExpressions[i];
+                }
+
                 return this;
             }
             else
             {
                 var changed = false;
+
+                var newTables = _tables;
+                for (var i = 0; i < _tables.Count; i++)
+                {
+                    var table = _tables[i];
+                    var newTable = VisitTable(table, i);
+
+                    // // Set the table's VisitedExpression to null so that we can actually visit it. Unwrap joins since the contained
+                    // // table is the one actually referenced from other SelectExpression components. We restore the previous visitation
+                    // // before leaving the method in case more than one visitor is active.
+                    // var referencedTable = UnwrapJoin(table);
+                    // previousTableVisitedExpressions[i] = referencedTable.VisitedExpression;
+                    // referencedTable.VisitedExpression = null;
+                    //
+                    // var newTable = (TableExpressionBase)visitor.Visit(table);
+                    //
+                    // // Reference the visited table from the un-visited one so that subsequent visitations (e.g. from projections) will
+                    // // rewire to it and avoid multiple deep visitations.
+                    // referencedTable.VisitedExpression = UnwrapJoin(newTable);
+
+                    if (newTable != table
+                        && newTables == _tables)
+                    {
+                        newTables = new List<TableExpressionBase>(_tables.Count);
+                        for (var j = 0; j < i; j++)
+                        {
+                            newTables.Add(_tables[j]);
+                        }
+                        changed = true;
+                    }
+
+                    if (newTables != _tables)
+                    {
+                        newTables.Add(newTable);
+                    }
+                }
 
                 var newProjections = _projection;
                 var newProjectionMapping = _projectionMapping;
@@ -1335,28 +1395,6 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                         {
                             newProjectionMapping[mapping.Key] = newProjection;
                         }
-                    }
-                }
-
-                var newTables = _tables;
-                for (var i = 0; i < _tables.Count; i++)
-                {
-                    var table = _tables[i];
-                    var newTable = (TableExpressionBase)visitor.Visit(table);
-                    if (newTable != table
-                        && newTables == _tables)
-                    {
-                        newTables = new List<TableExpressionBase>(_tables.Count);
-                        for (var j = 0; j < i; j++)
-                        {
-                            newTables.Add(_tables[j]);
-                        }
-                        changed = true;
-                    }
-
-                    if (newTables != _tables)
-                    {
-                        newTables.Add(newTable);
                     }
                 }
 
@@ -1422,6 +1460,12 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                 var limit = (SqlExpression)visitor.Visit(Limit);
                 changed |= limit != Limit;
 
+                // Restore the previous VisitedExpression references for nested visitors
+                for (var i = 0; i < _tables.Count; i++)
+                {
+                    UnwrapJoin(_tables[i]).VisitedExpression = previousTableVisitedExpressions[i];
+                }
+
                 if (changed)
                 {
                     var newSelectExpression = new SelectExpression(Alias, newProjections, newTables, newGroupBy, newOrderings)
@@ -1441,6 +1485,27 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                 }
 
                 return this;
+            }
+
+            static TableExpressionBase UnwrapJoin(TableExpressionBase table) =>
+                table is JoinExpressionBase join ? join.Table : table;
+
+            TableExpressionBase VisitTable(TableExpressionBase table, int tableIndex)
+            {
+                // Set the table's VisitedExpression to null so that we can actually visit it. Unwrap joins since the contained
+                // table is the one actually referenced from other SelectExpression components. We restore the previous visitation
+                // before leaving the method in case more than one visitor is active.
+                var referencedTable = UnwrapJoin(table);
+                previousTableVisitedExpressions[tableIndex] = referencedTable.VisitedExpression;
+                referencedTable.VisitedExpression = null;
+
+                var newTable = (TableExpressionBase)visitor.Visit(table);
+
+                // Reference the visited table from the un-visited one so that subsequent visitations (e.g. from projections) will
+                // rewire to it and avoid multiple deep visitations.
+                referencedTable.VisitedExpression = UnwrapJoin(newTable);
+
+                return newTable;
             }
         }
 

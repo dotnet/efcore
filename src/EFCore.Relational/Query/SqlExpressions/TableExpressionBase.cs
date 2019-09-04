@@ -19,6 +19,16 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 
         public virtual string Alias { get; internal set; }
 
+        /// <summary>
+        /// Populated after this expression is first visited from its containing <see cref="SelectExpression"/>, to make sure that
+        /// subsequent visits return the same instance, and to prevent needless multiple deep visits. Used only by visitors.
+        /// </summary>
+        /// <remarks>
+        /// If you implement an expression visitor which contains specific logic for visiting <see cref="TableExpressionBase"/>,
+        /// you should properly populate and check this field (<see cref="SelectExpression.VisitChildren"/> for an example).
+        /// </remarks>
+        public TableExpressionBase VisitedExpression { get; set; }
+
         protected override Expression VisitChildren(ExpressionVisitor visitor) => this;
 
         public override Type Type => typeof(object);
