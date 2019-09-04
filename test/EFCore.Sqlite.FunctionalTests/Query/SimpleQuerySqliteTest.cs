@@ -4,6 +4,7 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
@@ -1327,6 +1328,15 @@ FROM (
         public override Task Like_with_non_string_column_using_ToString(bool isAsync)
         {
             return base.Like_with_non_string_column_using_ToString(isAsync);
+        }
+
+        public override async Task Member_binding_after_ctor_arguments_fails_with_client_eval(bool isAsync)
+        {
+            Assert.Equal(
+                CoreStrings.TranslationFailed("OrderBy<Customer, string>(    source: DbSet<Customer>,     keySelector: (c) => new CustomerListItem(        c.CustomerID,         c.City    ).City)"),
+                RemoveNewLines(
+                    (await Assert.ThrowsAsync<InvalidOperationException>(
+                        () => base.Member_binding_after_ctor_arguments_fails_with_client_eval(isAsync))).Message));
         }
 
         private void AssertSql(params string[] expected)

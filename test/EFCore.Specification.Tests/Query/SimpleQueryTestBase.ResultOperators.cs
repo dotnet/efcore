@@ -1442,7 +1442,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                                     new { Id1 = o.OrderID, Id2 = o.ProductID })), entryCount: 1))).Message));
         }
 
-        private string RemoveNewLines(string message)
+        protected string RemoveNewLines(string message)
             => message.Replace("\n", "").Replace("\r", "");
 
         [ConditionalFact]
