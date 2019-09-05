@@ -2347,6 +2347,34 @@ WHERE [e].[Id] IN (
             }
         }
 
+        [ConditionalFact]
+        public virtual void Query_cache_entries_are_evicted_as_necessary()
+        {
+            using (CreateDatabase8909())
+            {
+                using (var context = new MyContext8909(_options))
+                {
+                    context.Cache.Compact(1);
+                    Assert.Equal(0, context.Cache.Count);
+
+                    var entityParam = Expression.Parameter(typeof(Entity8909), "e");
+                    var idPropertyInfo = context.Model.FindEntityType((typeof(Entity8909)))
+                        .FindProperty(nameof(Entity8909.Id))
+                        .PropertyInfo;
+                    for (var i = 0; i < 1100; i++)
+                    {
+                        var conditionBody = Expression.Equal(
+                            Expression.MakeMemberAccess(entityParam, idPropertyInfo),
+                            Expression.Constant(i));
+                        var whereExpression = Expression.Lambda<Func<Entity8909, bool>>(conditionBody, entityParam);
+                        context.Entities.Where(whereExpression).GetEnumerator();
+                    }
+
+                    Assert.True(context.Cache.Count <= 1024);
+                }
+            }
+        }
+
         private SqlServerTestStore CreateDatabase8909()
         {
             return CreateTestStore(

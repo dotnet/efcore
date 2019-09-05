@@ -28,7 +28,7 @@ namespace Microsoft.EntityFrameworkCore
             Check.NotNull(modelBuilder, nameof(modelBuilder));
             Check.NullButNotEmpty(name, nameof(name));
 
-            modelBuilder.Model.SetCosmosDefaultContainer(name);
+            modelBuilder.Model.SetDefaultContainer(name);
 
             return modelBuilder;
         }
@@ -54,7 +54,7 @@ namespace Microsoft.EntityFrameworkCore
                 return null;
             }
 
-            modelBuilder.Metadata.SetCosmosDefaultContainer(name, fromDataAnnotation);
+            modelBuilder.Metadata.SetDefaultContainer(name, fromDataAnnotation);
 
             return modelBuilder;
         }

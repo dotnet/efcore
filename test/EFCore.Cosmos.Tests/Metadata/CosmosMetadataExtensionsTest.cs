@@ -18,22 +18,22 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             var entityType = modelBuilder
                 .Entity<Customer>().Metadata;
 
-            Assert.Equal(nameof(Customer), entityType.GetCosmosContainer());
+            Assert.Equal(nameof(Customer), entityType.GetContainer());
 
-            ((IConventionEntityType)entityType).SetCosmosContainer("Customizer");
-            Assert.Equal("Customizer", entityType.GetCosmosContainer());
-            Assert.Equal(ConfigurationSource.Convention, ((IConventionEntityType)entityType).GetCosmosContainerConfigurationSource());
+            ((IConventionEntityType)entityType).SetContainer("Customizer");
+            Assert.Equal("Customizer", entityType.GetContainer());
+            Assert.Equal(ConfigurationSource.Convention, ((IConventionEntityType)entityType).GetContainerConfigurationSource());
 
-            entityType.SetCosmosContainer("Customizer");
-            Assert.Equal("Customizer", entityType.GetCosmosContainer());
-            Assert.Equal(ConfigurationSource.Explicit, ((IConventionEntityType)entityType).GetCosmosContainerConfigurationSource());
+            entityType.SetContainer("Customizer");
+            Assert.Equal("Customizer", entityType.GetContainer());
+            Assert.Equal(ConfigurationSource.Explicit, ((IConventionEntityType)entityType).GetContainerConfigurationSource());
 
-            entityType.SetCosmosContainer(null);
-            Assert.Equal(nameof(Customer), entityType.GetCosmosContainer());
-            Assert.Null(((IConventionEntityType)entityType).GetCosmosContainerConfigurationSource());
+            entityType.SetContainer(null);
+            Assert.Equal(nameof(Customer), entityType.GetContainer());
+            Assert.Null(((IConventionEntityType)entityType).GetContainerConfigurationSource());
 
             ((IConventionModel)modelBuilder.Model).Builder.HasDefaultContainer("Unicorn");
-            Assert.Equal("Unicorn", entityType.GetCosmosContainer());
+            Assert.Equal("Unicorn", entityType.GetContainer());
         }
 
         [ConditionalFact]
@@ -44,21 +44,19 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             var entityType = modelBuilder
                 .Entity<Customer>().Metadata;
 
-            Assert.Null(entityType.GetCosmosPartitionKeyPropertyName());
+            Assert.Null(entityType.GetPartitionKeyPropertyName());
 
-            ((IConventionEntityType)entityType).SetCosmosPartitionKeyPropertyName("pk");
-            Assert.Equal("pk", entityType.GetCosmosPartitionKeyPropertyName());
-            Assert.Equal(
-                ConfigurationSource.Convention, ((IConventionEntityType)entityType).GetCosmosPartitionKeyPropertyNameConfigurationSource());
+            ((IConventionEntityType)entityType).SetPartitionKeyPropertyName("pk");
+            Assert.Equal("pk", entityType.GetPartitionKeyPropertyName());
+            Assert.Equal(ConfigurationSource.Convention, ((IConventionEntityType)entityType).GetPartitionKeyPropertyNameConfigurationSource());
 
-            entityType.SetCosmosPartitionKeyPropertyName("pk");
-            Assert.Equal("pk", entityType.GetCosmosPartitionKeyPropertyName());
-            Assert.Equal(
-                ConfigurationSource.Explicit, ((IConventionEntityType)entityType).GetCosmosPartitionKeyPropertyNameConfigurationSource());
+            entityType.SetPartitionKeyPropertyName("pk");
+            Assert.Equal("pk", entityType.GetPartitionKeyPropertyName());
+            Assert.Equal(ConfigurationSource.Explicit, ((IConventionEntityType)entityType).GetPartitionKeyPropertyNameConfigurationSource());
 
-            entityType.SetCosmosPartitionKeyPropertyName(null);
-            Assert.Null(entityType.GetCosmosPartitionKeyPropertyName());
-            Assert.Null(((IConventionEntityType)entityType).GetCosmosPartitionKeyPropertyNameConfigurationSource());
+            entityType.SetPartitionKeyPropertyName(null);
+            Assert.Null(entityType.GetPartitionKeyPropertyName());
+            Assert.Null(((IConventionEntityType)entityType).GetPartitionKeyPropertyNameConfigurationSource());
         }
 
         private static ModelBuilder CreateModelBuilder() => new ModelBuilder(new ConventionSet());
