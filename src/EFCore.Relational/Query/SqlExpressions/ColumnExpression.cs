@@ -50,13 +50,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         public TableExpressionBase Table { get; }
         public bool IsNullable { get; }
 
-        protected override Expression VisitChildren(ExpressionVisitor visitor)
-            => Update((TableExpressionBase)visitor.Visit(Table));
-
-        public virtual ColumnExpression Update(TableExpressionBase table)
-            => table != Table
-                ? new ColumnExpression(Name, table, Type, TypeMapping, IsNullable)
-                : this;
+        protected override Expression VisitChildren(ExpressionVisitor visitor) => this;
 
         public ColumnExpression MakeNullable()
             => new ColumnExpression(Name, Table, Type.MakeNullable(), TypeMapping, true);
