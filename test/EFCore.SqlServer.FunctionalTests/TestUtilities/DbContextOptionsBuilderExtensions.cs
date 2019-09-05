@@ -23,6 +23,8 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
             optionsBuilder.ExecutionStrategy(c => new TestSqlServerRetryingExecutionStrategy(c));
 
+            optionsBuilder.CommandTimeout(SqlServerTestStore.CommandTimeout);
+
             return optionsBuilder;
         }
     }
