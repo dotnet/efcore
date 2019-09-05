@@ -69,7 +69,7 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [ConditionalFact]
-        [PlatformSkipCondition(TestPlatform.Linux, SkipReason = "Test is flaky on CI.")]
+        [SqlServerCondition(SqlServerCondition.IsNotCI)]
         public void Can_use_sequence_end_to_end_on_multiple_databases()
         {
             var serviceProvider = new ServiceCollection()

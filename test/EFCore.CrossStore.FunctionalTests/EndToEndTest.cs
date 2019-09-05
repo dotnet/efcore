@@ -15,7 +15,7 @@ namespace Microsoft.EntityFrameworkCore
         protected EndToEndTest(CrossStoreFixture fixture)
         {
             Fixture = fixture;
-            TestStore = Fixture.CreateTestStore(TestStoreFactory);
+            TestStore = Fixture.CreateTestStore(TestStoreFactory, "CrossStoreTest");
         }
 
         protected CrossStoreFixture Fixture { get; }

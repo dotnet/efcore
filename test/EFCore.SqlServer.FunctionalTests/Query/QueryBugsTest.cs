@@ -632,11 +632,15 @@ LEFT JOIN [Customer] AS [c] ON (([o].[CustomerFirstName] = [c].[FirstName]) AND 
 
                     var customer1 = new Customer
                     {
-                        FirstName = "Customer", LastName = "One", Orders = new List<Order> { order11, order12 }
+                        FirstName = "Customer",
+                        LastName = "One",
+                        Orders = new List<Order> { order11, order12 }
                     };
                     var customer2 = new Customer
                     {
-                        FirstName = "Customer", LastName = "Two", Orders = new List<Order> { order21, order22, order23 }
+                        FirstName = "Customer",
+                        LastName = "Two",
+                        Orders = new List<Order> { order21, order22, order23 }
                     };
 
                     context.Customers.AddRange(customer1, customer2);
@@ -882,7 +886,9 @@ Queen of the Andals and the Rhoynar and the First Men, Khaleesi of the Great Gra
 
                     var daenerys = new Targaryen
                     {
-                        Name = "Daenerys", Details = details, Dragons = new List<Dragon> { drogon, rhaegal, viserion }
+                        Name = "Daenerys",
+                        Details = details,
+                        Dragons = new List<Dragon> { drogon, rhaegal, viserion }
                     };
                     context.Targaryens.AddRange(daenerys, aerys);
                     context.Dragons.AddRange(drogon, rhaegal, viserion, balerion);
@@ -1415,7 +1421,7 @@ Queen of the Andals and the Rhoynar and the First Men, Khaleesi of the Great Gra
                                     on eVersion.RootEntityId equals eRoot.Id
                                     into RootEntities
                                 from eRootJoined in RootEntities.DefaultIfEmpty()
-                                // ReSharper disable once ConstantNullCoalescingCondition
+                                    // ReSharper disable once ConstantNullCoalescingCondition
                                 select new { One = 1, Coalesce = eRootJoined ?? (eVersion ?? eRootJoined) };
 
                     var result = query.ToList();
@@ -1436,7 +1442,7 @@ Queen of the Andals and the Rhoynar and the First Men, Khaleesi of the Great Gra
                                     on eVersion.RootEntityId equals eRoot.Id
                                     into RootEntities
                                 from eRootJoined in RootEntities.DefaultIfEmpty()
-                                // ReSharper disable once ConstantNullCoalescingCondition
+                                    // ReSharper disable once ConstantNullCoalescingCondition
                                 select new { One = eRootJoined, Two = 2, Coalesce = eRootJoined ?? (eVersion ?? eRootJoined) };
 
                     var result = query.ToList();
@@ -1457,7 +1463,7 @@ Queen of the Andals and the Rhoynar and the First Men, Khaleesi of the Great Gra
                                     on eVersion.RootEntityId equals eRoot.Id
                                     into RootEntities
                                 from eRootJoined in RootEntities.DefaultIfEmpty()
-                                // ReSharper disable once MergeConditionalExpression
+                                    // ReSharper disable once MergeConditionalExpression
 #pragma warning disable IDE0029 // Use coalesce expression
                                 select eRootJoined != null ? eRootJoined : eVersion;
 #pragma warning restore IDE0029 // Use coalesce expression
@@ -2197,7 +2203,9 @@ WHERE ([e].[PermissionShort] & CAST(4 AS smallint)) = CAST(4 AS smallint)");
                     context.AddRange(
                         new Entity8538
                         {
-                            Permission = Permission.NONE, PermissionByte = PermissionByte.NONE, PermissionShort = PermissionShort.NONE
+                            Permission = Permission.NONE,
+                            PermissionByte = PermissionByte.NONE,
+                            PermissionShort = PermissionShort.NONE
                         },
                         new Entity8538
                         {
@@ -2647,7 +2655,10 @@ WHERE [w].[Val] = 1");
                 {
                     var valueParam = new SqlParameter
                     {
-                        ParameterName = "Value", Value = 0, Direction = ParameterDirection.Output, SqlDbType = SqlDbType.Int
+                        ParameterName = "Value",
+                        Value = 0,
+                        Direction = ParameterDirection.Output,
+                        SqlDbType = SqlDbType.Int
                     };
 
                     Assert.Equal(0, valueParam.Value);
@@ -5182,7 +5193,8 @@ LEFT JOIN [Categories] AS [c] ON [p].[CategoryId] = [c].[Id]");
                     context.Products.Add(
                         new Product15684
                         {
-                            Name = "Apple", Category = new Category15684 { Name = "Fruit", Status = CategoryStatus15684.Active }
+                            Name = "Apple",
+                            Category = new Category15684 { Name = "Fruit", Status = CategoryStatus15684.Active }
                         });
 
                     context.Products.Add(new Product15684 { Name = "Bike" });
@@ -5876,6 +5888,149 @@ WHERE ([p].[Id] = @__id_0) AND @__id_0 IS NOT NULL");
             {
                 Criteria = t => t.Id == id;
             }
+        }
+
+        #endregion
+
+        #region Bug6864
+
+        [ConditionalFact]
+        public virtual void Implicit_cast_6864()
+        {
+            using (CreateDatabase6864())
+            {
+                using (var context = new MyContext6864(_options))
+                {
+                    // Verify no client eval
+                    var query = context.Foos.Where(f => f.String == new Bar6864(1337)).ToList();
+
+                    AssertSql(
+                        @"SELECT [f].[Id], [f].[String]
+FROM [Foos] AS [f]
+WHERE ([f].[String] = N'1337') AND [f].[String] IS NOT NULL");
+                }
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Access_property_of_closure_6864()
+        {
+            using (CreateDatabase6864())
+            {
+                using (var context = new MyContext6864(_options))
+                {
+                    // Verify no client eval
+                    var bar = new Bar6864(1337);
+                    var query = context.Foos.Where(f => f.String == bar.Value).ToList();
+
+                    AssertSql(
+                        @"@__bar_Value_0='1337' (Size = 4000)
+
+SELECT [f].[Id], [f].[String]
+FROM [Foos] AS [f]
+WHERE (([f].[String] = @__bar_Value_0) AND ([f].[String] IS NOT NULL AND @__bar_Value_0 IS NOT NULL)) OR ([f].[String] IS NULL AND @__bar_Value_0 IS NULL)");
+                }
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Call_method_on_closure_6864()
+        {
+            using (CreateDatabase6864())
+            {
+                using (var context = new MyContext6864(_options))
+                {
+                    // Verify no client eval
+                    var bar = new Bar6864(1337);
+                    var query = context.Foos.Where(f => f.String == bar.ToString()).ToList();
+
+                    AssertSql(
+                        @"@__ToString_0='1337' (Size = 4000)
+
+SELECT [f].[Id], [f].[String]
+FROM [Foos] AS [f]
+WHERE (([f].[String] = @__ToString_0) AND ([f].[String] IS NOT NULL AND @__ToString_0 IS NOT NULL)) OR ([f].[String] IS NULL AND @__ToString_0 IS NULL)");
+                }
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Implicitly_cast_closure_6864()
+        {
+            using (CreateDatabase6864())
+            {
+                using (var context = new MyContext6864(_options))
+                {
+                    // Verify no client eval
+                    var bar = new Bar6864(1337);
+                    var query = context.Foos.Where(f => f.String == bar).ToList();
+
+                    AssertSql(
+                        @"@__p_0='1337' (Size = 4000)
+
+SELECT [f].[Id], [f].[String]
+FROM [Foos] AS [f]
+WHERE (([f].[String] = @__p_0) AND ([f].[String] IS NOT NULL AND @__p_0 IS NOT NULL)) OR ([f].[String] IS NULL AND @__p_0 IS NULL)");
+                }
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Implicitly_cast_return_value_6864()
+        {
+            using (CreateDatabase6864())
+            {
+                using (var context = new MyContext6864(_options))
+                {
+                    // Verify no client eval
+                    var query = context.Foos.Where(f => f.String == new Bar6864(1337).Clone()).ToList();
+
+                    AssertSql(
+                        @"SELECT [f].[Id], [f].[String]
+FROM [Foos] AS [f]
+WHERE ([f].[String] = N'1337') AND [f].[String] IS NOT NULL");
+                }
+            }
+        }
+
+        public class MyContext6864 : DbContext
+        {
+            public DbSet<FooEntity6864> Foos { get; set; }
+            public MyContext6864(DbContextOptions options) : base(options)
+            {
+            }
+        }
+
+        private SqlServerTestStore CreateDatabase6864()
+            => CreateTestStore(
+                () => new MyContext6864(_options),
+                context =>
+                {
+                    context.SaveChanges();
+
+                    ClearLog();
+                });
+
+        public class FooEntity6864
+        {
+            public int Id { get; set; }
+            public string String { get; set; }
+        }
+
+        public class Bar6864
+        {
+            private readonly int _value;
+
+            public Bar6864(int value)
+            {
+                _value = value;
+            }
+
+            public string Value => _value.ToString();
+            public override string ToString() => Value;
+            public static implicit operator string(Bar6864 bar) => bar.Value;
+            public Bar6864 Clone() => new Bar6864(_value);
+
         }
 
         #endregion

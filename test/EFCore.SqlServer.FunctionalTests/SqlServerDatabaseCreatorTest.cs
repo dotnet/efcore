@@ -54,17 +54,20 @@ namespace Microsoft.EntityFrameworkCore
                 {
                     var creator = GetDatabaseCreator(context);
 
-                    using (CreateTransactionScope(ambientTransaction))
+                    await context.Database.CreateExecutionStrategy().ExecuteAsync(async () =>
                     {
-                        if (useCanConnect)
+                        using (CreateTransactionScope(ambientTransaction))
                         {
-                            Assert.False(async ? await creator.CanConnectAsync() : creator.CanConnect());
+                            if (useCanConnect)
+                            {
+                                Assert.False(async ? await creator.CanConnectAsync() : creator.CanConnect());
+                            }
+                            else
+                            {
+                                Assert.False(async ? await creator.ExistsAsync() : creator.Exists());
+                            }
                         }
-                        else
-                        {
-                            Assert.False(async ? await creator.ExistsAsync() : creator.Exists());
-                        }
-                    }
+                    });
 
                     Assert.Equal(ConnectionState.Closed, context.Database.GetDbConnection().State);
                 }
@@ -101,17 +104,21 @@ namespace Microsoft.EntityFrameworkCore
                 using (var context = new BloggingContext(testDatabase))
                 {
                     var creator = GetDatabaseCreator(context);
-                    using (CreateTransactionScope(ambientTransaction))
+
+                    await context.Database.CreateExecutionStrategy().ExecuteAsync(async () =>
                     {
-                        if (useCanConnect)
+                        using (CreateTransactionScope(ambientTransaction))
                         {
-                            Assert.True(async ? await creator.CanConnectAsync() : creator.CanConnect());
+                            if (useCanConnect)
+                            {
+                                Assert.True(async ? await creator.CanConnectAsync() : creator.CanConnect());
+                            }
+                            else
+                            {
+                                Assert.True(async ? await creator.ExistsAsync() : creator.Exists());
+                            }
                         }
-                        else
-                        {
-                            Assert.True(async ? await creator.ExistsAsync() : creator.Exists());
-                        }
-                    }
+                    });
 
                     Assert.Equal(ConnectionState.Closed, context.Database.GetDbConnection().State);
                 }
@@ -158,17 +165,20 @@ namespace Microsoft.EntityFrameworkCore
 
                     Assert.True(async ? await creator.ExistsAsync() : creator.Exists());
 
-                    using (CreateTransactionScope(ambientTransaction))
+                    await GetExecutionStrategy(testDatabase).ExecuteAsync(async () =>
                     {
-                        if (async)
+                        using (CreateTransactionScope(ambientTransaction))
                         {
-                            Assert.True(await context.Database.EnsureDeletedAsync());
+                            if (async)
+                            {
+                                Assert.True(await context.Database.EnsureDeletedAsync());
+                            }
+                            else
+                            {
+                                Assert.True(context.Database.EnsureDeleted());
+                            }
                         }
-                        else
-                        {
-                            Assert.True(context.Database.EnsureDeleted());
-                        }
-                    }
+                    });
 
                     Assert.Equal(ConnectionState.Closed, context.Database.GetDbConnection().State);
 
@@ -429,10 +439,14 @@ namespace Microsoft.EntityFrameworkCore
             using (var testDatabase = SqlServerTestStore.GetOrCreateInitialized("Empty"))
             {
                 var creator = GetDatabaseCreator(testDatabase);
-                using (CreateTransactionScope(ambientTransaction))
+
+                await GetExecutionStrategy(testDatabase).ExecuteAsync(async () =>
                 {
-                    Assert.False(async ? await creator.HasTablesAsyncBase() : creator.HasTablesBase());
-                }
+                    using (CreateTransactionScope(ambientTransaction))
+                    {
+                        Assert.False(async ? await creator.HasTablesAsyncBase() : creator.HasTablesBase());
+                    }
+                });
             }
         }
 
@@ -445,10 +459,14 @@ namespace Microsoft.EntityFrameworkCore
                 .InitializeSqlServer(null, t => new BloggingContext(t), null))
             {
                 var creator = GetDatabaseCreator(testDatabase);
-                using (CreateTransactionScope(ambientTransaction))
+
+                await GetExecutionStrategy(testDatabase).ExecuteAsync(async () =>
                 {
-                    Assert.True(async ? await creator.HasTablesAsyncBase() : creator.HasTablesBase());
-                }
+                    using (CreateTransactionScope(ambientTransaction))
+                    {
+                        Assert.True(async ? await creator.HasTablesAsyncBase() : creator.HasTablesBase());
+                    }
+                });
             }
         }
     }
@@ -645,17 +663,20 @@ namespace Microsoft.EntityFrameworkCore
 
                 creator.EnsureDeleted();
 
-                using (CreateTransactionScope(ambientTransaction))
+                await GetExecutionStrategy(testDatabase).ExecuteAsync(async () =>
                 {
-                    if (async)
+                    using (CreateTransactionScope(ambientTransaction))
                     {
-                        await creator.CreateAsync();
+                        if (async)
+                        {
+                            await creator.CreateAsync();
+                        }
+                        else
+                        {
+                            creator.Create();
+                        }
                     }
-                    else
-                    {
-                        creator.Create();
-                    }
-                }
+                });
 
                 Assert.True(creator.Exists());
 
@@ -700,17 +721,20 @@ namespace Microsoft.EntityFrameworkCore
     [SqlServerCondition(SqlServerCondition.IsNotSqlAzure | SqlServerCondition.IsNotCI)]
     public class SqlServerDatabaseCreatorTest
     {
-        public static IDisposable CreateTransactionScope(bool useTransaction)
+        protected static IDisposable CreateTransactionScope(bool useTransaction)
             => TestStore.CreateTransactionScope(useTransaction);
 
-        public static TestDatabaseCreator GetDatabaseCreator(SqlServerTestStore testStore)
+        protected static TestDatabaseCreator GetDatabaseCreator(SqlServerTestStore testStore)
             => GetDatabaseCreator(testStore.ConnectionString);
 
-        public static TestDatabaseCreator GetDatabaseCreator(string connectionString)
+        protected static TestDatabaseCreator GetDatabaseCreator(string connectionString)
             => GetDatabaseCreator(new BloggingContext(connectionString));
 
-        public static TestDatabaseCreator GetDatabaseCreator(BloggingContext context)
+        protected static TestDatabaseCreator GetDatabaseCreator(BloggingContext context)
             => (TestDatabaseCreator)context.GetService<IRelationalDatabaseCreator>();
+
+        protected static IExecutionStrategy GetExecutionStrategy(SqlServerTestStore testStore)
+            => new BloggingContext(testStore).GetService<IExecutionStrategyFactory>().Create();
 
         // ReSharper disable once ClassNeverInstantiated.Local
         private class TestSqlServerExecutionStrategyFactory : SqlServerExecutionStrategyFactory

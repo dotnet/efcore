@@ -25,7 +25,10 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         public string Name { get; protected set; }
 
         public virtual TestStore Initialize(
-            IServiceProvider serviceProvider, Func<DbContext> createContext, Action<DbContext> seed = null, Action<DbContext> clean = null)
+            IServiceProvider serviceProvider,
+            Func<DbContext> createContext,
+            Action<DbContext> seed = null,
+            Action<DbContext> clean = null)
         {
             ServiceProvider = serviceProvider;
             if (createContext == null)
@@ -45,10 +48,24 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             return this;
         }
 
-        public TestStore Initialize(
-            IServiceProvider serviceProvider, Func<TestStore, DbContext> createContext, Action<DbContext> seed = null,
+        public virtual TestStore Initialize(
+            IServiceProvider serviceProvider,
+            Func<TestStore, DbContext> createContext,
+            Action<DbContext> seed = null,
             Action<DbContext> clean = null)
             => Initialize(serviceProvider, () => createContext(this), seed, clean);
+
+        public virtual TestStore Initialize<TContext>(
+            IServiceProvider serviceProvider,
+            Func<TestStore, TContext> createContext,
+            Action<TContext> seed = null,
+            Action<TContext> clean = null)
+            where TContext : DbContext
+            => Initialize(
+                serviceProvider,
+                createContext,
+                seed == null ? (Action<DbContext>)null : c => seed((TContext)c),
+                clean == null ? (Action<DbContext>)null : c => clean((TContext)c));
 
         protected virtual void Initialize(Func<DbContext> createContext, Action<DbContext> seed, Action<DbContext> clean)
         {
