@@ -245,7 +245,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 var migration = migrations[migrations.Count - 1];
                 model = migration.TargetModel;
 
-                if (!Dependencies.MigrationsModelDiffer.HasDifferences(model, Dependencies.SnapshotModelProcessor.Process(modelSnapshot.Model)))
+                if (!Dependencies.MigrationsModelDiffer.HasDifferences(
+                    model, Dependencies.SnapshotModelProcessor.Process(modelSnapshot.Model)))
                 {
                     var applied = false;
                     try
@@ -386,9 +387,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
 
             return new MigrationFiles
             {
-                MigrationFile = migrationFile,
-                MetadataFile = migrationMetadataFile,
-                SnapshotFile = modelSnapshotFile
+                MigrationFile = migrationFile, MetadataFile = migrationMetadataFile, SnapshotFile = modelSnapshotFile
             };
         }
 

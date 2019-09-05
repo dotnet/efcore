@@ -1739,6 +1739,16 @@ FROM [Orders] AS [o]
 WHERE [o].[OrderID] = 1");
         }
 
+        public override async Task Generic_Ilist_contains_translates_to_server(bool isAsync)
+        {
+            await base.Generic_Ilist_contains_translates_to_server(isAsync);
+
+            AssertSql(
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE [c].[City] IN (N'Seattle')");
+        }
+
         public override async Task Project_non_nullable_value_after_FirstOrDefault_on_empty_collection(bool isAsync)
         {
             await base.Project_non_nullable_value_after_FirstOrDefault_on_empty_collection(isAsync);

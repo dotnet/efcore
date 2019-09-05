@@ -59,11 +59,7 @@ WHERE ((c[""Discriminator""] = ""Product"") AND NOT(c[""Discontinued""]))");
                 (cs, ovs)
                     => from c in cs.Where(ct => ct.City == "London")
                        from o in ovs.Where(ov => ov.CustomerID == c.CustomerID)
-                       select new
-                       {
-                           c,
-                           o
-                       },
+                       select new { c, o },
                 e => e.c.CustomerID);
 
             AssertSql(

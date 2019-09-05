@@ -85,10 +85,7 @@ namespace Microsoft.EntityFrameworkCore
 
         private static Genre[] CreateTestGenres(int numberOfGenres, int numberOfAlbums, DbContext context)
         {
-            var artist = new Artist
-            {
-                Name = "Artist1"
-            };
+            var artist = new Artist { Name = "Artist1" };
 
             var genres = Enumerable.Range(1, numberOfGenres).Select(
                 g =>
@@ -97,10 +94,7 @@ namespace Microsoft.EntityFrameworkCore
                         Name = "Genre " + g,
                         Albums = Enumerable.Range(1, numberOfAlbums).Select(
                             n =>
-                                new Album
-                                {
-                                    Artist = artist, Title = "Greatest Hits"
-                                }).ToList()
+                                new Album { Artist = artist, Title = "Greatest Hits" }).ToList()
                     }).ToList();
 
             context.AddRange(genres);
@@ -140,24 +134,15 @@ namespace Microsoft.EntityFrameworkCore
             {
                 var genres = Enumerable.Range(1, 10).Select(
                     n =>
-                        new Genre
-                        {
-                            Name = "Genre Name " + n
-                        }).ToArray();
+                        new Genre { Name = "Genre Name " + n }).ToArray();
 
                 var artists = Enumerable.Range(1, 10).Select(
                     n =>
-                        new Artist
-                        {
-                            Name = "Artist Name " + n
-                        }).ToArray();
+                        new Artist { Name = "Artist Name " + n }).ToArray();
 
                 var albums = Enumerable.Range(1, 10).Select(
                     n =>
-                        new Album
-                        {
-                            Artist = artists[n - 1], Genre = genres[n - 1], Title = "Greatest Hits"
-                        }).ToArray();
+                        new Album { Artist = artists[n - 1], Genre = genres[n - 1], Title = "Greatest Hits" }).ToArray();
 
                 return albums;
             }
@@ -173,10 +158,7 @@ namespace Microsoft.EntityFrameworkCore
                     var genreMenuComponent = new GenreMenuComponent(context);
 
                     var genres = Enumerable.Range(1, 10).Select(
-                        n => new Genre
-                        {
-                            Name = $"G{n}"
-                        });
+                        n => new Genre { Name = $"G{n}" });
 
                     context.AddRange(genres);
                     context.SaveChanges();
@@ -195,15 +177,7 @@ namespace Microsoft.EntityFrameworkCore
 
             var order = CreateOrder();
 
-            var formCollection = new Dictionary<string, StringValues>
-            {
-                {
-                    "PromoCode", new[]
-                    {
-                        "FREE"
-                    }
-                }
-            };
+            var formCollection = new Dictionary<string, StringValues> { { "PromoCode", new[] { "FREE" } } };
 
             using (var context = CreateContext())
             {
@@ -305,23 +279,12 @@ namespace Microsoft.EntityFrameworkCore
                 {
                     var album = new Album
                     {
-                        Title = albumTitle,
-                        Artist = new Artist
-                        {
-                            Name = "Kung Fu Kenny"
-                        },
-                        Genre = new Genre
-                        {
-                            Name = "Rap"
-                        }
+                        Title = albumTitle, Artist = new Artist { Name = "Kung Fu Kenny" }, Genre = new Genre { Name = "Rap" }
                     };
 
                     var cartItems = Enumerable.Range(1, itemCount).Select(
                         n =>
-                            new CartItem
-                            {
-                                Album = album, Count = 1, CartId = cartId
-                            }).ToArray();
+                            new CartItem { Album = album, Count = 1, CartId = cartId }).ToArray();
 
                     context.AddRange(cartItems);
                     context.SaveChanges();
@@ -343,13 +306,7 @@ namespace Microsoft.EntityFrameworkCore
                 {
                     var albums = CreateTestAlbums(
                         10,
-                        new Artist
-                        {
-                            Name = "Kung Fu Kenny"
-                        }, new Genre
-                        {
-                            Name = "Rap"
-                        });
+                        new Artist { Name = "Kung Fu Kenny" }, new Genre { Name = "Rap" });
 
                     context.Albums.AddRange(albums);
                     context.SaveChanges();
@@ -365,14 +322,8 @@ namespace Microsoft.EntityFrameworkCore
                                 GenreId = album.GenreId,
                                 Price = album.Price,
                                 Title = album.Title,
-                                Artist = new Artist
-                                {
-                                    ArtistId = album.ArtistId, Name = artist.Name
-                                },
-                                Genre = new Genre
-                                {
-                                    GenreId = album.GenreId, Name = genre.Name
-                                }
+                                Artist = new Artist { ArtistId = album.ArtistId, Name = artist.Name },
+                                Genre = new Genre { GenreId = album.GenreId, Name = genre.Name }
                             };
 
                     var foundAlbums = q.ToList();
@@ -469,13 +420,7 @@ namespace Microsoft.EntityFrameworkCore
                 {
                     var albums = CreateTestAlbums(
                         10,
-                        new Artist
-                        {
-                            Name = "Kung Fu Kenny"
-                        }, new Genre
-                        {
-                            Name = "Rap"
-                        });
+                        new Artist { Name = "Kung Fu Kenny" }, new Genre { Name = "Rap" });
 
                     context.AddRange(albums);
                     context.SaveChanges();
@@ -495,19 +440,10 @@ namespace Microsoft.EntityFrameworkCore
         {
             var albums = CreateTestAlbums(
                 itemPrice,
-                new Artist
-                {
-                    Name = "Kung Fu Kenny"
-                }, new Genre
-                {
-                    Name = "Rap"
-                });
+                new Artist { Name = "Kung Fu Kenny" }, new Genre { Name = "Rap" });
 
             var cartItems = Enumerable.Range(1, numberOfItems).Select(
-                n => new CartItem
-                {
-                    Count = 1, CartId = cartId, Album = albums[n % albums.Length]
-                }).ToArray();
+                n => new CartItem { Count = 1, CartId = cartId, Album = albums[n % albums.Length] }).ToArray();
 
             return cartItems;
         }
@@ -516,10 +452,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             return Enumerable.Range(1, 10).Select(
                 n =>
-                    new Album
-                    {
-                        Title = "Greatest Hits", Price = itemPrice, Artist = artist, Genre = genre
-                    }).ToArray();
+                    new Album { Title = "Greatest Hits", Price = itemPrice, Artist = artist, Genre = genre }).ToArray();
         }
 
         protected class CartSummaryComponent
@@ -606,10 +539,7 @@ namespace Microsoft.EntityFrameworkCore
             {
                 var cart = ShoppingCart.GetCart(_context, _cartId);
 
-                var viewModel = new ShoppingCartViewModel
-                {
-                    CartItems = await cart.GetCartItems(), CartTotal = await cart.GetTotal()
-                };
+                var viewModel = new ShoppingCartViewModel { CartItems = await cart.GetCartItems(), CartTotal = await cart.GetTotal() };
 
                 return viewModel;
             }

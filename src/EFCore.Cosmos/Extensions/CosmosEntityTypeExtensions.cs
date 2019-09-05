@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using JetBrains.Annotations;
@@ -26,8 +26,10 @@ namespace Microsoft.EntityFrameworkCore
                   ?? GetCosmosDefaultContainer(entityType);
 
         private static string GetCosmosDefaultContainer(IEntityType entityType)
-            => entityType.Model.GetCosmosDefaultContainer()
-               ?? entityType.ShortName();
+            => entityType.IsOwned()
+               ? null
+               : entityType.Model.GetCosmosDefaultContainer()
+                  ?? entityType.ShortName();
 
         /// <summary>
         ///     Sets the name of the container to which the entity type is mapped.
@@ -101,7 +103,8 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="entityType"> The entity type to find configuration source for. </param>
         /// <returns> The <see cref="ConfigurationSource" /> for the parent property to which the entity type is mapped. </returns>
-        public static ConfigurationSource? GetCosmosContainingPropertyNameConfigurationSource([NotNull] this IConventionEntityType entityType)
+        public static ConfigurationSource? GetCosmosContainingPropertyNameConfigurationSource(
+            [NotNull] this IConventionEntityType entityType)
             => entityType.FindAnnotation(CosmosAnnotationNames.PropertyName)
                 ?.GetConfigurationSource();
 
@@ -141,7 +144,8 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="entityType"> The entity type to find configuration source for. </param>
         /// <returns> The <see cref="ConfigurationSource" /> for the partition key property. </returns>
-        public static ConfigurationSource? GetCosmosPartitionKeyPropertyNameConfigurationSource([NotNull] this IConventionEntityType entityType)
+        public static ConfigurationSource? GetCosmosPartitionKeyPropertyNameConfigurationSource(
+            [NotNull] this IConventionEntityType entityType)
             => entityType.FindAnnotation(CosmosAnnotationNames.PartitionKeyName)
                 ?.GetConfigurationSource();
     }

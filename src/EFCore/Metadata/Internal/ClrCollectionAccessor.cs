@@ -183,6 +183,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                             return true;
                         }
                     }
+
                     return false;
                 case Collection<TElement> concreteCollection:
                     for (var i = 0; i < concreteCollection.Count; i++)
@@ -193,6 +194,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                             return true;
                         }
                     }
+
                     return false;
                 case SortedSet<TElement> sortedSet:
                     return sortedSet.TryGetValue((TElement)value, out var found)
@@ -215,6 +217,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                             return true;
                         }
                     }
+
                     return false;
                 case Collection<TElement> concreteCollection:
                     for (var i = 0; i < concreteCollection.Count; i++)
@@ -224,6 +227,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                             return true;
                         }
                     }
+
                     return false;
                 case SortedSet<TElement> sortedSet:
                     return sortedSet.TryGetValue((TElement)value, out var found)

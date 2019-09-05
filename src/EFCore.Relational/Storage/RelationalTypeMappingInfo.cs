@@ -35,11 +35,23 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="principals"> The principal property chain for the property for which mapping is needed. </param>
         /// <param name="storeTypeName"> The provider-specific relational type name for which mapping is needed. </param>
         /// <param name="storeTypeNameBase"> The provider-specific relational type name, with any facets removed. </param>
-        /// <param name="fallbackUnicode"> Specifies a fallback Specifies Unicode or ANSI mapping for the mapping, in case one isn't found at the core level, or <c>null</c> for default. </param>
+        /// <param name="fallbackUnicode">
+        ///     Specifies a fallback Specifies Unicode or ANSI mapping for the mapping, in case one isn't found at the core
+        ///     level, or <c>null</c> for default.
+        /// </param>
         /// <param name="fixedLength"> Specifies a fixed length mapping, or <c>null</c> for default. </param>
-        /// <param name="fallbackSize"> Specifies a fallback size for the mapping, in case one isn't found at the core level, or <c>null</c> for default. </param>
-        /// <param name="fallbackPrecision"> Specifies a fallback precision for the mapping, in case one isn't found at the core level, or <c>null</c> for default. </param>
-        /// <param name="fallbackScale"> Specifies a fallback scale for the mapping, in case one isn't found at the core level, or <c>null</c> for default. </param>
+        /// <param name="fallbackSize">
+        ///     Specifies a fallback size for the mapping, in case one isn't found at the core level, or <c>null</c> for
+        ///     default.
+        /// </param>
+        /// <param name="fallbackPrecision">
+        ///     Specifies a fallback precision for the mapping, in case one isn't found at the core level, or <c>null</c>
+        ///     for default.
+        /// </param>
+        /// <param name="fallbackScale">
+        ///     Specifies a fallback scale for the mapping, in case one isn't found at the core level, or <c>null</c> for
+        ///     default.
+        /// </param>
         public RelationalTypeMappingInfo(
             [NotNull] IReadOnlyList<IProperty> principals,
             [CanBeNull] string storeTypeName = null,

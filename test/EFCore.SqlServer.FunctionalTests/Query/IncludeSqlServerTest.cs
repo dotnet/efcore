@@ -43,7 +43,6 @@ FROM [Orders] AS [o]
 LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]");
         }
 
-
         public override void Include_when_result_operator(bool useString)
         {
             base.Include_when_result_operator(useString);
@@ -1009,6 +1008,36 @@ FROM (
 LEFT JOIN [Orders] AS [o] ON [t].[CustomerID] = [o].[CustomerID]
 ORDER BY [t].[ContactName], [t].[CustomerID], [o].[OrderID]");
             }
+        }
+
+        public override void Include_collection_with_multiple_conditional_order_by(bool useString)
+        {
+            base.Include_collection_with_multiple_conditional_order_by(useString);
+
+            AssertSql(
+                @"@__p_0='5'
+
+SELECT [t].[OrderID], [t].[CustomerID], [t].[EmployeeID], [t].[OrderDate], [o0].[OrderID], [o0].[ProductID], [o0].[Discount], [o0].[Quantity], [o0].[UnitPrice]
+FROM (
+    SELECT TOP(@__p_0) [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate], CASE
+        WHEN [o].[OrderID] > 0 THEN CAST(1 AS bit)
+        ELSE CAST(0 AS bit)
+    END AS [c], CASE
+        WHEN [c].[CustomerID] IS NOT NULL THEN [c].[City]
+        ELSE N''
+    END AS [c0]
+    FROM [Orders] AS [o]
+    LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]
+    ORDER BY CASE
+        WHEN [o].[OrderID] > 0 THEN CAST(1 AS bit)
+        ELSE CAST(0 AS bit)
+    END, CASE
+        WHEN [c].[CustomerID] IS NOT NULL THEN [c].[City]
+        ELSE N''
+    END
+) AS [t]
+LEFT JOIN [Order Details] AS [o0] ON [t].[OrderID] = [o0].[OrderID]
+ORDER BY [t].[c], [t].[c0], [t].[OrderID], [o0].[OrderID], [o0].[ProductID]");
         }
 
         public override void Then_include_collection_order_by_collection_column(bool useString)

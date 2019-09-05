@@ -59,7 +59,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="name"> The name of the entity type to find. </param>
         /// <returns> The entity types found. </returns>
         [DebuggerStepThrough]
-        public static IReadOnlyCollection<IConventionEntityType> GetEntityTypes([NotNull] this IConventionModel model, [NotNull] string name)
+        public static IReadOnlyCollection<IConventionEntityType> GetEntityTypes(
+            [NotNull] this IConventionModel model, [NotNull] string name)
             => ((Model)model).GetEntityTypes(name);
 
         /// <summary>
@@ -296,7 +297,7 @@ namespace Microsoft.EntityFrameworkCore
 
         /// <summary>
         ///     Forces post-processing on the model such that it is ready for use by the runtime. This post
-        ///     processing happens automatically when using <see cref="DbContext.OnModelCreating"/>; this method allows it to be run
+        ///     processing happens automatically when using <see cref="DbContext.OnModelCreating" />; this method allows it to be run
         ///     explicitly in cases where the automatic execution is not possible.
         /// </summary>
         /// <param name="model"> The model to finalize. </param>

@@ -13,7 +13,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 {
     /// <summary>
     ///     A convention that ensures that properties aren't configured to have a default value, as computed column
-    ///     or using a <see cref="SqlServerValueGenerationStrategy"/> at the same time.
+    ///     or using a <see cref="SqlServerValueGenerationStrategy" /> at the same time.
     /// </summary>
     public class SqlServerStoreGenerationConvention : StoreGenerationConvention
     {
@@ -109,7 +109,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                             "SqlServerValueGenerationStrategy", property.Name, "DefaultValue"));
                 }
 
-                if(property.GetDefaultValueSql() != null)
+                if (property.GetDefaultValueSql() != null)
                 {
                     throw new InvalidOperationException(
                         RelationalStrings.ConflictingColumnServerGeneration(

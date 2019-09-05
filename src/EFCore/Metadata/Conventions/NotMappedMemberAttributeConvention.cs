@@ -14,7 +14,7 @@ using Microsoft.EntityFrameworkCore.Utilities;
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 {
     /// <summary>
-    ///     A convention that ignores members on entity types that have the <see cref="NotMappedAttribute"/>.
+    ///     A convention that ignores members on entity types that have the <see cref="NotMappedAttribute" />.
     /// </summary>
     public class NotMappedMemberAttributeConvention : IEntityTypeAddedConvention
     {

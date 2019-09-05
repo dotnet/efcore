@@ -34,9 +34,9 @@ namespace Microsoft.EntityFrameworkCore.Storage
     ///         not used in application code.
     ///     </para>
     ///     <para>
-    ///         The service lifetime is <see cref="ServiceLifetime.Singleton"/>. This means a single instance
-    ///         is used by many <see cref="DbContext"/> instances. The implementation must be thread-safe.
-    ///         This service cannot depend on services registered as <see cref="ServiceLifetime.Scoped"/>.
+    ///         The service lifetime is <see cref="ServiceLifetime.Singleton" />. This means a single instance
+    ///         is used by many <see cref="DbContext" /> instances. The implementation must be thread-safe.
+    ///         This service cannot depend on services registered as <see cref="ServiceLifetime.Scoped" />.
     ///     </para>
     /// </summary>
     public class TypedRelationalValueBufferFactoryFactory : IRelationalValueBufferFactoryFactory
@@ -93,6 +93,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 {
                     hash.Add(TypeMaterializationInfo[i]);
                 }
+
                 return hash.ToHashCode();
             }
         }
@@ -122,7 +123,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="types"> Types and mapping for the values to be read. </param>
         /// <returns> The value buffer assignment expressions. </returns>
         public virtual IReadOnlyList<Expression> CreateAssignmentExpressions([NotNull] IReadOnlyList<TypeMaterializationInfo> types)
-        => Check.NotNull(types, nameof(types))
+            => Check.NotNull(types, nameof(types))
                 .Select(
                     (mi, i) =>
                         CreateGetValueExpression(

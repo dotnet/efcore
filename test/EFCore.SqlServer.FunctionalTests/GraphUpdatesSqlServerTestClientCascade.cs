@@ -5,7 +5,8 @@ using System.Linq;
 
 namespace Microsoft.EntityFrameworkCore
 {
-    public class GraphUpdatesSqlServerTestClientCascade : GraphUpdatesSqlServerTestBase<GraphUpdatesSqlServerTestClientCascade.GraphUpdatesWithClientCascadeSqlServerFixture>
+    public class GraphUpdatesSqlServerTestClientCascade : GraphUpdatesSqlServerTestBase<
+        GraphUpdatesSqlServerTestClientCascade.GraphUpdatesWithClientCascadeSqlServerFixture>
     {
         public GraphUpdatesSqlServerTestClientCascade(GraphUpdatesWithClientCascadeSqlServerFixture fixture)
             : base(fixture)

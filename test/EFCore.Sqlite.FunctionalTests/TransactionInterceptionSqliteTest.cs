@@ -42,7 +42,8 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         public class TransactionInterceptionWithDiagnosticsSqliteTest
-            : TransactionInterceptionSqliteTestBase, IClassFixture<TransactionInterceptionWithDiagnosticsSqliteTest.InterceptionSqliteFixture>
+            : TransactionInterceptionSqliteTestBase,
+                IClassFixture<TransactionInterceptionWithDiagnosticsSqliteTest.InterceptionSqliteFixture>
         {
             public TransactionInterceptionWithDiagnosticsSqliteTest(InterceptionSqliteFixture fixture)
                 : base(fixture)

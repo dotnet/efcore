@@ -167,11 +167,7 @@ WHERE ((c[""Discriminator""] = ""OrderDetail"") AND (c[""ProductID""] = 1))");
             await AssertQuery<Order>(
                 isAsync,
                 os => os.Where(o => o.OrderID < 10250).Select(
-                    o => new
-                    {
-                        o.OrderID,
-                        Sum = o.OrderDetails.Sum(od => od.Discount)
-                    }),
+                    o => new { o.OrderID, Sum = o.OrderDetails.Sum(od => od.Discount) }),
                 e => e.OrderID);
 
             AssertSql(
@@ -185,7 +181,6 @@ WHERE ((c[""Discriminator""] = ""Order"") AND (c[""OrderID""] < 10250))");
         {
             base.Average_no_data();
         }
-
 
         [ConditionalFact(Skip = "Issue#16146")]
         public override void Average_no_data_nullable()
@@ -375,11 +370,7 @@ WHERE ((c[""Discriminator""] = ""OrderDetail"") AND (c[""ProductID""] = 1))");
             await AssertQuery<Order>(
                 isAsync,
                 os => os.Where(o => o.OrderID < 10250).Select(
-                    o => new
-                    {
-                        o.OrderID,
-                        Sum = o.OrderDetails.Average(od => od.Discount)
-                    }),
+                    o => new { o.OrderID, Sum = o.OrderDetails.Average(od => od.Discount) }),
                 e => e.OrderID);
 
             AssertSql(
@@ -395,11 +386,7 @@ WHERE ((c[""Discriminator""] = ""Order"") AND (c[""OrderID""] < 10250))");
                 isAsync,
                 os => os.Where(o => o.OrderID < 10250)
                     .Select(
-                        o => new
-                        {
-                            o.OrderID,
-                            Sum = o.OrderDetails.Average(od => (float?)od.Discount)
-                        }),
+                        o => new { o.OrderID, Sum = o.OrderDetails.Average(od => (float?)od.Discount) }),
                 e => e.OrderID);
 
             AssertSql(
@@ -429,7 +416,6 @@ WHERE (c[""Discriminator""] = ""Order"")");
 FROM root c
 WHERE (c[""Discriminator""] = ""Order"")");
         }
-
 
         [ConditionalFact(Skip = "Issue#16146")]
         public override void Min_no_data_nullable()

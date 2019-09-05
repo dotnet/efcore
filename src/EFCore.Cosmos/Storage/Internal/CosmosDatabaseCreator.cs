@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -53,9 +53,13 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
             var created = _cosmosClient.CreateDatabaseIfNotExists();
             foreach (var entityType in _model.GetEntityTypes())
             {
-                created |= _cosmosClient.CreateContainerIfNotExists(
-                    entityType.GetCosmosContainer(),
-                    GetCosmosPartitionKeyStoreName(entityType));
+                var containerName = entityType.GetCosmosContainer();
+                if (containerName != null)
+                {
+                    created |= _cosmosClient.CreateContainerIfNotExists(
+                        containerName,
+                        GetCosmosPartitionKeyStoreName(entityType));
+                }
             }
 
             if (created)

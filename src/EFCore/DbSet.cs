@@ -163,7 +163,7 @@ namespace Microsoft.EntityFrameworkCore
         ///         to anything other than the CLR default for the property type.
         ///     </para>
         ///     <para>
-        ///         For entity types without generated keys, the state set is always <see cref="EntityState.Unchanged"/>.
+        ///         For entity types without generated keys, the state set is always <see cref="EntityState.Unchanged" />.
         ///     </para>
         ///     <para>
         ///         Use <see cref="EntityEntry.State" /> to set the state of only a single entity.
@@ -225,7 +225,7 @@ namespace Microsoft.EntityFrameworkCore
         ///         to anything other than the CLR default for the property type.
         ///     </para>
         ///     <para>
-        ///         For entity types without generated keys, the state set is always <see cref="EntityState.Modified"/>.
+        ///         For entity types without generated keys, the state set is always <see cref="EntityState.Modified" />.
         ///     </para>
         ///     <para>
         ///         Use <see cref="EntityEntry.State" /> to set the state of only a single entity.
@@ -285,7 +285,7 @@ namespace Microsoft.EntityFrameworkCore
         ///         to anything other than the CLR default for the property type.
         ///     </para>
         ///     <para>
-        ///         For entity types without generated keys, the state set is always <see cref="EntityState.Unchanged"/>.
+        ///         For entity types without generated keys, the state set is always <see cref="EntityState.Unchanged" />.
         ///     </para>
         ///     <para>
         ///         Use <see cref="EntityEntry.State" /> to set the state of only a single entity.
@@ -336,7 +336,7 @@ namespace Microsoft.EntityFrameworkCore
         ///         to anything other than the CLR default for the property type.
         ///     </para>
         ///     <para>
-        ///         For entity types without generated keys, the state set is always <see cref="EntityState.Modified"/>.
+        ///         For entity types without generated keys, the state set is always <see cref="EntityState.Modified" />.
         ///     </para>
         ///     <para>
         ///         Use <see cref="EntityEntry.State" /> to set the state of only a single entity.
@@ -395,7 +395,7 @@ namespace Microsoft.EntityFrameworkCore
         ///         to anything other than the CLR default for the property type.
         ///     </para>
         ///     <para>
-        ///         For entity types without generated keys, the state set is always <see cref="EntityState.Unchanged"/>.
+        ///         For entity types without generated keys, the state set is always <see cref="EntityState.Unchanged" />.
         ///     </para>
         ///     <para>
         ///         Use <see cref="EntityEntry.State" /> to set the state of only a single entity.
@@ -446,7 +446,7 @@ namespace Microsoft.EntityFrameworkCore
         ///         to anything other than the CLR default for the property type.
         ///     </para>
         ///     <para>
-        ///         For entity types without generated keys, the state set is always <see cref="EntityState.Modified"/>.
+        ///         For entity types without generated keys, the state set is always <see cref="EntityState.Modified" />.
         ///     </para>
         ///     <para>
         ///         Use <see cref="EntityEntry.State" /> to set the state of only a single entity.

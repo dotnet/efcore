@@ -23,9 +23,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
     ///         not used in application code.
     ///     </para>
     ///     <para>
-    ///         The service lifetime is <see cref="ServiceLifetime.Singleton"/>. This means a single instance
-    ///         is used by many <see cref="DbContext"/> instances. The implementation must be thread-safe.
-    ///         This service cannot depend on services registered as <see cref="ServiceLifetime.Scoped"/>.
+    ///         The service lifetime is <see cref="ServiceLifetime.Singleton" />. This means a single instance
+    ///         is used by many <see cref="DbContext" /> instances. The implementation must be thread-safe.
+    ///         This service cannot depend on services registered as <see cref="ServiceLifetime.Scoped" />.
     ///     </para>
     /// </summary>
     public class ModelSource : IModelSource
@@ -34,7 +34,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             = new ConcurrentDictionary<object, Lazy<IModel>>();
 
         /// <summary>
-        ///     Creates a new <see cref="ModelSource"/> instance.
+        ///     Creates a new <see cref="ModelSource" /> instance.
         /// </summary>
         /// <param name="dependencies"> The dependencies to use. </param>
         public ModelSource([NotNull] ModelSourceDependencies dependencies)

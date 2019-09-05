@@ -153,10 +153,10 @@ namespace Microsoft.EntityFrameworkCore.Internal
         /// </summary>
         public static LambdaExpression GetLambdaOrNull(this Expression expression)
             => expression is LambdaExpression lambda
-            ? lambda
-            : expression is UnaryExpression unary && expression.NodeType == ExpressionType.Quote
-                ? (LambdaExpression)unary.Operand
-                : null;
+                ? lambda
+                : expression is UnaryExpression unary && expression.NodeType == ExpressionType.Quote
+                    ? (LambdaExpression)unary.Operand
+                    : null;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -166,7 +166,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         /// </summary>
         public static LambdaExpression UnwrapLambdaFromQuote(this Expression expression)
             => (LambdaExpression)(expression is UnaryExpression unary && expression.NodeType == ExpressionType.Quote
-            ? unary.Operand
-            : expression);
+                ? unary.Operand
+                : expression);
     }
 }

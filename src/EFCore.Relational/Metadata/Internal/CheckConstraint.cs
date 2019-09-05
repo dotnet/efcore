@@ -52,10 +52,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             {
                 throw new InvalidOperationException(RelationalStrings.DuplicateCheckConstraint(Name, EntityType.DisplayName()));
             }
-            else
-            {
-                dataDictionary.Add(name, this);
-            }
+
+            dataDictionary.Add(name, this);
         }
 
         /// <summary>

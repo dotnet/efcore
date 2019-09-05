@@ -39,10 +39,7 @@ namespace Microsoft.EntityFrameworkCore
             using (var context = new BloggingContext(serviceProvider))
             {
                 context.Blogs.Add(
-                    new BloggingContext.Blog(jimSaysThrow: false)
-                    {
-                        Url = "http://sample.com"
-                    });
+                    new BloggingContext.Blog(jimSaysThrow: false) { Url = "http://sample.com" });
                 context.SaveChanges();
                 context.ChangeTracker.Entries().Single().State = EntityState.Added;
 
@@ -114,10 +111,7 @@ namespace Microsoft.EntityFrameworkCore
             using (var context = new BloggingContext(serviceProvider))
             {
                 context.Blogs.Add(
-                    new BloggingContext.Blog(false)
-                    {
-                        Url = "http://sample.com"
-                    });
+                    new BloggingContext.Blog(false) { Url = "http://sample.com" });
                 context.SaveChanges();
                 var entry = context.ChangeTracker.Entries().Single().GetInfrastructure();
                 context.GetService<IStateManager>().StopTracking(entry, entry.EntityState);

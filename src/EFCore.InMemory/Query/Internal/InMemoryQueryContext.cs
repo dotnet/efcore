@@ -21,7 +21,8 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public InMemoryQueryContext([NotNull] QueryContextDependencies dependencies,
+        public InMemoryQueryContext(
+            [NotNull] QueryContextDependencies dependencies,
             [NotNull] IInMemoryStore store)
             : base(dependencies)
             => Store = store;

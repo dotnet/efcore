@@ -579,10 +579,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                     foreach (var keyConvention in _conventionSet.EntityTypePrimaryKeyChangedConventions)
                     {
                         // Some conventions rely on this running even if the new key has been removed
-                        // This will be fixed by reference counting, see #214
+                        // This will be fixed by reference counting, see #15898
                         //if (newPrimaryKey != null && newPrimaryKey.Builder == null)
                         //{
-                            //return null;
+                        //return null;
                         //}
 
                         keyConvention.ProcessEntityTypePrimaryKeyChanged(
@@ -594,7 +594,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                     }
                 }
 
-                if (newPrimaryKey != null && newPrimaryKey.Builder == null)
+                if (newPrimaryKey != null
+                    && newPrimaryKey.Builder == null)
                 {
                     return null;
                 }
@@ -618,7 +619,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                             return null;
                         }
 
-                        entityTypeAnnotationSetConvention.ProcessEntityTypeAnnotationChanged(entityTypeBuilder, name, annotation, oldAnnotation, _annotationConventionContext);
+                        entityTypeAnnotationSetConvention.ProcessEntityTypeAnnotationChanged(
+                            entityTypeBuilder, name, annotation, oldAnnotation, _annotationConventionContext);
                         if (_annotationConventionContext.ShouldStopProcessing())
                         {
                             return _annotationConventionContext.Result;
@@ -1559,7 +1561,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             public override ConventionNode Accept(ConventionVisitor visitor) => visitor.VisitOnKeyRemoved(this);
         }
-        
+
         private class OnKeyAnnotationChangedNode : ConventionNode
         {
             public OnKeyAnnotationChangedNode(
