@@ -3977,6 +3977,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalTheory]
         [InlineData(false, false)]
         [InlineData(true, false)]
+        [InlineData(false, true)]
+        [InlineData(true, true)]
         public virtual async Task Include_empty_collection_sets_IsLoaded(bool useString, bool async)
         {
             using (var context = CreateContext())
@@ -3997,6 +3999,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalTheory]
         [InlineData(false, false)]
         [InlineData(true, false)]
+        [InlineData(false, true)]
+        [InlineData(true, true)]
         public virtual async Task Include_empty_reference_sets_IsLoaded(bool useString, bool async)
         {
             using (var context = CreateContext())
@@ -4014,12 +4018,40 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalTheory(Skip = "Issue #11916")]
+        [ConditionalTheory]
         [InlineData(false, false)]
         [InlineData(true, false)]
-        // async blocked by issue #11917
-        //[InlineData(false, true)]
-        //[InlineData(true, true)]
+        [InlineData(false, true)]
+        [InlineData(true, true)]
+        public virtual async Task Include_is_not_ignored_when_projection_contains_client_method_and_complex_expression(bool useString, bool async)
+        {
+            using (var context = CreateContext())
+            {
+                var query = from e in (useString
+                                ? context.Employees.Include(nameof(Employee.Manager))
+                                : context.Employees.Include(e => e.Manager))
+                            where e.EmployeeID == 1 || e.EmployeeID == 2
+                            select e.Manager != null ? "Employee " + ClientMethod(e) : "";
+
+                var result = async
+                    ? await query.ToListAsync()
+                    : query.ToList();
+
+                Assert.Collection(result,
+                    e => Assert.Equal("Employee Nancy reports to Andrew", e),
+                    e2 => Assert.Equal("", e2));
+            }
+        }
+
+        private static string ClientMethod(Employee e)
+            => e.FirstName + " reports to " + e.Manager.FirstName + e.Manager.LastName;
+
+
+        [ConditionalTheory(Skip = "Issue #17068")]
+        [InlineData(false, false)]
+        [InlineData(true, false)]
+        [InlineData(false, true)]
+        [InlineData(true, true)]
         public virtual async Task Include_with_double_group_by(bool useString, bool async)
         {
             using (var context = CreateContext())
@@ -4040,9 +4072,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalTheory(Skip = "Issue #17068")]
         [InlineData(false, false)]
         [InlineData(true, false)]
-        // async blocked by issue #11917
-        //[InlineData(false, true)]
-        //[InlineData(true, true)]
+        [InlineData(false, true)]
+        [InlineData(true, true)]
         public virtual async Task Include_with_double_group_by_no_tracking(bool useString, bool async)
         {
             using (var context = CreateContext())
@@ -4063,9 +4094,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalTheory(Skip = "Issue #17068")]
         [InlineData(false, false)]
         [InlineData(true, false)]
-        // async blocked by issue #11917
-        //[InlineData(false, true)]
-        //[InlineData(true, true)]
+        [InlineData(false, true)]
+        [InlineData(true, true)]
         public virtual async Task Include_with_double_group_by_and_aggregate(bool useString, bool async)
         {
             using (var context = CreateContext())
