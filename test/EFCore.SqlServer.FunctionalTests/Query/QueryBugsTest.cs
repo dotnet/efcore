@@ -6035,6 +6035,73 @@ WHERE ([f].[String] = N'1337') AND [f].[String] IS NOT NULL");
 
         #endregion
 
+        #region Bug7222
+
+        [ConditionalFact]
+        public virtual void Inlined_dbcontext_is_not_leaking()
+        {
+            using (CreateDatabase7222())
+            {
+                using (var context = new MyContext7222(_options))
+                {
+                    var entities = context.Blogs.Select(b => context.ClientMethod(b)).ToList();
+
+                    AssertSql(
+                        @"SELECT [b].[Id]
+FROM [Blogs] AS [b]");
+                }
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Implicit_DbContext_throws_memory_leak()
+        {
+            using (CreateDatabase7222())
+            {
+                using (var context = new MyContext7222(_options))
+                {
+                    Assert.Throws<InvalidOperationException>(() => context.RunQuery());
+                }
+            }
+        }
+
+        public class MyContext7222 : DbContext
+        {
+            public DbSet<Blog7222> Blogs { get; set; }
+            public MyContext7222()
+            {
+            }
+
+            public MyContext7222(DbContextOptions options) : base(options)
+            {
+            }
+
+            public void RunQuery()
+            {
+                Blogs.Select(b => ClientMethod(b)).ToList();
+            }
+
+
+            public int ClientMethod(Blog7222 blog) => blog.Id;
+        }
+
+        private SqlServerTestStore CreateDatabase7222()
+            => CreateTestStore(
+                () => new MyContext7222(_options),
+                context =>
+                {
+                    context.SaveChanges();
+
+                    ClearLog();
+                });
+
+        public class Blog7222
+        {
+            public int Id { get; set; }
+        }
+
+        #endregion
+
         private DbContextOptions _options;
 
         private SqlServerTestStore CreateTestStore<TContext>(
