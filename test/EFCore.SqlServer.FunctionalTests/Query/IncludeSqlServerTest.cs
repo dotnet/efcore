@@ -508,15 +508,15 @@ ORDER BY [c].[CustomerID], [o].[OrderID], [o0].[OrderID]");
             base.Include_collection_on_additional_from_clause_with_filter(useString);
 
             AssertSql(
-                @"SELECT [t].[CustomerID], [t].[Address], [t].[City], [t].[CompanyName], [t].[ContactName], [t].[ContactTitle], [t].[Country], [t].[Fax], [t].[Phone], [t].[PostalCode], [t].[Region], [c0].[CustomerID], [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
-FROM [Customers] AS [c0]
+                @"SELECT [t].[CustomerID], [t].[Address], [t].[City], [t].[CompanyName], [t].[ContactName], [t].[ContactTitle], [t].[Country], [t].[Fax], [t].[Phone], [t].[PostalCode], [t].[Region], [c].[CustomerID], [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Customers] AS [c]
 CROSS JOIN (
-    SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
-    FROM [Customers] AS [c]
-    WHERE [c].[CustomerID] = N'ALFKI'
+    SELECT [c0].[CustomerID], [c0].[Address], [c0].[City], [c0].[CompanyName], [c0].[ContactName], [c0].[ContactTitle], [c0].[Country], [c0].[Fax], [c0].[Phone], [c0].[PostalCode], [c0].[Region]
+    FROM [Customers] AS [c0]
+    WHERE [c0].[CustomerID] = N'ALFKI'
 ) AS [t]
 LEFT JOIN [Orders] AS [o] ON [t].[CustomerID] = [o].[CustomerID]
-ORDER BY [c0].[CustomerID], [t].[CustomerID], [o].[OrderID]");
+ORDER BY [c].[CustomerID], [t].[CustomerID], [o].[OrderID]");
         }
 
         public override void Include_collection_on_additional_from_clause(bool useString)
@@ -526,15 +526,15 @@ ORDER BY [c0].[CustomerID], [t].[CustomerID], [o].[OrderID]");
             AssertSql(
                 @"@__p_0='5'
 
-SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [t].[CustomerID], [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+SELECT [c0].[CustomerID], [c0].[Address], [c0].[City], [c0].[CompanyName], [c0].[ContactName], [c0].[ContactTitle], [c0].[Country], [c0].[Fax], [c0].[Phone], [c0].[PostalCode], [c0].[Region], [t].[CustomerID], [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM (
-    SELECT TOP(@__p_0) [c0].[CustomerID], [c0].[Address], [c0].[City], [c0].[CompanyName], [c0].[ContactName], [c0].[ContactTitle], [c0].[Country], [c0].[Fax], [c0].[Phone], [c0].[PostalCode], [c0].[Region]
-    FROM [Customers] AS [c0]
-    ORDER BY [c0].[CustomerID]
+    SELECT TOP(@__p_0) [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+    FROM [Customers] AS [c]
+    ORDER BY [c].[CustomerID]
 ) AS [t]
-CROSS JOIN [Customers] AS [c]
-LEFT JOIN [Orders] AS [o] ON [c].[CustomerID] = [o].[CustomerID]
-ORDER BY [t].[CustomerID], [c].[CustomerID], [o].[OrderID]");
+CROSS JOIN [Customers] AS [c0]
+LEFT JOIN [Orders] AS [o] ON [c0].[CustomerID] = [o].[CustomerID]
+ORDER BY [t].[CustomerID], [c0].[CustomerID], [o].[OrderID]");
         }
 
         public override void Include_duplicate_collection(bool useString)
@@ -692,15 +692,15 @@ ORDER BY [t].[CustomerID]");
                     @"@__p_0='1'
 @__p_1='2'
 
-SELECT [o].[CustomerID]
+SELECT [o0].[CustomerID]
 FROM (
-    SELECT [o0].[OrderID], [o0].[ProductID], [o0].[Discount], [o0].[Quantity], [o0].[UnitPrice]
-    FROM [Order Details] AS [o0]
-    WHERE [o0].[Quantity] = CAST(10 AS smallint)
-    ORDER BY [o0].[OrderID], [o0].[ProductID]
+    SELECT [o].[OrderID], [o].[ProductID], [o].[Discount], [o].[Quantity], [o].[UnitPrice]
+    FROM [Order Details] AS [o]
+    WHERE [o].[Quantity] = CAST(10 AS smallint)
+    ORDER BY [o].[OrderID], [o].[ProductID]
     OFFSET @__p_0 ROWS FETCH NEXT @__p_1 ROWS ONLY
 ) AS [t]
-INNER JOIN [Orders] AS [o] ON [t].[OrderID] = [o].[OrderID]
+INNER JOIN [Orders] AS [o0] ON [t].[OrderID] = [o0].[OrderID]
 ORDER BY [t].[OrderID], [t].[ProductID]");
             }
         }
