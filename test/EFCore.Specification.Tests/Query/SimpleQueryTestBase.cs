@@ -5713,5 +5713,36 @@ namespace Microsoft.EntityFrameworkCore.Query
                     () => context.Customers.Select(c => new { A = this }).ToList());
             }
         }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual async Task Context_based_client_method(bool isAsync)
+        {
+            using (var context = CreateContext())
+            {
+                var query = context.Customers.Select(c => context.ClientMethod(c));
+
+                // Memory leak would throw exception. This verifies that we are not leaking.
+                var result = isAsync
+                    ? (await query.ToListAsync())
+                    : query.ToList();
+
+                Assert.Equal(91, result.Count);
+                Assert.Equal(85, result.Count(e => e));
+            }
+
+            // re-run using different context to verify that previous context is not in the cache.
+            using (var context = CreateContext())
+            {
+                var query = context.Customers.Select(c => context.ClientMethod(c));
+
+                var result = isAsync
+                    ? (await query.ToListAsync())
+                    : query.ToList();
+
+                Assert.Equal(91, result.Count);
+                Assert.Equal(85, result.Count(e => e));
+            }
+        }
     }
 }
