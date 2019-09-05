@@ -53,12 +53,12 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
             var created = _cosmosClient.CreateDatabaseIfNotExists();
             foreach (var entityType in _model.GetEntityTypes())
             {
-                var containerName = entityType.GetCosmosContainer();
+                var containerName = entityType.GetContainer();
                 if (containerName != null)
                 {
                     created |= _cosmosClient.CreateContainerIfNotExists(
                         containerName,
-                        GetCosmosPartitionKeyStoreName(entityType));
+                        GetPartitionKeyStoreName(entityType));
                 }
             }
 
@@ -92,8 +92,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
             foreach (var entityType in _model.GetEntityTypes())
             {
                 created |= await _cosmosClient.CreateContainerIfNotExistsAsync(
-                    entityType.GetCosmosContainer(),
-                    GetCosmosPartitionKeyStoreName(entityType),
+                    entityType.GetContainer(),
+                    GetPartitionKeyStoreName(entityType),
                     cancellationToken);
             }
 
@@ -155,12 +155,12 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
         /// </summary>
         /// <param name="entityType"> The entity type to get the partition key property name for. </param>
         /// <returns> The name of the partition key property. </returns>
-        private static string GetCosmosPartitionKeyStoreName([NotNull] IEntityType entityType)
+        private static string GetPartitionKeyStoreName([NotNull] IEntityType entityType)
         {
-            var name = entityType.GetCosmosPartitionKeyPropertyName();
+            var name = entityType.GetPartitionKeyPropertyName();
             if (name != null)
             {
-                return entityType.FindProperty(name).GetCosmosPropertyName();
+                return entityType.FindProperty(name).GetPropertyName();
             }
 
             return CosmosClientWrapper.DefaultPartitionKey;

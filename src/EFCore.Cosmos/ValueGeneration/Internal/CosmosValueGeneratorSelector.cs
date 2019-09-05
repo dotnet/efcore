@@ -19,7 +19,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.ValueGeneration.Internal
         {
             var type = property.ClrType.UnwrapNullableType().UnwrapEnumType();
 
-            if (property.GetCosmosPropertyName() == ""
+            if (property.GetPropertyName() == ""
                 && type == typeof(int))
             {
                 return new TemporaryIntValueGenerator();

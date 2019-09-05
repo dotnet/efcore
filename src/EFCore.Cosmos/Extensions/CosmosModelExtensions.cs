@@ -19,7 +19,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="model"> The model. </param>
         /// <returns> The default container name. </returns>
-        public static string GetCosmosDefaultContainer([NotNull] this IModel model)
+        public static string GetDefaultContainer([NotNull] this IModel model)
             => (string)model[CosmosAnnotationNames.ContainerName];
 
         /// <summary>
@@ -27,7 +27,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="model"> The model. </param>
         /// <param name="name"> The name to set. </param>
-        public static void SetCosmosDefaultContainer([NotNull] this IMutableModel model, [CanBeNull] string name)
+        public static void SetDefaultContainer([NotNull] this IMutableModel model, [CanBeNull] string name)
             => model.SetOrRemoveAnnotation(
                 CosmosAnnotationNames.ContainerName,
                 Check.NullButNotEmpty(name, nameof(name)));
@@ -38,8 +38,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="model"> The model. </param>
         /// <param name="name"> The name to set. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        public static void SetCosmosDefaultContainer(
-            [NotNull] this IConventionModel model, [CanBeNull] string name, bool fromDataAnnotation = false)
+        public static void SetDefaultContainer([NotNull] this IConventionModel model, [CanBeNull] string name, bool fromDataAnnotation = false)
             => model.SetOrRemoveAnnotation(
                 CosmosAnnotationNames.ContainerName,
                 Check.NullButNotEmpty(name, nameof(name)),
@@ -50,7 +49,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="model"> The model. </param>
         /// <returns> The configuration source for the default container name.</returns>
-        public static ConfigurationSource? GetCosmosDefaultContainerConfigurationSource([NotNull] this IConventionModel model)
+        public static ConfigurationSource? GetDefaultContainerConfigurationSource([NotNull] this IConventionModel model)
             => model.FindAnnotation(CosmosAnnotationNames.ContainerName)?.GetConfigurationSource();
     }
 }

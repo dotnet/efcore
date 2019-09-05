@@ -33,7 +33,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Update.Internal
         /// </summary>
         public DocumentSource(IEntityType entityType, CosmosDatabaseWrapper database)
         {
-            _collectionId = entityType.GetCosmosContainer();
+            _collectionId = entityType.GetContainer();
             _database = database;
             _idProperty = entityType.FindProperty(StoreKeyConvention.IdPropertyName);
             _jObjectProperty = entityType.FindProperty(StoreKeyConvention.JObjectPropertyName);
@@ -68,7 +68,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Update.Internal
             var document = new JObject();
             foreach (var property in entry.EntityType.GetProperties())
             {
-                var storeName = property.GetCosmosPropertyName();
+                var storeName = property.GetPropertyName();
                 if (storeName.Length != 0)
                 {
                     document[storeName] = ConvertPropertyValue(property, entry.GetCurrentValue(property));
@@ -90,7 +90,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Update.Internal
                 }
 
                 var embeddedValue = entry.GetCurrentValue(embeddedNavigation);
-                var embeddedPropertyName = fk.DeclaringEntityType.GetCosmosContainingPropertyName();
+                var embeddedPropertyName = fk.DeclaringEntityType.GetContainingPropertyName();
                 if (embeddedValue == null)
                 {
                     document[embeddedPropertyName] = null;
@@ -130,7 +130,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Update.Internal
                 if (entry.EntityState == EntityState.Added
                     || entry.IsModified(property))
                 {
-                    var storeName = property.GetCosmosPropertyName();
+                    var storeName = property.GetPropertyName();
                     if (storeName.Length != 0)
                     {
                         document[storeName] = ConvertPropertyValue(property, entry.GetCurrentValue(property));
@@ -155,7 +155,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Update.Internal
 
                 var embeddedDocumentSource = _database.GetDocumentSource(fk.DeclaringEntityType);
                 var embeddedValue = entry.GetCurrentValue(ownedNavigation);
-                var embeddedPropertyName = fk.DeclaringEntityType.GetCosmosContainingPropertyName();
+                var embeddedPropertyName = fk.DeclaringEntityType.GetContainingPropertyName();
                 if (embeddedValue == null)
                 {
                     if (document[embeddedPropertyName] != null)

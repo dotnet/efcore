@@ -553,7 +553,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                     return _projectionBindings[jObjectExpression];
                 }
 
-                var storeName = property.GetCosmosPropertyName();
+                var storeName = property.GetPropertyName();
                 if (storeName.Length == 0)
                 {
                     var entityType = property.DeclaringEntityType;

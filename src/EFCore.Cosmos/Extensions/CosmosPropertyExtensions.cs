@@ -19,7 +19,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="property"> The property. </param>
         /// <returns> The property name used when targeting Cosmos. </returns>
-        public static string GetCosmosPropertyName([NotNull] this IProperty property) =>
+        public static string GetPropertyName([NotNull] this IProperty property) =>
             (string)property[CosmosAnnotationNames.PropertyName]
             ?? GetDefaultPropertyName(property);
 
@@ -49,7 +49,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="property"> The property. </param>
         /// <param name="name"> The name to set. </param>
-        public static void SetCosmosPropertyName([NotNull] this IMutableProperty property, [CanBeNull] string name)
+        public static void SetPropertyName([NotNull] this IMutableProperty property, [CanBeNull] string name)
             => property.SetOrRemoveAnnotation(
                 CosmosAnnotationNames.PropertyName,
                 name);
@@ -60,8 +60,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="property"> The property. </param>
         /// <param name="name"> The name to set. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        public static void SetCosmosPropertyName(
-            [NotNull] this IConventionProperty property, [CanBeNull] string name, bool fromDataAnnotation = false)
+        public static void SetPropertyName([NotNull] this IConventionProperty property, [CanBeNull] string name, bool fromDataAnnotation = false)
             => property.SetOrRemoveAnnotation(
                 CosmosAnnotationNames.PropertyName,
                 name,
@@ -72,7 +71,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="property"> The property. </param>
         /// <returns> The <see cref="ConfigurationSource" /> for the property name used when targeting Cosmos. </returns>
-        public static ConfigurationSource? GetCosmosPropertyNameConfigurationSource([NotNull] this IConventionProperty property)
+        public static ConfigurationSource? GetPropertyNameConfigurationSource([NotNull] this IConventionProperty property)
             => property.FindAnnotation(CosmosAnnotationNames.PropertyName)?.GetConfigurationSource();
     }
 }
