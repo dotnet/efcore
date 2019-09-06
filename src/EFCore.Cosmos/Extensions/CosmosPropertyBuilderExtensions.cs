@@ -28,7 +28,7 @@ namespace Microsoft.EntityFrameworkCore
             Check.NotNull(propertyBuilder, nameof(propertyBuilder));
             Check.NotNull(name, nameof(name));
 
-            propertyBuilder.Metadata.SetCosmosPropertyName(name);
+            propertyBuilder.Metadata.SetPropertyName(name);
 
             return propertyBuilder;
         }
@@ -70,7 +70,7 @@ namespace Microsoft.EntityFrameworkCore
                 return null;
             }
 
-            propertyBuilder.Metadata.SetCosmosPropertyName(name, fromDataAnnotation);
+            propertyBuilder.Metadata.SetPropertyName(name, fromDataAnnotation);
 
             return propertyBuilder;
         }

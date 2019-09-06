@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit.Abstractions;
 
@@ -1225,6 +1226,20 @@ FROM (
 ) AS [t]
 LEFT JOIN [Orders] AS [o] ON [t].[CustomerID] = [o].[CustomerID]
 ORDER BY [t].[c], [t].[CustomerID], [o].[OrderID]");
+        }
+
+        public override async Task Include_is_not_ignored_when_projection_contains_client_method_and_complex_expression(bool useString, bool async)
+        {
+            await base.Include_is_not_ignored_when_projection_contains_client_method_and_complex_expression(useString, async);
+
+            AssertSql(
+                @"SELECT CASE
+    WHEN [e].[EmployeeID] IS NOT NULL THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
+END, [e0].[EmployeeID], [e0].[City], [e0].[Country], [e0].[FirstName], [e0].[ReportsTo], [e0].[Title], [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
+FROM [Employees] AS [e0]
+LEFT JOIN [Employees] AS [e] ON [e0].[ReportsTo] = [e].[EmployeeID]
+WHERE ([e0].[EmployeeID] = 1) OR ([e0].[EmployeeID] = 2)");
         }
 
         private void AssertSql(params string[] expected)

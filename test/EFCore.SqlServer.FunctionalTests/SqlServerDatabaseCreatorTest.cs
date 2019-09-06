@@ -776,9 +776,7 @@ namespace Microsoft.EntityFrameworkCore
             protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             {
                 optionsBuilder
-                    .UseSqlServer(
-                        _connectionString,
-                        b => b.ApplyConfiguration().CommandTimeout(SqlServerTestStore.CommandTimeout))
+                    .UseSqlServer(_connectionString, b => b.ApplyConfiguration())
                     .UseInternalServiceProvider(CreateServiceProvider());
             }
 

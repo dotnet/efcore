@@ -24,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         /// </summary>
         public ObjectAccessExpression(INavigation navigation, Expression accessExpression)
         {
-            Name = navigation.GetTargetType().GetCosmosContainingPropertyName();
+            Name = navigation.GetTargetType().GetContainingPropertyName();
             if (Name == null)
             {
                 throw new InvalidOperationException(

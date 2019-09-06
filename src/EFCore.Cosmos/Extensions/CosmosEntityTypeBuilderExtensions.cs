@@ -31,7 +31,7 @@ namespace Microsoft.EntityFrameworkCore
             Check.NotNull(entityTypeBuilder, nameof(entityTypeBuilder));
             Check.NullButNotEmpty(name, nameof(name));
 
-            entityTypeBuilder.Metadata.SetCosmosContainer(name);
+            entityTypeBuilder.Metadata.SetContainer(name);
 
             return entityTypeBuilder;
         }
@@ -69,7 +69,7 @@ namespace Microsoft.EntityFrameworkCore
                 return null;
             }
 
-            entityTypeBuilder.Metadata.SetCosmosContainer(name, fromDataAnnotation);
+            entityTypeBuilder.Metadata.SetContainer(name, fromDataAnnotation);
 
             return entityTypeBuilder;
         }
@@ -101,7 +101,7 @@ namespace Microsoft.EntityFrameworkCore
             [NotNull] this OwnedNavigationBuilder entityTypeBuilder,
             [CanBeNull] string name)
         {
-            entityTypeBuilder.OwnedEntityType.SetCosmosContainingPropertyName(name);
+            entityTypeBuilder.OwnedEntityType.SetContainingPropertyName(name);
 
             return entityTypeBuilder;
         }
@@ -118,7 +118,7 @@ namespace Microsoft.EntityFrameworkCore
             where TEntity : class
             where TDependentEntity : class
         {
-            entityTypeBuilder.OwnedEntityType.SetCosmosContainingPropertyName(name);
+            entityTypeBuilder.OwnedEntityType.SetContainingPropertyName(name);
 
             return entityTypeBuilder;
         }
@@ -143,7 +143,7 @@ namespace Microsoft.EntityFrameworkCore
                 return null;
             }
 
-            entityTypeBuilder.Metadata.SetCosmosContainingPropertyName(name, fromDataAnnotation);
+            entityTypeBuilder.Metadata.SetContainingPropertyName(name, fromDataAnnotation);
 
             return entityTypeBuilder;
         }
@@ -175,7 +175,7 @@ namespace Microsoft.EntityFrameworkCore
             [NotNull] this EntityTypeBuilder entityTypeBuilder,
             [CanBeNull] string name)
         {
-            entityTypeBuilder.Metadata.SetCosmosPartitionKeyPropertyName(name);
+            entityTypeBuilder.Metadata.SetPartitionKeyPropertyName(name);
 
             return entityTypeBuilder;
         }
@@ -191,7 +191,7 @@ namespace Microsoft.EntityFrameworkCore
             [CanBeNull] string name)
             where TEntity : class
         {
-            entityTypeBuilder.Metadata.SetCosmosPartitionKeyPropertyName(name);
+            entityTypeBuilder.Metadata.SetPartitionKeyPropertyName(name);
 
             return entityTypeBuilder;
         }
@@ -209,7 +209,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             Check.NotNull(propertyExpression, nameof(propertyExpression));
 
-            entityTypeBuilder.Metadata.SetCosmosPartitionKeyPropertyName(propertyExpression.GetPropertyAccess().GetSimpleMemberName());
+            entityTypeBuilder.Metadata.SetPartitionKeyPropertyName(propertyExpression.GetPropertyAccess().GetSimpleMemberName());
 
             return entityTypeBuilder;
         }
@@ -234,7 +234,7 @@ namespace Microsoft.EntityFrameworkCore
                 return null;
             }
 
-            entityTypeBuilder.Metadata.SetCosmosPartitionKeyPropertyName(name, fromDataAnnotation);
+            entityTypeBuilder.Metadata.SetPartitionKeyPropertyName(name, fromDataAnnotation);
 
             return entityTypeBuilder;
         }

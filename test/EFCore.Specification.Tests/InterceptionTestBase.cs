@@ -76,11 +76,6 @@ namespace Microsoft.EntityFrameworkCore
             return (context, interceptor);
         }
 
-        public UniverseContext CreateContext(IInterceptor appInterceptor, string connectionString)
-            => new UniverseContext(
-                Fixture.CreateOptions(
-                    new[] { appInterceptor }, Enumerable.Empty<IInterceptor>()));
-
         public UniverseContext CreateContext(IInterceptor appInterceptor, params IInterceptor[] injectedInterceptors)
             => new UniverseContext(
                 Fixture.CreateOptions(

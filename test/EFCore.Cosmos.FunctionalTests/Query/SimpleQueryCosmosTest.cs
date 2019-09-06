@@ -5,6 +5,7 @@ using System;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
@@ -4109,6 +4110,15 @@ WHERE (c[""Discriminator""] = ""Customer"")");
 
         [ConditionalTheory(Skip = "Issue #17246")]
         public override Task Where_query_composition3(bool isAsync) => null;
+
+        public override async Task Member_binding_after_ctor_arguments_fails_with_client_eval(bool isAsync)
+        {
+            Assert.Equal(
+                CoreStrings.TranslationFailed("OrderBy<Customer, string>(    source: DbSet<Customer>,     keySelector: (c) => new CustomerListItem(        c.CustomerID,         c.City    ).City)"),
+                RemoveNewLines(
+                    (await Assert.ThrowsAsync<InvalidOperationException>(
+                        () => base.Member_binding_after_ctor_arguments_fails_with_client_eval(isAsync))).Message));
+        }
 
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
