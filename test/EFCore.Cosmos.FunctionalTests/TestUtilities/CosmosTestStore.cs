@@ -24,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.TestUtilities
             => new CosmosTestStore(name, shared: false, extensionConfiguration: extensionConfiguration);
 
         public static CosmosTestStore CreateInitialized(string name, Action<CosmosDbContextOptionsBuilder> extensionConfiguration = null)
-            => (CosmosTestStore)Create(name, extensionConfiguration).Initialize(null, (Func<DbContext>)null, null, null);
+            => (CosmosTestStore)Create(name, extensionConfiguration).Initialize(null, (Func<DbContext>)null);
 
         public static CosmosTestStore GetOrCreate(string name) => new CosmosTestStore(name);
 
@@ -32,7 +32,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.TestUtilities
             => new CosmosTestStore(name, dataFilePath: dataFilePath);
 
         private CosmosTestStore(
-            string name, bool shared = true, string dataFilePath = null, Action<CosmosDbContextOptionsBuilder> extensionConfiguration = null)
+            string name, bool shared = true, string dataFilePath = null,
+            Action<CosmosDbContextOptionsBuilder> extensionConfiguration = null)
             : base(CreateName(name), shared)
         {
             ConnectionUri = TestEnvironment.DefaultConnection;
@@ -49,7 +50,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.TestUtilities
             }
         }
 
-        private static string CreateName(string name) => name == "Northwind" ? name : (name + _runId.ToString());
+        private static string CreateName(string name) => name == "Northwind" ? name : (name + _runId);
 
         public string ConnectionUri { get; }
         public string AuthToken { get; }
@@ -126,6 +127,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.TestUtilities
                                                             goto NextEntityType;
                                                         }
                                                     }
+
                                                     break;
                                             }
                                         }

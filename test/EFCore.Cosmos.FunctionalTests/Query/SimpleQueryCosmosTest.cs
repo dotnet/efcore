@@ -539,26 +539,14 @@ WHERE (c[""Discriminator""] = ""Customer"")");
                     from c in cs.Where(c => c.CustomerID == "VINET")
                     from o in os.OrderBy(o => o.OrderID).Take(3)
                     where c.CustomerID == o.CustomerID
-                    select new
-                    {
-                        c.ContactName,
-                        o.OrderID
-                    },
+                    select new { c.ContactName, o.OrderID },
                 (cs, os) =>
                     cs.Where(c => c.CustomerID == "VINET")
                         .SelectMany(
                             _ => os.OrderBy(o => o.OrderID).Take(3),
-                            (c, o) => new
-                            {
-                                c,
-                                o
-                            }).Where(t => t.c.CustomerID == t.o.CustomerID)
+                            (c, o) => new { c, o }).Where(t => t.c.CustomerID == t.o.CustomerID)
                         .Select(
-                            t => new
-                            {
-                                t.c.ContactName,
-                                t.o.OrderID
-                            }),
+                            t => new { t.c.ContactName, t.o.OrderID }),
                 assertOrder: true);
 
             AssertSql(
@@ -1173,12 +1161,7 @@ WHERE (c[""Discriminator""] = ""Employee"")");
                     from e1 in es.Where(ct => ct.City == "London")
                     from c in cs.Where(ct => ct.City == "London")
                     from e2 in es.Where(ct => ct.City == "London")
-                    select new
-                    {
-                        e1,
-                        c,
-                        e2.FirstName
-                    },
+                    select new { e1, c, e2.FirstName },
                 e => e.e1.EmployeeID + " " + e.c.CustomerID + " " + e.FirstName,
                 entryCount: 10);
 
@@ -1198,13 +1181,7 @@ WHERE ((c[""Discriminator""] = ""Employee"") AND (c[""City""] = ""London""))");
                     from e2 in es
                     from e3 in es
                     from e4 in es
-                    select new
-                    {
-                        e2,
-                        e3,
-                        e1,
-                        e4
-                    },
+                    select new { e2, e3, e1, e4 },
                 e => e.e2.EmployeeID + " " + e.e3.EmployeeID + " " + e.e1.EmployeeID + e.e4.EmployeeID,
                 entryCount: 9);
 
@@ -1245,11 +1222,7 @@ WHERE (c[""Discriminator""] = ""Employee"")");
                     from c in cs.Where(ct => ct.City == "London")
                     from o in os
                     where c.CustomerID == o.CustomerID
-                    select new
-                    {
-                        c.ContactName,
-                        o.OrderID
-                    },
+                    select new { c.ContactName, o.OrderID },
                 e => e.OrderID);
 
             AssertSql(
@@ -1463,11 +1436,7 @@ WHERE (c[""Discriminator""] = ""Customer"")");
                 (cs, os) =>
                     from c in cs.Where(cst => cst.CustomerID == "ALFKI")
                     from o in os.Where(o => o.CustomerID == c.CustomerID).DefaultIfEmpty()
-                    select new
-                    {
-                        c.ContactName,
-                        o
-                    },
+                    select new { c.ContactName, o },
                 e => e.ContactName + " " + e.o?.OrderID,
                 entryCount: 6);
 
@@ -1503,11 +1472,7 @@ WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] = ""ALFKI"")
                 (cs, os) =>
                     from c in cs.Where(cst => cst.CustomerID == "ALFKI")
                     from o in os.Where(o => o.CustomerID == c.CustomerID)
-                    select new
-                    {
-                        c.ContactName,
-                        o.OrderDate
-                    },
+                    select new { c.ContactName, o.OrderDate },
                 e => e.ContactName + " " + e.OrderDate);
 
             AssertSql(
@@ -1524,11 +1489,7 @@ WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] = ""ALFKI"")
                 (cs, os) =>
                     from c in cs.Where(cst => cst.CustomerID == "ALFKI")
                     from o in os.Where(o => o.CustomerID == c.CustomerID).Take(1000)
-                    select new
-                    {
-                        c.ContactName,
-                        o
-                    },
+                    select new { c.ContactName, o },
                 e => e.o.OrderID,
                 entryCount: 6);
 
@@ -1558,11 +1519,7 @@ WHERE (c[""Discriminator""] = ""Customer"")");
                     (from c in cs.Where(cu => cu.CustomerID == "ALFKI")
                      from o in os.Where(or => or.OrderID < 10300)
                      orderby c.CustomerID, o.OrderID
-                     select new
-                     {
-                         c,
-                         o
-                     })
+                     select new { c, o })
                     .Take(1)
                     .Cast<object>(),
                 entryCount: 2);
@@ -2655,11 +2612,7 @@ WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""City""] = ""London""))");
                     (from c in cs.Where(c => c.City == "London")
                      from o in os.Where(o => o.CustomerID == c.CustomerID).DefaultIfEmpty()
                      where o != null
-                     select new
-                     {
-                         c.CustomerID,
-                         o.OrderID
-                     }),
+                     select new { c.CustomerID, o.OrderID }),
                 e => e.CustomerID + " " + e.OrderID);
 
             AssertSql(
@@ -2685,12 +2638,7 @@ WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""City""] = ""London""))");
                      from o2 in os.Where(o => o.OrderID < 10250).Where(o => o.CustomerID == c.CustomerID).DefaultIfEmpty()
                      where o1 != null && o2 != null
                      orderby o1.OrderID, o2.OrderDate
-                     select new
-                     {
-                         c.CustomerID,
-                         o1.OrderID,
-                         o2.OrderDate
-                     }),
+                     select new { c.CustomerID, o1.OrderID, o2.OrderDate }),
                 e => e.CustomerID + " " + e.OrderID);
 
             AssertSql(
@@ -2997,10 +2945,7 @@ WHERE (c[""Discriminator""] = ""Customer"")");
             await AssertQuery<Customer>(
                 isAsync,
                 cs => cs.Where(c => c.City == "London").Where(c => c.Orders.Count > 1).Select(
-                    c => new
-                    {
-                        A = c.Orders.OrderByDescending(o => o.OrderID).FirstOrDefault().OrderDate
-                    }).OrderBy(n => n.A),
+                    c => new { A = c.Orders.OrderByDescending(o => o.OrderID).FirstOrDefault().OrderDate }).OrderBy(n => n.A),
                 assertOrder: true);
 
             AssertSql(
@@ -3092,10 +3037,8 @@ WHERE (c[""Discriminator""] = ""Customer"")");
             await AssertQuery<Customer>(
                 isAsync,
                 cs => cs.Where(c => c.CustomerID == "ALFKI").Where(c => c.Orders.Count > 1).Select(
-                    c => new DTO<DateTime?>
-                    {
-                        Property = c.Orders.OrderByDescending(o => o.OrderID).FirstOrDefault().OrderDate
-                    }).OrderBy(n => n.Property),
+                        c => new DTO<DateTime?> { Property = c.Orders.OrderByDescending(o => o.OrderID).FirstOrDefault().OrderDate })
+                    .OrderBy(n => n.Property),
                 assertOrder: true,
                 elementAsserter: (e, a) => Assert.Equal(e.Property, a.Property));
 
@@ -3137,8 +3080,7 @@ WHERE ((c[""Discriminator""] = ""Order"") AND (c[""OrderID""] = 10300))");
                         .Select(o => o.CustomerID)
                         .FirstOrDefault()
                     where lastOrder == null
-                    select c,
-                entryCount: 0);
+                    select c);
 
             AssertSql(
                 @"SELECT c
@@ -3470,11 +3412,7 @@ WHERE (c[""Discriminator""] = ""Customer"")");
                     from o2 in os2
                     where o1.Customer.Equals(o2.Customer)
                     orderby o1.OrderID, o2.OrderID
-                    select new
-                    {
-                        Id1 = o1.OrderID,
-                        Id2 = o2.OrderID
-                    },
+                    select new { Id1 = o1.OrderID, Id2 = o2.OrderID },
                 e => e.Id1 + " " + e.Id2);
 
             AssertSql(
@@ -3494,11 +3432,7 @@ WHERE (c[""Discriminator""] = ""Order"")");
                     from o2 in os2
                     where Equals(o1.Customer, o2.Customer)
                     orderby o1.OrderID, o2.OrderID
-                    select new
-                    {
-                        Id1 = o1.OrderID,
-                        Id2 = o2.OrderID
-                    },
+                    select new { Id1 = o1.OrderID, Id2 = o2.OrderID },
                 e => e.Id1 + " " + e.Id2);
 
             AssertSql(
@@ -3517,11 +3451,7 @@ WHERE (c[""Discriminator""] = ""Order"")");
                     where c.CustomerID == "ALFKI"
                     from o in os
                     where Equals(c, o)
-                    select new
-                    {
-                        Id1 = c.CustomerID,
-                        Id2 = o.OrderID
-                    },
+                    select new { Id1 = c.CustomerID, Id2 = o.OrderID },
                 e => e.Id1 + " " + e.Id2);
 
             AssertSql(
@@ -3540,11 +3470,7 @@ WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] = ""ALFKI"")
                     where c.CustomerID == "ALFKI"
                     from o in os
                     where c.Orders.Equals(o.OrderDetails)
-                    select new
-                    {
-                        Id1 = c.CustomerID,
-                        Id2 = o.OrderID
-                    },
+                    select new { Id1 = c.CustomerID, Id2 = o.OrderID },
                 e => e.Id1 + " " + e.Id2);
 
             AssertSql(
@@ -3661,8 +3587,7 @@ WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] = ""ALFKI"")
                         .Select(
                             c => new
                             {
-                                c.CustomerID,
-                                OuterOrders = c.Orders.Where(o => o.OrderID < 10250).Count(o => c.Orders.Count() > 0)
+                                c.CustomerID, OuterOrders = c.Orders.Where(o => o.OrderID < 10250).Count(o => c.Orders.Count() > 0)
                             }));
 
             AssertSql(
@@ -3705,20 +3630,13 @@ OFFSET @__p_0 LIMIT @__p_1");
                 var results
                     = (context.Customers.Where(c => c.CustomerID == "ALFKI")
                         .Select(
-                            c => new
-                            {
-                                c.CustomerID,
-                                Orders = context.Orders.Where(o => o.Customer.CustomerID == c.CustomerID)
-                            }).ToList())
+                            c => new { c.CustomerID, Orders = context.Orders.Where(o => o.Customer.CustomerID == c.CustomerID) }).ToList())
                     .Select(
                         x => new
                         {
                             Orders = x.Orders
                                 .GroupJoin(
-                                    new[] { "ALFKI" }, y => x.CustomerID, y => y, (h, id) => new
-                                    {
-                                        h.Customer
-                                    })
+                                    new[] { "ALFKI" }, y => x.CustomerID, y => y, (h, id) => new { h.Customer })
                         })
                     .ToList();
 
@@ -3784,10 +3702,7 @@ WHERE (c[""Discriminator""] = ""Order"")");
                           where od.Quantity < 10
                           select od.Quantity
                       where details.Any()
-                      select new
-                      {
-                          Count = details.Count()
-                      });
+                      select new { Count = details.Count() });
 
             AssertSql(
                 @"SELECT c
@@ -4175,6 +4090,12 @@ WHERE (c[""Discriminator""] = ""Customer"")");
         public override Task SelectMany_correlated_with_outer_4(bool isAsync)
         {
             return base.SelectMany_correlated_with_outer_4(isAsync);
+        }
+
+        [ConditionalTheory(Skip = "Issue#17246")]
+        public override Task FirstOrDefault_over_empty_collection_of_value_type_returns_correct_results(bool isAsync)
+        {
+            return base.FirstOrDefault_over_empty_collection_of_value_type_returns_correct_results(isAsync);
         }
 
         [ConditionalTheory(Skip = "Issue #17246")]

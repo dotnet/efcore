@@ -597,7 +597,6 @@ WHERE CAST(ISDATE([o].[CustomerID]) AS bit) <> CAST(1 AS bit)");
                     @"SELECT TOP(1) CAST(ISDATE(CONVERT(VARCHAR(100), [o].[OrderDate])) AS bit)
 FROM [Orders] AS [o]
 WHERE CAST(ISDATE(CONVERT(VARCHAR(100), [o].[OrderDate])) AS bit) = CAST(1 AS bit)");
-
             }
         }
 

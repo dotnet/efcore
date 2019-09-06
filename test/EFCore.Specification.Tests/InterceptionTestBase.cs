@@ -50,26 +50,14 @@ namespace Microsoft.EntityFrameworkCore
                 modelBuilder
                     .Entity<Singularity>()
                     .HasData(
-                        new Singularity
-                        {
-                            Id = 77, Type = "Black Hole"
-                        },
-                        new Singularity
-                        {
-                            Id = 88, Type = "Bing Bang"
-                        });
+                        new Singularity { Id = 77, Type = "Black Hole" },
+                        new Singularity { Id = 88, Type = "Bing Bang" });
 
                 modelBuilder
                     .Entity<Brane>()
                     .HasData(
-                        new Brane
-                        {
-                            Id = 77, Type = "Black Hole?"
-                        },
-                        new Brane
-                        {
-                            Id = 88, Type = "Bing Bang?"
-                        });
+                        new Brane { Id = 77, Type = "Black Hole?" },
+                        new Brane { Id = 88, Type = "Bing Bang?" });
             }
         }
 
@@ -88,21 +76,10 @@ namespace Microsoft.EntityFrameworkCore
             return (context, interceptor);
         }
 
-        public UniverseContext CreateContext(IInterceptor appInterceptor, string connectionString)
-            => new UniverseContext(
-                Fixture.CreateOptions(
-                    new[]
-                    {
-                        appInterceptor
-                    }, Enumerable.Empty<IInterceptor>()));
-
         public UniverseContext CreateContext(IInterceptor appInterceptor, params IInterceptor[] injectedInterceptors)
             => new UniverseContext(
                 Fixture.CreateOptions(
-                    new[]
-                    {
-                        appInterceptor
-                    }, injectedInterceptors));
+                    new[] { appInterceptor }, injectedInterceptors));
 
         public UniverseContext CreateContext(
             IEnumerable<IInterceptor> appInterceptors,
@@ -114,7 +91,7 @@ namespace Microsoft.EntityFrameworkCore
             void AssertEventsInOrder(params string[] eventNames);
         }
 
-        public class NullDiagnosticListener: ITestDiagnosticListener
+        public class NullDiagnosticListener : ITestDiagnosticListener
         {
             public void AssertEventsInOrder(params string[] eventNames)
             {
@@ -125,7 +102,8 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        public class TestDiagnosticListener : ITestDiagnosticListener, IObserver<DiagnosticListener>, IObserver<KeyValuePair<string, object>>
+        public class TestDiagnosticListener : ITestDiagnosticListener, IObserver<DiagnosticListener>,
+            IObserver<KeyValuePair<string, object>>
         {
             private readonly DbContextId _contextId;
             private readonly IDisposable _subscription;
@@ -144,7 +122,6 @@ namespace Microsoft.EntityFrameworkCore
             public void OnError(Exception error)
             {
             }
-
 
             public void AssertEventsInOrder(params string[] eventNames)
             {

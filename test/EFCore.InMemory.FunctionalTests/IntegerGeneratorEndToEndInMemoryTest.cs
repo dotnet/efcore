@@ -41,15 +41,9 @@ namespace Microsoft.EntityFrameworkCore
                 for (var i = 0; i < 50; i++)
                 {
                     context.Add(
-                        new Pegasus
-                        {
-                            Name = "Rainbow Dash " + i
-                        });
+                        new Pegasus { Name = "Rainbow Dash " + i });
                     context.Add(
-                        new Pegasus
-                        {
-                            Name = "Fluttershy " + i
-                        });
+                        new Pegasus { Name = "Fluttershy " + i });
                 }
 
                 context.SaveChanges();
@@ -86,15 +80,9 @@ namespace Microsoft.EntityFrameworkCore
                 for (var i = 0; i < 50; i++)
                 {
                     context.Add(
-                        new Pegasus
-                        {
-                            Name = "Rainbow Dash " + i
-                        });
+                        new Pegasus { Name = "Rainbow Dash " + i });
                     context.Add(
-                        new Pegasus
-                        {
-                            Name = "Fluttershy " + i
-                        });
+                        new Pegasus { Name = "Fluttershy " + i });
                 }
 
                 await context.SaveChangesAsync();

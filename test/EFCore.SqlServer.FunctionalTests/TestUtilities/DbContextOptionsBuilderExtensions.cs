@@ -21,10 +21,9 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                 optionsBuilder.UseRowNumberForPaging();
             }
 
-            if (TestEnvironment.IsSqlAzure)
-            {
-                optionsBuilder.ExecutionStrategy(c => new TestSqlServerRetryingExecutionStrategy(c));
-            }
+            optionsBuilder.ExecutionStrategy(c => new TestSqlServerRetryingExecutionStrategy(c));
+
+            optionsBuilder.CommandTimeout(SqlServerTestStore.CommandTimeout);
 
             return optionsBuilder;
         }

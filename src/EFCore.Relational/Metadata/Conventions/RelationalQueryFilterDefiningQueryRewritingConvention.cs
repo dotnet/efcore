@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -38,7 +38,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                         || methodCallExpression.Method.Name == nameof(RelationalQueryableExtensions.FromSqlInterpolated)))
                 {
                     var newSource = Visit(methodCallExpression.Arguments[0]);
-                    var fromSqlOnQueryableMethod = RelationalQueryableExtensions.FromSqlOnQueryableMethodInfo.MakeGenericMethod(newSource.Type.GetGenericArguments()[0]);
+                    var fromSqlOnQueryableMethod =
+                        RelationalQueryableExtensions.FromSqlOnQueryableMethodInfo.MakeGenericMethod(
+                            newSource.Type.GetGenericArguments()[0]);
 
                     switch (methodCallExpression.Method.Name)
                     {
@@ -52,7 +54,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
                         case nameof(RelationalQueryableExtensions.FromSqlInterpolated):
                         case nameof(RelationalQueryableExtensions.FromSql) when methodCallExpression.Arguments.Count == 2:
-                            var formattableString = Expression.Lambda<Func<FormattableString>>(Expression.Convert(methodCallExpression.Arguments[1], typeof(FormattableString))).Compile().Invoke();
+                            var formattableString = Expression.Lambda<Func<FormattableString>>(
+                                Expression.Convert(methodCallExpression.Arguments[1], typeof(FormattableString))).Compile().Invoke();
 
                             return Expression.Call(
                                 null,
@@ -63,7 +66,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
                         case nameof(RelationalQueryableExtensions.FromSql) when methodCallExpression.Arguments.Count == 3:
 #pragma warning disable CS0618 // Type or member is obsolete
-                            var rawSqlStringString = Expression.Lambda<Func<RawSqlString>>(Expression.Convert(methodCallExpression.Arguments[1], typeof(RawSqlString))).Compile().Invoke();
+                            var rawSqlStringString = Expression
+                                .Lambda<Func<RawSqlString>>(Expression.Convert(methodCallExpression.Arguments[1], typeof(RawSqlString)))
+                                .Compile().Invoke();
 #pragma warning restore CS0618 // Type or member is obsolete
 
                             return Expression.Call(

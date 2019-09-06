@@ -144,11 +144,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 modelBuilder
                     .Entity<Customer>()
                     .HasKey(
-                        e => new
-                        {
-                            e.Id,
-                            e.Name
-                        });
+                        e => new { e.Id, e.Name });
 
                 var entity = model.FindEntityType(typeof(Customer));
 
@@ -188,11 +184,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 var keyBuilder = modelBuilder
                     .Entity<Customer>()
                     .HasKey(
-                        e => new
-                        {
-                            e.Id,
-                            e.Name
-                        });
+                        e => new { e.Id, e.Name });
 
                 keyBuilder.HasAnnotation("A1", "V1")
                     .HasAnnotation("A2", "V2");
@@ -559,10 +551,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                                 b =>
                                 {
                                     b.HasAlternateKey(
-                                        e => new
-                                        {
-                                            e.Down
-                                        });
+                                        e => new { e.Down });
                                     b.Property(e => e.Down).IsRequired(false);
                                 })).Message);
             }
@@ -637,7 +626,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                     {
                         b.Property(e => e.Up).IsConcurrencyToken();
                         b.Property(e => e.Down).IsConcurrencyToken(false);
-                        b.Property<int>("Charm").IsConcurrencyToken(true);
+                        b.Property<int>("Charm").IsConcurrencyToken();
                         b.Property<string>("Strange").IsConcurrencyToken(false);
                         b.Property<int>("Top").IsConcurrencyToken();
                         b.Property<string>("Bottom").IsConcurrencyToken(false);
@@ -825,7 +814,8 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 var model = modelBuilder.Model;
 
                 modelBuilder.Entity<DynamicProperty>(
-                    b => b.Property(e => e.ExpandoObject).HasConversion(v => (string)((IDictionary<string, object>)v)["Value"], v => DeserializeExpandoObject(v)));
+                    b => b.Property(e => e.ExpandoObject).HasConversion(
+                        v => (string)((IDictionary<string, object>)v)["Value"], v => DeserializeExpandoObject(v)));
 
                 modelBuilder.FinalizeModel();
 
@@ -1211,16 +1201,9 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
                 var entityBuilder = modelBuilder.Entity<Customer>();
                 var firstIndexBuilder = entityBuilder.HasIndex(
-                    ix => new
-                    {
-                        ix.Id,
-                        ix.AlternateKey
-                    }).IsUnique();
+                    ix => new { ix.Id, ix.AlternateKey }).IsUnique();
                 var secondIndexBuilder = entityBuilder.HasIndex(
-                    ix => new
-                    {
-                        ix.Id
-                    });
+                    ix => new { ix.Id });
 
                 var entityType = (IEntityType)model.FindEntityType(typeof(Customer));
 
@@ -1265,17 +1248,8 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                     c =>
                     {
                         c.HasData(
-                            new Beta
-                            {
-                                Id = -1
-                            });
-                        var customers = new List<Beta>
-                        {
-                            new Beta
-                            {
-                                Id = -2
-                            }
-                        };
+                            new Beta { Id = -1 });
+                        var customers = new List<Beta> { new Beta { Id = -2 } };
                         c.HasData(customers);
                     });
 
@@ -1297,17 +1271,8 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                     c =>
                     {
                         c.HasData(
-                            new
-                            {
-                                Id = -1
-                            });
-                        var customers = new List<object>
-                        {
-                            new
-                            {
-                                Id = -2
-                            }
-                        };
+                            new { Id = -1 });
+                        var customers = new List<object> { new { Id = -2 } };
                         c.HasData(customers);
                     });
 

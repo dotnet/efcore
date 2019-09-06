@@ -60,7 +60,8 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                 Assert.NotNull(customers);
                 Assert.Contains(
-                    CoreResources.LogSensitiveDataLoggingEnabled(new TestLogger<SqlServerLoggingDefinitions>()).GenerateMessage(), Fixture.TestSqlLoggerFactory.Log.Select(l => l.Message));
+                    CoreResources.LogSensitiveDataLoggingEnabled(new TestLogger<SqlServerLoggingDefinitions>()).GenerateMessage(),
+                    Fixture.TestSqlLoggerFactory.Log.Select(l => l.Message));
             }
         }
 

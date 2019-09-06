@@ -54,7 +54,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
         {
             await using (var testDatabase = CosmosTestStore.Create("EnsureCreatedReady"))
             {
-                testDatabase.Initialize(null, () => new BloggingContext(testDatabase), null);
+                testDatabase.Initialize(null, testStore => new BloggingContext((CosmosTestStore)testStore));
 
                 using (var context = new BloggingContext(testDatabase))
                 {

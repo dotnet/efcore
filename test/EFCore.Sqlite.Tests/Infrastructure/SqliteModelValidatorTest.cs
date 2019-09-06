@@ -70,7 +70,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             var modelBuilder = CreateConventionalModelBuilder();
             modelBuilder.Entity<Animal>().ToTable("Animals", "pet").Ignore(a => a.FavoritePerson);
 
-            VerifyWarning(SqliteResources.LogSchemaConfigured(new TestLogger<SqliteLoggingDefinitions>()).GenerateMessage("Animal", "pet"), modelBuilder.Model);
+            VerifyWarning(
+                SqliteResources.LogSchemaConfigured(new TestLogger<SqliteLoggingDefinitions>()).GenerateMessage("Animal", "pet"),
+                modelBuilder.Model);
         }
 
         [ConditionalFact]
@@ -79,7 +81,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             var modelBuilder = CreateConventionalModelBuilder();
             modelBuilder.HasSequence("Fibonacci");
 
-            VerifyWarning(SqliteResources.LogSequenceConfigured(new TestLogger<SqliteLoggingDefinitions>()).GenerateMessage("Fibonacci"), modelBuilder.Model);
+            VerifyWarning(
+                SqliteResources.LogSequenceConfigured(new TestLogger<SqliteLoggingDefinitions>()).GenerateMessage("Fibonacci"),
+                modelBuilder.Model);
         }
 
         private static void GenerateMapping(IMutableProperty property)

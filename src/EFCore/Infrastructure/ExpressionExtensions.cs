@@ -73,10 +73,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                     _assignBinaryExpressionType,
                     BindingFlags.NonPublic | BindingFlags.Instance,
                     null,
-                    new object[]
-                    {
-                        memberExpression, valueExpression
-                    },
+                    new object[] { memberExpression, valueExpression },
                     null);
             }
 

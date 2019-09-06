@@ -5,6 +5,7 @@
       "src\\EFCore.Abstractions\\EFCore.Abstractions.csproj",
       "src\\EFCore.Analyzers\\EFCore.Analyzers.csproj",
       "src\\EFCore.Design\\EFCore.Design.csproj",
+      "src\\EFCore.InMemory\\EFCore.InMemory.csproj",
       "src\\EFCore.Proxies\\EFCore.Proxies.csproj",
       "src\\EFCore.Relational\\EFCore.Relational.csproj",
       "src\\EFCore.Sqlite.Core\\EFCore.Sqlite.Core.csproj",

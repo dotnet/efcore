@@ -5,7 +5,6 @@ using System;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.TestModels;
 using Microsoft.EntityFrameworkCore.TestUtilities;
-using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
 using Xunit;
 
 // ReSharper disable InconsistentNaming
@@ -16,7 +15,7 @@ namespace Microsoft.EntityFrameworkCore
         protected EndToEndTest(CrossStoreFixture fixture)
         {
             Fixture = fixture;
-            TestStore = Fixture.CreateTestStore(TestStoreFactory);
+            TestStore = Fixture.CreateTestStore(TestStoreFactory, "CrossStoreTest");
         }
 
         protected CrossStoreFixture Fixture { get; }
@@ -31,18 +30,12 @@ namespace Microsoft.EntityFrameworkCore
             using (var context = CreateContext())
             {
                 context.SimpleEntities.Add(
-                    new SimpleEntity
-                    {
-                        StringProperty = "Entity 1"
-                    });
+                    new SimpleEntity { StringProperty = "Entity 1" });
 
                 Assert.Equal(1, context.SaveChanges());
 
                 var second = context.SimpleEntities.Add(
-                    new SimpleEntity
-                    {
-                        StringProperty = "Entity 2"
-                    }).Entity;
+                    new SimpleEntity { StringProperty = "Entity 2" }).Entity;
                 context.Entry(second).Property(SimpleEntity.ShadowPropertyName).CurrentValue = "shadow";
 
                 Assert.Equal(1, context.SaveChanges());

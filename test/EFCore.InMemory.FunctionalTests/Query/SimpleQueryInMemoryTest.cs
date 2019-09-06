@@ -175,5 +175,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             return base.Where_equals_on_null_nullable_int_types(isAsync);
         }
+
+        // Casting int to object to string is invalid for InMemory
+        public override Task Like_with_non_string_column_using_double_cast(bool isAsync) => Task.CompletedTask;
     }
 }

@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -82,11 +82,11 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                     }
 
                     ServerQueryExpression = New(
-                       typeof(ResultEnumerable).GetConstructors().Single(),
-                       Lambda<Func<ValueBuffer>>(
-                           New(
-                               _valueBufferConstructor,
-                               NewArrayInit(typeof(object), new[] { ServerQueryExpression }))));
+                        typeof(ResultEnumerable).GetConstructors().Single(),
+                        Lambda<Func<ValueBuffer>>(
+                            New(
+                                _valueBufferConstructor,
+                                NewArrayInit(typeof(object), ServerQueryExpression))));
                 }
                 else
                 {
@@ -478,6 +478,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                         resultValueBufferExpressions.Add(replacedExpression);
                         readExpressionMap[property] = CreateReadValueExpression(replacedExpression.Type, index++, property);
                     }
+
                     projectionMapping[projection.Key.Prepend(outerMemberInfo)]
                         = new EntityProjectionExpression(entityProjection.EntityType, readExpressionMap);
                 }
@@ -501,6 +502,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                         resultValueBufferExpressions.Add(replacedExpression);
                         readExpressionMap[property] = CreateReadValueExpression(replacedExpression.Type, index++, property);
                     }
+
                     projectionMapping[projection.Key.Prepend(innerMemberInfo)]
                         = new EntityProjectionExpression(entityProjection.EntityType, readExpressionMap);
                 }
@@ -551,8 +553,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             var resultSelector = Lambda(
                 New(
                     groupTransparentIdentifierType.GetTypeInfo().DeclaredConstructors.Single(),
-                    new[] { outerParameter, innerParameter },
-                    new[] { outerMemberInfo, innerMemberInfo }),
+                    new[] { outerParameter, innerParameter }, outerMemberInfo, innerMemberInfo),
                 outerParameter,
                 innerParameter);
 
@@ -593,6 +594,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                         resultValueBufferExpressions.Add(replacedExpression);
                         readExpressionMap[property] = CreateReadValueExpression(replacedExpression.Type, index++, property);
                     }
+
                     projectionMapping[projection.Key.Prepend(outerMemberInfo)]
                         = new EntityProjectionExpression(entityProjection.EntityType, readExpressionMap);
                 }
@@ -620,6 +622,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                         resultValueBufferExpressions.Add(replacedExpression);
                         readExpressionMap[property] = CreateReadValueExpression(replacedExpression.Type, index++, property);
                     }
+
                     projectionMapping[projection.Key.Prepend(innerMemberInfo)]
                         = new EntityProjectionExpression(entityProjection.EntityType, readExpressionMap);
                 }
@@ -691,6 +694,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                         resultValueBufferExpressions.Add(replacedExpression);
                         readExpressionMap[property] = CreateReadValueExpression(replacedExpression.Type, index++, property);
                     }
+
                     projectionMapping[projection.Key.Prepend(outerMemberInfo)]
                         = new EntityProjectionExpression(entityProjection.EntityType, readExpressionMap);
                 }
@@ -719,6 +723,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                         resultValueBufferExpressions.Add(replacedExpression);
                         readExpressionMap[property] = CreateReadValueExpression(replacedExpression.Type, index++, property);
                     }
+
                     projectionMapping[projection.Key.Prepend(innerMemberInfo)]
                         = new EntityProjectionExpression(entityProjection.EntityType, readExpressionMap);
                 }

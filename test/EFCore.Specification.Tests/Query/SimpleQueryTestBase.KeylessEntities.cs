@@ -4,7 +4,6 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 using Xunit;
 
@@ -96,11 +95,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 (cs, ovs)
                     => from c in cs
                        from o in ovs.Where(ov => ov.CustomerID == c.CustomerID)
-                       select new
-                       {
-                           c,
-                           o
-                       },
+                       select new { c, o },
                 e => e.c.CustomerID);
         }
 
@@ -120,9 +115,10 @@ namespace Microsoft.EntityFrameworkCore.Query
                 else
                 {
                     await Assert.ThrowsAsync<InvalidOperationException>(
-                        () => Task.FromResult((from ov in ctx.Set<OrderQuery>().Include(ov => ov.Customer)
-                                               where ov.CustomerID == "ALFKI"
-                                               select ov).ToList()));
+                        () => Task.FromResult(
+                            (from ov in ctx.Set<OrderQuery>().Include(ov => ov.Customer)
+                             where ov.CustomerID == "ALFKI"
+                             select ov).ToList()));
                 }
             }
         }
@@ -143,9 +139,10 @@ namespace Microsoft.EntityFrameworkCore.Query
                 else
                 {
                     await Assert.ThrowsAsync<InvalidOperationException>(
-                        () => Task.FromResult((from ov in ctx.Set<OrderQuery>().Include(ov => ov.Customer.Orders)
-                                               where ov.CustomerID == "ALFKI"
-                                               select ov).ToList()));
+                        () => Task.FromResult(
+                            (from ov in ctx.Set<OrderQuery>().Include(ov => ov.Customer.Orders)
+                             where ov.CustomerID == "ALFKI"
+                             select ov).ToList()));
                 }
             }
         }

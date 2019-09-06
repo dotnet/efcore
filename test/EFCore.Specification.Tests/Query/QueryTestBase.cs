@@ -19,11 +19,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         protected TFixture Fixture { get; }
 
-        public static IEnumerable<object[]> IsAsyncData = new[]
-        {
-            new object[] { false },
-            new object[] { true }
-        };
+        public static IEnumerable<object[]> IsAsyncData = new[] { new object[] { false }, new object[] { true } };
 
         #region AssertAny
 
@@ -1621,8 +1617,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             where TResult : class
         {
             return caller == null
-                ? new List<TResult>
-                    { default }
+                ? new List<TResult> { default }
                 : caller.DefaultIfEmpty();
         }
 
