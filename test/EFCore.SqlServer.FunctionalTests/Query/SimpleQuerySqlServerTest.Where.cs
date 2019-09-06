@@ -1776,5 +1776,25 @@ WHERE ((
     FROM [Orders] AS [o]
     WHERE ([o].[CustomerID] = N'John Doe') AND [o].[CustomerID] IS NOT NULL) IS NOT NULL");
         }
+
+        public override async Task Like_with_non_string_column_using_ToString(bool isAsync)
+        {
+            await base.Like_with_non_string_column_using_ToString(isAsync);
+
+            AssertSql(
+                @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+WHERE CONVERT(VARCHAR(11), [o].[OrderID]) LIKE N'%20%'");
+        }
+
+        public override async Task Like_with_non_string_column_using_double_cast(bool isAsync)
+        {
+            await base.Like_with_non_string_column_using_double_cast(isAsync);
+
+            AssertSql(
+                @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+WHERE CAST([o].[OrderID] AS nvarchar(max)) LIKE N'%20%'");
+        }
     }
 }

@@ -142,5 +142,8 @@ namespace Microsoft.EntityFrameworkCore.TestModels.Northwind
 
         private static bool ClientMethod(Product product)
             => !product.Discontinued;
+
+        public bool ClientMethod(Customer customer)
+            => !customer.IsLondon;
     }
 }
