@@ -4450,7 +4450,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 });
         }
 
-        [ConditionalTheory(Skip = "issue #17531")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Project_collection_navigation_nested_with_take(bool isAsync)
         {
@@ -4460,7 +4460,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                        select l1.OneToOne_Optional_FK1.OneToMany_Optional2.Take(50),
                 l1s => from l1 in l1s
                        select Maybe(l1.OneToOne_Optional_FK1, () => l1.OneToOne_Optional_FK1.OneToMany_Optional2.Take(50)),
-                elementSorter: e => e != null ? e.Count : 0,
+                elementSorter: e => ((IEnumerable<Level3>)e)?.Count() ?? 0,
                 elementAsserter: (e, a) =>
                 {
                     var actualCollection = new List<Level3>();

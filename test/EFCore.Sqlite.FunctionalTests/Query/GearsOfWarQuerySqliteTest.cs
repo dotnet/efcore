@@ -154,5 +154,11 @@ namespace Microsoft.EntityFrameworkCore.Query
         public override Task Outer_parameter_in_join_key(bool isAsync) => null;
 
         public override Task Outer_parameter_in_join_key_inner_and_outer(bool isAsync) => null;
+
+        [ConditionalTheory(Skip = "Issue #17230")]
+        public override Task Project_collection_navigation_nested_with_take_composite_key(bool isAsync)
+        {
+            return base.Project_collection_navigation_nested_with_take_composite_key(isAsync);
+        }
     }
 }

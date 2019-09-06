@@ -936,7 +936,13 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                 && selectExpression.Offset == null
                 && selectExpression.Predicate != null)
             {
-                var joinPredicate = TryExtractJoinKey(selectExpression, selectExpression.Predicate, out var predicate);
+                var columnExpressions = new List<ColumnExpression>();
+                var joinPredicate = TryExtractJoinKey(selectExpression, selectExpression.Predicate, columnExpressions, out var predicate);
+                if (joinPredicate != null)
+                {
+                    joinPredicate = RemoveRedundantNullChecks(joinPredicate, columnExpressions);
+                }
+
                 selectExpression.Predicate = predicate;
 
                 return joinPredicate;
@@ -946,11 +952,11 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         }
 
         private SqlExpression TryExtractJoinKey(
-            SelectExpression selectExpression, SqlExpression predicate, out SqlExpression updatedPredicate)
+            SelectExpression selectExpression, SqlExpression predicate, List<ColumnExpression> columnExpressions, out SqlExpression updatedPredicate)
         {
             if (predicate is SqlBinaryExpression sqlBinaryExpression)
             {
-                var joinPredicate = ValidateKeyComparison(selectExpression, sqlBinaryExpression);
+                var joinPredicate = ValidateKeyComparison(selectExpression, sqlBinaryExpression, columnExpressions);
                 if (joinPredicate != null)
                 {
                     updatedPredicate = null;
@@ -960,29 +966,28 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 
                 if (sqlBinaryExpression.OperatorType == ExpressionType.AndAlso)
                 {
-                    static SqlExpression combineNonNullExpressions(SqlExpression left, SqlExpression right)
-                    {
-                        return left != null
-                            ? right != null
-                                ? new SqlBinaryExpression(ExpressionType.AndAlso, left, right, left.Type, left.TypeMapping)
-                                : left
-                            : right;
-                    }
+                    var leftJoinKey = TryExtractJoinKey(selectExpression, sqlBinaryExpression.Left, columnExpressions, out var leftPredicate);
+                    var rightJoinKey = TryExtractJoinKey(selectExpression, sqlBinaryExpression.Right, columnExpressions, out var rightPredicate);
 
-                    var leftJoinKey = TryExtractJoinKey(selectExpression, sqlBinaryExpression.Left, out var leftPredicate);
-                    var rightJoinKey = TryExtractJoinKey(selectExpression, sqlBinaryExpression.Right, out var rightPredicate);
+                    updatedPredicate = CombineNonNullExpressions(leftPredicate, rightPredicate);
 
-                    updatedPredicate = combineNonNullExpressions(leftPredicate, rightPredicate);
-
-                    return combineNonNullExpressions(leftJoinKey, rightJoinKey);
+                    return CombineNonNullExpressions(leftJoinKey, rightJoinKey);
                 }
             }
 
             updatedPredicate = predicate;
+
             return null;
         }
 
-        private SqlBinaryExpression ValidateKeyComparison(SelectExpression inner, SqlBinaryExpression sqlBinaryExpression)
+        private static SqlExpression CombineNonNullExpressions(SqlExpression left, SqlExpression right)
+         => left != null
+            ? right != null
+                ? new SqlBinaryExpression(ExpressionType.AndAlso, left, right, left.Type, left.TypeMapping)
+                : left
+            : right;
+
+        private SqlBinaryExpression ValidateKeyComparison(SelectExpression inner, SqlBinaryExpression sqlBinaryExpression, List<ColumnExpression> columnExpressions)
         {
             if (sqlBinaryExpression.OperatorType == ExpressionType.Equal)
             {
@@ -992,12 +997,16 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                     if (ContainsTableReference(leftColumn.Table)
                         && inner.ContainsTableReference(rightColumn.Table))
                     {
+                        columnExpressions.Add(leftColumn);
+
                         return sqlBinaryExpression;
                     }
 
                     if (ContainsTableReference(rightColumn.Table)
                         && inner.ContainsTableReference(leftColumn.Table))
                     {
+                        columnExpressions.Add(rightColumn);
+
                         return sqlBinaryExpression.Update(
                             sqlBinaryExpression.Right,
                             sqlBinaryExpression.Left);
@@ -1005,7 +1014,54 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                 }
             }
 
+            // null checks are considered part of join key
+            if (sqlBinaryExpression.OperatorType == ExpressionType.NotEqual)
+            {
+                if (sqlBinaryExpression.Left is ColumnExpression leftNullCheckColumn
+                    && ContainsTableReference(leftNullCheckColumn.Table)
+                    && sqlBinaryExpression.Right is SqlConstantExpression rightConstant
+                    && rightConstant.Value == null)
+                {
+                    return sqlBinaryExpression;
+                }
+
+                if (sqlBinaryExpression.Right is ColumnExpression rightNullCheckColumn
+                    && ContainsTableReference(rightNullCheckColumn.Table)
+                    && sqlBinaryExpression.Left is SqlConstantExpression leftConstant
+                    && leftConstant.Value == null)
+                {
+                    return sqlBinaryExpression.Update(
+                        sqlBinaryExpression.Right,
+                        sqlBinaryExpression.Left);
+                }
+            }
+
             return null;
+        }
+
+        private SqlExpression RemoveRedundantNullChecks(SqlExpression predicate, List<ColumnExpression> columnExpressions)
+        {
+            if (predicate is SqlBinaryExpression sqlBinaryExpression)
+            {
+                if (sqlBinaryExpression.OperatorType == ExpressionType.NotEqual
+                    && sqlBinaryExpression.Left is ColumnExpression leftColumn
+                    && columnExpressions.Contains(leftColumn)
+                    && sqlBinaryExpression.Right is SqlConstantExpression sqlConstantExpression
+                    && sqlConstantExpression.Value == null)
+                {
+                    return null;
+                }
+
+                if (sqlBinaryExpression.OperatorType == ExpressionType.AndAlso)
+                {
+                    var leftPredicate = RemoveRedundantNullChecks(sqlBinaryExpression.Left, columnExpressions);
+                    var rightPredicate = RemoveRedundantNullChecks(sqlBinaryExpression.Right, columnExpressions);
+
+                    return CombineNonNullExpressions(leftPredicate, rightPredicate);
+                }
+            }
+
+            return predicate;
         }
 
         private bool ContainsTableReference(TableExpressionBase table)
