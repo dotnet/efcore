@@ -7,9 +7,9 @@ using Xunit.Abstractions;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    public class IncludeAsyncSqlServerTest : IncludeAsyncTestBase<IncludeSqlServerFixture>
+    public class IncludeAsyncSqlServerTest : IncludeAsyncTestBase<NorthwindQuerySqlServerFixture<NoopModelCustomizer>>
     {
-        public IncludeAsyncSqlServerTest(IncludeSqlServerFixture fixture, ITestOutputHelper testOutputHelper)
+        public IncludeAsyncSqlServerTest(NorthwindQuerySqlServerFixture<NoopModelCustomizer> fixture, ITestOutputHelper testOutputHelper)
             : base(fixture)
         {
             Fixture.TestSqlLoggerFactory.Clear();
