@@ -40,10 +40,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
         }
 
-        protected NorthwindContext CreateContext()
-        {
-            return Fixture.CreateContext();
-        }
+        protected NorthwindContext CreateContext() => Fixture.CreateContext();
 
         protected virtual void ClearLog()
         {

@@ -15,17 +15,17 @@ using Xunit;
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    public class QueryLoggingSqlServerTest : IClassFixture<IncludeSqlServerFixture>
+    public class QueryLoggingSqlServerTest : IClassFixture<NorthwindQuerySqlServerFixture<NoopModelCustomizer>>
     {
         private static readonly string _eol = Environment.NewLine;
 
-        public QueryLoggingSqlServerTest(IncludeSqlServerFixture fixture)
+        public QueryLoggingSqlServerTest(NorthwindQuerySqlServerFixture<NoopModelCustomizer> fixture)
         {
             Fixture = fixture;
             Fixture.TestSqlLoggerFactory.Clear();
         }
 
-        protected IncludeSqlServerFixture Fixture { get; }
+        protected NorthwindQuerySqlServerFixture<NoopModelCustomizer> Fixture { get; }
 
         [ConditionalFact]
         public virtual void Queryable_simple()
