@@ -132,12 +132,12 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
 
             foreach (var item in testData)
             {
-                Assert.True(hashSet.Contains(item));
+                Assert.Contains(item, hashSet);
             }
 
             foreach (var item in CreateTestData(1000, 10000).Except(testData))
             {
-                Assert.False(hashSet.Contains(item));
+                Assert.DoesNotContain(item, hashSet);
             }
         }
 

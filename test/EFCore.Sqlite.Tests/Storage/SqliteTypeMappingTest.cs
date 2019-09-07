@@ -79,6 +79,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         protected override DbType DefaultParameterType
             => DbType.String;
 
+        [ConditionalTheory]
         [InlineData(typeof(SqliteDateTimeOffsetTypeMapping), typeof(DateTimeOffset))]
         [InlineData(typeof(SqliteDateTimeTypeMapping), typeof(DateTime))]
         [InlineData(typeof(SqliteDecimalTypeMapping), typeof(decimal))]

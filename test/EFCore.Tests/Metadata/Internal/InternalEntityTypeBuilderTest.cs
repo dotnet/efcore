@@ -253,8 +253,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 new[] { Order.IdProperty.Name },
                 ConfigurationSource.Convention);
 
-            Assert.Equal(1, derivedEntityBuilder.Metadata.GetForeignKeys().Count());
-            Assert.Equal(1, entityBuilder.Metadata.GetForeignKeys().Count());
+            Assert.Single(derivedEntityBuilder.Metadata.GetForeignKeys());
+            Assert.Single(entityBuilder.Metadata.GetForeignKeys());
 
             var foreignKeyBuilder = entityBuilder.HasRelationship(
                 principalEntityBuilder.Metadata.Name,
@@ -262,7 +262,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 primaryKey,
                 ConfigurationSource.Convention);
 
-            Assert.Equal(1, entityBuilder.Metadata.GetForeignKeys().Count());
+            Assert.Single(entityBuilder.Metadata.GetForeignKeys());
             Assert.Empty(derivedEntityBuilder.Metadata.GetDeclaredForeignKeys());
             Assert.Equal(ConfigurationSource.DataAnnotation, foreignKeyBuilder.Metadata.GetConfigurationSource());
             Assert.True(foreignKeyBuilder.Metadata.IsUnique);
@@ -544,7 +544,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             Assert.NotNull(dependentEntityBuilder.HasNoRelationship(relationshipBuilder.Metadata, ConfigurationSource.DataAnnotation));
 
-            Assert.Equal(1, dependentEntityBuilder.Metadata.GetIndexes().Count());
+            Assert.Single(dependentEntityBuilder.Metadata.GetIndexes());
             Assert.Equal(Order.CustomerIdProperty.Name, dependentEntityBuilder.Metadata.GetIndexes().First().Properties.First().Name);
             Assert.Empty(dependentEntityBuilder.Metadata.GetForeignKeys());
         }
@@ -2518,8 +2518,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 derivedEntityBuilder,
                 derivedEntityBuilder.HasBaseType(entityBuilder.Metadata.Name, ConfigurationSource.Convention));
             Assert.Same(entityBuilder.Metadata, derivedEntityBuilder.Metadata.BaseType);
-            Assert.Equal(1, entityBuilder.Metadata.GetDeclaredProperties().Count());
-            Assert.Equal(0, derivedEntityBuilder.Metadata.GetDeclaredProperties().Count());
+            Assert.Single(entityBuilder.Metadata.GetDeclaredProperties());
+            Assert.Empty(derivedEntityBuilder.Metadata.GetDeclaredProperties());
         }
 
         [ConditionalFact]
@@ -2532,13 +2532,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             Assert.Null(derivedEntityBuilder.HasBaseType(entityBuilder.Metadata, ConfigurationSource.Convention));
             Assert.Null(derivedEntityBuilder.Metadata.BaseType);
-            Assert.Equal(1, derivedEntityBuilder.Metadata.GetDeclaredKeys().Count());
+            Assert.Single(derivedEntityBuilder.Metadata.GetDeclaredKeys());
 
             Assert.Same(
                 derivedEntityBuilder,
                 derivedEntityBuilder.HasBaseType(typeof(Order), ConfigurationSource.Explicit));
             Assert.Same(entityBuilder.Metadata, derivedEntityBuilder.Metadata.BaseType);
-            Assert.Equal(0, derivedEntityBuilder.Metadata.GetDeclaredKeys().Count());
+            Assert.Empty(derivedEntityBuilder.Metadata.GetDeclaredKeys());
         }
 
         [ConditionalFact]
@@ -2558,14 +2558,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             Assert.Null(derivedDependentEntityBuilder.HasBaseType(dependentEntityBuilder.Metadata, ConfigurationSource.Convention));
             Assert.Null(derivedDependentEntityBuilder.Metadata.BaseType);
-            Assert.Equal(1, derivedDependentEntityBuilder.Metadata.GetDeclaredNavigations().Count());
+            Assert.Single(derivedDependentEntityBuilder.Metadata.GetDeclaredNavigations());
 
             Assert.Same(
                 derivedDependentEntityBuilder,
                 derivedDependentEntityBuilder.HasBaseType(dependentEntityBuilder.Metadata, ConfigurationSource.Explicit));
             Assert.Same(dependentEntityBuilder.Metadata, derivedDependentEntityBuilder.Metadata.BaseType);
-            Assert.Equal(1, dependentEntityBuilder.Metadata.GetDeclaredNavigations().Count());
-            Assert.Equal(0, derivedDependentEntityBuilder.Metadata.GetDeclaredNavigations().Count());
+            Assert.Single(dependentEntityBuilder.Metadata.GetDeclaredNavigations());
+            Assert.Empty(derivedDependentEntityBuilder.Metadata.GetDeclaredNavigations());
         }
 
         [ConditionalFact]
@@ -2584,8 +2584,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 derivedDependentEntityBuilder,
                 derivedDependentEntityBuilder.HasBaseType(dependentEntityBuilder.Metadata, ConfigurationSource.Convention));
             Assert.Same(dependentEntityBuilder.Metadata, derivedDependentEntityBuilder.Metadata.BaseType);
-            Assert.Equal(1, dependentEntityBuilder.Metadata.GetDeclaredForeignKeys().Count());
-            Assert.Equal(0, derivedDependentEntityBuilder.Metadata.GetDeclaredForeignKeys().Count());
+            Assert.Single(dependentEntityBuilder.Metadata.GetDeclaredForeignKeys());
+            Assert.Empty(derivedDependentEntityBuilder.Metadata.GetDeclaredForeignKeys());
         }
 
         [ConditionalFact]
@@ -2598,13 +2598,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             derivedEntityBuilder.Property(Order.IdProperty, ConfigurationSource.Convention);
             derivedEntityBuilder.HasIndex(new[] { Order.IdProperty.Name }, ConfigurationSource.DataAnnotation)
                 .IsUnique(true, ConfigurationSource.Convention);
-            Assert.Equal(1, derivedEntityBuilder.Metadata.GetDeclaredIndexes().Count());
+            Assert.Single(derivedEntityBuilder.Metadata.GetDeclaredIndexes());
 
             Assert.Same(
                 derivedEntityBuilder,
                 derivedEntityBuilder.HasBaseType(entityBuilder.Metadata, ConfigurationSource.Convention));
 
-            Assert.Equal(1, derivedEntityBuilder.Metadata.GetDeclaredIndexes().Count());
+            Assert.Single(derivedEntityBuilder.Metadata.GetDeclaredIndexes());
             Assert.True(derivedEntityBuilder.Metadata.GetDeclaredIndexes().First().IsUnique);
         }
 
@@ -2625,16 +2625,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     Customer.OrdersProperty.Name,
                     ConfigurationSource.Convention)
                 .HasPrincipalKey(new[] { derivedIdProperty }, ConfigurationSource.Convention);
-            Assert.Equal(1, derivedPrincipalEntityBuilder.Metadata.GetDeclaredKeys().Count());
+            Assert.Single(derivedPrincipalEntityBuilder.Metadata.GetDeclaredKeys());
 
             Assert.Same(
                 derivedPrincipalEntityBuilder,
                 derivedPrincipalEntityBuilder.HasBaseType(principalEntityBuilder.Metadata, ConfigurationSource.Convention));
 
-            Assert.Equal(1, principalEntityBuilder.Metadata.GetDeclaredKeys().Count());
-            Assert.Equal(0, derivedPrincipalEntityBuilder.Metadata.GetDeclaredKeys().Count());
-            Assert.Equal(0, derivedPrincipalEntityBuilder.Metadata.GetForeignKeys().Count());
-            Assert.Equal(0, principalEntityBuilder.Metadata.GetReferencingForeignKeys().Count());
+            Assert.Single(principalEntityBuilder.Metadata.GetDeclaredKeys());
+            Assert.Empty(derivedPrincipalEntityBuilder.Metadata.GetDeclaredKeys());
+            Assert.Empty(derivedPrincipalEntityBuilder.Metadata.GetForeignKeys());
+            Assert.Empty(principalEntityBuilder.Metadata.GetReferencingForeignKeys());
             var fk = derivedPrincipalEntityBuilder.Metadata.GetReferencingForeignKeys().Single();
             Assert.Equal(Order.CustomerProperty.Name, fk.DependentToPrincipal.Name);
             Assert.Equal(Customer.OrdersProperty.Name, fk.PrincipalToDependent.Name);
@@ -2661,8 +2661,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Same(
                 derivedDependentEntityBuilder,
                 derivedDependentEntityBuilder.HasBaseType(dependentEntityBuilder.Metadata, ConfigurationSource.Convention));
-            Assert.Equal(0, dependentEntityBuilder.Metadata.GetForeignKeys().Count());
-            Assert.Equal(0, dependentEntityBuilder.Metadata.GetDeclaredProperties().Count());
+            Assert.Empty(dependentEntityBuilder.Metadata.GetForeignKeys());
+            Assert.Empty(dependentEntityBuilder.Metadata.GetDeclaredProperties());
             var fk = derivedDependentEntityBuilder.Metadata.GetForeignKeys().Single();
             Assert.Equal(Order.CustomerProperty.Name, fk.DependentToPrincipal.Name);
             Assert.Equal(Customer.SpecialOrdersProperty.Name, fk.PrincipalToDependent.Name);
@@ -2693,12 +2693,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Same(
                 derivedDependentEntityBuilder,
                 derivedDependentEntityBuilder.HasBaseType(dependentEntityBuilder.Metadata, ConfigurationSource.Explicit));
-            Assert.Equal(0, dependentEntityBuilder.Metadata.GetForeignKeys().Count());
+            Assert.Empty(dependentEntityBuilder.Metadata.GetForeignKeys());
             var fk = derivedDependentEntityBuilder.Metadata.GetForeignKeys().Single();
             Assert.Equal(Order.CustomerProperty.Name, fk.DependentToPrincipal.Name);
             Assert.Equal(Customer.SpecialOrdersProperty.Name, fk.PrincipalToDependent.Name);
             Assert.NotEqual(Order.IdProperty.Name, fk.Properties.Single().Name);
-            Assert.Equal(1, dependentEntityBuilder.Metadata.GetDeclaredProperties().Count());
+            Assert.Single(dependentEntityBuilder.Metadata.GetDeclaredProperties());
         }
 
         [ConditionalFact]
@@ -2716,8 +2716,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 derivedEntityBuilder,
                 derivedEntityBuilder.HasBaseType(entityBuilder.Metadata, ConfigurationSource.Explicit));
 
-            Assert.Equal(1, entityBuilder.Metadata.GetServiceProperties().Count());
-            Assert.Equal(1, derivedEntityBuilder.Metadata.GetServiceProperties().Count());
+            Assert.Single(entityBuilder.Metadata.GetServiceProperties());
+            Assert.Single(derivedEntityBuilder.Metadata.GetServiceProperties());
         }
 
         [ConditionalFact]
@@ -2731,7 +2731,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             Assert.NotNull(typeBuilder.HasNoDeclaredDiscriminator());
             Assert.Null(typeBuilder.Metadata.GetDiscriminatorProperty());
-            Assert.Equal(0, typeBuilder.Metadata.GetProperties().Count());
+            Assert.Empty(typeBuilder.Metadata.GetProperties());
 
             Assert.NotNull(typeBuilder.HasDiscriminator("Splod", typeof(int?)));
             Assert.Equal("Splod", typeBuilder.Metadata.GetDiscriminatorProperty().Name);
@@ -2778,7 +2778,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             typeBuilder.Ignore("Discriminator", true);
 
             Assert.Null(typeBuilder.HasDiscriminator());
-            Assert.Equal(0, typeBuilder.Metadata.GetProperties().Count());
+            Assert.Empty(typeBuilder.Metadata.GetProperties());
         }
 
         [ConditionalFact]
@@ -2790,8 +2790,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var otherDerivedTypeBuilder = typeBuilder.ModelBuilder.Entity("Splow");
 
             Assert.NotNull(typeBuilder.HasDiscriminator());
-            Assert.Equal(1, typeBuilder.Metadata.GetDeclaredProperties().Count());
-            Assert.Equal(0, derivedTypeBuilder.Metadata.GetDeclaredProperties().Count());
+            Assert.Single(typeBuilder.Metadata.GetDeclaredProperties());
+            Assert.Empty(derivedTypeBuilder.Metadata.GetDeclaredProperties());
 
             var discriminatorBuilder = typeBuilder.HasDiscriminator("Splowed", typeof(int?));
             Assert.NotNull(discriminatorBuilder.HasValue(typeBuilder.Metadata, 1));
@@ -2847,8 +2847,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var otherDerivedTypeBuilder = typeBuilder.ModelBuilder.Entity("Splow");
 
             Assert.NotNull(typeBuilder.HasDiscriminator());
-            Assert.Equal(1, typeBuilder.Metadata.GetDeclaredProperties().Count());
-            Assert.Equal(0, derivedTypeBuilder.Metadata.GetDeclaredProperties().Count());
+            Assert.Single(typeBuilder.Metadata.GetDeclaredProperties());
+            Assert.Empty(derivedTypeBuilder.Metadata.GetDeclaredProperties());
 
             var discriminatorBuilder = typeBuilder.HasDiscriminator("Splowed", typeof(int));
             Assert.NotNull(discriminatorBuilder.HasValue(typeBuilder.Metadata, 1));

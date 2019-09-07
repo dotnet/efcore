@@ -181,7 +181,7 @@ SELECT
                     var table = Assert.IsType<DatabaseView>(dbModel.Tables.Single());
 
                     Assert.Equal(2, table.Columns.Count);
-                    Assert.Equal(null, table.PrimaryKey);
+                    Assert.Null(table.PrimaryKey);
                     Assert.All(
                         table.Columns, c => Assert.Equal("MountainsColumnsView", c.Table.Name));
 

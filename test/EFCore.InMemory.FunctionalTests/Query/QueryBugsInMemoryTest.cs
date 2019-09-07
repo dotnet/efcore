@@ -667,7 +667,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 {
                     var query = context.Entity.Select(e => new EntityDto8282(e)).ToList();
 
-                    Assert.Equal(0, query.Count);
+                    Assert.Empty(query);
                 }
             }
         }

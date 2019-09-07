@@ -74,7 +74,7 @@ namespace Microsoft.EntityFrameworkCore
 
                     var posts = blogs[0].Posts.OrderBy(e => e.Title).ToList();
 
-                    Assert.Equal(1, posts.Count);
+                    Assert.Single(posts);
 
                     Assert.StartsWith("Baxter", posts[0].Title);
                     Assert.StartsWith("With dog", posts[0].Content);
@@ -103,7 +103,7 @@ namespace Microsoft.EntityFrameworkCore
                 var blogs = context.Query<BlogQuery>().ToList();
 #pragma warning restore CS0618 // Type or member is obsolete
 
-                Assert.Equal(1, blogs.Count);
+                Assert.Single(blogs);
                 Assert.Equal("Puppies", blogs[0].Title);
             }
         }

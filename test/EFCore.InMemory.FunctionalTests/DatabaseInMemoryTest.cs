@@ -121,7 +121,7 @@ namespace Microsoft.EntityFrameworkCore
             using (var db = new SimpleContext())
             {
                 var data = db.Artists.ToList();
-                Assert.Equal(1, data.Count);
+                Assert.Single(data);
                 Assert.Equal("JDId", data[0].ArtistId);
                 Assert.Equal("John Doe", data[0].Name);
             }

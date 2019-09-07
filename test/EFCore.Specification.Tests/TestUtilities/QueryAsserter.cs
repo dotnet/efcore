@@ -1665,7 +1665,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                 var expected = expectedQuery(ExpectedData.Set<TItem1>()).Count();
 
                 Assert.Equal(expected, actual);
-                Assert.Equal(0, context.ChangeTracker.Entries().Count());
+                Assert.Empty(context.ChangeTracker.Entries());
             }
         }
 
@@ -1683,7 +1683,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                 var expected = expectedQuery(ExpectedData.Set<TItem1>()).Count();
 
                 Assert.Equal(expected, actual);
-                Assert.Equal(0, context.ChangeTracker.Entries().Count());
+                Assert.Empty(context.ChangeTracker.Entries());
             }
         }
 
@@ -1703,7 +1703,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                 var expected = expectedQuery(ExpectedData.Set<TItem1>()).Count(expectedPredicate);
 
                 Assert.Equal(expected, actual);
-                Assert.Equal(0, context.ChangeTracker.Entries().Count());
+                Assert.Empty(context.ChangeTracker.Entries());
             }
         }
 
@@ -1742,7 +1742,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                 var expected = expectedQuery(ExpectedData.Set<TItem1>()).LongCount();
 
                 Assert.Equal(expected, actual);
-                Assert.Equal(0, context.ChangeTracker.Entries().Count());
+                Assert.Empty(context.ChangeTracker.Entries());
             }
         }
 
@@ -1760,7 +1760,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                 var expected = expectedQuery(ExpectedData.Set<TItem1>()).LongCount();
 
                 Assert.Equal(expected, actual);
-                Assert.Equal(0, context.ChangeTracker.Entries().Count());
+                Assert.Empty(context.ChangeTracker.Entries());
             }
         }
 
@@ -1780,7 +1780,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                 var expected = expectedQuery(ExpectedData.Set<TItem1>()).LongCount(expectedPredicate);
 
                 Assert.Equal(expected, actual);
-                Assert.Equal(0, context.ChangeTracker.Entries().Count());
+                Assert.Empty(context.ChangeTracker.Entries());
             }
         }
 
@@ -2049,7 +2049,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                     Assert.Equal(expected, actual);
                 }
 
-                Assert.Equal(0, context.ChangeTracker.Entries().Count());
+                Assert.Empty(context.ChangeTracker.Entries());
             }
         }
 
@@ -2082,7 +2082,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                     Assert.Equal(expected, actual);
                 }
 
-                Assert.Equal(0, context.ChangeTracker.Entries().Count());
+                Assert.Empty(context.ChangeTracker.Entries());
             }
         }
 
@@ -2116,7 +2116,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                     Assert.Equal(expected, actual);
                 }
 
-                Assert.Equal(0, context.ChangeTracker.Entries().Count());
+                Assert.Empty(context.ChangeTracker.Entries());
             }
         }
 
@@ -2151,7 +2151,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                     Assert.Equal(expected, actual);
                 }
 
-                Assert.Equal(0, context.ChangeTracker.Entries().Count());
+                Assert.Empty(context.ChangeTracker.Entries());
             }
         }
 
@@ -2185,7 +2185,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                     Assert.Equal(expected, actual);
                 }
 
-                Assert.Equal(0, context.ChangeTracker.Entries().Count());
+                Assert.Empty(context.ChangeTracker.Entries());
             }
         }
 
@@ -2219,7 +2219,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                     Assert.Equal(expected, actual);
                 }
 
-                Assert.Equal(0, context.ChangeTracker.Entries().Count());
+                Assert.Empty(context.ChangeTracker.Entries());
             }
         }
 
@@ -2253,7 +2253,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                     Assert.Equal(expected, actual);
                 }
 
-                Assert.Equal(0, context.ChangeTracker.Entries().Count());
+                Assert.Empty(context.ChangeTracker.Entries());
             }
         }
 
@@ -2289,7 +2289,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                     Assert.Equal(expected, actual);
                 }
 
-                Assert.Equal(0, context.ChangeTracker.Entries().Count());
+                Assert.Empty(context.ChangeTracker.Entries());
             }
         }
 
@@ -2321,7 +2321,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                     Assert.Equal(expected, actual);
                 }
 
-                Assert.Equal(0, context.ChangeTracker.Entries().Count());
+                Assert.Empty(context.ChangeTracker.Entries());
             }
         }
 
@@ -2353,7 +2353,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                     Assert.Equal(expected, actual);
                 }
 
-                Assert.Equal(0, context.ChangeTracker.Entries().Count());
+                Assert.Empty(context.ChangeTracker.Entries());
             }
         }
 
@@ -2387,7 +2387,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                     Assert.Equal(expected, actual);
                 }
 
-                Assert.Equal(0, context.ChangeTracker.Entries().Count());
+                Assert.Empty(context.ChangeTracker.Entries());
             }
         }
 
@@ -2421,7 +2421,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                     Assert.Equal(expected, actual);
                 }
 
-                Assert.Equal(0, context.ChangeTracker.Entries().Count());
+                Assert.Empty(context.ChangeTracker.Entries());
             }
         }
 
@@ -2455,7 +2455,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                     Assert.Equal(expected, actual);
                 }
 
-                Assert.Equal(0, context.ChangeTracker.Entries().Count());
+                Assert.Empty(context.ChangeTracker.Entries());
             }
         }
 
@@ -2489,7 +2489,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                     Assert.Equal(expected, actual);
                 }
 
-                Assert.Equal(0, context.ChangeTracker.Entries().Count());
+                Assert.Empty(context.ChangeTracker.Entries());
             }
         }
 

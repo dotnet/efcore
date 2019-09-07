@@ -182,7 +182,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     .HasRelationship(customerEntityBuilder.Metadata, ConfigurationSource.DataAnnotation)
                     .HasForeignKey(new[] { Order.CustomerIdProperty, Order.CustomerUniqueProperty }, ConfigurationSource.DataAnnotation));
 
-            Assert.Equal(1, orderEntityBuilder.Metadata.GetForeignKeys().Count());
+            Assert.Single(orderEntityBuilder.Metadata.GetForeignKeys());
         }
 
         [ConditionalFact]
@@ -660,7 +660,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             relationshipBuilder = relationshipBuilder.PrincipalEntityType(
                 orderEntityBuilder.Metadata, ConfigurationSource.DataAnnotation);
 
-            Assert.Equal(1, specialOrderEntityBuilder.Metadata.GetForeignKeys().Count());
+            Assert.Single(specialOrderEntityBuilder.Metadata.GetForeignKeys());
             Assert.Same(specialOrderEntityBuilder.Metadata, relationshipBuilder.Metadata.DeclaringEntityType);
             Assert.Same(orderEntityBuilder.Metadata, relationshipBuilder.Metadata.PrincipalEntityType);
             Assert.Null(relationshipBuilder.Metadata.DependentToPrincipal);
@@ -820,8 +820,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                         pointsToPrincipal: true,
                         ConfigurationSource.DataAnnotation));
 
-            Assert.Equal(1, customerEntityBuilder.Metadata.GetForeignKeys().Count());
-            Assert.Equal(0, orderEntityBuilder.Metadata.GetForeignKeys().Count());
+            Assert.Single(customerEntityBuilder.Metadata.GetForeignKeys());
+            Assert.Empty(orderEntityBuilder.Metadata.GetForeignKeys());
         }
 
         [ConditionalFact]
@@ -866,7 +866,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                         nameof(Customer.Orders),
                         pointsToPrincipal: false,
                         ConfigurationSource.DataAnnotation));
-            Assert.Equal(1, orderEntityBuilder.Metadata.GetForeignKeys().Count());
+            Assert.Single(orderEntityBuilder.Metadata.GetForeignKeys());
         }
 
         [ConditionalFact]

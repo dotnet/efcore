@@ -21,7 +21,9 @@ using Xunit;
 namespace Microsoft.EntityFrameworkCore.Query
 {
     // Issue #15751
+#pragma warning disable xUnit1000 // Test classes must be public
     internal class BadDataSqliteTest : IClassFixture<BadDataSqliteTest.BadDataSqliteFixture>
+#pragma warning restore xUnit1000 // Test classes must be public
     {
         public BadDataSqliteTest(BadDataSqliteFixture fixture) => Fixture = fixture;
 

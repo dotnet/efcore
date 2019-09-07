@@ -44,7 +44,7 @@ FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
 
-        [ConditionalTheory(Skip = "Issue #17246")]
+        [ConditionalFact(Skip = "Issue #17246")]
         public override void Shaper_command_caching_when_parameter_names_different()
         {
             base.Shaper_command_caching_when_parameter_names_different();
@@ -59,7 +59,7 @@ FROM root c
 WHERE (((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] = ""ALFKI"")) AND true)");
         }
 
-        [ConditionalTheory(Skip = "Issue #17246")]
+        [ConditionalFact(Skip = "Issue #17246")]
         public override void Lifting_when_subquery_nested_order_by_anonymous()
         {
             base.Lifting_when_subquery_nested_order_by_anonymous();
@@ -179,7 +179,7 @@ FROM root c
 WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] != null))");
         }
 
-        [ConditionalTheory(Skip = "Issue #17246")]
+        [ConditionalFact(Skip = "Issue #17246")]
         public override void Query_when_evaluatable_queryable_method_call_with_repository()
         {
             using (var context = CreateContext())
@@ -194,7 +194,7 @@ WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] != null))");
                         .Where(c => orderRepository.Find().Any(o => o.CustomerID == c.CustomerID))
                         .ToList();
 
-                Assert.Equal(1, results.Count);
+                Assert.Single(results);
 
                 results
                     = (from c in customerRepository.Find().Where(c => c.CustomerID == "ALFKI")
@@ -202,7 +202,7 @@ WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] != null))");
                        select c)
                     .ToList();
 
-                Assert.Equal(1, results.Count);
+                Assert.Single(results);
 
                 var orderQuery = orderRepository.Find();
 
@@ -210,7 +210,7 @@ WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] != null))");
                     .Where(c => orderQuery.Any(o => o.CustomerID == c.CustomerID))
                     .ToList();
 
-                Assert.Equal(1, results.Count);
+                Assert.Single(results);
 
                 context.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.TrackAll;
             }
@@ -488,7 +488,7 @@ FROM root c
 WHERE ((c[""Discriminator""] = ""OrderDetail"") AND (c[""OrderID""] = 10344))");
         }
 
-        [ConditionalTheory(Skip = "Issue #17246")]
+        [ConditionalFact(Skip = "Issue #17246")]
         public override void Select_Where_Subquery_Deep_First()
         {
             base.Select_Where_Subquery_Deep_First();
@@ -600,7 +600,7 @@ FROM root c
 WHERE (c[""Discriminator""] = ""Product"")");
         }
 
-        [ConditionalTheory(Skip = "Issue #17246")]
+        [ConditionalFact(Skip = "Issue #17246")]
         public override void OrderBy_any()
         {
             base.OrderBy_any();
@@ -990,7 +990,7 @@ FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
 
-        [ConditionalTheory(Skip = "Issue #17246")]
+        [ConditionalFact(Skip = "Issue #17246")]
         public override void Any_with_multiple_conditions_still_uses_exists()
         {
             base.Any_with_multiple_conditions_still_uses_exists();
@@ -1876,7 +1876,7 @@ FROM root c
 WHERE ((c[""Discriminator""] = ""Order"") AND (c[""OrderID""] < 10300))");
         }
 
-        [ConditionalTheory(Skip = "Issue #17246")]
+        [ConditionalFact(Skip = "Issue #17246")]
         public override void Select_DTO_constructor_distinct_translated_to_server()
         {
             base.Select_DTO_constructor_distinct_translated_to_server();
@@ -1887,7 +1887,7 @@ FROM root c
 WHERE ((c[""Discriminator""] = ""Order"") AND (c[""OrderID""] < 10300))");
         }
 
-        [ConditionalTheory(Skip = "Issue #17246")]
+        [ConditionalFact(Skip = "Issue #17246")]
         public override void Select_DTO_with_member_init_distinct_translated_to_server()
         {
             base.Select_DTO_with_member_init_distinct_translated_to_server();
@@ -1898,7 +1898,7 @@ FROM root c
 WHERE ((c[""Discriminator""] = ""Order"") AND (c[""OrderID""] < 10300))");
         }
 
-        [ConditionalTheory(Skip = "Issue #17246")]
+        [ConditionalFact(Skip = "Issue #17246")]
         public override void Select_nested_collection_count_using_DTO()
         {
             base.Select_nested_collection_count_using_DTO();
@@ -1920,7 +1920,7 @@ FROM root c
 WHERE ((c[""Discriminator""] = ""Order"") AND (c[""OrderID""] < 10300))");
         }
 
-        [ConditionalTheory(Skip = "Issue #17246")]
+        [ConditionalFact(Skip = "Issue #17246")]
         public override void Select_DTO_with_member_init_distinct_in_subquery_used_in_projection_translated_to_server()
         {
             base.Select_DTO_with_member_init_distinct_in_subquery_used_in_projection_translated_to_server();
@@ -2136,7 +2136,7 @@ FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
 
-        [ConditionalTheory(Skip = "Issue #17246")]
+        [ConditionalFact(Skip = "Issue #17246")]
         public override void Selected_column_can_coalesce()
         {
             base.Selected_column_can_coalesce();
@@ -2296,7 +2296,7 @@ FROM root c
 WHERE (c[""Discriminator""] = ""Order"")");
         }
 
-        [ConditionalTheory(Skip = "Issue #17246")]
+        [ConditionalFact(Skip = "Issue #17246")]
         public override void Select_bitwise_or()
         {
             base.Select_bitwise_or();
@@ -2307,7 +2307,7 @@ FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
 
-        [ConditionalTheory(Skip = "Issue #17246")]
+        [ConditionalFact(Skip = "Issue #17246")]
         public override void Select_bitwise_or_multiple()
         {
             base.Select_bitwise_or_multiple();
@@ -2318,7 +2318,7 @@ FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
 
-        [ConditionalTheory(Skip = "Issue #17246")]
+        [ConditionalFact(Skip = "Issue #17246")]
         public override void Select_bitwise_and()
         {
             base.Select_bitwise_and();
@@ -2329,7 +2329,7 @@ FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
 
-        [ConditionalTheory(Skip = "Issue #17246")]
+        [ConditionalFact(Skip = "Issue #17246")]
         public override void Select_bitwise_and_or()
         {
             base.Select_bitwise_and_or();
@@ -2376,7 +2376,7 @@ FROM root c
 WHERE ((c[""Discriminator""] = ""Customer"") AND (((c[""CustomerID""] = ""ALFKI"") & (c[""CustomerID""] = ""ANATR"")) OR (c[""CustomerID""] = ""ANTON"")))");
         }
 
-        [ConditionalTheory(Skip = "Issue #17246")]
+        [ConditionalFact(Skip = "Issue #17246")]
         public override void Select_bitwise_or_with_logical_or()
         {
             base.Select_bitwise_or_with_logical_or();
@@ -2387,7 +2387,7 @@ FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
 
-        [ConditionalTheory(Skip = "Issue #17246")]
+        [ConditionalFact(Skip = "Issue #17246")]
         public override void Select_bitwise_and_with_logical_and()
         {
             base.Select_bitwise_and_with_logical_and();
@@ -3681,7 +3681,7 @@ FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
 
-        [ConditionalTheory(Skip = "Issue #17246")]
+        [ConditionalFact(Skip = "Issue #17246")]
         public override void Manual_expression_tree_typed_null_equality()
         {
             base.Manual_expression_tree_typed_null_equality();
@@ -3889,7 +3889,7 @@ WHERE (c[""Discriminator""] = ""Customer"")");
             return base.Multiple_collection_navigation_with_FirstOrDefault_chained_projecting_scalar(isAsync);
         }
 
-        [ConditionalTheory(Skip = "Issue #17246")]
+        [ConditionalFact(Skip = "Issue #17246")]
         public override void Can_convert_manually_build_expression_with_default()
         {
             base.Can_convert_manually_build_expression_with_default();
@@ -3973,7 +3973,7 @@ WHERE (c[""Discriminator""] = ""Customer"")");
             return base.SelectMany_primitive_select_subquery(isAsync);
         }
 
-        [ConditionalTheory(Skip = "Issue #17246")]
+        [ConditionalFact(Skip = "Issue #17246")]
         public override void Select_DTO_constructor_distinct_with_navigation_translated_to_server()
         {
             base.Select_DTO_constructor_distinct_with_navigation_translated_to_server();
@@ -4100,16 +4100,18 @@ WHERE (c[""Discriminator""] = ""Customer"")");
         }
 
         [ConditionalTheory(Skip = "Issue #17246")]
-        public override Task All_client(bool isAsync) => null;
+        public override Task All_client(bool isAsync) => base.All_client(isAsync);
 
         [ConditionalTheory(Skip = "Issue #17246")]
-        public override Task Client_OrderBy_GroupBy_Group_ordering_works(bool isAsync) => null;
+        public override Task Client_OrderBy_GroupBy_Group_ordering_works(bool isAsync)
+            => base.Client_OrderBy_GroupBy_Group_ordering_works(isAsync);
 
         [ConditionalTheory(Skip = "Issue #17246")]
-        public override Task Subquery_member_pushdown_does_not_change_original_subquery_model2(bool isAsync) => null;
+        public override Task Subquery_member_pushdown_does_not_change_original_subquery_model2(bool isAsync)
+            => base.Subquery_member_pushdown_does_not_change_original_subquery_model2(isAsync);
 
         [ConditionalTheory(Skip = "Issue #17246")]
-        public override Task Where_query_composition3(bool isAsync) => null;
+        public override Task Where_query_composition3(bool isAsync) => base.Where_query_composition3(isAsync);
 
         public override async Task Member_binding_after_ctor_arguments_fails_with_client_eval(bool isAsync)
         {

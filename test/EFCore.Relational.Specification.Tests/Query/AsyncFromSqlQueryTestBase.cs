@@ -229,7 +229,7 @@ FROM [Customers]"))
                     .FromSqlRaw(NormalizeDelimetersInRawString("SELECT * FROM [Customers] WHERE [City] = 'Seattle'"))
                     .ToArrayAsync();
 
-                Assert.Equal(1, actual.Length);
+                Assert.Single(actual);
                 Assert.True(actual.All(c => c.City == "Seattle"));
             }
         }
@@ -272,7 +272,7 @@ FROM [Customers]"))
                     .ToArrayAsync();
 
                 Assert.Equal(91, actual.Length);
-                Assert.Equal(0, context.ChangeTracker.Entries().Count());
+                Assert.Empty(context.ChangeTracker.Entries());
             }
         }
 
@@ -288,7 +288,7 @@ FROM [Customers]"))
                     .ToArrayAsync();
 
                 Assert.Equal(91, actual.Length);
-                Assert.Equal(0, context.ChangeTracker.Entries().Count());
+                Assert.Empty(context.ChangeTracker.Entries());
             }
         }
 
@@ -346,7 +346,7 @@ FROM [Customers]"))
                     .Where(c => c.ContactName == c.CompanyName)
                     .ToArrayAsync();
 
-                Assert.Equal(0, actual.Length);
+                Assert.Empty(actual);
             }
         }
 

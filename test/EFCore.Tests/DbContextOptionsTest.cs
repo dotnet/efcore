@@ -81,7 +81,7 @@ namespace Microsoft.EntityFrameworkCore
             ((IDbContextOptionsBuilderInfrastructure)optionsBuilder).AddOrUpdateExtension(extension1);
             ((IDbContextOptionsBuilderInfrastructure)optionsBuilder).AddOrUpdateExtension(extension2);
 
-            Assert.Equal(1, optionsBuilder.Options.Extensions.Count());
+            Assert.Single(optionsBuilder.Options.Extensions);
             Assert.DoesNotContain(extension1, optionsBuilder.Options.Extensions);
             Assert.Contains(extension2, optionsBuilder.Options.Extensions);
 

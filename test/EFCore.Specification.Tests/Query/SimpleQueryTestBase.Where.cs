@@ -488,7 +488,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                 var customers = context.Customers.Where(c => orders.Any(o => o.CustomerID == c.CustomerID)).ToList();
 
-                Assert.Equal(1, customers.Count);
+                Assert.Single(customers);
 
                 customerID = "ANATR";
 

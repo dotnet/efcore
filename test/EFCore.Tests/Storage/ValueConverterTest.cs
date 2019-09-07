@@ -289,7 +289,9 @@ namespace Microsoft.EntityFrameworkCore.Storage
                     () => _enumToNumber.ComposeWith(_uIntToInt)).Message);
         }
 
+#pragma warning disable xUnit1013 // Public method should be marked as test
         public static void OrderingTest<TModel, TProvider>(
+#pragma warning restore xUnit1013 // Public method should be marked as test
             ValueConverter<TModel, TProvider> converter,
             params TModel[] values)
         {
@@ -304,7 +306,9 @@ namespace Microsoft.EntityFrameworkCore.Storage
                     .ToArray());
         }
 
+#pragma warning disable xUnit1013 // Public method should be marked as test
         public static void OrderingTest<TModel>(
+#pragma warning restore xUnit1013 // Public method should be marked as test
             ValueConverter<TModel, byte[]> converter,
             params TModel[] values)
         {

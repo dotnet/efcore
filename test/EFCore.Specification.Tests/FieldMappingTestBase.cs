@@ -796,7 +796,7 @@ namespace Microsoft.EntityFrameworkCore
             {
                 var posts = context.Set<TPost>().Where(p => EF.Property<string>(p, property) == postTitle).AsTracking(tracking).ToList();
 
-                Assert.Equal(1, posts.Count);
+                Assert.Single(posts);
 
                 var post = posts.Single(e => e.AccessId == 11);
                 Assert.Equal("Post11", post.AccessTitle);
@@ -924,8 +924,8 @@ namespace Microsoft.EntityFrameworkCore
                 Assert.NotSame(blog1a, blog1b);
                 Assert.Equal(blogName, blog1a.AccessTitle);
                 Assert.Equal(blogName, blog1b.AccessTitle);
-                Assert.Equal(1, blog1a.AccessPosts.Count());
-                Assert.Equal(1, blog1b.AccessPosts.Count());
+                Assert.Single(blog1a.AccessPosts);
+                Assert.Single(blog1b.AccessPosts);
             }
 
             AssertPost(posts.Single(e => e.AccessId == post1Id), post1Id, blog1a);

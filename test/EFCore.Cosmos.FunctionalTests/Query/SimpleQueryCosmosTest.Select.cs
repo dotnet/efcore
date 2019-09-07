@@ -270,7 +270,7 @@ FROM root c
 WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""City""] = ""London""))");
         }
 
-        [ConditionalTheory(Skip = "Issue #17246")]
+        [ConditionalFact(Skip = "Issue #17246")]
         public override void Select_nested_collection_multi_level()
         {
             base.Select_nested_collection_multi_level();
@@ -281,7 +281,7 @@ FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
 
-        [ConditionalTheory(Skip = "Issue#17246")]
+        [ConditionalFact(Skip = "Issue#17246")]
         public override void Select_nested_collection_multi_level2()
         {
             base.Select_nested_collection_multi_level2();
@@ -292,7 +292,7 @@ FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
 
-        [ConditionalTheory(Skip = "Issue#17246")]
+        [ConditionalFact(Skip = "Issue#17246")]
         public override void Select_nested_collection_multi_level3()
         {
             base.Select_nested_collection_multi_level3();
@@ -303,7 +303,7 @@ FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
 
-        [ConditionalTheory(Skip = "Issue#17246")]
+        [ConditionalFact(Skip = "Issue#17246")]
         public override void Select_nested_collection_multi_level4()
         {
             base.Select_nested_collection_multi_level4();
@@ -314,7 +314,7 @@ FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
 
-        [ConditionalTheory(Skip = "Issue#17246")]
+        [ConditionalFact(Skip = "Issue#17246")]
         public override void Select_nested_collection_multi_level5()
         {
             using (var context = CreateContext())
@@ -335,7 +335,7 @@ WHERE (c[""Discriminator""] = ""Customer"")");
                         })
                     .ToList();
 
-                Assert.Equal(1, customers.Count);
+                Assert.Single(customers);
                 Assert.Equal(0, customers.Count(c => c.Order != null && c.Order != 0));
             }
 
@@ -345,7 +345,7 @@ FROM root c
 WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] = ""ALFKI""))");
         }
 
-        [ConditionalTheory(Skip = "Issue#17246")]
+        [ConditionalFact(Skip = "Issue#17246")]
         public override void Select_nested_collection_multi_level6()
         {
             base.Select_nested_collection_multi_level6();

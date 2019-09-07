@@ -61,7 +61,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                 Assert.Equal(4, people.Count);
                 Assert.Equal(3, people.Count(p => p.Address != null));
-                Assert.Equal(0, context.ChangeTracker.Entries().Count());
+                Assert.Empty(context.ChangeTracker.Entries());
             }
         }
 
@@ -110,7 +110,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                 Assert.Equal(3, addresses.Count);
                 Assert.True(addresses.All(p => p.Resident != null));
-                Assert.Equal(0, context.ChangeTracker.Entries().Count());
+                Assert.Empty(context.ChangeTracker.Entries());
             }
         }
 
@@ -129,7 +129,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                         .ToList();
 
                 Assert.Equal(4, people.Count);
-                Assert.True(people.Contains(person));
+                Assert.Contains(person, people);
                 Assert.Equal(3, people.Count(p => p.Address != null));
                 Assert.Equal(4 + 3, context.ChangeTracker.Entries().Count());
             }
@@ -150,7 +150,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                         .ToList();
 
                 Assert.Equal(3, addresses.Count);
-                Assert.True(addresses.Contains(address));
+                Assert.Contains(address, addresses);
                 Assert.True(addresses.All(p => p.Resident != null));
                 Assert.Equal(3 + 3, context.ChangeTracker.Entries().Count());
             }

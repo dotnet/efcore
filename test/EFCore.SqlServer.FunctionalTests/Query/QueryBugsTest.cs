@@ -66,7 +66,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                         ? await query.ToListAsync()
                         : query.ToList();
 
-                    Assert.Equal(0, results.Count);
+                    Assert.Empty(results);
 
                     AssertSql(
                         @"SELECT [d].[Id], [d].[DateTime], [d].[DateTime2], [d].[DateTime2_0], [d].[DateTime2_1], [d].[DateTime2_2], [d].[DateTime2_3], [d].[DateTime2_4], [d].[DateTime2_5], [d].[DateTime2_6], [d].[DateTime2_7], [d].[SmallDateTime]
@@ -97,7 +97,7 @@ WHERE ((([d].[DateTime2_2] = GETDATE()) OR ([d].[DateTime2_7] = GETDATE())) OR (
                         ? await query.ToListAsync()
                         : query.ToList();
 
-                    Assert.Equal(1, results.Count);
+                    Assert.Single(results);
 
                     AssertSql(
                         @"SELECT [d].[Id], [d].[DateTime], [d].[DateTime2], [d].[DateTime2_0], [d].[DateTime2_1], [d].[DateTime2_2], [d].[DateTime2_3], [d].[DateTime2_4], [d].[DateTime2_5], [d].[DateTime2_6], [d].[DateTime2_7], [d].[SmallDateTime]
@@ -135,7 +135,7 @@ WHERE ((([d].[DateTime2_2] <> GETDATE()) AND ([d].[DateTime2_7] <> GETDATE())) A
                         ? await query.ToListAsync()
                         : query.ToList();
 
-                    Assert.Equal(1, results.Count);
+                    Assert.Single(results);
 
                     AssertSql(
                         @"SELECT [d].[Id], [d].[DateTime], [d].[DateTime2], [d].[DateTime2_0], [d].[DateTime2_1], [d].[DateTime2_2], [d].[DateTime2_3], [d].[DateTime2_4], [d].[DateTime2_5], [d].[DateTime2_6], [d].[DateTime2_7], [d].[SmallDateTime]
@@ -188,7 +188,7 @@ WHERE (((((((((([d].[SmallDateTime] = '1970-09-03T12:00:00') AND ([d].[DateTime]
                         ? await query.ToListAsync()
                         : query.ToList();
 
-                    Assert.Equal(1, results.Count);
+                    Assert.Single(results);
 
                     AssertSql(
                         @"SELECT [d].[Id], [d].[DateTime], [d].[DateTime2], [d].[DateTime2_0], [d].[DateTime2_1], [d].[DateTime2_2], [d].[DateTime2_3], [d].[DateTime2_4], [d].[DateTime2_5], [d].[DateTime2_6], [d].[DateTime2_7], [d].[SmallDateTime]
@@ -964,7 +964,7 @@ Queen of the Andals and the Rhoynar and the First Men, Khaleesi of the Great Gra
                 new CustomerDetails_1742 { FirstName = "Foo", LastName = "Bar" });
         }
 
-        public void Execute1742(CustomerDetails_1742 details)
+        private void Execute1742(CustomerDetails_1742 details)
         {
             using (CreateDatabase925())
             {
@@ -1172,7 +1172,7 @@ Queen of the Andals and the Rhoynar and the First Men, Khaleesi of the Great Gra
                         .ThenInclude(c => c.SelfReferenceCollection)
                         .ToList();
 
-                    Assert.Equal(1, results.Count);
+                    Assert.Single(results);
                     Assert.Equal(1, results[0].ChildCollection.Count);
                     Assert.Equal(2, results[0].ChildCollection.Single().SelfReferenceCollection.Count);
                 }
@@ -1575,7 +1575,7 @@ Queen of the Andals and the Rhoynar and the First Men, Khaleesi of the Great Gra
 
                     Assert.Equal(4, query.Count);
                     Assert.Equal(2, query.OfType<EmployerContact6986>().Count());
-                    Assert.Equal(1, query.OfType<ServiceOperatorContact6986>().Count());
+                    Assert.Single(query.OfType<ServiceOperatorContact6986>());
                 }
             }
         }
@@ -1589,7 +1589,7 @@ Queen of the Andals and the Rhoynar and the First Men, Khaleesi of the Great Gra
                 {
                     var query = context.Contacts.OfType<ServiceOperatorContact6986>().Include(e => e.ServiceOperator6986).ToList();
 
-                    Assert.Equal(1, query.Count);
+                    Assert.Single(query);
                     Assert.NotNull(query[0].ServiceOperator6986);
                 }
             }
@@ -1605,7 +1605,7 @@ Queen of the Andals and the Rhoynar and the First Men, Khaleesi of the Great Gra
                     var query = context.Contacts.OfType<ServiceOperatorContact6986>().Select(
                         c => new { c, Prop = EF.Property<int>(c, "ServiceOperator6986Id") }).ToList();
 
-                    Assert.Equal(1, query.Count);
+                    Assert.Single(query);
                     Assert.Equal(1, query[0].Prop);
                 }
             }
@@ -1887,7 +1887,7 @@ Queen of the Andals and the Rhoynar and the First Men, Khaleesi of the Great Gra
                 {
                     var query = ctx.Products.OfType<SpecialProduct>().ToList();
 
-                    Assert.Equal(1, query.Count);
+                    Assert.Single(query);
                 }
             }
         }
@@ -1901,7 +1901,7 @@ Queen of the Andals and the Rhoynar and the First Men, Khaleesi of the Great Gra
                 {
                     var query = ctx.Products.Where(p => p is SpecialProduct).ToList();
 
-                    Assert.Equal(1, query.Count);
+                    Assert.Single(query);
                 }
             }
         }
@@ -1956,7 +1956,7 @@ Queen of the Andals and the Rhoynar and the First Men, Khaleesi of the Great Gra
                 {
                     var query = context.Proposal.OfType<ProposalLeave7312>().Include(l => l.LeaveType).ToList();
 
-                    Assert.Equal(1, query.Count);
+                    Assert.Single(query);
                 }
             }
         }
@@ -2023,7 +2023,7 @@ Queen of the Andals and the Rhoynar and the First Men, Khaleesi of the Great Gra
                 {
                     var query = context.Entity.Select(e => new EntityDto8282(e)).ToList();
 
-                    Assert.Equal(1, query.Count);
+                    Assert.Single(query);
                 }
             }
         }
@@ -2079,7 +2079,7 @@ Queen of the Andals and the Rhoynar and the First Men, Khaleesi of the Great Gra
                 {
                     var query = context.Entity.Where(e => e.Permission.HasFlag(Permission.READ_WRITE)).ToList();
 
-                    Assert.Equal(1, query.Count);
+                    Assert.Single(query);
 
                     AssertSql(
                         @"SELECT [e].[Id], [e].[Permission], [e].[PermissionByte], [e].[PermissionShort]
@@ -2136,7 +2136,7 @@ WHERE ([e].[PermissionByte] & [e].[PermissionByte]) = [e].[PermissionByte]");
                 {
                     var query = context.Entity.Where(e => e.PermissionShort.HasFlag(PermissionShort.READ_WRITE)).ToList();
 
-                    Assert.Equal(1, query.Count);
+                    Assert.Single(query);
 
                     AssertSql(
                         @"SELECT [e].[Id], [e].[Permission], [e].[PermissionByte], [e].[PermissionShort]
@@ -2424,7 +2424,7 @@ WHERE [e].[Id] IN (
                     var query = context.Movies.Include(m => m.Cast);
                     var result = query.ToList();
 
-                    Assert.Equal(1, result.Count);
+                    Assert.Single(result);
                     Assert.Equal(3, result[0].Cast.Count);
                     Assert.NotNull(result[0].Details);
                     Assert.True(result[0].Cast.All(a => a.Details != null));
@@ -2463,7 +2463,7 @@ ORDER BY [m].[Id], [t1].[Id]");
                     var query = context.Movies.Include("Cast");
                     var result = query.ToList();
 
-                    Assert.Equal(1, result.Count);
+                    Assert.Single(result);
                     Assert.Equal(3, result[0].Cast.Count);
                     Assert.NotNull(result[0].Details);
                     Assert.True(result[0].Cast.All(a => a.Details != null));
@@ -2697,7 +2697,7 @@ WHERE [w].[Val] = 1");
                             valueParam)
                         .ToList();
 
-                    Assert.Equal(1, blogs.Count);
+                    Assert.Single(blogs);
                     Assert.Equal(1, valueParam.Value);
                 }
             }
@@ -2771,7 +2771,7 @@ BEGIN
                         .ToListAsync();
 
                     Assert.Equal(2, result.Count);
-                    Assert.Equal(true, result.All(r => r.Students.Count > 0));
+                    Assert.True(result.All(r => r.Students.Count > 0));
                 }
             }
         }
@@ -2909,7 +2909,7 @@ BEGIN
                         .Take(2)
                         .ToList();
 
-                    Assert.Equal(1, result.Count);
+                    Assert.Single(result);
 
                     AssertSql(
                         @"@__p_0='2'
@@ -3448,7 +3448,7 @@ WHERE [e].[SomeValue] = @__ef_filter__Tenant_0");
                     var query = context.Bases.ToList();
 
                     var derived1 = Assert.Single(query);
-                    Assert.Equal(derived1.GetType(), typeof(Derived1));
+                    Assert.Equal(typeof(Derived1), derived1.GetType());
 
                     AssertSql(
                         @"SELECT [b].[Id], [b].[IsTwo], [b].[MoreStuffId]
@@ -4134,7 +4134,7 @@ FROM [Prices] AS [p]");
                         .OfType<IEmployee12582>()
                         .ToList();
 
-                    Assert.Equal(1, query.Count);
+                    Assert.Single(query);
 
                     var employee = (Employee12582)query[0];
                     Assert.Equal(2, employee.Devices.Count);
@@ -4153,7 +4153,7 @@ FROM [Prices] AS [p]");
                         .Select(e => e.Devices.Where(d => d.Device != "foo").Cast<IEmployeeDevice12582>())
                         .ToList();
 
-                    Assert.Equal(1, query.Count);
+                    Assert.Single(query);
                     var result = query[0];
                     Assert.Equal(2, result.Count());
                 }
@@ -4233,7 +4233,7 @@ FROM [Prices] AS [p]");
                                         u => new { u.Id }).ToArray()
                                 };
                     var result = query.ToList();
-                    Assert.Equal(1, result[0].Comments.Count());
+                    Assert.Single(result[0].Comments);
                 }
             }
         }
@@ -4464,7 +4464,7 @@ FROM [Prices] AS [p]");
                     var result = query.ToList();
 
                     Assert.Equal(2, result.Count);
-                    Assert.True(result.Any(r => r.Count() == 2));
+                    Assert.Contains(result, r => r.Count() == 2);
                 }
             }
         }

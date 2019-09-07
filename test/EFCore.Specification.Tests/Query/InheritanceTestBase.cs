@@ -84,7 +84,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             {
                 var kiwis = context.Set<Animal>().Where(a => a is Kiwi).ToList();
 
-                Assert.Equal(1, kiwis.Count);
+                Assert.Single(kiwis);
             }
         }
 
@@ -96,7 +96,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 // ReSharper disable once IsExpressionAlwaysTrue
                 var kiwis = context.Set<Kiwi>().Where(a => a is Animal).ToList();
 
-                Assert.Equal(1, kiwis.Count);
+                Assert.Single(kiwis);
             }
         }
 
@@ -107,7 +107,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             {
                 var animals = context.Set<Animal>().Where(a => a is Kiwi && a.CountryId == 1).ToList();
 
-                Assert.Equal(1, animals.Count);
+                Assert.Single(animals);
             }
         }
 
@@ -150,9 +150,9 @@ namespace Microsoft.EntityFrameworkCore.Query
                         .OrderBy(a => a.Species)
                         .ToList();
 
-                Assert.Equal(1, animals.Count);
+                Assert.Single(animals);
                 Assert.IsType<Kiwi>(animals[0]);
-                Assert.Equal(1, context.ChangeTracker.Entries().Count());
+                Assert.Single(context.ChangeTracker.Entries());
             }
         }
 
@@ -169,7 +169,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                         .ToList();
 
                 Assert.Equal(2, animals.Count);
-                Assert.Equal(0, context.ChangeTracker.Entries().Count());
+                Assert.Empty(context.ChangeTracker.Entries());
             }
         }
 
@@ -182,7 +182,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                 Assert.NotNull(bird);
                 Assert.IsType<Kiwi>(bird);
-                Assert.Equal(1, context.ChangeTracker.Entries().Count());
+                Assert.Single(context.ChangeTracker.Entries());
             }
         }
 
@@ -193,9 +193,9 @@ namespace Microsoft.EntityFrameworkCore.Query
             {
                 var animals = context.Set<Animal>().OfType<Kiwi>().ToList();
 
-                Assert.Equal(1, animals.Count);
+                Assert.Single(animals);
                 Assert.IsType<Kiwi>(animals[0]);
-                Assert.Equal(1, context.ChangeTracker.Entries().Count());
+                Assert.Single(context.ChangeTracker.Entries());
             }
         }
 
@@ -206,9 +206,9 @@ namespace Microsoft.EntityFrameworkCore.Query
             {
                 var animals = context.Set<Kiwi>().OfType<Animal>().ToList();
 
-                Assert.Equal(1, animals.Count);
+                Assert.Single(animals);
                 Assert.IsType<Kiwi>(animals[0]);
-                Assert.Equal(1, context.ChangeTracker.Entries().Count());
+                Assert.Single(context.ChangeTracker.Entries());
             }
         }
 
@@ -219,9 +219,9 @@ namespace Microsoft.EntityFrameworkCore.Query
             {
                 var plants = context.Set<Plant>().OfType<Rose>().ToList();
 
-                Assert.Equal(1, plants.Count);
+                Assert.Single(plants);
                 Assert.IsType<Rose>(plants[0]);
-                Assert.Equal(1, context.ChangeTracker.Entries().Count());
+                Assert.Single(context.ChangeTracker.Entries());
             }
         }
 
@@ -275,7 +275,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                         .Where(a => a.Name == "Great spotted kiwi")
                         .ToList();
 
-                Assert.Equal(1, animals.Count);
+                Assert.Single(animals);
                 Assert.IsType<Kiwi>(animals[0]);
             }
         }
@@ -358,9 +358,9 @@ namespace Microsoft.EntityFrameworkCore.Query
                         .Where(x => x.FoundOn == Island.South)
                         .ToList();
 
-                Assert.Equal(1, animals.Count);
+                Assert.Single(animals);
                 Assert.IsType<Kiwi>(animals[0]);
-                Assert.Equal(1, context.ChangeTracker.Entries().Count());
+                Assert.Single(context.ChangeTracker.Entries());
             }
         }
 
@@ -375,8 +375,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                         .Where(x => x.FoundOn == Island.North)
                         .ToList();
 
-                Assert.Equal(0, animals.Count);
-                Assert.Equal(0, context.ChangeTracker.Entries().Count());
+                Assert.Empty(animals);
+                Assert.Empty(context.ChangeTracker.Entries());
             }
         }
 
@@ -390,7 +390,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                         .Select(k => k.FoundOn)
                         .ToArray();
 
-                Assert.Equal(1, kiwis.Length);
+                Assert.Single(kiwis);
             }
         }
 
@@ -421,7 +421,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                             k => new { Predator = EF.Property<string>((Bird)k, "EagleId") })
                         .ToArray();
 
-                Assert.Equal(1, predators.Length);
+                Assert.Single(predators);
             }
         }
 
@@ -436,7 +436,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                         .Select(k => k.FoundOn)
                         .ToArray();
 
-                Assert.Equal(1, birds.Length);
+                Assert.Single(birds);
             }
         }
 
@@ -597,7 +597,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 var query = context.Set<Kiwi>().Select(k => k.IsFlightless ? Island.North : Island.South);
                 var result = query.ToList();
 
-                Assert.Equal(1, result.Count);
+                Assert.Single(result);
                 Assert.Equal(Island.North, result[0]);
             }
         }
