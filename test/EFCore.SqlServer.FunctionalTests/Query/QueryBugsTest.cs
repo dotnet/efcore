@@ -2589,6 +2589,34 @@ WHERE [e].[Id] IN (
             }
         }
 
+        [ConditionalFact]
+        public virtual void Query_cache_entries_are_evicted_as_necessary()
+        {
+            using (CreateDatabase8909())
+            {
+                using (var context = new MyContext8909(_options))
+                {
+                    context.Cache.Compact(1);
+                    Assert.Equal(0, context.Cache.Count);
+
+                    var entityParam = Expression.Parameter(typeof(Entity8909), "e");
+                    var idPropertyInfo = context.Model.FindEntityType((typeof(Entity8909)))
+                        .FindProperty(nameof(Entity8909.Id))
+                        .PropertyInfo;
+                    for (var i = 0; i < 1100; i++)
+                    {
+                        var conditionBody = Expression.Equal(
+                            Expression.MakeMemberAccess(entityParam, idPropertyInfo),
+                            Expression.Constant(i));
+                        var whereExpression = Expression.Lambda<Func<Entity8909, bool>>(conditionBody, entityParam);
+                        context.Entities.Where(whereExpression).GetEnumerator();
+                    }
+
+                    Assert.True(context.Cache.Count <= 1024);
+                }
+            }
+        }
+
         private SqlServerTestStore CreateDatabase8909()
         {
             return CreateTestStore(
@@ -3450,14 +3478,14 @@ ORDER BY [t].[c], [t].[c0], [t].[Id], [t].[Id0], [o].[Id]");
 
                     AssertSql(
                         @"SELECT CASE
-    WHEN [c].[Id] IS NOT NULL THEN CASE
-        WHEN [c].[Processed] <> CAST(1 AS bit) THEN CAST(1 AS bit)
+    WHEN [c0].[Id] IS NOT NULL THEN CASE
+        WHEN [c0].[Processed] <> CAST(1 AS bit) THEN CAST(1 AS bit)
         ELSE CAST(0 AS bit)
     END
     ELSE NULL
 END AS [Processing]
-FROM [Carts] AS [c0]
-LEFT JOIN [Configuration9468] AS [c] ON [c0].[ConfigurationId] = [c].[Id]");
+FROM [Carts] AS [c]
+LEFT JOIN [Configuration9468] AS [c0] ON [c].[ConfigurationId] = [c0].[Id]");
                 }
             }
         }
@@ -3931,15 +3959,15 @@ WHERE [b].[IsTwo] IN (CAST(0 AS bit), CAST(1 AS bit))");
                         .ToList();
 
                     AssertSql(
-                @"SELECT [t1].[Name] AS [Key], COUNT(*) + 5 AS [cnt]
-FROM [Table] AS [t2]
+                        @"SELECT [t2].[Name] AS [Key], COUNT(*) + 5 AS [cnt]
+FROM [Table] AS [t]
 LEFT JOIN (
-    SELECT [t].[Id], [t].[Name], [t0].[Id] AS [Id0]
-    FROM [Table] AS [t]
-    INNER JOIN [Table] AS [t0] ON [t].[Id] = [t0].[Id]
-    WHERE [t].[Name] IS NOT NULL
-) AS [t1] ON [t2].[Id] = [t1].[Id]
-GROUP BY [t1].[Name]");
+    SELECT [t0].[Id], [t0].[Name], [t1].[Id] AS [Id0]
+    FROM [Table] AS [t0]
+    INNER JOIN [Table] AS [t1] ON [t0].[Id] = [t1].[Id]
+    WHERE [t0].[Name] IS NOT NULL
+) AS [t2] ON [t].[Id] = [t2].[Id]
+GROUP BY [t2].[Name]");
                 }
             }
         }
@@ -3978,21 +4006,21 @@ GROUP BY [t1].[Name]");
                         .ToList();
 
                     AssertSql(
-                @"SELECT [t1].[Name] AS [MyKey], COUNT(*) + 5 AS [cnt]
-FROM [Table] AS [t2]
+                        @"SELECT [t2].[Name] AS [MyKey], COUNT(*) + 5 AS [cnt]
+FROM [Table] AS [t]
 LEFT JOIN (
-    SELECT [t].[Id], [t].[Name], [t0].[Id] AS [Id0]
-    FROM [Table] AS [t]
-    INNER JOIN [Table] AS [t0] ON [t].[Id] = [t0].[Id]
-    WHERE [t].[Name] IS NOT NULL
-) AS [t1] ON [t2].[Id] = [t1].[Id]
+    SELECT [t0].[Id], [t0].[Name], [t1].[Id] AS [Id0]
+    FROM [Table] AS [t0]
+    INNER JOIN [Table] AS [t1] ON [t0].[Id] = [t1].[Id]
+    WHERE [t0].[Name] IS NOT NULL
+) AS [t2] ON [t].[Id] = [t2].[Id]
 LEFT JOIN (
     SELECT [t3].[Id], [t3].[MaumarEntity11818_Name], [t4].[Id] AS [Id0]
     FROM [Table] AS [t3]
     INNER JOIN [Table] AS [t4] ON [t3].[Id] = [t4].[Id]
     WHERE [t3].[MaumarEntity11818_Name] IS NOT NULL
-) AS [t5] ON [t2].[Id] = [t5].[Id]
-GROUP BY [t1].[Name], [t5].[MaumarEntity11818_Name]");
+) AS [t5] ON [t].[Id] = [t5].[Id]
+GROUP BY [t2].[Name], [t5].[MaumarEntity11818_Name]");
                 }
             }
         }
@@ -5223,20 +5251,20 @@ END IN ('0a47bcb7-a1cb-4345-8944-c58f82d6aac7', '5f221fb9-66f4-442a-92c9-d97ed59
                     Assert.Equal(10, partners[0].Addresses[0].Turnovers.AmountIn);
 
                     AssertSql(
-                @"SELECT [p].[Id], [t0].[c], [t0].[Turnovers_AmountIn], [t0].[Id]
+                        @"SELECT [p].[Id], [t0].[c], [t0].[Turnovers_AmountIn], [t0].[Id]
 FROM [Partners] AS [p]
 LEFT JOIN (
     SELECT CASE
         WHEN [t].[Id] IS NULL THEN CAST(1 AS bit)
         ELSE CAST(0 AS bit)
-    END AS [c], [t].[Turnovers_AmountIn], [a1].[Id], [a1].[Partner13157Id]
-    FROM [Address13157] AS [a1]
+    END AS [c], [t].[Turnovers_AmountIn], [a].[Id], [a].[Partner13157Id]
+    FROM [Address13157] AS [a]
     LEFT JOIN (
-        SELECT [a].[Id], [a].[Turnovers_AmountIn], [a0].[Id] AS [Id0]
-        FROM [Address13157] AS [a]
-        INNER JOIN [Address13157] AS [a0] ON [a].[Id] = [a0].[Id]
-        WHERE [a].[Turnovers_AmountIn] IS NOT NULL
-    ) AS [t] ON [a1].[Id] = [t].[Id]
+        SELECT [a0].[Id], [a0].[Turnovers_AmountIn], [a1].[Id] AS [Id0]
+        FROM [Address13157] AS [a0]
+        INNER JOIN [Address13157] AS [a1] ON [a0].[Id] = [a1].[Id]
+        WHERE [a0].[Turnovers_AmountIn] IS NOT NULL
+    ) AS [t] ON [a].[Id] = [t].[Id]
 ) AS [t0] ON [p].[Id] = [t0].[Partner13157Id]
 ORDER BY [p].[Id], [t0].[Id]");
                 }

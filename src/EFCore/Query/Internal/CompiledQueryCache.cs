@@ -83,7 +83,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 {
                     compiledQuery = compiler();
 
-                    _memoryCache.Set(cacheKey, compiledQuery);
+                    _memoryCache.Set(cacheKey, compiledQuery, new MemoryCacheEntryOptions { Size = 10 });
                 }
                 finally
                 {
