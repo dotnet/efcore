@@ -104,7 +104,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 && selectExpression.Tables[0] is SetOperationBase setOperation
                 && selectExpression.Projection.Count == setOperation.Source1.Projection.Count
                 && selectExpression.Projection.Select((pe, index) => pe.Expression is ColumnExpression column
-                    && column.Table.Equals(setOperation)
+                    && string.Equals(column.Table.Alias, setOperation.Alias, StringComparison.OrdinalIgnoreCase)
                     && string.Equals(column.Name, setOperation.Source1.Projection[index].Alias, StringComparison.OrdinalIgnoreCase))
                     .All(e => e);
 

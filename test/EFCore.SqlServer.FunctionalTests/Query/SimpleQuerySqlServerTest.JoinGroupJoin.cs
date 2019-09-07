@@ -225,10 +225,10 @@ FROM [Customers] AS [c]");
             await base.Join_same_collection_multiple(isAsync);
 
             AssertSql(
-                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
-FROM [Customers] AS [c0]
-INNER JOIN [Customers] AS [c1] ON [c0].[CustomerID] = [c1].[CustomerID]
-INNER JOIN [Customers] AS [c] ON [c0].[CustomerID] = [c].[CustomerID]");
+                @"SELECT [c1].[CustomerID], [c1].[Address], [c1].[City], [c1].[CompanyName], [c1].[ContactName], [c1].[ContactTitle], [c1].[Country], [c1].[Fax], [c1].[Phone], [c1].[PostalCode], [c1].[Region]
+FROM [Customers] AS [c]
+INNER JOIN [Customers] AS [c0] ON [c].[CustomerID] = [c0].[CustomerID]
+INNER JOIN [Customers] AS [c1] ON [c].[CustomerID] = [c1].[CustomerID]");
         }
 
         public override async Task Join_same_collection_force_alias_uniquefication(bool isAsync)

@@ -255,7 +255,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             TryAdd<IParameterBindingFactory, LazyLoaderParameterBindingFactory>();
             TryAdd<IParameterBindingFactory, ContextParameterBindingFactory>();
             TryAdd<IParameterBindingFactory, EntityTypeParameterBindingFactory>();
-            TryAdd<IMemoryCache>(p => new MemoryCache(new MemoryCacheOptions()));
+            TryAdd<IMemoryCache>(p => new MemoryCache(new MemoryCacheOptions { SizeLimit = 10240 }));
             TryAdd<IUpdateAdapterFactory, UpdateAdapterFactory>();
             TryAdd<IQueryCompilationContextFactory, QueryCompilationContextFactory>();
             TryAdd<IQueryTranslationPreprocessorFactory, QueryTranslationPreprocessorFactory>();
