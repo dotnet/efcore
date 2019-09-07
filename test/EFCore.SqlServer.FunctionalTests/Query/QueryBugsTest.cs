@@ -6130,6 +6130,170 @@ FROM [Blogs] AS [b]");
 
         #endregion
 
+        #region Bug17644
+
+        [ConditionalFact]
+        public virtual async Task Return_type_of_First_is_preserved()
+        {
+            using (CreateDatabase17644())
+            {
+                using (var context = new MyContext17644(_options))
+                {
+                    var personsToFind = await context.Persons.Where(p => p.Age >= 21)
+                        .Select(p => new PersonDetailView17644() { Name = p.Name, Age = p.Age })
+                        .FirstAsync<PersonView17644>();
+
+                    AssertSql(
+                        @"SELECT TOP(1) [p].[Name], [p].[Age]
+FROM [Persons] AS [p]
+WHERE [p].[Age] >= 21");
+                }
+            }
+        }
+
+        [ConditionalFact]
+        public virtual async Task Return_type_of_FirstOrDefault_is_preserved()
+        {
+            using (CreateDatabase17644())
+            {
+                using (var context = new MyContext17644(_options))
+                {
+                    var personsToFind = await context.Persons.Where(p => p.Age >= 21)
+                        .Select(p => new PersonDetailView17644() { Name = p.Name, Age = p.Age })
+                        .FirstOrDefaultAsync<PersonView17644>();
+
+                    AssertSql(
+                        @"SELECT TOP(1) [p].[Name], [p].[Age]
+FROM [Persons] AS [p]
+WHERE [p].[Age] >= 21");
+                }
+            }
+        }
+
+        [ConditionalFact]
+        public virtual async Task Return_type_of_Single_is_preserved()
+        {
+            using (CreateDatabase17644())
+            {
+                using (var context = new MyContext17644(_options))
+                {
+                    var personsToFind = await context.Persons.Where(p => p.Age >= 21)
+                        .Select(p => new PersonDetailView17644() { Name = p.Name, Age = p.Age })
+                        .SingleAsync<PersonView17644>();
+
+                    AssertSql(
+                        @"SELECT TOP(2) [p].[Name], [p].[Age]
+FROM [Persons] AS [p]
+WHERE [p].[Age] >= 21");
+                }
+            }
+        }
+
+        [ConditionalFact]
+        public virtual async Task Return_type_of_SingleOrDefault_is_preserved()
+        {
+            using (CreateDatabase17644())
+            {
+                using (var context = new MyContext17644(_options))
+                {
+                    var personsToFind = await context.Persons.Where(p => p.Age >= 21)
+                        .Select(p => new PersonDetailView17644() { Name = p.Name, Age = p.Age })
+                        .SingleOrDefaultAsync<PersonView17644>();
+
+                    AssertSql(
+                        @"SELECT TOP(2) [p].[Name], [p].[Age]
+FROM [Persons] AS [p]
+WHERE [p].[Age] >= 21");
+                }
+            }
+        }
+
+
+        [ConditionalFact]
+        public virtual async Task Return_type_of_Last_is_preserved()
+        {
+            using (CreateDatabase17644())
+            {
+                using (var context = new MyContext17644(_options))
+                {
+                    var personsToFind = await context.Persons.Where(p => p.Age >= 21)
+                        .OrderBy(p => p.Id)
+                        .Select(p => new PersonDetailView17644() { Name = p.Name, Age = p.Age })
+                        .LastAsync<PersonView17644>();
+
+                    AssertSql(
+                        @"SELECT TOP(1) [p].[Name], [p].[Age]
+FROM [Persons] AS [p]
+WHERE [p].[Age] >= 21
+ORDER BY [p].[Id] DESC");
+                }
+            }
+        }
+
+        [ConditionalFact]
+        public virtual async Task Return_type_of_LastOrDefault_is_preserved()
+        {
+            using (CreateDatabase17644())
+            {
+                using (var context = new MyContext17644(_options))
+                {
+                    var personsToFind = await context.Persons.Where(p => p.Age >= 21)
+                        .OrderBy(p => p.Id)
+                        .Select(p => new PersonDetailView17644() { Name = p.Name, Age = p.Age })
+                        .LastOrDefaultAsync<PersonView17644>();
+
+                    AssertSql(
+                        @"SELECT TOP(1) [p].[Name], [p].[Age]
+FROM [Persons] AS [p]
+WHERE [p].[Age] >= 21
+ORDER BY [p].[Id] DESC");
+                }
+            }
+        }
+
+        public class MyContext17644 : DbContext
+        {
+            public DbSet<Person17644> Persons { get; set; }
+            public MyContext17644()
+            {
+            }
+
+            public MyContext17644(DbContextOptions options) : base(options)
+            {
+            }
+        }
+
+        private SqlServerTestStore CreateDatabase17644()
+            => CreateTestStore(
+                () => new MyContext17644(_options),
+                context =>
+                {
+                    var person = new Person17644 { Name = "John Doe", Age = 21 };
+                    context.Persons.Add(person);
+                    context.SaveChanges();
+
+                    ClearLog();
+                });
+
+        public class Person17644
+        {
+            public int Id { get; set; }
+            public string Name { set; get; }
+            public int Age { set; get; }
+        }
+
+        public class PersonView17644
+        {
+            public string Name { set; get; }
+        }
+
+        public class PersonDetailView17644 : PersonView17644
+        {
+            public int Age { set; get; }
+        }
+
+        #endregion
+
         private DbContextOptions _options;
 
         private SqlServerTestStore CreateTestStore<TContext>(
