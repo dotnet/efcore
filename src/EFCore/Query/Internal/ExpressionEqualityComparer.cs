@@ -333,7 +333,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             return x.Zip(y, (l, r) => comparer.Compare(l, r)).All(r => r);
         }
 
-        private sealed class ExpressionComparer
+        private struct ExpressionComparer
         {
             private ScopedDictionary<ParameterExpression, ParameterExpression> _parameterScope;
 
