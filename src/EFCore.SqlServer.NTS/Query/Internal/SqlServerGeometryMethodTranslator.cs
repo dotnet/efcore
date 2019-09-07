@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -43,8 +43,11 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
             { typeof(Geometry).GetRuntimeMethod(nameof(Geometry.Touches), new[] { typeof(Geometry) }), "STTouches" }
         };
 
-        private static readonly MethodInfo _getGeometryN = typeof(Geometry).GetRuntimeMethod(nameof(Geometry.GetGeometryN), new[] { typeof(int) });
-        private static readonly MethodInfo _isWithinDistance = typeof(Geometry).GetRuntimeMethod(nameof(Geometry.IsWithinDistance), new[] { typeof(Geometry), typeof(double) });
+        private static readonly MethodInfo _getGeometryN = typeof(Geometry).GetRuntimeMethod(
+            nameof(Geometry.GetGeometryN), new[] { typeof(int) });
+
+        private static readonly MethodInfo _isWithinDistance = typeof(Geometry).GetRuntimeMethod(
+            nameof(Geometry.IsWithinDistance), new[] { typeof(Geometry), typeof(double) });
 
         private readonly IRelationalTypeMappingSource _typeMappingSource;
         private readonly ISqlExpressionFactory _sqlExpressionFactory;
@@ -103,7 +106,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
                     return _sqlExpressionFactory.Function(
                         instance,
                         "STGeometryN",
-                        new[] {
+                        new[]
+                        {
                             _sqlExpressionFactory.Add(
                                 arguments[0],
                                 _sqlExpressionFactory.Constant(1))

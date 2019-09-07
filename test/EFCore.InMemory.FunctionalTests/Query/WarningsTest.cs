@@ -18,7 +18,9 @@ using Xunit;
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore.Query
 {
+#pragma warning disable xUnit1000 // Test classes must be public
     internal class WarningsTest
+#pragma warning restore xUnit1000 // Test classes must be public
     {
         [ConditionalFact]
         public void Should_throw_by_default_when_transaction()
@@ -130,7 +132,9 @@ namespace Microsoft.EntityFrameworkCore.Query
             {
                 var _ = context.WarningAsErrorEntities.Include(e => e.Nav).OrderBy(e => e.Id).Select(e => e.Id).ToList();
 
-                Assert.Contains(CoreResources.LogIgnoredInclude(new TestLogger<InMemoryLoggingDefinitions>()).GenerateMessage("[e].Nav"), loggerFactory.Log.Select(l => l.Message));
+                Assert.Contains(
+                    CoreResources.LogIgnoredInclude(new TestLogger<InMemoryLoggingDefinitions>()).GenerateMessage("[e].Nav"),
+                    loggerFactory.Log.Select(l => l.Message));
             }
         }
 
@@ -168,10 +172,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             using (var context = new WarningAsErrorContext(serviceProvider, defaultThrow: false))
             {
                 context.Add(
-                    new WarningAsErrorEntity
-                    {
-                        Nav = new IncludedEntity()
-                    });
+                    new WarningAsErrorEntity { Nav = new IncludedEntity() });
                 context.SaveChanges();
             }
 
@@ -185,7 +186,8 @@ namespace Microsoft.EntityFrameworkCore.Query
             Assert.Equal(
                 CoreStrings.WarningAsErrorTemplate(
                     CoreEventId.LazyLoadOnDisposedContextWarning.ToString(),
-                    CoreResources.LogLazyLoadOnDisposedContext(new TestLogger<InMemoryLoggingDefinitions>()).GenerateMessage("Nav", "WarningAsErrorEntity"),
+                    CoreResources.LogLazyLoadOnDisposedContext(new TestLogger<InMemoryLoggingDefinitions>())
+                        .GenerateMessage("Nav", "WarningAsErrorEntity"),
                     "CoreEventId.LazyLoadOnDisposedContextWarning"),
                 Assert.Throws<InvalidOperationException>(
                     () => entity.Nav).Message);
@@ -207,10 +209,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 CoreEventId.LazyLoadOnDisposedContextWarning))
             {
                 context.Add(
-                    new WarningAsErrorEntity
-                    {
-                        Nav = new IncludedEntity()
-                    });
+                    new WarningAsErrorEntity { Nav = new IncludedEntity() });
                 context.SaveChanges();
             }
 
@@ -250,10 +249,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 toChangeLevel: (CoreEventId.LazyLoadOnDisposedContextWarning, LogLevel.Debug)))
             {
                 context.Add(
-                    new WarningAsErrorEntity
-                    {
-                        Nav = new IncludedEntity()
-                    });
+                    new WarningAsErrorEntity { Nav = new IncludedEntity() });
                 context.SaveChanges();
             }
 
@@ -290,10 +286,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             using (var context = new WarningAsErrorContext(serviceProvider, defaultThrow: false))
             {
                 context.Add(
-                    new WarningAsErrorEntity
-                    {
-                        Nav = new IncludedEntity()
-                    });
+                    new WarningAsErrorEntity { Nav = new IncludedEntity() });
                 context.SaveChanges();
             }
 
@@ -305,13 +298,15 @@ namespace Microsoft.EntityFrameworkCore.Query
                 Assert.NotNull(entity.Nav);
 
                 Assert.Contains(
-                    CoreResources.LogNavigationLazyLoading(new TestLogger<InMemoryLoggingDefinitions>()).GenerateMessage("Nav", "WarningAsErrorEntity"),
+                    CoreResources.LogNavigationLazyLoading(new TestLogger<InMemoryLoggingDefinitions>())
+                        .GenerateMessage("Nav", "WarningAsErrorEntity"),
                     loggerFactory.Log.Select(l => l.Message));
 
                 loggerFactory.Clear();
                 Assert.NotNull(entity.Nav);
                 Assert.DoesNotContain(
-                    CoreResources.LogNavigationLazyLoading(new TestLogger<InMemoryLoggingDefinitions>()).GenerateMessage("Nav", "WarningAsErrorEntity"),
+                    CoreResources.LogNavigationLazyLoading(new TestLogger<InMemoryLoggingDefinitions>())
+                        .GenerateMessage("Nav", "WarningAsErrorEntity"),
                     loggerFactory.Log.Select(l => l.Message));
             }
         }

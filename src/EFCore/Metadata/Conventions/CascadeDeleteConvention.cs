@@ -8,8 +8,8 @@ using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 {
     /// <summary>
-    ///     A convention that sets the delete behavior to <see cref="DeleteBehavior.Cascade"/> for required foreign keys
-    ///     and <see cref="DeleteBehavior.ClientSetNull"/> for optional ones.
+    ///     A convention that sets the delete behavior to <see cref="DeleteBehavior.Cascade" /> for required foreign keys
+    ///     and <see cref="DeleteBehavior.ClientSetNull" /> for optional ones.
     /// </summary>
     public class CascadeDeleteConvention : IForeignKeyAddedConvention, IForeignKeyRequirednessChangedConvention
     {

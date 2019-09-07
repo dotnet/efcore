@@ -53,6 +53,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         }
 
         private static IMutableModel CreateModel() => new Model();
+
         private class Customer
         {
             public static readonly PropertyInfo IdProperty = typeof(Customer).GetProperty("Id");

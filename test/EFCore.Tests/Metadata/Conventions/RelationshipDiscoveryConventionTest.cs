@@ -248,7 +248,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
             Assert.Empty(entityBuilder.Metadata.GetForeignKeys());
             Assert.Empty(entityBuilder.Metadata.GetNavigations());
-            Assert.Equal(1, entityBuilder.Metadata.Model.GetEntityTypes().Count());
+            Assert.Single(entityBuilder.Metadata.Model.GetEntityTypes());
         }
 
         [ConditionalFact]
@@ -291,7 +291,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 typeof(MultipleNavigationsSecond), ConfigurationSource.Convention);
 
             entityBuilderFirst.HasRelationship(
-                entityBuilderSecond.Metadata, MultipleNavigationsFirst.CollectionNavigationProperty, null, ConfigurationSource.DataAnnotation);
+                entityBuilderSecond.Metadata, MultipleNavigationsFirst.CollectionNavigationProperty, null,
+                ConfigurationSource.DataAnnotation);
 
             Assert.Same(entityBuilderFirst, RunConvention(entityBuilderFirst));
 
@@ -357,7 +358,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 typeof(MultipleNavigationsSecond), ConfigurationSource.Convention);
 
             entityBuilderFirst.HasRelationship(
-                entityBuilderSecond.Metadata, MultipleNavigationsFirst.CollectionNavigationProperty, null, ConfigurationSource.DataAnnotation);
+                entityBuilderSecond.Metadata, MultipleNavigationsFirst.CollectionNavigationProperty, null,
+                ConfigurationSource.DataAnnotation);
 
             Assert.Same(entityBuilderSecond, RunConvention(entityBuilderSecond));
 
@@ -385,7 +387,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             var secondEntityType = model.GetEntityTypes().Single(e => e.ClrType == typeof(MultipleNavigationsSecond));
 
             Assert.Equal(2, firstEntityType.GetProperties().Count());
-            Assert.Equal(1, firstEntityType.GetKeys().Count());
+            Assert.Single(firstEntityType.GetKeys());
             var firstFK = firstEntityType.GetForeignKeys().Single();
             Assert.False(firstFK.IsRequired);
             Assert.False(firstFK.IsUnique);
@@ -398,7 +400,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 firstEntityType.GetNavigations().Select(n => n.Name));
 
             Assert.Equal(2, secondEntityType.GetProperties().Count());
-            Assert.Equal(1, secondEntityType.GetKeys().Count());
+            Assert.Single(secondEntityType.GetKeys());
             var secondFK = firstEntityType.GetForeignKeys().Single();
             Assert.False(secondFK.IsRequired);
             Assert.False(secondFK.IsUnique);
@@ -690,7 +692,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             var derivedFk = entityBuilder.Metadata.GetNavigations()
                 .Single(n => n.Name == nameof(NavigationsToBaseAndDerived.DerivedOne)).ForeignKey;
             Assert.Equal(nameof(DerivedOne.DerivedNavigation), derivedFk.FindNavigationsTo(entityBuilder.Metadata).Single().Name);
-            Assert.Equal(1, entityBuilder.Metadata.GetNavigations().Count());
+            Assert.Single(entityBuilder.Metadata.GetNavigations());
             Assert.Equal(3, entityBuilder.Metadata.Model.GetEntityTypes().Count());
         }
 
@@ -711,7 +713,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             var derivedFk = entityBuilder.Metadata.GetNavigations()
                 .Single(n => n.Name == nameof(NavigationsToBaseAndDerived.DerivedOne)).ForeignKey;
             Assert.Equal(nameof(Base.BaseNavigation), derivedFk.FindNavigationsTo(entityBuilder.Metadata).Single().Name);
-            Assert.Equal(1, entityBuilder.Metadata.GetNavigations().Count());
+            Assert.Single(entityBuilder.Metadata.GetNavigations());
             Assert.Equal(3, entityBuilder.Metadata.Model.GetEntityTypes().Count());
         }
 
@@ -747,7 +749,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
             var derivedFk = entityBuilder.Metadata.FindNavigation(nameof(NavigationsToBaseAndDerived.DerivedOne)).ForeignKey;
             Assert.Equal(nameof(DerivedOne.BaseNavigation), derivedFk.FindNavigationsTo(entityBuilder.Metadata).Single().Name);
-            Assert.Equal(1, entityBuilder.Metadata.GetNavigations().Count());
+            Assert.Single(entityBuilder.Metadata.GetNavigations());
             Assert.Equal(2, entityBuilder.Metadata.Model.GetEntityTypes().Count());
         }
 
@@ -939,12 +941,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             var entityType = model.GetEntityTypes().Single();
 
             Assert.Equal(2, entityType.GetProperties().Count());
-            Assert.Equal(1, entityType.GetKeys().Count());
+            Assert.Single(entityType.GetKeys());
 
             var fk = entityType.GetForeignKeys().Single();
             Assert.False(fk.IsUnique);
             Assert.True(fk.PrincipalEntityType.ClrType.GetTypeInfo().IsAbstract);
-            Assert.Equal(1, entityType.GetNavigations().Count());
+            Assert.Single(entityType.GetNavigations());
         }
 
         [ConditionalFact]
@@ -1057,8 +1059,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             if (singleRelationship)
             {
                 var principalEntityType = fk.PrincipalEntityType;
-                Assert.Equal(1, principalEntityType.GetDeclaredProperties().Count());
-                Assert.Equal(1, principalEntityType.GetKeys().Count());
+                Assert.Single(principalEntityType.GetDeclaredProperties());
+                Assert.Single(principalEntityType.GetKeys());
                 Assert.Empty(principalEntityType.GetDeclaredForeignKeys());
                 if ((expectedInverseName == null)
                     && navigation.IsDependentToPrincipal())
@@ -1067,7 +1069,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 }
 
                 var dependentEntityType = fk.DeclaringEntityType;
-                Assert.Equal(1, dependentEntityType.GetDeclaredProperties().Count());
+                Assert.Single(dependentEntityType.GetDeclaredProperties());
                 Assert.Equal(principalEntityType.IsAssignableFrom(dependentEntityType) ? 1 : 0, dependentEntityType.GetKeys().Count());
                 if ((expectedInverseName == null)
                     && !navigation.IsDependentToPrincipal())
@@ -1081,7 +1083,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             Navigation navigation, string expectedInverseName, bool unique, bool singleRelationship = true)
         {
             IForeignKey fk = navigation.ForeignKey;
-            Assert.Equal(1, fk.DeclaringEntityType.Model.GetEntityTypes().Count());
+            Assert.Single(fk.DeclaringEntityType.Model.GetEntityTypes());
             Assert.Equal(expectedInverseName, navigation.FindInverse()?.Name);
             Assert.Equal(unique, fk.IsUnique);
             Assert.NotSame(fk.Properties.Single(), fk.PrincipalKey.Properties.Single());
@@ -1090,8 +1092,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             var entityType = fk.DeclaringEntityType;
             if (singleRelationship)
             {
-                Assert.Equal(1, entityType.GetKeys().Count());
-                Assert.Equal(1, entityType.GetForeignKeys().Count());
+                Assert.Single(entityType.GetKeys());
+                Assert.Single(entityType.GetForeignKeys());
                 Assert.Equal(2, entityType.GetProperties().Count());
                 Assert.Equal(expectedInverseName == null ? 1 : 2, entityType.GetNavigations().Count());
             }
@@ -1116,7 +1118,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         private void Cleanup(InternalModelBuilder modelBuilder)
         {
             new ModelCleanupConvention(CreateDependencies())
-                .ProcessModelFinalized(modelBuilder,
+                .ProcessModelFinalized(
+                    modelBuilder,
                     new ConventionContext<IConventionModelBuilder>(modelBuilder.Metadata.ConventionDispatcher));
         }
 

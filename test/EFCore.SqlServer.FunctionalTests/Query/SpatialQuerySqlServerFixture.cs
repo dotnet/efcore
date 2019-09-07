@@ -37,7 +37,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     e => SqlFunctionExpression.Create(
                         e.First(),
                         "STDistance",
-                         e.Skip(1),
+                        e.Skip(1),
                         typeof(double),
                         null)));
         }

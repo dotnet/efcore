@@ -4,7 +4,6 @@
 using System.Diagnostics;
 using System.Reflection;
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Metadata
 {

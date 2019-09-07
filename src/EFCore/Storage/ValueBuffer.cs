@@ -113,6 +113,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             {
                 hash.Add(value);
             }
+
             return hash.ToHashCode();
         }
     }

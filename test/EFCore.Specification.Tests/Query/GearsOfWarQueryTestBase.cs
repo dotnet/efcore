@@ -352,7 +352,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual void Include_where_list_contains_navigation(bool isAsync)
+        public virtual async Task Include_where_list_contains_navigation(bool isAsync)
         {
             using (var context = CreateContext())
             {
@@ -360,10 +360,13 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                 var tags = context.Tags.Select(t => (Guid?)t.Id).ToList();
 
-                var gears = context.Gears
+                var query = context.Gears
                     .Include(g => g.Tag)
-                    .Where(g => g.Tag != null && tags.Contains(g.Tag.Id))
-                    .ToList();
+                    .Where(g => g.Tag != null && tags.Contains(g.Tag.Id));
+
+                var gears = isAsync
+                    ? (await query.ToListAsync())
+                    : query.ToList();
 
                 Assert.Equal(5, gears.Count);
 
@@ -373,7 +376,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual void Include_where_list_contains_navigation2(bool isAsync)
+        public virtual async Task Include_where_list_contains_navigation2(bool isAsync)
         {
             using (var context = CreateContext())
             {
@@ -381,10 +384,13 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                 var tags = context.Tags.Select(t => (Guid?)t.Id).ToList();
 
-                var gears = context.Gears
+                var query = context.Gears
                     .Include(g => g.Tag)
-                    .Where(g => g.CityOfBirth.Location != null && tags.Contains(g.Tag.Id))
-                    .ToList();
+                    .Where(g => g.CityOfBirth.Location != null && tags.Contains(g.Tag.Id));
+
+                var gears = isAsync
+                    ? (await query.ToListAsync())
+                    : query.ToList();
 
                 Assert.Equal(5, gears.Count);
 
@@ -394,7 +400,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual void Navigation_accessed_twice_outside_and_inside_subquery(bool isAsync)
+        public virtual async Task Navigation_accessed_twice_outside_and_inside_subquery(bool isAsync)
         {
             using (var context = CreateContext())
             {
@@ -402,9 +408,12 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                 var tags = context.Tags.Select(t => (Guid?)t.Id).ToList();
 
-                var gears = context.Gears
-                    .Where(g => g.Tag != null && tags.Contains(g.Tag.Id))
-                    .ToList();
+                var query = context.Gears
+                    .Where(g => g.Tag != null && tags.Contains(g.Tag.Id));
+
+                var gears = isAsync
+                    ? (await query.ToListAsync())
+                    : query.ToList();
 
                 Assert.Equal(5, gears.Count);
 
@@ -1630,7 +1639,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                 var result = query.ToList();
 
-                Assert.Equal(1, result.Count);
+                Assert.Single(result);
                 Assert.Equal("Cole Train", result[0].Nickname);
             }
         }
@@ -3469,13 +3478,14 @@ namespace Microsoft.EntityFrameworkCore.Query
                           from v in Veterans(g.Reports)
                           select new
                           {
-                              g = g.Nickname, v = v.Nickname
+                              g = g.Nickname,
+                              v = v.Nickname
                           },
                     elementSorter: e => e.g + e.v))).Message;
 
-                Assert.Equal(
-                    CoreStrings.QueryFailed("(g) => Veterans(g.Reports)", "NavigationExpandingExpressionVisitor"),
-                    RemoveNewLines(message));
+            Assert.Equal(
+                CoreStrings.QueryFailed("(g) => Veterans(g.Reports)", "NavigationExpandingExpressionVisitor"),
+                RemoveNewLines(message));
         }
 
         private string RemoveNewLines(string message)
@@ -3914,7 +3924,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                             };
 
                 var result = query.ToList();
-                Assert.Equal(1, result.Count);
+                Assert.Single(result);
                 Assert.Equal("Locust", result[0].Name);
                 Assert.Equal("Marcus", result[0].Nickname);
             }
@@ -3964,7 +3974,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 var query = context.Tags.Where(t => t.Gear is Officer && ((Officer)t.Gear).Reports.Count(r => r.Nickname == "Dom") > 0);
                 var result = query.ToList();
 
-                Assert.Equal(1, result.Count);
+                Assert.Single(result);
                 Assert.Equal("Marcus' Tag", result[0].Note);
             }
         }
@@ -3980,8 +3990,8 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                 var result = query.ToList();
                 Assert.Equal(2, result.Count);
-                Assert.True(result.Contains("Queen Myrrah"));
-                Assert.True(result.Contains("Unknown"));
+                Assert.Contains("Queen Myrrah", result);
+                Assert.Contains("Unknown", result);
             }
         }
 
@@ -3996,8 +4006,8 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                 var result = query.ToList();
                 Assert.Equal(2, result.Count);
-                Assert.True(result.Contains(true));
-                Assert.True(result.Contains(false));
+                Assert.Contains(true, result);
+                Assert.Contains(false, result);
             }
         }
 
@@ -6383,7 +6393,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 var query = ctx.Squads.Include(s => s.Members).GroupBy(s => 1);
                 var result = query.ToList();
 
-                Assert.Equal(1, result.Count);
+                Assert.Single(result);
                 var bucket = result[0].ToList();
                 Assert.Equal(2, bucket.Count);
                 Assert.NotNull(bucket[0].Members);
@@ -6467,7 +6477,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 var query = ctx.Squads.Include(s => s.Members).GroupBy(s => (MyDTO)null);
                 var result = query.ToList();
 
-                Assert.Equal(1, result.Count);
+                Assert.Single(result);
                 var bucket = result[0].ToList();
                 Assert.Equal(2, bucket.Count);
                 Assert.NotNull(bucket[0].Members);
@@ -7171,7 +7181,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                 var result = query.ToList();
 
-                Assert.Equal(1, result.Count);
+                Assert.Single(result);
 
                 var topLevel = result[0];
 
@@ -7517,6 +7527,34 @@ namespace Microsoft.EntityFrameworkCore.Query
             return AssertQuery<Weapon>(
                 isAsync,
                 ws => ws.Select(w => w.SynergyWithId.HasValue ? $"SynergyWithOwner: {w.SynergyWith.OwnerFullName}" : string.Empty));
+        }
+
+        [ConditionalTheory]  // issue #5008
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Left_join_projection_using_coalesce_tracking(bool isAsync)
+        {
+            return AssertQuery<Gear>(
+                isAsync,
+                gs => from g1 in gs.AsTracking()
+                      join g2 in gs
+                        on g1.LeaderNickname equals g2.Nickname into grouping
+                      from g2 in grouping.DefaultIfEmpty()
+                      select g2 ?? g1,
+                entryCount: 5);
+        }
+
+        [ConditionalTheory]  // issue #5008
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Left_join_projection_using_conditional_tracking(bool isAsync)
+        {
+            return AssertQuery<Gear>(
+                isAsync,
+                gs => from g1 in gs.AsTracking()
+                      join g2 in gs
+                        on g1.LeaderNickname equals g2.Nickname into grouping
+                      from g2 in grouping.DefaultIfEmpty()
+                      select g2 == null ? g1 : g2,
+                entryCount: 5);
         }
 
         protected GearsOfWarContext CreateContext() => Fixture.CreateContext();

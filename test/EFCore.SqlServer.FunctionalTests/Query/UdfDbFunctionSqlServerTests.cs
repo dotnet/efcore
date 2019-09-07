@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using Microsoft.EntityFrameworkCore.TestUtilities;
-using Xunit;
 using Xunit.Abstractions;
 
 // ReSharper disable InconsistentNaming
@@ -43,7 +42,6 @@ SELECT TOP(2) len([c].[LastName])
 FROM [Customers] AS [c]
 WHERE ([c].[Id] = @__customerId_0) AND @__customerId_0 IS NOT NULL");
         }
-
 
         public override void Scalar_Function_Constant_Parameter_Static()
         {

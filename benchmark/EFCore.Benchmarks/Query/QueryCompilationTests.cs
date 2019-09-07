@@ -22,6 +22,7 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.Query
         private OrdersContextBase _context;
         private IQueryable<Product> _simpleQuery;
         private IQueryable<DTO> _complexQuery;
+        private IQueryable<Customer> _multipleJoinQuery;
 
         public abstract OrdersFixtureBase CreateFixture();
         public abstract IServiceCollection AddProviderServices(IServiceCollection services);
@@ -39,6 +40,7 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.Query
             _context = fixture.CreateContext(noQueryCacheServiceProvider);
             _simpleQuery = _context.Products
                 .AsNoTracking();
+
             _complexQuery = _context.Products
                 .AsNoTracking()
                 .Where(p => p.Retail < 1000)
@@ -54,6 +56,12 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.Query
                         Savings = p.Retail - p.CurrentPrice,
                         Surplus = p.ActualStockLevel - p.TargetStockLevel
                     });
+
+            _multipleJoinQuery = _context.Customers
+                .AsNoTracking()
+                .Include(c => c.Orders)
+                .ThenInclude(o => o.OrderLines)
+                .ThenInclude(ol => ol.Product);
         }
 
         [GlobalCleanup]
@@ -77,6 +85,15 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.Query
             for (var i = 0; i < 10; i++)
             {
                 _complexQuery.ToList();
+            }
+        }
+
+        [Benchmark]
+        public virtual void MultipleJoins()
+        {
+            for (var i = 0; i < 10; i++)
+            {
+                _multipleJoinQuery.ToList();
             }
         }
 

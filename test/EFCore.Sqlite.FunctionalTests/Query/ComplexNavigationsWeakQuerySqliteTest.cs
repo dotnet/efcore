@@ -17,7 +17,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalTheory(Skip = "Issue #17230")]
         public override Task SelectMany_with_navigation_filter_paging_and_explicit_DefaultIfEmpty(bool isAsync)
         {
-            return Task.CompletedTask;
+            return base.SelectMany_with_navigation_filter_paging_and_explicit_DefaultIfEmpty(isAsync);
         }
     }
 }

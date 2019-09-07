@@ -529,14 +529,8 @@ namespace Microsoft.EntityFrameworkCore
             var interceptor3 = new TransactionInterceptor();
             var interceptor4 = new WrappingTransactionInterceptor();
             using (var context = CreateContext(
-                new IInterceptor[]
-                {
-                    new NoOpTransactionInterceptor(), interceptor1, interceptor2
-                },
-                new IInterceptor[]
-                {
-                    interceptor3, interceptor4, new NoOpTransactionInterceptor()
-                }))
+                new IInterceptor[] { new NoOpTransactionInterceptor(), interceptor1, interceptor2 },
+                new IInterceptor[] { interceptor3, interceptor4, new NoOpTransactionInterceptor() }))
             {
                 using (var listener = Fixture.SubscribeToDiagnosticListener(context.ContextId))
                 {
@@ -544,7 +538,6 @@ namespace Microsoft.EntityFrameworkCore
                         ? await context.Database.BeginTransactionAsync()
                         : context.Database.BeginTransaction())
                     {
-
                         Assert.IsType<WrappedDbTransaction>(contextTransaction.GetDbTransaction());
 
                         AssertBeginTransaction(context, interceptor1, async);

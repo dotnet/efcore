@@ -8,7 +8,6 @@ using System.Linq.Expressions;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.TestModels.Northwind;
-using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
 using Xunit;
 
 // ReSharper disable AccessToModifiedClosure
@@ -68,10 +67,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Where_dictionary_key_access_closure(bool isAsync)
         {
-            var predicateMap = new Dictionary<string, string>
-            {
-                ["City"] = "London"
-            };
+            var predicateMap = new Dictionary<string, string> { ["City"] = "London" };
 
             return AssertQuery<Customer>(
                 isAsync,
@@ -139,10 +135,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         [MemberData(nameof(IsAsyncData))]
         public virtual async Task Where_method_call_nullable_type_closure_via_query_cache(bool isAsync)
         {
-            var city = new City
-            {
-                Int = 2
-            };
+            var city = new City { Int = 2 };
 
             await AssertQuery<Employee>(
                 isAsync,
@@ -161,10 +154,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         [MemberData(nameof(IsAsyncData))]
         public virtual async Task Where_method_call_nullable_type_reverse_closure_via_query_cache(bool isAsync)
         {
-            var city = new City
-            {
-                NullableInt = 1
-            };
+            var city = new City { NullableInt = 1 };
 
             await AssertQuery<Employee>(
                 isAsync,
@@ -183,10 +173,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         [MemberData(nameof(IsAsyncData))]
         public virtual async Task Where_method_call_closure_via_query_cache(bool isAsync)
         {
-            var city = new City
-            {
-                InstanceFieldValue = "London"
-            };
+            var city = new City { InstanceFieldValue = "London" };
 
             await AssertQuery<Customer>(
                 isAsync,
@@ -205,10 +192,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         [MemberData(nameof(IsAsyncData))]
         public virtual async Task Where_field_access_closure_via_query_cache(bool isAsync)
         {
-            var city = new City
-            {
-                InstanceFieldValue = "London"
-            };
+            var city = new City { InstanceFieldValue = "London" };
 
             await AssertQuery<Customer>(
                 isAsync,
@@ -227,10 +211,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         [MemberData(nameof(IsAsyncData))]
         public virtual async Task Where_property_access_closure_via_query_cache(bool isAsync)
         {
-            var city = new City
-            {
-                InstancePropertyValue = "London"
-            };
+            var city = new City { InstancePropertyValue = "London" };
 
             await AssertQuery<Customer>(
                 isAsync,
@@ -287,13 +268,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         [MemberData(nameof(IsAsyncData))]
         public virtual async Task Where_nested_field_access_closure_via_query_cache(bool isAsync)
         {
-            var city = new City
-            {
-                Nested = new City
-                {
-                    InstanceFieldValue = "London"
-                }
-            };
+            var city = new City { Nested = new City { InstanceFieldValue = "London" } };
 
             await AssertQuery<Customer>(
                 isAsync,
@@ -312,13 +287,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         [MemberData(nameof(IsAsyncData))]
         public virtual async Task Where_nested_property_access_closure_via_query_cache(bool isAsync)
         {
-            var city = new City
-            {
-                Nested = new City
-                {
-                    InstancePropertyValue = "London"
-                }
-            };
+            var city = new City { Nested = new City { InstancePropertyValue = "London" } };
 
             await AssertQuery<Customer>(
                 isAsync,
@@ -398,19 +367,13 @@ namespace Microsoft.EntityFrameworkCore.Query
             await AssertQuery<Customer>(
                 isAsync,
                 cs => cs.Where(
-                    c => c.City == new City
-                    {
-                        InstanceFieldValue = "London"
-                    }.InstanceFieldValue),
+                    c => c.City == new City { InstanceFieldValue = "London" }.InstanceFieldValue),
                 entryCount: 6);
 
             await AssertQuery<Customer>(
                 isAsync,
                 cs => cs.Where(
-                    c => c.City == new City
-                    {
-                        InstanceFieldValue = "Seattle"
-                    }.InstanceFieldValue),
+                    c => c.City == new City { InstanceFieldValue = "Seattle" }.InstanceFieldValue),
                 entryCount: 1);
         }
 
@@ -422,20 +385,14 @@ namespace Microsoft.EntityFrameworkCore.Query
             await AssertQuery<Customer>(
                 isAsync,
                 cs => cs.Where(
-                    c => c.City == new City
-                    {
-                        InstanceFieldValue = city
-                    }.InstanceFieldValue),
+                    c => c.City == new City { InstanceFieldValue = city }.InstanceFieldValue),
                 entryCount: 6);
 
             city = "Seattle";
             await AssertQuery<Customer>(
                 isAsync,
                 cs => cs.Where(
-                    c => c.City == new City
-                    {
-                        InstanceFieldValue = city
-                    }.InstanceFieldValue),
+                    c => c.City == new City { InstanceFieldValue = city }.InstanceFieldValue),
                 entryCount: 1);
         }
 
@@ -531,7 +488,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                 var customers = context.Customers.Where(c => orders.Any(o => o.CustomerID == c.CustomerID)).ToList();
 
-                Assert.Equal(1, customers.Count);
+                Assert.Single(customers);
 
                 customerID = "ANATR";
 
@@ -598,11 +555,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 isAsync,
                 es => es.Where(e => EF.Property<string>(e, "Title") == "Sales Representative")
                     .Select(
-                        e => new
-                        {
-                            e,
-                            Title = EF.Property<string>(e, "Title")
-                        }),
+                        e => new { e, Title = EF.Property<string>(e, "Title") }),
                 e => e.e.EmployeeID,
                 entryCount: 6);
         }
@@ -1159,11 +1112,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                           || c.City == "Berlin"
                           || c.CustomerID == "ALFKI"
                           || c.CustomerID == "ABCDE"
-                    select new
-                    {
-                        c,
-                        e
-                    },
+                    select new { c, e },
                 e => e.c.CustomerID + " " + e.e.EmployeeID,
                 entryCount: 16);
         }
@@ -1179,11 +1128,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     from e in es
                     where c.City != "London"
                           && e.City != "London"
-                    select new
-                    {
-                        c,
-                        e
-                    },
+                    select new { c, e },
                 e => e.c.CustomerID + " " + e.e.EmployeeID,
                 entryCount: 90);
         }
@@ -1199,11 +1144,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     from e in es
                     where c.City != "London"
                           && c.City != "Berlin"
-                    select new
-                    {
-                        c,
-                        e
-                    },
+                    select new { c, e },
                 e => e.c.CustomerID + " " + e.e.EmployeeID,
                 entryCount: 93);
         }
@@ -1220,11 +1161,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     where c.City != "London"
                           && c.City != "Berlin"
                           && c.City != "Seattle"
-                    select new
-                    {
-                        c,
-                        e
-                    },
+                    select new { c, e },
                 e => e.c.CustomerID + " " + e.e.EmployeeID,
                 entryCount: 92);
         }
@@ -1242,11 +1179,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                           && c.City != "Berlin"
                           && c.City != "Seattle"
                           && c.City != "Lisboa"
-                    select new
-                    {
-                        c,
-                        e
-                    },
+                    select new { c, e },
                 e => e.c.CustomerID + " " + e.e.EmployeeID,
                 entryCount: 90);
         }
@@ -1260,16 +1193,12 @@ namespace Microsoft.EntityFrameworkCore.Query
                 (cs, es) =>
                     from c in cs
                     from e in es
-                        // ReSharper disable ArrangeRedundantParentheses
+                    // ReSharper disable ArrangeRedundantParentheses
 #pragma warning disable RCS1032 // Remove redundant parentheses.
                     where (c.City == "London" && c.Country == "UK")
                           && (e.City == "London" && e.Country == "UK")
 #pragma warning restore RCS1032 // Remove redundant parentheses.
-                    select new
-                    {
-                        c,
-                        e
-                    },
+                    select new { c, e },
                 e => e.c.CustomerID + " " + e.e.EmployeeID,
                 entryCount: 10);
         }
@@ -1300,10 +1229,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             return AssertQuery<Employee>(
                 isAsync,
                 es => es.Take(9).Select(
-                    e => new
-                    {
-                        e
-                    }).Where(e => e.e.EmployeeID == 5),
+                    e => new { e }).Where(e => e.e.EmployeeID == 5),
                 e => e.e.EmployeeID,
                 entryCount: 1);
         }
@@ -1552,19 +1478,13 @@ namespace Microsoft.EntityFrameworkCore.Query
         [MemberData(nameof(IsAsyncData))]
         public virtual async Task Where_poco_closure(bool isAsync)
         {
-            var customer = new Customer
-            {
-                CustomerID = "ALFKI"
-            };
+            var customer = new Customer { CustomerID = "ALFKI" };
 
             await AssertQuery<Customer>(
                 isAsync,
                 cs => cs.Where(c => c.Equals(customer)).Select(c => c.CustomerID));
 
-            customer = new Customer
-            {
-                CustomerID = "ANATR"
-            };
+            customer = new Customer { CustomerID = "ANATR" };
 
             await AssertQuery<Customer>(
                 isAsync,
@@ -1788,49 +1708,31 @@ namespace Microsoft.EntityFrameworkCore.Query
             return AssertQuery<Customer>(
                 isAsync,
                 cs => cs.Where(
-                    c => new
-                    {
-                        x = c.City
-                    } == new
-                    {
-                        x = "London"
-                    }));
+                    c => new { x = c.City } == new { x = "London" }));
         }
 
-        [ConditionalTheory(Skip = "Issue #14672. Cannot eval 'where (new <>f__AnonymousType410`2(x = [c].City, y = [c].Country) == { x = London, y = UK })'")]
+        [ConditionalTheory(
+            Skip =
+                "Issue #14672. Cannot eval 'where (new <>f__AnonymousType410`2(x = [c].City, y = [c].Country) == { x = London, y = UK })'")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Where_compare_constructed_multi_value_equal(bool isAsync)
         {
             return AssertQuery<Customer>(
                 isAsync,
                 cs => cs.Where(
-                    c => new
-                    {
-                        x = c.City,
-                        y = c.Country
-                    } == new
-                    {
-                        x = "London",
-                        y = "UK"
-                    }));
+                    c => new { x = c.City, y = c.Country } == new { x = "London", y = "UK" }));
         }
 
-        [ConditionalTheory(Skip = "Issue #14672. Cannot eval 'where (new <>f__AnonymousType410`2(x = [c].City, y = [c].Country) != { x = London, y = UK })'")]
+        [ConditionalTheory(
+            Skip =
+                "Issue #14672. Cannot eval 'where (new <>f__AnonymousType410`2(x = [c].City, y = [c].Country) != { x = London, y = UK })'")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Where_compare_constructed_multi_value_not_equal(bool isAsync)
         {
             return AssertQuery<Customer>(
                 isAsync,
                 cs => cs.Where(
-                    c => new
-                    {
-                        x = c.City,
-                        y = c.Country
-                    } != new
-                    {
-                        x = "London",
-                        y = "UK"
-                    }),
+                    c => new { x = c.City, y = c.Country } != new { x = "London", y = "UK" }),
                 entryCount: 91);
         }
 
@@ -2009,10 +1911,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             return AssertQuery<Customer>(
                 isAsync,
                 cs => cs.Where(
-                    c => c.Orders.OrderBy(o => o.OrderID).FirstOrDefault() == new Order
-                    {
-                        OrderID = 10243
-                    }));
+                    c => c.Orders.OrderBy(o => o.OrderID).FirstOrDefault() == new Order { OrderID = 10243 }));
         }
 
         [ConditionalTheory]
@@ -2049,7 +1948,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 2);
         }
 
-        [ConditionalTheory]  // issue #16335
+        [ConditionalTheory] // issue #16335
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Where_is_conditional(bool isAsync)
         {
@@ -2060,7 +1959,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 ps => ps.Where(p => p is Product ? false : true));
         }
 
-        [ConditionalTheory]  // issue #17172
+        [ConditionalTheory] // issue #17172
         [MemberData(nameof(IsAsyncData))]
         public virtual async Task Enclosing_class_settable_member_generates_parameter(bool isAsync)
         {
@@ -2073,11 +1972,11 @@ namespace Microsoft.EntityFrameworkCore.Query
             SettableProperty = 10;
 
             await AssertQuery<Order>(
-               isAsync,
-               os => os.Where(o => o.OrderID == SettableProperty));
+                isAsync,
+                os => os.Where(o => o.OrderID == SettableProperty));
         }
 
-        [ConditionalTheory]  // issue #17172
+        [ConditionalTheory] // issue #17172
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Enclosing_class_readonly_member_generates_parameter(bool isAsync)
         {
@@ -2086,13 +1985,28 @@ namespace Microsoft.EntityFrameworkCore.Query
                 os => os.Where(o => o.OrderID == ReadOnlyProperty));
         }
 
-        [ConditionalTheory]  // issue #17172
+        [ConditionalTheory] // issue #17172
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Enclosing_class_const_member_does_not_generate_parameter(bool isAsync)
         {
             return AssertQuery<Order>(
                 isAsync,
                 os => os.Where(o => o.OrderID == ConstantProperty));
+        }
+
+        [ConditionalTheory] // issue #17342
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Generic_Ilist_contains_translates_to_server(bool isAsync)
+        {
+            var cities = new List<string>
+            {
+                "Seattle"
+            } as IList<string>;
+
+            return AssertQuery<Customer>(
+                isAsync,
+                cs => cs.Where(c => cities.Contains(c.City)),
+                entryCount: 1);
         }
 
         private int SettableProperty { get; set; }
@@ -2107,6 +2021,27 @@ namespace Microsoft.EntityFrameworkCore.Query
                 isAsync,
                 (cs, os) => cs.Where(c => os.Where(o => o.CustomerID == "John Doe").Select(o => o.CustomerID).FirstOrDefault().Length == 0),
                 (cs, os) => cs.Where(c => false));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Like_with_non_string_column_using_ToString(bool isAsync)
+        {
+            return AssertQuery<Order>(
+                isAsync,
+                os => os.Where(o => EF.Functions.Like(o.OrderID.ToString(), "%20%")),
+                entryCount: 8);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Like_with_non_string_column_using_double_cast(bool isAsync)
+        {
+            return AssertQuery<Order>(
+                isAsync,
+                os => os.Where(o => EF.Functions.Like((string)(object)o.OrderID, "%20%")),
+                os => os.Where(o => EF.Functions.Like(o.OrderID.ToString(), "%20%")),
+                entryCount: 8);
         }
     }
 }

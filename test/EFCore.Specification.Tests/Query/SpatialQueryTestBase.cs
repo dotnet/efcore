@@ -195,11 +195,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             return AssertQuery<PolygonEntity>(
                 isAsync,
                 es => es.Select(
-                    e => new
-                    {
-                        e.Id,
-                        Contains = e.Polygon == null ? (bool?)null : e.Polygon.Contains(point)
-                    }),
+                    e => new { e.Id, Contains = e.Polygon == null ? (bool?)null : e.Polygon.Contains(point) }),
                 elementSorter: x => x.Id);
         }
 
@@ -225,11 +221,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             return AssertQuery<MultiLineStringEntity>(
                 isAsync,
                 es => es.Select(
-                    e => new
-                    {
-                        e.Id,
-                        Count = e.MultiLineString == null ? (int?)null : e.MultiLineString.Count
-                    }),
+                    e => new { e.Id, Count = e.MultiLineString == null ? (int?)null : e.MultiLineString.Count }),
                 elementSorter: x => x.Id);
         }
 
@@ -240,11 +232,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             return AssertQuery<LineStringEntity>(
                 isAsync,
                 es => es.Select(
-                    e => new
-                    {
-                        e.Id,
-                        Count = e.LineString == null ? (int?)null : ((LineString)e.LineString).Count
-                    }),
+                    e => new { e.Id, Count = e.LineString == null ? (int?)null : e.LineString.Count }),
                 elementSorter: x => x.Id);
         }
 
@@ -255,22 +243,14 @@ namespace Microsoft.EntityFrameworkCore.Query
             var polygon = Fixture.GeometryFactory.CreatePolygon(
                 new[]
                 {
-                    new Coordinate(-1, -1),
-                    new Coordinate(2, -1),
-                    new Coordinate(2, 2),
-                    new Coordinate(-1, 2),
-                    new Coordinate(-1, -1)
+                    new Coordinate(-1, -1), new Coordinate(2, -1), new Coordinate(2, 2), new Coordinate(-1, 2), new Coordinate(-1, -1)
                 });
 
             return AssertQuery<PointEntity>(
                 isAsync,
                 es => es
                     .Select(
-                        e => new
-                        {
-                            e.Id,
-                            CoveredBy = e.Point == null ? (bool?)null : e.Point.CoveredBy(polygon)
-                        }),
+                        e => new { e.Id, CoveredBy = e.Point == null ? (bool?)null : e.Point.CoveredBy(polygon) }),
                 elementSorter: x => x.Id);
         }
 
@@ -291,20 +271,12 @@ namespace Microsoft.EntityFrameworkCore.Query
         public virtual Task Crosses(bool isAsync)
         {
             var lineString = Fixture.GeometryFactory.CreateLineString(
-                new[]
-                {
-                    new Coordinate(0.5, -0.5),
-                    new Coordinate(0.5, 0.5)
-                });
+                new[] { new Coordinate(0.5, -0.5), new Coordinate(0.5, 0.5) });
 
             return AssertQuery<LineStringEntity>(
                 isAsync,
                 es => es.Select(
-                    e => new
-                    {
-                        e.Id,
-                        Crosses = e.LineString == null ? (bool?)null : e.LineString.Crosses(lineString)
-                    }),
+                    e => new { e.Id, Crosses = e.LineString == null ? (bool?)null : e.LineString.Crosses(lineString) }),
                 elementSorter: x => x.Id);
         }
 
@@ -313,22 +285,12 @@ namespace Microsoft.EntityFrameworkCore.Query
         public virtual Task Difference(bool isAsync)
         {
             var polygon = Fixture.GeometryFactory.CreatePolygon(
-                new[]
-                {
-                    new Coordinate(0, 0),
-                    new Coordinate(1, 0),
-                    new Coordinate(1, 1),
-                    new Coordinate(0, 0)
-                });
+                new[] { new Coordinate(0, 0), new Coordinate(1, 0), new Coordinate(1, 1), new Coordinate(0, 0) });
 
             return AssertQuery<PolygonEntity>(
                 isAsync,
                 es => es.Select(
-                    e => new
-                    {
-                        e.Id,
-                        Difference = e.Polygon == null ? null : e.Polygon.Difference(polygon)
-                    }),
+                    e => new { e.Id, Difference = e.Polygon == null ? null : e.Polygon.Difference(polygon) }),
                 elementSorter: x => x.Id,
                 elementAsserter: (e, a) =>
                 {
@@ -356,11 +318,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             return AssertQuery<PolygonEntity>(
                 isAsync,
                 es => es.Select(
-                    e => new
-                    {
-                        e.Id,
-                        Disjoint = e.Polygon == null ? (bool?)null : e.Polygon.Disjoint(point)
-                    }),
+                    e => new { e.Id, Disjoint = e.Polygon == null ? (bool?)null : e.Polygon.Disjoint(point) }),
                 elementSorter: x => x.Id);
         }
 
@@ -373,11 +331,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             return AssertQuery<PointEntity>(
                 isAsync,
                 es => es.Select(
-                    e => new
-                    {
-                        e.Id,
-                        Distance = e.Point == null ? (double?)null : e.Point.Distance(point)
-                    }),
+                    e => new { e.Id, Distance = e.Point == null ? (double?)null : e.Point.Distance(point) }),
                 elementSorter: e => e.Id,
                 elementAsserter: (e, a) =>
                 {
@@ -403,11 +357,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             return AssertQuery<PointEntity>(
                 isAsync,
                 es => es.Select(
-                    e => new
-                    {
-                        e.Id,
-                        Distance = e.Geometry == null ? (double?)null : e.Geometry.Distance(point)
-                    }),
+                    e => new { e.Id, Distance = e.Geometry == null ? (double?)null : e.Geometry.Distance(point) }),
                 elementSorter: e => e.Id,
                 elementAsserter: (e, a) =>
                 {
@@ -431,11 +381,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             return AssertQuery<PointEntity>(
                 isAsync,
                 es => es.Select(
-                    e => new
-                    {
-                        e.Id,
-                        Distance = e.Point == null ? (double?)null : e.Point.Distance(new Point(0, 1))
-                    }),
+                    e => new { e.Id, Distance = e.Point == null ? (double?)null : e.Point.Distance(new Point(0, 1)) }),
                 elementSorter: e => e.Id,
                 elementAsserter: (e, a) =>
                 {
@@ -459,11 +405,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             return AssertQuery<PointEntity>(
                 isAsync,
                 es => es.Select(
-                    e => new
-                    {
-                        e.Id,
-                        Distance = e.Point == null ? (double?)null : e.Point.Distance(new Point(1, 1) { SRID = 4326 })
-                    }),
+                    e => new { e.Id, Distance = e.Point == null ? (double?)null : e.Point.Distance(new Point(1, 1) { SRID = 4326 }) }),
                 elementSorter: e => e.Id,
                 elementAsserter: (e, a) =>
                 {
@@ -487,11 +429,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             return AssertQuery<PointEntity>(
                 isAsync,
                 es => es.Select(
-                    e => new
-                    {
-                        e.Id,
-                        Distance = e.Point == null ? (double?)null : new Point(0, 1).Distance(e.Point)
-                    }),
+                    e => new { e.Id, Distance = e.Point == null ? (double?)null : new Point(0, 1).Distance(e.Point) }),
                 elementSorter: e => e.Id,
                 elementAsserter: (e, a) =>
                 {
@@ -517,11 +455,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             return AssertQuery<GeoPointEntity>(
                 isAsync,
                 es => es.Select(
-                    e => new
-                    {
-                        e.Id,
-                        Distance = e.Location.Distance(point)
-                    }),
+                    e => new { e.Id, Distance = e.Location.Distance(point) }),
                 elementSorter: e => e.Id,
                 elementAsserter: (e, a) => { Assert.Equal(e.Id, a.Id); });
         }
@@ -535,11 +469,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             return AssertQuery<GeoPointEntity>(
                 isAsync,
                 es => es.Select(
-                    e => new
-                    {
-                        e.Id,
-                        Distance = point.Distance(e.Location)
-                    }),
+                    e => new { e.Id, Distance = point.Distance(e.Location) }),
                 elementSorter: e => e.Id,
                 elementAsserter: (e, a) => { Assert.Equal(e.Id, a.Id); });
         }
@@ -551,11 +481,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             return AssertQuery<GeoPointEntity>(
                 isAsync,
                 es => es.Select(
-                    e => new
-                    {
-                        e.Id,
-                        Distance = e.Location.Distance(new GeoPoint(1, 0))
-                    }),
+                    e => new { e.Id, Distance = e.Location.Distance(new GeoPoint(1, 0)) }),
                 elementSorter: e => e.Id,
                 elementAsserter: (e, a) =>
                 {
@@ -579,11 +505,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             return AssertQuery<GeoPointEntity>(
                 isAsync,
                 es => es.Select(
-                    e => new
-                    {
-                        e.Id,
-                        Distance = new GeoPoint(1, 0).Distance(e.Location)
-                    }),
+                    e => new { e.Id, Distance = new GeoPoint(1, 0).Distance(e.Location) }),
                 elementSorter: e => e.Id,
                 elementAsserter: (e, a) =>
                 {
@@ -635,11 +557,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 isAsync,
                 es => es
                     .Select(
-                        e => new
-                        {
-                            e.Id,
-                            EqualsTopologically = e.Point == null ? (bool?)null : e.Point.EqualsTopologically(point)
-                        }),
+                        e => new { e.Id, EqualsTopologically = e.Point == null ? (bool?)null : e.Point.EqualsTopologically(point) }),
                 elementSorter: x => x.Id);
         }
 
@@ -671,11 +589,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             return AssertQuery<MultiLineStringEntity>(
                 isAsync,
                 es => es.Select(
-                    e => new
-                    {
-                        e.Id,
-                        Geometry0 = e.MultiLineString == null ? null : e.MultiLineString.GetGeometryN(0)
-                    }),
+                    e => new { e.Id, Geometry0 = e.MultiLineString == null ? null : e.MultiLineString.GetGeometryN(0) }),
                 elementSorter: x => x.Id);
         }
 
@@ -713,12 +627,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             return AssertQuery<PolygonEntity>(
                 isAsync,
                 es => es.Select(
-                    e => new
-                    {
-                        e.Id,
-                        InteriorPoint = e.Polygon == null ? null : e.Polygon.InteriorPoint,
-                        e.Polygon
-                    }),
+                    e => new { e.Id, InteriorPoint = e.Polygon == null ? null : e.Polygon.InteriorPoint, e.Polygon }),
                 elementSorter: x => x.Id,
                 elementAsserter: (e, a) =>
                 {
@@ -740,22 +649,12 @@ namespace Microsoft.EntityFrameworkCore.Query
         public virtual Task Intersection(bool isAsync)
         {
             var polygon = Fixture.GeometryFactory.CreatePolygon(
-                new[]
-                {
-                    new Coordinate(0, 0),
-                    new Coordinate(1, 0),
-                    new Coordinate(1, 1),
-                    new Coordinate(0, 0)
-                });
+                new[] { new Coordinate(0, 0), new Coordinate(1, 0), new Coordinate(1, 1), new Coordinate(0, 0) });
 
             return AssertQuery<PolygonEntity>(
                 isAsync,
                 es => es.Select(
-                    e => new
-                    {
-                        e.Id,
-                        Intersection = e.Polygon == null ? null : e.Polygon.Intersection(polygon)
-                    }),
+                    e => new { e.Id, Intersection = e.Polygon == null ? null : e.Polygon.Intersection(polygon) }),
                 elementSorter: x => x.Id,
                 elementAsserter: (e, a) =>
                 {
@@ -769,20 +668,12 @@ namespace Microsoft.EntityFrameworkCore.Query
         public virtual Task Intersects(bool isAsync)
         {
             var lineString = Fixture.GeometryFactory.CreateLineString(
-                new[]
-                {
-                    new Coordinate(0.5, -0.5),
-                    new Coordinate(0.5, 0.5)
-                });
+                new[] { new Coordinate(0.5, -0.5), new Coordinate(0.5, 0.5) });
 
             return AssertQuery<LineStringEntity>(
                 isAsync,
                 es => es.Select(
-                    e => new
-                    {
-                        e.Id,
-                        Intersects = e.LineString == null ? (bool?)null : e.LineString.Intersects(lineString)
-                    }),
+                    e => new { e.Id, Intersects = e.LineString == null ? (bool?)null : e.LineString.Intersects(lineString) }),
                 elementSorter: x => x.Id);
         }
 
@@ -793,11 +684,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             return AssertQuery<LineStringEntity>(
                 isAsync,
                 es => es.Select(
-                    e => new
-                    {
-                        e.Id,
-                        IsClosed = e.LineString == null ? (bool?)null : e.LineString.IsClosed
-                    }),
+                    e => new { e.Id, IsClosed = e.LineString == null ? (bool?)null : e.LineString.IsClosed }),
                 elementSorter: x => x.Id);
         }
 
@@ -808,11 +695,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             return AssertQuery<MultiLineStringEntity>(
                 isAsync,
                 es => es.Select(
-                    e => new
-                    {
-                        e.Id,
-                        IsClosed = e.MultiLineString == null ? (bool?)null : e.MultiLineString.IsClosed
-                    }),
+                    e => new { e.Id, IsClosed = e.MultiLineString == null ? (bool?)null : e.MultiLineString.IsClosed }),
                 elementSorter: x => x.Id);
         }
 
@@ -823,11 +706,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             return AssertQuery<MultiLineStringEntity>(
                 isAsync,
                 es => es.Select(
-                    e => new
-                    {
-                        e.Id,
-                        IsEmpty = e.MultiLineString == null ? (bool?)null : e.MultiLineString.IsEmpty
-                    }),
+                    e => new { e.Id, IsEmpty = e.MultiLineString == null ? (bool?)null : e.MultiLineString.IsEmpty }),
                 elementSorter: x => x.Id);
         }
 
@@ -849,11 +728,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 isAsync,
                 es => es.Select(
                     e =>
-                        new
-                        {
-                            e.Id,
-                            IsSimple = e.LineString == null ? (bool?)null : e.LineString.IsSimple
-                        }),
+                        new { e.Id, IsSimple = e.LineString == null ? (bool?)null : e.LineString.IsSimple }),
                 elementSorter: x => x.Id);
         }
 
@@ -877,11 +752,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             return AssertQuery<PointEntity>(
                 isAsync,
                 es => es.Select(
-                    e => new
-                    {
-                        e.Id,
-                        IsWithinDistance = e.Point == null ? (bool?)null : e.Point.IsWithinDistance(point, 1)
-                    }),
+                    e => new { e.Id, IsWithinDistance = e.Point == null ? (bool?)null : e.Point.IsWithinDistance(point, 1) }),
                 elementSorter: e => e.Id,
                 elementAsserter: (e, a) =>
                 {
@@ -905,11 +776,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             return AssertQuery<MultiLineStringEntity>(
                 isAsync,
                 es => es.Select(
-                    e => new
-                    {
-                        e.Id,
-                        Item0 = e.MultiLineString == null ? null : e.MultiLineString[0]
-                    }),
+                    e => new { e.Id, Item0 = e.MultiLineString == null ? null : e.MultiLineString[0] }),
                 elementSorter: x => x.Id);
         }
 
@@ -966,11 +833,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             return AssertQuery<MultiLineStringEntity>(
                 isAsync,
                 es => es.Select(
-                    e => new
-                    {
-                        e.Id,
-                        NumGeometries = e.MultiLineString == null ? (int?)null : e.MultiLineString.NumGeometries
-                    }),
+                    e => new { e.Id, NumGeometries = e.MultiLineString == null ? (int?)null : e.MultiLineString.NumGeometries }),
                 elementSorter: x => x.Id);
         }
 
@@ -981,11 +844,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             return AssertQuery<PolygonEntity>(
                 isAsync,
                 es => es.Select(
-                    e => new
-                    {
-                        e.Id,
-                        NumInteriorRings = e.Polygon == null ? (int?)null : e.Polygon.NumInteriorRings
-                    }),
+                    e => new { e.Id, NumInteriorRings = e.Polygon == null ? (int?)null : e.Polygon.NumInteriorRings }),
                 elementSorter: x => x.Id);
         }
 
@@ -996,11 +855,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             return AssertQuery<LineStringEntity>(
                 isAsync,
                 es => es.Select(
-                    e => new
-                    {
-                        e.Id,
-                        NumPoints = e.LineString == null ? (int?)null : e.LineString.NumPoints
-                    }),
+                    e => new { e.Id, NumPoints = e.LineString == null ? (int?)null : e.LineString.NumPoints }),
                 elementSorter: x => x.Id);
         }
 
@@ -1011,11 +866,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             return AssertQuery<PointEntity>(
                 isAsync,
                 es => es.Select(
-                    e => new
-                    {
-                        e.Id,
-                        OgcGeometryType = e.Point == null ? (OgcGeometryType?)null : e.Point.OgcGeometryType
-                    }),
+                    e => new { e.Id, OgcGeometryType = e.Point == null ? (OgcGeometryType?)null : e.Point.OgcGeometryType }),
                 elementSorter: x => x.Id);
         }
 
@@ -1024,22 +875,12 @@ namespace Microsoft.EntityFrameworkCore.Query
         public virtual Task Overlaps(bool isAsync)
         {
             var polygon = Fixture.GeometryFactory.CreatePolygon(
-                new[]
-                {
-                    new Coordinate(0, 0),
-                    new Coordinate(1, 0),
-                    new Coordinate(1, 1),
-                    new Coordinate(0, 0)
-                });
+                new[] { new Coordinate(0, 0), new Coordinate(1, 0), new Coordinate(1, 1), new Coordinate(0, 0) });
 
             return AssertQuery<PolygonEntity>(
                 isAsync,
                 es => es.Select(
-                    e => new
-                    {
-                        e.Id,
-                        Overlaps = e.Polygon == null ? (bool?)null : e.Polygon.Overlaps(polygon)
-                    }),
+                    e => new { e.Id, Overlaps = e.Polygon == null ? (bool?)null : e.Polygon.Overlaps(polygon) }),
                 elementSorter: x => x.Id);
         }
 
@@ -1050,12 +891,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             return AssertQuery<PolygonEntity>(
                 isAsync,
                 es => es.Select(
-                    e => new
-                    {
-                        e.Id,
-                        PointOnSurface = e.Polygon == null ? null : e.Polygon.PointOnSurface,
-                        e.Polygon
-                    }),
+                    e => new { e.Id, PointOnSurface = e.Polygon == null ? null : e.Polygon.PointOnSurface, e.Polygon }),
                 elementSorter: x => x.Id,
                 elementAsserter: (e, a) =>
                 {
@@ -1077,22 +913,12 @@ namespace Microsoft.EntityFrameworkCore.Query
         public virtual Task Relate(bool isAsync)
         {
             var polygon = Fixture.GeometryFactory.CreatePolygon(
-                new[]
-                {
-                    new Coordinate(0, 0),
-                    new Coordinate(1, 0),
-                    new Coordinate(1, 1),
-                    new Coordinate(0, 0)
-                });
+                new[] { new Coordinate(0, 0), new Coordinate(1, 0), new Coordinate(1, 1), new Coordinate(0, 0) });
 
             return AssertQuery<PolygonEntity>(
                 isAsync,
                 es => es.Select(
-                    e => new
-                    {
-                        e.Id,
-                        Relate = e.Polygon == null ? (bool?)null : e.Polygon.Relate(polygon, "212111212")
-                    }),
+                    e => new { e.Id, Relate = e.Polygon == null ? (bool?)null : e.Polygon.Relate(polygon, "212111212") }),
                 elementSorter: x => x.Id);
         }
 
@@ -1113,11 +939,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             return AssertQuery<PointEntity>(
                 isAsync,
                 es => es.Select(
-                    e => new
-                    {
-                        e.Id,
-                        SRID = e.Point == null ? (int?)null : e.Point.SRID
-                    }),
+                    e => new { e.Id, SRID = e.Point == null ? (int?)null : e.Point.SRID }),
                 elementSorter: x => x.Id);
         }
 
@@ -1128,11 +950,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             return AssertQuery<PointEntity>(
                 isAsync,
                 es => es.Select(
-                    e => new
-                    {
-                        e.Id,
-                        SRID = e.Geometry == null ? (int?)null : e.Geometry.SRID
-                    }),
+                    e => new { e.Id, SRID = e.Geometry == null ? (int?)null : e.Geometry.SRID }),
                 elementSorter: x => x.Id);
         }
 
@@ -1151,22 +969,12 @@ namespace Microsoft.EntityFrameworkCore.Query
         public virtual Task SymmetricDifference(bool isAsync)
         {
             var polygon = Fixture.GeometryFactory.CreatePolygon(
-                new[]
-                {
-                    new Coordinate(0, 0),
-                    new Coordinate(1, 0),
-                    new Coordinate(1, 1),
-                    new Coordinate(0, 0)
-                });
+                new[] { new Coordinate(0, 0), new Coordinate(1, 0), new Coordinate(1, 1), new Coordinate(0, 0) });
 
             return AssertQuery<PolygonEntity>(
                 isAsync,
                 es => es.Select(
-                    e => new
-                    {
-                        e.Id,
-                        SymmetricDifference = e.Polygon == null ? null : e.Polygon.SymmetricDifference(polygon)
-                    }),
+                    e => new { e.Id, SymmetricDifference = e.Polygon == null ? null : e.Polygon.SymmetricDifference(polygon) }),
                 elementSorter: x => x.Id,
                 elementAsserter: (e, a) =>
                 {
@@ -1184,7 +992,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             return AssertQuery<PointEntity>(
                 isAsync,
-                es => es.Select(e => new { e.Id, Binary = e.Point == null ? null : ((Point)e.Point).ToBinary() }),
+                es => es.Select(e => new { e.Id, Binary = e.Point == null ? null : e.Point.ToBinary() }),
                 elementSorter: e => e.Id,
                 elementAsserter: (e, a) =>
                 {
@@ -1199,7 +1007,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             return AssertQuery<PointEntity>(
                 isAsync,
-                es => es.Select(e => new { e.Id, Text = e.Point == null ? null : ((Point)e.Point).ToText() }),
+                es => es.Select(e => new { e.Id, Text = e.Point == null ? null : e.Point.ToText() }),
                 elementSorter: e => e.Id,
                 elementAsserter: (e, a) =>
                 {
@@ -1213,22 +1021,12 @@ namespace Microsoft.EntityFrameworkCore.Query
         public virtual Task Touches(bool isAsync)
         {
             var polygon = Fixture.GeometryFactory.CreatePolygon(
-                new[]
-                {
-                    new Coordinate(0, 1),
-                    new Coordinate(1, 0),
-                    new Coordinate(1, 1),
-                    new Coordinate(0, 1)
-                });
+                new[] { new Coordinate(0, 1), new Coordinate(1, 0), new Coordinate(1, 1), new Coordinate(0, 1) });
 
             return AssertQuery<PolygonEntity>(
                 isAsync,
                 es => es.Select(
-                    e => new
-                    {
-                        e.Id,
-                        Touches = e.Polygon == null ? (bool?)null : e.Polygon.Touches(polygon)
-                    }),
+                    e => new { e.Id, Touches = e.Polygon == null ? (bool?)null : e.Polygon.Touches(polygon) }),
                 elementSorter: x => x.Id);
         }
 
@@ -1237,22 +1035,12 @@ namespace Microsoft.EntityFrameworkCore.Query
         public virtual Task Union(bool isAsync)
         {
             var polygon = Fixture.GeometryFactory.CreatePolygon(
-                new[]
-                {
-                    new Coordinate(0, 0),
-                    new Coordinate(1, 0),
-                    new Coordinate(1, 1),
-                    new Coordinate(0, 0)
-                });
+                new[] { new Coordinate(0, 0), new Coordinate(1, 0), new Coordinate(1, 1), new Coordinate(0, 0) });
 
             return AssertQuery<PolygonEntity>(
                 isAsync,
                 es => es.Select(
-                    e => new
-                    {
-                        e.Id,
-                        Union = e.Polygon == null ? null : e.Polygon.Union(polygon)
-                    }),
+                    e => new { e.Id, Union = e.Polygon == null ? null : e.Polygon.Union(polygon) }),
                 elementSorter: x => x.Id,
                 elementAsserter: (e, a) =>
                 {
@@ -1268,11 +1056,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             return AssertQuery<MultiLineStringEntity>(
                 isAsync,
                 es => es.Select(
-                    e => new
-                    {
-                        e.Id,
-                        Union = e.MultiLineString == null ? null : e.MultiLineString.Union()
-                    }),
+                    e => new { e.Id, Union = e.MultiLineString == null ? null : e.MultiLineString.Union() }),
                 elementSorter: x => x.Id);
         }
 
@@ -1283,21 +1067,13 @@ namespace Microsoft.EntityFrameworkCore.Query
             var polygon = Fixture.GeometryFactory.CreatePolygon(
                 new[]
                 {
-                    new Coordinate(-1, -1),
-                    new Coordinate(2, -1),
-                    new Coordinate(2, 2),
-                    new Coordinate(-1, 2),
-                    new Coordinate(-1, -1)
+                    new Coordinate(-1, -1), new Coordinate(2, -1), new Coordinate(2, 2), new Coordinate(-1, 2), new Coordinate(-1, -1)
                 });
 
             return AssertQuery<PointEntity>(
                 isAsync,
                 es => es.Select(
-                    e => new
-                    {
-                        e.Id,
-                        Within = e.Point == null ? (bool?)null : e.Point.Within(polygon)
-                    }),
+                    e => new { e.Id, Within = e.Point == null ? (bool?)null : e.Point.Within(polygon) }),
                 elementSorter: x => x.Id);
         }
 

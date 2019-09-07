@@ -130,7 +130,8 @@ namespace Microsoft.EntityFrameworkCore.Update
         ///     The list of <see cref="ColumnModification" />s needed to perform the insert, update, or delete.
         /// </summary>
         public virtual IReadOnlyList<ColumnModification> ColumnModifications
-            => NonCapturingLazyInitializer.EnsureInitialized(ref _columnModifications, this, command => command.GenerateColumnModifications());
+            => NonCapturingLazyInitializer.EnsureInitialized(
+                ref _columnModifications, this, command => command.GenerateColumnModifications());
 
         /// <summary>
         ///     Indicates whether or not the database will return values for some mapped properties
@@ -343,11 +344,13 @@ namespace Microsoft.EntityFrameworkCore.Update
                 switch (entry.EntityState)
                 {
                     case EntityState.Modified:
-                        if (!_write && entry.IsModified(property))
+                        if (!_write
+                            && entry.IsModified(property))
                         {
                             _write = true;
                             _currentValue = entry.GetCurrentValue(property);
                         }
+
                         break;
                     case EntityState.Added:
                         if (!_write)
@@ -355,6 +358,7 @@ namespace Microsoft.EntityFrameworkCore.Update
                             _currentValue = entry.GetCurrentValue(property);
                             _write = !Equals(_originalValue, _currentValue);
                         }
+
                         break;
                     case EntityState.Deleted:
                         _originalValue = entry.GetOriginalValue(property);
@@ -366,8 +370,8 @@ namespace Microsoft.EntityFrameworkCore.Update
             {
                 if (_write
                     && (entry.EntityState == EntityState.Unchanged
-                       || (entry.EntityState == EntityState.Modified && !entry.IsModified(property))
-                       || (entry.EntityState == EntityState.Added && Equals(_originalValue, entry.GetCurrentValue(property)))))
+                        || (entry.EntityState == EntityState.Modified && !entry.IsModified(property))
+                        || (entry.EntityState == EntityState.Added && Equals(_originalValue, entry.GetCurrentValue(property)))))
                 {
                     entry[property] = _currentValue;
 

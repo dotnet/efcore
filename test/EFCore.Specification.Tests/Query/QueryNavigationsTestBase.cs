@@ -8,7 +8,6 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 using Microsoft.EntityFrameworkCore.TestUtilities;
-using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
 using Xunit;
 
 // ReSharper disable UnusedVariable
@@ -194,10 +193,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 os => from o1 in os.Where(o => o.OrderID < 10300)
                       from o2 in os.Where(o => o.OrderID < 10400)
                       where o1.Customer.City == o2.Customer.City
-                      select new
-                      {
-                          o1, o2
-                      },
+                      select new { o1, o2 },
                 elementSorter: e => e.o1.OrderID + " " + e.o2.OrderID,
                 elementAsserter: (e, a) => Assert.Equal(e.o1.OrderID, a.o1.OrderID),
                 entryCount: 107);
@@ -212,11 +208,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 os => from o1 in os.Where(o => o.OrderID < 10300)
                       from o2 in os.Where(o => o.OrderID < 10400)
                       where o1.Customer.City == o2.Customer.City
-                      select new
-                      {
-                          o1.CustomerID,
-                          C2 = o2.CustomerID
-                      },
+                      select new { o1.CustomerID, C2 = o2.CustomerID },
                 elementSorter: e => e.CustomerID + " " + e.C2);
         }
 
@@ -288,11 +280,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 isAsync,
                 cs => cs.OrderBy(c => c.CustomerID).Take(2).Select(
                     c => c.Orders.OrderBy(o => o.OrderID).Select(
-                        o => new
-                        {
-                            o.CustomerID,
-                            o.OrderID
-                        }).FirstOrDefault()),
+                        o => new { o.CustomerID, o.OrderID }).FirstOrDefault()),
                 assertOrder: true);
         }
 
@@ -369,11 +357,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                       where o1.CustomerID.StartsWith("A")
                       where o2.CustomerID.StartsWith("A")
                       where o1.Customer == o2.Customer
-                      select new
-                      {
-                          o1,
-                          o2
-                      },
+                      select new { o1, o2 },
                 elementSorter: e => e.o1.OrderID + " " + e.o2.OrderID,
                 entryCount: 30);
         }
@@ -387,10 +371,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 os => from o in os.Include(o => o.Customer)
                       where o.Customer.City == "Seattle"
                       select o,
-                new List<IExpectedInclude>
-                {
-                    new ExpectedInclude<Order>(o => o.Customer, "Customer")
-                },
+                new List<IExpectedInclude> { new ExpectedInclude<Order>(o => o.Customer, "Customer") },
                 entryCount: 15);
         }
 
@@ -420,10 +401,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             return AssertQuery<Order>(
                 isAsync,
                 os => os.Select(
-                    o => new
-                    {
-                        Total = o.OrderDetails.Sum(od => od.Quantity) + o.OrderDetails.Count()
-                    }),
+                    o => new { Total = o.OrderDetails.Sum(od => od.Quantity) + o.OrderDetails.Count() }),
                 elementSorter: e => e.Total);
         }
 
@@ -436,10 +414,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 os => from o in os
                       where o.Customer.City == "Seattle"
                       where o.Customer.Phone != "555 555 5555"
-                      select new
-                      {
-                          B = o.Customer.City
-                      },
+                      select new { B = o.Customer.City },
                 elementSorter: e => e.B);
         }
 
@@ -452,11 +427,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 os => from o in os
                       where o.Customer.City == "Seattle"
                       where o.Customer.Phone != "555 555 5555"
-                      select new
-                      {
-                          A = o.Customer,
-                          B = o.Customer.City
-                      },
+                      select new { A = o.Customer, B = o.Customer.City },
                 elementSorter: e => e.A + " " + e.B,
                 entryCount: 1);
         }
@@ -470,11 +441,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     = await (from o in context.Set<Order>()
                              where o.Customer.City == "Seattle"
                              where o.Customer.Phone != "555 555 5555"
-                             select new
-                             {
-                                 A = o.Customer,
-                                 B = o.Customer.City
-                             }).ToListAsync();
+                             select new { A = o.Customer, B = o.Customer.City }).ToListAsync();
 
                 Assert.Equal(14, orders.Count);
                 Assert.True(orders.All(o => (o.A != null) && (o.B != null)));
@@ -512,11 +479,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             return AssertQuery<Order>(
                 isAsync,
                 os => from o in os
-                      select new
-                      {
-                          A = o.Customer,
-                          B = o.Customer
-                      },
+                      select new { A = o.Customer, B = o.Customer },
                 elementSorter: e => e.A.CustomerID,
                 elementAsserter: (e, a) =>
                 {
@@ -535,11 +498,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 os => from o in os
                       where o.Customer.City == "Seattle"
                       where o.Customer.Phone != "555 555 5555"
-                      select new
-                      {
-                          A = o.Customer,
-                          B = o.Customer
-                      },
+                      select new { A = o.Customer, B = o.Customer },
                 elementSorter: e => e.A.CustomerID,
                 elementAsserter: (e, a) =>
                 {
@@ -558,11 +517,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 cs => from c in cs
                       where c.CustomerID.StartsWith("A")
                       orderby c.CustomerID
-                      select new
-                      {
-                          c.CustomerID,
-                          c.Orders
-                      },
+                      select new { c.CustomerID, c.Orders },
                 elementSorter: e => e.CustomerID,
                 elementAsserter: (e, a) =>
                 {
@@ -581,11 +536,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 cs => from c in cs
                       where c.CustomerID.StartsWith("A")
                       orderby c.CustomerID
-                      select new
-                      {
-                          c.CustomerID,
-                          c.Orders.Count
-                      },
+                      select new { c.CustomerID, c.Orders.Count },
                 elementSorter: e => e.CustomerID,
                 elementAsserter: (e, a) =>
                 {
@@ -603,11 +554,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 cs => (from c in cs
                        where c.CustomerID.StartsWith("A")
                        orderby c.CustomerID
-                       select new
-                       {
-                           c.CustomerID,
-                           c.Orders
-                       }).OrderBy(e => e.CustomerID),
+                       select new { c.CustomerID, c.Orders }).OrderBy(e => e.CustomerID),
                 elementAsserter: (e, a) =>
                 {
                     Assert.Equal(e.CustomerID, a.CustomerID);
@@ -625,11 +572,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 isAsync,
                 os => from o in os
                       where o.CustomerID == "ALFKI"
-                      select new
-                      {
-                          o.OrderID,
-                          o.Customer.Orders
-                      },
+                      select new { o.OrderID, o.Customer.Orders },
                 elementSorter: e => e.OrderID,
                 elementAsserter: (e, a) =>
                 {
@@ -649,10 +592,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     from od in ods
                     orderby od.OrderID, od.ProductID
                     where od.Order.CustomerID == "ALFKI" || od.Order.CustomerID == "ANTON"
-                    select new
-                    {
-                        od.Order.Customer.Orders
-                    },
+                    select new { od.Order.Customer.Orders },
                 assertOrder: true,
                 elementAsserter: (e, a) => CollectionAsserter<Order>(ee => ee.OrderID, (ee, aa) => Assert.Equal(ee.OrderID, aa.OrderID)),
                 entryCount: 13);
@@ -665,15 +605,9 @@ namespace Microsoft.EntityFrameworkCore.Query
             return AssertQuery<Customer>(
                 isAsync,
                 cs => from c in cs
-                      select new
-                      {
-                          Any = c.Orders.Any()
-                      },
+                      select new { Any = c.Orders.Any() },
                 cs => from c in cs
-                      select new
-                      {
-                          Any = (c.Orders ?? new List<Order>()).Any()
-                      },
+                      select new { Any = (c.Orders ?? new List<Order>()).Any() },
                 elementSorter: e => e.Any);
         }
 
@@ -724,15 +658,9 @@ namespace Microsoft.EntityFrameworkCore.Query
             return AssertQuery<Customer>(
                 isAsync,
                 cs => from c in cs
-                      select new
-                      {
-                          All = c.Orders.All(o => o.CustomerID == "ALFKI")
-                      },
+                      select new { All = c.Orders.All(o => o.CustomerID == "ALFKI") },
                 cs => from c in cs
-                      select new
-                      {
-                          All = (c.Orders ?? new List<Order>()).All(o => o.CustomerID == "ALFKI")
-                      },
+                      select new { All = (c.Orders ?? new List<Order>()).All(o => o.CustomerID == "ALFKI") },
                 elementSorter: e => e.All);
         }
 
@@ -799,15 +727,9 @@ namespace Microsoft.EntityFrameworkCore.Query
             return AssertQuery<Customer>(
                 isAsync,
                 cs => from c in cs
-                      select new
-                      {
-                          c.Orders.Count
-                      },
+                      select new { c.Orders.Count },
                 cs => from c in cs
-                      select new
-                      {
-                          (c.Orders ?? new List<Order>()).Count
-                      },
+                      select new { (c.Orders ?? new List<Order>()).Count },
                 elementSorter: e => e.Count);
         }
 
@@ -864,15 +786,9 @@ namespace Microsoft.EntityFrameworkCore.Query
             return AssertQuery<Customer>(
                 isAsync,
                 cs => from c in cs
-                      select new
-                      {
-                          C = c.Orders.LongCount()
-                      },
+                      select new { C = c.Orders.LongCount() },
                 cs => from c in cs
-                      select new
-                      {
-                          C = (c.Orders ?? new List<Order>()).LongCount()
-                      },
+                      select new { C = (c.Orders ?? new List<Order>()).LongCount() },
                 elementSorter: e => e.C);
         }
 
@@ -904,15 +820,9 @@ namespace Microsoft.EntityFrameworkCore.Query
             return AssertQuery<Customer>(
                 isAsync,
                 cs => from c in cs
-                      select new
-                      {
-                          Sum = c.Orders.Sum(o => o.OrderID)
-                      },
+                      select new { Sum = c.Orders.Sum(o => o.OrderID) },
                 cs => from c in cs
-                      select new
-                      {
-                          Sum = (c.Orders ?? new List<Order>()).Sum(o => o.OrderID)
-                      },
+                      select new { Sum = (c.Orders ?? new List<Order>()).Sum(o => o.OrderID) },
                 elementSorter: e => e.Sum);
         }
 
@@ -924,15 +834,9 @@ namespace Microsoft.EntityFrameworkCore.Query
             return AssertQuery<Customer>(
                 isAsync,
                 cs => from c in cs
-                      select new
-                      {
-                          Sum = c.Orders.Sum(o => o.OrderID) + 1
-                      },
+                      select new { Sum = c.Orders.Sum(o => o.OrderID) + 1 },
                 cs => from c in cs
-                      select new
-                      {
-                          Sum = (c.Orders ?? new List<Order>()).Sum(o => o.OrderID) + 1
-                      },
+                      select new { Sum = (c.Orders ?? new List<Order>()).Sum(o => o.OrderID) + 1 },
                 elementSorter: e => e.Sum);
         }
 
@@ -973,16 +877,10 @@ namespace Microsoft.EntityFrameworkCore.Query
                 isAsync,
                 cs => from c in cs
                       orderby c.CustomerID
-                      select new
-                      {
-                          First = c.Orders.OrderBy(o => o.OrderID).FirstOrDefault()
-                      },
+                      select new { First = c.Orders.OrderBy(o => o.OrderID).FirstOrDefault() },
                 cs => from c in cs
                       orderby c.CustomerID
-                      select new
-                      {
-                          First = (c.Orders ?? new List<Order>()).FirstOrDefault()
-                      },
+                      select new { First = (c.Orders ?? new List<Order>()).FirstOrDefault() },
                 assertOrder: true,
                 entryCount: 89);
         }
@@ -997,10 +895,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 isAsync,
                 cs => from c in cs.Where(e => e.CustomerID.StartsWith("A"))
                       orderby c.CustomerID
-                      select new
-                      {
-                          c.Orders.Where(e => orderIds.Contains(e.OrderID)).FirstOrDefault().Customer
-                      },
+                      select new { c.Orders.Where(e => orderIds.Contains(e.OrderID)).FirstOrDefault().Customer },
                 cs => from c in cs.Where(e => e.CustomerID.StartsWith("A"))
                       orderby c.CustomerID
                       select new
@@ -1307,17 +1202,9 @@ namespace Microsoft.EntityFrameworkCore.Query
             return AssertQuery<Customer>(
                 isAsync,
                 cs => from c in cs
-                      select new
-                      {
-                          c.CustomerID,
-                          OrderId = c.Orders.OrderBy(o => o.OrderID).Select(o => (int?)o.OrderID).FirstOrDefault()
-                      },
+                      select new { c.CustomerID, OrderId = c.Orders.OrderBy(o => o.OrderID).Select(o => (int?)o.OrderID).FirstOrDefault() },
                 cs => from c in cs
-                      select new
-                      {
-                          c.CustomerID,
-                          OrderId = c.Orders.OrderBy(o => o.OrderID).Select(o => (int?)o.OrderID).FirstOrDefault()
-                      },
+                      select new { c.CustomerID, OrderId = c.Orders.OrderBy(o => o.OrderID).Select(o => (int?)o.OrderID).FirstOrDefault() },
                 elementSorter: e => e.CustomerID);
         }
 
@@ -1330,11 +1217,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 cs => from c in cs
                       where c.CustomerID.StartsWith("A")
                       orderby c.CustomerID
-                      select new
-                      {
-                          c.CustomerID,
-                          Order = c.Orders.OrderBy(o => o.OrderID).FirstOrDefault()
-                      },
+                      select new { c.CustomerID, Order = c.Orders.OrderBy(o => o.OrderID).FirstOrDefault() },
                 elementSorter: e => e.CustomerID,
                 entryCount: 4);
         }
@@ -1431,11 +1314,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 (cs, os) => from c in cs
                             join o in os on c.CustomerID equals o.CustomerID into grouping
                             where c.CustomerID == "ALFKI"
-                            select new
-                            {
-                                c,
-                                G = grouping.Select(o => o.OrderDetails).ToList()
-                            },
+                            select new { c, G = grouping.Select(o => o.OrderDetails).ToList() },
                 elementSorter: e => e.c.CustomerID,
                 elementAsserter: (e, a) =>
                 {
@@ -1483,11 +1362,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 (cs, os) => from c in cs
                             join o in os.Where(oo => !anatrsOrders.Contains(oo.OrderID)) on c.CustomerID equals o.CustomerID into grouping
                             where c.CustomerID.StartsWith("A")
-                            select new
-                            {
-                                c,
-                                G = grouping.Select(o => o.OrderDetails).ToList()
-                            },
+                            select new { c, G = grouping.Select(o => o.OrderDetails).ToList() },
                 elementSorter: e => e.c.CustomerID,
                 elementAsserter: (e, a) =>
                 {
@@ -1512,7 +1387,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                             select grouping.ToList();
 
                 var result = query.ToList();
-                Assert.Equal(1, result.Count);
+                Assert.Single(result);
                 foreach (var order in result[0])
                 {
                     Assert.True(order.OrderDetails.Count > 0);
@@ -1532,7 +1407,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                             select grouping.ToList();
 
                 var result = query.ToList();
-                Assert.Equal(1, result.Count);
+                Assert.Single(result);
                 foreach (var order in result[0])
                 {
                     Assert.True(order.OrderDetails.Count > 0);
@@ -1553,10 +1428,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 (cs, os) => from c in cs
                             join o in os on c.CustomerID equals o.CustomerID into grouping
                             where c.CustomerID.StartsWith("A")
-                            select new
-                            {
-                                G = grouping.Count()
-                            },
+                            select new { G = grouping.Count() },
                 elementSorter: e => e.G);
         }
 

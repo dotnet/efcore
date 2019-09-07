@@ -4,7 +4,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.TestUtilities;
-using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
 using Xunit;
 
 // ReSharper disable UnusedAutoPropertyAccessor.Local
@@ -26,19 +25,7 @@ namespace Microsoft.EntityFrameworkCore
             using (CreateTestStore())
             {
                 var bigUn = new BigUn();
-                var fastUns = new[]
-                {
-                    new FastUn
-                    {
-                        Name = "First 'un",
-                        BigUn = bigUn
-                    },
-                    new FastUn
-                    {
-                        Name = "Second 'un",
-                        BigUn = bigUn
-                    }
-                };
+                var fastUns = new[] { new FastUn { Name = "First 'un", BigUn = bigUn }, new FastUn { Name = "Second 'un", BigUn = bigUn } };
                 using (var context = CreateContext())
                 {
                     context.Database.EnsureCreatedResiliently();

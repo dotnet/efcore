@@ -40,7 +40,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Equal("Name", property.GetColumnName());
         }
 
-
         [ConditionalFact]
         public void Can_get_and_set_column_key_name()
         {
@@ -386,7 +385,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 .Metadata;
 
             Assert.Null(property.GetHiLoSequenceName());
-            Assert.Null(((IProperty)property).GetHiLoSequenceName());
+            Assert.Null(property.GetHiLoSequenceName());
 
             property.SetHiLoSequenceName("Snook");
 

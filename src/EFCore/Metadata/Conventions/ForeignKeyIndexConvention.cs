@@ -91,7 +91,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             }
         }
 
-        private static void OnForeignKeyRemoved(IConventionEntityType declaringType, IReadOnlyList<IConventionProperty> foreignKeyProperties)
+        private static void OnForeignKeyRemoved(
+            IConventionEntityType declaringType, IReadOnlyList<IConventionProperty> foreignKeyProperties)
         {
             var index = declaringType.FindIndex(foreignKeyProperties);
             if (index == null)

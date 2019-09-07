@@ -59,8 +59,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.TestUtilities
             catch
             {
                 var methodCallLine = Environment.StackTrace.Split(
-                        new[] { _eol },
-                        StringSplitOptions.RemoveEmptyEntries)[3].Substring(6);
+                    new[] { _eol },
+                    StringSplitOptions.RemoveEmptyEntries)[3].Substring(6);
 
                 var testName = methodCallLine.Substring(0, methodCallLine.IndexOf(')') + 1);
                 var lineIndex = methodCallLine.LastIndexOf("line", StringComparison.Ordinal);

@@ -4,6 +4,7 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
@@ -42,10 +43,10 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalTheory(Skip = "Issue = #17238")]
-        public override Task SelectMany_Joined_Take(bool isAsync) => null;
+        public override Task SelectMany_Joined_Take(bool isAsync) => base.SelectMany_Joined_Take(isAsync);
 
         [ConditionalTheory(Skip = "Issue = #17239")]
-        public override Task Union_Take_Union_Take(bool isAsync) => null;
+        public override Task Union_Take_Union_Take(bool isAsync) => base.Union_Take_Union_Take(isAsync);
 
         // SQLite client-eval
         public override async Task Average_with_division_on_decimal(bool isAsync)
@@ -425,11 +426,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                 (await Assert.ThrowsAsync<InvalidOperationException>(
                     () => base.Where_math_truncate(isAsync)))
                 .Message);
-        }
-
-        public override void KeylessEntity_by_database_view()
-        {
-            // Not present on SQLite
         }
 
         public override async Task Take_Skip(bool isAsync)
@@ -1322,11 +1318,25 @@ FROM (
 
         public override Task SelectMany_correlated_with_outer_4(bool isAsync) => null;
 
-
         [ConditionalTheory(Skip = "Issue#17324")]
         public override Task Project_single_element_from_collection_with_OrderBy_over_navigation_Take_and_FirstOrDefault_2(bool isAsync)
         {
             return base.Project_single_element_from_collection_with_OrderBy_over_navigation_Take_and_FirstOrDefault_2(isAsync);
+        }
+
+        [ConditionalTheory(Skip = "Issue#17223")]
+        public override Task Like_with_non_string_column_using_ToString(bool isAsync)
+        {
+            return base.Like_with_non_string_column_using_ToString(isAsync);
+        }
+
+        public override async Task Member_binding_after_ctor_arguments_fails_with_client_eval(bool isAsync)
+        {
+            Assert.Equal(
+                CoreStrings.TranslationFailed("OrderBy<Customer, string>(    source: DbSet<Customer>,     keySelector: (c) => new CustomerListItem(        c.CustomerID,         c.City    ).City)"),
+                RemoveNewLines(
+                    (await Assert.ThrowsAsync<InvalidOperationException>(
+                        () => base.Member_binding_after_ctor_arguments_fails_with_client_eval(isAsync))).Message));
         }
 
         private void AssertSql(params string[] expected)

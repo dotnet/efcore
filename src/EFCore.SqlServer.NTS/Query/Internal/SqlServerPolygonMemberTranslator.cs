@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -19,14 +19,14 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
 
         private static readonly IDictionary<MemberInfo, string> _geometryMemberToFunctionName = new Dictionary<MemberInfo, string>
         {
-            { _exteriorRing, "STExteriorRing" },
-            { _numInteriorRings, "STNumInteriorRing" }
+            { _exteriorRing, "STExteriorRing" }, { _numInteriorRings, "STNumInteriorRing" }
         };
 
         private readonly IRelationalTypeMappingSource _typeMappingSource;
         private readonly ISqlExpressionFactory _sqlExpressionFactory;
 
-        public SqlServerPolygonMemberTranslator(IRelationalTypeMappingSource typeMappingSource,
+        public SqlServerPolygonMemberTranslator(
+            IRelationalTypeMappingSource typeMappingSource,
             ISqlExpressionFactory sqlExpressionFactory)
         {
             _typeMappingSource = typeMappingSource;

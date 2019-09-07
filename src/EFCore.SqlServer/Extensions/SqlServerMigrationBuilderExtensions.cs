@@ -19,10 +19,14 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         ///         Returns true if the database provider currently in use is the SQL Server provider.
         ///     </para>
         /// </summary>
-        /// <param name="migrationBuilder"> The migrationBuilder from the parameters on <see cref="Migration.Up(MigrationBuilder)" /> or <see cref="Migration.Down(MigrationBuilder)" />. </param>
+        /// <param name="migrationBuilder">
+        ///     The migrationBuilder from the parameters on <see cref="Migration.Up(MigrationBuilder)" /> or
+        ///     <see cref="Migration.Down(MigrationBuilder)" />.
+        /// </param>
         /// <returns> True if SQL Server is being used; false otherwise. </returns>
         public static bool IsSqlServer([NotNull] this MigrationBuilder migrationBuilder)
-            => string.Equals(migrationBuilder.ActiveProvider,
+            => string.Equals(
+                migrationBuilder.ActiveProvider,
                 typeof(SqlServerOptionsExtension).GetTypeInfo().Assembly.GetName().Name,
                 StringComparison.Ordinal);
     }

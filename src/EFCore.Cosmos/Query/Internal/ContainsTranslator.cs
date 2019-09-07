@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections;
@@ -48,7 +48,9 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                 return _sqlExpressionFactory.In(arguments[1], arguments[0], false);
             }
 
-            if (method.DeclaringType.GetInterfaces().Contains(typeof(IList))
+            if ((method.DeclaringType.GetInterfaces().Contains(typeof(IList))
+                || method.DeclaringType.IsGenericType
+                    && method.DeclaringType.GetGenericTypeDefinition() == typeof(ICollection<>))
                 && string.Equals(method.Name, nameof(IList.Contains)))
             {
                 return _sqlExpressionFactory.In(arguments[0], instance, false);

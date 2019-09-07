@@ -112,7 +112,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             return base.SelectMany_with_nested_navigations_explicit_DefaultIfEmpty_and_additional_joins_outside_of_SelectMany2(isAsync);
         }
 
-        [ConditionalTheory(Skip = "issue #13560")]
+        [ConditionalFact(Skip = "issue #13560")]
         public override void SelectMany_with_nested_navigations_and_additional_joins_outside_of_SelectMany()
         {
             base.SelectMany_with_nested_navigations_and_additional_joins_outside_of_SelectMany();

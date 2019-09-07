@@ -18,7 +18,8 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.Models.Orders
         private int _ordersPerCustomer;
         private int _linesPerOrder;
 
-        public void Initialize(int productCount, int customerCount, int ordersPerCustomer, int linesPerOrder, Action<DbContext> seedAction = null)
+        public void Initialize(
+            int productCount, int customerCount, int ordersPerCustomer, int linesPerOrder, Action<DbContext> seedAction = null)
         {
             _productCount = productCount;
             _customerCount = customerCount;

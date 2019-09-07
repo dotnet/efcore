@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -60,6 +60,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
             typeof(Math).GetRuntimeMethod(nameof(Math.Round), new[] { typeof(decimal), typeof(int) }),
             typeof(Math).GetRuntimeMethod(nameof(Math.Round), new[] { typeof(double), typeof(int) })
         };
+
         private readonly ISqlExpressionFactory _sqlExpressionFactory;
 
         public SqlServerMathTranslator(ISqlExpressionFactory sqlExpressionFactory)
@@ -96,11 +97,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
 
                 return _sqlExpressionFactory.Function(
                     "ROUND",
-                    new[] {
-                            argument,
-                            _sqlExpressionFactory.Constant(0),
-                            _sqlExpressionFactory.Constant(1)
-                    },
+                    new[] { argument, _sqlExpressionFactory.Constant(0), _sqlExpressionFactory.Constant(1) },
                     method.ReturnType,
                     argument.TypeMapping);
             }

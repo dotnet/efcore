@@ -3,7 +3,6 @@
 
 using System;
 using System.Threading.Tasks;
-using Xunit;
 using Xunit.Abstractions;
 
 namespace Microsoft.EntityFrameworkCore.Query
@@ -109,7 +108,6 @@ WHERE [g].[Discriminator] IN (N'Gear', N'Officer') AND ([g].[Nickname] = N'Marcu
 ORDER BY [g].[Nickname], [g].[SquadId], [w].[Id]");
         }
 
-
         public override async Task Include_navigation_on_derived_type(bool isAsync)
         {
             await base.Include_navigation_on_derived_type(isAsync);
@@ -213,9 +211,9 @@ LEFT JOIN [Weapons] AS [w] ON [t0].[FullName] = [w].[OwnerFullName]
 ORDER BY [t].[Id], [t0].[Nickname], [t0].[SquadId], [w].[Id]");
         }
 
-        public override void Include_where_list_contains_navigation(bool isAsync)
+        public override async Task Include_where_list_contains_navigation(bool isAsync)
         {
-            base.Include_where_list_contains_navigation(isAsync);
+            await base.Include_where_list_contains_navigation(isAsync);
 
             AssertSql(
                 @"SELECT [t].[Id]
@@ -227,9 +225,9 @@ LEFT JOIN [Tags] AS [t] ON (([g].[Nickname] = [t].[GearNickName]) AND [t].[GearN
 WHERE [g].[Discriminator] IN (N'Gear', N'Officer') AND ([t].[Id] IS NOT NULL AND [t].[Id] IN ('34c8d86e-a4ac-4be5-827f-584dda348a07', 'df36f493-463f-4123-83f9-6b135deeb7ba', 'a8ad98f9-e023-4e2a-9a70-c2728455bd34', '70534e05-782c-4052-8720-c2c54481ce5f', 'a7be028a-0cf2-448f-ab55-ce8bc5d8cf69', 'b39a6fba-9026-4d69-828e-fd7068673e57'))");
         }
 
-        public override void Include_where_list_contains_navigation2(bool isAsync)
+        public override async Task Include_where_list_contains_navigation2(bool isAsync)
         {
-            base.Include_where_list_contains_navigation2(isAsync);
+            await base.Include_where_list_contains_navigation2(isAsync);
 
             AssertSql(
                 @"SELECT [t].[Id]
@@ -242,9 +240,9 @@ LEFT JOIN [Tags] AS [t] ON (([g].[Nickname] = [t].[GearNickName]) AND [t].[GearN
 WHERE [g].[Discriminator] IN (N'Gear', N'Officer') AND ([c].[Location] IS NOT NULL AND [t].[Id] IN ('34c8d86e-a4ac-4be5-827f-584dda348a07', 'df36f493-463f-4123-83f9-6b135deeb7ba', 'a8ad98f9-e023-4e2a-9a70-c2728455bd34', '70534e05-782c-4052-8720-c2c54481ce5f', 'a7be028a-0cf2-448f-ab55-ce8bc5d8cf69', 'b39a6fba-9026-4d69-828e-fd7068673e57'))");
         }
 
-        public override void Navigation_accessed_twice_outside_and_inside_subquery(bool isAsync)
+        public override async Task Navigation_accessed_twice_outside_and_inside_subquery(bool isAsync)
         {
-            base.Navigation_accessed_twice_outside_and_inside_subquery(isAsync);
+            await base.Navigation_accessed_twice_outside_and_inside_subquery(isAsync);
 
             AssertSql(
                 @"SELECT [t].[Id]
@@ -2550,8 +2548,6 @@ WHERE [g].[Discriminator] IN (N'Officer', N'Gear') AND ([g].[Nickname] = @_outer
 FROM [Gears] AS [g]
 INNER JOIN [Weapons] AS [w] ON [w].[SynergyWithId] IS NOT NULL
 WHERE [g].[Discriminator] IN (N'Gear', N'Officer')");
-
-
         }
 
         public override async Task Join_predicate_value(bool isAsync)
@@ -4409,7 +4405,8 @@ WHERE ([g].[Discriminator] IN (N'Gear', N'Officer') AND ([g].[Discriminator] = N
 ORDER BY [g].[HasSoulPatch] DESC, [t].[Note], [g].[Nickname], [g].[SquadId], [t2].[IsAutomatic], [t2].[Nickname] DESC, [t2].[Id]");
         }
 
-        public override async Task Multiple_orderby_with_navigation_expansion_on_one_of_the_order_bys_inside_subquery_duplicated_orderings(bool isAsync)
+        public override async Task Multiple_orderby_with_navigation_expansion_on_one_of_the_order_bys_inside_subquery_duplicated_orderings(
+            bool isAsync)
         {
             await base.Multiple_orderby_with_navigation_expansion_on_one_of_the_order_bys_inside_subquery_duplicated_orderings(isAsync);
 
@@ -4438,7 +4435,8 @@ WHERE ([g].[Discriminator] IN (N'Gear', N'Officer') AND ([g].[Discriminator] = N
 ORDER BY [g].[HasSoulPatch] DESC, [t].[Note], [g].[Nickname], [g].[SquadId], [t2].[IsAutomatic], [t2].[Nickname] DESC, [t2].[Id]");
         }
 
-        public override async Task Multiple_orderby_with_navigation_expansion_on_one_of_the_order_bys_inside_subquery_complex_orderings(bool isAsync)
+        public override async Task Multiple_orderby_with_navigation_expansion_on_one_of_the_order_bys_inside_subquery_complex_orderings(
+            bool isAsync)
         {
             await base.Multiple_orderby_with_navigation_expansion_on_one_of_the_order_bys_inside_subquery_complex_orderings(isAsync);
 
@@ -6608,7 +6606,8 @@ WHERE [g].[Discriminator] IN (N'Gear', N'Officer') AND (([g].[FullName] <> N'Dom
     ORDER BY [w].[Id]) IS NOT NULL)");
         }
 
-        public override async Task Query_with_complex_let_containing_ordering_and_filter_projecting_firstOrDefault_element_of_let(bool isAsync)
+        public override async Task Query_with_complex_let_containing_ordering_and_filter_projecting_firstOrDefault_element_of_let(
+            bool isAsync)
         {
             await base.Query_with_complex_let_containing_ordering_and_filter_projecting_firstOrDefault_element_of_let(isAsync);
 
@@ -6634,7 +6633,8 @@ WHERE [g].[Discriminator] IN (N'Gear', N'Officer') AND ([g].[Nickname] <> N'Dom'
         public override async Task
             Null_semantics_is_correctly_applied_for_function_comparisons_that_take_arguments_from_optional_navigation_complex(bool isAsync)
         {
-            await base.Null_semantics_is_correctly_applied_for_function_comparisons_that_take_arguments_from_optional_navigation_complex(isAsync);
+            await base.Null_semantics_is_correctly_applied_for_function_comparisons_that_take_arguments_from_optional_navigation_complex(
+                isAsync);
 
             AssertSql(
                 @"SELECT [t].[Id], [t].[GearNickName], [t].[GearSquadId], [t].[Note]
@@ -6860,6 +6860,39 @@ WHERE ((@__start_0 <= CAST(CONVERT(date, [m].[Timeline]) AS datetimeoffset)) AND
 END, [w0].[OwnerFullName]
 FROM [Weapons] AS [w]
 LEFT JOIN [Weapons] AS [w0] ON [w].[SynergyWithId] = [w0].[Id]");
+        }
+
+        public override async Task Left_join_projection_using_coalesce_tracking(bool isAsync)
+        {
+            await base.Left_join_projection_using_coalesce_tracking(isAsync);
+
+            AssertSql(
+                @"SELECT [t].[Nickname], [t].[SquadId], [t].[AssignedCityName], [t].[CityOrBirthName], [t].[Discriminator], [t].[FullName], [t].[HasSoulPatch], [t].[LeaderNickname], [t].[LeaderSquadId], [t].[Rank], [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOrBirthName], [g].[Discriminator], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank]
+FROM [Gears] AS [g]
+LEFT JOIN (
+    SELECT [g0].[Nickname], [g0].[SquadId], [g0].[AssignedCityName], [g0].[CityOrBirthName], [g0].[Discriminator], [g0].[FullName], [g0].[HasSoulPatch], [g0].[LeaderNickname], [g0].[LeaderSquadId], [g0].[Rank]
+    FROM [Gears] AS [g0]
+    WHERE [g0].[Discriminator] IN (N'Gear', N'Officer')
+) AS [t] ON [g].[LeaderNickname] = [t].[Nickname]
+WHERE [g].[Discriminator] IN (N'Gear', N'Officer')");
+        }
+
+        public override async Task Left_join_projection_using_conditional_tracking(bool isAsync)
+        {
+            await base.Left_join_projection_using_conditional_tracking(isAsync);
+
+            AssertSql(
+                @"SELECT CASE
+    WHEN [t].[Nickname] IS NULL THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
+END, [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOrBirthName], [g].[Discriminator], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank], [t].[Nickname], [t].[SquadId], [t].[AssignedCityName], [t].[CityOrBirthName], [t].[Discriminator], [t].[FullName], [t].[HasSoulPatch], [t].[LeaderNickname], [t].[LeaderSquadId], [t].[Rank]
+FROM [Gears] AS [g]
+LEFT JOIN (
+    SELECT [g0].[Nickname], [g0].[SquadId], [g0].[AssignedCityName], [g0].[CityOrBirthName], [g0].[Discriminator], [g0].[FullName], [g0].[HasSoulPatch], [g0].[LeaderNickname], [g0].[LeaderSquadId], [g0].[Rank]
+    FROM [Gears] AS [g0]
+    WHERE [g0].[Discriminator] IN (N'Gear', N'Officer')
+) AS [t] ON [g].[LeaderNickname] = [t].[Nickname]
+WHERE [g].[Discriminator] IN (N'Gear', N'Officer')");
         }
 
         private void AssertSql(params string[] expected)
