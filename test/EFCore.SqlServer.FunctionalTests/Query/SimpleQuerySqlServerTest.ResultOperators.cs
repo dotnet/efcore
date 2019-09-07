@@ -134,12 +134,12 @@ WHERE [o].[ProductID] = 1");
             await base.Sum_on_float_column_in_subquery(isAsync);
 
             AssertSql(
-                @"SELECT [o].[OrderID], (
-    SELECT CAST(SUM([o0].[Discount]) AS real)
-    FROM [Order Details] AS [o0]
-    WHERE [o].[OrderID] = [o0].[OrderID]) AS [Sum]
-FROM [Orders] AS [o]
-WHERE [o].[OrderID] < 10300");
+                @"SELECT [o0].[OrderID], (
+    SELECT CAST(SUM([o].[Discount]) AS real)
+    FROM [Order Details] AS [o]
+    WHERE [o0].[OrderID] = [o].[OrderID]) AS [Sum]
+FROM [Orders] AS [o0]
+WHERE [o0].[OrderID] < 10300");
         }
 
         public override async Task Average_with_no_arg(bool isAsync)
@@ -256,12 +256,12 @@ WHERE [o].[ProductID] = 1");
             await base.Average_on_float_column_in_subquery(isAsync);
 
             AssertSql(
-                @"SELECT [o].[OrderID], (
-    SELECT CAST(AVG([o0].[Discount]) AS real)
-    FROM [Order Details] AS [o0]
-    WHERE [o].[OrderID] = [o0].[OrderID]) AS [Sum]
-FROM [Orders] AS [o]
-WHERE [o].[OrderID] < 10300");
+                @"SELECT [o0].[OrderID], (
+    SELECT CAST(AVG([o].[Discount]) AS real)
+    FROM [Order Details] AS [o]
+    WHERE [o0].[OrderID] = [o].[OrderID]) AS [Sum]
+FROM [Orders] AS [o0]
+WHERE [o0].[OrderID] < 10300");
         }
 
         public override async Task Average_on_float_column_in_subquery_with_cast(bool isAsync)
@@ -269,12 +269,12 @@ WHERE [o].[OrderID] < 10300");
             await base.Average_on_float_column_in_subquery_with_cast(isAsync);
 
             AssertSql(
-                @"SELECT [o].[OrderID], (
-    SELECT CAST(AVG([o0].[Discount]) AS real)
-    FROM [Order Details] AS [o0]
-    WHERE [o].[OrderID] = [o0].[OrderID]) AS [Sum]
-FROM [Orders] AS [o]
-WHERE [o].[OrderID] < 10300");
+                @"SELECT [o0].[OrderID], (
+    SELECT CAST(AVG([o].[Discount]) AS real)
+    FROM [Order Details] AS [o]
+    WHERE [o0].[OrderID] = [o].[OrderID]) AS [Sum]
+FROM [Orders] AS [o0]
+WHERE [o0].[OrderID] < 10300");
         }
 
         public override async Task Min_with_no_arg(bool isAsync)

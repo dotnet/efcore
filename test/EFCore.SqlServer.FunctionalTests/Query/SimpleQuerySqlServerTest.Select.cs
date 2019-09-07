@@ -35,18 +35,18 @@ FROM [Orders] AS [o]");
             AssertSql(
                 @"@__p_0='10'
 
-SELECT CAST([t].[EmployeeID] AS bigint) + CAST([t0].[OrderID] AS bigint) AS [Add], [t0].[OrderID], [t0].[CustomerID], [t0].[EmployeeID], [t0].[OrderDate], 42 AS [Literal], [t].[EmployeeID], [t].[City], [t].[Country], [t].[FirstName], [t].[ReportsTo], [t].[Title]
+SELECT CAST([t0].[EmployeeID] AS bigint) + CAST([t].[OrderID] AS bigint) AS [Add], [t].[OrderID], [t].[CustomerID], [t].[EmployeeID], [t].[OrderDate], 42 AS [Literal], [t0].[EmployeeID], [t0].[City], [t0].[Country], [t0].[FirstName], [t0].[ReportsTo], [t0].[Title]
 FROM (
     SELECT TOP(@__p_0) [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
     FROM [Orders] AS [o]
     ORDER BY [o].[OrderID]
-) AS [t0]
+) AS [t]
 CROSS JOIN (
     SELECT TOP(5) [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
     FROM [Employees] AS [e]
     ORDER BY [e].[EmployeeID]
-) AS [t]
-ORDER BY [t0].[OrderID]");
+) AS [t0]
+ORDER BY [t].[OrderID]");
         }
 
         public override async Task Projection_when_null_value(bool isAsync)
@@ -346,15 +346,15 @@ WHERE [c].[CustomerID] LIKE N'A%'");
     SELECT TOP(1) (
         SELECT TOP(1) [o].[ProductID]
         FROM [Order Details] AS [o]
-        WHERE ([o0].[OrderID] = [o].[OrderID]) AND (([o].[OrderID] <> (
+        WHERE ([o1].[OrderID] = [o].[OrderID]) AND (([o].[OrderID] <> (
             SELECT COUNT(*)
-            FROM [Orders] AS [o1]
-            WHERE ([c].[CustomerID] = [o1].[CustomerID]) AND [o1].[CustomerID] IS NOT NULL)) OR (
+            FROM [Orders] AS [o0]
+            WHERE ([c].[CustomerID] = [o0].[CustomerID]) AND [o0].[CustomerID] IS NOT NULL)) OR (
             SELECT COUNT(*)
-            FROM [Orders] AS [o1]
-            WHERE ([c].[CustomerID] = [o1].[CustomerID]) AND [o1].[CustomerID] IS NOT NULL) IS NULL))
-    FROM [Orders] AS [o0]
-    WHERE (([c].[CustomerID] = [o0].[CustomerID]) AND [o0].[CustomerID] IS NOT NULL) AND ([o0].[OrderID] < 10500)) AS [Order]
+            FROM [Orders] AS [o0]
+            WHERE ([c].[CustomerID] = [o0].[CustomerID]) AND [o0].[CustomerID] IS NOT NULL) IS NULL))
+    FROM [Orders] AS [o1]
+    WHERE (([c].[CustomerID] = [o1].[CustomerID]) AND [o1].[CustomerID] IS NOT NULL) AND ([o1].[OrderID] < 10500)) AS [Order]
 FROM [Customers] AS [c]
 WHERE [c].[CustomerID] LIKE N'A%'");
         }
@@ -728,19 +728,19 @@ WHERE [o0].[OrderID] < 10300");
 
             AssertSql(
                 @"SELECT [t0].[OrderID], [t0].[ProductID], [t0].[Discount], [t0].[Quantity], [t0].[UnitPrice]
-FROM [Orders] AS [o0]
+FROM [Orders] AS [o]
 OUTER APPLY (
     SELECT TOP(1) [t].[OrderID], [t].[ProductID], [t].[Discount], [t].[Quantity], [t].[UnitPrice], [t].[ProductID0], [t].[ProductName]
     FROM (
-        SELECT TOP(1) [o].[OrderID], [o].[ProductID], [o].[Discount], [o].[Quantity], [o].[UnitPrice], [p].[ProductID] AS [ProductID0], [p].[ProductName]
-        FROM [Order Details] AS [o]
-        INNER JOIN [Products] AS [p] ON [o].[ProductID] = [p].[ProductID]
-        WHERE [o0].[OrderID] = [o].[OrderID]
+        SELECT TOP(1) [o0].[OrderID], [o0].[ProductID], [o0].[Discount], [o0].[Quantity], [o0].[UnitPrice], [p].[ProductID] AS [ProductID0], [p].[ProductName]
+        FROM [Order Details] AS [o0]
+        INNER JOIN [Products] AS [p] ON [o0].[ProductID] = [p].[ProductID]
+        WHERE [o].[OrderID] = [o0].[OrderID]
         ORDER BY [p].[ProductName]
     ) AS [t]
     ORDER BY [t].[ProductName]
 ) AS [t0]
-WHERE [o0].[OrderID] < 10250");
+WHERE [o].[OrderID] < 10250");
         }
 
         public override async Task Select_datetime_year_component(bool isAsync)

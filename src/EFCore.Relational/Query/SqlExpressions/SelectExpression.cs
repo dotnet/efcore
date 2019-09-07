@@ -94,15 +94,16 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 
         public bool IsNonComposedFromSql()
             => Limit == null
-               && Offset == null
-               && !IsDistinct
-               && Predicate == null
-               && GroupBy.Count == 0
-               && Having == null
-               && Orderings.Count == 0
-               && Tables.Count == 1
-               && Tables[0] is FromSqlExpression fromSql
-               && Projection.All(pe => pe.Expression is ColumnExpression column ? ReferenceEquals(column.Table, fromSql) : false);
+                && Offset == null
+                && !IsDistinct
+                && Predicate == null
+                && GroupBy.Count == 0
+                && Having == null
+                && Orderings.Count == 0
+                && Tables.Count == 1
+                && Tables[0] is FromSqlExpression fromSql
+                && Projection.All(pe => pe.Expression is ColumnExpression column
+                    && string.Equals(fromSql.Alias, column.Table.Alias, StringComparison.OrdinalIgnoreCase));
 
         public void ApplyProjection()
         {
