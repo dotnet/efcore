@@ -833,7 +833,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
                 modelBuilder.FinalizeModel();
 
-                Assert.Equal(1, dependentType.GetForeignKeys().Count());
+                Assert.Single(dependentType.GetForeignKeys());
                 Assert.False(fk.IsUnique);
 
                 Assert.Equal("BigMak", dependentType.GetNavigations().Single().Name);
@@ -956,7 +956,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Contains(fk.PrincipalKey, principalType.GetKeys());
                 Assert.NotSame(principalKey, fk.PrincipalKey);
 
-                Assert.Equal(1, dependentType.GetKeys().Count());
+                Assert.Single(dependentType.GetKeys());
                 Assert.Same(principalKey, principalType.FindPrimaryKey());
                 Assert.Same(dependentKey, dependentType.FindPrimaryKey());
 
@@ -1110,7 +1110,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Contains(fk.PrincipalKey, principalType.GetKeys());
                 Assert.NotSame(principalKey, fk.PrincipalKey);
 
-                Assert.Equal(1, dependentType.GetKeys().Count());
+                Assert.Single(dependentType.GetKeys());
                 Assert.Same(principalKey, principalType.FindPrimaryKey());
                 Assert.Same(dependentKey, dependentType.FindPrimaryKey());
 
@@ -1163,7 +1163,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Contains(fk.PrincipalKey, principalType.GetKeys());
                 Assert.NotSame(principalKey, fk.PrincipalKey);
 
-                Assert.Equal(1, dependentType.GetKeys().Count());
+                Assert.Single(dependentType.GetKeys());
                 Assert.Same(principalKey, principalType.FindPrimaryKey());
                 Assert.Same(dependentKey, dependentType.FindPrimaryKey());
 
@@ -1215,7 +1215,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 var principalKey = principalType.GetKeys().Single();
                 Assert.Same(principalKey, fk.PrincipalKey);
 
-                Assert.Equal(1, dependentType.GetKeys().Count());
+                Assert.Single(dependentType.GetKeys());
                 Assert.Same(dependentType.GetKeys().Single(), dependentType.FindPrimaryKey());
 
                 expectedPrincipalProperties.Add(fk.PrincipalKey.Properties.Single());
@@ -1423,7 +1423,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 var primaryPrincipalKey = principalType.FindPrimaryKey();
                 Assert.Same(principalProperty, primaryPrincipalKey.Properties.Single());
                 Assert.Equal(2, principalType.GetKeys().Count());
-                Assert.True(principalType.GetKeys().Contains(fk.PrincipalKey));
+                Assert.Contains(fk.PrincipalKey, principalType.GetKeys());
 
                 Assert.Same(dependentKey, dependentType.GetKeys().SingleOrDefault());
                 Assert.Same(dependentKey, dependentType.FindPrimaryKey());
@@ -1472,7 +1472,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 var primaryPrincipalKey = principalType.FindPrimaryKey();
                 Assert.Same(principalProperty, primaryPrincipalKey.Properties.Single());
                 Assert.Equal(2, principalType.GetKeys().Count());
-                Assert.True(principalType.GetKeys().Contains(nonPrimaryPrincipalKey));
+                Assert.Contains(nonPrimaryPrincipalKey, principalType.GetKeys());
                 var oldKeyProperty = principalType.FindProperty(nameof(BigMak.Id));
                 var newKeyProperty = principalType.FindProperty(nameof(BigMak.AlternateKey));
                 Assert.False(oldKeyProperty.RequiresValueGenerator());
@@ -1949,7 +1949,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.NotSame(principalKey, fk.PrincipalKey);
                 Assert.Equal(existingFk.Properties, fk.Properties);
                 Assert.Empty(principalType.GetIndexes());
-                Assert.Equal(1, dependentType.GetIndexes().Count());
+                Assert.Single(dependentType.GetIndexes());
                 Assert.True(fk.DeclaringEntityType.FindIndex(fk.Properties).IsUnique);
             }
 

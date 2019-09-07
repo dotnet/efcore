@@ -3340,7 +3340,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 }
                 else
                 {
-                    Assert.Equal(1, context.ChangeTracker.Entries().Count());
+                    Assert.Single(context.ChangeTracker.Entries());
                     Assert.Equal(EntityState.Deleted, context.Entry(details).State);
                 }
 

@@ -159,19 +159,19 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
                 var entity = new Chunky { Id = 808 };
                 context.Attach(entity);
 
-                Assert.Equal(1, context.ChangeTracker.Entries().Count());
+                Assert.Single(context.ChangeTracker.Entries());
 
                 context.Entry(entity).State = EntityState.Detached;
 
-                Assert.Equal(0, context.ChangeTracker.Entries().Count());
+                Assert.Empty(context.ChangeTracker.Entries());
 
                 context.ChangeTracker.DetectChanges();
 
-                Assert.Equal(0, context.ChangeTracker.Entries().Count());
+                Assert.Empty(context.ChangeTracker.Entries());
 
                 context.Entry(entity);
 
-                Assert.Equal(0, context.ChangeTracker.Entries().Count());
+                Assert.Empty(context.ChangeTracker.Entries());
             }
         }
 

@@ -258,11 +258,10 @@ namespace Microsoft.Data.Sqlite
         }
 
         [Theory]
-        [InlineData(0, 1, -1, SeekOrigin.Begin)]
-        [InlineData(0, 1, -2, SeekOrigin.Current)]
-        [InlineData(0, 1, -3, SeekOrigin.End)]
+        [InlineData(1, -1, SeekOrigin.Begin)]
+        [InlineData(1, -2, SeekOrigin.Current)]
+        [InlineData(1, -3, SeekOrigin.End)]
         public void Seek_throws_when_negative(
-            long expected,
             long initialPosition,
             long offset,
             SeekOrigin origin)

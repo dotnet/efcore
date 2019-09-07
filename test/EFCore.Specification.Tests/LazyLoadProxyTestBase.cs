@@ -445,7 +445,7 @@ namespace Microsoft.EntityFrameworkCore
                 RecordLog();
                 context.ChangeTracker.LazyLoadingEnabled = false;
 
-                Assert.Equal(1, context.ChangeTracker.Entries().Count());
+                Assert.Single(context.ChangeTracker.Entries());
                 Assert.Null(child.Parent);
             }
         }
@@ -484,7 +484,7 @@ namespace Microsoft.EntityFrameworkCore
                 RecordLog();
                 context.ChangeTracker.LazyLoadingEnabled = false;
 
-                Assert.Equal(1, context.ChangeTracker.Entries().Count());
+                Assert.Single(context.ChangeTracker.Entries());
 
                 Assert.Null(single.Parent);
             }
@@ -629,8 +629,8 @@ namespace Microsoft.EntityFrameworkCore
                 RecordLog();
                 context.ChangeTracker.LazyLoadingEnabled = false;
 
-                Assert.Equal(0, parent.Children.Count());
-                Assert.Equal(1, context.ChangeTracker.Entries().Count());
+                Assert.Empty(parent.Children);
+                Assert.Single(context.ChangeTracker.Entries());
             }
         }
 
@@ -669,7 +669,7 @@ namespace Microsoft.EntityFrameworkCore
                 RecordLog();
                 context.ChangeTracker.LazyLoadingEnabled = false;
 
-                Assert.Equal(1, context.ChangeTracker.Entries().Count());
+                Assert.Single(context.ChangeTracker.Entries());
                 Assert.Null(child.Parent);
             }
         }
@@ -709,7 +709,7 @@ namespace Microsoft.EntityFrameworkCore
                 RecordLog();
                 context.ChangeTracker.LazyLoadingEnabled = false;
 
-                Assert.Equal(1, context.ChangeTracker.Entries().Count());
+                Assert.Single(context.ChangeTracker.Entries());
 
                 Assert.Null(single.Parent);
             }
@@ -750,7 +750,7 @@ namespace Microsoft.EntityFrameworkCore
                 RecordLog();
                 context.ChangeTracker.LazyLoadingEnabled = false;
 
-                Assert.Equal(1, context.ChangeTracker.Entries().Count());
+                Assert.Single(context.ChangeTracker.Entries());
 
                 Assert.Null(parent.Single);
             }
@@ -1169,7 +1169,7 @@ namespace Microsoft.EntityFrameworkCore
                 RecordLog();
                 context.ChangeTracker.LazyLoadingEnabled = false;
 
-                Assert.Equal(1, context.ChangeTracker.Entries().Count());
+                Assert.Single(context.ChangeTracker.Entries());
                 Assert.Null(child.Parent);
             }
         }
@@ -1202,7 +1202,7 @@ namespace Microsoft.EntityFrameworkCore
                 RecordLog();
                 context.ChangeTracker.LazyLoadingEnabled = false;
 
-                Assert.Equal(1, context.ChangeTracker.Entries().Count());
+                Assert.Single(context.ChangeTracker.Entries());
 
                 Assert.Null(single.Parent);
             }
@@ -1370,7 +1370,7 @@ namespace Microsoft.EntityFrameworkCore
                 RecordLog();
                 context.ChangeTracker.LazyLoadingEnabled = false;
 
-                Assert.Equal(1, context.ChangeTracker.Entries().Count());
+                Assert.Single(context.ChangeTracker.Entries());
                 Assert.Null(child.Parent);
             }
         }
@@ -1403,7 +1403,7 @@ namespace Microsoft.EntityFrameworkCore
                 RecordLog();
                 context.ChangeTracker.LazyLoadingEnabled = false;
 
-                Assert.Equal(1, context.ChangeTracker.Entries().Count());
+                Assert.Single(context.ChangeTracker.Entries());
 
                 Assert.Null(single.Parent);
             }
@@ -1572,7 +1572,7 @@ namespace Microsoft.EntityFrameworkCore
                 RecordLog();
                 context.ChangeTracker.LazyLoadingEnabled = false;
 
-                Assert.Equal(1, context.ChangeTracker.Entries().Count());
+                Assert.Single(context.ChangeTracker.Entries());
                 Assert.Null(child.Parent);
             }
         }
@@ -1606,7 +1606,7 @@ namespace Microsoft.EntityFrameworkCore
                 RecordLog();
                 context.ChangeTracker.LazyLoadingEnabled = false;
 
-                Assert.Equal(1, context.ChangeTracker.Entries().Count());
+                Assert.Single(context.ChangeTracker.Entries());
 
                 Assert.Null(single.Parent);
             }

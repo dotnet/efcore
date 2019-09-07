@@ -469,7 +469,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
                 modelBuilder.FinalizeModel();
 
-                Assert.Equal(1, model.GetEntityTypes().Count());
+                Assert.Single(model.GetEntityTypes());
             }
 
             [ConditionalFact]
@@ -487,8 +487,8 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
                 modelBuilder.FinalizeModel();
 
-                Assert.Equal(0, model.GetEntityTypes().First().GetForeignKeys().Count());
-                Assert.Equal(0, model.GetEntityTypes().Last().GetForeignKeys().Count());
+                Assert.Empty(model.GetEntityTypes().First().GetForeignKeys());
+                Assert.Empty(model.GetEntityTypes().Last().GetForeignKeys());
                 Assert.Equal(2, model.GetEntityTypes().Count());
             }
 

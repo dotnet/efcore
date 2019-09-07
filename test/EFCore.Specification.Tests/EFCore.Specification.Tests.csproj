@@ -19,6 +19,7 @@
 
   <ItemGroup>
     <PackageReference Include="NetTopologySuite" Version="$(NetTopologySuitePackageVersion)" />
+    <PackageReference Include="xunit" Version="$(XUnitVersion)" />
   </ItemGroup>
 
 </Project>

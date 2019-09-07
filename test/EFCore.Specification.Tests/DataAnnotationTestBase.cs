@@ -710,8 +710,7 @@ namespace Microsoft.EntityFrameworkCore
             modelBuilder.Entity<Child>();
             var toy = modelBuilder.Entity<Toy>();
 
-            Assert.False(
-                toy.Metadata.GetForeignKeys().Any(fk => fk.IsUnique == false && fk.Properties.Any(p => p.Name == nameof(Toy.IdRow))));
+            Assert.DoesNotContain(toy.Metadata.GetForeignKeys(), fk => fk.IsUnique == false && fk.Properties.Any(p => p.Name == nameof(Toy.IdRow)));
 
             Validate(modelBuilder);
 
@@ -1605,7 +1604,7 @@ namespace Microsoft.EntityFrameworkCore
 
             Assert.Null(model.FindEntityType(typeof(AnotherBookLabel)).FindNavigation(nameof(AnotherBookLabel.Book)));
             Assert.Null(model.FindEntityType(typeof(SpecialBookLabel)).FindNavigation(nameof(SpecialBookLabel.Book)));
-            Assert.Equal(0, model.FindEntityType(typeof(Book)).GetNavigations().Count());
+            Assert.Empty(model.FindEntityType(typeof(Book)).GetNavigations());
         }
 
         [ConditionalFact]

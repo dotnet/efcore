@@ -45,7 +45,7 @@ namespace Microsoft.EntityFrameworkCore
                         .Select(e => e.Int)
                         .ToList();
 
-                Assert.Equal(0, results.Count);
+                Assert.Empty(results);
 
                 AssertSql(
                     @"SELECT [m].[Int]
@@ -84,7 +84,7 @@ WHERE CAST(DATALENGTH([p].[BytesAsImage]) AS int) = 0");
                         .Select(e => e.Int)
                         .ToList();
 
-                Assert.Equal(0, results.Count);
+                Assert.Empty(results);
                 AssertSql(
                     @"@__timeSpan_0='02:01:00' (Nullable = true)
 
@@ -107,7 +107,7 @@ WHERE (([m].[TimeSpanAsTime] = @__timeSpan_0) AND ([m].[TimeSpanAsTime] IS NOT N
                         .Select(e => e.Int)
                         .ToList();
 
-                Assert.Equal(0, results.Count);
+                Assert.Empty(results);
                 AssertSql(
                     @"@__timeSpan_1='02:01:00' (Nullable = true)
 
@@ -130,7 +130,7 @@ WHERE (DATEDIFF(HOUR, [m].[TimeSpanAsTime], @__timeSpan_1) = 0) AND DATEDIFF(HOU
                         .Select(e => e.Int)
                         .ToList();
 
-                Assert.Equal(0, results.Count);
+                Assert.Empty(results);
                 AssertSql(
                     @"@__timeSpan_1='02:01:00' (Nullable = true)
 
@@ -153,7 +153,7 @@ WHERE (DATEDIFF(MINUTE, [m].[TimeSpanAsTime], @__timeSpan_1) = 0) AND DATEDIFF(M
                         .Select(e => e.Int)
                         .ToList();
 
-                Assert.Equal(0, results.Count);
+                Assert.Empty(results);
                 AssertSql(
                     @"@__timeSpan_1='02:01:00' (Nullable = true)
 
@@ -176,7 +176,7 @@ WHERE (DATEDIFF(SECOND, [m].[TimeSpanAsTime], @__timeSpan_1) = 0) AND DATEDIFF(S
                         .Select(e => e.Int)
                         .ToList();
 
-                Assert.Equal(0, results.Count);
+                Assert.Empty(results);
                 AssertSql(
                     @"@__timeSpan_1='02:01:00' (Nullable = true)
 
@@ -199,7 +199,7 @@ WHERE (DATEDIFF(MILLISECOND, [m].[TimeSpanAsTime], @__timeSpan_1) = 0) AND DATED
                         .Select(e => e.Int)
                         .ToList();
 
-                Assert.Equal(0, results.Count);
+                Assert.Empty(results);
                 AssertSql(
                     @"@__timeSpan_1='02:01:00' (Nullable = true)
 
@@ -222,7 +222,7 @@ WHERE (DATEDIFF(MICROSECOND, [m].[TimeSpanAsTime], @__timeSpan_1) = 0) AND DATED
                         .Select(e => e.Int)
                         .ToList();
 
-                Assert.Equal(0, results.Count);
+                Assert.Empty(results);
                 AssertSql(
                     @"@__timeSpan_1='02:01:00' (Nullable = true)
 

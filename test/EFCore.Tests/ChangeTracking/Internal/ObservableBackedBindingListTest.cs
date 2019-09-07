@@ -20,7 +20,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             var item = new ListElement(1);
             oc.Add(item);
 
-            Assert.True(obbl.Contains(item));
+            Assert.Contains(item, obbl);
         }
 
         [ConditionalFact]
@@ -40,7 +40,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             oc.Remove(item);
 
-            Assert.False(obbl.Contains(item));
+            Assert.DoesNotContain(item, obbl);
             Assert.Equal(5, obbl.Count);
         }
 
@@ -62,8 +62,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             var newItem = new ListElement(-4);
             oc[2] = newItem;
 
-            Assert.False(obbl.Contains(item));
-            Assert.True(obbl.Contains(newItem));
+            Assert.DoesNotContain(item, obbl);
+            Assert.Contains(newItem, obbl);
             Assert.Equal(6, obbl.Count);
         }
 
@@ -83,7 +83,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             oc.Clear();
 
-            Assert.Equal(0, obbl.Count);
+            Assert.Empty(obbl);
         }
 
         [ConditionalFact]
@@ -116,7 +116,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             var item = new ListElement(7);
             obbl.Add(item);
 
-            Assert.True(oc.Contains(item));
+            Assert.Contains(item, oc);
         }
 
         [ConditionalFact]
@@ -128,7 +128,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             var item = obbl.AddNew();
             obbl.EndNew(0);
 
-            Assert.True(oc.Contains(item));
+            Assert.Contains(item, oc);
         }
 
         [ConditionalFact]
@@ -140,7 +140,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             var item = obbl.AddNew();
             obbl.CancelNew(0);
 
-            Assert.False(oc.Contains(item));
+            Assert.DoesNotContain(item, oc);
         }
 
         [ConditionalFact]
@@ -152,7 +152,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             var item = new ListElement(7);
             obbl.Insert(0, item);
 
-            Assert.True(oc.Contains(item));
+            Assert.Contains(item, oc);
         }
 
         [ConditionalFact]
@@ -173,8 +173,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             var newItem = new ListElement(7);
             obbl[2] = newItem;
 
-            Assert.True(oc.Contains(newItem));
-            Assert.False(oc.Contains(item));
+            Assert.Contains(newItem, oc);
+            Assert.DoesNotContain(item, oc);
         }
 
         [ConditionalFact]
@@ -194,7 +194,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             obbl.Remove(item);
 
-            Assert.False(oc.Contains(item));
+            Assert.DoesNotContain(item, oc);
         }
 
         [ConditionalFact]
@@ -214,7 +214,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             obbl.RemoveAt(2);
 
-            Assert.False(oc.Contains(item));
+            Assert.DoesNotContain(item, oc);
         }
 
         [ConditionalFact]
@@ -233,7 +233,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             obbl.Clear();
 
-            Assert.Equal(0, oc.Count);
+            Assert.Empty(oc);
         }
 
         [ConditionalFact]
@@ -265,7 +265,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             obbl.AddNew();
             obbl.EndNew(0);
 
-            Assert.True(obbl.Contains(item));
+            Assert.Contains(item, obbl);
         }
 
         [ConditionalFact]
@@ -278,7 +278,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             obbl.AddNew();
             obbl.EndNew(0);
 
-            Assert.True(obbl.Contains(item));
+            Assert.Contains(item, obbl);
         }
 
         [ConditionalFact]
@@ -290,7 +290,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             var item = new ListElement(1);
             oc.Add(item);
 
-            Assert.True(obbl.Contains(item));
+            Assert.Contains(item, obbl);
         }
 
         [ConditionalFact]
@@ -310,7 +310,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             oc.Remove(item);
 
-            Assert.False(obbl.Contains(item));
+            Assert.DoesNotContain(item, obbl);
             Assert.Equal(5, obbl.Count);
         }
 
@@ -330,7 +330,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             oc.Clear();
 
-            Assert.Equal(0, obbl.Count);
+            Assert.Empty(obbl);
         }
 
         [ConditionalFact]
@@ -363,7 +363,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             var item = new ListElement(7);
             obbl.Add(item);
 
-            Assert.True(oc.Contains(item));
+            Assert.Contains(item, oc);
         }
 
         [ConditionalFact]
@@ -375,7 +375,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             var item = obbl.AddNew();
             obbl.EndNew(0);
 
-            Assert.True(oc.Contains(item));
+            Assert.Contains(item, oc);
         }
 
         [ConditionalFact]
@@ -387,7 +387,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             var item = obbl.AddNew();
             obbl.CancelNew(0);
 
-            Assert.False(oc.Contains(item));
+            Assert.DoesNotContain(item, oc);
         }
 
         [ConditionalFact]
@@ -399,7 +399,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             var item = new ListElement(7);
             obbl.Insert(0, item);
 
-            Assert.True(oc.Contains(item));
+            Assert.Contains(item, oc);
         }
 
         [ConditionalFact]
@@ -420,8 +420,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             var newItem = new ListElement(7);
             obbl[2] = newItem;
 
-            Assert.True(oc.Contains(newItem));
-            Assert.False(oc.Contains(item));
+            Assert.Contains(newItem, oc);
+            Assert.DoesNotContain(item, oc);
         }
 
         [ConditionalFact]
@@ -441,7 +441,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             obbl.Remove(item);
 
-            Assert.False(oc.Contains(item));
+            Assert.DoesNotContain(item, oc);
         }
 
         [ConditionalFact]
@@ -461,7 +461,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             obbl.RemoveAt(2);
 
-            Assert.False(oc.Contains(item));
+            Assert.DoesNotContain(item, oc);
         }
 
         [ConditionalFact]
@@ -480,7 +480,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             obbl.Clear();
 
-            Assert.Equal(0, oc.Count);
+            Assert.Empty(oc);
         }
 
         [ConditionalFact]
@@ -512,7 +512,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             obbl.AddNew();
             obbl.EndNew(0);
 
-            Assert.True(obbl.Contains(item));
+            Assert.Contains(item, obbl);
         }
 
         [ConditionalFact]
@@ -526,7 +526,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             obbl.AddNew();
             obbl.EndNew(0);
 
-            Assert.True(obbl.Contains(item));
+            Assert.Contains(item, obbl);
         }
 
         private class ListElement

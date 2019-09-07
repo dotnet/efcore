@@ -684,7 +684,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     Assert.NotNull(annotation);
 
                     var annotationValue = Assert.IsType<string[]>(annotation.Value);
-                    Assert.Equal(1, annotationValue.Length);
+                    Assert.Single(annotationValue);
                     Assert.Equal("Street", annotationValue[0]);
                 });
         }

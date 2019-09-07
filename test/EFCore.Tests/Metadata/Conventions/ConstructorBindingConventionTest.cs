@@ -50,7 +50,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             var parameters = constructorBinding.Constructor.GetParameters();
             var bindings = constructorBinding.ParameterBindings;
 
-            Assert.Equal(0, parameters.Length);
+            Assert.Empty(parameters);
             Assert.Equal(0, bindings.Count);
         }
 
@@ -118,7 +118,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             var parameters = constructorBinding.Constructor.GetParameters();
             var bindings = constructorBinding.ParameterBindings;
 
-            Assert.Equal(1, parameters.Length);
+            Assert.Single(parameters);
             Assert.Equal(1, bindings.Count);
 
             Assert.Equal("loader", parameters[0].Name);
@@ -549,7 +549,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             var parameters = constructorBinding.Constructor.GetParameters();
             var bindings = constructorBinding.ParameterBindings;
 
-            Assert.Equal(1, parameters.Length);
+            Assert.Single(parameters);
             Assert.Equal(1, bindings.Count);
 
             Assert.Equal("context", parameters[0].Name);
@@ -576,7 +576,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             var parameters = constructorBinding.Constructor.GetParameters();
             var bindings = constructorBinding.ParameterBindings;
 
-            Assert.Equal(1, parameters.Length);
+            Assert.Single(parameters);
             Assert.Equal(1, bindings.Count);
 
             Assert.Equal("loader", parameters[0].Name);
@@ -603,7 +603,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             var parameters = constructorBinding.Constructor.GetParameters();
             var bindings = constructorBinding.ParameterBindings;
 
-            Assert.Equal(1, parameters.Length);
+            Assert.Single(parameters);
             Assert.Equal(1, bindings.Count);
 
             Assert.Equal("lazyLoader", parameters[0].Name);
@@ -630,7 +630,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             var parameters = constructorBinding.Constructor.GetParameters();
             var bindings = constructorBinding.ParameterBindings;
 
-            Assert.Equal(1, parameters.Length);
+            Assert.Single(parameters);
             Assert.Equal(1, bindings.Count);
 
             Assert.Equal("entityType", parameters[0].Name);
@@ -656,7 +656,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             var parameters = constructorBinding.Constructor.GetParameters();
             var bindings = constructorBinding.ParameterBindings;
 
-            Assert.Equal(0, parameters.Length);
+            Assert.Empty(parameters);
             Assert.Equal(0, bindings.Count);
         }
 

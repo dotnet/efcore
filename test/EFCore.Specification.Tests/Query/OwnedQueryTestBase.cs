@@ -33,7 +33,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                        where a.LeafAAddress == b.LeafBAddress
                        select a).ToList();
 
-                Assert.Equal(0, query.Count);
+                Assert.Empty(query);
             }
         }
 
@@ -48,7 +48,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                        where a.LeafAAddress.Equals(b.LeafBAddress)
                        select a).ToList();
 
-                Assert.Equal(0, query.Count);
+                Assert.Empty(query);
             }
         }
 
@@ -63,7 +63,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                        where Equals(a.LeafAAddress, b.LeafBAddress)
                        select a).ToList();
 
-                Assert.Equal(0, query.Count);
+                Assert.Empty(query);
             }
         }
 
@@ -117,7 +117,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             {
                 var people = context.Set<LeafA>().ToList();
 
-                Assert.Equal(1, people.Count);
+                Assert.Single(people);
                 Assert.True(people.All(p => p.PersonAddress != null));
                 Assert.True(people.All(b => b.BranchAddress != null));
                 Assert.True(people.All(a => a.LeafAAddress != null));
@@ -429,7 +429,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 var query = ctx.Set<OwnedPerson>().OfType<LeafA>();
                 var result = query.ToList();
 
-                Assert.Equal(1, result.Count);
+                Assert.Single(result);
                 Assert.NotNull(result[0].BranchAddress);
                 Assert.NotNull(result[0].LeafAAddress);
                 Assert.NotNull(result[0].PersonAddress);
@@ -459,11 +459,11 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                 var result = query.AsNoTracking().ToList();
                 Assert.Equal(4, result.Count);
-                Assert.Equal(0, context.ChangeTracker.Entries().Count());
+                Assert.Empty(context.ChangeTracker.Entries());
 
                 Assert.Throws<InvalidOperationException>(() => query.AsTracking().ToList());
 
-                Assert.Equal(0, context.ChangeTracker.Entries().Count());
+                Assert.Empty(context.ChangeTracker.Entries());
             }
         }
 

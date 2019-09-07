@@ -4109,7 +4109,7 @@ namespace Microsoft.EntityFrameworkCore
 
                     context.ChangeTracker.DetectChanges();
 
-                    Assert.Equal(1, context.ChangeTracker.Entries<FirstLevel>().Count());
+                    Assert.Single(context.ChangeTracker.Entries<FirstLevel>());
                     Assert.Equal(2, context.ChangeTracker.Entries<SecondLevel>().Count());
                     Assert.Equal(4, context.ChangeTracker.Entries<ThirdLevel>().Count());
 
@@ -4119,7 +4119,7 @@ namespace Microsoft.EntityFrameworkCore
 
                     context.ChangeTracker.DetectChanges();
 
-                    Assert.Equal(1, context.ChangeTracker.Entries<FirstLevel>().Count());
+                    Assert.Single(context.ChangeTracker.Entries<FirstLevel>());
                     Assert.Equal(2, context.ChangeTracker.Entries<SecondLevel>().Count());
                     Assert.Equal(4, context.ChangeTracker.Entries<ThirdLevel>().Count());
 

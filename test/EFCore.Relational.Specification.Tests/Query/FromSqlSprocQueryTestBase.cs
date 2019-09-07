@@ -35,11 +35,9 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                 Assert.Equal(10, actual.Length);
 
-                Assert.True(
-                    actual.Any(
-                        mep =>
+                Assert.Contains(actual, mep =>
                             mep.TenMostExpensiveProducts == "Côte de Blaye"
-                            && mep.UnitPrice == 263.50m));
+                            && mep.UnitPrice == 263.50m);
             }
         }
 
@@ -60,7 +58,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     : query.ToArray();
 
                 Assert.Equal(10, actual.Length);
-                Assert.True(actual.Any(r => r == "Côte de Blaye"));
+                Assert.Contains(actual, r => r == "Côte de Blaye");
             }
         }
 
@@ -131,11 +129,9 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                 Assert.Equal(11, actual.Length);
 
-                Assert.True(
-                    actual.Any(
-                        coh =>
+                Assert.Contains(actual, coh =>
                             coh.ProductName == "Aniseed Syrup"
-                            && coh.Total == 6));
+                            && coh.Total == 6);
             }
         }
 

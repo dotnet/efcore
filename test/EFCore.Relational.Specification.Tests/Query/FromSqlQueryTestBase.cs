@@ -282,7 +282,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             {
                 var actual = query(context).ToArray();
 
-                Assert.Equal(1, actual.Length);
+                Assert.Single(actual);
             }
         }
 
@@ -300,7 +300,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             {
                 var actual = query(context).ToArray();
 
-                Assert.Equal(1, actual.Length);
+                Assert.Single(actual);
             }
         }
 
@@ -318,7 +318,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             {
                 var actual = query(context).ToArray();
 
-                Assert.Equal(1, actual.Length);
+                Assert.Single(actual);
             }
         }
 
@@ -354,7 +354,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                        select c)
                     .ToArray();
 
-                Assert.Equal(1, actual.Length);
+                Assert.Single(actual);
             }
         }
 
@@ -433,7 +433,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                        select new { c, o })
                     .ToArray();
 
-                Assert.Equal(1, actual.Length);
+                Assert.Single(actual);
             }
         }
 
@@ -576,7 +576,7 @@ FROM [Customers]"))
                        select new { c, o })
                     .ToArray();
 
-                Assert.Equal(1, actual.Length);
+                Assert.Single(actual);
             }
         }
 
@@ -593,7 +593,7 @@ FROM [Customers]"))
                             "SELECT * FROM [Employees] WHERE [ReportsTo] = {0} OR ([ReportsTo] IS NULL AND {0} IS NULL)"), reportsTo)
                     .ToArray();
 
-                Assert.Equal(1, actual.Length);
+                Assert.Single(actual);
             }
         }
 
@@ -632,7 +632,7 @@ FROM [Customers]"))
                     .FromSqlRaw(NormalizeDelimetersInRawString("SELECT * FROM [Customers] WHERE [City] = 'Seattle'"))
                     .ToArray();
 
-                Assert.Equal(1, actual.Length);
+                Assert.Single(actual);
                 Assert.True(actual.All(c => c.City == "Seattle"));
             }
         }
@@ -675,7 +675,7 @@ FROM [Customers]"))
                     .ToArray();
 
                 Assert.Equal(91, actual.Length);
-                Assert.Equal(0, context.ChangeTracker.Entries().Count());
+                Assert.Empty(context.ChangeTracker.Entries());
             }
         }
 
@@ -752,7 +752,7 @@ AND (([UnitsInStock] + [UnitsOnOrder]) < [ReorderLevel])"))
                     .Where(c => c.ContactName == c.CompanyName)
                     .ToArray();
 
-                Assert.Equal(0, actual.Length);
+                Assert.Empty(actual);
             }
         }
 
@@ -863,12 +863,12 @@ AND (([UnitsInStock] + [UnitsOnOrder]) < [ReorderLevel])"))
                 // ReSharper disable PossibleMultipleEnumeration
                 var result1 = query.ToList();
 
-                Assert.Equal(1, result1.Count);
+                Assert.Single(result1);
 
                 var result2 = query.ToList();
                 // ReSharper restore PossibleMultipleEnumeration
 
-                Assert.Equal(1, result2.Count);
+                Assert.Single(result2);
             }
         }
 
@@ -885,7 +885,7 @@ AND (([UnitsInStock] + [UnitsOnOrder]) < [ReorderLevel])"))
                             select new { c1, c2 };
 
                 var result = query.ToList();
-                Assert.Equal(1, result.Count);
+                Assert.Single(result);
 
                 var customers1 = result.Select(r => r.c1);
                 var customers2 = result.Select(r => r.c2);
@@ -958,7 +958,7 @@ AND (([UnitsInStock] + [UnitsOnOrder]) < [ReorderLevel])"))
                         NormalizeDelimetersInInterpolatedString($"SELECT * FROM [Customers] WHERE [CustomerID] = {parameter}"))
                     .ToList();
 
-                Assert.Equal(1, actual.Count);
+                Assert.Single(actual);
                 Assert.True(actual.All(c => c.City == "Berlin"));
             }
         }
@@ -975,7 +975,7 @@ AND (([UnitsInStock] + [UnitsOnOrder]) < [ReorderLevel])"))
                         NormalizeDelimetersInInterpolatedString($"SELECT * FROM [Customers] WHERE [CustomerID] = {parameter}"))
                     .ToList();
 
-                Assert.Equal(1, actual.Count);
+                Assert.Single(actual);
                 Assert.True(actual.All(c => c.City == "Berlin"));
             }
         }

@@ -411,7 +411,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                             where UDFSqlContext.IsTopCustomerStatic(c.Id)
                             select c.Id.ToString().ToLower()).ToList();
 
-                Assert.Equal(1, cust.Count);
+                Assert.Single(cust);
             }
         }
 
@@ -426,7 +426,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                               where UDFSqlContext.GetCustomerWithMostOrdersAfterDateStatic(startDate) == c.Id
                               select c.Id).SingleOrDefault();
 
-                Assert.Equal(custId, 2);
+                Assert.Equal(2, custId);
             }
         }
 
@@ -442,7 +442,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                                         UDFSqlContext.GetReportingPeriodStartDateStatic(period))
                               select c.Id).SingleOrDefault();
 
-                Assert.Equal(custId, 1);
+                Assert.Equal(1, custId);
             }
         }
 
@@ -457,7 +457,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                                             UDFSqlContext.ReportingPeriod.Winter))
                               select c.Id).SingleOrDefault();
 
-                Assert.Equal(custId, 1);
+                Assert.Equal(1, custId);
             }
         }
 
@@ -770,7 +770,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                                     Id = context.StarValueInstance(4, c.Id), LastName = context.DollarValueInstance(2, c.LastName)
                                 }).Single();
 
-                Assert.Equal(custName.LastName, "$$One");
+                Assert.Equal("$$One", custName.LastName);
             }
         }
 
@@ -899,7 +899,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                             where context.IsTopCustomerInstance(c.Id)
                             select c.Id.ToString().ToLower()).ToList();
 
-                Assert.Equal(1, cust.Count);
+                Assert.Single(cust);
             }
         }
 
@@ -914,7 +914,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                               where context.GetCustomerWithMostOrdersAfterDateInstance(startDate) == c.Id
                               select c.Id).SingleOrDefault();
 
-                Assert.Equal(custId, 2);
+                Assert.Equal(2, custId);
             }
         }
 
@@ -930,7 +930,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                                         context.GetReportingPeriodStartDateInstance(period))
                               select c.Id).SingleOrDefault();
 
-                Assert.Equal(custId, 1);
+                Assert.Equal(1, custId);
             }
         }
 
@@ -945,7 +945,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                                             UDFSqlContext.ReportingPeriod.Winter))
                               select c.Id).SingleOrDefault();
 
-                Assert.Equal(custId, 1);
+                Assert.Equal(1, custId);
             }
         }
 

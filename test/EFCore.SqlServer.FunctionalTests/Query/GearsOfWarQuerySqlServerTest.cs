@@ -211,9 +211,9 @@ LEFT JOIN [Weapons] AS [w] ON [t0].[FullName] = [w].[OwnerFullName]
 ORDER BY [t].[Id], [t0].[Nickname], [t0].[SquadId], [w].[Id]");
         }
 
-        public override void Include_where_list_contains_navigation(bool isAsync)
+        public override async Task Include_where_list_contains_navigation(bool isAsync)
         {
-            base.Include_where_list_contains_navigation(isAsync);
+            await base.Include_where_list_contains_navigation(isAsync);
 
             AssertSql(
                 @"SELECT [t].[Id]
@@ -225,9 +225,9 @@ LEFT JOIN [Tags] AS [t] ON (([g].[Nickname] = [t].[GearNickName]) AND [t].[GearN
 WHERE [g].[Discriminator] IN (N'Gear', N'Officer') AND ([t].[Id] IS NOT NULL AND [t].[Id] IN ('34c8d86e-a4ac-4be5-827f-584dda348a07', 'df36f493-463f-4123-83f9-6b135deeb7ba', 'a8ad98f9-e023-4e2a-9a70-c2728455bd34', '70534e05-782c-4052-8720-c2c54481ce5f', 'a7be028a-0cf2-448f-ab55-ce8bc5d8cf69', 'b39a6fba-9026-4d69-828e-fd7068673e57'))");
         }
 
-        public override void Include_where_list_contains_navigation2(bool isAsync)
+        public override async Task Include_where_list_contains_navigation2(bool isAsync)
         {
-            base.Include_where_list_contains_navigation2(isAsync);
+            await base.Include_where_list_contains_navigation2(isAsync);
 
             AssertSql(
                 @"SELECT [t].[Id]
@@ -240,9 +240,9 @@ LEFT JOIN [Tags] AS [t] ON (([g].[Nickname] = [t].[GearNickName]) AND [t].[GearN
 WHERE [g].[Discriminator] IN (N'Gear', N'Officer') AND ([c].[Location] IS NOT NULL AND [t].[Id] IN ('34c8d86e-a4ac-4be5-827f-584dda348a07', 'df36f493-463f-4123-83f9-6b135deeb7ba', 'a8ad98f9-e023-4e2a-9a70-c2728455bd34', '70534e05-782c-4052-8720-c2c54481ce5f', 'a7be028a-0cf2-448f-ab55-ce8bc5d8cf69', 'b39a6fba-9026-4d69-828e-fd7068673e57'))");
         }
 
-        public override void Navigation_accessed_twice_outside_and_inside_subquery(bool isAsync)
+        public override async Task Navigation_accessed_twice_outside_and_inside_subquery(bool isAsync)
         {
-            base.Navigation_accessed_twice_outside_and_inside_subquery(isAsync);
+            await base.Navigation_accessed_twice_outside_and_inside_subquery(isAsync);
 
             AssertSql(
                 @"SELECT [t].[Id]

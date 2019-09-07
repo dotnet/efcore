@@ -170,13 +170,13 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
 
         [ConditionalFact]
         public void Can_get_name()
-            => Can_get_name<Wotty>();
+            => Can_get_name_helper<Wotty>();
 
         [ConditionalFact]
         public void Can_get_name_with_object_field()
-            => Can_get_name<ObjectWotty>();
+            => Can_get_name_helper<ObjectWotty>();
 
-        private void Can_get_name<TWotty>()
+        private void Can_get_name_helper<TWotty>()
             where TWotty : IWotty, new()
         {
             using (var context = new PrimateContext())
@@ -194,13 +194,13 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
 
         [ConditionalFact]
         public void Can_get_current_value()
-            => Can_get_current_value<Wotty>();
+            => Can_get_current_value_helper<Wotty>();
 
         [ConditionalFact]
         public void Can_get_current_value_with_object_field()
-            => Can_get_current_value<ObjectWotty>();
+            => Can_get_current_value_helper<ObjectWotty>();
 
-        private void Can_get_current_value<TWotty>()
+        private void Can_get_current_value_helper<TWotty>()
             where TWotty : IWotty, new()
         {
             using (var context = new PrimateContext())
@@ -219,13 +219,13 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
 
         [ConditionalFact]
         public void Can_set_current_value()
-            => Can_set_current_value<Wotty>();
+            => Can_set_current_value_helper<Wotty>();
 
         [ConditionalFact]
         public void Can_set_current_value_with_object_field()
-            => Can_set_current_value<ObjectWotty>();
+            => Can_set_current_value_helper<ObjectWotty>();
 
-        private void Can_set_current_value<TWotty>()
+        private void Can_set_current_value_helper<TWotty>()
             where TWotty : IWotty, new()
         {
             using (var context = new PrimateContext())
@@ -249,13 +249,13 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
 
         [ConditionalFact]
         public void Can_set_current_value_to_null()
-            => Can_set_current_value_to_null<Wotty>();
+            => Can_set_current_value_to_null_helper<Wotty>();
 
         [ConditionalFact]
         public void Can_set_current_value_to_null_with_object_field()
-            => Can_set_current_value_to_null<ObjectWotty>();
+            => Can_set_current_value_to_null_helper<ObjectWotty>();
 
-        private void Can_set_current_value_to_null<TWotty>()
+        private void Can_set_current_value_to_null_helper<TWotty>()
             where TWotty : IWotty, new()
         {
             using (var context = new PrimateContext())
@@ -279,13 +279,13 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
 
         [ConditionalFact]
         public void Can_set_and_get_original_value()
-            => Can_set_and_get_original_value<Wotty>();
+            => Can_set_and_get_original_value_helper<Wotty>();
 
         [ConditionalFact]
         public void Can_set_and_get_original_value_with_object_field()
-            => Can_set_and_get_original_value<ObjectWotty>();
+            => Can_set_and_get_original_value_helper<ObjectWotty>();
 
-        private void Can_set_and_get_original_value<TWotty>()
+        private void Can_set_and_get_original_value_helper<TWotty>()
             where TWotty : IWotty, new()
         {
             using (var context = new PrimateContext())
@@ -318,13 +318,13 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
 
         [ConditionalFact]
         public void Can_set_and_get_original_value_starting_null()
-            => Can_set_and_get_original_value_starting_null<Wotty>();
+            => Can_set_and_get_original_value_starting_null_helper<Wotty>();
 
         [ConditionalFact]
         public void Can_set_and_get_original_value_starting_null_with_object_field()
-            => Can_set_and_get_original_value_starting_null<ObjectWotty>();
+            => Can_set_and_get_original_value_starting_null_helper<ObjectWotty>();
 
-        private void Can_set_and_get_original_value_starting_null<TWotty>()
+        private void Can_set_and_get_original_value_starting_null_helper<TWotty>()
             where TWotty : IWotty, new()
         {
             using (var context = new PrimateContext())
@@ -357,13 +357,13 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
 
         [ConditionalFact]
         public void Can_set_original_value_to_null()
-            => Can_set_original_value_to_null<Wotty>();
+            => Can_set_original_value_to_null_helper<Wotty>();
 
         [ConditionalFact]
         public void Can_set_original_value_to_null_with_object_field()
-            => Can_set_original_value_to_null<ObjectWotty>();
+            => Can_set_original_value_to_null_helper<ObjectWotty>();
 
-        private void Can_set_original_value_to_null<TWotty>()
+        private void Can_set_original_value_to_null_helper<TWotty>()
             where TWotty : IWotty, new()
         {
             using (var context = new PrimateContext())
@@ -387,13 +387,13 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
 
         [ConditionalFact]
         public void Can_set_and_clear_modified_on_Modified_entity()
-            => Can_set_and_clear_modified_on_Modified_entity<Wotty>();
+            => Can_set_and_clear_modified_on_Modified_entity_helper<Wotty>();
 
         [ConditionalFact]
         public void Can_set_and_clear_modified_on_Modified_entity_with_object_field()
-            => Can_set_and_clear_modified_on_Modified_entity<ObjectWotty>();
+            => Can_set_and_clear_modified_on_Modified_entity_helper<ObjectWotty>();
 
-        private void Can_set_and_clear_modified_on_Modified_entity<TWotty>()
+        private void Can_set_and_clear_modified_on_Modified_entity_helper<TWotty>()
             where TWotty : IWotty, new()
         {
             using (var context = new PrimateContext())
@@ -438,15 +438,15 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Deleted)]
         public void Can_set_and_clear_modified_on_Added_or_Deleted_entity(EntityState initialState)
-            => Can_set_and_clear_modified_on_Added_or_Deleted_entity<Wotty>(initialState);
+            => Can_set_and_clear_modified_on_Added_or_Deleted_entity_helper<Wotty>(initialState);
 
         [ConditionalTheory]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Deleted)]
         public void Can_set_and_clear_modified_on_Added_or_Deleted_entity_with_object_field(EntityState initialState)
-            => Can_set_and_clear_modified_on_Added_or_Deleted_entity<ObjectWotty>(initialState);
+            => Can_set_and_clear_modified_on_Added_or_Deleted_entity_helper<ObjectWotty>(initialState);
 
-        private void Can_set_and_clear_modified_on_Added_or_Deleted_entity<TWotty>(EntityState initialState)
+        private void Can_set_and_clear_modified_on_Added_or_Deleted_entity_helper<TWotty>(EntityState initialState)
             where TWotty : IWotty, new()
         {
             using (var context = new PrimateContext())
@@ -482,15 +482,15 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         [InlineData(EntityState.Detached)]
         [InlineData(EntityState.Unchanged)]
         public void Can_set_and_clear_modified_on_Unchanged_or_Detached_entity(EntityState initialState)
-            => Can_set_and_clear_modified_on_Unchanged_or_Detached_entity<Wotty>(initialState);
+            => Can_set_and_clear_modified_on_Unchanged_or_Detached_entity_helper<Wotty>(initialState);
 
         [ConditionalTheory]
         [InlineData(EntityState.Detached)]
         [InlineData(EntityState.Unchanged)]
         public void Can_set_and_clear_modified_on_Unchanged_or_Detached_entity_with_object_field(EntityState initialState)
-            => Can_set_and_clear_modified_on_Unchanged_or_Detached_entity<ObjectWotty>(initialState);
+            => Can_set_and_clear_modified_on_Unchanged_or_Detached_entity_helper<ObjectWotty>(initialState);
 
-        private void Can_set_and_clear_modified_on_Unchanged_or_Detached_entity<TWotty>(EntityState initialState)
+        private void Can_set_and_clear_modified_on_Unchanged_or_Detached_entity_helper<TWotty>(EntityState initialState)
             where TWotty : IWotty, new()
         {
             using (var context = new PrimateContext())
@@ -524,13 +524,13 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
 
         [ConditionalFact]
         public void Can_reject_changes_when_clearing_modified_flag()
-            => Can_reject_changes_when_clearing_modified_flag<Wotty>();
+            => Can_reject_changes_when_clearing_modified_flag_helper<Wotty>();
 
         [ConditionalFact]
         public void Can_reject_changes_when_clearing_modified_flag_with_object_field()
-            => Can_reject_changes_when_clearing_modified_flag<ObjectWotty>();
+            => Can_reject_changes_when_clearing_modified_flag_helper<ObjectWotty>();
 
-        private void Can_reject_changes_when_clearing_modified_flag<TWotty>()
+        private void Can_reject_changes_when_clearing_modified_flag_helper<TWotty>()
             where TWotty : IWotty, new()
         {
             using (var context = new PrimateContext())
@@ -599,13 +599,13 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
 
         [ConditionalFact]
         public void Can_get_name_generic()
-            => Can_get_name_generic<Wotty>();
+            => Can_get_name_generic_helper<Wotty>();
 
         [ConditionalFact]
         public void Can_get_name_generic_with_object_field()
-            => Can_get_name_generic<ObjectWotty>();
+            => Can_get_name_generic_helper<ObjectWotty>();
 
-        private void Can_get_name_generic<TWotty>()
+        private void Can_get_name_generic_helper<TWotty>()
             where TWotty : class, IWotty, new()
         {
             var entry = InMemoryTestHelpers.Instance.CreateInternalEntry(
@@ -618,13 +618,13 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
 
         [ConditionalFact]
         public void Can_get_current_value_generic()
-            => Can_get_current_value_generic<Wotty>();
+            => Can_get_current_value_generic_helper<Wotty>();
 
         [ConditionalFact]
         public void Can_get_current_value_generic_with_object_field()
-            => Can_get_current_value_generic<ObjectWotty>();
+            => Can_get_current_value_generic_helper<ObjectWotty>();
 
-        private void Can_get_current_value_generic<TWotty>()
+        private void Can_get_current_value_generic_helper<TWotty>()
             where TWotty : class, IWotty, new()
         {
             var entry = InMemoryTestHelpers.Instance.CreateInternalEntry(
@@ -637,13 +637,13 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
 
         [ConditionalFact]
         public void Can_set_current_value_generic()
-            => Can_set_current_value_generic<Wotty>();
+            => Can_set_current_value_generic_helper<Wotty>();
 
         [ConditionalFact]
         public void Can_set_current_value_generic_with_object_field()
-            => Can_set_current_value_generic<ObjectWotty>();
+            => Can_set_current_value_generic_helper<ObjectWotty>();
 
-        private void Can_set_current_value_generic<TWotty>()
+        private void Can_set_current_value_generic_helper<TWotty>()
             where TWotty : class, IWotty, new()
         {
             var entity = new TWotty { Id = 1, Primate = "Monkey" };
@@ -660,13 +660,13 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
 
         [ConditionalFact]
         public void Can_set_current_value_to_null_generic()
-            => Can_set_current_value_to_null_generic<Wotty>();
+            => Can_set_current_value_to_null_generic_helper<Wotty>();
 
         [ConditionalFact]
         public void Can_set_current_value_to_null_generic_with_object_field()
-            => Can_set_current_value_to_null_generic<ObjectWotty>();
+            => Can_set_current_value_to_null_generic_helper<ObjectWotty>();
 
-        private void Can_set_current_value_to_null_generic<TWotty>()
+        private void Can_set_current_value_to_null_generic_helper<TWotty>()
             where TWotty : class, IWotty, new()
         {
             var entity = new TWotty { Id = 1, Primate = "Monkey" };
@@ -683,13 +683,13 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
 
         [ConditionalFact]
         public void Can_set_and_get_original_value_generic()
-            => Can_set_and_get_original_value_generic<Wotty>();
+            => Can_set_and_get_original_value_generic_helper<Wotty>();
 
         [ConditionalFact]
         public void Can_set_and_get_original_value_generic_with_object_field()
-            => Can_set_and_get_original_value_generic<ObjectWotty>();
+            => Can_set_and_get_original_value_generic_helper<ObjectWotty>();
 
-        private void Can_set_and_get_original_value_generic<TWotty>()
+        private void Can_set_and_get_original_value_generic_helper<TWotty>()
             where TWotty : class, IWotty, new()
         {
             var entity = new TWotty { Id = 1, Primate = "Monkey" };
@@ -709,13 +709,13 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
 
         [ConditionalFact]
         public void Can_set_original_value_to_null_generic()
-            => Can_set_original_value_to_null_generic<Wotty>();
+            => Can_set_original_value_to_null_generic_helper<Wotty>();
 
         [ConditionalFact]
         public void Can_set_original_value_to_null_generic_with_object_field()
-            => Can_set_original_value_to_null_generic<ObjectWotty>();
+            => Can_set_original_value_to_null_generic_helper<ObjectWotty>();
 
-        private void Can_set_original_value_to_null_generic<TWotty>()
+        private void Can_set_original_value_to_null_generic_helper<TWotty>()
             where TWotty : class, IWotty, new()
         {
             var entry = InMemoryTestHelpers.Instance.CreateInternalEntry(
@@ -730,13 +730,13 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
 
         [ConditionalFact]
         public void Can_set_and_clear_modified_generic()
-            => Can_set_and_clear_modified_generic<Wotty>();
+            => Can_set_and_clear_modified_generic_helper<Wotty>();
 
         [ConditionalFact]
         public void Can_set_and_clear_modified_generic_with_object_field()
-            => Can_set_and_clear_modified_generic<ObjectWotty>();
+            => Can_set_and_clear_modified_generic_helper<ObjectWotty>();
 
-        private void Can_set_and_clear_modified_generic<TWotty>()
+        private void Can_set_and_clear_modified_generic_helper<TWotty>()
             where TWotty : class, IWotty, new()
         {
             var entity = new TWotty { Id = 1, Primate = "Monkey" };

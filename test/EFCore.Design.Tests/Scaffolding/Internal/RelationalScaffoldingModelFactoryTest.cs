@@ -62,7 +62,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 vwtable =>
                 {
                     Assert.Equal("noPrimaryKey", vwtable.GetTableName());
-                    Assert.Equal(0, vwtable.GetKeys().Count());
+                    Assert.Empty(vwtable.GetKeys());
                 },
                 table =>
                 {
@@ -319,7 +319,9 @@ namespace Microsoft.EntityFrameworkCore.Internal
         [ConditionalTheory]
         [InlineData(new[] { "Id" }, 1)]
         [InlineData(new[] { "Id", "AltId" }, 2)]
+#pragma warning disable xUnit1026 // Theory methods should use all of their parameters
         public void Primary_key(string[] keyProps, int length)
+#pragma warning restore xUnit1026 // Theory methods should use all of their parameters
 
         {
             var info = new DatabaseModel
@@ -335,7 +337,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
 
             var model = (EntityType)_factory.Create(info, false).GetEntityTypes().Single();
 
-            Assert.Equal(model.FindPrimaryKey().GetName(), "MyPk");
+            Assert.Equal("MyPk", model.FindPrimaryKey().GetName());
             Assert.Equal(keyProps, model.FindPrimaryKey().Properties.Select(p => p.GetColumnName()).ToArray());
         }
 
@@ -1117,7 +1119,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
 
             var columns = model.FindEntityType("Table").GetProperties().ToList();
 
-            Assert.Equal(1, columns.Count);
+            Assert.Single(columns);
         }
 
         [ConditionalFact]

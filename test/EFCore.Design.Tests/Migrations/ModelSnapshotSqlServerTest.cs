@@ -777,7 +777,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 });"),
                 o =>
                 {
-                    Assert.Equal(1, o.GetEntityTypes().First().GetIndexes().Count());
+                    Assert.Single(o.GetEntityTypes().First().GetIndexes());
                     Assert.Equal("AlternateId", o.GetEntityTypes().First().GetIndexes().First().Properties[0].Name);
                 });
         }
@@ -812,7 +812,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 });"),
                 o =>
                 {
-                    Assert.Equal(1, o.GetEntityTypes().First().GetIndexes().Count());
+                    Assert.Single(o.GetEntityTypes().First().GetIndexes());
                     Assert.Collection(
                         o.GetEntityTypes().First().GetIndexes().First().Properties,
                         t => Assert.Equal("Id", t.Name),
@@ -1250,7 +1250,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     Assert.True(ownership2.IsRequired);
                     var ownedType2 = ownership2.DeclaringEntityType;
                     Assert.Equal(nameof(EntityWithStringProperty.Id), ownedType2.FindPrimaryKey().Properties[0].Name);
-                    Assert.Equal(1, ownedType2.GetKeys().Count());
+                    Assert.Single(ownedType2.GetKeys());
                     Assert.Equal(2, ownedType2.GetIndexes().Count());
                     var owned2index1 = ownedType2.GetIndexes().First();
                     Assert.Equal("EntityWithOnePropertyId", owned2index1.Properties[0].Name);
