@@ -34,7 +34,7 @@ namespace Microsoft.EntityFrameworkCore.Update
             var modelData = new UpdateAdapter(stateManager);
 
             var commandBatches = CreateCommandBatchPreparer().BatchCommands(new[] { entry }, modelData).ToArray();
-            Assert.Equal(1, commandBatches.Length);
+            Assert.Single(commandBatches);
             Assert.Equal(1, commandBatches.First().ModificationCommands.Count);
 
             var command = commandBatches.First().ModificationCommands.Single();
@@ -75,7 +75,7 @@ namespace Microsoft.EntityFrameworkCore.Update
             var modelData = new UpdateAdapter(stateManager);
 
             var commandBatches = CreateCommandBatchPreparer().BatchCommands(new[] { entry }, modelData).ToArray();
-            Assert.Equal(1, commandBatches.Length);
+            Assert.Single(commandBatches);
             Assert.Equal(1, commandBatches.First().ModificationCommands.Count);
 
             var command = commandBatches.First().ModificationCommands.Single();
@@ -116,7 +116,7 @@ namespace Microsoft.EntityFrameworkCore.Update
             var modelData = new UpdateAdapter(stateManager);
 
             var commandBatches = CreateCommandBatchPreparer().BatchCommands(new[] { entry }, modelData).ToArray();
-            Assert.Equal(1, commandBatches.Length);
+            Assert.Single(commandBatches);
             Assert.Equal(1, commandBatches.First().ModificationCommands.Count);
 
             var command = commandBatches.First().ModificationCommands.Single();
@@ -520,7 +520,7 @@ namespace Microsoft.EntityFrameworkCore.Update
             var commandBatches = CreateCommandBatchPreparer(updateAdapter: modelData)
                 .BatchCommands(new[] { firstEntry, secondEntry }, modelData)
                 .ToArray();
-            Assert.Equal(1, commandBatches.Length);
+            Assert.Single(commandBatches);
             Assert.Equal(1, commandBatches.First().ModificationCommands.Count);
 
             var command = commandBatches.First().ModificationCommands.Single();
@@ -575,7 +575,7 @@ namespace Microsoft.EntityFrameworkCore.Update
                 .BatchCommands(new[] { entry }, modelData)
                 .ToArray();
 
-            Assert.Equal(1, commandBatches.Length);
+            Assert.Single(commandBatches);
             Assert.Equal(1, commandBatches.First().ModificationCommands.Count);
 
             var command = commandBatches.First().ModificationCommands.Single();
@@ -631,7 +631,7 @@ namespace Microsoft.EntityFrameworkCore.Update
             var commandBatches = CreateCommandBatchPreparer(updateAdapter: modelData)
                 .BatchCommands(new[] { firstEntry, secondEntry }, modelData).ToArray();
 
-            Assert.Equal(1, commandBatches.Length);
+            Assert.Single(commandBatches);
             Assert.Equal(1, commandBatches.First().ModificationCommands.Count);
 
             var command = commandBatches.First().ModificationCommands.Single();
@@ -837,7 +837,7 @@ namespace Microsoft.EntityFrameworkCore.Update
             var batches = CreateCommandBatchPreparer(updateAdapter: modelData, sensitiveLogging: false)
                 .BatchCommands(new[] { firstEntry, secondEntry }, modelData).ToArray();
 
-            Assert.Equal(1, batches.Length);
+            Assert.Single(batches);
         }
 
         [InlineData(EntityState.Added, true)]

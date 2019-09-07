@@ -274,7 +274,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 Assert.Equal("Language8", globalizations_1_label[2].Language.Name);
 
                 var globalizations_1_placeholder = result[1].Placeholder.Globalizations.OrderBy(g => g.Text).ToList();
-                Assert.Equal(1, globalizations_1_placeholder.Count);
+                Assert.Single(globalizations_1_placeholder);
                 Assert.Equal("Globalization9", globalizations_1_placeholder[0].Text);
                 Assert.Equal("Language9", globalizations_1_placeholder[0].Language.Name);
             }
@@ -5181,7 +5181,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 var result = query.ToList();
 
                 Assert.True(result.All(r => r.l2.OneToMany_Required2 != null));
-                Assert.True(result.Any(r => r.OneToMany_Optional2.Count > 0));
+                Assert.Contains(result, r => r.OneToMany_Optional2.Count > 0);
             }
         }
 

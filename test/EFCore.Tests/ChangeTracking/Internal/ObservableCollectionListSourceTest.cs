@@ -13,7 +13,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         public void ObservableCollectionListSource_exposes_ObservableCollection_parameterless_constructor()
         {
             var ols = new ObservableCollectionListSource<FakeEntity>();
-            Assert.Equal(0, ols.Count);
+            Assert.Empty(ols);
         }
 
         [ConditionalFact]

@@ -331,7 +331,7 @@ namespace Microsoft.EntityFrameworkCore
 
                     var tables = testDatabase.Query<string>(
                         "SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE = 'BASE TABLE'").ToList();
-                    Assert.Equal(1, tables.Count);
+                    Assert.Single(tables);
                     Assert.Equal("Blogs", tables.Single());
 
                     var columns = testDatabase.Query<string>(
@@ -570,26 +570,26 @@ namespace Microsoft.EntityFrameworkCore
 
                     var tables = (await testDatabase.QueryAsync<string>(
                         "SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE = 'BASE TABLE'")).ToList();
-                    Assert.Equal(1, tables.Count);
+                    Assert.Single(tables);
                     Assert.Equal("Blogs", tables.Single());
 
                     var columns = (await testDatabase.QueryAsync<string>(
                         "SELECT TABLE_NAME + '.' + COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = 'Blogs'")).ToList();
                     Assert.Equal(14, columns.Count);
-                    Assert.True(columns.Any(c => c == "Blogs.Key1"));
-                    Assert.True(columns.Any(c => c == "Blogs.Key2"));
-                    Assert.True(columns.Any(c => c == "Blogs.Cheese"));
-                    Assert.True(columns.Any(c => c == "Blogs.ErMilan"));
-                    Assert.True(columns.Any(c => c == "Blogs.George"));
-                    Assert.True(columns.Any(c => c == "Blogs.TheGu"));
-                    Assert.True(columns.Any(c => c == "Blogs.NotFigTime"));
-                    Assert.True(columns.Any(c => c == "Blogs.ToEat"));
-                    Assert.True(columns.Any(c => c == "Blogs.OrNothing"));
-                    Assert.True(columns.Any(c => c == "Blogs.Fuse"));
-                    Assert.True(columns.Any(c => c == "Blogs.WayRound"));
-                    Assert.True(columns.Any(c => c == "Blogs.On"));
-                    Assert.True(columns.Any(c => c == "Blogs.AndChew"));
-                    Assert.True(columns.Any(c => c == "Blogs.AndRow"));
+                    Assert.Contains(columns, c => c == "Blogs.Key1");
+                    Assert.Contains(columns, c => c == "Blogs.Key2");
+                    Assert.Contains(columns, c => c == "Blogs.Cheese");
+                    Assert.Contains(columns, c => c == "Blogs.ErMilan");
+                    Assert.Contains(columns, c => c == "Blogs.George");
+                    Assert.Contains(columns, c => c == "Blogs.TheGu");
+                    Assert.Contains(columns, c => c == "Blogs.NotFigTime");
+                    Assert.Contains(columns, c => c == "Blogs.ToEat");
+                    Assert.Contains(columns, c => c == "Blogs.OrNothing");
+                    Assert.Contains(columns, c => c == "Blogs.Fuse");
+                    Assert.Contains(columns, c => c == "Blogs.WayRound");
+                    Assert.Contains(columns, c => c == "Blogs.On");
+                    Assert.Contains(columns, c => c == "Blogs.AndChew");
+                    Assert.Contains(columns, c => c == "Blogs.AndRow");
                 }
             }
         }
@@ -685,9 +685,9 @@ namespace Microsoft.EntityFrameworkCore
                     await testDatabase.OpenConnectionAsync();
                 }
 
-                Assert.Equal(
-                    0, (await testDatabase.QueryAsync<string>(
-                        "SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE = 'BASE TABLE'")).Count());
+                Assert.Empty(
+(await testDatabase.QueryAsync<string>(
+                        "SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE = 'BASE TABLE'")));
 
                 Assert.True(
                     await testDatabase.ExecuteScalarAsync<bool>(

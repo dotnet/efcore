@@ -695,7 +695,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
                 Assert.Equal(2, context.Cats.OrderBy(e => e.Id).ToList().Count);
 
                 Assert.Equal(2, tracked.Count);
-                Assert.Equal(0, changed.Count);
+                Assert.Empty(changed);
 
                 AssertTrackedEvent(context, 1, EntityState.Unchanged, tracked[0], fromQuery: true);
                 AssertTrackedEvent(context, 2, EntityState.Unchanged, tracked[1], fromQuery: true);
@@ -708,7 +708,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
                 Assert.Equal(2, context.Cats.OrderBy(e => e.Id).ToList().Count);
 
                 Assert.Equal(2, tracked.Count);
-                Assert.Equal(0, changed.Count);
+                Assert.Empty(changed);
             }
         }
 
@@ -726,15 +726,15 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
 
                 context.Attach(new Cat(1));
 
-                Assert.Equal(1, tracked.Count);
-                Assert.Equal(0, changed.Count);
+                Assert.Single(tracked);
+                Assert.Empty(changed);
 
                 AssertTrackedEvent(context, 1, EntityState.Unchanged, tracked[0], fromQuery: false);
 
                 context.Entry(new Cat(2)).State = EntityState.Unchanged;
 
                 Assert.Equal(2, tracked.Count);
-                Assert.Equal(0, changed.Count);
+                Assert.Empty(changed);
 
                 AssertTrackedEvent(context, 2, EntityState.Unchanged, tracked[1], fromQuery: false);
             }
@@ -754,15 +754,15 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
 
                 context.Add(new Cat(1));
 
-                Assert.Equal(1, tracked.Count);
-                Assert.Equal(0, changed.Count);
+                Assert.Single(tracked);
+                Assert.Empty(changed);
 
                 AssertTrackedEvent(context, 1, EntityState.Added, tracked[0], fromQuery: false);
 
                 context.Entry(new Cat(2)).State = EntityState.Added;
 
                 Assert.Equal(2, tracked.Count);
-                Assert.Equal(0, changed.Count);
+                Assert.Empty(changed);
 
                 AssertTrackedEvent(context, 2, EntityState.Added, tracked[1], fromQuery: false);
             }
@@ -782,15 +782,15 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
 
                 context.Update(new Cat(1));
 
-                Assert.Equal(1, tracked.Count);
-                Assert.Equal(0, changed.Count);
+                Assert.Single(tracked);
+                Assert.Empty(changed);
 
                 AssertTrackedEvent(context, 1, EntityState.Modified, tracked[0], fromQuery: false);
 
                 context.Entry(new Cat(2)).State = EntityState.Modified;
 
                 Assert.Equal(2, tracked.Count);
-                Assert.Equal(0, changed.Count);
+                Assert.Empty(changed);
 
                 AssertTrackedEvent(context, 2, EntityState.Modified, tracked[1], fromQuery: false);
             }
@@ -811,7 +811,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
                 context.AddRange(new Cat(1), new Cat(2));
 
                 Assert.Equal(2, tracked.Count);
-                Assert.Equal(0, changed.Count);
+                Assert.Empty(changed);
 
                 AssertTrackedEvent(context, 1, EntityState.Added, tracked[0], fromQuery: false);
                 AssertTrackedEvent(context, 2, EntityState.Added, tracked[1], fromQuery: false);
@@ -880,8 +880,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
 
                 var cat1 = context.Cats.Find(1);
 
-                Assert.Equal(1, tracked.Count);
-                Assert.Equal(0, changed.Count);
+                Assert.Single(tracked);
+                Assert.Empty(changed);
 
                 AssertTrackedEvent(context, 1, EntityState.Unchanged, tracked[0], fromQuery: true);
 
@@ -891,7 +891,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
                 context.ChangeTracker.DetectChanges();
 
                 Assert.Equal(2, tracked.Count);
-                Assert.Equal(1, changed.Count);
+                Assert.Single(changed);
 
                 AssertTrackedEvent(context, 3, EntityState.Added, tracked[1], fromQuery: false);
                 AssertChangedEvent(context, 1, EntityState.Unchanged, EntityState.Modified, changed[0]);
@@ -923,21 +923,21 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
                 var cat = context.Attach(
                     new Cat(3) { Name = "Achilles" }).Entity;
 
-                Assert.Equal(1, tracked.Count);
-                Assert.Equal(0, changed.Count);
+                Assert.Single(tracked);
+                Assert.Empty(changed);
 
                 AssertTrackedEvent(context, 3, EntityState.Unchanged, tracked[0], fromQuery: false);
 
                 context.Entry(cat).Property(e => e.Name).IsModified = true;
 
-                Assert.Equal(1, tracked.Count);
-                Assert.Equal(1, changed.Count);
+                Assert.Single(tracked);
+                Assert.Single(changed);
 
                 AssertChangedEvent(context, 3, EntityState.Unchanged, EntityState.Modified, changed[0]);
 
                 context.Entry(cat).Property(e => e.Name).IsModified = false;
 
-                Assert.Equal(1, tracked.Count);
+                Assert.Single(tracked);
                 Assert.Equal(2, changed.Count);
 
                 AssertChangedEvent(context, 3, EntityState.Modified, EntityState.Unchanged, changed[1]);
@@ -969,29 +969,29 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
                     Assert.Equal(2, context2.Cats.OrderBy(e => e.Id).ToList().Count);
 
                     Assert.Equal(2, tracked2.Count);
-                    Assert.Equal(0, changed2.Count);
+                    Assert.Empty(changed2);
 
                     context2.Entry(context2.Cats.Find(1)).State = EntityState.Modified;
 
                     Assert.Equal(2, tracked2.Count);
-                    Assert.Equal(1, changed2.Count);
+                    Assert.Single(changed2);
 
-                    Assert.Equal(0, tracked1.Count);
-                    Assert.Equal(0, changed1.Count);
+                    Assert.Empty(tracked1);
+                    Assert.Empty(changed1);
                 }
 
                 Assert.Equal(2, context.Cats.OrderBy(e => e.Id).ToList().Count);
 
                 Assert.Equal(2, tracked1.Count);
-                Assert.Equal(0, changed1.Count);
+                Assert.Empty(changed1);
 
                 context.Entry(context.Cats.Find(1)).State = EntityState.Modified;
 
                 Assert.Equal(2, tracked1.Count);
-                Assert.Equal(1, changed1.Count);
+                Assert.Single(changed1);
 
                 Assert.Equal(2, tracked2.Count);
-                Assert.Equal(1, changed2.Count);
+                Assert.Single(changed2);
 
                 context.Database.EnsureDeleted();
             }

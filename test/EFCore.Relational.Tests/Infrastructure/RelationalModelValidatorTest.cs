@@ -35,7 +35,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
             Validate(model);
 
-            Assert.False(LoggerFactory.Log.Any(l => l.Level == LogLevel.Warning));
+            Assert.DoesNotContain(LoggerFactory.Log, l => l.Level == LogLevel.Warning);
         }
 
         [ConditionalFact]

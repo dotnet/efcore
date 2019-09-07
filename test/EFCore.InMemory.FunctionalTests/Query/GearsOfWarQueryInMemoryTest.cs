@@ -69,13 +69,13 @@ namespace Microsoft.EntityFrameworkCore.Query
             return base.Include_collection_with_complex_OrderBy3(isAsync);
         }
 
-        [ConditionalTheory(Skip = "issue #17537")]
+        [ConditionalFact(Skip = "issue #17537")]
         public override void Include_on_GroupJoin_SelectMany_DefaultIfEmpty_with_coalesce_result1()
         {
             base.Include_on_GroupJoin_SelectMany_DefaultIfEmpty_with_coalesce_result1();
         }
 
-        [ConditionalTheory(Skip = "issue #17537")]
+        [ConditionalFact(Skip = "issue #17537")]
         public override void Include_on_GroupJoin_SelectMany_DefaultIfEmpty_with_coalesce_result2()
         {
             base.Include_on_GroupJoin_SelectMany_DefaultIfEmpty_with_coalesce_result2();

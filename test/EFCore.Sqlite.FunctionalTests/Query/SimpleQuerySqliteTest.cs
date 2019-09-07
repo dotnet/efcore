@@ -43,10 +43,10 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalTheory(Skip = "Issue = #17238")]
-        public override Task SelectMany_Joined_Take(bool isAsync) => null;
+        public override Task SelectMany_Joined_Take(bool isAsync) => base.SelectMany_Joined_Take(isAsync);
 
         [ConditionalTheory(Skip = "Issue = #17239")]
-        public override Task Union_Take_Union_Take(bool isAsync) => null;
+        public override Task Union_Take_Union_Take(bool isAsync) => base.Union_Take_Union_Take(isAsync);
 
         // SQLite client-eval
         public override async Task Average_with_division_on_decimal(bool isAsync)

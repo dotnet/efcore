@@ -1163,7 +1163,8 @@ namespace Microsoft.EntityFrameworkCore
         [InlineData(true, true)]
         public virtual async Task Intercept_query_to_throw(bool async, bool inject)
         {
-            using (var context = CreateContext(new ThrowingReaderCommandInterceptor()))
+            var (context, interceptor) = CreateContext<ThrowingReaderCommandInterceptor>(inject);
+            using (context)
             {
                 var exception = async
                     ? await Assert.ThrowsAsync<Exception>(() => context.Set<Singularity>().ToListAsync())
@@ -1180,7 +1181,8 @@ namespace Microsoft.EntityFrameworkCore
         [InlineData(true, true)]
         public virtual async Task Intercept_scalar_to_throw(bool async, bool inject)
         {
-            using (var context = CreateContext(new ThrowingReaderCommandInterceptor()))
+            var (context, interceptor) = CreateContext<ThrowingReaderCommandInterceptor>(inject);
+            using (context)
             {
                 var command = context.GetService<IRelationalCommandBuilderFactory>().Create().Append("SELECT 1").Build();
                 var connection = context.GetService<IRelationalConnection>();
@@ -1203,7 +1205,8 @@ namespace Microsoft.EntityFrameworkCore
         [InlineData(true, true)]
         public virtual async Task Intercept_non_query_to_throw(bool async, bool inject)
         {
-            using (var context = CreateContext(new ThrowingReaderCommandInterceptor()))
+            var (context, interceptor) = CreateContext<ThrowingReaderCommandInterceptor>(inject);
+            using (context)
             {
                 using (context.Database.BeginTransaction())
                 {

@@ -26,8 +26,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
             //TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
         }
 
-        // #13579
-        // [ConditionalFact]
+        [ConditionalFact(Skip = "Issue#17670")]
         public virtual async Task Can_update_dependents()
         {
             await using (var testDatabase = CreateTestStore())
@@ -56,8 +55,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
             }
         }
 
-        // #13579
-        // [ConditionalFact]
+        [ConditionalFact(Skip = "Issue#17670")]
         public virtual async Task Can_update_owner_with_dependents()
         {
             await using (var testDatabase = CreateTestStore())
@@ -209,7 +207,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
                 {
                     var people = await context.Set<Person>().OrderBy(o => o.Id).ToListAsync();
                     var addresses = people[0].Addresses.ToList();
-                    Assert.Equal(1, addresses.Count);
+                    Assert.Single(addresses);
 
                     Assert.Equal(address.Street, addresses[0].Street);
                     Assert.Equal(address.City, addresses[0].City);

@@ -263,7 +263,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                         .GroupBy(x => x.ShipName)
                         .ToList();
 
-                Assert.Equal(1, results.Count);
+                Assert.Single(results);
             }
         }
 
@@ -3533,7 +3533,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                        orderby o.OrderID
                        select o).ToList();
 
-                Assert.Equal(1, orders.Count);
+                Assert.Single(orders);
             }
         }
 

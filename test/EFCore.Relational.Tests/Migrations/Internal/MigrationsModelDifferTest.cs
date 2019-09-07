@@ -193,8 +193,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     Assert.IsType<CreateIndexOperation>(result[3]);
                     var addFkOperation = Assert.IsType<AddForeignKeyOperation>(result[4]);
 
-                    Assert.Equal(0, createFirstTableOperation.ForeignKeys.Count);
-                    Assert.Equal(1, createSecondTableOperation.ForeignKeys.Count);
+                    Assert.Empty(createFirstTableOperation.ForeignKeys);
+                    Assert.Single(createSecondTableOperation.ForeignKeys);
                     Assert.Equal(createFirstTableOperation.Name, addFkOperation.Table);
                 });
         }
@@ -266,9 +266,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     Assert.Equal(3, createTableOperation.Columns.Count);
                     Assert.Null(createTableOperation.Columns.First(o => o.Name == "AltId").DefaultValue);
                     Assert.NotNull(createTableOperation.PrimaryKey);
-                    Assert.Equal(1, createTableOperation.UniqueConstraints.Count);
-                    Assert.Equal(1, createTableOperation.CheckConstraints.Count);
-                    Assert.Equal(1, createTableOperation.ForeignKeys.Count);
+                    Assert.Single(createTableOperation.UniqueConstraints);
+                    Assert.Single(createTableOperation.CheckConstraints);
+                    Assert.Single(createTableOperation.ForeignKeys);
 
                     Assert.IsType<CreateIndexOperation>(upOps[2]);
                 },
@@ -809,9 +809,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     Assert.Equal("Animal", createTableOperation.Name);
                     Assert.Equal("Id", createTableOperation.PrimaryKey.Columns.Single());
                     Assert.Equal(new[] { "Id", "MouseId", "BoneId" }, createTableOperation.Columns.Select(c => c.Name));
-                    Assert.Equal(0, createTableOperation.ForeignKeys.Count);
-                    Assert.Equal(0, createTableOperation.UniqueConstraints.Count);
-                    Assert.Equal(0, createTableOperation.CheckConstraints.Count);
+                    Assert.Empty(createTableOperation.ForeignKeys);
+                    Assert.Empty(createTableOperation.UniqueConstraints);
+                    Assert.Empty(createTableOperation.CheckConstraints);
                 },
                 downOps =>
                 {
@@ -4671,7 +4671,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 
                     var createTableOperation = Assert.IsType<CreateTableOperation>(operations[1]);
                     Assert.Equal("Animal", createTableOperation.Name);
-                    Assert.Equal(1, createTableOperation.ForeignKeys.Count);
+                    Assert.Single(createTableOperation.ForeignKeys);
 
                     var addForeignKeyOperation = createTableOperation.ForeignKeys[0];
                     Assert.Equal("FK_Animal_Person_HandlerId", addForeignKeyOperation.Name);
@@ -4712,7 +4712,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 
                     var createTableOperation = Assert.IsType<CreateTableOperation>(operations[1]);
                     Assert.Equal("Animal", createTableOperation.Name);
-                    Assert.Equal(1, createTableOperation.ForeignKeys.Count);
+                    Assert.Single(createTableOperation.ForeignKeys);
 
                     var addForeignKeyOperation = createTableOperation.ForeignKeys[0];
                     Assert.Equal("FK_Animal_Person_HandlerId", addForeignKeyOperation.Name);
@@ -4753,7 +4753,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 
                     var createTableOperation = Assert.IsType<CreateTableOperation>(operations[1]);
                     Assert.Equal("Person", createTableOperation.Name);
-                    Assert.Equal(1, createTableOperation.ForeignKeys.Count);
+                    Assert.Single(createTableOperation.ForeignKeys);
 
                     var addForeignKeyOperation = createTableOperation.ForeignKeys[0];
                     Assert.Equal("FK_Person_Animal_PetId", addForeignKeyOperation.Name);
@@ -4790,7 +4790,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     Assert.Equal(2, operations.Count);
 
                     var createTableOperation = Assert.IsType<CreateTableOperation>(operations[0]);
-                    Assert.Equal(1, createTableOperation.ForeignKeys.Count);
+                    Assert.Single(createTableOperation.ForeignKeys);
 
                     var addForeignKeyOperation = createTableOperation.ForeignKeys[0];
                     Assert.Equal("FK_Animal_Animal_PreyId", addForeignKeyOperation.Name);
@@ -5508,7 +5508,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     Assert.IsType<RenameTableOperation>(operations[1]);
 
                     var createTableOperation = Assert.IsType<CreateTableOperation>(operations[2]);
-                    Assert.Equal(1, createTableOperation.ForeignKeys.Count);
+                    Assert.Single(createTableOperation.ForeignKeys);
 
                     var addForeignKeyOperation = createTableOperation.ForeignKeys[0];
                     Assert.Equal("new", addForeignKeyOperation.PrincipalSchema);
@@ -5541,7 +5541,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     Assert.IsType<RenameColumnOperation>(operations[0]);
 
                     var createTableOperation = Assert.IsType<CreateTableOperation>(operations[1]);
-                    Assert.Equal(1, createTableOperation.ForeignKeys.Count);
+                    Assert.Single(createTableOperation.ForeignKeys);
 
                     var addForeignKeyOperation = createTableOperation.ForeignKeys[0];
                     Assert.Equal(new[] { "ReferencedTableId" }, addForeignKeyOperation.PrincipalColumns);
@@ -6144,7 +6144,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     {
                         var operation = Assert.IsType<CreateTableOperation>(o);
                         Assert.Equal("ReferencingTable", operation.Name);
-                        Assert.Equal(1, operation.ForeignKeys.Count);
+                        Assert.Single(operation.ForeignKeys);
                     },
                     o =>
                     {

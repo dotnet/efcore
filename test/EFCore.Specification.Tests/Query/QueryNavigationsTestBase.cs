@@ -1387,7 +1387,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                             select grouping.ToList();
 
                 var result = query.ToList();
-                Assert.Equal(1, result.Count);
+                Assert.Single(result);
                 foreach (var order in result[0])
                 {
                     Assert.True(order.OrderDetails.Count > 0);
@@ -1407,7 +1407,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                             select grouping.ToList();
 
                 var result = query.ToList();
-                Assert.Equal(1, result.Count);
+                Assert.Single(result);
                 foreach (var order in result[0])
                 {
                     Assert.True(order.OrderDetails.Count > 0);
