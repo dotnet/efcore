@@ -197,9 +197,21 @@ namespace Microsoft.EntityFrameworkCore.TestModels.Northwind
                 protected override Expression VisitMethodCall(MethodCallExpression expression)
                     => expression.Method.IsEFPropertyMethod()
                         ? Expression.Property(
-                            expression.Arguments[0].RemoveConvert(),
+                            RemoveConvert(expression.Arguments[0]),
                             Expression.Lambda<Func<string>>(expression.Arguments[1]).Compile().Invoke())
                         : base.VisitMethodCall(expression);
+            }
+
+            private static Expression RemoveConvert(Expression expression)
+            {
+                if (expression is UnaryExpression unaryExpression
+                    && (expression.NodeType == ExpressionType.Convert
+                        || expression.NodeType == ExpressionType.ConvertChecked))
+                {
+                    return RemoveConvert(unaryExpression.Operand);
+                }
+
+                return expression;
             }
 
             public IQueryable CreateQuery(Expression expression)
