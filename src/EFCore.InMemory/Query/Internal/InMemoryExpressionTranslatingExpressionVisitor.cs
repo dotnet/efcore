@@ -482,6 +482,11 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             foreach (var argument in newExpression.Arguments)
             {
                 var newArgument = Visit(argument);
+                if (newArgument == null)
+                {
+                    return null;
+                }
+
                 if (IsConvertedToNullable(newArgument, argument))
                 {
                     newArgument = ConvertToNonNullable(newArgument);
@@ -499,6 +504,10 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             foreach (var expression in newArrayExpression.Expressions)
             {
                 var newExpression = Visit(expression);
+                if (newExpression == null)
+                {
+                    return null;
+                }
                 if (IsConvertedToNullable(newExpression, expression))
                 {
                     newExpression = ConvertToNonNullable(newExpression);
@@ -513,6 +522,10 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         protected override MemberAssignment VisitMemberAssignment(MemberAssignment memberAssignment)
         {
             var expression = Visit(memberAssignment.Expression);
+            if (expression == null)
+            {
+                return null;
+            }
             if (IsConvertedToNullable(expression, memberAssignment.Expression))
             {
                 expression = ConvertToNonNullable(expression);
@@ -582,6 +595,10 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         protected override Expression VisitUnary(UnaryExpression unaryExpression)
         {
             var newOperand = Visit(unaryExpression.Operand);
+            if (newOperand == null)
+            {
+                return null;
+            }
 
             if (unaryExpression.NodeType == ExpressionType.Convert
                 && newOperand.Type == unaryExpression.Type)
