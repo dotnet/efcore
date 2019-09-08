@@ -1793,5 +1793,14 @@ namespace Microsoft.EntityFrameworkCore.Query
                 isAsync,
                 cs => cs.Select(c => c.Orders.Select(o => (double?)o.OrderID).Min()));
         }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task DefaultIfEmpty_selects_only_required_columns(bool isAsync)
+        {
+            return AssertQuery<Product>(
+                isAsync,
+                ps => ps.Select(p => new { p.ProductID, p.ProductName }).DefaultIfEmpty().Select(p => p.ProductName));
+        }
     }
 }

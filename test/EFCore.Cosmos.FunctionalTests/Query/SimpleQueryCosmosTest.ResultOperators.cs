@@ -1433,5 +1433,11 @@ WHERE (((c[""Discriminator""] = ""Customer"") AND (c[""City""] = ""México D.F."
 FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
+
+        [ConditionalTheory(Skip = "Issue#17246")]
+        public override Task DefaultIfEmpty_selects_only_required_columns(bool isAsync)
+        {
+            return base.DefaultIfEmpty_selects_only_required_columns(isAsync);
+        }
     }
 }
