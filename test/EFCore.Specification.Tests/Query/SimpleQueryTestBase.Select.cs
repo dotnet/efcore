@@ -1258,5 +1258,55 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             public override int GetHashCode() => HashCode.Combine(Id, City);
         }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual async Task Filtered_collection_projection_is_tracked(bool isAsync)
+        {
+            using (var context = CreateContext())
+            {
+                var query = context.Customers
+                    .Where(c => c.CustomerID.StartsWith("A"))
+                    .Select(c =>
+                    new
+                    {
+                        Customer = c,
+                        FilteredOrders = c.Orders.Where(o => o.OrderID > 11000)
+                    });
+
+                var result = isAsync
+                    ? (await query.ToListAsync())
+                    : query.ToList();
+
+                Assert.Equal(4, result.Count);
+                Assert.True(result.All(r => (r.Customer.Orders?.Count ?? 0) == r.FilteredOrders.Count()));
+                Assert.Equal(6, context.ChangeTracker.Entries().Count());
+            }
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual async Task Filtered_collection_projection_with_to_list_is_tracked(bool isAsync)
+        {
+            using (var context = CreateContext())
+            {
+                var query = context.Customers
+                    .Where(c => c.CustomerID.StartsWith("A"))
+                    .Select(c =>
+                    new
+                    {
+                        Customer = c,
+                        FilteredOrders = c.Orders.Where(o => o.OrderID > 11000).ToList()
+                    });
+
+                var result = isAsync
+                    ? (await query.ToListAsync())
+                    : query.ToList();
+
+                Assert.Equal(4, result.Count);
+                Assert.True(result.All(r => (r.Customer.Orders?.Count ?? 0) == r.FilteredOrders.Count));
+                Assert.Equal(6, context.ChangeTracker.Entries().Count());
+            }
+        }
     }
 }
