@@ -368,7 +368,7 @@ LEFT JOIN (
     WHERE [e].[EmployeeID] = -1
 ) AS [t] ON 1 = 1
 INNER JOIN (
-    SELECT [t0].[EmployeeID], [t0].[City], [t0].[Country], [t0].[FirstName], [t0].[ReportsTo], [t0].[Title], [t0].[EmployeeID] AS [EmployeeID0]
+    SELECT [t0].[EmployeeID], [t0].[City], [t0].[Country], [t0].[FirstName], [t0].[ReportsTo], [t0].[Title]
     FROM (
         SELECT NULL AS [empty]
     ) AS [empty0]
@@ -3286,7 +3286,7 @@ WHERE [o].[OrderID] IS NOT NULL");
                 @"SELECT [c].[CustomerID], [t0].[OrderID]
 FROM [Customers] AS [c]
 CROSS JOIN (
-    SELECT [t].[OrderID], [t].[CustomerID], [t].[EmployeeID], [t].[OrderDate], [t].[OrderID] AS [OrderID0]
+    SELECT [t].[OrderID], [t].[CustomerID], [t].[EmployeeID], [t].[OrderDate]
     FROM (
         SELECT NULL AS [empty]
     ) AS [empty]
@@ -3306,7 +3306,7 @@ CROSS JOIN (
                 @"SELECT [c].[CustomerID], [t0].[OrderID], [o0].[OrderDate]
 FROM [Customers] AS [c]
 CROSS JOIN (
-    SELECT [t].[OrderID], [t].[CustomerID], [t].[EmployeeID], [t].[OrderDate], [t].[OrderID] AS [OrderID0]
+    SELECT [t].[OrderID], [t].[CustomerID], [t].[EmployeeID], [t].[OrderDate]
     FROM (
         SELECT NULL AS [empty]
     ) AS [empty]
