@@ -1856,12 +1856,12 @@ FROM [Cities] AS [c]
 WHERE CHARINDEX('Jacinto', [c].[Location]) > 0");
         }
 
-        public override void Non_unicode_string_literals_is_used_for_non_unicode_column_with_concat()
+        public override async Task Non_unicode_string_literals_is_used_for_non_unicode_column_with_concat(bool isAsync)
         {
-            base.Non_unicode_string_literals_is_used_for_non_unicode_column_with_concat();
+            await base.Non_unicode_string_literals_is_used_for_non_unicode_column_with_concat(isAsync);
 
             AssertSql(
-                @"SELECT [c].[Name], [c].[Location]
+                @"SELECT [c].[Name], [c].[Location], [c].[Nation]
 FROM [Cities] AS [c]
 WHERE CHARINDEX('Add', [c].[Location] + 'Added') > 0");
         }

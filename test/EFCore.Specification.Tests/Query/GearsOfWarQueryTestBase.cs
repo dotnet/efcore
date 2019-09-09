@@ -2137,19 +2137,15 @@ namespace Microsoft.EntityFrameworkCore.Query
                       select c);
         }
 
-        [ConditionalFact(Skip = "Test does not pass. See issue#4978")]
-        public virtual void Non_unicode_string_literals_is_used_for_non_unicode_column_with_concat()
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Non_unicode_string_literals_is_used_for_non_unicode_column_with_concat(bool isAsync)
         {
-            using (var context = CreateContext())
-            {
-                var query = from c in context.Cities
-                            where (c.Location + "Added").Contains("Add")
-                            select c;
-
-                var result = query.ToList();
-
-                Assert.Equal(4, result.Count);
-            }
+            return AssertQuery<City>(
+                isAsync,
+                cs => from c in cs
+                      where (c.Location + "Added").Contains("Add")
+                      select c);
         }
 
         [ConditionalFact]
