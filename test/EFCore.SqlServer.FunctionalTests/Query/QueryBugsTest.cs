@@ -6294,6 +6294,100 @@ ORDER BY [p].[Id] DESC");
 
         #endregion
 
+        #region Issue7973
+
+        [ConditionalFact]
+        public virtual void SelectMany_with_collection_selector_having_subquery()
+        {
+            using (CreateDatabase7973())
+            {
+                using (var context = new MyContext7973(_options))
+                {
+                    var users = (from user in context.Users
+                                 from organisation in context.Organisations.Where(o => o.OrganisationUsers.Any()).DefaultIfEmpty()
+                                 select new { UserId = user.Id, OrgId = organisation.Id }).ToList();
+
+                    Assert.Equal(2, users.Count);
+
+                    AssertSql(
+                        @"SELECT [u].[Id] AS [UserId], [t0].[Id] AS [OrgId]
+FROM [Users] AS [u]
+CROSS JOIN (
+    SELECT [t].[Id]
+    FROM (
+        SELECT NULL AS [empty]
+    ) AS [empty]
+    LEFT JOIN (
+        SELECT [o].[Id]
+        FROM [Organisations] AS [o]
+        WHERE EXISTS (
+            SELECT 1
+            FROM [OrganisationUser7973] AS [o0]
+            WHERE [o].[Id] = [o0].[OrganisationId])
+    ) AS [t] ON 1 = 1
+) AS [t0]");
+                }
+            }
+        }
+
+        public class MyContext7973 : DbContext
+        {
+            public DbSet<User7973> Users { get; set; }
+            public DbSet<Organisation7973> Organisations { get; set; }
+
+            public MyContext7973(DbContextOptions options) : base(options)
+            {
+            }
+
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
+            {
+                modelBuilder.Entity<OrganisationUser7973>().HasKey(ou => new { ou.OrganisationId, ou.UserId });
+                modelBuilder.Entity<OrganisationUser7973>().HasOne(ou => ou.Organisation).WithMany(o => o.OrganisationUsers).HasForeignKey(ou => ou.OrganisationId);
+                modelBuilder.Entity<OrganisationUser7973>().HasOne(ou => ou.User).WithMany(u => u.OrganisationUsers).HasForeignKey(ou => ou.UserId);
+            }
+        }
+
+        private SqlServerTestStore CreateDatabase7973()
+            => CreateTestStore(
+                () => new MyContext7973(_options),
+                context =>
+                {
+                    context.AddRange(
+                        new OrganisationUser7973
+                        {
+                            Organisation = new Organisation7973(),
+                            User = new User7973()
+                        },
+                        new Organisation7973(),
+                        new User7973());
+
+                    context.SaveChanges();
+                    ClearLog();
+                });
+
+        public class User7973
+        {
+            public int Id { get; set; }
+            public List<OrganisationUser7973> OrganisationUsers { get; set; }
+        }
+
+        public class Organisation7973
+        {
+            public int Id { get; set; }
+            public List<OrganisationUser7973> OrganisationUsers { get; set; }
+        }
+
+        public class OrganisationUser7973
+        {
+            public int OrganisationId { get; set; }
+            public Organisation7973 Organisation { get; set; }
+
+            public int UserId { get; set; }
+            public User7973 User { get; set; }
+        }
+
+        #endregion
+
         private DbContextOptions _options;
 
         private SqlServerTestStore CreateTestStore<TContext>(
