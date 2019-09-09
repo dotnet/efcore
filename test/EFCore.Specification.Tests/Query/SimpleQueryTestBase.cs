@@ -5741,5 +5741,28 @@ namespace Microsoft.EntityFrameworkCore.Query
                 Assert.Equal(85, result.Count(e => e));
             }
         }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task OrderBy_object_type_server_evals(bool isAsync)
+        {
+            Expression<Func<Order, object>>[] orderingExpressions = {
+                o => o.OrderID,
+                o => o.OrderDate,
+                o => o.Customer.CustomerID,
+                o => o.Customer.City
+            };
+
+            return AssertQuery<Order>(
+                isAsync,
+                os => os.OrderBy(orderingExpressions[0])
+                    .ThenBy(orderingExpressions[1])
+                    .ThenBy(orderingExpressions[2])
+                    .ThenBy(orderingExpressions[3])
+                    .Skip(0)
+                    .Take(20),
+                entryCount: 20,
+                assertOrder: true);
+        }
     }
 }

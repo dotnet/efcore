@@ -4694,6 +4694,21 @@ FROM [Orders] AS [o]
 LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]");
         }
 
+        public override async Task OrderBy_object_type_server_evals(bool isAsync)
+        {
+            await base.OrderBy_object_type_server_evals(isAsync);
+
+            AssertSql(
+                @"@__p_0='0'
+@__p_1='20'
+
+SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]
+ORDER BY [o].[OrderID], [o].[OrderDate], [c].[CustomerID], [c].[City]
+OFFSET @__p_0 ROWS FETCH NEXT @__p_1 ROWS ONLY");
+        }
+
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 
