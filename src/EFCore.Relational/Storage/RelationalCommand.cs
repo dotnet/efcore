@@ -628,11 +628,11 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="commandId">A correlation ID that identifies the <see cref="DbCommand" /> instance being used, to pass to the <see cref="RelationalDataReader" /> constructor.</param>
         /// <param name="logger">The diagnostic source, to pass to the <see cref="RelationalDataReader" /> constructor.</param>
         /// <returns>The created <see cref="RelationalDataReader" />.</returns>
-        protected virtual RelationalDataReader CreateRelationalDataReader(IRelationalConnection connection,
-            DbCommand command,
-            DbDataReader reader,
+        protected virtual RelationalDataReader CreateRelationalDataReader([NotNull] IRelationalConnection connection,
+            [NotNull] DbCommand command,
+            [NotNull] DbDataReader reader,
             Guid commandId,
-            IDiagnosticsLogger<DbLoggerCategory.Database.Command> logger)
+            [CanBeNull] IDiagnosticsLogger<DbLoggerCategory.Database.Command> logger)
             => new RelationalDataReader(
                 connection,
                 command,
