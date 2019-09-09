@@ -6063,6 +6063,70 @@ WHERE ([f].[String] = N'1337') AND [f].[String] IS NOT NULL");
 
         #endregion
 
+        #region Bug9582
+
+        [ConditionalFact]
+        public virtual void Setting_IsUnicode_generates_unicode_literal_in_SQL()
+        {
+            using (CreateDatabase9582())
+            {
+                using (var context = new MyContext9582(_options))
+                {
+                    // Verify SQL
+                    var query = context.Set<TipoServicio9582>().Where(xx => xx.Nombre.Contains("lla")).ToList();
+
+                    AssertSql(
+                        @"SELECT [t].[Id], [t].[Nombre]
+FROM [TipoServicio9582] AS [t]
+WHERE CHARINDEX('lla', [t].[Nombre]) > 0");
+                }
+            }
+        }
+
+        public class MyContext9582 : DbContext
+        {
+            public MyContext9582(DbContextOptions options) : base(options)
+            {
+            }
+
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
+            {
+                modelBuilder.Entity<TipoServicio9582>(
+                    builder =>
+                    {
+                        builder.HasKey(ts => ts.Id);
+
+                        builder.Property(ts => ts.Id).IsRequired();
+                        builder.Property(ts => ts.Nombre).IsRequired().HasMaxLength(20);
+                    });
+
+                foreach (var property in modelBuilder.Model.GetEntityTypes()
+                    .SelectMany(e => e.GetProperties().Where(p => p.ClrType == typeof(string))))
+                {
+                    property.SetIsUnicode(false);
+                }
+            }
+        }
+
+        private SqlServerTestStore CreateDatabase9582()
+            => CreateTestStore(
+                () => new MyContext9582(_options),
+                context =>
+                {
+                    context.SaveChanges();
+
+                    ClearLog();
+                });
+
+        public class TipoServicio9582
+        {
+
+            public int Id { get; set; }
+            public string Nombre { get; set; }
+        }
+
+        #endregion
+
         #region Bug7222
 
         [ConditionalFact]
