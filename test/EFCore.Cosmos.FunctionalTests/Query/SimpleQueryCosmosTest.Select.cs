@@ -865,5 +865,17 @@ WHERE (c[""Discriminator""] = ""Customer"")");
         {
             return base.Project_non_nullable_value_after_FirstOrDefault_on_empty_collection(isAsync);
         }
+
+        [ConditionalTheory(Skip = "Issue#17246")]
+        public override Task Filtered_collection_projection_is_tracked(bool isAsync)
+        {
+            return base.Filtered_collection_projection_is_tracked(isAsync);
+        }
+
+        [ConditionalTheory(Skip = "Issue#17246")]
+        public override Task Filtered_collection_projection_with_to_list_is_tracked(bool isAsync)
+        {
+            return base.Filtered_collection_projection_with_to_list_is_tracked(isAsync);
+        }
     }
 }
