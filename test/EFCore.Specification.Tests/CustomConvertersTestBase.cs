@@ -103,9 +103,10 @@ namespace Microsoft.EntityFrameworkCore
             {
                 var principal = context.Add(
                         new NullablePrincipal
-                            {
-                                Id = 1, Dependents = new List<NonNullableDependent> { new NonNullableDependent { Id = 1 } }
-                            })
+                        {
+                            Id = 1,
+                            Dependents = new List<NonNullableDependent> { new NonNullableDependent { Id = 1 } }
+                        })
                     .Entity;
 
                 var pkEntry = context.Entry(principal).Property(e => e.Id);
@@ -298,6 +299,57 @@ namespace Microsoft.EntityFrameworkCore
 
             public IList<string> Strings { get; set; }
         }
+
+        [ConditionalFact]
+        public virtual void Can_insert_and_query_struct_to_string_converter_for_pk()
+        {
+            using (var context = CreateContext())
+            {
+                context.Set<Order>().Add(new Order { Id = OrderId.Parse("Id1") });
+
+                Assert.Equal(1, context.SaveChanges());
+            }
+
+            using (var context = CreateContext())
+            {
+                // Inline
+                var entity = context.Set<Order>().Where(o => (string)o.Id == "Id1").Single();
+
+                // constant from closure
+                const string idAsStringConstant = "Id1";
+                entity = context.Set<Order>().Where(o => (string)o.Id == idAsStringConstant).Single();
+
+                // Variable from closure
+                var idAsStringVariable = "Id1";
+                entity = context.Set<Order>().Where(o => (string)o.Id == idAsStringVariable).Single();
+
+                // Inline parsing function
+                entity = context.Set<Order>().Where(o => (string)o.Id == OrderId.Parse("Id1").StringValue).Single();
+            }
+        }
+
+        public class Order
+        {
+            public OrderId Id { get; set; }
+        }
+
+        public struct OrderId
+        {
+            private OrderId(string stringValue)
+            {
+                StringValue = stringValue;
+            }
+
+            public string StringValue { get; }
+
+            public static OrderId Parse(string stringValue)
+            {
+                return new OrderId(stringValue);
+            }
+
+            public static explicit operator string(OrderId orderId) => orderId.StringValue;
+        }
+
 
         public abstract class CustomConvertersFixtureBase : BuiltInDataTypesFixtureBase
         {
@@ -645,6 +697,29 @@ namespace Microsoft.EntityFrameworkCore
                         b.Property(e => e.Strings).HasConversion(v => string.Join(",", v), v => v.Split(new[] { ',' }).ToList());
                         b.Property(e => e.Id).ValueGeneratedNever();
                     });
+
+                modelBuilder.Entity<Order>(
+                    b =>
+                    {
+                        b.HasKey(o => o.Id);
+                        b.Property(o => o.Id).HasConversion(new OrderIdEntityFrameworkValueConverter());
+                    });
+            }
+
+            private class OrderIdEntityFrameworkValueConverter : ValueConverter<OrderId, string>
+            {
+                public OrderIdEntityFrameworkValueConverter() : this(null)
+                {
+                }
+
+                public OrderIdEntityFrameworkValueConverter(ConverterMappingHints mappingHints)
+                    : base(
+                        orderId => orderId.StringValue,
+                        stringValue => OrderId.Parse(stringValue),
+                        mappingHints
+                    )
+                {
+                }
             }
         }
     }
