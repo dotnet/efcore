@@ -926,5 +926,17 @@ namespace Microsoft.EntityFrameworkCore.Query
                     select grouping.Count(),
                 assertOrder: true);
         }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task GroupJoin_Subquery_with_Take_Then_SelectMany_Where(bool isAsync)
+        {
+            return AssertQuery<Customer, Order>(
+                isAsync,
+                (cs, os) => from c in cs
+                            join o in os.OrderBy(o => o.OrderID).Take(100) on c.CustomerID equals o.CustomerID into lo
+                            from o in lo.Where(x => x.CustomerID.StartsWith("A"))
+                            select new { c.CustomerID, o.OrderID });
+        }
     }
 }
