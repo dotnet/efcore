@@ -7570,6 +7570,15 @@ namespace Microsoft.EntityFrameworkCore.Query
                       select new { Nickname1 = g.Nickname, Nickname2 = o.Nickname });
         }
 
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Scalar_projection_after_Concat(bool isAsync)
+        {
+            return AssertQuery<Gear>(
+                isAsync,
+                gs => gs.Concat(gs).Select(g => g.Nickname));
+        }
+
         protected GearsOfWarContext CreateContext() => Fixture.CreateContext();
 
         protected virtual void ClearLog()
