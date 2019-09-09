@@ -133,11 +133,12 @@ namespace Microsoft.EntityFrameworkCore
                 {
                     OnModelCreating(modelBuilder);
                     modelBuilder.Ignore<SolidFuelTank>();
-                    modelBuilder.Entity<FuelTank>(eb =>
-                    {
-                        eb.Property(t => t.Capacity).IsRequired();
-                        eb.Property(t => t.FuelType).IsRequired();
-                    });
+                    modelBuilder.Entity<FuelTank>(
+                        eb =>
+                        {
+                            eb.Property(t => t.Capacity).IsRequired();
+                            eb.Property(t => t.FuelType).IsRequired();
+                        });
                 }))
             {
                 using (var context = CreateContext())
@@ -198,19 +199,10 @@ namespace Microsoft.EntityFrameworkCore
                         {
                             Name = "Fuel transport",
                             SeatingCapacity = 1,
-                            Operator = new LicensedOperator
-                            {
-                                Name = "Jack Jackson",
-                                LicenseType = "Class A CDC"
-                            }
+                            Operator = new LicensedOperator { Name = "Jack Jackson", LicenseType = "Class A CDC" }
                         });
                     context.Add(
-                        new FuelTank
-                        {
-                            Capacity = "10000 l",
-                            FuelType = "Gas",
-                            VehicleName = "Fuel transport"
-                        });
+                        new FuelTank { Capacity = "10000 l", FuelType = "Gas", VehicleName = "Fuel transport" });
 
                     Assert.Equal(
                         RelationalStrings.SharedRowEntryCountMismatchSensitive(
@@ -245,18 +237,11 @@ namespace Microsoft.EntityFrameworkCore
                 {
                     var bike = context.Vehicles.Include(v => v.Operator).Single(v => v.Name == "Trek Pro Fit Madone 6 Series");
 
-                    bike.Operator = new Operator
-                    {
-                        Name = "Chris Horner"
-                    };
+                    bike.Operator = new Operator { Name = "Chris Horner" };
 
                     context.ChangeTracker.DetectChanges();
 
-                    bike.Operator = new LicensedOperator
-                    {
-                        Name = "repairman",
-                        LicenseType = "Repair"
-                    };
+                    bike.Operator = new LicensedOperator { Name = "repairman", LicenseType = "Repair" };
 
                     TestSqlLoggerFactory.Clear();
                     context.SaveChanges();
@@ -298,12 +283,7 @@ namespace Microsoft.EntityFrameworkCore
                 {
                     var bike = context.Vehicles.Single(v => v.Name == "Trek Pro Fit Madone 6 Series");
 
-                    var newBike = new Vehicle
-                    {
-                        Name = "Trek Pro Fit Madone 6 Series",
-                        Operator = bike.Operator,
-                        SeatingCapacity = 2
-                    };
+                    var newBike = new Vehicle { Name = "Trek Pro Fit Madone 6 Series", Operator = bike.Operator, SeatingCapacity = 2 };
 
                     context.Remove(bike);
                     context.Add(newBike);
@@ -352,11 +332,7 @@ namespace Microsoft.EntityFrameworkCore
                     var newBike = new Vehicle
                     {
                         Name = "Trek Pro Fit Madone 6 Series",
-                        Operator = new LicensedOperator
-                        {
-                            Name = "repairman",
-                            LicenseType = "Repair"
-                        },
+                        Operator = new LicensedOperator { Name = "repairman", LicenseType = "Repair" },
                         SeatingCapacity = 2
                     };
 
@@ -413,7 +389,7 @@ namespace Microsoft.EntityFrameworkCore
                 .AddSingleton<ILoggerFactory>(TestSqlLoggerFactory)
                 .BuildServiceProvider(validateScopes: true);
 
-            TestStore.Initialize(ServiceProvider, CreateContext, c => ((TransportationContext)c).Seed(), null);
+            TestStore.Initialize(ServiceProvider, CreateContext, c => ((TransportationContext)c).Seed());
 
             TestSqlLoggerFactory.Clear();
 

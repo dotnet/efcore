@@ -26,10 +26,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations
         public virtual string Schema { get; [param: CanBeNull] set; }
 
         /// <summary>
-        ///    The logical sql expression used in a CHECK constraint and returns TRUE or FALSE.
-        ///    Sql used with CHECK constraints cannot reference another table
-        ///    but can reference other columns in the same table for the same row.
-        ///    The expression cannot reference an alias data type.
+        ///     The logical sql expression used in a CHECK constraint and returns TRUE or FALSE.
+        ///     Sql used with CHECK constraints cannot reference another table
+        ///     but can reference other columns in the same table for the same row.
+        ///     The expression cannot reference an alias data type.
         /// </summary>
         public virtual string Sql { get; [param: NotNull] set; }
     }

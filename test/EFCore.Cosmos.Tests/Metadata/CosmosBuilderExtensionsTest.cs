@@ -39,12 +39,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
             ((IConventionEntityType)entityType).Builder.HasPartitionKey("pk");
             Assert.Equal("pk", entityType.GetPartitionKeyPropertyName());
-            Assert.Equal(ConfigurationSource.Convention,
+            Assert.Equal(
+                ConfigurationSource.Convention,
                 ((IConventionEntityType)entityType).GetPartitionKeyPropertyNameConfigurationSource());
 
             entityTypeBuilder.HasPartitionKey("pk");
             Assert.Equal("pk", entityType.GetPartitionKeyPropertyName());
-            Assert.Equal(ConfigurationSource.Explicit,
+            Assert.Equal(
+                ConfigurationSource.Explicit,
                 ((IConventionEntityType)entityType).GetPartitionKeyPropertyNameConfigurationSource());
 
             Assert.False(((IConventionEntityType)entityType).Builder.CanSetPartitionKey("partition"));

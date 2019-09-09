@@ -79,9 +79,11 @@ namespace Microsoft.EntityFrameworkCore
             var model = CreateDefaultModelSource(setFinder)
                 .GetModel(
                     InMemoryTestHelpers.Instance.CreateContext(),
-                    new RuntimeConventionSetBuilder(new ProviderConventionSetBuilder(
-                        InMemoryTestHelpers.Instance.CreateContextServices().GetRequiredService<ProviderConventionSetBuilderDependencies>()
-                            .With(setFinder)), new List<IConventionSetPlugin>()));
+                    new RuntimeConventionSetBuilder(
+                        new ProviderConventionSetBuilder(
+                            InMemoryTestHelpers.Instance.CreateContextServices()
+                                .GetRequiredService<ProviderConventionSetBuilderDependencies>()
+                                .With(setFinder)), new List<IConventionSetPlugin>()));
 
             Assert.Equal(
                 new[] { typeof(SetA).DisplayName(), typeof(SetB).DisplayName() },

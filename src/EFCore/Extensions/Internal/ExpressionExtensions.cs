@@ -31,7 +31,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public static bool IsNullConstantExpression([NotNull] this Expression expression)
-            => expression.RemoveConvert() is ConstantExpression constantExpression
+            => RemoveConvert(expression) is ConstantExpression constantExpression
                && constantExpression.Value == null;
 
         /// <summary>
@@ -48,7 +48,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             var parameterExpression
                 = lambdaExpression.Parameters.Single();
 
-            if (lambdaExpression.Body.RemoveConvert() is NewExpression newExpression)
+            if (RemoveConvert(lambdaExpression.Body) is NewExpression newExpression)
             {
                 var propertyInfos
                     = newExpression
@@ -89,7 +89,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
 
             do
             {
-                memberExpression = RemoveTypeAs(propertyAccessExpression.RemoveConvert()) as MemberExpression;
+                memberExpression = RemoveTypeAs(RemoveConvert(propertyAccessExpression)) as MemberExpression;
 
                 if (!(memberExpression?.Member is PropertyInfo propertyInfo))
                 {
@@ -100,7 +100,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
 
                 propertyAccessExpression = memberExpression.Expression;
             }
-            while (RemoveTypeAs(memberExpression.Expression.RemoveConvert()) != parameterExpression);
+            while (RemoveTypeAs(RemoveConvert(memberExpression.Expression)) != parameterExpression);
 
             return propertyInfos;
         }
@@ -115,7 +115,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         {
             while ((expression?.NodeType == ExpressionType.TypeAs))
             {
-                expression = ((UnaryExpression)expression.RemoveConvert()).Operand;
+                expression = ((UnaryExpression)RemoveConvert(expression)).Operand;
             }
 
             return expression;
@@ -153,10 +153,10 @@ namespace Microsoft.EntityFrameworkCore.Internal
         /// </summary>
         public static LambdaExpression GetLambdaOrNull(this Expression expression)
             => expression is LambdaExpression lambda
-            ? lambda
-            : expression is UnaryExpression unary && expression.NodeType == ExpressionType.Quote
-                ? (LambdaExpression)unary.Operand
-                : null;
+                ? lambda
+                : expression is UnaryExpression unary && expression.NodeType == ExpressionType.Quote
+                    ? (LambdaExpression)unary.Operand
+                    : null;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -166,7 +166,19 @@ namespace Microsoft.EntityFrameworkCore.Internal
         /// </summary>
         public static LambdaExpression UnwrapLambdaFromQuote(this Expression expression)
             => (LambdaExpression)(expression is UnaryExpression unary && expression.NodeType == ExpressionType.Quote
-            ? unary.Operand
-            : expression);
+                ? unary.Operand
+                : expression);
+
+        private static Expression RemoveConvert(Expression expression)
+        {
+            if (expression is UnaryExpression unaryExpression
+                && (expression.NodeType == ExpressionType.Convert
+                    || expression.NodeType == ExpressionType.ConvertChecked))
+            {
+                return RemoveConvert(unaryExpression.Operand);
+            }
+
+            return expression;
+        }
     }
 }

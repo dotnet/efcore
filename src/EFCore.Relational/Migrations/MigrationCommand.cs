@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
@@ -24,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         ///     Creates a new instance of the command.
         /// </summary>
         /// <param name="relationalCommand"> The underlying <see cref="IRelationalCommand" /> that will be used to execute the command. </param>
-        /// <param name="context"> The current <see cref="DbContext"/> or null if not known. </param>
+        /// <param name="context"> The current <see cref="DbContext" /> or null if not known. </param>
         /// <param name="logger"> The command logger. </param>
         /// <param name="transactionSuppressed"> Indicates whether or not transactions should be suppressed while executing the command. </param>
         public MigrationCommand(

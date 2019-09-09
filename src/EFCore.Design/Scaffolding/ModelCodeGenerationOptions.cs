@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using JetBrains.Annotations;
@@ -23,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
         public virtual bool SuppressConnectionStringWarning { get; set; }
 
         /// <summary>
-        /// Gets or sets the namespace of the project.
+        ///     Gets or sets the namespace of the project.
         /// </summary>
         /// <value>The namespace of the project.</value>
         public virtual string RootNamespace { get; [param: CanBeNull] set; }
@@ -35,7 +35,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
         public virtual string ModelNamespace { get; [param: CanBeNull] set; }
 
         /// <summary>
-        /// Gets or sets the namespace for context class.
+        ///     Gets or sets the namespace for context class.
         /// </summary>
         /// <value>The namespace for context class.</value>
         public virtual string ContextNamespace { get; [param: CanBeNull] set; }

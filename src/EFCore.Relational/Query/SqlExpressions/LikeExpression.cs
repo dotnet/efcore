@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -50,15 +50,15 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 
         public override bool Equals(object obj)
             => obj != null
-            && (ReferenceEquals(this, obj)
-                || obj is LikeExpression likeExpression
-                    && Equals(likeExpression));
+               && (ReferenceEquals(this, obj)
+                   || obj is LikeExpression likeExpression
+                   && Equals(likeExpression));
 
         private bool Equals(LikeExpression likeExpression)
             => base.Equals(likeExpression)
-            && Match.Equals(likeExpression.Match)
-            && Pattern.Equals(likeExpression.Pattern)
-            && EscapeChar.Equals(likeExpression.EscapeChar);
+               && Match.Equals(likeExpression.Match)
+               && Pattern.Equals(likeExpression.Pattern)
+               && EscapeChar.Equals(likeExpression.EscapeChar);
 
         public override int GetHashCode() => HashCode.Combine(base.GetHashCode(), Match, Pattern, EscapeChar);
     }

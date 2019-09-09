@@ -605,7 +605,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         {
             var conventionSet = new ConventionSet();
 
-            var dependencies = CreateDependencies().With(new CurrentDbContext(dbContext ?? new DbContext(new DbContextOptions<DbContext>())));
+            var dependencies = CreateDependencies()
+                .With(new CurrentDbContext(dbContext ?? new DbContext(new DbContextOptions<DbContext>())));
             var relationalDependencies = CreateRelationalDependencies();
             var dbFunctionAttributeConvention = new RelationalDbFunctionAttributeConvention(dependencies, relationalDependencies);
             conventionSet.ModelInitializedConventions.Add(dbFunctionAttributeConvention);

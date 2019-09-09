@@ -76,6 +76,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.ValueGeneration.Internal
                         builder.Append(item.ToString().Replace("|", "/|"));
                         builder.Append("|");
                     }
+
                     return;
                 default:
                     builder.Append(propertyValue.ToString().Replace("|", "/|"));

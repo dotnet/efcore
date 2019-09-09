@@ -181,10 +181,7 @@ namespace Microsoft.EntityFrameworkCore.Update
 
             var connection = CreateConnection(
                 CreateFakeDataReader(
-                    new[] { "Col1" }, new List<object[]>
-                    {
-                        new object[] { 42 }
-                    }));
+                    new[] { "Col1" }, new List<object[]> { new object[] { 42 } }));
 
             var batch = new ModificationCommandBatchFake();
             batch.AddCommand(command);
@@ -207,10 +204,7 @@ namespace Microsoft.EntityFrameworkCore.Update
 
             var connection = CreateConnection(
                 CreateFakeDataReader(
-                    new[] { "Col1", "Col2" }, new List<object[]>
-                    {
-                        new object[] { 42, "FortyTwo" }
-                    }));
+                    new[] { "Col1", "Col2" }, new List<object[]> { new object[] { 42, "FortyTwo" } }));
 
             var batch = new ModificationCommandBatchFake();
             batch.AddCommand(command);
@@ -232,10 +226,7 @@ namespace Microsoft.EntityFrameworkCore.Update
 
             var connection = CreateConnection(
                 CreateFakeDataReader(
-                    new[] { "Col2" }, new List<object[]>
-                    {
-                        new object[] { "FortyTwo" }
-                    }));
+                    new[] { "Col2" }, new List<object[]> { new object[] { "FortyTwo" } }));
 
             var batch = new ModificationCommandBatchFake();
             batch.AddCommand(command);
@@ -258,11 +249,7 @@ namespace Microsoft.EntityFrameworkCore.Update
             var connection = CreateConnection(
                 CreateFakeDataReader(
                     new[] { "Col1" },
-                    new List<object[]>
-                    {
-                        new object[] { 42 },
-                        new object[] { 43 }
-                    }));
+                    new List<object[]> { new object[] { 42 }, new object[] { 43 } }));
 
             var batch = new ModificationCommandBatchFake();
             batch.AddCommand(command);
@@ -282,10 +269,7 @@ namespace Microsoft.EntityFrameworkCore.Update
 
             var connection = CreateConnection(
                 CreateFakeDataReader(
-                    new[] { "Col1" }, new List<object[]>
-                    {
-                        new object[] { 42 }
-                    }));
+                    new[] { "Col1" }, new List<object[]> { new object[] { 42 } }));
 
             var batch = new ModificationCommandBatchFake();
             batch.AddCommand(command);
@@ -538,19 +522,12 @@ namespace Microsoft.EntityFrameworkCore.Update
             var model = BuildModel(generateKeyValues, computeNonKeyValue);
 
             return RelationalTestHelpers.Instance.CreateInternalEntry(
-                model, entityState, new T1
-                {
-                    Id = 1,
-                    Name = computeNonKeyValue ? null : "Test"
-                });
+                model, entityState, new T1 { Id = 1, Name = computeNonKeyValue ? null : "Test" });
         }
 
         private static FakeDbDataReader CreateFakeDataReader(string[] columnNames = null, IList<object[]> results = null)
         {
-            results ??= new List<object[]>
-            {
-                new object[] { 1 }
-            };
+            results ??= new List<object[]> { new object[] { 1 } };
             columnNames ??= new[] { "RowsAffected" };
 
             return new FakeDbDataReader(columnNames, results);

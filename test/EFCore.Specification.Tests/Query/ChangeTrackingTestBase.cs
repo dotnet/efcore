@@ -220,15 +220,15 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                 var results = query.Take(1).ToList();
 
-                Assert.Equal(1, results.Count);
-                Assert.Equal(1, context.ChangeTracker.Entries().Count());
+                Assert.Single(results);
+                Assert.Single(context.ChangeTracker.Entries());
 
                 context.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
 
                 results = query.Skip(1).Take(1).ToList();
 
-                Assert.Equal(1, results.Count);
-                Assert.Equal(1, context.ChangeTracker.Entries().Count());
+                Assert.Single(results);
+                Assert.Single(context.ChangeTracker.Entries());
 
                 context.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.TrackAll;
 
@@ -250,15 +250,15 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                 var results = query.Take(1).ToList();
 
-                Assert.Equal(1, results.Count);
-                Assert.Equal(0, context.ChangeTracker.Entries().Count());
+                Assert.Single(results);
+                Assert.Empty(context.ChangeTracker.Entries());
 
                 context.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.TrackAll;
 
                 results = query.Skip(1).Take(1).ToList();
 
-                Assert.Equal(1, results.Count);
-                Assert.Equal(1, context.ChangeTracker.Entries().Count());
+                Assert.Single(results);
+                Assert.Single(context.ChangeTracker.Entries());
             }
         }
 
@@ -282,7 +282,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 var results = context.Employees.ToList();
 
                 Assert.Equal(9, results.Count);
-                Assert.Equal(0, context.ChangeTracker.Entries().Count());
+                Assert.Empty(context.ChangeTracker.Entries());
 
                 context.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.TrackAll;
             }
@@ -308,7 +308,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 var results = context.Employees.ToList();
 
                 Assert.Equal(9, results.Count);
-                Assert.Equal(0, context.ChangeTracker.Entries().Count());
+                Assert.Empty(context.ChangeTracker.Entries());
             }
         }
 
@@ -324,7 +324,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 var results = context.Employees.ToList();
 
                 Assert.Equal(9, results.Count);
-                Assert.Equal(0, context.ChangeTracker.Entries().Count());
+                Assert.Empty(context.ChangeTracker.Entries());
 
                 context.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.TrackAll;
 
@@ -367,7 +367,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 var results = context.Employees.AsTracking().AsNoTracking().ToList();
 
                 Assert.Equal(9, results.Count);
-                Assert.Equal(0, context.ChangeTracker.Entries().Count());
+                Assert.Empty(context.ChangeTracker.Entries());
             }
         }
 
@@ -403,7 +403,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     .ToList();
 
                 Assert.Equal(6, customers.Count);
-                Assert.Equal(0, context.ChangeTracker.Entries().Count());
+                Assert.Empty(context.ChangeTracker.Entries());
             }
         }
 
@@ -422,7 +422,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     .ToList();
 
                 Assert.Equal(6, customers.Count);
-                Assert.Equal(0, context.ChangeTracker.Entries().Count());
+                Assert.Empty(context.ChangeTracker.Entries());
             }
         }
 

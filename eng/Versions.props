@@ -1,7 +1,7 @@
 <Project>
   <PropertyGroup Label="Version settings">
-    <VersionPrefix>3.0.0</VersionPrefix>
-    <PreReleaseVersionLabel>rc2</PreReleaseVersionLabel>
+    <VersionPrefix>3.1.0</VersionPrefix>
+    <PreReleaseVersionLabel>alpha1</PreReleaseVersionLabel>
     <IncludeSourceRevisionInInformationalVersion>False</IncludeSourceRevisionInInformationalVersion>
   </PropertyGroup>
   <PropertyGroup Label="Arcade settings">
@@ -10,7 +10,6 @@
     <UsingToolXliff>False</UsingToolXliff>
   </PropertyGroup>
   <PropertyGroup Label="Dependencies from nuget.org">
-    <SystemThreadingTasksExtensionsVersion>4.5.2</SystemThreadingTasksExtensionsVersion>
     <CastleCorePackageVersion>4.2.1</CastleCorePackageVersion>
     <MicrosoftAzureCosmosPackageVersion>3.0.0</MicrosoftAzureCosmosPackageVersion>
     <MicrosoftCodeAnalysisCSharpPackageVersion>2.8.0</MicrosoftCodeAnalysisCSharpPackageVersion>
@@ -27,29 +26,29 @@
     <MicrosoftDataSqlClientPackageVersion>1.0.19239.1</MicrosoftDataSqlClientPackageVersion>
   </PropertyGroup>
   <PropertyGroup Label="Dependencies from aspnet/Extensions">
-    <MicrosoftExtensionsCachingMemoryPackageVersion>3.0.0-rc2.19458.1</MicrosoftExtensionsCachingMemoryPackageVersion>
-    <MicrosoftExtensionsConfigurationPackageVersion>3.0.0-rc2.19458.1</MicrosoftExtensionsConfigurationPackageVersion>
-    <MicrosoftExtensionsConfigurationEnvironmentVariablesPackageVersion>3.0.0-rc2.19458.1</MicrosoftExtensionsConfigurationEnvironmentVariablesPackageVersion>
-    <MicrosoftExtensionsConfigurationJsonPackageVersion>3.0.0-rc2.19458.1</MicrosoftExtensionsConfigurationJsonPackageVersion>
-    <MicrosoftExtensionsDependencyInjectionPackageVersion>3.0.0-rc2.19458.1</MicrosoftExtensionsDependencyInjectionPackageVersion>
-    <MicrosoftExtensionsHostFactoryResolverSourcesPackageVersion>3.0.0-rc2.19458.1</MicrosoftExtensionsHostFactoryResolverSourcesPackageVersion>
-    <MicrosoftExtensionsLoggingPackageVersion>3.0.0-rc2.19458.1</MicrosoftExtensionsLoggingPackageVersion>
+    <MicrosoftExtensionsCachingMemoryPackageVersion>3.1.0-alpha1.19455.1</MicrosoftExtensionsCachingMemoryPackageVersion>
+    <MicrosoftExtensionsConfigurationPackageVersion>3.1.0-alpha1.19455.1</MicrosoftExtensionsConfigurationPackageVersion>
+    <MicrosoftExtensionsConfigurationEnvironmentVariablesPackageVersion>3.1.0-alpha1.19455.1</MicrosoftExtensionsConfigurationEnvironmentVariablesPackageVersion>
+    <MicrosoftExtensionsConfigurationJsonPackageVersion>3.1.0-alpha1.19455.1</MicrosoftExtensionsConfigurationJsonPackageVersion>
+    <MicrosoftExtensionsDependencyInjectionPackageVersion>3.1.0-alpha1.19455.1</MicrosoftExtensionsDependencyInjectionPackageVersion>
+    <MicrosoftExtensionsHostFactoryResolverSourcesPackageVersion>3.1.0-alpha1.19455.1</MicrosoftExtensionsHostFactoryResolverSourcesPackageVersion>
+    <MicrosoftExtensionsLoggingPackageVersion>3.1.0-alpha1.19455.1</MicrosoftExtensionsLoggingPackageVersion>
   </PropertyGroup>
   <PropertyGroup Label="Dependencies from dotnet/corefx">
-    <MicrosoftCSharpPackageVersion>4.6.0-rc2.19457.8</MicrosoftCSharpPackageVersion>
-    <SystemCollectionsImmutablePackageVersion>1.6.0-rc2.19457.8</SystemCollectionsImmutablePackageVersion>
-    <SystemComponentModelAnnotationsPackageVersion>4.6.0-rc2.19457.8</SystemComponentModelAnnotationsPackageVersion>
-    <SystemDiagnosticsDiagnosticSourcePackageVersion>4.6.0-rc2.19457.8</SystemDiagnosticsDiagnosticSourcePackageVersion>
+    <MicrosoftCSharpPackageVersion>4.6.0-rc1.19453.4</MicrosoftCSharpPackageVersion>
+    <SystemCollectionsImmutablePackageVersion>1.6.0-rc1.19453.4</SystemCollectionsImmutablePackageVersion>
+    <SystemComponentModelAnnotationsPackageVersion>4.6.0-rc1.19453.4</SystemComponentModelAnnotationsPackageVersion>
+    <SystemDiagnosticsDiagnosticSourcePackageVersion>4.6.0-rc1.19453.4</SystemDiagnosticsDiagnosticSourcePackageVersion>
   </PropertyGroup>
   <PropertyGroup Label="Dependencies from dotnet/core-setup">
-    <MicrosoftDotNetPlatformAbstractionsPackageVersion>3.0.0-rc2-19457-15</MicrosoftDotNetPlatformAbstractionsPackageVersion>
-    <MicrosoftExtensionsDependencyModelPackageVersion>3.0.0-rc2-19457-15</MicrosoftExtensionsDependencyModelPackageVersion>
-    <MicrosoftNETCoreAppRefPackageVersion>3.0.0-rc2-19457-15</MicrosoftNETCoreAppRefPackageVersion>
-    <MicrosoftNETCoreAppRuntimewinx64PackageVersion>3.0.0-rc2-19457-15</MicrosoftNETCoreAppRuntimewinx64PackageVersion>
-    <NETStandardLibraryRefPackageVersion>2.1.0-rc2-19457-15</NETStandardLibraryRefPackageVersion>
+    <MicrosoftDotNetPlatformAbstractionsPackageVersion>3.0.0-rc1-19453-06</MicrosoftDotNetPlatformAbstractionsPackageVersion>
+    <MicrosoftExtensionsDependencyModelPackageVersion>3.0.0-rc1-19453-06</MicrosoftExtensionsDependencyModelPackageVersion>
+    <MicrosoftNETCoreAppRefPackageVersion>3.0.0-rc1-19453-06</MicrosoftNETCoreAppRefPackageVersion>
+    <MicrosoftNETCoreAppRuntimewinx64PackageVersion>3.0.0-rc1-19453-06</MicrosoftNETCoreAppRuntimewinx64PackageVersion>
+    <NETStandardLibraryRefPackageVersion>2.1.0-rc1-19453-06</NETStandardLibraryRefPackageVersion>
   </PropertyGroup>
   <PropertyGroup Label="Dependencies from dotnet/roslyn">
-    <MicrosoftNetCompilersToolsetVersion>3.3.1-beta3-19456-04</MicrosoftNetCompilersToolsetVersion>
+    <MicrosoftNetCompilersToolsetVersion>3.3.1-beta3-19430-03</MicrosoftNetCompilersToolsetVersion>
   </PropertyGroup>
   <PropertyGroup Label="Dependency version settings">
     <!--

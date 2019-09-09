@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -13,6 +13,7 @@ namespace Microsoft.EntityFrameworkCore.Query
     {
         private readonly IDictionary<IProperty, ColumnExpression> _propertyExpressionsCache
             = new Dictionary<IProperty, ColumnExpression>();
+
         private readonly IDictionary<INavigation, EntityShaperExpression> _navigationExpressionsCache
             = new Dictionary<INavigation, EntityShaperExpression>();
 
@@ -80,21 +81,19 @@ namespace Microsoft.EntityFrameworkCore.Query
             {
                 return new EntityProjectionExpression(derivedType, _innerTable, _nullable);
             }
-            else
-            {
-                var propertyExpressionCache = new Dictionary<IProperty, ColumnExpression>();
-                foreach (var kvp in _propertyExpressionsCache)
-                {
-                    var property = kvp.Key;
-                    if (derivedType.IsAssignableFrom(property.DeclaringEntityType)
-                        || property.DeclaringEntityType.IsAssignableFrom(derivedType))
-                    {
-                        propertyExpressionCache[property] = kvp.Value;
-                    }
-                }
 
-                return new EntityProjectionExpression(derivedType, propertyExpressionCache);
+            var propertyExpressionCache = new Dictionary<IProperty, ColumnExpression>();
+            foreach (var kvp in _propertyExpressionsCache)
+            {
+                var property = kvp.Key;
+                if (derivedType.IsAssignableFrom(property.DeclaringEntityType)
+                    || property.DeclaringEntityType.IsAssignableFrom(derivedType))
+                {
+                    propertyExpressionCache[property] = kvp.Value;
+                }
             }
+
+            return new EntityProjectionExpression(derivedType, propertyExpressionCache);
         }
 
         public virtual IEntityType EntityType { get; }
@@ -125,7 +124,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 && !navigation.DeclaringEntityType.IsAssignableFrom(EntityType))
             {
                 throw new InvalidOperationException(
-                    $"Called EntityProjectionExpression.AddNavigationBinding() with incorrect INavigation. " +
+                    "Called EntityProjectionExpression.AddNavigationBinding() with incorrect INavigation. " +
                     $"EntityType:{EntityType.DisplayName()}, Property:{navigation.Name}");
             }
 
@@ -138,7 +137,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 && !navigation.DeclaringEntityType.IsAssignableFrom(EntityType))
             {
                 throw new InvalidOperationException(
-                    $"Called EntityProjectionExpression.BindNavigation() with incorrect INavigation. " +
+                    "Called EntityProjectionExpression.BindNavigation() with incorrect INavigation. " +
                     $"EntityType:{EntityType.DisplayName()}, Property:{navigation.Name}");
             }
 

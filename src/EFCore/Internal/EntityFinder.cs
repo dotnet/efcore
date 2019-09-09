@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -82,7 +82,8 @@ namespace Microsoft.EntityFrameworkCore.Internal
         /// </summary>
         public virtual ValueTask<TEntity> FindAsync(object[] keyValues, CancellationToken cancellationToken = default)
         {
-            if (keyValues == null || keyValues.Any(v => v == null))
+            if (keyValues == null
+                || keyValues.Any(v => v == null))
             {
                 return new ValueTask<TEntity>((TEntity)null);
             }
@@ -90,7 +91,8 @@ namespace Microsoft.EntityFrameworkCore.Internal
             var tracked = FindTracked(keyValues, out var keyProperties);
             return tracked != null
                 ? new ValueTask<TEntity>(tracked)
-                : new ValueTask<TEntity>(_queryRoot.FirstOrDefaultAsync(BuildLambda(keyProperties, new ValueBuffer(keyValues)), cancellationToken));
+                : new ValueTask<TEntity>(
+                    _queryRoot.FirstOrDefaultAsync(BuildLambda(keyProperties, new ValueBuffer(keyValues)), cancellationToken));
         }
 
         /// <summary>
@@ -101,7 +103,8 @@ namespace Microsoft.EntityFrameworkCore.Internal
         /// </summary>
         ValueTask<object> IEntityFinder.FindAsync(object[] keyValues, CancellationToken cancellationToken)
         {
-            if (keyValues == null || keyValues.Any(v => v == null))
+            if (keyValues == null
+                || keyValues.Any(v => v == null))
             {
                 return new ValueTask<object>((object)null);
             }
@@ -109,8 +112,9 @@ namespace Microsoft.EntityFrameworkCore.Internal
             var tracked = FindTracked(keyValues, out var keyProperties);
             return tracked != null
                 ? new ValueTask<object>(tracked)
-                : new ValueTask<object>(_queryRoot.FirstOrDefaultAsync(
-                    BuildObjectLambda(keyProperties, new ValueBuffer(keyValues)), cancellationToken));
+                : new ValueTask<object>(
+                    _queryRoot.FirstOrDefaultAsync(
+                        BuildObjectLambda(keyProperties, new ValueBuffer(keyValues)), cancellationToken));
         }
 
         /// <summary>
@@ -219,6 +223,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 {
                     return null;
                 }
+
                 keyValues[i] = keyValue;
             }
 
@@ -254,6 +259,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 {
                     return null;
                 }
+
                 values[i] = value;
             }
 

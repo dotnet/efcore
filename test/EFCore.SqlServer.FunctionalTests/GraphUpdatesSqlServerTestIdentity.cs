@@ -3,7 +3,8 @@
 
 namespace Microsoft.EntityFrameworkCore
 {
-    public class GraphUpdatesSqlServerTestIdentity : GraphUpdatesSqlServerTestBase<GraphUpdatesSqlServerTestIdentity.GraphUpdatesWithIdentitySqlServerFixture>
+    public class GraphUpdatesSqlServerTestIdentity : GraphUpdatesSqlServerTestBase<
+        GraphUpdatesSqlServerTestIdentity.GraphUpdatesWithIdentitySqlServerFixture>
     {
         public GraphUpdatesSqlServerTestIdentity(GraphUpdatesWithIdentitySqlServerFixture fixture)
             : base(fixture)

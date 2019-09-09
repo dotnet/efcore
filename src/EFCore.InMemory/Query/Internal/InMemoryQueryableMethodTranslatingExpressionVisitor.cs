@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -214,13 +214,15 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             return source;
         }
 
-        protected override ShapedQueryExpression TranslateElementAtOrDefault(ShapedQueryExpression source, Expression index, bool returnDefault)
+        protected override ShapedQueryExpression TranslateElementAtOrDefault(
+            ShapedQueryExpression source, Expression index, bool returnDefault)
             => null;
 
         protected override ShapedQueryExpression TranslateExcept(ShapedQueryExpression source1, ShapedQueryExpression source2)
             => TranslateSetOperation(InMemoryLinqOperatorProvider.Except, source1, source2);
 
-        protected override ShapedQueryExpression TranslateFirstOrDefault(ShapedQueryExpression source, LambdaExpression predicate, Type returnType, bool returnDefault)
+        protected override ShapedQueryExpression TranslateFirstOrDefault(
+            ShapedQueryExpression source, LambdaExpression predicate, Type returnType, bool returnDefault)
         {
             return TranslateSingleResultOperator(
                 source,
@@ -333,13 +335,17 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             }
         }
 
-        protected override ShapedQueryExpression TranslateGroupJoin(ShapedQueryExpression outer, ShapedQueryExpression inner, LambdaExpression outerKeySelector, LambdaExpression innerKeySelector, LambdaExpression resultSelector)
+        protected override ShapedQueryExpression TranslateGroupJoin(
+            ShapedQueryExpression outer, ShapedQueryExpression inner, LambdaExpression outerKeySelector, LambdaExpression innerKeySelector,
+            LambdaExpression resultSelector)
             => null;
 
         protected override ShapedQueryExpression TranslateIntersect(ShapedQueryExpression source1, ShapedQueryExpression source2)
             => TranslateSetOperation(InMemoryLinqOperatorProvider.Intersect, source1, source2);
 
-        protected override ShapedQueryExpression TranslateJoin(ShapedQueryExpression outer, ShapedQueryExpression inner, LambdaExpression outerKeySelector, LambdaExpression innerKeySelector, LambdaExpression resultSelector)
+        protected override ShapedQueryExpression TranslateJoin(
+            ShapedQueryExpression outer, ShapedQueryExpression inner, LambdaExpression outerKeySelector, LambdaExpression innerKeySelector,
+            LambdaExpression resultSelector)
         {
             outerKeySelector = TranslateLambdaExpression(outer, outerKeySelector);
             innerKeySelector = TranslateLambdaExpression(inner, innerKeySelector);
@@ -403,7 +409,9 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                     : InMemoryLinqOperatorProvider.LastWithoutPredicate);
         }
 
-        protected override ShapedQueryExpression TranslateLeftJoin(ShapedQueryExpression outer, ShapedQueryExpression inner, LambdaExpression outerKeySelector, LambdaExpression innerKeySelector, LambdaExpression resultSelector)
+        protected override ShapedQueryExpression TranslateLeftJoin(
+            ShapedQueryExpression outer, ShapedQueryExpression inner, LambdaExpression outerKeySelector, LambdaExpression innerKeySelector,
+            LambdaExpression resultSelector)
         {
             outerKeySelector = TranslateLambdaExpression(outer, outerKeySelector);
             innerKeySelector = TranslateLambdaExpression(inner, innerKeySelector);
@@ -542,7 +550,8 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             return null;
         }
 
-        protected override ShapedQueryExpression TranslateOrderBy(ShapedQueryExpression source, LambdaExpression keySelector, bool ascending)
+        protected override ShapedQueryExpression TranslateOrderBy(
+            ShapedQueryExpression source, LambdaExpression keySelector, bool ascending)
         {
             var inMemoryQueryExpression = (InMemoryQueryExpression)source.QueryExpression;
 
@@ -656,7 +665,8 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             return TranslateSelectMany(source, selector, resultSelector);
         }
 
-        protected override ShapedQueryExpression TranslateSingleOrDefault(ShapedQueryExpression source, LambdaExpression predicate, Type returnType, bool returnDefault)
+        protected override ShapedQueryExpression TranslateSingleOrDefault(
+            ShapedQueryExpression source, LambdaExpression predicate, Type returnType, bool returnDefault)
         {
             return TranslateSingleResultOperator(
                 source,
@@ -978,7 +988,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             var inMemoryQueryExpression = (InMemoryQueryExpression)source.QueryExpression;
 
             selector = selector == null
-                || selector.Body == selector.Parameters[0]
+                       || selector.Body == selector.Parameters[0]
                 ? Expression.Lambda(
                     inMemoryQueryExpression.GetMappedProjection(new ProjectionMember()),
                     inMemoryQueryExpression.CurrentParameter)

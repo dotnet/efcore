@@ -19,7 +19,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// </summary>
         /// <param name="eventDefinition"> The event definition. </param>
         /// <param name="messageGenerator"> A delegate that generates a log message for this event. </param>
-        /// <param name="connection"> The <see cref="DbConnection"/> being used. </param>
+        /// <param name="connection"> The <see cref="DbConnection" /> being used. </param>
         /// <param name="command"> The <see cref="DbCommand" />. </param>
         /// <param name="context"> The <see cref="DbContext" /> currently being used, to null if not known. </param>
         /// <param name="executeMethod"> The <see cref="DbCommand" /> method. </param>

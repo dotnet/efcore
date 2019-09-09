@@ -463,10 +463,7 @@ namespace Microsoft.EntityFrameworkCore
 
                 if (visitedTypes == null)
                 {
-                    visitedTypes = new HashSet<IEntityType>
-                    {
-                        linkingRelationship.DeclaringEntityType
-                    };
+                    visitedTypes = new HashSet<IEntityType> { linkingRelationship.DeclaringEntityType };
                 }
 
                 if (!visitedTypes.Add(linkingRelationship.PrincipalEntityType))
@@ -519,6 +516,5 @@ namespace Microsoft.EntityFrameworkCore
         public static void SetComment(
             [NotNull] this IConventionProperty property, [CanBeNull] string comment, bool fromDataAnnotation = false)
             => property.SetOrRemoveAnnotation(RelationalAnnotationNames.Comment, comment, fromDataAnnotation);
-
     }
 }

@@ -21,7 +21,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             await base.Simple_level1_include(isAsync);
 
             AssertSql(
-               @"SELECT [l].[Id], [l].[Date], [l].[Name], [t].[Id], [t].[OneToOne_Required_PK_Date], [t].[Level1_Optional_Id], [t].[Level1_Required_Id], [t].[Level2_Name], [t].[OneToMany_Optional_Inverse2Id], [t].[OneToMany_Required_Inverse2Id], [t].[OneToOne_Optional_PK_Inverse2Id]
+                @"SELECT [l].[Id], [l].[Date], [l].[Name], [t].[Id], [t].[OneToOne_Required_PK_Date], [t].[Level1_Optional_Id], [t].[Level1_Required_Id], [t].[Level2_Name], [t].[OneToMany_Optional_Inverse2Id], [t].[OneToMany_Required_Inverse2Id], [t].[OneToOne_Optional_PK_Inverse2Id]
 FROM [Level1] AS [l]
 LEFT JOIN (
     SELECT [l0].[Id], [l0].[OneToOne_Required_PK_Date], [l0].[Level1_Optional_Id], [l0].[Level1_Required_Id], [l0].[Level2_Name], [l0].[OneToMany_Optional_Inverse2Id], [l0].[OneToMany_Required_Inverse2Id], [l0].[OneToOne_Optional_PK_Inverse2Id], [l1].[Id] AS [Id0]
@@ -256,7 +256,6 @@ LEFT JOIN (
     WHERE [l3].[OneToMany_Required_Inverse2Id] IS NOT NULL AND ([l3].[Level1_Required_Id] IS NOT NULL AND [l3].[OneToOne_Required_PK_Date] IS NOT NULL)
 ) AS [t1] ON [t0].[Id] = [t1].[Id]");
         }
-
 
         public override async Task SelectMany_with_Include1(bool isAsync)
         {

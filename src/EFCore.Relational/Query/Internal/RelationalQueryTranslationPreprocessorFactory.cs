@@ -7,12 +7,12 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 {
     /// <summary>
     ///     <para>
-    ///         A factory for creating <see cref="RelationalQueryTranslationPreprocessor"/> instances.
+    ///         A factory for creating <see cref="RelationalQueryTranslationPreprocessor" /> instances.
     ///     </para>
     ///     <para>
-    ///         The service lifetime is <see cref="ServiceLifetime.Singleton"/>. This means a single instance
-    ///         is used by many <see cref="DbContext"/> instances. The implementation must be thread-safe.
-    ///         This service cannot depend on services registered as <see cref="ServiceLifetime.Scoped"/>.
+    ///         The service lifetime is <see cref="ServiceLifetime.Singleton" />. This means a single instance
+    ///         is used by many <see cref="DbContext" /> instances. The implementation must be thread-safe.
+    ///         This service cannot depend on services registered as <see cref="ServiceLifetime.Scoped" />.
     ///     </para>
     /// </summary>
     public class RelationalQueryTranslationPreprocessorFactory : IQueryTranslationPreprocessorFactory
@@ -29,6 +29,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         }
 
         public virtual QueryTranslationPreprocessor Create(QueryCompilationContext queryCompilationContext)
-             => new RelationalQueryTranslationPreprocessor(_dependencies, _relationalDependencies, queryCompilationContext);
+            => new RelationalQueryTranslationPreprocessor(_dependencies, _relationalDependencies, queryCompilationContext);
     }
 }

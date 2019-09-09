@@ -68,11 +68,7 @@ namespace Microsoft.EntityFrameworkCore
             Check.NotNull(operation, nameof(operation));
 
             strategy.Execute(
-                new
-                {
-                    operation,
-                    state
-                }, s =>
+                new { operation, state }, s =>
                 {
                     s.operation(s.state);
                     return true;
@@ -205,11 +201,7 @@ namespace Microsoft.EntityFrameworkCore
             Check.NotNull(operation, nameof(operation));
 
             return strategy.ExecuteAsync(
-                new
-                {
-                    operation,
-                    state
-                }, async (t, ct) =>
+                new { operation, state }, async (t, ct) =>
                 {
                     await t.operation(t.state);
                     return true;
@@ -241,11 +233,7 @@ namespace Microsoft.EntityFrameworkCore
             Check.NotNull(operation, nameof(operation));
 
             return strategy.ExecuteAsync(
-                new
-                {
-                    operation,
-                    state
-                }, async (t, ct) =>
+                new { operation, state }, async (t, ct) =>
                 {
                     await t.operation(t.state, ct);
                     return true;
@@ -277,11 +265,7 @@ namespace Microsoft.EntityFrameworkCore
             Check.NotNull(operation, nameof(operation));
 
             return strategy.ExecuteAsync(
-                new
-                {
-                    operation,
-                    state
-                }, (t, ct) => t.operation(t.state), default);
+                new { operation, state }, (t, ct) => t.operation(t.state), default);
         }
 
         /// <summary>

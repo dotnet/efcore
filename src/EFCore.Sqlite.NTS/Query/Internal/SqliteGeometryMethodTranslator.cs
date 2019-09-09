@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -42,8 +42,11 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
             { typeof(Geometry).GetRuntimeMethod(nameof(Geometry.Within), new[] { typeof(Geometry) }), "Within" }
         };
 
-        private static readonly MethodInfo _getGeometryN = typeof(Geometry).GetRuntimeMethod(nameof(Geometry.GetGeometryN), new[] { typeof(int) });
-        private static readonly MethodInfo _isWithinDistance = typeof(Geometry).GetRuntimeMethod(nameof(Geometry.IsWithinDistance), new[] { typeof(Geometry), typeof(double) });
+        private static readonly MethodInfo _getGeometryN = typeof(Geometry).GetRuntimeMethod(
+            nameof(Geometry.GetGeometryN), new[] { typeof(int) });
+
+        private static readonly MethodInfo _isWithinDistance = typeof(Geometry).GetRuntimeMethod(
+            nameof(Geometry.IsWithinDistance), new[] { typeof(Geometry), typeof(double) });
 
         private readonly ISqlExpressionFactory _sqlExpressionFactory;
 
@@ -64,10 +67,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
                 if (method.ReturnType == typeof(bool))
                 {
                     translation = _sqlExpressionFactory.Case(
-                        new[]
-                        {
-                            new CaseWhenClause(_sqlExpressionFactory.IsNotNull(instance), translation)
-                        },
+                        new[] { new CaseWhenClause(_sqlExpressionFactory.IsNotNull(instance), translation) },
                         null);
                 }
 
@@ -78,7 +78,8 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
             {
                 return _sqlExpressionFactory.Function(
                     "GeometryN",
-                    new[] {
+                    new[]
+                    {
                         instance,
                         _sqlExpressionFactory.Add(
                             arguments[0],

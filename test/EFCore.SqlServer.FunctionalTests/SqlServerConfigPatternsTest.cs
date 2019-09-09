@@ -450,7 +450,7 @@ namespace Microsoft.EntityFrameworkCore
 
                         using (var context2 = new NorthwindContext(serviceProvider))
                         {
-                            Assert.Equal(0, context2.ChangeTracker.Entries().Count());
+                            Assert.Empty(context2.ChangeTracker.Entries());
 
                             var customers2 = await context2.Customers.ToListAsync();
                             Assert.Equal(91, customers2.Count);
