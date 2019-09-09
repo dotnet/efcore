@@ -6388,6 +6388,93 @@ CROSS JOIN (
 
         #endregion
 
+        #region Issue10447
+
+        [ConditionalFact]
+        public virtual void Nested_include_queries_do_not_populate_navigation_twice()
+        {
+            using (CreateDatabase10447())
+            {
+                using (var context = new MyContext10447(_options))
+                {
+                    var query = context.Blogs.Include(b => b.Posts);
+
+                    foreach (var blog in query)
+                    {
+                        query.ToList();
+                    }
+
+                    Assert.Collection(query,
+                        b => Assert.Equal(3, b.Posts.Count),
+                        b => Assert.Equal(2, b.Posts.Count),
+                        b => Assert.Single(b.Posts));
+                }
+            }
+        }
+
+        public class MyContext10447 : DbContext
+        {
+            public DbSet<Blog10447> Blogs { get; set; }
+
+            public MyContext10447(DbContextOptions options) : base(options)
+            {
+            }
+
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
+            {
+            }
+        }
+
+        private SqlServerTestStore CreateDatabase10447()
+            => CreateTestStore(
+                () => new MyContext10447(_options),
+                context =>
+                {
+                    context.AddRange(
+                        new Blog10447
+                        {
+                            Posts = new List<Post10447>
+                            {
+                                new Post10447(),
+                                new Post10447(),
+                                new Post10447(),
+                            }
+                        },
+                        new Blog10447
+                        {
+                            Posts = new List<Post10447>
+                            {
+                                new Post10447(),
+                                new Post10447(),
+                            }
+                        },
+                        new Blog10447
+                        {
+                            Posts = new List<Post10447>
+                            {
+                                new Post10447(),
+                            }
+                        });
+
+                    context.SaveChanges();
+                    ClearLog();
+                });
+
+        public class Blog10447
+        {
+            public int Id { get; set; }
+            public List<Post10447> Posts { get; set; }
+        }
+
+        public class Post10447
+        {
+            public int Id { get; set; }
+
+            public Blog10447 Blog { get; set; }
+        }
+
+        #endregion
+
         private DbContextOptions _options;
 
         private SqlServerTestStore CreateTestStore<TContext>(
