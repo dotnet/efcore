@@ -23,7 +23,7 @@
     <SQLitePCLRawCorePackageVersion>2.0.0</SQLitePCLRawCorePackageVersion>
     <StyleCopAnalyzersPackageVersion>1.1.1-beta.61</StyleCopAnalyzersPackageVersion>
     <BenchmarkDotNetPackageVersion>0.11.3</BenchmarkDotNetPackageVersion>
-    <MicrosoftDataSqlClientPackageVersion>1.0.19239.1</MicrosoftDataSqlClientPackageVersion>
+    <MicrosoftDataSqlClientPackageVersion>1.0.19249.1</MicrosoftDataSqlClientPackageVersion>
   </PropertyGroup>
   <PropertyGroup Label="Dependencies from aspnet/Extensions">
     <MicrosoftExtensionsCachingMemoryPackageVersion>3.1.0-alpha1.19455.1</MicrosoftExtensionsCachingMemoryPackageVersion>
