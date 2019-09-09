@@ -6358,6 +6358,118 @@ ORDER BY [p].[Id] DESC");
 
         #endregion
 
+        #region Bug11023
+
+        [ConditionalFact]
+        public virtual async Task Async_correlated_projection_with_first()
+        {
+            using (CreateDatabase11023())
+            {
+                using (var context = new MyContext11023(_options))
+                {
+                    var query = await context.Entities
+                        .Select(e => new
+                        {
+                            ThingIds = e.Values.First().Things.Select(t => t.Subthing.ThingId).ToList()
+                        })
+                        .ToListAsync();
+
+                    var result = Assert.Single(query);
+                    Assert.Equal(new [] { 1, 2 }, result.ThingIds);
+
+                    AssertSql(
+                        @"SELECT [e].[Id], [t0].[ThingId], [t0].[Id]
+FROM [Entities] AS [e]
+OUTER APPLY (
+    SELECT [s].[ThingId], [t].[Id]
+    FROM [Things] AS [t]
+    LEFT JOIN [Subthings] AS [s] ON [t].[Id] = [s].[ThingId]
+    WHERE (((
+        SELECT TOP(1) [v].[Id]
+        FROM [Values] AS [v]
+        WHERE ([e].[Id] = [v].[Entity11023Id]) AND [v].[Entity11023Id] IS NOT NULL) = [t].[Value11023Id]) AND ((
+        SELECT TOP(1) [v].[Id]
+        FROM [Values] AS [v]
+        WHERE ([e].[Id] = [v].[Entity11023Id]) AND [v].[Entity11023Id] IS NOT NULL) IS NOT NULL AND [t].[Value11023Id] IS NOT NULL)) OR ((
+        SELECT TOP(1) [v].[Id]
+        FROM [Values] AS [v]
+        WHERE ([e].[Id] = [v].[Entity11023Id]) AND [v].[Entity11023Id] IS NOT NULL) IS NULL AND [t].[Value11023Id] IS NULL)
+) AS [t0]
+ORDER BY [e].[Id], [t0].[Id]");
+                }
+            }
+        }
+
+        public class MyContext11023 : DbContext
+        {
+            public DbSet<Entity11023> Entities { get; set; }
+            public DbSet<Value11023> Values { get; set; }
+            public DbSet<Thing11023> Things { get; set; }
+            public DbSet<Subthing11023> Subthings { get; set; }
+
+            public MyContext11023(DbContextOptions options) : base(options)
+            {
+            }
+        }
+
+        private SqlServerTestStore CreateDatabase11023()
+            => CreateTestStore(
+                () => new MyContext11023(_options),
+                context =>
+                {
+                    context.Add(new Entity11023
+                    {
+                        Values = new List<Value11023>
+                        {
+                            new Value11023
+                            {
+                                Things = new List<Thing11023>
+                                {
+                                    new Thing11023
+                                    {
+                                        Subthing = new Subthing11023()
+                                    },
+                                    new Thing11023
+                                    {
+                                        Subthing = new Subthing11023()
+                                    }
+                                }
+                            }
+                        }
+                    });
+
+                    context.SaveChanges();
+
+                    ClearLog();
+                });
+
+        public class Entity11023
+        {
+            public int Id { get; set; }
+            public ICollection<Value11023> Values { get; set; }
+        }
+
+        public class Value11023
+        {
+            public int Id { get; set; }
+            public ICollection<Thing11023> Things { get; set; }
+        }
+
+        public class Thing11023
+        {
+            public int Id { get; set; }
+            public Subthing11023 Subthing { get; set; }
+        }
+
+        public class Subthing11023
+        {
+            public int Id { get; set; }
+            public int ThingId { get; set; }
+            public Thing11023 Thing { get; set; }
+        }
+
+        #endregion
+
         #region Issue7973
 
         [ConditionalFact]
