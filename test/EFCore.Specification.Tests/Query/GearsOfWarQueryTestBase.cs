@@ -7557,6 +7557,19 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 5);
         }
 
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task CrossJoin_preserves_predicate_for_inner_source(bool isAsync)
+        {
+            return AssertQuery<Gear>(
+                isAsync,
+                gs => from g in gs
+                      from o in gs.OfType<Officer>()
+                      where g.Equals(o)
+                      orderby g.Nickname
+                      select new { Nickname1 = g.Nickname, Nickname2 = o.Nickname });
+        }
+
         protected GearsOfWarContext CreateContext() => Fixture.CreateContext();
 
         protected virtual void ClearLog()
