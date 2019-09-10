@@ -55,13 +55,6 @@ LEFT JOIN (
 ORDER BY [c].[CustomerID], [t].[OrderID], [t].[OrderID0], [t].[ProductID]");
         }
 
-        [SqlServerCondition(SqlServerCondition.SupportsOffset)]
-        // Test does not pass on SqlServer 2008. TODO: See issue#7160
-        public override Task Include_duplicate_reference()
-        {
-            return base.Include_duplicate_reference();
-        }
-
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
     }

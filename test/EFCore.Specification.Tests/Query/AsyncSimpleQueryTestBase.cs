@@ -135,14 +135,14 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalFact(Skip = "Issue#16318")]
+        [ConditionalFact]
         public virtual async Task Average_on_nav_subquery_in_projection()
         {
             using (var context = CreateContext())
             {
                 var results
                     = await context.Customers.Select(
-                            c => new { Ave = c.Orders.Average(o => o.Freight) })
+                            c => new { Ave = c.Orders.Average(o => o.OrderID) })
                         .ToListAsync();
 
                 Assert.Equal(91, results.ToList().Count);

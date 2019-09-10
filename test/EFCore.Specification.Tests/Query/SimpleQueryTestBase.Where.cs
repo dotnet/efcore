@@ -1660,47 +1660,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                     .Where(p => flag ? p.UnitsInStock >= 20 : false));
         }
 
-        // TODO: Re-write entity ref equality to identity equality.
-        //
-        // [ConditionalFact]
-        // public virtual Task Where_compare_entity_equal()
-        // {
-        //     var alfki = NorthwindData.Customers.Single(c => c.CustomerID == "ALFKI");
-        //
-        //     Assert.Equal(1,
-        //         // ReSharper disable once PossibleUnintendedReferenceComparison
-        //         AssertQuery<Customer>(cs => cs.Where(c => c == alfki)));
-        // }
-        //
-        // [ConditionalFact]
-        // public virtual Task Where_compare_entity_not_equal()
-        // {
-        //     var alfki = new Customer { CustomerID = "ALFKI" };
-        //
-        //     Assert.Equal(90,
-        //         // ReSharper disable once PossibleUnintendedReferenceComparison
-        //         AssertQuery<Customer>(cs => cs.Where(c => c != alfki)));
-        //
-        // [ConditionalFact]
-        // public virtual Task Project_compare_entity_equal()
-        // {
-        //     var alfki = NorthwindData.Customers.Single(c => c.CustomerID == "ALFKI");
-        //
-        //     Assert.Equal(1,
-        //         // ReSharper disable once PossibleUnintendedReferenceComparison
-        //         AssertQuery<Customer>(cs => cs.Select(c => c == alfki)));
-        // }
-        //
-        // [ConditionalFact]
-        // public virtual Task Project_compare_entity_not_equal()
-        // {
-        //     var alfki = new Customer { CustomerID = "ALFKI" };
-        //
-        //     Assert.Equal(90,
-        //         // ReSharper disable once PossibleUnintendedReferenceComparison
-        //         AssertQuery<Customer>(cs => cs.Select(c => c != alfki)));
-        // }
-
         [ConditionalTheory(Skip = "Issue #14672. Cannot eval 'where (new <>f__AnonymousType409`1(x = [c].City) == { x = London })'")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Where_compare_constructed_equal(bool isAsync)
