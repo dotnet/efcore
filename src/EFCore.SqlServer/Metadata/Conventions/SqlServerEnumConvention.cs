@@ -50,13 +50,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                         }
                         sql = sql.Remove(sql.Length - 2);
                         sql = sql + "))";
-
-                        entityType.AddCheckConstraint("","");
+                        string constraintName = $"CK_{entityType.Name}_{property.Name}_EnumConstraint";
+                        entityType.AddCheckConstraint(constraintName, sql);
                     }
                 }
             }
 
-            modelBuilder.HasAnnotation(ChangeDetector.SkipDetectChangesAnnotation, "true");
+            //TODO: Ask Core team.
+            //modelBuilder.HasAnnotation(SQLserverAnnot.EnumCheckConstraint, "true");
         }
     }
 }
