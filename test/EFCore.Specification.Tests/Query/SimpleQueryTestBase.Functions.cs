@@ -1405,16 +1405,16 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 91);
         }
 
-        // issue #12598
-        //[ConditionalTheory]
-        //[MemberData(nameof(IsAsyncData))]
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task Order_by_length_twice_followed_by_projection_of_naked_collection_navigation(bool isAsync)
         {
             return AssertQuery<Customer>(
                 isAsync,
                 cs => cs.OrderBy(c => c.CustomerID.Length).ThenBy(c => c.CustomerID.Length).ThenBy(c => c.CustomerID).Select(c => c.Orders),
+                assertOrder: true,
                 elementAsserter: CollectionAsserter<Order>(o => o.OrderID, (e, a) => Assert.Equal(e.OrderID, a.OrderID)),
-                entryCount: 91);
+                entryCount: 830);
         }
 
         [ConditionalTheory]

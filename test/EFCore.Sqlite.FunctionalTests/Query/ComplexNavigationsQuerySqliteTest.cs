@@ -24,5 +24,11 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             return base.Project_collection_navigation_nested_with_take(isAsync);
         }
+
+        [ConditionalFact(Skip = "Issue #17230")]
+        public override void Include_inside_subquery()
+        {
+            base.Include_inside_subquery();
+        }
     }
 }
