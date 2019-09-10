@@ -1523,7 +1523,7 @@ WHERE (([c].[City] = N'London') AND [c].[City] IS NOT NULL) AND EXISTS (
     WHEN NOT EXISTS (
         SELECT 1
         FROM [Customers] AS [c]
-        WHERE (([c].[ContactName] <> N'') OR [c].[ContactName] IS NULL) AND ((([c].[ContactName] IS NULL AND ([c].[ContactName] IS NOT NULL AND (CAST(0 AS bit) = CAST(1 AS bit)))) OR ([c].[ContactName] IS NULL AND (CAST(1 AS bit) = CAST(1 AS bit)))) OR ((([c].[ContactName] IS NULL AND ([c].[ContactName] IS NOT NULL AND (CAST(0 AS bit) = CAST(1 AS bit)))) OR ([c].[ContactName] IS NULL AND (CAST(1 AS bit) = CAST(1 AS bit)))) OR (NOT ([c].[ContactName] LIKE [c].[ContactName] + N'%') OR (((LEFT([c].[ContactName], LEN([c].[ContactName])) <> [c].[ContactName]) OR (LEFT([c].[ContactName], LEN([c].[ContactName])) IS NULL OR [c].[ContactName] IS NULL)) AND (LEFT([c].[ContactName], LEN([c].[ContactName])) IS NOT NULL OR [c].[ContactName] IS NOT NULL)))))) THEN CAST(1 AS bit)
+        WHERE (([c].[ContactName] <> N'') OR [c].[ContactName] IS NULL) AND ((([c].[ContactName] IS NULL AND ([c].[ContactName] IS NOT NULL AND (CAST(0 AS bit) = CAST(1 AS bit)))) OR ([c].[ContactName] IS NULL AND (CAST(1 AS bit) = CAST(1 AS bit)))) OR (([c].[ContactName] IS NULL AND (CAST(0 AS bit) = CAST(1 AS bit))) OR (NOT ([c].[ContactName] LIKE [c].[ContactName] + N'%') OR (LEFT([c].[ContactName], LEN([c].[ContactName])) <> [c].[ContactName]))))) THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
 END");
         }
