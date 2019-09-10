@@ -6063,6 +6063,70 @@ WHERE ([f].[String] = N'1337') AND [f].[String] IS NOT NULL");
 
         #endregion
 
+        #region Bug9582
+
+        [ConditionalFact]
+        public virtual void Setting_IsUnicode_generates_unicode_literal_in_SQL()
+        {
+            using (CreateDatabase9582())
+            {
+                using (var context = new MyContext9582(_options))
+                {
+                    // Verify SQL
+                    var query = context.Set<TipoServicio9582>().Where(xx => xx.Nombre.Contains("lla")).ToList();
+
+                    AssertSql(
+                        @"SELECT [t].[Id], [t].[Nombre]
+FROM [TipoServicio9582] AS [t]
+WHERE CHARINDEX('lla', [t].[Nombre]) > 0");
+                }
+            }
+        }
+
+        public class MyContext9582 : DbContext
+        {
+            public MyContext9582(DbContextOptions options) : base(options)
+            {
+            }
+
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
+            {
+                modelBuilder.Entity<TipoServicio9582>(
+                    builder =>
+                    {
+                        builder.HasKey(ts => ts.Id);
+
+                        builder.Property(ts => ts.Id).IsRequired();
+                        builder.Property(ts => ts.Nombre).IsRequired().HasMaxLength(20);
+                    });
+
+                foreach (var property in modelBuilder.Model.GetEntityTypes()
+                    .SelectMany(e => e.GetProperties().Where(p => p.ClrType == typeof(string))))
+                {
+                    property.SetIsUnicode(false);
+                }
+            }
+        }
+
+        private SqlServerTestStore CreateDatabase9582()
+            => CreateTestStore(
+                () => new MyContext9582(_options),
+                context =>
+                {
+                    context.SaveChanges();
+
+                    ClearLog();
+                });
+
+        public class TipoServicio9582
+        {
+
+            public int Id { get; set; }
+            public string Nombre { get; set; }
+        }
+
+        #endregion
+
         #region Bug7222
 
         [ConditionalFact]
@@ -6290,6 +6354,299 @@ ORDER BY [p].[Id] DESC");
         public class PersonDetailView17644 : PersonView17644
         {
             public int Age { set; get; }
+        }
+
+        #endregion
+
+        #region Bug11023
+
+        [ConditionalFact]
+        public virtual async Task Async_correlated_projection_with_first()
+        {
+            using (CreateDatabase11023())
+            {
+                using (var context = new MyContext11023(_options))
+                {
+                    var query = await context.Entities
+                        .Select(e => new
+                        {
+                            ThingIds = e.Values.First().Things.Select(t => t.Subthing.ThingId).ToList()
+                        })
+                        .ToListAsync();
+
+                    var result = Assert.Single(query);
+                    Assert.Equal(new [] { 1, 2 }, result.ThingIds);
+
+                    AssertSql(
+                        @"SELECT [e].[Id], [t0].[ThingId], [t0].[Id]
+FROM [Entities] AS [e]
+OUTER APPLY (
+    SELECT [s].[ThingId], [t].[Id]
+    FROM [Things] AS [t]
+    LEFT JOIN [Subthings] AS [s] ON [t].[Id] = [s].[ThingId]
+    WHERE (((
+        SELECT TOP(1) [v].[Id]
+        FROM [Values] AS [v]
+        WHERE ([e].[Id] = [v].[Entity11023Id]) AND [v].[Entity11023Id] IS NOT NULL) = [t].[Value11023Id]) AND ((
+        SELECT TOP(1) [v].[Id]
+        FROM [Values] AS [v]
+        WHERE ([e].[Id] = [v].[Entity11023Id]) AND [v].[Entity11023Id] IS NOT NULL) IS NOT NULL AND [t].[Value11023Id] IS NOT NULL)) OR ((
+        SELECT TOP(1) [v].[Id]
+        FROM [Values] AS [v]
+        WHERE ([e].[Id] = [v].[Entity11023Id]) AND [v].[Entity11023Id] IS NOT NULL) IS NULL AND [t].[Value11023Id] IS NULL)
+) AS [t0]
+ORDER BY [e].[Id], [t0].[Id]");
+                }
+            }
+        }
+
+        public class MyContext11023 : DbContext
+        {
+            public DbSet<Entity11023> Entities { get; set; }
+            public DbSet<Value11023> Values { get; set; }
+            public DbSet<Thing11023> Things { get; set; }
+            public DbSet<Subthing11023> Subthings { get; set; }
+
+            public MyContext11023(DbContextOptions options) : base(options)
+            {
+            }
+        }
+
+        private SqlServerTestStore CreateDatabase11023()
+            => CreateTestStore(
+                () => new MyContext11023(_options),
+                context =>
+                {
+                    context.Add(new Entity11023
+                    {
+                        Values = new List<Value11023>
+                        {
+                            new Value11023
+                            {
+                                Things = new List<Thing11023>
+                                {
+                                    new Thing11023
+                                    {
+                                        Subthing = new Subthing11023()
+                                    },
+                                    new Thing11023
+                                    {
+                                        Subthing = new Subthing11023()
+                                    }
+                                }
+                            }
+                        }
+                    });
+
+                    context.SaveChanges();
+
+                    ClearLog();
+                });
+
+        public class Entity11023
+        {
+            public int Id { get; set; }
+            public ICollection<Value11023> Values { get; set; }
+        }
+
+        public class Value11023
+        {
+            public int Id { get; set; }
+            public ICollection<Thing11023> Things { get; set; }
+        }
+
+        public class Thing11023
+        {
+            public int Id { get; set; }
+            public Subthing11023 Subthing { get; set; }
+        }
+
+        public class Subthing11023
+        {
+            public int Id { get; set; }
+            public int ThingId { get; set; }
+            public Thing11023 Thing { get; set; }
+        }
+
+        #endregion
+
+        #region Issue7973
+
+        [ConditionalFact]
+        public virtual void SelectMany_with_collection_selector_having_subquery()
+        {
+            using (CreateDatabase7973())
+            {
+                using (var context = new MyContext7973(_options))
+                {
+                    var users = (from user in context.Users
+                                 from organisation in context.Organisations.Where(o => o.OrganisationUsers.Any()).DefaultIfEmpty()
+                                 select new { UserId = user.Id, OrgId = organisation.Id }).ToList();
+
+                    Assert.Equal(2, users.Count);
+
+                    AssertSql(
+                        @"SELECT [u].[Id] AS [UserId], [t0].[Id] AS [OrgId]
+FROM [Users] AS [u]
+CROSS JOIN (
+    SELECT [t].[Id]
+    FROM (
+        SELECT NULL AS [empty]
+    ) AS [empty]
+    LEFT JOIN (
+        SELECT [o].[Id]
+        FROM [Organisations] AS [o]
+        WHERE EXISTS (
+            SELECT 1
+            FROM [OrganisationUser7973] AS [o0]
+            WHERE [o].[Id] = [o0].[OrganisationId])
+    ) AS [t] ON 1 = 1
+) AS [t0]");
+                }
+            }
+        }
+
+        public class MyContext7973 : DbContext
+        {
+            public DbSet<User7973> Users { get; set; }
+            public DbSet<Organisation7973> Organisations { get; set; }
+
+            public MyContext7973(DbContextOptions options) : base(options)
+            {
+            }
+
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
+            {
+                modelBuilder.Entity<OrganisationUser7973>().HasKey(ou => new { ou.OrganisationId, ou.UserId });
+                modelBuilder.Entity<OrganisationUser7973>().HasOne(ou => ou.Organisation).WithMany(o => o.OrganisationUsers).HasForeignKey(ou => ou.OrganisationId);
+                modelBuilder.Entity<OrganisationUser7973>().HasOne(ou => ou.User).WithMany(u => u.OrganisationUsers).HasForeignKey(ou => ou.UserId);
+            }
+        }
+
+        private SqlServerTestStore CreateDatabase7973()
+            => CreateTestStore(
+                () => new MyContext7973(_options),
+                context =>
+                {
+                    context.AddRange(
+                        new OrganisationUser7973
+                        {
+                            Organisation = new Organisation7973(),
+                            User = new User7973()
+                        },
+                        new Organisation7973(),
+                        new User7973());
+
+                    context.SaveChanges();
+                    ClearLog();
+                });
+
+        public class User7973
+        {
+            public int Id { get; set; }
+            public List<OrganisationUser7973> OrganisationUsers { get; set; }
+        }
+
+        public class Organisation7973
+        {
+            public int Id { get; set; }
+            public List<OrganisationUser7973> OrganisationUsers { get; set; }
+        }
+
+        public class OrganisationUser7973
+        {
+            public int OrganisationId { get; set; }
+            public Organisation7973 Organisation { get; set; }
+
+            public int UserId { get; set; }
+            public User7973 User { get; set; }
+        }
+
+        #endregion
+
+        #region Issue10447
+
+        [ConditionalFact]
+        public virtual void Nested_include_queries_do_not_populate_navigation_twice()
+        {
+            using (CreateDatabase10447())
+            {
+                using (var context = new MyContext10447(_options))
+                {
+                    var query = context.Blogs.Include(b => b.Posts);
+
+                    foreach (var blog in query)
+                    {
+                        query.ToList();
+                    }
+
+                    Assert.Collection(query,
+                        b => Assert.Equal(3, b.Posts.Count),
+                        b => Assert.Equal(2, b.Posts.Count),
+                        b => Assert.Single(b.Posts));
+                }
+            }
+        }
+
+        public class MyContext10447 : DbContext
+        {
+            public DbSet<Blog10447> Blogs { get; set; }
+
+            public MyContext10447(DbContextOptions options) : base(options)
+            {
+            }
+
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
+            {
+            }
+        }
+
+        private SqlServerTestStore CreateDatabase10447()
+            => CreateTestStore(
+                () => new MyContext10447(_options),
+                context =>
+                {
+                    context.AddRange(
+                        new Blog10447
+                        {
+                            Posts = new List<Post10447>
+                            {
+                                new Post10447(),
+                                new Post10447(),
+                                new Post10447(),
+                            }
+                        },
+                        new Blog10447
+                        {
+                            Posts = new List<Post10447>
+                            {
+                                new Post10447(),
+                                new Post10447(),
+                            }
+                        },
+                        new Blog10447
+                        {
+                            Posts = new List<Post10447>
+                            {
+                                new Post10447(),
+                            }
+                        });
+
+                    context.SaveChanges();
+                    ClearLog();
+                });
+
+        public class Blog10447
+        {
+            public int Id { get; set; }
+            public List<Post10447> Posts { get; set; }
+        }
+
+        public class Post10447
+        {
+            public int Id { get; set; }
+
+            public Blog10447 Blog { get; set; }
         }
 
         #endregion

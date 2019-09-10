@@ -2137,19 +2137,15 @@ namespace Microsoft.EntityFrameworkCore.Query
                       select c);
         }
 
-        [ConditionalFact(Skip = "Test does not pass. See issue#4978")]
-        public virtual void Non_unicode_string_literals_is_used_for_non_unicode_column_with_concat()
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Non_unicode_string_literals_is_used_for_non_unicode_column_with_concat(bool isAsync)
         {
-            using (var context = CreateContext())
-            {
-                var query = from c in context.Cities
-                            where (c.Location + "Added").Contains("Add")
-                            select c;
-
-                var result = query.ToList();
-
-                Assert.Equal(4, result.Count);
-            }
+            return AssertQuery<City>(
+                isAsync,
+                cs => from c in cs
+                      where (c.Location + "Added").Contains("Add")
+                      select c);
         }
 
         [ConditionalFact]
@@ -7555,6 +7551,19 @@ namespace Microsoft.EntityFrameworkCore.Query
                       from g2 in grouping.DefaultIfEmpty()
                       select g2 == null ? g1 : g2,
                 entryCount: 5);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task CrossJoin_preserves_predicate_for_inner_source(bool isAsync)
+        {
+            return AssertQuery<Gear>(
+                isAsync,
+                gs => from g in gs
+                      from o in gs.OfType<Officer>()
+                      where g.Equals(o)
+                      orderby g.Nickname
+                      select new { Nickname1 = g.Nickname, Nickname2 = o.Nickname });
         }
 
         protected GearsOfWarContext CreateContext() => Fixture.CreateContext();

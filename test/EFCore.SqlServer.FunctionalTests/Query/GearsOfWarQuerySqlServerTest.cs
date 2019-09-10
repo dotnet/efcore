@@ -1856,12 +1856,12 @@ FROM [Cities] AS [c]
 WHERE CHARINDEX('Jacinto', [c].[Location]) > 0");
         }
 
-        public override void Non_unicode_string_literals_is_used_for_non_unicode_column_with_concat()
+        public override async Task Non_unicode_string_literals_is_used_for_non_unicode_column_with_concat(bool isAsync)
         {
-            base.Non_unicode_string_literals_is_used_for_non_unicode_column_with_concat();
+            await base.Non_unicode_string_literals_is_used_for_non_unicode_column_with_concat(isAsync);
 
             AssertSql(
-                @"SELECT [c].[Name], [c].[Location]
+                @"SELECT [c].[Name], [c].[Location], [c].[Nation]
 FROM [Cities] AS [c]
 WHERE CHARINDEX('Add', [c].[Location] + 'Added') > 0");
         }
@@ -6893,6 +6893,22 @@ LEFT JOIN (
     WHERE [g0].[Discriminator] IN (N'Gear', N'Officer')
 ) AS [t] ON [g].[LeaderNickname] = [t].[Nickname]
 WHERE [g].[Discriminator] IN (N'Gear', N'Officer')");
+        }
+
+        public override async Task CrossJoin_preserves_predicate_for_inner_source(bool isAsync)
+        {
+            await base.CrossJoin_preserves_predicate_for_inner_source(isAsync);
+
+            AssertSql(
+                @"SELECT [g].[Nickname] AS [Nickname1], [t].[Nickname] AS [Nickname2]
+FROM [Gears] AS [g]
+CROSS JOIN (
+    SELECT [g0].[Nickname], [g0].[SquadId], [g0].[AssignedCityName], [g0].[CityOrBirthName], [g0].[Discriminator], [g0].[FullName], [g0].[HasSoulPatch], [g0].[LeaderNickname], [g0].[LeaderSquadId], [g0].[Rank]
+    FROM [Gears] AS [g0]
+    WHERE [g0].[Discriminator] IN (N'Gear', N'Officer') AND ([g0].[Discriminator] = N'Officer')
+) AS [t]
+WHERE [g].[Discriminator] IN (N'Gear', N'Officer') AND (([g].[Nickname] = [t].[Nickname]) AND ([g].[SquadId] = [t].[SquadId]))
+ORDER BY [g].[Nickname]");
         }
 
         private void AssertSql(params string[] expected)

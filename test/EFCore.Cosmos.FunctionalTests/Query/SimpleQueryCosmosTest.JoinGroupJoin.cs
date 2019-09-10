@@ -617,5 +617,11 @@ WHERE (c[""Discriminator""] = ""Order"")",
 FROM root c
 WHERE (c[""Discriminator""] = ""Order"")");
         }
+
+        [ConditionalTheory(Skip = "Issue#17246")]
+        public override Task GroupJoin_Subquery_with_Take_Then_SelectMany_Where(bool isAsync)
+        {
+            return base.GroupJoin_Subquery_with_Take_Then_SelectMany_Where(isAsync);
+        }
     }
 }

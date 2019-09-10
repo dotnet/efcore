@@ -416,6 +416,22 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                 projectionMapping[projection.Key] = projectionToAdd;
             }
 
+            for (var i = 0; i < _identifier.Count; i++)
+            {
+                if (_identifier[i] is ColumnExpression column)
+                {
+                    _identifier[i] = column.MakeNullable();
+                }
+            }
+
+            for (var i = 0; i < _childIdentifiers.Count; i++)
+            {
+                if (_childIdentifiers[i] is ColumnExpression column)
+                {
+                    _childIdentifiers[i] = column.MakeNullable();
+                }
+            }
+
             _projectionMapping = projectionMapping;
         }
 
