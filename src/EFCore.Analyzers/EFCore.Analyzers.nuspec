@@ -8,6 +8,7 @@
   </metadata>
 
   <files>
+    <file src="_._" target="lib\$targetFramework$\" />
     <file src="$OutputBinary$" target="analyzers\dotnet\cs\" />
     <file src="$OutputSymbol$" target="analyzers\dotnet\cs\" />
   </files>
