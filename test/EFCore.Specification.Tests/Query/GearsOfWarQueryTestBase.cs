@@ -1753,7 +1753,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 gs => gs.Where(g => !g.HasSoulPatch).Select(g => g.Weapons.Concat(g.Weapons).Count())))).Message;
 
             Assert.Equal(
-                RemoveNewLines(CoreStrings.QueryFailed("Concat<Weapon>(\n    source1: AsQueryable<Weapon>(MaterializeCollectionNavigation(Navigation: Gear.Weapons (<Weapons>k__BackingField, ICollection<Weapon>) Collection ToDependent Weapon Inverse: Owner, Where<Weapon>(\n        source: NavigationExpansionExpression\n            Source: Where<Weapon>(\n                source: DbSet<Weapon>, \n                predicate: (w) => Property<string>((Unhandled parameter: g), \"FullName\") == Property<string>(w, \"OwnerFullName\"))\n            PendingSelector: (w) => NavigationTreeExpression\n                Value: EntityReferenceWeapon\n                Expression: w\n        , \n        predicate: (i) => Property<string>(NavigationTreeExpression\n            Value: EntityReferenceGear\n            Expression: (Unhandled parameter: g), \"FullName\") == Property<string>(i, \"OwnerFullName\")))), \n    source2: MaterializeCollectionNavigation(Navigation: Gear.Weapons (<Weapons>k__BackingField, ICollection<Weapon>) Collection ToDependent Weapon Inverse: Owner, Where<Weapon>(\n        source: NavigationExpansionExpression\n            Source: Where<Weapon>(\n                source: DbSet<Weapon>, \n                predicate: (w0) => Property<string>((Unhandled parameter: g), \"FullName\") == Property<string>(w0, \"OwnerFullName\"))\n            PendingSelector: (w0) => NavigationTreeExpression\n                Value: EntityReferenceWeapon\n                Expression: w0\n        , \n        predicate: (i) => Property<string>(NavigationTreeExpression\n            Value: EntityReferenceGear\n            Expression: (Unhandled parameter: g), \"FullName\") == Property<string>(i, \"OwnerFullName\"))))", "NavigationExpandingExpressionVisitor")),
+                CoreStrings.QueryFailed("Concat<Weapon>(    source1: AsQueryable<Weapon>(MaterializeCollectionNavigation(Navigation: Gear.Weapons (<Weapons>k__BackingField, ICollection<Weapon>) Collection ToDependent Weapon Inverse: Owner, Where<Weapon>(        source: NavigationExpansionExpression            Source: Where<Weapon>(                source: DbSet<Weapon>,                 predicate: (w) => Property<string>((Unhandled parameter: g), \"FullName\") != null && Property<string>((Unhandled parameter: g), \"FullName\") == Property<string>(w, \"OwnerFullName\"))            PendingSelector: (w) => NavigationTreeExpression                Value: EntityReferenceWeapon                Expression: w        ,         predicate: (i) => Property<string>(NavigationTreeExpression            Value: EntityReferenceGear            Expression: (Unhandled parameter: g), \"FullName\") != null && Property<string>(NavigationTreeExpression            Value: EntityReferenceGear            Expression: (Unhandled parameter: g), \"FullName\") == Property<string>(i, \"OwnerFullName\")))),     source2: MaterializeCollectionNavigation(Navigation: Gear.Weapons (<Weapons>k__BackingField, ICollection<Weapon>) Collection ToDependent Weapon Inverse: Owner, Where<Weapon>(        source: NavigationExpansionExpression            Source: Where<Weapon>(                source: DbSet<Weapon>,                 predicate: (w0) => Property<string>((Unhandled parameter: g), \"FullName\") != null && Property<string>((Unhandled parameter: g), \"FullName\") == Property<string>(w0, \"OwnerFullName\"))            PendingSelector: (w0) => NavigationTreeExpression                Value: EntityReferenceWeapon                Expression: w0        ,         predicate: (i) => Property<string>(NavigationTreeExpression            Value: EntityReferenceGear            Expression: (Unhandled parameter: g), \"FullName\") != null && Property<string>(NavigationTreeExpression            Value: EntityReferenceGear            Expression: (Unhandled parameter: g), \"FullName\") == Property<string>(i, \"OwnerFullName\"))))", "NavigationExpandingExpressionVisitor"),
                 RemoveNewLines(message));
         }
 
@@ -1778,7 +1778,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 gs => gs.Where(g => g.HasSoulPatch).Select(g => g.Weapons.Union(g.Weapons).Count())))).Message;
 
             Assert.Equal(
-                RemoveNewLines(CoreStrings.QueryFailed("Union<Weapon>(\n    source1: AsQueryable<Weapon>(MaterializeCollectionNavigation(Navigation: Gear.Weapons (<Weapons>k__BackingField, ICollection<Weapon>) Collection ToDependent Weapon Inverse: Owner, Where<Weapon>(\n        source: NavigationExpansionExpression\n            Source: Where<Weapon>(\n                source: DbSet<Weapon>, \n                predicate: (w) => Property<string>((Unhandled parameter: g), \"FullName\") == Property<string>(w, \"OwnerFullName\"))\n            PendingSelector: (w) => NavigationTreeExpression\n                Value: EntityReferenceWeapon\n                Expression: w\n        , \n        predicate: (i) => Property<string>(NavigationTreeExpression\n            Value: EntityReferenceGear\n            Expression: (Unhandled parameter: g), \"FullName\") == Property<string>(i, \"OwnerFullName\")))), \n    source2: MaterializeCollectionNavigation(Navigation: Gear.Weapons (<Weapons>k__BackingField, ICollection<Weapon>) Collection ToDependent Weapon Inverse: Owner, Where<Weapon>(\n        source: NavigationExpansionExpression\n            Source: Where<Weapon>(\n                source: DbSet<Weapon>, \n                predicate: (w0) => Property<string>((Unhandled parameter: g), \"FullName\") == Property<string>(w0, \"OwnerFullName\"))\n            PendingSelector: (w0) => NavigationTreeExpression\n                Value: EntityReferenceWeapon\n                Expression: w0\n        , \n        predicate: (i) => Property<string>(NavigationTreeExpression\n            Value: EntityReferenceGear\n            Expression: (Unhandled parameter: g), \"FullName\") == Property<string>(i, \"OwnerFullName\"))))", "NavigationExpandingExpressionVisitor")),
+                CoreStrings.QueryFailed("Union<Weapon>(    source1: AsQueryable<Weapon>(MaterializeCollectionNavigation(Navigation: Gear.Weapons (<Weapons>k__BackingField, ICollection<Weapon>) Collection ToDependent Weapon Inverse: Owner, Where<Weapon>(        source: NavigationExpansionExpression            Source: Where<Weapon>(                source: DbSet<Weapon>,                 predicate: (w) => Property<string>((Unhandled parameter: g), \"FullName\") != null && Property<string>((Unhandled parameter: g), \"FullName\") == Property<string>(w, \"OwnerFullName\"))            PendingSelector: (w) => NavigationTreeExpression                Value: EntityReferenceWeapon                Expression: w        ,         predicate: (i) => Property<string>(NavigationTreeExpression            Value: EntityReferenceGear            Expression: (Unhandled parameter: g), \"FullName\") != null && Property<string>(NavigationTreeExpression            Value: EntityReferenceGear            Expression: (Unhandled parameter: g), \"FullName\") == Property<string>(i, \"OwnerFullName\")))),     source2: MaterializeCollectionNavigation(Navigation: Gear.Weapons (<Weapons>k__BackingField, ICollection<Weapon>) Collection ToDependent Weapon Inverse: Owner, Where<Weapon>(        source: NavigationExpansionExpression            Source: Where<Weapon>(                source: DbSet<Weapon>,                 predicate: (w0) => Property<string>((Unhandled parameter: g), \"FullName\") != null && Property<string>((Unhandled parameter: g), \"FullName\") == Property<string>(w0, \"OwnerFullName\"))            PendingSelector: (w0) => NavigationTreeExpression                Value: EntityReferenceWeapon                Expression: w0        ,         predicate: (i) => Property<string>(NavigationTreeExpression            Value: EntityReferenceGear            Expression: (Unhandled parameter: g), \"FullName\") != null && Property<string>(NavigationTreeExpression            Value: EntityReferenceGear            Expression: (Unhandled parameter: g), \"FullName\") == Property<string>(i, \"OwnerFullName\"))))", "NavigationExpandingExpressionVisitor"),
                 RemoveNewLines(message));
         }
 
@@ -3422,7 +3422,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                       select g.Nickname))).Message;
 
             Assert.Equal(
-                CoreStrings.TranslationFailed("Where<Gear>(    source: DbSet<Gear>,     predicate: (g) => g.HasSoulPatch && FavoriteWeapon(MaterializeCollectionNavigation(Navigation: Gear.Weapons (<Weapons>k__BackingField, ICollection<Weapon>) Collection ToDependent Weapon Inverse: Owner, Where<Weapon>(        source: DbSet<Weapon>,         predicate: (w) => Property<string>(g, \"FullName\") == Property<string>(w, \"OwnerFullName\")))).Name == \"Marcus' Lancer\")"),
+                CoreStrings.TranslationFailed("Where<Gear>(    source: DbSet<Gear>,     predicate: (g) => g.HasSoulPatch && FavoriteWeapon(MaterializeCollectionNavigation(Navigation: Gear.Weapons (<Weapons>k__BackingField, ICollection<Weapon>) Collection ToDependent Weapon Inverse: Owner, Where<Weapon>(        source: DbSet<Weapon>,         predicate: (w) => Property<string>(g, \"FullName\") != null && Property<string>(g, \"FullName\") == Property<string>(w, \"OwnerFullName\")))).Name == \"Marcus' Lancer\")"),
                 RemoveNewLines(message));
         }
 
@@ -3441,7 +3441,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                       select g.Nickname))).Message;
 
             Assert.Equal(
-                CoreStrings.TranslationFailed("Where<Gear>(    source: DbSet<Gear>,     predicate: (g) => !(g.HasSoulPatch) && FavoriteWeapon(MaterializeCollectionNavigation(Navigation: Gear.Weapons (<Weapons>k__BackingField, ICollection<Weapon>) Collection ToDependent Weapon Inverse: Owner, Where<Weapon>(        source: DbSet<Weapon>,         predicate: (w) => Property<string>(g, \"FullName\") == Property<string>(w, \"OwnerFullName\")))).Name == \"Cole's Gnasher\")"),
+                CoreStrings.TranslationFailed("Where<Gear>(    source: DbSet<Gear>,     predicate: (g) => !(g.HasSoulPatch) && FavoriteWeapon(MaterializeCollectionNavigation(Navigation: Gear.Weapons (<Weapons>k__BackingField, ICollection<Weapon>) Collection ToDependent Weapon Inverse: Owner, Where<Weapon>(        source: DbSet<Weapon>,         predicate: (w) => Property<string>(g, \"FullName\") != null && Property<string>(g, \"FullName\") == Property<string>(w, \"OwnerFullName\")))).Name == \"Cole's Gnasher\")"),
                 RemoveNewLines(message));
         }
 
@@ -3459,7 +3459,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 assertOrder: true))).Message;
 
             Assert.Equal(
-                CoreStrings.TranslationFailed("OrderByDescending<Gear, string>(    source: Where<Gear>(        source: DbSet<Gear>,         predicate: (g) => !(g.HasSoulPatch)),     keySelector: (g) => FavoriteWeapon(MaterializeCollectionNavigation(Navigation: Gear.Weapons (<Weapons>k__BackingField, ICollection<Weapon>) Collection ToDependent Weapon Inverse: Owner, Where<Weapon>(        source: DbSet<Weapon>,         predicate: (w) => Property<string>(g, \"FullName\") == Property<string>(w, \"OwnerFullName\")))).Name)"),
+                CoreStrings.TranslationFailed("OrderByDescending<Gear, string>(    source: Where<Gear>(        source: DbSet<Gear>,         predicate: (g) => !(g.HasSoulPatch)),     keySelector: (g) => FavoriteWeapon(MaterializeCollectionNavigation(Navigation: Gear.Weapons (<Weapons>k__BackingField, ICollection<Weapon>) Collection ToDependent Weapon Inverse: Owner, Where<Weapon>(        source: DbSet<Weapon>,         predicate: (w) => Property<string>(g, \"FullName\") != null && Property<string>(g, \"FullName\") == Property<string>(w, \"OwnerFullName\")))).Name)"),
                 RemoveNewLines(message));
         }
 
@@ -6539,7 +6539,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 isAsync,
                 os => os.OfType<Officer>()
                     .Include(o => o.Reports)
-                    .OrderBy(o => o.Weapons.Count),
+                    .OrderBy(o => o.Weapons.Count).ThenBy(o => o.Nickname),
                 new List<IExpectedInclude>
                 {
                     new ExpectedInclude<Officer>(o => o.Reports, "Reports")
@@ -6571,7 +6571,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 isAsync,
                 os => os.OfType<Officer>()
                     .Include(o => o.Reports)
-                    .OrderBy(o => o.Weapons.OrderBy(w => w.Id).Select(w => w.IsAutomatic).FirstOrDefault()),
+                    .OrderBy(o => o.Weapons.OrderBy(w => w.Id).Select(w => w.IsAutomatic).FirstOrDefault()).ThenBy(o => o.Nickname),
                 new List<IExpectedInclude>
                 {
                     new ExpectedInclude<Officer>(o => o.Reports, "Reports")
@@ -6586,7 +6586,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             return AssertQuery<Gear>(
                 isAsync,
                 gs => gs.OfType<Officer>()
-                    .OrderBy(o => o.Weapons.Count)
+                    .OrderBy(o => o.Weapons.Count).ThenBy(g => g.Nickname)
                     .Select(o => o.Reports.Where(g => !g.HasSoulPatch).ToList()),
                 assertOrder: true,
                 elementAsserter: CollectionAsserter<Gear>(ee => ee.FullName, (ee, aa) => Assert.Equal(ee.FullName, aa.FullName)));
@@ -6602,7 +6602,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     .OrderBy(
                         o => o.Weapons.Where(
                                 w => w.IsAutomatic == gs.Where(g => g.Nickname == "Marcus").Select(g => g.HasSoulPatch).FirstOrDefault())
-                            .Count())
+                            .Count()).ThenBy(g => g.Nickname)
                     .Select(o => o.Reports.Where(g => !g.HasSoulPatch).ToList()),
                 assertOrder: true,
                 elementAsserter: CollectionAsserter<Gear>(ee => ee.FullName, (ee, aa) => Assert.Equal(ee.FullName, aa.FullName)));
@@ -7564,6 +7564,78 @@ namespace Microsoft.EntityFrameworkCore.Query
                       where g.Equals(o)
                       orderby g.Nickname
                       select new { Nickname1 = g.Nickname, Nickname2 = o.Nickname });
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Project_collection_navigation_nested_with_take_composite_key(bool isAsync)
+        {
+            return AssertQuery<CogTag>(
+                isAsync,
+                ts => from t in ts
+                      where t.Gear is Officer
+                      select ((Officer)t.Gear).Reports.Take(50),
+                ts => from t in ts
+                      where t.Gear is Officer
+                      select Maybe(t.Gear, () => ((Officer)t.Gear).Reports.Take(50)),
+                elementSorter: e => ((IEnumerable<Gear>)e)?.Count() ?? 0,
+                elementAsserter: (e, a) =>
+                {
+                    var actualCollection = new List<Gear>();
+                    foreach (var actualElement in a)
+                    {
+                        actualCollection.Add(actualElement);
+                    }
+
+                    Assert.Equal(((IEnumerable<Gear>)e)?.Count() ?? 0, actualCollection.Count);
+                });
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Project_collection_navigation_nested_composite_key(bool isAsync)
+        {
+            return AssertQuery<CogTag>(
+                isAsync,
+                ts => from t in ts
+                      where t.Gear is Officer
+                      select ((Officer)t.Gear).Reports,
+                ts => from t in ts
+                      where t.Gear is Officer
+                      select Maybe(t.Gear, () => ((Officer)t.Gear).Reports),
+                elementSorter: e => ((IEnumerable<Gear>)e)?.Count() ?? 0,
+                elementAsserter: (e, a) =>
+                {
+                    var actualCollection = new List<Gear>();
+                    foreach (var actualElement in a)
+                    {
+                        actualCollection.Add(actualElement);
+                    }
+
+                    Assert.Equal(((IEnumerable<Gear>)e)?.Count() ?? 0, actualCollection.Count);
+                });
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Null_checks_in_correlated_predicate_are_correctly_translated(bool isAsync)
+        {
+            return AssertQuery<CogTag, Gear>(
+                isAsync,
+                (ts, gs) => from t in ts
+                            select new
+                            {
+                                key = t.Id,
+                                collection = (from g in gs
+                                         where t.GearNickName == g.Nickname && t.GearSquadId != null && t.GearSquadId == g.SquadId && t.GearNickName != null && t.Note != null && null != t.Note
+                                         select g).ToList()
+                            },
+                elementSorter: e => e.key,
+                elementAsserter: (e, a) =>
+                {
+                    Assert.Equal(e.key, a.key);
+                    CollectionAsserter<Gear>(elementSorter: gg => gg.Nickname, (ee, aa) => Assert.Equal(ee.Nickname, aa.Nickname))(e.collection, a.collection);
+                });
         }
 
         protected GearsOfWarContext CreateContext() => Fixture.CreateContext();

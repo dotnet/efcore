@@ -45,30 +45,6 @@ namespace Microsoft.EntityFrameworkCore.Query
             return base.GetValueOrDefault_on_DateTimeOffset(isAsync);
         }
 
-        [ConditionalTheory(Skip = "issue #17531")]
-        public override Task Correlated_collection_with_complex_OrderBy(bool isAsync)
-        {
-            return base.Correlated_collection_with_complex_OrderBy(isAsync);
-        }
-
-        [ConditionalTheory(Skip = "issue #17531")]
-        public override Task Correlated_collection_with_very_complex_order_by(bool isAsync)
-        {
-            return base.Correlated_collection_with_very_complex_order_by(isAsync);
-        }
-
-        [ConditionalTheory(Skip = "issue #17531")]
-        public override Task Include_collection_OrderBy_aggregate(bool isAsync)
-        {
-            return base.Include_collection_OrderBy_aggregate(isAsync);
-        }
-
-        [ConditionalTheory(Skip = "issue #17531")]
-        public override Task Include_collection_with_complex_OrderBy3(bool isAsync)
-        {
-            return base.Include_collection_with_complex_OrderBy3(isAsync);
-        }
-
         [ConditionalFact(Skip = "issue #17537")]
         public override void Include_on_GroupJoin_SelectMany_DefaultIfEmpty_with_coalesce_result1()
         {

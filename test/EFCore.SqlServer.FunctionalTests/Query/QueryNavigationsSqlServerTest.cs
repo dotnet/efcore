@@ -1011,7 +1011,7 @@ LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]
 WHERE (
     SELECT COUNT(*)
     FROM [Orders] AS [o0]
-    WHERE ((([c].[CustomerID] = [o0].[CustomerID]) AND ([c].[CustomerID] IS NOT NULL AND [o0].[CustomerID] IS NOT NULL)) OR ([c].[CustomerID] IS NULL AND [o0].[CustomerID] IS NULL)) AND ([o0].[OrderID] > 10260)) > 30");
+    WHERE ([c].[CustomerID] IS NOT NULL AND ((([c].[CustomerID] = [o0].[CustomerID]) AND ([c].[CustomerID] IS NOT NULL AND [o0].[CustomerID] IS NOT NULL)) OR ([c].[CustomerID] IS NULL AND [o0].[CustomerID] IS NULL))) AND ([o0].[OrderID] > 10260)) > 30");
         }
 
         public override async Task Client_groupjoin_with_orderby_key_descending(bool isAsync)

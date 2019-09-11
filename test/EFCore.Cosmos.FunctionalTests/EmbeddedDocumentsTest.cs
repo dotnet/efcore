@@ -18,15 +18,15 @@ using Xunit.Abstractions;
 
 namespace Microsoft.EntityFrameworkCore.Cosmos
 {
-    public class NestedDocumentsTest
+    public class EmbeddedDocumentsTest
     {
-        public NestedDocumentsTest(ITestOutputHelper testOutputHelper)
+        public EmbeddedDocumentsTest(ITestOutputHelper testOutputHelper)
         {
             TestSqlLoggerFactory = (TestSqlLoggerFactory)TestStoreFactory.CreateListLoggerFactory(_ => true);
             //TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
         }
 
-        [ConditionalFact(Skip = "Issue#17670")]
+        [ConditionalFact(Skip = "Issue #17670")]
         public virtual async Task Can_update_dependents()
         {
             await using (var testDatabase = CreateTestStore())
@@ -55,7 +55,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
             }
         }
 
-        [ConditionalFact(Skip = "Issue#17670")]
+        [ConditionalFact(Skip = "Issue #17670")]
         public virtual async Task Can_update_owner_with_dependents()
         {
             await using (var testDatabase = CreateTestStore())
@@ -173,12 +173,6 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
             await using (var testDatabase = CreateTestStore(
                 modelBuilder =>
                 {
-                    modelBuilder.Entity<Vehicle>(
-                        eb =>
-                        {
-                            eb.OwnsOne(v => v.Operator).OwnsOne(v => v.Details);
-                        });
-
                     modelBuilder.Entity<Person>(
                         eb => eb.OwnsMany(
                             v => v.Addresses, b =>
@@ -214,6 +208,20 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
 
                     var addressEntry = context.Entry(addresses[0]);
                     Assert.Equal(addressGuid, (Guid)addressEntry.Property("Id").CurrentValue);
+                }
+            }
+        }
+
+        [ConditionalFact(Skip = "Issue #17733")]
+        public virtual async Task Can_query_nested_embedded_types()
+        {
+            await using (var testDatabase = CreateTestStore())
+            {
+                using (var context = CreateContext())
+                {
+                    var missile = context.Set<Vehicle>().First(v => v.Name == "AIM-9M Sidewinder");
+
+                    Assert.Equal("Heat-seeking", missile.Operator.Details.Type);
                 }
             }
         }

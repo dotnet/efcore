@@ -933,8 +933,17 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                             : foreignKey.Properties,
                         makeNullable);
 
-                    var correlationPredicate = _expressionTranslator.Translate(Expression.Equal(outerKey, innerKey));
+                    var outerKeyFirstProperty = outerKey is NewExpression newExpression
+                        ? ((UnaryExpression)((NewArrayExpression)newExpression.Arguments[0]).Expressions[0]).Operand
+                        : outerKey;
 
+                    var predicate = outerKeyFirstProperty.Type.IsNullableType()
+                        ? Expression.AndAlso(
+                            Expression.NotEqual(outerKeyFirstProperty, Expression.Constant(null, outerKeyFirstProperty.Type)),
+                            Expression.Equal(outerKey, innerKey))
+                        : Expression.Equal(outerKey, innerKey);
+
+                    var correlationPredicate = _expressionTranslator.Translate(predicate);
                     innerQueryExpression.ServerQueryExpression = Expression.Call(
                         InMemoryLinqOperatorProvider.Where.MakeGenericMethod(innerQueryExpression.CurrentParameter.Type),
                         innerQueryExpression.ServerQueryExpression,

@@ -669,7 +669,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         public virtual async Task Collection_select_nav_prop_all_client(bool isAsync)
         {
             Assert.Equal(
-                CoreStrings.TranslationFailed("All<Order>(    source: Where<Order>(        source: DbSet<Order>,         predicate: (o0) => Property<string>(EntityShaperExpression:             EntityType: Customer            ValueBufferExpression:                 ProjectionBindingExpression: EmptyProjectionMember            IsNullable: False        , \"CustomerID\") == Property<string>(o0, \"CustomerID\")),     predicate: (o0) => o0.ShipCity == \"London\")"),
+                CoreStrings.TranslationFailed("All<Order>(    source: Where<Order>(        source: DbSet<Order>,         predicate: (o0) => Property<string>(EntityShaperExpression:             EntityType: Customer            ValueBufferExpression:                 ProjectionBindingExpression: EmptyProjectionMember            IsNullable: False        , \"CustomerID\") != null && Property<string>(EntityShaperExpression:             EntityType: Customer            ValueBufferExpression:                 ProjectionBindingExpression: EmptyProjectionMember            IsNullable: False        , \"CustomerID\") == Property<string>(o0, \"CustomerID\")),     predicate: (o0) => o0.ShipCity == \"London\")"),
                 RemoveNewLines((await Assert.ThrowsAsync<InvalidOperationException>(
                     () => AssertQuery<Customer>(
                         isAsync,
@@ -710,7 +710,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             {
                 Assert.Equal(
                     CoreStrings.TranslationFailed(
-                        "All<Order>(    source: Where<Order>(        source: DbSet<Order>,         predicate: (o) => Property<string>(EntityShaperExpression:             EntityType: Customer            ValueBufferExpression:                 ProjectionBindingExpression: EmptyProjectionMember            IsNullable: False        , \"CustomerID\") == Property<string>(o, \"CustomerID\")),     predicate: (o) => o.ShipCity == \"London\")"),
+                        "All<Order>(    source: Where<Order>(        source: DbSet<Order>,         predicate: (o) => Property<string>(EntityShaperExpression:             EntityType: Customer            ValueBufferExpression:                 ProjectionBindingExpression: EmptyProjectionMember            IsNullable: False        , \"CustomerID\") != null && Property<string>(EntityShaperExpression:             EntityType: Customer            ValueBufferExpression:                 ProjectionBindingExpression: EmptyProjectionMember            IsNullable: False        , \"CustomerID\") == Property<string>(o, \"CustomerID\")),     predicate: (o) => o.ShipCity == \"London\")"),
                     RemoveNewLines(
                         Assert.Throws<InvalidOperationException>(
                             () => (from c in context.Set<Customer>()
