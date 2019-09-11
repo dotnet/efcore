@@ -26,6 +26,7 @@
     </PropertyGroup>
 
     <ItemGroup>
+      <NuspecProperty Include="targetFramework=$(TargetFramework)" />
       <NuspecProperty Include="OutputBinary=$(OutputPath)$(AssemblyName).dll" />
       <NuspecProperty Include="OutputSymbol=$(OutputPath)$(AssemblyName).pdb" />
     </ItemGroup>
