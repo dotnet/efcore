@@ -352,7 +352,7 @@ namespace Microsoft.EntityFrameworkCore
             AssertStoreInitialState();
         }
 
-        [ConditionalTheory]
+        [ConditionalTheory(Skip = "Issue #17017")]
         [InlineData(true, true)]
         [InlineData(true, false)]
         [InlineData(false, true)]

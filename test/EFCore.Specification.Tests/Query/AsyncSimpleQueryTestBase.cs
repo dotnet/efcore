@@ -135,7 +135,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalFact]
+        [ConditionalFact(Skip = "Issue #17775")]
         public virtual async Task Average_on_nav_subquery_in_projection()
         {
             using (var context = CreateContext())
